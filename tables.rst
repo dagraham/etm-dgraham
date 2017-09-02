@@ -45,4 +45,4 @@ YearWeek
   WEEKDAY: Integer week day number, with Monday == 0
   HOURMIN: HHMM integer 24 hour and minute representation
   DLT: formatted local time representation of date, e.g, Mon Aug 28
-  TLT: formatted local time represntation of time, e.g, 11:30
+  TLT: formatted local time represntation of <D-w>time, e.g, 11:30
