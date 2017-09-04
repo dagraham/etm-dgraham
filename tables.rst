@@ -8,11 +8,11 @@ Used for history view
 
 ::
 
-  CID: uuid from creation time
-  MID: last modified time stamp
-  CLT: formatted local time representation of CID
-  MLT: formatted local time representation of MID
-  RLT: formatted local time representation of relevant time or null
+  CID: uuid from creation datetime
+  MID: last modified datetime stamp
+  CLT: formatted local datetime representation of CID
+  MLT: formatted local datetime representation of MID
+  RLT: formatted local datetime representation of relevant datetime or null
   SUMMARY: summary entery
   ENTRY: string representation of entire entry
   CALENDAR: value of @c or default
@@ -26,16 +26,16 @@ Dates
 
 Used for week and month views
 
-YearWeek
-~~~~~~~~~
+YearWeekDay
+~~~~~~~~~~~
 
 ::
 
-  YEARWEEKDAY: YYYYWWD integer four digit year, two digit week number, e.g.,
-    201735
-  WLT: formatted local time representation of week, .e.g,
-    Week 35: Aug 28 - Sep 3, 2017 
-
+  YYYYWWD: year-week-day -> local timezone formatted representation
+    day 0 (Mo) - 6 (Su), 7 (entire week)
+  Examples:
+    2017352 -> Wed Aug 30, 2017
+    2017357 -> Week 35: Aug 28 - Sep 3, 2017 
 
 ::
 
