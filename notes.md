@@ -48,8 +48,9 @@ been used.
 
 ## Possibilities
 
-- No `@s` entry: undated, only allowed for "-" items. `@z` not allowed. 
-- `@s` provided
+- No `@s` entry is provided: undated, only allowed for "-" items. `@z` not 
+  allowed. 
+- An entry for `@s` is provided
   - `@z` not provided or `@z float` provided
     - `@s` date-only (one second after midnight): naive, `@z float` recorded to database
     - `@s` date-time (not one second after midnight): aware with `default_timezone`
