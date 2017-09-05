@@ -19,16 +19,15 @@ database along with `@z float`.
 
 When displaying datetimes that are aware, i.e., without an @z float entry, the 
 datetime is interpreted as UTC and converted to a local time representation 
-using default timezone. Datetimes with @z float are interpreted as local times 
-and are not converted. 
+using the current `default_timezone`. Datetimes with @z float are interpreted 
+as local times and are not converted. 
 
-When editing such an item, the @z entry is not displayed unless the value of 
-default timezone has changed and no longer agrees with the recorded value of 
-@z. In which case, the recorded value is displayed and the value for @s 
-changed to reflect the new default timezone.
+When editing such an item, the @z entry is not displayed unless the value is 
+`float`.
 
 When entering an explicit value for @z, tab completion will offer the value of 
-default timezone, `float`, and values of @z that have previously been used.
+default timezone,  other values of @z that have previously been used and 
+`float`.
 
 
 ## default calendar: for @c
