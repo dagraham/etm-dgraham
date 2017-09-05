@@ -147,12 +147,12 @@ Week view rows are sorted and grouped by:
 
 ## "#" journal
 
-    @s required, date or datetime (naive or aware)
-    with @e: equivalent to old action
-    without: equivalent to old note
-    sort:
-      datetime: HHMM
-      dateonly: 2401 (put these last in day)
+- @s required, date or datetime (naive or aware)
+- with @e: equivalent to old action
+- without: equivalent to old note
+- sort:
+  - datetime: HHMM
+  - dateonly: 2401 (put these last in day)
 
 ## "?" someday maybe
 
