@@ -53,7 +53,7 @@ been used.
 - @s with date and time: date-time; naive with `@z float`. Otherwise aware 
   with `default_timezone` unless an explicit timezone is given in `@z`.
 
-Note for parsing datetime:
+Note for parsing datetime - make the default one second after midnight.
 
     parse_default = datetime.now().replace(hour=0, minute=0, second=1, 
     microsecond=0)
