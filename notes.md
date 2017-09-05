@@ -101,50 +101,50 @@ list followed by float.
 
 Starting with the current local timezone, `ltz`
 
-* items with @z float (naive dates and datetimes) are left unchanged
-* integer timestamps are parsed and converted to `ltz` time
-* items with @z != float are converted to `ltz` time
+- items with @z float (naive dates and datetimes) are left unchanged
+- integer timestamps are parsed and converted to `ltz` time
+- items with @z != float are converted to `ltz` time
 
 Week view rows are sorted and grouped by:
 
-* (year, week_number)
-* weekday_number (Monday = 0)
-* sort type:
-  * -1: all day events
-  * HHMM: event, task or journal scheduled for HHMM
-  * 2400: all day task
-  * 2401: journal entry
+- (year, week_number)
+- weekday_number (Monday = 0)
+- sort type:
+  - -1: all day events
+  - HHMM: event, task or journal scheduled for HHMM
+  - 2400: all day task
+  - 2401: journal entry
 
 # Types
 
 ## `*` event
 
-    date-only:
-      all-day occasion, naive, no @a, @z or @e, not treated as busy time
-      sort: 0 (put these first in day in week view and month (day) view)
+- date-only:
+  - all-day occasion, naive, no @a, @z or @e, not treated as busy time
+  - sort: 0 (put these first in day in week view and month (day) view)
 
-    date-time:
-      without @z or with @z float: naive
-      otherwise: non-naive
-      busy time from @s to @s + @e
-      sort: HHMM (with timed items in week and month day views)
+- date-time:
+  - without @z or with @z float: naive
+  - otherwise: non-naive
+  - busy time from @s to @s + @e
+  - sort: HHMM (with timed items in week and month day views)
 
 ## `-` task
 
-    undated, no @s, @z, @a, @b
+- undated, no @s, @z, @a, @b
 
-    date-only: all-day, naive - no @z, no @a, pastdue after date
-      sort: 2400 (after timed items in week and month day views)
+- date-only: all-day, naive - no @z, no @a, pastdue after date
+  - sort: 2400 (after timed items in week and month day views)
 
-    datetime:
-      without with @z float: naive
-      otherwise: non-naive, pastdue after datetime
-      @e optional extent (estimated time to complete) - default 0m
-      sort: HHMM (with other timed items in week view)
+- datetime:
+  - without with @z float: naive
+  - otherwise: non-naive, pastdue after datetime
+  - @e optional extent (estimated time to complete) - default 0m
+  - sort: HHMM (with other timed items in week view)
 
-    repeated tasks: only save last completion date?
+- repeated tasks: only save last completion date?
 
-    tasks can have @j job entries - equivalent to old group tasks
+- tasks can have @j job entries - equivalent to old group tasks
 
 ## `#` journal
 
