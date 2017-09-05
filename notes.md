@@ -1,9 +1,10 @@
+# etm-mvc
+
+
 # TODO
 
-Name: etm-mv
 
 # Defaults
-
 
 When displaying an item in details view, any applicable defaults will be 
 displayed in a *Defaults* section below the entry. 
