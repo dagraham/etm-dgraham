@@ -81,15 +81,8 @@ Note for parsing datetime - make the default one second after midnight.
 
 ## Tab Completion for @z
 
-- list of time zones for tab completion. The first item is treated as the 
-  local timezone. 
-
-When a date has been specified in @s, @z float becomes the implicit default. 
-No @z entry is allowed.
-
-When a time has been added, @z is allowed and the tab completion offers the 
-list followed by float.
-
+The list of time zones for tab completion includes `float`, the current value 
+`default_timezone` and timezones that have been used in other entries.
 
 ## Storage
 
