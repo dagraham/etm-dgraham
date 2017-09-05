@@ -48,10 +48,19 @@ been used.
 
 ## Possibilities
 
-- No @s entry: undated, only allowed for "-" items. 
-- @s with date only: date-only, naive
-- @s with date and time: date-time; naive with `@z float`. Otherwise aware 
-  with `default_timezone` unless an explicit timezone is given in `@z`.
+- No `@s` entry: undated, only allowed for "-" items. `@z` not allowed. 
+- `@s` provided
+  - `@z` not provided or `@z float` provided
+    - `@s` date-only (one second after midnight): naive, `@z float` recorded to database
+    - `@s` date-time (not one second after midnight): aware with `default_timezone`
+  - `@z` provided with an actual timezone (not `float`)
+    - `@s` date-only (one second after midnight): aware - midnight in provided timezone
+    - `@s` date-time (not one second after midnight): aware - the specified 
+      time in the provided timezone
+
+
+    date-time; naive with `@z float`. Otherwise aware with `default_timezone` 
+    unless an explicit timezone is given in `@z`.
 
 Note for parsing datetime - make the default one second after midnight.
 
@@ -64,6 +73,15 @@ Note for parsing datetime - make the default one second after midnight.
             return res.date()
         else:
             return res
+
+If the time from parsing is one second after midnight, then the entry for `@s` 
+is regarded as date-only unless an explicit entry is given for `@z` and the 
+value is not `float`, i.e., an actual timezone is provided. In this case, the 
+`@s` entry is regarded as aware with midnight in the provided timezone as the 
+time.
+
+
+
 
 ## Tab Completion for @z
 
