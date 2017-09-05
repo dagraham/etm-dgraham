@@ -63,12 +63,15 @@ Note for parsing datetime - make the default one second after midnight.
 - No `@s` entry is provided: undated, only allowed for "-" items. `@z` not 
   allowed. 
 - An entry for `@s` is provided
-  - Either `@z` is not provided or `@z float` is provided
-    - `@s` date-only (one second after midnight): naive, `@z float` recorded to database
-    - `@s` date-time (not one second after midnight): aware with `default_timezone`
-  - An entry for `@z` is provided with an actual timezone (not `float`)
-    - `@s` date-only (one second after midnight): aware - midnight in provided timezone
-    - `@s` date-time (not one second after midnight): aware - the specified time in the provided timezone
+    - Either `@z` is not provided or `@z float` is provided
+        - `@s` date-only (one second after midnight): naive, `@z float` 
+          recorded to database
+        - `@s` date-time (not one second after midnight): aware with 
+          `default_timezone`
+    - An entry for `@z` is provided with an actual timezone (not `float`)
+        - `@s` date-only (one second after midnight): aware - midnight in 
+          provided timezone
+        - `@s` date-time (not one second after midnight): aware - the specified time in the provided timezone
 
 ## Tab Completion for @z
 
