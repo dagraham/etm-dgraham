@@ -13,7 +13,9 @@ displayed in a *Defaults* section below the entry.
 
 When a value for @s includes a time as well as date and thus could be aware 
 and no explicit entry has been given for @z, then this value will be used to 
-convert the entry to UTC for the database entry. 
+convert the entry to UTC for the database entry. When only a date or `@z 
+float` is entered, then the date/time is regarded as naive and stored in the 
+database along with `@z float`.
 
 When displaying datetimes that are aware, i.e., without an @z float entry, the 
 datetime is interpreted as UTC and converted to a local time representation 
