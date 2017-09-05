@@ -16,15 +16,15 @@ When a value for @s includes a time as well as date and thus could be aware
 and no explicit entry has been given for @z, then this value will be used to 
 convert the entry to UTC for the database entry. When only a date or `@z 
 float` is entered, then the date/time is regarded as naive and stored in the 
-database along with `@z float`.
+database without conversion. `float = True` is recorded to the database when 
+the datetime is naive and, otherwise, `float = False`. 
 
-When displaying datetimes that are aware, i.e., without an @z float entry, the 
-datetime is interpreted as UTC and converted to a local time representation 
-using the current `default_timezone`. Datetimes with @z float are interpreted 
-as local times and are not converted. 
+When displaying datetimes that are aware, i.e., `float = False`, the datetime 
+is interpreted as UTC and converted to a local time representation using the 
+current `default_timezone`. Datetimes when `float = True` are interpreted as 
+local times and are not converted. 
 
-When editing such an item, the @z entry is not displayed unless the value is 
-`float`.
+When editing such an item, `@z = float` is displayed iff `float = True`.
 
 When entering an explicit value for @z, tab completion will offer the value of 
 default timezone,  other values of @z that have previously been used and 
