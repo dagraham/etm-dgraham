@@ -4,6 +4,7 @@
 # TODO
 
 
+
 # Defaults
 
 When displaying an item in details view, any applicable defaults will be 
@@ -86,8 +87,13 @@ The list of time zones for tab completion includes `float`, the current value
 
 ## Storage
 
-- timestamps for creation and modification datetimes are integers representing 
-  UTC datetimes
+- the creation timestamp is the uuid for each item
+  - This must be an int even though it will be stored as a str. Use seconds and microseconds to guarantee uniqueness:
+      current_id = int(arrow.utcnow().strftime("%Y%m%d%H%M%S%f"))
+  - 
+
+- the last modified timestamp is a UTC string in the format YYYY-
+  and modification datetimes are integers representing UTC datetimes
 - date-only are stored as naive date objects with @z float
 - date-times are stored as naive datetime objects
   - aware datetimes are first converted to UTC and then stored as naive 
