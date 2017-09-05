@@ -89,10 +89,12 @@ The list of time zones for tab completion includes `float`, the current value
 
 - the creation timestamp is the uuid for each item
   - This must be an int even though it will be stored as a str. Use seconds and microseconds to guarantee uniqueness:
+
       current_id = int(arrow.utcnow().strftime("%Y%m%d%H%M%S%f"))
+
   - For display, round off to minutes and convert to localtime
-      current_id_dt = arrow.get(current_id[:12], 
-      'YYYYMMDDHHmm').to('US/Eastern')
+
+      current_id_dt = arrow.get(current_id[:12], 'YYYYMMDDHHmm').to('US/Eastern')
 
 - the last modified timestamp is a UTC string in the format YYYY-
   and modification datetimes are integers representing UTC datetimes
