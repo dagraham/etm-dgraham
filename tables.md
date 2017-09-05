@@ -26,8 +26,8 @@ Used for history view
     expansion is 'missing' if value not given in config)
 
 
-Dates
-=====
+## Dates
+
 
 Used for week and month views
 
