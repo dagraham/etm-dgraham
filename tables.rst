@@ -5,6 +5,8 @@ Tables are associated with views and thus should have all elements ready for
 presentation, e.g., datetimes in formatted as local timezone representations 
 of the UTC times in the database.
 
+All tables should be indexed by CID, the creation datetime uuid.
+
 All
 ====
 
