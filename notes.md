@@ -35,24 +35,25 @@ default timezone,  other values of @z that have previously been used and
 When an item is created without an explicit entry for @c, this value is 
 recorded in the database entry.
 
-When editing such an item, the @c entry is not displayed unless the value of 
-default calendar has changed and no longer agrees with the recorded value of 
-@c. 
+When editing such an item, the @c entry is not displayed unless the value 
+of`default_calendar` has changed and no longer agrees with the recorded value 
+of @c. 
 
-When entering an explicit value for @c, tab completion will offer the value of 
-default calendar along with any other values of @c that have previously been 
-used.
+When entering an explicit value for @c, tab completion will offer the value 
+of`default_calendar` along with any other values of @c that have previously 
+been used.
 
 
 # Date & Time
 
 ## Possibilities
 
-- No @s entry: undated, only "-" items (todos)
+- No @s entry: undated, only allowed for "-" items. 
 - @s with date only: date-only, naive
-- @s with date and time: date-time; naive with @z float or aware with, e.g.,  
-  @z US/Eastern 
+- @s with date and time: date-time; naive with `@z float`. Otherwise aware 
+  with `default_timezone` unless an explicit timezone is given in `@z`.
 
+Note for parsing datetime:
 
     parse_default = datetime.now().replace(hour=0, minute=0, second=1, 
     microsecond=0)
