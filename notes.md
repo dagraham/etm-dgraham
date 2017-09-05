@@ -116,7 +116,7 @@ Week view rows are sorted and grouped by:
 
 # Types
 
-## "*" event
+## `*` event
 
     date-only:
       all-day occasion, naive, no @a, @z or @e, not treated as busy time
@@ -128,7 +128,7 @@ Week view rows are sorted and grouped by:
       busy time from @s to @s + @e
       sort: HHMM (with timed items in week and month day views)
 
-## "-" task
+## `-` task
 
     undated, no @s, @z, @a, @b
 
@@ -154,9 +154,9 @@ Week view rows are sorted and grouped by:
   - datetime: HHMM
   - dateonly: 2401 (put these last in day)
 
-## "?" someday maybe
+## `?` someday maybe
 
-## "!" inbox
+## `!` inbox
 
 # Views
 
