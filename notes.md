@@ -115,7 +115,6 @@ Week view rows are sorted and grouped by:
 - date-only:
   - all-day occasion, naive, no @a, @z or @e, not treated as busy time
   - sort: 0 (put these first in day in week view and month (day) view)
-
 - date-time:
   - without @z or with @z float: naive
   - otherwise: non-naive
