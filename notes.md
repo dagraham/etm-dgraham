@@ -101,9 +101,7 @@ list followed by float.
 Starting with the current local timezone, `ltz`
 
 * items with @z float (naive dates and datetimes) are left unchanged
-
 * integer timestamps are parsed and converted to `ltz` time
-
 * items with @z != float are converted to `ltz` time
 
 Week view rows are sorted and grouped by:
