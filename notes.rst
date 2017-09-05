@@ -1,7 +1,7 @@
 TODO
 =====
 
-Name: etm-lite, etm-mv, etm-tdb
+Name: etm-mv
 
 Defaults
 =========
@@ -14,8 +14,13 @@ default_timezone: for @z
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a value for @s includes a time as well as date and thus could be aware 
-and no explicit entry has been given for @z, then this value will be recorded 
-in the database entry.
+and no explicit entry has been given for @z, then this value will be used to 
+convert the entry to UTC for the database entry. 
+
+When displaying datetimes that are aware, i.e., without an @z float entry, the 
+datetime is interpreted as UTC and converted to a local time representation 
+using default_timezone. Datetimes with @z float are interpreted as local times 
+and are not converted. 
 
 When editing such an item, the @z entry is not displayed unless the value of 
 default_timezone has changed and no longer agrees with the recorded value of 
