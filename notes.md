@@ -46,8 +46,6 @@ been used.
 
 # Date & Time
 
-## Possibilities
-
 Note for parsing datetime - make the default one second after midnight.
 
     parse_default = datetime.now().replace(hour=0, minute=0, second=1, 
@@ -59,6 +57,8 @@ Note for parsing datetime - make the default one second after midnight.
             return res.date()
         else:
             return res
+
+## Possibilities
 
 - No `@s` entry is provided: undated, only allowed for "-" items. `@z` not 
   allowed. 
