@@ -145,7 +145,7 @@ Week view rows are sorted and grouped by:
 
     tasks can have @j job entries - equivalent to old group tasks
 
-## '#' journal
+## `#` journal
 
 - @s required, date or datetime (naive or aware)
 - with @e: equivalent to old action
