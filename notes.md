@@ -79,21 +79,14 @@ list followed by float.
 
 - timestamps for creation and modification datetimes are integers representing 
   UTC datetimes
-
 - date-only are stored as naive date objects with @z float
-
 - date-times are stored as naive datetime objects
-
   - aware datetimes are first converted to UTC and then stored as naive 
     datetimes. The original timezone information is stored in @z.
-
   - naive datetimes are left unchanged with @z float
-
 - repeating items
   - first = date or datetime (naive or UTC aware) of first instance
-
   - last
-
     - if finitely repeating: (&u or &t) date or datetime of last instance
     - otherwise: none
 
@@ -132,18 +125,14 @@ Week view rows are sorted and grouped by:
 ## `-` task
 
 - undated, no @s, @z, @a, @b
-
 - date-only: all-day, naive - no @z, no @a, pastdue after date
   - sort: 2400 (after timed items in week and month day views)
-
 - datetime:
   - without with @z float: naive
   - otherwise: non-naive, pastdue after datetime
   - @e optional extent (estimated time to complete) - default 0m
   - sort: HHMM (with other timed items in week view)
-
 - repeated tasks: only save last completion date?
-
 - tasks can have @j job entries - equivalent to old group tasks
 
 ## `#` journal
@@ -164,69 +153,41 @@ Week view rows are sorted and grouped by:
 ## Agenda View
 
 - Now: inbox or pastdue items - only if they exist
-
 - Today: scheduled items or  "nothing scheduled"
-
 - Tomorrow: scheduled items or "nothing scheduled"
-
 - Soon: begin-by items - only if scheduled and don't appear in today or 
   tomorrow
-
 - Next: undated tasks - only if they exist. Group by location
-
 - Someday: someday items - only if they exist
 
 
 ## Week View
 
 - Period: year-weeks in current week + 12 weeks before + 39 weeks after
-
 - Dates and datetimes with @z float left as is; aware datetimes converted from 
   UTC to local time zone with the timezone information then removed.
-
 - sort tuple: (year-week, weekday number, type)
-
-
 - Each dated item stores *first* instance and *last* instance or, *none* for 
   repeated items without stopping dates.
-
 - add_item(id):
-
   - for each instance of id in period:
-
     - add row to weeks[week_num]
-
     - add week_num to ids[id]
-
   - if *first* before period:
-
     - add id to before
-
   - if *last* is none or falls after period:
-
     - add id to after
-
 - Startup:
-
   - for id in all items:
-
     - add(id)
-
 - If we want a week before or after period, we need only process the before or 
   after ids.
-
 - Remove item id:
-
   - for each week_num in ids[id]:
-
     - remove rows for id in weeks[week_num]
-
   - remove id, if necessary, from before and after
-
 - Add item id:
-
   - execute steps for item above 
-
 - Remove and then add when updating an item
 
 ### Keys
