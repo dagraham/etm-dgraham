@@ -31,8 +31,7 @@ Used for history view
 
 Used for week and month views
 
-YearWeekDay
-~~~~~~~~~~~
+### YearWeekDay
 
 ::
 
