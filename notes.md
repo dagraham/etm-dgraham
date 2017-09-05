@@ -110,7 +110,7 @@ Week view rows are sorted and grouped by:
 * weekday_number (Monday = 0)
 * sort type:
   * -1: all day events
-  * HHMM: event or task scheduled for HHMM
+  * HHMM: event, task or journal scheduled for HHMM
   * 2400: all day task
   * 2401: journal entry
 
