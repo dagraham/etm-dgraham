@@ -48,20 +48,6 @@ been used.
 
 ## Possibilities
 
-- No `@s` entry is provided: undated, only allowed for "-" items. `@z` not 
-  allowed. 
-- An entry for `@s` is provided
-  - Either `@z` is not provided or `@z float` is provided
-    - `@s` date-only (one second after midnight): naive, `@z float` recorded to database
-    - `@s` date-time (not one second after midnight): aware with `default_timezone`
-  - An entry for `@z` is provided with an actual timezone (not `float`)
-    - `@s` date-only (one second after midnight): aware - midnight in provided timezone
-    - `@s` date-time (not one second after midnight): aware - the specified time in the provided timezone
-
-
-    date-time; naive with `@z float`. Otherwise aware with `default_timezone` 
-    unless an explicit timezone is given in `@z`.
-
 Note for parsing datetime - make the default one second after midnight.
 
     parse_default = datetime.now().replace(hour=0, minute=0, second=1, 
@@ -74,14 +60,15 @@ Note for parsing datetime - make the default one second after midnight.
         else:
             return res
 
-If the time from parsing is one second after midnight, then the entry for `@s` 
-is regarded as date-only unless an explicit entry is given for `@z` and the 
-value is not `float`, i.e., an actual timezone is provided. In this case, the 
-`@s` entry is regarded as aware with midnight in the provided timezone as the 
-time.
-
-
-
+- No `@s` entry is provided: undated, only allowed for "-" items. `@z` not 
+  allowed. 
+- An entry for `@s` is provided
+  - Either `@z` is not provided or `@z float` is provided
+    - `@s` date-only (one second after midnight): naive, `@z float` recorded to database
+    - `@s` date-time (not one second after midnight): aware with `default_timezone`
+  - An entry for `@z` is provided with an actual timezone (not `float`)
+    - `@s` date-only (one second after midnight): aware - midnight in provided timezone
+    - `@s` date-time (not one second after midnight): aware - the specified time in the provided timezone
 
 ## Tab Completion for @z
 
