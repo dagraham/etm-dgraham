@@ -1,17 +1,14 @@
-TODO
-=====
+# TODO
 
 Name: etm-mv
 
-Defaults
-=========
+# Defaults
 
 
 When displaying an item in details view, any applicable defaults will be 
 displayed in a *Defaults* section below the entry. 
 
-default_timezone: for @z
-~~~~~~~~~~~~~~~~~~~~~~~~~
+## default timezone: for @z
 
 When a value for @s includes a time as well as date and thus could be aware 
 and no explicit entry has been given for @z, then this value will be used to 
@@ -19,57 +16,54 @@ convert the entry to UTC for the database entry.
 
 When displaying datetimes that are aware, i.e., without an @z float entry, the 
 datetime is interpreted as UTC and converted to a local time representation 
-using default_timezone. Datetimes with @z float are interpreted as local times 
+using default timezone. Datetimes with @z float are interpreted as local times 
 and are not converted. 
 
 When editing such an item, the @z entry is not displayed unless the value of 
-default_timezone has changed and no longer agrees with the recorded value of 
+default timezone has changed and no longer agrees with the recorded value of 
 @z. In which case, the recorded value is displayed and the value for @s 
-changed to reflect the new default_timezone.
+changed to reflect the new default timezone.
 
 When entering an explicit value for @z, tab completion will offer the value of 
-default_timezone, `float`, and values of @z that have previously been used.
+default timezone, `float`, and values of @z that have previously been used.
 
 
-default_calendar: for @c
-~~~~~~~~~~~~~~~~~~~~~~~~~
+## default calendar: for @c
 
 When an item is created without an explicit entry for @c, this value is 
 recorded in the database entry.
 
 When editing such an item, the @c entry is not displayed unless the value of 
-default_calendar has changed and no longer agrees with the recorded value of 
+default calendar has changed and no longer agrees with the recorded value of 
 @c. 
 
 When entering an explicit value for @c, tab completion will offer the value of 
-default_calendar along with any other values of @c that have previously been 
+default calendar along with any other values of @c that have previously been 
 used.
 
 
-Date & Time
-===========
+# Date & Time
 
-Possibilities
-~~~~~~~~~~~~~~
+## Possibilities
+
 - No @s entry: undated, only "-" items (todos)
 - @s with date only: date-only, naive
 - @s with date and time: date-time; naive with @z float or aware with, e.g.,  
   @z US/Eastern 
 
-::
 
-  parse_default = datetime.now().replace(hour=0, minute=0, second=1, 
-  microsecond=0)
+    parse_default = datetime.now().replace(hour=0, minute=0, second=1, 
+    microsecond=0)
 
-  def etm_parse(s):
-      res = parser.parse(s, default=parse_default)
-      if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 1, 0):
-          return res.date()
-      else:
-          return res
+    def etm parse(s):
+        res = parser.parse(s, default=parse_default)
+        if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 1, 0):
+            return res.date()
+        else:
+            return res
 
-Tab Completion for @z
-~~~~~~~~~~~~~~~~~~~~~
+## Tab Completion for @z
+
 - list of time zones for tab completion. The first item is treated as the 
   local timezone. 
 
@@ -80,8 +74,8 @@ When a time has been added, @z is allowed and the tab completion offers the
 list followed by float.
 
 
-Storage
-~~~~~~~~
+## Storage
+
 - timestamps for creation and modification datetimes are integers representing 
   UTC datetimes
 
@@ -102,8 +96,7 @@ Storage
     - if finitely repeating: (&u or &t) date or datetime of last instance
     - otherwise: none
 
-Retrieval
-~~~~~~~~~
+## Retrieval
 
 Starting with the current local timezone, `ltz`
 
@@ -124,65 +117,51 @@ Week view rows are sorted and grouped by:
   * 2400: all day task
   * 2401: journal entry
 
-Types
-======
+# Types
 
-"*" event
-~~~~~~~~~
+## "*" event
 
-::
+    date-only:
+      all-day occasion, naive, no @a, @z or @e, not treated as busy time
+      sort: 0 (put these first in day in week view and month (day) view)
 
-  date-only:
-    all-day occasion, naive, no @a, @z or @e, not treated as busy time
-    sort: 0 (put these first in day in week view and month (day) view)
+    date-time:
+      without @z or with @z float: naive
+      otherwise: non-naive
+      busy time from @s to @s + @e
+      sort: HHMM (with timed items in week and month day views)
 
-  date-time:
-    without @z or with @z float: naive
-    otherwise: non-naive
-    busy time from @s to @s + @e
-    sort: HHMM (with timed items in week and month day views)
+## "-" task
 
-"-" task
-~~~~~~~~
+    undated, no @s, @z, @a, @b
 
-::
+    date-only: all-day, naive - no @z, no @a, pastdue after date
+      sort: 2400 (after timed items in week and month day views)
 
-  undated, no @s, @z, @a, @b
+    datetime:
+      without with @z float: naive
+      otherwise: non-naive, pastdue after datetime
+      @e optional extent (estimated time to complete) - default 0m
+      sort: HHMM (with other timed items in week view)
 
-  date-only: all-day, naive - no @z, no @a, pastdue after date
-    sort: 2400 (after timed items in week and month day views)
+    repeated tasks: only save last completion date?
 
-  datetime:
-    without with @z float: naive
-    otherwise: non-naive, pastdue after datetime
-    @e optional extent (estimated time to complete) - default 0m
-    sort: HHMM (with other timed items in week view)
+    tasks can have @j job entries - equivalent to old group tasks
 
-  repeated tasks: only save last completion date?
+## "#" journal
 
-  tasks can have @j job entries - equivalent to old group tasks
+    @s required, date or datetime (naive or aware)
+    with @e: equivalent to old action
+    without: equivalent to old note
+    sort: 2401 (put these last in week view)
 
-"#" journal
-~~~~~~~~~~~~
+## "?" someday maybe
 
-::
+## "!" inbox
 
-  @s required, date or datetime (naive or aware)
-  with @e: equivalent to old action
-  without: equivalent to old note
-  sort: 2401 (put these last in week view)
+# Views
 
-"?" someday maybe
-~~~~~~~~~~~~~~~~~~
-
-"!" inbox
-~~~~~~~~~~
-
-Views
-=====
-
-Agenda View
-~~~~~~~~~~~
+## Agenda View
 
 - Now: inbox or pastdue items - only if they exist
 
@@ -198,8 +177,7 @@ Agenda View
 - Someday: someday items - only if they exist
 
 
-Week View
-~~~~~~~~~
+## Week View
 
 - Period: year-weeks in current week + 12 weeks before + 39 weeks after
 
@@ -251,61 +229,57 @@ Week View
 
 - Remove and then add when updating an item
 
-Keys
------
+### Keys
 
 - Up/Down keys: previous/next day
 - Left/Right keys: previous/next week
 - Return: expand/collapse day/item
 
 
-Month View
-~~~~~~~~~~
+## Month View
 
-::
-
-  +----------------------------------------------------------+
-  | August 2017                                              |
-  +----------------------------------------------------------+
-  |                                                          |
-  |   Wk     Mo     Tu     We     Th     Fr     Su     Su    |
-  |  ----+-------------------------------------------------  |
-  |      |                                                   |
-  |   31 |   31      1      2      3      4      5      6    |
-  |      |                                                   |
-  |   32 |    7      8      9     10     11     12     13    |
-  |      |                                                   |
-  |   33 |   14     15     16     17     18     19     20    |
-  |      |                                                   |
-  |   34 |   21     22     23     24    [25]    26     27    |
-  |      |                                                   |
-  |   35 |   28     29     30     31      1      2      3    |
-  |      |                                                   |
-  |   36 |    4      5      6      7      8      9     10    |
-  |      |                                                   |
-  |                                                          |
-  |  Fri Aug 25                                              |
-  |  -----------                                             |
-  |  items for Aug 25 or Nothing Scheduled                   |
-  |                                                          |
-  |                                                          |
-  |                                                          |
-  |                                                          |
-  |                                                          |
-  +----------------------------------------------------------+
-  | 2:54pm Wed Aug 23 US/Eastern                             |
-  +----------------------------------------------------------+
+    +----------------------------------------------------------+
+    | August 2017                                              |
+    +----------------------------------------------------------+
+    |                                                          |
+    |   Wk     Mo     Tu     We     Th     Fr     Su     Su    |
+    |  ----+-------------------------------------------------  |
+    |      |                                                   |
+    |   31 |   31      1      2      3      4      5      6    |
+    |      |                                                   |
+    |   32 |    7      8      9     10     11     12     13    |
+    |      |                                                   |
+    |   33 |   14     15     16     17     18     19     20    |
+    |      |                                                   |
+    |   34 |   21     22     23     24    [25]    26     27    |
+    |      |                                                   |
+    |   35 |   28     29     30     31      1      2      3    |
+    |      |                                                   |
+    |   36 |    4      5      6      7      8      9     10    |
+    |      |                                                   |
+    |                                                          |
+    |  Fri Aug 25                                              |
+    |  -----------                                             |
+    |  items for Aug 25 or Nothing Scheduled                   |
+    |                                                          |
+    |                                                          |
+    |                                                          |
+    |                                                          |
+    |                                                          |
+    +----------------------------------------------------------+
+    | 2:54pm Wed Aug 23 US/Eastern                             |
+    +----------------------------------------------------------+
 
 
-Keys
------
+### Keys
+
 - Up/Down keys: previous/next week (row)
 - Left/Right keys: previous/next day (column)
 - Shift Left/Right keys: previous/next month
 - Return: show Week View for selected week
 
-Colors
-------
+### Colors
+
 
 Let E denote the total number of hours of extent scheduled for day
 
@@ -323,31 +297,27 @@ Let E denote the total number of hours of extent scheduled for day
 - #f00: E > 10 (bright red)
 
 
-Index View
-~~~~~~~~~~~
+## Index View
 
 All items, grouped and sorted by `@i index` entries. Items without such 
 entries are listed last under `none`.
 
-History View
-~~~~~~~~~~~~~
+## History View
 
 All items by created datetime or by last modified datetime. Grouped by date 
 and sorted by time in `local_timezone`. 
 
 
-Tag View
-~~~~~~~~
+## Tag View
+
 
 Items with `@t tag` entries sorted and grouped by tag.
 
-Details view
-~~~~~~~~~~~~~
+## Details view
 
 Details for the selected item. 
 
-Edit view
-~~~~~~~~~~
+## Edit view
 
 - Top bar: status
 
@@ -367,75 +337,71 @@ Edit view
 
 
 
-@ and & Keys
+# @ and & Keys
 =============
 
-::
+    type_keys = {
+        "*": "event",
+        "-": "task",
+        "#": "journal",
+        "?": "someday",
+        "!": "inbox",
+    }
 
-  type_keys = {
-      "*": "event",
-      "-": "task",
-      "#": "journal",
-      "?": "someday",
-      "!": "inbox",
-  }
+    at_keys = {
+      '+': "include: list of date-times",
+      '-': "exclude: list of date-times",
+      'a': "alert: time-period: cmd, optional args*",
+      'b': "beginby: integer number of days",
+      'c': "calendar: string",
+      'd': "description: string",
+      'e': "extent: timeperiod",
+      'f': "finish: datetime",
+      'g': "goto: url or filepath",
+      'i': "index: colon delimited string - basis for index view",
+      'j': "job summary: string",
+      'l': "location: string",
+      'm': "memo: string",
+      'o': "overdue: r)restart, s)kip or k)eep",
+      'p': "priority: 1 (highest), ..., 9, 0 (lowest)",
+      'q': "queue: date-time",
+      'r': "frequency: y, m, w, d, h, n, e",
+      's': "start: date or date-time",
+      't': "tags: list of strings",
+      'v': "value: defaults key",
+      'z': "timezone: string",
+    }
 
-  at_keys = {
-    '+': "include: list of date-times",
-    '-': "exclude: list of date-times",
-    'a': "alert: time-period: cmd, optional args*",
-    'b': "beginby: integer number of days",
-    'c': "calendar: string",
-    'd': "description: string",
-    'e': "extent: timeperiod",
-    'f': "finish: datetime",
-    'g': "goto: url or filepath",
-    'i': "index: colon delimited string - basis for index view",
-    'j': "job summary: string",
-    'l': "location: string",
-    'm': "memo: string",
-    'o': "overdue: r)restart, s)kip or k)eep",
-    'p': "priority: 1 (highest), ..., 9, 0 (lowest)",
-    'q': "queue: date-time",
-    'r': "frequency: y, m, w, d, h, n, e",
-    's': "start: date or date-time",
-    't': "tags: list of strings",
-    'v': "value: defaults key",
-    'z': "timezone: string",
-  }
+    amp_keys = {
+        'r': {
+            'E': "easter: number of days before (-), on (0)\n      or after (+) Easter",
+            'h': "hour: list of integers in 0 ... 23",
+            'i': "interval: positive integer",
+            'M': "month: list of integers in 1 ... 12",
+            'm': "monthday: list of integers 1 ... 31",
+            'n': "minute: list of integers in 0 ... 59",
+            's': "set position: integer",
+            'u': "until: datetime",
+            'w': "weekday: list from SU, MO, ..., SA",
+        },
 
-  amp_keys = {
-      'r': {
-          'E': "easter: number of days before (-), on (0)\n      or after (+) Easter",
-          'h': "hour: list of integers in 0 ... 23",
-          'i': "interval: positive integer",
-          'M': "month: list of integers in 1 ... 12",
-          'm': "monthday: list of integers 1 ... 31",
-          'n': "minute: list of integers in 0 ... 59",
-          's': "set position: integer",
-          'u': "until: datetime",
-          'w': "weekday: list from SU, MO, ..., SA",
-      },
+        'j': {
+            'a': "alert: timeperiod: command, args*",
+            'b': "beginby: integer number of days",
+            'd': "description: string",
+            'e': "extent: timeperiod",
+            'f': "finish: datetime",
+            'l': "location: string",
+            'p': "prerequisites: comma separated list of uids of immediate 
+            prereqs",
+            's': "start/due: timeperiod before task start",
+            'u': "uid: unique identifier: integer or string",
+        },
+    }
 
-      'j': {
-          'a': "alert: timeperiod: command, args*",
-          'b': "beginby: integer number of days",
-          'd': "description: string",
-          'e': "extent: timeperiod",
-          'f': "finish: datetime",
-          'l': "location: string",
-          'p': "prerequisites: comma separated list of uids of immediate 
-          prereqs",
-          's': "start/due: timeperiod before task start",
-          'u': "uid: unique identifier: integer or string",
-      },
-  }
+# Key Bindings
 
-Key Bindings
-=============
-
-View Mode keys
-~~~~~~~~~~~~~~
+## View Mode keys
 
 - `F1`: help
 - `a`: agenda view
