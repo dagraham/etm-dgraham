@@ -13,18 +13,19 @@ displayed in a *Defaults* section below the entry.
 ## default timezone: for @z
 
 When a value for @s includes a time as well as date and thus could be aware 
-and no explicit entry has been given for @z, then this value will be used to 
-convert the entry to UTC for the database entry. When only a date or `@z 
-float` is entered, then the date/time is regarded as naive and stored in the 
-database without conversion. `float = True` is recorded to the database when 
-the datetime is naive and, otherwise, `float = False`. 
+and no explicit entry has been given for @z, then `default_timezone` will be 
+used to convert the entry to UTC for the database entry and `@z 
+<default_timezone>` will be recorded. When only a date or `@z float` is 
+entered, then the date/time is regarded as naive and stored in the database 
+without conversion. `@z float` is recorded to the database when the datetime 
+is naive and, otherwise, the actual timezone is recorded for `@z`. 
 
-When displaying datetimes that are aware, i.e., `float = False`, the datetime 
-is interpreted as UTC and converted to a local time representation using the 
-current `default_timezone`. Datetimes when `float = True` are interpreted as 
-local times and are not converted. 
+When displaying datetimes that are aware, the datetime is interpreted as UTC 
+and converted to the `default_timezone` representation. Datetimes when `@z 
+float` are interpreted as local times and are not converted. 
 
-When editing such an item, `@z = float` is displayed iff `float = True`.
+When editing an item with a datetime entry that is naive, `@z = float` must 
+have been entered when creating the item and will thus be displayed.
 
 When entering an explicit value for @z, tab completion will offer the value of 
 default timezone,  other values of @z that have previously been used and 
@@ -52,7 +53,7 @@ Note for parsing datetime - make the default one second after midnight.
     parse_default = datetime.now().replace(hour=0, minute=0, second=1, 
     microsecond=0)
 
-    def etm parse(s):
+    def etm_parse(s):
         res = parser.parse(s, default=parse_default)
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 1, 0):
             return res.date()
@@ -68,17 +69,20 @@ Note for parsing datetime - make the default one second after midnight.
         - `@s` date-only (one second after midnight): naive, `@z float` 
           recorded to database
         - `@s` date-time (not one second after midnight): aware with the 
-          `default_timezone` used to convert the time to UTC
+          `default_timezone` used to convert the time to UTC and `@z 
+          <default_timezone>` is recorded to the database.
     - `@z float` is provided
         - `@s` date-only (one second after midnight): naive, `@z float` 
           recorded to database
         - `@s` date-time (not one second after midnight): naive - recored to 
-          database without conversion
-    - `@z` is provided with an actual timezone (not `float`)
-        - `@s` date-only (one second after midnight): aware - midnight in 
-          provided timezone
+          database without conversion and `@z float` recorded to database
+    - `@z` is specified with an actual timezone (not `float`)
+        - `@s` date-only (one second after midnight): aware - midnight in the 
+          specified timezone and `@z <specified timezone>` is recorded to 
+          database.
         - `@s` date-time (not one second after midnight): aware - the 
-          specified timezone is used to convert the datetime to UTC
+          specified timezone is used to convert the datetime to UTC and 
+          recorded to database together with `@z <specified timezone>`
 
 ## Tab Completion for @z
 
