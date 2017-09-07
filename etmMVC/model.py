@@ -21,7 +21,7 @@ def etm_parse(s):
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 1, 0):
         return res.date()
     else:
-        return res.replace(second=0)
+        return res.replace(second=0, microsecond=0)
 
 
 class DatetimeCacheTable(SmartCacheTable):
