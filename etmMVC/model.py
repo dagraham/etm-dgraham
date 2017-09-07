@@ -19,7 +19,7 @@ class DateTimeSerializer(Serializer):
         if obj.tzinfo is None:
             return obj.strftime('%Y%m%dT%H%M')
         else:
-            return obj.strftime('%Y%m%dT%H%M')
+            return obj.astimezone(tzutc()).strftime('%Y%m%dT%H%M')
 
 
     def decode(self, s):
