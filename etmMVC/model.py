@@ -38,25 +38,33 @@ class DateTimeSerializer(Serializer):
 
     def encode(self, obj):
         """
-        Convert aware datetimes to UTC and then serialize them.
-        Serialize naive datetimes without conversion. 
+        Convert aware datetime objects to UTC and then serialize them.
+        Serialize naive datetimes objects without conversion. 
         """
         if obj.tzinfo is None:
             return obj.strftime('%Y%m%dT%H%M')
         else:
             return obj.astimezone(tzutc()).strftime('%Y%m%dT%H%M')
 
-
     def decode(self, s):
+        """
+        Return the serialization as a datetime object.
+        """
         return datetime.strptime(s, '%Y%m%dT%H%M')
 
 class DateSerializer(Serializer):
     OBJ_CLASS = date  # The class handles date objects
 
     def encode(self, obj):
+        """
+        Serialize the naive date object without conversion.
+        """
         return obj.strftime('%Y%m%d')
 
     def decode(self, s):
+        """
+        Return the serialization as a date object.
+        """
         return datetime.strptime(s, '%Y%m%d').date()
 
 if __name__ == '__main__':
