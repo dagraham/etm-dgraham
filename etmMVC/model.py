@@ -50,7 +50,7 @@ class DateTimeSerializer(Serializer):
         """
         Return the serialization as a datetime object.
         """
-        return datetime.strptime(s, '%Y%m%dT%H%M')
+        return datetime.strptime(s, '%Y%m%dT%H%M%z')
 
 
 class NaiveDTSerializer(Serializer):
