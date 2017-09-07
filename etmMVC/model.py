@@ -57,7 +57,7 @@ class DateSerializer(Serializer):
         return obj.strftime('%Y%m%d')
 
     def decode(self, s):
-        return datetime.strptime(s, '%Y%m%d')
+        return date.strptime(s, '%Y%m%d')
 
 if __name__ == '__main__':
 
