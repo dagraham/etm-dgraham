@@ -114,6 +114,7 @@ if __name__ == '__main__':
     db = TinyDB('db.json', storage=serialization)
     db.purge()
     db.insert({'datetime': datetime(2017, 9, 7, 12, 0, 0), 'timezone': None})
+    db.insert({'datetime': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Eastern')), 'timezone': 'US/Eastern'})
     db.insert({'datetime': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'timezone': 'US/Pacific'})
     db.insert({'datetime': date(2017, 9, 7), 'timezone': None})
     for item in db:
