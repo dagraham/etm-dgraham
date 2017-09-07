@@ -42,15 +42,19 @@ class DateTimeSerializer(Serializer):
         Serialize naive datetimes objects without conversion. 
         """
         if obj.tzinfo is None:
-            return obj.strftime('%Y%m%dT%H%M%z')
+            return obj.strftime('%Y%m%dT%H%MN')
         else:
-            return obj.astimezone(tzutc()).strftime('%Y%m%dT%H%M%z')
+            return obj.astimezone(tzutc()).strftime('%Y%m%dT%H%MA')
 
     def decode(self, s):
         """
         Return the serialization as a datetime object.
         """
-        return datetime.strptime(s, '%Y%m%dT%H%M%z')
+        if s[-1] == 'N':
+            return datetime.strptime(s[:-1], '%Y%m%dT%H%M')
+        else:
+            return datetime.strptime(s[:-1], '%Y%m%dT%H%M').replace(tzinfo=tzutc()).astimezone(tzlocal())
+
 
 
 class NaiveDTSerializer(Serializer):
