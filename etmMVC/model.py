@@ -38,8 +38,7 @@ class DateTimeSerializer(Serializer):
 
     def encode(self, obj):
         """
-        Convert aware datetime objects to UTC and then serialize them.
-        Serialize naive datetimes objects without conversion. 
+        Serialize naive datetimes objects without conversion but with 'N' for Naive appended. Convert aware datetime objects to UTC and then serialize them with 'A' for Aware appended.
         """
         if obj.tzinfo is None:
             return obj.strftime('%Y%m%dT%H%MN')
@@ -48,45 +47,13 @@ class DateTimeSerializer(Serializer):
 
     def decode(self, s):
         """
-        Return the serialization as a datetime object.
+        Return the serialization as a datetime object first converting to localtime if the serializaton ends with 'A'. Serializations that end with 'N' are naive or floating datetimes and are interpreted as already representing localtimes. 
         """
-        if s[-1] == 'N':
-            return datetime.strptime(s[:-1], '%Y%m%dT%H%M')
-        else:
+        if s[-1] == 'A':
             return datetime.strptime(s[:-1], '%Y%m%dT%H%M').replace(tzinfo=tzutc()).astimezone(tzlocal())
+        else:
+            return datetime.strptime(s[:-1], '%Y%m%dT%H%M')
 
-
-
-class NaiveDTSerializer(Serializer):
-    OBJ_CLASS = datetime  # This class handles naive datetime objects 
-
-    def encode(self, obj):
-        """
-        Serialize naive datetimes objects without conversion. 
-        """
-        return obj.strftime('%Y%m%dT%H%M')
-
-    def decode(self, s):
-        """
-        Return the serialization as a datetime object.
-        """
-        return datetime.strptime(s, '%Y%m%dT%H%M')
-
-
-class AwareDTSerializer(Serializer):
-    OBJ_CLASS = datetime  # This class handles aware datetime objects 
-
-    def encode(self, obj):
-        """
-        Convert aware datetime objects to UTC and then serialize them.
-        """
-        return obj.astimezone(tzutc()).strftime('%Y%m%dT%H%M')
-
-    def decode(self, s):
-        """
-        Return the serialization as a datetime object converted to the local timezone.
-        """
-        return datetime.strptime(s, '%Y%m%dT%H%M').replace(tzinfo=tzutc()).astimezone(tzlocal())
 
 class DateSerializer(Serializer):
     OBJ_CLASS = date  # The class handles date objects
@@ -107,8 +74,6 @@ if __name__ == '__main__':
 
     serialization = SerializationMiddleware()
     serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
-    serialization.register_serializer(AwareDTSerializer(), 'TinyAwareDT')
-    serialization.register_serializer(NaiveDTSerializer(), 'TinyNaiveDT')
     serialization.register_serializer(DateSerializer(), 'TinyDate')
 
     db = TinyDB('db.json', storage=serialization)
