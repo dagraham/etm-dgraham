@@ -25,8 +25,7 @@ class DatetimeCacheTable(SmartCacheTable):
         be 20160624081411601637.
         """
         # This must be an int even though it will be stored as a str
-        current_id = int(arrow.now().strftime("%Y%m%d%H%M%S%f"))
-        # current_id = int(arrow.utcnow().format("YYYYMMDDHHmmssSS"))
+        current_id = int(arrow.utcnow().strftime("%Y%m%d%H%M%S%f"))
         self._last_id = current_id
 
         return current_id
@@ -35,9 +34,13 @@ class DatetimeCacheTable(SmartCacheTable):
 TinyDB.table_class = DatetimeCacheTable
 
 class DateTimeSerializer(Serializer):
-    OBJ_CLASS = datetime  # The class this serializer handles
+    OBJ_CLASS = datetime  # This class handles both aware and naive datetime objects 
 
     def encode(self, obj):
+        """
+        Convert aware datetimes to UTC and then serialize them.
+        Serialize naive datetimes without conversion. 
+        """
         if obj.tzinfo is None:
             return obj.strftime('%Y%m%dT%H%M')
         else:
@@ -48,7 +51,7 @@ class DateTimeSerializer(Serializer):
         return datetime.strptime(s, '%Y%m%dT%H%M')
 
 class DateSerializer(Serializer):
-    OBJ_CLASS = date  # The class this serializer handles
+    OBJ_CLASS = date  # The class handles date objects
 
     def encode(self, obj):
         return obj.strftime('%Y%m%d')
