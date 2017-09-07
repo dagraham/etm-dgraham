@@ -42,9 +42,9 @@ class DateTimeSerializer(Serializer):
         Serialize naive datetimes objects without conversion. 
         """
         if obj.tzinfo is None:
-            return obj.strftime('%Y%m%dT%H%M')
+            return obj.strftime('%Y%m%dT%H%M%z')
         else:
-            return obj.astimezone(tzutc()).strftime('%Y%m%dT%H%M')
+            return obj.astimezone(tzutc()).strftime('%Y%m%dT%H%M%z')
 
     def decode(self, s):
         """
@@ -103,6 +103,8 @@ if __name__ == '__main__':
 
     serialization = SerializationMiddleware()
     serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
+    serialization.register_serializer(AwareDTSerializer(), 'TinyAwareDT')
+    serialization.register_serializer(NaiveDTSerializer(), 'TinyNaiveDT')
     serialization.register_serializer(DateSerializer(), 'TinyDate')
 
     db = TinyDB('db.json', storage=serialization)
