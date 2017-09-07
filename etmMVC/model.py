@@ -7,10 +7,31 @@ from tinydb.operations import delete
 from tinydb.database import Table
 from tinydb.storages import JSONStorage
 from tinydb_serialization import SerializationMiddleware
+from tinydb_smartcache import SmartCacheTable
 
 from dateutil.parser import parse
 from dateutil.tz import (tzlocal, gettz, tzutc)
 
+
+
+class DatetimeCacheTable(SmartCacheTable):
+
+    def _get_next_id(self):
+        """
+        Use a readable, integer timestamp as the id - unique and stores
+        the creation datetime - instead of consecutive integers. E.g.,
+        the the id for an item created 2016-06-24 08:14:11:601637 would
+        be 20160624081411601637.
+        """
+        # This must be an int even though it will be stored as a str
+        # current_id = int(arrow.now().strftime("%Y%m%d%H%M%S%f"))
+        current_id = int(arrow.utcnow().format("YYYYMMDDHHmmssSS"))
+        self._last_id = current_id
+
+        return current_id
+
+
+TinyDB.table_class = DatetimeCacheTable
 
 class DateTimeSerializer(Serializer):
     OBJ_CLASS = datetime  # The class this serializer handles
