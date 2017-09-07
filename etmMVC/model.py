@@ -33,6 +33,6 @@ if __name__ == '__main__':
     serialization.register_serializer(DateSerializer(), 'TinyDate')
 
     db = TinyDB('db.json', storage=serialization)
-    db.insert({'datetime': datetime(2000, 1, 1, 12, 0, 0)})
+    db.insert({'datetime': datetime(2017, 9, 7, 12, 0, 0)})
     db.insert({'date': date(2017, 9, 7)})
     db.all() 
