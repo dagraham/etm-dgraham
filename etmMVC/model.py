@@ -13,7 +13,7 @@ from tinydb_smartcache import SmartCacheTable
 from dateutil.parser import parse
 from dateutil.tz import (tzlocal, gettz, tzutc)
 
-parse_default = datetime.now().replace(hour=0, minute=0, second=1, 
+parse_default = datetime.now().replace(hour=0, minute=1, second=0, 
 microsecond=0)
 
 def etm_parse(s):
