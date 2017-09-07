@@ -28,7 +28,7 @@ Used for history view
 
 Used for week and month views
 
-### YearWeekDay
+### YearWeekDay lookup
 
     YYYYWWD: year-week-day -> local timezone formatted representation
       day 0 (Mo) - 6 (Su), 7 (entire week)
@@ -36,4 +36,8 @@ Used for week and month views
       2017352 -> Wed Aug 30, 2017
       2017357 -> Week 35: Aug 28 - Sep 3, 2017 
 
+### tinydb storage for `@s` and `@z`
 
+- date-only: `s: (date, Null)`; `z: Null`
+- date-time naive: `s: (date, time)`; `z: Null`
+- date-time aware:`s: (date, time)`; `z: 'US/Eastern'`
