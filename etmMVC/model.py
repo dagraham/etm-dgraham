@@ -41,7 +41,9 @@ if __name__ == '__main__':
     serialization.register_serializer(DateSerializer(), 'TinyDate')
 
     db = TinyDB('db.json', storage=serialization)
+    db.purge()
     db.insert({'naivedatetime': datetime(2017, 9, 7, 12, 0, 0)})
     db.insert({'awaredatetime': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Eastern'))})
     db.insert({'date': date(2017, 9, 7)})
-    db.all() 
+    for item in db:
+        print(item)
