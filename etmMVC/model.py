@@ -34,11 +34,14 @@ class DatetimeCacheTable(SmartCacheTable):
 TinyDB.table_class = DatetimeCacheTable
 
 class DateTimeSerializer(Serializer):
-    OBJ_CLASS = datetime  # This class handles both aware and naive datetime objects 
+    """
+    This class handles both aware and naive datetime objects.
+    """
+    OBJ_CLASS = datetime
 
     def encode(self, obj):
         """
-        Serialize naive datetimes objects without conversion but with 'N' for Naive appended. Convert aware datetime objects to UTC and then serialize them with 'A' for Aware appended.
+        Serialize naive datetimes objects without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
         """
         if obj.tzinfo is None:
             return obj.strftime('%Y%m%dT%H%MN')
