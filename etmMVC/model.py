@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from datetime import datetime
+from datetime import datetime, date
 from tinydb_serialization import Serializer
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
