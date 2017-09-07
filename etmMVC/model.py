@@ -29,7 +29,7 @@ class DateSerializer(Serializer):
 if __name__ == '__main__':
 
     serialization = SerializationMiddleware()
-    serialization.register_serializer(DateTimeSerializer(), 'TinyDate')
+    serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 
     db = TinyDB('db.json', storage=serialization)
     db.insert({'date': datetime(2000, 1, 1, 12, 0, 0)})
