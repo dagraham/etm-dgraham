@@ -21,16 +21,18 @@ class DateSerializer(Serializer):
     OBJ_CLASS = date  # The class this serializer handles
 
     def encode(self, obj):
-        return obj.strftime('%Y-%m-%dT%H:%M:%S')
+        return obj.strftime('%Y%m%d')
 
     def decode(self, s):
-        return datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
+        return datetime.strptime(s, '%Y%m%d')
 
 if __name__ == '__main__':
 
     serialization = SerializationMiddleware()
     serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
+    serialization.register_serializer(DateSerializer(), 'TinyDate')
 
     db = TinyDB('db.json', storage=serialization)
     db.insert({'date': datetime(2000, 1, 1, 12, 0, 0)})
+    db.insert({'date': date(2017, 9, 7, 12)})
     db.all() 
