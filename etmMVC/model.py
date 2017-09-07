@@ -35,8 +35,15 @@ TinyDB.table_class = DatetimeCacheTable
 
 class DateTimeSerializer(Serializer):
     """
-    This class handles both aware and naive datetime objects.
+    This class handles both aware and naive datetime objects. 
+
+    Encoding: If the datetime object is aware, it is first converted to UTC and then encoded with an 'A' appended to the serialization. Otherwise it is serialized without conversion and an 'N' is appended.
+
+    Decoding: If the serialization ends with 'A', the datetime object is treated as UTC and then converted to localtime. Otherwise, the datetime object is treated as localtime and no conversion is necessary.
+
+    This serialization discards both seconds and microseconds but preserves hours and minutes.
     """
+
     OBJ_CLASS = datetime
 
     def encode(self, obj):
