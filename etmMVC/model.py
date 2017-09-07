@@ -104,6 +104,6 @@ if __name__ == '__main__':
     for item in db:
         print(item.eid, item)
 
-    print(et=`=jedi=1, m_parse('=`= (*_*s*_*) =`=jedi=`='fri 2p'))
-    print(etm_parse('fri 12p'))
+    print(etm_parse('fri 2p'))
+    print(etm_parse('fri 12a'))
     print(etm_parse('fri'))
