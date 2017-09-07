@@ -34,5 +34,5 @@ if __name__ == '__main__':
 
     db = TinyDB('db.json', storage=serialization)
     db.insert({'date': datetime(2000, 1, 1, 12, 0, 0)})
-    db.insert({'date': date(2017, 9, 7, 12)})
+    db.insert({'date': date(2017, 9, 7)})
     db.all() 
