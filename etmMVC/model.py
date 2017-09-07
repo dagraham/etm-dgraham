@@ -2,6 +2,11 @@
 
 from datetime import datetime
 from tinydb_serialization import Serializer
+from tinydb import TinyDB, Query, Storage
+from tinydb.operations import delete
+from tinydb.database import Table
+from tinydb.storages import JSONStorage
+from tinydb_serialization import SerializationMiddleware
 
 class DateTimeSerializer(Serializer):
     OBJ_CLASS = datetime  # The class this serializer handles
@@ -13,8 +18,6 @@ class DateTimeSerializer(Serializer):
         return datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
 
 if __name__ == '__main__':
-    from tinydb.storages import JSONStorage
-    from tinydb_serialization import SerializationMiddleware
 
     serialization = SerializationMiddleware()
     serialization.register_serializer(DateTimeSerializer(), 'TinyDate')
