@@ -52,6 +52,22 @@ class DateTimeSerializer(Serializer):
         """
         return datetime.strptime(s, '%Y%m%dT%H%M')
 
+
+class AwareDTSerializer(Serializer):
+    OBJ_CLASS = datetime  # This class handles both aware and naive datetime objects 
+
+    def encode(self, obj):
+        """
+        Convert aware datetime objects to UTC and then serialize them.
+        """
+        return obj.astimezone(tzutc()).strftime('%Y%m%dT%H%M')
+
+    def decode(self, s):
+        """
+        Return the serialization as a datetime object converted to the local timezone.
+        """
+        return datetime.strptime(s, '%Y%m%dT%H%M').replace(tzinfo=tzutc()).astimezone(tzlocal)
+
 class DateSerializer(Serializer):
     OBJ_CLASS = date  # The class handles date objects
 
