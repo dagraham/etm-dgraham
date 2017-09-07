@@ -25,8 +25,8 @@ class DatetimeCacheTable(SmartCacheTable):
         be 20160624081411601637.
         """
         # This must be an int even though it will be stored as a str
-        # current_id = int(arrow.now().strftime("%Y%m%d%H%M%S%f"))
-        current_id = int(arrow.utcnow().format("YYYYMMDDHHmmssSS"))
+        current_id = int(arrow.now().strftime("%Y%m%d%H%M%S%f"))
+        # current_id = int(arrow.utcnow().format("YYYYMMDDHHmmssSS"))
         self._last_id = current_id
 
         return current_id
