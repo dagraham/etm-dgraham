@@ -9,14 +9,17 @@ from tinydb.storages import JSONStorage
 from tinydb_serialization import SerializationMiddleware
 
 from dateutil.parser import parse
-from dateutil.tz import (tzlocal, gettz)
+from dateutil.tz import (tzlocal, gettz, tzutc)
 
 
 class DateTimeSerializer(Serializer):
     OBJ_CLASS = datetime  # The class this serializer handles
 
     def encode(self, obj):
-        return obj.strftime('%Y%m%dT%H%M')
+        if obj.tzinfo is None:
+            return obj.strftime('%Y%m%dT%H%M')
+        else:
+
 
     def decode(self, s):
         return datetime.strptime(s, '%Y%m%dT%H%M')
