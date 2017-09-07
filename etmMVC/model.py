@@ -103,3 +103,5 @@ if __name__ == '__main__':
     db.insert({'dt': date(2017, 9, 7)})
     for item in db:
         print(item.eid, item)
+
+    print(etm_parse('fri 2p'))
