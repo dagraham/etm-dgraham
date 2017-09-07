@@ -68,4 +68,4 @@ if __name__ == '__main__':
     db.insert({'awaredatetime': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Eastern'))})
     db.insert({'date': date(2017, 9, 7)})
     for item in db:
-        print(item)
+        print(item.eid, item)
