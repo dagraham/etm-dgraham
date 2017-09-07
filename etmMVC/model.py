@@ -19,6 +19,7 @@ class DateTimeSerializer(Serializer):
         if obj.tzinfo is None:
             return obj.strftime('%Y%m%dT%H%M')
         else:
+            pass
 
 
     def decode(self, s):
