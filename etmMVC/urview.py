@@ -138,15 +138,7 @@ def main():
 
 import re
 at_regex = re.compile(r'\s+@', re.MULTILINE)
-
-
-palette = [('I say', 'default,bold', 'default', 'bold'),]
-ask = urwid.Edit(('I say', u"new item\n"))
-reply = urwid.Text(u"")
-button = urwid.Button(u'Exit')
-div = urwid.Divider()
-pile = urwid.Pile([ask, div, reply, div, button])
-top = urwid.Filler(pile, valign='top')
+amp_regex = re.compile(r'\s+&', re.MULTILINE)
 
 
 type_keys = {
@@ -220,8 +212,18 @@ requirements['*'] = 's'
 methods['-'] = item_methods + task_methods + datetime_methods
 
 
+palette = [('I say', 'default,bold', 'default', 'bold'),]
+ask = urwid.Edit(('I say', u"new item\n"))
+reply = urwid.Text(u"")
+button = urwid.Button(u'Exit')
+div = urwid.Divider()
+pile = urwid.Pile([ask, div, reply, div, button])
+top = urwid.Filler(pile, valign='top')
+
+
 def on_ask_change(edit, new_edit_text):
     at_parts = []
+    pos = ask.edit_pos
     for x in at_regex.split(new_edit_text):
         if len(x) > 1:
             at_parts.append((x[0], x[1:].strip()))
@@ -231,7 +233,7 @@ def on_ask_change(edit, new_edit_text):
     if at_parts:
         itemtype, summary = at_parts.pop(0)
         if itemtype in type_keys:
-            ask.set_caption(('I say', "new {0}\n".format(type_keys[itemtype])))
+            ask.set_caption(('I say', "new {0} pos {1}\n".format(type_keys[itemtype], pos)))
             if at_parts:
                 reply.set_text(('I say', "@{0} {1}".format(at_parts[-1][0], at_parts[-1][1])))
             # else:
@@ -239,7 +241,6 @@ def on_ask_change(edit, new_edit_text):
 
         else:
             reply.set_text(('I say', u"Invalid item type '{0}'. Use *, -, #, ? or $".format(itemtype)))
-            new_edit_text = '$' + new_edit_text[1:]
             summary = "{0}{1}".format(itemtype, summary)
             itemtype = '$'
 
