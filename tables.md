@@ -38,6 +38,7 @@ Used for week and month views
 
 ### tinydb storage for `@s` and `@z`
 
-- date-only: `s: (date, Null)`; `z: Null`
-- date-time naive: `s: (date, time)`; `z: Null`
-- date-time aware:`s: (date, time)`; `z: 'US/Eastern'`
+
+- date-only: `s: date`; `z: Null`
+- date-time naive: `s: date-time`; `z: Null`
+- date-time aware:`s: date-time`; `z: 'US/Eastern'` 
