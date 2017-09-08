@@ -34,6 +34,7 @@ def etm_parse(s):
     >>> dt
     datetime.datetime(2015, 10, 15, 0, 0)
     """
+
     res = parse(s)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return res.date()
