@@ -136,6 +136,10 @@ def main():
 # loop = urwid.MainLoop(fill, unhandled_input=exit_on_q)
 # loop.run()
 
+import re
+at_regex = re.compile(r'\s+@', re.MULTILINE)
+
+
 palette = [('I say', 'default,bold', 'default', 'bold'),]
 ask = urwid.Edit(('I say', u"new item\n"))
 reply = urwid.Text(u"")
@@ -144,7 +148,7 @@ div = urwid.Divider()
 pile = urwid.Pile([ask, div, reply, div, button])
 top = urwid.Filler(pile, valign='top')
 
-types = {
+all_types = {
         '*': 'event',
         '-': 'task',
         '?': 'someday',
@@ -153,11 +157,17 @@ types = {
         }
 
 def on_ask_change(edit, new_edit_text):
-    type_char = new_edit_text[0]
-    if type_char in types:
+    at_parts = [(x[0], x[1:].strip()) for x in at_regex.split(new_edit_text)]
+    itemtype, summary = at_parts.pop(0)
+    if itemtype in all_types:
         reply.set_text(('I say', u"%s: %s" % (types[type_char], new_edit_text)))
+
     else:
-        reply.set_text(('I say', u"unrecognized type: %s" % type_char))
+        reply.set_text(('I say', u"Invalid item type '{0}' - using '$' (inbox) instead".format(type_char)))
+        new_edit_text[0] = '$'
+        summary = "{0}{1}".format(itemtype, summary)
+        itemtype = '$'
+
 
     # reply.set_text(('I say', u"got: %s" % new_edit_text[-1]))
 
