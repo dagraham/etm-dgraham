@@ -137,7 +137,7 @@ def main():
 # loop.run()
 
 import re
-at_regex = re.compile(r'\s+@[a-z]', re.MULTILINE)
+at_regex = re.compile(r'\s+@[a-z]\s', re.MULTILINE)
 
 
 palette = [('I say', 'default,bold', 'default', 'bold'),]
