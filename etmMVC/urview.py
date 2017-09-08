@@ -145,7 +145,7 @@ pile = urwid.Pile([ask, div, reply, div, button])
 top = urwid.Filler(pile, valign='top')
 
 def on_ask_change(edit, new_edit_text):
-    reply.set_text(('I say', u"Nice to meet you, %s" % new_edit_text))
+    reply.set_text(('I say', u"got: %s" % new_edit_text[-1]))
 
 def on_exit_clicked(button):
     raise urwid.ExitMainLoop()
