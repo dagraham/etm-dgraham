@@ -160,7 +160,7 @@ def on_ask_change(edit, new_edit_text):
     at_parts = [(x[0], x[1:].strip()) for x in at_regex.split(new_edit_text)]
     itemtype, summary = at_parts.pop(0)
     if itemtype in all_types:
-        reply.set_text(('I say', u"%s: %s" % (all_types[type_char], new_edit_text)))
+        reply.set_text(('I say', u"%s: %s" % (all_types[itemtype], new_edit_text)))
 
     else:
         reply.set_text(('I say', u"Invalid item type '{0}' - using '$' (inbox) instead".format(type_char)))
