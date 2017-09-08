@@ -124,7 +124,7 @@ def exit_on_q(key):
 class QuestionBox(urwid.Filler):
     def keypress(self, size, key):
         if key in ('space', '@'):
-            print('process', key)
+            print('got', key)
         if key != 'enter':
             return super(QuestionBox, self).keypress(size, key)
         self.original_widget = urwid.Text(
