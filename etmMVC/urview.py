@@ -183,7 +183,7 @@ at_keys = {
 
 amp_keys = {
     'r': {
-        'E': "easter: number of days before (-), on (0)\n      or after (+) Easter",
+        'E': "easter: number of days before (-), on (0)  or after (+) Easter",
         'h': "hour: list of integers in 0 ... 23",
         'i': "interval: positive integer",
         'M': "month: list of integers in 1 ... 12",
