@@ -52,7 +52,7 @@ def main():
         print "If you specify a username, you must also specify a password"
         exit()
 
-    print "Loading..."
+    print("Loading...")
 
     body = MainWindow()
     if options.username:
