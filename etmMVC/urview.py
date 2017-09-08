@@ -167,10 +167,10 @@ def on_ask_change(edit, new_edit_text):
     if at_parts:
         itemtype, summary = at_parts.pop(0)
         if itemtype in all_types:
-            reply.set_text(('I say', "{0}: {1}".format(all_types[itemtype], new_edit_text)))
+            ask.set_text(('I say', "new {0}".format(all_types[itemtype]))
 
         else:
-            reply.set_text(('I say', u"Invalid item type '{0}' - use *, -, #, ? or $".format(itemtype)))
+            reply.set_text(('I say', u"Invalid item type '{0}'. Use *, -, #, ? or $".format(itemtype)))
             new_edit_text = '$' + new_edit_text[1:]
             summary = "{0}{1}".format(itemtype, summary)
             itemtype = '$'
