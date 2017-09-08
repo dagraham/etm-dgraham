@@ -338,7 +338,6 @@ Details for the selected item.
 
 
 # @ and & Keys
-=============
 
     type_keys = {
         "*": "event",
