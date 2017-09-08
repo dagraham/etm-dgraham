@@ -117,22 +117,40 @@ def main():
     main_loop = urwid.MainLoop(body.frame, palette, input_filter=input_handler)
     main_loop.run()
 
-def exit_on_q(key):
-    if key in ('q', 'Q', 'esc'):
-        raise urwid.ExitMainLoop()
+# def exit_on_q(key):
+#     if key in ('q', 'Q', 'esc'):
+#         raise urwid.ExitMainLoop()
 
-class QuestionBox(urwid.Filler):
-    def keypress(self, size, key):
-        if key in ('space', '@'):
-            print('got', key)
-        if key != 'enter':
-            return super(QuestionBox, self).keypress(size, key)
-        self.original_widget = urwid.Text(
-            u"Nice to meet you,\n%s.\n\nPress Q to exit." %
-            edit.edit_text)
+# class QuestionBox(urwid.Filler):
+#     def keypress(self, size, key):
+#         if key in ('space', '@'):
+#             print('got', key)
+#         if key != 'enter':
+#             return super(QuestionBox, self).keypress(size, key)
+#         self.original_widget = urwid.Text(
+#             u"Nice to meet you,\n%s.\n\nPress Q to exit." %
+#             edit.edit_text)
 
-edit = urwid.Edit(u"What is your name?\n")
-fill = QuestionBox(edit)
-loop = urwid.MainLoop(fill, unhandled_input=exit_on_q)
-loop.run()
+# edit = urwid.Edit(u"What is your name?\n")
+# fill = QuestionBox(edit)
+# loop = urwid.MainLoop(fill, unhandled_input=exit_on_q)
+# loop.run()
 
+palette = [('I say', 'default,bold', 'default', 'bold'),]
+ask = urwid.Edit(('I say', u"What is your name?\n"))
+reply = urwid.Text(u"")
+button = urwid.Button(u'Exit')
+div = urwid.Divider()
+pile = urwid.Pile([ask, div, reply, div, button])
+top = urwid.Filler(pile, valign='top')
+
+def on_ask_change(edit, new_edit_text):
+    reply.set_text(('I say', u"Nice to meet you, %s" % new_edit_text))
+
+def on_exit_clicked(button):
+    raise urwid.ExitMainLoop()
+
+urwid.connect_signal(ask, 'change', on_ask_change)
+urwid.connect_signal(button, 'click', on_exit_clicked)
+
+urwid.MainLoop(top, palette).run()
