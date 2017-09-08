@@ -169,7 +169,7 @@ def on_ask_change(edit, new_edit_text):
         reply.set_text(('I say', "{0}: {1}".format(all_types[itemtype], new_edit_text)))
 
     else:
-        reply.set_text(('I say', u"Invalid item type '{0}' - using '$' (inbox) instead".format(type_char)))
+        reply.set_text(('I say', u"Invalid item type '{0}' - using '$' (inbox) instead".format(itemtype)))
         new_edit_text[0] = '$'
         summary = "{0}{1}".format(itemtype, summary)
         itemtype = '$'
