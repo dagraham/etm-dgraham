@@ -58,9 +58,9 @@ def main():
     if options.username:
         print "[Logging in]"
         if body.login(options.username, options.password):
-            print "[Login Successful]"
+            print("[Login Successful]")
         else:
-            print "[Login Failed]"
+            print("[Login Failed]")
             exit()
 
     body.refresh()
