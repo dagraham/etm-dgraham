@@ -21,6 +21,9 @@ def etm_parse(s):
     >>> dt = etm_parse("2015-10-15 2p")
     >>> dt
     datetime.datetime(2015, 10, 15, 14, 0)
+    >>> dt = etm_parse("2015-10-15 12:00:01a")
+    >>> dt
+    datetime.datetime(2015, 10, 15, 0, 0)
 
     """
     res = parse(s)
