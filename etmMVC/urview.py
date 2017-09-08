@@ -164,15 +164,16 @@ def on_ask_change(edit, new_edit_text):
         elif x:
             at_parts.append((x[0], ''))
     # at_parts = [(x[0], x[1:].strip()) for x in at_regex.split(new_edit_text)]
-    itemtype, summary = at_parts.pop(0)
-    if itemtype in all_types:
-        reply.set_text(('I say', "{0}: {1}".format(all_types[itemtype], new_edit_text)))
+    if at_parts:
+        itemtype, summary = at_parts.pop(0)
+        if itemtype in all_types:
+            reply.set_text(('I say', "{0}: {1}".format(all_types[itemtype], new_edit_text)))
 
-    else:
-        reply.set_text(('I say', u"Invalid item type '{0}' - using '$' (inbox) instead".format(itemtype)))
-        new_edit_text = '$' + new_edit_text[1:]
-        summary = "{0}{1}".format(itemtype, summary)
-        itemtype = '$'
+        else:
+            reply.set_text(('I say', u"Invalid item type '{0}' - using '$' (inbox) instead".format(itemtype)))
+            new_edit_text = '$' + new_edit_text[1:]
+            summary = "{0}{1}".format(itemtype, summary)
+            itemtype = '$'
 
 
     # reply.set_text(('I say', u"got: %s" % new_edit_text[-1]))
