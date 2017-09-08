@@ -13,11 +13,12 @@ from tinydb_smartcache import SmartCacheTable
 from dateutil.parser import parse
 from dateutil.tz import (tzlocal, gettz, tzutc)
 
-parse_default = datetime.now().replace(hour=0, minute=0, second=0, 
-microsecond=0)
 
 def etm_parse(s):
-    # res = parse(s, default=parse_default)
+    """
+    Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
+    To get a datetime object for midnight use, e.g., s = 'fri 12:00:01a'.
+    """
     res = parse(s)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return res.date()
@@ -107,5 +108,5 @@ if __name__ == '__main__':
 
     print(etm_parse('fri 2p'))
     print(etm_parse('fri 12:00:01a'))
-    print(etm_parse('fri 12a'))
+    print(etm_parse('fri 0h'))
     print(etm_parse('fri'))
