@@ -165,7 +165,8 @@ def on_ask_change(edit, new_edit_text):
             at_parts.append((x[0], '?'))
     # at_parts = [(x[0], x[1:].strip()) for x in at_regex.split(new_edit_text)]
     if at_parts:
-        itemtype, summary = at_parts.pop(0)
+        # itemtype, summary = at_parts.pop(0)
+        itemtype, summary = at_parts[0]
         if itemtype in all_types:
             ask.set_caption(('I say', "new {0}\n".format(all_types[itemtype])))
             reply.set_text(('I say', "@{0} {1}".format(at_parts[-1][0], at_parts[-1][1])))
