@@ -124,6 +124,7 @@ def exit_on_q(key):
 class QuestionBox(urwid.Filler):
     def keypress(self, size, key):
         if key != 'enter':
+            print('got', keypress)
             return super(QuestionBox, self).keypress(size, key)
         self.original_widget = urwid.Text(
             u"Nice to meet you,\n%s.\n\nPress Q to exit." %
