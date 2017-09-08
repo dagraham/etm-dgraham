@@ -167,7 +167,7 @@ def on_ask_change(edit, new_edit_text):
     if at_parts:
         itemtype, summary = at_parts.pop(0)
         if itemtype in all_types:
-            ask.set_caption(('I say', "new {0} entry\n".format(all_types[itemtype])))
+            ask.set_caption(('I say', "{0}\n".format(all_types[itemtype])))
 
         else:
             reply.set_text(('I say', u"Invalid item type '{0}'. Use *, -, #, ? or $".format(itemtype)))
