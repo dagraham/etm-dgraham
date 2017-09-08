@@ -1,3 +1,5 @@
+import urwid
+
 def main():
     term = urwid.Terminal(None)
 
