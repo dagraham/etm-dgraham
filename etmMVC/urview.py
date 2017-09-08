@@ -148,13 +148,67 @@ div = urwid.Divider()
 pile = urwid.Pile([ask, div, reply, div, button])
 top = urwid.Filler(pile, valign='top')
 
-all_types = {
-        '*': 'event',
-        '-': 'task',
-        '?': 'someday entry',
-        '#': 'journal entry',
-        '$': 'inbox enry'
-        }
+
+type_keys = {
+    "*": "event",
+    "-": "task",
+    "#": "journal entry",
+    "?": "someday entry",
+    "!": "inbox entry",
+}
+
+at_keys = {
+    '+': "include: list of date-times",
+    '-': "exclude: list of date-times",
+    'a': "alert: time-period: cmd, optional args*",
+    'b': "beginby: integer number of days",
+    'c': "calendar: string",
+    'd': "description: string",
+    'e': "extent: timeperiod",
+    'f': "finish: datetime",
+    'g': "goto: url or filepath",
+    'i': "index: colon delimited string",
+    'j': "job summary: string",
+    'l': "location: string",
+    'm': "memo: string",
+    'o': "overdue: r)restart, s)kip or k)eep",
+    'p': "priority: 1 (highest), ..., 9, 0 (lowest)",
+    'q': "queue: date-time",
+    'r': "frequency: y, m, w, d, h, n, e",
+    's': "start: date or date-time",
+    't': "tags: list of strings",
+    'v': "value: defaults key",
+    'z': "timezone: string",
+}
+
+amp_keys = {
+    'r': {
+        'E': "easter: number of days before (-), on (0)\n      or after (+) Easter",
+        'h': "hour: list of integers in 0 ... 23",
+        'i': "interval: positive integer",
+        'M': "month: list of integers in 1 ... 12",
+        'm': "monthday: list of integers 1 ... 31",
+        'n': "minute: list of integers in 0 ... 59",
+        's': "set position: integer",
+        'u': "until: datetime",
+        'w': "weekday: list from SU, MO, ..., SA",
+    },
+
+    'j': {
+        'a': "alert: timeperiod: command, args*",
+        'b': "beginby: integer number of days",
+        'd': "description: string",
+        'e': "extent: timeperiod",
+        'f': "finish: datetime",
+        'l': "location: string",
+        'p': "prerequisites: comma separated list of uids of immediate 
+        prereqs",
+        's': "start/due: timeperiod before task start",
+        'u': "uid: unique identifier: integer or string",
+    },
+}
+
+
 
 def on_ask_change(edit, new_edit_text):
     at_parts = []
@@ -166,8 +220,8 @@ def on_ask_change(edit, new_edit_text):
     # at_parts = [(x[0], x[1:].strip()) for x in at_regex.split(new_edit_text)]
     if at_parts:
         itemtype, summary = at_parts.pop(0)
-        if itemtype in all_types:
-            ask.set_caption(('I say', "new {0}\n".format(all_types[itemtype])))
+        if itemtype in type_keys:
+            ask.set_caption(('I say', "new {0}\n".format(type_keys[itemtype])))
             if at_parts:
                 reply.set_text(('I say', "@{0} {1}".format(at_parts[-1][0], at_parts[-1][1])))
             # else:
