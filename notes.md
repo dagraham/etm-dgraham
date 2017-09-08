@@ -118,6 +118,18 @@ is a UTC string in the format YYYY-
     - if finitely repeating: (&u or &t) date or datetime of last instance
     - otherwise: none
 
+    from datetime import datetime
+    from tinydb_serialization import Serializer
+
+    class DateTimeSerializer(Serializer):
+        OBJ_CLASS = datetime  # The class this serializer handles
+
+        def encode(self, obj):
+            return obj.strftime('%Y-%m-%dT%H:%M:%S')
+
+        def decode(self, s):
+            return datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
+
 ## Retrieval
 
 Starting with the current local timezone, `ltz`
