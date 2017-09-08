@@ -18,6 +18,10 @@ def etm_parse(s):
     """
     Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
     To get a datetime object for midnight use, e.g., s = 'fri 12:00:01a'.
+    >>> dt = etm_parse("2015-10-15 2p")
+    >>> dt
+    datetime.datetime(2015, 10, 15, 14, 0)
+
     """
     res = parse(s)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
@@ -34,10 +38,6 @@ class DatetimeCacheTable(SmartCacheTable):
         the creation datetime - instead of consecutive integers. E.g.,
         the the id for an item created 2016-06-24 08:14:11:601637 would
         be 20160624081411601637.
-        >>> dtm = etm("2015-10-15 2p", "US/Pacific")
-        >>> dtm
-        datetime.datetime(2015, 10, 15, 14, 0)
-
         """
         # This must be an int even though it will be stored as a str
         current_id = int(arrow.utcnow().strftime("%Y%m%d%H%M%S%f"))
