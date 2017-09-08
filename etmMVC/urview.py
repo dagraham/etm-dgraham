@@ -159,7 +159,7 @@ def on_ask_change(edit, new_edit_text):
     else:
         reply.set_text(('I say', u"unrecognized type: %s" % type_char))
 
-    reply.set_text(('I say', u"got: %s" % new_edit_text[-1]))
+    # reply.set_text(('I say', u"got: %s" % new_edit_text[-1]))
 
 def on_exit_clicked(button):
     raise urwid.ExitMainLoop()
