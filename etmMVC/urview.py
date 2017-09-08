@@ -118,7 +118,7 @@ def main():
     main_loop.run()
 
 def exit_on_q(key):
-    if key in ('q', 'Q'):
+    if key in ('q', 'Q', 'esc'):
         raise urwid.ExitMainLoop()
 
 class QuestionBox(urwid.Filler):
