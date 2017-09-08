@@ -25,7 +25,11 @@ def etm_parse(s):
     >>> dt
     datetime.date(2015, 10, 15)
 
-    To get a datetime object for midnight use, e.g., s = 'fri 12:00:01a'.
+    >>> dt = etm_parse("2015-10-15")
+    >>> dt
+    datetime.date(2015, 10, 15)
+
+    To get a datetime object for midnight use one second past midnight:
 
     >>> dt = etm_parse("2015-10-15 12:00:01a")
     >>> dt
