@@ -19,7 +19,7 @@ microsecond=0)
 def etm_parse(s):
     # res = parse(s, default=parse_default)
     res = parse(s)
-    if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 1, 0):
+    if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return res.date()
     else:
         return res.replace(second=0, microsecond=0)
