@@ -173,7 +173,6 @@ at_keys = {
     'm': "memo: string",
     'o': "overdue: r)restart, s)kip or k)eep",
     'p': "priority: 1 (highest), ..., 9, 0 (lowest)",
-    'q': "queue: date-time",
     'r': "frequency: y, m, w, d, h, n, e",
     's': "start: date or date-time",
     't': "tags: list of strings",
@@ -207,6 +206,18 @@ amp_keys = {
     },
 }
 
+methods = {}
+requirements = {}
+rruleset_methods = '+-r'
+item_methods = 'degclmitv'
+task_methods = 'fjp'
+date_methods = 'sb'
+datetime_methods = 'eaz' + date_methods
+
+methods['*'] = item_methods + datetime_methods + rruleset_methods 
+requirements['*'] = 's'
+
+methods['-'] = item_methods + task_methods + datetime_methods
 
 
 def on_ask_change(edit, new_edit_text):
