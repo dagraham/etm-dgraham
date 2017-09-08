@@ -49,7 +49,7 @@ def main():
     (options, args) = parser.parse_args()
 
     if options.username and not options.password:
-        print "If you specify a username, you must also specify a password"
+        print ("If you specify a username, you must also specify a password")
         exit()
 
     print("Loading...")
