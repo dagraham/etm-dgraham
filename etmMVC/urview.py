@@ -161,7 +161,7 @@ def on_ask_change(edit, new_edit_text):
     for x in at_regex.split(new_edit_text):
         if len(x) > 1:
             at_parts.append((x[0], x[1:].strip()))
-        else:
+        elif x:
             at_parts.append((x[0], ''))
     # at_parts = [(x[0], x[1:].strip()) for x in at_regex.split(new_edit_text)]
     itemtype, summary = at_parts.pop(0)
