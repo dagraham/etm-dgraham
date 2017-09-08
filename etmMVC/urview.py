@@ -31,6 +31,7 @@ import urwid
 #     term.main_loop = loop
 #     loop.run()
 
+
 def main():
     palette =   [
                 ('header', 'dark magenta,bold', 'default'),
@@ -116,5 +117,20 @@ def main():
     main_loop = urwid.MainLoop(body.frame, palette, input_filter=input_handler)
     main_loop.run()
 
+def exit_on_q(key):
+    if key in ('q', 'Q'):
+        raise urwid.ExitMainLoop()
 
-main()
+class QuestionBox(urwid.Filler):
+    def keypress(self, size, key):
+        if key != 'enter':
+            return super(QuestionBox, self).keypress(size, key)
+        self.original_widget = urwid.Text(
+            u"Nice to meet you,\n%s.\n\nPress Q to exit." %
+            edit.edit_text)
+
+edit = urwid.Edit(u"What is your name?\n")
+fill = QuestionBox(edit)
+loop = urwid.MainLoop(fill, unhandled_input=exit_on_q)
+loop.run()
+
