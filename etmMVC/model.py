@@ -106,13 +106,13 @@ class DateSerializer(Serializer):
         """
         return datetime.strptime(s, '%Y%m%d').date()
 
+serialization = SerializationMiddleware()
+serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
+serialization.register_serializer(DateSerializer(), 'TinyDate')
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
-
-    serialization = SerializationMiddleware()
-    serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
-    serialization.register_serializer(DateSerializer(), 'TinyDate')
 
     db = TinyDB('db.json', storage=serialization)
     db.purge()
