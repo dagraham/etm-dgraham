@@ -123,7 +123,3 @@ if __name__ == '__main__':
     for item in db:
         print(item.eid, item)
 
-    print(etm_parse('fri 2p'))
-    print(etm_parse('fri 12:00:01a'))
-    print(etm_parse('fri 0h'))
-    print(etm_parse('fri'))
