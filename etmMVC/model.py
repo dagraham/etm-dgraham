@@ -14,34 +14,6 @@ from dateutil.parser import parse
 from dateutil.tz import (tzlocal, gettz, tzutc)
 
 
-def etm_parse(s):
-    """
-    Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
-    >>> dt = etm_parse("2015-10-15 2p")
-    >>> dt
-    datetime.datetime(2015, 10, 15, 14, 0)
-
-    >>> dt = etm_parse("2015-10-15 0h")
-    >>> dt
-    datetime.date(2015, 10, 15)
-
-    >>> dt = etm_parse("2015-10-15")
-    >>> dt
-    datetime.date(2015, 10, 15)
-
-    To get a datetime object for midnight use one second past midnight:
-    >>> dt = etm_parse("2015-10-15 12:00:01a")
-    >>> dt
-    datetime.datetime(2015, 10, 15, 0, 0)
-    """
-
-    res = parse(s)
-    if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-        return res.date()
-    else:
-        return res.replace(second=0, microsecond=0)
-
-
 class DatetimeCacheTable(SmartCacheTable):
 
     def _get_next_id(self):
@@ -110,6 +82,35 @@ class DateSerializer(Serializer):
 serialization = SerializationMiddleware()
 serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(DateSerializer(), 'TinyDate')
+
+
+def etm_parse(s):
+    """
+    Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
+    >>> dt = etm_parse("2015-10-15 2p")
+    >>> dt
+    datetime.datetime(2015, 10, 15, 14, 0)
+
+    >>> dt = etm_parse("2015-10-15 0h")
+    >>> dt
+    datetime.date(2015, 10, 15)
+
+    >>> dt = etm_parse("2015-10-15")
+    >>> dt
+    datetime.date(2015, 10, 15)
+
+    To get a datetime object for midnight use one second past midnight:
+    >>> dt = etm_parse("2015-10-15 12:00:01a")
+    >>> dt
+    datetime.datetime(2015, 10, 15, 0, 0)
+    """
+
+    res = parse(s)
+    if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
+        return res.date()
+    else:
+        return res.replace(second=0, microsecond=0)
+
 
 if __name__ == '__main__':
     import doctest
