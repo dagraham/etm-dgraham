@@ -137,7 +137,7 @@ def main():
 # loop.run()
 
 palette = [('I say', 'default,bold', 'default', 'bold'),]
-ask = urwid.Edit(('I say', u"What is your name?\n"))
+ask = urwid.Edit(('I say', u"new item\n"))
 reply = urwid.Text(u"")
 button = urwid.Button(u'Exit')
 div = urwid.Divider()
