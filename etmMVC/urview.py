@@ -29,3 +29,4 @@ def main():
     term.main_loop = loop
     loop.run()
 
+main()
