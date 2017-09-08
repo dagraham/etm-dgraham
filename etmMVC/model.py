@@ -30,11 +30,9 @@ def etm_parse(s):
     datetime.date(2015, 10, 15)
 
     To get a datetime object for midnight use one second past midnight:
-
     >>> dt = etm_parse("2015-10-15 12:00:01a")
     >>> dt
     datetime.datetime(2015, 10, 15, 0, 0)
-
     """
     res = parse(s)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
