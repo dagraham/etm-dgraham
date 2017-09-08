@@ -13,6 +13,9 @@ from tinydb_smartcache import SmartCacheTable
 from dateutil.parser import parse
 from dateutil.tz import (tzlocal, gettz, tzutc)
 
+##########################
+### begin TinyDB setup ###
+##########################
 
 class DatetimeCacheTable(SmartCacheTable):
 
@@ -82,6 +85,10 @@ class DateSerializer(Serializer):
 serialization = SerializationMiddleware()
 serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(DateSerializer(), 'TinyDate')
+
+########################
+### end TinyDB setup ###
+########################
 
 
 def etm_parse(s):
