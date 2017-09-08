@@ -56,7 +56,7 @@ def main():
 
     body = MainWindow()
     if options.username:
-        print "[Logging in]"
+        print ("[Logging in]")
         if body.login(options.username, options.password):
             print("[Login Successful]")
         else:
