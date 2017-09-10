@@ -176,12 +176,16 @@ Week view rows are sorted and grouped by:
 
 ## `#` journal
 
-- @s required, date or datetime (naive or aware)
+- undated, no @s, @z, @a, @b
+- date-only: all-day, naive - no @z, @a
+  - sort: 2401 (after timed items in week and month day views)
+- datetime:
+  - without with @z float: naive
+  - otherwise: non-naive, pastdue after datetime
+  - @e optional extent (estimated time to complete) - default 0m
+  - sort: HHMM (with other timed items in week view)
 - with @e: equivalent to old action
 - without: equivalent to old note
-- sort:
-  - datetime: HHMM
-  - dateonly: 2401 (put these last in day)
 
 ## `?` someday maybe
 
