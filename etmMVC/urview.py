@@ -165,7 +165,7 @@ at_keys = {
     'm': "memo (string)",
     'o': "overdue (r)estart, s)kip or k)eep)",
     'p': "priority (integer)",
-    'r': "repetition frequency (y)ear, m)onth, w)eek, d)ay, h)our, M)inute,",
+    'r': "repetition frequency (y)ear, m)onth, w)eek, d)ay, h)our, M)inute",
     's': "start (date or date-time)",
     't': "tags (list of strings)",
     'v': "value (defaults key)",
@@ -213,7 +213,7 @@ methods['-'] = item_methods + task_methods + datetime_methods
 
 
 palette = [('I say', 'default,bold', 'default', 'bold'),]
-ask = urwid.Edit(('I say', u"new item\n"))
+ask = urwid.Edit(('I say', u"New * (event), - (task), # (journal entry), ? (someday entry) or ! (nbox entry)\n"))
 reply = urwid.Text(u"")
 button = urwid.Button(u'Exit')
 div = urwid.Divider()
