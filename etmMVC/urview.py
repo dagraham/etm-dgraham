@@ -240,21 +240,20 @@ def on_ask_change(edit, new_edit_text):
             at_tups.append( (part[0], at_hsh[part[0]], tmp) )
             tmp += 2 + len(part)
 
-    print('\n', at_tups)
+    # print('\n', at_tups)
     if at_tups:
         itemtype, summary, end = at_tups.pop(0)
         active = itemtype
         for tup in at_tups:
             if tup[-1] <= pos:
-                active = tup[0]
+                act_key = tup[0]
+                act_val = tup[1]
             else:
                 break
         if itemtype in type_keys:
             ask.set_caption(('I say', "new {0} pos {1} act {2}\n".format(type_keys[itemtype], pos, active)))
             if at_tups:
                 reply.set_text(('I say', "@{0} {1}".format(at_tups[-1][0], at_tups[-1][1])))
-            # else:
-            #     reply.set_text(('I say', "@{0} {1}".format(at_parts[-1][0], at_parts[-1][1])))
 
         else:
             reply.set_text(('I say', u"Invalid item type '{0}'. Use *, -, #, ? or $".format(itemtype)))
