@@ -236,7 +236,7 @@ def on_ask_change(edit, new_edit_text):
                 at_hsh[part[0]] = part[1:].strip()
             else:
                 at_hsh[part[0]] = '?'
-            at_tups.append( (part[0], at_hsh[part[0]) )
+            at_tups.append( (part[0], at_hsh[part[0]]) )
 
         itemtype, summary = at_tups.pop(0)
         if itemtype in type_keys:
