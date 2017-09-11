@@ -245,7 +245,7 @@ def on_ask_change(edit, new_edit_text):
         itemtype, summary, end = at_tups.pop(0)
         active = itemtype
         for tup in at_tups:
-            if tup[-1] > pos:
+            if tup[-1] <= pos:
                 active = tup[0]
             else:
                 break
