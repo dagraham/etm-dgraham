@@ -165,7 +165,7 @@ at_keys = {
     'm': "memo (string)",
     'o': "overdue (r)estart, s)kip or k)eep)",
     'p': "priority (integer)",
-    'r': "repetition frequency (y)ear, m)onth, w)eek, d)ay, h)our, mi(n)ute, e)aster",
+    'r': "repetition frequency (y)ear, m)onth, w)eek, d)ay, h)our, M)inute,",
     's': "start (date or date-time)",
     't': "tags (list of strings)",
     'v': "value (defaults key)",
