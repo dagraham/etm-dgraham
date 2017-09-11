@@ -227,9 +227,9 @@ def on_ask_change(edit, new_edit_text):
     pos = ask.edit_pos
     active = ''
     at_parts = at_regex.split(new_edit_text)
+    at_tups = []
     if at_parts:
         tmp = -1
-        at_tups = []
         for part in at_parts:
             if not part:
                 break
