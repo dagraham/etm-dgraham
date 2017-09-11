@@ -225,6 +225,7 @@ def on_ask_change(edit, new_edit_text):
     pos_hsh = {}
     at_hsh = {}
     pos = ask.edit_pos
+    active = ''
     at_parts = at_regex.split(new_edit_text)
     if at_parts:
         at_tups = []
@@ -233,6 +234,8 @@ def on_ask_change(edit, new_edit_text):
             if not part:
                 break
             tmp += 2 + len(part)
+            if pos <= tmp:
+                active = part[0]
             pos_hsh[tmp] = part[0]
             if len(part) > 1:
                 at_hsh[part[0]] = part[1:].strip()
@@ -242,7 +245,7 @@ def on_ask_change(edit, new_edit_text):
 
         itemtype, summary = at_tups.pop(0)
         if itemtype in type_keys:
-            ask.set_caption(('I say', "new {0} pos {1}\n".format(type_keys[itemtype], pos)))
+            ask.set_caption(('I say', "new {0} pos {1} @{2}\n".format(type_keys[itemtype], pos, active)))
             if at_tups:
                 reply.set_text(('I say', "@{0} {1}".format(at_tups[-1][0], at_tups[-1][1])))
             # else:
