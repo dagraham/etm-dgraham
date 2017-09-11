@@ -241,7 +241,7 @@ def on_ask_change(edit, new_edit_text):
             at_tups.append( (part[0], at_hsh[part[0]], tmp) )
 
         print('\n', at_tups)
-
+    if at_tups:
         itemtype, summary, end = at_tups.pop(0)
         if itemtype in type_keys:
             ask.set_caption(('I say', "new {0} pos {1}\n".format(type_keys[itemtype], pos)))
