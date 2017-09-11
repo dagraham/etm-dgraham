@@ -257,7 +257,7 @@ def on_ask_change(edit, new_edit_text):
                 reply.set_text(('I say', "{0} {1}".format(act_key, act_val)))
             elif act_key in at_keys:
                 if act_val:
-                    reply.set_text(('I say', "{0}: @{1} {2}".format(at_keys[act_key], act_key, act_val)))
+                    reply.set_text(('I say', "{0}: @{1}\n{2}".format(at_keys[act_key], act_key, act_val)))
                 else:
                     reply.set_text(('I say', "{0}: @{1}".format(at_keys[act_key], act_key)))
             else:
