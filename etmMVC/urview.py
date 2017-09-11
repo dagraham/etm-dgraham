@@ -236,7 +236,7 @@ def on_ask_change(edit, new_edit_text):
             if len(part) > 1:
                 at_hsh[part[0]] = part[1:].strip()
             else:
-                at_hsh[part[0]] = '?'
+                at_hsh[part[0]] = ''
             at_tups.append( (part[0], at_hsh[part[0]], tmp) )
             tmp += 2 + len(part)
 
