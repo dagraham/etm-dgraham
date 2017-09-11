@@ -233,12 +233,12 @@ def on_ask_change(edit, new_edit_text):
         for part in at_parts:
             if not part:
                 break
-            tmp += 2 + len(part)
             if len(part) > 1:
                 at_hsh[part[0]] = part[1:].strip()
             else:
                 at_hsh[part[0]] = '?'
             at_tups.append( (part[0], at_hsh[part[0]], tmp) )
+            tmp += 2 + len(part)
 
     print('\n', at_tups)
     if at_tups:
