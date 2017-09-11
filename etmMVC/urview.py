@@ -240,7 +240,7 @@ def on_ask_change(edit, new_edit_text):
                 at_hsh[part[0]] = '?'
             at_tups.append( (part[0], at_hsh[part[0]], tmp) )
 
-    # print('\n', at_tups)
+    print('\n', at_tups)
     if at_tups:
         itemtype, summary, end = at_tups.pop(0)
         active = itemtype
@@ -248,7 +248,7 @@ def on_ask_change(edit, new_edit_text):
             if tup[-1] > pos:
                 active = tup[0]
             else:
-                continue
+                continu
         if itemtype in type_keys:
             ask.set_caption(('I say', "new {0} pos {1} act {2}\n".format(type_keys[itemtype], pos, active)))
             if at_tups:
