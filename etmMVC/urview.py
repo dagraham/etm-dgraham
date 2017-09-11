@@ -213,7 +213,7 @@ methods['-'] = item_methods + task_methods + datetime_methods
 
 
 palette = [('I say', 'default,bold', 'default', 'bold'),]
-ask = urwid.Edit(('I say', u"New * (event), - (task), # (journal entry), ? (someday entry) or ! (nbox entry)\n"))
+ask = urwid.Edit(('I say', u"New * (event), - (task), # (journal entry), ? (someday entry) or ! (nbox entry):\n"))
 reply = urwid.Text(u"")
 button = urwid.Button(u'Exit')
 div = urwid.Divider()
