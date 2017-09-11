@@ -260,7 +260,7 @@ def on_ask_change(edit, new_edit_text):
 
 
         else:
-            reply.set_text(('I say', u"Invalid item type '{0}'. Use *, -, #, ? or $".format(itemtype)))
+            ask.set_caption(('I say', u"Invalid item type '{0}'. Use *, -, #, ? or !".format(itemtype)))
             summary = "{0}{1}".format(itemtype, summary)
             itemtype = '$'
     else:
