@@ -377,13 +377,13 @@ Details for the selected item.
     amp_keys = {
         'r': {
             'E': "easter: number of days before (-), on (0)\n      or after (+) Easter",
-            'c': "count: integer",
             'h': "hour: list of integers in 0 ... 23",
             'i': "interval: positive integer",
             'M': "month: list of integers in 1 ... 12",
             'm': "monthday: list of integers 1 ... 31",
             'n': "minute: list of integers in 0 ... 59",
             's': "set position: integer",
+            't': "total number of repretitions: integer",
             'u': "until: datetime",
             'w': "weekday: list from SU, MO, ..., SA",
         },
