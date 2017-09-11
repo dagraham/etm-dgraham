@@ -259,7 +259,7 @@ def on_ask_change(edit, new_edit_text):
                 if act_val:
                     reply.set_text(('I say', "@{0} {1}".format(act_key, act_val)))
                 else:
-                    reply.set_text(('I say', "{1} @{1}".format(act_key, at_keys[act_key])))
+                    reply.set_text(('I say', "{1} @{0}".format(act_key, at_keys[act_key])))
             else:
                 reply.set_text(('I say', "@{0} is invalid".format(act_key)))
 
