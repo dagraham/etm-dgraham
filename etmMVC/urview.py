@@ -255,8 +255,15 @@ def on_ask_change(edit, new_edit_text):
             ask.set_caption(('I say', "new {0} pos {1} act {2}\n".format(type_keys[itemtype], pos, act_key)))
             if act_key == itemtype:
                 reply.set_text(('I say', "{0} {1}".format(act_key, act_val)))
+            elif act_key in at_keys:
+                if act_val:
+                    reply.set_text(('I say', "@{0} {1}".format(act_key, act_val)))
+                else:
+                    reply.set_text(('I say', "@{0} {1}".format(act_key, at_keys[act_key])))
             else:
-                reply.set_text(('I say', "@{0} {1}".format(act_key, act_val)))
+                reply.set_text(('I say', "@{0} is invalid".format(act_key)))
+
+
 
 
         else:
