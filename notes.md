@@ -3,7 +3,12 @@
 
 # TODO
 
+editing_at
 
+012345678901234567890123456789012345678901234567890123456789
+* summary @s fri 2p @e 90m @r m &w -1fr @z US/Pacific @d
+          |         |      |            |             |
+          10        20     27           40            54
 
 # Defaults
 
