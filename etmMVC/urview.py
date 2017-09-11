@@ -246,7 +246,7 @@ def on_ask_change(edit, new_edit_text):
         act_key = itemtype
         act_val = summary
         for tup in at_tups:
-            if tup[-1] <= pos:
+            if tup[-1] < pos:
                 act_key = tup[0]
                 act_val = tup[1]
             else:
