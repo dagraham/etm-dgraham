@@ -230,6 +230,8 @@ def on_ask_change(edit, new_edit_text):
         at_tups = []
         tmp = -1
         for part in at_parts:
+            if not part:
+                break
             tmp += 2 + len(part)
             pos_hsh[tmp] = part[0]
             if len(part) > 1:
