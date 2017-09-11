@@ -253,10 +253,10 @@ def on_ask_change(edit, new_edit_text):
                 break
         if itemtype in type_keys:
             ask.set_caption(('I say', "new {0} pos {1} act {2}\n".format(type_keys[itemtype], pos, act_key)))
-            if at_tups:
-                reply.set_text(('I say', "@{0} {1}".format(act_key, act_val)))
-            else:
+            if act_key == itemtype:
                 reply.set_text(('I say', "{0} {1}".format(act_key, act_val)))
+            else:
+                reply.set_text(('I say', "@{0} {1}".format(act_key, act_val)))
 
 
         else:
