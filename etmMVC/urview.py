@@ -260,7 +260,7 @@ def on_ask_change(edit, new_edit_text):
 
 
         else:
-            ask.set_caption(('I say', u"Invalid item type '{0}'. Use *, -, #, ? or !\n".format(itemtype)))
+            ask.set_caption(('I say', u"Invalid item type '{0}'.\nUse * (event), - (task), # (journal entry), ? (someday entry) or ! (nbox entry)\n".format(itemtype)))
             summary = "{0}{1}".format(itemtype, summary)
     else:
         reply.set_text(('I say', "no tups"))
