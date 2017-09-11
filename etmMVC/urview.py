@@ -243,7 +243,7 @@ def on_ask_change(edit, new_edit_text):
                 at_hsh[part[0]] = '?'
             at_tups.append( (part[0], at_hsh[part[0]]) )
 
-        print(at_tups)
+        print('\n', at_tups)
 
         itemtype, summary = at_tups.pop(0)
         if itemtype in type_keys:
