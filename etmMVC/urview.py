@@ -255,11 +255,8 @@ def on_ask_change(edit, new_edit_text):
             summary = "{0}{1}".format(itemtype, summary)
             itemtype = '$'
     else:
-        reply.set_text(('I say', ""))
+        reply.set_text(('I say', "no tups"))
 
-
-
-    # reply.set_text(('I say', u"got: %s" % new_edit_text[-1]))
 
 def on_exit_clicked(button):
     raise urwid.ExitMainLoop()
