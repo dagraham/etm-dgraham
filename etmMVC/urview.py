@@ -243,8 +243,14 @@ def on_ask_change(edit, new_edit_text):
     # print('\n', at_tups)
     if at_tups:
         itemtype, summary, end = at_tups.pop(0)
+        active = ''
+        for tup in at_tups:
+            if tup[-1] > pos:
+                active = tup[0]
+            else:
+                break
         if itemtype in type_keys:
-            ask.set_caption(('I say', "new {0} pos {1}\n".format(type_keys[itemtype], pos)))
+            ask.set_caption(('I say', "new {0} pos {1} active {2}\n".format(type_keys[itemtype], pos, active)))
             if at_tups:
                 reply.set_text(('I say', "@{0} {1}".format(at_tups[-1][0], at_tups[-1][1])))
             # else:
