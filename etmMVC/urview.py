@@ -240,8 +240,6 @@ def on_ask_change(edit, new_edit_text):
                 at_hsh[part[0]] = '?'
             at_tups.append( (part[0], at_hsh[part[0]], tmp) )
 
-        while 
-
         print('\n', at_tups)
 
         itemtype, summary, end = at_tups.pop(0)
