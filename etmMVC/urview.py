@@ -240,7 +240,7 @@ def on_ask_change(edit, new_edit_text):
                 at_hsh[part[0]] = '?'
             at_tups.append( (part[0], at_hsh[part[0]], tmp) )
 
-    print('\n', at_tups)
+    # print('\n', at_tups)
     if at_tups:
         itemtype, summary, end = at_tups.pop(0)
         if itemtype in type_keys:
@@ -254,6 +254,9 @@ def on_ask_change(edit, new_edit_text):
             reply.set_text(('I say', u"Invalid item type '{0}'. Use *, -, #, ? or $".format(itemtype)))
             summary = "{0}{1}".format(itemtype, summary)
             itemtype = '$'
+    else:
+        reply.set_text(('I say', ""))
+
 
 
     # reply.set_text(('I say', u"got: %s" % new_edit_text[-1]))
