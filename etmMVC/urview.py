@@ -248,7 +248,7 @@ def on_ask_change(edit, new_edit_text):
             if tup[-1] > pos:
                 active = tup[0]
             else:
-                continue
+                break
         if itemtype in type_keys:
             ask.set_caption(('I say', "new {0} pos {1} act {2}\n".format(type_keys[itemtype], pos, active)))
             if at_tups:
