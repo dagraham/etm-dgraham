@@ -222,9 +222,10 @@ top = urwid.Filler(pile, valign='top')
 
 
 def on_ask_change(edit, new_edit_text):
-    at_parts = at_regex.split(new_edit_text)
     pos_hsh = {}
     at_hsh = {}
+    pos = ask.edit_pos
+    at_parts = at_regex.split(new_edit_text)
     if at_parts:
         tmp = -1
         for part in at_parts:
@@ -235,15 +236,6 @@ def on_ask_change(edit, new_edit_text):
             else:
                 at_hsh[part[0]] = '?'
 
-    # pos = ask.edit_pos
-
-    # for x in at_regex.split(new_edit_text):
-    #     if len(x) > 1:
-    #         at_parts.append((x[0], x[1:].strip()))
-    #     elif x:
-    #         at_parts.append((x[0], '?'))
-    # # at_parts = [(x[0], x[1:].strip()) for x in at_regex.split(new_edit_text)]
-    # if at_parts:
         itemtype, summary = at_parts.pop(0)
         if itemtype in type_keys:
             ask.set_caption(('I say', "new {0} pos {1}\n".format(type_keys[itemtype], pos)))
