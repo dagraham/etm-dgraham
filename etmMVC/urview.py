@@ -216,7 +216,7 @@ palette = [('I say', 'default,bold', 'default', 'bold'),]
 ask = urwid.Edit(('I say', u"New * (event), - (task), # (journal entry), ? (someday entry) or ! (nbox entry):\n\n"))
 reply = urwid.Text(u"")
 button = urwid.Button(u'Exit')
-div = urwid.Divider()
+div = urwid.Divider('-')
 pile = urwid.Pile([ask, div, reply, div, button])
 top = urwid.Filler(pile, valign='top')
 
