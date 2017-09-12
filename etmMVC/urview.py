@@ -253,7 +253,7 @@ def on_ask_change(edit, new_edit_text):
                 break
         if itemtype in type_keys:
             # ask.set_caption(('I say', "{0} pos {1} act {2}\n".format(type_keys[itemtype], pos, act_key)))
-            ask.set_caption(('I say', "{0} summary?\n  ".format(type_keys[itemtype], pos, act_key)))
+            ask.set_caption(('I say', "{0} summary?\n  ".format(type_keys[itemtype])))
             if act_key == itemtype:
                 if act_val:
                     reply.set_text(('I say', "summary (string):\n  {0}".format(act_val)))
