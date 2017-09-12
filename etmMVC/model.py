@@ -128,7 +128,7 @@ def parse_datetime(s, tz=None):
     Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
     >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt
-    datetime.datetime(2015, 10, 15, 14, 0)
+    datetime.datetime(2015, 10, 15, 14, 0, tzinfo=tzlocal())
 
     >>> dt = parse_datetime("2015-10-15 0h")
     >>> dt
