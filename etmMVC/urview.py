@@ -280,7 +280,7 @@ def on_ask_change(edit, new_edit_text):
             ask.set_caption(('warn', u"Invalid item type '{0}'\n".format(itemtype)))
             summary = "{0}{1}".format(itemtype, summary)
     else:
-        ask.set_caption(['say', type_prompt])
+        ask.set_caption(('say', type_prompt))
         reply.set_text(('say', item_types))
 
 
