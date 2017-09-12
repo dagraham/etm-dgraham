@@ -142,6 +142,11 @@ def parse_datetime(s):
     >>> dt = parse_datetime("2015-10-15 12:00:01a")
     >>> dt
     datetime.datetime(2015, 10, 15, 0, 0)
+
+    Now with errors
+    >>> dt = parse_datetime("Nvo 13 8am")
+    >>> dt
+
     """
 
     res = parse(s)
