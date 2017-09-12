@@ -148,13 +148,13 @@ def parse_datetime(s, tz=None):
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return res.date()
     else:
-        res.replace(second=0, microsecond=0)
+        res = res.replace(second=0, microsecond=0)
         if tz is None:
-            res.replace(tzinfo=tzlocal()) 
+            res = res.replace(tzinfo=tzlocal()) 
         elif tz == 'float':
-            res.replace(tzinfo=None)
+            res = res.replace(tzinfo=None)
         else:
-            res.replace(tzinfo=gettz(tz))
+            res = res.replace(tzinfo=gettz(tz))
         return res
 
 
