@@ -145,7 +145,10 @@ def parse_datetime(s, tz=None):
 
     """
 
-    res = parse(s, yearfirst=True, dayfirst=False)
+    try:
+        res = parse(s, yearfirst=True, dayfirst=False)
+    except ValueError:
+        return "Could not process '{}'".format(s)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return res.date()
     else:
