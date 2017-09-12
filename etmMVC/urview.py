@@ -226,9 +226,10 @@ div = urwid.Divider('-')
 pile = urwid.Pile([ask, div, reply, div, button])
 top = urwid.Filler(pile, valign='top')
 
+def check_edit_text(s):
+    pass
 
 def on_ask_change(edit, new_edit_text):
-    pos_hsh = {}
     at_hsh = {}
     pos = ask.edit_pos
     active = ''
