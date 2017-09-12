@@ -146,7 +146,7 @@ def parse_datetime(s, tz=None):
 
     if tz is None:
         res = parse(s, yearfirst=True, dayfirst=False, tzinfo=tzlocal())
-    elif tz == 'float'
+    elif tz == 'float':
         res = parse(s, yearfirst=True, dayfirst=False)
     else:
         res = parse(s, yearfirst=True, dayfirst=False, tzinfo=gettz(tz))
