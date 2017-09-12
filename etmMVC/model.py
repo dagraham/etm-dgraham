@@ -98,11 +98,11 @@ class DateSerializer(Serializer):
 
 
 class TimeDeltaSerializer(Serializer):
-    OBJ_CLASS = timedelta  # The class handles date objects
+    OBJ_CLASS = timedelta  # The class handles timedelta objects
 
     def encode(self, obj):
         """
-        Serialize the timedelta object.
+        Serialize the timedelta object as days.seconds.
         """
         return "{0}.{1}".format(obj.days, obj.seconds)
 
@@ -228,7 +228,7 @@ if __name__ == '__main__':
     db.insert({'dt': date(2017, 9, 7)})
     db.insert({'td': timedelta(weeks=1, days=3, hours=7, minutes=15)})
     td = parse_period("1w3d7h15m")
-    db.insert({'td': td[0]})
+    db.insert({'td': -td[0]})
     for item in db:
         print(item.eid, item)
 
