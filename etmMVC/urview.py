@@ -296,7 +296,7 @@ def on_ask_change(edit, new_edit_text):
                         ", ".join([x for x in required[itemtype]]), 
                         ", ".join([x for x in allowed[itemtype]]),
                             ""
-                             ))
+                             )))
                 else:
                     reply.set_text(('say', "{}\n  required @-keys:\n  allowed @-keys:\n  default @-keys:".format(type_keys[itemtype])))
 
