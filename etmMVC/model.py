@@ -145,6 +145,7 @@ def parse_datetime(s, tz=None):
     """
 
     res, ignored = parse(s, yearfirst=True, dayfirst=False, fuzzy_with_tokens=True)
+    print(res, ignored)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return res.date()
     else:
