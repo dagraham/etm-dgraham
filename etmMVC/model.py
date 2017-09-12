@@ -142,6 +142,10 @@ def parse_datetime(s, tz=None):
     >>> dt, toks = parse_datetime("2015-10-15 12:00:01a", tz='float')
     >>> dt
     datetime.datetime(2015, 10, 15, 0, 0)
+
+    With tokens
+    >>> dt, toks = parse_datetime('Nvo 13, 2017 9am')
+    >>> dt, toks
     """
 
     res, toks = parse(s, yearfirst=True, dayfirst=False, fuzzy_with_tokens=True)
