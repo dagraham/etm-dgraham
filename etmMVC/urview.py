@@ -212,9 +212,9 @@ requirements['*'] = 's'
 methods['-'] = item_methods + task_methods + datetime_methods
 
 
-palette = [('I say', 'default,bold', 'default', 'bold'),]
+palette = [('say', 'default,bold', 'default', 'bold'),]
 # ask sets the caption for the edit widget which will be followed by the actual entry field.
-ask = urwid.Edit(('I say', u"type character for new item:\n"))
+ask = urwid.Edit(('say', u"type character for new item:\n"))
 # reply sets the text for the reply TEXT widget
 reply = urwid.Text(u"Type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry")
 button = urwid.Button(u'Exit')
@@ -254,29 +254,29 @@ def on_ask_change(edit, new_edit_text):
             else:
                 break
         if itemtype in type_keys:
-            # ask.set_caption(('I say', "{0} pos {1} act {2}\n".format(type_keys[itemtype], pos, act_key)))
-            ask.set_caption(('I say', "summary for {}:\n".format(type_keys[itemtype])))
+            # ask.set_caption(('say', "{0} pos {1} act {2}\n".format(type_keys[itemtype], pos, act_key)))
+            ask.set_caption(('say', "summary for {}:\n".format(type_keys[itemtype])))
             if act_key == itemtype:
                 if act_val:
-                    # reply.set_text(('I say', "summary (string):\n  {0}".format(act_val)))
-                    reply.set_text(('I say', "{}\n  required @-keys:\n  optional @-keys:\n  default @-keys:".format(type_keys[itemtype])))
+                    # reply.set_text(('say', "summary (string):\n  {0}".format(act_val)))
+                    reply.set_text(('say', "{}\n  required @-keys:\n  optional @-keys:\n  default @-keys:".format(type_keys[itemtype])))
                 else:
-                    # reply.set_text(('I say', "summary (string):\n  ?"))
-                    reply.set_text(('I say', "{}\n  required @-keys:\n  optional @-keys:\n  default @-keys:".format(type_keys[itemtype])))
+                    # reply.set_text(('say', "summary (string):\n  ?"))
+                    reply.set_text(('say', "{}\n  required @-keys:\n  optional @-keys:\n  default @-keys:".format(type_keys[itemtype])))
 
             elif act_key in at_keys:
                 if act_val:
-                    ask.set_caption(('I say', "{0}: {1}\n".format(at_keys[act_key], act_val)))
+                    ask.set_caption(('say', "{0}: {1}\n".format(at_keys[act_key], act_val)))
                 else:
-                    ask.set_caption(('I say', "{0}:\n".format(at_keys[act_key])))
+                    ask.set_caption(('say', "{0}:\n".format(at_keys[act_key])))
             else:
-                reply.set_text(('I say', "@{0} is invalid".format(act_key)))
+                reply.set_text(('say', "@{0} is invalid".format(act_key)))
 
         else:
-            ask.set_caption(('I say', u"Invalid item type '{0}'.\nUse * (event), - (task), # (journal entry), ? (someday entry) or ! (nbox entry)\n".format(itemtype)))
+            ask.set_caption(('say', u"Invalid item type '{0}'.\nUse * (event), - (task), # (journal entry), ? (someday entry) or ! (nbox entry)\n".format(itemtype)))
             summary = "{0}{1}".format(itemtype, summary)
     else:
-        reply.set_text(('I say', "no tups"))
+        reply.set_text(('say', "no tups"))
 
 
 def on_exit_clicked(button):
