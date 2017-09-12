@@ -216,7 +216,7 @@ palette = [('I say', 'default,bold', 'default', 'bold'),]
 # ask sets the caption for the edit widget which will be followed by the actual entry field.
 ask = urwid.Edit(('I say', u"type character for new item:\n"))
 # reply sets the text for the reply TEXT widget
-reply = urwid.Text(u"Type characters: * (event), - (task), # (journal entry), ? (someday entry), ! (nbox entry):\n")
+reply = urwid.Text(u"Type characters:\n  * (event)\n  - (task)\n  # (journal entry)\n  ? (someday entry)\n  (nbox entry):")
 button = urwid.Button(u'Exit')
 div = urwid.Divider('-')
 pile = urwid.Pile([ask, div, reply, div, button])
