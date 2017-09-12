@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import arrow
 from tinydb_serialization import Serializer
 from tinydb import TinyDB, Query, Storage
@@ -82,9 +82,27 @@ class DateSerializer(Serializer):
         """
         return datetime.strptime(s, '%Y%m%d').date()
 
+
+class TimeDeltaSerializer(Serializer):
+    OBJ_CLASS = timedelta  # The class handles date objects
+
+    def encode(self, obj):
+        """
+        Serialize the timedelta object.
+        """
+        return "{0}.{1}".format(obj.days, obj.seconds)
+
+    def decode(self, s):
+        """
+        Return the serialization as a timedelta object.
+        """
+        days_seconds = (int(x) for x in s.split('.')) 
+        return timedelta(*days_seconds)
+
 serialization = SerializationMiddleware()
 serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(DateSerializer(), 'TinyDate')
+serialization.register_serializer(TimeDeltaSerializer(), 'TinyTimeDelta')
 
 ########################
 ### end TinyDB setup ###
