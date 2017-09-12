@@ -146,7 +146,7 @@ def parse_datetime(s, tz=None):
 
     res, toks = parse(s, yearfirst=True, dayfirst=False, fuzzy_with_tokens=True)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-        return res.date()
+        return res.date(), toks
     else:
         res = res.replace(second=0, microsecond=0)
         if tz is None:
