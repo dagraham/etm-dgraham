@@ -219,6 +219,7 @@ if __name__ == '__main__':
     db.insert({'dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific'))})
     db.insert({'dt': date(2017, 9, 7)})
     db.insert({'td': timedelta(weeks=1, days=3, hours=7, minutes=15)})
+    db.insert({'td': parse_period(1w3d7h15m)})
     for item in db:
         print(item.eid, item)
 
