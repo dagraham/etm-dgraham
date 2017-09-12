@@ -130,16 +130,16 @@ def parse_datetime(s, tz=None):
     >>> dt
     datetime.datetime(2015, 10, 15, 14, 0, tzinfo=tzlocal())
 
-    >>> dt = parse_datetime("2015-10-15 0h")
+    >>> dt, toks = parse_datetime("2015-10-15 0h")
     >>> dt
     datetime.date(2015, 10, 15)
 
-    >>> dt = parse_datetime("2015-10-15")
+    >>> dt, toks = parse_datetime("2015-10-15")
     >>> dt
     datetime.date(2015, 10, 15)
 
     To get a datetime object for midnight use one second past midnight:
-    >>> dt = parse_datetime("2015-10-15 12:00:01a", tz='float')
+    >>> dt, toks = parse_datetime("2015-10-15 12:00:01a", tz='float')
     >>> dt
     datetime.datetime(2015, 10, 15, 0, 0)
     """
