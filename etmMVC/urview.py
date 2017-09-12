@@ -278,7 +278,7 @@ def on_ask_change(edit, new_edit_text):
             reply.set_text(('warn', u"Invalid item type '{0}'.\nUse * (event), - (task), # (journal entry), ? (someday entry) or ! (nbox entry)\n".format(itemtype)))
             summary = "{0}{1}".format(itemtype, summary)
     else:
-        reply.set_text(('say', "no tups"))
+        reply.set_text(('say', ""))
 
 
 def on_exit_clicked(button):
