@@ -212,7 +212,9 @@ requirements['*'] = 's'
 methods['-'] = item_methods + task_methods + datetime_methods
 
 
-palette = [('say', 'default,bold', 'default', 'bold'),]
+palette = [
+        ('say', 'default,bold', 'default', 'bold'),
+        ('warn', 'red,bold', 'default', 'bold')]
 # ask sets the caption for the edit widget which will be followed by the actual entry field.
 ask = urwid.Edit(('say', u"type character for new item:\n"))
 # reply sets the text for the reply TEXT widget
