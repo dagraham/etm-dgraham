@@ -150,7 +150,7 @@ def parse_datetime(s, tz=None):
 
     res = parse(s, yearfirst=True, dayfirst=False)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-        return res.date(), toks
+        return res.date()
     else:
         res = res.replace(second=0, microsecond=0)
         if tz is None:
