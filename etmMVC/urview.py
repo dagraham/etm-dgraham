@@ -256,9 +256,11 @@ def on_ask_change(edit, new_edit_text):
             ask.set_caption(('I say', "{0} summary?\n  ".format(type_keys[itemtype])))
             if act_key == itemtype:
                 if act_val:
-                    reply.set_text(('I say', "summary (string):\n  {0}".format(act_val)))
+                    # reply.set_text(('I say', "summary (string):\n  {0}".format(act_val)))
+                    reply.set_text(('I say', "required @-keys:\noptional @-keys: ..."))
                 else:
-                    reply.set_text(('I say', "summary (string):\n  ?"))
+                    # reply.set_text(('I say', "summary (string):\n  ?"))
+                    reply.set_text(('I say', "required @-keys:\noptional @-keys: ..."))
 
             elif act_key in at_keys:
                 if act_val:
