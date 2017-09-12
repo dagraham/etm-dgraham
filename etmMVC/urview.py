@@ -198,18 +198,18 @@ amp_keys = {
     },
 }
 
-methods = {}
-requirements = {}
+allowed = {}
+required = {}
 rruleset_methods = '+-r'
 item_methods = 'degclmitv'
 task_methods = 'fjp'
 date_methods = 'sb'
 datetime_methods = 'eaz' + date_methods
 
-methods['*'] = item_methods + datetime_methods + rruleset_methods 
-requirements['*'] = 's'
+allowed['*'] = item_methods + datetime_methods + rruleset_methods 
+required['*'] = 's'
 
-methods['-'] = item_methods + task_methods + datetime_methods
+allowed['-'] = item_methods + task_methods + datetime_methods
 
 type_prompt = u"type character for new item:\n"
 item_types = u"Type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
@@ -227,6 +227,9 @@ pile = urwid.Pile([ask, div, reply, div, button])
 top = urwid.Filler(pile, valign='top')
 
 def check_edit_text(pos, text):
+    """
+    Process text with cursor at position pos and return appropriate (ask and )
+    """
     pass
 
 def on_ask_change(edit, new_edit_text):
@@ -246,7 +249,6 @@ def on_ask_change(edit, new_edit_text):
             at_tups.append( (part[0], at_hsh[part[0]], tmp) )
             tmp += 2 + len(part)
 
-    # print('\n', at_tups)
     if at_tups:
         itemtype, summary, end = at_tups.pop(0)
         act_key = itemtype
@@ -258,15 +260,12 @@ def on_ask_change(edit, new_edit_text):
             else:
                 break
         if itemtype in type_keys:
-            # ask.set_caption(('say', "{0} pos {1} act {2}\n".format(type_keys[itemtype], pos, act_key)))
             ask.set_caption(('say', "summary for {}:\n".format(type_keys[itemtype])))
             if act_key == itemtype:
                 if act_val:
-                    # reply.set_text(('say', "summary (string):\n  {0}".format(act_val)))
-                    reply.set_text(('say', "{}\n  required @-keys:\n  optional @-keys:\n  default @-keys:".format(type_keys[itemtype])))
+                    reply.set_text(('say', "{}\n  required @-keys:\n  allowed @-keys:\n  default @-keys:".format(type_keys[itemtype])))
                 else:
-                    # reply.set_text(('say', "summary (string):\n  ?"))
-                    reply.set_text(('say', "{}\n  required @-keys:\n  optional @-keys:\n  default @-keys:".format(type_keys[itemtype])))
+                    reply.set_text(('say', "{}\n  required @-keys:\n  allowed @-keys:\n  default @-keys:".format(type_keys[itemtype])))
 
             elif act_key in at_keys:
                 if act_val:
