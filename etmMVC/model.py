@@ -144,7 +144,7 @@ def parse_datetime(s, tz=None):
     datetime.datetime(2015, 10, 15, 0, 0)
     """
 
-    res, ignored = parse(s, yearfirst=True, dayfirst=False, fuzzy_with_tokens=True)
+    res, toks = parse(s, yearfirst=True, dayfirst=False, fuzzy_with_tokens=True)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return res.date()
     else:
@@ -155,7 +155,7 @@ def parse_datetime(s, tz=None):
             res = res.replace(tzinfo=None)
         else:
             res = res.replace(tzinfo=gettz(tz))
-        return res
+        return res, toks
 
 
 def parse_period(s):
