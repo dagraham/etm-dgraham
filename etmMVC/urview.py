@@ -266,7 +266,7 @@ def on_ask_change(edit, new_edit_text):
                 if act_val:
                     ask.set_caption(('I say', "{0}:\n  {1}".format(at_keys[act_key], act_val)))
                 else:
-                    ask.set_caption(('I say', "{0}:\n  ?".format(at_keys[act_key])))
+                    ask.set_caption(('I say', "{0}:\n".format(at_keys[act_key])))
             else:
                 reply.set_text(('I say', "@{0} is invalid".format(act_key)))
 
