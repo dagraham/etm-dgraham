@@ -144,7 +144,7 @@ def parse_datetime(s, tz=None):
     datetime.datetime(2015, 10, 15, 0, 0)
 
     With tokens
-    >>> dt, toks = parse_datetime('Nvo 13, 2017 9am')
+    >>> dt, toks = parse_datetime('1327, 2017 9am')
     >>> dt, toks
     """
 
