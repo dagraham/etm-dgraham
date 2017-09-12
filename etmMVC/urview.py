@@ -211,13 +211,14 @@ requirements['*'] = 's'
 
 methods['-'] = item_methods + task_methods + datetime_methods
 
+type_prompt = u"type character for new item:\n"
 item_types = u"Type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
 
 palette = [
         ('say', 'default,bold', 'default', 'bold'),
         ('warn', 'dark red,bold', 'default', 'bold')]
 # ask sets the caption for the edit widget which will be followed by the actual entry field.
-ask = urwid.Edit(('say', u"type character for new item:\n"))
+ask = urwid.Edit(('say', type_prompt))
 # reply sets the text for the reply TEXT widget
 reply = urwid.Text(item_types)
 button = urwid.Button(u'Exit')
@@ -279,6 +280,7 @@ def on_ask_change(edit, new_edit_text):
             ask.set_caption(('warn', u"Invalid item type '{0}'\n".format(itemtype)))
             summary = "{0}{1}".format(itemtype, summary)
     else:
+        ask.set_caption('say', type_prompt)
         reply.set_text(('say', item_types))
 
 
