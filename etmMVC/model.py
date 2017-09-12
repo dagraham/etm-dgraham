@@ -123,7 +123,7 @@ serialization.register_serializer(TimeDeltaSerializer(), 'TinyTimeDelta')
 ########################
 
 
-def parse_datetime(s):
+def parse_datetime(s, tz=None):
     """
     Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
     >>> dt = parse_datetime("2015-10-15 2p")
@@ -144,7 +144,12 @@ def parse_datetime(s):
     datetime.datetime(2015, 10, 15, 0, 0)
     """
 
-    res = parse(s, yearfirst=True, dayfirst=False)
+    if tz is None:
+        res = parse(s, yearfirst=True, dayfirst=False, tzinfo=tzlocal())
+    elif tz == 'float'
+        res = parse(s, yearfirst=True, dayfirst=False)
+    else:
+        res = parse(s, yearfirst=True, dayfirst=False, tzinfo=gettz(tz))
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return res.date()
     else:
