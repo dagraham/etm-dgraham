@@ -144,16 +144,18 @@ def parse_datetime(s, tz=None):
     datetime.datetime(2015, 10, 15, 0, 0)
     """
 
-    if tz is None:
-        res = parse(s, yearfirst=True, dayfirst=False, tzinfo=tzlocal())
-    elif tz == 'float':
-        res = parse(s, yearfirst=True, dayfirst=False)
-    else:
-        res = parse(s, yearfirst=True, dayfirst=False, tzinfo=gettz(tz))
+    res, ignored = parse(s, yearfirst=True, dayfirst=False, fuzzy_with_tokens=True)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return res.date()
     else:
-        return res.replace(second=0, microsecond=0)
+        res.replace(second=0, microsecond=0)
+        if tz is None:
+            res.replace(tzinfo=tzlocal()) 
+        elif tz == 'float':
+            res.replace(tzinfo=None)
+        else:
+            res.replace(tzinfo=gettz(tz))
+        return res
 
 
 def parse_period(s):
