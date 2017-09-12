@@ -139,7 +139,7 @@ def parse_datetime(s, tz=None):
     datetime.date(2015, 10, 15)
 
     To get a datetime object for midnight use one second past midnight:
-    >>> dt = parse_datetime("2015-10-15 12:00:01a", tz='float')
+    >>> dt = parse_datetime("2015-13-15 12:00:01a", tz='float')
     >>> dt
     datetime.datetime(2015, 10, 15, 0, 0)
 
