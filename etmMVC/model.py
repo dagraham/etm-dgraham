@@ -149,7 +149,7 @@ def parse_datetime(s):
 
     """
 
-    res = parse(s)
+    res = parse(s, fuzzy=True)
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return res.date()
     else:
