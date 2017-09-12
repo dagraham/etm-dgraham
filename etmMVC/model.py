@@ -216,6 +216,7 @@ if __name__ == '__main__':
     db.purge()
     db.insert({'dt': datetime(2017, 9, 7, 12, 0, 0)})
     db.insert({'dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Eastern')) })
+    db.insert({'dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=itzlocal()) })
     db.insert({'dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific'))})
     db.insert({'dt': date(2017, 9, 7)})
     db.insert({'td': timedelta(weeks=1, days=3, hours=7, minutes=15)})
