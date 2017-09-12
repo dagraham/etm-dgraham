@@ -214,7 +214,7 @@ methods['-'] = item_methods + task_methods + datetime_methods
 
 palette = [('I say', 'default,bold', 'default', 'bold'),]
 # ask sets the caption for the edit widget which will be followed by the actual entry field.
-ask = urwid.Edit(('I say', u"type character for new item:\n"))
+ask = urwid.Edit(('I say', u"type character for new item:\n\n"))
 # reply sets the text for the reply TEXT widget
 reply = urwid.Text(u"Type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry")
 button = urwid.Button(u'Exit')
@@ -255,7 +255,7 @@ def on_ask_change(edit, new_edit_text):
                 break
         if itemtype in type_keys:
             # ask.set_caption(('I say', "{0} pos {1} act {2}\n".format(type_keys[itemtype], pos, act_key)))
-            ask.set_caption(('I say', "{0} summary\n".format(type_keys[itemtype])))
+            ask.set_caption(('I say', "{0} summary\n\n".format(type_keys[itemtype])))
             if act_key == itemtype:
                 if act_val:
                     # reply.set_text(('I say', "summary (string):\n  {0}".format(act_val)))
