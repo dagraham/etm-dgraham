@@ -259,10 +259,10 @@ def on_ask_change(edit, new_edit_text):
             if act_key == itemtype:
                 if act_val:
                     # reply.set_text(('I say', "summary (string):\n  {0}".format(act_val)))
-                    reply.set_text(('I say', "{}\n  required @-keys:\n  optional @-keys:\n  default @-keys:\n".format(type_keys[itemtype])))
+                    reply.set_text(('I say', "{}\n  required @-keys:\n  optional @-keys:\n  default @-keys:".format(type_keys[itemtype])))
                 else:
                     # reply.set_text(('I say', "summary (string):\n  ?"))
-                    reply.set_text(('I say', "{}\n  required @-keys:\n  optional @-keys:\n  default @-keys:\n".format(type_keys[itemtype])))
+                    reply.set_text(('I say', "{}\n  required @-keys:\n  optional @-keys:\n  default @-keys:".format(type_keys[itemtype])))
 
             elif act_key in at_keys:
                 if act_val:
