@@ -221,7 +221,7 @@ if __name__ == '__main__':
     db.insert({'td': timedelta(weeks=1, days=3, hours=7, minutes=15)})
     td = parse_period("1w3d7h15m")
     print(td)
-    db.insert({'td': td[1]})
+    db.insert({'td': td[0]})
     for item in db:
         print(item.eid, item)
 
