@@ -292,9 +292,9 @@ def on_ask_change(edit, new_edit_text):
             ask.set_caption(('say', "summary for {}:\n".format(type_keys[itemtype])))
             if act_key == itemtype:
                 if act_val:
-                    reply.set_text(('say', "{0}\n  required @-keys: {1}\n  allowed @-keys: {2}\n  default @-keys: {3}".format(type_keys[itemtype], 
-                        ", ".join([x for x in required[itemtype]]), 
-                        ", ".join([x for x in allowed[itemtype] if x not in required[itemtype]]),
+                    reply.set_text(('say', "{0}\n  required: {1}\n  allowed: {2}\n  default: {3}".format(type_keys[itemtype], 
+                        ", ".join(["@%s" % x for x in required[itemtype]]), 
+                        ", ".join(["@%s" % x for x in allowed[itemtype] if x not in required[itemtype]]),
                             ""
                              )))
                 else:
