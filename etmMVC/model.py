@@ -2,6 +2,7 @@
 
 from datetime import datetime, date, timedelta
 import arrow
+import re
 from tinydb_serialization import Serializer
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
@@ -12,6 +13,19 @@ from tinydb_smartcache import SmartCacheTable
 
 from dateutil.parser import parse
 from dateutil.tz import (tzlocal, gettz, tzutc)
+
+ONEMINUTE = timedelta(minutes=1)
+ONEHOUR = timedelta(hours=1)
+ONEDAY = timedelta(days=1)
+ONEWEEK = timedelta(weeks=1)
+
+period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
+week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
+day_regex = re.compile(r'[+-]?(\d+)d', flags=re.I)
+hour_regex = re.compile(r'[+-]?(\d+)h', flags=re.I)
+minute_regex = re.compile(r'[+-]?(\d+)m', flags=re.I)
+sign_regex = re.compile(r'(^\s*([+-])?)')
+
 
 ##########################
 ### begin TinyDB setup ###
@@ -109,23 +123,23 @@ serialization.register_serializer(TimeDeltaSerializer(), 'TinyTimeDelta')
 ########################
 
 
-def etm_parse(s):
+def parse_datetime(s):
     """
     Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
-    >>> dt = etm_parse("2015-10-15 2p")
+    >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt
     datetime.datetime(2015, 10, 15, 14, 0)
 
-    >>> dt = etm_parse("2015-10-15 0h")
+    >>> dt = parse_datetime("2015-10-15 0h")
     >>> dt
     datetime.date(2015, 10, 15)
 
-    >>> dt = etm_parse("2015-10-15")
+    >>> dt = parse_datetime("2015-10-15")
     >>> dt
     datetime.date(2015, 10, 15)
 
     To get a datetime object for midnight use one second past midnight:
-    >>> dt = etm_parse("2015-10-15 12:00:01a")
+    >>> dt = parse_datetime("2015-10-15 12:00:01a")
     >>> dt
     datetime.datetime(2015, 10, 15, 0, 0)
     """
@@ -135,6 +149,63 @@ def etm_parse(s):
         return res.date()
     else:
         return res.replace(second=0, microsecond=0)
+
+
+def parse_period(s):
+    """\
+    Take a case-insensitive period string and return a corresponding timedelta.
+    Examples:
+        parse_period('-2W3D4H5M')= -timedelta(weeks=2,days=3,hours=4,minutes=5)
+        parse_period('1h30m') = timedelta(hours=1, minutes=30)
+        parse_period('-10') = timedelta(minutes= 10)
+    where:
+        W or w: weeks
+        D or d: days
+        H or h: hours
+        M or m: minutes
+    If an integer is passed or a string that can be converted to an
+    integer, then return a timedelta corresponding to this number of
+    minutes if 'minutes = True', and this number of days otherwise.
+    Minutes will be True for alerts and False for beginbys.
+
+    >>> 3*60*60+5*60
+    11100
+    >>> parse_period("2d3h5m")[0]
+    datetime.timedelta(2, 11100)
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("-25m")[0]
+    datetime.datetime(2015, 10, 15, 8, 35)
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1d")[0]
+    datetime.datetime(2015, 10, 16, 9, 0)
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1w2h")[0]
+    datetime.datetime(2015, 10, 22, 11, 0)
+    """
+    msg = []
+    td = timedelta(seconds=0)
+    m = period_string_regex.match(s)
+    if not m:
+        msg.append("Invalid period '{0}'".format(s))
+        return None, msg
+    m = week_regex.search(s)
+    if m:
+        td += int(m.group(1)) * ONEWEEK
+    m = day_regex.search(s)
+    if m:
+        td += int(m.group(1)) * ONEDAY
+    m = hour_regex.search(s)
+    if m:
+        td += int(m.group(1)) * ONEHOUR
+    m = minute_regex.search(s)
+    if m:
+        td += int(m.group(1)) * ONEMINUTE
+    if type(td) is not timedelta:
+        msg.append("Invalid period '{0}'".format(s))
+        return None, msg
+    m = sign_regex.match(s)
+    if m and m.group(1) == '-':
+        return -1 * td, msg
+    else:
+        return td, msg
+
 
 
 if __name__ == '__main__':
