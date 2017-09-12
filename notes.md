@@ -10,6 +10,13 @@ editing_at
           |         |      |            |             |
           10        20     27           40            54
 
+Start
+    ask: item type: * (event), - (task), ...?
+        entry: *
+            ask: event summary?
+                entry: my event
+                reply: list of required at_keys
+
 # Defaults
 
 When displaying an item in details view, any applicable defaults will be 
