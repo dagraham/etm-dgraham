@@ -264,7 +264,7 @@ def on_ask_change(edit, new_edit_text):
 
             elif act_key in at_keys:
                 if act_val:
-                    ask.set_caption(('I say', "{0}:\n  {1}".format(at_keys[act_key], act_val)))
+                    ask.set_caption(('I say', "{0}: {1}\n".format(at_keys[act_key], act_val)))
                 else:
                     ask.set_caption(('I say', "{0}:\n".format(at_keys[act_key])))
             else:
