@@ -232,6 +232,35 @@ def check_edit_text(pos, text):
     """
     pass
 
+
+def etm_parse(s):
+    """
+    Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
+    >>> dt = etm_parse("2015-10-15 2p")
+    >>> dt
+    datetime.datetime(2015, 10, 15, 14, 0)
+
+    >>> dt = etm_parse("2015-10-15 0h")
+    >>> dt
+    datetime.date(2015, 10, 15)
+
+    >>> dt = etm_parse("2015-10-15")
+    >>> dt
+    datetime.date(2015, 10, 15)
+
+    To get a datetime object for midnight use one second past midnight:
+    >>> dt = etm_parse("2015-10-15 12:00:01a")
+    >>> dt
+    datetime.datetime(2015, 10, 15, 0, 0)
+    """
+
+    res = parse(s)
+    if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
+        return res.date()
+    else:
+        return res.replace(second=0, microsecond=0)
+
+
 def on_ask_change(edit, new_edit_text):
     at_hsh = {}
     pos = ask.edit_pos
@@ -267,7 +296,7 @@ def on_ask_change(edit, new_edit_text):
                 else:
                     reply.set_text(('say', "{}\n  required @-keys:\n  allowed @-keys:\n  default @-keys:".format(type_keys[itemtype])))
 
-            elif act_key in at_keys:
+            elif act_key in allowed[itemtype]:
                 if act_val:
                     ask.set_caption(('say', "{0}: {1}\n".format(at_keys[act_key], act_val)))
                 else:
