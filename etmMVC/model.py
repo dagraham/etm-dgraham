@@ -227,8 +227,8 @@ if __name__ == '__main__':
     db.insert({'dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific'))})
     db.insert({'dt': date(2017, 9, 7)})
     db.insert({'td': timedelta(weeks=1, days=3, hours=7, minutes=15)})
-    td = parse_period("1w3d7h15m")
-    db.insert({'td': -td[0]})
+    td = parse_period("-1w3d7h15m")
+    db.insert({'td': td[0]})
     for item in db:
         print(item.eid, item)
 
