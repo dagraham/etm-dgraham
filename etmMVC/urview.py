@@ -212,7 +212,7 @@ required['*'] = 's'
 allowed['-'] = item_methods + task_methods + datetime_methods
 
 type_prompt = u"type character for new item:\n"
-item_types = u"Type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
+item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
 
 palette = [
         ('say', 'default,bold', 'default', 'bold'),
