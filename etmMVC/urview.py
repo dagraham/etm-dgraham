@@ -303,10 +303,10 @@ def on_ask_change(edit, new_edit_text):
                 else:
                     ask.set_caption(('say', "{0}:\n".format(at_keys[act_key])))
             else:
-                ask.set_caption(('warn', "Invalid @-key: '@{0}'\n".format(act_key)))
+                ask.set_caption(('warn', "invalid @-key: '@{0}'\n".format(act_key)))
 
         else:
-            ask.set_caption(('warn', u"Invalid item type: '{0}'\n".format(itemtype)))
+            ask.set_caption(('warn', u"invalid item type character: '{0}'\n".format(itemtype)))
             summary = "{0}{1}".format(itemtype, summary)
     else:
         ask.set_caption(('say', type_prompt))
