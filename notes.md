@@ -17,6 +17,13 @@ Start
                 entry: my event
                 reply: list of required at_keys
 
+event
+    @s required
+        date-only: no @z, @e, @a
+        date-time:
+            default @z localtz and aware
+            requires @z float for naive
+
 # Defaults
 
 When displaying an item in details view, any applicable defaults will be 
