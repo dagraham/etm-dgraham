@@ -210,6 +210,7 @@ allowed['*'] = item_methods + datetime_methods + rruleset_methods
 required['*'] = 's'
 
 allowed['-'] = item_methods + task_methods + datetime_methods
+required['-'] = []
 
 type_prompt = u"type character for new item:\n"
 item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
