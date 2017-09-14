@@ -169,6 +169,7 @@ serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(DateSerializer(), 'TinyDate')
 serialization.register_serializer(TimeDeltaSerializer(), 'TinyTimeDelta')
 serialization.register_serializer(RruleSerializer(), 'TinyRrule')
+serialization.register_serializer(RruleSetSerializer(), 'TinyRruleSet')
 
 ########################
 ### end TinyDB setup ###
