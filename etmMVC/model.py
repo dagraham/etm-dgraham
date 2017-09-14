@@ -118,17 +118,55 @@ class TimeDeltaSerializer(Serializer):
 class RRuleSerializer(Serializer):
     OBJ_CLASS = rrule  # The class handles date objects
 
+    FREQNAMES = ['YEARLY','MONTHLY','WEEKLY','DAILY','HOURLY','MINUTELY','SECONDLY']
+
     def encode(self, obj):
         """
-        Serialize the naive date object without conversion.
+        Serialize the rrule object without conversion.
         """
-        return obj.strftime('%Y%m%d')
+        output = []
+        h, m = [None, None]
+        if obj._dtstart:
+            output.append(obj._dtstart.strftime('DTSTART:%Y%m%dT%H%M%S'))
+            h, m = obj._dtstart.timetuple()[3:5]
+
+        parts = ['FREQ=' + FREQNAMES[obj._freq]]
+        if obj._interval != 1:
+            parts.append('INTERVAL=' + str(obj._interval))
+        if obj._wkst:
+            parts.append('WKST=' + str(obj._wkst))
+        if obj._count:
+            parts.append('COUNT=' + str(obj._count))
+        elif obj._until:
+            parts.append('UNTIL=' + str(obj._until))
+
+
+        for name, value in [
+                ('BYSETPOS', obj._bysetpos),
+                ('BYMONTH', obj._bymonth),
+                ('BYMONTHDAY', obj._bymonthday),
+                ('BYYEARDAY', obj._byyearday),
+                ('BYWEEKNO', obj._byweekno),
+                ('BYWEEKDAY', obj._byweekday),
+                ]:
+            if value:
+                parts.append(name + '='+','.join(str(v) for v in value))
+
+        # Only include these if they differ from obj._dtstart
+        if obj._byhour and obj._byhour[0] != h:
+            parts.append('BYHOUR=%s' % obj._byhour)
+        if obj._byminute and obj._byminute[0] != m:
+            parts.append('BYMINUTE=%s' % obj._byminute)
+
+        output.append(';'.join(parts))
+        return '\n'.join(output)
+
 
     def decode(self, s):
         """
         Return the serialization as a date object.
         """
-        return datetime.strptime(s, '%Y%m%d').date()
+        return rrulestr(s)
 
 
 serialization = SerializationMiddleware()
