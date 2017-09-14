@@ -214,7 +214,7 @@ def parse_period(s):
     datetime.datetime(2015, 10, 15, 8, 35)
     >>> datetime(2015, 10, 15, 9, 0) + parse_period("1d")[1]
     datetime.datetime(2015, 10, 16, 9, 0)
-    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1w2h")[1]
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1w-1d+2h")[1]
     datetime.datetime(2015, 10, 22, 11, 0)
     """
     msg = []
@@ -239,33 +239,6 @@ def parse_period(s):
         elif g[3] == 'm':
             td += num * ONEMINUTE
     return True, td
-
-
-    # m = period_string_regex.match(s)
-    # if not m:
-    #     msg.append("Invalid period '{0}'".format(s))
-    #     return None, msg
-    # m = week_regex.search(s)
-    # if m:
-    #     td += int(m.group(1)) * ONEWEEK
-    # m = day_regex.search(s)
-    # if m:
-    #     td += int(m.group(1)) * ONEDAY
-    # m = hour_regex.search(s)
-    # if m:
-    #     td += int(m.group(1)) * ONEHOUR
-    # m = minute_regex.search(s)
-    # if m:
-    #     td += int(m.group(1)) * ONEMINUTE
-    # if type(td) is not timedelta:
-    #     msg.append("Invalid period '{0}'".format(s))
-    #     return None, msg
-    # m = sign_regex.match(s)
-    # if m and m.group(1) == '-':
-    #     return -1 * td, msg
-    # else:
-    #     return td, msg
-
 
 
 if __name__ == '__main__':
