@@ -220,30 +220,52 @@ def parse_period(s):
     """
     msg = []
     td = timedelta(seconds=0)
-    m = period_string_regex.match(s)
+
+    m = period_regex.findall(s)
     if not m:
         msg.append("Invalid period '{0}'".format(s))
-        return None, msg
-    m = week_regex.search(s)
-    if m:
-        td += int(m.group(1)) * ONEWEEK
-    m = day_regex.search(s)
-    if m:
-        td += int(m.group(1)) * ONEDAY
-    m = hour_regex.search(s)
-    if m:
-        td += int(m.group(1)) * ONEHOUR
-    m = minute_regex.search(s)
-    if m:
-        td += int(m.group(1)) * ONEMINUTE
-    if type(td) is not timedelta:
-        msg.append("Invalid period '{0}'".format(s))
-        return None, msg
-    m = sign_regex.match(s)
-    if m and m.group(1) == '-':
-        return -1 * td, msg
-    else:
-        return td, msg
+        return False, msg
+    for g in m:
+        sign = g[1] or '+'
+        if g[1] == '-':
+            num = -int(g[2])
+        else:
+            num = int(g[2])
+        if g[3] == 'w':
+            td += num * ONEWEEK
+        elif g[3] == 'd':
+            td += num * ONEDAY
+        elif g[3] == 'h':
+            td += num * ONEHOUR
+        elif g[3] == 'm':
+            td += num * ONEMINUTE
+    return td, msg
+
+
+    # m = period_string_regex.match(s)
+    # if not m:
+    #     msg.append("Invalid period '{0}'".format(s))
+    #     return None, msg
+    # m = week_regex.search(s)
+    # if m:
+    #     td += int(m.group(1)) * ONEWEEK
+    # m = day_regex.search(s)
+    # if m:
+    #     td += int(m.group(1)) * ONEDAY
+    # m = hour_regex.search(s)
+    # if m:
+    #     td += int(m.group(1)) * ONEHOUR
+    # m = minute_regex.search(s)
+    # if m:
+    #     td += int(m.group(1)) * ONEMINUTE
+    # if type(td) is not timedelta:
+    #     msg.append("Invalid period '{0}'".format(s))
+    #     return None, msg
+    # m = sign_regex.match(s)
+    # if m and m.group(1) == '-':
+    #     return -1 * td, msg
+    # else:
+    #     return td, msg
 
 
 
