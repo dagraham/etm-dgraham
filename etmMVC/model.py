@@ -135,7 +135,7 @@ class RruleSerializer(Serializer):
         """
         Return the serialization as a date object.
         """
-        return rrule.rrulestr(s)
+        return dateutil.rrule.rrulestr(s)
 
 
 serialization = SerializationMiddleware()
