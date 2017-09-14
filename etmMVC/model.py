@@ -258,7 +258,7 @@ if __name__ == '__main__':
     td = parse_period("-1w3d7h15m")
     db.insert({'td': td[0]})
     rr = rrule.rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
-    # db.insert({'tr': rr})
+    db.insert({'tr': rr})
     for item in db:
         print(item.eid, item)
 
