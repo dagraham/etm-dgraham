@@ -74,7 +74,7 @@ class DateTimeSerializer(Serializer):
 
     def decode(self, s):
         """
-        Return the serialization as a datetime object first converting to localtime if the serializaton ends with 'A'. Serializations that end with 'N' are naive or floating datetimes and are interpreted as already representing localtimes. 
+        Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object. If the serialization ends with 'N', returning without conversion as a naive datetime object. 
         """
         if s[-1] == 'A':
             return datetime.strptime(s[:-1], '%Y%m%dT%H%M').replace(tzinfo=tzutc()).astimezone(tzlocal())
@@ -116,50 +116,17 @@ class TimeDeltaSerializer(Serializer):
 
 
 class RRuleSerializer(Serializer):
-    OBJ_CLASS = rrule  # The class handles date objects
+    """
+    All rrule datetimes are naive. When the rrule object is first created, the value for dtstart will be taken from the value of `s`, which is required and may either be aware, UTC time or naive. If aware, then all the rrule instances will need to be converted to localtime. 
+    """
+    OBJ_CLASS = rrule  # The class handles rrule objects
 
-    FREQNAMES = ['YEARLY','MONTHLY','WEEKLY','DAILY','HOURLY','MINUTELY','SECONDLY']
 
     def encode(self, obj):
         """
         Serialize the rrule object without conversion.
         """
-        output = []
-        h, m = [None, None]
-        if obj._dtstart:
-            output.append(obj._dtstart.strftime('DTSTART:%Y%m%dT%H%M%S'))
-            h, m = obj._dtstart.timetuple()[3:5]
-
-        parts = ['FREQ=' + FREQNAMES[obj._freq]]
-        if obj._interval != 1:
-            parts.append('INTERVAL=' + str(obj._interval))
-        if obj._wkst:
-            parts.append('WKST=' + str(obj._wkst))
-        if obj._count:
-            parts.append('COUNT=' + str(obj._count))
-        elif obj._until:
-            parts.append('UNTIL=' + str(obj._until))
-
-
-        for name, value in [
-                ('BYSETPOS', obj._bysetpos),
-                ('BYMONTH', obj._bymonth),
-                ('BYMONTHDAY', obj._bymonthday),
-                ('BYYEARDAY', obj._byyearday),
-                ('BYWEEKNO', obj._byweekno),
-                ('BYWEEKDAY', obj._byweekday),
-                ]:
-            if value:
-                parts.append(name + '='+','.join(str(v) for v in value))
-
-        # Only include these if they differ from obj._dtstart
-        if obj._byhour and obj._byhour[0] != h:
-            parts.append('BYHOUR=%s' % obj._byhour)
-        if obj._byminute and obj._byminute[0] != m:
-            parts.append('BYMINUTE=%s' % obj._byminute)
-
-        output.append(';'.join(parts))
-        return '\n'.join(output)
+        return obj.__str__()
 
 
     def decode(self, s):
@@ -290,6 +257,8 @@ if __name__ == '__main__':
     db.insert({'td': timedelta(weeks=1, days=3, hours=7, minutes=15)})
     td = parse_period("-1w3d7h15m")
     db.insert({'td': td[0]})
+    rr = rrule.rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
+    db.insert({'tr': rr})
     for item in db:
         print(item.eid, item)
 
