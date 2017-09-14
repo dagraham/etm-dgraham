@@ -278,7 +278,7 @@ if __name__ == '__main__':
     db.insert({'local dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=tzlocal()) })
     db.insert({'date': date(2017, 9, 7)})
     db.insert({'time delta': timedelta(weeks=1, days=3, hours=7, minutes=15)})
-    rr = rrule.rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
+    rr = rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
     db.insert({'tr': rr})
     set = rrule.rruleset()
     set.rrule(rrule(WEEKLY, count=4, dtstart = datetime(2017, 9, 14, 9, 0)))
