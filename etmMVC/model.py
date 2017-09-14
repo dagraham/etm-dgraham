@@ -283,7 +283,7 @@ if __name__ == '__main__':
     set = rruleset()
     set.rrule(rrule(WEEKLY, count=4, dtstart = datetime(2017, 9, 14, 9, 0)))
     set.exdate(datetime(2017, 9, 28, 9, 0))
-    list(set)
+    print(list(set))
     hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
     db.insert(hsh)
     for item in db:
