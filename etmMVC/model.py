@@ -154,14 +154,14 @@ class RruleSetSerializer(Serializer):
         """
         Serialize the rrule object.
         """
-        return pickle.dumps(obj)
+        return pickle.dumps(obj protocol=4)
 
 
     def decode(self, s):
         """
         Return the serialization as a date object.
         """
-        return pickle.loads(s)
+        return pickle.loads(s, protocol=4)
 
 
 serialization = SerializationMiddleware()
