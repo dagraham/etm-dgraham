@@ -259,7 +259,7 @@ if __name__ == '__main__':
     db.insert({'time delta': timedelta(weeks=1, days=3, hours=7, minutes=15)})
     rr = rrule.rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
     db.insert({'tr': rr})
-    hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Eastern')), 'e': timedelta(hours=1, minutes=15)}
+    hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
     db.insert(hsh)
     for item in db:
         print(item.eid, item)
