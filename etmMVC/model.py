@@ -214,7 +214,7 @@ def parse_period(s):
     datetime.datetime(2015, 10, 15, 8, 35)
     >>> datetime(2015, 10, 15, 9, 0) + parse_period("1d")[1]
     datetime.datetime(2015, 10, 16, 9, 0)
-    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1w-1d+2h")[1]
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
     datetime.datetime(2015, 10, 22, 11, 0)
     """
     msg = []
