@@ -154,7 +154,7 @@ class RruleSetSerializer(Serializer):
         """
         Serialize the rrule object.
         """
-        return pickle.dumps(obj protocol=4)
+        return pickle.dumps(obj, protocol=4)
 
 
     def decode(self, s):
