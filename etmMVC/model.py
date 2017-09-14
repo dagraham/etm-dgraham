@@ -127,7 +127,8 @@ class RruleSerializer(Serializer):
         """
         Serialize the rrule object.
         """
-        return obj.__str__()
+        # return obj.__str__()
+        return 'whatever'
 
 
     def decode(self, s):
