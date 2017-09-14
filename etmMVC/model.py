@@ -209,7 +209,7 @@ def parse_period(s):
     >>> 3*60*60+5*60
     11100
     >>> parse_period("2d3h5m")[1]
-    datetime.timedelta(2, 3*60*60+5*60)
+    datetime.timedelta(2, 11100)
     >>> datetime(2015, 10, 15, 9, 0) + parse_period("-25m")[1]
     datetime.datetime(2015, 10, 15, 8, 35)
     >>> datetime(2015, 10, 15, 9, 0) + parse_period("1d")[1]
