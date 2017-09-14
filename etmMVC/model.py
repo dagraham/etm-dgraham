@@ -215,7 +215,7 @@ def parse_period(s):
     >>> datetime(2015, 10, 15, 9, 0) + parse_period("1d")[1]
     datetime.datetime(2015, 10, 16, 9, 0)
     >>> datetime(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
-    datetime.datetime(2015, 10, 22, 11, 0)
+    datetime.datetime(2015, 10, 20, 12, 0)
     """
     msg = []
     td = timedelta(seconds=0)
