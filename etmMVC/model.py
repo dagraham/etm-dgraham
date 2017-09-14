@@ -140,7 +140,7 @@ serialization = SerializationMiddleware()
 serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(DateSerializer(), 'TinyDate')
 serialization.register_serializer(TimeDeltaSerializer(), 'TinyTimeDelta')
-# serialization.register_serializer(RRuleSerializer(), 'TinyRRule')
+serialization.register_serializer(RRuleSerializer(), 'TinyRRule')
 
 ########################
 ### end TinyDB setup ###
