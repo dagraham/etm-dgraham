@@ -263,7 +263,7 @@ if __name__ == '__main__':
     rr = rrule.rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
     db.insert({'tr': rr})
     hsh = {'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Eastern')), 'e': timedelta(hours=1, minutes=15)}
-    db.insert('item': hsh)
+    db.insert(hsh)
     for item in db:
         print(item.eid, item)
 
