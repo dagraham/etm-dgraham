@@ -209,13 +209,13 @@ def parse_period(s):
 
     >>> 3*60*60+5*60
     11100
-    >>> parse_period("2d3h5m")[0]
+    >>> parse_period("2d3h5m")[1]
     datetime.timedelta(2, 11100)
-    >>> datetime(2015, 10, 15, 9, 0) + parse_period("-25m")[0]
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("-25m")[1]
     datetime.datetime(2015, 10, 15, 8, 35)
-    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1d")[0]
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1d")[1]
     datetime.datetime(2015, 10, 16, 9, 0)
-    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1w2h")[0]
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1w2h")[1]
     datetime.datetime(2015, 10, 22, 11, 0)
     """
     msg = []
@@ -239,7 +239,7 @@ def parse_period(s):
             td += num * ONEHOUR
         elif g[3] == 'm':
             td += num * ONEMINUTE
-    return td, msg
+    return True, td
 
 
     # m = period_string_regex.match(s)
