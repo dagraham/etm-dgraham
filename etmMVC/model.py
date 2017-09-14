@@ -14,6 +14,7 @@ from tinydb_smartcache import SmartCacheTable
 import dateutil
 from dateutil.parser import parse
 from dateutil import rrule
+from dateutil.rrule import *
 from dateutil.tz import (tzlocal, gettz, tzutc)
 
 import pickle
