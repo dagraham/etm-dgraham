@@ -115,7 +115,7 @@ class TimeDeltaSerializer(Serializer):
         return timedelta(*days_seconds)
 
 
-class RRuleSerializer(Serializer):
+class RruleSerializer(Serializer):
     """
     All rrule datetimes are naive. When the rrule object is first created, the value for dtstart will be taken from the value of `s`, which is required and may either be aware, UTC time or naive. If aware, then all the rrule instances will need to be converted to localtime. 
     """
@@ -140,7 +140,7 @@ serialization = SerializationMiddleware()
 serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(DateSerializer(), 'TinyDate')
 serialization.register_serializer(TimeDeltaSerializer(), 'TinyTimeDelta')
-serialization.register_serializer(RRuleSerializer(), 'TinyRRule')
+serialization.register_serializer(RruleSerializer(), 'TinyRRule')
 
 ########################
 ### end TinyDB setup ###
