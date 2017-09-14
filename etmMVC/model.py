@@ -242,6 +242,7 @@ def parse_period(s):
 
 
 if __name__ == '__main__':
+    print('\n\n')
     import doctest
     doctest.testmod()
 
