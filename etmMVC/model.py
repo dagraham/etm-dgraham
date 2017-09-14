@@ -140,7 +140,7 @@ serialization = SerializationMiddleware()
 serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(DateSerializer(), 'TinyDate')
 serialization.register_serializer(TimeDeltaSerializer(), 'TinyTimeDelta')
-serialization.register_serializer(RruleSerializer(), 'TinyRRule')
+serialization.register_serializer(RruleSerializer(), 'TinyRrule')
 
 ########################
 ### end TinyDB setup ###
@@ -249,7 +249,7 @@ if __name__ == '__main__':
 
     db = TinyDB('db.json', storage=serialization)
     db.purge()
-    # db.insert({'dt': [datetime(2017, 9, 7, 12, 0, 0), datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific'))]})
+    db.insert({'dt': [datetime(2017, 9, 7, 12, 0, 0), datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific'))]})
     db.insert({'dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Eastern')) })
     db.insert({'dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=tzlocal()) })
     db.insert({'dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific'))})
