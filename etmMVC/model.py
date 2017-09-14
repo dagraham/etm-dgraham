@@ -121,7 +121,7 @@ class RruleSerializer(Serializer):
     All rrule datetimes are naive. When the rrule object is first created, the value for dtstart will be taken from the value of `s`, which is required and may either be aware, UTC time or naive. If aware, then all the rrule instances will need to be converted to localtime. 
     """
 
-    OBJ_CLASS = str  # The class handles rrule objects
+    OBJ_CLASS = dateutil.rrule.rrule  # The class handles rrule objects
 
 
     def encode(self, obj):
