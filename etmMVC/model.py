@@ -11,7 +11,6 @@ from tinydb.storages import JSONStorage
 from tinydb_serialization import SerializationMiddleware
 from tinydb_smartcache import SmartCacheTable
 
-import dateutil
 from dateutil.parser import parse
 from dateutil import rrule
 from dateutil.tz import (tzlocal, gettz, tzutc)
@@ -121,7 +120,7 @@ class RruleSerializer(Serializer):
     All rrule datetimes are naive. When the rrule object is first created, the value for dtstart will be taken from the value of `s`, which is required and may either be aware, UTC time or naive. If aware, then all the rrule instances will need to be converted to localtime. 
     """
 
-    OBJ_CLASS = dateutil.rrule  # The class handles rrule objects
+    OBJ_CLASS = rrule  # The class handles rrule objects
 
 
     def encode(self, obj):
