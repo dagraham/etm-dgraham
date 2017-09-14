@@ -263,7 +263,7 @@ if __name__ == '__main__':
     rr = rrule.rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
     print(type(rr))
 
-    # db.insert({'tr': rr})
+    db.insert({'tr': rr})
     for item in db:
         print(item.eid, item)
 
