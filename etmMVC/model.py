@@ -12,6 +12,7 @@ from tinydb_serialization import SerializationMiddleware
 from tinydb_smartcache import SmartCacheTable
 
 from dateutil.parser import parse
+from dateutil import rrule, rrulestr
 from dateutil.tz import (tzlocal, gettz, tzutc)
 
 ONEMINUTE = timedelta(minutes=1)
@@ -112,6 +113,23 @@ class TimeDeltaSerializer(Serializer):
         """
         days_seconds = (int(x) for x in s.split('.')) 
         return timedelta(*days_seconds)
+
+
+class RRuleSerializer(Serializer):
+    OBJ_CLASS = rrule  # The class handles date objects
+
+    def encode(self, obj):
+        """
+        Serialize the naive date object without conversion.
+        """
+        return obj.strftime('%Y%m%d')
+
+    def decode(self, s):
+        """
+        Return the serialization as a date object.
+        """
+        return datetime.strptime(s, '%Y%m%d').date()
+
 
 serialization = SerializationMiddleware()
 serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
