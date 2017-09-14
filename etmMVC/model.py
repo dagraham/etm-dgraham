@@ -252,7 +252,7 @@ if __name__ == '__main__':
 
     db = TinyDB('db.json', storage=serialization)
     db.purge()
-    db.insert({'aware dt': [datetime(2017, 9, 7, 12, 0, 0), datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific'))]})
+    db.insert({'list of dt': [datetime(2017, 9, 7, 12, 0, 0), datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific'))]})
     db.insert({'eastern dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Eastern')) })
     db.insert({'local dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=tzlocal()) })
     db.insert({'date': date(2017, 9, 7)})
