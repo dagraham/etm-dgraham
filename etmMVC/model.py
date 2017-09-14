@@ -139,6 +139,28 @@ class RruleSerializer(Serializer):
         return dateutil.rrule.rrulestr(s)
 
 
+class RruleSetSerializer(Serializer):
+    """
+    All rrule datetimes are naive. When the rrule object is first created, the value for dtstart will be taken from the value of `s`, which is required and may either be aware, UTC time or naive. If aware, then all the rrule instances will need to be converted to localtime. 
+    """
+
+    OBJ_CLASS = dateutil.rrule.rruleset  # The class handles rruleset objects
+
+
+    def encode(self, obj):
+        """
+        Serialize the rrule object.
+        """
+        return pickle.dumps(obj)
+
+
+    def decode(self, s):
+        """
+        Return the serialization as a date object.
+        """
+        return pickle.loads(s)
+
+
 serialization = SerializationMiddleware()
 serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(DateSerializer(), 'TinyDate')
