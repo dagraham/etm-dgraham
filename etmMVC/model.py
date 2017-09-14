@@ -16,6 +16,8 @@ from dateutil.parser import parse
 from dateutil import rrule
 from dateutil.tz import (tzlocal, gettz, tzutc)
 
+import pickle
+
 ONEMINUTE = timedelta(minutes=1)
 ONEHOUR = timedelta(hours=1)
 ONEDAY = timedelta(days=1)
@@ -277,6 +279,7 @@ if __name__ == '__main__':
     db.insert({'time delta': timedelta(weeks=1, days=3, hours=7, minutes=15)})
     rr = rrule.rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
     db.insert({'tr': rr})
+    set = rrule.rruleset()
     hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
     db.insert(hsh)
     for item in db:
