@@ -261,9 +261,9 @@ if __name__ == '__main__':
     td = parse_period("-1w3d7h15m")
     db.insert({'td': td[0]})
     rr = rrule.rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
-    print(type(rr))
-
     db.insert({'tr': rr})
+    hsh = {'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Eastern')), 'e': timedelta(hours=1, minutes=15)}
+    db.insert('item': hsh)
     for item in db:
         print(item.eid, item)
 
