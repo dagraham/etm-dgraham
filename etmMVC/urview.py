@@ -222,8 +222,8 @@ def main():
 # allowed['-'] = item_methods + task_methods + datetime_methods
 # required['-'] = []
 
-# type_prompt = u"type character for new item:\n"
-# item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
+type_prompt = u"type character for new item:\n"
+item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
 
 palette = [
         ('say', 'default,bold', 'default', 'bold'),
