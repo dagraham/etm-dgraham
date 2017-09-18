@@ -112,11 +112,11 @@ def etm_parse(s):
 
 
 
-def check_entry(s, p):
+def check_entry(entry_text, pos):
     """
     Check the entry string s with the cursor at position o and return appropriate 'ask' and 'reply' tuples in the format (palette_key, display_string). 
     """
-    at_parts = at_regex.split(s)
+    at_parts = at_regex.split(entry_text)
     at_tups = []
     if at_parts:
         tmp = -1
