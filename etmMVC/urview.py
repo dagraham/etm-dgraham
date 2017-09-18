@@ -9,39 +9,6 @@ if cmd_folder not in sys.path:
 
 from controler import check_entry
 
-
-# def main():
-#     term = urwid.Terminal(None)
-
-#     mainframe = urwid.LineBox(
-#         urwid.Pile([
-#             ('weight', 70, term),
-#             ('fixed', 1, urwid.Filler(urwid.Edit('focus test edit: '))),
-#         ]),
-#     )
-
-#     def set_title(widget, title):
-#         mainframe.set_title(title)
-
-#     def quit(*args, **kwargs):
-#         raise urwid.ExitMainLoop()
-
-#     def handle_key(key):
-#         if key in ('q', 'Q'):
-#             quit()
-
-#     urwid.connect_signal(term, 'title', set_title)
-#     urwid.connect_signal(term, 'closed', quit)
-
-#     loop = urwid.MainLoop(
-#         mainframe,
-#         handle_mouse=False,
-#         unhandled_input=handle_key)
-
-#     term.main_loop = loop
-#     loop.run()
-
-
 def main():
     palette =   [
                 ('header', 'dark magenta,bold', 'default'),
@@ -127,107 +94,13 @@ def main():
     main_loop = urwid.MainLoop(body.frame, palette, input_filter=input_handler)
     main_loop.run()
 
-# def exit_on_q(key):
-#     if key in ('q', 'Q', 'esc'):
-#         raise urwid.ExitMainLoop()
-
-# class QuestionBox(urwid.Filler):
-#     def keypress(self, size, key):
-#         if key in ('space', '@'):
-#             print('got', key)
-#         if key != 'enter':
-#             return super(QuestionBox, self).keypress(size, key)
-#         self.original_widget = urwid.Text(
-#             u"Nice to meet you,\n%s.\n\nPress Q to exit." %
-#             edit.edit_text)
-
-# edit = urwid.Edit(u"What is your name?\n")
-# fill = QuestionBox(edit)
-# loop = urwid.MainLoop(fill, unhandled_input=exit_on_q)
-# loop.run()
-
-# import re
-# at_regex = re.compile(r'\s@', re.MULTILINE)
-# amp_regex = re.compile(r'\s&', re.MULTILINE)
-
-
-# type_keys = {
-#     "*": "event",
-#     "-": "task",
-#     "#": "journal entry",
-#     "?": "someday entry",
-#     "!": "inbox entry",
-# }
-
-# at_keys = {
-#     '+': "include (list of date-times)",
-#     '-': "exclude (list of date-times)",
-#     'a': "alert (timeperiod: cmd, optional args*)",
-#     'b': "beginby (integer number of days)",
-#     'c': "calendar (string)",
-#     'd': "description (string)",
-#     'e': "extent (timeperiod)",
-#     'f': "finish (datetime)",
-#     'g': "goto (url or filepath)",
-#     'i': "index (colon delimited string)",
-#     'j': "job summary (string)",
-#     'l': "location (string)",
-#     'm': "memo (string)",
-#     'o': "overdue (r)estart, s)kip or k)eep)",
-#     'p': "priority (integer)",
-#     'r': "repetition frequency (y)ear, m)onth, w)eek, d)ay, h)our, M)inute",
-#     's': "start (date or date-time)",
-#     't': "tags (list of strings)",
-#     'v': "value (defaults key)",
-#     'z': "timezone (string)",
-# }
-
-# amp_keys = {
-#     'r': {
-#         'E': "easter: number of days before (-), on (0)  or after (+) Easter",
-#         'h': "hour: list of integers in 0 ... 23",
-#         'i': "interval: positive integer",
-#         'M': "month: list of integers in 1 ... 12",
-#         'm': "monthday: list of integers 1 ... 31",
-#         'n': "minute: list of integers in 0 ... 59",
-#         's': "set position: integer",
-#         'u': "until: datetime",
-#         'w': "weekday: list from SU, MO, ..., SA",
-#     },
-
-#     'j': {
-#         'a': "alert: timeperiod: command, args*",
-#         'b': "beginby: integer number of days",
-#         'd': "description: string",
-#         'e': "extent: timeperiod",
-#         'f': "finish: datetime",
-#         'l': "location: string",
-#         'p': "prerequisites: comma separated list of uids of immediate prereqs",
-#         's': "start/due: timeperiod before task start",
-#         'u': "uid: unique identifier: integer or string",
-#     },
-# }
-
-# allowed = {}
-# required = {}
-# rruleset_methods = '+-r'
-# item_methods = 'degclmitv'
-# task_methods = 'fjp'
-# date_methods = 'sb'
-# datetime_methods = 'eaz' + date_methods
-
-# allowed['*'] = item_methods + datetime_methods + rruleset_methods 
-# required['*'] = 's'
-
-# allowed['-'] = item_methods + task_methods + datetime_methods
-# required['-'] = []
-
 type_prompt = u"type character for new item:\n"
 item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
 
 palette = [
         ('say', 'default,bold', 'default', 'bold'),
         ('warn', 'dark red,bold', 'default', 'bold')]
+
 # ask sets the caption for the edit widget which will be followed by the actual entry field.
 ask = urwid.Edit(('say', type_prompt))
 # reply sets the text for the reply TEXT widget
@@ -236,34 +109,6 @@ button = urwid.Button(u'Exit')
 div = urwid.Divider('-')
 pile = urwid.Pile([ask, div, reply, div, button])
 top = urwid.Filler(pile, valign='top')
-
-
-# def etm_parse(s):
-#     """
-#     Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
-#     >>> dt = etm_parse("2015-10-15 2p")
-#     >>> dt
-#     datetime.datetime(2015, 10, 15, 14, 0)
-
-#     >>> dt = etm_parse("2015-10-15 0h")
-#     >>> dt
-#     datetime.date(2015, 10, 15)
-
-#     >>> dt = etm_parse("2015-10-15")
-#     >>> dt
-#     datetime.date(2015, 10, 15)
-
-#     To get a datetime object for midnight use one second past midnight:
-#     >>> dt = etm_parse("2015-10-15 12:00:01a")
-#     >>> dt
-#     datetime.datetime(2015, 10, 15, 0, 0)
-#     """
-
-#     res = parse(s)
-#     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-#         return res.date()
-#     else:
-#         return res.replace(second=0, microsecond=0)
 
 
 def on_ask_change(edit, entry_text):
