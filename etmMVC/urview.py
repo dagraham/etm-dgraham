@@ -270,6 +270,8 @@ def on_ask_change(edit, entry_text):
     at_hsh = {}
     pos = ask.edit_pos
     a, r = check_entry(entry_text, pos)
+    ask.set_caption(a)
+    reply.set_text(r)
     at_parts = at_regex.split(new_edit_text)
     at_tups = []
     if at_parts:
