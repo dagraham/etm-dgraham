@@ -130,6 +130,10 @@ def etm_parse(s):
         return 'datetime', res.replace(second=0, microsecond=0)
 
 def get_datetime_state(at_hsh = {}):
+    """
+    Check the currents state of at_hsh regarding the 's' and 'z' keys
+
+    """
 
     s = at_hsh.get('s', None)
     z = at_hsh.get('z', None)
