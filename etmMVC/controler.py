@@ -129,7 +129,7 @@ def etm_parse(s):
     else:
         return 'datetime', res.replace(second=0, microsecond=0)
 
-def get_datetime_state(at_hsh = {})
+def get_datetime_state(at_hsh = {}):
 
     s = at_hsh.get('s', None)
     z = at_hsh.get('z', None)
