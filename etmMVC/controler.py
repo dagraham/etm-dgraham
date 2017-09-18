@@ -118,6 +118,7 @@ def check_entry(entry_text, pos):
     """
     at_parts = at_regex.split(entry_text)
     at_tups = []
+    at_hsh = {}
     if at_parts:
         tmp = -1
         for part in at_parts:
