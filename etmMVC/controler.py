@@ -163,7 +163,7 @@ def check_entry(s, p):
     else:
         ask = ('say', type_prompt)
         reply = ('say', item_types)
-    return ask, replay
+    return ask, reply
 
 
 
