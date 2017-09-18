@@ -2,6 +2,7 @@
 
 import datetime
 from dateutil.parser import parse
+from dateutil.tz import gettz, tzutc, localtz
 
 import re
 at_regex = re.compile(r'\s@', re.MULTILINE)
@@ -118,11 +119,41 @@ def etm_parse(s):
     datetime.datetime(2015, 10, 15, 0, 0)
     """
 
-    res = parse(s)
+    try:
+        res = parse(s)
+    except:
+        return False, "Could not parse {}".format(s)
+
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-        return res.date()
+        return 'date', res.date()
     else:
-        return res.replace(second=0, microsecond=0)
+        return 'datetime', res.replace(second=0, microsecond=0)
+
+def get_datetime_state(at_hsh = {})
+
+    s = at_hsh.get('s', None)
+    z = at_hsh.get('z', None)
+    msg = ''
+    if s is not None:
+        ok, S = etm_parse()
+        if not ok:
+            return 
+        if ok == 'date':
+            state = 'dateonly'
+            if z is not None:
+                msg = 'An entry for @z is not allowed with a date-only entry for @s'
+        elif ok == 'datetime':
+            if z == 'float':
+                state = 'naive'
+                msg = "The datetime entry for @s will be interpreted as naive"
+            else:
+                state = 'aware'
+                if z is None:
+                    msg = "The datetime entry for @s will be interpreted as an aware datetime in the current local timezone"
+                else:
+                    msg = "The datetime entry for @s will be interpreted as an aware datetime in the timezone {}".format(z)
+
+
 
 
 
