@@ -1,5 +1,5 @@
 import urwid
-from container import check_entry
+from etmMVC.container import check_entry
 
 
 # def main():
