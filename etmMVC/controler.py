@@ -182,8 +182,6 @@ def check_entry(entry_text, pos):
         reply = ('say', item_types)
     return ask, reply
 
-
-
 if __name__ == '__main__':
     print('\n\n')
     import doctest
