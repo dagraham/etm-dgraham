@@ -266,10 +266,10 @@ top = urwid.Filler(pile, valign='top')
 #         return res.replace(second=0, microsecond=0)
 
 
-def on_ask_change(edit, new_edit_text):
+def on_ask_change(edit, entry_text):
     at_hsh = {}
     pos = ask.edit_pos
-
+    a, r = check_entry(entry_text, pos)
     at_parts = at_regex.split(new_edit_text)
     at_tups = []
     if at_parts:
