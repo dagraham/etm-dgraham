@@ -1,4 +1,6 @@
 import urwid
+from container import check_entry
+
 
 # def main():
 #     term = urwid.Terminal(None)
@@ -136,84 +138,84 @@ def main():
 # loop = urwid.MainLoop(fill, unhandled_input=exit_on_q)
 # loop.run()
 
-import re
-at_regex = re.compile(r'\s@', re.MULTILINE)
-amp_regex = re.compile(r'\s&', re.MULTILINE)
+# import re
+# at_regex = re.compile(r'\s@', re.MULTILINE)
+# amp_regex = re.compile(r'\s&', re.MULTILINE)
 
 
-type_keys = {
-    "*": "event",
-    "-": "task",
-    "#": "journal entry",
-    "?": "someday entry",
-    "!": "inbox entry",
-}
+# type_keys = {
+#     "*": "event",
+#     "-": "task",
+#     "#": "journal entry",
+#     "?": "someday entry",
+#     "!": "inbox entry",
+# }
 
-at_keys = {
-    '+': "include (list of date-times)",
-    '-': "exclude (list of date-times)",
-    'a': "alert (timeperiod: cmd, optional args*)",
-    'b': "beginby (integer number of days)",
-    'c': "calendar (string)",
-    'd': "description (string)",
-    'e': "extent (timeperiod)",
-    'f': "finish (datetime)",
-    'g': "goto (url or filepath)",
-    'i': "index (colon delimited string)",
-    'j': "job summary (string)",
-    'l': "location (string)",
-    'm': "memo (string)",
-    'o': "overdue (r)estart, s)kip or k)eep)",
-    'p': "priority (integer)",
-    'r': "repetition frequency (y)ear, m)onth, w)eek, d)ay, h)our, M)inute",
-    's': "start (date or date-time)",
-    't': "tags (list of strings)",
-    'v': "value (defaults key)",
-    'z': "timezone (string)",
-}
+# at_keys = {
+#     '+': "include (list of date-times)",
+#     '-': "exclude (list of date-times)",
+#     'a': "alert (timeperiod: cmd, optional args*)",
+#     'b': "beginby (integer number of days)",
+#     'c': "calendar (string)",
+#     'd': "description (string)",
+#     'e': "extent (timeperiod)",
+#     'f': "finish (datetime)",
+#     'g': "goto (url or filepath)",
+#     'i': "index (colon delimited string)",
+#     'j': "job summary (string)",
+#     'l': "location (string)",
+#     'm': "memo (string)",
+#     'o': "overdue (r)estart, s)kip or k)eep)",
+#     'p': "priority (integer)",
+#     'r': "repetition frequency (y)ear, m)onth, w)eek, d)ay, h)our, M)inute",
+#     's': "start (date or date-time)",
+#     't': "tags (list of strings)",
+#     'v': "value (defaults key)",
+#     'z': "timezone (string)",
+# }
 
-amp_keys = {
-    'r': {
-        'E': "easter: number of days before (-), on (0)  or after (+) Easter",
-        'h': "hour: list of integers in 0 ... 23",
-        'i': "interval: positive integer",
-        'M': "month: list of integers in 1 ... 12",
-        'm': "monthday: list of integers 1 ... 31",
-        'n': "minute: list of integers in 0 ... 59",
-        's': "set position: integer",
-        'u': "until: datetime",
-        'w': "weekday: list from SU, MO, ..., SA",
-    },
+# amp_keys = {
+#     'r': {
+#         'E': "easter: number of days before (-), on (0)  or after (+) Easter",
+#         'h': "hour: list of integers in 0 ... 23",
+#         'i': "interval: positive integer",
+#         'M': "month: list of integers in 1 ... 12",
+#         'm': "monthday: list of integers 1 ... 31",
+#         'n': "minute: list of integers in 0 ... 59",
+#         's': "set position: integer",
+#         'u': "until: datetime",
+#         'w': "weekday: list from SU, MO, ..., SA",
+#     },
 
-    'j': {
-        'a': "alert: timeperiod: command, args*",
-        'b': "beginby: integer number of days",
-        'd': "description: string",
-        'e': "extent: timeperiod",
-        'f': "finish: datetime",
-        'l': "location: string",
-        'p': "prerequisites: comma separated list of uids of immediate prereqs",
-        's': "start/due: timeperiod before task start",
-        'u': "uid: unique identifier: integer or string",
-    },
-}
+#     'j': {
+#         'a': "alert: timeperiod: command, args*",
+#         'b': "beginby: integer number of days",
+#         'd': "description: string",
+#         'e': "extent: timeperiod",
+#         'f': "finish: datetime",
+#         'l': "location: string",
+#         'p': "prerequisites: comma separated list of uids of immediate prereqs",
+#         's': "start/due: timeperiod before task start",
+#         'u': "uid: unique identifier: integer or string",
+#     },
+# }
 
-allowed = {}
-required = {}
-rruleset_methods = '+-r'
-item_methods = 'degclmitv'
-task_methods = 'fjp'
-date_methods = 'sb'
-datetime_methods = 'eaz' + date_methods
+# allowed = {}
+# required = {}
+# rruleset_methods = '+-r'
+# item_methods = 'degclmitv'
+# task_methods = 'fjp'
+# date_methods = 'sb'
+# datetime_methods = 'eaz' + date_methods
 
-allowed['*'] = item_methods + datetime_methods + rruleset_methods 
-required['*'] = 's'
+# allowed['*'] = item_methods + datetime_methods + rruleset_methods 
+# required['*'] = 's'
 
-allowed['-'] = item_methods + task_methods + datetime_methods
-required['-'] = []
+# allowed['-'] = item_methods + task_methods + datetime_methods
+# required['-'] = []
 
-type_prompt = u"type character for new item:\n"
-item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
+# type_prompt = u"type character for new item:\n"
+# item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
 
 palette = [
         ('say', 'default,bold', 'default', 'bold'),
@@ -227,44 +229,39 @@ div = urwid.Divider('-')
 pile = urwid.Pile([ask, div, reply, div, button])
 top = urwid.Filler(pile, valign='top')
 
-def check_edit_text(pos, text):
-    """
-    Process text with cursor at position pos and return appropriate (ask and )
-    """
-    pass
 
+# def etm_parse(s):
+#     """
+#     Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
+#     >>> dt = etm_parse("2015-10-15 2p")
+#     >>> dt
+#     datetime.datetime(2015, 10, 15, 14, 0)
 
-def etm_parse(s):
-    """
-    Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
-    >>> dt = etm_parse("2015-10-15 2p")
-    >>> dt
-    datetime.datetime(2015, 10, 15, 14, 0)
+#     >>> dt = etm_parse("2015-10-15 0h")
+#     >>> dt
+#     datetime.date(2015, 10, 15)
 
-    >>> dt = etm_parse("2015-10-15 0h")
-    >>> dt
-    datetime.date(2015, 10, 15)
+#     >>> dt = etm_parse("2015-10-15")
+#     >>> dt
+#     datetime.date(2015, 10, 15)
 
-    >>> dt = etm_parse("2015-10-15")
-    >>> dt
-    datetime.date(2015, 10, 15)
+#     To get a datetime object for midnight use one second past midnight:
+#     >>> dt = etm_parse("2015-10-15 12:00:01a")
+#     >>> dt
+#     datetime.datetime(2015, 10, 15, 0, 0)
+#     """
 
-    To get a datetime object for midnight use one second past midnight:
-    >>> dt = etm_parse("2015-10-15 12:00:01a")
-    >>> dt
-    datetime.datetime(2015, 10, 15, 0, 0)
-    """
-
-    res = parse(s)
-    if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-        return res.date()
-    else:
-        return res.replace(second=0, microsecond=0)
+#     res = parse(s)
+#     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
+#         return res.date()
+#     else:
+#         return res.replace(second=0, microsecond=0)
 
 
 def on_ask_change(edit, new_edit_text):
     at_hsh = {}
     pos = ask.edit_pos
+
     at_parts = at_regex.split(new_edit_text)
     at_tups = []
     if at_parts:
