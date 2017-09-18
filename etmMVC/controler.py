@@ -2,7 +2,7 @@
 
 import datetime
 from dateutil.parser import parse
-from dateutil.tz import gettz, tzutc, localtz
+from dateutil.tz import gettz, tzutc, tzlocal
 
 import re
 at_regex = re.compile(r'\s@', re.MULTILINE)
