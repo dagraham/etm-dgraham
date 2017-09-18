@@ -116,3 +116,11 @@ def check_entry(s, p):
     """
     Check the entry string s with the cursor at position o and return 'ask' and 'reply' tuples in the format (palette_key, display_string).
     """
+    pass
+
+
+if __name__ == '__main__':
+    print('\n\n')
+    import doctest
+    doctest.testmod()
+
