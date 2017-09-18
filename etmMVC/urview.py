@@ -272,53 +272,6 @@ def on_ask_change(edit, entry_text):
     a, r = check_entry(entry_text, pos)
     ask.set_caption(a)
     reply.set_text(r)
-    at_parts = at_regex.split(new_edit_text)
-    at_tups = []
-    if at_parts:
-        tmp = -1
-        for part in at_parts:
-            if not part:
-                break
-            if len(part) > 1:
-                at_hsh[part[0]] = part[1:].strip()
-            else:
-                at_hsh[part[0]] = ''
-            at_tups.append( (part[0], at_hsh[part[0]], tmp) )
-            tmp += 2 + len(part)
-
-    if at_tups:
-        itemtype, summary, end = at_tups.pop(0)
-        act_key = itemtype
-        act_val = summary
-        for tup in at_tups:
-            if tup[-1] < pos:
-                act_key = tup[0]
-                act_val = tup[1]
-            else:
-                break
-        if itemtype in type_keys:
-            ask.set_caption(('say', "summary for {}:\n".format(type_keys[itemtype])))
-            if act_key == itemtype:
-                reply.set_text(('say', "{0}\n  required: {1}\n  allowed: {2}\n  default: {3}".format(type_keys[itemtype], 
-                        ", ".join(["@%s" % x for x in required[itemtype]]), 
-                        ", ".join(["@%s" % x for x in allowed[itemtype] if x not in required[itemtype]]),
-                            ""
-                             )))
-
-            elif act_key in allowed[itemtype]:
-                if act_val:
-                    ask.set_caption(('say', "{0}: {1}\n".format(at_keys[act_key], act_val)))
-                else:
-                    ask.set_caption(('say', "{0}:\n".format(at_keys[act_key])))
-            else:
-                ask.set_caption(('warn', "invalid @-key: '@{0}'\n".format(act_key)))
-
-        else:
-            ask.set_caption(('warn', u"invalid item type character: '{0}'\n".format(itemtype)))
-            summary = "{0}{1}".format(itemtype, summary)
-    else:
-        ask.set_caption(('say', type_prompt))
-        reply.set_text(('say', item_types))
 
 
 def on_exit_clicked(button):
