@@ -267,7 +267,6 @@ top = urwid.Filler(pile, valign='top')
 
 
 def on_ask_change(edit, entry_text):
-    at_hsh = {}
     pos = ask.edit_pos
     a, r = check_entry(entry_text, pos)
     ask.set_caption(a)
