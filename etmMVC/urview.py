@@ -7,7 +7,7 @@ cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(
 if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
-from etmMVC.container import check_entry
+from container import check_entry
 
 
 # def main():
