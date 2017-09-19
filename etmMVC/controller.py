@@ -69,10 +69,10 @@ amp_keys = {
 allowed = {}
 required = {}
 rruleset_methods = '+-r'
-item_methods = 'degclmitv'
-task_methods = 'fjp'
+undated_methods = 'cdgilmtv'
 date_methods = 'sb'
 datetime_methods = date_methods + 'eaz' 
+task_methods = 'fjp'
 
 # events
 allowed['*'] = item_methods + datetime_methods + rruleset_methods 
@@ -101,20 +101,20 @@ item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\
 def etm_parse(s):
     """
     Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
-    >>> dt = etm_parse("2015-10-15 2p")
+    >>> dt = etm_parse("2015-10-15 2p")[1]
     >>> dt
-    datetime.datetime(2015, 10, 15, 14, 0)
+    datetime.datetime(2015, 10, 15, 14, 0)[1]
 
-    >>> dt = etm_parse("2015-10-15 0h")
+    >>> dt = etm_parse("2015-10-15 0h")[1]
     >>> dt
     datetime.date(2015, 10, 15)
 
-    >>> dt = etm_parse("2015-10-15")
+    >>> dt = etm_parse("2015-10-15")[1]
     >>> dt
     datetime.date(2015, 10, 15)
 
     To get a datetime object for midnight use one second past midnight:
-    >>> dt = etm_parse("2015-10-15 12:00:01a")
+    >>> dt = etm_parse("2015-10-15 12:00:01a")[1]
     >>> dt
     datetime.datetime(2015, 10, 15, 0, 0)
     """
@@ -128,6 +128,11 @@ def etm_parse(s):
         return 'date', res.date()
     else:
         return 'datetime', res.replace(second=0, microsecond=0)
+
+
+def format_datetime(obj, tz=None):
+    pass
+
 
 def get_datetime_state(at_hsh = {}):
     """
@@ -149,15 +154,13 @@ def get_datetime_state(at_hsh = {}):
         elif ok == 'datetime':
             if z == 'float':
                 state = 'naive'
-                msg = "The datetime entry for @s will be interpreted as naive"
+                msg = "@s {} will be interpreted as naive".format
             else:
                 state = 'aware'
                 if z is None:
                     msg = "The datetime entry for @s will be interpreted as an aware datetime in the current local timezone"
                 else:
                     msg = "The datetime entry for @s will be interpreted as an aware datetime in the timezone {}".format(z)
-
-
 
 
 
