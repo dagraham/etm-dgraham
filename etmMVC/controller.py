@@ -103,7 +103,7 @@ def etm_parse(s):
     Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
     >>> dt = etm_parse("2015-10-15 2p")[1]
     >>> dt
-    datetime.datetime(2015, 10, 15, 14, 0)[1]
+    datetime.datetime(2015, 10, 15, 14, 0)
 
     >>> dt = etm_parse("2015-10-15 0h")[1]
     >>> dt
