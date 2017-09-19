@@ -75,23 +75,23 @@ datetime_methods = date_methods + 'eaz'
 task_methods = 'fjp'
 
 # events
-allowed['*'] = item_methods + datetime_methods + rruleset_methods 
+allowed['*'] = undated_methods + datetime_methods + rruleset_methods 
 required['*'] = 's'
 
 # tasks
-allowed['-'] = item_methods + task_methods + datetime_methods + rruleset_methods
+allowed['-'] = undated_methods + task_methods + datetime_methods + rruleset_methods
 required['-'] = []
 
 # journal entries
-allowed['#'] = item_methods + task_methods + datetime_methods
+allowed['#'] = undated_methods + task_methods + datetime_methods
 required['#'] = ''
 
 # someday entries
-allowed['?'] = item_methods + task_methods + datetime_methods
+allowed['?'] = undated_methods + task_methods + datetime_methods
 required['?'] = ''
 
 # inbox entries
-allowed['!'] = item_methods + task_methods + datetime_methods + rruleset_methods
+allowed['!'] = undated_methods + task_methods + datetime_methods + rruleset_methods
 required['!'] = ''
 
 
