@@ -197,7 +197,7 @@ def check_entry(entry_text, pos):
             else:
                 break
         if itemtype in type_keys:
-            ask = ('say', "summary for {}:\n".format(type_keys[itemtype]))
+            ask = ('say', "{} summary{}:\n".format(type_keys[itemtype]))
             if act_key == itemtype:
                 reply = ('say', "{0}\n  required: {1}\n  allowed: {2}\n  default: {3}".format(type_keys[itemtype], 
                         ", ".join(["@%s" % x for x in required[itemtype]]), 
