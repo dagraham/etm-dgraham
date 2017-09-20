@@ -176,13 +176,13 @@ def check_entry(entry_text, pos):
     if at_parts:
         tmp = -1
         for part in at_parts:
-            if not part:
+            if part:
+                at_entry = False
+            else:
                 # @ entered but without key
-                # break
-                # continue
-                part = '?'
-                at_hsh['?'] = ''
-            elif len(part) > 1:
+                at_entry = True
+                break
+            if len(part) > 1:
                 at_hsh[part[0]] = part[1:].strip()
             else:
                 at_hsh[part[0]] = ''
