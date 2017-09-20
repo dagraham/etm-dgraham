@@ -177,6 +177,7 @@ def check_entry(entry_text, pos):
         tmp = -1
         for part in at_parts:
             if not part:
+                # @ entered but without key
                 break
             if len(part) > 1:
                 at_hsh[part[0]] = part[1:].strip()
@@ -218,7 +219,7 @@ def check_entry(entry_text, pos):
     else:
         ask = ('say', type_prompt)
         reply = ('say', item_types)
-    reply = ('say', ", ".join(at_parts))
+    # reply = ('say', ", ".join(at_parts))
     return ask, reply
 
 if __name__ == '__main__':
