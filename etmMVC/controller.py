@@ -186,6 +186,7 @@ def check_entry(entry_text, pos):
             tmp += 2 + len(part)
 
     if at_tups:
+        print('at_tups', at_tups)
         itemtype, summary, end = at_tups.pop(0)
         act_key = itemtype
         act_val = summary
@@ -194,7 +195,6 @@ def check_entry(entry_text, pos):
                 act_key = tup[0]
                 act_val = tup[1]
             else:
-                print('empty')
                 break
         if itemtype in type_keys:
             ask = ('say', "summary for {}:\n".format(type_keys[itemtype]))
