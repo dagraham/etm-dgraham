@@ -194,6 +194,7 @@ def check_entry(entry_text, pos):
                 act_key = tup[0]
                 act_val = tup[1]
             else:
+                print('empty')
                 break
         if itemtype in type_keys:
             ask = ('say', "summary for {}:\n".format(type_keys[itemtype]))
