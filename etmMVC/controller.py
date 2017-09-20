@@ -176,7 +176,7 @@ def check_entry(entry_text, pos):
     if at_parts:
         tmp = -1
         for part in at_parts:
-            if not part:
+            if not part.strip():
                 # @ entered but without key
                 # break
                 part = '?'
