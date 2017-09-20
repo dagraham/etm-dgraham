@@ -24,6 +24,31 @@ event
             default @z localtz and aware
             requires @z float for naive
 
+# States
+
+
+    * event
+        *a aware datetime @s date + time w/o @z or with @z not float
+            assumed until @s finished
+        *d date-only  - @s date w/o time
+            allowed
+        *n naive datetune - @s date + time + @z float
+            allowed
+
+    - task
+        -a aware datetime @s date + time w/o @z or with @z not float
+            assumed until @s finished
+        -d date-only  - @s date w/o time
+            allowed
+        -n naive datetune - @s date + time + @z float
+            allowed
+        -u undated - no @s
+
+
+
+
+
+
 # Defaults
 
 When displaying an item in details view, any applicable defaults will be 
