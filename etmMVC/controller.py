@@ -180,6 +180,7 @@ def check_entry(entry_text, pos):
                 # @ entered but without key
                 # break
                 # continue
+                part = '?'
                 at_hsh['?'] = ''
             elif len(part) > 1:
                 at_hsh[part[0]] = part[1:].strip()
