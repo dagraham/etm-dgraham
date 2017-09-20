@@ -5,7 +5,7 @@ from dateutil.parser import parse
 from dateutil.tz import gettz, tzutc, tzlocal
 
 import re
-at_regex = re.compile(r'\s+@', re.MULTILINE)
+at_regex = re.compile(r'\s@', re.MULTILINE)
 amp_regex = re.compile(r'\s&', re.MULTILINE)
 
 
