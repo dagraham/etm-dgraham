@@ -181,8 +181,8 @@ def check_entry(entry_text, pos):
             else:
                 # @ entered but without key
                 at_entry = True
-                # break
-                continue
+                break
+                # continue
             if len(part) > 1:
                 at_hsh[part[0]] = part[1:].strip()
             else:
