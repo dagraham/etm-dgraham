@@ -26,6 +26,19 @@ event
 
 # States
 
+errors?
+
+complete?
+
+
+    * 
+        @s (starting date/time) is required for events
+
+    - 
+        @s (starting date/time) is optional for tasks. Tasks with @s entries 
+        appear in agenda, week and month views. Tasks without @s entries appear 
+        in next view
+
 
     * event
         *a aware datetime @s date + time w/o @z or with @z not float
