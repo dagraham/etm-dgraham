@@ -220,6 +220,7 @@ def check_entry(entry_text, pos):
         ask = ('say', type_prompt)
         reply = ('say', item_types)
     # reply = ('say', ", ".join(["'{}'".format(x) for x in at_parts]))
+    reply = ('say', reply[1] + "\n" + ", ".join(["'{}'".format(x) for x in at_parts]))
     return ask, reply
 
 if __name__ == '__main__':
