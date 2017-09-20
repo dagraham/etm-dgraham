@@ -219,7 +219,7 @@ def check_entry(entry_text, pos):
     else:
         ask = ('say', type_prompt)
         reply = ('say', item_types)
-    # reply = ('say', ", ".join(at_parts))
+    reply = ('say', ", ".join(at_parts))
     return ask, reply
 
 if __name__ == '__main__':
