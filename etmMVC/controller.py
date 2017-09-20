@@ -144,7 +144,7 @@ def get_datetime_state(at_hsh = {}):
     z = at_hsh.get('z', None)
     msg = ''
     if s is not None:
-        ok, S = etm_parse()
+        ok, S = etm_parse(s)
         if not ok:
             return 
         if ok == 'date':
