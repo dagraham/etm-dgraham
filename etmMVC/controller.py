@@ -186,7 +186,6 @@ def check_entry(entry_text, pos):
             tmp += 2 + len(part)
 
     if at_tups:
-        print('at_tups', at_tups)
         itemtype, summary, end = at_tups.pop(0)
         act_key = itemtype
         act_val = summary
