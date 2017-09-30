@@ -1,13 +1,30 @@
-#! /usr/bin/env python3
+ #! /usr/bin/env python3
 
 import datetime
+import pendulum
+from datetime import datetime, date, timedelta
 from dateutil.parser import parse
 from dateutil.tz import gettz, tzutc, tzlocal
 
+ONEMINUTE = timedelta(minutes=1)
+ONEHOUR = timedelta(hours=1)
+ONEDAY = timedelta(days=1)
+ONEWEEK = timedelta(weeks=1)
+
+
 import re
 at_regex = re.compile(r'\s+@', re.MULTILINE)
-amp_regex = re.compile(r'\s&', re.MULTILINE)
+amp_regex = re.compile(r'\s+&', re.MULTILINE)
+week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
+day_regex = re.compile(r'[+-]?(\d+)d', flags=re.I)
+hour_regex = re.compile(r'[+-]?(\d+)h', flags=re.I)
+minute_regex = re.compile(r'[+-]?(\d+)m', flags=re.I)
+sign_regex = re.compile(r'(^\s*([+-])?)')
+int_regex = re.compile(r'^\s*([+-]?\d+)\s*$')
+period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
+period_parts = re.compile(r'([wWdDhHmM])')
 
+# item_hsh = {} # preserve state
 
 type_keys = {
     "*": "event",
@@ -34,10 +51,9 @@ at_keys = {
     'o': "overdue (r)estart, s)kip or k)eep)",
     'p': "priority (integer)",
     'r': "repetition frequency (y)ear, m)onth, w)eek, d)ay, h)our, M)inute",
-    's': "start (date or date-time)",
+    's': "starting date or datetime",
     't': "tags (list of strings)",
     'v': "value (defaults key)",
-    'z': "timezone (string)",
 }
 
 amp_keys = {
@@ -52,7 +68,9 @@ amp_keys = {
         'u': "until: datetime",
         'w': "weekday: list from SU, MO, ..., SA",
     },
-
+    's': {
+        'z': "timezone (string)",
+        },
     'j': {
         'a': "alert: timeperiod: command, args*",
         'b': "beginby: integer number of days",
@@ -69,10 +87,11 @@ amp_keys = {
 allowed = {}
 required = {}
 rruleset_methods = '+-r'
-undated_methods = 'cdgilmtv'
-date_methods = 'sb'
-datetime_methods = date_methods + 'eaz' 
+undated_methods = 'cdgilmstv'
+date_methods = 'b'
+datetime_methods = date_methods + 'ea' 
 task_methods = 'fjp'
+
 
 # events
 allowed['*'] = undated_methods + datetime_methods + rruleset_methods 
@@ -98,10 +117,104 @@ required['!'] = ''
 type_prompt = u"type character for new item:\n"
 item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
 
+
+def parse_date(s):
+    """
+    Parse 's' and return a date object. 
+    """
+    try:
+        res = parse(s)
+    except:
+        return False, "Could not parse {}".format(s)
+    else:
+        return True, res.date()
+
+def parse_datetime(s, z=None):
+    """
+    Parse 's' and return a datetime object.
+    """
+    try:
+        res = parse(s)
+    except:
+        return False, "Could not parse {}".format(s)
+    else:
+        if z is None:
+            return True, res.replace(tzinfo=tzlocal())
+
+
+def parse_period(s, minutes=True):
+    """\
+    Take a case-insensitive period string and return a corresponding timedelta.
+    Examples:
+        parse_period('-2W3D4H5M')= -timedelta(weeks=2,days=3,hours=4,minutes=5)
+        parse_period('1h30m') = timedelta(hours=1, minutes=30)
+        parse_period('-10') = timedelta(minutes= 10)
+    where:
+        W or w: weeks
+        D or d: days
+        H or h: hours
+        M or m: minutes
+    If an integer is passed or a string that can be converted to an
+    integer, then return a timedelta corresponding to this number of
+    minutes if 'minutes = True', and this number of days otherwise.
+    Minutes will be True for alerts and False for beginbys.
+
+    >>> 3*60*60+5*60
+    11100
+    >>> parse_period("2d3h5m")[1]
+    datetime.timedelta(2, 11100)
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("-25")[1]
+    datetime.datetime(2015, 10, 15, 8, 35)
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1", minutes=False)[1]
+    datetime.datetime(2015, 10, 16, 9, 0)
+    >>> datetime(2015, 10, 15, 9, 0) + parse_period("1w2h")[1]
+    datetime.datetime(2015, 10, 22, 11, 0)
+    """
+    msg = []
+    td = timedelta(seconds=0)
+    if minutes:
+        unitperiod = ONEMINUTE
+    else:
+        unitperiod = ONEDAY
+    try:
+        m = int(s)
+        return True, m * unitperiod
+    except ValueError:
+        m = int_regex.match(s)
+        if m:
+            return True, td + int(m.group(1)) * unitperiod
+            # if we get here we should have a period string
+    m = period_string_regex.match(s)
+    if not m:
+        msg.append("Invalid period '{0}'".format(s))
+        return False, msg
+    m = week_regex.search(s)
+    if m is not None:
+        td += int(m.group(1)) * ONEWEEK
+    m = day_regex.search(s)
+    if m is not None:
+        td += int(m.group(1)) * ONEDAY
+    m = hour_regex.search(s)
+    if m is not None:
+        td += int(m.group(1)) * ONEHOUR
+    m = minute_regex.search(s)
+    if m is not None:
+        td += int(m.group(1)) * ONEMINUTE
+    if type(td) is not timedelta:
+        msg.append("Invalid period '{0}'".format(s))
+        return False, msg
+    m = sign_regex.match(s)
+    if m and m.group(1) == '-':
+        return True, -1 * td
+    else:
+        return True, td
+
+
+
 def etm_parse(s):
     """
-    Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. 
-    >>> dt = etm_parse("2015-10-15 2p")[1]
+    Return a date object if the parsed time is exactly midnight. Otherwise return a datetime object. If ', float' is appended return a naive datetime object otherwise an aware datetime object using TimeZone if ', TimeZone' is appended and, otherwise, the current local timezone.
+    >>> dt = etm_parse("2015-10-15 2p, float")[1]
     >>> dt
     datetime.datetime(2015, 10, 15, 14, 0)
 
@@ -116,52 +229,282 @@ def etm_parse(s):
     To get a datetime object for midnight use one second past midnight:
     >>> dt = etm_parse("2015-10-15 12:00:01a")[1]
     >>> dt
-    datetime.datetime(2015, 10, 15, 0, 0)
+    datetime.datetime(2015, 10, 15, 0, 0, tzinfo=tzlocal())
     """
 
+    parts = s.split(', ')
+    d = parts[0]
+    z = parts[1:]
     try:
-        res = parse(s)
+        res = pendulum.parse(d)
     except:
-        return False, "Could not parse {}".format(s)
+        return False, "Could not parse: '{}'".format(d)
 
     if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
         return 'date', res.date()
     else:
-        return 'datetime', res.replace(second=0, microsecond=0)
+        if z:
+            z = z[0].strip()
+            if z == 'float':
+                tz = None
+                typ = 'naive'
+            else:
+                tz = gettz(z)
+                typ = 'aware'
+                if not tz:
+                    return False, "Considering timezone: '{}'".format(z)
+        else:
+            typ = 'local'
+            tz = tzlocal()
+
+        return typ, res.replace(second=0, microsecond=0, tzinfo=tz)
 
 
-def format_datetime(obj, tz=None):
+
+def format_datetime(obj):
+    if obj.year == datetime.now().year:
+        yearstr = "%a %b %d"
+    else:
+        yearstr = "%a %b %d %y"
+    if type(obj) == datetime.date:
+        return obj.strftime(yearstr)
+    else:
+        timestr = "{} %H:%M %Z".format(yearstr)
+        return obj.strftime(timestr)
+
+def deal_with_at(at_hsh={}):
+    """
+    When an '@' has been entered but not yet with its key, show required and available keys with descriptions. Note, for example, that until a valid entry for @s has been given, @a, @b and @z are not available.
+    """
     pass
 
+deal_with = {}
 
-def get_datetime_state(at_hsh = {}):
+def deal_with_s(at_hsh = {}, item_hsh={}):
     """
     Check the currents state of at_hsh regarding the 's' and 'z' keys
 
     """
-
     s = at_hsh.get('s', None)
-    z = at_hsh.get('z', None)
-    msg = ''
-    if s is not None:
-        ok, S = etm_parse(s)
-        if not ok:
-            return 
-        if ok == 'date':
-            state = 'dateonly'
-            if z is not None:
-                msg = 'An entry for @z is not allowed with a date-only entry for @s'
-        elif ok == 'datetime':
-            if z == 'float':
-                state = 'naive'
-                msg = "@s {} will be interpreted as naive".format
-            else:
-                state = 'aware'
-                if z is None:
-                    msg = "The datetime entry for @s will be interpreted as an aware datetime in the current local timezone"
-                else:
-                    msg = "The datetime entry for @s will be interpreted as an aware datetime in the timezone {}".format(z)
+    top = "{}?\n".format(at_keys['s'])
+    bot = ''
+    if s is None:
+        return top, bot
+    ok, obj = etm_parse(s)
+    if not ok or not obj:
+        return top, "considering: '{}'".format(s), None
+    item_hsh['s'] = obj
+    bot = "starting: {}".format(format_datetime(obj))
+    if ok == 'date':
+        # 'dateonly'
+        bot += '\nWithout a time, this schedules an all-day, floating item for the specified date in whatever happens to be the local timezone.'
+    elif ok == 'naive':
+        bot += "\nThe datetime entry for @s will be interpreted as a naive datetime in whatever happens to be the local timezone."
+    elif ok == 'aware':
+        bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the specified timezone."
+    else:
+        bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a comma and then 'float' to make the datetime floating (naive) or a specific timezone, e.g., 'US/Pacific', to use that timezone instead of the local one."
 
+    bot += "\n{}".format(str(at_hsh))
+    return top, bot, item_hsh
+
+deal_with['s'] = deal_with_s
+
+def deal_with_e(at_hsh={}, item_hsh={}):
+    """
+    Check the current state of at_hsh regarding the 'e' key.
+    """
+    s = at_hsh.get('e', None)
+    top = "{}?\n".format(at_keys['e'])
+    bot = ''
+    if s is None:
+        return top, bot
+    ok, obj = parse_period(s)
+    if not ok:
+        return top, "considering: '{}'".format(s)
+    item_hsh['e'] = obj
+    bot = "extending from {0} until {1}".format(format_datetime(item_hsh['s']), format_datetime(item_hsh['s'] + item_hsh['e']))
+    bot += "\n{}".format(str(at_hsh))
+    return top, bot, item_hsh
+
+deal_with['e'] = deal_with_e
+
+item_hsh = {}
+def str2hsh(s, cursor_pos=0, complete=False):
+    """
+    Process an item string and return a corresponding hash with no validation or processing of key values.
+    >>> pprint(str2hsh("* lunch @s sat 2p @e 2h @a 1h, 30m, 15m @z US/Eastern"))
+    {'a': ['1h, 30m, 15m'],
+     'e': '2h',
+     'itemtype': '*',
+     's': 'sat 2p',
+     'summary': 'lunch',
+     'z': 'US/Eastern'}
+    >>> pprint(str2hsh("- group @s mon @a 1d: e @a 1h: m @j job one &i 1 &p '' @j job two &i 2 &p 1"))
+    {'a': ['1d: e', '1h: m'],
+     'itemtype': '-',
+     'j': [{'i': '1', 'j': 'job one'}, {'i': '2', 'j': 'job two', 'p': '1'}],
+     's': 'mon',
+     'summary': 'group'}
+    >>> pprint(str2hsh("- group @s mon @j job A &i a &p b, c @j job B &i b &p '' @j job C &i c &p ''"))
+    {'itemtype': '-',
+     'j': [{'i': 'a', 'j': 'job A', 'p': 'b, c'},
+           {'i': 'b', 'j': 'job B'},
+           {'i': 'c', 'j': 'job C'}],
+     's': 'mon',
+     'summary': 'group'}
+    >>> pprint(str2hsh("- repeat @s mon @r d &i 3 &u fri"))
+    {'itemtype': '-',
+     'r': [{'i': '3', 'r': 'd', 'u': 'fri'}],
+     's': 'mon',
+     'summary': 'repeat'}
+    >>> str2hsh("")
+    {}
+    >>> pprint(str2hsh("* repeat @s mon @r d &i 3 &u fri"))
+    {'itemtype': '*',
+     'r': [{'i': '3', 'r': 'd', 'u': 'fri'}],
+     's': 'mon',
+     'summary': 'repeat'}
+    >>> pprint(str2hsh("* repeat @s mon @r d &i 3 &u"))
+    {'itemtype': '*', 'r': [{'i': '3', 'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
+    >>> pprint(str2hsh("* repeat @s mon @r d &i"))
+    {'itemtype': '*', 'r': [{'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
+    >>> pprint(str2hsh("* repeat @s mon @r d &"))
+    {'itemtype': '*', 'r': [{'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
+    >>> pprint(str2hsh("* repeat @s mon @r d "))
+    {'itemtype': '*', 'r': [{'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
+    >>> pprint(str2hsh("* repeat @s mon @r"))
+    {'itemtype': '*', 's': 'mon', 'summary': 'repeat'}
+    >>> pprint(str2hsh("* repeat @"))
+    {'itemtype': '*', 'summary': 'repeat'}
+    >>> pprint(str2hsh("* "))
+    {'itemtype': '*', 'summary': ''}
+    """
+    global item_hsh
+    msg = []
+    hsh = {}
+
+    if not s:
+        return hsh
+
+    at_parts = [x.strip() for x in at_regex.split(s)]
+    at_tups = []
+    ask = ('say', '')
+    reply = ('say', '')
+    at_entry = False
+    if at_parts:
+        # print('at_part0 : "{}"'.format(at_parts[0]))
+        place = -1
+        tmp = at_parts.pop(0)
+        hsh['itemtype'] = tmp[0]
+        hsh['summary'] = tmp[1:].strip()
+        at_tups.append( (hsh['itemtype'], hsh['summary'], place) )
+        place += 2 + len(tmp)
+
+        for part in at_parts:
+            if part:
+                at_entry = False
+                if len(part) < 2:
+                    continue
+            else:
+                at_entry = True
+                break
+            k = part[0]
+            v = part[1:].strip()
+            if v in ['', ""]:
+                pass
+            elif k in ('a', 'j', 'r'):
+                # there can be more than one entry for these keys
+                hsh.setdefault(k, []).append(v)
+            else:
+                hsh[k] = v
+            at_tups.append( (k, v, place) )
+            place += 2 + len(part)
+
+    for key in ['r', 'j']:
+        if key not in hsh: continue
+        lst = []
+        for part in hsh[key]:  # an individual @r or @j entry
+            amp_hsh = {}
+            amp_parts = [x.strip() for x in amp_regex.split(part)]
+            if amp_parts:
+                amp_hsh[key] = "".join(amp_parts.pop(0))
+                # k = amp_part
+                for part in amp_parts:  # the & keys and values for the given entry
+                    if len(part) < 2:
+                        continue
+                    k = part[0]
+                    v = part[1:].strip()
+                    if v in ["''", '""']:
+                        # don't add if the value was either '' or ""
+                        pass
+                    elif key == 'r' and k in ['M', 'e', 'm', 'w']:
+                        # make these lists
+                        amp_hsh[k] = comma_regex.split(v)
+                    elif k == 'a':
+                        amp_hsh.setdefault(k, []).append(v)
+                    else:
+                        amp_hsh[k] = v
+                lst.append(amp_hsh)
+        hsh[key] = lst
+
+    if item_hsh:
+        for key in item_hsh:
+            if key not in hsh:
+                del item_hsh[key]
+
+    if at_tups:
+        # itemtype, summary, end = at_tups.pop(0)
+        itemtype, summary, end = at_tups[0]
+        act_key = act_val = ''
+        if itemtype in type_keys:
+            for tup in at_tups:
+                if tup[-1] < cursor_pos:
+                    act_key = tup[0]
+                    act_val = tup[1]
+                else:
+                    break
+
+            if at_entry:
+                reply_str =  "{} @-keys\n".format(type_keys[itemtype])
+                current_required = ["@{}".format(x) for x in required[itemtype] if x not in hsh]
+                if current_required:
+                    reply_str += "  required: {}\n".format(", ".join(current_required))
+                current_allowed = ["@{}".format(x) for x in allowed[itemtype] if x not in hsh or x in 'jr']
+                if current_allowed:
+                    reply_str += "  allowed: {}\n".format(", ".join(current_allowed))
+                reply = ('say', reply_str)
+            elif act_key:
+
+                if act_key == itemtype:
+                    ask = ('say', "{} summary:\n".format(type_keys[itemtype]))
+                    reply = ('say', 'Enter the summary for the {}'.format(type_keys[itemtype]))
+
+                elif act_key in allowed[itemtype]:
+                    if act_key in deal_with:
+                        top, bot, item_hsh = deal_with[act_key](hsh, item_hsh)
+                        ask = ('say', top)
+                        reply = ('say', bot)
+
+                    elif act_val:
+                        ask = ('say', "{0}: {1}\n".format(at_keys[act_key], act_val))
+                    else:
+                        ask = ('say', "{0}:\n".format(at_keys[act_key]))
+                else:
+                    ask = ('warn', "invalid @-key: '@{0}'\n".format(act_key))
+
+        else:
+            ask = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
+            summary = "{0}{1}".format(itemtype, summary)
+    else:
+        ask = ('say', type_prompt)
+        reply = ('say', item_types)
+    reply = ('say', reply[1] + "\nat_entry: {}\n".format(at_entry) + ", ".join(["'{}'".format(x) for x in at_parts]))
+
+    if complete:
+        return hsh, item_hsh
+    else:
+        return ask, reply
 
 
 def check_entry(entry_text, pos):
@@ -178,15 +521,34 @@ def check_entry(entry_text, pos):
         for part in at_parts:
             if part:
                 at_entry = False
+                if len(part) > 1:
+                    at_key = part[0]
+                    at_val = part[1:].strip()
+                    if at_key in amp_keys:
+                        amp_parts = amp_regex.split(at_val)
+                        for amp_part in amp_parts:
+                            if amp_part:
+                                amp_entry = False
+                                if len(amp_part) > 1:
+                                    amp_key = amp_part[0]
+                                    amp_val = amp_part[1:].strip()
+                                else:
+                                    pass
+
+                            else:
+                                # & entered without key
+                                amp_entry = True
+
+
+                    at_hsh[at_key] = at_val
+
+                else:
+                    at_hsh[part[0]] = ''
             else:
                 # @ entered but without key
                 at_entry = True
                 break
                 # continue
-            if len(part) > 1:
-                at_hsh[part[0]] = part[1:].strip()
-            else:
-                at_hsh[part[0]] = ''
             at_tups.append( (part[0], at_hsh[part[0]], tmp) )
             tmp += 2 + len(part)
 
@@ -194,6 +556,8 @@ def check_entry(entry_text, pos):
         itemtype, summary, end = at_tups.pop(0)
         act_key = itemtype
         act_val = summary
+        at_hsh['type'] = itemtype
+        at_hsh['summary'] = summary
         for tup in at_tups:
             if tup[-1] < pos:
                 act_key = tup[0]
@@ -201,16 +565,28 @@ def check_entry(entry_text, pos):
             else:
                 break
         if itemtype in type_keys:
-            ask = ('say', "{} summary:\n".format(type_keys[itemtype]))
-            if act_key == itemtype:
-                reply = ('say', "{0}\n  required: {1}\n  allowed: {2}\n  default: {3}".format(type_keys[itemtype], 
-                        ", ".join(["@%s" % x for x in required[itemtype]]), 
-                        ", ".join(["@%s" % x for x in allowed[itemtype] if x not in required[itemtype]]),
-                            ""
-                             ))
+
+            if at_entry:
+                reply_str =  "{} @-keys\n".format(type_keys[itemtype])
+                current_required = ["@{}".format(x) for x in required[itemtype] if x not in at_hsh]
+                if current_required:
+                    reply_str += "  required: {}\n".format(", ".join(current_required))
+                current_allowed = ["@{}".format(x) for x in allowed[itemtype] if x not in at_hsh or x in 'jr']
+                if current_allowed:
+                    reply_str += "  allowed: {}\n".format(", ".join(current_allowed))
+                reply = ('say', reply_str)
+
+            elif act_key == itemtype:
+                ask = ('say', "{} summary:\n".format(type_keys[itemtype]))
+                reply = ('say', 'Enter the summary for the {}'.format(type_keys[itemtype]))
 
             elif act_key in allowed[itemtype]:
-                if act_val:
+                if act_key in deal_with:
+                    top, bot = deal_with[act_key](at_hsh)
+                    ask = ('say', top)
+                    reply = ('say', bot)
+
+                elif act_val:
                     ask = ('say', "{0}: {1}\n".format(at_keys[act_key], act_val))
                 else:
                     ask = ('say', "{0}:\n".format(at_keys[act_key]))
@@ -230,5 +606,6 @@ def check_entry(entry_text, pos):
 if __name__ == '__main__':
     print('\n\n')
     import doctest
+    from pprint import pprint
     doctest.testmod()
 
