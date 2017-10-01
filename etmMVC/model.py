@@ -233,7 +233,7 @@ class RruleSetSerializer(Serializer):
 
 serialization = SerializationMiddleware()
 serialization.register_serializer(PendulumDateTimeSerializer(), 'TinyPendulum')
-serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
+# serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(DateSerializer(), 'TinyDate')
 serialization.register_serializer(TimeDeltaSerializer(), 'TinyTimeDelta')
 serialization.register_serializer(RruleSerializer(), 'TinyRrule')
