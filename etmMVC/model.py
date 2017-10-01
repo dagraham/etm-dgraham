@@ -77,7 +77,7 @@ class PendulumDateTimeSerializer(Serializer):
             # print('naive/factory')
             return obj.format('YYYYMMDDTHHmm[N]', formatter='alternative')
         else:
-            print('aware')
+            # print('aware')
             return obj.in_timezone('UTC').format('YYYYMMDDTHHmm[A]', formatter='alternative' )
 
     def decode(self, s):
