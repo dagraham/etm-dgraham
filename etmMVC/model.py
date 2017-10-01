@@ -75,6 +75,7 @@ class PendulumDateTimeSerializer(Serializer):
         """
         print(obj.tzinfo.abbrev)
         if obj.tzinfo.abbrev == '-00':
+            print('naive/factory')
             return obj.format('YYYYMMDDTHHmm[N]', formatter='alternative')
         else:
             return obj.in_timezone('UTC').format('YYYYMMDDTHHmm[A]', formatter='alternative' )
