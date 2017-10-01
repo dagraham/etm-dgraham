@@ -349,7 +349,6 @@ if __name__ == '__main__':
     print(n, n.tzinfo.abbrev)
     db.insert({'naive pendulum': n})
     db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
-    db.insert({'local dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=tzlocal()) })
     db.insert({'date': date(2017, 9, 7)})
     db.insert({'time delta': timedelta(weeks=1, days=3, hours=7, minutes=15)})
     rr = rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
