@@ -74,18 +74,18 @@ class PendulumDateTimeSerializer(Serializer):
         Serialize '-00' objects without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
         """
         if obj.tzinfo.abbrev == '-00':
-            return obj.format('YYYYMMDDTHHmm[N]', formatter='alternative')
+            return obj.format('YYYYMMDDHHmm[N]', formatter='alternative')
         else:
-            return obj.in_timezone('UTC').format('YYYYMMDDTHHmm[A]', formatter='alternative' )
+            return obj.in_timezone('UTC').format('YYYYMMDDHHmm[A]', formatter='alternative' )
 
     def decode(self, s):
         """
         Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object. If the serialization ends with 'N', returning without conversion as a naive datetime object. 
         """
         if s[-1] == 'A':
-            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'UTC').in_timezone('local')
+            return pendulum.from_format(s[:-1], 'YYYYMMDDHHmm', 'UTC').in_timezone('local')
         else:
-            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'local')
+            return pendulum.from_format(s[:-1], 'YYYYMMDDHHmm', 'local')
 
 
 class DateTimeSerializer(Serializer):
