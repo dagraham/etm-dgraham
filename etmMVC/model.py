@@ -123,7 +123,7 @@ class PendulumDateTimeSerializer(Serializer):
 
 
 class PendulumDateSerializer(Serializer):
-    OBJ_CLASS = pendulum.date.Date  # The class handles date objects
+    OBJ_CLASS = pendulum.date  # The class handles date objects
 
     def encode(self, obj):
         """
