@@ -135,7 +135,7 @@ class PendulumDateSerializer(Serializer):
         """
         Return the serialization as a date object.
         """
-        return pendulum.format(s, '%Y%m%d').date()
+        return pendulum.from_format(s, '%Y%m%d').date()
 
 
 class TimeDeltaSerializer(Serializer):
