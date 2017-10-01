@@ -55,6 +55,70 @@ class DatetimeCacheTable(SmartCacheTable):
 
 TinyDB.table_class = DatetimeCacheTable
 
+class PendulumSerializer(Serializer):
+    """
+    This class handles both aware and 'factory' pendulum objects. 
+
+    Encoding: If the pendulum obj.tzinfo.abbrev != '-00', it is aware and is first converted to UTC and then encoded with an 'A' appended to the serialization. Otherwise, when obj.tzinfo.abbrev == '-00', it is serialized without conversion and an 'N' is appended.
+
+    Decoding: If the serialization ends with 'A', the pendulum object is treated as UTC and converted to localtime. Otherwise, the object is treated as localtime and no conversion is performed.
+
+    This serialization discards both seconds and microseconds but preserves hours and minutes.
+    """
+
+    OBJ_CLASS = pendulum.pendulum.Pendulum
+
+    def encode(self, obj):
+        """
+        Serialize '-00' objects without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
+        """
+        if obj.tzinfo.abbrev == '-00':
+            return obj.format('YYYYMMDDTHHmmN')
+        else:
+            return obj.in_timezone('UTC').format('YYYYMMDDTHHmmA')
+
+    def decode(self, s):
+        """
+        Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object. If the serialization ends with 'N', returning without conversion as a naive datetime object. 
+        """
+        if s[-1] == 'A':
+            return pendulum.from_format(s[:-1], '%Y%m%dT%H%M', 'UTC').in_timezone('local')
+        else:
+            return pendulum.from_format(s[:-1], '%Y%m%dT%H%M', 'local')
+
+
+class DateTimeSerializer(Serializer):
+    """
+    This class handles both aware and naive datetime objects. 
+
+    Encoding: If the datetime object is aware, it is first converted to UTC and then encoded with an 'A' appended to the serialization. Otherwise it is serialized without conversion and an 'N' is appended.
+
+    Decoding: If the serialization ends with 'A', the datetime object is treated as UTC and then converted to localtime. Otherwise, the datetime object is treated as localtime and no conversion is necessary.
+
+    This serialization discards both seconds and microseconds but preserves hours and minutes.
+    """
+
+    OBJ_CLASS = datetime
+
+    def encode(self, obj):
+        """
+        Serialize naive datetimes objects without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
+        """
+        if obj.tzinfo is None:
+            return obj.strftime('%Y%m%dT%H%MN')
+        else:
+            return obj.astimezone(tzutc()).strftime('%Y%m%dT%H%MA')
+
+    def decode(self, s):
+        """
+        Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object. If the serialization ends with 'N', returning without conversion as a naive datetime object. 
+        """
+        if s[-1] == 'A':
+            return datetime.strptime(s[:-1], '%Y%m%dT%H%M').replace(tzinfo=tzutc()).astimezone(tzlocal())
+        else:
+            return datetime.strptime(s[:-1], '%Y%m%dT%H%M')
+
+
 class DateTimeSerializer(Serializer):
     """
     This class handles both aware and naive datetime objects. 
