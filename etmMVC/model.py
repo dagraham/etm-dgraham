@@ -123,19 +123,19 @@ class PendulumDateTimeSerializer(Serializer):
 
 
 class DateSerializer(Serializer):
-    OBJ_CLASS = date  # The class handles date objects
+    OBJ_CLASS = pendulum.date.Date  # The class handles date objects
 
     def encode(self, obj):
         """
         Serialize the naive date object without conversion.
         """
-        return obj.strftime('%Y%m%d')
+        return obj.format('%Y%m%d')
 
     def decode(self, s):
         """
         Return the serialization as a date object.
         """
-        return datetime.strptime(s, '%Y%m%d').date()
+        return pendulum.format(s, '%Y%m%d').date()
 
 
 class TimeDeltaSerializer(Serializer):
