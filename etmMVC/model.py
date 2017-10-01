@@ -122,7 +122,7 @@ class PendulumDateTimeSerializer(Serializer):
 #             return datetime.strptime(s[:-1], '%Y%m%dT%H%M')
 
 
-class DateSerializer(Serializer):
+class PendulumDateSerializer(Serializer):
     OBJ_CLASS = pendulum.date.Date  # The class handles date objects
 
     def encode(self, obj):
@@ -202,7 +202,7 @@ class RruleSetSerializer(Serializer):
 serialization = SerializationMiddleware()
 serialization.register_serializer(PendulumDateTimeSerializer(), 'TinyPendulum')
 # serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
-serialization.register_serializer(DateSerializer(), 'TinyDate')
+serialization.register_serializer(PendulumDateSerializer(), 'TinyDate')
 serialization.register_serializer(TimeDeltaSerializer(), 'TinyTimeDelta')
 serialization.register_serializer(RruleSerializer(), 'TinyRrule')
 serialization.register_serializer(RruleSetSerializer(), 'TinyRruleSet')
