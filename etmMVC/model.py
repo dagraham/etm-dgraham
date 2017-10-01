@@ -48,7 +48,6 @@ class DatetimeCacheTable(SmartCacheTable):
         be 20160624081411601637.
         """
         # This must be an int even though it will be stored as a str
-        # current_id = int(arrow.utcnow().strftime("%Y%m%d%H%M%S%f"))
         current_id = int(pendulum.now('UTC').format("%Y%m%d%H%M%S%f"))
         self._last_id = current_id
 
