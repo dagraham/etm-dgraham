@@ -343,9 +343,8 @@ if __name__ == '__main__':
 
     db.insert({'pacific pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='US/Pacific') })
     db.insert({'local pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='local') })
-
-    db.insert({'list of dt': [datetime(2017, 9, 7, 12, 0, 0), datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific'))]})
-    db.insert({'eastern dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Eastern')) })
+    db.insert({'naive pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='Factory') })
+    db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
     db.insert({'local dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=tzlocal()) })
     db.insert({'date': date(2017, 9, 7)})
     db.insert({'time delta': timedelta(weeks=1, days=3, hours=7, minutes=15)})
