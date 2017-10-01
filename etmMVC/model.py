@@ -75,9 +75,9 @@ class PendulumDateTimeSerializer(Serializer):
         """
         if obj.tzinfo.abbrev == '-00':
             print('naive/factory')
-            print(obj.format('YYYYMMDDTHHmm[N]', formatter='alternative'))
             return obj.format('YYYYMMDDTHHmm[N]', formatter='alternative')
         else:
+            print('aware')
             return obj.in_timezone('UTC').format('YYYYMMDDTHHmm[A]', formatter='alternative' )
 
     def decode(self, s):
