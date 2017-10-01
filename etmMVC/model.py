@@ -343,7 +343,9 @@ if __name__ == '__main__':
 
     db.insert({'pacific pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='US/Pacific') })
     db.insert({'local pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='local') })
-    db.insert({'naive pendulum': pendulum.Pendulum(2017, 9, 7, 0, 0, 0, tzinfo='Factory') })
+    n = pendulum.Pendulum(2017, 9, 7, 0, 0, 0, tzinfo='Factory') 
+    print(n.tzinfo.abbrev)
+    db.insert({'naive pendulum': n})
     db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
     db.insert({'local dt': datetime(2017, 9, 7, 12, 0, 0, tzinfo=tzlocal()) })
     db.insert({'date': date(2017, 9, 7)})
