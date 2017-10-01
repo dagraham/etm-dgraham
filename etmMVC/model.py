@@ -73,6 +73,7 @@ class PendulumDateTimeSerializer(Serializer):
         """
         Serialize '-00' objects without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
         """
+        print(obj.tzinfo.abbrev)
         if obj.tzinfo.abbrev == '-00':
             return obj.format('YYYYMMDDTHHmm[N]', formatter='alternative')
         else:
