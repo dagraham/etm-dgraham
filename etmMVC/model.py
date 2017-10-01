@@ -83,9 +83,9 @@ class PendulumDateTimeSerializer(Serializer):
         Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object. If the serialization ends with 'N', returning without conversion as a naive datetime object. 
         """
         if s[-1] == 'A':
-            return pendulum.from_format(s[:-1], 'YYYYMMDD[T]HHmm', 'UTC').in_timezone('local')
+            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'UTC').in_timezone('local')
         else:
-            return pendulum.from_format(s[:-1], 'YYYYMMDD[T]HHmm', 'local')
+            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'local')
 
 
 class DateTimeSerializer(Serializer):
