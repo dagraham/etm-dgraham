@@ -324,8 +324,9 @@ if __name__ == '__main__':
     # set.exdate(datetime(2017, 9, 28, 9, 0))
     # print(list(set))
     # db.insert({'rruleset': set})
-    hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
-    db.insert(hsh)
+
+    # hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
+    # db.insert(hsh)
     for item in db:
         print(item.eid, item)
 
