@@ -315,7 +315,7 @@ if __name__ == '__main__':
     db.insert({'pacific pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='US/Pacific') })
     db.insert({'local pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='local') })
     db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
-    db.insert({'date': pendulum.Pendulum(2017, 9, 7).date() })
+    db.insert({'pendulum date': pendulum.Pendulum(2017, 9, 7).date() })
     # db.insert({'time delta': timedelta(weeks=1, days=3, hours=7, minutes=15)})
     # rr = rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
     # db.insert({'tr': rr})
