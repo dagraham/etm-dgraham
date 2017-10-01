@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from datetime import datetime, date, timedelta
+import pendulum
 import arrow
 import re
 from tinydb_serialization import Serializer
@@ -55,7 +56,7 @@ class DatetimeCacheTable(SmartCacheTable):
 
 TinyDB.table_class = DatetimeCacheTable
 
-class PendulumSerializer(Serializer):
+class PendulumDateTimeSerializer(Serializer):
     """
     This class handles both aware and 'factory' pendulum objects. 
 
