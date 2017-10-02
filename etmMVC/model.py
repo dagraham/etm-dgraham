@@ -186,7 +186,7 @@ serialization.register_serializer(RruleSetSerializer(), 'TinyRruleSet')
 ########################
 
 
-def parse_datetime(s, tz=None):
+def parse_datetime(s):
     """
     Return a date object if the parsed time is exactly midnight. Otherwise return a naive datetime object if tz == float or an aware datetime object using tzlocal if tz is None and the provided tz otherwise.  
     >>> dt = parse_datetime("2015-10-15 2p")
@@ -207,15 +207,19 @@ def parse_datetime(s, tz=None):
     >>> dt[1].tzinfo
     <TimezoneInfo [Factory, -00, +00:00:00, STD]>
     """
-
-    if tz is None:
-        tz = 'local'
-        ok = 'none'
-    elif tz == 'float':
-        tz = 'Factory'
-        ok = 'naive'
+    parts = s.split(",\s+")
+    if len(parts) < 2:
+        tz = None
+        ok = None
     else:
-        ok = 'aware'
+        tz = parts[1]
+        if tz == 'float':
+            tz = 'Factory'
+            ok = 'naive'
+        else:
+            ok = 'aware'
+    s = parts[0]
+
     try:
         res = parse(s, tz=tz)
     except ValueError:
