@@ -195,7 +195,7 @@ def parse_datetime(s, tz=None):
     >>> dt = parse_datetime("2015-10-15 0h")
     >>> dt
     <Pendulum [2015-10-15T00:00:00-04:00]>
-    >>> dt = parse_datetime("2015-10-15")
+    >>> dt = parse_datetime("2015-10-15 00:00:01")
     >>> dt
     <Pendulum [2015-10-15T00:00:00-04:00]>
     >>> dt = parse_datetime("2015-10-15 2p", tz='float')
