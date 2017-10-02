@@ -113,7 +113,7 @@ class PendulumIntervalSerializer(Serializer):
     """
     This class handles pendulum interval (timedelta) objects.
     """
-    OBJ_CLASS = pendulum.pendulum.Interval  
+    OBJ_CLASS = pendulum.Interval  
 
     def encode(self, obj):
         """
