@@ -216,6 +216,7 @@ def parse_datetime(s, tz=None):
         return "Could not process '{}'".format(s)
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
+            print(res.hour, res.minute, res.second, res.microsecond)
             return res.date()
         else:
             res.second = res.microsecond = 0
