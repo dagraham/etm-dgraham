@@ -207,7 +207,7 @@ def parse_datetime(s):
     >>> dt[1].tzinfo
     <TimezoneInfo [Factory, -00, +00:00:00, STD]>
     """
-    parts = s.split(",\s+")
+    parts = s.split(", ")
     if len(parts) < 2:
         tz = None
         ok = 'none'
