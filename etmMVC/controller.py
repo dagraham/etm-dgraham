@@ -147,6 +147,7 @@ def deal_with_s(at_hsh = {}, item_hsh={}):
         bot = "starting: {}".format(obj.format("ddd MMM D h:mmA z"))
         bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the specified timezone."
     else:
+        bot = "starting: {}".format(obj.format("ddd MMM D h:mmA z"))
         bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a comma and then 'float' to make the datetime floating (naive) or a specific timezone, e.g., 'US/Pacific', to use that timezone instead of the local one."
 
     bot += "\n{}".format(str(at_hsh))
