@@ -208,20 +208,16 @@ def parse_datetime(s, tz=None):
 
     """
 
+    if tz is None:
+        tz = 'local'
+    elif tz == 'float':
+        tz = 'Factory'
+
     try:
-        res = parse(s, yearfirst=True, dayfirst=False)
+        res = parse(s, tz=tz)
     except ValueError:
         return "Could not process '{}'".format(s)
-    if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-        return res.date()
     else:
-        res = res.replace(second=0, microsecond=0)
-        if tz is None:
-            res = res.replace(tzinfo=tzlocal()) 
-        elif tz == 'float':
-            res = res.replace(tzinfo=None)
-        else:
-            res = res.replace(tzinfo=gettz(tz))
         return res
 
 
