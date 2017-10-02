@@ -223,7 +223,7 @@ def parse_datetime(s):
 
     try:
         res = parse(s, tz=tz)
-    except ValueError:
+    except:
         return False, "Could not process '{}'".format(s)
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
