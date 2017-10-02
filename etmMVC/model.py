@@ -210,18 +210,21 @@ def parse_datetime(s, tz=None):
 
     if tz is None:
         tz = 'local'
+        ok = 'aware'
     elif tz == 'float':
         tz = 'Factory'
-
+        ok = 'naive'
+    else:
+        ok = 'aware'
     try:
         res = parse(s, tz=tz)
     except ValueError:
         return False, "Could not process '{}'".format(s)
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-            return True, res.date()
+            return 'date', res.date()
         else:
-            return True, res.replace(second=0, microsecond=0)
+            return ok, res.replace(second=0, microsecond=0)
 
 
 def parse_period(s):
