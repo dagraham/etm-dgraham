@@ -248,9 +248,9 @@ def parse_period(s):
     >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("-25m")[1]
     <Pendulum [2015-10-15T08:35:00+00:00]>
     >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("1d")[1]
-
+    <Pendulum [2015-10-16T09:00:00+00:00]>
     >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
-
+    <Pendulum [2015-10-20T12:00:00+00:00]
     """
     msg = []
     td = pendulum.Interval(seconds=0)
