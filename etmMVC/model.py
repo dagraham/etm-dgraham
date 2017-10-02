@@ -177,7 +177,7 @@ serialization = SerializationMiddleware()
 serialization.register_serializer(PendulumDateTimeSerializer(), 'TinyPendulumDateTime')
 # serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(PendulumDateSerializer(), 'TinyPendulumDate')
-serialization.register_serializer(TimeDeltaSerializer(), 'TinyTimeDelta')
+serialization.register_serializer(PendulumIntervalSerializer(), 'TinyPendulumInterval')
 serialization.register_serializer(RruleSerializer(), 'TinyRrule')
 serialization.register_serializer(RruleSetSerializer(), 'TinyRruleSet')
 
