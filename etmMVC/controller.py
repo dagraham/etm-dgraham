@@ -7,6 +7,7 @@ import pendulum
 from dateutil.tz import gettz, tzutc, tzlocal
 
 from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE 
+from model import parse_datetime, parse_period
 
 import re
 at_regex = re.compile(r'\s+@', re.MULTILINE)
@@ -132,7 +133,7 @@ def deal_with_s(at_hsh = {}, item_hsh={}):
     bot = ''
     if s is None:
         return top, bot
-    ok, obj = etm_parse(s)
+    ok, obj = parse_datetime(s)
     if not ok or not obj:
         return top, "considering: '{}'".format(s), None
     item_hsh['s'] = obj
