@@ -212,7 +212,7 @@ def parse_datetime(s):
         tz = None
         ok = 'none'
     else:
-        tz = parts[1]
+        tz = parts[1].strip()
         if tz == 'float':
             tz = 'Factory'
             ok = 'naive'
