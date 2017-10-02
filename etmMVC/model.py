@@ -253,7 +253,7 @@ def parse_period(s):
     datetime.datetime(2015, 10, 20, 12, 0)
     """
     msg = []
-    td = timedelta(seconds=0)
+    td = pendulum.Interval(seconds=0)
 
     m = period_regex.findall(s)
     if not m:
