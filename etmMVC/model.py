@@ -19,10 +19,10 @@ from dateutil.tz import (tzlocal, gettz, tzutc)
 
 import pickle
 
-ONEMINUTE = timedelta(minutes=1)
-ONEHOUR = timedelta(hours=1)
-ONEDAY = timedelta(days=1)
-ONEWEEK = timedelta(weeks=1)
+ONEMINUTE = pendulum.Interval(minutes=1)
+ONEHOUR = pendulum.Interval(hours=1)
+ONEDAY = pendulum.Interval(days=1)
+ONEWEEK = pendulum.Interval(weeks=1)
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
