@@ -134,7 +134,7 @@ def deal_with_s(at_hsh = {}, item_hsh={}):
         return top, bot
     ok, obj = parse_datetime(s)
     if not ok or not obj:
-        return top, "considering: '{}'".format(s), None
+        return top, "considering: '{0}; {1}'".format(s, ok), None
     item_hsh['s'] = obj
     if ok == 'date':
         # 'dateonly'
