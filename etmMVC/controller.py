@@ -136,6 +136,8 @@ def deal_with_s(at_hsh = {}, item_hsh={}):
     if not ok or not obj:
         return top, "considering: '{}'".format(s), None
     item_hsh['s'] = obj
+    if instance(obj, pendulum.Date):
+        print('date')
     bot = "starting: {}".format(obj.format("ddd MMM D h:mm z"))
     if ok == 'date':
         # 'dateonly'
