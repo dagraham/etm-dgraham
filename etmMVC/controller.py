@@ -1,10 +1,9 @@
  #! /usr/bin/env python3
 
-# import datetime
 import pendulum
-# from datetime import datetime, date, timedelta
-# from dateutil.parser import parse
-from dateutil.tz import gettz, tzutc, tzlocal
+pendulum.setdefault(formatter='alternative')
+
+# from dateutil.tz import gettz, tzutc, tzlocal
 
 from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE 
 from model import parse_datetime, parse_period
