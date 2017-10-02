@@ -190,21 +190,21 @@ def parse_datetime(s, tz=None):
     """
     Return a date object if the parsed time is exactly midnight. Otherwise return a naive datetime object if tz == float or an aware datetime object using tzlocal if tz is None and the provided tz otherwise.  
     >>> dt = parse_datetime("2015-10-15 2p")
-    >>> dt
+    >>> dt[1]
     <Pendulum [2015-10-15T14:00:00-04:00]>
     >>> dt = parse_datetime("2015-10-15")
-    >>> dt
+    >>> dt[1]
     <Date [2015-10-15]>
 
     To get a datetime for midnight, schedule for 1 second later and note
     that the second is removed from the datetime:
     >>> dt = parse_datetime("2015-10-15 00:00:01")
-    >>> dt
+    >>> dt[1]
     <Pendulum [2015-10-15T00:00:00-04:00]>
     >>> dt = parse_datetime("2015-10-15 2p", tz='float')
-    >>> dt
+    >>> dt[1]
     <Pendulum [2015-10-15T14:00:00+00:00]>
-    >>> dt.tzinfo
+    >>> dt[1].tzinfo
     <TimezoneInfo [Factory, -00, +00:00:00, STD]>
     """
 
@@ -216,12 +216,12 @@ def parse_datetime(s, tz=None):
     try:
         res = parse(s, tz=tz)
     except ValueError:
-        return "Could not process '{}'".format(s)
+        return False, "Could not process '{}'".format(s)
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-            return res.date()
+            return True, res.date()
         else:
-            return res.replace(second=0, microsecond=0)
+            return True, res.replace(second=0, microsecond=0)
 
 
 def parse_period(s):
