@@ -202,7 +202,7 @@ def parse_datetime(s, tz=None):
     >>> dt
     <Pendulum [2015-10-15T14:00:00+00:00]>
     >>> dt.tzinfo
-
+    <TimezoneInfo [Factory, -00, +00:00:00, STD]>
     """
 
     if tz is None:
