@@ -191,20 +191,20 @@ def parse_datetime(s, tz=None):
     Return a date object if the parsed time is exactly midnight. Otherwise return a naive datetime object if tz == float or an aware datetime object using tzlocal if tz is None and the provided tz otherwise.  
     >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt
-    datetime.datetime(2015, 10, 15, 14, 0, tzinfo=tzlocal())
+
 
     >>> dt = parse_datetime("2015-10-15 0h")
     >>> dt
-    datetime.date(2015, 10, 15)
+
 
     >>> dt = parse_datetime("2015-10-15")
     >>> dt
-    datetime.date(2015, 10, 15)
+
 
     To get a datetime object for midnight use one second past midnight:
     >>> dt = parse_datetime("2015-10-15 12:00:01a", tz='float')
     >>> dt
-    datetime.datetime(2015, 10, 15, 0, 0)
+
 
     """
 
