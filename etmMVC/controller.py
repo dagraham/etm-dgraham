@@ -6,11 +6,7 @@ import pendulum
 # from dateutil.parser import parse
 from dateutil.tz import gettz, tzutc, tzlocal
 
-ONEMINUTE = timedelta(minutes=1)
-ONEHOUR = timedelta(hours=1)
-ONEDAY = timedelta(days=1)
-ONEWEEK = timedelta(weeks=1)
-
+from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE 
 
 import re
 at_regex = re.compile(r'\s+@', re.MULTILINE)
