@@ -210,7 +210,7 @@ def parse_datetime(s):
     parts = s.split(",\s+")
     if len(parts) < 2:
         tz = None
-        ok = None
+        ok = 'none'
     else:
         tz = parts[1]
         if tz == 'float':
