@@ -219,7 +219,7 @@ def parse_datetime(s, tz=None):
             print(res.hour, res.minute, res.second, res.microsecond)
             return res.date()
         else:
-            res.second = res.microsecond = 0
+            res = res.replace(second=0, microsecond=0)
             return res
 
 
