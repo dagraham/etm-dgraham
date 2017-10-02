@@ -12,7 +12,8 @@ from tinydb_serialization import SerializationMiddleware
 from tinydb_smartcache import SmartCacheTable
 
 import dateutil
-from dateutil.parser import parse
+from pendulum import parse
+# from dateutil.parser import parse
 from dateutil import rrule
 from dateutil.rrule import *
 from dateutil.tz import (tzlocal, gettz, tzutc)
