@@ -246,7 +246,7 @@ def parse_period(s):
     >>> parse_period("2d3h5m")[1]
     <Interval [2 days 3 hours 5 minutes]>
     >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("-25m")[1]
-    datetime.datetime(2015, 10, 15, 8, 35)
+
     >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("1d")[1]
     datetime.datetime(2015, 10, 16, 9, 0)
     >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
