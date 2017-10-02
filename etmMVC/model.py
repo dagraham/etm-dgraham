@@ -109,8 +109,11 @@ class PendulumDateSerializer(Serializer):
         return pendulum.from_format(s, '%Y%m%d').date()
 
 
-class TimeDeltaSerializer(Serializer):
-    OBJ_CLASS = timedelta  # The class handles timedelta objects
+class PendulumIntervalSerializer(Serializer):
+    """
+    This class handles pendulum interval (timedelta) objects.
+    """
+    OBJ_CLASS = pendulum.pendulum.Interval  
 
     def encode(self, obj):
         """
@@ -123,7 +126,7 @@ class TimeDeltaSerializer(Serializer):
         Return the serialization as a timedelta object.
         """
         days_seconds = (int(x) for x in s.split('.')) 
-        return timedelta(*days_seconds)
+        return pendulum.Interval(*days_seconds)
 
 
 class RruleSerializer(Serializer):
