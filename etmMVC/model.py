@@ -215,7 +215,11 @@ def parse_datetime(s, tz=None):
     except ValueError:
         return "Could not process '{}'".format(s)
     else:
-        return res
+        if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
+            return res.date()
+        else:
+            res.second = res.microsecond = 0
+            return res
 
 
 def parse_period(s):
