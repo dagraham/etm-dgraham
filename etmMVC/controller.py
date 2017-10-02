@@ -121,7 +121,6 @@ def deal_with_at(at_hsh={}):
     pass
 
 deal_with = {}
-item_hsh = {}
 
 def deal_with_s(at_hsh = {}, item_hsh={}):
     """
@@ -222,7 +221,7 @@ def str2hsh(s, cursor_pos=0, complete=False):
     >>> pprint(str2hsh("* "))
     {'itemtype': '*', 'summary': ''}
     """
-    global item_hsh
+    item_hsh = {}
     msg = []
     hsh = {}
 
