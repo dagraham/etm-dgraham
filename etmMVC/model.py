@@ -210,7 +210,7 @@ def parse_datetime(s, tz=None):
 
     if tz is None:
         tz = 'local'
-        ok = 'aware'
+        ok = 'none'
     elif tz == 'float':
         tz = 'Factory'
         ok = 'naive'
