@@ -1,7 +1,7 @@
  #! /usr/bin/env python3
 
 import pendulum
-pendulum.setdefault(formatter='alternative')
+pendulum.set_formatter('alternative')
 
 # from dateutil.tz import gettz, tzutc, tzlocal
 
