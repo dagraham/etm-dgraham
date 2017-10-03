@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import pendulum
-pendulum.set_formatter('alternative')
+# pendulum.set_formatter('alternative')
 
 import re
 from tinydb_serialization import Serializer
