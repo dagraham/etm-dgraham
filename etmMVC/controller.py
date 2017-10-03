@@ -174,6 +174,7 @@ def deal_with_e(at_hsh={}, item_hsh={}):
 
 deal_with['e'] = deal_with_e
 
+item_hsh = {}
 def str2hsh(s, cursor_pos=0, complete=False):
     """
     Process an item string and return a corresponding hash with no validation or processing of key values.
@@ -224,7 +225,7 @@ def str2hsh(s, cursor_pos=0, complete=False):
     >>> pprint(str2hsh("* "))
     {'itemtype': '*', 'summary': ''}
     """
-    item_hsh = {}
+    global item_hsh
     msg = []
     hsh = {}
 
