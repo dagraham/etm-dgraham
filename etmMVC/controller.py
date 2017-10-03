@@ -291,7 +291,7 @@ def check_active(s, cursor_pos):
 
             elif act_key in allowed[itemtype]:
                 if act_key in deal_with:
-                    top, bot = deal_with[act_key](hsh)
+                    top, bot, obj = deal_with[act_key](hsh)
                     ask = ('say', top)
                     reply = ('say', bot)
 
