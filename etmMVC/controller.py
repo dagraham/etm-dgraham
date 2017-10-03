@@ -166,7 +166,7 @@ def deal_with_e(at_hsh={}, item_hsh={}):
         return top, bot, item_hsh
     ok, obj = parse_period(s)
     if not ok:
-        return top, "considering: '{}'".format(s)
+        return top, "considering: '{}'".format(s), item_hsh
     item_hsh['e'] = obj
     bot = "extending from {0} until {1}".format(format_datetime(item_hsh['s']), format_datetime(item_hsh['s'] + item_hsh['e']))
     bot += "\n{}".format(str(at_hsh))
