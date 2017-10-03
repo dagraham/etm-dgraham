@@ -122,7 +122,7 @@ def deal_with_at(at_hsh={}):
 
 deal_with = {}
 
-def deal_with_s(at_hsh = {}, item_hsh={}):
+def deal_with_s(at_hsh = {}):
     """
     Check the currents state of at_hsh regarding the 's' and 'z' keys
 
@@ -151,11 +151,11 @@ def deal_with_s(at_hsh = {}, item_hsh={}):
         bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a comma and then 'float' to make the datetime floating (naive) or a specific timezone, e.g., 'US/Pacific', to use that timezone instead of the local one."
 
     bot += "\n{0}: {1}".format(ok, str(at_hsh))
-    return top, bot, item_hsh
+    return top, bot, obj
 
 deal_with['s'] = deal_with_s
 
-def deal_with_e(at_hsh={}, item_hsh={}):
+def deal_with_e(at_hsh={}):
     """
     Check the current state of at_hsh regarding the 'e' key.
     """
@@ -166,11 +166,11 @@ def deal_with_e(at_hsh={}, item_hsh={}):
         return top, bot, item_hsh
     ok, obj = parse_period(s)
     if not ok:
-        return top, "considering: '{}'".format(s), item_hsh
+        return top, "considering: '{}'".format(s), None
     item_hsh['e'] = obj
     bot = "extending from {0} until {1}".format(item_hsh['s'].format("ddd MMM D h:mmA"), (item_hsh['s'] + item_hsh['e']).format("ddd MMM D h:mmA"))
     bot += "\n{}".format(str(at_hsh))
-    return top, bot, item_hsh
+    return top, bot, obj
 
 deal_with['e'] = deal_with_e
 
@@ -291,7 +291,7 @@ def check_active(s, cursor_pos):
 
             elif act_key in allowed[itemtype]:
                 if act_key in deal_with:
-                    top, bot, item_hsh = deal_with[act_key](hsh, item_hsh)
+                    top, bot = deal_with[act_key](hsh)
                     ask = ('say', top)
                     reply = ('say', bot)
 
