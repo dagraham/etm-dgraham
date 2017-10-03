@@ -276,7 +276,6 @@ def parse_period(s):
         msg.append("Invalid period '{0}'".format(s))
         return False, msg
     for g in m:
-        sign = g[1] or '+'
         if g[1] == '-':
             num = -int(g[2])
         else:
