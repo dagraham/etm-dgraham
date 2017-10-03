@@ -250,10 +250,13 @@ def str2hsh(self, s, cursor_pos=0):
 
     return hsh, at_tups
 
-def check_active(at_tups, cursor_pos):
+
+def check_active(s, cursor_pos):
     """
 
     """
+    hsh, at_tups = str2hsh(s)
+
     if not at_tups
         ask = ('say', type_prompt)
         reply = ('say', item_types)
@@ -304,7 +307,6 @@ def check_active(at_tups, cursor_pos):
     reply = ('say', reply[1] + "\nat_entry: {}\n".format(at_entry) + ", ".join(["'{}'".format(x) for x in at_parts]))
 
     return ask, reply
-
 
 
 class Item:
