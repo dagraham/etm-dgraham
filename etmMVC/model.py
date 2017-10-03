@@ -280,7 +280,7 @@ def parse_period(s):
             num = -int(g[2])
         else:
             num = int(g[2])
-        td += num * period_hsh[g[3]]
+        td += num * period_hsh[g[3].lower()]
     return True, td
 
 
