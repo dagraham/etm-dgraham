@@ -300,7 +300,7 @@ def check_entry(s, cursor_pos):
 
     else:
         ask = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
-    reply = ('say', reply[1] + "\nat_entry: {}".format(at_entry))
+    reply = ('say', reply[1] + "\nat_entry: {0}: {1}".format(at_entry, act_key))
 
     return ask, reply
 
