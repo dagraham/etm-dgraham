@@ -255,13 +255,13 @@ def parse_period(s):
 
     >>> 3*60*60+5*60
     11100
-    >>> parse_period("2d3h5m")[1]
-    <Interval [2 days 3 hours 5 minutes]>
-    >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("-25m")[1]
-    <Pendulum [2015-10-15T08:35:00+00:00]>
-    >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("1d")[1]
+    >>> parse_period("2d-3h5m")[1]
+    <Interval [1 day 21 hours 5 minutes]>
+    >>> pendulum.create(2015, 10, 15, 9, 0, tz='local') + parse_period("-25m")[1]
+    <Pendulum [2015-10-15T08:35:00-04:00]>
+    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_period("1d")[1]
     <Pendulum [2015-10-16T09:00:00+00:00]>
-    >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
+    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
     <Pendulum [2015-10-20T12:00:00+00:00]>
     """
     msg = []

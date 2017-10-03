@@ -26,6 +26,37 @@ event
 
 # States
 
+- selecting item type
+  - top: 'type char for new item?'
+  - bot: list of type chars and descriptions
+
+- entering summary
+  - top: '<item type> summary: <current value of summary'
+  - bot: 
+
+- entered '@'
+  - top: '@-key?'
+  - bot: list of available @-keys and descriptions
+
+- entered '@<key>'
+  - top: '@<key> current expansion of the entry'
+  - bot: explanation
+
+
+Examples:
+
+  entry: @s fri
+  top: @s Fri Sep 22
+  bot: An all-day, floating event for the specified date in whatever happens 
+  to be the local timezone. 
+
+  entry: @s fri 2p
+  top: @s Fri Sep 22 2:00pm EDT
+  bot: Without an entry for @z, the local timezone is used. Add '@z float' to 
+  make the start time floating (naive) or, e.g., '@z US/Pacific' to specific 
+  an explicit timezone.
+
+
 errors?
 
 complete?

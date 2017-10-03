@@ -7,7 +7,7 @@ cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(
 if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
-from controller import check_entry
+from controller import check_entry, str2hsh
 
 def main():
     palette =   [
@@ -94,7 +94,7 @@ def main():
     main_loop = urwid.MainLoop(body.frame, palette, input_filter=input_handler)
     main_loop.run()
 
-type_prompt = u"type character for new item:\n"
+type_prompt = u"type character for new item?\n"
 item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
 
 palette = [
@@ -113,7 +113,7 @@ top = urwid.Filler(pile, valign='top')
 
 def on_ask_change(edit, entry_text):
     pos = ask.edit_pos
-    a, r = check_entry(entry_text, pos)
+    a, r = str2hsh(entry_text, pos, complete=False)
     ask.set_caption(a)
     reply.set_text(r)
 
