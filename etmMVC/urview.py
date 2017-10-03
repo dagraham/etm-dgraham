@@ -7,7 +7,7 @@ cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(
 if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
-from controller import check_active, str2hsh
+from controller import check_entry, str2hsh
 
 def main():
     palette =   [
@@ -113,7 +113,7 @@ top = urwid.Filler(pile, valign='top')
 
 def on_ask_change(edit, entry_text):
     pos = ask.edit_pos
-    a, r = check_active(entry_text, pos)
+    a, r = check_entry(entry_text, pos)
     ask.set_caption(a)
     reply.set_text(r)
 
