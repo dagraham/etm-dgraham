@@ -258,8 +258,8 @@ def check_entry(s, cursor_pos):
         reply = ('say', item_types)
         return ask, reply 
 
-    # itemtype, summary, end = at_tups.pop(0)
-    itemtype, summary, end = at_tups[0]
+    itemtype, summary, end = at_tups.pop(0)
+    # itemtype, summary, end = at_tups[0]
     act_key = act_val = ''
 
     if itemtype in type_keys:
