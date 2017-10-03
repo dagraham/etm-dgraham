@@ -163,7 +163,7 @@ def deal_with_e(at_hsh={}, item_hsh={}):
     top = "{}?\n".format(at_keys['e'])
     bot = ''
     if s is None:
-        return top, bot
+        return top, bot, item_hsh
     ok, obj = parse_period(s)
     if not ok:
         return top, "considering: '{}'".format(s)
