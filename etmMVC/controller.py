@@ -169,7 +169,7 @@ def deal_with_e(at_hsh={}):
         return top, "considering: '{}'".format(s), None
     item_hsh['e'] = obj
     bot = "extending from {0} until {1}".format(item_hsh['s'].format("ddd MMM D h:mmA"), (item_hsh['s'] + item_hsh['e']).format("ddd MMM D h:mmA"))
-    bot += "\n{}".format(str(at_hsh))
+    bot += "\n\n{}".format(str(at_hsh))
     return top, bot, obj
 
 deal_with['e'] = deal_with_e
