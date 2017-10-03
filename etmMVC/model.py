@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-# from datetime import datetime, date, timedelta
 import pendulum
+pendulum.set_formatter('alternative')
+
 import re
 from tinydb_serialization import Serializer
 from tinydb import TinyDB, Query, Storage
@@ -13,7 +14,6 @@ from tinydb_smartcache import SmartCacheTable
 
 import dateutil
 from pendulum import parse
-# from dateutil.parser import parse
 from dateutil import rrule
 from dateutil.rrule import *
 from dateutil.tz import (tzlocal, gettz, tzutc)
@@ -60,8 +60,7 @@ class PendulumDateTimeSerializer(Serializer):
     """
     This class handles both aware and 'factory' pendulum objects. 
 
-    Encoding: If the pendulum obj.tzinfo.abbrev != '-00', it is aware and is first converted to UTC and then encoded with an 'A' appended to the serialization. Otherwise, when obj.tzinfo.abbrev == '-00', it is serialized without conversion and an 'N' is appended.
-
+    Encoding: If obj.tzinfo.abbrev is '-00' (tz=Factory), it is interpreted as naive, serialized without conversion and an 'N' is appended. Otherwise it is interpreted as aware, converted to UTC and an 'A' is appended. 
     Decoding: If the serialization ends with 'A', the pendulum object is treated as UTC and converted to localtime. Otherwise, the object is treated as localtime and no conversion is performed.
 
     This serialization discards both seconds and microseconds but preserves hours and minutes.
@@ -74,10 +73,8 @@ class PendulumDateTimeSerializer(Serializer):
         Serialize '-00' objects without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
         """
         if obj.tzinfo.abbrev == '-00':
-            # print('naive/factory')
             return obj.format('YYYYMMDDTHHmm[N]', formatter='alternative')
         else:
-            # print('aware')
             return obj.in_timezone('UTC').format('YYYYMMDDTHHmm[A]', formatter='alternative' )
 
     def decode(self, s):
