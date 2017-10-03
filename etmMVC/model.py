@@ -14,6 +14,7 @@ from tinydb_smartcache import SmartCacheTable
 
 from pendulum import parse
 
+import dateutil
 from dateutil import rrule
 from dateutil.rrule import *
 
