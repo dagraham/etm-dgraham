@@ -188,7 +188,7 @@ def str2hsh(s):
     at_tups = []
     at_entry = False
     if at_parts:
-        place = -1
+        place = 0
         tmp = at_parts.pop(0)
         hsh['itemtype'] = tmp[0]
         hsh['summary'] = tmp[1:].strip()
