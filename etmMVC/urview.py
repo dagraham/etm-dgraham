@@ -7,7 +7,7 @@ cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(
 if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
-from controller import check_entry, str2hsh
+from controller import check_active, str2hsh
 
 def main():
     palette =   [
