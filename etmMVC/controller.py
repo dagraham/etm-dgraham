@@ -185,8 +185,6 @@ def str2hsh(s):
 
     at_parts = [x.strip() for x in at_regex.split(s)]
     at_tups = []
-    ask = ('say', '')
-    reply = ('say', '')
     at_entry = False
     if at_parts:
         place = -1
@@ -257,6 +255,8 @@ def check_active(s, cursor_pos):
     """
     hsh, at_tups, at_entry = str2hsh(s)
 
+    ask = ('say', '')
+    reply = ('say', '')
     if not at_tups:
         ask = ('say', type_prompt)
         reply = ('say', item_types)
