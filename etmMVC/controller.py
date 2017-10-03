@@ -248,14 +248,14 @@ def str2hsh(s):
             if key not in hsh:
                 del item_hsh[key]
 
-    return hsh, at_tups
+    return hsh, at_tups, at_entry
 
 
 def check_active(s, cursor_pos):
     """
 
     """
-    hsh, at_tups = str2hsh(s)
+    hsh, at_tups, at_entry = str2hsh(s)
 
     if not at_tups:
         ask = ('say', type_prompt)
