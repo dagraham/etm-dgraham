@@ -297,6 +297,8 @@ def check_entry(s, cursor_pos):
                     ask = ('say', "{0}:\n".format(at_keys[act_key]))
             else:
                 ask = ('warn', "invalid @-key: '@{0}'\n".format(act_key))
+        else:
+            reply = ('warn', 'no act_key')
 
     else:
         ask = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
