@@ -3,6 +3,7 @@
 import pendulum
 
 import re
+
 from tinydb_serialization import Serializer
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
@@ -11,11 +12,12 @@ from tinydb.storages import JSONStorage
 from tinydb_serialization import SerializationMiddleware
 from tinydb_smartcache import SmartCacheTable
 
-import dateutil
 from pendulum import parse
+
 from dateutil import rrule
 from dateutil.rrule import *
-# from dateutil.tz import (tzlocal, gettz, tzutc)
+
+from jinja2 import Environment, Template
 
 import pickle
 
@@ -264,13 +266,11 @@ def parse_period(s):
     >>> pendulum.create(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
     <Pendulum [2015-10-20T12:00:00+00:00]>
     """
-    msg = []
     td = period_hsh['z']
 
     m = period_regex.findall(s)
     if not m:
-        msg.append("Invalid period '{0}'".format(s))
-        return False, msg
+        return False, "Invalid period '{0}'".format(s)
     for g in m:
         if g[1] == '-':
             num = -int(g[2])
