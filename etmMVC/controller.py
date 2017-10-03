@@ -174,183 +174,191 @@ def deal_with_e(at_hsh={}, item_hsh={}):
 
 deal_with['e'] = deal_with_e
 
-def str2hsh(s, cursor_pos=0, complete=False):
-    """
-    Process an item string and return a corresponding hash with no validation or processing of key values.
-    >>> pprint(str2hsh("* lunch @s sat 2p @e 2h @a 1h, 30m, 15m @z US/Eastern"))
-    {'a': ['1h, 30m, 15m'],
-     'e': '2h',
-     'itemtype': '*',
-     's': 'sat 2p',
-     'summary': 'lunch',
-     'z': 'US/Eastern'}
-    >>> pprint(str2hsh("- group @s mon @a 1d: e @a 1h: m @j job one &i 1 &p '' @j job two &i 2 &p 1"))
-    {'a': ['1d: e', '1h: m'],
-     'itemtype': '-',
-     'j': [{'i': '1', 'j': 'job one'}, {'i': '2', 'j': 'job two', 'p': '1'}],
-     's': 'mon',
-     'summary': 'group'}
-    >>> pprint(str2hsh("- group @s mon @j job A &i a &p b, c @j job B &i b &p '' @j job C &i c &p ''"))
-    {'itemtype': '-',
-     'j': [{'i': 'a', 'j': 'job A', 'p': 'b, c'},
-           {'i': 'b', 'j': 'job B'},
-           {'i': 'c', 'j': 'job C'}],
-     's': 'mon',
-     'summary': 'group'}
-    >>> pprint(str2hsh("- repeat @s mon @r d &i 3 &u fri"))
-    {'itemtype': '-',
-     'r': [{'i': '3', 'r': 'd', 'u': 'fri'}],
-     's': 'mon',
-     'summary': 'repeat'}
-    >>> str2hsh("")
-    {}
-    >>> pprint(str2hsh("* repeat @s mon @r d &i 3 &u fri"))
-    {'itemtype': '*',
-     'r': [{'i': '3', 'r': 'd', 'u': 'fri'}],
-     's': 'mon',
-     'summary': 'repeat'}
-    >>> pprint(str2hsh("* repeat @s mon @r d &i 3 &u"))
-    {'itemtype': '*', 'r': [{'i': '3', 'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
-    >>> pprint(str2hsh("* repeat @s mon @r d &i"))
-    {'itemtype': '*', 'r': [{'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
-    >>> pprint(str2hsh("* repeat @s mon @r d &"))
-    {'itemtype': '*', 'r': [{'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
-    >>> pprint(str2hsh("* repeat @s mon @r d "))
-    {'itemtype': '*', 'r': [{'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
-    >>> pprint(str2hsh("* repeat @s mon @r"))
-    {'itemtype': '*', 's': 'mon', 'summary': 'repeat'}
-    >>> pprint(str2hsh("* repeat @"))
-    {'itemtype': '*', 'summary': 'repeat'}
-    >>> pprint(str2hsh("* "))
-    {'itemtype': '*', 'summary': ''}
+class Item:
     """
 
-    global item_hsh
-    msg = []
-    hsh = {}
+    """
+    def __init__(self):
+        self.hsh = {}
+        self.item = {}
+        self.ask = ''
+        self.reply = ''
 
-    if not s:
-        return hsh
 
-    at_parts = [x.strip() for x in at_regex.split(s)]
-    at_tups = []
-    ask = ('say', '')
-    reply = ('say', '')
-    at_entry = False
-    if at_parts:
-        # print('at_part0 : "{}"'.format(at_parts[0]))
-        place = -1
-        tmp = at_parts.pop(0)
-        hsh['itemtype'] = tmp[0]
-        hsh['summary'] = tmp[1:].strip()
-        at_tups.append( (hsh['itemtype'], hsh['summary'], place) )
-        place += 2 + len(tmp)
+    def str2hsh(self, s, cursor_pos=0):
+        """
+        Process an item string and return a corresponding hash with no validation or processing of key values.
+        >>> pprint(str2hsh("* lunch @s sat 2p @e 2h @a 1h, 30m, 15m @z US/Eastern"))
+        {'a': ['1h, 30m, 15m'],
+        'e': '2h',
+        'itemtype': '*',
+        's': 'sat 2p',
+        'summary': 'lunch',
+        'z': 'US/Eastern'}
+        >>> pprint(str2hsh("- group @s mon @a 1d: e @a 1h: m @j job one &i 1 &p '' @j job two &i 2 &p 1"))
+        {'a': ['1d: e', '1h: m'],
+        'itemtype': '-',
+        'j': [{'i': '1', 'j': 'job one'}, {'i': '2', 'j': 'job two', 'p': '1'}],
+        's': 'mon',
+        'summary': 'group'}
+        >>> pprint(str2hsh("- group @s mon @j job A &i a &p b, c @j job B &i b &p '' @j job C &i c &p ''"))
+        {'itemtype': '-',
+        'j': [{'i': 'a', 'j': 'job A', 'p': 'b, c'},
+            {'i': 'b', 'j': 'job B'},
+            {'i': 'c', 'j': 'job C'}],
+        's': 'mon',
+        'summary': 'group'}
+        >>> pprint(str2hsh("- repeat @s mon @r d &i 3 &u fri"))
+        {'itemtype': '-',
+        'r': [{'i': '3', 'r': 'd', 'u': 'fri'}],
+        's': 'mon',
+        'summary': 'repeat'}
+        >>> str2hsh("")
+        {}
+        >>> pprint(str2hsh("* repeat @s mon @r d &i 3 &u fri"))
+        {'itemtype': '*',
+        'r': [{'i': '3', 'r': 'd', 'u': 'fri'}],
+        's': 'mon',
+        'summary': 'repeat'}
+        >>> pprint(str2hsh("* repeat @s mon @r d &i 3 &u"))
+        {'itemtype': '*', 'r': [{'i': '3', 'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
+        >>> pprint(str2hsh("* repeat @s mon @r d &i"))
+        {'itemtype': '*', 'r': [{'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
+        >>> pprint(str2hsh("* repeat @s mon @r d &"))
+        {'itemtype': '*', 'r': [{'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
+        >>> pprint(str2hsh("* repeat @s mon @r d "))
+        {'itemtype': '*', 'r': [{'r': 'd'}], 's': 'mon', 'summary': 'repeat'}
+        >>> pprint(str2hsh("* repeat @s mon @r"))
+        {'itemtype': '*', 's': 'mon', 'summary': 'repeat'}
+        >>> pprint(str2hsh("* repeat @"))
+        {'itemtype': '*', 'summary': 'repeat'}
+        >>> pprint(str2hsh("* "))
+        {'itemtype': '*', 'summary': ''}
+        """
 
-        for part in at_parts:
-            if part:
-                at_entry = False
-                if len(part) < 2:
-                    continue
-            else:
-                at_entry = True
-                break
-            k = part[0]
-            v = part[1:].strip()
-            if v in ['', ""]:
-                pass
-            elif k in ('a', 'j', 'r'):
-                # there can be more than one entry for these keys
-                hsh.setdefault(k, []).append(v)
-            else:
-                hsh[k] = v
-            at_tups.append( (k, v, place) )
-            place += 2 + len(part)
+        msg = []
+        hsh = {}
 
-    for key in ['r', 'j']:
-        if key not in hsh: continue
-        lst = []
-        for part in hsh[key]:  # an individual @r or @j entry
-            amp_hsh = {}
-            amp_parts = [x.strip() for x in amp_regex.split(part)]
-            if amp_parts:
-                amp_hsh[key] = "".join(amp_parts.pop(0))
-                # k = amp_part
-                for part in amp_parts:  # the & keys and values for the given entry
+        if not s:
+            return hsh
+
+        at_parts = [x.strip() for x in at_regex.split(s)]
+        at_tups = []
+        ask = ('say', '')
+        reply = ('say', '')
+        at_entry = False
+        if at_parts:
+            # print('at_part0 : "{}"'.format(at_parts[0]))
+            place = -1
+            tmp = at_parts.pop(0)
+            hsh['itemtype'] = tmp[0]
+            hsh['summary'] = tmp[1:].strip()
+            at_tups.append( (hsh['itemtype'], hsh['summary'], place) )
+            place += 2 + len(tmp)
+
+            for part in at_parts:
+                if part:
+                    at_entry = False
                     if len(part) < 2:
                         continue
-                    k = part[0]
-                    v = part[1:].strip()
-                    if v in ["''", '""']:
-                        # don't add if the value was either '' or ""
-                        pass
-                    elif key == 'r' and k in ['M', 'e', 'm', 'w']:
-                        # make these lists
-                        amp_hsh[k] = comma_regex.split(v)
-                    elif k == 'a':
-                        amp_hsh.setdefault(k, []).append(v)
-                    else:
-                        amp_hsh[k] = v
-                lst.append(amp_hsh)
-        hsh[key] = lst
-
-    if item_hsh:
-        for key in item_hsh:
-            if key not in hsh:
-                del item_hsh[key]
-
-    if at_tups:
-        # itemtype, summary, end = at_tups.pop(0)
-        itemtype, summary, end = at_tups[0]
-        act_key = act_val = ''
-        if itemtype in type_keys:
-            for tup in at_tups:
-                if tup[-1] < cursor_pos:
-                    act_key = tup[0]
-                    act_val = tup[1]
                 else:
+                    at_entry = True
                     break
-
-            if at_entry:
-                reply_str =  "{} @-keys\n".format(type_keys[itemtype])
-                current_required = ["@{}".format(x) for x in required[itemtype] if x not in hsh]
-                if current_required:
-                    reply_str += "  required: {}\n".format(", ".join(current_required))
-                current_allowed = ["@{}".format(x) for x in allowed[itemtype] if x not in hsh or x in 'jr']
-                if current_allowed:
-                    reply_str += "  allowed: {}\n".format(", ".join(current_allowed))
-                reply = ('say', reply_str)
-            elif act_key:
-
-                if act_key == itemtype:
-                    ask = ('say', "{} summary:\n".format(type_keys[itemtype]))
-                    reply = ('say', 'Enter the summary for the {}'.format(type_keys[itemtype]))
-
-                elif act_key in allowed[itemtype]:
-                    if act_key in deal_with:
-                        top, bot, item_hsh = deal_with[act_key](hsh, item_hsh)
-                        ask = ('say', top)
-                        reply = ('say', bot)
-
-                    elif act_val:
-                        ask = ('say', "{0}: {1}\n".format(at_keys[act_key], act_val))
-                    else:
-                        ask = ('say', "{0}:\n".format(at_keys[act_key]))
+                k = part[0]
+                v = part[1:].strip()
+                if v in ['', ""]:
+                    pass
+                elif k in ('a', 'j', 'r'):
+                    # there can be more than one entry for these keys
+                    hsh.setdefault(k, []).append(v)
                 else:
-                    ask = ('warn', "invalid @-key: '@{0}'\n".format(act_key))
+                    hsh[k] = v
+                at_tups.append( (k, v, place) )
+                place += 2 + len(part)
 
+        for key in ['r', 'j']:
+            if key not in hsh: continue
+            lst = []
+            for part in hsh[key]:  # an individual @r or @j entry
+                amp_hsh = {}
+                amp_parts = [x.strip() for x in amp_regex.split(part)]
+                if amp_parts:
+                    amp_hsh[key] = "".join(amp_parts.pop(0))
+                    # k = amp_part
+                    for part in amp_parts:  # the & keys and values for the given entry
+                        if len(part) < 2:
+                            continue
+                        k = part[0]
+                        v = part[1:].strip()
+                        if v in ["''", '""']:
+                            # don't add if the value was either '' or ""
+                            pass
+                        elif key == 'r' and k in ['M', 'e', 'm', 'w']:
+                            # make these lists
+                            amp_hsh[k] = comma_regex.split(v)
+                        elif k == 'a':
+                            amp_hsh.setdefault(k, []).append(v)
+                        else:
+                            amp_hsh[k] = v
+                    lst.append(amp_hsh)
+            hsh[key] = lst
+
+        if item_hsh:
+            for key in item_hsh:
+                if key not in hsh:
+                    del item_hsh[key]
+
+        if at_tups:
+            # itemtype, summary, end = at_tups.pop(0)
+            itemtype, summary, end = at_tups[0]
+            act_key = act_val = ''
+            if itemtype in type_keys:
+                for tup in at_tups:
+                    if tup[-1] < cursor_pos:
+                        act_key = tup[0]
+                        act_val = tup[1]
+                    else:
+                        break
+
+                if at_entry:
+                    reply_str =  "{} @-keys\n".format(type_keys[itemtype])
+                    current_required = ["@{}".format(x) for x in required[itemtype] if x not in hsh]
+                    if current_required:
+                        reply_str += "  required: {}\n".format(", ".join(current_required))
+                    current_allowed = ["@{}".format(x) for x in allowed[itemtype] if x not in hsh or x in 'jr']
+                    if current_allowed:
+                        reply_str += "  allowed: {}\n".format(", ".join(current_allowed))
+                    reply = ('say', reply_str)
+                elif act_key:
+
+                    if act_key == itemtype:
+                        ask = ('say', "{} summary:\n".format(type_keys[itemtype]))
+                        reply = ('say', 'Enter the summary for the {}'.format(type_keys[itemtype]))
+
+                    elif act_key in allowed[itemtype]:
+                        if act_key in deal_with:
+                            top, bot, item_hsh = deal_with[act_key](hsh, item_hsh)
+                            ask = ('say', top)
+                            reply = ('say', bot)
+
+                        elif act_val:
+                            ask = ('say', "{0}: {1}\n".format(at_keys[act_key], act_val))
+                        else:
+                            ask = ('say', "{0}:\n".format(at_keys[act_key]))
+                    else:
+                        ask = ('warn', "invalid @-key: '@{0}'\n".format(act_key))
+
+            else:
+                ask = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
+                summary = "{0}{1}".format(itemtype, summary)
         else:
-            ask = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
-            summary = "{0}{1}".format(itemtype, summary)
-    else:
-        ask = ('say', type_prompt)
-        reply = ('say', item_types)
-    reply = ('say', reply[1] + "\nat_entry: {}\n".format(at_entry) + ", ".join(["'{}'".format(x) for x in at_parts]))
+            ask = ('say', type_prompt)
+            reply = ('say', item_types)
+        reply = ('say', reply[1] + "\nat_entry: {}\n".format(at_entry) + ", ".join(["'{}'".format(x) for x in at_parts]))
 
-    if complete:
-        return hsh, item_hsh
-    else:
-        return ask, reply
 
+        self.ask = ask
+        self.reply = reply
 
 
 if __name__ == '__main__':
