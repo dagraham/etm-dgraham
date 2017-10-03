@@ -113,7 +113,7 @@ top = urwid.Filler(pile, valign='top')
 
 def on_ask_change(edit, entry_text):
     pos = ask.edit_pos
-    a, r = str2hsh(entry_text, pos, complete=False)
+    a, r = check_active(entry_text, pos)
     ask.set_caption(a)
     reply.set_text(r)
 
