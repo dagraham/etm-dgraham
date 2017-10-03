@@ -177,7 +177,7 @@ deal_with['e'] = deal_with_e
 
 def str2hsh(s):
     """
-    Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an 2 key has been entered without the corresponding key, True or False). 
+    Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an 2 key has been entered without the corresponding key, True or False) for use by check_entry. 
     """
     hsh = {}
 
@@ -245,7 +245,7 @@ def str2hsh(s):
     return hsh, at_tups, at_entry
 
 
-def check_active(s, cursor_pos):
+def check_entry(s, cursor_pos):
     """
     Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
     """
