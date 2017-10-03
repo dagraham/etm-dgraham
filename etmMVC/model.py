@@ -25,14 +25,6 @@ ONEHOUR = pendulum.Interval(hours=1)
 ONEDAY = pendulum.Interval(days=1)
 ONEWEEK = pendulum.Interval(weeks=1)
 
-period_hsh = dict(
-    z=pendulum.Interval(seconds=0),
-    m=pendulum.Interval(minutes=1),
-    h=pendulum.Interval(hours=1),
-    d=pendulum.Interval(days=1),
-    w=pendulum.Interval(weeks=1),
-        )
-
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
 week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
@@ -240,6 +232,14 @@ def parse_datetime(s):
             return ok, res.replace(second=0, microsecond=0)
 
 
+period_hsh = dict(
+    z=pendulum.Interval(seconds=0),
+    m=pendulum.Interval(minutes=1),
+    h=pendulum.Interval(hours=1),
+    d=pendulum.Interval(days=1),
+    w=pendulum.Interval(weeks=1),
+        )
+
 def parse_period(s):
     """\
     Take a case-insensitive period string and return a corresponding timedelta.
@@ -269,7 +269,7 @@ def parse_period(s):
     <Pendulum [2015-10-20T12:00:00+00:00]>
     """
     msg = []
-    td = pendulum.Interval(seconds=0)
+    td = period_hsh['z']
 
     m = period_regex.findall(s)
     if not m:
@@ -281,14 +281,7 @@ def parse_period(s):
             num = -int(g[2])
         else:
             num = int(g[2])
-        if g[3] == 'w':
-            td += num * ONEWEEK
-        elif g[3] == 'd':
-            td += num * ONEDAY
-        elif g[3] == 'h':
-            td += num * ONEHOUR
-        elif g[3] == 'm':
-            td += num * ONEMINUTE
+        td += num * period_hsh[g[3]]
     return True, td
 
 
