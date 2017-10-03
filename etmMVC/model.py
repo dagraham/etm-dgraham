@@ -244,9 +244,9 @@ def parse_period(s):
     """\
     Take a case-insensitive period string and return a corresponding timedelta.
     Examples:
-        parse_period('-2W3D4H5M')= -timedelta(weeks=2,days=3,hours=4,minutes=5)
+        parse_period('-2W3D4H5M')= timedelta(weeks=-2,days=3,hours=4,minutes=5)
         parse_period('1h30m') = timedelta(hours=1, minutes=30)
-        parse_period('-10') = timedelta(minutes= 10)
+        parse_period('-10m') = timedelta(minutes=10)
     where:
         W or w: weeks
         D or d: days
@@ -265,7 +265,7 @@ def parse_period(s):
     <Pendulum [2015-10-15T08:35:00+00:00]>
     >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("1d")[1]
     <Pendulum [2015-10-16T09:00:00+00:00]>
-    >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
+    >>> pendulum.Pendulum(2015, 10, 15, 9, 0) + parse_period("1w-2D+3h")[1]
     <Pendulum [2015-10-20T12:00:00+00:00]>
     """
     msg = []
