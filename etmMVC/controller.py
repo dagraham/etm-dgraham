@@ -213,7 +213,7 @@ def str2hsh(s):
             else:
                 hsh[k] = v
             at_tups.append( (k, v, place) )
-            place += 2 + len(part)
+            place += 1 + len(part)
 
     for key in ['r', 'j']:
         if key not in hsh: continue
