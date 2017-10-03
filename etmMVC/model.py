@@ -16,7 +16,7 @@ import dateutil
 from pendulum import parse
 from dateutil import rrule
 from dateutil.rrule import *
-from dateutil.tz import (tzlocal, gettz, tzutc)
+# from dateutil.tz import (tzlocal, gettz, tzutc)
 
 import pickle
 
