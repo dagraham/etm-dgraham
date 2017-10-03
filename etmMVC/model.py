@@ -25,7 +25,7 @@ ONEHOUR = pendulum.Interval(hours=1)
 ONEDAY = pendulum.Interval(days=1)
 ONEWEEK = pendulum.Interval(weeks=1)
 
-period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?', flags=re.I)
+period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 # period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
 # week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
 # day_regex = re.compile(r'[+-]?(\d+)d', flags=re.I)
@@ -242,16 +242,16 @@ period_hsh = dict(
 
 def parse_period(s):
     """\
-    Take a case-insensitive period string and return a corresponding timedelta.
+    Take a period string and return a corresponding pendulum interval.
     Examples:
-        parse_period('-2W3D4H5M')= timedelta(weeks=-2,days=3,hours=4,minutes=5)
-        parse_period('1h30m') = timedelta(hours=1, minutes=30)
+        parse_period('-2w3d4h5m')= Interval(weeks=-2,days=3,hours=4,minutes=5)
+        parse_period('1h30m') = Inter(hours=1, minutes=30)
         parse_period('-10m') = timedelta(minutes=10)
     where:
-        W or w: weeks
-        D or d: days
-        H or h: hours
-        M or m: minutes
+        w: weeks
+        d: days
+        h: hours
+        m: minutes
     If an integer is passed or a string that can be converted to an
     integer, then return a timedelta corresponding to this number of
     minutes if 'minutes = True', and this number of days otherwise.
@@ -280,7 +280,7 @@ def parse_period(s):
             num = -int(g[2])
         else:
             num = int(g[2])
-        td += num * period_hsh[g[3].lower()]
+        td += num * period_hsh[g[3]]
     return True, td
 
 
