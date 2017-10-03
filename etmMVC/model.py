@@ -25,7 +25,7 @@ ONEHOUR = pendulum.Interval(hours=1)
 ONEDAY = pendulum.Interval(days=1)
 ONEWEEK = pendulum.Interval(weeks=1)
 
-period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
+period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?', flags=re.I)
 # period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
 # week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
 # day_regex = re.compile(r'[+-]?(\d+)d', flags=re.I)
