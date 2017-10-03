@@ -175,7 +175,7 @@ def deal_with_e(at_hsh={}, item_hsh={}):
 deal_with['e'] = deal_with_e
 
 
-def str2hsh(self, s, cursor_pos=0):
+def str2hsh(s):
     """
     """
     hsh = {}
