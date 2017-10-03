@@ -225,6 +225,7 @@ def str2hsh(s, cursor_pos=0, complete=False):
     >>> pprint(str2hsh("* "))
     {'itemtype': '*', 'summary': ''}
     """
+
     global item_hsh
     msg = []
     hsh = {}
