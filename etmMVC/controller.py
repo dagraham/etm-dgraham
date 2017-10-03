@@ -264,7 +264,7 @@ def check_entry(s, cursor_pos):
 
     if itemtype in type_keys:
         for tup in at_tups:
-            if tup[-1] < cursor_pos:
+            if tup[-1] <= cursor_pos:
                 act_key = tup[0]
                 act_val = tup[1]
             else:
