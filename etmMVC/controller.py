@@ -20,7 +20,7 @@ int_regex = re.compile(r'^\s*([+-]?\d+)\s*$')
 period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
 period_parts = re.compile(r'([wWdDhHmM])')
 
-# item_hsh = {} # preserve state
+item_hsh = {} # preserve state
 
 type_keys = {
     "*": "event",
@@ -174,7 +174,6 @@ def deal_with_e(at_hsh={}, item_hsh={}):
 
 deal_with['e'] = deal_with_e
 
-item_hsh = {}
 def str2hsh(s, cursor_pos=0, complete=False):
     """
     Process an item string and return a corresponding hash with no validation or processing of key values.
