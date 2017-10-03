@@ -257,7 +257,7 @@ def check_active(s, cursor_pos):
     """
     hsh, at_tups = str2hsh(s)
 
-    if not at_tups
+    if not at_tups:
         ask = ('say', type_prompt)
         reply = ('say', item_types)
         return ask, reply 
