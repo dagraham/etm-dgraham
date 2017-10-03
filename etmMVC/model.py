@@ -27,11 +27,11 @@ ONEWEEK = pendulum.Interval(weeks=1)
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 # period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
-week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
-day_regex = re.compile(r'[+-]?(\d+)d', flags=re.I)
-hour_regex = re.compile(r'[+-]?(\d+)h', flags=re.I)
-minute_regex = re.compile(r'[+-]?(\d+)m', flags=re.I)
-sign_regex = re.compile(r'(^\s*([+-])?)')
+# week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
+# day_regex = re.compile(r'[+-]?(\d+)d', flags=re.I)
+# hour_regex = re.compile(r'[+-]?(\d+)h', flags=re.I)
+# minute_regex = re.compile(r'[+-]?(\d+)m', flags=re.I)
+# sign_regex = re.compile(r'(^\s*([+-])?)')
 
 
 ##########################
