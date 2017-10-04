@@ -188,7 +188,7 @@ def str2hsh(s):
     at_tups = []
     at_entry = False
     if at_parts:
-        place = 0
+        place = -1
         tmp = at_parts.pop(0)
         hsh['itemtype'] = tmp[0]
         hsh['summary'] = tmp[1:].strip()
@@ -213,7 +213,7 @@ def str2hsh(s):
             else:
                 hsh[k] = v
             at_tups.append( (k, v, place) )
-            place += 1 + len(part)
+            place += 2 + len(part)
 
     for key in ['r', 'j']:
         if key not in hsh: continue
