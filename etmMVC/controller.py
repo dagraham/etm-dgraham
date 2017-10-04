@@ -242,14 +242,14 @@ def str2hsh(s):
                 lst.append(amp_hsh)
         hsh[key] = lst
 
-    return hsh, at_tups, at_entry
+    return hsh, at_tups, at_entry, at_parts
 
 
 def check_entry(s, cursor_pos):
     """
     Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
     """
-    hsh, at_tups, at_entry = str2hsh(s)
+    hsh, at_tups, at_entry, at_parts = str2hsh(s)
 
     ask = ('say', '')
     reply = ('say', '')
@@ -302,7 +302,7 @@ def check_entry(s, cursor_pos):
 
     else:
         ask = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
-    reply = ('say', reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\n{4}".format(at_entry, act_key, act_val, cursor_pos, at_tups))
+    reply = ('say', reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\n{4}\n{5}".format(at_entry, act_key, act_val, cursor_pos, at_tups, at_parts))
 
     return ask, reply
 
