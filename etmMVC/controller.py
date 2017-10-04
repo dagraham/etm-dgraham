@@ -198,8 +198,8 @@ def str2hsh(s):
         for part in at_parts:
             if part:
                 at_entry = False
-                if len(part) < 2:
-                    continue
+                # if len(part) < 2:
+                #     continue
             else:
                 at_entry = True
                 break
