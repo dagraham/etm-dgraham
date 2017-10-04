@@ -19,6 +19,9 @@ sign_regex = re.compile(r'(^\s*([+-])?)')
 int_regex = re.compile(r'^\s*([+-]?\d+)\s*$')
 period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
 period_parts = re.compile(r'([wWdDhHmM])')
+comma_regex = re.compile(r',\s*')
+colon_regex = re.compile(r'\:\s*')
+semicolon_regex = re.compile(r'\;\s*')
 
 item_hsh = {} # preserve state
 
