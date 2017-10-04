@@ -203,8 +203,6 @@ def str2hsh(s):
                 break
             k = part[0]
             v = part[1:].strip()
-            # if v in ['', ""]:
-            #     pass
             if k in ('a', 'j', 'r'):
                 # there can be more than one entry for these keys
                 hsh.setdefault(k, []).append(v)
