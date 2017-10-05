@@ -282,7 +282,7 @@ def check_entry(s, cursor_pos):
 
             if act_key == itemtype:
                 ask = ('say', "{} summary:\n".format(type_keys[itemtype]))
-                reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs'.format(type_keys[itemtype]))
+                reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs\n'.format(type_keys[itemtype]))
 
             elif act_key in allowed[itemtype]:
                 if act_key in deal_with:
