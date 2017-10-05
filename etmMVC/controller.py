@@ -153,7 +153,6 @@ def deal_with_s(at_hsh = {}):
         bot = "starting: {}".format(obj.format("ddd MMM D h:mmA z"))
         bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a comma and then 'float' to make the datetime floating (naive) or a specific timezone, e.g., 'US/Pacific', to use that timezone instead of the local one."
 
-    # bot += "\n\n{0}: {1}".format(ok, str(at_hsh))
     return top, bot, obj
 
 deal_with['s'] = deal_with_s
@@ -302,7 +301,7 @@ def check_entry(s, cursor_pos):
     else:
         ask = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
 
-    # reply = ('say', reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\n{4}\n{5}".format(at_entry, act_key, act_val, cursor_pos, at_tups, at_parts))
+    reply = ('say', reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\n{4}\n{5}".format(at_entry, act_key, act_val, cursor_pos, at_tups, at_parts))
 
     return ask, reply
 
