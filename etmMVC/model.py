@@ -22,11 +22,6 @@ from jinja2 import Environment, Template
 
 import pickle
 
-ONEMINUTE = pendulum.Interval(minutes=1)
-ONEHOUR = pendulum.Interval(hours=1)
-ONEDAY = pendulum.Interval(days=1)
-ONEWEEK = pendulum.Interval(weeks=1)
-
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 # period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
 # week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
@@ -35,6 +30,14 @@ period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 # minute_regex = re.compile(r'[+-]?(\d+)m', flags=re.I)
 # sign_regex = re.compile(r'(^\s*([+-])?)')
 
+
+period_hsh = dict(
+    z=pendulum.Interval(seconds=0),
+    m=pendulum.Interval(minutes=1),
+    h=pendulum.Interval(hours=1),
+    d=pendulum.Interval(days=1),
+    w=pendulum.Interval(weeks=1),
+        )
 
 ##########################
 ### begin TinyDB setup ###
@@ -230,14 +233,6 @@ def parse_datetime(s):
         else:
             return ok, res.replace(second=0, microsecond=0)
 
-
-period_hsh = dict(
-    z=pendulum.Interval(seconds=0),
-    m=pendulum.Interval(minutes=1),
-    h=pendulum.Interval(hours=1),
-    d=pendulum.Interval(days=1),
-    w=pendulum.Interval(weeks=1),
-        )
 
 def parse_period(s):
     """\
