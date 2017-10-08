@@ -302,7 +302,8 @@ def check_entry(s, cursor_pos):
             reply = ('warn', 'no act_key')
 
     else:
-        ask = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
+        ask = ('say', type_prompt)
+        reply = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
 
     # for testing and debugging:1
     reply = ('say', reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\n{4}\n{5}".format(at_entry, act_key, act_val, cursor_pos, at_tups, at_parts))
