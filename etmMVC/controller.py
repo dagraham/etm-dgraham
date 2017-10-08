@@ -111,9 +111,9 @@ required['!'] = ''
 allowed['!'] = undated_methods + task_methods
 
 # item type t and has s 
-allowed['date'] = allowed[t] + 'br'
-allowed['datetime'] = allowed[t] + 'abr'
-allowed['r'] = ''
+# allowed['date'] = allowed[t] + 'br'
+# allowed['datetime'] = allowed[t] + 'abr'
+# allowed['r'] = '+-'
 
 
 type_prompt = u"type character for new item:\n"
