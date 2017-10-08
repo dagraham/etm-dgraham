@@ -1,3 +1,70 @@
+def str2hsh(string: str = ''):
+    """
+    Split string on @ and & keys and return a hash with the resulting keys and values.
+    """
+    hsh = {}
+
+    if not string:
+        return False, hsh
+
+    at_parts = [x.strip() for x in at_regex.split(s)]
+    at_tups = []
+    at_entry = False
+    if at_parts:
+        place = -1
+        tmp = at_parts.pop(0)
+        hsh['itemtype'] = tmp[0]
+        hsh['summary'] = tmp[1:].strip()
+        at_tups.append( (hsh['itemtype'], hsh['summary'], place) )
+        place += 2 + len(tmp)
+
+        for part in at_parts:
+            if part:
+                at_entry = False
+            else:
+                at_entry = True
+                break
+            k = part[0]
+            v = part[1:].strip()
+            if k in ('a', 'j', 'r'):
+                # there can be more than one entry for these keys
+                hsh.setdefault(k, []).append(v)
+            else:
+                hsh[k] = v
+            at_tups.append( (k, v, place) )
+            place += 2 + len(part)
+
+    for key in ['r', 'j']:
+        if key not in hsh: continue
+        lst = []
+        for part in hsh[key]:  # an individual @r or @j entry
+            amp_hsh = {}
+            amp_parts = [x.strip() for x in amp_regex.split(part)]
+            if amp_parts:
+                amp_hsh[key] = "".join(amp_parts.pop(0))
+                # k = amp_part
+                for part in amp_parts:  # the & keys and values for the given entry
+                    if len(part) < 2:
+                        continue
+                    k = part[0]
+                    v = part[1:].strip()
+                    if v in ["''", '""']:
+                        # don't add if the value was either '' or ""
+                        pass
+                    elif key == 'r' and k in ['M', 'e', 'm', 'w']:
+                        # make these lists
+                        amp_hsh[k] = comma_regex.split(v)
+                    elif k == 'a':
+                        amp_hsh.setdefault(k, []).append(v)
+                    else:
+                        amp_hsh[k] = v
+                lst.append(amp_hsh)
+        hsh[key] = lst
+
+    return hsh, at_tups, at_entry, at_parts
+
+
+
 class Item(dict):
     """
 
@@ -14,81 +81,20 @@ class Item(dict):
                 self.item.update({'itemtype': '!', 'errors': res})
 
 
-    def str2hsh(self, string=str):
-        """
-
-        """
-        hsh = {}
-
-        if not string:
-            return False, hsh
-
-        at_parts = [x.strip() for x in at_regex.split(s)]
-        at_tups = []
-        at_entry = False
-        if at_parts:
-            place = -1
-            tmp = at_parts.pop(0)
-            hsh['itemtype'] = tmp[0]
-            hsh['summary'] = tmp[1:].strip()
-            at_tups.append( (hsh['itemtype'], hsh['summary'], place) )
-            place += 2 + len(tmp)
-
-            for part in at_parts:
-                if part:
-                    at_entry = False
-                else:
-                    at_entry = True
-                    break
-                k = part[0]
-                v = part[1:].strip()
-                if k in ('a', 'j', 'r'):
-                    # there can be more than one entry for these keys
-                    hsh.setdefault(k, []).append(v)
-                else:
-                    hsh[k] = v
-                at_tups.append( (k, v, place) )
-                place += 2 + len(part)
-
-        for key in ['r', 'j']:
-            if key not in hsh: continue
-            lst = []
-            for part in hsh[key]:  # an individual @r or @j entry
-                amp_hsh = {}
-                amp_parts = [x.strip() for x in amp_regex.split(part)]
-                if amp_parts:
-                    amp_hsh[key] = "".join(amp_parts.pop(0))
-                    # k = amp_part
-                    for part in amp_parts:  # the & keys and values for the given entry
-                        if len(part) < 2:
-                            continue
-                        k = part[0]
-                        v = part[1:].strip()
-                        if v in ["''", '""']:
-                            # don't add if the value was either '' or ""
-                            pass
-                        elif key == 'r' and k in ['M', 'e', 'm', 'w']:
-                            # make these lists
-                            amp_hsh[k] = comma_regex.split(v)
-                        elif k == 'a':
-                            amp_hsh.setdefault(k, []).append(v)
-                        else:
-                            amp_hsh[k] = v
-                    lst.append(amp_hsh)
-            hsh[key] = lst
-
-        return hsh, at_tups, at_entry, at_parts
-
 
     def check_entry(self, string, position):
         """
 
         """
+        item_type = None
+        start = None
         hsh, at_tups, at_entry, at_parts = self.str2hsh(s)
+        item_type = hsh.get('item_type', None)
+
 
         ask = ('say', '')
         reply = ('say', '')
-        if not at_tups:
+        if not item_type:
             ask = ('say', type_prompt)
             reply = ('say', item_types)
             return ask, reply 
