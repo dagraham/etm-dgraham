@@ -266,7 +266,7 @@ def check_entry(s, cursor_pos):
                 break
 
         if at_entry:
-            reply_str =  "{} @-keys\n".format(type_keys[itemtype])
+            reply_str =  "{} @keys\n".format(type_keys[itemtype])
             current_required = ["@{}".format(x) for x in required[itemtype] if x not in hsh]
             if current_required:
                 reply_str += "  required: {}\n".format(", ".join(current_required))
