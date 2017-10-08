@@ -274,8 +274,9 @@ def check_entry(s, cursor_pos):
         if at_entry:
             ask =  ('say', "{} @keys:\n".format(type_keys[itemtype]))
             current_required = ["@{}".format(x) for x in required[itemtype] if x not in hsh]
+            reply_str = ""
             if current_required:
-                reply_str = "Required: {}\n".format(", ".join(current_required))
+                reply_str += "Required: {}\n".format(", ".join(current_required))
             current_allowed = ["@{}".format(x) for x in allowed[itemtype] if x not in hsh or x in 'jr']
             if current_allowed:
                 reply_str += "Allowed: {}\n".format(", ".join(current_allowed))
