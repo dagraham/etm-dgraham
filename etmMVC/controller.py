@@ -116,9 +116,9 @@ allowed['!'] = undated_methods + task_methods
 # allowed['r'] = '+-'
 
 requires = {
+        'a': 's', 
+        'b': 's',
         'r': 's',
-        'e': 's', 
-        'a': 's', # and datetime
         '+': 'r',
         '-': 'r',
         }
