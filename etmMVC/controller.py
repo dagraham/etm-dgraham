@@ -289,7 +289,7 @@ def check_entry(s, cursor_pos):
             elif act_key in allowed[itemtype]:
                 if act_key in deal_with:
                     top, bot, obj = deal_with[act_key](hsh)
-                    a = ('say', top)
+                    ask = ('say', top)
                     reply = ('say', bot + '\n')
 
                 elif act_val:
