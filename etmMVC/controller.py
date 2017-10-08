@@ -115,6 +115,25 @@ allowed['!'] = undated_methods + task_methods
 # allowed['datetime'] = allowed[t] + 'abr'
 # allowed['r'] = '+-'
 
+requires = {
+        'r': 's',
+        'e': 's', 
+        'a': 's', # and datetime
+        '+': 'r',
+        '-': 'r',
+        }
+
+def check_requires(key, hsh):
+    """
+    Check that hsh has the prerequisite entries for key.
+    """
+    if key in requires:
+        if requires[key] not in hsh:
+            return False, ('warn', "@{0} must be entered before @{1} ".format(requires[key], key))
+        elif key  
+
+
+
 
 type_prompt = u"type character for new item:\n"
 item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
