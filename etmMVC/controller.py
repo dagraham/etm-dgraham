@@ -90,24 +90,30 @@ task_methods = 'fjp'
 
 
 # events
-allowed['*'] = undated_methods + datetime_methods + rruleset_methods 
 required['*'] = 's'
+allowed['*'] = undated_methods
+
 
 # tasks
-allowed['-'] = undated_methods + task_methods + datetime_methods + rruleset_methods
-required['-'] = []
+required['-'] = ''
+allowed['-'] = undated_methods + task_methods
 
 # journal entries
-allowed['#'] = undated_methods + task_methods + datetime_methods
 required['#'] = ''
+allowed['#'] = undated_methods
 
 # someday entries
-allowed['?'] = undated_methods + task_methods + datetime_methods
 required['?'] = ''
+allowed['?'] = undated_methods + task_methods
 
 # inbox entries
-allowed['!'] = undated_methods + task_methods + datetime_methods + rruleset_methods
 required['!'] = ''
+allowed['!'] = undated_methods + task_methods
+
+# item type t and has s 
+allowed['date'] = allowed[t] + 'br'
+allowed['datetime'] = allowed[t] + 'abr'
+allowed['r'] = ''
 
 
 type_prompt = u"type character for new item:\n"
