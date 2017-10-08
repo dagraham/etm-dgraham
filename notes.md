@@ -3,6 +3,42 @@
 
 # TODO
 
+note: !, # and ? cannot repeat
+
+states
+
+has item type
+
+  *
+    required: s
+    allowed: undated
+
+  - 
+    allowed: s, f, j + undated
+
+  #
+    allowed: s + undated
+
+  ?
+    allowed: s + Undated
+
+  !
+    allowed: s + undated
+
+
+  ...
+
+has s and not in #, ?, !
+
+  date: allowed b + r + undated
+  datetime: date + a + e
+
+has r
+
+  allowed: +, - 
+
+
+
 editing_at
 
 012345678901234567890123456789012345678901234567890123456789
