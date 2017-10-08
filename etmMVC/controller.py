@@ -282,6 +282,7 @@ def check_entry(s, cursor_pos):
                 reply_str += "Allowed: {}\n".format(", ".join(current_allowed))
             reply = ('say', reply_str)
         elif act_key:
+            ask = ('say', "{0}:\n".format(at_keys[act_key]))
 
             if act_key == itemtype:
                 ask = ('say', "{} summary:\n".format(type_keys[itemtype]))
@@ -298,7 +299,7 @@ def check_entry(s, cursor_pos):
                 else:
                     ask = ('say', "{0}:\n".format(at_keys[act_key]))
             else:
-                reply = ('warn', "invalid @-key: '@{0}'\n".format(act_key))
+                reply = ('warn', "invalid @key: '@{0}'\n".format(act_key))
         else:
             reply = ('warn', 'no act_key')
 
