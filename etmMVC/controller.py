@@ -272,10 +272,10 @@ def check_entry(s, cursor_pos):
                 break
 
         if at_entry:
-            reply_str =  "{} @keys\n".format(type_keys[itemtype])
+            ask =  ('say', "{} @keys\n".format(type_keys[itemtype]))
             current_required = ["@{}".format(x) for x in required[itemtype] if x not in hsh]
             if current_required:
-                reply_str += "  required: {}\n".format(", ".join(current_required))
+                reply_str = "  required: {}\n".format(", ".join(current_required))
             current_allowed = ["@{}".format(x) for x in allowed[itemtype] if x not in hsh or x in 'jr']
             if current_allowed:
                 reply_str += "  allowed: {}\n".format(", ".join(current_allowed))
@@ -289,7 +289,7 @@ def check_entry(s, cursor_pos):
             elif act_key in allowed[itemtype]:
                 if act_key in deal_with:
                     top, bot, obj = deal_with[act_key](hsh)
-                    ask = ('say', top)
+                    a = ('say', top)
                     reply = ('say', bot + '\n')
 
                 elif act_val:
