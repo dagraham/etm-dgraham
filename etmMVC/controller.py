@@ -5,7 +5,7 @@ pendulum.set_formatter('alternative')
 
 # from dateutil.tz import gettz, tzutc, tzlocal
 
-from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE 
+# from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE 
 from model import parse_datetime, parse_period
 
 import re
