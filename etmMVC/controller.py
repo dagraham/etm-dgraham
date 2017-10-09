@@ -312,7 +312,7 @@ def check_entry(s, cursor_pos):
             else:
                 ok, res = check_requires(act_key, hsh)
                 if not ok:
-                    ask = ('say', '')
+                    ask = ('say', '{1}\n'.format(at_keys[act_key]))
                     reply = res
 
                 elif act_key in allowed[itemtype]:
