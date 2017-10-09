@@ -83,7 +83,7 @@ amp_keys = {
 allowed = {}
 required = {}
 rruleset_methods = '+-r'
-undated_methods = 'cdgilmstv'
+undated_methods = 'cdegilmstv'
 date_methods = 'b'
 datetime_methods = date_methods + 'ea' 
 task_methods = 'fjp'
@@ -308,6 +308,12 @@ def check_entry(s, cursor_pos):
             if act_key == itemtype:
                 ask = ('say', "{} summary:\n".format(type_keys[itemtype]))
                 reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs\n'.format(type_keys[itemtype]))
+
+            else:
+                ok, res = check_requires(act_key, hsh)
+                if not ok:
+                    ask = ('say', top)
+                    reply = res
 
             elif act_key in allowed[itemtype]:
                 if act_key in deal_with:
