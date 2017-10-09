@@ -326,7 +326,7 @@ def check_entry(s, cursor_pos):
                     else:
                         ask = ('say', "{0}:\n".format(at_keys[act_key]))
                 else:
-                    reply = ('warn', "'@{0}' is invalid\n".format(act_key))
+                    reply = ('warn', "@{0} is not a valid @key\n".format(act_key))
         else:
             reply = ('warn', 'no act_key')
 
