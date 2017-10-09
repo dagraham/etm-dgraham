@@ -315,18 +315,18 @@ def check_entry(s, cursor_pos):
                     ask = ('say', top)
                     reply = res
 
-            elif act_key in allowed[itemtype]:
-                if act_key in deal_with:
-                    top, bot, obj = deal_with[act_key](hsh)
-                    ask = ('say', top)
-                    reply = ('say', bot + '\n')
+                elif act_key in allowed[itemtype]:
+                    if act_key in deal_with:
+                        top, bot, obj = deal_with[act_key](hsh)
+                        ask = ('say', top)
+                        reply = ('say', bot + '\n')
 
-                elif act_val:
-                    ask = ('say', "{0}: {1}\n".format(at_keys[act_key], act_val))
+                    elif act_val:
+                        ask = ('say', "{0}: {1}\n".format(at_keys[act_key], act_val))
+                    else:
+                        ask = ('say', "{0}:\n".format(at_keys[act_key]))
                 else:
-                    ask = ('say', "{0}:\n".format(at_keys[act_key]))
-            else:
-                reply = ('warn', "'@{0}' is not allowed\n".format(act_key))
+                    reply = ('warn', "'@{0}' is not allowed\n".format(act_key))
         else:
             reply = ('warn', 'no act_key')
 
