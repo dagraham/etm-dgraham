@@ -190,7 +190,7 @@ def deal_with_e(at_hsh={}):
     if not ok:
         return top, "considering: '{}'".format(s), None
     item_hsh['e'] = obj
-    bot = "extending from {0} until {1}".format(item_hsh['s'].format("ddd MMM D h:mmA"), (item_hsh['s'] + item_hsh['e']).format("ddd MMM D h:mmA"))
+    bot = "ending {0} after the starting time".format(item_hsh['e'].in_words())
     # bot += "\n\n{}".format(str(at_hsh))
     return top, bot, obj
 
