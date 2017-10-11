@@ -11,19 +11,19 @@ has item type
 
   *
     required: s
-    allowed: undated
+    available: undated
 
   - 
-    allowed: s, f, j + undated
+    available: s, f, j + undated
 
   #
-    allowed: s + undated
+    available: s + undated
 
   ?
-    allowed: s + Undated
+    available: s + Undated
 
   !
-    allowed: s + undated
+    available: s + undated
 
 
   ...
