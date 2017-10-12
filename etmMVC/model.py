@@ -83,6 +83,7 @@ def format_datetime(obj):
     >>> format_datetime(parse_datetime("2015-10-15 2p, float")[1])
     (True, 'Thu Oct 15 2015 2:00PM')
     >>> format_datetime(parse_datetime("20160710")[1])
+
     >>> format_datetime("20160710T1730")
     (False, 'The argument must be a pendulum date or datetime.')
     """
