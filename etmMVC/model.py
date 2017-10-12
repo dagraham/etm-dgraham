@@ -20,8 +20,6 @@ from dateutil.rrule import *
 
 from jinja2 import Environment, Template
 
-import pickle
-
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 
 period_hsh = dict(
@@ -236,14 +234,6 @@ if __name__ == '__main__':
     db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
     db.insert({'pendulum date': pendulum.Pendulum(2017, 9, 7, tzinfo='Factory').date() })
     db.insert({'pendulum interval': pendulum.Interval(weeks=1, days=3, hours=7, minutes=15)})
-    # rr = rrulestr('DTSTART:20170914T105932\nFREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=-1SU,+1SU')
-    # db.insert({'tr': rr})
-    # set = rruleset()
-    # set.rrule(rrule(WEEKLY, count=4, dtstart = datetime(2017, 9, 14, 9, 0)))
-    # set.exdate(datetime(2017, 9, 28, 9, 0))
-    # print(list(set))
-    # db.insert({'rruleset': set})
-
     # hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
     # db.insert(hsh)
     for item in db:
