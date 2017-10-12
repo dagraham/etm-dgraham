@@ -225,6 +225,83 @@ def wrap(txt, indent=5):
         tmp.append(textwrap.fill(p, initial_indent=initial_indent, subsequent_indent=' '*indent, width=width-indent-1))
     return "\n".join(tmp)
 
+def set_summary(s, dt):
+    if not dt:
+        return s
+    mtch = anniversary_regex.search(s)
+    retval = s
+    if mtch:
+        startyear = mtch.group(1)
+        numyrs = anniversary_string(startyear, dt.year)
+        retval = anniversary_regex.sub(numyrs, s)
+    return retval
+
+def anniversary_string(startyear, endyear):
+    """compute difference and append suffix"""
+    diff = int(endyear) - int(startyear)
+    suffix = 'th'
+    if diff < 4 or diff > 20:
+        if diff % 10 == 1:
+            suffix = 'st'
+        elif diff % 10 == 2:
+            suffix = 'nd'
+        elif diff % 10 == 3:
+            suffix = 'rd'
+    return "%d%s" % (diff, suffix)
+
+
+def one_or_more(s):
+    if type(s) is list:
+        return ", ".join([str(x) for x in s])
+    else:
+        return str(s)
+
+
+def string(arg, typ=None):
+    try:
+        arg = str(arg)
+    except:
+        if typ:
+            return False, "{}: {}".format(typ, arg)
+        else:
+            return False, "{}".format(arg)
+    return True, arg
+
+def string_list(arg, typ):
+    """
+    """
+    if arg == '':
+        args = []
+    elif type(arg) == str:
+        try:
+            args = [x.strip() for x in arg.split(",")]
+        except:
+            return False, '{}: {}'.format(typ, arg)
+    elif type(arg) == list:
+        try:
+            args = [str(x).strip() for x in arg]
+        except:
+            return False, '{}: {}'.format(typ, arg)
+    else:
+        return False, '{}: {}'.format(typ, arg)
+    bad = []
+    msg = []
+    ret = []
+    for arg in args:
+        ok, res = string(arg, None)
+        if ok:
+            ret.append(res)
+        else:
+            msg.append(res)
+    if msg:
+        return False, "{}: {}".format(typ, "; ".join(msg))
+    else:
+        return True, ret
+
+
+def title(arg):
+    return string(arg, 'title')
+
 
 entry_tmpl = """\
 {{ h.itemtype }} {{ h.summary }}\
