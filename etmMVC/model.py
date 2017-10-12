@@ -273,7 +273,7 @@ entry_tmpl = """\
 """
 
 jinja_entry_template = Template(entry_tmpl)
-jinja_entry_template.globals['etm2dsp'] = etm2dsp
+jinja_entry_template.globals['etm2dsp'] = format_datetime
 jinja_entry_template.globals['one_or_more'] = one_or_more
 # jinja_entry_template.globals['set_summary'] = set_summary
 jinja_entry_template.globals['wrap'] = wrap
