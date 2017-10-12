@@ -124,57 +124,10 @@ class PendulumIntervalSerializer(Serializer):
         return pendulum.Interval(*days_seconds)
 
 
-class RruleSerializer(Serializer):
-    """
-    All rrule datetimes are naive. When the rrule object is first created, the value for dtstart will be taken from the value of `s`, which is required and may either be aware, UTC time or naive. If aware, then all the rrule instances will need to be converted to localtime. 
-    """
-
-    OBJ_CLASS = dateutil.rrule.rrule  # The class handles rrule objects
-
-
-    def encode(self, obj):
-        """
-        Serialize the rrule object.
-        """
-        return obj.__str__()
-
-
-    def decode(self, s):
-        """
-        Return the serialization as a date object.
-        """
-        return dateutil.rrule.rrulestr(s)
-
-
-class RruleSetSerializer(Serializer):
-    """
-    All rrule datetimes are naive. When the rrule object is first created, the value for dtstart will be taken from the value of `s`, which is required and may either be aware, UTC time or naive. If aware, then all the rrule instances will need to be converted to localtime. 
-    """
-
-    OBJ_CLASS = dateutil.rrule.rruleset  # The class handles rruleset objects
-
-
-    def encode(self, obj):
-        """
-        Serialize the rrule object.
-        """
-        return pickle.dumps(obj, protocol=4)
-
-
-    def decode(self, s):
-        """
-        Return the serialization as a date object.
-        """
-        return pickle.loads(s, protocol=4)
-
-
 serialization = SerializationMiddleware()
 serialization.register_serializer(PendulumDateTimeSerializer(), 'TinyPendulumDateTime')
-# serialization.register_serializer(DateTimeSerializer(), 'TinyDateTime')
 serialization.register_serializer(PendulumDateSerializer(), 'TinyPendulumDate')
 serialization.register_serializer(PendulumIntervalSerializer(), 'TinyPendulumInterval')
-serialization.register_serializer(RruleSerializer(), 'TinyRrule')
-serialization.register_serializer(RruleSetSerializer(), 'TinyRruleSet')
 
 ########################
 ### end TinyDB setup ###
