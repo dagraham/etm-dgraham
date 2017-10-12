@@ -22,6 +22,8 @@ from dateutil.rrule import *
 
 from jinja2 import Environment, Template
 
+import textwrap
+
 import os
 import logging
 import logging.config
@@ -74,6 +76,16 @@ def parse_datetime(s):
         else:
             return ok, res.replace(second=0, microsecond=0)
 
+
+period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
+
+period_hsh = dict(
+    z=pendulum.Interval(seconds=0),
+    m=pendulum.Interval(minutes=1),
+    h=pendulum.Interval(hours=1),
+    d=pendulum.Interval(days=1),
+    w=pendulum.Interval(weeks=1),
+        )
 
 def parse_period(s):
     """\
@@ -177,18 +189,78 @@ def setup_logging(level, dir=None):
     logging.config.dictConfig(config)
     logger.info('logging at level: {0}\n    logging to file: {1}'.format(loglevel, logfile))
 
+def wrap(txt, indent=5):
+    """
+
+    """
+    width, rows = shutil.get_terminal_size()
+    para = [textwrap.dedent(x).strip() for x in txt.split('\n')]
+    tmp = []
+    first = True
+    for p in para:
+        if first:
+            initial_indent = ''
+            first = False
+        else:
+            initial_indent = ' '*indent
+        tmp.append(textwrap.fill(p, initial_indent=initial_indent, subsequent_indent=' '*indent, width=width-indent-1))
+    return "\n".join(tmp)
+
+
+entry_tmpl = """\
+{{ h.itemtype }} {{ h.summary }}\
+{% if 's' in h %}{{ " @s {}".format(etm2dsp(h['s'])[1]) }}{% endif %} \
+{% for k in ['e', 'b', 'l', 'c', 'n', 'm', 'g', 'u', 'i', 'v', 'f', 'h', 'p', 'q'] -%}\
+{%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}\
+{%- endfor %}\
+{% if 't' in h %}{{ "@t {}".format(", ".join(h['t'])) }} {% endif %}\
+{% if 'a' in h %}\
+{%- for x in h['a'] %}{{ "@a {}: {}".format(x[0], ", ".join(x[1:])) }} {% endfor %}\
+{% endif %}\
+{%- if 'z' in h %}@z {{ h['z'] }}{% endif -%} \
+{%- if 'r' in h %}
+    {%- for x in h['r'] %}
+    {%- set rrule -%}
+        {{ x['r'] }}\
+        {%- for k in ['i', 's', 'u', 'M', 'm', 'w', 'h', 'u', 'E'] -%}
+            {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }} {%- endif %}
+        {%- endfor %}
+    {%- endset %}
+  @r {{ wrap(rrule) }}\
+    {%- endfor %}
+{%- endif -%}
+{% for k in ['+', '-', 'h'] -%}
+    {%- if k in h and h[k] %}
+  @{{ k }} {{ wrap(", ".join(h[k])) }}
+    {%- endif -%}\
+{%- endfor %}\
+{% if 'd' in h %}
+  @d {{ wrap(h['d']) }}\
+{% endif -%}
+{%- if 'j' in h %}
+    {%- for x in h['j'] %}
+    {%- set job -%}
+        {{ x['j'] }}\
+        {%- for k in ['s', 'b', 'd', 'e', 'f', 'l', 'i', 'p'] -%}
+            {%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
+        {%- endfor %}
+        {%- if 'a' in x %}\
+            {%- for a in x['a'] %} &a {{ "{}: {}".format(a[0], ", ".join(a[1:])) }}{% endfor %}\
+        {%- endif %}\
+    {%- endset %}
+  @j {{ wrap(job) }}\
+    {%- endfor %}\
+{%- endif -%}
+"""
+
+jinja_entry_template = Template(entry_tmpl)
+jinja_entry_template.globals['etm2dsp'] = etm2dsp
+jinja_entry_template.globals['one_or_more'] = one_or_more
+# jinja_entry_template.globals['set_summary'] = set_summary
+jinja_entry_template.globals['wrap'] = wrap
 
 
 
-period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
-
-period_hsh = dict(
-    z=pendulum.Interval(seconds=0),
-    m=pendulum.Interval(minutes=1),
-    h=pendulum.Interval(hours=1),
-    d=pendulum.Interval(days=1),
-    w=pendulum.Interval(weeks=1),
-        )
 
 ##########################
 ### begin TinyDB setup ###
