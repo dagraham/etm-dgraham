@@ -76,17 +76,17 @@ def parse_datetime(s):
         else:
             return ok, res.replace(second=0, microsecond=0)
 
-def format_datetime(dtobj):
+def format_datetime(obj):
     """
     >>> format_datetime(parse("20160710T1730"))
     (True, '2016-07-10 17:30')
     >>> format_datetime("2016710T1730")
     (False, "Could not process  '2016710T1730'")
     """
-    if type(dtobj) == pendulum.date:
+    if type(obj) == pendulum.date:
         return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
-    elif type(dtobj) == pendulum.pendulum.Pendulum:
-        a = dtobj.tzinfo.abbrev
+    elif type(obj) == pendulum.pendulum.Pendulum:
+        a = obj.tzinfo.abbrev
         if a == '-00':
             return True, format(obj.format("ddd MMM D YYYY h:mmA", formatter='alternative'))
         else:
