@@ -79,7 +79,7 @@ def parse_datetime(s):
 def format_datetime(obj):
     """
     >>> format_datetime(parse("20160710T1730"))
-    (True, '2016-07-10 17:30')
+    (True, 'Sun Jul 10 2016 5:30PM GMT')
     >>> format_datetime("2016710T1730")
     (False, "Could not process  '2016710T1730'")
     """
