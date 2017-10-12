@@ -309,7 +309,7 @@ def title(arg):
 
 entry_tmpl = """\
 {{ h.itemtype }} {{ h.summary }}\
-{% if 's' in h %}{{ " @s {}".format(etm2dsp(h['s'])[1]) }}{% endif %} \
+{% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %} \
 {% for k in ['e', 'b', 'l', 'c', 'n', 'm', 'g', 'u', 'i', 'v', 'f', 'h', 'p', 'q'] -%}\
 {%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}\
 {%- endfor %}\
@@ -354,7 +354,7 @@ entry_tmpl = """\
 """
 
 jinja_entry_template = Template(entry_tmpl)
-jinja_entry_template.globals['etm2dsp'] = format_datetime
+jinja_entry_template.globals['dt2str'] = format_datetime
 jinja_entry_template.globals['one_or_more'] = one_or_more
 # jinja_entry_template.globals['set_summary'] = set_summary
 jinja_entry_template.globals['wrap'] = wrap
