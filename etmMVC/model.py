@@ -76,6 +76,25 @@ def parse_datetime(s):
         else:
             return ok, res.replace(second=0, microsecond=0)
 
+def format_datetime(dtobj):
+    """
+    >>> format_datetime(parse("20160710T1730"))
+    (True, '2016-07-10 17:30')
+    >>> format_datetime("2016710T1730")
+    (False, "Could not process  '2016710T1730'")
+    """
+    if type(dtobj) == pendulum.date:
+        return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
+    elif type(dtobj) == pendulum.pendulum.Pendulum:
+        a = dtobj.tzinfo.abbrev
+        if a == '-00':
+            return True, format(obj.format("ddd MMM D YYYY h:mmA", formatter='alternative'))
+        else:
+            return True, format(obj.format("ddd MMM D YYYY h:mmA z", formatter='alternative'))
+    else:
+        return False, "The argument must be a pendulum date or datetime."
+
+
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 
