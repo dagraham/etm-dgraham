@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pendulum
+from pendulum import parse
 
 import re
 
@@ -12,13 +13,85 @@ from tinydb.storages import JSONStorage
 from tinydb_serialization import SerializationMiddleware
 from tinydb_smartcache import SmartCacheTable
 
-from pendulum import parse
+from copy import deepcopy
+import calendar as clndr
 
 import dateutil
 from dateutil import rrule
 from dateutil.rrule import *
 
 from jinja2 import Environment, Template
+
+import os
+import logging
+import logging.config
+logger = logging.getLogger()
+
+etmdir = None
+
+def setup_logging(level, dir=None):
+    """
+    Setup logging configuration. Override root:level in
+    logging.yaml with default_level.
+    """
+    global etmdir
+    etmdir = dir
+    if etmdir:
+        etmdir = os.path.normpath(etmdir)
+    else:
+        etmdir = os.path.normpath(os.path.join(os.path.expanduser("~/.etm-lite")))
+
+
+    if not os.path.isdir(etmdir):
+        # root_logger = logging.getLogger()
+        # root_logger.disabled = True
+        return
+
+    log_levels = {
+        '1': logging.DEBUG,
+        '2': logging.INFO,
+        '3': logging.WARN,
+        '4': logging.ERROR,
+        '5': logging.CRITICAL
+    }
+
+    if level in log_levels:
+        loglevel = log_levels[level]
+    else:
+        loglevel = log_levels['3']
+
+    # if we get here, we have an existing etmdir
+    logfile = os.path.normpath(os.path.abspath(os.path.join(etmdir, "etm.log")))
+
+    config = {'disable_existing_loggers': False,
+              'formatters': {'simple': {
+                  'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
+              'handlers': {
+                    'file': {
+                        'backupCount': 5,
+                        'class': 'logging.handlers.TimedRotatingFileHandler',
+                        'encoding': 'utf8',
+                        'filename': logfile,
+                        'formatter': 'simple',
+                        'level': loglevel,
+                        'when': 'midnight',
+                        'interval': 1}
+              },
+              'loggers': {
+                  'etmmv': {
+                    'handlers': ['file'],
+                    'level': loglevel,
+                    'propagate': False}
+              },
+              'root': {
+                  'handlers': ['file'],
+                  'level': loglevel},
+              'version': 1}
+    logging.config.dictConfig(config)
+    logger.info('logging at level: {0}\n    logging to file: {1}'.format(loglevel, logfile))
+
+
+
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 
