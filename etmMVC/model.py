@@ -29,6 +29,93 @@ logger = logging.getLogger()
 
 etmdir = None
 
+def parse_datetime(s):
+    """
+    's' will have the format 'datetime string' followed, optionally by a comma and a tz specification. Return a date object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if tz == 'float' or an aware datetime object using tzlocal if tz is None (missing) and using the provided tz otherwise.  
+    >>> dt = parse_datetime("2015-10-15 2p")
+    >>> dt[1]
+    <Pendulum [2015-10-15T14:00:00-04:00]>
+    >>> dt = parse_datetime("2015-10-15")
+    >>> dt[1]
+    <Date [2015-10-15]>
+
+    To get a datetime for midnight, schedule for 1 second later and note
+    that the second is removed from the datetime:
+    >>> dt = parse_datetime("2015-10-15 00:00:01")
+    >>> dt[1]
+    <Pendulum [2015-10-15T00:00:00-04:00]>
+    >>> dt = parse_datetime("2015-10-15 2p, float")
+    >>> dt[1]
+    <Pendulum [2015-10-15T14:00:00+00:00]>
+    >>> dt = parse_datetime("2015-10-15 2p, US/Pacific")
+    >>> dt[1]
+    <Pendulum [2015-10-15T14:00:00-07:00]>
+    """
+    parts = s.split(", ")
+    if len(parts) < 2:
+        tz = None
+        ok = 'none'
+    else:
+        tz = parts[1].strip()
+        if tz == 'float':
+            tz = 'Factory'
+            ok = 'naive'
+        else:
+            ok = 'aware'
+    s = parts[0]
+
+    try:
+        res = parse(s, tz=tz)
+    except:
+        return False, "Could not process '{}'".format(s)
+    else:
+        if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
+            return 'date', res.date()
+        else:
+            return ok, res.replace(second=0, microsecond=0)
+
+
+def parse_period(s):
+    """\
+    Take a period string and return a corresponding pendulum interval.
+    Examples:
+        parse_period('-2w3d4h5m')= Interval(weeks=-2,days=3,hours=4,minutes=5)
+        parse_period('1h30m') = Inter(hours=1, minutes=30)
+        parse_period('-10m') = timedelta(minutes=10)
+    where:
+        w: weeks
+        d: days
+        h: hours
+        m: minutes
+    If an integer is passed or a string that can be converted to an
+    integer, then return a timedelta corresponding to this number of
+    minutes if 'minutes = True', and this number of days otherwise.
+    Minutes will be True for alerts and False for beginbys.
+
+    >>> 3*60*60+5*60
+    11100
+    >>> parse_period("2d-3h5m")[1]
+    <Interval [1 day 21 hours 5 minutes]>
+    >>> pendulum.create(2015, 10, 15, 9, 0, tz='local') + parse_period("-25m")[1]
+    <Pendulum [2015-10-15T08:35:00-04:00]>
+    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_period("1d")[1]
+    <Pendulum [2015-10-16T09:00:00+00:00]>
+    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
+    <Pendulum [2015-10-20T12:00:00+00:00]>
+    """
+    td = period_hsh['z']
+
+    m = period_regex.findall(s)
+    if not m:
+        return False, "Invalid period '{0}'".format(s)
+    for g in m:
+        if g[1] == '-':
+            num = -int(g[2])
+        else:
+            num = int(g[2])
+        td += num * period_hsh[g[3]]
+    return True, td
+
 def setup_logging(level, dir=None):
     """
     Setup logging configuration. Override root:level in
@@ -204,93 +291,6 @@ serialization.register_serializer(PendulumIntervalSerializer(), 'TinyPendulumInt
 ### end TinyDB setup ###
 ########################
 
-
-def parse_datetime(s):
-    """
-    's' will have the format 'datetime string' followed, optionally by a comma and a tz specification. Return a date object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if tz == 'float' or an aware datetime object using tzlocal if tz is None (missing) and using the provided tz otherwise.  
-    >>> dt = parse_datetime("2015-10-15 2p")
-    >>> dt[1]
-    <Pendulum [2015-10-15T14:00:00-04:00]>
-    >>> dt = parse_datetime("2015-10-15")
-    >>> dt[1]
-    <Date [2015-10-15]>
-
-    To get a datetime for midnight, schedule for 1 second later and note
-    that the second is removed from the datetime:
-    >>> dt = parse_datetime("2015-10-15 00:00:01")
-    >>> dt[1]
-    <Pendulum [2015-10-15T00:00:00-04:00]>
-    >>> dt = parse_datetime("2015-10-15 2p, float")
-    >>> dt[1]
-    <Pendulum [2015-10-15T14:00:00+00:00]>
-    >>> dt = parse_datetime("2015-10-15 2p, US/Pacific")
-    >>> dt[1]
-    <Pendulum [2015-10-15T14:00:00-07:00]>
-    """
-    parts = s.split(", ")
-    if len(parts) < 2:
-        tz = None
-        ok = 'none'
-    else:
-        tz = parts[1].strip()
-        if tz == 'float':
-            tz = 'Factory'
-            ok = 'naive'
-        else:
-            ok = 'aware'
-    s = parts[0]
-
-    try:
-        res = parse(s, tz=tz)
-    except:
-        return False, "Could not process '{}'".format(s)
-    else:
-        if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-            return 'date', res.date()
-        else:
-            return ok, res.replace(second=0, microsecond=0)
-
-
-def parse_period(s):
-    """\
-    Take a period string and return a corresponding pendulum interval.
-    Examples:
-        parse_period('-2w3d4h5m')= Interval(weeks=-2,days=3,hours=4,minutes=5)
-        parse_period('1h30m') = Inter(hours=1, minutes=30)
-        parse_period('-10m') = timedelta(minutes=10)
-    where:
-        w: weeks
-        d: days
-        h: hours
-        m: minutes
-    If an integer is passed or a string that can be converted to an
-    integer, then return a timedelta corresponding to this number of
-    minutes if 'minutes = True', and this number of days otherwise.
-    Minutes will be True for alerts and False for beginbys.
-
-    >>> 3*60*60+5*60
-    11100
-    >>> parse_period("2d-3h5m")[1]
-    <Interval [1 day 21 hours 5 minutes]>
-    >>> pendulum.create(2015, 10, 15, 9, 0, tz='local') + parse_period("-25m")[1]
-    <Pendulum [2015-10-15T08:35:00-04:00]>
-    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_period("1d")[1]
-    <Pendulum [2015-10-16T09:00:00+00:00]>
-    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
-    <Pendulum [2015-10-20T12:00:00+00:00]>
-    """
-    td = period_hsh['z']
-
-    m = period_regex.findall(s)
-    if not m:
-        return False, "Invalid period '{0}'".format(s)
-    for g in m:
-        if g[1] == '-':
-            num = -int(g[2])
-        else:
-            num = int(g[2])
-        td += num * period_hsh[g[3]]
-    return True, td
 
 
 if __name__ == '__main__':
