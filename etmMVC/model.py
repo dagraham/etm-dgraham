@@ -25,6 +25,8 @@ from jinja2 import Environment, Template
 import textwrap
 
 import os
+import platform
+
 import logging
 import logging.config
 logger = logging.getLogger()
@@ -115,17 +117,13 @@ def parse_period(s):
     Take a period string and return a corresponding pendulum interval.
     Examples:
         parse_period('-2w3d4h5m')= Interval(weeks=-2,days=3,hours=4,minutes=5)
-        parse_period('1h30m') = Inter(hours=1, minutes=30)
-        parse_period('-10m') = timedelta(minutes=10)
+        parse_period('1h30m') = Interval(hours=1, minutes=30)
+        parse_period('-10m') = Interval(minutes=10)
     where:
         w: weeks
         d: days
         h: hours
         m: minutes
-    If an integer is passed or a string that can be converted to an
-    integer, then return a timedelta corresponding to this number of
-    minutes if 'minutes = True', and this number of days otherwise.
-    Minutes will be True for alerts and False for beginbys.
 
     >>> 3*60*60+5*60
     11100
@@ -211,6 +209,40 @@ def setup_logging(level, dir=None):
               'version': 1}
     logging.config.dictConfig(config)
     logger.info('logging at level: {0}\n    logging to file: {1}'.format(loglevel, logfile))
+
+
+sys_platform = platform.system()
+mac = sys.platform == 'darwin'
+if sys_platform in ('Windows', 'Microsoft'):
+    windoz = True
+    from time import clock as timer
+else:
+    windoz = False
+    from time import time as timer
+
+
+class TimeIt(object):
+    def __init__(self, loglevel=1, label=""):
+        self.loglevel = loglevel
+        self.label = label
+        msg = "{0} timer started".format(self.label)
+        if self.loglevel == 1:
+            logger.debug(msg)
+        elif self.loglevel == 2:
+            logger.info(msg)
+        self.start = timer()
+
+    def stop(self, *args):
+        self.end = timer()
+        self.secs = self.end - self.start
+        self.msecs = self.secs * 1000  # millisecs
+        msg = "{0} timer stopped; elapsed time: {1} milliseconds".format(self.label, self.msecs)
+        if self.loglevel == 1:
+            logger.debug(msg)
+        elif self.loglevel == 2:
+            logger.info(msg)
+
+
 
 def wrap(txt, indent=5):
     """
