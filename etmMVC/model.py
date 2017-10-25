@@ -272,18 +272,32 @@ def set_summary(s, dt):
         retval = anniversary_regex.sub(numyrs, s)
     return retval
 
+
+# TODO: an international version for this
+SUFFIXES = {0: 'th', 1: 'st', 2: 'nd', 3: 'rd'}
+
+def ordinal(num):
+    """
+    Numbers in the 4-20 range get the default 'th'. Others 
+    follow the normal modulo 10 counting scheme.
+    >>> ordinal(3)
+    3rd
+    >>> ordinal(21)
+    21st
+    >>> ordinal(82)
+    82nd
+    """
+    suffix = SUFFIXES[0]
+    if num < 4 or (num > 20 and num % 10 < 4):
+        suffix = SUFFIXES[num % 10]
+    return "{0}{1}".format(str(num), suffix)
+
 def anniversary_string(startyear, endyear):
-    """compute difference and append suffix"""
-    diff = int(endyear) - int(startyear)
-    suffix = 'th'
-    if diff < 4 or diff > 20:
-        if diff % 10 == 1:
-            suffix = 'st'
-        elif diff % 10 == 2:
-            suffix = 'nd'
-        elif diff % 10 == 3:
-            suffix = 'rd'
-    return "%d%s" % (diff, suffix)
+    """
+    Compute the integer difference between startyear and endyear and 
+    append the appropriate English suffix.
+    """
+    return ordinal(int(endyear) - int(startyear))
 
 
 def one_or_more(s):
