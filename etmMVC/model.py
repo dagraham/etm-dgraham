@@ -285,6 +285,8 @@ def ordinal(num):
     '3rd'
     >>> ordinal(21)
     '21st'
+    >>> ordinal(40)
+    '40th'
     >>> ordinal(82)
     '82nd'
     """
