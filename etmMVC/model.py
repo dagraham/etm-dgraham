@@ -274,13 +274,13 @@ def set_summary(s, dt):
     return retval
 
 
-# TODO: an international version for this
+# TODO: an international version for this?
 SUFFIXES = {0: 'th', 1: 'st', 2: 'nd', 3: 'rd'}
 
 def ordinal(num):
     """
-    Numbers in the 4-20 range get the default 'th'. Others 
-    follow the normal modulo 10 counting scheme.
+    Append appropriate suffix to integers for ordinal representation. 
+    E.g., 1 -> 1st, 2 -> 2nd and so forth.  
     >>> ordinal(3)
     '3rd'
     >>> ordinal(21)
@@ -290,9 +290,10 @@ def ordinal(num):
     >>> ordinal(82)
     '82nd'
     """
-    suffix = SUFFIXES[0]
     if num < 4 or (num > 20 and num % 10 < 4):
         suffix = SUFFIXES[num % 10]
+    else: 
+        suffix = SUFFIXES[0]
     return "{0}{1}".format(str(num), suffix)
 
 def anniversary_string(startyear, endyear):
