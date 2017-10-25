@@ -421,7 +421,7 @@ class PendulumDateTimeSerializer(Serializer):
     This class handles both aware and 'factory' pendulum objects. 
 
     Encoding: If obj.tzinfo.abbrev is '-00' (tz=Factory), it is interpreted as naive, serialized without conversion and an 'N' is appended. Otherwise it is interpreted as aware, converted to UTC and an 'A' is appended. 
-    Decoding: If the serialization ends with 'A', the pendulum object is treated as UTC and converted to localtime. Otherwise, the object is treated as localtime and no conversion is performed.
+    Decoding: If the serialization ends with 'A', the pendulum object is treated as 'UTC' and converted to localtime. Otherwise, the object is treated as 'Factory' and no conversion is performed.
 
     This serialization discards both seconds and microseconds but preserves hours and minutes.
     """
