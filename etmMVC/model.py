@@ -282,11 +282,11 @@ def ordinal(num):
     Numbers in the 4-20 range get the default 'th'. Others 
     follow the normal modulo 10 counting scheme.
     >>> ordinal(3)
-    3rd
+    '3rd'
     >>> ordinal(21)
-    21st
+    '21st'
     >>> ordinal(82)
-    82nd
+    '82nd'
     """
     suffix = SUFFIXES[0]
     if num < 4 or (num > 20 and num % 10 < 4):
