@@ -3,6 +3,7 @@
 import pendulum
 from pendulum import parse
 
+import sys
 import re
 
 from tinydb_serialization import Serializer
