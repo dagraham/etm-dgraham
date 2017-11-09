@@ -179,7 +179,8 @@ class PendulumDateTimeSerializer(Serializer):
     treated as 'Factory' and no conversion is performed. Note: 'A' datetimes
     are aware and 'N' datetimes are naive.
 
-    This serialization discards both seconds and microseconds but preserves hours and minutes.
+    This serialization discards both seconds and microseconds but preserves 
+    hours and minutes.
 
 class PendulumDateSerializer(Serializer):
 
