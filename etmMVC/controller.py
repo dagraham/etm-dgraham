@@ -128,7 +128,7 @@ def check_requires(key, hsh):
     Check that hsh has the prerequisite entries for key.
     """
     if key in requires and requires[key] not in hsh:
-        return False, ('warn', "@{0} is required for @{1}".format(requires[key], key))
+        return False, ('warn', "@{0} is required for @{1}\n".format(requires[key], key))
     else:
         return True, ('say', '')
 
