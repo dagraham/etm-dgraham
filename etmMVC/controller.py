@@ -130,7 +130,7 @@ def check_requires(key, hsh):
     if key in requires and requires[key] not in hsh:
         return False, ('warn', "@{0} is required for @{1} and must be entered first".format(requires[key], key))
     else:
-        if key in 'ea' and type(hsh['s']) == pendulum.pendulum.Date
+        if key in 'ea' and type(hsh['s']) == pendulum.pendulum.Date:
             return False, ('warn', "@{0} requires that @s be a datetime, not a date object".format(key))
         return True, ('say', '')
 
