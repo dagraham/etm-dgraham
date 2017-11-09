@@ -182,6 +182,7 @@ been used.
 
 ## Storage
 
+Using date and datetime storage extensions in tinydb
 - the creation timestamp (the uuid for each item) and last modified timestamp
   - Integers even though it the uuid will be stored as a str. Use seconds and microseconds to guarantee uniqueness:
 
