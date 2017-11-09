@@ -128,10 +128,8 @@ def check_requires(key, hsh):
     Check that hsh has the prerequisite entries for key.
     """
     if key in requires and requires[key] not in hsh:
-        return False, ('warn', "@{0} is required for @{1} and must be entered first".format(requires[key], key))
+        return False, ('warn', "@{0} is required for @{1}".format(requires[key], key))
     else:
-        if key in 'a' and type(hsh['s']) != pendulum.pendulum.Pendulum:
-            return False, ('warn', "@{0} requires that @s be a datetime, not a date object".format(key))
         return True, ('say', '')
 
 
@@ -272,7 +270,7 @@ def check_entry(s, cursor_pos):
     hsh, at_tups, at_entry, at_parts = str2hsh(s)
 
     ask = ('say', '')
-    reply = ('say', '')
+    reply = ('say', '\n')
     if not at_tups:
         ask = ('say', type_prompt)
         reply = ('say', item_types)
