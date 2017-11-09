@@ -84,7 +84,7 @@ allowed = {}
 required = {}
 rruleset_methods = '+-r'
 undated_methods = 'cdegilmstv'
-date_methods = 'b'
+date_methods = 'br'
 datetime_methods = date_methods + 'ea' 
 task_methods = 'fjp'
 
