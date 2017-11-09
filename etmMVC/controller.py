@@ -91,20 +91,20 @@ task_methods = 'fjp'
 
 # events
 required['*'] = 's'
-allowed['*'] = undated_methods
+allowed['*'] = undated_methods + datetime_methods
 
 
 # tasks
 required['-'] = ''
-allowed['-'] = undated_methods + task_methods
+allowed['-'] = undated_methods + datetime_methods + task_methods
 
 # journal entries
 required['#'] = ''
-allowed['#'] = undated_methods
+allowed['#'] = undated_methods + datetime_methods
 
 # someday entries
 required['?'] = ''
-allowed['?'] = undated_methods + task_methods
+allowed['?'] = undated_methods + task_methods + datetime_methods
 
 # inbox entries
 required['!'] = ''
@@ -130,6 +130,8 @@ def check_requires(key, hsh):
     if key in requires and requires[key] not in hsh:
         return False, ('warn', "@{0} is required for @{1} and must be entered first".format(requires[key], key))
     else:
+        if key in 'ea' and type(hsh['s']) == pendulum.pendulum.Date
+            return False, ('warn', "@{0} requires that @s be a datetime, not a date object".format(key))
         return True, ('say', '')
 
 
@@ -315,7 +317,7 @@ def check_entry(s, cursor_pos):
                     ask = ('say', '{0}\n'.format(at_keys[act_key]))
                     reply = res
 
-                elif act_key in allowed[itemtype]:
+                if act_key in allowed[itemtype] and ok:
                     if act_key in deal_with:
                         top, bot, obj = deal_with[act_key](hsh)
                         ask = ('say', top)
