@@ -134,27 +134,6 @@ complete?
 When displaying an item in details view, any applicable defaults will be 
 displayed in a *Defaults* section below the entry. 
 
-## default timezone: for @z
-
-When a value for @s includes a time as well as date and thus could be aware 
-and no explicit entry has been given for @z, then `default_timezone` will be 
-used to convert the entry to UTC for the database entry and `@z 
-<default_timezone>` will be recorded. When only a date or `@z float` is 
-entered, then the date/time is regarded as naive and stored in the database 
-without conversion. `@z float` is recorded to the database when the datetime 
-is naive and, otherwise, the actual timezone is recorded for `@z`. 
-
-When displaying datetimes that are aware, the datetime is interpreted as UTC 
-and converted to the `default_timezone` representation. Datetimes when `@z 
-float` are interpreted as local times and are not converted. 
-
-When editing an item with a datetime entry that is naive, `@z = float` must 
-have been entered when creating the item and will thus be displayed.
-
-When entering an explicit value for @z, tab completion will offer the value of 
-default timezone,  other values of @z that have previously been used and 
-`float`.
-
 
 ## default calendar: for @c
 
@@ -171,7 +150,6 @@ been used.
 
 
 # Date & Time
-
 
     's' will have the format 'datetime string' followed, optionally by a comma 
     and a tz specification. Return a date object if the parsed datetime is 
@@ -199,6 +177,15 @@ class PendulumDateTimeSerializer(Serializer):
     Decoding: If the serialization ends with 'A', the pendulum object is treated as 'UTC' and converted to localtime. Otherwise, the object is treated as 'Factory' and no conversion is performed.
 
     This serialization discards both seconds and microseconds but preserves hours and minutes.
+
+class PendulumDateSerializer(Serializer):
+
+    This class handles pendulum date objects.
+
+
+class PendulumIntervalSerializer(Serializer):
+
+    This class handles pendulum interval (timedelta) objects.
 
 
 ## Retrieval
