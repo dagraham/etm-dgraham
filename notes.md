@@ -191,45 +191,15 @@ class DatetimeCacheTable(SmartCacheTable):
         the the id for an item created 2016-06-24 08:14:11:601637 would
         be 20160624081411601637.
 
+class PendulumDateTimeSerializer(Serializer):
 
-- the creation timestamp (the uuid for each item) and last modified timestamp
-  - Integers even though it the uuid will be stored as a str. Use seconds and microseconds to guarantee uniqueness:
+    This class handles both aware and 'factory' pendulum objects. 
 
-        cid = int(arrow.utcnow().strftime("%Y%m%d%H%M%S%f"))
+    Encoding: If obj.tzinfo.abbrev is '-00' (tz=Factory), it is interpreted as naive, serialized without conversion and an 'N' is appended. Otherwise it is interpreted as aware, converted to UTC and an 'A' is appended. 
+    Decoding: If the serialization ends with 'A', the pendulum object is treated as 'UTC' and converted to localtime. Otherwise, the object is treated as 'Factory' and no conversion is performed.
 
-  - For display, round off to minutes and convert to localtime
+    This serialization discards both seconds and microseconds but preserves hours and minutes.
 
-        cid_dt = arrow.get(current_id[:12], 'YYYYMMDDHHmm').to('US/Eastern')
-
-- other datetimes are stored in the format `YYYYMMDDHHmm` - naive with `@z 
-  float` and UTC aware otherwise
-
-- dates are naive and stored in the format `YYYYMMDD` with `@z float`
-
-is a UTC string in the format YYYY-
-  and modification datetimes are integers representing UTC datetimes
-- date-only are stored as naive date objects with @z float
-- date-times are stored as naive datetime objects
-  - aware datetimes are first converted to UTC and then stored as naive 
-    datetimes. The original timezone information is stored in @z.
-  - naive datetimes are left unchanged with @z float
-- repeating items
-  - first = date or datetime (naive or UTC aware) of first instance
-  - last
-    - if finitely repeating: (&u or &t) date or datetime of last instance
-    - otherwise: none
-
-    from datetime import datetime
-    from tinydb_serialization import Serializer
-
-    class DateTimeSerializer(Serializer):
-        OBJ_CLASS = datetime  # The class this serializer handles
-
-        def encode(self, obj):
-            return obj.strftime('%Y-%m-%dT%H:%M:%S')
-
-        def decode(self, s):
-            return datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
 
 ## Retrieval
 
