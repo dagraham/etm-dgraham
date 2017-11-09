@@ -163,10 +163,9 @@ Using date and datetime storage extensions in tinydb
 
 class DatetimeCacheTable(SmartCacheTable):
 
-        Use a readable, integer timestamp as the id - unique and stores
-        the creation datetime - instead of consecutive integers. E.g.,
-        the the id for an item created 2016-06-24 08:14:11:601637 would
-        be 20160624081411601637.
+    Use a readable, integer timestamp as the id - unique and stores the 
+    creation datetime - instead of consecutive integers. E.g., the the id for 
+    an item created 2016-06-24 08:14:11:601637 would be 20160624081411601637.
 
 class PendulumDateTimeSerializer(Serializer):
 
