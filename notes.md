@@ -151,12 +151,11 @@ been used.
 
 # Date & Time
 
-    's' will have the format 'datetime string' followed, optionally by a comma 
-    and a tz specification. Return a date object if the parsed datetime is 
-    exactly midnight. Otherwise return a naive datetime object if tz == 
-    'float' or an aware datetime object using tzlocal if tz is N
-    parse_default = datetime.now().replace(hour=0, minute=0, second=1, 
-    microsecond=0)
+    The string to be parsed will have the format 'datetime string' followed, 
+    optionally by a comma and a tz specification. Return a date object if the 
+    parsed datetime is exactly midnight. Otherwise return a naive datetime 
+    object if tz == 'float' or an aware datetime object using tzlocal if tz is 
+    None and otherwise using the proviced tz.
 
 ## Storage
 
@@ -173,8 +172,13 @@ class PendulumDateTimeSerializer(Serializer):
 
     This class handles both aware and 'factory' pendulum objects. 
 
-    Encoding: If obj.tzinfo.abbrev is '-00' (tz=Factory), it is interpreted as naive, serialized without conversion and an 'N' is appended. Otherwise it is interpreted as aware, converted to UTC and an 'A' is appended. 
-    Decoding: If the serialization ends with 'A', the pendulum object is treated as 'UTC' and converted to localtime. Otherwise, the object is treated as 'Factory' and no conversion is performed.
+    Encoding: If obj.tzinfo.abbrev is '-00' (tz=Factory), it is interpreted as 
+    naive, serialized without conversion and an 'N' is appended. Otherwise it 
+    is interpreted as aware, converted to UTC and an 'A' is appended. 
+    Decoding: If the serialization ends with 'A', the pendulum object is 
+    treated as 'UTC' and converted to localtime. Otherwise, the object is 
+    treated as 'Factory' and no conversion is performed. Note: 'A' datetimes
+    are aware and 'N' datetimes are naive.
 
     This serialization discards both seconds and microseconds but preserves hours and minutes.
 
