@@ -172,46 +172,13 @@ been used.
 
 # Date & Time
 
-Note for parsing datetime - make the default one second after midnight.
 
+    's' will have the format 'datetime string' followed, optionally by a comma 
+    and a tz specification. Return a date object if the parsed datetime is 
+    exactly midnight. Otherwise return a naive datetime object if tz == 
+    'float' or an aware datetime object using tzlocal if tz is N
     parse_default = datetime.now().replace(hour=0, minute=0, second=1, 
     microsecond=0)
-
-    def etm_parse(s):
-        res = parser.parse(s, default=parse_default)
-        if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 1, 0):
-            return res.date()
-        else:
-            return res
-
-## Possibilities
-
-- No `@s` entry is provided: undated, only allowed for "-" items. `@z` not 
-  allowed. 
-- An entry for `@s` is provided
-    - `@z` is not provided
-        - `@s` date-only (one second after midnight): naive, `@z float` 
-          recorded to database
-        - `@s` date-time (not one second after midnight): aware with the 
-          `default_timezone` used to convert the time to UTC and `@z 
-          <default_timezone>` is recorded to the database.
-    - `@z float` is provided
-        - `@s` date-only (one second after midnight): naive, `@z float` 
-          recorded to database
-        - `@s` date-time (not one second after midnight): naive - recored to 
-          database without conversion and `@z float` recorded to database
-    - `@z` is specified with an actual timezone (not `float`)
-        - `@s` date-only (one second after midnight): aware - midnight in the 
-          specified timezone and `@z <specified timezone>` is recorded to 
-          database.
-        - `@s` date-time (not one second after midnight): aware - the 
-          specified timezone is used to convert the datetime to UTC and 
-          recorded to database together with `@z <specified timezone>`
-
-## Tab Completion for @z
-
-The list of time zones for tab completion includes `float`, the current value 
-`default_timezone` and timezones that have been used in other entries.
 
 ## Storage
 
