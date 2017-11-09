@@ -313,9 +313,9 @@ def check_entry(s, cursor_pos):
 
             else:
                 ok, res = check_requires(act_key, hsh)
-                # if not ok:
-                #     ask = ('say', '{0}\n'.format(at_keys[act_key]))
-                #     reply = res
+                if not ok:
+                    ask = ('say', '{0}\n'.format(at_keys[act_key]))
+                    reply = res
 
                 if act_key in allowed[itemtype] and ok:
                     if act_key in deal_with:
