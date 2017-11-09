@@ -319,7 +319,7 @@ def check_entry(s, cursor_pos):
                     if act_key in deal_with:
                         top, bot, obj = deal_with[act_key](hsh)
                         ask = ('say', top)
-                        reply = ('say', bot + '\n')
+                        reply = ('say', "{}\n".format(bot))
 
                     elif act_val:
                         ask = ('say', "{0}: {1}\n".format(at_keys[act_key], act_val))
