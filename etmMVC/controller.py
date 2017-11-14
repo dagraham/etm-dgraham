@@ -196,6 +196,38 @@ def deal_with_e(at_hsh={}):
 
 deal_with['e'] = deal_with_e
 
+def deal_with_i(at_hsh={}):
+    """
+    Replaces the old filepath and to provide a heirarchial organization
+    view of the data. Entered as a colon delineated string, stored as a
+    list. 
+    >>> deal_with_i("a:b:c")
+    (True, ['a', 'b', 'c'])
+    >>> deal_with_i("plant:tree:oak")
+    (True, ['plant', 'tree', 'oak'])
+    """
+    s = at_hsh.get('i', None)
+    top = "{}?\n".format(at_keys['i'])
+    bot = ''
+    if s is None:
+        return top, bot, item_hsh
+
+    try:
+        res = [x.strip() for x in s.split(':')]
+        ok = True
+    except:
+        res = None
+        ok = False
+
+    if not ok or type(res) != list:
+        return top, "considering: '{}'".format(s), None
+
+    if type(res) != list:
+        return False, "index {}".format(arg)
+
+    item_hsh['i'] = res
+    bot = ", ".join(res)
+    return top, bot, item_hsh
 
 def str2hsh(s):
     """
