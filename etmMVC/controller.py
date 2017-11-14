@@ -229,6 +229,9 @@ def deal_with_i(at_hsh={}):
     bot = ", ".join(res)
     return top, bot, item_hsh
 
+deal_with['i'] = deal_with_i
+
+
 def str2hsh(s):
     """
     Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an 2 key has been entered without the corresponding key, True or False) for use by check_entry. 
