@@ -226,7 +226,7 @@ def deal_with_i(at_hsh={}):
         return False, "index {}".format(arg)
 
     item_hsh['i'] = res
-    bot = ", ".join(res)
+    bot = ", ".join(['level {0}: {1}'.format(i, res[i]) for i in range(len(res))])
     return top, bot, item_hsh
 
 deal_with['i'] = deal_with_i
