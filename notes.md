@@ -1,5 +1,45 @@
 # etm-mvc
 
+event summary:
+* ev
+------------------------------------------------------------
+Enter the summary for the event followed, optionally, by
+@key and value pairs
+
+
+event @keys:
+* ev @
+------------------------------------------------------------
+Required: @s
+Allowed: @c, @d, @e, @g, @i, @l, @m, @s, @t, @v, @b, @r, @e,
+@a, @+, @-
+
+
+starting date or datetime?
+* ev @s 2p fri
+------------------------------------------------------------
+starting: Fri Nov 17 2:00PM EST
+The datetime entry for @s will be interpreted as an aware
+datetime in the current local timezone. Append a comma and
+then 'float' to make the datetime floating (naive) or a
+specific timezone, e.g., 'US/Pacific', to use that timezone
+instead of the local one.
+
+extent (timeperiod)?
+* ev @s fri 2p @e
+------------------------------------------------------------
+considering: ''
+
+extent (timeperiod)?
+* ev @s fri 2p @e 90m
+------------------------------------------------------------
+extent: 1 hour 30 minutes
+
+index (colon delimited string)?
+* ev @i plant:tree:oak
+------------------------------------------------------------
+index: level 0 -> plant, level 1 -> tree, level 2 -> oak
+
 
 # TODO
 
@@ -257,13 +297,21 @@ Week view rows are sorted and grouped by:
 
 ## Agenda View
 
-- Now: inbox or pastdue items - only if they exist
-- Today: scheduled items or  "nothing scheduled"
-- Tomorrow: scheduled items or "nothing scheduled"
-- Soon: begin-by items - only if scheduled and don't appear in today or 
-  tomorrow
-- Next: undated tasks - only if they exist. Group by location
-- Someday: someday items - only if they exist
+- Inbox: inbox items - only if they exist
+- Now: pastdue items - only if they exist
+- Soon: begin-by items
+- Day 1 Today: scheduled items or  "nothing scheduled"
+- Day 2 Tomorrow if there are scheduled items
+- ditto for Day 3 ... Day n
+
+## Next View
+
+undated tasks - grouped by location or None 
+
+
+## Someday View
+
+someday items
 
 
 ## Week View
