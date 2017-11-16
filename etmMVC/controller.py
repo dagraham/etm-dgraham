@@ -289,7 +289,7 @@ def str2hsh(s):
                         break
                     # if len(part) < 2:
                     #     continue
-                    k = part[0]
+                    amp_key = k = part[0]
                     v = part[1:].strip()
                     if v in ["''", '""']:
                         # don't add if the value was either '' or ""
@@ -381,7 +381,7 @@ def check_entry(s, cursor_pos):
         reply = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
 
     # for testing and debugging:1
-    reply = (reply[0], reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\n{4}\n{5}\n{6}".format(at_entry, act_key, act_val, cursor_pos, at_tups, at_parts, hsh))
+    reply = (reply[0], reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\namp_entry: {4}: {5}\n{6}: {7}\n{8}\n{9}".format(at_entry, act_key, act_val, amp_entry, amp_key, cursor_pos, at_tups, at_parts, hsh))
 
     return ask, reply
 
