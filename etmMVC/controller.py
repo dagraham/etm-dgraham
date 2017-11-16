@@ -245,7 +245,7 @@ def str2hsh(s):
     at_tups = []
     at_entry = False
     amp_entry = False
-    at_parts = []
+    amp_parts = []
     if at_parts:
         place = -1
         tmp = at_parts.pop(0)
