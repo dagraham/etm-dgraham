@@ -239,7 +239,7 @@ def str2hsh(s):
     hsh = {}
 
     if not s:
-        return hsh, [], False, []
+        return hsh, [], False, [], False, []
 
     at_parts = [x.strip() for x in at_regex.split(s)]
     at_tups = []
