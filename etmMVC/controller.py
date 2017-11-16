@@ -378,7 +378,7 @@ def check_entry(s, cursor_pos):
                         reply = ('say', "{}\n".format(bot))
 
                     elif act_val:
-                        ask = ('say', "{0}: {1}\n".format(at_keys[act_key], act_val))
+                        ask = ('say', "{0}?\n".format(at_keys[act_key]))
                     else:
                         ask = ('say', "{0}:\n".format(at_keys[act_key]))
                 else:
