@@ -362,7 +362,14 @@ def check_entry(s, cursor_pos):
                     ask = ('say', '{0}\n'.format(at_keys[act_key]))
                     reply = res
 
+
                 elif act_key in allowed[itemtype]:
+                    if amp_entry:
+                        ask =  ('say', "Allowed &keys for @{}: {}\n".format(act_key, amp_keys[act_key]))
+
+                    elif amp_key:
+                        ask ('say', "")
+
                     if act_key in deal_with:
                         top, bot, obj = deal_with[act_key](hsh)
                         ask = ('say', top)
