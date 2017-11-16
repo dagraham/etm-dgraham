@@ -301,7 +301,7 @@ def str2hsh(s):
                         amp_hsh.setdefault(k, []).append(v)
                     else:
                         amp_hsh[k] = v
-                    amp_tups.append(k, v, place)
+                    amp_tups.append( (k, v, place) )
                     place += 2 + len(part)
                 lst.append(amp_hsh)
         hsh[key] = lst
