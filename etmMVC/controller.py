@@ -369,7 +369,8 @@ def check_entry(s, cursor_pos):
                         reply =  ('say', "Allowed: {}\n".format(", ".join(["&{}".format(key) for key in amp_keys[act_key]])))
 
                     elif amp_key:
-                        ask = ('say', "")
+                        ask = ('say', "{}".format(amp_keys[act_key][amp_key]))
+                        reply = ('say', "considering: ''")
 
                     elif act_key in deal_with:
                         top, bot, obj = deal_with[act_key](hsh)
