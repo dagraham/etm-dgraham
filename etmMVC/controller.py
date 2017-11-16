@@ -365,11 +365,11 @@ def check_entry(s, cursor_pos):
 
                 elif act_key in allowed[itemtype]:
                     if amp_entry:
-                        ask = ('say', "&key for @{}:?".format(act_key))
+                        ask = ('say', "&key for @{}:?\n".format(act_key))
                         reply =  ('say', "Allowed: {}\n".format(", ".join(["&{}".format(key) for key in amp_keys[act_key]])))
 
                     elif amp_key:
-                        ask = ('say', "{}".format(amp_keys[act_key][amp_key]))
+                        ask = ('say', "{}\n".format(amp_keys[act_key][amp_key]))
                         reply = ('say', "considering: ''")
 
                     elif act_key in deal_with:
