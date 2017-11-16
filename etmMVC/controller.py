@@ -377,10 +377,8 @@ def check_entry(s, cursor_pos):
                         ask = ('say', top)
                         reply = ('say', "{}\n".format(bot))
 
-                    elif act_val:
-                        ask = ('say', "{0}?\n".format(at_keys[act_key]))
                     else:
-                        ask = ('say', "{0}:\n".format(at_keys[act_key]))
+                        ask = ('say', "{0}?\n".format(at_keys[act_key]))
                 else:
                     reply = ('warn', "@{0} is not allowed for item type '{1}'\n".format(act_key, itemtype))
         else:
