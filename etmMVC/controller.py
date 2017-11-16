@@ -239,12 +239,13 @@ def str2hsh(s):
     hsh = {}
 
     if not s:
-        return hsh, [], False, [], False, []
+        return hsh, [], False, [], [], False, []
 
     at_parts = [x.strip() for x in at_regex.split(s)]
     at_tups = []
     at_entry = False
     amp_entry = False
+    amp_tups = []
     amp_parts = []
     if at_parts:
         place = -1
@@ -306,14 +307,14 @@ def str2hsh(s):
                 lst.append(amp_hsh)
         hsh[key] = lst
 
-    return hsh, at_tups, at_entry, at_parts, amp_entry, amp_parts
+    return hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts
 
 
 def check_entry(s, cursor_pos):
     """
     Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
     """
-    hsh, at_tups, at_entry, at_parts, amp_entry, amp_parts = str2hsh(s)
+    hsh, at_tups, at_entry, at_parts, amp_tups,  amp_entry, amp_parts = str2hsh(s)
 
     ask = ('say', '')
     reply = ('say', '\n')
