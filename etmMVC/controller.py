@@ -325,7 +325,7 @@ def check_entry(s, cursor_pos):
 
     # itemtype, summary, end = at_tups.pop(0)
     itemtype, summary, end = at_tups[0]
-    act_key = act_val = ''
+    act_key = act_val = amp_key = ''
 
     if itemtype in type_keys:
         for tup in at_tups:
