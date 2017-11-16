@@ -244,6 +244,8 @@ def str2hsh(s):
     at_parts = [x.strip() for x in at_regex.split(s)]
     at_tups = []
     at_entry = False
+    amp_entry = False
+    at_parts = []
     if at_parts:
         place = -1
         tmp = at_parts.pop(0)
