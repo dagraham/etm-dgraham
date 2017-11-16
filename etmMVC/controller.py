@@ -271,6 +271,8 @@ def str2hsh(s):
     for key in ['r', 'j']:
         if key not in hsh: continue
         lst = []
+        amp_tups = []
+        amp_entry = False
         for part in hsh[key]:  # an individual @r or @j entry
             amp_hsh = {}
             amp_parts = [x.strip() for x in amp_regex.split(part)]
@@ -278,8 +280,13 @@ def str2hsh(s):
                 amp_hsh[key] = "".join(amp_parts.pop(0))
                 # k = amp_part
                 for part in amp_parts:  # the & keys and values for the given entry
-                    if len(part) < 2:
-                        continue
+                    if part:
+                        amp_entry = False
+                    else:
+                        amp_entry = True
+                        break
+                    # if len(part) < 2:
+                    #     continue
                     k = part[0]
                     v = part[1:].strip()
                     if v in ["''", '""']:
@@ -292,6 +299,8 @@ def str2hsh(s):
                         amp_hsh.setdefault(k, []).append(v)
                     else:
                         amp_hsh[k] = v
+                    amp_tups.append(k, v, place)
+                    place += 2 + len(part)
                 lst.append(amp_hsh)
         hsh[key] = lst
 
