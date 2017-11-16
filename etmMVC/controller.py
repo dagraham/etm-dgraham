@@ -304,7 +304,7 @@ def str2hsh(s):
                 lst.append(amp_hsh)
         hsh[key] = lst
 
-    return hsh, at_tups, at_entry, at_parts
+    return hsh, at_tups, at_entry, at_parts, amp_entry, amp_parts
 
 
 def check_entry(s, cursor_pos):
