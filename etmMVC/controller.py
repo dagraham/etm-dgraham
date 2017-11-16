@@ -347,7 +347,7 @@ def check_entry(s, cursor_pos):
             reply = ('say', reply_str)
         elif act_key:
             if act_key in at_keys:
-                ask = ('say', "{0}: {1}\n".format(at_keys[act_key], act_val))
+                ask = ('say', "{0}?\n".format(at_keys[act_key]))
 
             else:
                 ask =  ('say', "{} @keys:\n".format(type_keys[itemtype]))
