@@ -389,7 +389,7 @@ def check_entry(s, cursor_pos):
         reply = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
 
     # for testing and debugging:1
-    reply = (reply[0], reply[1] + "\nat_entry {0} {1}: {2} pos {3}\namp_entry: {4}: {5}\n{6}\n{7}\n{8}".format(at_entry, act_key, act_val, pos,  amp_entry, amp_key, cursor_pos, at_tups, at_parts, hsh))
+    reply = (reply[0], reply[1] + "\nat_entry {0} {1}: {2} pos {3}\namp_entry: {4}: {5}\n{6}\n{7}\n{8}".format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
 
     return ask, reply
 
