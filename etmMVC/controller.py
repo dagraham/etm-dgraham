@@ -370,7 +370,7 @@ def check_entry(s, cursor_pos):
                     elif amp_key:
                         ask ('say', "")
 
-                    if act_key in deal_with:
+                    elif act_key in deal_with:
                         top, bot, obj = deal_with[act_key](hsh)
                         ask = ('say', top)
                         reply = ('say', "{}\n".format(bot))
