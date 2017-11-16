@@ -364,11 +364,19 @@ def check_entry(s, cursor_pos):
 
 
                 elif act_key in allowed[itemtype]:
+
                     if amp_entry:
                         ask = ('say', "&key for @{}?\n".format(act_key))
                         reply =  ('say', "Allowed: {}\n".format(", ".join(["&{}".format(key) for key in amp_keys[act_key]])))
+                    elif amp_tups:
+                        for tup in amp_tups:
+                            if tup[-1] < cursor_pos:
+                                amp_key = tup[0]
+                                amp_val = tup[1]
+                            else:
+                                break
 
-                    elif amp_key:
+                    if amp_key:
                         ask = ('say', "{}\n".format(amp_keys[act_key][amp_key]))
                         reply = ('say', "considering: ''")
 
