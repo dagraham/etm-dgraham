@@ -102,7 +102,7 @@ palette = [
         ('warn', 'dark red,bold', 'default', 'bold')]
 
 # ask sets the caption for the edit widget which will be followed by the actual entry field.
-ask = urwid.Edit(('say', type_prompt))
+ask = urwid.Edit(('say', type_prompt), multiline=True)
 # reply sets the text for the reply TEXT widget
 reply = urwid.Text(item_types)
 button = urwid.Button(u'Exit')
