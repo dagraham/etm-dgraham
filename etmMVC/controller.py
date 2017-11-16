@@ -311,7 +311,7 @@ def check_entry(s, cursor_pos):
     """
     Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
     """
-    hsh, at_tups, at_entry, at_parts = str2hsh(s)
+    hsh, at_tups, at_entry, at_parts, amp_entry, amp_parts = str2hsh(s)
 
     ask = ('say', '')
     reply = ('say', '\n')
