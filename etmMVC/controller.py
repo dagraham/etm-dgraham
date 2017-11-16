@@ -365,6 +365,7 @@ def check_entry(s, cursor_pos):
 
                 elif act_key in allowed[itemtype]:
                     if amp_entry:
+                        ask ('say', "")
                         reply =  ('say', "Allowed &keys for @{}: {}\n".format(act_key, ",".join(["&{}".format(key) for key in amp_keys[act_key]])))
 
                     elif amp_key:
