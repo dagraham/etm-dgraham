@@ -6,11 +6,12 @@ pendulum.set_formatter('alternative')
 # from dateutil.tz import gettz, tzutc, tzlocal
 
 # from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE 
-from model import parse_datetime, parse_period
+from model import parse_datetime, parse_period, rrule
+from dateutil.rrule import rrulestr
 
 import re
-at_regex = re.compile(r'\s+@', re.MULTILINE)
-amp_regex = re.compile(r'\s+&', re.MULTILINE)
+at_regex = re.compile(r'\s@', re.MULTILINE)
+amp_regex = re.compile(r'\s&', re.MULTILINE)
 week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
 day_regex = re.compile(r'[+-]?(\d+)d', flags=re.I)
 hour_regex = re.compile(r'[+-]?(\d+)h', flags=re.I)
@@ -49,7 +50,7 @@ at_keys = {
     'm': "memo (string)",
     'o': "overdue (r)estart, s)kip or k)eep)",
     'p': "priority (integer)",
-    'r': "repetition frequency y)early, m)onthly, w)eekly, d)aily, h)ourly, M)inutely",
+    'r': "frequency y)early, m)onthly, w)eekly, d)aily, h)ourly, min)utely",
     's': "starting date or datetime",
     't': "tags (list of strings)",
     'v': "value (defaults key)",
@@ -64,6 +65,7 @@ amp_keys = {
         'm': "monthday: list of integers 1 ... 31",
         'n': "minute: list of integers in 0 ... 59",
         's': "set position: integer",
+        'c': "count: integer number of repretitions",
         'u': "until: datetime",
         'w': "weekday: list from SU, MO, ..., SA",
     },
@@ -82,7 +84,6 @@ amp_keys = {
 
 allowed = {}
 required = {}
-rruleset_methods = '+-r'
 undated_methods = 'cdegilmstv'
 date_methods = 'br'
 datetime_methods = date_methods + 'ea+-' 
@@ -147,7 +148,7 @@ deal_with = {}
 
 def deal_with_s(at_hsh = {}):
     """
-    Check the currents state of at_hsh regarding the 's' and 'z' keys
+    Check the currents state of at_hsh regarding the 's' key
 
     """
     s = at_hsh.get('s', None)
@@ -210,7 +211,7 @@ def deal_with_i(at_hsh={}):
     top = "{}?\n".format(at_keys['i'])
     bot = ''
     if s is None:
-        return top, bot, item_hsh
+        return top, bot, None
 
     try:
         res = [x.strip() for x in s.split(':')]
@@ -227,9 +228,66 @@ def deal_with_i(at_hsh={}):
 
     item_hsh['i'] = res
     bot = "index: " + ", ".join(['level {0} -> {1}'.format(i, res[i]) for i in range(len(res))])
-    return top, bot, item_hsh
+    return top, bot, res
 
 deal_with['i'] = deal_with_i
+
+
+def deal_with_r(at_hsh={}):
+    """
+    Check the current state of at_hsh regarding r and s.
+    """
+    top = "repetition rule?\n"
+    bot = "{}".format(at_keys['r'])
+    lofh = at_hsh.get('r', [])
+    if not lofh:
+        return top, bot, None
+
+    ok, res = rrule(lofh)
+    if not ok:
+        return top, res, None
+
+    rrulelst = []
+
+    dtut_format = "YYYYMMDD[T]HHmm[00]"
+    if 's' in item_hsh:
+        if type(item_hsh['s']) == pendulum.pendulum.Date:
+            dtut_format = "YYYYMMDD[T][000000]"
+
+        rrulelst.append("DTSTART:{}".format(item_hsh['s'].format(dtut_format, formatter='alternative')))
+    for hsh in res:
+        r = hsh.get('r', None)
+        if r:
+            keys = ['&{}'.format(x) for x in amp_keys['r'] if x not in hsh]
+            for key in hsh:
+                if hsh[key] and key in amp_keys['r']: 
+                    bot = "{}".format(amp_keys['r'][key])
+                else:
+                    bot = 'Allowed: {}'.format(", ".join(keys))
+        else:
+            # shouldn't happen
+            pass
+        rrulelst.append(hsh['rrulestr'])
+
+    if '+' in item_hsh:
+        for rdate in item_hsh['+']:
+            rrulelst.append("RDATE:{}".format(rdate.format(dtut_format, formatter='alternative')))
+
+    if '-' in item_hsh:
+        for exdate in item_hsh['-']:
+            rrulelst.append("EXDATE:{}".format(exdate.format(dtut_format, formatter='alternative')))
+
+    res = item_hsh['rrulestr'] = "\n".join(rrulelst)
+    # out = rrulestr(res)
+    # lst = [repr(x) for x in list(out)]
+    # outstr = "\n".join(lst[:3]) 
+    bot = "repetition rule:\n{}".format(res)
+
+
+    return top, bot, res
+
+
+deal_with['r'] = deal_with_r
 
 
 def str2hsh(s):
@@ -247,13 +305,14 @@ def str2hsh(s):
     amp_entry = False
     amp_tups = []
     amp_parts = []
+    delta = 1
     if at_parts:
         place = -1
         tmp = at_parts.pop(0)
         hsh['itemtype'] = tmp[0]
         hsh['summary'] = tmp[1:].strip()
         at_tups.append( (hsh['itemtype'], hsh['summary'], place) )
-        place += 2 + len(tmp)
+        place += delta + len(tmp)
 
         for part in at_parts:
             if part:
@@ -269,7 +328,7 @@ def str2hsh(s):
             else:
                 hsh[k] = v
             at_tups.append( (k, v, place) )
-            place += 2 + len(part)
+            place += delta + len(part)
 
     for key in ['r', 'j']:
         if key not in hsh: continue
@@ -290,7 +349,7 @@ def str2hsh(s):
                         break
                     # if len(part) < 2:
                     #     continue
-                    amp_key = k = part[0]
+                    k = part[0]
                     v = part[1:].strip()
                     if v in ["''", '""']:
                         # don't add if the value was either '' or ""
@@ -303,7 +362,7 @@ def str2hsh(s):
                     else:
                         amp_hsh[k] = v
                     amp_tups.append( (k, v, place) )
-                    place += 2 + len(part)
+                    # place += 2 + len(part)
                 lst.append(amp_hsh)
         hsh[key] = lst
 
@@ -368,25 +427,27 @@ def check_entry(s, cursor_pos):
                     if amp_entry:
                         ask = ('say', "&key for @{}?\n".format(act_key))
                         reply =  ('say', "Allowed: {}\n".format(", ".join(["&{}".format(key) for key in amp_keys[act_key]])))
-                    elif amp_tups:
-                        for tup in amp_tups:
-                            if tup[-1] < cursor_pos:
-                                amp_key = tup[0]
-                                amp_val = tup[1]
-                            else:
-                                break
-
-                    if amp_key:
-                        ask = ('say', "{}\n".format(amp_keys[act_key][amp_key]))
-                        reply = ('say', "considering: ''")
-
                     elif act_key in deal_with:
                         top, bot, obj = deal_with[act_key](hsh)
                         ask = ('say', top)
                         reply = ('say', "{}\n".format(bot))
-
                     else:
                         ask = ('say', "{0}?\n".format(at_keys[act_key]))
+                        # if amp_entry:
+                        #     ask = ('say', "&key for @{}?\n".format(act_key))
+                        #     reply =  ('say', "Allowed: {}\n".format(", ".join(["&{}".format(key) for key in amp_keys[act_key]])))
+                        # elif amp_tups:
+                        #     for tup in amp_tups:
+                        #         if tup[-1] < cursor_pos:
+                        #             amp_key = tup[0]
+                        #             amp_val = tup[1]
+                        #         else:
+                        #             break
+
+                        # if act_key and amp_key and act_key in amp_keys and amp_key in amp_keys[act_key]:
+                        #     ask = ('say', "{}\n".format(amp_keys[act_key][amp_key]))
+                        #     reply = ('say', "considering: ''")
+
                 else:
                     reply = ('warn', "@{0} is not allowed for item type '{1}'\n".format(act_key, itemtype))
         else:
@@ -397,7 +458,7 @@ def check_entry(s, cursor_pos):
         reply = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
 
     # for testing and debugging:1
-    reply = (reply[0], reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\namp_entry: {4}: {5}\n{6}\n{7}\n{8}".format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
+    reply = (reply[0], reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\namp_entry: {4}: {5}\n{6}\n{7}\n{8}\n{9}".format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh, item_hsh))
 
     return ask, reply
 
