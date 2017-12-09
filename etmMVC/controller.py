@@ -436,21 +436,6 @@ def check_entry(s, cursor_pos):
                         reply = ('say', "{}\n".format(bot))
                     else:
                         ask = ('say', "{0}?\n".format(at_keys[act_key]))
-                        # if amp_entry:
-                        #     ask = ('say', "&key for @{}?\n".format(act_key))
-                        #     reply =  ('say', "Allowed: {}\n".format(", ".join(["&{}".format(key) for key in amp_keys[act_key]])))
-                        # elif amp_tups:
-                        #     for tup in amp_tups:
-                        #         if tup[-1] < cursor_pos:
-                        #             amp_key = tup[0]
-                        #             amp_val = tup[1]
-                        #         else:
-                        #             break
-
-                        # if act_key and amp_key and act_key in amp_keys and amp_key in amp_keys[act_key]:
-                        #     ask = ('say', "{}\n".format(amp_keys[act_key][amp_key]))
-                        #     reply = ('say', "considering: ''")
-
                 else:
                     reply = ('warn', "@{0} is not allowed for item type '{1}'\n".format(act_key, itemtype))
         else:
@@ -463,7 +448,6 @@ def check_entry(s, cursor_pos):
     # for testing and debugging:1
     if testing:
         reply = (reply[0], reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\namp_entry: {4}: {5}\n{6}\n{7}\n{8}\n{9}".format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh, item_hsh))
-        # reply[1] += "\nat_entry {0} {1}: {2}; pos {3}\namp_entry: {4}: {5}\n{6}\n{7}\n{8}\n{9}".format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh, item_hsh)
 
     return ask, reply
 
