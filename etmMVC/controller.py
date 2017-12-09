@@ -396,11 +396,11 @@ def check_entry(s, cursor_pos):
 
         if at_entry:
             ask =  ('say', "{} @keys:\n".format(type_keys[itemtype]))
-            current_required = ["@{}".format(x) for x in required[itemtype] if x not in hsh]
+            current_required = ["@{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
             reply_str = ""
             if current_required:
                 reply_str += "Required: {}\n".format(", ".join(current_required))
-            current_allowed = ["@{}".format(x) for x in allowed[itemtype] if x not in hsh or x in 'jr']
+            current_allowed = ["@{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'jr']
             if current_allowed:
                 reply_str += "Allowed: {}\n".format(", ".join(current_allowed))
             reply = ('say', reply_str)
@@ -426,7 +426,7 @@ def check_entry(s, cursor_pos):
 
                     if amp_entry:
                         ask = ('say', "&key for @{}?\n".format(act_key))
-                        reply =  ('say', "Allowed: {}\n".format(", ".join(["&{}".format(key) for key in amp_keys[act_key]])))
+                        reply =  ('say', "Allowed: {}\n".format(", ".join(["&{} {}".format(key) for key in amp_keys[act_key], amp_keys[act_key][key]])))
                     elif act_key in deal_with:
                         top, bot, obj = deal_with[act_key](hsh)
                         ask = ('say', top)
