@@ -50,7 +50,7 @@ at_keys = {
     'm': "memo (string)",
     'o': "overdue (r)estart, s)kip or k)eep)",
     'p': "priority (integer)",
-    'r': "frequency y)early, m)onthly, w)eekly, d)aily, h)ourly, min)utely",
+    'r': "repetition frequency y)early, m)onthly, w)eekly, d)aily, h)ourly, min)utely",
     's': "starting date or datetime",
     't': "tags (list of strings)",
     'v': "value (defaults key)",
@@ -58,7 +58,7 @@ at_keys = {
 
 amp_keys = {
     'r': {
-        'E': "easter: number of days before (-), on (0)  or after (+) Easter",
+        'E': "easter: number of days before (-), on (0) or after (+) Easter",
         'h': "hour: list of integers in 0 ... 23",
         'i': "interval: positive integer",
         'M': "month: list of integers in 1 ... 12",
