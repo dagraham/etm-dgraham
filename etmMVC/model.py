@@ -568,7 +568,7 @@ def frequency(arg):
     elif arg:
         return False, "invalid frequency: {} not in {}".format(arg, freqstr)
     else:
-        return False, "frequency: character from {}".format(freqstr)
+        return False, "repetition frequency: character from {}".format(freqstr)
 
 def interval(arg):
     """
