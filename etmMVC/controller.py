@@ -486,6 +486,7 @@ class Item:
 
 
 if __name__ == '__main__':
+    global testing
     testing = True
     print('\n\n')
     import doctest
