@@ -17,9 +17,9 @@ from tinydb_smartcache import SmartCacheTable
 from copy import deepcopy
 import calendar as clndr
 
-import dateutil
-from dateutil import rrule
-from dateutil.rrule import *
+from dateutil.easter import easter
+import dateutil.rrule as dtutrrule
+from dateutil import __version__ as dateutil_version
 
 from jinja2 import Environment, Template
 
@@ -27,6 +27,9 @@ import textwrap
 
 import os
 import platform
+
+import textwrap
+import shutil
 
 import logging
 import logging.config
@@ -104,6 +107,9 @@ def format_datetime(obj):
 
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
+threeday_regex = re.compile(r'(MON|TUE|WED|THU|FRI|SAT|SUN)',
+                        re.IGNORECASE)
+anniversary_regex = re.compile(r'!(\d{4})!')
 
 period_hsh = dict(
     z=pendulum.Interval(seconds=0),
@@ -245,11 +251,21 @@ class TimeIt(object):
 
 
 
-def wrap(txt, indent=5):
+def wrap(txt, indent=5, width=shutil.get_terminal_size()[0]):
     """
-
+    Wrap text to terminal width using indent spaces before each line.
+    >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
+    >>> res = wrap(txt, 4, 60)
+    >>> print(res)
+    Now is the time for all good men to come to the aid of
+        their country. Now is the time for all good men to
+        come to the aid of their country. Now is the time
+        for all good men to come to the aid of their
+        country. Now is the time for all good men to come
+        to the aid of their country. Now is the time for
+        all good men to come to the aid of their country.
     """
-    width, rows = shutil.get_terminal_size()
+    # width, rows = shutil.get_terminal_size()
     para = [textwrap.dedent(x).strip() for x in txt.split('\n')]
     tmp = []
     first = True
@@ -262,9 +278,17 @@ def wrap(txt, indent=5):
         tmp.append(textwrap.fill(p, initial_indent=initial_indent, subsequent_indent=' '*indent, width=width-indent-1))
     return "\n".join(tmp)
 
-def set_summary(s, dt):
+def set_summary(s, dt=pendulum.Pendulum.now()):
+    """
+    Replace the anniversary string in s with the ordinal represenation of the number of years between the anniversary string and dt.
+    >>> set_summary('!1944! birthday')
+    '73rd birthday'
+    >>> set_summary('!1978! anniversary', pendulum.Pendulum(2017, 11, 19))
+    '39th anniversary'
+    """
     if not dt:
-        return s
+        dt = pendulum.Pendulum.now()
+
     mtch = anniversary_regex.search(s)
     retval = s
     if mtch:
@@ -321,7 +345,7 @@ def string(arg, typ=None):
             return False, "{}".format(arg)
     return True, arg
 
-def string_list(arg, typ):
+def string_list(arg, typ=None):
     """
     """
     if arg == '':
@@ -348,7 +372,98 @@ def string_list(arg, typ):
         else:
             msg.append(res)
     if msg:
-        return False, "{}: {}".format(typ, "; ".join(msg))
+        if typ:
+            return False, "{}: {}".format(typ, "; ".join(msg))
+        else:
+            return False, "{}".format("; ".join(msg))
+    else:
+        return True, ret
+
+def integer(arg, min, max, zero, typ=None):
+    """
+    :param arg: integer
+    :param min: minimum allowed or None
+    :param max: maximum allowed or None
+    :param zero: zero not allowed if False
+    :param typ: label for message
+    :return: (True, integer) or (False, message)
+    >>> integer(-2, -10, 8, False, 'integer_test')
+    (True, -2)
+    >>> integer(-2, 0, 8, False, 'integer_test')
+    (False, 'integer_test: -2 is less than the allowed minimum')
+    """
+    msg = ""
+    try:
+        arg = int(arg)
+    except:
+        if typ:
+            return False, "{}: {}".format(typ, arg)
+        else:
+            return False, arg
+    if min is not None and arg < min:
+        msg = "{} is less than the allowed minimum".format(arg)
+    elif max is not None and arg > max:
+        msg = "{} is greater than the allowed maximum".format(arg)
+    elif not zero and arg == 0:
+        msg = "0 is not allowed"
+    if msg:
+        if typ:
+            return False, "{}: {}".format(typ, msg)
+        else:
+            return False, msg
+    else:
+        return True, arg
+
+
+def integer_list(arg, min, max, zero, typ=None):
+    """
+    :param arg: integer
+    :param min: minimum allowed or None
+    :param max: maximum allowed or None
+    :param zero: zero not allowed if False
+    :param typ: label for message
+    :return: (True, list of integers) or (False, messages)
+    >>> integer_list([-13, -10, 0, "2", 27], -12, +20, True, 'integer_list test')
+    (False, 'integer_list test: -13 is less than the allowed minimum; 27 is greater than the allowed maximum')
+    >>> integer_list([0, 1, 2, 3, 4], 1, 3, True, "integer_list test")
+    (False, 'integer_list test: 0 is less than the allowed minimum; 4 is greater than the allowed maximum')
+    >>> integer_list("-1, 1, two, 3", None, None, True, "integer_list test")
+    (False, 'integer_list test: -1, 1, two, 3')
+    >>> integer_list([1, "2", 3], None, None, True, "integer_list test")
+    (True, [1, 2, 3])
+    """
+    if type(arg) == str:
+        try:
+            args = [int(x) for x in arg.split(",")]
+        except:
+            if typ:
+                return False, '{}: {}'.format(typ, arg)
+            else:
+                return False, arg
+    elif type(arg) == list:
+        try:
+            args = [int(x) for x in arg]
+        except:
+            if typ:
+                return False, '{}: {}'.format(typ, arg)
+            else:
+                return False, arg
+    elif type(arg) == int:
+        args = [arg]
+    bad = []
+    msg = []
+    ret = []
+    for arg in args:
+        ok, res = integer(arg, min, max, zero, None)
+        if ok:
+            ret.append(res)
+        else:
+            msg.append(res)
+    if msg:
+        if typ:
+            return False, "{}: {}".format(typ, "; ".join(msg))
+        else:
+            return False, "; ".join(msg)
     else:
         return True, ret
 
@@ -410,6 +525,385 @@ jinja_entry_template.globals['one_or_more'] = one_or_more
 jinja_entry_template.globals['wrap'] = wrap
 
 
+#####################################
+### begin rrule setup ###############
+#####################################
+
+
+def easter(arg):
+    """
+    byeaster; integer or sequence of integers numbers of days before, < 0,
+    or after, > 0, Easter.
+    >>> easter(0)
+    (True, [0])
+    >>> easter([-364, -30, "45", 260])
+    (True, [-364, -30, 45, 260])
+    """
+    easterstr = "easter: a comma separated list of integer numbers of days before, < 0, or after, > 0, Easter."
+
+    if arg or arg == 0:
+        ok, res = integer_list(arg, None, None, True)
+        if ok:
+            return True, res
+        else:
+            return False, "invalid easter: {}. Required for {}".format(res, easterstr) 
+    else:
+        return False, easterstr 
+
+
+def frequency(arg):
+    """
+    repetition frequency: character in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly
+    or mi(n)utely. 
+    >>> frequency('d')[0]
+    True
+    >>> frequency('z')[0]
+    False
+    """
+
+    freq = [x for x in rrule_frequency]
+    freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely." 
+    if arg in freq:
+        return True, arg
+    elif arg:
+        return False, "invalid frequency: {} not in {}".format(arg, freqstr)
+    else:
+        return False, "frequency: character from {}".format(freqstr)
+
+def interval(arg):
+    """
+    interval (positive integer, default = 1) E.g, with frequency
+    w, interval 3 would repeat every three weeks.
+    >>> interval("two")
+    (False, 'invalid interval: two. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
+    >>> interval(27)
+    (True, 27)
+    >>> interval([1, 2])
+    (False, 'invalid interval: [1, 2]. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
+    """
+
+    intstr = "interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks." 
+
+    if arg:
+        ok, res = integer(arg, 1, None, False)
+        if ok:
+            return True, res
+        else:
+            return False, "invalid interval: {}. Required for {}".format(res, intstr) 
+    else:
+        return False, intstr 
+
+
+def setpos(arg):
+    """
+    bysetpos (non-zero integer or sequence of non-zero integers). When
+    multiple dates satisfy the rule, take the dates from this/these positions
+    in the list, e.g, &s 1 would choose the first element and &s -1 the last.
+    >>> setpos(1)
+    (True, [1])
+    >>> setpos(["-1", 0])
+    (False, 'setpos: 0 is not allowed')
+    """
+    return integer_list(arg, None, None, False, "setpos")
+
+
+def count(arg):
+    """
+    count (positive integer) Include no more than this number of repetitions.
+    >>> count('three')
+    (False, 'invalid count: three. Required for count: a positive integer. Include no more than this number of repetitions.')
+    >>> count('3')
+    (True, 3)
+    >>> count([2, 3])
+    (False, 'invalid count: [2, 3]. Required for count: a positive integer. Include no more than this number of repetitions.')
+    """
+
+    countstr = "count: a positive integer. Include no more than this number of repetitions."
+
+    if arg:
+        ok, res = integer(arg, 1, None, False )
+        if ok:
+            return True, res
+        else:
+            return False, "invalid count: {}. Required for {}".format(res, countstr)
+    else:
+        return False, countstr
+
+
+def weekdays(arg):
+    """
+    byweekday (English weekday abbreviation SU ... SA or sequence of such).
+    Use, e.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the
+    month.
+    >>> weekdays(" ")
+    (False, 'weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
+    >>> weekdays("-2mo, 3tU")
+    (True, ['-2MO', '3TU'])
+    >>> weekdays(["5Su", "1SA"])
+    (False, 'invalid weekdays: 5SU')
+    >>> weekdays('3FR, -1M')
+    (False, 'considering weekdays: -1M')
+    """
+    wkdays = ["{0}{1}".format(n, d) for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
+        for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']]
+    if type(arg) == list:
+        args = [x.strip().upper() for x in arg if x.strip()]
+    elif arg:
+        args = [x.strip().upper() for x in arg.split(",") if x.strip()]
+    else:
+        args = None
+    if args:
+        bad = [x for x in args]
+        for x in args:
+            for y in wkdays:
+                if x in bad and y.startswith(x):
+                    bad.remove(x)
+        # bad = [x for x in args if x and x not in wkdays]
+        if bad:
+            return False, "invalid weekdays: {}".format(", ".join(bad))
+        else:
+            invalid = [x for x in args if x not in wkdays]
+            if invalid:
+                return False, "considering weekdays: {}".format(", ".join(invalid))
+            else:
+                return True, args
+    else:
+        return False, "weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month." 
+
+
+def weeks(arg):
+    """
+    byweekno (1, 2, ..., 53 or a sequence of such integers)
+    >>> weeks([0, 1, 5, 54])
+    (False, 'invalid weeks: 0 is not allowed; 54 is greater than the allowed maximum. Required for weeks: a comma separated list of integer week numbers from 1, 2, ..., 53')
+    """
+
+    weeksstr = "weeks: a comma separated list of integer week numbers from 1, 2, ..., 53"
+
+    if arg:
+        ok, res = integer_list(arg, 0, 53, False)
+        if ok:
+            return True, res
+        else:
+            return False, "invalid weeks: {}. Required for {}".format(res, weeksstr)
+    else:
+        return False, weeksstr
+
+
+def months(arg):
+    """
+    bymonth (1, 2, ..., 12 or a sequence of such integers)
+    >>> months([0, 2, 7, 13])
+    (False, 'invalid months: 0 is not allowed; 13 is greater than the allowed maximum. Required for months: a comma separated list of integer month numbers from 1, 2, ..., 12')
+    """
+
+    monthsstr = "months: a comma separated list of integer month numbers from 1, 2, ..., 12"
+
+    if arg:
+        ok, res = integer_list(arg, 0, 12, False, "")
+        if ok:
+            return True, res
+        else:
+            return False, "invalid months: {}. Required for {}".format(res, monthsstr)
+    else:
+        return False, monthsstr
+
+
+def monthdays(arg):
+    """
+    >>> monthdays([0, 1, 26, -1, -2])
+    (False, 'invalid monthdays: 0 is not allowed. Required for monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month.')
+    """
+
+    monthdaysstr = "monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month."
+
+    if arg:
+        ok, res = integer_list(arg, -31, 31, False, "")
+        if ok:
+            return True, res
+        else:
+            return False, "invalid monthdays: {}. Required for {}".format(res, monthdaysstr)
+    else:
+        return False, monthdaysstr
+
+def hours(arg):
+    """
+    >>> hours([0, 6, 12, 18, 24])
+    (False, 'invalid hours: [0, 6, 12, 18, 24]. Required for hours: a comma separated of integer hour numbers from 0, 1,  ..., 23.')
+    >>> hours([0, "1"])
+    (True, [0, 1])
+    """
+
+    hoursstr = "hours: a comma separated of integer hour numbers from 0, 1,  ..., 23."
+
+    if arg or arg == 0:
+        ok, res = integer_list(arg, 0, 23, True, "")
+        if ok:
+            return True, res
+        else:
+            return False, "invalid hours: {}. Required for {}".format(arg, hoursstr)
+    else:
+        return False, hoursstr
+
+
+def minutes(arg):
+    """
+    byminute (0 ... 59 or a sequence of such integers)
+    >>> minutes(27)
+    (True, [27])
+    >>> minutes([0, 60])
+    (False, 'invalid minutes: 60 is greater than the allowed maximum. Required for minutes: a comma separated of integer hour numbers from 0, 1, ..., 59.')
+    """
+
+    minutesstr = "minutes: a comma separated of integer hour numbers from 0, 1, ..., 59."
+
+    if arg or arg == 0:
+        ok, res = integer_list(arg, 0, 59, True, "")
+        if ok:
+            return True, res
+        else:
+            return False, "invalid minutes: {}. Required for {}".format(res, minutesstr)
+    else:
+        return False, minutesstr
+
+
+
+rrule_methods = dict(
+    r=frequency,
+    i=interval,
+    f=frequency,
+    s=setpos,
+    c=count,
+    u=format_datetime,
+    M=months,
+    m=monthdays,
+    W=weeks,
+    w=weekdays,
+    h=hours,
+    n=minutes,
+    E=easter,
+)
+
+rrule_names = {
+    # 'r': 'FREQUENCY',  # unicode
+    'i': 'INTERVAL',  # positive integer
+    'c': 'COUNT',  # integer
+    's': 'BYSETPOS',  # integer
+    'u': 'UNTIL',  # unicode
+    'M': 'BYMONTH',  # integer 1...12
+    'm': 'BYMONTHDAY',  # positive integer
+    'W': 'BYWEEKNO',  # positive integer
+    'w': 'BYWEEKDAY',  # integer 0 (SU) ... 6 (SA)
+    'h': 'BYHOUR',  # positive integer
+    'n': 'BYMINUTE',  # positive integer
+    'E': 'BYEASTER',  # non-negative integer number of days after easter
+}
+
+# rrule_keys = [x for x in "iMmWwhnEus"]
+rrule_keys = [x for x in rrule_names]
+
+rrule_frequency = {
+    'y': 'YEARLY',
+    'm': 'MONTHLY',
+    'w': 'WEEKLY',
+    'd': 'DAILY',
+    'h': 'HOURLY',
+    'n': 'MINUTELY',
+    'E': 'EASTERLY',
+}
+
+
+def rrule(lofh):
+    """
+    An rrule hash or a sequence of such hashes.
+    >>> data = {'r': ''}
+    >>> rrule(data)
+    (False, 'frequency: character from (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
+    >>> good_data = {"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SU"}
+    >>> pprint(rrule(good_data))
+    (True,
+     [{'M': [5],
+       'i': 1,
+       'm': [3],
+       'r': 'y',
+       'rrulestr': 'RRULE:FREQ=YEARLY;INTERVAL=1;BYMONTH=5;BYMONTHDAY=3;BYWEEKDAY=2SU',
+       'w': ['2SU']}])
+    >>> good_data = {"M": [5, 12], "i": 1, "m": [3, 15], "r": "y", "w": "2SU"}
+    >>> pprint(rrule(good_data))
+    (True,
+     [{'M': [5, 12],
+       'i': 1,
+       'm': [3, 15],
+       'r': 'y',
+       'rrulestr': 'RRULE:FREQ=YEARLY;INTERVAL=1;BYMONTH=5,12;BYMONTHDAY=3,15;BYWEEKDAY=2SU',
+       'w': ['2SU']}])
+    >>> bad_data = [{"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SE"}, {"M": [11, 12], "i": 4, "m": [2, 3, 4, 5, 6, 7, 8], "r": "z", "w": ["TU", "-1FR"]}]
+    >>> print(rrule(bad_data))
+    (False, 'invalid weekdays: 2SE; invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
+    >>> data = [{"r": "w", "w": "TU", "h": 14}, {"r": "w", "w": "TH", "h": 16}]
+    >>> pprint(rrule(data))
+    (True,
+     [{'h': [14],
+       'i': 1,
+       'r': 'w',
+       'rrulestr': 'RRULE:FREQ=WEEKLY;BYWEEKDAY=TU;BYHOUR=14',
+       'w': ['TU']},
+      {'h': [16],
+       'i': 1,
+       'r': 'w',
+       'rrulestr': 'RRULE:FREQ=WEEKLY;BYWEEKDAY=TH;BYHOUR=16',
+       'w': ['TH']}])
+    """
+    msg = []
+    ret = []
+    if type(lofh) == dict:
+        lofh = [lofh]
+    for hsh in lofh:
+        res = {}
+        if type(hsh) != dict:
+            msg.append('error: Elements must be hashes. Cannot process: "{}"'.format(hsh))
+            continue
+        if 'r' not in hsh:
+            msg.append('error: r is required but missing')
+        if 'i' not in hsh:
+            res['i'] = 1
+        for key in hsh.keys():
+            if key not in rrule_methods:
+                msg.append("error: {} is not a valid key".format(key))
+            else:
+                ok, out = rrule_methods[key](hsh[key])
+                if ok:
+                    res[key] = out
+                else:
+                    msg.append(out)
+
+        if not msg:
+            l = ["RRULE:FREQ=%s" % rrule_frequency[hsh['r']]]
+
+            for k in rrule_keys:
+                if k in hsh and hsh[k]:
+                    v = hsh[k]
+                    if type(v) == list:
+                        v = ",".join(map(str, v))
+                    if k == 'w':
+                        # make weekdays upper case
+                        v = v.upper()
+                        m = threeday_regex.search(v)
+                        while m:
+                            v = threeday_regex.sub("%s" % m.group(1)[:2], v, count=1)
+                            m = threeday_regex.search(v)
+                    l.append("%s=%s" % (rrule_names[k], v))
+            res['rrulestr'] = ";".join(l)
+            ret.append(res)
+
+    if msg:
+        return False, "{}".format("; ".join(msg))
+    else:
+        return True, ret
+
+########################
+### end rrule setup ####
+########################
 
 
 ##########################
@@ -514,10 +1008,10 @@ serialization.register_serializer(PendulumIntervalSerializer(), 'TinyPendulumInt
 ########################
 
 
-
 if __name__ == '__main__':
     print('\n\n')
     import doctest
+    from pprint import pprint
     doctest.testmod()
 
     db = TinyDB('db.json', storage=serialization)
