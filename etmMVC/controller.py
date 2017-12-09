@@ -237,7 +237,7 @@ def deal_with_r(at_hsh={}):
     """
     Check the current state of at_hsh regarding r and s.
     """
-    top = "repeat?\n"
+    top = "repetition rule?\n"
     bot = "{}".format(at_keys['r'])
     lofh = at_hsh.get('r', [])
     if not lofh:
