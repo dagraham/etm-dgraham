@@ -104,7 +104,7 @@ undated_job_methods = dict(
     l=location,
     q=date_time,
     # The last two require consideration of the whole list of jobs
-    i=id,
+    # i=id,
     p=prereqs,
 )
 
