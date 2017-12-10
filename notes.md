@@ -236,9 +236,9 @@ class PendulumIntervalSerializer(Serializer):
 
 Starting with the current local timezone, `ltz`
 
-- items with @z float (naive dates and datetimes) are left unchanged
+- items with float (naive dates and datetimes) are left unchanged
 - integer timestamps are parsed and converted to `ltz` time
-- items with @z != float are converted to `ltz` time
+- items with != float are converted to `ltz` time
 
 Week view rows are sorted and grouped by:
 
@@ -255,21 +255,21 @@ Week view rows are sorted and grouped by:
 ## `*` event
 
 - date-only:
-  - all-day occasion, naive, no @a, @z or @e, not treated as busy time
+  - all-day occasion, naive, no @a, or @e, not treated as busy time
   - sort: 0 (put these first in day in week view and month (day) view)
 - date-time:
-  - without @z or with @z float: naive
+  - without or with float: naive
   - otherwise: non-naive
   - busy time from @s to @s + @e
   - sort: HHMM (with timed items in week and month day views)
 
 ## `-` task
 
-- undated, no @s, @z, @a, @b
-- date-only: all-day, naive - no @z, no @a, pastdue after date
+- undated, no @s, @a, @b
+- date-only: all-day, naive - pastdue after date
   - sort: 2400 (after timed items in week and month day views)
 - datetime:
-  - without with @z float: naive
+  - without with float: naive
   - otherwise: non-naive, pastdue after datetime
   - @e optional extent (estimated time to complete) - default 0m
   - sort: HHMM (with other timed items in week view)
@@ -278,11 +278,11 @@ Week view rows are sorted and grouped by:
 
 ## `#` journal
 
-- undated, no @s, @z, @a, @b
-- date-only: all-day, naive - no @z, @a
+- undated, no @s, @a, @b
+- date-only: all-day, naive - no @a
   - sort: 2401 (after timed items in week and month day views)
 - datetime:
-  - without with @z float: naive
+  - without with float: naive
   - otherwise: non-naive, pastdue after datetime
   - @e optional extent (estimated time to complete) - default 0m
   - sort: HHMM (with other timed items in week view)
@@ -299,7 +299,7 @@ Week view rows are sorted and grouped by:
 
 - Inbox: inbox items - only if they exist
 - Now: pastdue items - only if they exist
-- Soon: begin-by items
+- Soon: beginning soon items
 - Day 1 Today: scheduled items or  "nothing scheduled"
 - Day 2 Tomorrow if there are scheduled items
 - ditto for Day 3 ... Day n
@@ -317,7 +317,7 @@ someday items
 ## Week View
 
 - Period: year-weeks in current week + 12 weeks before + 39 weeks after
-- Dates and datetimes with @z float left as is; aware datetimes converted from 
+- Dates and datetimes with float left as is; aware datetimes converted from 
   UTC to local time zone with the timezone information then removed.
 - sort tuple: (year-week, weekday number, type)
 - Each dated item stores *first* instance and *last* instance or, *none* for 
