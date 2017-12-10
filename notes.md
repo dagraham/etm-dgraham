@@ -279,7 +279,7 @@ Week view rows are sorted and grouped by:
 ## `#` journal
 
 - undated, no @s, @a, @b
-- date-only: all-day, naive - no @a
+- date-only: all-day, naive
   - sort: 2401 (after timed items in week and month day views)
 - datetime:
   - without with float: naive
@@ -299,10 +299,12 @@ Week view rows are sorted and grouped by:
 
 - Inbox: inbox items - only if they exist
 - Now: pastdue items - only if they exist
-- Soon: beginning soon items
+- Soon: beginning soon items - only if they exist
 - Day 1 Today: scheduled items or  "nothing scheduled"
 - Day 2 Tomorrow if there are scheduled items
 - ditto for Day 3 ... Day n
+
+If inbox, now, or soon, display "A" highlighted in status bar
 
 ## Next View
 
