@@ -93,6 +93,37 @@ datetime_methods = date_methods + 'ea+-'
 task_methods = 'fjp'
 
 
+undated_job_methods = dict(
+    c=calendar,
+    d=description,
+    e=extent,
+    f=date_time,
+    h=history,
+    i=index,
+    j=title,
+    l=location,
+    q=date_time,
+    # The last two require consideration of the whole list of jobs
+    i=id,
+    p=prereqs,
+)
+
+dated_job_methods = dict(
+    b=beginby,
+    s=job_date_time
+)
+dated_job_methods.update(undated_job_methods)
+
+datetime_job_methods = dict(
+    a=alert,
+    b=beginby,
+    s=job_date_time
+)
+datetime_job_methods.update(undated_job_methods)
+
+
+
+
 # events
 required['*'] = 's'
 allowed['*'] = undated_methods + datetime_methods
@@ -291,6 +322,21 @@ def deal_with_r(at_hsh={}):
 
 
 deal_with['r'] = deal_with_r
+
+def deal_with_j(at_hsh={}):
+    """
+    Check the current state of at_hsh regarding j and s.
+    """
+    if 's' in item_hsh:
+        if type(item_hsh['s']) == pendulum.pendulum.Date:
+            dtut_format = "YYYYMMDD[T][000000]"
+            job_methods = dated_job_methods
+        else:
+            dtut_format = "YYYYMMDD[T]HHmm[00]"
+            job_methods = datetime_job_methods
+    else:
+        job_methods = undated_job_methods
+
 
 
 def str2hsh(s):
