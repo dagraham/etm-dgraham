@@ -94,7 +94,7 @@ task_methods = 'fjp'
 
 
 undated_job_methods = dict(
-    c=calendar,
+    # c=calendar,
     d=description,
     e=extent,
     f=date_time,
