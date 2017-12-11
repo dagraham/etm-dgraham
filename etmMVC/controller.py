@@ -319,7 +319,7 @@ def deal_with_r(at_hsh={}):
         out = rrulestr(res, dtstart=item_hsh['s'])
         lst = [repr(x) for x in list(out)]
         outstr = "\n".join(lst[:3]) 
-        bot += outstr
+        bot += "\n" + outstr
 
     return top, bot, res
 
