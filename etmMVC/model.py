@@ -58,6 +58,8 @@ def parse_datetime(s):
     >>> dt = parse_datetime("2015-10-15 2p, US/Pacific")
     >>> dt[1]
     <Pendulum [2015-10-15T14:00:00-07:00]>
+    >>> dt[1].tzinfo
+
     """
     parts = s.split(", ")
     if len(parts) < 2:
