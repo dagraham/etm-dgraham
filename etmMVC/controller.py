@@ -283,12 +283,14 @@ def deal_with_r(at_hsh={}):
 
     rrulelst = []
 
-    dtut_format = "YYYYMMDD[T]HHmm[00]"
+    # dtut_format = "YYYYMMDD[T]HHmm[00]"
+    dtut_format = ";[TZID=]zz:YYYYMMDD[T]HHmm[00]"
     if 's' in item_hsh:
         if type(item_hsh['s']) == pendulum.pendulum.Date:
-            dtut_format = "YYYYMMDD[T][000000]"
+            # dtut_format = "YYYYMMDD[T][000000]"
+            dtut_format = ";[TZID=]zz:YYYYMMDD[T][000000]"
 
-        rrulelst.append("DTSTART:{}".format(item_hsh['s'].format(dtut_format, formatter='alternative')))
+        rrulelst.append("DTSTART{}".format(item_hsh['s'].format(dtut_format, formatter='alternative')))
     for hsh in res:
         r = hsh.get('r', None)
         if r:
