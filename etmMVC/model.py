@@ -55,6 +55,8 @@ def parse_datetime(s):
     >>> dt = parse_datetime("2015-10-15 2p, float")
     >>> dt[1]
     <Pendulum [2015-10-15T14:00:00+00:00]>
+    >>> dt[1].tzinfo
+
     >>> dt = parse_datetime("2015-10-15 2p, US/Pacific")
     >>> dt[1]
     <Pendulum [2015-10-15T14:00:00-07:00]>
@@ -1023,7 +1025,7 @@ if __name__ == '__main__':
     db.insert({'pacific pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='US/Pacific') })
     db.insert({'local pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='local') })
     db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='Factory'), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
-    # Absent tzinfo, the first item will be interpreted as noon UTC and will display as 8am Eastern. Ditto for the second where UTC is given explicitly. The third will be interpreted as noon Pacific and will display as 3pm Eastern.
+    # Absent tzinfo, the first item will be interpreted as noon UTC and will display as 8am Eastern. For the second where Factory is given explicitly, the item will be interpreted as noon in whatever the local timezone, i.e., an offset of 0, and thus noon Eastern. The third will be interpreted as noon Pacific and will display as 3pm Eastern.
     db.insert({'pendulum date': pendulum.Pendulum(2017, 9, 7, tzinfo='Factory').date() })
     db.insert({'pendulum interval': pendulum.Interval(weeks=1, days=3, hours=7, minutes=15)})
     # hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
