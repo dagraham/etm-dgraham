@@ -55,8 +55,8 @@ def parse_datetime(s):
     >>> dt = parse_datetime("2015-10-15 2p, float")
     >>> dt[1]
     <Pendulum [2015-10-15T14:00:00+00:00]>
-    >>> dt[1].tzinfo
-
+    >>> dt[1].tzinfo()
+    <TimezoneInfo [Factory, -00, +00:00:00, STD]>
     >>> dt = parse_datetime("2015-10-15 2p, US/Pacific")
     >>> dt[1]
     <Pendulum [2015-10-15T14:00:00-07:00]>
