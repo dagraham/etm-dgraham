@@ -314,11 +314,12 @@ def deal_with_r(at_hsh={}):
             rrulelst.append("EXDATE:{}".format(exdate.format(dtut_format, formatter='alternative')))
 
     res = item_hsh['rrulestr'] = "\n".join(rrulelst)
-    # out = rrulestr(res)
-    # lst = [repr(x) for x in list(out)]
-    # outstr = "\n".join(lst[:3]) 
     bot = "repetition rule:\n{}".format(res)
-
+    if testing:
+        out = rrulestr(res)
+        lst = [repr(x) for x in list(out)]
+        outstr = "\n".join(lst[:3]) 
+        bot += outstr
 
     return top, bot, res
 
