@@ -820,7 +820,7 @@ def rrule(lofh):
     An rrule hash or a sequence of such hashes.
     >>> data = {'r': ''}
     >>> rrule(data)
-    (False, 'frequency: character from (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
+    (False, 'repetition frequency: character from (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
     >>> good_data = {"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SU"}
     >>> pprint(rrule(good_data))
     (True,
