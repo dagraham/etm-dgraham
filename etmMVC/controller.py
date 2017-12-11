@@ -290,7 +290,7 @@ def deal_with_r(at_hsh={}):
             # dtut_format = "YYYYMMDD[T][000000]"
             dtut_format = ";[TZID=]zz:YYYYMMDD[T][000000]"
 
-        rrulelst.append("DTSTART{}".format(item_hsh['s'].format(dtut_format, formatter='alternative')))
+        # rrulelst.append("DTSTART{}".format(item_hsh['s'].format(dtut_format, formatter='alternative')))
     for hsh in res:
         r = hsh.get('r', None)
         if r:
@@ -316,7 +316,7 @@ def deal_with_r(at_hsh={}):
     res = item_hsh['rrulestr'] = "\n".join(rrulelst)
     bot = "repetition rule:\n{}".format(res)
     if testing:
-        out = rrulestr(res)
+        out = rrulestr(res, dtstart=item_hsh['s'])
         lst = [repr(x) for x in list(out)]
         outstr = "\n".join(lst[:3]) 
         bot += outstr
