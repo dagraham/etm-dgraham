@@ -1022,7 +1022,7 @@ if __name__ == '__main__':
 
     db.insert({'pacific pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='US/Pacific') })
     db.insert({'local pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='local') })
-    db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
+    db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo="UTC"), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
     # Absent tzinfo, the first item will be interpreted as noon UTC and will display as 8am Eastern. The second will be interpreted as noon Pacific and will display as 3pm Eastern.
     db.insert({'pendulum date': pendulum.Pendulum(2017, 9, 7, tzinfo='Factory').date() })
     db.insert({'pendulum interval': pendulum.Interval(weeks=1, days=3, hours=7, minutes=15)})
