@@ -317,7 +317,7 @@ def deal_with_r(at_hsh={}):
     bot = "repetition rule:\n{}".format(res)
     if testing:
         out = rrulestr(res, dtstart=item_hsh['s'])
-        lst = [repr(x.as_timezone()) for x in list(out)]
+        lst = [repr(x.astimezone()) for x in list(out)]
         outstr = "\n".join(lst[:3]) 
         bot += "\n" + outstr
 
