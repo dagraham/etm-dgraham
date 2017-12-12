@@ -85,6 +85,8 @@ def parse_datetime(s):
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
             return 'date', res.date()
+        elif ok == 'aware':
+            return ok, res.replace(second=0, microsecond=0).in_timezone('UTC')
         else:
             return ok, res.replace(second=0, microsecond=0)
 
