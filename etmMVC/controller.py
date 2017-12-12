@@ -203,7 +203,7 @@ def deal_with_s(at_hsh = {}):
         bot += "\nThe datetime entry for @s will be interpreted as a naive datetime in whatever happens to be the local timezone."
     elif ok == 'aware':
         bot = "starting: {}".format(obj.format("ddd MMM D h:mmA z"))
-        bot += "\n  or: {}".format(obj.in_tz('local').format("ddd MMM D h:mmA z"))
+        bot += "\n       or: {}".format(obj.in_tz('local').format("ddd MMM D h:mmA z"))
         bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the specified timezone."
     else:
         bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D h:mmA z"))
