@@ -285,7 +285,7 @@ def get_reps(n=3):
             lst = [x.strftime("%a %b %d %Y %H:%M") for x in list(out)]
     else:
         # aware
-        dtstart = item_hsh['s'].strftime("%a %b %d %Y %H:%M %Z")
+        dtstart = item_hsh['s'].astimezone().strftime("%a %b %d %Y %H:%M %Z")
         lst = [x.astimezone().strftime("%a %b %d %Y %H:%M %Z") for x in list(out)]
     outstr = "\n    ".join(lst[:n]) 
     res = """\
