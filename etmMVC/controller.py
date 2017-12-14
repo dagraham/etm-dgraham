@@ -320,7 +320,6 @@ def deal_with_r(at_hsh={}):
     else:
         bot = "An entry for @s is required for repetition."
         return top, bot, None
-        # rrulelst.append("DTSTART{}".format(item_hsh['s'].format(dtut_format, formatter='alternative')))
     for hsh in res:
         r = hsh.get('r', None)
         if r:
