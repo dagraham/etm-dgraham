@@ -199,7 +199,7 @@ def deal_with_s(at_hsh = {}):
         bot = "starting: {}".format(obj.format("ddd MMM D"))
         bot += '\nWithout a time, this schedules an all-day, floating item for the specified date in whatever happens to be the local timezone.'
     elif ok == 'naive':
-        bot = "starting: {}".format(obj.format("ddd MMM D h:mmA"))
+        bot = "starting: {}".format(obj.in_tz('Factory').format("ddd MMM D h:mmA"))
         bot += "\nThe datetime entry for @s will be interpreted as a naive datetime in whatever happens to be the local timezone."
     elif ok == 'aware':
         # bot = "starting: {}".format(obj.format("ddd MMM D h:mmA z"))
