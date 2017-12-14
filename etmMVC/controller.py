@@ -288,7 +288,6 @@ def get_reps(n=3):
         # aware
         dtstart = item_hsh['s'].astimezone().strftime("%a %b %d %Y %H:%M %Z")
         lst = [x.astimezone().strftime("%a %b %d %Y %H:%M %Z") for x in list(out)]
-    lst = 
     outstr = "\n    ".join(lst[:n]) 
     res = """\
 The first {} repetitions starting from {}
