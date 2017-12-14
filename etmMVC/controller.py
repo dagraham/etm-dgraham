@@ -274,7 +274,8 @@ def get_reps(n=3):
     """
     if 's' not in item_hsh or 'rrulestr' not in item_hsh:
         return False, "Both @s and @r are required for repetitions"
-    out = rrulestr(item_hsh['rrulestr'], dtstart=item_hsh['s'])
+    rrs = rrulestr(item_hsh['rrulestr'], dtstart=item_hsh['s'])
+    out = rrs.xafter(item_hsh['s'], n)
     if item_hsh['s'].tzinfo.abbrev == '-00':
         # naive
         if type(item_hsh['s']) == pendulum.pendulum.Date:
@@ -287,6 +288,7 @@ def get_reps(n=3):
         # aware
         dtstart = item_hsh['s'].astimezone().strftime("%a %b %d %Y %H:%M %Z")
         lst = [x.astimezone().strftime("%a %b %d %Y %H:%M %Z") for x in list(out)]
+    lst = 
     outstr = "\n    ".join(lst[:n]) 
     res = """\
 The first {} repetitions starting from {}
