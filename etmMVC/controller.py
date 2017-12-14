@@ -276,14 +276,14 @@ def get_reps(n=3):
         return False, "Both @s and @r are required for repetitions"
     rrs = rrulestr(item_hsh['rrulestr'], dtstart=item_hsh['s'])
     out = rrs.xafter(item_hsh['s'], n)
-    if item_hsh['s'].tzinfo.abbrev == '-00':
-        # naive
-        if type(item_hsh['s']) == pendulum.pendulum.Date:
-            dtstart = item_hsh['s'].strftime("%a %b %d %Y")
-            lst = [x.strftime("%a %b %d %Y") for x in list(out)]
-        else:
-            dtstart = item_hsh['s'].strftime("%a %b %d %Y %H:%M")
-            lst = [x.strftime("%a %b %d %Y %H:%M") for x in list(out)]
+    if type(item_hsh['s']) == pendulum.pendulum.Date:
+        # date only - naive
+        dtstart = item_hsh['s'].strftime("%a %b %d %Y")
+        lst = [x.strftime("%a %b %d %Y") for x in list(out)]
+    elif item_hsh['s'].tzinfo.abbrev == '-00':
+        # datetime - naive
+        dtstart = item_hsh['s'].strftime("%a %b %d %Y %H:%M")
+        lst = [x.strftime("%a %b %d %Y %H:%M") for x in list(out)]
     else:
         # aware
         dtstart = item_hsh['s'].astimezone().strftime("%a %b %d %Y %H:%M %Z")
