@@ -291,7 +291,7 @@ def get_reps(n=3):
     res = """\
 The first {} repetitions starting from {}
 for {}:
-    {}""".format(n, dtstart, item_hsh]'rrulestr', outstr)
+    {}""".format(n, dtstart, item_hsh['rrulestr'], outstr)
     return True, res 
 
 
