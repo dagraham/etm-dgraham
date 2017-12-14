@@ -346,15 +346,7 @@ def deal_with_r(at_hsh={}):
     res = item_hsh['rrulestr'] = "\n".join(rrulelst)
     bot = "repetition rule:\n{}".format(res)
     if testing:
-        out = rrulestr(res, dtstart=item_hsh['s'])
-        if item_hsh['s'].tzinfo.abbrev == '-00':
-            # naive
-            lst = [x.strftime("%a %b %d %Y %H:%M") for x in list(out)]
-        else:
-            # aware
-            lst = [x.astimezone().strftime("%a %b %d %Y %H:%M %Z") for x in list(out)]
-        outstr = "\n".join(lst[:3]) 
-        bot += "\n" + outstr
+        bot = get_reps()
 
     return top, bot, res
 
