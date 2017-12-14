@@ -268,6 +268,33 @@ def deal_with_i(at_hsh={}):
 deal_with['i'] = deal_with_i
 
 
+def get_reps(n=3):
+    """
+    Return the first n instances of the repetition rule.
+    """
+    if 's' not in item_hsh or 'rrulestr' not in item_hsh:
+        return False, "Both @s and @r are required for repetitions"
+    out = rrulestr(item_hsh['rrulestr'], dtstart=item_hsh['s'])
+    if item_hsh['s'].tzinfo.abbrev == '-00':
+        # naive
+        if type(item_hsh['s']) == pendulum.pendulum.Date:
+            dtstart = item_hsh['s'].strftime("%a %b %d %Y")
+            lst = [x.strftime("%a %b %d %Y") for x in list(out)]
+        else:
+            dtstart = item_hsh['s'].strftime("%a %b %d %Y %H:%M")
+            lst = [x.strftime("%a %b %d %Y %H:%M") for x in list(out)]
+    else:
+        # aware
+        dtstart = item_hsh['s'].strftime("%a %b %d %Y %H:%M %Z")
+        lst = [x.astimezone().strftime("%a %b %d %Y %H:%M %Z") for x in list(out)]
+    outstr = "\n    ".join(lst[:n]) 
+    res = """\
+The first {} repetitions starting from {}
+for {}:
+    {}""".format(n, dtstart, item_hsh]'rrulestr', outstr)
+    return True, res 
+
+
 def deal_with_r(at_hsh={}):
     """
     Check the current state of at_hsh regarding r and s.
