@@ -116,7 +116,7 @@ def format_datetime(obj):
             return True, format(obj.format("ddd MMM D YYYY h:mmA", formatter='alternative'))
     else:
         # aware
-        return True, format(obj.format("ddd MMM D YYYY h:mmA z", formatter='alternative'))
+        return True, format(obj.in_timezone().format("ddd MMM D YYYY h:mmA z", formatter='alternative'))
 
 
 
