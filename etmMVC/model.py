@@ -104,7 +104,7 @@ def format_datetime(obj):
 
     if obj.tzinfo.tzabbrev == '-00':
         # naive
-        if (obj.hour, obj.minute, obj.second, obj.microsecond) = (0, 0, 0, 0):
+        if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
             # date
             return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
         else:
