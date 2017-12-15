@@ -276,18 +276,21 @@ def get_reps(n=3):
         return False, "Both @s and @r are required for repetitions"
     rrs = rrulestr(item_hsh['rrulestr'], dtstart=item_hsh['s'])
     out = rrs.xafter(item_hsh['s'], n)
-    if type(item_hsh['s']) == pendulum.pendulum.Date:
-        # date only - naive
-        dtstart = item_hsh['s'].strftime("%a %b %d %Y")
-        lst = [x.strftime("%a %b %d %Y") for x in out]
-    elif item_hsh['s'].tzinfo.abbrev == '-00':
-        # datetime - naive/Factory
-        dtstart = item_hsh['s'].strftime("%a %b %d %Y %H:%M")
-        lst = [x.strftime("%a %b %d %Y %H:%M") for x in out]
-    else:
-        # aware
-        dtstart = item_hsh['s'].astimezone().strftime("%a %b %d %Y %H:%M %Z")
-        lst = [x.astimezone().strftime("%a %b %d %Y %H:%M %Z") for x in out]
+    dtstart = parse_datetime(item_hsh['s'])
+    lst = [parse_datetime(x) for x in out]
+
+    # if type(item_hsh['s']) == pendulum.pendulum.Date:
+    #     # date only - naive
+    #     dtstart = item_hsh['s'].strftime("%a %b %d %Y")
+    #     lst = [x.strftime("%a %b %d %Y") for x in out]
+    # elif item_hsh['s'].tzinfo.abbrev == '-00':
+    #     # datetime - naive/Factory
+    #     dtstart = item_hsh['s'].strftime("%a %b %d %Y %H:%M")
+    #     lst = [x.strftime("%a %b %d %Y %H:%M") for x in out]
+    # else:
+    #     # aware
+    #     dtstart = item_hsh['s'].astimezone().strftime("%a %b %d %Y %H:%M %Z")
+    #     lst = [x.astimezone().strftime("%a %b %d %Y %H:%M %Z") for x in out]
     outstr = "\n    ".join(lst[:n]) 
     res = """\
 The first {} repetitions on or after {}
