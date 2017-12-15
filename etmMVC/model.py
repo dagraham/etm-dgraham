@@ -101,7 +101,8 @@ def format_datetime(obj):
     >>> format_datetime("20160710T1730")
     (False, 'The argument must be a pendulum date or datetime.')
     """
-    if type(obj) == datetime
+    if type(obj) == datetime:
+        obj = pendulum.instance(obj)
     if type(obj) != pendulum.pendulum.Pendulum:
         return False, "The argument must be a pendulum date or datetime."
 
