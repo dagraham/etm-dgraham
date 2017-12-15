@@ -51,7 +51,7 @@ def parse_datetime(s):
     that the second is removed from the datetime:
     >>> dt = parse_datetime("2015-10-15 00:00:01")
     >>> dt[1]
-    <Pendulum [2015-10-15T00:00:00-04:00]>
+    <Pendulum [2015-10-15T00:00:01-04:00]>
     >>> dt = parse_datetime("2015-10-15 2p, float")
     >>> dt[1]
     <Pendulum [2015-10-15T14:00:00+00:00]>
