@@ -82,7 +82,7 @@ def parse_datetime(s):
         return False, "Could not process '{}'".format(s)
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-            return 'date', res.in_timezone('Factory')
+            return 'date', res.as_timezone('Factory')
         elif ok == 'aware':
             return ok, res.replace(second=0, microsecond=0).in_timezone('UTC')
         else:
