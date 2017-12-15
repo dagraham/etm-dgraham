@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import pendulum
-from pendulum import parse
+from pendulum import parse, timezone
 
 import sys
 import re
