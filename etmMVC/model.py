@@ -102,7 +102,7 @@ def format_datetime(obj):
     if type(obj) != pendulum.pendulum.Pendulum:
         return False, "The argument must be a pendulum date or datetime."
 
-    if obj.tzinfo.tzabbrev == '-00':
+    if obj.tzinfo.abbrev == '-00':
         # naive
         if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
             # date
