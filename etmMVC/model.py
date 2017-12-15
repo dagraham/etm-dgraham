@@ -99,16 +99,20 @@ def format_datetime(obj):
     >>> format_datetime("20160710T1730")
     (False, 'The argument must be a pendulum date or datetime.')
     """
-    if type(obj) == pendulum.date:
-        return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
-    elif type(obj) == pendulum.pendulum.Pendulum:
-        a = obj.tzinfo.abbrev
-        if a == '-00':
-            return True, format(obj.format("ddd MMM D YYYY h:mmA", formatter='alternative'))
-        else:
-            return True, format(obj.format("ddd MMM D YYYY h:mmA z", formatter='alternative'))
-    else:
+    if type(obj) != pendulum.pendulum.Pendulum:
         return False, "The argument must be a pendulum date or datetime."
+
+    if obj.tzinfo.tzabbrev == '-00':
+        # naive
+        if (obj.hour, obj.minute, obj.second, obj.microsecond) = (0, 0, 0, 0):
+            # date
+            return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
+        else:
+            # naive datetime
+            return True, format(obj.format("ddd MMM D YYYY h:mmA", formatter='alternative'))
+    else:
+        # aware
+        return True, format(obj.format("ddd MMM D YYYY h:mmA z", formatter='alternative'))
 
 
 
