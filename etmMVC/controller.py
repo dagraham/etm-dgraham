@@ -276,8 +276,8 @@ def get_reps(n=3):
         return False, "Both @s and @r are required for repetitions"
     rrs = rrulestr(item_hsh['rrulestr'], dtstart=item_hsh['s'])
     out = rrs.xafter(item_hsh['s'], n)
-    dtstart = format_datetime(item_hsh['s'])
-    lst = [format_datetime(x) for x in out]
+    dtstart = format_datetime(item_hsh['s'])[1]
+    lst = [format_datetime(x)[1] for x in out]
 
     # if type(item_hsh['s']) == pendulum.pendulum.Date:
     #     # date only - naive
