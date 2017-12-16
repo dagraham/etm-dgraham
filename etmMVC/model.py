@@ -924,9 +924,26 @@ def rrule(lofh):
 ### begin jobs setup ####
 #########################
 
-undated_job_methods = 'defilp'
+undated_job_methods = dict(
+    d=description,
+    e=extent,
+    f=date_time,
+    h=history,
+    j=title,
+    l=location,
+    q=date_time,
+    # The last two require consideration of the whole list of jobs
+    i=id,
+    p=prereqs,
+)
 
-dated_job_methods = undated_job_methods + 'abs'
+datetime_job_methods = dict(
+    a=alert,
+    b=beginby,
+    s=job_date_time
+)
+datetime_job_methods.update(undated_job_methods)
+
 
 def jobs(lofh, dated=False):
     """
@@ -936,7 +953,7 @@ def jobs(lofh, dated=False):
 
     """
     if dated:
-        job_methods = dated_job_methods
+        job_methods = datetime_job_methods
     else:
         job_methods = undated_job_methods
 
