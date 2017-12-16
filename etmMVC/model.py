@@ -861,12 +861,12 @@ def rrule(lofh):
      [{'h': [14],
        'i': 1,
        'r': 'w',
-       'rrulestr': 'RRULE:FREQ=WEEKLY;BYWEEKDAY=TU;BYHOUR=14',
+       'rrulestr': 'RRULE:FREQ=WEEKLY;BYHOUR=14;BYWEEKDAY=TU',
        'w': ['TU']},
       {'h': [16],
        'i': 1,
        'r': 'w',
-       'rrulestr': 'RRULE:FREQ=WEEKLY;BYWEEKDAY=TH;BYHOUR=16',
+       'rrulestr': 'RRULE:FREQ=WEEKLY;BYHOUR=16;BYWEEKDAY=TH',
        'w': ['TH']}])
     """
     msg = []
@@ -933,18 +933,6 @@ def jobs(lofh, dated=False):
     Process the job hashes in lofh
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': '6/20 12p'}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
-    (True,
-     [{'h': [14],
-       'i': 1,
-       'r': 'w',
-       'rrulestr': 'RRULE:FREQ=WEEKLY;BYHOUR=14;BYWEEKDAY=TU',
-       'w': ['TU']},
-      {'h': [16],
-       'i': 1,
-       'r': 'w',
-       'rrulestr': 'RRULE:FREQ=WEEKLY;BYHOUR=16;BYWEEKDAY=TH',
-       'w': ['TH']}])
-
 
     """
     msg = []
