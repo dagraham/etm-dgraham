@@ -920,6 +920,21 @@ def rrule(lofh):
 ### end rrule setup ####
 ########################
 
+#########################
+### begin jobs setup ####
+#########################
+
+def jobs(lofh, dated=False):
+    """
+    Process the job hashes in lofh
+    """
+
+
+
+
+#######################
+### end jobs setup ####
+#######################
 
 ##########################
 ### begin TinyDB setup ###
