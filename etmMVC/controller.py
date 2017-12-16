@@ -335,7 +335,7 @@ def deal_with_r(at_hsh={}):
     res = item_hsh['rrulestr'] = "\n".join(rrulelst)
     bot = "repetition rule:\n{}".format(res)
     ok, res = get_reps()
-    bot = res
+    bot += res
 
     return top, bot, res
 
