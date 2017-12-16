@@ -92,11 +92,6 @@ date_methods = 'br'
 datetime_methods = date_methods + 'ea+-' 
 task_methods = 'fjp'
 
-undated_job_methods = 'deflpu'
-
-dated_job_methods = undated_job_methods + 'abs'
-
-
 # events
 required['*'] = 's'
 allowed['*'] = undated_methods + datetime_methods
@@ -330,6 +325,167 @@ def deal_with_j(at_hsh={}):
     else:
         # An undated task
         methods = undated_job_methods
+    lofh = at_hsh.get('j', [])
+
+    for hsh in lofh:
+        # todo: is defaults needed?
+
+        res = {}
+        if type(hsh) != dict:
+            msg.append('Elements must be hashes. Cannot process: "{}"'.format(hsh))
+            continue
+        if 'j' not in hsh:
+            msg.append('error: j is required but missing')
+        if first:
+            # only do this once - for the first job
+            first = False
+            # set auto mode True if both i and p are missing from the first job,
+            # otherwise set auto mode False <=> manual mode
+            if  'i' in hsh or 'p' in hsh:
+                auto = False
+            else:
+                auto = True
+                count = 0
+        if auto: # auto mode
+            if 'i' in hsh:
+                msg.append(
+                    "error: &i should not be specified in auto mode")
+            if 'p' in hsh:
+                msg.append(
+                    "error: &p should not be specified in auto mode")
+            # auto generate simple sequence for i: 1, 2, 3, ... and
+            # for p: 1 requires nothing, 2 requires 1, 3 requires  2, ...
+            count += 1
+            hsh['i'] = str(count)
+            if count > 1:
+                hsh['p'] = [str(count - 1)]
+            else:
+                hsh['p'] = []
+            req[hsh['i']] = hsh['p']
+
+        else: # manual mode
+            if 'i' not in hsh:
+                # TODO: fix this
+                rmd.append('reminder: &i is required for each job in manual mode')
+            elif hsh['i'] in req:
+                msg.append("error: '&i {}' has already been used".format(hsh['i']))
+            elif 'p' in hsh:
+                    if type(hsh['p']) == str:
+                        req[hsh['i']] = [x.strip() for x in hsh['p'].split(',') if x]
+                    else:
+                        req[hsh['i']] = hsh['p']
+            else:
+                req[hsh['i']] = []
+
+        not_allowed = []
+        for key in hsh.keys():
+            if key in ['req', 'status', 'summary']:
+                pass
+            elif key not in job_methods:
+                not_allowed.append("'&{}'".format(key))
+            else:
+                ok, out = job_methods[key](hsh[key])
+                if ok:
+                    res[key] = out
+                else:
+                    msg.append(out)
+        if not_allowed:
+            not_allowed.sort()
+            msg.append("invalid: {}".format(", ".join(not_allowed)))
+
+        if 'i' in hsh:
+            id2hsh[hsh['i']] = res
+
+    ids = [x for x in req]
+    for i in ids:
+        for j in req[i]:
+            if j not in ids:
+                msg.append("invalid id given in &p: {}".format(j))
+
+    ids.sort()
+
+    # Recursively compute the transitive closure of req so that j in req[i] iff
+    # i requires j either directly or indirectly through some chain of requirements
+    again = True
+    while again:
+        # stop after this loop unless we've added a new requirement
+        again = False
+        for i in ids:
+            for j in ids:
+                for k in ids:
+                    if j in req[i] and k in req[j] and k not in req[i]:
+                        # since i requires j and j requires k, i indirectly
+                        # requires k so, if not already included, add k to req[i]
+                        # and loop again
+                        req[i].append(k)
+                        again = True
+
+    # look for circular dependencies when a job indirectly requires itself
+    tmp = []
+    for i in ids:
+        if i in req[i]:
+            tmp.append(i)
+    tmp.sort()
+    if tmp:
+        msg.append("error: circular dependency for jobs {}".format(", ".join(tmp)))
+
+    # Are all jobs finished:
+    last_completion = None
+    for i in ids:
+        if id2hsh[i].get('f', None):
+            this_completion = id2hsh[i]['f']
+            if last_completion is None or last_completion < this_completion:
+                last_completion = this_completion
+                # print('last_completion', last_completion)
+        else:
+            last_completion = None
+            break
+
+    for i in ids:
+        if last_completion:
+            # remove all completions
+            del id2hsh[i]['f']
+        else:
+            # remove finished jobs from the requirements
+            if id2hsh[i].get('f', None):
+                # i is finished so remove it from the requirements for any
+                # other jobs
+                for j in ids:
+                    if i in req[j]:
+                        # since i is finished, remove it from j's requirements
+                        req[j].remove(i)
+
+    faw = [0, 0, 0]
+    # set the job status for each job - f) finished, a) available or w) waiting
+    for i in ids:
+        if id2hsh[i].get('f', None): # i is finished
+            id2hsh[i]['status'] = 'f'
+            faw[0] += 1
+        elif req[i]: # there are unfinished requirements for i
+            id2hsh[i]['status'] = 'w'
+            faw[2] += 1
+        else: # there are no unfinished requirements for i
+            id2hsh[i]['status'] = 'a'
+            faw[1] += 1
+
+    for i in ids:
+        id2hsh[i]['summary'] = "{}: {}".format("/".join([str(x) for x in faw]), id2hsh[i]['j'])
+        id2hsh[i]['req'] = req[i]
+
+    if msg:
+        # print('msg', msg)
+        # return False, msg
+        if ret_lc:
+            return False, "; ".join(msg), None
+        else:
+            return False, "; ".join(msg)
+    else:
+        # return the list of job hashes
+        if ret_lc:
+            return True, [id2hsh[i] for i in ids], last_completion
+        else:
+            return True, [id2hsh[i] for i in ids]
+
 
 
 
