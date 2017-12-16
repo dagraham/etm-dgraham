@@ -92,6 +92,10 @@ date_methods = 'br'
 datetime_methods = date_methods + 'ea+-' 
 task_methods = 'fjp'
 
+job_methods = 'deflpu'
+
+dated_job_methods = job_methods + 'abs'
+
 
 # events
 required['*'] = 's'
@@ -321,13 +325,11 @@ def deal_with_j(at_hsh={}):
     Check the current state of at_hsh regarding j and s.
     """
     if 's' in item_hsh:
-        if type(item_hsh['s']) == pendulum.pendulum.Date:
-            dtut_format = "YYYYMMDD[T][000000]"
-            job_methods = dated_job_methods
-        else:
-            dtut_format = "YYYYMMDD[T]HHmm[00]"
-            job_methods = datetime_job_methods
+        # Either a dated task or a naive or aware datetimed task 
+        methods = date
+        pass
     else:
+        # An undated task
         job_methods = undated_job_methods
 
 
