@@ -935,6 +935,11 @@ def jobs(lofh, dated=False):
     >>> pprint(jobs(data))
 
     """
+    if dated:
+        job_methods = dated_job_methods
+    else:
+        job_methods = undated_job_methods
+
     msg = []
     rmd = []
     ret = []
