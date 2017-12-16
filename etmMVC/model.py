@@ -539,6 +539,28 @@ jinja_entry_template.globals['one_or_more'] = one_or_more
 jinja_entry_template.globals['wrap'] = wrap
 
 
+def location(arg):
+    return string(arg, 'location')
+
+def uid(arg):
+    return string(arg, 'id')
+
+def prereqs(arg):
+    """
+    >>> prereqs("B, C, D")
+    (True, ['B', 'C', 'D'])
+    >>> prereqs("2, 3, 4")
+    (True, ['2', '3', '4'])
+    >>> prereqs([2, 3, 4])
+    (True, ['2', '3', '4'])
+    """
+    if arg:
+        return string_list(arg, 'prereqs')
+    else:
+        return True, []
+
+
+
 #####################################
 ### begin rrule setup ###############
 #####################################
