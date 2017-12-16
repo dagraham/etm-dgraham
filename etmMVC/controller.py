@@ -92,9 +92,9 @@ date_methods = 'br'
 datetime_methods = date_methods + 'ea+-' 
 task_methods = 'fjp'
 
-job_methods = 'deflpu'
+undated_job_methods = 'deflpu'
 
-dated_job_methods = job_methods + 'abs'
+dated_job_methods = undated_job_methods + 'abs'
 
 
 # events
@@ -326,11 +326,10 @@ def deal_with_j(at_hsh={}):
     """
     if 's' in item_hsh:
         # Either a dated task or a naive or aware datetimed task 
-        methods = date
-        pass
+        methods = dated_job_methods
     else:
         # An undated task
-        job_methods = undated_job_methods
+        methods = job_methods = undated_job_methods
 
 
 
