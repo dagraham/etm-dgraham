@@ -61,7 +61,7 @@ at_keys = {
 
 amp_keys = {
     'r': {
-        'c': "count: integer number of repretitions",
+        'c': "count: integer number of repetitions",
         'E': "easter: number of days before (-), on (0) or after (+) Easter",
         'h': "hour: list of integers in 0 ... 23",
         'i': "interval: positive integer",
