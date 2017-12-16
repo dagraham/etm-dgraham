@@ -1085,16 +1085,10 @@ def jobs(lofh, dated=False):
     if msg:
         # print('msg', msg)
         # return False, msg
-        if ret_lc:
-            return False, "; ".join(msg), None
-        else:
-            return False, "; ".join(msg)
+        return False, "; ".join(msg), None
     else:
         # return the list of job hashes
-        if ret_lc:
-            return True, [id2hsh[i] for i in ids], last_completion
-        else:
-            return True, [id2hsh[i] for i in ids]
+        return True, [id2hsh[i] for i in ids], last_completion
 
 
 
