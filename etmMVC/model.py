@@ -850,7 +850,7 @@ def rrule(lofh):
        'i': 1,
        'm': [3, 15],
        'r': 'y',
-       'rrulestr': 'RRULE:FREQ=YEARLY;INTERVAL=1;BYMONTH=5,12;BYMONTHDAY=3,15;BYWEEKDAY=2SU',
+       'rrulestr': 'RRULE:FREQ=YEARLY;BYMONTH=5,12;INTERVAL=1;BYMONTHDAY=3,15;BYWEEKDAY=2SU',
        'w': ['2SU']}])
     >>> bad_data = [{"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SE"}, {"M": [11, 12], "i": 4, "m": [2, 3, 4, 5, 6, 7, 8], "r": "z", "w": ["TU", "-1FR"]}]
     >>> print(rrule(bad_data))
