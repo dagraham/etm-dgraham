@@ -178,6 +178,9 @@ def deal_with_s(at_hsh = {}):
         bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D h:mmA z"))
         bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a comma and then 'float' to make the datetime floating (naive) or a specific timezone, e.g., 'US/Pacific', to use that timezone."
 
+    if 'summary' in item_hsh:
+        item_hsh['summary'] = set_summary(item_hsh['summary'])
+
     return top, bot, obj
 
 deal_with['s'] = deal_with_s
