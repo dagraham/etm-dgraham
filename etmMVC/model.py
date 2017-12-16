@@ -814,7 +814,8 @@ rrule_names = {
 }
 
 # rrule_keys = [x for x in "iMmWwhnEus"]
-rrule_keys = [x for x in rrule_names].sort()
+rrule_keys = [x for x in rrule_names]
+rrule_keys.sort()
 
 rrule_frequency = {
     'y': 'YEARLY',
