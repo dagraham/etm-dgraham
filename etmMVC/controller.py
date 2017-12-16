@@ -182,6 +182,8 @@ def deal_with_s(at_hsh = {}):
         summary = set_summary(item_hsh['summary'])
         bot += "\n{}".format(summary)
         item_hsh['summary'] = summary
+    else:
+        bot += "\nSummary missing"
 
     return top, bot, obj
 
