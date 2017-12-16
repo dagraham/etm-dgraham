@@ -95,7 +95,7 @@ task_methods = 'fjp'
 
 # events
 required['*'] = 's'
-allowed['*'] = (undated_methods + datetime_methods).sort()
+allowed['*'] = (undated_methods + datetime_methods).split('').sort()
 
 
 # tasks
