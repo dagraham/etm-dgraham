@@ -181,7 +181,7 @@ def deal_with_s(at_hsh = {}):
     if 'summary' in item_hsh:
         summary = set_summary(item_hsh['summary'], obj)
         bot += "\n{}".format(summary)
-        item_hsh['summary'] = hsh['summary'] = summary
+        item_hsh['summary'] = summary
 
     return top, bot, obj
 
