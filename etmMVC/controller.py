@@ -93,40 +93,9 @@ datetime_methods = date_methods + 'ea+-'
 task_methods = 'fjp'
 
 
-# undated_job_methods = dict(
-#     # c=calendar,
-#     # d=description,
-#     e=extent,
-#     f=date_time,
-#     h=history,
-#     i=index,
-#     j=title,
-#     l=location,
-#     q=date_time,
-#     # The last two require consideration of the whole list of jobs
-#     # i=id,
-#     p=prereqs,
-# )
-
-# dated_job_methods = dict(
-#     b=beginby,
-#     s=job_date_time
-# )
-# dated_job_methods.update(undated_job_methods)
-
-# datetime_job_methods = dict(
-#     a=alert,
-#     b=beginby,
-#     s=job_date_time
-# )
-# datetime_job_methods.update(undated_job_methods)
-
-
-
-
 # events
 required['*'] = 's'
-allowed['*'] = undated_methods + datetime_methods
+allowed['*'] = (undated_methods + datetime_methods).sort()
 
 
 # tasks
