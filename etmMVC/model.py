@@ -538,12 +538,14 @@ jinja_entry_template.globals['one_or_more'] = one_or_more
 # jinja_entry_template.globals['set_summary'] = set_summary
 jinja_entry_template.globals['wrap'] = wrap
 
+def beginby(arg):
+    return integer(arg, 1, None, False, 'beginby')
 
 def location(arg):
     return string(arg, 'location')
 
 def uid(arg):
-    return string(arg, 'id')
+    return string(arg, 'uid')
 
 def prereqs(arg):
     """
