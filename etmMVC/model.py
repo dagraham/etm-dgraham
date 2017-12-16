@@ -565,6 +565,10 @@ def prereqs(arg):
         return True, []
 
 
+def description(arg):
+    return string(arg, 'description')
+
+
 def extent(arg):
     return parse_period(arg)
 
