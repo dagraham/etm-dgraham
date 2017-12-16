@@ -165,17 +165,17 @@ def deal_with_s(at_hsh = {}):
     item_hsh['s'] = obj
     if ok == 'date':
         # 'dateonly'
-        bot = "starting: {}".format(obj.format("ddd MMM D"))
+        bot = "starting: {}".format(obj.format("ddd MMM D YYYY"))
         bot += '\nWithout a time, this schedules an all-day, floating item for the specified date in whatever happens to be the local timezone.'
     elif ok == 'naive':
-        bot = "starting: {}".format(obj.in_tz('Factory').format("ddd MMM D h:mmA"))
+        bot = "starting: {}".format(obj.in_tz('Factory').format("ddd MMM D YYYY h:mmA"))
         bot += "\nThe datetime entry for @s will be interpreted as a naive datetime in whatever happens to be the local timezone."
     elif ok == 'aware':
         # bot = "starting: {}".format(obj.format("ddd MMM D h:mmA z"))
-        bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D h:mmA z"))
+        bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D YYYY h:mmA z"))
         bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the specified timezone."
     else:
-        bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D h:mmA z"))
+        bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D YYYY h:mmA z"))
         bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a comma and then 'float' to make the datetime floating (naive) or a specific timezone, e.g., 'US/Pacific', to use that timezone."
 
     if 'summary' in item_hsh:
