@@ -486,6 +486,9 @@ def check_entry(s, cursor_pos):
         ask = ('say', type_prompt)
         reply = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
 
+    if 'summary' in hsh:
+        item_hsh['summary'] = hsh['summary']
+
     # for testing and debugging:1
     if testing:
         reply = (reply[0], reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\namp_entry: {4}: {5}\n{6}\n{7}\n{8}\n{9}".format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh, item_hsh))
