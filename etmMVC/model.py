@@ -541,11 +541,14 @@ jinja_entry_template.globals['wrap'] = wrap
 def beginby(arg):
     return integer(arg, 1, None, False, 'beginby')
 
+
 def location(arg):
     return string(arg, 'location')
 
+
 def uid(arg):
     return string(arg, 'uid')
+
 
 def prereqs(arg):
     """
@@ -560,6 +563,35 @@ def prereqs(arg):
         return string_list(arg, 'prereqs')
     else:
         return True, []
+
+
+def extent(arg):
+    return parse_period(arg)
+
+
+def history(arg):
+    """
+    Return a list of properly formatted completions.
+    >>> history("4/1 2p")
+    (True, ['20160401T1400'])
+    >>> history(["4/31 2p", "6/1 7a"])
+    (False, 'invalid date-time: 4/31 2p')
+    """
+    if type(arg) != list:
+        arg = [arg]
+    msg = []
+    tmp = []
+    for comp in arg:
+        ok, res = format_datetime(comp)
+        if ok:
+            tmp.append(res)
+        else:
+            msg.append(res)
+    if msg:
+        return False, ', '.join(msg)
+    else:
+        return True, tmp
+
 
 
 
