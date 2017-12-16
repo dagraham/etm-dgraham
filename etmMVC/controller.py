@@ -333,7 +333,7 @@ def deal_with_r(at_hsh={}):
             rrulelst.append("EXDATE:{}".format(exdate.format(dtut_format, formatter='alternative')))
 
     res = item_hsh['rrulestr'] = "\n".join(rrulelst)
-    bot = "repetition rule:\n{}".format(res)
+    bot = "repetition rule:\n    {}\n".format(res)
     ok, res = get_reps()
     bot += res
 
