@@ -329,7 +329,7 @@ def deal_with_j(at_hsh={}):
         methods = dated_job_methods
     else:
         # An undated task
-        methods = job_methods = undated_job_methods
+        methods = undated_job_methods
 
 
 
