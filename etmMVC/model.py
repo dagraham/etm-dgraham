@@ -841,7 +841,7 @@ def rrule(lofh):
        'i': 1,
        'm': [3],
        'r': 'y',
-       'rrulestr': 'RRULE:FREQ=YEARLY;INTERVAL=1;BYMONTH=5;BYMONTHDAY=3;BYWEEKDAY=2SU',
+       'rrulestr': 'RRULE:FREQ=YEARLY;BYMONTH=5;INTERVAL=1;BYMONTHDAY=3;BYWEEKDAY=2SU',
        'w': ['2SU']}])
     >>> good_data = {"M": [5, 12], "i": 1, "m": [3, 15], "r": "y", "w": "2SU"}
     >>> pprint(rrule(good_data))
