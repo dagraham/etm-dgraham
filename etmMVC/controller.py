@@ -278,24 +278,10 @@ def get_reps(n=3):
     out = rrs.xafter(item_hsh['s'], n)
     dtstart = format_datetime(item_hsh['s'])[1]
     lst = [format_datetime(x)[1] for x in out]
-
-    # if type(item_hsh['s']) == pendulum.pendulum.Date:
-    #     # date only - naive
-    #     dtstart = item_hsh['s'].strftime("%a %b %d %Y")
-    #     lst = [x.strftime("%a %b %d %Y") for x in out]
-    # elif item_hsh['s'].tzinfo.abbrev == '-00':
-    #     # datetime - naive/Factory
-    #     dtstart = item_hsh['s'].strftime("%a %b %d %Y %H:%M")
-    #     lst = [x.strftime("%a %b %d %Y %H:%M") for x in out]
-    # else:
-    #     # aware
-    #     dtstart = item_hsh['s'].astimezone().strftime("%a %b %d %Y %H:%M %Z")
-    #     lst = [x.astimezone().strftime("%a %b %d %Y %H:%M %Z") for x in out]
     outstr = "\n    ".join(lst[:n]) 
     res = """\
-The first {} repetitions on or after {}
-for {}:
-    {}""".format(n, dtstart, item_hsh['rrulestr'], outstr)
+The first {} repetitions on or after {}:
+    {}""".format(n, dtstart,  outstr)
     return True, res 
 
 
@@ -348,9 +334,8 @@ def deal_with_r(at_hsh={}):
 
     res = item_hsh['rrulestr'] = "\n".join(rrulelst)
     bot = "repetition rule:\n{}".format(res)
-    if testing:
-        ok, res = get_reps()
-        bot = res
+    ok, res = get_reps()
+    bot = res
 
     return top, bot, res
 
