@@ -934,30 +934,16 @@ def jobs(lofh, dated=False):
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': '6/20 12p'}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
     (True,
-     [{'a': [('2d', 'm')],
-       'b': 2,
-       'f': '20160620T1200',
-       'i': '1',
-       'j': 'Job One',
-       'p': [],
-       'req': [],
-       'status': 'f',
-       'summary': '1/1/1: Job One'},
-      {'a': [('1d', 'm')],
-       'b': 1,
-       'i': '2',
-       'j': 'Job Two',
-       'p': ['1'],
-       'req': [],
-       'status': 'a',
-       'summary': '1/1/1: Job Two'},
-      {'a': [('6h', 'm')],
-       'i': '3',
-       'j': 'Job Three',
-       'p': ['2'],
-       'req': ['2'],
-       'status': 'w',
-       'summary': '1/1/1: Job Three'}])
+     [{'h': [14],
+       'i': 1,
+       'r': 'w',
+       'rrulestr': 'RRULE:FREQ=WEEKLY;BYHOUR=14;BYWEEKDAY=TU',
+       'w': ['TU']},
+      {'h': [16],
+       'i': 1,
+       'r': 'w',
+       'rrulestr': 'RRULE:FREQ=WEEKLY;BYHOUR=16;BYWEEKDAY=TH',
+       'w': ['TH']}])
 
 
     """
