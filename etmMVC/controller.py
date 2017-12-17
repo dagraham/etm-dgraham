@@ -6,7 +6,7 @@ pendulum.set_formatter('alternative')
 # from dateutil.tz import gettz, tzutc, tzlocal
 
 # from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE 
-from model import parse_datetime, parse_period, rrule, format_datetime, set_summary
+from model import parse_datetime, parse_period, rrule, jobs, format_datetime, set_summary
 from dateutil.rrule import rrulestr
 
 testing = True
