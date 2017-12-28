@@ -263,7 +263,7 @@ Week view rows are sorted and grouped by:
 
 - date-only:
   - all-day occasion, naive, no @a, or @e, not treated as busy time
-  - sort: 0 (put these first in day in week view and month (day) view)
+  - sort: 0 (put these first in day, week and month (day) view)
 - date-time:
   - without or with float: naive
   - otherwise: non-naive
@@ -276,7 +276,7 @@ Week view rows are sorted and grouped by:
 - date-only: all-day, naive - pastdue after date
   - sort: 2400 (after timed items in week and month day views)
 - datetime:
-  - without with float: naive
+  - without or with float: naive
   - otherwise: non-naive, pastdue after datetime
   - @e optional extent (estimated time to complete) - default 0m
   - sort: HHMM (with other timed items in week view)
