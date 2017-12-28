@@ -289,7 +289,7 @@ Week view rows are sorted and grouped by:
 - date-only: all-day, naive
   - sort: 2401 (after timed items in week and month day views)
 - datetime:
-  - without with float: naive
+  - without or with float: naive
   - otherwise: non-naive, pastdue after datetime
   - @e optional extent (estimated time to complete) - default 0m
   - sort: HHMM (with other timed items in week view)
