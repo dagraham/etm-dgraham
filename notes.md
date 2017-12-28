@@ -190,8 +190,11 @@ been used.
 
 ## calendar sets
 
-Default: All - includes all calendars. Suppose I have calendars DAG and ERP. 
-Then I could have calendar sets: # TODO
+Suppose I have calendars DAG and ERP. Then I could have calendar sets:
+
+Dan: DAG
+Ellen: ERP
+Family: DAG, ERP
 
 # Date & Time
 
