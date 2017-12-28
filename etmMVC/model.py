@@ -998,9 +998,9 @@ undated_job_methods = dict(
 )
 
 datetime_job_methods = dict(
-    a=alert,
+    # a=alert,
     b=beginby,
-    s=job_date_time
+    # s=job_date_time
 )
 datetime_job_methods.update(undated_job_methods)
 
