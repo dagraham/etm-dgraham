@@ -188,6 +188,10 @@ When entering an explicit value for @c, tab completion will offer the value
 of`default_calendar` along with any other values of @c that have previously 
 been used.
 
+## calendar sets
+
+Default: All - includes all calendars. Suppose I have calendars DAG and ERP. 
+Then I could have calendar sets: # TODO
 
 # Date & Time
 
