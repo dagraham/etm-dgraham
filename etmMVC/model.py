@@ -987,7 +987,7 @@ def rrule(lofh):
 undated_job_methods = dict(
     d=description,
     e=extent,
-    f=date_time,
+    # f=date_time,
     h=history,
     j=title,
     l=location,
