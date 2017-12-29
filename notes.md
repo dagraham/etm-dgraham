@@ -290,8 +290,7 @@ Week view rows are sorted and grouped by:
   - sort: 2401 (after timed items in week and month day views)
 - datetime:
   - without or with float: naive
-  - otherwise: non-naive, pastdue after datetime
-  - @e optional extent (estimated time to complete) - default 0m
+  - otherwise: non-naive
   - sort: HHMM (with other timed items in week view)
 - with @e: equivalent to old action
 - without: equivalent to old note
