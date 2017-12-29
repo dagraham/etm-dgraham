@@ -56,7 +56,7 @@ at_keys = {
     'r': "repetition frequency y)early, m)onthly, w)eekly, d)aily, h)ourly, min)utely",
     's': "starting date or datetime",
     't': "tags (list of strings)",
-    'v': "value (defaults key)",
+    'v': "key for additional values from defaults",
 }
 
 amp_keys = {
