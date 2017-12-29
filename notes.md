@@ -259,13 +259,16 @@ Week view rows are sorted and grouped by:
 
 # Types
 
+## `^` occasion
+
+- date-only - time ignored:
+  - all-day occasion, naive, @e ignored
+  - sort: 0 (put these first in day, week and month (day) view)
+
 ## `*` event
 
-- date-only:
-  - all-day occasion, naive, no @a, or @e, not treated as busy time
-  - sort: 0 (put these first in day, week and month (day) view)
 - date-time:
-  - without or with float: naive
+  - with float: naive
   - otherwise: non-naive
   - busy time from @s to @s + @e
   - sort: HHMM (with timed items in week and month day views)
@@ -273,10 +276,8 @@ Week view rows are sorted and grouped by:
 ## `-` task
 
 - undated, no @s, @a, @b
-- date-only: all-day, naive - pastdue after date
-  - sort: 2400 (after timed items in week and month day views)
 - datetime:
-  - without or with float: naive
+  - with float: naive
   - otherwise: non-naive, pastdue after datetime
   - @e optional extent (estimated time to complete) - default 0m
   - sort: HHMM (with other timed items in week view)
@@ -297,9 +298,23 @@ Week view rows are sorted and grouped by:
 
 ## `?` someday maybe
 
+- @s, @a, @b ignored
+
 ## `!` inbox
 
+- @s, @a, @b ignored
+
 # Views
+
+## today (all day views)
+
+Today - Fri Dec 29
+  ^ Occasion - if any
+  ! Inbox - if any
+  -/+ Pastdue - if any        days past due
+  > Beginning soon - if any   days until beginning
+  */- timed events, tasks and journal entries by starting time
+  + Date only tasks - if any
 
 ## Agenda View
 
