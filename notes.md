@@ -292,7 +292,7 @@ Week view rows are sorted and grouped by:
 - tasks can have @j job entries - equivalent to old group tasks
   - &s starting time - @s is required and provides default; saved as a timedelta relative to @s
   - &l location, @l provides default
-  - &i unique id
+  - &u unique identifier
   - &p list of immediate prerequisite unique ids
 
 ## `#` journal
