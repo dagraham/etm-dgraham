@@ -78,10 +78,10 @@ amp_keys = {
         'd': "description: string",
         'e': "extent: timeperiod",
         'f': "finish: datetime",
+        'i': "unique identifier: integer or string",
         'l': "location: string",
-        'p': "prerequisites: comma separated list of uids of immediate prereqs",
+        'p': "prerequisites: comma separated list of identifiers of immediate prereqs",
         's': "start/due: timeperiod before task start",
-        'u': "uid: unique identifier: integer or string",
     },
 }
 
