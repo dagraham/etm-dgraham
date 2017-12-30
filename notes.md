@@ -261,11 +261,12 @@ Week view rows are sorted and grouped by:
 
 ## `^` occasion
 
-- date-only - time ignored:
-  - stored as naive, starting at midnight without @e
-  - sort: 0 (put these first in day, week and month (day) view)
-
 ## `*` event
+
+- date-only:
+  - stored as naive, starting at midnight
+  - sort: 0 (put these first in day, week and month (day) view)
+  - display with type character '^'
 
 - date-time:
   - with float: naive
@@ -276,11 +277,17 @@ Week view rows are sorted and grouped by:
 ## `-` task
 
 - undated, no @s, @a, @b
+
+- date-only:
+  - stored as naive, starting at midnight
+  - sort: 2400, after all timed items but before untimed journal entries
+
 - datetime:
   - with float: naive
   - otherwise: aware, pastdue after midnight on the date of the starting datetime
   - @e optional extent (estimated time to complete) - default 0m
   - sort: HHMM (with other timed items in day)
+
 - repeated tasks: only save last completion date?
 - tasks can have @j job entries - equivalent to old group tasks
   - &s starting time - @s is required and provides default; saved as a timedelta relative to @s
@@ -291,8 +298,10 @@ Week view rows are sorted and grouped by:
 ## `#` journal
 
 - undated, no @s, @a, @b
+
 - date-only: all-day, naive
   - sort: 2401 (after timed items in week and month day views)
+
 - datetime:
   - without or with float: naive
   - otherwise: non-naive
