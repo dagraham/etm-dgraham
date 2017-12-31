@@ -598,6 +598,35 @@ def history(arg):
 
 
 
+#####################################
+### begin job setup #################
+#####################################
+
+
+def priority(arg):
+    """
+    >>> priority(0)
+    (False, 'invalid priority: 0 is not allowed; 13 is greater than the allowed maximum. Required for months: a comma separated list of integer month numbers from 1, 2, ..., 12')
+    """
+
+    prioritystr = "priority: an integer priority numbers from 1 (highest), to 9 (lowest)"
+
+    if arg:
+        ok, res = integer(arg, 1, 9, False, "priority")
+        if ok:
+            return True, res
+        else:
+            return False, "invalid priority: {}. Required for {}".format(res, prioritystr)
+    else:
+        return False, monthsstr
+
+
+#####################################
+### end job setup ###################
+#####################################
+
+
+
 
 #####################################
 ### begin rrule setup ###############
