@@ -985,6 +985,22 @@ def rrule(lofh):
 ### begin jobs setup ####
 #########################
 
+prereqs(arg):
+    """
+    >>> prereqs("B, C, D")
+    (True, ['B', 'C', 'D'])
+    >>> prereqs("2, 3, 4")
+    (True, ['2', '3', '4'])
+    >>> prereqs([2, 3, 4])
+    (True, ['2', '3', '4'])
+    """
+    if arg:
+        return string_list(arg, 'prereqs')
+    else:
+        return True, []
+
+
+
 undated_job_methods = dict(
     d=description,
     e=extent,
@@ -1005,22 +1021,7 @@ datetime_job_methods = dict(
 )
 datetime_job_methods.update(undated_job_methods)
 
-def prereqs(arg):
-    """
-    >>> prereqs("B, C, D")
-    (True, ['B', 'C', 'D'])
-    >>> prereqs("2, 3, 4")
-    (True, ['2', '3', '4'])
-    >>> prereqs([2, 3, 4])
-    (True, ['2', '3', '4'])
-    """
-    if arg:
-        return string_list(arg, 'prereqs')
-    else:
-        return True, []
-
-
-def jobs(lofh, dated=False):
+def def jobs(lofh, dated=False):
     """
     Process the job hashes in lofh
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': '6/20 12p'}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
