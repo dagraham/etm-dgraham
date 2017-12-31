@@ -618,7 +618,7 @@ def priority(arg):
         else:
             return False, "invalid priority: {}. Required for {}".format(res, prioritystr)
     else:
-        return False, monthsstr
+        return False, prioritystr
 
 
 #####################################
