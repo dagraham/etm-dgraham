@@ -75,7 +75,7 @@ def parse_datetime(s):
             tzinfo = 'Factory'
             ok = 'naive'
         else:
-            tzfino = tz
+            tzinfo = tz
             ok = 'aware'
     s = parts[0]
 
