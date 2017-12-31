@@ -81,13 +81,15 @@ def parse_datetime(s):
 
     try:
         res = parse(s, tz=tzinfo)
+        if tz is None:
+            tz = res.format("zz", formatter='alternative')
+
     except:
         return False, "Could not process '{}'".format(s), tz
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
             return 'date', res.replace(tzinfo='Factory'), tz
         elif ok == 'aware':
-            tz = res.format("zz", formatter='alternative')
             return ok, res.in_timezone('UTC'), tz
         else:
             return ok, res, tz
