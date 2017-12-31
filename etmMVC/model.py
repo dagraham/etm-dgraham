@@ -85,11 +85,11 @@ def parse_datetime(s):
         return False, "Could not process '{}'".format(s)
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-            return 'date', res.replace(tzinfo='Factory')
+            return 'date', res.replace(tzinfo='Factory'), tz
         elif ok == 'aware':
-            return ok, res.in_timezone('UTC')
+            return ok, res.in_timezone('UTC'), tz
         else:
-            return ok, res
+            return ok, res, tz
 
 def format_datetime(obj):
     """
