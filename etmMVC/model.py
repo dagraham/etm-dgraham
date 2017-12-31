@@ -606,7 +606,7 @@ def history(arg):
 def priority(arg):
     """
     >>> priority(0)
-    (False, 'invalid priority: 0 is not allowed; 13 is greater than the allowed maximum. Required for months: a comma separated list of integer month numbers from 1, 2, ..., 12')
+     (False, 'priority: an integer priority numbers from 1 (highest), to 9 (lowest)')
     """
 
     prioritystr = "priority: an integer priority numbers from 1 (highest), to 9 (lowest)"
