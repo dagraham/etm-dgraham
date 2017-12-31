@@ -82,7 +82,7 @@ def parse_datetime(s):
     try:
         res = parse(s, tz=tzinfo)
     except:
-        return False, "Could not process '{}'".format(s)
+        return False, "Could not process '{}'".format(s), tz
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
             return 'date', res.replace(tzinfo='Factory'), tz
