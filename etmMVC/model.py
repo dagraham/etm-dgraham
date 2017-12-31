@@ -68,7 +68,7 @@ def parse_datetime(s):
     parts = s.split(", ")
     if len(parts) < 2:
         tz = tzinfo = None
-        ok = 'none'
+        ok = 'aware'
     else:
         tz = parts[1].strip()
         if tz == 'float':
@@ -81,8 +81,8 @@ def parse_datetime(s):
 
     try:
         res = parse(s, tz=tzinfo)
-        # if tz != 'float':
-        tz = res.format("zz", formatter='alternative')
+        if ok ==  'aware':
+            tz = res.format("zz", formatter='alternative')
 
     except:
         return False, "Could not process '{}'".format(s), tz
