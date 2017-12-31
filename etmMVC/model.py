@@ -61,7 +61,7 @@ def parse_datetime(s):
     <TimezoneInfo [Factory, -00, +00:00:00, STD]>
     >>> dt = parse_datetime("2015-10-15 2p, US/Pacific")
     >>> dt
-    <Pendulum [2015-10-15T21:00:00+00:00]>
+    ('aware', <Pendulum [2015-10-15T21:00:00+00:00]>, 'US/Pacific')
     >>> dt[1].tzinfo
     <TimezoneInfo [UTC, GMT, +00:00:00, STD]>
     """
