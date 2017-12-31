@@ -67,19 +67,20 @@ def parse_datetime(s):
     """
     parts = s.split(", ")
     if len(parts) < 2:
-        tz = None
+        tz = tzinfo = None
         ok = 'none'
     else:
         tz = parts[1].strip()
         if tz == 'float':
-            tz = 'Factory'
+            tzinfo = 'Factory'
             ok = 'naive'
         else:
+            tzfino = tz
             ok = 'aware'
     s = parts[0]
 
     try:
-        res = parse(s, tz=tz)
+        res = parse(s, tz=tzinfo)
     except:
         return False, "Could not process '{}'".format(s)
     else:
