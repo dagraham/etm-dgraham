@@ -572,7 +572,7 @@ def history(arg):
     msg = []
     tmp = []
     for comp in arg:
-        ok, res = parse_datetime(comp)
+        ok, res, tz = parse_datetime(comp)
         if ok:
             tmp.append(res)
         else:
