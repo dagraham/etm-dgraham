@@ -81,8 +81,8 @@ def parse_datetime(s):
 
     try:
         res = parse(s, tz=tzinfo)
-        # if tz is None:
-        tz = res.format("zz", formatter='alternative')
+        if tz != 'float':
+            tz = res.format("zz", formatter='alternative')
 
     except:
         return False, "Could not process '{}'".format(s), tz
