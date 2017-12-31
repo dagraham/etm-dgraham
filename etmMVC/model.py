@@ -985,7 +985,7 @@ def rrule(lofh):
 ### begin jobs setup ####
 #########################
 
-prereqs(arg):
+def prereqs(arg):
     """
     >>> prereqs("B, C, D")
     (True, ['B', 'C', 'D'])
