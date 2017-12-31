@@ -162,6 +162,7 @@ def deal_with_s(at_hsh = {}):
     if not ok or not obj:
         return top, "considering: '{}'".format(s), None
     item_hsh['s'] = obj
+    item_hsh['z'] = obj.format("zz")
     if ok == 'date':
         # 'dateonly'
         bot = "starting: {}".format(obj.format("ddd MMM D YYYY"))
