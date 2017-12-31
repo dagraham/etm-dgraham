@@ -550,21 +550,6 @@ def uid(arg):
     return string(arg, 'uid')
 
 
-def prereqs(arg):
-    """
-    >>> prereqs("B, C, D")
-    (True, ['B', 'C', 'D'])
-    >>> prereqs("2, 3, 4")
-    (True, ['2', '3', '4'])
-    >>> prereqs([2, 3, 4])
-    (True, ['2', '3', '4'])
-    """
-    if arg:
-        return string_list(arg, 'prereqs')
-    else:
-        return True, []
-
-
 def description(arg):
     return string(arg, 'description')
 
@@ -595,35 +580,6 @@ def history(arg):
         return False, ', '.join(msg)
     else:
         return True, tmp
-
-
-
-#####################################
-### begin job setup #################
-#####################################
-
-
-def priority(arg):
-    """
-    >>> priority(0)
-    (False, 'priority: an integer priority numbers from 1 (highest), to 9 (lowest)')
-    """
-
-    prioritystr = "priority: an integer priority numbers from 1 (highest), to 9 (lowest)"
-
-    if arg:
-        ok, res = integer(arg, 1, 9, False, "priority")
-        if ok:
-            return True, res
-        else:
-            return False, "invalid priority: {}. Required for {}".format(res, prioritystr)
-    else:
-        return False, prioritystr
-
-
-#####################################
-### end job setup ###################
-#####################################
 
 
 
@@ -1032,6 +988,24 @@ datetime_job_methods = dict(
     # s=job_date_time
 )
 datetime_job_methods.update(undated_job_methods)
+
+def priority(arg):
+    """
+    >>> priority(0)
+    (False, 'priority: an integer priority numbers from 1 (highest), to 9 (lowest)')
+    """
+
+    prioritystr = "priority: an integer priority numbers from 1 (highest), to 9 (lowest)"
+
+    if arg:
+        ok, res = integer(arg, 1, 9, False, "priority")
+        if ok:
+            return True, res
+        else:
+            return False, "invalid priority: {}. Required for {}".format(res, prioritystr)
+    else:
+        return False, prioritystr
+
 
 
 def jobs(lofh, dated=False):
