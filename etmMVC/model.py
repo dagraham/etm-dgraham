@@ -582,6 +582,22 @@ def history(arg):
         return True, tmp
 
 
+def priority(arg):
+    """
+    >>> priority(0)
+    (False, 'priority: an integer priority numbers from 1 (highest), to 9 (lowest)')
+    """
+
+    prioritystr = "priority: an integer priority numbers from 1 (highest), to 9 (lowest)"
+
+    if arg:
+        ok, res = integer(arg, 1, 9, False, "priority")
+        if ok:
+            return True, res
+        else:
+            return False, "invalid priority: {}. Required for {}".format(res, prioritystr)
+    else:
+        return False, prioritystr
 
 
 #####################################
@@ -989,23 +1005,19 @@ datetime_job_methods = dict(
 )
 datetime_job_methods.update(undated_job_methods)
 
-def priority(arg):
+def prereqs(arg):
     """
-    >>> priority(0)
-    (False, 'priority: an integer priority numbers from 1 (highest), to 9 (lowest)')
+    >>> prereqs("B, C, D")
+    (True, ['B', 'C', 'D'])
+    >>> prereqs("2, 3, 4")
+    (True, ['2', '3', '4'])
+    >>> prereqs([2, 3, 4])
+    (True, ['2', '3', '4'])
     """
-
-    prioritystr = "priority: an integer priority numbers from 1 (highest), to 9 (lowest)"
-
     if arg:
-        ok, res = integer(arg, 1, 9, False, "priority")
-        if ok:
-            return True, res
-        else:
-            return False, "invalid priority: {}. Required for {}".format(res, prioritystr)
+        return string_list(arg, 'prereqs')
     else:
-        return False, prioritystr
-
+        return True, []
 
 
 def jobs(lofh, dated=False):
