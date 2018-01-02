@@ -32,9 +32,9 @@ item_hsh = {} # preserve state
 type_keys = {
     "*": "event",
     "-": "task",
-    "#": "journal entry",
-    "?": "someday entry",
-    "!": "inbox entry",
+    "~": "journal",
+    "?": "someday",
+    "#": "inbox",
 }
 
 at_keys = {
