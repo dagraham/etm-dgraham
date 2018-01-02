@@ -105,9 +105,10 @@ palette = [
 ask = urwid.Edit(('say', type_prompt), multiline=True)
 # reply sets the text for the reply TEXT widget
 reply = urwid.Text(item_types)
-exit_button = urwid.Button(u'Exit')
+save_button = urwid.Button(u'Save')
+exit_button = urwid.Button(u'Cancel')
 div = urwid.Divider('-')
-pile = urwid.Pile([ask, div, reply, div, exit_button])
+pile = urwid.Pile([ask, div, reply, div, save_button, exit_button])
 top = urwid.Filler(pile, valign='top')
 
 
@@ -118,10 +119,14 @@ def on_ask_change(edit, entry_text):
     reply.set_text(r)
 
 
+def on_save_clicked(save_button):
+    raise urwid.ExitMainLoop()
+
 def on_exit_clicked(exit_button):
     raise urwid.ExitMainLoop()
 
 urwid.connect_signal(ask, 'change', on_ask_change)
+urwid.connect_signal(save_button, 'click', on_save_clicked)
 urwid.connect_signal(exit_button, 'click', on_exit_clicked)
 
 urwid.MainLoop(top, palette).run()
