@@ -98,7 +98,7 @@ type_prompt = u"type character for new item?\n"
 item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
 
 palette = [
-        ('say', 'default,bold', 'default', 'bold'),
+        ('say', 'dark blue,bold', 'default', 'bold'),
         ('warn', 'dark red,bold', 'default', 'bold')]
 
 # ask sets the caption for the edit widget which will be followed by the actual entry field.
