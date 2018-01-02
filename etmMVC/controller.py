@@ -29,12 +29,13 @@ semicolon_regex = re.compile(r'\;\s*')
 
 item_hsh = {} # preserve state
 
+# TODO: move this to model
 type_keys = {
     "*": "event",
     "-": "task",
-    "~": "journal",
-    "?": "someday",
-    "#": "inbox",
+    "~": "journal entry",
+    "?": "someday entry",
+    "#": "inbox entry",
 }
 
 at_keys = {
