@@ -319,9 +319,9 @@ Week view rows are sorted and grouped by:
 
 # Views
 
-## today (all day views)
+## week and month views 
 
-Today - Fri Dec 29
+- Today - Fri Dec 29
   ^ Occasion - if any
   ! Inbox - if any
   -/+ Pastdue - if any        days past due
@@ -331,6 +331,8 @@ Today - Fri Dec 29
 
   + Date only tasks - if any
   + Date only journal entries - if any
+
+
 
 ## Next View
 
