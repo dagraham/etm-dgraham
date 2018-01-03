@@ -326,19 +326,11 @@ Today - Fri Dec 29
   ! Inbox - if any
   -/+ Pastdue - if any        days past due
   > Beginning soon - if any   days until beginning
+
   */- timed events, tasks and journal entries by starting time
+
   + Date only tasks - if any
-
-## Agenda View
-
-- Inbox: inbox items - only if they exist
-- Now: pastdue items - only if they exist
-- Soon: beginning soon items - only if they exist
-- Day 1 Today: scheduled items or  "nothing scheduled"
-- Day 2 Tomorrow if there are scheduled items
-- ditto for Day 3 ... Day n
-
-If inbox, now, or soon, display "A" highlighted in status bar
+  + Date only journal entries - if any
 
 ## Next View
 
