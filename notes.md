@@ -321,18 +321,26 @@ Week view rows are sorted and grouped by:
 
 ## week and month views 
 
-- Today - Fri Dec 29
+- Today
   ^ Occasion - if any
   ! Inbox - if any
   -/+ Pastdue - if any        days past due
   > Beginning soon - if any   days until beginning
 
-  */- timed events, tasks and journal entries by starting time
+  */- timed events, tasks and journal entries by starting time or Nothing Scheduled
+    - always show Today and jump to this item on Show Today
+    - Note Inbox, Pastdue and Soon only appear in Today 
+
+  + Date only tasks - if any
+  # Date only journal entries - if any
+
+- Dates other than today
+  ^ Occasion - if any
+
+  */- timed events, tasks and journal entries by starting time, if any
 
   + Date only tasks - if any
   + Date only journal entries - if any
-
-
 
 ## Next View
 
