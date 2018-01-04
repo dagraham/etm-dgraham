@@ -138,7 +138,7 @@
 
 ## Jobs and Prerequisites
 
-Tasks, both with and without `@s` entries can have component job entries, 
-`@j`.  
+- Tasks, both with and without `@s` entries can have component job entries, 
+  `@j`.  A task with jobs thus replaces the old task group.
 
 
