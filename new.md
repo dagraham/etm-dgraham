@@ -77,7 +77,8 @@
 
 - The *action* item type is eliminated. The functionality is replaced and 
   enhanced by the ability to add an entry for `@m` (moment) to any item 
-  including undated tasks.
+  including undated tasks and an entry for `&m` to any task job entry. `@j`.  
+
 
 - The format for the `@m` entry is `@m timestamp; active time period[; paused 
   timeperiod]`. The format for `timestamp` is the same as for `@s`. Items can 
@@ -103,6 +104,6 @@
 
 ## Jobs and Prerequisites
 
-
+Tasks, both with and without `@s` entries can have 
 
 
