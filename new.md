@@ -54,6 +54,7 @@
   have one or more `@m` entries.
 
 - The timer workflow:
+
   - Select that item to which the `@m` entry is to be appended.
   - Press the hot key to start the timer.
   - Press the hot key to pause/restart the timer as often as desired.
