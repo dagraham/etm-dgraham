@@ -38,8 +38,23 @@
 ## Actions
 
 - The *action* item type is eliminated. The functionality is replaced and 
-  enhanced by the ability to add an entry for `@m` (moment) to any item.
+  enhanced by the ability to add an entry for `@m` (moment) to any item 
+  including undated tasks.
 
+- The format for the `@m` entry is `@m timestamp; active time period[; paused 
+  timeperiod]`. The format for `timestamp` is the same as for `@s`. Items can 
+  have one or more `@m` entries.
 
+- The timer workflow:
+  - Select that item to which the `@m` entry is to be appended.
+  - Press the hot key to start the timer.
+  - Press the hot key to pause/restart the timer as often as desired.
+  - Press the hot key to finish and record the `@m` entry using the timestamp 
+    at which the timer was finished and the accumulated time periods during 
+    which the timer was active and paused. Note that the starting time is 
+    implicity given by the timestamp minus the active and paused periods.
+
+- Action reports can be broken down, e.g., by the month of the timestamp and 
+  the index entry, `@i`, of the item. 
 
 
