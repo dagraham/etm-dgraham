@@ -22,7 +22,7 @@
 
 ## Dates and Date Times
 
-- The time zone key, `@z`, is eliminated. 
+- The time zone entry, `@z`, is eliminated. 
 
 - The format for the `@s` entry is `date [time][, TimeZone|float]`. Dates 
   (naive) and datetimes (both naive and aware) are suppored. In the following 
