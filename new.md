@@ -35,6 +35,10 @@
     - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 
       1018 2pm` in whatever happens to be the local time zone.
 
+## Actions
+
+- The *action* item type is eliminated. The functionality is replaced and 
+  enhanced by the ability to add an entry for `@m` (moment) to any item.
 
 
 
