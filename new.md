@@ -29,10 +29,10 @@
 
 - Two timestamps are automatically created for each item in the data store, 
   one corresponding to the moment the item was created and the other to the 
-  moment the item was last modified. A time view of etm items allows sorting 
-  by either timestamp. The default is oldest first for created and newest 
-  first for last modified. Note that all items appear in this view since all 
-  items have these two timestamps. 
+  moment the item was last modified. A new *timestamp view* in etm allows 
+  sorting by either timestamp. The default is oldest first for created 
+  timestamps and newest first for last modified timestamps. Note that all 
+  items appear in this view since all items have these two timestamps. 
 
 - The heirarchial organization that was provided by file paths is provided by 
   the *index* entry. `@i`, which takes a colon delimited string. E.g., the 
@@ -82,10 +82,7 @@
     - Naive datetimes are stored as is. E.g., `fri 2p, float` would be stored 
       as `20180105T1400N`.
 
-    - Aware datetimes are first converted to UTC and then stored as aware 
-      datetimes. E.g., `fri 2p` would be stored as
-      `20180105T1900A` and `fri 2p, US/Pacific`
-      would be stored as `20180105T2200A`. 
+    - Aware datetimes are first converted to UTC and then stored as aware datetimes. E.g., when the current timezone is US/Easten `fri 2p` would be stored as `20180105T1900A` and `fri 2p, US/Pacific` would be stored as `20180105T2200A`. 
 
 - Display:
 
