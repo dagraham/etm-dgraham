@@ -59,14 +59,18 @@
 
 - Display:
 
-    - Naive dates are displayed as is but without the midnight starting 
-      time. All-day events (occasions) go first in the daily display and 
-      all-day tasks and journal entries go last.
+    - Naive dates are displayed as is but without the midnight starting time. 
+      All-day events (occasions) go first in the daily display before all the 
+      datetime items and and all-day tasks and journal entries go last.
 
     - Naive datetimes are displayed as is, i.e., are interpreted as local 
       datetimes without conversion.
 
-    - Aware datetimes are converted to the current local timezone.
+    - Aware datetimes are converted to the current local timezone. E.g., in 
+      the US/Eastern timezone, `fri 2p` would display as beginning at 2pm on 
+      Jan 5 if the computer is still in the Eastern timezone but would display 
+      as starting at 11am if the computer had been moved to the Pacific 
+      timezone.
 
 ## Actions
 
