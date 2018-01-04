@@ -56,8 +56,11 @@
 - The timer workflow:
 
     - Select the item to which the `@m` entry is to be appended.
+
     - Press the hot key to start the timer.
+
     - Press the hot key to pause/restart the timer as often as desired.
+
     - Press the hot key to finish and record the `@m` entry using the 
       timestamp at which the timer was finished and the accumulated time 
       periods during which the timer was active and paused. Note that the 
