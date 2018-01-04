@@ -263,7 +263,7 @@ Week view rows are sorted and grouped by:
 
 Maybe add an @key to tasks (events, notes?) 
 
-  @x account: time spent
+  @x datetime: period
 
   timer
     - select item
