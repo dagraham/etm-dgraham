@@ -306,7 +306,9 @@ Maybe add an @key to tasks (events, notes?)
   - &u unique identifier
   - &p list of immediate prerequisite unique ids
 
-  - symbols: ☐ ☑ ☒
+  - display character:
+    available: -
+    waiting: #
 
 ## `%` journal
 
