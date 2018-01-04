@@ -38,6 +38,9 @@
   E.g., my default calendar is `dag`. I also use `erp` for my wife and `joint` 
   for items we share.
 
+- Note that reorganization require only changing an `@i` or an `@c` entry and 
+  not moving files and directories.
+
 ## Dates and Date Times
 
 - The time zone entry, `@z`, is eliminated. 
