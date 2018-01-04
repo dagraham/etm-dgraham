@@ -24,10 +24,32 @@
 
 - The time zone entry, `@z`, is eliminated. 
 
-- The format for the `@s` entry is `date [time][, TimeZone|float]`. Dates 
-  (naive) and datetimes (both naive and aware) are suppored. In the following 
-  entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and that the 
-  local timezone is US/Eastern.
+- Dates (naive) and datetimes (both naive and aware) are suppored. 
+
+    - Storage:
+
+        - Naive dates are stored as naive datetimes that begin at midnight on 
+          the relevant date.
+
+        - Naive datetimes are stored as is.
+
+        - Aware datetimes are first converted to UTC and then stored as aware 
+          datetimes.
+
+    - Display:
+
+        - Naive dates are displayed as is but without the midnight starting 
+          time. All-day events (occasions) go first in the daily display and 
+          all-day tasks and journal entries go last.
+
+        - Naive datetimes are displayed as is, i.e., are interpreted as local 
+          datetimes without conversion.
+
+        - Aware datetimes are converted to the current local timezone.
+
+- The format for the `@s` entry is `date [time][, TimeZone|float]`. In the 
+  following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and 
+  that the local timezone is US/Eastern.
 
     - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. Without 
       a time, this schedules an all-day, floating (naive) item for the 
