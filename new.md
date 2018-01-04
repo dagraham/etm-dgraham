@@ -2,12 +2,12 @@
 
 ## Item Types
 
-### *: event
+### `*`: event
 
-### -: task
+### `-`: task
 
-### %: journal entry
+### `%`: journal entry
 
-### ?: someday maybe
+### `?`: someday maybe
 
-### !: inbox
+### `!`: inbox
