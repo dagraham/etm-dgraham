@@ -12,6 +12,8 @@
 - The *task group* item type is eliminated. The functionality is replaced by 
   the ability to add job entries, `@j`, to any task.
 
+- The old *context* for tasks has been merged into *location*, `@l`. 
+
 ### `%`: journal entry
 
 - This replaces the old *note* item type.
@@ -82,7 +84,10 @@
     - Naive datetimes are stored as is. E.g., `fri 2p, float` would be stored 
       as `20180105T1400N`.
 
-    - Aware datetimes are first converted to UTC and then stored as aware datetimes. E.g., when the current timezone is US/Easten `fri 2p` would be stored as `20180105T1900A` and `fri 2p, US/Pacific` would be stored as `20180105T2200A`. 
+    - Aware datetimes are first converted to UTC and then stored as aware 
+      datetimes. E.g., when the current timezone is US/Eastern,<t_úX> `fri 
+      2p` would be stored as `20180105T1900A` and `fri 2p, US/Pacific` would 
+      be stored as `20180105T2200A`. 
 
 - Display:
 
@@ -106,10 +111,9 @@
   enhanced by the ability to add an entry for `@m` (moment) to any item 
   including undated tasks and an entry for `&m` to any task job entry, `@j`. 
 
-- The format for both `@m` and `&m` entries is
-  `@m timestamp; active time period[; paused timeperiod]`. The format for 
-  `timestamp` is the same as for `@s`. Items can have one or more `@m` 
-  entries.
+- The format for both `@m` and `&m` entries is a comma separated list of
+  `@m timestamp; active time period[; paused timeperiod]` tuples. The format 
+  for `timestamp` is the same as for `@s`. 
 
 - The timer workflow:
 
@@ -134,6 +138,7 @@
 
 ## Jobs and Prerequisites
 
-Tasks, both with and without `@s` entries can have 
+Tasks, both with and without `@s` entries can have component job entries, 
+`@j`.  
 
 
