@@ -259,7 +259,18 @@ Week view rows are sorted and grouped by:
 
 # Types
 
-## `^` occasion
+## effort & reports
+
+Maybe add an @key to tasks (events, notes?) 
+
+  @x account: time spent
+
+  timer
+    - select item
+    - begin timer (prompt for account)
+      pause/restart/save or discard
+
+      reports broken down by index
 
 ## `*` event
 
@@ -295,7 +306,9 @@ Week view rows are sorted and grouped by:
   - &u unique identifier
   - &p list of immediate prerequisite unique ids
 
-## `#` journal
+  - symbols: ☐ ☑ ☒
+
+## `%` journal
 
 - undated, no @s, @a, @b
 
@@ -306,6 +319,7 @@ Week view rows are sorted and grouped by:
   - without or with float: naive
   - otherwise: non-naive
   - sort: HHMM (with other timed items in week view)
+
 - with @e: equivalent to old action
 - without: equivalent to old note
 
@@ -350,7 +364,6 @@ undated tasks - grouped by location or None
 ## Someday View
 
 someday items
-
 
 ## Week View
 
