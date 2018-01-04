@@ -9,8 +9,8 @@ pendulum.set_formatter('alternative')
 from model import parse_datetime, parse_period, rrule, jobs, format_datetime, set_summary
 from dateutil.rrule import rrulestr
 
-testing = True
-# testing = False
+# testing = True
+testing = False
 
 import re
 at_regex = re.compile(r'\s@', re.MULTILINE)
