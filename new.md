@@ -26,27 +26,6 @@
 
 - Dates (naive) and datetimes (both naive and aware) are suppored. 
 
-    - Storage:
-
-        - Naive dates are stored as naive datetimes that begin at midnight on 
-          the relevant date.
-
-        - Naive datetimes are stored as is.
-
-        - Aware datetimes are first converted to UTC and then stored as aware 
-          datetimes.
-
-    - Display:
-
-        - Naive dates are displayed as is but without the midnight starting 
-          time. All-day events (occasions) go first in the daily display and 
-          all-day tasks and journal entries go last.
-
-        - Naive datetimes are displayed as is, i.e., are interpreted as local 
-          datetimes without conversion.
-
-        - Aware datetimes are converted to the current local timezone.
-
 - The format for the `@s` entry is `date [time][, TimeZone|float]`. In the 
   following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and 
   that the local timezone is US/Eastern.
@@ -64,6 +43,30 @@
 
     - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 
       1018 2pm` in whatever happens to be the local time zone.
+
+- Storage format: `YYYYMMDDTHHMM(N|A)`
+
+    - Naive dates are stored as naive datetimes that begin at midnight on the 
+      relevant date. E.g., `@s fri` would be stored as `20180105T0000N`.
+
+    - Naive datetimes are stored as is. E.g., `fri 2p, float` would be stored 
+      as `20180105T1400N`.
+
+    - Aware datetimes are first converted to UTC and then stored as aware 
+      datetimes. E.g., `fri 2p` would be stored as
+      `20180105T1900A` and `fri 2p, US/Pacific`
+      would be stored as `20180105T2200A`. 
+
+- Display:
+
+    - Naive dates are displayed as is but without the midnight starting 
+      time. All-day events (occasions) go first in the daily display and 
+      all-day tasks and journal entries go last.
+
+    - Naive datetimes are displayed as is, i.e., are interpreted as local 
+      datetimes without conversion.
+
+    - Aware datetimes are converted to the current local timezone.
 
 ## Actions
 
