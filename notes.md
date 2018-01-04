@@ -263,7 +263,7 @@ Week view rows are sorted and grouped by:
 
 Maybe add an @key to tasks (events, notes?) 
 
-  @x datetime: period
+  @x datetime timer stopped, time active, time paused
 
   timer
     - select item
@@ -306,9 +306,13 @@ Maybe add an @key to tasks (events, notes?)
   - &u unique identifier
   - &p list of immediate prerequisite unique ids
 
-  - display character:
-    available: -
-    waiting: #
+- display characters:
+    - available
+    # waiting
+    ✓ done
+
+-  job display:
+  task summary: job summary (m/n)
 
 ## `%` journal
 
