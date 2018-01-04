@@ -98,6 +98,9 @@
       starting time is approximately given by the timestamp minus the active 
       and paused periods which are rounded up to the nearest minute.
 
+- One or more timers can be active at the same time but only one can be 
+  running - the rest will be paused.
+
 - Action reports can be broken down, e.g., by the month of the timestamp and 
   the index entry, `@i`, of the item. Note that each `@m` entry in an item 
   *inherits* all of the other attributes of the item as well.
