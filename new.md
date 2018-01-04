@@ -23,7 +23,8 @@
 ## Data Storage
 
 - All etm data is stored in a single, *json* file using the data store 
-  *TinyDB*. 
+  *TinyDB*. This is a human-readable, but not editable, plain text file that 
+  can be backed up and/or examined using external tools as well as etm itself.
 
 - The heirarchial organization that was provided by file paths is provided by 
   the *index* entry. `@i`, which takes a colon delimited string. E.g., the 
