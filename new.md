@@ -64,8 +64,8 @@
     - Press the hot key to finish and record the `@m` entry using the 
       timestamp at which the timer was finished and the accumulated time 
       periods during which the timer was active and paused. Note that the 
-      starting time is implicity given by the timestamp minus the active and 
-      paused periods.
+      starting time is approximated given by the timestamp minus the active 
+      and paused periods which are rounded up to the nearest minute.
 
 - Action reports can be broken down, e.g., by the month of the timestamp and 
   the index entry, `@i`, of the item. 
