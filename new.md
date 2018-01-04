@@ -22,9 +22,17 @@
 
 ## Data Storage
 
-- All etm data is stored in a single, *json* file using the data store 
-  *TinyDB*. This is a human-readable, but not editable, plain text file that 
-  can be backed up and/or examined using external tools as well as etm itself.
+- All etm data is stored in a single, *json* file using the python data store 
+  *TinyDB*. This file is human-readable, but not necessarily editable, plain 
+  text file that can be backed up and/or examined using external tools as well 
+  as etm itself.
+
+- Two timestamps are automatically created for each item in the data store, 
+  one corresponding to the moment the item was created and the other to the 
+  moment the item was last modified. A time view of etm items allows sorting 
+  by either timestamp. The default is oldest first for created and newest 
+  first for last modified. Note that all items appear in this view since all 
+  items have these two timestamps. 
 
 - The heirarchial organization that was provided by file paths is provided by 
   the *index* entry. `@i`, which takes a colon delimited string. E.g., the 
