@@ -4,9 +4,17 @@
 
 ### `*`: event
 
+- The *occasion* item type is eliminated. The functionality is replaced by 
+  using a *date only* entry in an event.
+
 ### `-`: task
 
+- The *task group* item type is eliminated. The functionality is replaced by 
+  the ability to add job entries, `@j`, to any task.
+
 ### `%`: journal entry
+
+- This replaces the old *note* item type.
 
 ### `?`: someday maybe
 
