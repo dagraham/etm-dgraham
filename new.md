@@ -98,6 +98,11 @@
       and paused periods which are rounded up to the nearest minute.
 
 - Action reports can be broken down, e.g., by the month of the timestamp and 
-  the index entry, `@i`, of the item. 
+  the index entry, `@i`, of the item. Note that each `@m` entry in an item 
+  *inherits* all of the other attributes of the item as well.
+
+## Jobs and Prerequisites
+
+
 
 
