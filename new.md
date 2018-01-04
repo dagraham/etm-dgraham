@@ -32,8 +32,6 @@
           - tree
               - oak
 
-
-
 ## Dates and Date Times
 
 - The time zone entry, `@z`, is eliminated. 
