@@ -299,7 +299,6 @@ def wrap(txt, indent=5, width=shutil.get_terminal_size()[0]):
 def set_summary(s, dt=pendulum.Pendulum.now()):
     """
     Replace the anniversary string in s with the ordinal represenation of the number of years between the anniversary string and dt.
-    >>> ok, s = parse_datetime('1/5/2018 2p')
     >>> set_summary('!1944! birthday', pendulum.Pendulum(2017, 11, 19))
     '73rd birthday'
     >>> set_summary('!1978! anniversary', pendulum.Pendulum(2017, 11, 19))
