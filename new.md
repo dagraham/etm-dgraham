@@ -20,7 +20,7 @@
 
 ### `?`: someday maybe
 
-### `!`: inbox
+### `!`: inbox 
 
 ## Data Storage
 
