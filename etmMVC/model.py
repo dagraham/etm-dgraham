@@ -1096,7 +1096,7 @@ def jobs(lofh, dated=False):
         for key in hsh.keys():
             if key in ['req', 'status', 'summary']:
                 pass
-            elif key not in job_methods:
+            elif key in job_methods:
                 ok, out = job_methods[key](hsh[key])
                 if ok:
                     res[key] = out
