@@ -1015,7 +1015,7 @@ undated_job_methods = dict(
     # q=date_time,
     # The last two require consideration of the whole list of jobs
     # i=id,
-    # p=prereqs,
+    p=prereqs,
 )
 
 datetime_job_methods = dict(
