@@ -568,7 +568,7 @@ def history(arg):
     >>> history("4/1/2016 2p")
     (True, [<Pendulum [2016-04-01T18:00:00+00:00]>])
     >>> history(["4/31 2p", "6/1 7a"])
-    (False, 'invalid date-time: 4/31 2p')
+    (False, "Invalid date-time: '4/31 2p'")
     """
     if type(arg) != list:
         arg = [arg]
