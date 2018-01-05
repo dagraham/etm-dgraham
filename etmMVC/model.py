@@ -1102,8 +1102,8 @@ def jobs(lofh, dated=False):
                     res[key] = out
                 else:
                     msg.append(out)
-            else:
-                not_allowed.append("'&{}'".format(key))
+            # else:
+            #     not_allowed.append("'&{}'".format(key))
         if not_allowed:
             not_allowed.sort()
             msg.append("invalid: {}".format(", ".join(not_allowed)))
