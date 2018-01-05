@@ -1097,13 +1097,13 @@ def jobs(lofh, dated=False):
             if key in ['req', 'status', 'summary']:
                 pass
             elif key not in job_methods:
-                not_allowed.append("'&{}'".format(key))
-            else:
                 ok, out = job_methods[key](hsh[key])
                 if ok:
                     res[key] = out
                 else:
                     msg.append(out)
+            else:
+                not_allowed.append("'&{}'".format(key))
         if not_allowed:
             not_allowed.sort()
             msg.append("invalid: {}".format(", ".join(not_allowed)))
