@@ -41,7 +41,7 @@ etmdir = None
 
 def parse_datetime(s):
     """
-    's' will have the format 'datetime string' followed, optionally by a comma and a tz specification. Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if tz == 'float' or an aware datetime object using tzlocal if tz is None (missing) and using the provided tz otherwise.  
+    's' will have the format 'datetime string' followed, optionally by a comma and a tz specification. Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if tz == 'float' or an aware datetime object converting to UTC using tzlocal if tz is None (missing) and using the provided tz otherwise.  
     >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt[1]
     <Pendulum [2015-10-15T14:00:00-04:00]>
