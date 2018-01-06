@@ -141,4 +141,19 @@
 - Tasks, both with and without `@s` entries can have component job entries, 
   `@j`.  A task with jobs thus replaces the old task group.
 
+- For tasks with an `@s` entry jobs can, optionally, have an `&s` entry to set 
+  the due date/datetime for the job. It can be entered as a timeperiod 
+  relative to (+ before or - after) the starting datetime for the task or as 
+  date/datetime. In either case, the value of `&e` is stored as a relative 
+  timeperiod.
 
+- Job prerequisites, by default, are determined automatically by the order in 
+  which jobs are listed. E.g., with
+
+      - sequential jobs
+        @j job A
+        @j job B
+        @j job C
+
+  `job A` has no prerequisites itself but must is a prerequisite for both
+  `job B` and `job C`. Similarly, `job B` is a prerequisite for `job C`.
