@@ -141,11 +141,15 @@
 - Tasks, both with and without `@s` entries can have component job entries, 
   `@j`.  A task with jobs thus replaces the old task group.
 
-- For tasks with an `@s` entry jobs can, optionally, have an `&s` entry to set 
-  the due date/datetime for the job. It can be entered as a timeperiod 
-  relative to (+ before or - after) the starting datetime for the task or as 
+- For tasks with an `@s` entry, jobs can have an `&s` entry to set the due 
+  date/datetime for the job. It can be entered as a timeperiod relative to  
+  the starting datetime (- before or + after) for the task or as 
   date/datetime. In either case, the value of `&s` is stored as a relative 
-  timeperiod. The value of `@s` is used when `&s` is not provided for a job.
+  timeperiod. The value of `@s` is used when `&s` is not provided.
+
+- For tasks with an `@s` entry, jobs can also have `&a` and `&b` entries for 
+  alerts and begin notices. The entry for `&a` is given as a time period 
+  relative to `&s` or `@s` (+ before or - after). 
 
 - Job rerequisites, by default, are determined automatically by the order in 
   which jobs are listed. E.g., with
