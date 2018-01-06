@@ -150,7 +150,7 @@
 - Job prerequisites, by default, are determined automatically by the order in 
   which jobs are listed. E.g., with
 
-  ```- sequential jobs
+  ```- automatic prerequite jobs
        @j job A
        @j job B
        @j job C
