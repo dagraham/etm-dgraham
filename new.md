@@ -160,12 +160,13 @@
   `job B` and `job C`. Similarly, `job B` is a prerequisite for `job C`.
 
   Job prequisites can optionally be assigned manually using `&i`, id, and 
-  `&p`, prequisite ids entries. E.g.
-
+  `&p`, prequisite ids entries. E.g., with
 
           - manually assigned prerequistes
             @j job a &i 1
             @j job b &i 2
             @j job c &i 3 &p 1, 2
 
+  Neither `job a` nor `job b` has any prerequisites but both `job a` and
+  `job b` are prerequistes for `job c`.
 
