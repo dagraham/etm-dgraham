@@ -144,10 +144,10 @@
 - For tasks with an `@s` entry jobs can, optionally, have an `&s` entry to set 
   the due date/datetime for the job. It can be entered as a timeperiod 
   relative to (+ before or - after) the starting datetime for the task or as 
-  date/datetime. In either case, the value of `&e` is stored as a relative 
-  timeperiod.
+  date/datetime. In either case, the value of `&s` is stored as a relative 
+  timeperiod. The value of `@s` is used when `&s` is not provided for a job.
 
-- Job prerequisites, by default, are determined automatically by the order in 
+- Job rerequisites, by default, are determined automatically by the order in 
   which jobs are listed. E.g., with
 
           - automatically assigned prerequites
@@ -155,9 +155,9 @@
               @j job B
               @j job C
 
-
-  `job A` has no prerequisites itself but is a prerequisite for both
-  `job B` and `job C`. Similarly, `job B` is a prerequisite for `job C`.
+  `job A` has no prerequisites but is a prerequisite for both
+  `job B` and `job C`. Similarly, `job B` is a prerequisite for `job C`. I.e., 
+  the default is to suppose that jobs must be completed sequentially.
 
   Job prequisites can optionally be assigned manually using `&i`, id, and 
   `&p`, prequisite ids entries. E.g., with
@@ -168,5 +168,6 @@
             @j job c &i 3 &p 1, 2
 
   Neither `job a` nor `job b` has any prerequisites but both `job a` and
-  `job b` are prerequistes for `job c`.
+  `job b` are prerequistes for `job c`. Note that the order in which the jobs 
+  are listed is ignored in this case. 
 
