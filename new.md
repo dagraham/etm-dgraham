@@ -163,6 +163,7 @@
   `&p`, prequisite ids entries. E.g.
 
   ```- manually assigned prerequistes
+
        @j job a &i 1
        @j job b &i 2
        @j job c &i 3 &p 1, 2
