@@ -150,11 +150,11 @@
 - Job prerequisites, by default, are determined automatically by the order in 
   which jobs are listed. E.g., with
 
-  ```- automatically assigned prerequites
-       @j job A
-       @j job B
-       @j job C
-  ```
+          - automatically assigned prerequites
+              @j job A
+              @j job B
+              @j job C
+
 
   `job A` has no prerequisites itself but is a prerequisite for both
   `job B` and `job C`. Similarly, `job B` is a prerequisite for `job C`.
