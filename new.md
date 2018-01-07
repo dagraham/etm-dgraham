@@ -31,9 +31,10 @@
 
 - Two timestamps are automatically created for each item in the data store, 
   one corresponding to the moment the item was created and the other to the 
-  moment the item was last modified. A new *all items* view in etm allows 
-  sorting by either timestamp. The default is oldest first for created 
-  timestamps and newest first for last modified timestamps.  
+  moment the item was last modified. A new *all* view in etm  displays all 
+  items and allows sorting by either timestamp. The default is to show oldest 
+  first for created timestamps and newest first for last modified timestamps. 
+
 
 - The heirarchial organization that was provided by file paths is provided by 
   the *index* entry. `@i`, which takes a colon delimited string. E.g., the 
