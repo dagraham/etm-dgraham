@@ -147,9 +147,9 @@
   date/datetime. In either case, the value of `&s` is stored as a relative 
   timeperiod. The value of `@s` is used when `&s` is not provided.
 
-- For tasks with an `@s` entry, jobs can also have `&a` and `&b` entries for 
-  alerts and begin notices. The entry for `&a` is given as a time period 
-  relative to `&s` or `@s` (+ before or - after). 
+- For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b` begin 
+  notices. The entry for `&a` is given as a time period relative to `&s` or 
+  `@s` (+ before or - after). 
 
 - Job rerequisites, by default, are determined automatically by the order in 
   which jobs are listed. E.g., with
