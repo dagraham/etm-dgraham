@@ -138,7 +138,7 @@
   the index entry, `@i`, of the item. Note that each `@m` entry in an item 
   *inherits* all of the other attributes of the item as well.
 
-## Jobs and Prerequisites
+## Jobs
 
 - Tasks, both with and without `@s` entries can have component job entries, 
   `@j`.  A task with jobs thus replaces the old task group.
