@@ -143,13 +143,15 @@
 
 - For tasks with an `@s` entry, jobs can have an `&s` entry to set the due 
   date/datetime for the job. It can be entered as a timeperiod relative to  
-  the starting datetime (- before or + after) for the task or as 
+  the starting datetime (+ before or - after) for the task or as 
   date/datetime. In either case, the value of `&s` is stored as a relative 
   timeperiod. The value of `@s` is used when `&s` is not provided.
 
 - For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b` begin 
   notices. The entry for `&a` is given as a time period relative to `&s` or 
-  `@s` (+ before or - after). 
+  `@s` (+ before or - after) and the entry for `&b` is a positive integer 
+  number of days before the starting date/time to begin displaying "beginning 
+  soon" notices. 
 
 - Job rerequisites, by default, are determined automatically by the order in 
   which jobs are listed. E.g., with
