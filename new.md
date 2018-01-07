@@ -148,12 +148,12 @@
   timeperiod. The value of `@s` is used when `&s` is not provided.
 
 - For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b` begin 
-  notices. The entry for `&a` is given as a time period relative to `&s` or 
-  `@s` (+ before or - after) and the entry for `&b` is a positive integer 
-  number of days before the starting date/time to begin displaying "beginning 
-  soon" notices. 
+  notices. The entry for `&a` is given as a time period relative to `&s` (+ 
+  before or - after) and the entry for `&b` is a positive integer number of 
+  days before the starting date/time to begin displaying "beginning soon" 
+  notices. 
 
-- Job rerequisites, by default, are determined automatically by the order in 
+- Job prerequisites, by default, are determined automatically by the order in 
   which jobs are listed. E.g., with
 
           - automatically assigned prerequites
@@ -161,17 +161,17 @@
               @j job B
               @j job C
 
-  `job A` has no prerequisites but is a prerequisite for both
-  `job B` and `job C`. Similarly, `job B` is a prerequisite for `job C`. I.e., 
-  the default is to suppose that jobs must be completed sequentially.
+  `job A` has no prerequisites but is a prerequisite for `job B`. Similarly, 
+  `job B` is a prerequisite for `job C`. I.e., the default is to suppose that 
+  jobs must be completed sequentially in the order in which they are listed.
 
-  Job prequisites can optionally be assigned manually using `&i`, id, and 
-  `&p`, prequisite ids entries. E.g., with
+  Alternatively, job prequisites can be assigned manually using entries for 
+  `&i` (id) and `&p`, (prequisite ids). E.g., with
 
           - manually assigned prerequistes
-            @j job a &i 1
-            @j job b &i 2
-            @j job c &i 3 &p 1, 2
+            @j job a &i a
+            @j job b &i b
+            @j job c &i 3 &p a, b
 
   Neither `job a` nor `job b` has any prerequisites but both `job a` and
   `job b` are prerequistes for `job c`. Note that the order in which the jobs 
