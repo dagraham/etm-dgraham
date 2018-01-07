@@ -37,13 +37,13 @@
 
 - The heirarchial organization that was provided by file paths is provided by 
   the *index* entry. `@i`, which takes a colon delimited string. E.g., the 
-  entry `@i plant:tree:oak` would store the item in the index view under:
+  entry `@i plant:tree:oak` would store the item in the new *index* view 
+  under:
       - plant
           - tree
               - oak
 
-  A new *index* view in etm displays all items with `@i` entries using this 
-  organization. Items without `@i` entries are displayed under *None*.
+  The default for `@i` is *None*.
 
 - The organization that was provided by calendars is provided by the 
   *calendar* entry, `@c`. A default value for calendar specified in 
