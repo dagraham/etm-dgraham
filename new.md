@@ -144,8 +144,8 @@
 - For tasks with an `@s` entry, jobs can have an `&s` entry to set the due 
   date/datetime for the job. It can be entered as a timeperiod relative to  
   the starting datetime (+ before or - after) for the task or as 
-  date/datetime. In either case, the value of `&s` is stored as a relative 
-  timeperiod. The value of `@s` is used when `&s` is not provided.
+  date/datetime. However entered, the value of `&s` is stored as a relative 
+  timeperiod with zero minutes as the default.
 
 - For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b` begin 
   notices. The entry for `&a` is given as a time period relative to `&s` (+ 
