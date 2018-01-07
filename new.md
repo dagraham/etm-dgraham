@@ -42,6 +42,9 @@
           - tree
               - oak
 
+  A new *index* view in etm displays all items with `@i` entries using this 
+  organization. Items without `@i` entries are displayed under *None*.
+
 - The organization that was provided by calendars is provided by the 
   *calendar* entry, `@c`. A default value for calendar specified in 
   preferences is assigned to an item when an explicit value is not provided. 
