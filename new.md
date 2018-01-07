@@ -151,7 +151,8 @@
   notices. The entry for `&a` is given as a time period relative to `&s` (+ 
   before or - after) and the entry for `&b` is a positive integer number of 
   days before the starting date/time to begin displaying "beginning soon" 
-  notices. 
+  notices. Entries for `@a` and `@b` in the task become the defaults for `&a` 
+  and `&b`, respectively.
 
 - Job prerequisites, by default, are determined automatically by the order in 
   which jobs are listed. E.g., with
