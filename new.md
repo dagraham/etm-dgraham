@@ -199,7 +199,7 @@
   are listed is ignored in this case. 
 
 - Tasks with jobs are displayed by job using a combination of the task and job 
-  summaries. E.g.,
+  summaries with a type character indicating the status of the job. E.g.,
 
         - manually assigned prerequisites: job a
         - manually assigned prerequisites: job b
