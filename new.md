@@ -60,13 +60,11 @@
               - oak
 
   The default for `@i` is *None*. Note that `@i` replaces the old `@k`, 
-  *keyword* functionality.
+  *keyword*, functionality.
 
 - The organization that was provided by calendars is provided by the 
   *calendar* entry, `@c`. A default value for calendar specified in 
   preferences is assigned to an item when an explicit value is not provided. 
-  E.g., my default calendar is `dag`. I also use `erp` for my wife and `joint` 
-  for items we share.
 
 - Note that reorganization require only changing an `@i` or an `@c` entry and 
   not moving files and directories.
