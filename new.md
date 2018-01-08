@@ -12,8 +12,8 @@
 
 ### `-`: task
 
-- The *task group* item type is eliminated. The functionality is replaced by 
-  the ability to add job entries, `@j`, to any task.
+- The old `+`, *task group*, item type is eliminated. The functionality is 
+  replaced by the ability to add job entries, `@j`, to any task.
 
 - The old `%`, *delegated*, item type is eliminated. 
 
