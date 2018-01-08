@@ -52,9 +52,8 @@
 
 
 - The heirarchial organization that was provided by file paths is provided by 
-  the *index* entry. `@i`, which takes a colon delimited string. E.g., the 
-  entry `@i plant:tree:oak` would store the item in the new *index* view 
-  under:
+  the *index* entry, `@i`, which takes a colon delimited string. E.g., the 
+  entry `@i plant:tree:oak` would store the item in the *index* view under:
       - plant
           - tree
               - oak
