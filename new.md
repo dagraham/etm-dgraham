@@ -114,7 +114,7 @@
 
     - Naive dates are displayed as is but without the midnight starting time. 
       All-day events (occasions) go first in the daily display before all the 
-      datetime items and and all-day tasks and journal entries go last.
+      datetime items and all-day tasks and journal entries go last.
 
     - Naive datetimes are displayed as is, i.e., are interpreted as local 
       datetimes without conversion.
