@@ -155,9 +155,6 @@
 - One or more timers can be active at the same time but only one can be 
   running - the rest will be paused.
 
-- Action reports can be broken down, e.g., by the month of the timestamp and 
-  the index entry, `@i`, of the item. 
-
 ## Jobs
 
 - Tasks, both with and without `@s` entries can have component job entries, 
