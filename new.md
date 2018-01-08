@@ -198,3 +198,11 @@
   `job b` are prerequistes for `job c`. Note that the order in which the jobs 
   are listed is ignored in this case. 
 
+- Tasks with jobs are displayed by job, e.g.,
+
+        - manually assigned prerequisites: job a (1/3)
+        - manually assigned prerequisites: job b (2/3)
+        x manually assigned prerequisites: job c (3/3)
+
+  would indicate that job a and job b are available (no unfinished 
+  prerequistites) but job c is not available (has unfished prerequisties). 
