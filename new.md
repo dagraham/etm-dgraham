@@ -8,6 +8,8 @@
   using a *date* entry rather than a *datetime* in an event. See *Dates and 
   Date Times* below.
 
+- Stored as an *event* when exporting to *ical*.
+
 ### `-`: task
 
 - The *task group* item type is eliminated. The functionality is replaced by 
@@ -19,17 +21,25 @@
   The `@c` entry is now used to denote the *calendar* to which the item 
   belongs.
 
+- Stored as a *todo* when exporting to *ical*.
+
 ### `%`: journal entry
 
 - This replaces the old *note* item type. 
+
+- Stored as a *journal* entry when exporting to *ical*.
 
 ### `?`: someday maybe
 
 - Unchanged. 
 
+- Stored as a *journal* entry when exporting to *ical*.
+
 ### `!`: inbox
 
 - Unchanged but for the change in the type character from `$` to `!`.
+
+- Stored as a *journal* entry when exporting to *ical*.
 
 ## Data Storage
 
