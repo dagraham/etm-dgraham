@@ -133,12 +133,13 @@
 ## Actions
 
 - The *action* item type is eliminated. The functionality is replaced and 
-  enhanced by the ability to add an entry for `@m` (moment) to any item 
-  including undated tasks and an entry for `&m` to any task job entry, `@j`. 
+  enhanced by the ability to add one or more entries for `@m` (moment) to any 
+  item including undated tasks and one or more entries for `&m` to any task 
+  job entry, `@j`. 
 
-- The format for both `@m` and `&m` entries is a comma separated list of
-  `@m timestamp; active time period[; paused timeperiod]` tuples. The format 
-  for `timestamp` is the same as for `@s`. 
+
+- The format for both `@m` and `&m` entries is a `@m datetime, active time 
+  period[, paused timeperiod]` tuple. Items can have 
 
 - The timer workflow:
 
