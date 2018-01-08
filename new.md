@@ -201,7 +201,7 @@
 - Tasks with jobs are displayed by job using a combination of the task and job 
   summaries. E.g.,
 
-        ✓ manually assigned prerequisites: job a
+        &#2713 manually assigned prerequisites: job a
         - manually assigned prerequisites: job b
         x manually assigned prerequisites: job c
 
