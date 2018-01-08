@@ -13,6 +13,8 @@
 - The *task group* item type is eliminated. The functionality is replaced by 
   the ability to add job entries, `@j`, to any task.
 
+- The old `%`, *delegated*, item type is eliminated. 
+
 - The old `@c`, *context*, for tasks has been merged into *location*, `@l`. 
   The `@c` entry is now used to denote the *calendar* to which the item 
   belongs.
