@@ -48,13 +48,7 @@
   human-editable.  It can be backed up and/or queried using external tools as 
   well as etm itself.
 
-- Two timestamps are automatically created for each item in the data store, 
-  one corresponding to the moment (microsecond) the item was created and the 
-  other to the moment the item was last modified. A new *all* view in etm  
-  displays all items and allows sorting by either timestamp. The default is to 
-  show oldest first for created timestamps and newest first for last modified 
-  timestamps. The creation timestamp is used a the unique identifier for the 
-  item in the data store.
+- Two timestamps are automatically created for each item in the data store, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *all* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. The creation timestamp is used a the unique identifier for the item in the data store.
 
 
 - The heirarchial organization that was provided by file paths is provided by 
