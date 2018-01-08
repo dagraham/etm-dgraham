@@ -201,7 +201,7 @@
 
           x manually assigned prerequisites: job a
           - manually assigned prerequisites: job b
-          ~ manually assigned prerequisites: job c
+          + manually assigned prerequisites: job c
 
   would indicate that job a has been completed, job b is available (has no 
   unfinished prerequistites) and that job c is waiting (has unfinished 
