@@ -66,7 +66,7 @@
   *calendar* entry, `@c`. A default value for calendar specified in 
   preferences is assigned to an item when an explicit value is not provided. 
 
-- Note that reorganization require only changing an `@i` or an `@c` entry and 
+- Note that reorganization requires only changing an `@i` or an `@c` entry and 
   not moving files and directories.
 
 ## Dates and Date Times
