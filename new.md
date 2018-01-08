@@ -201,12 +201,13 @@
 - Tasks with jobs are displayed by job using a combination of the task and job 
   summaries. E.g.,
 
-        - manually assigned prerequisites: job a 
+        ✓ manually assigned prerequisites: job a
         - manually assigned prerequisites: job b
         x manually assigned prerequisites: job c
 
-  would indicate that job a and job b are available (have no unfinished 
-  prerequistites) but job c is not available (has unfinished prerequisties). 
+  would indicate that job a is finished, job b is available (has no unfinished 
+  prerequistites) and job c is waiting (has unfinished prerequisties). 
+
 
 
 
