@@ -221,7 +221,7 @@ Only 5 item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 - Main panel shows scheduled items grouped by date, e.g., 
 
-        Week 2: Jan 8 - 14, 2018                           F1:help
+        Week 2: Jan 8 - 14, 2018
         □ Today - Mon Jan 8
           * Safety Meeting                             3:30pm-5pm
           - trash and recycle                              7am
