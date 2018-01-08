@@ -204,7 +204,8 @@
         - manually assigned prerequisites: job b (2/3)
         x manually assigned prerequisites: job c (3/3)
 
-  would indicate that job a and job b are available (has no unfinished 
+  would indicate that job a and job b are available (have no unfinished 
   prerequistites) but job c is not available (has unfinished prerequisties). 
+
 
 
