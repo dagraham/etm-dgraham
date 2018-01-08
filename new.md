@@ -140,16 +140,16 @@
 - The format for both `@m` and `&m` entries is `(@|&)m datetime, active time 
   period[, paused timeperiod]`. 
 
-- The timer workflow:
+- Using an etm *timer* to record an moment entry:
 
     - Select the item or job to which the moment entry is to be appended.
 
-    - Press the hot key to start the timer.
+    - Press the start key to start the timer.
 
-    - Press the hot key to pause/restart the timer as often as desired.
+    - Press the pause/restart key as often as desired.
 
-    - Press the hot key to finish and record the moment entry using the 
-      timestamp at which the timer was finished and the accumulated time 
+    - Press the finish key to finish and record the moment entry using the 
+      datetime at which the timer was finished and the accumulated time 
       periods during which the timer was active and paused. 
 
 - One or more timers can be active at the same time but only one can be 
