@@ -5,7 +5,7 @@
 ### `*`: event
 
 - The *occasion* item type is eliminated. The functionality is replaced by 
-  using a *date only* entry in an event.
+  using a *date* entry rather than a *datetime* in an event.
 
 ### `-`: task
 
