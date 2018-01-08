@@ -137,7 +137,7 @@
   item including undated tasks and one or more entries for `&m` to any task 
   job entry, `@j`. 
 
-- The format for both `@m` and `&m` entries is a `datetime, active time 
+- The format for both `@m` and `&m` entries is `(@|&)m datetime, active time 
   period[, paused timeperiod]` tuple. 
 
 - The timer workflow:
