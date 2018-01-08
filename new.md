@@ -79,7 +79,7 @@
     - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 
       1018 2pm` in whatever happens to be the local time zone.
 
-- Storage format: `YYYYMMDDTHHMM(N|A)`
+- Storage format: `YYYYMMDDTHHMM(N|A)` where `N` is naive and `A` is aware.
 
     - Naive dates are stored as naive datetimes that begin at midnight on the 
       relevant date. E.g., `@s fri` would be stored as `20180105T0000N`.
