@@ -2,6 +2,8 @@
 
 ## Item Types
 
+Only 5 item types: `*`, `-`, `%`, `?`  and `!`.
+
 ### `*`: event
 
 - The *occasion* item type is eliminated. The functionality is replaced by 
