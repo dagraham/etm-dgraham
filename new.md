@@ -237,8 +237,8 @@ Only 5 item types are used: `*`, `-`, `%`, `?`  and `!`.
           * Dinner at Squires                            6pm-9pm
         □ Fri Jan 12
           * Tennis                                     9:30am-11am
-       -
-       2:49pm Mon Jan 08                                 5:30pm+2
+
+         2:49pm Mon Jan 08                                 5:30pm+2
 
 - The old *agenda* view has been eliminated. It's functionality has been 
   incorportated into the day views when viewing the current date.
