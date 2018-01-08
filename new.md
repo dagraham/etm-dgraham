@@ -158,8 +158,8 @@
   running - the rest will be paused.
 
 - Action reports can be broken down, e.g., by the month of the timestamp and 
-  the index entry, `@i`, of the item. Note that each `@m` entry in an item 
-  *inherits* all of the other attributes of the item as well.
+  the index entry, `@i`, of the item. Note other attributes of items 
+  containing `@m` entries are also available in such reports.
 
 ## Jobs
 
