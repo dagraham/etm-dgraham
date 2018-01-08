@@ -211,7 +211,3 @@ Only 5 item types are used: `*`, `-`, `%`, `?`  and `!`.
   unfinished prerequistites) and that job c is waiting (has unfinished 
   prerequisties). 
 
-
-
-
-
