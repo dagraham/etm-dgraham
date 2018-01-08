@@ -484,8 +484,8 @@ someday items
 - Shift Left/Right keys: previous/next month
 - Return: show Week View for selected week
 
-### Colors
 
+### Colors
 
 Let E denote the total number of hours of extent scheduled for day
 
@@ -540,8 +540,6 @@ Details for the selected item.
 - Entry area where typing occurs
 
 - Prompt, boxed area immediately below entry as in bpython-urwid
-
-
 
 # @ and & Keys
 
