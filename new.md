@@ -170,7 +170,8 @@
   jobs must be completed sequentially in the order in which they are listed.
 
   Alternatively, job prequisites can be assigned manually using entries for 
-  `&i` (id) and `&p`, (prequisite ids). E.g., with
+  `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). 
+  E.g., with
 
           - manually assigned prerequistes
             @j job a &i a
