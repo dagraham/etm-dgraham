@@ -490,17 +490,17 @@ someday items
 Let E denote the total number of hours of extent scheduled for day
 
 - black: E = 0
-- #00f: E <= 1 (dark blue)
-- #60f: E <= 2
-- #80f: E <= 3
-- #a0f: E <= 4
-- #d0f: E <= 5
-- #f0f: E <= 6
-- #f0d: E <= 7
-- #f0a: E <= 8
-- #f08: E <= 9
+- #00f: E <=  1 (dark blue)
+- #60f: E <=  2
+- #80f: E <=  3
+- #a0f: E <=  4
+- #d0f: E <=  5
+- #f0f: E <=  6
+- #f0d: E <=  7
+- #f0a: E <=  8
+- #f08: E <=  9
 - #f06: E <= 10
-- #f00: E > 10 (bright red)
+- #f00: E >  10 (bright red)
 
 
 ## Index View
