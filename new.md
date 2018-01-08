@@ -132,10 +132,10 @@ Only 5 item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 ## Actions
 
-- The *action* item type is eliminated. The functionality is replaced and 
-  enhanced by the ability to add one or more entries for `@m` (moment) to any 
-  item including undated tasks and one or more entries for `&m` to any task 
-  job entry, `@j`. 
+- The old `~`, *action*,  item type is eliminated. The functionality is 
+  replaced and enhanced by the ability to add one or more entries for `@m` 
+  (moment) to any item including undated tasks and one or more entries for 
+  `&m` to any task job entry, `@j`. 
 
 - The format for both `@m` and `&m` entries is `(@|&)m datetime, active time 
   period[, paused timeperiod]`. 
