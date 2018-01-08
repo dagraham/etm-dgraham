@@ -6,9 +6,9 @@ Only 5 item types: `*`, `-`, `%`, `?`  and `!`.
 
 ### `*`: event
 
-- The *occasion* item type is eliminated. The functionality is replaced by 
-  using a *date* entry rather than a *datetime* in an event. See *Dates and 
-  Date Times* below.
+- The old `^`, *occasion*,  item type is eliminated. The functionality is 
+  replaced by using a *date* entry rather than a *datetime* in an event. See 
+  *Dates and Date Times* below.
 
 - Stored as an *event* when exporting to *ical*.
 
