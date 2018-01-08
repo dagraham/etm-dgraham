@@ -59,7 +59,8 @@
           - tree
               - oak
 
-  The default for `@i` is *None*.
+  The default for `@i` is *None*. Note that `@i` replaces the old `@k`, 
+  *keyword* functionality.
 
 - The organization that was provided by calendars is provided by the 
   *calendar* entry, `@c`. A default value for calendar specified in 
