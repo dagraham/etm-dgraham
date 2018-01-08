@@ -489,7 +489,7 @@ someday items
 
 Let E denote the total number of hours of extent scheduled for day
 
-- black: E = 0
+- blk:  E  =  0 (black)
 - #00f: E <=  1 (dark blue)
 - #60f: E <=  2
 - #80f: E <=  3
