@@ -205,4 +205,5 @@
         x manually assigned prerequisites: job c (3/3)
 
   would indicate that job a and job b are available (no unfinished 
-  prerequistites) but job c is not available (has unfished prerequisties). 
+  prerequistites) but job c is not available (has unfinished prerequisties). 
+
