@@ -67,7 +67,9 @@ Only 5 item types are used: `*`, `-`, `%`, `?`  and `!`.
   preferences is assigned to an item when an explicit value is not provided. 
 
 - Note that reorganization requires only changing an `@i` or an `@c` entry and 
-  not moving files and directories.
+  not moving files and directories. Further, *TinyDB* permits database queries 
+  that would, for example, allow changing all `@i plant:tree:oak` entries to 
+  `@i plant:tree:maple`.
 
 ## Dates and Date Times
 
