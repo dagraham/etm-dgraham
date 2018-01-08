@@ -106,6 +106,9 @@
       2p` would be stored as `20180105T1900A` and `fri 2p, US/Pacific` would 
       be stored as `20180105T2200A`. 
 
+    - The creation and last-modified timestamps are aware, UTC datetimes and 
+      are stored in the format `YYYYMMDDHHMMSSSSSSSS`, e.g., 
+      `20180108144656719795`. 
 - Display:
 
     - Naive dates are displayed as is but without the midnight starting time. 
