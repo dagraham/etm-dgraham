@@ -19,11 +19,15 @@
 
 ### `%`: journal entry
 
-- This replaces the old *note* item type.
+- This replaces the old *note* item type. 
 
 ### `?`: someday maybe
 
-### `!`: inbox 
+- Unchanged. 
+
+### `!`: inbox
+
+- Unchanged but for the change in the type character from `$` to `!`.
 
 ## Data Storage
 
