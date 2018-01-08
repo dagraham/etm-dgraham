@@ -138,7 +138,7 @@
   job entry, `@j`. 
 
 - The format for both `@m` and `&m` entries is `(@|&)m datetime, active time 
-  period[, paused timeperiod]` tuple. 
+  period[, paused timeperiod]`. 
 
 - The timer workflow:
 
