@@ -126,6 +126,9 @@
       timezone. Similarly, `fri 2p, US/Pacific` would display as starting at 
       5pm if the computer were in the Eastern timezone.
 
+    - Timestamps are rounded to the nearest minute and displayed in the 
+      current timezone.
+
 ## Actions
 
 - The *action* item type is eliminated. The functionality is replaced and 
