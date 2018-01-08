@@ -198,11 +198,12 @@
   `job b` are prerequistes for `job c`. Note that the order in which the jobs 
   are listed is ignored in this case. 
 
-- Tasks with jobs are displayed by job, e.g.,
+- Tasks with jobs are displayed by job using a combination of the task and job 
+  summaries. E.g.,
 
-        - manually assigned prerequisites: job a (1/3)
-        - manually assigned prerequisites: job b (2/3)
-        x manually assigned prerequisites: job c (3/3)
+        - manually assigned prerequisites: job a 
+        - manually assigned prerequisites: job b
+        x manually assigned prerequisites: job c
 
   would indicate that job a and job b are available (have no unfinished 
   prerequistites) but job c is not available (has unfinished prerequisties). 
