@@ -44,7 +44,7 @@
 ## Data Storage
 
 - All etm data is stored in a single, *json* file using the python data store 
-  *TinyDB*. This s a plain text file that is human-readable, but not 
+  *TinyDB*. This is a plain text file that is human-readable, but not 
   human-editable.  It can be backed up and/or queried using external tools as 
   well as etm itself.
 
