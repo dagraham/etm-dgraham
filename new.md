@@ -257,6 +257,15 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
         □ Fri Jan 12
           ...
 
+- A listing for *today* is always displayed. If nothing is scheduled for the 
+  current date, then 'Nothing scheduled' is displayed. Otherwise the display 
+  is as follows starting from the top:
+
+    - All day events (occasions), if any
+
+    - Inbox entries, if any
+
+    - 
 
 - The old *agenda* view has been eliminated. It's functionality has been 
   incorportated into the day views when viewing the current date.
