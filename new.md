@@ -1,4 +1,4 @@
-# What's New
+# Data
 
 ## Item Types
 
@@ -88,7 +88,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
-## Data Storage
+## Storage
 
 - All etm data is stored in a single, *json* file using the python data store 
   *TinyDB*. This is a plain text file that is human-readable, but not 
@@ -230,6 +230,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
   would indicate that job a has been completed, job b is available (has no 
   unfinished prerequistites) and that job c is waiting (has unfinished 
   prerequisties). 
+
+# Views
 
 ## Day View
 
