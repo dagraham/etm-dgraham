@@ -162,31 +162,6 @@ Only 6 item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
     - Timestamps are converted to the local timezone and then rounded to the 
       nearest minute for display.
 
-## Actions
-
-- The old `~`, *action*,  item type is eliminated. The functionality is 
-  replaced and enhanced by the ability to add one or more entries for `@m` 
-  (moment) to any item including undated tasks and one or more entries for 
-  `&m` to any task job entry, `@j`. 
-
-- The format for both `@m` and `&m` entries is `(@|&)m datetime, active time 
-  period[, paused timeperiod]`. 
-
-- Using an etm *timer* to record an moment entry:
-
-    - Select the item or job to which the moment entry is to be appended.
-
-    - Press the start key to start the timer.
-
-    - Press the pause/restart key as often as desired.
-
-    - Press the finish key to finish and record the moment entry using the 
-      datetime at which the timer was finished and the accumulated time 
-      periods during which the timer was active and paused. 
-
-- One or more timers can be active at the same time but only one can be 
-  running - the rest will be paused.
-
 ## Jobs
 
 - Tasks, both with and without `@s` entries can have component job entries, 
