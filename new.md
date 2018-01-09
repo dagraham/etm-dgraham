@@ -246,9 +246,9 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Main panel shows scheduled items grouped by date, e.g., 
 
-        - Today - Mon Jan 8
+        - Mon Jan 8 - Today
           ...
-        - Tomorrow - Tue Jan 9
+        - Tue Jan 9 - Tomorrow
           ...
         - Wed Jan 10
           ...
