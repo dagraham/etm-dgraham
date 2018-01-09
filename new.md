@@ -42,12 +42,15 @@ Only 6 item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - Press the pause/restart key as often as desired.
 
-    - Press the finish key to finish and record the action entry. The `@s` 
-      entry will record the moment at which the timer was finished and the 
-      `@m` entry will record the accumulated time periods during which the 
-      timer was active and paused. The summary for the action will be taken 
-      from the summary of the selected item. 
+    - Press the finish key to finish and record the action entry.
 
+      - The `@s` entry will record the moment at which the timer was finished.
+
+      - The `@m` entry will record the accumulated time periods during which 
+        the timer was active and paused.
+
+      - The summary and `@i`, index, entries for the action will be those of 
+        the selected item. 
 
 - One or more timers can be active at the same time but only one can be 
   running - the rest will be paused.
