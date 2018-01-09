@@ -63,7 +63,10 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
   running - the rest will be paused.
 
 - A special *actions* view displays action totals grouped by month and 
-  organized by their index entries. 
+  organized by their index entries. This view is intended to provide a 
+  conventient summary and could be used for time billing. Totals are obtained 
+  by rounding up individual action totals using a configuration setting, e.g., 
+  the nearest 1/4 hour,<t_úX> before aggregating.
 
 ### `%`: journal entry
 
