@@ -261,11 +261,22 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
   current date, then 'Nothing scheduled' is displayed. Otherwise the display 
   is as follows starting from the top:
 
-    - All day events (occasions), if any
+    - All day events (occasions), if any, using the display character `^`
 
     - Inbox entries, if any
 
-    - 
+    - Pastdue tasks, if any, with the number of days that the tasks is past 
+      due
+
+    - Beginning soon, if any, with the number of days remaining using the 
+      display character `>`
+
+    - Scheduled events and tasks for today sorted by starting time with the 
+      starting and ending times
+
+    - All day tasks, if any
+
+    - All day journal entries, if any
 
 - The old *agenda* view has been eliminated. It's functionality has been 
   incorportated into the day views when viewing the current date.
