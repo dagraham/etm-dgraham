@@ -259,7 +259,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - A listing for *today* is always displayed. If nothing is scheduled for the 
   current date, then 'Nothing scheduled' is displayed. Otherwise the display 
-  is as follows starting from the top:
+  starting from the top includes the following:
 
     - All day events (occasions), if any, using the display character `^`
 
