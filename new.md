@@ -235,30 +235,28 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Scheduled items grouped by week.
 
-- Title bar shows selected week, e.g.,
+- Top title bar shows selected week, e.g.,
 
         Week 2: Jan 8 - 14, 2018
+
+- Bottom status bar shows current time, next alarm and the number of remaining 
+  alarms:
+
+        2:49pm Mon Jan 08                                 10:30am+2
 
 - Main panel shows scheduled items grouped by date, e.g., 
 
-        Week 2: Jan 8 - 14, 2018
         □ Today - Mon Jan 8
-          * Safety Meeting                             3:30pm-5pm
-          - trash and recycle                              7am
+          ...
         □ Tomorrow - Tue Jan 9
-          * French night                                7pm-10pm
-          - pick up overalls
-          - email Drew                                     2pm
+          ...
         □ Wed Jan 10
-          * Dinner at Carolina Club                   6:30pm-9:30pm
+          ...
         □ Thu Jan 11
-          * Air duct cleaning                           9am-12pm
-          * Bruce Buley                                 11am-1pm
-          * Dinner at Squires                            6pm-9pm
+          ...
         □ Fri Jan 12
-          * Tennis                                     9:30am-11am
+          ...
 
-         2:49pm Mon Jan 08                                 5:30pm+2
 
 - The old *agenda* view has been eliminated. It's functionality has been 
   incorportated into the day views when viewing the current date.
