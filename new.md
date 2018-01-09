@@ -246,15 +246,15 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Main panel shows scheduled items grouped by date, e.g., 
 
-        □ Today - Mon Jan 8
+        - Today - Mon Jan 8
           ...
-        □ Tomorrow - Tue Jan 9
+        - Tomorrow - Tue Jan 9
           ...
-        □ Wed Jan 10
+        - Wed Jan 10
           ...
-        □ Thu Jan 11
+        - Thu Jan 11
           ...
-        □ Fri Jan 12
+        - Fri Jan 12
           ...
 
 - A listing for *today* is always displayed. If nothing is scheduled for the 
