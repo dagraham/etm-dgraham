@@ -27,6 +27,31 @@ Only 6 item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ### `~`: action
 
+- The `@s` entry records the datetime at which the action was *finished*.
+
+- The `@m`, *moment*, entry (actions only) has the format `active timeperiod[, 
+  paused timeperiod]`. This entry records the time spent working on the action 
+  and, optionally, the time period that work on the action was 
+  suspended/paused.
+
+- Using an etm *timer* to record an action entry:
+
+    - Select the item or job to which the action is to be applied.
+
+    - Press the start key to start the timer.
+
+    - Press the pause/restart key as often as desired.
+
+    - Press the finish key to finish and record the action entry. The `@s` 
+      entry will record the moment at which the timer was finished and the 
+      `@m` entry will record the accumulated time periods during which the 
+      timer was active and paused. The summary for the action will be taken 
+      from the summary of the selected item. 
+
+
+- One or more timers can be active at the same time but only one can be 
+  running - the rest will be paused.
+
 ### `%`: journal entry
 
 - This replaces the old *note* item type. 
