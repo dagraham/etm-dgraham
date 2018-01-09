@@ -347,9 +347,11 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
   month might appear as follows:
 
         January, 2018
-          6.5h) Client A
-             2h) Project 1
-                2h) Action a
-             4.5h) Project 2
-                1.5h) Action b
-                3h) Action c
+           6.5h) Client A
+              2h) Project 1
+                 2h) Action a
+              4.5h) Project 2
+                 1.5h) Action b
+                 3h) Action c
+           9h) Client B
+              ...
