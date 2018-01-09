@@ -242,7 +242,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - Bottom status bar shows current time, next alarm and the number of remaining 
   alarms:
 
-        2:49pm Mon Jan 08                                 10:30am+2
+        8:49am Mon Jan 08                                 10:30am+2
 
 - Main panel shows scheduled items grouped by date, e.g., 
 
