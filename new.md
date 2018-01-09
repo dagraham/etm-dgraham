@@ -321,7 +321,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - Note that finished tasks are displayed in *Day View* using the completion 
   datetime.
 
-## Someday Maybe View
+## Someday View
 
 - Someday items grouped and sorted by creation datetime
 
