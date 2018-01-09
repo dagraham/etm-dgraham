@@ -261,19 +261,19 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
         - Sun Jan 14
           ...
 
-- A listing for *today* is always displayed. If nothing is scheduled for the 
-  current date, then 'Nothing scheduled' is displayed. Otherwise the display 
-  starting from the top includes the following:
+- A listing for the current date is always displayed. If nothing is scheduled, 
+  then 'Nothing scheduled' is displayed. Otherwise, starting from the top, the 
+  display includes the following:
 
     - All day events (occasions), if any, using the display character `^`
 
     - Inbox entries, if any
 
-    - Pastdue tasks, if any, with the number of days that the tasks is past 
-      due
+    - Pastdue tasks, if any, with the number of days that have passed since 
+      the task was due
 
-    - Beginning soon, if any, with the number of days remaining using the 
-      display character `>`
+    - Beginning soon notices, if any, with the number of days remaining until 
+      the starting date of the item using the display character `>`
 
     - Scheduled events and tasks for today sorted by starting time with the 
       starting and ending times
@@ -282,7 +282,20 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - All day journal entries, if any
 
-- The old *agenda* view has been eliminated. It's functionality has been 
-  incorportated into the day views when viewing the current date.
+  Note that the listing for *today* replaces the old *agenda* view.
+
+- For dates other than *today*, the date is only displayed in the list for the 
+  week if there are scheduled items. When there are, starting from the top, 
+  the display includes the following:
+
+    - All day events (occasions), if any, using the display character `^`
+
+    - Scheduled events and tasks sorted by starting time with the starting and 
+      ending times
+
+    - All day tasks, if any
+
+    - All day journal entries, if any
+
 
 
