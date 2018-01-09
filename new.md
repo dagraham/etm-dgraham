@@ -299,5 +299,16 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - All day journal entries, if any
 
+- Weeks are displayed sequentially. If there is nothing to display for the 
+  week, then the main panel of the display would show "Nothing scheduled". 
+  E.g, 
 
+        Week 3: Jan 15 - 21, 2018                            F1:Help
+          Nothing scheduled
 
+  For the current week, the display would show "Nothing scheduled" under the 
+  current date. E.g.,
+
+        Week 2: Jan 8 - 14, 2018                            F1:Help
+        - Mon Jan 8 - Today
+          Nothing scheduled
