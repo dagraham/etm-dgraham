@@ -2,7 +2,7 @@
 
 ## Item Types
 
-Only 6 item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
+Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ### `*`: event
 
@@ -13,6 +13,10 @@ Only 6 item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - Stored as an *event* when exporting to *ical*.
 
 ### `-`: task
+
+- The optional `@s` entry records the datetime at which the task is due or 
+  should be completed. Tasks with an `@s` entry are regarded as pastdue after 
+  this datetime.
 
 - The old `+`, *task group*, item type is eliminated. The functionality is 
   replaced by the ability to add job entries, `@j`, to any task.
