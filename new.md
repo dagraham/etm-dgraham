@@ -62,6 +62,9 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - One or more timers can be active at the same time but only one can be 
   running - the rest will be paused.
 
+- A special *actions* view displays action totals grouped by month and 
+  organized by their index entries. 
+
 ### `%`: journal entry
 
 - This replaces the old *note* item type. 
