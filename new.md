@@ -237,7 +237,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Top title bar shows selected week, e.g.,
 
-        Week 2: Jan 8 - 14, 2018
+        Week 2: Jan 8 - 14, 2018                            F1:Help
 
 - Bottom status bar shows current time, next alarm and the number of remaining 
   alarms:
