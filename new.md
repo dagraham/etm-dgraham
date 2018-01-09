@@ -256,6 +256,9 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
           ...
         - Fri Jan 12
           ...
+        - Sat Jan 13
+          ...
+        - Sun Jan 14
 
 - A listing for *today* is always displayed. If nothing is scheduled for the 
   current date, then 'Nothing scheduled' is displayed. Otherwise the display 
