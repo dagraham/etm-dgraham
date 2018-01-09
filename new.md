@@ -338,4 +338,16 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - All items, grouped and sorted by the datetime created (oldest first) or the 
   datetime last modified (newest first)
 
+## Action View
 
+- Actions grouped, sorted and aggregated by month and index. E.g., supposing 
+  that indices have the format `client:project:action`, then the display for a 
+  month might appear as follows:
+
+        January, 2018
+          6.5h) Client A
+             2h) Project 1
+                2h) Action a
+             4.5h) Project 2
+                1.5h) Action b
+                3h) Action c
