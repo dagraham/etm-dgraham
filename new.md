@@ -2,7 +2,7 @@
 
 ## Item Types
 
-Only 5 item types are used: `*`, `-`, `%`, `?`  and `!`.
+Only 6 item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ### `*`: event
 
@@ -24,6 +24,8 @@ Only 5 item types are used: `*`, `-`, `%`, `?`  and `!`.
   belongs.
 
 - Stored as a *todo* when exporting to *ical*.
+
+### `~`: action
 
 ### `%`: journal entry
 
