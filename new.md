@@ -68,9 +68,11 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
   by rounding up individual action totals using a configuration setting, e.g., 
   the nearest 1/4 hour before aggregating.
 
+- Stored as a *journal* entry when exporting to *ical*.
+
 ### `%`: journal entry
 
-- This replaces the old *note* item type. 
+- This is equivalent to the old *note* item type. 
 
 - Stored as a *journal* entry when exporting to *ical*.
 
