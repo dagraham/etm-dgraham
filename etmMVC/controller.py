@@ -51,7 +51,7 @@ at_keys = {
     'i': "index (colon delimited string)",
     'j': "job summary (string)",
     'l': "location (string)",
-    'm': "moment (list of timeperiods)",
+    'm': "moment (list of active and paused timeperiods)",
     'o': "overdue (r)estart, (s)kip or (k)eep)",
     'p': "priority (integer)",
     'r': "repetition frequency (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly, mi(n)utely",
