@@ -312,3 +312,30 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
         Week 2: Jan 8 - 14, 2018                            F1:Help
         - Mon Jan 8 - Today
           Nothing scheduled
+
+## Next View
+
+- Unfinished tasks without due datetimes grouped and sorted by *location* 
+  and/or *priority*
+
+- Note that finished tasks are displayed in *Day View* using the completion 
+  datetime.
+
+## Someday Maybe View
+
+- Someday items grouped and sorted by creation datetime
+
+## Tag View
+
+- Tagged items grouped and sorted by tag
+
+## Index View
+
+- All items, grouped and sorted by *index*
+
+## History View
+
+- All items, grouped and sorted by the datetime created (oldest first) or the 
+  datetime last modified (newest first)
+
+
