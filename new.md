@@ -240,19 +240,19 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - Bottom status bar shows current time, next alarm and the number of remaining 
   alarms:
 
-        8:49am Mon Jan 08                                 10:30am+2
+        8:49am Thu Jan 11                                 10:30am+2
 
 - Main panel shows scheduled items grouped by date, e.g., 
 
-        - Mon Jan 8 - Today
+        - Mon Jan 8
           ...
-        - Tue Jan 9 - Tomorrow
+        - Tue Jan 9
           ...
-        - Wed Jan 10
+        - Wed Jan 10 - Yesterday
           ...
-        - Thu Jan 11
+        - Thu Jan 11 - Today
           ...
-        - Fri Jan 12
+        - Fri Jan 12 - Tomorrow
           ...
         - Sat Jan 13
           ...
@@ -308,7 +308,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
   current date. E.g.,
 
         Week 2: Jan 8 - 14, 2018                            F1:Help
-        - Mon Jan 8 - Today
+        - Thu Jan 11 - Today
           Nothing scheduled
 
 ## Next View
