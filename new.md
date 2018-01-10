@@ -340,6 +340,11 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - All items, grouped and sorted by the datetime created (oldest first) or the 
   datetime last modified (newest first)
 
+## Finished View
+
+- Finished tasks grouped and sorted by the completed datetime. Now is the time 
+  for 
+
 ## Action View
 
 - Actions grouped, sorted and aggregated by month and index. E.g., supposing 
