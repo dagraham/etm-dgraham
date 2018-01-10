@@ -34,7 +34,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ### `~`: action
 
-- The `@s` entry records the datetime at which the action was *finished*.
+- The `@s` entry records the datetime at which the action was *finished*. Note 
+  that this is a timestamp and is thus an aware datetime.
 
 - The `@m`, *moment*, entry (actions only) has the format `active timeperiod[, 
   paused timeperiod]`. This entry records the time spent working on the action 
@@ -306,10 +307,10 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 ## Next View
 
 - Unfinished tasks and jobs without due datetimes grouped and sorted by 
-  *location* and then *priority*
+  *location* and then *priority*.
 
-- Finished tasks and jobs are displayed in *Day View* using the completion 
-  datetime.
+- While finished tasks and jobs are removed from this view, they are added tp 
+  *Day View* using the completion datetime.
 
 ## Someday View
 
