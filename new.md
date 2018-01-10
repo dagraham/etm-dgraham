@@ -274,8 +274,9 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
       the starting date of the item using the display character `>`
 
     - Scheduled events, journal entries, actions and unfinished tasks for 
-      today sorted by starting time with the starting and ending times. Tasks 
-      completed today are sorted by the completion time.
+      today sorted by starting time with the starting time and, for events,  
+      the ending time. Tasks completed today are sorted by the completion 
+      time.
 
     - Unfinished all day tasks, if any
 
@@ -290,8 +291,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
     - All day events (occasions), if any, using the display character `^`
 
     - Scheduled events, journal entries, actions and unfinished tasks sorted 
-      by starting time with the starting and ending times. Tasks completed on 
-      the date are sorted by the completion time.
+      by starting time with the starting time and, for events, the ending 
+      time. Tasks completed on the date are sorted by the completion time.
 
     - Unfinished, all day tasks, if any
 
