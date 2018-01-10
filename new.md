@@ -273,7 +273,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
           Nothing scheduled
 
 
-- Starting from the top, the display for a date includes the following:
+- Starting from the top, the display for a day includes the following:
 
     - All day events (occasions), if any, using the display character `^`
 
