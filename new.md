@@ -275,17 +275,19 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Starting from the top, the display for a day includes the following:
 
-    - All day events (occasions), if any, using the display character `^`
+    - All day events (occasions), if any, using the display character `^` 
+      instead of the event type character `*`
 
-    - For the current date only:
+    - For the current date (today) only:
 
         - Inbox entries, if any
 
         - Pastdue tasks, if any, with the number of days that have passed since 
           the task was due
 
-        - Beginning soon notices, if any, with the number of days remaining until 
-          the starting date of the item using the display character `>`
+        - Beginning soon notices, if any, with the number of days remaining 
+          until the starting date of the item using the display character `>` 
+          whatever the type character of the item containing the `@b` entry
 
     - Scheduled events, journal entries, actions and unfinished tasks sorted 
       by and displaying the `@s` time and, for events with *extent*, the 
