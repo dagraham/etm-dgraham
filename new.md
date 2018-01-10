@@ -219,13 +219,18 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - Tasks with jobs are displayed by job using a combination of the task and job 
   summaries with a type character indicating the status of the job. E.g.,
 
-          x manually assigned prerequisites: job a
+          x manually assigned prerequisites: job a          2pm Jan 3, 2018
           - manually assigned prerequisites: job b
           + manually assigned prerequisites: job c
 
   would indicate that job a has been completed, job b is available (has no 
   unfinished prerequistites) and that job c is waiting (has unfinished 
   prerequisties). 
+
+- When the last component job of a task has been completed, the task itself is 
+  displayed as completed. E.g., 
+
+          x manually assigned prerequisites                 5pm Jan 8, 2018
 
 # Views
 
@@ -328,7 +333,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ## Finished View
 
-- Finished tasks grouped and sorted by the completed datetime
+- Finished tasks grouped and sorted by the completed datetime, most recent 
+  first.
 
 ## Action View
 
