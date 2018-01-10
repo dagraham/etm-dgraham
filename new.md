@@ -289,8 +289,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
         - Beginning soon notices, if any, with the number of days remaining until 
           the starting date of the item using the display character `>`
 
-    - Scheduled events, journal entries, actions and unfinished tasks for the 
-      date sorted by starting time with the starting time and, for events  with 
+    - Scheduled events, journal entries, actions and unfinished tasks sorted 
+      by the starting time. displaying the starting time and, for events  with 
       *extent*, the ending time. Tasks completed on the date are sorted by the 
       completion time.
 
@@ -303,8 +303,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ## Next View
 
-- Unfinished tasks without due datetimes grouped and sorted by *location* 
-  and/or *priority*
+- Unfinished tasks without due datetimes grouped by *location* and sorted by 
+  *priority*
 
 - Note that finished tasks are displayed in *Day View* using the completion 
   datetime.
