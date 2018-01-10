@@ -198,7 +198,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - Job prerequisites, by default, are determined automatically by the order in 
   which jobs are listed. E.g., with
 
-          - automatically assigned prerequites
+          - automatically assigned
               @j job A
               @j job B
               @j job C
@@ -209,7 +209,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
     `&i` (id) and `&p`, (comma separated list of ids of immediate 
     prequisites). E.g., with
 
-          - manually assigned prerequistes
+          - manually assigned
             @j job a &i a
             @j job b &i b
             @j job c &i 3 &p a, b
@@ -219,9 +219,9 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - Tasks with jobs are displayed by job using a combination of the task and job 
   summaries with a type character indicating the status of the job. E.g.,
 
-          x manually assigned prerequisites: job a     2pm Jan 3, 2018
-          - manually assigned prerequisites: job b
-          + manually assigned prerequisites: job c
+          x manually assigned: job a    2pm Jan 3, 2018
+          - manually assigned: job b
+          + manually assigned: job c
 
   would indicate that job a has been completed, job b is available (has no 
   unfinished prerequistites) and that job c is waiting (has unfinished 
@@ -230,7 +230,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - When the last component job of a task has been completed, the task itself is 
   displayed as completed. E.g., 
 
-          x manually assigned prerequisites            5pm Jan 8, 2018
+          x manually assigned           5pm Jan 8, 2018
 
 # Views
 
