@@ -328,8 +328,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ## Finished View
 
-- Finished tasks grouped and sorted by the completed datetime. Now is the time 
-  for 
+- Finished tasks grouped and sorted by the completed datetime
 
 ## Action View
 
