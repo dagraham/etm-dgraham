@@ -311,7 +311,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ## Someday View
 
-- Someday items grouped and sorted by creation datetime
+- Someday items grouped and sorted by the last modified datetime 
 
 ## Tag View
 
