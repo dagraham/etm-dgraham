@@ -1,7 +1,3 @@
----
-Is this ignored?
----
-
 # Data
 
 ## Item Types
