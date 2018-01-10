@@ -149,9 +149,9 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
       as `20180105T1400N`.
 
     - Aware datetimes are first converted to UTC and then stored as aware 
-      datetimes. E.g., when the current timezone is US/Eastern,<t_úX> `fri 
-      2p` would be stored as `20180105T1900A` and `fri 2p, US/Pacific` would 
-      be stored as `20180105T2200A`. 
+      datetimes. E.g., when the current timezone is US/Eastern, `fri 2p` would 
+      be stored as `20180105T1900A` and `fri 2p, US/Pacific` would be stored 
+      as `20180105T2200A`. 
 
     - The creation and last-modified timestamps are aware, UTC datetimes. 
       E.g., the the id for an item created  `2016-06-24 08:14:11:601637 UTC` 
