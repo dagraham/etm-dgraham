@@ -217,20 +217,25 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
     Neither `job a` nor `job b` has any prerequisites but both `job a` and `job b` are prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
 
 - Tasks with jobs are displayed by job using a combination of the task and job 
-  summaries with a type character indicating the status of the job. E.g.,
+  summaries with a type character indicating the status of the job. E.g., on 
+  the date that `job a` was completed, it would be shown as finished with the 
+  time at which it was completed:
 
-          x manually assigned: job a          2:03pm Jan 3, 2018
+          x manually assigned: job a                 2:13pm
+
+  The unfinished jobs would then appear in *next view* as
+
           - manually assigned: job b
           + manually assigned: job c
 
-  would indicate that job a has been completed, job b is available (has no 
-  unfinished prerequistites) and that job c is waiting (has unfinished 
-  prerequisties). 
+  indicating that job b is available (has no unfinished prerequistites) and 
+  that job c is waiting (has unfinished prerequisties). 
 
-- When the last component job of a task has been completed, the task itself is 
-  displayed as completed. E.g., 
+- When the last component job of the task has been completed, the task itself 
+  would be displayed as completed in *day view* on the date that the last job 
+  was completed along with the time at which it was completed: 
 
-          x manually assigned                 5:47pm Jan 8, 2018
+          x manually assigned                        9:47am
 
 # Views
 
