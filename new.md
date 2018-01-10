@@ -219,7 +219,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - Tasks with jobs are displayed by job using a combination of the task and job 
   summaries with a type character indicating the status of the job. E.g.,
 
-          x manually assigned: job a          2pm Jan 3, 2018
+          x manually assigned: job a          2:03pm Jan 3, 2018
           - manually assigned: job b
           + manually assigned: job c
 
@@ -230,7 +230,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - When the last component job of a task has been completed, the task itself is 
   displayed as completed. E.g., 
 
-          x manually assigned                 5pm Jan 8, 2018
+          x manually assigned                 5:47pm Jan 8, 2018
 
 # Views
 
