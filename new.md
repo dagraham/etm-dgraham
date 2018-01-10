@@ -322,7 +322,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ## Index View
 
-- All items, grouped and sorted by *index*
+- All items, grouped and sorted by their *index* entries
 
 ## History View
 
