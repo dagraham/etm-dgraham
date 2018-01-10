@@ -286,8 +286,9 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
           the task was due
 
         - Beginning soon notices, if any, with the number of days remaining 
-          until the starting date of the item using the display character `>` 
-          whatever the type character of the item containing the `@b` entry
+          until the starting date of the item.  These use the display 
+          character `>` whatever the type character of the item containing the 
+          `@b` entry.
 
     - Scheduled events, journal entries, actions and unfinished tasks sorted 
       by and displaying the `@s` time and, for events with *extent*, the 
