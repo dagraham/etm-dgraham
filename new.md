@@ -309,7 +309,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - Unfinished tasks and jobs without due datetimes grouped and sorted by 
   *location* and then *priority*.
 
-- While finished tasks and jobs are removed from this view, they are added tp 
+- While finished tasks and jobs are removed from this view, they are added to 
   *Day View* using the completion datetime.
 
 ## Someday View
