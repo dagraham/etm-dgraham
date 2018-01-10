@@ -258,6 +258,20 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
           ...
         - Sun Jan 14
           ...
+- Weeks are displayed sequentially. If there is nothing to display for the 
+  week, then the main panel of the display would show "Nothing scheduled". 
+  E.g, 
+
+        Week 3: Jan 15 - 21, 2018                           F1:Help
+          Nothing scheduled
+
+  For the current week, the display would show "Nothing scheduled" under the 
+  current date. E.g.,
+
+        Week 2: Jan 8 - 14, 2018                            F1:Help
+        - Thu Jan 11 - Today
+          Nothing scheduled
+
 
 - A listing for the current date is always displayed. If nothing is scheduled, 
   then 'Nothing scheduled' is displayed. Otherwise, starting from the top, the 
@@ -286,20 +300,6 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     Note that the items included for the current date are those from the old 
     *agenda* view.
-
-- Weeks are displayed sequentially. If there is nothing to display for the 
-  week, then the main panel of the display would show "Nothing scheduled". 
-  E.g, 
-
-        Week 3: Jan 15 - 21, 2018                           F1:Help
-          Nothing scheduled
-
-  For the current week, the display would show "Nothing scheduled" under the 
-  current date. E.g.,
-
-        Week 2: Jan 8 - 14, 2018                            F1:Help
-        - Thu Jan 11 - Today
-          Nothing scheduled
 
 ## Next View
 
