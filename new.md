@@ -284,7 +284,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - All day journal entries, if any
 
-    Note that the listing for *today* replaces the old *agenda* view.
+    Note that the items included for the current date are those from the old 
+    *agenda* view.
 
 - Weeks are displayed sequentially. If there is nothing to display for the 
   week, then the main panel of the display would show "Nothing scheduled". 
