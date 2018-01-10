@@ -273,9 +273,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
           Nothing scheduled
 
 
-- A listing for the current date is always displayed. If nothing is scheduled, 
-  then 'Nothing scheduled' is displayed. Otherwise, starting from the top, the 
-  display for the date includes the following:
+- Starting from the top, the display for a date includes the following:
 
     - All day events (occasions), if any, using the display character `^`
 
@@ -290,23 +288,24 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
           the starting date of the item using the display character `>`
 
     - Scheduled events, journal entries, actions and unfinished tasks sorted 
-      by the starting time. displaying the starting time and, for events  with 
-      *extent*, the ending time. Tasks completed on the date are sorted by the 
-      completion time.
+      by and displaying the `@s` time and, for events with *extent*, the 
+      ending time. 
 
     - Unfinished all day tasks, if any
 
     - All day journal entries, if any
+
+    - Tasks, dated or undated, that were finished on this date, if any
 
     Note that the items included for the current date are those from the old 
     *agenda* view.
 
 ## Next View
 
-- Unfinished tasks without due datetimes grouped and sorted by *location* and 
-  then *priority*
+- Unfinished tasks and jobs without due datetimes grouped and sorted by 
+  *location* and then *priority*
 
-- Note that finished tasks are displayed in *Day View* using the completion 
+- Finished tasks and jobs are displayed in *Day View* using the completion 
   datetime.
 
 ## Someday View
