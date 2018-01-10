@@ -293,9 +293,9 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - All day events (occasions), if any, using the display character `^`
 
-    - Scheduled events and unfinished tasks sorted by starting time with the 
-      starting and ending times. Tasks completed on the date are sorted by the 
-      completion time.
+    - Scheduled events, journal entries, actions and unfinished tasks sorted 
+      by starting time with the starting and ending times. Tasks completed on 
+      the date are sorted by the completion time.
 
     - Unfinished, all day tasks, if any
 
