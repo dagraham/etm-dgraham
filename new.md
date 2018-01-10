@@ -261,17 +261,19 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - A listing for the current date is always displayed. If nothing is scheduled, 
   then 'Nothing scheduled' is displayed. Otherwise, starting from the top, the 
-  display includes the following:
+  display for the date includes the following:
 
     - All day events (occasions), if any, using the display character `^`
 
-    - Inbox entries, if any
+    - **For the current date only**:
 
-    - Pastdue tasks, if any, with the number of days that have passed since 
-      the task was due
+      - Inbox entries, if any
 
-    - Beginning soon notices, if any, with the number of days remaining until 
-      the starting date of the item using the display character `>`
+      - Pastdue tasks, if any, with the number of days that have passed since 
+        the task was due
+
+      - Beginning soon notices, if any, with the number of days remaining until 
+        the starting date of the item using the display character `>`
 
     - Scheduled events, journal entries, actions and unfinished tasks for 
       today sorted by starting time with the starting time and, for events,  
@@ -283,20 +285,6 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
     - All day journal entries, if any
 
     Note that the listing for *today* replaces the old *agenda* view.
-
-- For dates other than *today*, the date is only displayed in the list for the 
-  week if there are scheduled items. When there are, starting from the top, 
-  the display includes the following:
-
-    - All day events (occasions), if any, using the display character `^`
-
-    - Scheduled events, journal entries, actions and unfinished tasks sorted 
-      by starting time with the starting time and, for events, the ending 
-      time. Tasks completed on the date are sorted by the completion time.
-
-    - Unfinished, all day tasks, if any
-
-    - All day journal entries, if any
 
 - Weeks are displayed sequentially. If there is nothing to display for the 
   week, then the main panel of the display would show "Nothing scheduled". 
