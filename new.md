@@ -223,8 +223,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
           - manually assigned: job b
           + manually assigned: job c
 
-  would indicate that `job a` if finished, job b is available (has no 
-  unfinished prerequistites) and that job c is waiting (has unfinished 
+  would indicate that `job a` if finished, `job b` is available (has no 
+  unfinished prerequistites) and that `job c` is waiting (has unfinished 
   prerequisties). 
 
 # Views
