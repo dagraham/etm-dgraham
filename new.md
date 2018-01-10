@@ -267,13 +267,13 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - **For the current date only**:
 
-      - Inbox entries, if any
+        - Inbox entries, if any
 
-      - Pastdue tasks, if any, with the number of days that have passed since 
-        the task was due
+        - Pastdue tasks, if any, with the number of days that have passed since 
+          the task was due
 
-      - Beginning soon notices, if any, with the number of days remaining until 
-        the starting date of the item using the display character `>`
+        - Beginning soon notices, if any, with the number of days remaining until 
+          the starting date of the item using the display character `>`
 
     - Scheduled events, journal entries, actions and unfinished tasks for 
       today sorted by starting time with the starting time and, for events,  
