@@ -265,7 +265,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - All day events (occasions), if any, using the display character `^`
 
-    - **For the current date only**:
+    - For the current date only:
 
         - Inbox entries, if any
 
