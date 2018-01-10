@@ -303,8 +303,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ## Next View
 
-- Unfinished tasks without due datetimes grouped by *location* and sorted by 
-  *priority*
+- Unfinished tasks without due datetimes grouped and sorted by *location* and 
+  then *priority*
 
 - Note that finished tasks are displayed in *Day View* using the completion 
   datetime.
