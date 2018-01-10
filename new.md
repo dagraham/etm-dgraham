@@ -277,8 +277,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - Scheduled events, journal entries, actions and unfinished tasks for 
       today sorted by starting time with the starting time and, for events,  
-      the ending time. Tasks completed today are sorted by the completion 
-      time.
+      with *extent* the ending time. Tasks completed today are sorted by the 
+      completion time.
 
     - Unfinished all day tasks, if any
 
