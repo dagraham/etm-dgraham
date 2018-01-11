@@ -150,7 +150,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
       objects when retrieved by etm. Preserving the *naive* or *aware* state 
       of the object is accomplished by appending either an *N* or an *A* to 
       the serialized string. Aware datetimes are converted to UTC when encoded 
-      and are converted to the local time when decoded.
+      and are converted to the local time when decoded. Naive dates and 
+      datetimes require no conversion either way.
 
 - Display:
 
