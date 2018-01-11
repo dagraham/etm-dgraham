@@ -141,7 +141,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
     - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 
       1018 2pm` in whatever happens to be the local time zone.
 
-- Storage format: 
+- Storage: 
 
     - Special storage classes have been added to etm's instance of *TinyDB* 
       that handle both date and datetime storage. Date and datetime objects 
