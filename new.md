@@ -141,22 +141,12 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
     - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 
       1018 2pm` in whatever happens to be the local time zone.
 
-- Storage format: `YYYYMMDDTHHMM(N|A)` where `N` is naive and `A` is aware
+- Storage format: 
 
-    - Naive dates are stored as naive datetimes that begin at midnight on the 
-      relevant date. E.g., `@s fri` would be stored as `20180105T0000N`.
-
-    - Naive datetimes are stored as is. E.g., `fri 2p, float` would be stored 
-      as `20180105T1400N`.
-
-    - Aware datetimes are first converted to UTC and then stored as aware 
-      datetimes. E.g., when the current timezone is US/Eastern, `fri 2p` would 
-      be stored as `20180105T1900A` and `fri 2p, US/Pacific` would be stored 
-      as `20180105T2200A`. 
-
-    - The creation and last-modified timestamps are aware, UTC datetimes. 
-      E.g., the the id for an item created  `2016-06-24 08:14:11:601637 UTC` 
-      would be `20160624081411601637`. 
+    - Special storage classes have been added to etm's instance of *TinyDB* 
+      that handle both date and datetime storage. Date and datetime objects 
+      used by etm are encoded (serialized) as strings for storage in TinyDB 
+      and then decoded as date and datetime objects when retrieved by etm.
 
 - Display:
 
