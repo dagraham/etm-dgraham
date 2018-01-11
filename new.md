@@ -149,7 +149,8 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
       stored in *TinyDB* and then automatically decoded as date and datetime 
       objects when retrieved by etm. Preserving the *naive* or *aware* state 
       of the object is accomplished by appending either an *N* or an *A* to 
-      the serialized string.
+      the serialized string. Aware datetimes are converted to UTC when encoded 
+      and are converted to the local time when decoded.
 
 - Display:
 
