@@ -145,8 +145,11 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - Special storage classes have been added to etm's instance of *TinyDB* 
       that handle both date and datetime storage. Date and datetime objects 
-      used by etm are encoded (serialized) as strings for storage in TinyDB 
-      and then decoded as date and datetime objects when retrieved by etm.
+      used by etm are automatically encoded (serialized) as strings when 
+      stored in *TinyDB* and then decoded as date and datetime objects when 
+      retrieved by etm. Preserving the *naive* or *aware* state of the object 
+      is accomplished by appending either an *N* or an *A* to the serialized 
+      string.
 
 - Display:
 
