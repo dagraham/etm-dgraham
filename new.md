@@ -123,10 +123,10 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - Automaticall assigned
 
-          - automatically assigned
-              @j job A
-              @j job B
-              @j job C
+            - automatically assigned
+                @j job A
+                @j job B
+                @j job C
 
         `job A` has no prerequisites but is a prerequisite for `job B`. Similarly, `job B` is a prerequisite for `job C`. I.e., the default is to suppose that jobs must be completed sequentially in the order in which they are listed. 
 
