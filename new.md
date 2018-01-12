@@ -156,12 +156,11 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Scheduled items are grouped by week.
 
-- Top title bar shows selected week, e.g.,
+- The top title bar shows selected week, e.g.,
 
         Week 2: Jan 8 - 14, 2018                            F1:Help
 
-- Bottom status bar shows current time, next alarm and the number of remaining 
-  alarms:
+- The bottom status bar shows current time, next alarm and the number of remaining alarms:
 
         8:49am Thu Jan 11                                 10:30am+2
 
