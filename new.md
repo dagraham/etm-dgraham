@@ -30,7 +30,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Using an etm *timer* to record an action entry:
 
-    - Select the item to which the action is to be applied.
+    - Select the item (task, event, ...) to which the action is to be applied.
 
     - Press the start key to start the timer.
 
