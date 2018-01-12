@@ -133,7 +133,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Manually assigned prerequisites
 
-  Alternatively, job prequisites can be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
+    Alternatively, job prequisites can be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
 
         - manually assigned
           @j job a &i a
