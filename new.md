@@ -119,27 +119,28 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b` begin notices. The entry for `&a` is given as a time period relative to `&s` (+ before or - after) and the entry for `&b` is a positive integer number of days before the starting date/time to begin displaying "beginning soon" notices. Entries for `@a` and `@b` in the task become the defaults for `&a` and `&b`, respectively.
 
-- Job prerequisites, by default, are determined automatically by the order in which jobs are listed. E.g., with
+- Automatically assigned Job prerequisites
 
-    - Automaticall assigned
+  By default, are prerequisites are determined automatically by the order in which jobs are listed. E.g., with
 
-            - automatically assigned
-                @j job A
-                @j job B
-                @j job C
 
-        `job A` has no prerequisites but is a prerequisite for `job B`. Similarly, `job B` is a prerequisite for `job C`. I.e., the default is to suppose that jobs must be completed sequentially in the order in which they are listed. 
+        - automatically assigned
+            @j job A
+            @j job B
+            @j job C
 
-    - Manually assigned
+    `job A` has no prerequisites but is a prerequisite for `job B`. Similarly, `job B` is a prerequisite for `job C`. I.e., the default is to suppose that jobs must be completed sequentially in the order in which they are listed. 
 
-        Alternatively, job prequisites can be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
+- Manually assigned prerequisites
 
-            - manually assigned
-              @j job a &i a
-              @j job b &i b
-              @j job c &i 3 &p a, b
+  Alternatively, job prequisites can be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
 
-        Neither `job a` nor `job b` has any prerequisites but both `job a` and `job b` are prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
+        - manually assigned
+          @j job a &i a
+          @j job b &i b
+          @j job c &i 3 &p a, b
+
+    Neither `job a` nor `job b` has any prerequisites but both `job a` and `job b` are prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
 
 - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
