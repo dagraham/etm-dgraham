@@ -225,11 +225,9 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ## Next View
 
-- Unfinished tasks and jobs without due datetimes grouped and sorted by 
-  *location* and then *priority*.
+- Unfinished tasks and jobs without `@s` entries grouped and sorted by *location* and then *priority*.
 
-- While finished tasks and jobs are removed from this view, they are added to 
-  *Day View* using the completion datetime.
+- While finished tasks and jobs are removed from this view, they are added to *Day View* using the completion datetime.
 
 ## Someday View
 
@@ -245,18 +243,15 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ## History View
 
-- All items, grouped and sorted by the datetime created (oldest first) or the 
-  datetime last modified (newest first)
+- All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
 
 ## Finished View
 
-- Finished tasks grouped and sorted by the completed datetime, most recent 
-  first.
+- Finished tasks grouped and sorted by the completed datetime, most recent first.
 
 ## Action View
 
-- Actions grouped, sorted and aggregated by month and index. E.g., supposing 
-  that indices have the format `client:project:action`, then the display for a 
+- Actions grouped, sorted and aggregated by month and index. E.g., supposing that indices have the format `client:project:action`, then the display for a 
   month might appear as follows:
 
         January, 2018
