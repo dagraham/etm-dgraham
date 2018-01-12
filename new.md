@@ -63,12 +63,6 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 - One or more timers can be active at the same time but only one can be 
   running - the rest will be paused.
 
-- A special *actions* view displays action totals grouped by month and 
-  organized by their index entries. This view is intended to provide a 
-  conventient summary and could be used for time billing. Totals are obtained 
-  by rounding up individual action totals using a configuration setting, e.g., 
-  the nearest 1/4 hour before aggregating.
-
 - Stored as a *journal* entry when exporting to *ical*.
 
 ### `%`: journal entry
@@ -96,7 +90,13 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
   human-editable.  It can be backed up and/or queried using external tools as 
   well as etm itself.
 
-- Two timestamps are automatically created for each item in the data store, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *all* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. The creation timestamp is used as the unique identifier for the item in the data store.
+- Two timestamps are automatically created for each item in the data store, 
+  one corresponding to the moment (microsecond) the item was created and the 
+  other to the moment the item was last modified. A new *history* view in etm  
+  displays all items and allows sorting by either timestamp. The default is to 
+  show oldest first for created timestamps and newest first for last modified 
+  timestamps. The creation timestamp is used as the unique identifier for the 
+  item in the data store.
 
 
 - The heirarchial organization that was provided by file paths is provided by 
