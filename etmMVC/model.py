@@ -49,8 +49,7 @@ def parse_datetime(s):
     >>> dt[1]
     <Pendulum [2015-10-15T00:00:00+00:00]>
 
-    To get a datetime for midnight, schedule for 1 second later and note
-    that the second is removed from the datetime:
+    To get a datetime for midnight, schedule for 1 second later and note that the second is removed from the datetime:
     >>> dt = parse_datetime("2015-10-15 00:00:01")
     >>> dt[1]
     <Pendulum [2015-10-15T04:00:01+00:00]>
