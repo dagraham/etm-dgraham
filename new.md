@@ -2,7 +2,7 @@
 
 ## Item Types
 
-Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
+Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 ### `*`: event
 
@@ -22,7 +22,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Stored as a *todo* when exporting to *ical*.
 
-### `~`: action
+### `$`: action
 
 - The `@s` entry records the datetime at which the action was *finished*. Note that this is a timestamp and is thus an aware datetime.
 
