@@ -107,11 +107,6 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
   *calendar* entry, `@c`. A default value for calendar specified in 
   preferences is assigned to an item when an explicit value is not provided. 
 
-- Note that reorganization requires only changing an `@i` or an `@c` entry and 
-  not moving files and directories. Further, *TinyDB* permits database queries 
-  that would, e.g., allow changing all `@i plant:tree:oak` entries to `@i 
-  plant:tree:maple`.
-
 ## Dates and Date Times
 
 - The time zone entry, `@z`, is eliminated. 
