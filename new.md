@@ -212,9 +212,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
           character `>` whatever the type character of the item containing the 
           `@b` entry.
 
-    - Scheduled events, journal entries, actions and unfinished tasks sorted 
-      by and displaying the `@s` time and, for events with *extent*, the 
-      ending time. 
+    - Scheduled events, journal entries, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events with *extent*, the ending time is also displayed. 
 
     - Unfinished all day tasks, if any
 
@@ -222,8 +220,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - Tasks, dated or undated, that were finished on this date, if any
 
-    Note that the items included for the current date are those from the old 
-    *agenda* view.
+    Note that the items included for the current date are those from the old *agenda* view.
 
 ## Next View
 
