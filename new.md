@@ -109,7 +109,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as beginning at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `fri 2p, US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
 
-    - Timestamps are converted to the local timezone and then rounded to the nearest minute for display.
+    - Datetimes are rounded to the nearest minute for display.
 
 ## Jobs
 
