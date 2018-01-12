@@ -121,15 +121,14 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Automatically assigned Job prerequisites
 
-    By default, prerequisites are determined automatically by the order in which jobs are listed. E.g., with
-
+    The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
 
         - automatically assigned
             @j job A
             @j job B
             @j job C
 
-    `job A` has no prerequisites but is a prerequisite for `job B`. Similarly, `job B` is a prerequisite for `job C`. I.e., the default is to suppose that jobs must be completed sequentially in the order in which they are listed. 
+    `job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C`. 
 
 - Manually assigned prerequisites
 
