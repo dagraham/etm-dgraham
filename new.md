@@ -121,7 +121,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Automatically assigned Job prerequisites
 
-  By default, are prerequisites are determined automatically by the order in which jobs are listed. E.g., with
+    By default, are prerequisites are determined automatically by the order in which jobs are listed. E.g., with
 
 
         - automatically assigned
