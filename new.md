@@ -214,11 +214,13 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
         Note that the items included for the current date are those from the old *agenda* view.
 
-    - Scheduled events, journal entries, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events with *extent*, the ending time is also displayed. 
+    - Scheduled events, journal entries, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events and tasks with *extent*, the ending time is also displayed. 
 
     - Unfinished all day tasks, if any
 
     - All day journal entries, if any
+
+    - Actions finished on this date, if any, together with the time spent
 
     - Tasks, dated or undated, that were finished on this date, if any
 
