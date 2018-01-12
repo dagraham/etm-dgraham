@@ -6,41 +6,27 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ### `*`: event
 
-- The old `^`, *occasion*,  item type is eliminated. The functionality is 
-  replaced by using a *date* entry rather than a *datetime* in an event. See 
-  *Dates and Date Times* below.
+- The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See *Dates and Date Times* below.
 
 - Stored as an *event* when exporting to *ical*.
 
 ### `-`: task
 
-- The optional `@s` entry records the datetime at which the task is due or 
-  should be completed. Tasks with an `@s` entry are regarded as pastdue after 
-  this datetime. Tasks without an `@s` entry are to be completed when possible 
-  and are regarded as *next* items in the *Getting Things Done* method. A 
-  special *next* view is devoted to these tasks where they are organized by 
-  their `@l`, *location*, entries.
+- The optional `@s` entry records the datetime at which the task is due or should be completed. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* method. A special *next* view is devoted to these tasks where they are organized by their `@l`, *location*, entries.
 
-- The old `+`, *task group*, item type is eliminated. The functionality is 
-  replaced by the ability to add job entries, `@j`, to any task.
+- The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task.
 
 - The old `%`, *delegated*, item type is eliminated. 
 
-- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. 
-  The `@c` entry is now used to denote the *calendar* to which the item 
-  belongs.
+- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
 
 - Stored as a *todo* when exporting to *ical*.
 
 ### `~`: action
 
-- The `@s` entry records the datetime at which the action was *finished*. Note 
-  that this is a timestamp and is thus an aware datetime.
+- The `@s` entry records the datetime at which the action was *finished*. Note that this is a timestamp and is thus an aware datetime.
 
-- The `@m`, *moment*, entry (actions only) has the format `active timeperiod[, 
-  paused timeperiod]`. This entry records the time spent working on the action 
-  and, optionally, the time period that work on the action was 
-  suspended/paused.
+- The `@m`, *moment*, entry (actions only) has the format `active timeperiod[, paused timeperiod]`. This entry records the time spent working on the action and, optionally, the time period that work on the action was suspended/paused.
 
 - Using an etm *timer* to record an action entry:
 
@@ -54,14 +40,11 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
       - The `@s` entry will record the moment at which the timer was finished.
 
-      - The `@m` entry will record the accumulated time periods during which 
-        the timer was active and paused.
+      - The `@m` entry will record the accumulated time periods during which the timer was active and paused.
 
-      - The summary and `@i`, index, entries for the action will be those of 
-        the selected item. 
+      - The summary and `@i`, index, entries for the action will be those of the selected item. 
 
-- One or more timers can be active at the same time but only one can be 
-  running - the rest will be paused.
+- One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
@@ -85,7 +68,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ## Storage
 
-- All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable.  It can be backed up and/or queried using external tools as well as etm itself.
+- All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable.  It can be backed up and/or queried using external tools as well as etm itself. 
 
 - Two timestamps are automatically created for each item in the data store, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. The creation timestamp is used as the unique identifier for the item in the data store. 
 
@@ -94,12 +77,9 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
           - tree
               - oak
 
-    The default for `@i` is *None*. Note that `@i` replaces the functionality 
-    of  the old `@k`, *keyword*.
+    The default for `@i` is *None*. Note that `@i` replaces the functionality of  the old `@k`, *keyword*.
 
-- The organization that was provided by calendars is provided by the 
-  *calendar* entry, `@c`. A default value for calendar specified in 
-  preferences is assigned to an item when an explicit value is not provided. 
+- The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
 ## Dates and Date Times
 
@@ -107,87 +87,48 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - Dates (naive) and datetimes (both naive and aware) are suppored. 
 
-- The format for the `@s` entry is `date [time][, TimeZone|float]`. In the 
-  following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and 
-  that the local timezone is US/Eastern.
+- The format for the `@s` entry is `date [time][, TimeZone|float]`. In the following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern.
 
-    - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. Without 
-      a time, this schedules an all-day, floating (naive) item for the 
-      specified date in whatever happens to be the local timezone.
+    - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. Without a time, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone.
 
-    - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm 
-      EST`. With a time, this schedules an item starting at the specified 
-      date-time in the current timezone (US/Eastern).
+    - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. With a time, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
 
-    - Aware date-time, e.g., `@s fri 2p, US/Pacific`. Interpreted as `Fri, Jan 
-      5 2018 5pm EST`. Note that 2pm PST is equivalent to 5pm EST.
+    - Aware date-time, e.g., `@s fri 2p, US/Pacific`. Interpreted as `Fri, Jan 5 2018 5pm EST`. Note that 2pm PST is equivalent to 5pm EST.
 
-    - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 
-      1018 2pm` in whatever happens to be the local time zone.
+    - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 1018 2pm` in whatever happens to be the local time zone.
 
 - Storage: 
 
-    - Special storage classes have been added to etm's instance of *TinyDB* 
-      for both date and datetime storage. *Pendulum* Date and datetime objects 
-      used by etm are automatically encoded (serialized) as strings when 
-      stored in *TinyDB* and then automatically decoded as date and datetime 
-      objects when retrieved by etm. Preserving the *naive* or *aware* state 
-      of the object is accomplished by appending either an *N* or an *A* to 
-      the serialized string. Aware datetimes are converted to UTC when encoded 
-      and are converted to the local time when decoded. Naive dates and 
-      datetimes require no conversion either way.
+    - Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. Naive dates and datetimes require no conversion either way.
 
 - Display:
 
-    - Naive dates are displayed without conversion and without the midnight 
-      starting time. All-day events (occasions) go first in the daily display 
-      before all the datetime items and all-day tasks and journal entries go 
-      last.
+    - Naive dates are displayed without conversion and without the midnight starting time. All-day events (occasions) go first in the daily display before all the datetime items and all-day tasks and journal entries go last.
 
-    - Naive datetimes are displayed without conversion, i.e., are interpreted 
-      as local datetimes without conversion.
+    - Naive datetimes are displayed without conversion, i.e., are interpreted as local datetimes without conversion.
 
-    - Aware datetimes are converted to the current local timezone. E.g., in 
-      the US/Eastern timezone, `fri 2p` would display as beginning at 2pm on 
-      Jan 5 if the computer is still in the Eastern timezone but would display 
-      as starting at 11am if the computer had been moved to the Pacific 
-      timezone. Similarly, `fri 2p, US/Pacific` would display as starting at 
-      5pm if the computer were in the Eastern timezone.
+    - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as beginning at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `fri 2p, US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
 
-    - Timestamps are converted to the local timezone and then rounded to the 
-      nearest minute for display.
+    - Timestamps are converted to the local timezone and then rounded to the nearest minute for display.
 
 ## Jobs
 
-- Tasks, both with and without `@s` entries can have component job entries, 
-  `@j`.  A task with jobs thus replaces the old task group.
+- Tasks, both with and without `@s` entries can have component job entries, `@j`.  A task with jobs thus replaces the old task group.
 
-- For tasks with an `@s` entry, jobs can have an `&s` entry to set the due 
-  date/datetime for the job. It can be entered as a timeperiod relative to  
-  the starting datetime (+ before or - after) for the task or as 
-  date/datetime. However entered, the value of `&s` is stored as a relative 
-  timeperiod with zero minutes as the default.
+- For tasks with an `@s` entry, jobs can have an `&s` entry to set the due date/datetime for the job. It can be entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task or as date/datetime. However entered, the value of `&s` is stored as a relative timeperiod with zero minutes as the default.
 
-- For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b` begin 
-  notices. The entry for `&a` is given as a time period relative to `&s` (+ 
-  before or - after) and the entry for `&b` is a positive integer number of 
-  days before the starting date/time to begin displaying "beginning soon" 
-  notices. Entries for `@a` and `@b` in the task become the defaults for `&a` 
-  and `&b`, respectively.
+- For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b` begin notices. The entry for `&a` is given as a time period relative to `&s` (+ before or - after) and the entry for `&b` is a positive integer number of days before the starting date/time to begin displaying "beginning soon" notices. Entries for `@a` and `@b` in the task become the defaults for `&a` and `&b`, respectively.
 
-- Job prerequisites, by default, are determined automatically by the order in 
-  which jobs are listed. E.g., with
+- Job prerequisites, by default, are determined automatically by the order in which jobs are listed. E.g., with
 
           - automatically assigned
               @j job A
               @j job B
               @j job C
 
-    `job A` has no prerequisites but is a prerequisite for `job B`. Similarly, `job B` is a prerequisite for `job C`. I.e., the default is to suppose that jobs must be completed sequentially in the order in which they are listed.
+    `job A` has no prerequisites but is a prerequisite for `job B`. Similarly, `job B` is a prerequisite for `job C`. I.e., the default is to suppose that jobs must be completed sequentially in the order in which they are listed. 
 
-    Alternatively, job prequisites can be assigned manually using entries for 
-    `&i` (id) and `&p`, (comma separated list of ids of immediate 
-    prequisites). E.g., with
+    Alternatively, job prequisites can be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
 
           - manually assigned
             @j job a &i a
@@ -196,16 +137,13 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     Neither `job a` nor `job b` has any prerequisites but both `job a` and `job b` are prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
 
-- Tasks with jobs are displayed by job using a combination of the task and job 
-  summaries with a type character indicating the status of the job. E.g., 
+- Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
           x manually assigned: job a
           - manually assigned: job b
           + manually assigned: job c
 
-  would indicate that `job a` if finished, `job b` is available (has no 
-  unfinished prerequistites) and that `job c` is waiting (has unfinished 
-  prerequisties). 
+  would indicate that `job a` if finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has unfinished prerequisties). 
 
 # Views
 
