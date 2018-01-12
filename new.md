@@ -154,7 +154,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 ## Day View
 
-- Scheduled items grouped by week.
+- Scheduled items are grouped by week.
 
 - Top title bar shows selected week, e.g.,
 
