@@ -117,7 +117,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
 - For tasks with an `@s` entry, jobs can have an `&s` entry to set the due date/datetime for the job. It can be entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task or as date/datetime. However entered, the value of `&s` is stored as a relative timeperiod with zero minutes as the default.
 
-- For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b` begin notices. The entry for `&a` is given as a time period relative to `&s` (+ before or - after) and the entry for `&b` is a positive integer number of days before the starting date/time to begin displaying "beginning soon" notices. Entries for `@a` and `@b` in the task become the defaults for `&a` and `&b`, respectively.
+- For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b` beginning soon notices. The entry for `&a` is given as a time period relative to `&s` (+ before or - after) and the entry for `&b` is a positive integer number of days before the starting date/time to begin displaying "beginning soon" notices. Entries for `@a` and `@b` in the task become the defaults for `&a` and `&b`, respectively.
 
 - Automatically assigned Job prerequisites
 
