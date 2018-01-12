@@ -164,7 +164,7 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
         8:49am Thu Jan 11                                 10:30am+2
 
-- Main panel shows scheduled items grouped by date, e.g., 
+- The main panel shows scheduled items grouped by date, e.g., 
 
         - Mon Jan 8
           ...
