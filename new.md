@@ -220,8 +220,6 @@ Six item types are used: `*`, `-`, `~`, `%`, `?`  and `!`.
 
     - All day journal entries, if any
 
-    - Actions finished on this date, if any, together with the time spent
-
     - Tasks, dated or undated, that were finished on this date, if any
 
 
