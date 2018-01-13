@@ -3,27 +3,21 @@
 event summary:
 * ev
 ------------------------------------------------------------
-Enter the summary for the event followed, optionally, by
-@key and value pairs
+Enter the summary for the event followed, optionally, by @key and value pairs
 
 
 event @keys:
 * ev @
 ------------------------------------------------------------
 Required: @s
-Allowed: @c, @d, @e, @g, @i, @l, @m, @s, @t, @v, @b, @r, @e,
-@a, @+, @-
+Allowed: @c, @d, @e, @g, @i, @l, @m, @s, @t, @v, @b, @r, @e, @a, @+, @-
 
 
 starting date or datetime?
 * ev @s 2p fri
 ------------------------------------------------------------
 starting: Fri Nov 17 2:00PM EST
-The datetime entry for @s will be interpreted as an aware
-datetime in the current local timezone. Append a comma and
-then 'float' to make the datetime floating (naive) or a
-specific timezone, e.g., 'US/Pacific', to use that timezone
-instead of the local one.
+The datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a comma and then 'float' to make the datetime floating (naive) or a specific timezone, e.g., 'US/Pacific', to use that timezone instead of the local one.
 
 extent (timeperiod)?
 * ev @s fri 2p @e
