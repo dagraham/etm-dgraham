@@ -1,4 +1,4 @@
-# What about this
+# What about this?
 
 - Pressing Return with item selected shows details using jinja2 template with this button bar underneath
 
