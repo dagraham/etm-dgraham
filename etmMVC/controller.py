@@ -331,7 +331,7 @@ def deal_with_j(at_hsh={}):
     top = "job?\n"
     bot = "{}".format(at_keys['j'])
     lofh = at_hsh.get('j', [])
-    ok, res = jobs(lofh)
+    ok, res, lastcompletion = jobs(lofh)
     if ok:
         item_hsh['jobs'] = res
         bot = "jobs:\n    {}\n".format(res)
