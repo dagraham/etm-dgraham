@@ -1074,21 +1074,22 @@ def jobs(lofh, dated=False):
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': '6/20/18 12p'}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
     (True,
-     [{'j': 'Job One',
+     [{'f': '20180620T1200',
+       'j': 'Job One',
        'p': [],
        'req': [],
-       'status': 'a',
-       'summary': '0/1/2: Job One'},
+       'status': 'f',
+       'summary': '1/1/1: Job One'},
       {'j': 'Job Two',
        'p': ['1'],
-       'req': ['1'],
-       'status': 'w',
-       'summary': '0/1/2: Job Two'},
+       'req': [],
+       'status': 'a',
+       'summary': '1/1/1: Job Two'},
       {'j': 'Job Three',
        'p': ['2'],
-       'req': ['2', '1'],
+       'req': ['2'],
        'status': 'w',
-       'summary': '0/1/2: Job Three'}],
+       'summary': '1/1/1: Job Three'}],
      None)
     """
     if dated:
