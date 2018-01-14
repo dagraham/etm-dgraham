@@ -328,8 +328,12 @@ def deal_with_j(at_hsh={}):
     else:
         # An undated task
         dated = False
+    top = "job?\n"
+    bot = "{}".format(at_keys['j'])
     lofh = at_hsh.get('j', [])
-    lofh = jobs(lofh, dated)
+    res = item_hsh['jobs'] = jobs(lofh, dated)
+    return top, bot, res
+
 
 deal_with['j'] = deal_with_j
 
