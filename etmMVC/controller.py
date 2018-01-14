@@ -331,7 +331,12 @@ def deal_with_j(at_hsh={}):
     top = "job?\n"
     bot = "{}".format(at_keys['j'])
     lofh = at_hsh.get('j', [])
-    res = item_hsh['jobs'] = jobs(lofh, dated)
+    ok, res = jobs(lofh, dated)
+    if ok:
+        item_hsh['jobs'] = res
+        bot = "jobs:\n    {}\n".format(res)
+    else:
+        bot = "problem parsing jobs"
     return top, bot, res
 
 
