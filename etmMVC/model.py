@@ -39,6 +39,8 @@ logger = logging.getLogger()
 
 etmdir = None
 
+ETMFMT = "%Y%m%dT%H%M"
+
 def parse_datetime(s):
     """
     's' will have the format 'datetime string' followed, optionally by a comma and a tz specification. Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if tz == 'float' or an aware datetime object converting to UTC using tzlocal if tz is None (missing) and using the provided tz otherwise.  
@@ -92,6 +94,48 @@ def parse_datetime(s):
             return ok, res.in_timezone('UTC'), tz
         else:
             return ok, res, tz
+
+def timestamp(arg):
+    """
+    Fuzzy parse a datetime string and return the YYYYMMDDTHHMM formatted version.
+    >>> timestamp("6/16/16 4p")
+    (True, '20160616T1600')
+    >>> timestamp("13/16/16 2p")
+    (False, 'invalid date-time: 13/16/16 2p')
+    """
+    try:
+        res = parse(arg).strftime(ETMFMT)
+    except:
+        return False, 'invalid date-time: {}'.format(arg)
+    return True, res
+
+
+def timestamp_list(arg, typ=None):
+    if type(arg) == str:
+        try:
+            args = [x.strip() for x in arg.split(",")]
+        except:
+            return False, '{}'.format(arg)
+    elif type(arg) == list:
+        try:
+            args = [str(x).strip() for x in arg]
+        except:
+            return False, '{}'.format(arg)
+    else:
+        return False, '{}'.format(arg)
+
+    tmp = []
+    msg = []
+    for p in args:
+        ok, res = format_datetime(p, typ)
+        if ok:
+            tmp.append(res)
+        else:
+            msg.append(res)
+    if msg:
+        return False, "{}".format(", ".join(msg))
+    else:
+        return True, tmp
 
 def format_datetime(obj):
     """
@@ -1007,11 +1051,11 @@ def prereqs(arg):
 undated_job_methods = dict(
     d=description,
     e=extent,
-    # f=date_time,
+    f=date_time,
     h=history,
     j=title,
     l=location,
-    # q=date_time,
+    q=date_time,
     # The last two require consideration of the whole list of jobs
     # i=id,
     p=prereqs,
