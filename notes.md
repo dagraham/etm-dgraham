@@ -2,18 +2,18 @@
 
 - Pressing Return with item selected shows details using jinja2 template with this button bar underneath
 
-      < edit >  < delete>   < copy >  < reschedule >
+        < edit >  < delete>   < copy >  < reschedule >
 
 - When edit, delete or copy is pressed and the item is repeating then pop-up
 
-      Which instances?  [] Earlier   [X] Selected   [] Later 
+        Which instances?  [] Earlier   [X] Selected   [] Later 
 
 - When Return is pressed, the detail view closes and the orginal view is displayed with the item selected.
 
 - When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing.
 
 
-      < save >    < cancel >
+        < save >    < cancel >
 
     Maybe save a copy of the original hash and only enable <save> when the hash has actually been changed. 
 
