@@ -4,6 +4,8 @@
 
         < edit >  < delete>   < copy >  < reschedule >
 
+        < show repetitions >   < open link >
+
 - When edit, delete or copy is pressed and the item is repeating then pop-up
 
         Which instances?  [] Earlier   [X] Selected   [] Later 
