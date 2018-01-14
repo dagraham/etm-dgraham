@@ -331,6 +331,7 @@ def deal_with_j(at_hsh={}):
     lofh = at_hsh.get('j', [])
     lofh = jobs(lofh, dated)
 
+deal_with['j'] = deal_with_j
 
 
 def str2hsh(s):
