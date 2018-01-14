@@ -1051,11 +1051,11 @@ def prereqs(arg):
 undated_job_methods = dict(
     d=description,
     e=extent,
-    f=date_time,
+    f=timestamp,
     h=history,
     j=title,
     l=location,
-    q=date_time,
+    q=timestamp,
     # The last two require consideration of the whole list of jobs
     # i=id,
     p=prereqs,
