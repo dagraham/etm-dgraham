@@ -108,7 +108,7 @@ reply = urwid.Text(item_types)
 buttons = urwid.Padding(urwid.GridFlow(
     urwid.Button(u'Save'),
     urwid.Button(u'Cancel')
-    ))
+    ), left=4, right=3, min_width=10)
 # save_button = urwid.Button(u'Save')
 # exit_button = urwid.Button(u'Cancel')
 div = urwid.Divider('-')
