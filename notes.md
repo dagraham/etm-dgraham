@@ -80,7 +80,7 @@ event
 # States
 
 - selecting item type
-  - top: 'type char for new item?'
+  - to/p: 'type char for new item?'
   - bot: list of type chars and descriptions
 
 - entering summary
@@ -286,7 +286,7 @@ Maybe add an @key to tasks (events, notes?)
 - display characters:
     - available
     # waiting
-    ✓ done
+    x done
 
 -  job display:
   task summary: job summary (m/n)
