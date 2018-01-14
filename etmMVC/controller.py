@@ -334,7 +334,7 @@ def deal_with_j(at_hsh={}):
     ok, res, lastcompletion = jobs(lofh)
     if ok:
         item_hsh['jobs'] = res
-        show = "   \n".join(["{}".format(x) for x in res])
+        show = "    \n".join(["{}".format(x) for x in res])
         bot = "jobs:\n    {}\n".format(show)
     else:
         bot = "problem parsing jobs"
