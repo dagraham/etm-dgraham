@@ -1068,7 +1068,7 @@ datetime_job_methods = dict(
 )
 datetime_job_methods.update(undated_job_methods)
 
-def jobs(lofh, dated=False):
+def jobs(lofh, at_hsh={}):
     """
     Process the job hashes in lofh
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': '6/20/18 12p'}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
@@ -1092,7 +1092,7 @@ def jobs(lofh, dated=False):
        'summary': '1/1/1: Job Three'}],
      None)
     """
-    if dated:
+    if 's' in at_hsh:
         job_methods = datetime_job_methods
     else:
         job_methods = undated_job_methods
@@ -1103,6 +1103,7 @@ def jobs(lofh, dated=False):
     req = {}
     id2hsh = {}
     first = True
+    summary = at_hsh.get('summary', '')
     for hsh in lofh:
         # todo: is defaults needed?
         res = {}
@@ -1244,7 +1245,7 @@ def jobs(lofh, dated=False):
             faw[1] += 1
 
     for i in ids:
-        id2hsh[i]['summary'] = "{}: {}".format("/".join([str(x) for x in faw]), id2hsh[i]['j'])
+        id2hsh[i]['summary'] = "{} {}: {}".format(summary, "/".join([str(x) for x in faw]), id2hsh[i]['j'])
         id2hsh[i]['req'] = req[i]
 
     if msg:
