@@ -1029,7 +1029,6 @@ def jobs(lofh, dated=False):
     Process the job hashes in lofh
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': '6/20/18 12p'}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
-    >>> data = [{'j': 'A', }]
     (True,
      [{'j': 'Job One',
        'p': [],
