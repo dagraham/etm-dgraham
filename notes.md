@@ -15,7 +15,7 @@
 
         < save >    < cancel >
 
-    Maybe save a copy of the original hash and only enable <save> when the hash has actually been changed. 
+- Maybe save a copy of the original hash and only enable `< save >` when the hash has actually been changed. 
 
 
 # TODO
