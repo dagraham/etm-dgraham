@@ -1,38 +1,21 @@
-# etm-mvc
+# What about this
 
-event summary:
-* ev
-------------------------------------------------------------
-Enter the summary for the event followed, optionally, by @key and value pairs
+- Pressing Return with item selected shows details using jinja2 template with this button bar underneath
+
+      < edit >  < delete>   < copy >  < reschedule >
+
+- When edit, delete or copy is pressed and the item is repeating then pop-up
+
+      Which instances?  [] Earlier   [X] Selected   [] Later 
+
+- When Return is pressed, the detail view closes and the orginal view is displayed with the item selected.
+
+- When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing.
 
 
-event @keys:
-* ev @
-------------------------------------------------------------
-Required: @s
-Allowed: @c, @d, @e, @g, @i, @l, @m, @s, @t, @v, @b, @r, @e, @a, @+, @-
+      < save >    < cancel >
 
-
-starting date or datetime?
-* ev @s 2p fri
-------------------------------------------------------------
-starting: Fri Nov 17 2:00PM EST
-The datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a comma and then 'float' to make the datetime floating (naive) or a specific timezone, e.g., 'US/Pacific', to use that timezone instead of the local one.
-
-extent (timeperiod)?
-* ev @s fri 2p @e
-------------------------------------------------------------
-considering: ''
-
-extent (timeperiod)?
-* ev @s fri 2p @e 90m
-------------------------------------------------------------
-extent: 1 hour 30 minutes
-
-index (colon delimited string)?
-* ev @i plant:tree:oak
-------------------------------------------------------------
-index: level 0 -> plant, level 1 -> tree, level 2 -> oak
+    Maybe save a copy of the original hash and only enable <save> when the hash has actually been changed. 
 
 
 # TODO
