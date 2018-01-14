@@ -337,7 +337,7 @@ def deal_with_j(at_hsh={}):
         show = "".join(["    {}\n".format(x) for x in res])
         bot = "jobs:\n{}".format(show)
     else:
-        bot = "problem parsing jobs"
+        bot = "jobs:\n{}\n".format(res)
     return top, bot, res
 
 
