@@ -3,7 +3,7 @@
 - Pressing Return with item selected shows details using jinja2 template with this button bar underneath
 
         -------------------------- top bar -------------------------
-        Esc:Cancel                                           F1:Help
+        Escape:Close                                         F1:Help
         ------------------------------------------------------------
         - task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v
         @r m &i 1
@@ -31,9 +31,24 @@
 
 - When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing.
 
+- When the edited version is different than the original or saved version
+
+        -------------------------- top bar -------------------------
+        Escape:Discard changes   ^S:Save changes             F1:Help
+        ------------------------------------------------------------
+
+- When the editied version is the same as the original or saved version
+
+        -------------------------- top bar -------------------------
+        Escape:Close                                         F1:Help
+        ------------------------------------------------------------
+
+
+
+
 
         ------------------------ status bar ------------------------
-                            ^S:save     Esc:Cancel 
+                                                             ^S:save 
 
 - Maybe save a copy of the original hash and only enable `< save >` when the hash has actually been changed. 
 
