@@ -290,10 +290,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
         -------------------------- top bar -------------------------
         Unsaved Changes                                      F1:Help
-        ------------------------------------------------------------ 
+
         ------------------------ status bar ------------------------
                 ^S:save  ^Q:save and close   ^U:undo changes
-        ------------------------------------------------------------
 
     - Save processes the item, updates the data store, displays the item using the jinja2 template and reopens it for editing. 
 
@@ -301,10 +300,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
         -------------------------- top bar -------------------------
         Saved Version                                        F1:Help
-        ------------------------------------------------------------
+
         ------------------------ status bar ------------------------
                              ˆQ:close    e)dit 
-        ------------------------------------------------------------
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
 
