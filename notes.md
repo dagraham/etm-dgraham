@@ -9,7 +9,7 @@
         @j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v
 
 
-        ---------------------------------------------------------
+        ----------------- status bar ----------------------------
         e)dit   d)elete   c)opy   m)ove   n)ew instance 
 
     - Show `@g` links in the details as clickable buttons
