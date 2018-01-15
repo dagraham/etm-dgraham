@@ -270,21 +270,21 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Pressing Return with item selected shows details using jinja2 template
 
-        -------------------------- top bar -------------------------
-        Current Version                                      F1:Help
-        ------------------------------------------------------------
-        - task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v
-        @r m &i 1
-        @j Job A &s 4w &b 2 &i 1 &a 2d: m &a 2d: v
-        @j Job B &s 2w &b 3 &i 2 &p 1 &a 2d: m &a 2d: v
-        @j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v
-
-
-
-
-        ------------------------ status bar ------------------------
-        Ret:close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new  
-        ------------------------------------------------------------
+       +-------------------------- top bar -------------------------+
+       |Current Version                                      F1:Help|
+       +------------------------------------------------------------+
+       |- task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v     |
+       |@r m &i 1                                                   |
+       |@j Job A &s 4w &b 2 &i 1 &a 2d: m &a 2d: v                  |
+       |@j Job B &s 2w &b 3 &i 2 &p 1 &a 2d: m &a 2d: v             |
+       |@j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v             |
+       |                                                            |
+       |                                                            |
+       |                                                            |
+       |                                                            |
+       +------------------------ status bar ------------------------+
+       |Ret:close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new| 
+       +------------------------------------------------------------+
 
     - Show `@g` links in the details as clickable buttons
 
