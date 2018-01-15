@@ -22,9 +22,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *todo* when exporting to *ical*.
 
-### `$`: action
-
-- The `@s` entry records the datetime at which the action was *finished*. Note that this is a timestamp and is thus an aware datetime.
+### Recording actions using `@m` 
 
 - The `@m`, *moment*, entry has the format `starting datetime, active timeperiod, finished datetime`. This entry records the time work on the action began, the time spent actively working and the time that the action was finished. Note that finished datetime minus starting datetime is approximately equal to the active timeperiod plus the period work was suspended/paused.
 
