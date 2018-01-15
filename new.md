@@ -62,7 +62,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Unchanged. 
 
-- Someday items cannot repeat, i.e., cannot have `@r` entries.
+- Someday items cannot repeat, i.e., cannot have `@r` entries. Datetime related entries such as `@s`, `@a` and `@b` are ignored.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
