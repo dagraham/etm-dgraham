@@ -18,7 +18,6 @@
         Ret:close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new  
         ------------------------------------------------------------
 
-
     - Show `@g` links in the details as clickable buttons
 
     - For repeated items, show as many as 3 reps below the details with a clickable `< more >` button if applicable. Each click shows as many as 3 more repetitions.
@@ -31,8 +30,7 @@
         |    [] Earlier   [X] Selected   [] Later   |              |
         +-------------------------------------------+              |
 
-
-- When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing.
+- When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing. Note that since copy creates a new item, it will be displayed as having unsaved changes.
 
 - When the edited version is different than the saved version
 
@@ -59,6 +57,9 @@
         ------------------------------------------------------------
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
+
+- When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
+
 
 # TODO
 
