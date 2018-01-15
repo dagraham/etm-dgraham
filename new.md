@@ -323,7 +323,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |                                                            |
         |                                                            |
         +------------------------ status bar ------------------------+
-        |Esc:cancel                                                  |
+        |                         Esc:cancel                         |
         +------------------------------------------------------------+
 
 - Once the new item has been modified, then the status bar changes to
