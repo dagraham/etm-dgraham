@@ -15,7 +15,7 @@
 
 
         ------------------------ status bar ------------------------
-        Ret:Close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new  
+        Ret:close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new  
         ------------------------------------------------------------
 
 
@@ -41,7 +41,7 @@
         ------------------------------------------------------------ 
 
         ------------------------ status bar ------------------------
-                ^S:Save  ^Q:Save and Close   ^U:Undo Changes
+                ^S:save  ^Q:save and close   ^U:undo changes
         ------------------------------------------------------------
 
     - Save processes the item, updates the data store, displays the item using the jinja2 template and reopens it for editing. 
@@ -55,7 +55,7 @@
 
 
         ------------------------ status bar ------------------------
-                                  ^Q:Close 
+                             Ret:close    e)dit 
         ------------------------------------------------------------
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
