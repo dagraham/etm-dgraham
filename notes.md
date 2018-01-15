@@ -44,7 +44,6 @@
                 ^S:Save  ^Q:Save and Close   ^U:Undo Changes
         ------------------------------------------------------------
 
-    The fact that there are unsaved changes
 
 - When the editied version is the same as the saved version
 
