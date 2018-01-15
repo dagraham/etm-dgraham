@@ -15,7 +15,7 @@
 
 
         ------------------------ status bar ------------------------
-          e)dit    d)elete    c)opy    r)eschedule    s)chedule new  
+         e)dit    d)elete    c)opy    r)eschedule    s)chedule new  
         ------------------------------------------------------------
 
 
