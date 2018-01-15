@@ -26,9 +26,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - The `@s` entry records the datetime at which the action was *finished*. Note that this is a timestamp and is thus an aware datetime.
 
-- The `@m`, *moment*, entry has the format `active timeperiod[, paused timeperiod]`. This entry records the time spent working on the action and, optionally, the time period that work on the action was suspended/paused.
+- The `@m`, *moment*, entry has the format `active timeperiod[, paused timeperiod]`. This entry records the time spent working on the action and, optionally, the time period that work on the action was suspended/paused. The moment entries is stored in the *memo* field when exporting to *ical*.
 
-- Using an etm *timer* to record an action entry:
+- An etm *timer* can be used to record an action entry:
 
     - Select the item (task, event, ...) to which the action is to be applied.
 
@@ -42,7 +42,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
       - The `@m` entry will record the accumulated time periods during which the timer was active and paused.
 
-      - The summary and `@i`, index, entries for the action will be those of the selected item. 
+      - The summary, `@c`, `@i`, `@l` and `@t`  entries for the action will be those of the selected item. 
+
+      - The action will be displayed for possible editing.
 
 - One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
