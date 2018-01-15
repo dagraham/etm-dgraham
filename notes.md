@@ -3,7 +3,7 @@
 - Pressing Return with item selected shows details using jinja2 template with this button bar underneath
 
         -------------------------- top bar -------------------------
-        Display Mode                           Escape:Close  F1:Help
+        Saved version                          Return:Close  F1:Help
         ------------------------------------------------------------
         - task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v
         @r m &i 1
@@ -37,7 +37,7 @@
 - When the edited version is different than the saved version
 
         -------------------------- top bar -------------------------
-        Edit Mode +                  ^S:Save   Esc:Cancel    F1:Help
+        Unsaved changes                ^S:Save  Escape:Undo  F1:Help
         ------------------------------------------------------------o
 
     The fact that there are unsaved changes
@@ -45,10 +45,10 @@
 - When the editied version is the same as the saved version
 
         -------------------------- top bar -------------------------
-        Edit Mode                              Esc:Close     F1:Help
+        Saved Version                          Return:Close  F1:Help
         ------------------------------------------------------------
 
-- When Escape is pressed, the details view closes and the original view is restored with the same item selected.
+- When Return is pressed, the details view closes and the original view is restored with the edited item selected.
 
 # TODO
 
