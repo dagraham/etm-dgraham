@@ -25,7 +25,12 @@
 
 - When edit, delete or copy is pressed and the item is repeating then pop-up
 
-        Which instances?  [] Earlier   [X] Selected   [] Later 
+        +-------------------------------------------+
+        |    Which instances?                       |
+        |                                           |
+        |    [] Earlier   [X] Selected   [] Later   |              |
+        +-------------------------------------------+              |
+
 
 - When Return is pressed, the detail view closes and the orginal view is displayed with the item selected.
 
