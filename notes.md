@@ -14,7 +14,7 @@
 
     - Show `@g` links in the details as clickable buttons
 
-    - For repeated items, show as many as 3 reps below the details with a clickable `< more >` button if applicable.
+    - For repeated items, show as many as 3 reps below the details with a clickable `< more >` button if applicable. Each click shows as many as 3 more repetitions.
 
 - When edit, delete or copy is pressed and the item is repeating then pop-up
 
