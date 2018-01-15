@@ -46,11 +46,15 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
+- Actions cannot repeat, i.e., cannot have `@r` entries.
+
 - Stored as a *journal* entry when exporting to *ical*.
 
 ### `%`: journal entry
 
 - This is equivalent to the old *note* item type. 
+
+- Journal items cannot repeat, i.e., cannot have `@r` entries.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
@@ -58,11 +62,15 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Unchanged. 
 
+- Someday items cannot repeat, i.e., cannot have `@r` entries.
+
 - Stored as a *journal* entry when exporting to *ical*.
 
 ### `!`: inbox
 
 - Unchanged but for the change in the type character from `$` to `!`.
+
+- All entries in inbox items are ignored save for the item type, summary and the created and last modified timestamps. 
 
 - Stored as a *journal* entry when exporting to *ical*.
 
