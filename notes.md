@@ -2,6 +2,9 @@
 
 - Pressing Return with item selected shows details using jinja2 template with this button bar underneath
 
+        -------------------------- top bar -------------------------
+        Esc:Cancel                                           F1:Help
+        ------------------------------------------------------------
         - task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v
         @r m &i 1
         @j Job A &s 4w &b 2 &i 1 &a 2d: m &a 2d: v
@@ -9,8 +12,12 @@
         @j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v
 
 
-        ---------------------- status bar -----------------------
-          e)dit   d)elete   c)opy   r)eschedule   s)chedule new  
+
+
+        ------------------------ status bar ------------------------
+          e)dit    d)elete    c)opy    r)eschedule    s)chedule new  
+        ------------------------------------------------------------
+
 
     - Show `@g` links in the details as clickable buttons
 
@@ -25,8 +32,8 @@
 - When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing.
 
 
-        ---------------------- status bar -----------------------
-                         ^S:save     Esc:Cancel 
+        ------------------------ status bar ------------------------
+                            ^S:save     Esc:Cancel 
 
 - Maybe save a copy of the original hash and only enable `< save >` when the hash has actually been changed. 
 
