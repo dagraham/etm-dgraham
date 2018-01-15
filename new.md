@@ -272,7 +272,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |Ret:close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new| 
         +------------------------------------------------------------+
 
-    - Show `@g` links in the details as clickable buttons
+    - `@g` entries appear as clickable links in the details 
 
     - For repeated items, show as many as 3 reps below the details with a clickable `< more >` button if applicable. Each click shows as many as 3 more repetitions.
 
