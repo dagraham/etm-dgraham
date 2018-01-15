@@ -37,13 +37,15 @@
 - When the edited version is different than the saved version
 
         -------------------------- top bar -------------------------
-        Edit Mode +                  ^S:Save   Escape:Close  F1:Help
-        ------------------------------------------------------------
+        Edit Mode +                  ^S:Save   Esc:Cancel    F1:Help
+        ------------------------------------------------------------o
+
+    The fact that there are unsaved changes
 
 - When the editied version is the same as the saved version
 
         -------------------------- top bar -------------------------
-        Edit Mode -                  ^S:Save   Escape:Close  F1:Help
+        Edit Mode                              Esc:Close     F1:Help
         ------------------------------------------------------------
 
 - When Escape is pressed, the details view closes and the original view is restored with the same item selected.
