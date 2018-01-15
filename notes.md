@@ -3,7 +3,7 @@
 - Pressing Return with item selected shows details using jinja2 template with this button bar underneath
 
         -------------------------- top bar -------------------------
-        Selected item                                        F1:Help
+        Current Version                                      F1:Help
         ------------------------------------------------------------
         - task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v
         @r m &i 1
@@ -49,13 +49,13 @@
 - When the editied version is the same as the saved version
 
         -------------------------- top bar -------------------------
-        Saved Version                          Return:Close  F1:Help
+        Saved Version                                        F1:Help
         ------------------------------------------------------------
 
 
 
         ------------------------ status bar ------------------------
-                ^Q:Close   ^U:Undo Changes
+                             Ret:Close    e)dit 
         ------------------------------------------------------------
 
 - When Return is pressed, the details view closes and the original view is restored with the edited item selected.
