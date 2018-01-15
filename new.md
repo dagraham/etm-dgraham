@@ -292,11 +292,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When edit, delete or copy is pressed and the item is repeating then pop-up
 
-        +-------------------------------------------+
-        |    Which instances?                       |
-        |                                           |
-        |    [] Earlier   [X] Selected   [] Later   |              |
-        +-------------------------------------------+              |
+                +-------------------------------------------+
+                |    Which instances?                       |
+                |                                           |
+                |    [] Earlier   [X] Selected   [] Later   | 
+                +-------------------------------------------+ 
 
 - When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing. Note that since copy creates a new item, it will be displayed as having unsaved changes.
 
