@@ -331,24 +331,24 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
 
 
-        -------------------------- top bar -------------------------
-        New item                                             F1:Help
-        ------------------------------------------------------------
-        type character for new item?
-        > _
-        ------------------------------------------------------------
-        item type characters:
-          *: event
-          -: task
-          $: action
-          %: journal entry
-          ?: someday entry
-          !: nbox entry
-
-
-        ------------------------ status bar ------------------------
-        Esc:cancel 
-        ------------------------------------------------------------
+        +-------------------------- top bar -------------------------+
+        |New item                                             F1:Help|
+        +------------------------------------------------------------+
+        |type character for new item?                                |
+        |> _                                                         |
+        |------------------------------------------------------------+
+        |item type characters:                                       |
+        |  *: event                                                  |
+        |  -: task                                                   |
+        |  $: action                                                 |
+        |  %: journal entry                                          |
+        |  ?: someday entry                                          |
+        |  !: nbox entry                                             |
+        |                                                            |
+        |                                                            |
+        +------------------------ status bar ------------------------+
+        |Esc:cancel                                                  |
+        +------------------------------------------------------------+
 
 - Once the new item has been modified, then the status bar changes to
 
