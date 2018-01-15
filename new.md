@@ -319,12 +319,12 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |> _                                                         |
         |------------------------------------------------------------+
         |item type characters:                                       |
-        |  *: event                                                  |
-        |  -: task                                                   |
-        |  $: action                                                 |
-        |  %: journal entry                                          |
-        |  ?: someday entry                                          |
-        |  !: nbox entry                                             |
+        |  *: event       -: task          $: action                 |
+        |  %: journal     ?: someday       !: inbox                  |
+        |                                                            |
+        |                                                            |
+        |                                                            |
+        |                                                            |
         |                                                            |
         +------------------------ status bar ------------------------+
         |Esc:cancel                                                  |
