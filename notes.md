@@ -10,8 +10,11 @@
 
 
         ---------------------------------------------------------
-        e)dit   d)elete   c)opy   r)eschedule 
-        s)how repetions o)pen link
+        e)dit   d)elete   c)opy   m)ove   n)ew instance 
+
+    - Show `@g` links in the details as clickable buttons
+
+    - For repeated items, show as many as 3 reps below the details with a clickable `< more >` button if applicable.
 
 - When edit, delete or copy is pressed and the item is repeating then pop-up
 
