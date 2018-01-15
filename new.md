@@ -303,7 +303,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         Saved Version                                        F1:Help
         ------------------------------------------------------------
         ------------------------ status bar ------------------------
-                             Ret:close    e)dit 
+                             ˆQ:close    e)dit 
         ------------------------------------------------------------
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
