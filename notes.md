@@ -3,7 +3,7 @@
 - Pressing Return with item selected shows details using jinja2 template with this button bar underneath
 
         -------------------------- top bar -------------------------
-        Saved version                          Return:Close  F1:Help
+        Selected item                                        F1:Help
         ------------------------------------------------------------
         - task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v
         @r m &i 1
@@ -15,7 +15,7 @@
 
 
         ------------------------ status bar ------------------------
-         e)dit    d)elete    c)opy    r)eschedule    s)chedule new  
+        Ret:Close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new  
         ------------------------------------------------------------
 
 
@@ -37,8 +37,12 @@
 - When the edited version is different than the saved version
 
         -------------------------- top bar -------------------------
-        Unsaved changes                ^S:Save  Escape:Undo  F1:Help
-        ------------------------------------------------------------o
+        Unsaved Changes                                      F1:Help
+        ------------------------------------------------------------ 
+
+        ------------------------ status bar ------------------------
+                ^S:Save  ^Q:Save and Close   ^U:Undo Changes
+        ------------------------------------------------------------
 
     The fact that there are unsaved changes
 
@@ -46,6 +50,12 @@
 
         -------------------------- top bar -------------------------
         Saved Version                          Return:Close  F1:Help
+        ------------------------------------------------------------
+
+
+
+        ------------------------ status bar ------------------------
+                ^Q:Close   ^U:Undo Changes
         ------------------------------------------------------------
 
 - When Return is pressed, the details view closes and the original view is restored with the edited item selected.
