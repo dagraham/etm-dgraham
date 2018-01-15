@@ -26,7 +26,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - The `@s` entry is interpreted as the datetime at which the action was *finished*. Note that this is a timestamp and is thus an aware datetime.
 
-- The `@m`, *moment*, entry has the format `active timeperiod[, paused timeperiod]`. This entry records the time spent working on the action and, optionally, the time period that work on the action was suspended/paused. The moment entries is stored in the *memo* field when exporting to *ical*.
+- The `@m`, *moment*, entry has the format `active timeperiod[, paused timeperiod]`. This entry records the time spent working on the action and, optionally, the time period that work on the action was suspended/paused. The moment entry is stored in the *memo* field when exporting to *ical*.
 
 - An etm *timer* can be used to record an action entry:
 
