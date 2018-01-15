@@ -32,8 +32,6 @@
         +-------------------------------------------+              |
 
 
-- When Return is pressed, the detail view closes and the orginal view is displayed with the item selected.
-
 - When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing.
 
 - When the edited version is different than the saved version
@@ -48,11 +46,7 @@
         Escape:Close                                         F1:Help
         ------------------------------------------------------------
 
-
-
-
-- Maybe save a copy of the original hash and only enable `< save >` when the hash has actually been changed. 
-
+- When Escape is pressed, the details view closes and the original view is restored with the same item selected.
 
 # TODO
 
