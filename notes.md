@@ -57,7 +57,7 @@
                              Ret:Close    e)dit 
         ------------------------------------------------------------
 
-- When Return is pressed, the details view closes and the original view is restored with the edited item selected.
+- When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
 
 # TODO
 
