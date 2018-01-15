@@ -324,7 +324,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
 
---- 
         +-------------------------- top bar -------------------------+
         |New item                                             F1:Help|
         +------------------------------------------------------------+
