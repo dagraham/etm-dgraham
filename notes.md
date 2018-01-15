@@ -44,6 +44,7 @@
                 ^S:Save  ^Q:Save and Close   ^U:Undo Changes
         ------------------------------------------------------------
 
+    Save processes the item, updates the data store, displays the item using the jinja2 template and reopens it for editing. 
 
 - When the editied version is the same as the saved version
 
@@ -54,7 +55,7 @@
 
 
         ------------------------ status bar ------------------------
-                             Ret:Close    e)dit 
+                                  ^Q:Close 
         ------------------------------------------------------------
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
