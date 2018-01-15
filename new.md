@@ -24,7 +24,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 ### Recording actions using `@m` 
 
-- The `@m`, *moment*, entry has the format `starting datetime, active timeperiod, finished datetime`. This entry records the time work on the action began, the time spent actively working and the time that the action was finished. Note that finished datetime minus starting datetime is approximately equal to the active timeperiod plus the period work was suspended/paused.
+- The `@m`, *moment*, entry has the format `starting datetime, active timeperiod, finished datetime`. This entry records the time work on the action began, the time spent actively working and the time that the action was finished. Finished datetime minus starting datetime minus active timeperiod is implicitly the period during which work was suspended/paused.
+
+- Moment entries can be appended to non-repeating events and tasks. To add a moment entry to a repeating item, first edit the particular instance of the repeating item to which the moment applies and then add the entry to that item.
 
 - Using an etm *timer* to record an action entry:
 
