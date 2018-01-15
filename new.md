@@ -22,11 +22,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *todo* when exporting to *ical*.
 
-### Recording actions using `@m` 
+### `$`: action
 
-- The `@m`, *moment*, entry has the format `starting datetime, active timeperiod, finished datetime`. This entry records the time work on the action began, the time spent actively working and the time that the action was finished. Finished datetime minus starting datetime minus active timeperiod is implicitly the period during which work was suspended/paused.
+- The `@s` entry records the datetime at which the action was *finished*. Note that this is a timestamp and is thus an aware datetime.
 
-- Moment entries can be appended to non-repeating events and tasks. To add a moment entry to a repeating item, first edit the particular instance of the repeating item to which the moment applies and then add the entry to that item.
+- The `@m`, *moment*, entry has the format `active timeperiod[, paused timeperiod]`. This entry records the time spent working on the action and, optionally, the time period that work on the action was suspended/paused.
 
 - Using an etm *timer* to record an action entry:
 
