@@ -1,5 +1,7 @@
 # What about this?
 
+## Editing an existing item
+
 - Pressing Return with item selected shows details using jinja2 template with this button bar underneath
 
         -------------------------- top bar -------------------------
@@ -58,7 +60,30 @@
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
 
+## Creating a new item
+
 - When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
+
+
+        -------------------------- top bar -------------------------
+        New item                                             F1:Help
+        ------------------------------------------------------------
+        type character for new item?
+        > _
+        ------------------------------------------------------------
+        item type characters:
+          *: event
+          -: task
+          $: action
+          %: journal entry
+          ?: someday entry
+          !: nbox entry
+
+
+        ------------------------ status bar ------------------------
+        Ret:close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new  
+        ------------------------------------------------------------
+
 
 
 # TODO
