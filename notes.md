@@ -2,7 +2,7 @@
 
 ## Editing an existing item
 
-- Pressing Return with item selected shows details using jinja2 template with this button bar underneath
+- Pressing Return with item selected shows details using jinja2 template
 
         -------------------------- top bar -------------------------
         Current Version                                      F1:Help
