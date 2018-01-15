@@ -262,3 +262,97 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
                  3h) Action c
            9h) Client B
               ...
+
+
+# Work Flow
+
+## Editing an existing item
+
+- Pressing Return with item selected shows details using jinja2 template
+
+        -------------------------- top bar -------------------------
+        Current Version                                      F1:Help
+        ------------------------------------------------------------
+        - task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v
+        @r m &i 1
+        @j Job A &s 4w &b 2 &i 1 &a 2d: m &a 2d: v
+        @j Job B &s 2w &b 3 &i 2 &p 1 &a 2d: m &a 2d: v
+        @j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v
+
+
+
+
+        ------------------------ status bar ------------------------
+        Ret:close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new  
+        ------------------------------------------------------------
+
+    - Show `@g` links in the details as clickable buttons
+
+    - For repeated items, show as many as 3 reps below the details with a clickable `< more >` button if applicable. Each click shows as many as 3 more repetitions.
+
+- When edit, delete or copy is pressed and the item is repeating then pop-up
+
+        +-------------------------------------------+
+        |    Which instances?                       |
+        |                                           |
+        |    [] Earlier   [X] Selected   [] Later   |              |
+        +-------------------------------------------+              |
+
+- When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing. Note that since copy creates a new item, it will be displayed as having unsaved changes.
+
+- When the edited version is different than the saved version
+
+        -------------------------- top bar -------------------------
+        Unsaved Changes                                      F1:Help
+        ------------------------------------------------------------ 
+
+        ------------------------ status bar ------------------------
+                ^S:save  ^Q:save and close   ^U:undo changes
+        ------------------------------------------------------------
+
+    - Save processes the item, updates the data store, displays the item using the jinja2 template and reopens it for editing. 
+
+- When the editied version is the same as the saved version
+
+        -------------------------- top bar -------------------------
+        Saved Version                                        F1:Help
+        ------------------------------------------------------------
+
+
+
+        ------------------------ status bar ------------------------
+                             Ret:close    e)dit 
+        ------------------------------------------------------------
+
+- When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
+
+## Creating a new item
+
+- When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
+
+
+        -------------------------- top bar -------------------------
+        New item                                             F1:Help
+        ------------------------------------------------------------
+        type character for new item?
+        > _
+        ------------------------------------------------------------
+        item type characters:
+          *: event
+          -: task
+          $: action
+          %: journal entry
+          ?: someday entry
+          !: nbox entry
+
+
+        ------------------------ status bar ------------------------
+        Esc:cancel 
+        ------------------------------------------------------------
+
+- Once the new item has been modified, then the status bar changes to
+
+        ------------------------ status bar ------------------------
+                ^S:save  ^Q:save and close   ^U:undo changes
+        ------------------------------------------------------------
+
