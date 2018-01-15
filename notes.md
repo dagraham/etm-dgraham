@@ -10,7 +10,7 @@
 
 
         ---------------------- status bar -----------------------
-           e)dit   d)elete   c)opy   r)eschedule   schedule new  
+          e)dit   d)elete   c)opy   r)eschedule   s)chedule new  
 
     - Show `@g` links in the details as clickable buttons
 
