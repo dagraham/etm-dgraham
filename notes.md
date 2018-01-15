@@ -81,8 +81,15 @@
 
 
         ------------------------ status bar ------------------------
-        Ret:close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new  
+        Esc:cancel 
         ------------------------------------------------------------
+
+- Once the new item has been modified, then the status bar changes to
+
+        ------------------------ status bar ------------------------
+                ^S:save  ^Q:save and close   ^U:undo changes
+        ------------------------------------------------------------
+
 
 
 
