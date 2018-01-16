@@ -4,7 +4,7 @@
 
 - [What's New in etm](#whats-new-in-etm)
   - [Data](#data)
-      - [Item Types: `*`, `-`, `$`, `%`, `?`  and `!`](#item-types-----%25---and-)
+      - [Item Types](#item-types)
         - [`*`: event](#-event)
         - [`-`: task](#--task)
         - [`$`: action](#-action)
@@ -32,7 +32,9 @@
 
 ## Data
 
-#### Item Types: `*`, `-`, `$`, `%`, `?`  and `!`
+#### Item Types
+
+Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 ##### `*`: event
 
