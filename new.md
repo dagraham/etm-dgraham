@@ -288,7 +288,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - Pressing Return with item selected shows details using the jinja2 template
 
         +-------------------------- top bar -------------------------+
-        |Current Version                                      F1:Help|
+        |Saved Version                                        F1:Help|
         +------------------------------------------------------------+
         |- task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v     |
         |@r m &i 1                                                   |
