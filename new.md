@@ -5,12 +5,12 @@
 - [What's New in etm](#whats-new-in-etm)
   - [Data](#data)
     - [Item Types](#item-types)
-      - [`*`: event](#-event)
-      - [`-`: task](#--task)
-      - [`$`: action](#-action)
-      - [`%`: journal entry](#%25-journal-entry)
-      - [`?`: someday maybe](#-someday-maybe)
-      - [`!`: inbox](#-inbox)
+        - [`*`: event](#-event)
+        - [`-`: task](#--task)
+        - [`$`: action](#-action)
+        - [`%`: journal entry](#%25-journal-entry)
+        - [`?`: someday maybe](#-someday-maybe)
+        - [`!`: inbox](#-inbox)
     - [Storage](#storage)
     - [Dates and Date Times](#dates-and-date-times)
     - [Jobs](#jobs)
@@ -36,85 +36,85 @@
 
 Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
-##### `*`: event
+- `*`: event
 
-- The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
+	- The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
 
-- The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See *Dates and Date Times* below.
+	- The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See *Dates and Date Times* below.
 
-- Stored as an *event* when exporting to *ical*.
+	- Stored as an *event* when exporting to *ical*.
 
-##### `-`: task
+- `-`: task
 
-- The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* method. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
+	- The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* method. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
 
-- The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task.
+	- The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task.
 
-- The old `%`, *delegated*, item type is eliminated. 
+	- The old `%`, *delegated*, item type is eliminated. 
 
-- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
+	- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
 
-- Stored as a *todo* when exporting to *ical*.
+	- Stored as a *todo* when exporting to *ical*.
 
-##### `$`: action
+- `$`: action
 
-- An entry for `@m` is required along with entries for `@s` and `@f`.
+	- An entry for `@m` is required along with entries for `@s` and `@f`.
 
-- The `@s` entry is interpreted as the aware datetime at which the action was *started*. 
+	- The `@s` entry is interpreted as the aware datetime at which the action was *started*. 
 
-- The `@f` entry is interpreted as the aware datetime at which the action was *completed*. 
+	- The `@f` entry is interpreted as the aware datetime at which the action was *completed*. 
 
-- The `@m`, *memo*, entry in an action is interpreted as the time period actively spent working on the action. 
+	- The `@m`, *memo*, entry in an action is interpreted as the time period actively spent working on the action. 
 
-- An etm *timer* can be used to record an action entry:
+	- An etm *timer* can be used to record an action entry:
 
-    - Select the item (task, event, ...) to which the action is to be applied.
+			- Select the item (task, event, ...) to which the action is to be applied.
 
-    - Press the start key to start the timer.
+			- Press the start key to start the timer.
 
-    - Press the pause/restart key as often as desired.
+			- Press the pause/restart key as often as desired.
 
-    - Press the finish key to finish and record the action entry.
+			- Press the finish key to finish and record the action entry.
 
-      - The `@s` entry will record the moment at which the timer was first started.
+				- The `@s` entry will record the moment at which the timer was first started.
 
-      - The `@f` entry will record the moment at which the timer was finished.
+				- The `@f` entry will record the moment at which the timer was finished.
 
-      - The `@m` entry will record the accumulated time period during which the timer was active. Note that the finish time minus the start time minus active time implicitly gives the time period during which the timer was paused.
+				- The `@m` entry will record the accumulated time period during which the timer was active. Note that the finish time minus the start time minus active time implicitly gives the time period during which the timer was paused.
 
-      - The summary, `@c`, `@i`, `@l` and `@t`  entries for the action will be those of the selected item. 
+				- The summary, `@c`, `@i`, `@l` and `@t`  entries for the action will be those of the selected item. 
 
-      - The action will be displayed for possible editing.
+				- The action will be displayed for possible editing.
 
-- One or more timers can be active at the same time but only one can be running - the rest will be paused.
+	- One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
-- Actions cannot repeat, i.e., cannot have `@r` entries.
+	- Actions cannot repeat, i.e., cannot have `@r` entries.
 
-- Stored as a *journal* entry when exporting to *ical*.
+	- Stored as a *journal* entry when exporting to *ical*.
 
-##### `%`: journal entry
+- `%`: journal entry
 
-- This is equivalent to the old *note* item type. 
+	- This is equivalent to the old *note* item type. 
 
-- Journal items cannot repeat, i.e., cannot have `@r` entries.
+	- Journal items cannot repeat, i.e., cannot have `@r` entries.
 
-- Stored as a *journal* entry when exporting to *ical*.
+	- Stored as a *journal* entry when exporting to *ical*.
 
-##### `?`: someday maybe
+- `?`: someday maybe
 
-- Unchanged. 
+	- Unchanged. 
 
-- Someday items cannot repeat, i.e., cannot have `@r` entries. Datetime related entries such as `@s`, `@a` and `@b` are ignored.
+	- Someday items cannot repeat, i.e., cannot have `@r` entries. Datetime related entries such as `@s`, `@a` and `@b` are ignored.
 
-- Stored as a *journal* entry when exporting to *ical*.
+	- Stored as a *journal* entry when exporting to *ical*.
 
-##### `!`: inbox
+- `!`: inbox
 
-- Unchanged but for the change in the type character from `$` to `!`.
+	- Unchanged but for the change in the type character from `$` to `!`.
 
-- All entries in inbox items are ignored save for the item type, summary and the created and last modified timestamps. 
+	- All entries in inbox items are ignored save for the item type, summary and the created and last modified timestamps. 
 
-- Stored as a *journal* entry when exporting to *ical*.
+	- Stored as a *journal* entry when exporting to *ical*.
 
 ### Storage
 
