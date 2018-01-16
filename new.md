@@ -14,7 +14,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 ### `-`: task
 
-- The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* method. A special *next* view is devoted to these tasks where they are organized by their `@l`, *location*, entries. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
+- The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* method. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
 
 - The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task.
 
