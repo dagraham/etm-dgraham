@@ -1,6 +1,33 @@
-:toc: macro
-:toc-title:
-:toc-levels: 99
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Data](#data)
+  - [Item Types](#item-types)
+    - [`*`: event](#-event)
+    - [`-`: task](#--task)
+    - [`$`: action](#-action)
+    - [`%`: journal entry](#%25-journal-entry)
+    - [`?`: someday maybe](#-someday-maybe)
+    - [`!`: inbox](#-inbox)
+  - [Storage](#storage)
+  - [Dates and Date Times](#dates-and-date-times)
+  - [Jobs](#jobs)
+- [Views](#views)
+  - [Day View](#day-view)
+  - [Next View](#next-view)
+  - [Someday View](#someday-view)
+  - [Tag View](#tag-view)
+  - [Index View](#index-view)
+  - [History View](#history-view)
+  - [Finished View](#finished-view)
+  - [Action View](#action-view)
+- [Work Flow](#work-flow)
+  - [Editing an existing item](#editing-an-existing-item)
+  - [Creating a new item](#creating-a-new-item)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Data
 
 ## Item Types
