@@ -364,7 +364,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |edit mode: unsaved changes                           F1:Help|
         +------------------------------------------------------------+
         |event summary:                                              |
-        |> *                                                         |
+        |> *_                                                        |
         | ---------------------------------------------------------- |
         |Enter the summaary for the event followed, optionally, by   |
         |@key and value pairs.                                       |
