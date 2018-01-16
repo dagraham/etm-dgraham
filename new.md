@@ -360,3 +360,19 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Once the new item has been modified, then the top and status bars change to that described for editing an exising item.
 
+        +-------------------------- top bar -------------------------+
+        |edit mode: unsaved changes                           F1:Help|
+        +------------------------------------------------------------+
+        |event summary:                                              |
+        |> *                                                         |
+        | ---------------------------------------------------------- |
+        |Enter the summaary for the event followed, optionally, by   |
+        |@key and value pairs.                                       |
+        |                                                            |
+        |                                                            |
+        |                                                            |
+        |                                                            |
+        +------------------------ status bar ------------------------+
+        |        ^S:save  ^Q:save and close   ^U:undo changes        |
+        +------------------------------------------------------------+
+
