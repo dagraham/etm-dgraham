@@ -1,4 +1,28 @@
-[[_TOC_]]
+# Contents
+
+   * [Data](#data)
+      * [Item Types](#item-types)
+         * [*: event](#-event)
+         * [-: task](#--task)
+         * [$: action](#-action)
+         * [\x: journal entry](#-journal-entry)
+         * [?: someday maybe](#-someday-maybe)
+         * [!: inbox](#-inbox)
+      * [Storage](#storage)
+      * [Dates and Date Times](#dates-and-date-times)
+      * [Jobs](#jobs)
+   * [Views](#views)
+      * [Day View](#day-view)
+      * [Next View](#next-view)
+      * [Someday View](#someday-view)
+      * [Tag View](#tag-view)
+      * [Index View](#index-view)
+      * [History View](#history-view)
+      * [Finished View](#finished-view)
+      * [Action View](#action-view)
+   * [Work Flow](#work-flow)
+      * [Editing an existing item](#editing-an-existing-item)
+      * [Creating a new item](#creating-a-new-item)
 
 # Data
 
