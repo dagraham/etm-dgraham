@@ -32,8 +32,7 @@
 
 ## Data
 
-#### Item Types
-
+#### Item Types: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 ##### `*`: event
 
