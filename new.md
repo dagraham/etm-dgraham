@@ -30,7 +30,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - The `@f` entry is required and is interpreted as the datetime at which the action was *completed*. Note that this is a UTC timestamp and is thus an aware datetime.
 
-- The `@m`, *moment*, entry has the format `active timeperiod[, paused timeperiod]`. This entry records the time spent working on the action and, optionally, the time period that work on the action was suspended/paused. The moment entry is stored in the *memo* field when exporting to *ical*.
+- The `@m`, *moment*, entry is a timeperiod and is interpreted as the time spent actively working on the action. The moment entry is stored in the *memo* field when exporting to *ical*.
 
 - An etm *timer* can be used to record an action entry:
 
@@ -42,9 +42,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
     - Press the finish key to finish and record the action entry.
 
+      - The `@s` entry will record the moment at which the timer was first started.
+
       - The `@f` entry will record the moment at which the timer was finished.
 
-      - The `@m` entry will record the accumulated time periods during which the timer was active and paused.
+      - The `@m` entry will record the accumulated time period during which the timer was active. Note that the finish time minus the start time minus active time implicitly gives the time period during which the timer was paused.
 
       - The summary, `@c`, `@i`, `@l` and `@t`  entries for the action will be those of the selected item. 
 
