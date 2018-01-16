@@ -36,7 +36,7 @@
 
 Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
-###### `*`: event
+##### `*`: event
 
 - The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
 
@@ -44,7 +44,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as an *event* when exporting to *ical*.
 
-###### `-`: task
+##### `-`: task
 
 - The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* method. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
 
@@ -56,7 +56,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *todo* when exporting to *ical*.
 
-###### `$`: action
+##### `$`: action
 
 - An entry for `@m` is required along with entries for `@s` and `@f`.
 
@@ -92,7 +92,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
-###### `%`: journal entry
+##### `%`: journal entry
 
 - This is equivalent to the old *note* item type. 
 
@@ -100,7 +100,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
-###### `?`: someday maybe
+##### `?`: someday maybe
 
 - Unchanged. 
 
@@ -108,7 +108,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
-###### `!`: inbox
+##### `!`: inbox
 
 - Unchanged but for the change in the type character from `$` to `!`.
 
