@@ -23,7 +23,7 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 # Data
 
-## Item Types
+### Item Types
 
 Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
@@ -95,7 +95,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 	- All entries in inbox items are ignored save for the item type, summary and the created and last modified timestamps. 
 
-## Storage
+### Storage
 
 - All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable.  It can be backed up and/or queried using external tools as well as etm itself. 
 
@@ -110,7 +110,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
-## Dates and Date Times
+### Dates and Date Times
 
 - The time zone entry, `@z`, is eliminated. 
 
@@ -140,7 +140,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
     - Datetimes are rounded to the nearest minute for display.
 
-## Jobs
+### Jobs
 
 - Tasks, both with and without `@s` entries can have component job entries, `@j`.  A task with jobs thus replaces the old task group.
 
@@ -180,7 +180,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 # Views
 
-## Day View
+### Day View
 
 - Scheduled items are grouped by week.
 
@@ -251,39 +251,39 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
     - Tasks, dated or undated, that were finished on this date, if any
 
 
-## Next View
+### Next View
 
 - Unfinished tasks and jobs without `@s` entries grouped and sorted by *location* and then *priority*.
 
 - While finished tasks and jobs are removed from this view, they are added to *Day View* using the completion datetime.
 
-## Someday View
+### Someday View
 
 - Someday items grouped and sorted by the last modified datetime 
 
-## Tag View
+### Tag View
 
 - Tagged items grouped and sorted by tag
 
-## Index View
+### Index View
 
 - All items, grouped and sorted by their *index* entries
 
-## History View
+### History View
 
 - All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
 
-## Finished View
+### Finished View
 
 - Finished tasks grouped and sorted by the completed datetime, most recent first.
 
-## Action View
+### Action View
 
 - Actions grouped, sorted and with moment time aggregated by month and index. 
 
 # Work Flow
 
-## Editing an existing item
+### Editing an existing item
 
 - Pressing Return with item selected shows details using the jinja2 template
 
@@ -335,7 +335,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
 
-## Creating a new item
+### Creating a new item
 
 - When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
 
