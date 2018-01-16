@@ -26,11 +26,13 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 ### `$`: action
 
-- An entry for `@s` is optional and, if given, is interpreted as the datetime at which the action was *started*. This will be stored as a UTC timestamp and is thus an aware datetime.
+- An entry for `@m` is required along with entries for `@s` and `@f`.
 
-- The `@f` entry is required and is interpreted as the datetime at which the action was *completed*. Note that this is a UTC timestamp and is thus an aware datetime.
+- The `@s` entry is interpreted as the aware datetime at which the action was *started*. 
 
-- The `@m`, *moment*, entry is a timeperiod and is interpreted as the time spent actively working on the action. The moment entry is stored in the *memo* field when exporting to *ical*.
+- The `@f` entry is interpreted as the aware datetime at which the action was *completed*. 
+
+- The `@m`, *moment*, entry in an action is interpreted as the time period actively spent working on the action. 
 
 - An etm *timer* can be used to record an action entry:
 
