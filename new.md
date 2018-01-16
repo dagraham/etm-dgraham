@@ -179,7 +179,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
           - manually assigned [1/1/1]: job b
           + manually assigned [1/1/1]: job c
 
-    would indicate that `job a` if finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has unfinished prerequisties). The status indicator in square brackets indicates for the task, respectively, the numbers of finished, active and waiting jobs.
+    would indicate that `job a` if finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, active and waiting jobs, respectively.
 
 ## Views
 
