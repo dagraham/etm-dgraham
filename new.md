@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 # What's New in ETM?
 
-- [What's New?](#whats-new)
+- [](#)
   - [Data](#data)
     - [Item Types](#item-types)
     - [Storage](#storage)
@@ -22,8 +22,7 @@
     - [Creating a new item](#creating-a-new-item)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-# 
-## Data
+# Data
 
 ### Item Types
 
