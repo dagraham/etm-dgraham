@@ -22,6 +22,9 @@
     - [Creating a new item](#creating-a-new-item)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+Title:	What's New in ETM?
+Author: Daniel Graham
+Date: January 2018	
 # What's New in etm
 
 ## Data
