@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Contents**  
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Data](#data)
   - [Item Types](#item-types)
@@ -27,14 +27,15 @@
   - [Creating a new item](#creating-a-new-item)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+# What's New
 
-# Data
+## Data
 
-## Item Types
+#### Item Types
 
 Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
-### `*`: event
+###### `*`: event
 
 - The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
 
@@ -42,7 +43,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as an *event* when exporting to *ical*.
 
-### `-`: task
+###### `-`: task
 
 - The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* method. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
 
@@ -54,7 +55,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *todo* when exporting to *ical*.
 
-### `$`: action
+###### `$`: action
 
 - An entry for `@m` is required along with entries for `@s` and `@f`.
 
@@ -90,7 +91,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
-### `%`: journal entry
+###### `%`: journal entry
 
 - This is equivalent to the old *note* item type. 
 
@@ -98,7 +99,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
-### `?`: someday maybe
+###### `?`: someday maybe
 
 - Unchanged. 
 
@@ -106,7 +107,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
-### `!`: inbox
+###### `!`: inbox
 
 - Unchanged but for the change in the type character from `$` to `!`.
 
@@ -114,7 +115,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Stored as a *journal* entry when exporting to *ical*.
 
-## Storage
+#### Storage
 
 - All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable.  It can be backed up and/or queried using external tools as well as etm itself. 
 
@@ -129,7 +130,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
-## Dates and Date Times
+#### Dates and Date Times
 
 - The time zone entry, `@z`, is eliminated. 
 
@@ -159,7 +160,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
     - Datetimes are rounded to the nearest minute for display.
 
-## Jobs
+#### Jobs
 
 - Tasks, both with and without `@s` entries can have component job entries, `@j`.  A task with jobs thus replaces the old task group.
 
@@ -197,9 +198,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
     would indicate that `job a` if finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has unfinished prerequisties). 
 
-# Views
+## Views
 
-## Day View
+#### Day View
 
 - Scheduled items are grouped by week.
 
@@ -270,39 +271,39 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
     - Tasks, dated or undated, that were finished on this date, if any
 
 
-## Next View
+#### Next View
 
 - Unfinished tasks and jobs without `@s` entries grouped and sorted by *location* and then *priority*.
 
 - While finished tasks and jobs are removed from this view, they are added to *Day View* using the completion datetime.
 
-## Someday View
+#### Someday View
 
 - Someday items grouped and sorted by the last modified datetime 
 
-## Tag View
+#### Tag View
 
 - Tagged items grouped and sorted by tag
 
-## Index View
+#### Index View
 
 - All items, grouped and sorted by their *index* entries
 
-## History View
+#### History View
 
 - All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
 
-## Finished View
+#### Finished View
 
 - Finished tasks grouped and sorted by the completed datetime, most recent first.
 
-## Action View
+#### Action View
 
 - Actions grouped, sorted and with moment time aggregated by month and index. 
 
-# Work Flow
+## Work Flow
 
-## Editing an existing item
+#### Editing an existing item
 
 - Pressing Return with item selected shows details using the jinja2 template
 
@@ -354,7 +355,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
 
-## Creating a new item
+#### Creating a new item
 
 - When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
 
