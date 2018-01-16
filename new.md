@@ -1,7 +1,3 @@
-Title:	What's New in ETM?  
-Author: Daniel Graham  
-Date: January 2018  
-
 # What's New in ETM?
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
