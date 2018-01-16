@@ -1,16 +1,16 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents** 
+**Contents** 
 
 - [What's New in etm](#whats-new-in-etm)
   - [Data](#data)
       - [Item Types](#item-types)
-          - [`*`: event](#-event)
-          - [`-`: task](#--task)
-          - [`$`: action](#-action)
-          - [`%`: journal entry](#%25-journal-entry)
-          - [`?`: someday maybe](#-someday-maybe)
-          - [`!`: inbox](#-inbox)
+        - [`*`: event](#-event)
+        - [`-`: task](#--task)
+        - [`$`: action](#-action)
+        - [`%`: journal entry](#%25-journal-entry)
+        - [`?`: someday maybe](#-someday-maybe)
+        - [`!`: inbox](#-inbox)
       - [Storage](#storage)
       - [Dates and Date Times](#dates-and-date-times)
       - [Jobs](#jobs)
