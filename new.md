@@ -32,7 +32,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - The `@f` entry is interpreted as the aware datetime at which the action was *completed*. 
 
-- The `@m`, *moment*, entry in an action is interpreted as the time period actively spent working on the action. 
+- The `@m`, *memo*, entry in an action is interpreted as the time period actively spent working on the action. 
 
 - An etm *timer* can be used to record an action entry:
 
