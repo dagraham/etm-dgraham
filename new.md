@@ -328,7 +328,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When changes have been saved or undone
 
         -------------------------- top bar -------------------------
-        edit mode: changes saved                             F1:Help
+        edit mode: no unsaved changes                        F1:Help
 
         ------------------------ status bar ------------------------
                                   ˆQ:close
@@ -336,6 +336,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
 
 ### Creating a new item
+
 
 - When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
 
