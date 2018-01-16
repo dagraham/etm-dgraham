@@ -1,5 +1,7 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+# What's New in ETM?
+
 **Contents** 
 
 - [What's New in ETM?](#whats-new-in-etm)
@@ -22,7 +24,6 @@
     - [Creating a new item](#creating-a-new-item)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 ## Data
 
 ### Item Types
