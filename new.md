@@ -34,7 +34,6 @@
 
 #### Item Types
 
-Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 ##### `*`: event
 
