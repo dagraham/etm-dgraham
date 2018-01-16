@@ -4,7 +4,7 @@
 
 - [What's New in etm](#whats-new-in-etm)
   - [Data](#data)
-      - [Item Types](#item-types)
+      - [Item Types: `*`, `-`, `$`, `%`, `?`  and `!`](#item-types-----%25---and-)
         - [`*`: event](#-event)
         - [`-`: task](#--task)
         - [`$`: action](#-action)
