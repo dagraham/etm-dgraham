@@ -5,12 +5,6 @@
 - [What's New in etm](#whats-new-in-etm)
   - [Data](#data)
     - [Item Types](#item-types)
-        - [`*`: event](#-event)
-        - [`-`: task](#--task)
-        - [`$`: action](#-action)
-        - [`%`: journal entry](#%25-journal-entry)
-        - [`?`: someday maybe](#-someday-maybe)
-        - [`!`: inbox](#-inbox)
     - [Storage](#storage)
     - [Dates and Date Times](#dates-and-date-times)
     - [Jobs](#jobs)
@@ -68,23 +62,23 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 	- An etm *timer* can be used to record an action entry:
 
-			- Select the item (task, event, ...) to which the action is to be applied.
+		- Select the item (task, event, ...) to which the action is to be applied.
 
-			- Press the start key to start the timer.
+		- Press the start key to start the timer.
 
-			- Press the pause/restart key as often as desired.
+		- Press the pause/restart key as often as desired.
 
-			- Press the finish key to finish and record the action entry.
+		- Press the finish key to finish and record the action entry.
 
-				- The `@s` entry will record the moment at which the timer was first started.
+			- The `@s` entry will record the moment at which the timer was first started.
 
-				- The `@f` entry will record the moment at which the timer was finished.
+			- The `@f` entry will record the moment at which the timer was finished.
 
-				- The `@m` entry will record the accumulated time period during which the timer was active. Note that the finish time minus the start time minus active time implicitly gives the time period during which the timer was paused.
+			- The `@m` entry will record the accumulated time period during which the timer was active. Note that the finish time minus the start time minus active time implicitly gives the time period during which the timer was paused.
 
-				- The summary, `@c`, `@i`, `@l` and `@t`  entries for the action will be those of the selected item. 
+			- The summary, `@c`, `@i`, `@l` and `@t`  entries for the action will be those of the selected item. 
 
-				- The action will be displayed for possible editing.
+			- The action will be displayed for possible editing.
 
 	- One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
