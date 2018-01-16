@@ -366,7 +366,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |event summary:                                              |
         |> *_                                                        |
         | ---------------------------------------------------------- |
-        |Enter the summaary for the event followed, optionally, by   |
+        |Enter the summary for the event followed, optionally, by    |
         |@key and value pairs.                                       |
         |                                                            |
         |                                                            |
