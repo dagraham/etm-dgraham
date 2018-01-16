@@ -175,11 +175,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
-          x manually assigned: job a
-          - manually assigned: job b
-          + manually assigned: job c
+          x manually assigned [1/1/1]: job a
+          - manually assigned [1/1/1]: job b
+          + manually assigned [1/1/1]: job c
 
-    would indicate that `job a` if finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has unfinished prerequisties). 
+    would indicate that `job a` if finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has unfinished prerequisties). The status indicator in square brackets indicates for the task, respectively, the numbers of finished, active and waiting jobs.
 
 ## Views
 
