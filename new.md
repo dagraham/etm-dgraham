@@ -1,26 +1,24 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 # What's New in ETM?
-**Contents**
 
-- [What's New in ETM?](#whats-new-in-etm)
-  - [Data](#data)
-    - [Item Types](#item-types)
-    - [Storage](#storage)
-    - [Dates and Date Times](#dates-and-date-times)
-    - [Jobs](#jobs)
-  - [Views](#views)
-    - [Day View](#day-view)
-    - [Next View](#next-view)
-    - [Someday View](#someday-view)
-    - [Tag View](#tag-view)
-    - [Index View](#index-view)
-    - [History View](#history-view)
-    - [Finished View](#finished-view)
-    - [Action View](#action-view)
-  - [Work Flow](#work-flow)
-    - [Editing an existing item](#editing-an-existing-item)
-    - [Creating a new item](#creating-a-new-item)
+- [Data](#data)
+  - [Item Types](#item-types)
+  - [Storage](#storage)
+  - [Dates and Date Times](#dates-and-date-times)
+  - [Jobs](#jobs)
+- [Views](#views)
+  - [Day View](#day-view)
+  - [Next View](#next-view)
+  - [Someday View](#someday-view)
+  - [Tag View](#tag-view)
+  - [Index View](#index-view)
+  - [History View](#history-view)
+  - [Finished View](#finished-view)
+  - [Action View](#action-view)
+- [Work Flow](#work-flow)
+  - [Editing an existing item](#editing-an-existing-item)
+  - [Creating a new item](#creating-a-new-item)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 ## Data
