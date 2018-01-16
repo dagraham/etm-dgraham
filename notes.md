@@ -1,97 +1,45 @@
-# What about this?
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-## Editing an existing item
+- [What about this?](#what-about-this)
+  - [Editing an existing item](#editing-an-existing-item)
+  - [Creating a new item](#creating-a-new-item)
+- [TODO](#todo)
+- [States](#states)
+- [Defaults](#defaults)
+  - [default calendar: for @c](#default-calendar-for-c)
+  - [calendar sets](#calendar-sets)
+- [Date & Time](#date--time)
+  - [Storage](#storage)
+  - [Retrieval](#retrieval)
+- [Types](#types)
+  - [effort & reports](#effort--reports)
+  - [`*` event](#-event)
+  - [`-` task](#--task)
+  - [`%` journal](#%25-journal)
+  - [`?` someday maybe](#-someday-maybe)
+  - [`!` inbox](#-inbox)
+- [Views](#views)
+  - [week and month views](#week-and-month-views)
+  - [Next View](#next-view)
+  - [Someday View](#someday-view)
+  - [Week View](#week-view)
+    - [Keys](#keys)
+  - [Month View](#month-view)
+  - [Busy View](#busy-view)
+    - [Keys](#keys-1)
+    - [Colors](#colors)
+  - [Index View](#index-view)
+  - [History View](#history-view)
+  - [Tag View](#tag-view)
+  - [Details view](#details-view)
+  - [Edit view](#edit-view)
+- [@ and & Keys](#-and--keys)
+- [Key Bindings](#key-bindings)
+  - [View Mode keys](#view-mode-keys)
 
-- Pressing Return with item selected shows details using jinja2 template
-
-        -------------------------- top bar -------------------------
-        Current Version                                      F1:Help
-        ------------------------------------------------------------
-        - task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v
-        @r m &i 1
-        @j Job A &s 4w &b 2 &i 1 &a 2d: m &a 2d: v
-        @j Job B &s 2w &b 3 &i 2 &p 1 &a 2d: m &a 2d: v
-        @j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v
-
-
-
-
-        ------------------------ status bar ------------------------
-        Ret:close  e)dit  d)elete  c)opy  r)eschedule  s)chedule new  
-        ------------------------------------------------------------
-
-    - Show `@g` links in the details as clickable buttons
-
-    - For repeated items, show as many as 3 reps below the details with a clickable `< more >` button if applicable. Each click shows as many as 3 more repetitions.
-
-- When edit, delete or copy is pressed and the item is repeating then pop-up
-
-        +-------------------------------------------+
-        |    Which instances?                       |
-        |                                           |
-        |    [] Earlier   [X] Selected   [] Later   |              |
-        +-------------------------------------------+              |
-
-- When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing. Note that since copy creates a new item, it will be displayed as having unsaved changes.
-
-- When the edited version is different than the saved version
-
-        -------------------------- top bar -------------------------
-        Unsaved Changes                                      F1:Help
-        ------------------------------------------------------------ 
-
-        ------------------------ status bar ------------------------
-                ^S:save  ^Q:save and close   ^U:undo changes
-        ------------------------------------------------------------
-
-    - Save processes the item, updates the data store, displays the item using the jinja2 template and reopens it for editing. 
-
-- When the editied version is the same as the saved version
-
-        -------------------------- top bar -------------------------
-        Saved Version                                        F1:Help
-        ------------------------------------------------------------
-
-
-
-        ------------------------ status bar ------------------------
-                             Ret:close    e)dit 
-        ------------------------------------------------------------
-
-- When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
-
-## Creating a new item
-
-- When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
-
-
-        -------------------------- top bar -------------------------
-        New item                                             F1:Help
-        ------------------------------------------------------------
-        type character for new item?
-        > _
-        ------------------------------------------------------------
-        item type characters:
-          *: event
-          -: task
-          $: action
-          %: journal entry
-          ?: someday entry
-          !: nbox entry
-
-
-        ------------------------ status bar ------------------------
-        Esc:cancel 
-        ------------------------------------------------------------
-
-- Once the new item has been modified, then the status bar changes to
-
-        ------------------------ status bar ------------------------
-                ^S:save  ^Q:save and close   ^U:undo changes
-        ------------------------------------------------------------
-
-
-
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # TODO
 
