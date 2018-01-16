@@ -36,8 +36,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 	- The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See *Dates and Date Times* below.
 
-	- Stored as an *event* when exporting to *ical*.
-
 - `-`: task
 
 	- The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* method. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
@@ -47,8 +45,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 	- The old `%`, *delegated*, item type is eliminated. 
 
 	- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
-
-	- Stored as a *todo* when exporting to *ical*.
 
 - `$`: action
 
@@ -84,15 +80,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 	- Actions cannot repeat, i.e., cannot have `@r` entries.
 
-	- Stored as a *journal* entry when exporting to *ical*.
-
 - `%`: journal entry
 
 	- This is equivalent to the old *note* item type. 
 
 	- Journal items cannot repeat, i.e., cannot have `@r` entries.
-
-	- Stored as a *journal* entry when exporting to *ical*.
 
 - `?`: someday maybe
 
@@ -100,15 +92,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 	- Someday items cannot repeat, i.e., cannot have `@r` entries. Datetime related entries such as `@s`, `@a` and `@b` are ignored.
 
-	- Stored as a *journal* entry when exporting to *ical*.
-
 - `!`: inbox
 
 	- Unchanged but for the change in the type character from `$` to `!`.
 
 	- All entries in inbox items are ignored save for the item type, summary and the created and last modified timestamps. 
-
-	- Stored as a *journal* entry when exporting to *ical*.
 
 ### Storage
 
