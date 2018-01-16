@@ -1,7 +1,7 @@
 # Contents
 
 * [Data](#data)
-  * [Item Types](#-item\ types)
+  * [Item Types](#-item-types)
       * [*: event](#-event)
       * [-: task](#--task)
       * [$: action](#-action)
