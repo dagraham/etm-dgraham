@@ -211,8 +211,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - The main panel shows scheduled items grouped and sorted by date and time.
 
-- Weeks are displayed sequentially. If there is nothing to display for the 
-  week, then the main panel of the display would show "Nothing scheduled". 
+- Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the display would show "Nothing scheduled". 
   E.g, 
 
         Week 3: Jan 15 - 21, 2018                           F1:Help
@@ -234,8 +233,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
         - Inbox entries, if any
 
-        - Pastdue tasks, if any, with the number of days that have passed since 
-          the task was due using the display character `<`. 
+        - Pastdue tasks, if any, with the number of days that have passed since the task was due using the display character `<`. 
 
         - Beginning soon notices, if any, with the number of days remaining until the starting date of the item using the display character `>`.
 
