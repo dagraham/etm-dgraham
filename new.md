@@ -343,6 +343,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |editing: unchanged                                   F1:Help|
         +------------------------------------------------------------+
         |type character for new item?                                |
+        |currently:                                                  |
         |> _                                                         |
         | ---------------------------------------------------------- |
         |item type characters:                                       |
