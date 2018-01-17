@@ -288,7 +288,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - Pressing Return with item selected shows details using the jinja2 template
 
         +-------------------------- top bar -------------------------+
-        |display mode                                         F1:help|
+        |displaying                                           F1:help|
         +------------------------------------------------------------+
         |- task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v     |
         |@r m &i 1                                                   |
@@ -318,7 +318,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When the edited version is different than the saved version
 
         -------------------------- top bar -------------------------
-        edit mode: unsaved changes                           F1:Help
+        editing: unsaved changes                             F1:Help
 
         ------------------------ status bar ------------------------
                 ^S:save  ^Q:save and close   ^U:undo changes 
@@ -330,7 +330,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When changes have been saved or undone
 
         -------------------------- top bar -------------------------
-        edit mode: no unsaved changes                        F1:Help
+        editing: changes saved                               F1:Help
 
         ------------------------ status bar ------------------------
                                   ˆQ:close
