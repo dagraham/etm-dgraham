@@ -400,8 +400,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
-        |starting date or datetime                                   |
-        |> * my event @s fri_                                         |
+        |@s: starting date or datetime                               |
+        |> * my event @s fri_                                        |
         | ---------------------------------------------------------- |
         |starting: Fri Jan 19 2018                                   |
         |Without a time, this schedules an all-day, floating item    |
@@ -418,13 +418,13 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
-        |starting date or datetime                                   |
+        |@s: starting date or datetime                               |
         |> * my event @s fri 2p_                                     |
         | ---------------------------------------------------------- |
         |starting: Fri Jan 19 2018 2:00PM EST                        |
         |The datetime will be interpreted as an aware datetime in    |
-        |the current timezone. Append a comma and a timezone to      |
-        |specify an alterntive timezone or "float" to specify a      |
+        |the current timezone. Append, e.g., ", US/Pacific" to       |
+        |specify an alterntive timezone or ", float" to specify a    |
         |floating event in whatever happens to be the local timezone.|
         |                                                            |
         +------------------------ status bar ------------------------+
