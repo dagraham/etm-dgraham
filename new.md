@@ -333,7 +333,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         editing: unchanged                                   F1:Help
 
         ----------------------- status bar -------------------------
-                                 ˆQ:close
+                                ˆQ:close
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
 
