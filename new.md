@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-# What's New in ETM?
+# What's planned for the next etm?
 
 - [Data](#data)
     - [Item Types](#item-types)
@@ -337,7 +337,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 ### Creating a new item
 
 
-- When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
+- When creating a new item, the process is the same but for the fact that the initial display will, of course be empty. 
 
         +-------------------------- top bar -------------------------+
         |editing: unchanged                                   F1:Help|
