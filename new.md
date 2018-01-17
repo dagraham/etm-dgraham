@@ -218,8 +218,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         Week 3: Jan 15 - 21, 2018                           F1:Help
           Nothing scheduled
 
-  For the current week, the display would show "Nothing scheduled" under the 
-  current date. E.g.,
+    For the current week, the display would show "Nothing scheduled" under the current date. E.g.,
 
         Week 3: Jan 15 - 21, 2018                           F1:Help
         - Thu Jan 18 - Today
