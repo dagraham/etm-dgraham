@@ -318,7 +318,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When the edited version is different than the saved version
 
         -------------------------- top bar -------------------------
-        editing: unsaved changes                             F1:Help
+        editing: changed                                     F1:Help
 
         ------------------------ status bar ------------------------
                 ^S:save  ^Q:save and close   ^U:undo changes 
@@ -361,7 +361,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - Once the new item has been modified, then the top and status bars change to that described for editing an exising item.
 
         +-------------------------- top bar -------------------------+
-        |editing: unsaved changes                             F1:Help|
+        |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
         |event summary:                                              |
         |> *_                                                        |
