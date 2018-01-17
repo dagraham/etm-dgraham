@@ -343,7 +343,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
 
         +-------------------------- top bar -------------------------+
-        |edit mode: new item                                  F1:Help|
+        |editing: new item                                    F1:Help|
         +------------------------------------------------------------+
         |type character for new item?                                |
         |> _                                                         |
@@ -361,7 +361,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - Once the new item has been modified, then the top and status bars change to that described for editing an exising item.
 
         +-------------------------- top bar -------------------------+
-        |edit mode: unsaved changes                           F1:Help|
+        |editing: unsaved changes                             F1:Help|
         +------------------------------------------------------------+
         |event summary:                                              |
         |> *_                                                        |
