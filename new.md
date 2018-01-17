@@ -282,7 +282,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 ### Editing an existing item
 
-- Pressing Return with item selected shows details using the jinja2 template
+- Pressing Return with an item selected shows details using the jinja2 template
 
         +------------------------- top bar --------------------------+
         |viewing                                              F1:help|
