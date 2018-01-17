@@ -364,7 +364,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
-        |event summary:                                              |
+        |summary for the event?                                      |
         |> *_                                                        |
         | ---------------------------------------------------------- |
         |Enter the summary for the event followed, optionally, by    |
@@ -384,13 +384,14 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
-        |entering @key                                               |
+        |key?                                                        |
         |> * my event @_                                             |
         | ---------------------------------------------------------- |
-        |Required: @s                                                |
-        |Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v                 |
-        |Allowed with @s: @a, @b, @r                                 |
-        |Allowed with @r: @+, @-                                     |
+        |Allowed keys:                                               |
+        |  Required: @s                                              |
+        |  Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v               |
+        |  Allowed with @s: @a, @b, @r                               |
+        |  Allowed with @r: @+, @-                                   |
         |                                                            |
         |                                                            |
         +------------------------ status bar ------------------------+
@@ -402,7 +403,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
-        |entering @s: starting date or datetime                      |
+        |@s: starting date or datetime?                              |
         |> * my event @s fri_                                        |
         | ---------------------------------------------------------- |
         |starting: Fri Jan 19 2018                                   |
@@ -420,7 +421,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
-        |@s: starting date or datetime                               |
+        |@s: starting date or datetime?                              |
         |> * my event @s fri 2p_                                     |
         | ---------------------------------------------------------- |
         |starting: Fri Jan 19 2018 2:00PM EST                        |
