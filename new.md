@@ -330,7 +330,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When changes have been saved or undone
 
         -------------------------- top bar -------------------------
-        editing: unchanged                                  F1:Help
+        editing: unchanged                                   F1:Help
 
         ------------------------ status bar ------------------------
                                   ˆQ:close
@@ -343,7 +343,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When creating a new item, the process is the same but for the fact that the initial *Current Version* display will, of course be empty. 
 
         +-------------------------- top bar -------------------------+
-        |editing: new item                                    F1:Help|
+        |editing: unchanged                                   F1:Help|
         +------------------------------------------------------------+
         |type character for new item?                                |
         |> _                                                         |
@@ -355,13 +355,13 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |                                                            |
         |                                                            |
         +------------------------ status bar ------------------------+
-        |                         Esc:cancel                         |
+        |                          ^Q:close                          |
         +------------------------------------------------------------+
 
 - Once the new item has been modified, then the top and status bars change to that described for editing an exising item.
 
         +-------------------------- top bar -------------------------+
-        |editing: modified                                    F1:Help|
+        |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
         |event summary:                                              |
         |> *_                                                        |
