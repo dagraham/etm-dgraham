@@ -395,7 +395,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |        ^S:save  ^Q:save and close  ^U:undo changes         |
         +------------------------------------------------------------+
 
-  - `@s fri` entered but without a time
+  - With `@s fri` entered but without a time
 
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
@@ -413,7 +413,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |        ^S:save  ^Q:save and close  ^U:undo changes         |
         +------------------------------------------------------------+
 
-  - `@s fri 2p` entered
+  - With `@s fri 2p` entered
 
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
