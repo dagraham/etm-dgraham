@@ -343,7 +343,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |editing: unchanged                                   F1:Help|
         +------------------------------------------------------------+
         |type character for new item?                                |
-        |currently:                                                  |
         |> _                                                         |
         | ---------------------------------------------------------- |
         |item type characters:                                       |
@@ -366,7 +365,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
         |summary for the event?                                      |
-        |currently: my ev                                            |
         |> * my ev_                                                  |
         | ---------------------------------------------------------- |
         |Enter the summary for the event followed, optionally, by    |
@@ -387,7 +385,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
         |@key?                                                       |
-        |currently:                                                  |
         |> * my event @_                                             |
         | ---------------------------------------------------------- |
         |Allowed @keys:                                              |
