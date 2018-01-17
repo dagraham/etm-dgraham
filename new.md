@@ -237,10 +237,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         - Pastdue tasks, if any, with the number of days that have passed since 
           the task was due using the display character `<`. 
 
-        - Beginning soon notices, if any, with the number of days remaining 
-          until the starting date of the item.  These notices use the display 
-          character `>` whatever the type character of the item containing the 
-          `@b` entry.
+        - Beginning soon notices, if any, with the number of days remaining until the starting date of the item using the display character `>`.
 
         Note that the items included for the current date are those from the old *agenda* view.
 
