@@ -355,7 +355,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |                                                            |
         |                                                            |
         +------------------------ status bar ------------------------+
-        |                          ^Q:close                          |
+        |                         ^Q:close                           |
         +------------------------------------------------------------+
 
 - Once the new item has been modified, then the top and status bars change to that described for editing an exising item.
