@@ -375,6 +375,10 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |        ^S:save  ^Q:save and close  ^U:undo changes         |
         +------------------------------------------------------------+
 
+- As editing progresses, the display changes to show information relevant to the current entry. Here are some illustrative screens.
+
+  - Summary entered and an initial `@` but without the key
+
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
@@ -386,6 +390,42 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |With @s: @a, @b, @r                                         |
         |With @r: @+, @-                                             |
         |                                                            |
+        |                                                            |
+        +------------------------ status bar ------------------------+
+        |        ^S:save  ^Q:save and close  ^U:undo changes         |
+        +------------------------------------------------------------+
+
+  - `@s fri` entered but without a time
+
+        +-------------------------- top bar -------------------------+
+        |editing: changed                                     F1:Help|
+        +------------------------------------------------------------+
+        |starting date or datetime                                   |
+        |> * my event @s fri_                                         |
+        | ---------------------------------------------------------- |
+        |starting: Fri Jan 19 2018                                   |
+        |Without a time, this schedules an all-day, floating item    |
+        |for the specified date in whatever happens to be the local  |
+        |timezone.                                                   |
+        |                                                            |
+        |                                                            |
+        +------------------------ status bar ------------------------+
+        |        ^S:save  ^Q:save and close  ^U:undo changes         |
+        +------------------------------------------------------------+
+
+  - `@s fri 2p` entered
+
+        +-------------------------- top bar -------------------------+
+        |editing: changed                                     F1:Help|
+        +------------------------------------------------------------+
+        |starting date or datetime                                   |
+        |> * my event @s fri 2p_                                     |
+        | ---------------------------------------------------------- |
+        |starting: Fri Jan 19 2018 2:00PM EST                        |
+        |The datetime will be interpreted as an aware datetime in    |
+        |the current timezone. Append a comma and a timezone to      |
+        |specify an alterntive timezone or "float" to specify a      |
+        |floating event in whatever happens to be the local timezone.|
         |                                                            |
         +------------------------ status bar ------------------------+
         |        ^S:save  ^Q:save and close  ^U:undo changes         |
