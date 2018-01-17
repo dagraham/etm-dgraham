@@ -207,7 +207,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - The top title bar shows the selected week.
 
-- The bottom status bar shows current time, next alarm and the number of remaining alarms.
+- The bottom status bar shows current time, the next alarm and the number of remaining alarms for the current date.
 
 - The main panel shows scheduled items grouped and sorted by date and time.
 
