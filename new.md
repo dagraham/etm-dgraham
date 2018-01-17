@@ -384,10 +384,10 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
-        |key?                                                        |
+        |@key?                                                        |
         |> * my event @_                                             |
         | ---------------------------------------------------------- |
-        |Allowed keys:                                               |
+        |Allowed @keys:                                               |
         |  Required: @s                                              |
         |  Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v               |
         |  Allowed with @s: @a, @b, @r                               |
@@ -406,7 +406,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |@s: starting date or datetime?                              |
         |> * my event @s fri_                                        |
         | ---------------------------------------------------------- |
-        |starting: Fri Jan 19 2018                                   |
+        |currently: Fri Jan 19 2018                                  |
         |Without a time, this schedules an all-day, floating item    |
         |for the specified date in whatever happens to be the local  |
         |timezone.                                                   |
@@ -424,7 +424,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |@s: starting date or datetime?                              |
         |> * my event @s fri 2p_                                     |
         | ---------------------------------------------------------- |
-        |starting: Fri Jan 19 2018 2:00PM EST                        |
+        |currently: Fri Jan 19 2018 2:00PM EST                       |
         |The datetime will be interpreted as an aware datetime in    |
         |the current timezone. Append, e.g., ", US/Pacific" to       |
         |specify an alterntive timezone or ", float" to specify a    |
