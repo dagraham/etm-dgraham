@@ -184,30 +184,33 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Scheduled items are grouped by week.
 
-- The top title bar shows selected week, e.g.,
 
-        Week 2: Jan 8 - 14, 2018                            F1:Help
+        +------------------------- top bar --------------------------+
+        |Week 3: Jan 15 - 21, 2018                            F1:help|
+        +------------------------------------------------------------+
+        |Mon Jan 15                                                  |
+        |  ^ Martin Luther King Day                                  |
+        |  * Lunch with Joe                            12:30pm-1:30pm|
+        |  - Revise 1st quarter schedule                      3pm    |
+        |Thu Jan 18 - Today                                          |
+        |  < Revise 1st quarter schedule                       3d    |
+        |  > Duke vs Pitt                                      2d    |
+        |  * Conference call                             11am-11:30am|
+        |Sat Jan 20                                                  |
+        |  * Duke vs Pitt                                  4pm-6pm   |
+        |  * Dinner                                        7pm-9pm   |
+        |                                                            |
+        |                                                            |
+        +------------------------ status bar ------------------------+
+        | 8:49am Thu Jan 18                                10:30am+1 | 
+        +------------------------------------------------------------+
 
-- The bottom status bar shows current time, next alarm and the number of remaining alarms:
+- The top title bar shows the selected week.
 
-        8:49am Thu Jan 11                                 10:30am+2
+- The bottom status bar shows current time, next alarm and the number of remaining alarms.
 
-- The main panel shows scheduled items grouped by date, e.g., 
+- The main panel shows scheduled items grouped and sorted by date and time.
 
-        - Mon Jan 8
-          ...
-        - Tue Jan 9
-          ...
-        - Wed Jan 10 - Yesterday
-          ...
-        - Thu Jan 11 - Today
-          ...
-        - Fri Jan 12 - Tomorrow
-          ...
-        - Sat Jan 13
-          ...
-        - Sun Jan 14
-          ...
 - Weeks are displayed sequentially. If there is nothing to display for the 
   week, then the main panel of the display would show "Nothing scheduled". 
   E.g, 
@@ -218,8 +221,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
   For the current week, the display would show "Nothing scheduled" under the 
   current date. E.g.,
 
-        Week 2: Jan 8 - 14, 2018                            F1:Help
-        - Thu Jan 11 - Today
+        Week 3: Jan 15 - 21, 2018                           F1:Help
+        - Thu Jan 18 - Today
           Nothing scheduled
 
 
@@ -233,7 +236,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         - Inbox entries, if any
 
         - Pastdue tasks, if any, with the number of days that have passed since 
-          the task was due
+          the task was due using the display character `<`. 
 
         - Beginning soon notices, if any, with the number of days remaining 
           until the starting date of the item.  These notices use the display 
