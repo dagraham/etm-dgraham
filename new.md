@@ -358,6 +358,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |                         ^Q:close                           |
         +------------------------------------------------------------+
 
+- Closing before any changes have been made will cancel the operation and no new item will be created. 
+
 - Once the new item has been modified, then the top and status bars change to that described for editing an exising item.
 
         +-------------------------- top bar -------------------------+
