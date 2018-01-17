@@ -287,7 +287,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Pressing Return with item selected shows details using the jinja2 template
 
-        +-------------------------- top bar -------------------------+
+        +------------------------- top bar --------------------------+
         |viewing                                              F1:help|
         +------------------------------------------------------------+
         |- task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v     |
@@ -317,11 +317,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When the edited version is different than the saved version
 
-        -------------------------- top bar -------------------------
+        ------------------------ top bar ---------------------------
         editing: changed                                     F1:Help
 
-        ------------------------ status bar ------------------------
-                ^S:save  ^Q:save and close   ^U:undo changes 
+        ----------------------- status bar -------------------------
+                ^S:save  ^Q:save and close  ^U:undo changes 
 
     - Save processes the item, updates the data store, displays the item using the jinja2 template and reopens it for editing.
 
@@ -329,11 +329,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When changes have been saved or undone
 
-        -------------------------- top bar -------------------------
+        ------------------------ top bar ---------------------------
         editing: unchanged                                   F1:Help
 
-        ------------------------ status bar ------------------------
-                                  ˆQ:close
+        ----------------------- status bar -------------------------
+                                 ˆQ:close
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
 
@@ -373,6 +373,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |                                                            |
         |                                                            |
         +------------------------ status bar ------------------------+
-        |        ^S:save  ^Q:save and close   ^U:undo changes        |
+        |        ^S:save  ^Q:save and close  ^U:undo changes         |
         +------------------------------------------------------------+
 
