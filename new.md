@@ -337,7 +337,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 ### Creating a new item
 
 
-- When creating a new item, the process is the same but for the fact that the initial display will, of course be empty. 
+- When creating a new item, the process is the same but for the fact that the initial entry will be empty. 
 
         +-------------------------- top bar -------------------------+
         |editing: unchanged                                   F1:Help|
