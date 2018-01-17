@@ -375,6 +375,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |        ^S:save  ^Q:save and close  ^U:undo changes         |
         +------------------------------------------------------------+
 
+- Editing takes place in the line beginning with the `>` prompt. The current cursor position is shown by the underscore `_`.
+
 - As editing progresses, the display changes to show information relevant to the current entry. Here are some illustrative screens.
 
   - Summary entered and an initial `@` but without the key
@@ -382,13 +384,13 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
-        |event @keys:                                                |
+        |entering @key                                               |
         |> * my event @_                                             |
         | ---------------------------------------------------------- |
         |Required: @s                                                |
         |Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v                 |
-        |With @s: @a, @b, @r                                         |
-        |With @r: @+, @-                                             |
+        |Allowed with @s: @a, @b, @r                                 |
+        |Allowed with @r: @+, @-                                     |
         |                                                            |
         |                                                            |
         +------------------------ status bar ------------------------+
@@ -400,7 +402,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
-        |@s: starting date or datetime                               |
+        |entering @s: starting date or datetime                      |
         |> * my event @s fri_                                        |
         | ---------------------------------------------------------- |
         |starting: Fri Jan 19 2018                                   |
