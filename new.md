@@ -355,6 +355,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |                         ^Q:close                           |
         +------------------------------------------------------------+
 
+- Editing takes place in the line beginning with the `>` prompt. The current cursor position is shown by the underscore `_`.
+
 - Closing before any changes have been made will cancel the operation and no new item will be created. 
 
 - Once the new item has been modified, then the top and status bars change to that described for editing an exising item.
@@ -374,8 +376,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +------------------------ status bar ------------------------+
         |        ^S:save  ^Q:save and close  ^U:undo changes         |
         +------------------------------------------------------------+
-
-- Editing takes place in the line beginning with the `>` prompt. The current cursor position is shown by the underscore `_`.
 
 - As editing progresses, the display changes to show information relevant to the current entry. Here are some illustrative screens.
 
