@@ -365,7 +365,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
         |summary for the event?                                      |
-        |> *_                                                        |
+        |currently: my ev                                            |
+        |> * my ev_                                                  |
         | ---------------------------------------------------------- |
         |Enter the summary for the event followed, optionally, by    |
         |@key and value pairs.                                       |
@@ -384,10 +385,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +-------------------------- top bar -------------------------+
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
-        |@key?                                                        |
+        |@key?                                                       |
+        |currently:                                                  |
         |> * my event @_                                             |
         | ---------------------------------------------------------- |
-        |Allowed @keys:                                               |
+        |Allowed @keys:                                              |
         |  Required: @s                                              |
         |  Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v               |
         |  Allowed with @s: @a, @b, @r                               |
@@ -404,9 +406,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
         |@s: starting date or datetime?                              |
+        |currently: Fri Jan 19 2018                                  |
         |> * my event @s fri_                                        |
         | ---------------------------------------------------------- |
-        |currently: Fri Jan 19 2018                                  |
         |Without a time, this schedules an all-day, floating item    |
         |for the specified date in whatever happens to be the local  |
         |timezone.                                                   |
@@ -422,9 +424,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
         |@s: starting date or datetime?                              |
+        |currently: Fri Jan 19 2018 2:00PM EST                       |
         |> * my event @s fri 2p_                                     |
         | ---------------------------------------------------------- |
-        |currently: Fri Jan 19 2018 2:00PM EST                       |
         |The datetime will be interpreted as an aware datetime in    |
         |the current timezone. Append, e.g., ", US/Pacific" to       |
         |specify an alterntive timezone or ", float" to specify a    |
