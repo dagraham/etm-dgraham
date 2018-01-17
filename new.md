@@ -313,12 +313,12 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
                 |    [] Earlier   [X] Selected   [] Later   | 
                 +-------------------------------------------+ 
 
-- When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing. Note that since copy creates a new item, it will be displayed as having unsaved changes.
+- When edit or copy is pressed, the details of the relevant item is displayed using the jinja2 template and ready for editing. Note that since copy creates a new item, it will be displayed as changed.
 
 - When the edited version is different than the saved version
 
         -------------------------- top bar -------------------------
-        editing: modified                                    F1:Help
+        editing: changed                                     F1:Help
 
         ------------------------ status bar ------------------------
                 ^S:save  ^Q:save and close   ^U:undo changes 
@@ -330,7 +330,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When changes have been saved or undone
 
         -------------------------- top bar -------------------------
-        editing: unmodified                                  F1:Help
+        editing: unchanged                                  F1:Help
 
         ------------------------ status bar ------------------------
                                   ˆQ:close
