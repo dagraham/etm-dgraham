@@ -330,7 +330,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When changes have been saved or undone
 
         -------------------------- top bar -------------------------
-        editing: no unsaved changes                          F1:Help
+        editing: unchanged                                   F1:Help
 
         ------------------------ status bar ------------------------
                                   ˆQ:close
