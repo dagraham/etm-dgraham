@@ -50,7 +50,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 		- Select the item (task, event, ...) to which the action is to be applied.
 		- Press the start key to start the timer.
 		- Press the pause/restart key as often as desired.
-		- Press the finish key to finish and record the action entry.
+		- Press the finish key to finish and record the new action.
 
 			- The `@s` entry will record the moment at which the timer was first started.
 			- The `@f` entry will record the moment at which the timer was finished.
