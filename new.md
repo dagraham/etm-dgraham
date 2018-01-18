@@ -370,7 +370,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |Enter the summary for the event followed, optionally, by    |
         |@key and value pairs.                                       |
         |                                                            |
-        |                                                            |
         +------------------------ status bar ------------------------+
         |        ^S:save  ^Q:save and close  ^U:undo changes         |
         +------------------------------------------------------------+
