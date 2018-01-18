@@ -314,11 +314,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When the edited version is different than the saved version
 
-        ------------------------ top bar ---------------------------
-        editing: changed                                     F1:Help
+  - topbar: `editing: changed`
 
-        ----------------------- status bar -------------------------
-                ^S:save  ^Q:save and close  ^U:undo changes 
+  - status bar: `^S:save  ^Q:save and close  ^U:undo changes` 
 
     - Save processes the item, updates the data store, displays the item using the jinja2 template and reopens it for editing.
 
