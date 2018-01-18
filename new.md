@@ -68,8 +68,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - `?`: someday maybe
 
-	- Unchanged. 
-	- Datetime related entries such as `@s`, `@a` and `@b`, `@r`, `@+` and `@-` are ignored.
+	- Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignored.
 
 - `!`: inbox
 
