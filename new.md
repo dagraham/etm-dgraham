@@ -161,6 +161,37 @@ The GUI will be terminal-based using *urwid*. Here is a screenshot from an earli
 
 ![Day View](/Users/dag/etm-mvc/screenshot.jpg "Day View")
 
+
+				□ Mon Jan 15
+					^ Martin Luther King Day                        12am
+					* stationary bike                            4:30pm-5pm
+				□ Tue Jan 16
+					* tennis                                     7:30am-9am
+					* lunch meeting                              12pm-1:30pm
+					* hamburger night                            6pm-7:30pm
+					→ task group 1/2: job 1
+					↑ task group 2/2: job 2
+				□ Yesterday - Wed Jan 17
+					* breakfast meeting                          9am-10:30am
+					* stationary bike                            4:30pm-5pm
+					- hair cut
+					% fix back door
+				□ Today - Thu Jan 18
+					^ etm demo day                                  12am
+					* tennis                                     7:30am-9am
+					* conference call                            2pm-2:45pm
+					* conflict                                  2:30pm-3:30pm
+					- due today
+					- repeating weekly starting today
+					- begin yesterday due today
+					~ work on job 1                                  1h
+					! dated notes on job 1                          12am
+					✓ finished task
+				□ Tomorrow - Fri Jan 19
+					* coffee meeting                               3pm-4pm
+					* stationary bike                            4:30pm-5pm
+				6:43pm Thu Jan 18                                 5:30pm+2
+
 ### Day View
 
 - Scheduled items are grouped by week.
