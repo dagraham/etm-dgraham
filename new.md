@@ -73,7 +73,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - `!`: inbox
 
 	- Unchanged but for the change in the type character from `$` to `!`.
-	- All entries in inbox items are ignored save for the item type, summary and the created and last modified timestamps. 
+	- All entries in inbox items are ignored save for the item type and summary. 
 
 ### Storage
 
