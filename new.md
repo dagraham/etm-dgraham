@@ -390,8 +390,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
   - With `@s fri 2p` entered
 
-        +-------------------------- top bar -------------------------+
-        |editing: unsaved changes                             F1:Help|
         +------------------------------------------------------------+
         |@s: starting date or datetime?                              |
         |> * my event @s fri 2p_                                     |
@@ -401,8 +399,4 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |the current timezone. Append, e.g., ", US/Pacific" to       |
         |specify an alternative timezone or ", float" to specify a   |
         |floating item in whatever happens to be the local timezone. |
-        |                                                            |
-        +------------------------ status bar ------------------------+
-        |        ^S:save  ^Q:save and close  ^U:undo changes         |
-        +------------------------------------------------------------+
 
