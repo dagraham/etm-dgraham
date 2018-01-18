@@ -427,7 +427,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         | ---------------------------------------------------------- |
         |The datetime will be interpreted as an aware datetime in    |
         |the current timezone. Append, e.g., ", US/Pacific" to       |
-        |specify an alterntive timezone or ", float" to specify a    |
+        |specify an alternative timezone or ", float" to specify a   |
         |floating item in whatever happens to be the local timezone. |
         |                                                            |
         +------------------------ status bar ------------------------+
