@@ -387,11 +387,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |@key?                                                       |
         |> * my event @_                                             |
         | ---------------------------------------------------------- |
-        |Allowed @keys:                                              |
+        |Available @keys:                                            |
         |  Required: @s                                              |
         |  Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v               |
-        |  Allowed with @s: @a, @b, @r                               |
-        |  Allowed with @r: @+, @-                                   |
+        |  Requires @s: @a, @b, @r                                   |
+        |  Requires @r: @+, @-                                       |
         |                                                            |
         |                                                            |
         +------------------------ status bar ------------------------+
@@ -404,8 +404,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
         |@s: starting date or datetime?                              |
-        |currently: Fri Jan 19 2018                                  |
         |> * my event @s fri_                                        |
+        |currently: Fri Jan 19 2018                                  |
         | ---------------------------------------------------------- |
         |Without a time, this schedules an all-day, floating item    |
         |for the specified date in whatever happens to be the local  |
@@ -422,8 +422,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |editing: changed                                     F1:Help|
         +------------------------------------------------------------+
         |@s: starting date or datetime?                              |
-        |currently: Fri Jan 19 2018 2:00PM EST                       |
         |> * my event @s fri 2p_                                     |
+        |currently: Fri Jan 19 2018 2:00PM EST                       |
         | ---------------------------------------------------------- |
         |The datetime will be interpreted as an aware datetime in    |
         |the current timezone. Append, e.g., ", US/Pacific" to       |
