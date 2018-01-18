@@ -184,9 +184,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - The top title bar shows the selected week.
 - The bottom status bar shows current time, the next alarm and the number of remaining alarms for the current date.
 - The main panel shows scheduled items grouped and sorted by date and time.
-- Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the display would show "Nothing scheduled". 
-  E.g, 
-
+- Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the display would show "Nothing scheduled". E.g, 
         Week 3: Jan 15 - 21, 2018                           F1:Help
           Nothing scheduled
 
