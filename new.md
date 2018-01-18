@@ -159,7 +159,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 The GUI will be terminal-based using *urwid*. Here is a screenshot:
 
-![Alt text](./screenshot.jpg)
+![Alt text](/Users/dag/etm-mvc/screenshot.jpg)
 
 ### Day View
 
