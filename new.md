@@ -393,7 +393,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |  Requires @s: @a, @b, @r                                   |
         |  Requires @r: @+, @-                                       |
         |                                                            |
-        |                                                            |
         +------------------------ status bar ------------------------+
         |        ^S:save  ^Q:save and close  ^U:undo changes         |
         +------------------------------------------------------------+
@@ -410,7 +409,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |Without a time, this schedules an all-day, floating item    |
         |for the specified date in whatever happens to be the local  |
         |timezone.                                                   |
-        |                                                            |
         |                                                            |
         +------------------------ status bar ------------------------+
         |        ^S:save  ^Q:save and close  ^U:undo changes         |
