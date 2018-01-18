@@ -67,7 +67,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 	- Journal items cannot repeat, i.e., cannot have `@r` entries.
 
 - `?`: someday maybe
-
 	- Unchanged. 
 	- Someday items cannot repeat, i.e., cannot have `@r` entries. Datetime related entries such as `@s`, `@a` and `@b` are ignored.
 
