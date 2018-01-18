@@ -337,7 +337,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - When creating a new item, the process is the same but for the fact that the initial entry will be empty. 
 
         +-------------------------- top bar -------------------------+
-        |editing: unchanged                                   F1:Help|
+        |editing: no unsaved changes                          F1:Help|
         +------------------------------------------------------------+
         |type character for new item?                                |
         |> _                                                         |
@@ -359,7 +359,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - Once the new item has been modified, then the top and status bars change to that described for editing an exising item.
 
         +-------------------------- top bar -------------------------+
-        |editing: changed                                     F1:Help|
+        |editing: unsaved changes                             F1:Help|
         +------------------------------------------------------------+
         |summary for the event?                                      |
         |> * my ev_                                                  |
@@ -376,7 +376,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
   - Summary entered and an initial `@` but without the key
 
         +-------------------------- top bar -------------------------+
-        |editing: changed                                     F1:Help|
+        |editing: unsaved changes                             F1:Help|
         +------------------------------------------------------------+
         |@key?                                                       |
         |> * my event @_                                             |
@@ -394,7 +394,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
   - With `@s fri` entered but without a time
 
         +-------------------------- top bar -------------------------+
-        |editing: changed                                     F1:Help|
+        |editing: unsaved changes                             F1:Help|
         +------------------------------------------------------------+
         |@s: starting date or datetime?                              |
         |> * my event @s fri_                                        |
@@ -411,7 +411,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
   - With `@s fri 2p` entered
 
         +-------------------------- top bar -------------------------+
-        |editing: changed                                     F1:Help|
+        |editing: unsaved changes                             F1:Help|
         +------------------------------------------------------------+
         |@s: starting date or datetime?                              |
         |> * my event @s fri 2p_                                     |
