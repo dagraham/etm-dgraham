@@ -157,6 +157,10 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 # Views
 
+The GUI will be terminal-based using *urwid*. Here is a screenshot:
+
+![Alt text](./screenshot.jpg)
+
 ### Day View
 
 - Scheduled items are grouped by week.
