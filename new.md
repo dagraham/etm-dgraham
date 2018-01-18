@@ -99,13 +99,13 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
     - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. With a time, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
 
-    - Aware date-time, e.g., `@s fri 2p, US/Pacific`. Interpreted as `Fri, Jan 5 2018 2pm PST`.
+    - Aware date-time, e.g., `@s fri 2p, US/Pacific`. Interpreted as `Fri, Jan 5 2018 2pm PST`. 
 
     - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 1018 2pm` in whatever happens to be the local time zone.
 
 - Storage: 
 
-    - Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. Naive dates and datetimes require no conversion either way.
+    - Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. Naive dates and datetimes require no conversion either way. 
 
 - Display:
 
