@@ -331,8 +331,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When creating a new item, the process is the same but for the fact that the initial entry will be empty. 
 
-        +-------------------------- top bar -------------------------+
-        |editing: no unsaved changes                          F1:Help|
         +------------------------------------------------------------+
         |type character for new item?                                |
         |> _                                                         |
@@ -340,10 +338,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |item type characters:                                       |
         |  *: event       -: task          $: action                 |
         |  %: journal     ?: someday       !: inbox                  |
-        |                                                            |
-        +------------------------ status bar ------------------------+
-        |                         ^Q:close                           |
-        +------------------------------------------------------------+
 
 - Editing takes place in the line beginning with the `>` prompt. The current cursor position is shown by the underscore `_`.
 
