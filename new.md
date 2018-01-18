@@ -324,11 +324,10 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When changes have been saved or undone
 
-        ------------------------ top bar ---------------------------
-        editing: unchanged                                   F1:Help
+    - topbar: `editing: unchanged`
 
-        ----------------------- status bar -------------------------
-                                ˆQ:close
+    - status bar: `^Q:close` 
+
 
 - When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
 
