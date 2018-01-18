@@ -242,7 +242,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Actions grouped, sorted and with moment time aggregated by month and index. 
 
-# Work Flow
+## Work Flow
 
 ### Editing an existing item
 
