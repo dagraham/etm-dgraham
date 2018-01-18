@@ -314,7 +314,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When the edited version is different than the saved version
 
-    - topbar: `editing: changed`
+    - topbar: `editing: unsaved changes`
 
     - status bar: `^S:save  ^Q:save and close  ^U:undo changes` 
 
@@ -324,7 +324,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When changes have been saved or undone
 
-    - topbar: `editing: unchanged`
+    - topbar: `editing: no unsaved changes`
 
     - status bar: `^Q:close` 
 
