@@ -322,36 +322,36 @@ The GUI will be terminal-based using *urwid*. Here is a screenshot:
 
   - Summary entered and an initial `@` but without the key:
 
-        +------------------------------------------------------------+
-        |@key?                                                       |
-        |> * my event @_                                             |
-        | ---------------------------------------------------------- |
-        |Available @keys:                                            |
-        |  Required: @s                                              |
-        |  Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v               |
-        |  Requires @s: @a, @b, @r                                   |
-        |  Requires @r: @+, @-                                       |
+					+------------------------------------------------------------+
+					|@key?                                                       |
+					|> * my event @_                                             |
+					| ---------------------------------------------------------- |
+					|Available @keys:                                            |
+					|  Required: @s                                              |
+					|  Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v               |
+					|  Requires @s: @a, @b, @r                                   |
+					|  Requires @r: @+, @-                                       |
 
   - With `@s fri` entered but without a time
 
-        +------------------------------------------------------------+
-        |@s: starting date or datetime?                              |
-        |> * my event @s fri_                                        |
-        |currently: Fri Jan 19 2018                                  |
-        | ---------------------------------------------------------- |
-        |Without a time, this schedules an all-day, floating item    |
-        |for the specified date in whatever happens to be the local  |
-        |timezone.                                                   |
+					+------------------------------------------------------------+
+					|@s: starting date or datetime?                              |
+					|> * my event @s fri_                                        |
+					|currently: Fri Jan 19 2018                                  |
+					| ---------------------------------------------------------- |
+					|Without a time, this schedules an all-day, floating item    |
+					|for the specified date in whatever happens to be the local  |
+					|timezone.                                                   |
 
   - With `@s fri 2p` entered
 
-        +------------------------------------------------------------+
-        |@s: starting date or datetime?                              |
-        |> * my event @s fri 2p_                                     |
-        |currently: Fri Jan 19 2018 2:00PM EST                       |
-        | ---------------------------------------------------------- |
-        |The datetime will be interpreted as an aware datetime in    |
-        |the current timezone. Append, e.g., ", US/Pacific" to       |
-        |specify an alternative timezone or ", float" to specify a   |
-        |floating item in whatever happens to be the local timezone. |
+					+------------------------------------------------------------+
+					|@s: starting date or datetime?                              |
+					|> * my event @s fri 2p_                                     |
+					|currently: Fri Jan 19 2018 2:00PM EST                       |
+					| ---------------------------------------------------------- |
+					|The datetime will be interpreted as an aware datetime in    |
+					|the current timezone. Append, e.g., ", US/Pacific" to       |
+					|specify an alternative timezone or ", float" to specify a   |
+					|floating item in whatever happens to be the local timezone. |
 
