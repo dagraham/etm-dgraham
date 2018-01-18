@@ -317,7 +317,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - As editing progresses, the display changes to show information relevant to the current entry. Here are some illustrative screens.
 
-  - Summary entered and an initial `@` but without the key
+  - Summary entered and an initial `@` but without the key:
 
         +------------------------------------------------------------+
         |@key?                                                       |
