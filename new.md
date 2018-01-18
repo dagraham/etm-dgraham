@@ -356,25 +356,17 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Once the new item has been modified, then the top and status bars change to that described for editing an exising item.
 
-        +-------------------------- top bar -------------------------+
-        |editing: unsaved changes                             F1:Help|
         +------------------------------------------------------------+
         |summary for the event?                                      |
         |> * my ev_                                                  |
         | ---------------------------------------------------------- |
         |Enter the summary for the event followed, optionally, by    |
         |@key and value pairs.                                       |
-        |                                                            |
-        +------------------------ status bar ------------------------+
-        |        ^S:save  ^Q:save and close  ^U:undo changes         |
-        +------------------------------------------------------------+
 
 - As editing progresses, the display changes to show information relevant to the current entry. Here are some illustrative screens.
 
   - Summary entered and an initial `@` but without the key
 
-        +-------------------------- top bar -------------------------+
-        |editing: unsaved changes                             F1:Help|
         +------------------------------------------------------------+
         |@key?                                                       |
         |> * my event @_                                             |
@@ -384,15 +376,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |  Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v               |
         |  Requires @s: @a, @b, @r                                   |
         |  Requires @r: @+, @-                                       |
-        |                                                            |
-        +------------------------ status bar ------------------------+
-        |        ^S:save  ^Q:save and close  ^U:undo changes         |
-        +------------------------------------------------------------+
 
   - With `@s fri` entered but without a time
 
-        +-------------------------- top bar -------------------------+
-        |editing: unsaved changes                             F1:Help|
         +------------------------------------------------------------+
         |@s: starting date or datetime?                              |
         |> * my event @s fri_                                        |
@@ -401,10 +387,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |Without a time, this schedules an all-day, floating item    |
         |for the specified date in whatever happens to be the local  |
         |timezone.                                                   |
-        |                                                            |
-        +------------------------ status bar ------------------------+
-        |        ^S:save  ^Q:save and close  ^U:undo changes         |
-        +------------------------------------------------------------+
 
   - With `@s fri 2p` entered
 
