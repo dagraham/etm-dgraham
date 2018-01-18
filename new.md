@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 # What's planned for the next etm?
 
-  - [Data](#data)
+- [Data](#data)
     - [Item Types](#item-types)
     - [Storage](#storage)
     - [Dates and Date Times](#dates-and-date-times)
@@ -21,7 +21,7 @@
     - [Creating a new item](#creating-a-new-item)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-## Data
+# Data
 
 ### Item Types
 
@@ -155,7 +155,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
     would indicate that `job a` if finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, active and waiting jobs, respectively.
 
-## Views
+# Views
 
 ### Day View
 
@@ -242,7 +242,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Actions grouped, sorted and with moment time aggregated by month and index. 
 
-## Work Flow
+# Work Flow
 
 ### Editing an existing item
 
