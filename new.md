@@ -161,7 +161,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 ### Day View
 
 - Scheduled items are grouped by week.
-
         +------------------------- top bar --------------------------+
         |Week 3: Jan 15 - 21, 2018                            F1:help|
         +------------------------------------------------------------+
