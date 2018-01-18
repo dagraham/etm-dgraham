@@ -161,6 +161,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 ### Day View
 
 - Scheduled items are grouped by week.
+
         +------------------------- top bar --------------------------+
         |Week 3: Jan 15 - 21, 2018                            F1:help|
         +------------------------------------------------------------+
@@ -186,10 +187,12 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - The main panel shows scheduled items grouped and sorted by date and time.
 - Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the display would show "Nothing scheduled". 
   E.g, 
+
         Week 3: Jan 15 - 21, 2018                           F1:Help
           Nothing scheduled
 
     For the current week, the display would show "Nothing scheduled" under the current date. E.g.,
+
         Week 3: Jan 15 - 21, 2018                           F1:Help
         - Thu Jan 18 - Today
           Nothing scheduled
