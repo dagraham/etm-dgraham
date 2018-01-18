@@ -371,8 +371,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |@key and value pairs.                                       |
         |                                                            |
         |                                                            |
-        |                                                            |
-        |                                                            |
         +------------------------ status bar ------------------------+
         |        ^S:save  ^Q:save and close  ^U:undo changes         |
         +------------------------------------------------------------+
