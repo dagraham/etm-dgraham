@@ -30,69 +30,50 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - `*`: event
 
 	- The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
-
 	- The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See *Dates and Date Times* below.
 
 - `-`: task
 
 	- The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* method. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
-
 	- The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task.
-
 	- The old `%`, *delegated*, item type is eliminated. 
-
 	- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
 
 - `$`: action
 
 	- An entry for `@m` is required along with entries for `@s` and `@f`.
-
 	- The `@s` entry is interpreted as the aware datetime at which the action was *started*. 
-
 	- The `@f` entry is interpreted as the aware datetime at which the action was *completed*. 
-
 	- The `@m`, *memo*, entry in an action is interpreted as the time period actively spent working on the action. 
-
 	- An etm *timer* can be used to record an action entry:
 
 		- Select the item (task, event, ...) to which the action is to be applied.
-
 		- Press the start key to start the timer.
-
 		- Press the pause/restart key as often as desired.
-
 		- Press the finish key to finish and record the action entry.
 
 			- The `@s` entry will record the moment at which the timer was first started.
-
 			- The `@f` entry will record the moment at which the timer was finished.
-
 			- The `@m` entry will record the accumulated time period during which the timer was active. Note that the finish time minus the start time minus active time implicitly gives the time period during which the timer was paused.
-
 			- The summary, `@c`, `@i`, `@l` and `@t`  entries for the action will be those of the selected item. 
-
 			- The action will be displayed for possible editing.
 
 	- One or more timers can be active at the same time but only one can be running - the rest will be paused.
-
 	- Actions cannot repeat, i.e., cannot have `@r` entries.
 
 - `%`: journal entry
 
 	- This is equivalent to the old *note* item type. 
-
 	- Journal items cannot repeat, i.e., cannot have `@r` entries.
 
 - `?`: someday maybe
 
 	- Unchanged. 
-
 	- Someday items cannot repeat, i.e., cannot have `@r` entries. Datetime related entries such as `@s`, `@a` and `@b` are ignored.
 
 - `!`: inbox
 
 	- Unchanged but for the change in the type character from `$` to `!`.
-
 	- All entries in inbox items are ignored save for the item type, summary and the created and last modified timestamps. 
 
 ### Storage
@@ -206,11 +187,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +------------------------------------------------------------+
 
 - The top title bar shows the selected week.
-
 - The bottom status bar shows current time, the next alarm and the number of remaining alarms for the current date.
-
 - The main panel shows scheduled items grouped and sorted by date and time.
-
 - Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the display would show "Nothing scheduled". 
   E.g, 
 
@@ -245,7 +223,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 ### Next View
 
 - Unfinished tasks and jobs without `@s` entries grouped and sorted by *location* and then *priority*.
-
 - While finished tasks and jobs are removed from this view, they are added to *Day View* using the completion datetime.
 
 ### Someday View
@@ -292,7 +269,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +------------------------------------------------------------+
 
     - `@g` entries appear as clickable links in the details 
-
     - For repeated items, show as many as 3 reps below the details with a clickable `< more >` button if applicable. Each click shows as many as 3 more repetitions.
 
 - When edit, delete or copy is pressed and the item is repeating then pop-up
