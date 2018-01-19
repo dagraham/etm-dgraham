@@ -70,7 +70,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 			- The new action will be displayed for possible editing.
 
 	- One or more timers can be active at the same time but only one can be running - the rest will be paused.
-	- Actions cannot repeat, i.e., cannot have `@r` entries.
 
 - `%`: journal entry
 
