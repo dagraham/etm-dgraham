@@ -128,7 +128,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 ### Jobs
 
-- Tasks, both with and without `@s` entries can have component job entries, `@j`.  A task with jobs thus replaces the old task group.
+- Tasks, both with and without `@s` entries can have component jobs using `@j` entries.  A task with jobs thus replaces the old task group.
 
 - For tasks with an `@s` entry, jobs can have an `&s` entry to set the due date/datetime for the job. It can be entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task or as date/datetime. However entered, the value of `&s` is stored as a relative timeperiod with zero minutes as the default.
 
