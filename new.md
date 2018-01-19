@@ -245,10 +245,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Finished tasks grouped and sorted by the completed datetime, most recent first.
 
-### Action View
-
-- Actions grouped and sorted by finish time and showing active time aggregated by month and index. 
-
 # Work Flow
 
 ### Editing an existing item
