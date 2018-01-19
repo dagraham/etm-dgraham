@@ -30,6 +30,8 @@
 
 - Simplify data entry. Provide "just in time" information when creating or editing data entries. See [Work Flow](#work-flow). 
 
+- Provide a simpler, terminal-based GUI using *urwid* along with a CLI that allows creating items and reports from the command line. From what I understand, *urwid* apps can be run in a terminal emulator under Android.
+
 # Data
 
 ### Item Types
