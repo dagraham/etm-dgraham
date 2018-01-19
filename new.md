@@ -152,7 +152,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 						@j job b &i b
 						@j job c &i 3 &p a, b
 
-		Neither `job a` nor `job b` has any prerequisites but both `job a` and `job b` are prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
+		Neither `job a` nor `job b` has any prerequisites but both `job a` and `job b` are both prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
 
 - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
