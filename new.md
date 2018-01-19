@@ -114,7 +114,10 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Storage: 
 
-    - Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. Naive dates and datetimes require no conversion either way. 
+    - Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. 
+		- Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
+		- Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
+		- Naive dates and datetimes require no conversion either way. 
 
 - Display:
 
