@@ -143,7 +143,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 							@j job B
 							@j job C
 
-			`job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C`. 
+		`job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C`. 
 
 	- Manually assigned. Alternatively, job prequisites can be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
 
