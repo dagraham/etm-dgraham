@@ -164,8 +164,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 # Views
 
-The GUI will be terminal-based using *urwid*. A CLI will also be available.
-
 ### Day View
 
 - Scheduled items are grouped by week.
