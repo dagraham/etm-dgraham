@@ -358,3 +358,13 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 					|specify an alternative timezone or ", float" to specify a   |
 					|floating item in whatever happens to be the local timezone. |
 
+  - Adding `@r`:
+
+					+------------------------------------------------------------+
+					|@r: frequency character?                                    |
+					|> * my event @s fri 2p @r_                                  |
+					| ---------------------------------------------------------- |
+					|Possible frequency characters: (y)early, (m)onthly,         |
+					|   (w)eekly,  (d)aily, (h)ourly, mi(n)utely                 |
+					|                                                            |
+
