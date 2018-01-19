@@ -401,22 +401,22 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 					|Friday in the month.                                        |
 					|                                                            |
 
-  - With `@r m &w -1FR` entered:
+  - With `@r m &w -2FR` entered:
 
 					+------------------------------------------------------------+
 					|@r: repetition rule &key option?                            |
 					|> * my event @s fri 2p @r m_                                |
 					| ---------------------------------------------------------- |
-					|currently: RRULE:FREQ=MONTHLY                               |
+					|currently: RRULE:FREQ=MONTHLY;WEEKDAY=-2FR                  |
           |The first 3 repetitions on or after Fri Jan 19 2018 2:00PM  | 
           |EST:                                                        | 
           |    Fri Jan 19 2018 2:00PM EST                              |
-          |    Mon Feb 19 2018 2:00PM EST                              |
-          |    Mon Mar 19 2018 3:00PM EDT                              |
+          |    Fri Feb 16 2018 2:00PM EST                              |
+          |    Fri Mar 23 2018 2:00PM EDT                              |
 					|                                                            |
 					|Possible options: &c (count), &E (Easter), &h (hour),       |
 					|   &i (interval), &m (monthday), &M (month), &n (minute),   |
-					|   &s (set position), &u (until), &w (weekday)              |
+					|   &s (set position), &u (until)                            |
 					|                                                            |
 
 
