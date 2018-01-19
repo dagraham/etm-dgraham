@@ -2,6 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 # What's planned for the next etm?
 
+- [Goals](#goals)
 - [Data](#data)
     - [Item Types](#item-types)
     - [Storage](#storage)
