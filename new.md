@@ -21,6 +21,14 @@
     - [Creating a new item](#creating-a-new-item)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+# Goals
+
+- Simplify code. Refactor, document code and add doc tests - make the code more maintainable.
+
+- Speed up performance. Make use of a text-based document store called *TinyDB* that is designed for quick insertions, modifications and retrievals. Make use of stored unique identifiers, to limit view updates to the item actually changed. See [Storage](#storage).
+
+- Simplify data entry. Provide "just in time" information when creating or editing data entries. See [Work Flow](#work-flow). 
+
 # Data
 
 ### Item Types
