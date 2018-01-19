@@ -74,7 +74,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - `%`: journal entry
 
 	- This is equivalent to the old *note* item type. 
-	- Journal items cannot repeat, i.e., cannot have `@r` entries.
 
 - `?`: someday maybe
 
