@@ -166,7 +166,6 @@ def format_datetime(obj):
         return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA z", formatter='alternative'))
 
 
-
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 threeday_regex = re.compile(r'(MON|TUE|WED|THU|FRI|SAT|SUN)',
                         re.IGNORECASE)
