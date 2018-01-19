@@ -152,7 +152,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
           @j job b &i b
           @j job c &i 3 &p a, b
 
-    Neither `job a` nor `job b` has any prerequisites but both `job a` and `job b` are prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
+			Neither `job a` nor `job b` has any prerequisites but both `job a` and `job b` are prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
 
 - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
@@ -160,7 +160,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
           - manually assigned [1/1/1]: job b
           + manually assigned [1/1/1]: job c
 
-    would indicate that `job a` if finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, active and waiting jobs, respectively.
+			would indicate that `job a` if finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, active and waiting jobs, respectively.
 
 # Views
 
