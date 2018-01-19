@@ -256,7 +256,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - Pressing Return with an item selected shows details:
 
         +------------------------- top bar --------------------------+
-        |viewing                                              F1:help|
+        |details                                              F1:help|
         +------------------------------------------------------------+
         |- task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v     |
         |@r m &i 1                                                   |
