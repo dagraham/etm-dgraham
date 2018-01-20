@@ -266,10 +266,6 @@ def get_reps(n=3):
     dtstart = format_datetime(start)[1]
     lst = []
     for x in out:
-        # if not naive:
-        #     pass
-        #     # x = x.astimezone(tz)
-        #     x = x.replace(tzinfo=tz)
         lst.append(format_datetime(x)[1])
     outstr = "\n    ".join(lst[:n]) 
     res = """\
