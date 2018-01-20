@@ -69,7 +69,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 			- The summary, `@c`, `@i`, `@l` and `@t`  entries for the action will be those of the selected item. 
 			- The new action will be displayed for possible editing.
 
-	- One or more timers can be active at the same time but only one can be running - the rest will be paused.
+    - One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
 - `%`: journal entry
 
