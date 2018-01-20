@@ -259,7 +259,7 @@ def get_reps(n=3):
             ds = x.dst()
         else:
             ds = pendulum.Interval(seconds=0)
-        x -= ds
+        x = x - ds
         lst.append(format_datetime(x)[1])
     # lst = [format_datetime(x - x.dst())[1] for x in out if x.dst()]
     outstr = "\n    ".join(lst[:n]) 
