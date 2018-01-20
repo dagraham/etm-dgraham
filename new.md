@@ -16,7 +16,7 @@
     - [Index View](#index-view)
     - [History View](#history-view)
     - [Finished View](#finished-view)
-    - [Action View](#action-view)
+    - [Query View](#query-view)
 - [Work Flow](#work-flow)
     - [Editing an existing item](#editing-an-existing-item)
     - [Creating a new item](#creating-a-new-item)
