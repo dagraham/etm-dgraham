@@ -269,6 +269,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 ### Editing an existing item
 
+ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI.
+
 - Pressing Return with an item selected shows details:
 
         +------------------------- top bar --------------------------+
