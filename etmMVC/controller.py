@@ -268,11 +268,15 @@ def get_reps(n=3):
     for x in out:
         lst.append(format_datetime(x)[1])
     outstr = "\n    ".join(lst[:n]) 
+    if len(lst) <= n:
+        countstr = "All repetitions on or after DTSTART"
+    else:
+        countstr = "The first {} repetitions on or after DTSTART".format(count)
     res = """\
     DTSTART:{}
-The first {} repetitions on or after DTSTART:
+{}:
     {}
-All times: {}""".format(dtstart, n,  outstr, zone)
+All times: {}""".format(dtstart, countstr,  outstr, zone)
     return True, res 
 
 
