@@ -250,7 +250,13 @@ def get_reps(n=3):
     """
     if 's' not in item_hsh or 'rrulestr' not in item_hsh:
         return False, "Both @s and @r are required for repetitions"
-    start = item_hsh['s'].in_timezone('local').replace(tzinfo='Factory')
+
+    tz = item_hsh['s'].tzinfo
+    naive = tz.abbrev == '-00'
+    if naive:
+        start = item_hsh['s']
+    else:
+        start = item_hsh['s'].in_timezone('local').replace(tzinfo='Factory')
     rrs = rrulestr(item_hsh['rrulestr'], dtstart=start)
     out = rrs.xafter(start, n, inc=True)
     # dtstart = format_datetime(item_hsh['s'])[1]
@@ -258,12 +264,8 @@ def get_reps(n=3):
     lst = []
     count = 0
     for x in out:
-        if x.dst():
-            ds = x.dst()
-            count += 1
-        else:
-            ds = pendulum.Interval(seconds=0)
-        x = x - ds
+        if not naive:
+            x = x.replace(tzinfo=tz)
         lst.append(format_datetime(x)[1])
     # lst = [format_datetime(x - x.dst())[1] for x in out if x.dst()]
     outstr = "\n    ".join(lst[:n]) 
