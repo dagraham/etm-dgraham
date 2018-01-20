@@ -254,9 +254,11 @@ def get_reps(n=3):
     out = rrs.xafter(item_hsh['s'], n, inc=True)
     dtstart = format_datetime(item_hsh['s'])[1]
     lst = []
+    count = 0
     for x in out:
         if x.dst():
             ds = x.dst()
+            count += 1
         else:
             ds = pendulum.Interval(seconds=0)
         x = x - ds
@@ -264,8 +266,8 @@ def get_reps(n=3):
     # lst = [format_datetime(x - x.dst())[1] for x in out if x.dst()]
     outstr = "\n    ".join(lst[:n]) 
     res = """\
-The first {} repetitions on or after {}:
-    {}""".format(n, dtstart,  outstr)
+The first {} {} repetitions on or after {}:
+    {}""".format(n, count,  dtstart,  outstr)
     return True, res 
 
 
