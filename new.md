@@ -384,7 +384,6 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         | ---------------------------------------------------------- |
         |Possible frequency characters: (y)early, (m)onthly,         |
         |   (w)eekly,  (d)aily, (h)ourly, mi(n)utely                 |
-        |                                                            |
 
 
   - With `@r m` entered:
@@ -405,8 +404,6 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |Possible options: &c (count), &E (Easter), &h (hour),       |
         |   &i (interval), &m (monthday), &M (month), &n (minute),   |
         |   &s (set position), &u (until), &w (weekday)              |
-        |                                                            |
-
 
   - With `@r m &w` entered:
 
@@ -419,7 +416,6 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |Prepend an inter to specify a particular weekday in the     |
         |month. E.g., 3WE for the 3rd Wednesay or -1FR for the last  |
         |Friday in the month.                                        |
-        |                                                            |
 
   - With `@r m &w -2FR` entered:
 
@@ -439,6 +435,5 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |Possible options: &c (count), &E (Easter), &h (hour),       |
         |   &i (interval), &m (monthday), &M (month), &n (minute),   |
         |   &s (set position), &u (until)                            |
-        |                                                            |
 
 
