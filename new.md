@@ -383,11 +383,13 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
   - With `@r m` entered:
 
         +------------------------------------------------------------+
-        |@r: repetition rule &key option?                            |
+        |@r: repetition rule?                                        |
         |> * my event @s fri 2p @r m_                                |
         | ---------------------------------------------------------- |
-        |currently: RRULE:FREQ=MONTHLY                               |
-        |The first 3 repetitions on or after Fri Jan 19 2018 2:00PM: | 
+        |currently:                                                  |
+        |    RRULE:FREQ=MONTHLY                                      |
+        |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
+        |The first 3 repetitions on or after DTSTART:                | 
         |    Fri Jan 19 2018 2:00PM                                  |
         |    Mon Feb 19 2018 2:00PM                                  |
         |    Mon Mar 19 2018 2:00PM                                  |
@@ -418,8 +420,10 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |@r: repetition rule &key option?                            |
         |> * my event @s fri 2p @r m &w -2fr                         |
         | ---------------------------------------------------------- |
-        |currently: RRULE:FREQ=MONTHLY;WEEKDAY=-2FR                  |
-        |The first 3 repetitions on or after Fri Jan 19 2018 2:00PM: | 
+        |currently:                                                  |
+        |    RRULE:FREQ=MONTHLY;WEEKDAY=-2FR                         |
+        |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
+        |The first 3 repetitions on or after DTSTART:                | 
         |    Fri Jan 19 2018 2:00PM                                  |
         |    Fri Feb 16 2018 2:00PM                                  |
         |    Fri Mar 23 2018 2:00PM                                  |
