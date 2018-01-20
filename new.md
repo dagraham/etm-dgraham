@@ -176,12 +176,13 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 # Views
 
-ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI.
 
 
 ### Day View
 
 - Scheduled items are grouped by week.
+
+	 ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI.
 
         +------------------------- top bar --------------------------+
         |Week 3: Jan 15 - 21, 2018                            F1:help|
