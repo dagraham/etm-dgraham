@@ -113,7 +113,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
     - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 1018 2pm` in whatever happens to be the local time zone.
 
-- When an item with an aware `@s` entry repeats, the hour of the repetition instance will *not* change with changes in daylight savings time. E.g., with the following, all repetitions are at 2pm even though the first 2 are EST and the 3rd is EDT.
+- When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time. E.g., in the following, all repetitions are at 2pm even though the first 2 are EST and the 3rd is EDT.
 
             repetition rule:
                 RRULE:FREQ=MONTHLY
