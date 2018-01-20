@@ -376,11 +376,11 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |> * my event @s fri 2p @r m_                                |
         | ---------------------------------------------------------- |
         |currently: RRULE:FREQ=MONTHLY                               |
-        |The first 3 repetitions on or after Fri Jan 19 2018 2:00PM  | 
-        |EST:                                                        | 
-        |    Fri Jan 19 2018 2:00PM EST                              |
-        |    Mon Feb 19 2018 2:00PM EST                              |
-        |    Mon Mar 19 2018 3:00PM EDT                              |
+        |The first 3 repetitions on or after Fri Jan 19 2018 2:00PM: | 
+        |    Fri Jan 19 2018 2:00PM                                  |
+        |    Mon Feb 19 2018 2:00PM                                  |
+        |    Mon Mar 19 2018 2:00PM                                  |
+        |All times: America/New_York                                 |
         |                                                            |
         |Possible options: &c (count), &E (Easter), &h (hour),       |
         |   &i (interval), &m (monthday), &M (month), &n (minute),   |
@@ -405,14 +405,14 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
         +------------------------------------------------------------+
         |@r: repetition rule &key option?                            |
-        |> * my event @s fri 2p @r m_                                |
+        |> * my event @s fri 2p @r m &w -2fr                         |
         | ---------------------------------------------------------- |
         |currently: RRULE:FREQ=MONTHLY;WEEKDAY=-2FR                  |
-        |The first 3 repetitions on or after Fri Jan 19 2018 2:00PM  | 
-        |EST:                                                        | 
-        |    Fri Jan 19 2018 2:00PM EST                              |
-        |    Fri Feb 16 2018 2:00PM EST                              |
-        |    Fri Mar 23 2018 2:00PM EDT                              |
+        |The first 3 repetitions on or after Fri Jan 19 2018 2:00PM: | 
+        |    Fri Jan 19 2018 2:00PM                                  |
+        |    Fri Feb 16 2018 2:00PM                                  |
+        |    Fri Mar 23 2018 2:00PM                                  |
+        |All times: America/New_York                                 |
         |                                                            |
         |Possible options: &c (count), &E (Easter), &h (hour),       |
         |   &i (interval), &m (monthday), &M (month), &n (minute),   |
