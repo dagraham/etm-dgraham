@@ -112,6 +112,17 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
     - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 1018 2pm` in whatever happens to be the local time zone.
 
+- Note. When an item with an aware `@s` entry repeats the hour of the repetition instance will *not* change with changes in daylight savings time. E.g.
+
+        repetition rule:
+            RRULE:FREQ=MONTHLY
+        The first 3 repetitions on or after Fri Jan 26 2018 2:00PM:
+            Fri Jan 26 2018 2:00PM
+            Mon Feb 26 2018 2:00PM
+            Mon Mar 26 2018 2:00PM
+        All times: America/New_York
+
+
 - Storage: 
 
 	- Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. 
