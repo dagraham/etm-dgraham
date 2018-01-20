@@ -116,7 +116,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
         repetition rule:
             RRULE:FREQ=MONTHLY
-        The first 3 repetitions on or after Fri Jan 26 2018 2:00PM:
+            DTSTART:Fri Jan 26 2018 2:00PM EST
+        The first 3 repetitions on or after DTSTART:
             Fri Jan 26 2018 2:00PM
             Mon Feb 26 2018 2:00PM
             Mon Mar 26 2018 2:00PM
