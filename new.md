@@ -431,9 +431,5 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |    Fri Feb 16 2018 2:00PM                                  |
         |    Fri Mar 23 2018 2:00PM                                  |
         |All times: America/New_York                                 |
-        |                                                            |
-        |Possible options: &c (count), &E (Easter), &h (hour),       |
-        |   &i (interval), &m (monthday), &M (month), &n (minute),   |
-        |   &s (set position), &u (until)                            |
 
 
