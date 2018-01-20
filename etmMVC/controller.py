@@ -261,7 +261,7 @@ def get_reps(n=3):
         start = local.replace(tzinfo='Factory')
         zone =  local.format("zz")
     rrs = rrulestr(item_hsh['rrulestr'], dtstart=start)
-    out = rrs.xafter(start, n, inc=True)
+    out = rrs.xafter(start, n+1, inc=True)
     dtstart = format_datetime(item_hsh['s'])[1]
     # dtstart = format_datetime(start)[1]
     lst = []
