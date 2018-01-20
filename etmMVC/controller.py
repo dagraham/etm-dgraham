@@ -259,21 +259,19 @@ def get_reps(n=3):
         start = item_hsh['s'].in_timezone('local').replace(tzinfo='Factory')
     rrs = rrulestr(item_hsh['rrulestr'], dtstart=start)
     out = rrs.xafter(start, n, inc=True)
-    # dtstart = format_datetime(item_hsh['s'])[1]
-    dtstart = format_datetime(start)[1]
+    dtstart = format_datetime(item_hsh['s'])[1]
+    # dtstart = format_datetime(start)[1]
     lst = []
-    count = 0
     for x in out:
-        if not naive:
-            pass
-            # x = x.astimezone(tz)
-            x = x.replace(tzinfo=tz)
+        # if not naive:
+        #     pass
+        #     # x = x.astimezone(tz)
+        #     x = x.replace(tzinfo=tz)
         lst.append(format_datetime(x)[1])
-    # lst = [format_datetime(x - x.dst())[1] for x in out if x.dst()]
     outstr = "\n    ".join(lst[:n]) 
     res = """\
 The first {} {} repetitions on or after {}:
-    {}""".format(n, count,  dtstart,  outstr)
+    {}""".format(n, dtstart,  outstr)
     return True, res 
 
 
