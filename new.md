@@ -330,7 +330,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 - Closing before any changes have been made will cancel the operation and no new item will be created. 
 
-- The main panel reflects any changes.
+- The main panel reflects any changes as they occur:
 
         +------------------------------------------------------------+
         |summary for the event?                                      |
