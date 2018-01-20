@@ -257,8 +257,9 @@ def get_reps(n=3):
         start = item_hsh['s']
         zone = 'floating'
     else:
-        start = item_hsh['s'].in_timezone('local').replace(tzinfo='Factory')
-        zone = start.format("zz")
+        local = item_hsh['s'].in_timezone('local')
+        start = local.replace(tzinfo='Factory')
+        zone =  local.format("zz")
     rrs = rrulestr(item_hsh['rrulestr'], dtstart=start)
     out = rrs.xafter(start, n, inc=True)
     # dtstart = format_datetime(item_hsh['s'])[1]
