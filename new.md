@@ -421,7 +421,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         |> * my event @s fri 2p @r m &w -2fr                         |
         | ---------------------------------------------------------- |
         |currently:                                                  |
-        |    RRULE:FREQ=MONTHLY;WEEKDAY=-2FR                         |
+        |    RRULE:FREQ=MONTHLY;BYWEEKDAY=-2FR                       |
         |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
         |The first 3 repetitions on or after DTSTART:                | 
         |    Fri Jan 19 2018 2:00PM                                  |
