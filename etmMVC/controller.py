@@ -255,12 +255,14 @@ def get_reps(n=3):
     naive = tz.abbrev == '-00'
     if naive:
         start = item_hsh['s']
+        zone = 'floating'
     else:
         start = item_hsh['s'].in_timezone('local').replace(tzinfo='Factory')
+        zone = start.format("zz")
     rrs = rrulestr(item_hsh['rrulestr'], dtstart=start)
     out = rrs.xafter(start, n, inc=True)
-    dtstart = format_datetime(item_hsh['s'])[1]
-    # dtstart = format_datetime(start)[1]
+    # dtstart = format_datetime(item_hsh['s'])[1]
+    dtstart = format_datetime(start)[1]
     lst = []
     for x in out:
         # if not naive:
@@ -271,7 +273,7 @@ def get_reps(n=3):
     outstr = "\n    ".join(lst[:n]) 
     res = """\
 The first {} repetitions on or after {}:
-    {}""".format(n, dtstart,  outstr)
+    {}\nAll times: {}""".format(n, dtstart,  outstr, zone)
     return True, res 
 
 
