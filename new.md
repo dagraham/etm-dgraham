@@ -83,7 +83,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - `!`: inbox
 
 	- Unchanged but for the change in the type character from `$` to `!` since `$` is now used for actions and `!` is more suggestive of urgency.
-	- All entries in inbox items are ignored save for the item type and summary. 
+	- All `@key` entries in inbox items are ignored save for the item type and summary. 
 
 ### Storage
 
