@@ -114,14 +114,14 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - When an item with an aware `@s` entry repeats, the hour of the repetition instance will *not* change with changes in daylight savings time. E.g., with the following, all repetitions are at 2pm even though the first 2 are EST and the 3rd is EDT.
 
-        repetition rule:
-            RRULE:FREQ=MONTHLY
-            DTSTART:Fri Jan 26 2018 2:00PM EST
-        The first 3 repetitions on or after DTSTART:
-            Fri Jan 26 2018 2:00PM
-            Mon Feb 26 2018 2:00PM
-            Mon Mar 26 2018 2:00PM
-        All times: America/New_York
+            repetition rule:
+                RRULE:FREQ=MONTHLY
+                DTSTART:Fri Jan 26 2018 2:00PM EST
+            The first 3 repetitions on or after DTSTART:
+                Fri Jan 26 2018 2:00PM
+                Mon Feb 26 2018 2:00PM
+                Mon Mar 26 2018 2:00PM
+            All times: America/New_York
 
 - Storage: 
 
