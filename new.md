@@ -123,8 +123,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
             Mon Mar 26 2018 2:00PM
         All times: America/New_York
 
-
-
 - Storage: 
 
 	- Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. 
