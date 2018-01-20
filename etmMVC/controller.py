@@ -250,14 +250,13 @@ def get_reps(n=3):
     """
     if 's' not in item_hsh or 'rrulestr' not in item_hsh:
         return False, "Both @s and @r are required for repetitions"
-    rrs = rrulestr(item_hsh['rrulestr'], dtstart=item_hsh['s'])
+    rrs = rrulestr(item_hsh['rrulestr'], dtstart=item_hsh['s'].in_timezone('local'))
     out = rrs.xafter(item_hsh['s'], n, inc=True)
     dtstart = format_datetime(item_hsh['s'])[1]
     lst = []
     for x in out:
         if x.dst():
             x -= x.dst()
-            print('adjusted for dst')
         lst.append(format_datetime(x)[1])
     # lst = [format_datetime(x - x.dst())[1] for x in out if x.dst()]
     outstr = "\n    ".join(lst[:n]) 
