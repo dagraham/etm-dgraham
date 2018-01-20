@@ -271,7 +271,7 @@ def get_reps(n=3):
     if len(lst) <= n:
         countstr = "Repetitions on or after DTSTART"
     else:
-        countstr = "The first {} repetitions on or after DTSTART".format(count)
+        countstr = "The first {} repetitions on or after DTSTART".format(n)
     res = """\
     DTSTART:{}
 {}:
