@@ -1,173 +1,33 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [What about this?](#what-about-this)
-  - [Editing an existing item](#editing-an-existing-item)
-  - [Creating a new item](#creating-a-new-item)
-- [TODO](#todo)
-- [States](#states)
-- [Defaults](#defaults)
-  - [default calendar: for @c](#default-calendar-for-c)
-  - [calendar sets](#calendar-sets)
-- [Date & Time](#date--time)
-  - [Storage](#storage)
-  - [Retrieval](#retrieval)
-- [Types](#types)
-  - [effort & reports](#effort--reports)
-  - [`*` event](#-event)
-  - [`-` task](#--task)
-  - [`%` journal](#%25-journal)
-  - [`?` someday maybe](#-someday-maybe)
-  - [`!` inbox](#-inbox)
-- [Views](#views)
-  - [week and month views](#week-and-month-views)
-  - [Next View](#next-view)
-  - [Someday View](#someday-view)
-  - [Week View](#week-view)
-    - [Keys](#keys)
-  - [Month View](#month-view)
-  - [Busy View](#busy-view)
-    - [Keys](#keys-1)
-    - [Colors](#colors)
-  - [Index View](#index-view)
-  - [History View](#history-view)
-  - [Tag View](#tag-view)
-  - [Details view](#details-view)
-  - [Edit view](#edit-view)
-- [@ and & Keys](#-and--keys)
-- [Key Bindings](#key-bindings)
-  - [View Mode keys](#view-mode-keys)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # TODO
 
-note: !, # and ? cannot repeat
+- RRULE: storing DTSTART as UTC will screw up repetitions that cross daylight savings time periods. E.g, 
 
-states
-
-has item type
-
-  *
-    required: s
-    available: undated
-
-  - 
-    available: s, f, j + undated
-
-  #
-    available: s + undated
-
-  ?
-    available: s + Undated
-
-  !
-    available: s + undated
+        * ev @s fri 2p @r m &w -2Fr
+        ------------------------------------------------------------
+        repetition rule:
+            RRULE:FREQ=MONTHLY;BYWEEKDAY=-2FR
+        The first 3 repetitions on or after Fri Jan 19 2018 2:00PM
+        EST:
+            Fri Jan 19 2018 2:00PM EST
+            Fri Feb 16 2018 2:00PM EST
+            Fri Mar 23 2018 3:00PM EDT
 
 
-  ...
+- RRULE: storing DTSTART as UTC will screw up BYHOUR whose entries are interpreted as UTC hours
 
-has s and not in #, ?, !
+        * e @s 2p fri @r m &w -2FR &h 14
+        ------------------------------------------------------------
+        repetition rule:
+            RRULE:FREQ=MONTHLY;BYHOUR=14;BYWEEKDAY=-2FR
+        The first 3 repetitions on or after Fri Jan 19 2018 2:00PM
+        EST:
+            Fri Feb 16 2018 9:00AM EST
+            Fri Mar 23 2018 10:00AM EDT
+            Fri Apr 20 2018 10:00AM EDT
 
-  date: allowed b + r + undated
-  datetime: date + a + e
 
-has r
-
-  allowed: +, - 
-
-
-
-editing_at
 
 012345678901234567890123456789012345678901234567890123456789
-* summary @s fri 2p @e 90m @r m &w -1fr @z US/Pacific @d
-          |         |      |            |             |
-          10        20     27           40            54
-
-Start
-    ask: item type: * (event), - (task), ...?
-        entry: *
-            ask: event summary?
-                entry: my event
-                reply: list of required at_keys
-
-event
-    @s required
-        date-only: no @z, @e, @a
-        date-time:
-            default @z localtz and aware
-            requires @z float for naive
-
-# States
-
-- selecting item type
-  - to/p: 'type char for new item?'
-  - bot: list of type chars and descriptions
-
-- entering summary
-  - top: '<item type> summary: <current value of summary'
-  - bot: 
-
-- entered '@'
-  - top: '@-key?'
-  - bot: list of available @-keys and descriptions
-
-- entered '@<key>'
-  - top: '@<key> current expansion of the entry'
-  - bot: explanation
-
-
-Examples:
-
-  entry: @s fri
-  top: @s Fri Sep 22
-  bot: An all-day, floating event for the specified date in whatever happens 
-  to be the local timezone. 
-
-  entry: @s fri 2p
-  top: @s Fri Sep 22 2:00pm EDT
-  bot: Without an entry for @z, the local timezone is used. Add '@z float' to 
-  make the start time floating (naive) or, e.g., '@z US/Pacific' to specific 
-  an explicit timezone.
-
-
-errors?
-
-complete?
-
-
-    * 
-        @s (starting date/time) is required for events
-
-    - 
-        @s (starting date/time) is optional for tasks. Tasks with @s entries 
-        appear in agenda, week and month views. Tasks without @s entries appear 
-        in next view
-
-
-    * event
-        *a aware datetime @s date + time w/o @z or with @z not float
-            assumed until @s finished
-        *d date-only  - @s date w/o time
-            allowed
-        *n naive datetune - @s date + time + @z float
-            allowed
-
-    - task
-        -a aware datetime @s date + time w/o @z or with @z not float
-            assumed until @s finished
-        -d date-only  - @s date w/o time
-            allowed
-        -n naive datetune - @s date + time + @z float
-            allowed
-        -u undated - no @s
-
-
-
-
-
 
 # Defaults
 
