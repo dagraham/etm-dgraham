@@ -52,6 +52,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - `$`: action
 
+  - Changed type character from `~` (hard to distinquish) to `$` (suggests billing might be involved).
 	- An entry for `@m` is required along with entries for `@s` and `@f`.
 	- The `@s` entry is interpreted as the aware datetime at which the action was *started*. 
 	- The `@f` entry is interpreted as the aware datetime at which the action was *completed*. 
@@ -81,7 +82,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - `!`: inbox
 
-	- Unchanged but for the change in the type character from `$` to `!`.
+	- Unchanged but for the change in the type character from `$` to `!` since `$` is now used for actions and `!` is more suggestive of urgency.
 	- All entries in inbox items are ignored save for the item type and summary. 
 
 ### Storage
