@@ -412,7 +412,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |> * my event @s fri 2p @r m &w_                             |
         | ---------------------------------------------------------- |
         |weekdays: a comma separated list of English weekday         |
-        |abbreviations from SU, MO, TU, WE, TH, FR, SA, SU.  ,       |
+        |abbreviations from SU, MO, TU, WE, TH, FR, SA, SU.          |
         |Prepend an inter to specify a particular weekday in the     |
         |month. E.g., 3WE for the 3rd Wednesay or -1FR for the last  |
         |Friday in the month.                                        |
@@ -420,7 +420,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
   - With `@r m &w -2FR` entered:
 
         +------------------------------------------------------------+
-        |@r: repetition rule &key option?                            |
+        |@r: repetition rule?                                        |
         |> * my event @s fri 2p @r m &w -2fr                         |
         | ---------------------------------------------------------- |
         |currently:                                                  |
