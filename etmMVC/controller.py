@@ -270,7 +270,7 @@ def get_reps(n=3):
         lst.append(format_datetime(x)[1])
     outstr = "\n    ".join(lst[:n]) 
     res = """\
-The first {} {} repetitions on or after {}:
+The first {} repetitions on or after {}:
     {}""".format(n, dtstart,  outstr)
     return True, res 
 
