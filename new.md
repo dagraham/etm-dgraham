@@ -53,10 +53,10 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - `$`: action
 
 	- Changed type character from `~` which is hard to distinquish from `-` used for tasks, to `$` which suggests billing might be involved.
-	- An entry for `@m` is required along with entries for `@s` and `@f`.
+	- An entry for `@e` is required along with entries for `@s` and `@f`.
 	- The `@s` entry is interpreted as the aware datetime at which the action was *started*. 
 	- The `@f` entry is interpreted as the aware datetime at which the action was *completed*. 
-	- The `@m`, *memo*, entry in an action is interpreted as the time period actively spent working on the action. 
+	- The `@e` entry, *extent*, in an action is interpreted as the time period actively spent working on the action. 
 	- An etm *timer* can be used to record an action entry:
 
 		- Select the item (task, event, ...) to which the action is to be applied.
@@ -66,7 +66,7 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
       - The `@s` entry will record the moment at which the timer was first started.
       - The `@f` entry will record the moment at which the timer was finished.
-      - The `@m` entry will record the accumulated time period during which the timer was active. Note that the finish time minus the start time minus the active time implicitly gives the time period during which the timer was paused.
+      - The `@e` entry will record the accumulated time period during which the timer was active. Note that the finish time minus the start time minus the active time implicitly gives the time period during which the timer was paused.
       - The summary, `@c`, `@i`, `@l` and `@t`  entries for the action will be those of the selected item. 
       - The new action will be displayed for possible editing.
 
