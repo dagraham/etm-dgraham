@@ -9,7 +9,7 @@
     - [Dates and Date Times](#dates-and-date-times)
     - [Jobs](#jobs)
 - [Views](#views)
-    - [Day View](#day-view)
+    - [Week View](#week-view)
     - [Next View](#next-view)
     - [Someday View](#someday-view)
     - [Index View](#index-view)
@@ -174,7 +174,7 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 ### Week View
 
-- Scheduled items are grouped by week.
+- Scheduled items, grouped and sorted by week and day
 
 	 ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI.
 
