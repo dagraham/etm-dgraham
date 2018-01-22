@@ -217,14 +217,6 @@ While finished tasks and jobs are removed from this view, they are added to *Wee
 
 Someday items grouped and sorted by the last modified datetime 
 
-## Index View
-
-All items, grouped and sorted by their *index* entries
-
-## History View
-
-All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
-
 ## Busy View
 
 Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked using `+++`.
@@ -263,6 +255,14 @@ Hours in the day that are partially or wholly "busy" are marked with an `#` char
         +----------------------------------------------------------+
 
 Busy and Week views are synchronized so that toggling back and forth between the two views displays the same week. 
+
+## Index View
+
+All items, grouped and sorted by their *index* entries
+
+## History View
+
+All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
 
 ## Tag View
 
