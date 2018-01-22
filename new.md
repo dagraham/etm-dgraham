@@ -344,7 +344,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
     - status bar: `^Q:close` 
 
 
-- When Return is pressed, the details view closes and the original view is restored with the original and possibly modified item selected.
+- When `^Q` is pressed, the edit view closes and the original view is restored.
 
 ### Creating a new item
 
