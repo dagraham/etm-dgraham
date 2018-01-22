@@ -301,7 +301,7 @@ Analagous to the old custom view. Used to issue queries against the data store a
 
 # Work Flow
 
-### Editing an existing item
+## Editing an existing item
 
 ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI.
 
@@ -344,7 +344,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
     - topbar: `editing: no unsaved changes`
     - status bar: `^Q:close` 
 
-### Creating a new item
+## Creating a new item
 
 - When creating a new item, the process is the same but for the fact that the initial entry will be empty. 
 
