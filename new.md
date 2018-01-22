@@ -40,12 +40,12 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 - The old *action* item type has been eliminated and its functionality has been replaced by the ability to use the `@m`, *memo* entry in *any* item to record time spent using the format `@m datetime started, timeperiod active,  datetime finished`. Such items need not have an `@s` entry.
 
-	- An etm *timer* can be used to record an `@m` action entry:
+  - An etm *timer* can be used to record an `@m` action entry:
 
-		- Select the item (task, event, ...) to which the action is to be applied.
-		- Press the start key to start the timer.
-		- Press the pause/restart key as often as desired.
-		- Press the finish key to finish and record the new action.
+    - Select the item (task, event, ...) to which the action is to be applied.
+    - Press the start key to start the timer.
+    - Press the pause/restart key as often as desired.
+    - Press the finish key to finish and record the new action.
     - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was finished.
     - One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
