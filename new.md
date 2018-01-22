@@ -42,12 +42,12 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
     - An etm *timer* can be used to record an `@m` action entry:
 
-      - Select the item (task, event, ...) to which the action is to be applied.
-      - Press the start key to start the timer.
-      - Press the pause/restart key as often as desired.
-      - Press the finish key to finish and record the new action.
-      - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was finished.
-      - One or more timers can be active at the same time but only one can be running - the rest will be paused.
+        - Select the item (task, event, ...) to which the action is to be applied.
+        - Press the start key to start the timer.
+        - Press the pause/restart key as often as desired.
+        - Press the finish key to finish and record the new action.
+        - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was finished.
+        - One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
     - Items can have multiple `@m` entries. 
     - The item containing `@m` entries is displayed in the normal way. Additionally, each `@m` is also displayed using the display character `$` on the day and time that the action was finished and the summary from the item itself.
