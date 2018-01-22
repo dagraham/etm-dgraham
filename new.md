@@ -172,7 +172,7 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 # Views
 
-### Week View
+## Week View
 
 - Scheduled items, grouped and sorted by week and day
 
@@ -230,25 +230,25 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
     - Tasks, dated or undated, that were finished on this date, if any
 
 
-### Next View
+## Next View
 
 Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
 
 While finished tasks and jobs are removed from this view, they are added to *Week View* using the completion datetime.
 
-### Someday View
+## Someday View
 
 Someday items grouped and sorted by the last modified datetime 
 
-### Index View
+## Index View
 
 All items, grouped and sorted by their *index* entries
 
-### History View
+## History View
 
 All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
 
-### Busy View
+## Busy View
 
 Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked using `+++`.
 
@@ -287,15 +287,15 @@ Hours in the day that are partially or wholly "busy" are marked with an `#` char
 
 Busy and Week views are synchronized so that toggling back and forth between the two views displays the same week. 
 
-### Tag View
+## Tag View
 
 Tagged items grouped and sorted by tag
 
-### Finished View
+## Finished View
 
 Finished tasks grouped and sorted by the completed datetime, most recent first.
 
-### Query View
+## Query View
 
 Analagous to the old custom view. Used to issue queries against the data store and display the results. 
 
