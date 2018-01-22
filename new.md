@@ -245,6 +245,14 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 - Someday items grouped and sorted by the last modified datetime 
 
+### Index View
+
+- All items, grouped and sorted by their *index* entries
+
+### History View
+
+- All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
+
 ### Busy View
 
         +----------------------------------------------------------+
@@ -283,14 +291,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 ### Tag View
 
 - Tagged items grouped and sorted by tag
-
-### Index View
-
-- All items, grouped and sorted by their *index* entries
-
-### History View
-
-- All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
 
 ### Finished View
 
