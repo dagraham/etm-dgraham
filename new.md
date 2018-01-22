@@ -12,7 +12,7 @@
 
 # Data
 
-### Item Types
+## Item Types
 
 Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
@@ -58,7 +58,7 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
     - Deleting a selected action will remove the associated `@m` entry.
     - Rescheduling a selected action will change the datetime finished component to the new datetime, leave the active timeperiod component unchanged and adjust the starting datetime to preserve the difference between staring datetime and the new finished datetime.
 
-### Storage
+## Storage
 
 - All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable - not easily anyway.  It can be backed up and/or queried using external tools as well as etm itself. 
 - Two timestamps are automatically created for each item in the data store, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. The creation timestamp is used as the unique identifier for the item in the data store. 
@@ -70,7 +70,7 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
     The default for `@i` is *None*. Note that `@i` replaces the functionality of  the old `@k`, *keyword*.
 - The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
-### Dates and Date Times
+## Dates and Date Times
 
 - The time zone entry, `@z`, is eliminated. 
 
@@ -111,7 +111,7 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
     - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as beginning at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `fri 2p, US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
     - Datetimes are rounded to the nearest minute for display.
 
-### Jobs
+## Jobs
 
 - Tasks, both with and without `@s` entries can have component jobs using `@j` entries.  A task with jobs thus replaces the old task group.
 
