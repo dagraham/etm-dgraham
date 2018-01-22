@@ -12,9 +12,10 @@
     - [Day View](#day-view)
     - [Next View](#next-view)
     - [Someday View](#someday-view)
-    - [Tag View](#tag-view)
     - [Index View](#index-view)
     - [History View](#history-view)
+    - [Busy View](#busy-view)
+    - [Tag View](#tag-view)
     - [Finished View](#finished-view)
     - [Query View](#query-view)
 - [Work Flow](#work-flow)
@@ -248,7 +249,7 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 ### Busy View
 
-- Hours in the day that are partially or wholly "busy" are marked with an `#` character.
+- Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked using `+++`.
 
         +----------------------------------------------------------+
         | Week 40: Mo Oct 2 - Sun Oct 8, 2017                      |
@@ -268,8 +269,8 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
         |      |           #                          #            |
         |      |           #            #             #     #      |
         |  12p |   #                    #             #     #      |
-        |      |   #                    #             #     #      |
-        |      |                                            #      |
+        |      |   #                   +++            #     #      |
+        |      |                        #                   #      |
         |      |                                            #      |
         |      |   #                                               |
         |      |   #                                               |
