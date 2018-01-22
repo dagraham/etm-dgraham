@@ -236,6 +236,15 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
     - Tasks, dated or undated, that were finished on this date, if any
 
 
+### Next View
+
+- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
+- While finished tasks and jobs are removed from this view, they are added to *Day View* using the completion datetime.
+
+### Someday View
+
+- Someday items grouped and sorted by the last modified datetime 
+
 ### Busy View
 
         +----------------------------------------------------------+
@@ -270,15 +279,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
         +----------------------------------------------------------+
         | 2:54pm Wed Aug 23 EDT                                    |
         +----------------------------------------------------------+
-
-### Next View
-
-- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
-- While finished tasks and jobs are removed from this view, they are added to *Day View* using the completion datetime.
-
-### Someday View
-
-- Someday items grouped and sorted by the last modified datetime 
 
 ### Tag View
 
