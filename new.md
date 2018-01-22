@@ -172,7 +172,7 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 # Views
 
-### Day View
+### Week View
 
 - Scheduled items are grouped by week.
 
@@ -233,7 +233,7 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 ### Next View
 
 - Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
-- While finished tasks and jobs are removed from this view, they are added to *Day View* using the completion datetime.
+- While finished tasks and jobs are removed from this view, they are added to *Week View* using the completion datetime.
 
 ### Someday View
 
@@ -252,7 +252,7 @@ All items, grouped and sorted by the datetime created (oldest first) or the date
 Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked using `+++`.
 
         +----------------------------------------------------------+
-        | Week 40: Mo Oct 2 - Sun Oct 8, 2017                      |
+        |Week 4: Jan 22 - 28, 2018                          F1:help|
         +----------------------------------------------------------+
         |   Hr     Mo     Tu     We     Th     Fr     Sa     Su    |
         |  ----+-------------------------------------------------  |
@@ -267,11 +267,11 @@ Hours in the day that are partially or wholly "busy" are marked with an `#` char
         |      |   #             #             #      #            |
         |      |   #             #             #      #            |
         |      |           #                          #            |
-        |      |           #            #             #     #      |
-        |  12p |   #                    #             #     #      |
-        |      |   #                   +++            #     #      |
-        |      |                        #                   #      |
-        |      |                                            #      |
+        |      |           #            #             #      #     |
+        |  12p |   #                    #             #      #     |
+        |      |   #                   +++            #      #     |
+        |      |                        #                    #     |
+        |      |                                             #     |
         |      |   #                                               |
         |      |   #                                               |
         |   6p |                 #                                 |
@@ -281,8 +281,10 @@ Hours in the day that are partially or wholly "busy" are marked with an `#` char
         |      |                                                   |
         |      |                                                   |
         +----------------------------------------------------------+
-        | 2:54pm Wed Aug 23 EDT                                    |
+        | 8:49am Thu Jan 18                              10:30am+1 | 
         +----------------------------------------------------------+
+
+Busy and Week views are synchronized so that it is possible to toggle back and forth between Week and Busy views which display the same week. 
 
 ### Tag View
 
