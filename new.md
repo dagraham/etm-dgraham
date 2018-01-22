@@ -236,6 +236,41 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
     - Tasks, dated or undated, that were finished on this date, if any
 
 
+### Busy View
+
+        +----------------------------------------------------------+
+        | Week 40: Mo Oct 2 - Sun Oct 8, 2017                      |
+        +----------------------------------------------------------+
+        |   Hr     Mo     Tu     We     Th     Fr     Sa     Su    |
+        |  ----+-------------------------------------------------  |
+        |  12a |                                                   |
+        |      |                                                   |
+        |      |                                                   |
+        |      |                                                   |
+        |      |                                                   |
+        |      |                                                   |
+        |   6a |                                                   |
+        |      |                                                   |
+        |      |   #             #             #      #            |
+        |      |   #             #             #      #            |
+        |      |           #                          #            |
+        |      |           #            #             #     #      |
+        |  12p |   #                    #             #     #      |
+        |      |   #                    #             #     #      |
+        |      |                                            #      |
+        |      |                                            #      |
+        |      |   #                                               |
+        |      |   #                                               |
+        |   6p |                 #                                 |
+        |      |   #             #                                 |
+        |      |   #             #                                 |
+        |      |   #                                               |
+        |      |                                                   |
+        |      |                                                   |
+        +----------------------------------------------------------+
+        | 2:54pm Wed Aug 23 EDT                                    |
+        +----------------------------------------------------------+
+
 ### Next View
 
 - Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
