@@ -345,7 +345,6 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 ### Creating a new item
 
-
 - When creating a new item, the process is the same but for the fact that the initial entry will be empty. 
 
         +------------------------------------------------------------+
