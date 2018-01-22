@@ -36,7 +36,21 @@
 
 ### Item Types
 
-Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
+Five item types are used: `*`, `-`, `%`, `?`  and `!`.
+
+- The old *action* item type has been eliminated and its functionality has been replaced by the ability to use the `@m`, *memo* entry in *any* item to record time spent using the format `@m datetime started, timeperiod active,  datetime finished`. Such items need not have an `@s` entry.
+
+	- An etm *timer* can be used to record an `@m` action entry:
+
+		- Select the item (task, event, ...) to which the action is to be applied.
+		- Press the start key to start the timer.
+		- Press the pause/restart key as often as desired.
+		- Press the finish key to finish and record the new action.
+    - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was finished.
+    - One or more timers can be active at the same time but only one can be running - the rest will be paused.
+
+  - Items can have multiple `@m` entries. 
+  - The item containing `@m` entries is displayed in the normal way. Additionally, each `@m` is also displayed using the display character `$` on the day and time that the action was finished and the summary from the item itself.
 
 - `*`: event
 
@@ -49,28 +63,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 	- The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task.
 	- The old `%`, *delegated*, item type is eliminated. The functionality is replaced by using an `@u`, *user*, entry to indicate that the task has been delegated to a specified user. When displaying delegated tasks, the user followed by a colon is prepended to the task summary.
 	- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
-
-- `$`: action
-
-	- Changed type character from `~` which is hard to distinquish from `-` used for tasks, to `$` which suggests billing might be involved.
-	- An entry for `@e` is required along with entries for `@s` and `@f`.
-	- The `@s` entry is interpreted as the aware datetime at which the action was *started*. 
-	- The `@f` entry is interpreted as the aware datetime at which the action was *completed*. 
-	- The `@e` entry, *extent*, in an action is interpreted as the time period actively spent working on the action. 
-	- An etm *timer* can be used to record an action entry:
-
-		- Select the item (task, event, ...) to which the action is to be applied.
-		- Press the start key to start the timer.
-		- Press the pause/restart key as often as desired.
-		- Press the finish key to finish and record the new action.
-
-      - The `@s` entry will record the moment at which the timer was first started.
-      - The `@f` entry will record the moment at which the timer was finished.
-      - The `@e` entry will record the accumulated time period during which the timer was active. Note that the finish time minus the start time minus the active time implicitly gives the time period during which the timer was paused.
-      - The summary, `@c`, `@i`, `@l` and `@t`  entries for the action will be those of the selected item. 
-      - The new action will be displayed for possible editing.
-
-    - One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
 - `%`: journal entry
 
@@ -176,8 +168,6 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 
 # Views
 
-
-
 ### Day View
 
 - Scheduled items are grouped by week.
@@ -254,6 +244,8 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 - All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
 
 ### Busy View
+
+- Hours in the day that are partially or wholly "busy" are marked with an `#` character.
 
         +----------------------------------------------------------+
         | Week 40: Mo Oct 2 - Sun Oct 8, 2017                      |
