@@ -284,7 +284,7 @@ Hours in the day that are partially or wholly "busy" are marked with an `#` char
         | 8:49am Thu Jan 18                              10:30am+1 | 
         +----------------------------------------------------------+
 
-Busy and Week views are synchronized so that it is possible to toggle back and forth between Week and Busy views displaying the same week. 
+Busy and Week views are synchronized so that toggling back and forth between the two views displays the same week. 
 
 ### Tag View
 
