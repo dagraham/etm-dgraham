@@ -151,9 +151,9 @@ Six item types are used: `*`, `-`, `$`, `%`, `?`  and `!`.
 	- Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
 
 					- automatically assigned
-							@j job A
-							@j job B
-							@j job C
+						@j job A
+						@j job B
+						@j job C
 
 		`job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C`. 
 
