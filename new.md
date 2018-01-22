@@ -232,8 +232,9 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 ### Next View
 
-- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
-- While finished tasks and jobs are removed from this view, they are added to *Week View* using the completion datetime.
+Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
+
+While finished tasks and jobs are removed from this view, they are added to *Week View* using the completion datetime.
 
 ### Someday View
 
