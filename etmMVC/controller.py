@@ -81,7 +81,7 @@ amp_keys = {
         'f': "finish: datetime",
         'i': "unique identifier: integer or string",
         'l': "location: string",
-        'm': "moment (list of 'datetime, timeperiod, timeperiod')",
+        'm': "memo (list of 'datetime, timeperiod, timeperiod')",
         'p': "prerequisites: comma separated list of identifiers of immediate prereqs",
         's': "start/due: timeperiod before task start",
     },
