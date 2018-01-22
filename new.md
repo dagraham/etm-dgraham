@@ -1,28 +1,5 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 # What's planned for the next etm - January 22, 2018
 
-- [Goals](#goals)
-- [Data](#data)
-    - [Item Types](#item-types)
-    - [Storage](#storage)
-    - [Dates and Date Times](#dates-and-date-times)
-    - [Jobs](#jobs)
-- [Views](#views)
-    - [Week View](#week-view)
-    - [Next View](#next-view)
-    - [Someday View](#someday-view)
-    - [Index View](#index-view)
-    - [History View](#history-view)
-    - [Busy View](#busy-view)
-    - [Tag View](#tag-view)
-    - [Finished View](#finished-view)
-    - [Query View](#query-view)
-- [Work Flow](#work-flow)
-    - [Editing an existing item](#editing-an-existing-item)
-    - [Creating a new item](#creating-a-new-item)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 # Goals
 
 - Simplify code. Refactor, document code and add doc tests - make the code more maintainable. See [Item Types](#item-types), [Dates and Date Times](#dates-and-date-times) and [Jobs](#jobs). 
