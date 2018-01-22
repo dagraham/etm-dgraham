@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-# What's planned for the next etm
+# What's planned for the next etm - January 22, 2018
 
 - [Goals](#goals)
 - [Data](#data)
