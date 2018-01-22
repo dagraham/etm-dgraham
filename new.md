@@ -38,20 +38,6 @@
 
 Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
-- The old *action* item type has been eliminated and its functionality has been replaced by the ability to use the `@m`, *memo* entry in *any* item to record time spent using the format `@m datetime started, timeperiod active,  datetime finished`. Such items need not have an `@s` entry.
-
-    - An etm *timer* can be used to record an `@m` action entry:
-
-        - Select the item (task, event, ...) to which the action is to be applied.
-        - Press the start key to start the timer.
-        - Press the pause/restart key as often as desired.
-        - Press the finish key to finish and record the new action.
-        - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was finished.
-        - One or more timers can be active at the same time but only one can be running - the rest will be paused.
-
-    - Items can have multiple `@m` entries. 
-    - The item containing `@m` entries is displayed in the normal way. Additionally, each `@m` is also displayed using the display character `$` on the day and time that the action was finished and the summary from the item itself.
-
 - `*`: event
 
 	- The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
@@ -76,6 +62,20 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 	- Unchanged but for the change in the type character from `$` to `!` since `$` is now used for actions and `!` is more suggestive of urgency.
 	- All `@key` entries in inbox items are ignored save for the item type and summary. 
+
+- The old *action* item type has been eliminated and its functionality has been replaced by the ability to use the `@m`, *memo* entry in *any* item to record time spent using the format `@m datetime started, timeperiod active,  datetime finished`. Such items need not have an `@s` entry.
+
+    - An etm *timer* can be used to record an `@m` action entry:
+
+        - Select the item (task, event, ...) to which the action is to be applied.
+        - Press the start key to start the timer.
+        - Press the pause/restart key as often as desired.
+        - Press the finish key to finish and record the new action.
+        - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was finished.
+        - One or more timers can be active at the same time but only one can be running - the rest will be paused.
+
+    - Items can have multiple `@m` entries. 
+    - The item containing `@m` entries is displayed in the normal way. Additionally, each `@m` is also displayed using the display character `$` on the day and time that the action was finished and the summary from the item itself.
 
 ### Storage
 
