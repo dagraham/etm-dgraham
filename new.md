@@ -237,19 +237,19 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 ### Someday View
 
-- Someday items grouped and sorted by the last modified datetime 
+Someday items grouped and sorted by the last modified datetime 
 
 ### Index View
 
-- All items, grouped and sorted by their *index* entries
+All items, grouped and sorted by their *index* entries
 
 ### History View
 
-- All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
+All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
 
 ### Busy View
 
-- Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked using `+++`.
+Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked using `+++`.
 
         +----------------------------------------------------------+
         | Week 40: Mo Oct 2 - Sun Oct 8, 2017                      |
@@ -286,15 +286,15 @@ Five item types are used: `*`, `-`, `%`, `?`  and `!`.
 
 ### Tag View
 
-- Tagged items grouped and sorted by tag
+Tagged items grouped and sorted by tag
 
 ### Finished View
 
-- Finished tasks grouped and sorted by the completed datetime, most recent first.
+Finished tasks grouped and sorted by the completed datetime, most recent first.
 
 ### Query View
 
-- Analagous to the old custom view. Used to issue queries against the data store and display the results. 
+Analagous to the old custom view. Used to issue queries against the data store and display the results. 
 
 # Work Flow
 
