@@ -163,7 +163,7 @@ The weekly *Scheduled*, *Accomplished* and *Busy* views are synchronized so that
 	 ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI.
 
         +------------------------- top bar --------------------------+
-        |Week 3: Jan 15 - 21, 2018                            F1:help|
+        |Scheduled - Week 3: Jan 15 - 21, 2018                F1:help|
         +------------------------------------------------------------+
         |Mon Jan 15                                                  |
         |  ^ Martin Luther King Day                                  |
@@ -222,7 +222,7 @@ Actions and finished tasks grouped and sorted by week and day using the finished
 Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked with `+++`.
 
         +----------------------------------------------------------+
-        |Week 4: Jan 22 - 28, 2018                          F1:help|
+        |Busy - Week 4: Jan 22 - 28, 2018                   F1:help|
         +----------------------------------------------------------+
         |   Hr     Mo     Tu     We     Th     Fr     Sa     Su    |
         |  ----+-------------------------------------------------  |
