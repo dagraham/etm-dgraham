@@ -219,7 +219,7 @@ Actions grouped and sorted by week and day
 
 ### Finished
 
-Finished tasks grouped and sorted by week and day completed.
+Finished tasks grouped and sorted by week and day completed
 
 ### Busy
 
@@ -263,7 +263,7 @@ Hours in the day that are partially or wholly "busy" are marked with an `#` char
 
 Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
 
-While finished tasks and jobs are removed from this view, they are added to *Week View* using the completion datetime.
+While finished tasks and jobs are removed from this view, they are added to *Finished* using the completion datetime.
 
 ## Someday View
 
