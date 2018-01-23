@@ -152,6 +152,8 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 # Views
 
+Hotkeys: s)cheduled, a)ccomplished, b)usy
+
 ## Weekly
 
 The weekly *Scheduled*, *Accomplished* and *Busy* views are synchronized so that switching from one of these views to another always displays the same week. 
@@ -255,29 +257,29 @@ Hours in the day that are partially or wholly "busy" are marked with an `#` char
         +----------------------------------------------------------+
 
 
-## Next View
+## Next
 
 Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
 
 While finished tasks and jobs are removed from this view, they are added to *Finished* using the completion datetime.
 
-## Someday View
+## Maybe Someday
 
 Someday items grouped and sorted by the last modified datetime 
 
-## Index View
+## Index
 
 All items, grouped and sorted by their *index* entries
 
-## History View
+## History
 
 All items, grouped and sorted by the datetime created (oldest first) or the datetime last modified (newest first)
 
-## Tag View
+## Tags
 
 Tagged items grouped and sorted by tag
 
-## Query View
+## Query
 
 Analagous to the old custom view. Used to issue queries against the data store and display the results. 
 
