@@ -46,7 +46,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
     - An etm *timer* can be used to record an `@m` action entry:
 
-        - Select the item (task, event, ...) to which the action is to be applied.
+        - Select the item (event, taks or journal) to which the action is to be applied.
         - Press the start key to start the timer.
         - Press the pause/restart key as often as desired.
         - Press the finish key to finish and record the new action.
