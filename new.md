@@ -50,7 +50,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
         - Press the start key to start the timer.
         - Toggle the pause/restart key as often as desired.
         - Press the stop key to finish and record the new action.
-        - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was finished.
+        - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was stopped.
         - One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
     - Items can have multiple `@m` entries. 
