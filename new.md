@@ -156,7 +156,7 @@ View hotkeys: s)cheduled, d)one, b)usy, n)ext, m)aybe, i)ndex, h)istory, t)ags, 
 
 ## Weekly
 
-The weekly *Scheduled*, *Accomplished* and *Busy* views are synchronized so that switching from one of these views to another always displays the same week. 
+The weekly *Scheduled*, *Done* and *Busy* views are synchronized so that switching from one of these views to another always displays the same week. 
 
 ### Scheduled
 
