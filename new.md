@@ -315,7 +315,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
     - topbar: `editing: unsaved changes`
     - status bar: `^S:save  ^Q:save and close  ^U:undo changes` 
         - Save processes the item, updates the data store and refreshes the display.
-        - Undo changes refreshes the display using the current (saved) version of the item from the data store.
+        - Undo changes refreshes the display using the current, saved version of the item from the data store.
 
 - When changes have been saved or undone
 
