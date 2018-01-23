@@ -152,7 +152,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 # Views
 
-View hotkeys: s)cheduled, d)one, b)usy, n)ext, m)aybe, i)ndex, h)istory, t)ags, and q)uery.
+View hotkeys: a)genda, d)one, b)usy, n)ext, m)aybe, i)ndex, h)istory, t)ags, and q)uery.
 
 ## Weekly
 
