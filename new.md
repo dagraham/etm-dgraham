@@ -261,7 +261,7 @@ Hours in the day that are partially or wholly "busy" are marked with an `#` char
         | 8:49am Thu Jan 18                              10:30am+1 | 
         +----------------------------------------------------------+
 
-Busy and Week views are synchronized so that toggling back and forth between the two views displays the same week. 
+Action, Busy and Week views are synchronized so that switching from one of these views to another always displays the same week. 
 
 ## Index View
 
