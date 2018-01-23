@@ -77,6 +77,8 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 - Dates (naive) and datetimes (both naive and aware) are suppored. 
 
+- Fuzzy parsing of entries is suppored.
+
 - The format for the `@s` entry is `date [time][, TimeZone|float]`. In the following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern.
 
     - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. Without a time, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone.
