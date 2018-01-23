@@ -152,7 +152,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 # Views
 
-View hotkeys: s)cheduled, a)ccomplished, b)usy, n)ext, m)aybe, i)ndex, h)istory, t)ags, and q)uery.
+View hotkeys: s)cheduled, d)one, b)usy, n)ext, m)aybe, i)ndex, h)istory, t)ags, and q)uery.
 
 ## Weekly
 
@@ -214,7 +214,7 @@ The weekly *Scheduled*, *Accomplished* and *Busy* views are synchronized so that
     - Unfinished all day tasks, if any
     - All day journal entries, if any
 
-### Accomplished
+### Done
 
 Actions and finished tasks grouped and sorted by week and day using the finished datetime
 
