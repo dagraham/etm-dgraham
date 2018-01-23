@@ -15,7 +15,7 @@
 
 ## Item Types
 
-Five item types are used: `*`, `-`, `%`, `?`  and `!`.
+Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 - `*`: event
 
