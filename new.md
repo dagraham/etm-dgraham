@@ -154,7 +154,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 ## Weekly
 
-The weekly *Scheduled*, *Actions*, *Finished* and *Busy* views are synchronized so that switching from one of these views to another always displays the same week. 
+The weekly *Scheduled*, *Accomplished* and *Busy* views are synchronized so that switching from one of these views to another always displays the same week. 
 
 ### Scheduled
 
@@ -211,15 +211,11 @@ The weekly *Scheduled*, *Actions*, *Finished* and *Busy* views are synchronized 
     - Scheduled events, journal entries, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events and tasks with *extent*, the ending time is also displayed. 
     - Unfinished all day tasks, if any
     - All day journal entries, if any
-    - Tasks, dated or undated, that were finished on this date, if any
 
-### Actions
+### Accomplished
 
-Actions grouped and sorted by week and day
+Actions and finished tasks grouped and sorted by week and day finished
 
-### Finished
-
-Finished tasks grouped and sorted by week and day completed
 
 ### Busy
 
