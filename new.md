@@ -81,11 +81,11 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
     - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. Without a time, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone.
 
-    - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. With a time, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
+    - Aware date-time, e.g, `@s 1/5 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. With a time, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
 
-    - Aware date-time, e.g., `@s fri 2p, US/Pacific`. Interpreted as `Fri, Jan 5 2018 2pm PST`. 
+    - Aware date-time, e.g., `@s 5 2p, US/Pacific`. Interpreted as `Fri, Jan 5 2018 2pm PST`. 
 
-    - Naive date-time, e.g., `@s fri 2p, float`. Interpreted as `Fri, Jan 5, 1018 2pm` in whatever happens to be the local time zone.
+    - Naive date-time, e.g., `@s 1/5/18 2p, float`. Interpreted as `Fri, Jan 5, 2018 2pm` in whatever happens to be the local time zone.
 
 - When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time. E.g., in the following, all repetitions are at 2pm even though the first 2 are EST and the 3rd is EDT.
 
