@@ -154,7 +154,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 ## Weekly Views:
 
-The weekly *Scheduled*, *Actions, *Busy* and *Finished* views are synchronized so that switching from one of these views to another always displays the same week. 
+The weekly *Scheduled*, *Actions*, *Busy* and *Finished* views are synchronized so that switching from one of these views to another always displays the same week. 
 
 ### Scheduled
 
