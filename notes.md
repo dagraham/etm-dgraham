@@ -1,30 +1,62 @@
+# Saved
+
+- The old *action* item type has been eliminated and its functionality has been replaced by the ability to use the `@m`, *memo* entry in *any* item to record time spent using the format `@m datetime started, timeperiod active,  datetime finished`. Such items need not have an `@s` entry.
+
+    - An etm *timer* can be used to record an `@m` action entry:
+
+        - Select the item (task, event, ...) to which the action is to be applied.
+        - Press the start key to start the timer.
+        - Press the pause/restart key as often as desired.
+        - Press the finish key to finish and record the new action.
+        - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was finished.
+        - One or more timers can be active at the same time but only one can be running - the rest will be paused.
+
+    - Items can have multiple `@m` entries. 
+    - The item containing `@m` entries is displayed in the normal way. Additionally, each `@m` is also displayed using the display character `$` on the day and time that the action was finished and the summary from the item itself.
+    - Displaying the details for an action will show the details for the item itself with all its `@m` entries.
+    - Deleting a selected action will remove the associated `@m` entry.
+    - Rescheduling a selected action will change the datetime finished component to the new datetime, leave the active timeperiod component unchanged and adjust the starting datetime to preserve the difference between staring datetime and the new finished datetime.
+
 # TODO
 
-- RRULE: storing DTSTART as UTC will screw up repetitions that cross daylight savings time periods. E.g, 
+## Display Patterns
 
-        * ev @s fri 2p @r m &w -2Fr
-        ------------------------------------------------------------
-        repetition rule:
-            RRULE:FREQ=MONTHLY;BYWEEKDAY=-2FR
-        The first 3 repetitions on or after Fri Jan 19 2018 2:00PM
-        EST:
-            Fri Jan 19 2018 2:00PM EST
-            Fri Feb 16 2018 2:00PM EST
-            Fri Mar 23 2018 3:00PM EDT
+Entry: nothing
+Prompt: item type character?
+Help: list of type characters
 
+Entry: type character and perhaps some of the summary
+Prompt: item summary and @ key options?
+Help: summary help
+      Enter @ to see a list of available options
 
-- RRULE: storing DTSTART as UTC will screw up BYHOUR whose entries are interpreted as UTC hours
+Entry: type char, summary and @
+Prompt: @key?
+Help: List of available @keys
 
-        * e @s 2p fri @r m &w -2FR &h 14
-        ------------------------------------------------------------
-        repetition rule:
-            RRULE:FREQ=MONTHLY;BYHOUR=14;BYWEEKDAY=-2FR
-        The first 3 repetitions on or after Fri Jan 19 2018 2:00PM
-        EST:
-            Fri Feb 16 2018 9:00AM EST
-            Fri Mar 23 2018 10:00AM EDT
-            Fri Apr 20 2018 10:00AM EDT
+### @keys with fuzzy parsing such as @s
 
+Entry: ... @s
+Prompt: starting date or datetime?
+Help: currently: current expansion 
+      help info
+
+### @keys with & parts such as @r
+
+Entry: ... @r
+Prompt: repetition frequency?
+Help: Possible entries are characters from: (y)early, ...
+
+Entry: ... @r m
+Prompt: repetition rule &key options?
+Help: currently
+      Enter & to see a list of available options
+
+Entry: ... @r m &w
+
+Entry: ... @j
+Prompt: job summary?
+Help: Enter the summary for the 
 
 
 012345678901234567890123456789012345678901234567890123456789
