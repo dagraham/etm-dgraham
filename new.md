@@ -152,7 +152,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 # Views
 
-Hotkeys: s)cheduled, a)ccomplished, b)usy
+View hotkeys: s)cheduled, a)ccomplished, b)usy, n)ext, m)aybe, i)ndex, h)istory, t)ags, and q)uery.
 
 ## Weekly
 
@@ -263,7 +263,7 @@ Unfinished tasks and jobs that are undated (without `@s` entries) grouped and so
 
 While finished tasks and jobs are removed from this view, they are added to *Finished* using the completion datetime.
 
-## Maybe Someday
+## Maybe someday
 
 Someday items grouped and sorted by the last modified datetime 
 
