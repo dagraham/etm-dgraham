@@ -327,7 +327,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 - When creating a new item, the process is the same but for the fact that the initial entry will be empty. 
 
         +------------------------- top bar --------------------------+
-        |**iting: new item**                                  F1:help|
+        |editing: new item                                    F1:help|
         +------------------------------------------------------------+
         |type character for new item?                                |
         |> _                                                         |
