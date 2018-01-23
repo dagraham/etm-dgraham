@@ -214,7 +214,7 @@ The weekly *Scheduled*, *Accomplished* and *Busy* views are synchronized so that
 
 ### Accomplished
 
-Actions and finished tasks grouped and sorted by week and day finished
+Actions and finished tasks grouped and sorted by week and day using the finished datetime
 
 
 ### Busy
