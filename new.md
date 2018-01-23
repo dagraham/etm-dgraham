@@ -49,7 +49,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
         - Select the item (event, taks or journal) to which the action is to be applied.
         - Press the start key to start the timer.
         - Toggle the pause/restart key as often as desired.
-        - Press the finish key to finish and record the new action.
+        - Press the stop key to finish and record the new action.
         - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was finished.
         - One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
