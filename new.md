@@ -165,7 +165,7 @@ The *Agenda*, *Done* and *Busy* views use weekly diplays which are synchronized 
 	 ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI.
 
         +------------------------- top bar --------------------------+
-        |Scheduled - Week 3: Jan 15 - 21, 2018                F1:help|
+        |Agenda - Week 3: Jan 15 - 21, 2018                   F1:help|
         +------------------------------------------------------------+
         |Mon Jan 15                                                  |
         |  ^ Martin Luther King Day                                  |
