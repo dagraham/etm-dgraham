@@ -326,6 +326,8 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 - When creating a new item, the process is the same but for the fact that the initial entry will be empty. 
 
+        +------------------------- top bar --------------------------+
+        |**iting: new item**                                  F1:help|
         +------------------------------------------------------------+
         |type character for new item?                                |
         |> _                                                         |
@@ -340,6 +342,8 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 - The main panel reflects any changes as they occur:
 
+        +------------------------- top bar --------------------------+
+        |editing: unsaved changes                             F1:help|
         +------------------------------------------------------------+
         |summary for the event?                                      |
         |> * my ev_                                                  |
