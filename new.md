@@ -220,7 +220,7 @@ Someday items grouped and sorted by the last modified datetime
 
 ## Busy View
 
-Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked using `+++`.
+Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked with `+++`.
 
         +----------------------------------------------------------+
         |Week 4: Jan 22 - 28, 2018                          F1:help|
