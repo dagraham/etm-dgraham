@@ -55,7 +55,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
     - Items can have multiple `@m` entries. 
     - The item containing `@m` entries is displayed in the normal way. Additionally, each `@m` is also displayed using the display character `$` on the day and time that the action was finished and the summary from the item itself.
-    - Displaying the details for an action will show the details for the item itself with all its `@m` entries.
+    - Displaying the details for an action will show the details for the item itself with all its `@m` entries. Thus all of the actions relating to a particular item can be seen by selecting any of the actions as well as the item itself. Additionally any change made to the item's summary, index or other elements will automatically apply to all of it's items.
     - Deleting a selected action will remove the associated `@m` entry.
     - Rescheduling a selected action will change the datetime finished component to the new datetime, leave the active timeperiod component unchanged and adjust the starting datetime to preserve the difference between staring datetime and the new finished datetime.
 
