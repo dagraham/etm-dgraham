@@ -156,7 +156,7 @@ View hotkeys: a)genda, d)one, b)usy, n)ext, m)aybe, i)ndex, h)istory, t)ags, and
 
 ## Weekly
 
-The weekly *Agenda*, *Done* and *Busy* views are synchronized so that switching from one of these views to another always displays the same week. 
+The *Agenda*, *Done* and *Busy* views involve weekly diplays and are synchronized so that switching from one of these views to another always displays the same week. 
 
 ### Agenda
 
