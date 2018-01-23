@@ -152,7 +152,11 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 # Views
 
-## Week View
+## Weekly Views:
+
+The weekly *Scheduled*, *Actions, *Busy* and *Finished* views are synchronized so that switching from one of these views to another always displays the same week. 
+
+### Scheduled
 
 - Scheduled items, grouped and sorted by week and day
 
@@ -209,22 +213,15 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
     - All day journal entries, if any
     - Tasks, dated or undated, that were finished on this date, if any
 
-
-## Next View
-
-Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
-
-While finished tasks and jobs are removed from this view, they are added to *Week View* using the completion datetime.
-
-## Someday View
-
-Someday items grouped and sorted by the last modified datetime 
-
-## Action View
+### Actions
 
 Actions grouped and sorted by week and day
 
-## Busy View
+### Finished
+
+Finished tasks grouped and sorted by week and day completed.
+
+### Busy
 
 Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked with `+++`.
 
@@ -261,7 +258,16 @@ Hours in the day that are partially or wholly "busy" are marked with an `#` char
         | 8:49am Thu Jan 18                              10:30am+1 | 
         +----------------------------------------------------------+
 
-Action, Busy and Week views are synchronized so that switching from one of these views to another always displays the same week. 
+
+## Next View
+
+Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
+
+While finished tasks and jobs are removed from this view, they are added to *Week View* using the completion datetime.
+
+## Someday View
+
+Someday items grouped and sorted by the last modified datetime 
 
 ## Index View
 
@@ -274,10 +280,6 @@ All items, grouped and sorted by the datetime created (oldest first) or the date
 ## Tag View
 
 Tagged items grouped and sorted by tag
-
-## Finished View
-
-Finished tasks grouped and sorted by the completed datetime, most recent first.
 
 ## Query View
 
