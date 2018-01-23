@@ -1,5 +1,26 @@
 # Saved
 
+
+- `$`: action 
+
+		- Requires entries for `@s`, the datetime the action began, `@e`, the time spent actively working on the action, and `@f`, the datetime the action ended. 
+
+    - An etm *timer* can be used to record an action:
+
+        - Select the item (task, event, ...) to which the action is to be applied.
+        - Press the start key to start the timer.
+        - Press the pause/restart key as often as desired.
+        - Press the finish key to finish and record the new action.
+        - The `@s` entry will record the moment at which the timer was first started, `@e` the accumulated time period during which the timer was active and `@f` the moment at which the timer was finished. 
+				- The summary for the action and the value for `@i` will be those of the selected item. 
+        - One or more timers can be active at the same time but only one can be running - the rest will be paused.
+
+    - The item containing `@m` entries is displayed in the normal way. Additionally, each `@m` is also displayed using the display character `$` on the day and time that the action was finished and the summary from the item itself.
+    - Displaying the details for an action will show the details for the item itself with all its `@m` entries.
+    - Deleting a selected action will remove the associated `@m` entry.
+    - Rescheduling a selected action will change the datetime finished component to the new datetime, leave the active timeperiod component unchanged and adjust the starting datetime to preserve the difference between staring datetime and the new finished datetime.
+
+
 - The old *action* item type has been eliminated and its functionality has been replaced by the ability to use the `@m`, *memo* entry in *any* item to record time spent using the format `@m datetime started, timeperiod active,  datetime finished`. Such items need not have an `@s` entry.
 
     - An etm *timer* can be used to record an `@m` action entry:
