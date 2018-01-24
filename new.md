@@ -58,12 +58,11 @@ This is equivalent to the old *note* item type.
 
 ### `?`: someday
 
-Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignored.
+Unchanged.
 
 ### `!`: inbox
 
 - Unchanged but for the change in the type character from `$` to `!` since `$` is now used for actions and `!` is more suggestive of urgency.
-- All `@key` entries in inbox items are ignored save for the item type and summary. 
 
 ## Storage
 
