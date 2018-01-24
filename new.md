@@ -233,7 +233,7 @@ The *Agenda*, *Done* and *Busy* views use weekly diplays which are synchronized 
         |Done - Week 3: Jan 15 - 21, 2018                     F1:help|
         +------------------------------------------------------------+
         |Mon Jan 15                                                  |
-        |  $ report summary                             4:27pm - 47m |
+        |  $ report summary                             4:29pm - 47m |
         |  x report summary                                4:30pm    | 
 
 
