@@ -53,7 +53,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
             - Select an item (event, task journal entry or existing action) to which the `@m` entry is to be added. 
             - Create a new item using action type character `$` and enter at least a summary for the action.
           - Start the timer.
-          - Toggle pause/restart the timer as often as desired.
+          - Pause/restart the timer as often as desired.
           - Stop the timer to finish and record the time spent. The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was stopped.
           - Choose whether or not to edit the modified item.
           - Note: One or more timers can be active at the same time but only one can be running - the rest will be paused.
