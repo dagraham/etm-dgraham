@@ -56,7 +56,7 @@ This is equivalent to the old *note* item type.
       - Choose whether or not to edit the modified item.
       - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
 
-### `?`: someday maybe
+### `?`: someday
 
 Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignored.
 
