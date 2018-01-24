@@ -42,7 +42,7 @@ This is equivalent to the old *note* item type.
   - Items which contain `@m` entries, are also displayed in the normal ways for the type of the item. 
 
       Displaying the details for such an item will show the details for the item itself with all its `@m` entries. Thus all of the actions relating to a particular item can be seen by selecting any of the actions as well as the item itself. Additionally any change made to the item's summary, index or other elements will automatically apply to all of it's items.
-  - It is strongly recommended that items containing `@m` entries should have `@i`, *index*, entries since accounting reports which aggregate time expenditures are based on the index entries. 
+  - It is *strongly recommended* that items containing `@m` entries should have `@i`, *index*, entries since accounting reports which aggregate time expenditures are based on the index entries. 
   - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
 
       - Begin:
