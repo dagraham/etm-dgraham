@@ -36,7 +36,7 @@ This is equivalent to the old *note* item type.
 ### `$`: action
 
   - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and journal entries without creating new actions that duplicate the original item information.
-  - In *all* cases - events, tasks, journal entries as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active,  datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`. 
+  - In *all* cases - events, tasks, journal entries as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active, datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`. 
   - Items can have multiple `@m` entries. 
   - Each `@m` entry is displayed in the *Done* view on the day of `datetime finished` using the display character `$`, the item summary, the time of `datetime finished` and the `timeperiod active`.
   - Items which contain `@m` entries, are also displayed in the normal ways for the type of the item. 
