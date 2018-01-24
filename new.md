@@ -46,7 +46,6 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
     - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and journal entries without creating new actions which duplicate the original item information.
     - In *all* cases - events, tasks, journal entries as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active,  datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`.
-
     - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
 
         - Begin:
