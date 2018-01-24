@@ -75,6 +75,9 @@ Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignor
               - oak
 
     The default for `@i` is *None*. Note that `@i` replaces the functionality of  the old `@k`, *keyword*.
+
+    Action accounting reports are based on the index entries of the items.
+
 - The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
 ## Dates and Date Times
