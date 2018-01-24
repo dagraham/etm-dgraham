@@ -31,7 +31,7 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 ### `%`: journal entry
 
-- This is equivalent to the old *note* item type. 
+This is equivalent to the old *note* item type. 
 
 ### `$`: action
 
@@ -59,7 +59,7 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 ### `?`: someday maybe
 
-- Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignored.
+Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignored.
 
 ### `!`: inbox
 
