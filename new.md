@@ -59,7 +59,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
         - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
 
     - Items can have multiple `@m` entries. 
-    - Each `@m` entry is displayed in the *actions* view using the display character `$` on the day and time that the action was finished.
+    - Each `@m` entry is displayed in the *Done* view using the display character `$` on the day and time that the action was finished.
     - Items which contain `@m` entries, are also displayed in the normal ways for the type of the item. 
 
         Displaying the details for such an item will show the details for the item itself with all its `@m` entries. Thus all of the actions relating to a particular item can be seen by selecting any of the actions as well as the item itself. Additionally any change made to the item's summary, index or other elements will automatically apply to all of it's items.
