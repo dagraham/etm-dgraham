@@ -49,7 +49,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
       - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
 
-          - Choose:
+          - Begin:
             - Either select an item (event, task journal entry or existing action) to which the `@m` entry is to be added. 
             - Or create a new item with the action type character `$` and at least a summary for the action.
           - Start the timer.
