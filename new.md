@@ -98,6 +98,8 @@ Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignor
 
     - Naive date-time, e.g., `@s fri 2p, float`. *With float*, this is interpreted as `Fri, Jan 5, 2018 2pm` in whatever happens to be the local time zone.
 
+    The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the comma and `TimeZone`. Still less probably, one that floats and this requires the addition of the comma and `float`.
+
 - When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time. E.g., in the following, all repetitions are at 2pm even though the first 2 are EST and the 3rd is EDT.
 
             repetition rule:
