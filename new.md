@@ -47,20 +47,21 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
     - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and journal entries without creating new actions which duplicate the original item information.
     - In *all* cases - events, tasks, journal entries as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active,  datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`.
 
-      - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
+    - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
 
-          - Begin:
-            - Either select an item (event, task journal entry or existing action) to which the `@m` entry is to be added. 
-            - Or create a new item with the action type character `$` and at least a summary for the action.
-          - Start the timer.
-          - Pause/restart the timer as often as desired.
-          - Stop the timer to finish and record the time spent. The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was stopped.
-          - Choose whether or not to edit the modified item.
-          - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
+      - Begin:
+        - Either select an item (event, task journal entry or existing action) to which the `@m` entry is to be added. 
+        - Or create a new item with the action type character `$` and at least a summary for the action.
+      - Start the timer.
+      - Pause/restart the timer as often as desired.
+      - Stop the timer to finish and record the time spent. The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was stopped.
+      - Choose whether or not to edit the modified item.
+      - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
 
       - Items can have multiple `@m` entries. 
-      - The item containing `@m` entries is displayed in the normal way. Additionally, each `@m` is also displayed using the display character `$` on the day and time that the action was finished and the summary from the item itself in the *actions* view.
-      - Displaying the details for an action will show the details for the item itself with all its `@m` entries. Thus all of the actions relating to a particular item can be seen by selecting any of the actions as well as the item itself. Additionally any change made to the item's summary, index or other elements will automatically apply to all of it's items.
+      - Each `@m` entry is displayed in the *actions* view using the display character `$` on the day and time that the action was finished.
+      - Items other than actions which contain `@m` entries, are also displayed in the normal ways for the type of the item. 
+        - Displaying the details for such an item will show the details for the item itself with all its `@m` entries. Thus all of the actions relating to a particular item can be seen by selecting any of the actions as well as the item itself. Additionally any change made to the item's summary, index or other elements will automatically apply to all of it's items.
       - Deleting a selected action will remove the associated `@m` entry.
       - Rescheduling a selected action will change the datetime finished component to the new datetime, leave the active timeperiod component unchanged and adjust the starting datetime to preserve the difference between staring datetime and the new finished datetime.
 
