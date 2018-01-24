@@ -47,7 +47,7 @@ This is equivalent to the old *note* item type.
 
       - Begin:
           - Either select an item (event, task, journal or existing action) to which the `@m` entry is to be added. 
-          - Or create a new item with the action type character `$` and at least a summary for the new action. An `@s` entry is not used and will be ignored.
+          - Or create a new item with the action type character `$` and at least a summary for the new action. 
       - Start the timer.
       - Pause/resume the timer as often as desired.
       - Finish the timer to record the time spent. The `@m` entry will contain:
