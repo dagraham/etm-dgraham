@@ -67,19 +67,19 @@ Menu
         Open 
             Configuration file ...                 Shift-C 
             Preferences                            Shift-P 
-            Scratchpad                             Shift-S 
         ---- 
         Quit                                         F8 
     View 
-        Agenda                                      A 
-        Busy                                        M 
-        Done                                        D 
-        History                                     H
-        Index                                       I 
-        Maybe                                       M 
-        Next                                        N 
-        Query                                       Q 
-        Tags                                        T
+        Agenda                                        A 
+        Busy                                          B 
+        Done                                          D 
+        Index                                         I 
+        Next                                          N 
+        History-Modified                              M
+        History-Originated                            O
+        Someday                                       S 
+        Query                                         Q 
+        Tags                                          T
         ---- 
         Set outline filter                          Ctrl-F 
         Clear outline filter                     Shift-Ctrl-F
@@ -88,33 +88,23 @@ Menu
         Toggle finished                               X 
     Item 
         Copy                                       Shift-C 
-        Delete                                    BackSpace  
+        Delete                                     Shift-D 
         Edit                                       Shift-E 
         Finish                                     Shift-F 
-        Klone as timer                               K 
-        Move                                          M 
-        Open link                                     G 
-        Reschedule                                    R 
-        Schedule new                                  S 
-        Show date and time details                    D 
-        Show user details                             U 
+        Open link                                  Shift-G 
+        Reschedule                                 Shift-R 
+        Schedule new                               Shift-S 
     Tools 
         Home                                         Home 
         Jump to date                                  J 
         ---- 
-        Show remaining alerts for today               A 
-        List busy times in week/month                 B 
-        List free times in week/month                 F 
+        Show remaining alerts for today            Shift-A 
         Date and time calculator                   Shift-D 
-        Available dates calculator                 Shift-A 
         Yearly calendar                            Shift-Y 
         ---- 
         Show outline as text                       Shift-O 
-        Print outline                                 P 
+        Print outline                              Shift-P 
         Export to iCal                             Shift-X 
-        Export to JSON                             Shift-J 
-        Update calendar subscriptions              Shift-M 
-        History of changes                         Shift-H 
     Custom 
         Create and display selected report          Return 
         Export report in text format ...            Ctrl-T 
