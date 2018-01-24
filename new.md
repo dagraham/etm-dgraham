@@ -53,7 +53,10 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
             - Or create a new item with the action type character `$` and at least a summary for the new action.
         - Start the timer.
         - Pause/resume the timer as often as desired.
-        - Stop the timer to finish and record the time spent. The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was stopped.
+        - Finish the timer to record the time spent. The `@m` entry will contain:
+            - the moment at which the timer was first started
+            - the accumulated time period during which the timer was active
+            - the moment at which the timer was stopped
         - Choose whether or not to edit the modified item.
         - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
 
