@@ -50,7 +50,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
         - Begin:
             - Either select an item (event, task journal entry or existing action) to which the `@m` entry is to be added. 
-            - Or create a new item with the action type character `$` and at least a summary for the new action. An `@s` entry is not allowed.
+            - Or create a new item with the action type character `$` and at least a summary for the new action. An `@s` entry is not required and will be ignored.
         - Start the timer.
         - Pause/resume the timer as often as desired.
         - Finish the timer to record the time spent. The `@m` entry will contain:
