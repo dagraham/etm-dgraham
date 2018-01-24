@@ -19,52 +19,52 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 ### `*`: event
 
-	- The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
-	- The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See  [Dates and Date Times](#dates-and-date-times).
+- The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
+- The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See  [Dates and Date Times](#dates-and-date-times).
 
-- `-`: task
+### `-`: task
 
-	- The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* terminology. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
-	- The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task.
-	- The old `%`, *delegated*, item type is eliminated. The functionality is replaced by using an `@u`, *user*, entry to indicate that the task has been delegated to a specified user. When displaying delegated tasks, the user followed by a colon is prepended to the task summary.
-	- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
+- The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* terminology. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
+- The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task.
+- The old `%`, *delegated*, item type is eliminated. The functionality is replaced by using an `@u`, *user*, entry to indicate that the task has been delegated to a specified user. When displaying delegated tasks, the user followed by a colon is prepended to the task summary.
+- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
 
-- `%`: journal entry
+### `%`: journal entry
 
-	- This is equivalent to the old *note* item type. 
+- This is equivalent to the old *note* item type. 
 
-- `?`: someday maybe
+### `?`: someday maybe
 
-	- Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignored.
+- Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignored.
 
-- `!`: inbox
+### `!`: inbox
 
-	- Unchanged but for the change in the type character from `$` to `!` since `$` is now used for actions and `!` is more suggestive of urgency.
-	- All `@key` entries in inbox items are ignored save for the item type and summary. 
+- Unchanged but for the change in the type character from `$` to `!` since `$` is now used for actions and `!` is more suggestive of urgency.
+- All `@key` entries in inbox items are ignored save for the item type and summary. 
 
-- `$`: action
+### `$`: action
 
-    - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and journal entries without creating new actions that duplicate the original item information.
-    - In *all* cases - events, tasks, journal entries as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active,  datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`. 
-    - Items can have multiple `@m` entries. 
-    - Each `@m` entry is displayed in the *Done* view on the day of `datetime finished` using the display character `$`, the item summary, the time of `datetime finished` and the `timeperiod active`.
-    - Items which contain `@m` entries, are also displayed in the normal ways for the type of the item. 
+  - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and journal entries without creating new actions that duplicate the original item information.
+  - In *all* cases - events, tasks, journal entries as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active,  datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`. 
+  - Items can have multiple `@m` entries. 
+  - Each `@m` entry is displayed in the *Done* view on the day of `datetime finished` using the display character `$`, the item summary, the time of `datetime finished` and the `timeperiod active`.
+  - Items which contain `@m` entries, are also displayed in the normal ways for the type of the item. 
 
-        Displaying the details for such an item will show the details for the item itself with all its `@m` entries. Thus all of the actions relating to a particular item can be seen by selecting any of the actions as well as the item itself. Additionally any change made to the item's summary, index or other elements will automatically apply to all of it's items.
+      Displaying the details for such an item will show the details for the item itself with all its `@m` entries. Thus all of the actions relating to a particular item can be seen by selecting any of the actions as well as the item itself. Additionally any change made to the item's summary, index or other elements will automatically apply to all of it's items.
 
-    - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
+  - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
 
-        - Begin:
-            - Either select an item (event, task, journal or existing action) to which the `@m` entry is to be added. 
-            - Or create a new item with the action type character `$` and at least a summary for the new action. An `@s` entry is not required and will be removed.
-        - Start the timer.
-        - Pause/resume the timer as often as desired.
-        - Finish the timer to record the time spent. The `@m` entry will contain:
-            - the moment at which the timer was first started
-            - the accumulated time period during which the timer was active
-            - the moment at which the timer was stopped
-        - Choose whether or not to edit the modified item.
-        - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
+      - Begin:
+          - Either select an item (event, task, journal or existing action) to which the `@m` entry is to be added. 
+          - Or create a new item with the action type character `$` and at least a summary for the new action. An `@s` entry is not required and will be removed.
+      - Start the timer.
+      - Pause/resume the timer as often as desired.
+      - Finish the timer to record the time spent. The `@m` entry will contain:
+          - the moment at which the timer was first started
+          - the accumulated time period during which the timer was active
+          - the moment at which the timer was stopped
+      - Choose whether or not to edit the modified item.
+      - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
 
 ## Storage
 
