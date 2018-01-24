@@ -163,7 +163,7 @@ Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignor
 
 # Views
 
-View hotkeys: a)genda, d)one, b)usy, n)ext, m)aybe, i)ndex, h)istory, t)ags, and q)uery.
+View hotkeys: a)genda, b)usy, d)one, h)istory, i)ndex, n)ext, q)uery. s)omeday and t)ags
 
 ## Weekly
 
@@ -274,7 +274,7 @@ Unfinished tasks and jobs that are undated (without `@s` entries) grouped and so
 
 While finished tasks and jobs are removed from this view, they are added to *Finished* using the completion datetime.
 
-## Maybe someday
+## Someday
 
 Someday items grouped and sorted by the last modified datetime 
 
