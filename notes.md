@@ -40,36 +40,46 @@
 
 # TODO
 
+## States
+
+* View
+  * leaf (item) selected: Item & Tools
+  * node selected: Tools
+* Details
+* Editing
+* Query
+* Dialog (responding to prompt)
+
+* Timer Active
+  * Running
+  * Paused
+
 Menu 
     File 
         New 
-            Item                                      N 
-            File                                   Shift-N 
+            Item                                   Shift-N 
         Timer 
-            Start action timer                        T 
+            Start action timer                     Shift-A 
             Finish action timer                    Shift-T 
             Toggle current timer                      I 
-            Delete action timer                    Shift-I 
-            Assign idle time                        Ctrl-I 
-            Reset idle to zero minutes 
-            Toggle idle timer display 
+            Cancel action timer                    Shift-I 
             Countdown timer                           Z 
         Open 
-            Data file ...                          Shift-F 
             Configuration file ...                 Shift-C 
             Preferences                            Shift-P 
             Scratchpad                             Shift-S 
         ---- 
-        Quit                                        Ctrl-Q 
+        Quit                                         F8 
     View 
-        Agenda                                      Ctrl-A 
-        Week                                        Ctrl-W 
-        Month                                       Ctrl-M 
-        Tag                                         Ctrl-T 
-        Keyword                                     Ctrl-K 
-        Path                                        Ctrl-P 
-        Note                                        Ctrl-N 
-        Custom                                      Ctrl-C 
+        Agenda                                      A 
+        Busy                                        M 
+        Done                                        D 
+        History                                     H
+        Index                                       I 
+        Maybe                                       M 
+        Next                                        N 
+        Query                                       Q 
+        Tags                                        T
         ---- 
         Set outline filter                          Ctrl-F 
         Clear outline filter                     Shift-Ctrl-F
@@ -77,17 +87,16 @@ Menu
         Set outline depth                             O 
         Toggle finished                               X 
     Item 
-        Copy                                          C 
+        Copy                                       Shift-C 
         Delete                                    BackSpace  
-        Edit                                          E 
-        Edit file                                  Shift-E 
-        Finish                                        F 
+        Edit                                       Shift-E 
+        Finish                                     Shift-F 
+        Klone as timer                               K 
         Move                                          M 
+        Open link                                     G 
         Reschedule                                    R 
         Schedule new                                  S 
-        Klone as timer                                K 
         Show date and time details                    D 
-        Open link                                     G 
         Show user details                             U 
     Tools 
         Home                                         Home 
