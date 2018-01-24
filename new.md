@@ -33,15 +33,6 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 
 - This is equivalent to the old *note* item type. 
 
-### `?`: someday maybe
-
-- Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignored.
-
-### `!`: inbox
-
-- Unchanged but for the change in the type character from `$` to `!` since `$` is now used for actions and `!` is more suggestive of urgency.
-- All `@key` entries in inbox items are ignored save for the item type and summary. 
-
 ### `$`: action
 
   - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and journal entries without creating new actions that duplicate the original item information.
@@ -65,6 +56,15 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
           - the moment at which the timer was stopped
       - Choose whether or not to edit the modified item.
       - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
+
+### `?`: someday maybe
+
+- Datetime related entries such as `@s`, `@a`, `@b`, `@r`, `@+` and `@-` are ignored.
+
+### `!`: inbox
+
+- Unchanged but for the change in the type character from `$` to `!` since `$` is now used for actions and `!` is more suggestive of urgency.
+- All `@key` entries in inbox items are ignored save for the item type and summary. 
 
 ## Storage
 
