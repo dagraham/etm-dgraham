@@ -47,7 +47,7 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
     - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and journal entries without creating new actions that duplicate the original item information.
     - In *all* cases - events, tasks, journal entries as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active,  datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`. 
     - Items can have multiple `@m` entries. 
-    - Each `@m` entry is displayed in the *Done* view on the day and time that the action was finished using the display character `$`, the item summary and the active timeperiod.
+    - Each `@m` entry is displayed in the *Done* view on the day and time of `datetime finished` using the display character `$`, the item summary and the `timeperiod active`.
     - Items which contain `@m` entries, are also displayed in the normal ways for the type of the item. 
 
         Displaying the details for such an item will show the details for the item itself with all its `@m` entries. Thus all of the actions relating to a particular item can be seen by selecting any of the actions as well as the item itself. Additionally any change made to the item's summary, index or other elements will automatically apply to all of it's items.
