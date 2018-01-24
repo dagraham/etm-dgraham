@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**January 22, 2018**
+**January 23, 2018**
 
 # Goals
 
@@ -42,16 +42,21 @@ Five item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 	- Unchanged but for the change in the type character from `$` to `!` since `$` is now used for actions and `!` is more suggestive of urgency.
 	- All `@key` entries in inbox items are ignored save for the item type and summary. 
 
-- The old *action* item type has been eliminated and its functionality has been replaced by the ability to use the `@m`, *memo* entry in *any* event, task or journal entry to record time spent using the format `@m datetime started, timeperiod active,  datetime finished`. 
+- `$`: action
 
-    - An etm *timer* can be used to record an `@m` action entry:
+  - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and journal entries without creating actions which duplicate the item information.
+  - In events, tasks, journal entries as well as in actions themselves, timer information is recorded using the `@m`, *memo* entry. The format is `@m datetime started, timeperiod active,  datetime finished`. 
 
-        - Select the item (event, taks or journal) to which the action is to be applied.
-        - Press the start key to start the timer.
-        - Toggle the pause/restart key as often as desired.
-        - Press the stop key to finish and record the new action.
-        - The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was stopped.
-        - One or more timers can be active at the same time but only one can be running - the rest will be paused.
+    - An etm *timer* can be used to record an `@m` action entry in a selected item or in a newly created action:
+
+        - Either:
+          - Select an item (event, task journal entry or existing action) to which the `@m` entry is to be added. 
+          - Create a new item using action type character `$` and enter at least a summary for the action.
+        - Start the timer.
+        - Toggle pause/restart the timer as often as desired.
+        - Stop the timer to finish and record the time spent. The `@m` entry will record the moment at which the timer was first started, the accumulated time period during which the timer was active and the moment at which the timer was stopped.
+        - Choose whether or not to edit the modified item.
+        - Note: One or more timers can be active at the same time but only one can be running - the rest will be paused.
 
     - Items can have multiple `@m` entries. 
     - The item containing `@m` entries is displayed in the normal way. Additionally, each `@m` is also displayed using the display character `$` on the day and time that the action was finished and the summary from the item itself in the *actions* view.
