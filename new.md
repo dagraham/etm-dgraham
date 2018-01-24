@@ -45,7 +45,7 @@ This is equivalent to the old *note* item type.
   - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
 
       - Begin:
-          - Either select an item (event, task, journal or existing action) to which the `@m` entry is to be added. 
+          - Either select an item (event, task, journal or existing action) to which the `@m` entry should be added. 
           - Or create a new item with the action type character `$` and at least a summary for the new action. 
       - Start the timer.
       - Pause/resume the timer as often as desired.
