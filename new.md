@@ -192,7 +192,7 @@ The `@e`, `@a` and `@l` entries from `class` have become the defaults for the ev
 
 # Views
 
-View hotkeys: a)genda, b)usy, d)one, h)istory, i)ndex, n)ext, q)uery. s)omeday and t)ags
+View hotkeys: a)genda, b)usy, d)one, h)istory, i)ndex, n)ext, q)uery. s)omeday and t)ags. In all views, l)evel prompts for the outline expansion level.
 
 ## Weekly
 
