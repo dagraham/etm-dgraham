@@ -84,11 +84,13 @@ The old *defaults* item type, `=`, is eliminated. Its functionality is replaced 
 
 Then entering the item
 
-      * Conflict and Cooperation @s 1/25/2018 9:35am @x class @l Math-Physics Bldg 
+      * Conflict and Cooperation @s 1/25/2018 9:35am @x class 
+        @l Math-Physics Bldg 
 
 would be equivalent to entering
 
-      * Conflict and Cooperation @s 1/25/2018 9:35am @e 1h15m @a 10m, 3m: d @l Math-Physics Bldg
+      * Conflict and Cooperation @s 1/25/2018 9:35am @e 1h15m @a 10m, 3m: d 
+        @l Math-Physics Bldg
 
 The `@e`, `@a` and `@l` entries from `class` have become the defaults for the event but the default for `@l` has been overridden by the explicit entry. 
 
