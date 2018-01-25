@@ -256,7 +256,7 @@ View hotkeys: a)genda, b)usy, d)one, h)istory, i)ndex, n)ext, q)uery. s)omeday a
 ### Done
 
 - Actions and finished tasks grouped and sorted by week and day using the finished datetime. 
-- Synchronized with *Agenda* and *Busy* views.
+- Synchronized with *Agenda* and *Busy* views so that switching from one of these views to another always displays the same week.
 - Actions are displayed with type character `$`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
 
         +------------------------- top bar --------------------------+
@@ -271,7 +271,7 @@ View hotkeys: a)genda, b)usy, d)one, h)istory, i)ndex, n)ext, q)uery. s)omeday a
 
 - Hours in the day that are partially or wholly "busy" are marked with `#`.
 - Hours in which a conflict occurs are marked with `+++`. 
-- Synchronized with *Agenda* and *Done* views.
+- Synchronized with *Agenda* and *Done* views so that switching from one of these views to another always displays the same week.
 
         +----------------------------------------------------------+
         |Busy - Week 4: Jan 22 - 28, 2018                   F1:help|
