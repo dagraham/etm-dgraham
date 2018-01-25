@@ -121,7 +121,7 @@ The `@e`, `@a` and `@l` entries from `class` have become the defaults for the ev
 
     - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. *Without a time*, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone.
 
-    - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. *With a time*, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
+    - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. *With a time specified*, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
 
     - Aware date-time, e.g., `@s fri 2p, US/Pacific`. *With the timezone specified*, this is interpreted as `Fri, Jan 5 2018 2pm PST`. 
 
