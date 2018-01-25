@@ -268,7 +268,7 @@ The *Agenda*, *Done* and *Busy* views use weekly diplays which are synchronized 
 
 ### Busy
 
-Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked with `+++`. Synchronized with *Agenda* and *Done*.
+Hours in the day that are partially or wholly "busy" are marked with `#`. Hours in which a conflict occurs are marked with `+++`. Synchronized with *Agenda* and *Done*.
 
         +----------------------------------------------------------+
         |Busy - Week 4: Jan 22 - 28, 2018                   F1:help|
