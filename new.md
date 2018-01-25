@@ -256,7 +256,7 @@ View hotkeys: a)genda, b)usy, d)one, h)istory, i)ndex, n)ext, q)uery. s)omeday a
 ### Done
 
 - Actions and finished tasks grouped and sorted by week and day using the finished datetime. 
-- Synchronized with *Agenda* and *Busy*.
+- Synchronized with *Agenda* and *Busy* views.
 - Actions are displayed with type character `$`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
 
         +------------------------- top bar --------------------------+
