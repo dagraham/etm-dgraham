@@ -358,6 +358,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 
 - When edit (Shift-E), delete (Shift-D) or copy (Shift-C) is pressed and the item is repeating then select the appropriate instances with these check  boxes: 
+
                 +-------------------------------------------+
                 |    Which instances?                       |
                 |    [] Earlier   [X] Selected   [] Later   | 
