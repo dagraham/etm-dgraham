@@ -62,7 +62,7 @@ Unchanged.
 
 ### `!`: inbox
 
-Unchanged but for the change in the type character from `$` to `!` since `$` is now used for actions and `!` is more suggestive of urgency.
+Unchanged but for the change in the type character from `$` to `!`.
 
 ### Defaults
 
