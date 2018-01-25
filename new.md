@@ -325,11 +325,11 @@ All items, grouped and sorted by their *index* entries. Items without `@i` entri
 
 ### Created
 
-All items, sorted by the datetime created and grouped by year, month, week and weekday.
+All items, sorted by the datetime created and grouped by year and month.
 
 ### Modified
 
-All items, sorted by the datetime last modified and grouped by year, month, week and weekday.
+All items, sorted by the datetime last modified and grouped by year and month.
 
 ## Tags
 
