@@ -357,7 +357,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |@j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v             |
 
 
-- When edit (Shift-E), delete (Shift-D) or copy (Shift-C) is pressed and the item is repeating then select the appropriate instances with these check  boxes: 
+- When `Shift-E` (edit), `Shift-D` (delete) or `Shift-C` (copy) is pressed and the item is repeating then select the appropriate instances with these check  boxes: 
 
                 +-------------------------------------------+
                 |    Which instances?                       |
