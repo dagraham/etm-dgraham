@@ -151,7 +151,7 @@ The `@e`, `@a` and `@l` entries from `class` have become the defaults for the ev
 
     - Naive dates are displayed without conversion and without a starting time. 
     - Naive datetimes are displayed without conversion.
-    - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as beginning at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `fri 2p, US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
+    - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as starting at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `fri 2p, US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
     - Datetimes are rounded to the nearest minute for display.
 
 ## Jobs
