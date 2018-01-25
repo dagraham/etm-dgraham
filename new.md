@@ -441,17 +441,17 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |currently: Fri Jan 19 2018 2:00PM EST                       |
         |The datetime will be interpreted as an aware datetime in    |
         |the current timezone. Append, e.g., ", US/Pacific" to       |
-        |specify an alternative timezone or ", float" to specify a   |
+        |specify a particular timezone or ", float" to specify a     |
         |floating item in whatever happens to be the local timezone. |
 
   - Starting an entry for `@r`:
 
         +------------------------------------------------------------+
-        |@r: frequency character?                                    |
+        |@r: repetition frequency?                                   |
         |> * my event @s fri 2p @r_                                  |
         | ---------------------------------------------------------- |
-        |Possible frequency characters: (y)early, (m)onthly,         |
-        |   (w)eekly,  (d)aily, (h)ourly, mi(n)utely                 |
+        |A character from: (y)early, (m)onthly, (w)eekly, (d)aily    |
+        |   (h)ourly, mi(n)utely                                     |
 
 
   - With `@r m` entered:
@@ -479,11 +479,10 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |&w: weekdays?                                               |
         |> * my event @s fri 2p @r m &w_                             |
         | ---------------------------------------------------------- |
-        |weekdays: a comma separated list of English weekday         |
-        |abbreviations from SU, MO, TU, WE, TH, FR, SA, SU.          |
-        |Prepend an integer to specify a particular weekday in the   |
-        |month. E.g., 3WE for the 3rd Wednesay or -1FR for the last  |
-        |Friday in the month.                                        |
+        |A comma separated list of English weekday abbreviations     |
+        |from SU, MO, TU, WE, TH, FR, SA, SU. Prepend an integer     |
+        |to specify a particular weekday in the month. E.g., 3WE for |
+        |the 3rd Wednesay or -1FR for the last Friday in the month.  | 
 
   - With `@r m &w -2FR` entered:
 
