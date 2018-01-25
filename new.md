@@ -364,7 +364,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
                 |    [] Earlier   [X] Selected   [] Later   | 
                 +-------------------------------------------+ 
 
-- When edit or copy is selected, the details of the relevant item is displayed ready for editing. Note that since copy creates a new item, it will be displayed as changed.
+- When edit or copy is selected, the details of the relevant item is displayed ready for editing. When a new item is created as with copy, it will be displayed as changed.
 
 - Whenever the edited version is different than the saved version:
 
