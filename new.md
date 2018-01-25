@@ -385,7 +385,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +------------------------- top bar --------------------------+
         |editing: new item                                    F1:help|
         +------------------------------------------------------------+
-        |type character for new item?                                |
+        |type character for the new item?                            |
         |> _                                                         |
         | ---------------------------------------------------------- |
         |item type characters:                                       |
