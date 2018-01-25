@@ -255,6 +255,7 @@ The *Agenda*, *Done* and *Busy* views use weekly diplays which are synchronized 
 ### Done
 
 - Actions and finished tasks grouped and sorted by week and day using the finished datetime. 
+- Synchronized with *Agenda* and *Busy*.
 - Actions are displayed with type character `$`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
 
         +------------------------- top bar --------------------------+
@@ -267,7 +268,7 @@ The *Agenda*, *Done* and *Busy* views use weekly diplays which are synchronized 
 
 ### Busy
 
-Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked with `+++`.
+Hours in the day that are partially or wholly "busy" are marked with an `#` character. Hours in which a conflict occurs are marked with `+++`. Synchronized with *Agenda* and *Done*.
 
         +----------------------------------------------------------+
         |Busy - Week 4: Jan 22 - 28, 2018                   F1:help|
