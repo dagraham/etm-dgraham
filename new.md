@@ -323,7 +323,13 @@ All items, grouped and sorted by their *index* entries. Items without `@i` entri
 
 ## History
 
-All items, sorted by the datetime created (oldest first) or the datetime last modified (newest first). Grouped by year, month, week and weekday
+### Created
+
+All items, sorted by the datetime created and grouped by year, month, week and weekday.
+
+### Modified
+
+All items, sorted by the datetime last modified and grouped by year, month, week and weekday.
 
 ## Tags
 
