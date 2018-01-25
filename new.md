@@ -123,9 +123,9 @@ The `@e`, `@a` and `@l` entries from `class` have become the defaults for the ev
 
     - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. *With a time*, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
 
-    - Aware date-time, e.g., `@s fri 2p, US/Pacific`. *With a specified timezone*, this is interpreted as `Fri, Jan 5 2018 2pm PST`. 
+    - Aware date-time, e.g., `@s fri 2p, US/Pacific`. *With the timezone specified*, this is interpreted as `Fri, Jan 5 2018 2pm PST`. 
 
-    - Naive date-time, e.g., `@s fri 2p, float`. *With float*, this is interpreted as `Fri, Jan 5, 2018 2pm` in whatever happens to be the local time zone.
+    - Naive date-time, e.g., `@s fri 2p, float`. *With float specified*, this is interpreted as `Fri, Jan 5, 2018 2pm` in whatever happens to be the local time zone.
 
     The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the comma and `TimeZone`. Still less probably, one that floats and this requires the addition of the comma and `float`.
 
