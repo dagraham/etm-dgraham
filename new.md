@@ -66,7 +66,7 @@ Unchanged but for the change in the type character from `$` to `!` since `$` is 
 
 ### Defaults
 
-The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *extract*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting have the following entry for `extractions`:
+The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *extract*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for `extractions`:
 
         extractions = {
           'class': {
