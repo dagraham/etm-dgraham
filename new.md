@@ -366,14 +366,14 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 - When edit or copy is selected, the details of the relevant item is displayed ready for editing. Note that since copy creates a new item, it will be displayed as changed.
 
-- When the edited version is different than the saved version
+- Whenever the edited version is different than the saved version:
 
     - topbar: `editing: unsaved changes`
     - status bar: `^S:save  ^Q:save and close  ^U:undo changes` 
         - Save processes the item, updates the data store and refreshes the display.
         - Undo changes refreshes the display using the current, saved version of the item from the data store.
 
-- When changes have been saved or undone
+- When any changes have been saved or undone:
 
     - topbar: `editing: no unsaved changes`
     - status bar: `^Q:close` 
