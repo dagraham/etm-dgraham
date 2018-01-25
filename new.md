@@ -196,8 +196,6 @@ View hotkeys: a)genda, b)usy, d)one, h)istory, i)ndex, n)ext, q)uery. s)omeday a
 
 ## Weekly
 
-The *Agenda*, *Done* and *Busy* views use weekly diplays which are synchronized so that switching from one of these views to another always displays the same week. 
-
 ### Agenda
 
 - Scheduled items, grouped and sorted by week and day
@@ -237,6 +235,7 @@ The *Agenda*, *Done* and *Busy* views use weekly diplays which are synchronized 
         - Thu Jan 18 - Today
           Nothing scheduled
 
+- The *Agenda*, *Done* and *Busy* views are synchronized so that switching from one of these views to another always displays the same week. 
 
 - Starting from the top, the display for a day includes the following:
 
