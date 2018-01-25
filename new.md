@@ -319,7 +319,7 @@ Someday items grouped and sorted by the last modified datetime
 
 ## Index
 
-All items, grouped and sorted by their *index* entries
+All items, grouped and sorted by their *index* entries. Items without `@i` entries are listed last under *None*.
 
 ## History
 
