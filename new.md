@@ -56,6 +56,8 @@ This is equivalent to the old *note* item type.
       - Choose whether or not to edit the modified item.
       - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
 
+  - When moments are added to task jobs, `&m` is used instead of `@m`.
+
 ### `?`: someday
 
 Unchanged.
