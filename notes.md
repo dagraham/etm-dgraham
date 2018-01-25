@@ -83,7 +83,7 @@ Menu
         ---- 
         Set outline filter                          Ctrl-F 
         Clear outline filter                     Shift-Ctrl-F
-        Toggle labels                                 L 
+        Outline level                                 L 
         Set outline depth                             O 
         Toggle finished                               X 
     Item 
