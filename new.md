@@ -356,8 +356,6 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |@j Job B &s 2w &b 3 &i 2 &p 1 &a 2d: m &a 2d: v             |
         |@j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v             |
 
-    - `@g` entries appear as clickable links in the details 
-    - For repeated items, show as many as 3 reps below the details with a clickable `< more >` button if applicable. Each click shows as many as 3 more repetitions.
 
 - When edit (Shift-E), delete (Shift-D) or copy (Shift-C) is pressed and the item is repeating then check the appropriate boxes:
 
