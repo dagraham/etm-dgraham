@@ -309,9 +309,9 @@ View hotkeys: a)genda, b)usy, d)one, h)istory, i)ndex, n)ext, q)uery. s)omeday a
 
 ## Next
 
-Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
+- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
 
-While finished tasks and jobs are removed from this view, they are added to *Done* using the completion datetime.
+- Finished tasks and jobs are removed from this view, but are added to *Done* using the completion datetime.
 
 ## Someday
 
