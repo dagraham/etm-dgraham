@@ -317,7 +317,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 ## Someday
 
-Someday items grouped and sorted by the last modified datetime 
+Someday items grouped and sorted by the last modified datetime.
 
 ## Index
 
@@ -335,7 +335,7 @@ All items, sorted by the datetime last modified and grouped by year and month.
 
 ## Tags
 
-Tagged items grouped and sorted by tag
+Tagged items grouped and sorted by tag.
 
 ## Query
 
