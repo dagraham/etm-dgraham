@@ -28,7 +28,7 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 - The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task.
 - The old `%`, *delegated*, item type is eliminated. The functionality is replaced by using an `@u`, *user*, entry to indicate that the task has been delegated to a specified user. When displaying delegated tasks, the user in square brackets is prepended to the task summary.
 
-      - Joe>>Minutes of sales meeting
+      - Joe >> Minutes of sales meeting
 
 - The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
 
