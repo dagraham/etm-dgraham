@@ -488,16 +488,16 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
   - With `@r m &w -2FR` entered:
 
-        +------------------------------------------------------------+
-        |@r: repetition rule?                                        |
-        |> * my event @s fri 2p @r m &w -2fr                         |
-        | ---------------------------------------------------------- |
-        |currently:                                                  |
-        |    RRULE:FREQ=MONTHLY;BYWEEKDAY=-2FR                       |
-        |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
-        |The first 3 repetitions on or after DTSTART:                | 
-        |    Fri Jan 19 2018 2:00PM                                  |
-        |    Fri Feb 16 2018 2:00PM                                  |
-        |    Fri Mar 23 2018 2:00PM                                  |
-        |All times: America/New_York                                 |
+          +------------------------------------------------------------+
+          |@r: repetition rule?                                        |
+          |> * my event @s fri 2p @r m &w -2fr                         |
+          | ---------------------------------------------------------- |
+          |currently:                                                  |
+          |    RRULE:FREQ=MONTHLY;BYWEEKDAY=-2FR                       |
+          |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
+          |The first 3 repetitions on or after DTSTART:                | 
+          |    Fri Jan 19 2018 2:00PM                                  |
+          |    Fri Feb 16 2018 2:00PM                                  |
+          |    Fri Mar 23 2018 2:00PM                                  |
+          |All times: America/New_York                                 |
 
