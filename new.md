@@ -458,46 +458,46 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
   - With `@r m` entered:
 
-          +------------------------------------------------------------+
-          |@r: repetition rule?                                        |
-          |> * my event @s fri 2p @r m_                                |
-          | ---------------------------------------------------------- |
-          |currently:                                                  |
-          |    RRULE:FREQ=MONTHLY                                      |
-          |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
-          |The first 3 repetitions on or after DTSTART:                | 
-          |    Fri Jan 19 2018 2:00PM                                  |
-          |    Mon Feb 19 2018 2:00PM                                  |
-          |    Mon Mar 19 2018 2:00PM                                  |
-          |All times: America/New_York                                 |
-          |                                                            |
-          |Possible options: &c (count), &E (Easter), &h (hour),       |
-          |   &i (interval), &m (monthday), &M (month), &n (minute),   |
-          |   &s (set position), &u (until), &w (weekday)              |
+        +------------------------------------------------------------+
+        |@r: repetition rule?                                        |
+        |> * my event @s fri 2p @r m_                                |
+        | ---------------------------------------------------------- |
+        |currently:                                                  |
+        |    RRULE:FREQ=MONTHLY                                      |
+        |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
+        |The first 3 repetitions on or after DTSTART:                | 
+        |    Fri Jan 19 2018 2:00PM                                  |
+        |    Mon Feb 19 2018 2:00PM                                  |
+        |    Mon Mar 19 2018 2:00PM                                  |
+        |All times: America/New_York                                 |
+        |                                                            |
+        |Possible options: &c (count), &E (Easter), &h (hour),       |
+        |   &i (interval), &m (monthday), &M (month), &n (minute),   |
+        |   &s (set position), &u (until), &w (weekday)              |
 
   - With `@r m &w` entered:
 
-          +------------------------------------------------------------+
-          |&w: weekdays?                                               |
-          |> * my event @s fri 2p @r m &w_                             |
-          | ---------------------------------------------------------- |
-          |A comma separated list of English weekday abbreviations     |
-          |from SU, MO, TU, WE, TH, FR, SA, SU. Prepend an integer     |
-          |to specify a particular weekday in the month. E.g., 3WE for |
-          |the 3rd Wednesay or -1FR for the last Friday in the month.  | 
+        +------------------------------------------------------------+
+        |&w: weekdays?                                               |
+        |> * my event @s fri 2p @r m &w_                             |
+        | ---------------------------------------------------------- |
+        |A comma separated list of English weekday abbreviations     |
+        |from SU, MO, TU, WE, TH, FR, SA, SU. Prepend an integer     |
+        |to specify a particular weekday in the month. E.g., 3WE for |
+        |the 3rd Wednesay or -1FR for the last Friday in the month.  | 
 
   - With `@r m &w -2FR` entered:
 
-          +------------------------------------------------------------+
-          |@r: repetition rule?                                        |
-          |> * my event @s fri 2p @r m &w -2fr                         |
-          | ---------------------------------------------------------- |
-          |currently:                                                  |
-          |    RRULE:FREQ=MONTHLY;BYWEEKDAY=-2FR                       |
-          |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
-          |The first 3 repetitions on or after DTSTART:                | 
-          |    Fri Jan 19 2018 2:00PM                                  |
-          |    Fri Feb 16 2018 2:00PM                                  |
-          |    Fri Mar 23 2018 2:00PM                                  |
-          |All times: America/New_York                                 |
+        +------------------------------------------------------------+
+        |@r: repetition rule?                                        |
+        |> * my event @s fri 2p @r m &w -2fr                         |
+        | ---------------------------------------------------------- |
+        |currently:                                                  |
+        |    RRULE:FREQ=MONTHLY;BYWEEKDAY=-2FR                       |
+        |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
+        |The first 3 repetitions on or after DTSTART:                | 
+        |    Fri Jan 19 2018 2:00PM                                  |
+        |    Fri Feb 16 2018 2:00PM                                  |
+        |    Fri Mar 23 2018 2:00PM                                  |
+        |All times: America/New_York                                 |
 
