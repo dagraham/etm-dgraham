@@ -3,7 +3,7 @@
 
 # Goals
 
-- Simplify code. Refactor, document code and add doc tests - make the code more maintainable. See [Item Types](#item-types), [Dates and Date Times](#dates-and-date-times) and [Jobs](#jobs). 
+- Simplify code. Refactor, document code and add doc tests - make the code more easilty maintainable. See [Item Types](#item-types), [Dates and Date Times](#dates-and-date-times) and [Jobs](#jobs). 
 
 - Speed up performance. Make use of a text-based document store called *TinyDB* that is designed for quick insertions, modifications and retrievals. Make use of stored unique identifiers, to limit view updates to the item actually changed. See [Storage](#storage).
 
