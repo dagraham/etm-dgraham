@@ -311,7 +311,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 ### Done
 
-- Actions and finished tasks grouped and sorted by week and day using the finished datetime. 
+- Actions and finished tasks grouped and sorted by week and day using the finished datetime
 - Actions are displayed with type character `$`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
 
         +------------------------- top bar --------------------------+
@@ -331,11 +331,12 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 ## Someday
 
-Someday items grouped and sorted by the last modified datetime.
+Someday items grouped and sorted by the last modified datetime
 
 ## Index
 
-All items, grouped and sorted by their *index* entries. Items without `@i` entries are listed last under *None*.
+- All items, grouped and sorted by their *index* entries
+- Items without `@i` entries are listed last under *None*.
 
 ## History
 
