@@ -45,7 +45,7 @@ This is equivalent to the old *note* item type.
   - In *all* cases - events, tasks, journal entries as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active, datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`. 
   - Items can have multiple `@m` entries. 
   - Each `@m` entry is displayed in the *Done* view on the day of `datetime finished` using the display character `$`, the item summary, the time of `datetime finished` and the `timeperiod active`.
-  - Items which contain `@m` entries, are also displayed in the normal ways for the type of the item. 
+  - Items that contain `@m` entries, are also displayed in the normal ways for the type of the item. 
   - Displaying the details either for an `$` item in *Done* or for an item with `@m` entries in another view, will show the details for the item itself and thus all of its `@m` entries.
   - It is **strongly recommended** that items containing `@m` entries should have `@i`, *index*, entries as well since accounting reports which aggregate time expenditures are based on the index entries. 
   - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
