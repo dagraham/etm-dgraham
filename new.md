@@ -80,12 +80,14 @@ The old *defaults* item type, `=`, is eliminated. Its functionality is replaced 
           'class': {
             'e': '1h15m',
             'a': '10m, 3m: d',
-            'l': 'Social Sciences Bldg'
+            'l': 'Social Sciences Bldg',
+            'i': 'Work:Teaching'
           },
           'tennis': {
             'e': '1h30m',
             'a': '30m, 15m: d',
-            'l': 'Fitness Center'
+            'l': 'Fitness Center',
+            'i': 'Personal:Tennis'
           },
           ...
         }
