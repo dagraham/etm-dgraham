@@ -139,7 +139,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
     The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the comma and the timezone. Still less probably, one that floats and this requires the addition of the comma and `float`.
 
-- When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time. E.g., in the following, all repetitions are at 2pm even though the first 2 are EST and the 3rd is EDT.
+- When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time. E.g., in the following all repetitions are at 2pm even though the first 2 are EST and the 3rd is EDT.
 
             repetition rule:
                 RRULE:FREQ=MONTHLY
