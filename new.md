@@ -168,7 +168,7 @@ The `@e`, `@a` and `@l` entries from `class` have become the defaults for the ev
             @j job A &s 10d
             @j job B 
 
-  Beginning soon notices would begin on Jan 10 for job A (due Jan 20) and on January 20 for job B (due Jan 30).
+    Beginning soon notices would begin on Jan 10 for job A (due Jan 20) and on January 20 for job B (due Jan 30).
 
 - Prerequisites
 
