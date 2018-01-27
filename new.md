@@ -25,6 +25,11 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 ### `-`: task
 
 - The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* terminology. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
+- Tasks and jobs are displayed using `x` for finished. Unfinished tasks and unfinished jobs with no unfinished prerequisties aredisplayed using `-`. Jobs with unfinished prerequisites are displayed using `+` for waiting (unfinished prerequistes).
+- Task and job display characters
+  - `x`: finished task or job
+  - `-`: unfinished task or job with no unfinished prerequisites
+  - `+`: job with unfinished prerequisites
 - The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
 - The old `%`, *delegated*, item type is eliminated. The functionality is replaced by using an `@u`, *user*, entry to indicate that the task has been delegated to a specified user. When displaying delegated tasks, the user followed by a colon is prepended to the task summary.
 - The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
