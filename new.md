@@ -29,7 +29,7 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 - Task and job display characters
 
     - `x`: finished task or job
-    - `-`: unfinished task or job with no unfinished prerequisites
+    - `-`: unfinished task or job without unfinished prerequisites
     - `+`: job with unfinished prerequisites
 
 - The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
