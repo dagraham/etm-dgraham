@@ -198,7 +198,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 		Neither `job a` nor `job b` have any prerequisites but `job a` and `job b` are both prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
 
-- Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., with 
+- Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
           x manually assigned [1/1/1]: job a
           - manually assigned [1/1/1]: job b
