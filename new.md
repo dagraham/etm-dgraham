@@ -28,9 +28,9 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 - Tasks and jobs are displayed using `x` for finished. Unfinished tasks and unfinished jobs with no unfinished prerequisties aredisplayed using `-`. Jobs with unfinished prerequisites are displayed using `+` for waiting (unfinished prerequistes).
 - Task and job display characters
 
-  - `x`: finished task or job
-  - `-`: unfinished task or job with no unfinished prerequisites
-  - `+`: job with unfinished prerequisites
+    - `x`: finished task or job
+    - `-`: unfinished task or job with no unfinished prerequisites
+    - `+`: job with unfinished prerequisites
 
 - The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
 - The old `%`, *delegated*, item type is eliminated. The functionality is replaced by using an `@u`, *user*, entry to indicate that the task has been delegated to a specified user. When displaying delegated tasks, the user followed by a colon is prepended to the task summary.
