@@ -249,7 +249,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
         - Thu Jan 18 - Today
           Nothing scheduled
 
-- Synchronized with *Done* and *Busy* views so that switching from one of these views to another always displays the same week. 
+- *Agenda* is synchronized with *Done* and *Busy* views so that switching from one of these views to another always displays the same week. 
 
 - Starting from the top, the display for a day includes the following:
 
