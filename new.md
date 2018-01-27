@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**January 25, 2018**
+**January 27, 2018**
 
 # Goals
 
