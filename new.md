@@ -29,7 +29,7 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 - The old `%`, *delegated*, item type is eliminated. The functionality is replaced by using an `@u`, *user*, entry to indicate that the task has been delegated to a specified user. When displaying delegated tasks, the user followed by a colon is prepended to the task summary.
 - The old `@c`, *context*, for tasks has been merged into *location*, `@l`. 
 - The `@c` entry is now used to denote the *calendar* to which the item belongs. I use calendars named `dag` (me), `erp` (wife) and `shared`. My default is to display `dag` and `shared` and to assign `dag` to items without an `@c` entry. 
-- Display characters for tasks and jobs including ones with `@u` entries:
+- Display characters for tasks and jobs including (delegated) ones with `@u` entries:
 
     - `x`: finished task or job
     - `-`: unfinished task or job without unfinished prerequisites
