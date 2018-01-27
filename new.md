@@ -27,7 +27,8 @@ Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
 - The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* terminology. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
 - The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
 - The old `%`, *delegated*, item type is eliminated. The functionality is replaced by using an `@u`, *user*, entry to indicate that the task has been delegated to a specified user. When displaying delegated tasks, the user followed by a colon is prepended to the task summary.
-- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. The `@c` entry is now used to denote the *calendar* to which the item belongs.
+- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. 
+- The `@c` entry is now used to denote the *calendar* to which the item belongs. I use calendars named `dag` (me), `erp` (wife) and `shared`. My default is to display `dag` and `shared` and to assign `dag` to items without an `@c` entry. 
 - Display characters for tasks and jobs including ones with `@u` entries:
 
     - `x`: finished task or job
