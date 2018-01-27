@@ -271,7 +271,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 - Hours in the day that are partially or wholly "busy" are marked with `#`.
 - Hours in which a conflict occurs are marked with `+++`. 
-- Synchronized with *Agenda* and *Done* views so that switching from one of these views to another always displays the same week.
+- *Busy* is synchronized with *Agenda* and *Done* so that switching from one of these views to another always displays the same week.
 
         +----------------------------------------------------------+
         |Busy - Week 4: Jan 22 - 28, 2018                   F1:help|
