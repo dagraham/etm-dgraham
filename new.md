@@ -202,7 +202,7 @@ The `@e`, `@a` and `@l` entries from `class` have become the defaults for the ev
           - manually assigned [1/1/1]: job b
           + manually assigned [1/1/1]: job c
 
-	would indicate that `job a` if finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, active and waiting jobs, respectively.
+	would indicate that `job a` is finished, `job b` is available (has no unfinished prerequistites) and that `job c` is waiting (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, active and waiting jobs, respectively.
 
 # Views
 
