@@ -323,6 +323,42 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 - *Done* is synchronized with *Agenda* and *Busy* so that switching from one of these views to another always displays the same week.
 
+## Month View
+
+        +----------------------------------------------------------+
+        | August 2017                                              |
+        +----------------------------------------------------------+
+        |                                                          |
+        |   Wk     Mo     Tu     We     Th     Fr     Su     Su    |
+        |  ----+-------------------------------------------------  |
+        |      |  ----                                             |
+        |   31 |  |31|     1      2      3      4      5      6    |
+        |      |  ----                                             |
+        |      |                                                   |
+        |   32 |    7      8      9     10     11     12     13    |
+        |      |                                                   |
+        |      |                                                   |
+        |   33 |   14     15     16     17     18     19     20    |
+        |      |                                                   |
+        |      |                                                   |
+        |   34 |   21     22     23     24    [25]    26     27    |
+        |      |                                                   |
+        |      |                                                   |
+        |   35 |   28     29     30     31      1      2      3    |
+        |      |                                                   |
+        |      |                                                   |
+        |   36 |    4      5      6      7      8      9     10    |
+        |      |                                                   |
+        |      |                                                   |
+        |                                                          |
+        |                                                          |
+        |                                                          |
+        +----------------------------------------------------------+
+        | 2:54pm Wed Aug 23 EDT                                    |
+        +----------------------------------------------------------+
+
+
+
 ## Next
 
 - Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
