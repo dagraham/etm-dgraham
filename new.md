@@ -333,7 +333,30 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 Someday items grouped and sorted by the last modified datetime
 
-## Month View
+## Index
+
+- All items, grouped and sorted by their *index* entries
+- Items without `@i` entries are listed last under *None*.
+
+## History
+
+### Created
+
+All items, sorted by the datetime created and grouped by year and month.
+
+### Modified
+
+All items, sorted by the datetime last modified and grouped by year and month.
+
+## Tags
+
+Tagged items grouped and sorted by tag.
+
+## Query
+
+Analagous to the old custom view. Used to issue queries against the data store and display the results. 
+
+## Monthly 
 
         +----------------------------------------------------------+
         | August 2017                                              |
@@ -368,29 +391,6 @@ Someday items grouped and sorted by the last modified datetime
         +----------------------------------------------------------+
 
 
-
-## Index
-
-- All items, grouped and sorted by their *index* entries
-- Items without `@i` entries are listed last under *None*.
-
-## History
-
-### Created
-
-All items, sorted by the datetime created and grouped by year and month.
-
-### Modified
-
-All items, sorted by the datetime last modified and grouped by year and month.
-
-## Tags
-
-Tagged items grouped and sorted by tag.
-
-## Query
-
-Analagous to the old custom view. Used to issue queries against the data store and display the results. 
 
 # Work Flow
 
