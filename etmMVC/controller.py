@@ -90,7 +90,7 @@ amp_keys = {
 
 allowed = {}
 required = {}
-undated_methods = 'cdegilmstv'
+undated_methods = 'cdegilmstx'
 date_methods = 'br'
 datetime_methods = date_methods + 'ea+-' 
 task_methods = 'fjp'
