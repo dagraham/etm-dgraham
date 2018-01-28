@@ -323,6 +323,16 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 - *Done* is synchronized with *Agenda* and *Busy* so that switching from one of these views to another always displays the same week.
 
+## Next
+
+- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
+
+- Finished tasks and jobs are removed from this view, but are added to *Done* using the completion datetime.
+
+## Someday
+
+Someday items grouped and sorted by the last modified datetime
+
 ## Month View
 
         +----------------------------------------------------------+
@@ -358,16 +368,6 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
         +----------------------------------------------------------+
 
 
-
-## Next
-
-- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
-
-- Finished tasks and jobs are removed from this view, but are added to *Done* using the completion datetime.
-
-## Someday
-
-Someday items grouped and sorted by the last modified datetime
 
 ## Index
 
