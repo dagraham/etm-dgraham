@@ -313,12 +313,12 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 - Actions and finished tasks grouped and sorted by week and day using the finished datetime
 - Actions are displayed with type character `$`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
 
-        +------------------------- top bar --------------------------+
-        |Done - Week 3: Jan 15 - 21, 2018                     F1:help|
-        +------------------------------------------------------------+
-        |Mon Jan 15                                                  |
-        |  $ report summary                             4:29pm - 47m |
-        |  x report summary                                4:30pm    | 
+        +------------------------- top bar ------------------------+
+        |Done - Week 3: Jan 15 - 21, 2018                   F1:help|
+        +----------------------------------------------------------+
+        |Mon Jan 15                                                |
+        |  $ report summary                           4:29pm - 47m |
+        |  x report summary                              4:30pm    | 
 
 
 ## Monthly 
