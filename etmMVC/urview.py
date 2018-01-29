@@ -18,7 +18,7 @@ class ButtonLabel(urwid.SelectableIcon):
         curs_pos = len(text) + 1 
         urwid.SelectableIcon.__init__(self, text, cursor_position=curs_pos)
 
-class MyButton(urwid.Button):
+class BracketButton(urwid.Button):
     '''
     - override __init__ to use our ButtonLabel instead of urwid.SelectableIcon
 
@@ -140,8 +140,8 @@ palette = [
 ask = urwid.Edit(('say', type_prompt), multiline=True)
 # reply sets the text for the reply TEXT widget
 reply = urwid.Text(item_types)
-save_button = MyButton(u'Save')
-exit_button = MyButton(u'Quit')
+save_button = BracketButton(u'Save')
+exit_button = BracketButton(u'Quit')
 buttons = urwid.Padding(urwid.GridFlow(
     [save_button, exit_button], 8, 3, 1, 'left'),
      left=4, right=3, min_width=10)
