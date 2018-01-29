@@ -358,7 +358,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 - Scheduled items for the selected date are displayed using the same format as with *Agenda* view.
 
-- *Monthly* is synchronized with the weekly views so that switching to one of them will always display the week of the selected date 
+- *Monthly* is synchronized with the weekly views so that switching to one of them will always display the week of the selected date. 
 
 
 ## Next
