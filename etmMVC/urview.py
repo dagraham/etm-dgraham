@@ -106,9 +106,9 @@ ask = urwid.Edit(('say', type_prompt), multiline=True)
 # reply sets the text for the reply TEXT widget
 reply = urwid.Text(item_types)
 save_button = urwid.Button(u'Save')
-exit_button = urwid.Button(u'Cancel')
+exit_button = urwid.Button(u'Quit')
 buttons = urwid.Padding(urwid.GridFlow(
-    [save_button, exit_button], 8, 1, 1, 'left'),
+    [save_button, exit_button], 5, 3, 1, 'left'),
      left=4, right=3, min_width=10)
 div = urwid.Divider('-')
 # pile = urwid.Pile([ask, div, reply, div, save_button, exit_button])
