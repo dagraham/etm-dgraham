@@ -212,6 +212,8 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 ## Weekly
 
+- *Agenda*, *Busy* and *Done* views are synchronized so that switching from one of these views to another always displays the same week.
+
 ### Agenda
 
 - Scheduled items, grouped and sorted by week and day
@@ -307,7 +309,6 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
         | 8:49am Thu Jan 18                              10:30am+1 | 
         +----------------------------------------------------------+
 
-- *Busy* is synchronized with *Agenda* and *Done* so that switching from one of these views to another always displays the same week.
 
 ### Done
 
@@ -321,7 +322,6 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
         |  $ report summary                             4:29pm - 47m |
         |  x report summary                                4:30pm    | 
 
-- *Done* is synchronized with *Agenda* and *Busy* so that switching from one of these views to another always displays the same week.
 
 ## Monthly 
 
