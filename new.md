@@ -269,8 +269,6 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
     - Unfinished all day tasks, if any
     - All day journal entries, if any
 
-- *Agenda* is synchronized with *Done* and *Busy* so that switching from one of these views to another always displays the same week. 
-
 ### Busy
 
 - Hours in the day that are partially or wholly "busy" are marked with `#`.
