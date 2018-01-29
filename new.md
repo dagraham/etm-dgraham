@@ -356,9 +356,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 - The six weeks containing the selected month are displayed in the top pane with days colored from dark blue to bright red to indicate the amount of time scheduled.
 
-- Week numbers and dates are buttons. Activating a week number switches to *Agenda* for the week. Activating a date displayes the schedule for the date in the bottom pane using the same format as *Agenda* view.
-
-- *Monthly* is synchronized with the each of the weekly views so that switching to one of them will always display the week of the selected date. 
+- Week numbers and dates in the top panel are buttons. Activating a week number switches to *Agenda* view for that week. Activating a date displayes the schedule for the date in the bottom pane using the same format as *Agenda* view. Switching to one of the weekly views will always display the week of the selected date. 
 
 
 ## Next
