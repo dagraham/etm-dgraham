@@ -9,6 +9,41 @@ if cmd_folder not in sys.path:
 
 from controller import check_entry, str2hsh
 
+class ButtonLabel(urwid.SelectableIcon):
+    def __init__(self, text):
+        """
+        Here's the trick: 
+        we move the cursor out to the right of the label/text, so it doesn't show
+        """
+        curs_pos = len(text) + 1 
+        urwid.SelectableIcon.__init__(self, text, cursor_position=curs_pos)
+
+class MyButton(urwid.Button):
+    '''
+    - override __init__ to use our ButtonLabel instead of urwid.SelectableIcon
+
+    - make button_left and button_right plain strings and variable width -
+      any string, including an empty string, can be set and displayed
+
+    - otherwise, we leave Button behaviour unchanged
+    '''
+    button_left = "["
+    button_right = "]"
+
+    def __init__(self, label, on_press=None, user_data=None):
+        self._label = ButtonLabel("")
+        cols = urwid.Columns([
+            ('fixed', len(self.button_left), urwid.Text(self.button_left)),
+            self._label,
+            ('fixed', len(self.button_right), urwid.Text(self.button_right))],
+            dividechars=1)
+        super(urwid.Button, self).__init__(cols)
+
+        if on_press:
+            urwid.connect_signal(self, 'click', on_press, user_data)
+
+        self.set_label(label)
+
 def main():
     palette =   [
                 ('header', 'dark magenta,bold', 'default'),
@@ -105,8 +140,8 @@ palette = [
 ask = urwid.Edit(('say', type_prompt), multiline=True)
 # reply sets the text for the reply TEXT widget
 reply = urwid.Text(item_types)
-save_button = urwid.Button(u'Save')
-exit_button = urwid.Button(u'Quit')
+save_button = MyButton(u'Save')
+exit_button = MyButton(u'Quit')
 buttons = urwid.Padding(urwid.GridFlow(
     [save_button, exit_button], 8, 3, 1, 'left'),
      left=4, right=3, min_width=10)
