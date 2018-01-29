@@ -354,7 +354,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
         | 8:49am Thu Jan 18                              10:30am+1 | 
         +----------------------------------------------------------+
 
-- Days in the month are colored from dark blue to bright red to indicate the amount of time scheduled for the day in the top pane.
+- Days in the six weeks containing the selected month are colored from dark blue to bright red to indicate the amount of time scheduled for the day in the top pane.
 
 - Scheduled items for the selected date are displayed using the same format as with *Agenda* view in the bottom pane.
 
