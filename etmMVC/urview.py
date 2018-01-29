@@ -174,7 +174,7 @@ buttons = urwid.Padding(urwid.GridFlow(
     [save_button, exit_button], 8, 3, 1, 'left'),
      left=4, right=3, min_width=10)
 dates = urwid.Padding(urwid.GridFlow(
-    [date1, date2], 6, 3, 1, 'center'),
+    [date1, date2], 6, 3, 1, 'left'),
      left=4, right=3, min_width=10)
 div = urwid.Divider('-')
 # pile = urwid.Pile([ask, div, reply, div, save_button, exit_button])
