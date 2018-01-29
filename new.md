@@ -323,39 +323,6 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 - *Done* is synchronized with *Agenda* and *Busy* so that switching from one of these views to another always displays the same week.
 
-## Next
-
-- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
-
-- Finished tasks and jobs are removed from this view, but are added to *Done* using the completion datetime.
-
-## Someday
-
-Someday items grouped and sorted by the last modified datetime
-
-## Index
-
-- All items, grouped and sorted by their *index* entries
-- Items without `@i` entries are listed last under *None*.
-
-## History
-
-### Created
-
-All items, sorted by the datetime created and grouped by year and month.
-
-### Modified
-
-All items, sorted by the datetime last modified and grouped by year and month.
-
-## Tags
-
-Tagged items grouped and sorted by tag.
-
-## Query
-
-Analagous to the old custom view. Used to issue queries against the data store and display the results. 
-
 ## Monthly 
 
         +----------------------------------------------------------+
@@ -389,6 +356,39 @@ Analagous to the old custom view. Used to issue queries against the data store a
         | 8:49am Thu Jan 18                              10:30am+1 | 
         +----------------------------------------------------------+
 
+
+## Next
+
+- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
+
+- Finished tasks and jobs are removed from this view, but are added to *Done* using the completion datetime.
+
+## Someday
+
+Someday items grouped and sorted by the last modified datetime
+
+## Index
+
+- All items, grouped and sorted by their *index* entries
+- Items without `@i` entries are listed last under *None*.
+
+## History
+
+### Created
+
+All items, sorted by the datetime created and grouped by year and month.
+
+### Modified
+
+All items, sorted by the datetime last modified and grouped by year and month.
+
+## Tags
+
+Tagged items grouped and sorted by tag.
+
+## Query
+
+Analagous to the old custom view. Used to issue queries against the data store and display the results. 
 
 # Work Flow
 
