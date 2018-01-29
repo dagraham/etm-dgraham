@@ -15,8 +15,7 @@ class ButtonLabel(urwid.SelectableIcon):
         Here's the trick: 
         we move the cursor out to the right of the label/text, so it doesn't show
         """
-        # curs_pos = len(text) + 1 
-        curs_pos = 0
+        curs_pos = len(text.lstrip()) + 1 
         urwid.SelectableIcon.__init__(self, text, cursor_position=curs_pos)
 
 class BracketButton(urwid.Button):
