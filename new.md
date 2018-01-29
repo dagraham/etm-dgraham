@@ -17,8 +17,6 @@
 
 ## Item Types
 
-Six item types are used: `*`, `-`, `%`, `$`, `?`  and `!`.
-
 ### `*`: event
 
 - The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
