@@ -44,6 +44,32 @@ class BracketButton(urwid.Button):
 
         self.set_label(label)
 
+class BareButton(urwid.Button):
+    '''
+    - override __init__ to use our ButtonLabel instead of urwid.SelectableIcon
+
+    - make button_left and button_right plain strings and variable width -
+      any string, including an empty string, can be set and displayed
+
+    - otherwise, we leave Button behaviour unchanged
+    '''
+    button_left = " "
+    button_right = " "
+
+    def __init__(self, label, on_press=None, user_data=None):
+        self._label = ButtonLabel("")
+        cols = urwid.Columns([
+            ('fixed', len(self.button_left), urwid.Text(self.button_left)),
+            self._label,
+            ('fixed', len(self.button_right), urwid.Text(self.button_right))],
+            dividechars=1)
+        super(urwid.Button, self).__init__(cols)
+
+        if on_press:
+            urwid.connect_signal(self, 'click', on_press, user_data)
+
+        self.set_label(label)
+
 def main():
     palette =   [
                 ('header', 'dark magenta,bold', 'default'),
