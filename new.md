@@ -324,7 +324,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 ## Monthly 
 
         +----------------------------------------------------------+
-        |August 2017                                        F1:help|
+        |Monthly - August 2017                              F1:help|
         +----------------------------------------------------------+
         |                                                          |
         |   Wk     Mo     Tu     We     Th     Fr     Su     Su    |
