@@ -108,7 +108,7 @@ reply = urwid.Text(item_types)
 save_button = urwid.Button(u'Save')
 exit_button = urwid.Button(u'Cancel')
 buttons = urwid.Padding(urwid.GridFlow(
-    [save_button, exit_button], 8, 3, 0, 'left'),
+    [save_button, exit_button], 8, 1, 1, 'left'),
      left=4, right=3, min_width=10)
 div = urwid.Divider('-')
 # pile = urwid.Pile([ask, div, reply, div, save_button, exit_button])
