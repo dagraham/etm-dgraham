@@ -27,8 +27,8 @@ class MyButton(urwid.Button):
 
     - otherwise, we leave Button behaviour unchanged
     '''
-    button_left = "["
-    button_right = "]"
+    button_left = " "
+    button_right = " "
 
     def __init__(self, label, on_press=None, user_data=None):
         self._label = ButtonLabel("")
