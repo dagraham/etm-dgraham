@@ -370,7 +370,7 @@ def str2hsh(s):
     """
     hsh = {}
 
-    if not s:
+    if not s.strip():
         return hsh, [], False, [], [], False, []
 
     at_parts = [x.strip() for x in at_regex.split(s)]
