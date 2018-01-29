@@ -343,7 +343,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
         |   36 |    4      5      6      7      8      9     10    |
         |      |                                                   |
         +------+---------------------------------------------------+
-        | Tue Aug 29 2917                                          |
+        | Tue Aug 29 2017                                          |
         |   Nothing scheduled                                      |
         |                                                          |
         |                                                          |
