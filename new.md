@@ -365,7 +365,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 - Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
 
-- Finished tasks and jobs are removed from this view, but are added to *Done* using the completion datetime.
+- As tasks and jobs are finished, they are removed from this view and added to *Done* using the completion datetime.
 
 ## Someday
 
