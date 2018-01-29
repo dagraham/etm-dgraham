@@ -354,7 +354,7 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
         | 8:49am Thu Jan 18                              10:30am+1 | 
         +----------------------------------------------------------+
 
-- The six weeks containing the selected month are displayed in the top pane with days colored from dark blue to bright red to indicate the amount of time scheduled.
+- Six weeks starting with the first week of the selected month are displayed in the top pane with days colored from dark blue to bright red to indicate the amount of time scheduled.
 
 - Week numbers and dates in the top panel are buttons. Activating a week number switches to *Agenda* view for that week. Activating a date displayes the schedule for the date in the bottom pane using the same format as *Agenda* view. Switching to one of the weekly views will always display the week of the selected date. 
 
