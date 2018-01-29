@@ -198,5 +198,7 @@ def on_exit_clicked(exit_button):
 urwid.connect_signal(ask, 'change', on_ask_change)
 urwid.connect_signal(save_button, 'click', on_save_clicked)
 urwid.connect_signal(exit_button, 'click', on_exit_clicked)
+urwid.connect_signal(date1, 'click', on_exit_clicked)
+urwid.connect_signal(date2, 'click', on_exit_clicked)
 
 urwid.MainLoop(top, palette).run()
