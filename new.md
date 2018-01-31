@@ -255,19 +255,18 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 - Starting from the top, the display for a day includes the following:
 
-    - All day events (occasions), if any, using the display character `^` 
-      instead of the event type character `*`
+    - All day events (occasions), if any, using the display character `^` instead of the event type character `*` and highlighted using the occasion color.
     - For the current date (today) only:
 
-        - Inbox entries, if any
-        - Pastdue tasks, if any, with the number of days that have passed since the task was due using the display character `<`. 
-        - Beginning soon notices, if any, with the number of days remaining until the starting date of the item using the display character `>`.
+        - Inbox entries, if any, highlighted using the inbox color.
+        - Pastdue tasks, if any, with the number of days that have passed since the task was due using the display character `<` and highlighted using the pastdue color. 
+        - Beginning soon notices, if any, with the number of days remaining until the starting date of the item using the display character `>` and highlighted using the beginning soon color.
 
         Note that the items included for the current date are those from the old *agenda* view.
 
-    - Scheduled events, journal entries, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events and tasks with *extent*, the ending time is also displayed. 
-    - Unfinished all day tasks, if any
-    - All day journal entries, if any
+    - Scheduled events, journal entries, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events and tasks with *extent*, the ending time is also displayed. Each item is highlighted using the type color for that item.
+    - Unfinished all day tasks, if any, highlighted using the task color.
+    - All day journal entries, if any, using the journal color.
 
 ### Busy
 
