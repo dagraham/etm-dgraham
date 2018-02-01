@@ -170,6 +170,7 @@ save_button = BracketButton(u'Save')
 exit_button = BracketButton(u'Quit')
 date1 = BareButton(u' 9')
 date2 = BareButton(u'10')
+
 buttons = urwid.Padding(urwid.GridFlow(
     [save_button, exit_button], 8, 3, 1, 'left'),
      left=4, right=3, min_width=10)
@@ -183,6 +184,8 @@ div = urwid.Divider('-')
 pile = urwid.Pile([ask, div, reply, div, buttons, dates])
 top = urwid.Filler(pile, valign='top')
 
+pile.append(urwid.AttrMap(date1, None, focus_map='reversed'))
+pile.append(urwid.AttrMap(date2, None, focus_map='reversed'))
 
 def on_ask_change(edit, entry_text):
     pos = ask.edit_pos
