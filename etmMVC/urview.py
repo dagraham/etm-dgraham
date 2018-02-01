@@ -168,8 +168,8 @@ ask = urwid.Edit(('say', type_prompt), multiline=True)
 reply = urwid.Text(item_types)
 save_button = BracketButton(u'Save')
 exit_button = BracketButton(u'Quit')
-date1 = BareButton(u' 9', focus_map='reversed')
-date2 = BareButton(u'10', focus_map='reversed')
+date1 = BareButton(u' 9')
+date2 = BareButton(u'10')
 
 buttons = urwid.Padding(urwid.GridFlow(
     [save_button, exit_button], 8, 3, 1, 'left'),
