@@ -195,10 +195,15 @@ def on_save_clicked(save_button):
 def on_exit_clicked(exit_button):
     raise urwid.ExitMainLoop()
 
+def on_focus_changed(date1):
+    raise urwid.ExitMainLoop()
+
+
 urwid.connect_signal(ask, 'change', on_ask_change)
 urwid.connect_signal(save_button, 'click', on_save_clicked)
 urwid.connect_signal(exit_button, 'click', on_exit_clicked)
 urwid.connect_signal(date1, 'click', on_exit_clicked)
-urwid.connect_signal(date2, 'focus', on_exit_clicked)
+urwid.connect_signal(date2, 'click', on_exit_clicked)
 
+urwid.connect_signal(buttons, 'modified', on_focus_changed)
 urwid.MainLoop(top, palette).run()
