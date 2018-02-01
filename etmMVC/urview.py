@@ -205,5 +205,5 @@ urwid.connect_signal(exit_button, 'click', on_exit_clicked)
 urwid.connect_signal(date1, 'click', on_exit_clicked)
 urwid.connect_signal(date2, 'click', on_exit_clicked)
 
-urwid.connect_signal(dates, 'modified', on_focus_changed)
+urwid.connect_signal(pile, 'modified', on_focus_changed)
 urwid.MainLoop(top, palette).run()
