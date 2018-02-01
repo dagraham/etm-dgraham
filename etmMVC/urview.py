@@ -184,8 +184,8 @@ div = urwid.Divider('-')
 pile = urwid.Pile([ask, div, reply, div, buttons, dates])
 top = urwid.Filler(pile, valign='top')
 
-top.append(urwid.AttrMap(date1, None, focus_map='reversed'))
-top.append(urwid.AttrMap(date2, None, focus_map='reversed'))
+# top.append(urwid.AttrMap(date1, None, focus_map='reversed'))
+# top.append(urwid.AttrMap(date2, None, focus_map='reversed'))
 
 def on_ask_change(edit, entry_text):
     pos = ask.edit_pos
