@@ -180,7 +180,7 @@ walker = urwid.SimpleListWalker([date1, date2])
 div = urwid.Divider('-')
 
 # pile = urwid.Pile([ask, div, reply, div, save_button, exit_button])
-pile = urwid.Pile([ask, div, reply, div, buttons, dates])
+pile = urwid.Pile([ask, div, reply, div, buttons, walker])
 top = urwid.Filler(pile, valign='top')
 
 
