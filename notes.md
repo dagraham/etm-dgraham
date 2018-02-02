@@ -1,5 +1,10 @@
 # Object Design
 
+## Needed
+
+* Record new items
+* Edit existing items
+* View recorded items 
 
 # Saved
 
