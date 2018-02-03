@@ -366,7 +366,7 @@ deal_with['j'] = deal_with_j
 
 def str2hsh(s):
     """
-    Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an 2 key has been entered without the corresponding key, True or False) for use by check_entry. 
+    Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an @ key has been entered without the corresponding key, True or False) for use by check_entry. 
     """
     hsh = {}
 
