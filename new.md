@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**February 2, 2018**
+**February 4, 2018**
 
 # Goals
 
@@ -208,7 +208,9 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 # Views
 
-View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery. s)omeday and t)ags. In all views, l)evel prompts for the outline expansion level.
+View hotkeys: a)genda, b)usy, d)one, m)onthly, i)ndex, n)ext, s)omeday, o)riginally created, l)ast modified, t)ags and q)uery. In all views, pressing `l` prompts for the outline expansion level.
+
+ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in *urwid* each actually takes only 1 line which leaves 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
 
 ## Weekly
 
@@ -218,25 +220,39 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 
 - Scheduled items, grouped and sorted by week and day
 
-	 ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI.
-
-        +------------------------- top bar --------------------------+
-        |Agenda - Week 3: Jan 15 - 21, 2018                   F1:help|
-        +------------------------------------------------------------+
-        |Mon Jan 15                                                  |
-        |  ^ Martin Luther King Day                                  |
-        |  * Lunch with Joe                            12:30pm-1:30pm|
-        |  - Revise 1st quarter schedule                      3pm    |
-        |Thu Jan 18 - Today                                          |
-        |  < Revise 1st quarter schedule                       3d    |
-        |  > Duke vs Pitt                                      2d    |
-        |  * Conference call                             11am-11:30am|
-        |Sat Jan 20                                                  |
-        |  * Duke vs Pitt                                  4pm-6pm   |
-        |  * Dinner                                        7pm-9pm   |
-        |                                                            |
-        +------------------------ status bar ------------------------+
-        | 8:49am Thu Jan 18                                10:30am+1 | 
+        +------------------------- top bar --------------------------+  
+        | Agenda - Week 3: Jan 15 - 21, 2018                 F1:help |  1
+        +------------------------------------------------------------+   
+        | Mon Jan 15                                                 |  2
+        |   ^ Martin Luther King Day                                 |  3
+        |   * Lunch with Joe                            12:30-1:30pm |  4
+        |   - Revise 1st quarter schedule                    3pm     |  5
+        | Thu Jan 18 - Today                                         |  6
+        |   < Revise 1st quarter schedule                    3d      |  7
+        |   > Duke vs Pitt                                   2d      |  8
+        |   * Conference call                            11:30am-1pm |  9
+        | Sat Jan 20                                                 | 10 
+        |   * Duke vs Pitt                                  4-6pm    | 11
+        |   * Dinner                                        7-9pm    | 12
+        |                                                            | 13
+        |                                                            | 14
+        |                                                            | 15
+        |                                                            | 16
+        |                                                            | 17 
+        |                                                            | 18
+        |                                                            | 19
+        |                                                            | 20
+        |                                                            | 21
+        |                                                            | 22
+        |                                                            | 23
+        |                                                            | 24
+        |                                                            | 25
+        |                                                            | 26
+        |                                                            | 27
+        |                                                            | 28
+        |                                                            | 29
+        +------------------------ status bar ------------------------+   
+        | 8:49am Thu Jan 18                                10:30am+1 | 30
         +------------------------------------------------------------+
 
 - The top title bar shows the selected week.
@@ -274,36 +290,38 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 - Hours in which a conflict occurs are marked with `+++`. 
 
         +----------------------------------------------------------+
-        |Busy - Week 4: Jan 22 - 28, 2018                   F1:help|
+        | Busy - Week 4: Jan 22 - 28, 2018                 F1:help |  1
         +----------------------------------------------------------+
-        |   Hr     Mo     Tu     We     Th     Fr     Sa     Su    |
-        |  ----+-------------------------------------------------  |
-        |  12a |   .      .      .      .      .      .      .     |
-        |      |   .      .      .      .      .      .      .     |
-        |      |   .      .      .      .      .      .      .     |
-        |      |   .      .      .      .      .      .      .     |
-        |      |   .      .      .      .      .      .      .     |
-        |      |   .      .      .      .      .      .      .     |
-        |   6a |   .      .      .      .      .      .      .     |
-        |      |   .      .      .      .      .      .      .     |
-        |      |   #      .      #      .      #      #      .     |
-        |      |   #      .      #      .      #      #      .     |
-        |      |   .      #      .      .      .      #      .     |
-        |      |   .      #      .      #      .      #      #     |
-        |  12p |   #      .      .      #      .      #      #     |
-        |      |   #      .      .     +++     .      #      #     |
-        |      |   .      .      .      #      .      .      #     |
-        |      |   .      .      .      .      .      .      #     |
-        |      |   #      .      .      .      .      .      .     |
-        |      |   #      .      .      .      .      .      .     |
-        |   6p |   .      .      #      .      .      .      .     |
-        |      |   #      .      #      .      .      .      .     |
-        |      |   #      .      #      .      .      .      .     |
-        |      |   #      .      .      .      .      .      .     |
-        |      |   .      .      .      .      .      .      .     |
-        |      |   .      .      .      .      .      .      .     |
+        |  Hr      Mo     Tu     We     Th     Fr     Sa     Su    |  2
+        |  ----+-------------------------------------------------  |  3
+        |  12a |   .      .      .      .      .      .      .     |  4
+        |      |   .      .      .      .      .      .      .     |  5
+        |      |   .      .      .      .      .      .      .     |  6
+        |      |   .      .      .      .      .      .      .     |  7
+        |      |   .      .      .      .      .      .      .     |  8
+        |      |   .      .      .      .      .      .      .     |  9
+        |   6a |   .      .      .      .      .      .      .     | 10 
+        |      |   .      .      .      .      .      .      .     | 11
+        |      |   #      .      #      .      #      #      .     | 12
+        |      |   #      .      #      .      #      #      .     | 13
+        |      |   .      #      .      .      .      #      .     | 14
+        |      |   .      #      .      #      .      #      #     | 15
+        |  12p |   #      .      .      #      .      #      #     | 16
+        |      |   #      .      .     +++     .      #      #     | 17
+        |      |   .      .      .      #      .      .      #     | 18
+        |      |   .      .      .      .      .      .      #     | 19
+        |      |   #      .      .      .      .      .      .     | 20
+        |      |   #      .      .      .      .      .      .     | 21
+        |   6p |   .      .      #      .      .      .      .     | 22
+        |      |   #      .      #      .      .      .      .     | 23
+        |      |   #      .      #      .      .      .      .     | 24
+        |      |   #      .      .      .      .      .      .     | 25
+        |      |   .      .      .      .      .      .      .     | 26
+        |      |   .      .      .      .      .      .      .     | 27
+        |  ----+-------------------------------------------------  | 28
+        |          22     23     24     25     26     27     28    | 29
         +----------------------------------------------------------+
-        | 8:49am Thu Jan 18                              10:30am+1 | 
+        | 8:49am Thu Jan 18                              10:30am+1 | 30
         +----------------------------------------------------------+
 
 
@@ -313,49 +331,53 @@ View hotkeys: a)genda, b)usy, d)one, c)reated, m)odified, i)ndex, n)ext, q)uery.
 - Actions are displayed with type character `$`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
 
         +------------------------- top bar ------------------------+
-        |Done - Week 3: Jan 15 - 21, 2018                   F1:help|
+        | Done - Week 3: Jan 15 - 21, 2018                 F1:help |
         +----------------------------------------------------------+
-        |Mon Jan 15                                                |
-        |  $ report summary                           4:29pm - 47m |
-        |  x report summary                              4:30pm    | 
+        | Mon Jan 15                                               |
+        |   $ report summary                          4:29pm - 47m |
+        |   x report summary                             4:30pm    | 
 
 
 ## Monthly 
 
         +----------------------------------------------------------+
-        |Monthly - August 2017                              F1:help|
+        | Monthly - August 2017                            F1:help |  1
         +----------------------------------------------------------+
-        |                                                          |
-        |   Wk     Mo     Tu     We     Th     Fr     Su     Su    |
-        |  ----+-------------------------------------------------  |
-        |      |                                                   |
-        |   31 |   31      1      2      3      4      5      6    |
-        |      |                                                   |
-        |   32 |    7      8      9     10     11     12     13    |
-        |      |                                                   |
-        |   33 |   14     15     16     17     18     19     20    |
-        |      |                                                   |
-        |   34 |   21     22     23     24     25     26     27    |
-        |      |                                                   |
-        |   35 |   28    [29]    30     31      1      2      3    |
-        |      |                                                   |
-        |   36 |    4      5      6      7      8      9     10    |
-        |      |                                                   |
-        +------+---------------------------------------------------+
-        | Tue Aug 29 2017                                          |
-        |   Nothing scheduled                                      |
-        |                                                          |
-        |                                                          |
-        |                                                          |
-        |                                                          |
-        |                                                          |
+        |   Wk     Mo     Tu     We     Th     Fr     Su     Su    |  2
+        |  ----+-------------------------------------------------  |  3
+        |   31 |   31      1      2      3      4      5      6    |  4
+        |      |                                                   |  5
+        |   32 |    7      8      9     10     11     12     13    |  6
+        |      |                                                   |  7
+        |   33 |   14     15     16     17     18     19     20    |  8
+        |      |                                                   |  9
+        |   34 |   21     22     23     24     25     26     27    | 10
+        |      |                                                   | 11
+        |   35 |   28    [29]    30     31      1      2      3    | 12
+        |      |                                                   | 13
+        |   36 |    4      5      6      7      8      9     10    | 14
+        +------+---------------------------------------------------+ 15
+        | Tue Aug 29 2017                                          | 16
+        |   Nothing scheduled                                      | 17
+        |                                                          | 18
+        |                                                          | 19
+        |                                                          | 20
+        |                                                          | 21
+        |                                                          | 22
+        |                                                          | 23
+        |                                                          | 24
+        |                                                          | 25
+        |                                                          | 26 
+        |                                                          | 27
+        |                                                          | 28
+        |                                                          | 29
         +----------------------------------------------------------+
-        | 8:49am Thu Jan 18                              10:30am+1 | 
+        | 8:49am Thu Jan 18                              10:30am+1 | 30
         +----------------------------------------------------------+
 
-- Six weeks starting with the first week of the selected month are displayed in the top pane with days colored from dark blue to bright red to indicate the amount of time scheduled.
+- The top pane displays 6 weeks starting with the first week of the selected month.  Month day numbers are colored from dark blue to bright red to indicate the amount of time scheduled.
 
-- Week numbers and dates in the top panel are buttons. Activating a week number switches to *Agenda* view for that week. Activating a date displayes the schedule for that date in the bottom pane using the same format as *Agenda* view. Switching to one of the weekly views will always display the week of the displayed date. 
+- Week numbers and month day numbers in the top panel are buttons. Activating a week number switches to *Agenda* view for that week. Activating a date displayes the schedule for that date in the bottom pane using the same format as *Agenda* view. Switching to one of the weekly views will always display the week of the selected date. 
 
 
 ## Next
@@ -375,11 +397,11 @@ Someday items grouped and sorted by the last modified datetime
 
 ## History
 
-### Created
+### Orignally Created
 
 All items, sorted by the datetime created and grouped by year and month.
 
-### Modified
+### Last Modified
 
 All items, sorted by the datetime last modified and grouped by year and month.
 
@@ -395,18 +417,16 @@ Analagous to the old custom view. Used to issue queries against the data store a
 
 ## Editing an existing item
 
-ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI.
-
 - Pressing Return with an item selected shows details:
 
-        +------------------------- top bar --------------------------+
-        |details                                              F1:help|
-        +------------------------------------------------------------+
-        |- task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v     |
-        |@r m &i 1                                                   |
-        |@j Job A &s 4w &b 2 &i 1 &a 2d: m &a 2d: v                  |
-        |@j Job B &s 2w &b 3 &i 2 &p 1 &a 2d: m &a 2d: v             |
-        |@j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v             |
+        +------------------------ top bar -------------------------+
+        | details                                          F1:help |
+        +----------------------------------------------------------+
+        | - task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v  |
+        |   @r m &i 1                                              |
+        |   @j Job A &s 4w &b 2 &i 1 &a 2d: m &a 2d: v             |
+        |   @j Job B &s 2w &b 3 &i 2 &p 1 &a 2d: m &a 2d: v        |
+        |   @j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v        |
 
 
 - When `Shift-E` (edit), `Shift-D` (delete) or `Shift-C` (copy) is pressed and the item is repeating then select the appropriate instances with these check  boxes: 
@@ -434,15 +454,15 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 - When creating a new item, the process is the same but for the fact that the initial entry will be empty. 
 
-        +------------------------- top bar --------------------------+
-        |editing: new item                                    F1:help|
-        +------------------------------------------------------------+
-        |type character for the new item?                            |
-        |> _                                                         |
-        | ---------------------------------------------------------- |
-        |item type characters:                                       |
-        |  *: event       -: task          $: action                 |
-        |  %: journal     ?: someday       !: inbox                  |
+        +------------------------- top bar ------------------------+
+        | editing: new item                                F1:help |
+        +----------------------------------------------------------+
+        | type character for the new item?                         |
+        | > _                                                      |
+        | -------------------------------------------------------- |
+        | item type characters:                                    |
+        |   *: event       -: task          $: action              |
+        |   %: journal     ?: someday       !: inbox               |
 
 - Editing takes place in the line beginning with the `>` prompt. The current cursor position is shown by the underscore `_`.
 
@@ -450,103 +470,105 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 - The main panel reflects any changes as they occur:
 
-        +------------------------- top bar --------------------------+
-        |editing: unsaved changes                             F1:help|
-        +------------------------------------------------------------+
-        |summary for the event?                                      |
-        |> * my ev_                                                  |
-        | ---------------------------------------------------------- |
-        |Enter the summary for the event followed, optionally, by    |
-        |@key and value pairs.                                       |
+        +------------------------ top bar -------------------------+
+        | editing: unsaved changes                         F1:help |
+        +----------------------------------------------------------+
+        | summary for the event?                                   |
+        | > * my ev_                                               |
+        | -------------------------------------------------------- |
+        | Enter the summary for the event followed, optionally, by |
+        | @key and value pairs.                                    |
 
 - As editing progresses, the display changes to show information relevant to the current entry. Here are some illustrative screens.
 
   - Summary entered and an initial `@` but without the key:
 
-        +------------------------------------------------------------+
-        |@key?                                                       |
-        |> * my event @_                                             |
-        | ---------------------------------------------------------- |
-        |Available @keys:                                            |
-        |  Required: @s                                              |
-        |  Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v               |
-        |  Requires @s: @a, @b, @r                                   |
-        |  Requires @r: @+, @-                                       |
+        +----------------------------------------------------------+
+        | @key?                                                    |
+        | > * my event @_                                          |
+        | -------------------------------------------------------- |
+        | Available @keys:                                         |
+        |   Required: @s                                           |
+        |   Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v            |
+        |   Requires @s: @a, @b, @r                                |
+        |   Requires @r: @+, @-                                    |
 
   - With `@s fri` entered but without a time
 
-        +------------------------------------------------------------+
-        |@s: starting date or datetime?                              |
-        |> * my event @s fri_                                        |
-        | ---------------------------------------------------------- |
-        |currently: Fri Jan 19 2018                                  |
-        |Without a time, this schedules an all-day, floating item    |
-        |for the specified date in whatever happens to be the local  |
-        |timezone.                                                   |
+        +----------------------------------------------------------+
+        | @s: starting date or datetime?                           |
+        | > * my event @s fri_                                     |
+        | -------------------------------------------------------- |
+        | currently: Fri Jan 19 2018                               |
+        | Without a time, this schedules an all-day, floating item |
+        | for the specified date in whatever happens to be the     |
+        | local timezone.                                          |
 
   - With `@s fri 2p` entered
 
-        +------------------------------------------------------------+
-        |@s: starting date or datetime?                              |
-        |> * my event @s fri 2p_                                     |
-        | ---------------------------------------------------------- |
-        |currently: Fri Jan 19 2018 2:00PM EST                       |
-        |The datetime will be interpreted as an aware datetime in    |
-        |the current timezone. Append, e.g., ", US/Pacific" to       |
-        |specify a particular timezone or ", float" to specify a     |
-        |floating item in whatever happens to be the local timezone. |
+        +----------------------------------------------------------+
+        | @s: starting date or datetime?                           |
+        | > * my event @s fri 2p_                                  |
+        | -------------------------------------------------------- |
+        | currently: Fri Jan 19 2018 2:00PM EST                    |
+        | The datetime will be interpreted as an aware datetime in |
+        | the current timezone. Append, e.g., ", US/Pacific" to    |
+        | specify a particular timezone or ", float" to specify a  |
+        | floating item in whatever happens to be the local        |
+        | timezone.                                                |
 
   - Starting an entry for `@r`:
 
-        +------------------------------------------------------------+
-        |@r: repetition frequency?                                   |
-        |> * my event @s fri 2p @r_                                  |
-        | ---------------------------------------------------------- |
-        |A character from: (y)early, (m)onthly, (w)eekly, (d)aily    |
-        |   (h)ourly, mi(n)utely                                     |
+        +----------------------------------------------------------+
+        | @r: repetition frequency?                                |
+        | > * my event @s fri 2p @r_                               |
+        | -------------------------------------------------------- |
+        | A character from: (y)early, (m)onthly, (w)eekly, (d)aily |
+        |   (h)ourly, mi(n)utely                                   |
 
 
   - With `@r m` entered:
 
-        +------------------------------------------------------------+
-        |@r: repetition rule?                                        |
-        |> * my event @s fri 2p @r m_                                |
-        | ---------------------------------------------------------- |
-        |currently:                                                  |
-        |    RRULE:FREQ=MONTHLY                                      |
-        |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
-        |The first 3 repetitions on or after DTSTART:                | 
-        |    Fri Jan 19 2018 2:00PM                                  |
-        |    Mon Feb 19 2018 2:00PM                                  |
-        |    Mon Mar 19 2018 2:00PM                                  |
-        |All times: America/New_York                                 |
-        |                                                            |
-        |Possible options: &c (count), &E (Easter), &h (hour),       |
-        |   &i (interval), &m (monthday), &M (month), &n (minute),   |
-        |   &s (set position), &u (until), &w (weekday)              |
+        +----------------------------------------------------------+
+        | @r: repetition rule?                                     |
+        | > * my event @s fri 2p @r m_                             |
+        | -------------------------------------------------------- |
+        | currently:                                               |
+        |    RRULE:FREQ=MONTHLY                                    |
+        |    DTSTART:Fri Jan 19 2018 2:00PM EST                    |
+        | The first 3 repetitions on or after DTSTART:             | 
+        |    Fri Jan 19 2018 2:00PM                                |
+        |    Mon Feb 19 2018 2:00PM                                |
+        |    Mon Mar 19 2018 2:00PM                                |
+        | All times: America/New_York                              |
+        |                                                          |
+        | Possible options: &c (count), &E (Easter), &h (hour),    |
+        |   &i (interval), &m (monthday), &M (month), &n (minute), |
+        |   &s (set position), &u (until), &w (weekday)            |
 
   - With `@r m &w` entered:
 
-        +------------------------------------------------------------+
-        |&w: weekdays?                                               |
-        |> * my event @s fri 2p @r m &w_                             |
-        | ---------------------------------------------------------- |
-        |A comma separated list of English weekday abbreviations     |
-        |from SU, MO, TU, WE, TH, FR, SA, SU. Prepend an integer     |
-        |to specify a particular weekday in the month. E.g., 3WE for |
-        |the 3rd Wednesay or -1FR for the last Friday in the month.  | 
+        +----------------------------------------------------------+
+        | &w: weekdays?                                            |
+        | > * my event @s fri 2p @r m &w_                          |
+        | -------------------------------------------------------- |
+        | A comma separated list of English weekday abbreviations  |
+        | from SU, MO, TU, WE, TH, FR, SA, SU. Prepend an integer  |
+        | to specify a particular weekday in the month. E.g., 3WE  | 
+        | for the 3rd Wednesay or -1FR for the last Friday in the  |
+        | month.                                                   | 
 
   - With `@r m &w -2FR` entered:
 
-        +------------------------------------------------------------+
-        |@r: repetition rule?                                        |
-        |> * my event @s fri 2p @r m &w -2fr                         |
-        | ---------------------------------------------------------- |
-        |currently:                                                  |
-        |    RRULE:FREQ=MONTHLY;BYWEEKDAY=-2FR                       |
-        |    DTSTART:Fri Jan 19 2018 2:00PM EST                      |
-        |The first 3 repetitions on or after DTSTART:                | 
-        |    Fri Jan 19 2018 2:00PM                                  |
-        |    Fri Feb 16 2018 2:00PM                                  |
-        |    Fri Mar 23 2018 2:00PM                                  |
-        |All times: America/New_York                                 |
+        +----------------------------------------------------------+
+        | @r: repetition rule?                                     |
+        | > * my event @s fri 2p @r m &w -2fr                      |
+        | -------------------------------------------------------- |
+        | currently:                                               |
+        |    RRULE:FREQ=MONTHLY;BYWEEKDAY=-2FR                     |
+        |    DTSTART:Fri Jan 19 2018 2:00PM EST                    |
+        | The first 3 repetitions on or after DTSTART:             | 
+        |    Fri Jan 19 2018 2:00PM                                |
+        |    Fri Feb 16 2018 2:00PM                                |
+        |    Fri Mar 23 2018 2:00PM                                |
+        | All times: America/New_York                              |

@@ -5,7 +5,7 @@ pendulum.set_formatter('alternative')
 
 # from dateutil.tz import gettz, tzutc, tzlocal
 
-# from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE 
+# from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE
 from model import parse_datetime, parse_period, rrule, jobs, format_datetime, set_summary
 from dateutil.rrule import rrulestr
 
@@ -92,7 +92,7 @@ allowed = {}
 required = {}
 undated_methods = 'cdegilmstx'
 date_methods = 'br'
-datetime_methods = date_methods + 'ea+-' 
+datetime_methods = date_methods + 'ea+-'
 task_methods = 'fjp'
 
 # events
@@ -116,13 +116,13 @@ allowed['?'] = undated_methods + task_methods + datetime_methods
 required['!'] = ''
 allowed['!'] = undated_methods + task_methods
 
-# item type t and has s 
+# item type t and has s
 # allowed['date'] = allowed[t] + 'br'
 # allowed['datetime'] = allowed[t] + 'abr'
 # allowed['r'] = '+-'
 
 requires = {
-        'a': 's', 
+        'a': 's',
         'b': 's',
         'r': 's',
         '+': 'r',
@@ -213,7 +213,7 @@ def deal_with_i(at_hsh={}):
     """
     Replaces the old filepath and to provide a heirarchial organization
     view of the data. Entered as a colon delineated string, stored as a
-    list. 
+    list.
     >>> deal_with_i({'i': "a:b:c"})
     (True, ['a', 'b', 'c'])
     >>> deal_with_i({'i': "plant:tree:oak"})
@@ -268,7 +268,7 @@ def get_reps(n=3):
     lst = []
     for x in out:
         lst.append(format_datetime(x)[1])
-    outstr = "\n    ".join(lst[:n]) 
+    outstr = "\n    ".join(lst[:n])
     if len(lst) <= n:
         countstr = "Repetitions on or after DTSTART"
     else:
@@ -278,7 +278,7 @@ def get_reps(n=3):
 {}:
     {}
 All times: {}""".format(dtstart, countstr,  outstr, zone)
-    return True, res 
+    return True, res
 
 
 def deal_with_r(at_hsh={}):
@@ -311,7 +311,7 @@ def deal_with_r(at_hsh={}):
         if r:
             keys = ['&{}'.format(x) for x in amp_keys['r'] if x not in hsh]
             for key in hsh:
-                if hsh[key] and key in amp_keys['r']: 
+                if hsh[key] and key in amp_keys['r']:
                     bot = "{}".format(amp_keys['r'][key])
                 else:
                     bot = 'Allowed: {}'.format(", ".join(keys))
@@ -343,7 +343,7 @@ def deal_with_j(at_hsh={}):
     Check the current state of at_hsh regarding j and s.
     """
     if 's' in item_hsh:
-        # Either a dated task or a naive or aware datetimed task 
+        # Either a dated task or a naive or aware datetimed task
         dated = True
     else:
         # An undated task
@@ -366,7 +366,7 @@ deal_with['j'] = deal_with_j
 
 def str2hsh(s):
     """
-    Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an @ key has been entered without the corresponding key, True or False) for use by check_entry. 
+    Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an @ key has been entered without the corresponding key, True or False) for use by check_entry.
     """
     hsh = {}
 
@@ -454,7 +454,7 @@ def check_entry(s, cursor_pos):
     if not at_tups:
         ask = ('say', type_prompt)
         reply = ('say', item_types)
-        return ask, reply 
+        return ask, reply
 
     # itemtype, summary, end = at_tups.pop(0)
     itemtype, summary, end = at_tups[0]

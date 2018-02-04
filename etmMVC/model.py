@@ -43,7 +43,7 @@ ETMFMT = "%Y%m%dT%H%M"
 
 def parse_datetime(s):
     """
-    's' will have the format 'datetime string' followed, optionally by a comma and a tz specification. Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if tz == 'float' or an aware datetime object converting to UTC using tzlocal if tz is None (missing) and using the provided tz otherwise.  
+    's' will have the format 'datetime string' followed, optionally by a comma and a tz specification. Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if tz == 'float' or an aware datetime object converting to UTC using tzlocal if tz is None (missing) and using the provided tz otherwise.
     >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt[1]
     <Pendulum [2015-10-15T18:00:00+00:00]>
@@ -167,8 +167,7 @@ def format_datetime(obj):
 
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
-threeday_regex = re.compile(r'(MON|TUE|WED|THU|FRI|SAT|SUN)',
-                        re.IGNORECASE)
+threeday_regex = re.compile(r'(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
 
 period_hsh = dict(
@@ -363,8 +362,8 @@ SUFFIXES = {0: 'th', 1: 'st', 2: 'nd', 3: 'rd'}
 
 def ordinal(num):
     """
-    Append appropriate suffix to integers for ordinal representation. 
-    E.g., 1 -> 1st, 2 -> 2nd and so forth.  
+    Append appropriate suffix to integers for ordinal representation.
+    E.g., 1 -> 1st, 2 -> 2nd and so forth.
     >>> ordinal(3)
     '3rd'
     >>> ordinal(21)
@@ -376,13 +375,13 @@ def ordinal(num):
     """
     if num < 4 or (num > 20 and num % 10 < 4):
         suffix = SUFFIXES[num % 10]
-    else: 
+    else:
         suffix = SUFFIXES[0]
     return "{0}{1}".format(str(num), suffix)
 
 def anniversary_string(startyear, endyear):
     """
-    Compute the integer difference between startyear and endyear and 
+    Compute the integer difference between startyear and endyear and
     append the appropriate English suffix.
     """
     return ordinal(int(endyear) - int(startyear))
@@ -667,15 +666,15 @@ def easter(arg):
         if ok:
             return True, res
         else:
-            return False, "invalid easter: {}. Required for {}".format(res, easterstr) 
+            return False, "invalid easter: {}. Required for {}".format(res, easterstr)
     else:
-        return False, easterstr 
+        return False, easterstr
 
 
 def frequency(arg):
     """
     repetition frequency: character in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly
-    or mi(n)utely. 
+    or mi(n)utely.
     >>> frequency('d')[0]
     True
     >>> frequency('z')[0]
@@ -683,7 +682,7 @@ def frequency(arg):
     """
 
     freq = [x for x in rrule_frequency]
-    freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely." 
+    freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely."
     if arg in freq:
         return True, arg
     elif arg:
@@ -703,16 +702,16 @@ def interval(arg):
     (False, 'invalid interval: [1, 2]. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
     """
 
-    intstr = "interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks." 
+    intstr = "interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks."
 
     if arg:
         ok, res = integer(arg, 1, None, False)
         if ok:
             return True, res
         else:
-            return False, "invalid interval: {}. Required for {}".format(res, intstr) 
+            return False, "invalid interval: {}. Required for {}".format(res, intstr)
     else:
-        return False, intstr 
+        return False, intstr
 
 
 def setpos(arg):
@@ -789,7 +788,7 @@ def weekdays(arg):
             else:
                 return True, args
     else:
-        return False, "weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month." 
+        return False, "weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month."
 
 
 def weeks(arg):
@@ -1285,9 +1284,9 @@ TinyDB.table_class = DatetimeCacheTable
 
 class PendulumDateTimeSerializer(Serializer):
     """
-    This class handles both aware and 'factory' pendulum objects. 
+    This class handles both aware and 'factory' pendulum objects.
 
-    Encoding: If obj.tzinfo.abbrev is '-00' (tz=Factory), it is interpreted as naive, serialized without conversion and an 'N' is appended. Otherwise it is interpreted as aware, converted to UTC and an 'A' is appended. 
+    Encoding: If obj.tzinfo.abbrev is '-00' (tz=Factory), it is interpreted as naive, serialized without conversion and an 'N' is appended. Otherwise it is interpreted as aware, converted to UTC and an 'A' is appended.
     Decoding: If the serialization ends with 'A', the pendulum object is treated as 'UTC' and converted to localtime. Otherwise, the object is treated as 'Factory' and no conversion is performed.
 
     This serialization discards both seconds and microseconds but preserves hours and minutes.
@@ -1306,7 +1305,7 @@ class PendulumDateTimeSerializer(Serializer):
 
     def decode(self, s):
         """
-        Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object. If the serialization ends with 'N', returning without conversion as a naive datetime object. 
+        Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object. If the serialization ends with 'N', returning without conversion as a naive datetime object.
         """
         if s[-1] == 'A':
             return pendulum.from_format(s[:-1], '%Y%m%dT%H%M', 'UTC').in_timezone('local')
@@ -1318,7 +1317,7 @@ class PendulumDateSerializer(Serializer):
     """
     This class handles pendulum date objects.
     """
-    OBJ_CLASS = pendulum.pendulum.Date 
+    OBJ_CLASS = pendulum.pendulum.Date
 
     def encode(self, obj):
         """
@@ -1337,7 +1336,7 @@ class PendulumIntervalSerializer(Serializer):
     """
     This class handles pendulum interval (timedelta) objects.
     """
-    OBJ_CLASS = pendulum.Interval  
+    OBJ_CLASS = pendulum.Interval
 
     def encode(self, obj):
         """
@@ -1349,7 +1348,7 @@ class PendulumIntervalSerializer(Serializer):
         """
         Return the serialization as a timedelta object.
         """
-        days_seconds = (int(x) for x in s.split('.')) 
+        days_seconds = (int(x) for x in s.split('.'))
         return pendulum.Interval(*days_seconds)
 
 
