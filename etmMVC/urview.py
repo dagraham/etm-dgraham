@@ -1,22 +1,23 @@
+# Last Edited: Mon 05 Feb 2018 10:00 EST
 import urwid
+from controller import check_entry, str2hsh
+import os
+import sys
+import inspect
 
-import os, sys, inspect
- # realpath() will make your script run, even if you symlink it :)
+# realpath() will make your script run, even if you symlink it :)
 cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(
-    inspect.currentframe() ))[0]))
+    inspect.currentframe()))[0]))
 if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
-from controller import check_entry, str2hsh
+
 
 class ButtonLabel(urwid.SelectableIcon):
     def __init__(self, text):
-        """
-        Here's the trick: 
-        we move the cursor out to the right of the label/text, so it doesn't show
-        """
-        curs_pos = len(text.strip()) 
+        curs_pos = len(text.strip())
         urwid.SelectableIcon.__init__(self, text, cursor_position=curs_pos)
+
 
 class BracketButton(urwid.Button):
     '''
@@ -80,7 +81,7 @@ def main():
                 ]
 
     textentry = urwid.Edit()
-    assert textentry.get_text() == ('', []), textentry.get_text() 
+    assert textentry.get_text() == ('', []), textentry.get_text()
 
     parser = OptionParser()
     parser.add_option("-u", "--username")
@@ -105,12 +106,12 @@ def main():
     body.refresh()
 
     def edit_handler(keys, raw):
-        """respond to keys while user is editing text""" 
+        """respond to keys while user is editing text"""
         if keys in (['enter'],[]):
             if keys == ['enter']:
                 if textentry.get_text()[0] != '':
                     # We set the footer twice because the first time we
-                    # want the updated status text (loading...) to show 
+                    # want the updated status text (loading...) to show
                     # immediately, and the second time as a catch-all
                     body.frame.set_footer(body.footer)
                     body.set_subreddit(textentry.edit_text)
@@ -150,7 +151,7 @@ def main():
                 raise urwid.ExitMainLoop()
             return keys
 
-    # Start ui 
+    # Start ui
     global main_loop
     main_loop = urwid.MainLoop(body.frame, palette, input_filter=input_handler)
     main_loop.run()

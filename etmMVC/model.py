@@ -41,6 +41,7 @@ etmdir = None
 
 ETMFMT = "%Y%m%dT%H%M"
 
+
 def parse_datetime(s):
     """
     's' will have the format 'datetime string' followed, optionally by a comma and a tz specification. Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if tz == 'float' or an aware datetime object converting to UTC using tzlocal if tz is None (missing) and using the provided tz otherwise.

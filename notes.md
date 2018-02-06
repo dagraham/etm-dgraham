@@ -1,10 +1,66 @@
-# Object Design
+# Notes for etm
+**Last Edited: Tue 06 Feb 2018 17:29 EST**
 
-## Needed
+# Design
+## Requirements
 
-* Record new items
-* Edit existing items
-* View recorded items 
+* Create a new item
+* Modify an existing item
+  - edit
+    + instance?
+  - reschedule
+  - schedule new  
+
+* View items
+  - Dated/synchronized
+    + Agenda
+    + Busy
+    + Done
+    + Monthly
+  - Next
+  - Someday
+  - Index
+  - History
+    + Orignally created
+    + Last modified
+* Jump to 
+* Search (Outline views will support filtering)
+* Issue querries
+* Get help information 
+
+## Classes
+
+* Edit
+  - process/validate item string
+  - create/update Item
+* Item: 
+  - record (update if id passed) 
+  - filter method
+  - search method 
+  - get alerts
+  - get begins 
+* View Base Class
+  - set topbar
+  - set statusbar
+  - set mainpanel (override)
+  - 
+
+## Decorators?
+
+      class ItemDecorator(Item):
+          def __init__(self, item): 
+            super(ItemDecorator, self).__init__() 
+            self.item = item
+
+      class Dated(ItemDecorator): 
+
+          def get_alerts(self):
+              pass
+
+          def get_begins(self);
+              pass
+
+      dated_item = Dated(Item())
 
 # Saved
 

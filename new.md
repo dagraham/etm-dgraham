@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**February 4, 2018**
+**Last Edited: Mon 05 Feb 2018 10:00 EST**
 
 # Goals
 
@@ -35,23 +35,23 @@
     - `-`: unfinished task or job without unfinished prerequisites
     - `+`: job with unfinished prerequisites
 
-### `%`: journal entry
+### `%`: Note
 
-This is equivalent to the old *note* item type. 
+Unchanged but for the change in the type character from `!` to `%`.
 
 ### `$`: action
 
-  - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and journal entries without creating new actions that duplicate the original item information.
-  - In *all* cases - events, tasks, journal entries as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active, datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`. 
+  - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and notes without creating new actions that duplicate the original item information.
+  - In *all* cases - events, tasks, notes as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active, datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`. 
   - Items can have multiple `@m` entries. 
   - Each `@m` entry is displayed in the *Done* view on the day of `datetime finished` using the display character `$`, the item summary, the time of `datetime finished` and the `timeperiod active`.
   - Items that contain `@m` entries, are also displayed in the normal ways for the type of the item. 
   - Displaying the details either for an `$` item in *Done* or for an item with `@m` entries in another view, will show the details for the item itself and thus all of its `@m` entries.
-  - It is **strongly recommended** that items containing `@m` entries should have `@i`, *index*, entries as well since accounting reports which aggregate time expenditures are based on the index entries. 
+  - It is **strongly recommended** that items containing `@m` entries should have `@i`, *index*, entry as well since accounting reports which aggregate time expenditures are based on the index entries. 
   - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
 
       - Begin:
-          - Either select an item (event, task, journal or existing action) to which the `@m` entry should be added. 
+          - Either select an item (event, task, note or existing action) to which the `@m` entry should be added. 
           - Or create a new item with the action type character `$` and at least a summary for the new action. 
       - Start the timer.
       - Pause/resume the timer as often as desired.
@@ -108,7 +108,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 - All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable - not easily anyway.  It can be backed up and/or queried using external tools as well as etm itself. 
 - Two timestamps are automatically created for each item in the data store, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. The creation timestamp is used as the unique identifier for the item in the data store. 
-- The heirarchial organization that was provided by file paths is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry `@i plant:tree:oak` would store the item in the *index* view under:
+- The hierarchical organization that was provided by file paths is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry `@i plant:tree:oak` would store the item in the *index* view under:
       - plant
           - tree
               - oak
@@ -152,10 +152,10 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 - Storage: 
 
-	- Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. 
-	- Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
-	- Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
-	- Naive dates and datetimes require no conversion either way. 
+  - Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. 
+  - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
+  - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
+  - Naive dates and datetimes require no conversion either way. 
 
 - Display:
 
@@ -180,23 +180,23 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 - Prerequisites
 
-	- Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
+  - Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
 
-					- automatically assigned
-						@j job A
-						@j job B
-						@j job C
+          - automatically assigned
+            @j job A
+            @j job B
+            @j job C
 
-		`job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C`. 
+    `job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C`. 
 
-	- Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
+  - Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
 
-					- manually assigned
-						@j job a &i a
-						@j job b &i b
-						@j job c &i 3 &p a, b
+          - manually assigned
+            @j job a &i a
+            @j job b &i b
+            @j job c &i 3 &p a, b
 
-		Neither `job a` nor `job b` have any prerequisites but `job a` and `job b` are both prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
+    Neither `job a` nor `job b` have any prerequisites but `job a` and `job b` are both prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
 
 - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
@@ -204,7 +204,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
           - manually assigned [1/1/1]: job b
           + manually assigned [1/1/1]: job c
 
-	would indicate that `job a` is *finished*, `job b` is *available* (has no unfinished prerequistites) and that `job c` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, active and waiting jobs, respectively.
+  would indicate that `job a` is *finished*, `job b` is *available* (has no unfinished prerequistites) and that `job c` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, active and waiting jobs, respectively.
 
 # Views
 
@@ -280,9 +280,9 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
         Note that the items included for the current date are those from the old *agenda* view.
 
-    - Scheduled events, journal entries, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events and tasks with *extent*, the ending time is also displayed. Each item is highlighted using the type color for that item.
+    - Scheduled events, notes, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events and tasks with *extent*, the ending time is also displayed. Each item is highlighted using the type color for that item.
     - Unfinished all day tasks, if any, highlighted using the task color.
-    - All day journal entries, if any, using the journal color.
+    - All day notes, if any, using the note color.
 
 ### Busy
 
@@ -462,7 +462,7 @@ Analagous to the old custom view. Used to issue queries against the data store a
         | -------------------------------------------------------- |
         | item type characters:                                    |
         |   *: event       -: task          $: action              |
-        |   %: journal     ?: someday       !: inbox               |
+        |   %: note     ?: someday       !: inbox               |
 
 - Editing takes place in the line beginning with the `>` prompt. The current cursor position is shown by the underscore `_`.
 
