@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**Last Edited: Mon 05 Feb 2018 10:00 EST**
+**Last Edited: Fri 09 Feb 2018 23:25 EST**
 
 # Goals
 
@@ -41,28 +41,27 @@ Unchanged but for the change in the type character from `!` to `%`.
 
 ### `$`: action
 
-  - In addition to the old *action* item type, it is now possible to record timer information relating to existing events, tasks and notes without creating new actions that duplicate the original item information.
-  - In *all* cases - events, tasks, notes as well as in actions themselves - timer information is recorded using the `@m`, *moment*, entry. The format is `@m datetime started, timeperiod active, datetime finished`. The timeperiod that the timer was inactive/paused is given implicitly by `finished` minus `started` minus `active`. 
-  - Items can have multiple `@m` entries. 
-  - Each `@m` entry is displayed in the *Done* view on the day of `datetime finished` using the display character `$`, the item summary, the time of `datetime finished` and the `timeperiod active`.
-  - Items that contain `@m` entries, are also displayed in the normal ways for the type of the item. 
-  - Displaying the details either for an `$` item in *Done* or for an item with `@m` entries in another view, will show the details for the item itself and thus all of its `@m` entries.
-  - It is **strongly recommended** that items containing `@m` entries should have `@i`, *index*, entry as well since accounting reports which aggregate time expenditures are based on the index entries. 
-  - An etm *timer* can be used to record an `@m` entry in a selected item or a newly created action:
+  - In an *action*, `@s` records the datetime that the action was started, `@e` the timeperiod that the work on the action was active and `@f` the datetime that the action was finished. The timeperiod that work on the action was inactive is given implicitly by `finished` minus `started` minus `active`. 
+   - Each action is displayed in the *Done* view on the day of `finished` using the display character `$`, the item summary, the time of `finished` and the `timeperiod active`.
+  - It is **strongly recommended** that actions should have `@i`, *index*, entry since accounting reports which aggregate time expenditures are based on the index entries. Default reports suppose that index entries for actions take the form `client:job` and show aggregates for the previous and current months by 
+
+        month
+          client
+            job
+
+  - An etm *timer* can be used to record an action based upon a selected item or a newly created action:
 
       - Begin:
-          - Either select an item (event, task, note or existing action) to which the `@m` entry should be added. 
-          - Or create a new item with the action type character `$` and at least a summary for the new action. 
+          - Either select an item (event, task, note or existing action) on which the action should be based. The summary and `@i` entry from the item will be used for the new action.
+          - Or create a new item with the action type character `$` and a summary for the new action. An `@i` entry is recommended but can be added later. 
       - Start the timer.
       - Pause/resume the timer as often as desired.
-      - Finish the timer to record the time spent. The `@m` entry will contain:
-          - the moment at which the timer was first started
-          - the accumulated time period during which the timer was active
-          - the moment at which the timer was stopped
-      - Choose whether or not to edit the modified item.
+      - Finish the timer to record the action. The entry will contain:
+          - the moment at which the timer was first started as `@s`
+          - the accumulated time period during which the timer was active as `@e`
+          - the moment at which the timer was stopped as `@f`
+      - Choose whether or not to edit the action. If the action does not have an `@i` entry, you will be prompted to add one.
       - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
-
-  - When moments are added to task jobs, `&m` is used in the `@j` entry for the job instead of `@m` in the task itself.
 
 ### `?`: someday
 
@@ -149,6 +148,15 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
                 Mon Feb 26 2018 2:00PM
                 Mon Mar 26 2018 2:00PM
             All times: America/New_York
+
+- The *relevant datetime* of an item (used in index view): 
+  - Non repeating events and unfinished tasks: the datetime given in `@s`
+  - Actions: the datetime given in `@f`
+  - Finished tasks: the datetime given in `@f`
+  - Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance
+  - Repeating tasks: the datetime of the first unfinished instance
+  - Undated and unfinished items: *None*
+
 
 - Storage: 
 
@@ -392,7 +400,7 @@ Someday items grouped and sorted by the last modified datetime
 
 ## Index
 
-- All items, grouped and sorted by their *index* entries
+- All items, grouped and sorted by their *index* entries and then *relevant datetime*. 
 - Items without `@i` entries are listed last under *None*.
 
 ## History

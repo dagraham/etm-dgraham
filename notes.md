@@ -1,5 +1,5 @@
 # Notes for etm
-**Last Edited: Tue 06 Feb 2018 17:29 EST**
+**Last Edited: Wed 07 Feb 2018 11:58 EST**
 
 # Design
 ## Requirements
@@ -61,6 +61,19 @@
               pass
 
       dated_item = Dated(Item())
+
+# ToDo
+
+## Refactor Views
+
+* MainView / Menu
+* View
+  * WeekView (selected week class variable)
+    * Agenda
+    * Busy
+    * Done
+    * Month      
+* View stack - back to prior view
 
 # Saved
 
