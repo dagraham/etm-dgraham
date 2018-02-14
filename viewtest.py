@@ -181,7 +181,9 @@ class View:
     def new_week(cls):
         cls.set_footer("new week")
 
+
 class ViewDecorator(View):
+
     def __init__(self, view): 
         super().__init__() 
         self.view = view
