@@ -182,7 +182,6 @@ class BaseView:
         cls.set_footer("new week")
 
 
-
 help_view = BaseView()
 help_view.set_header()
 help_view.add_centered(logo, 'logo')
