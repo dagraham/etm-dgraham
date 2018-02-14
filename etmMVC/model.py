@@ -1371,9 +1371,9 @@ def iso_year_start(iso_year):
     """
     Return the gregorian calendar date of the first day of the given ISO year.
     >>> iso_year_start(2017)
-
+    <Date [2017-01-02]>
     >>> iso_year_start(2018)
-
+    <Date [2018-01-01]>
     """
     fourth_jan = pendulum.date(iso_year, 1, 4)
     delta = pendulum.interval(fourth_jan.isoweekday()-1)
