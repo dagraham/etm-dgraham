@@ -1494,13 +1494,13 @@ def getMonthWeeks(dt, bef=0, aft=0):
         y, w, d = day.isocalendar()
     return ret
 
-def getWeeksForMonth(y, m):
+def getWeeksForMonth(ym):
     """
     Return the month and week numbrers for the week containing the first day of the month and the 5 following weeks.
-    >>> getWeeksForMonth(2018, 3)
+    >>> getWeeksForMonth((2018, 3))
 
     """
-    wp = pendulum.date(y, m, 1).isocalendar()[:2]
+    wp = pendulum.date(ym[0], ym[1], 1).isocalendar()[:2]
     wl = [wp]
     for i in range(5):
         wn = nextWeek(wp)
