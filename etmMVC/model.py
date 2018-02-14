@@ -1384,7 +1384,7 @@ def iso_to_gregorian(ywd):
     """
     Return the gregorian calendar date for the given year, week and day.
     >>> iso_to_gregorian((2018, 7, 3))
-
+    <Date [2018-02-14]>
     """
     year_start = iso_year_start(ywd[0])
     return year_start + pendulum.interval(days=ywd[2]-1, weeks=ywd[1]-1)
