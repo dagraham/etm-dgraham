@@ -1362,6 +1362,130 @@ serialization.register_serializer(PendulumIntervalSerializer(), 'TinyPendulumInt
 ### end TinyDB setup ###
 ########################
 
+########################
+### start week/month ###
+########################
+
+
+def iso_year_start(iso_year):
+    """
+    Return the gregorian calendar date of the first day of the given ISO year.
+    """
+    fourth_jan = pendulum.date(iso_year, 1, 4)
+    delta = pendulum.interval(fourth_jan.isoweekday()-1)
+    return (fourth_jan - delta)
+
+
+def iso_to_gregorian(ywd):
+    """
+    Return the gregorian calendar date for the given year, week and day.
+    """
+    year_start = iso_year_start(ywd[0])
+    return year_start + pendulum.interval(days=ywd[2]-1, weeks=ywd[1]-1)
+
+
+def getWeekNum(dt):
+    return dt.isocalendar()[:2]
+
+
+def nextWeek(yw):
+    """
+    >>> nextWeek((2015,53))
+    (2016, 1)
+    """
+    return (iso_to_gregorian((*yw, 7)) + pendulum.interval(days=1)).isocalendar()[:2]
+
+
+def prevWeek(yw):
+    """
+    >>> prevWeek((2016,1))
+    (2015, 53)
+    """
+    return (iso_to_gregorian((*yw, 1)) - pendulum.interval(days=1)).isocalendar()[:2]
+
+
+def nextMonthWeeks(yw_lst):
+    """
+    Weeks for December 2015
+    >>> nextMonthWeeks([(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)])
+    [(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)]
+    """
+    return getMonthWeeks(iso_to_gregorian((*yw_lst[-1], 7)) + pendulum.interval(days=1))
+
+
+def prevMonthWeeks(yw_lst):
+    """
+    Weeks for January 2016
+    >>> prevMonthWeeks([(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)])
+    [(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)]
+    """
+    return getMonthWeeks(iso_to_gregorian((*yw_lst[0], 1)) - pendulum.interval(days=1))
+
+
+def getWeeks(dt, bef=0, aft=0):
+    """
+    Return (year, week number) tuples for the bef weeks before the week containing dt and the aft weeks after
+    >>> getWeeks(datetime(2015, 10, 3), bef=0, aft=4)
+    [(2015, 40), (2015, 41), (2015, 42), (2015, 43), (2015, 44)]
+    >>> getWeeks(datetime(2015, 10, 3))
+    [(2015, 40)]
+    """
+    beg_dt = dt - bef * pendulum.interval(days=7)
+    end_dt = dt + aft * pendulum.interval(days=7)
+    beg_yw = beg_dt.isocalendar()[:2]
+    end_yw = end_dt.isocalendar()[:2]
+    ret = [beg_yw]
+    tmp_dt = beg_dt
+    tmp_yw = beg_yw
+    while tmp_yw < end_yw:
+        tmp_dt = tmp_dt + pendulum.interval(days=7)
+        tmp_yw = tmp_dt.isocalendar()[:2]
+        ret.append(tmp_yw)
+    return ret
+
+def getMonthWeeks(dt, bef=0, aft=0):
+    """
+    Return (year, week number) tuples for the weeks in the months beginning bef months before the month containing dt and ending aft months after the month containing dt.
+    >>> getMonthWeeks(datetime(2015, 11, 3))
+    [(2015, 44), (2015, 45), (2015, 46), (2015, 47), (2015, 48), (2015, 49)]
+    >>> getMonthWeeks(datetime(2015, 12, 15))
+    [(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)]
+    >>> getMonthWeeks(datetime(2016, 1, 17))
+    [(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)]
+    >>> getMonthWeeks(datetime(2016, 2, 23))
+    [(2016, 5), (2016, 6), (2016, 7), (2016, 8), (2016, 9)]
+    >>> getMonthWeeks(datetime(2016, 1, 17), bef=2, aft=1)
+    [(2015, 44), (2015, 45), (2015, 46), (2015, 47), (2015, 48), (2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4), (2016, 5), (2016, 6), (2016, 7), (2016, 8), (2016, 9)]
+    """
+    ret = []
+    tmp = dt.replace(day=1)
+    for i in range(bef):
+        tmp = (tmp - pendulum.interval(days=1)).replace(day=1)
+    firstmonthday = tmp
+
+    tmp = dt.replace(day=28) + pendulum.interval(days=4)
+    # tmp = tmp - timedelta(days=tmp.day)
+    for i in range(aft):
+        tmp = tmp.replace(day=28) + pendulum.interval(days=4)
+    lastmonthday = tmp - pendulum.interval(days=tmp.day)
+
+    by, bw, bd = firstmonthday.isocalendar()
+    ey, ew, ed = lastmonthday.isocalendar()
+    lastweekday = iso_to_gregorian((ey, ew, 7))
+    y = by
+    w = bw
+    day = firstmonthday
+    while day <= lastweekday:
+        ret.append((y,w))
+        day = day + timedelta(days=7)
+        y, w, d = day.isocalendar()
+    return ret
+
+
+######################
+### end week/month ###
+######################
+
 
 if __name__ == '__main__':
     print('\n\n')
