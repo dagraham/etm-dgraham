@@ -1498,7 +1498,7 @@ def getWeeksForMonth(ym):
     """
     Return the month and week numbrers for the week containing the first day of the month and the 5 following weeks.
     >>> getWeeksForMonth((2018, 3))
-
+    [(2018, 9), (2018, 10), (2018, 11), (2018, 12), (2018, 13), (2018, 14)]
     """
     wp = pendulum.date(ym[0], ym[1], 1).isocalendar()[:2]
     wl = [wp]
