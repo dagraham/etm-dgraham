@@ -181,10 +181,10 @@ class View:
     def new_week(cls):
         cls.set_footer("new week")
 
-class ViewDecorator(Beverage):
-    def __init__(self, beverage): 
-        super(BeverageDecorator, self).__init__() 
-        self.beverage = beverage
+class ViewDecorator(View):
+    def __init__(self, view): 
+        super().__init__() 
+        self.view = view
 
 help_view = View()
 help_view.set_header()
