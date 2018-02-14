@@ -42,7 +42,7 @@ def unhandled_input(key):
         raise urwid.ExitMainLoop()
 
 
-class BaseView:
+class View:
     """
     Base view class to be inherited by others. Provides methods set_header, set_footer and set_body.
     """
@@ -109,11 +109,11 @@ class BaseView:
             etmdir = "/Users/dag/etm-qml/test/data"
         # self.view = view
         # self.loop = loop
-        BaseView.screen.set_mouse_tracking()
-        BaseView.screen.tty_signal_keys('undefined', 'undefined', 'undefined', 'undefined', 'undefined')
-        BaseView.screen.set_terminal_properties(256)
-        BaseView.screen.register_palette(BaseView.palette)
-        BaseView.loop.widget = BaseView.view
+        View.screen.set_mouse_tracking()
+        View.screen.tty_signal_keys('undefined', 'undefined', 'undefined', 'undefined', 'undefined')
+        View.screen.set_terminal_properties(256)
+        View.screen.register_palette(View.palette)
+        View.loop.widget = View.view
 
         self.content = []
         self.refresh()
@@ -131,19 +131,19 @@ class BaseView:
         # else:
         #     # alrt = urwid.Text(urwid.Button("{}".format(alert)), align="center")
         #     alrt = urwid.Text(" 5:30pm+2 ", align="right")
-        BaseView.view.footer = urwid.AttrMap(urwid.Columns([t1, ('fixed', len(text2)+1, t2)]), 'foot')
+        View.view.footer = urwid.AttrMap(urwid.Columns([t1, ('fixed', len(text2)+1, t2)]), 'foot')
 
     def set_header(self, text1="event and task manager", text2="F1:help"):
         t1 = urwid.Text(" {}".format(text1), align="left")
         t2 = urwid.Text("{} ".format(text2), align='right')
-        BaseView.view.header = urwid.AttrMap(urwid.Columns([t1, ('fixed', len(text2)+1, t2)]), "title")
+        View.view.header = urwid.AttrMap(urwid.Columns([t1, ('fixed', len(text2)+1, t2)]), "title")
 
     def set_body(self):
         """
 
         """
         # listbox will provide the body or main panel of the view (Frame)
-        BaseView.view.body = urwid.AttrMap(urwid.ListBox(self.content),
+        View.view.body = urwid.AttrMap(urwid.ListBox(self.content),
             'body', None)
 
     def add_centered(self, list_of_strings=[], style=None):
@@ -165,7 +165,7 @@ class BaseView:
         cls.loop.set_alarm_in(nxt, cls.refresh)
         td = now.date()
         if td != cls.today:
-            BaseView.today = td
+            View.today = td
             cls.new_day()
             yw = now.isocalendar()[:2]
             if yw != cls.this_week:
@@ -181,8 +181,12 @@ class BaseView:
     def new_week(cls):
         cls.set_footer("new week")
 
+class ViewDecorator(Beverage):
+    def __init__(self, beverage): 
+        super(BeverageDecorator, self).__init__() 
+        self.beverage = beverage
 
-help_view = BaseView()
+help_view = View()
 help_view.set_header()
 help_view.add_centered(logo, 'logo')
 help_view.add_centered(menu, 'details')
