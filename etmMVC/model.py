@@ -1396,6 +1396,7 @@ def getWeekNum(dt):
     >>> getWeekNum(pendulum.Pendulum(2018, 2, 14, 10, 30))
     (2018, 7)
     >>> getWeekNum(pendulum.date(2018, 2, 14))
+
     """
     return dt.isocalendar()[:2]
 
