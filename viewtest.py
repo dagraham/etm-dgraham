@@ -146,6 +146,9 @@ class View:
         View.view.body = urwid.AttrMap(urwid.ListBox(self.content),
             'body', None)
 
+    def set_outline(self, content):
+        pass
+
     def add_centered(self, list_of_strings=[], style=None):
         """
 
@@ -182,30 +185,17 @@ class View:
         cls.set_footer("new week")
 
 
+class WeekView(View):
+
+    def __init__(self, view): 
+        super().__init__() 
+
+
 class ViewDecorator(View):
 
     def __init__(self, view): 
         super().__init__() 
         self.view = view
-
-class Week(ViewDecorator):
-
-    selected_week = None
-
-    @classmethod
-    def set_week(cls, dt):
-        """
-        yw is a tuple with the year and week number, e.g., (2081, 7)
-        """
-        cls.selected_week = dt.isocalendar()[:2]
-
-
-    def prev_week(sel)
-
-class Tree(ViewDecorator):
-
-    def set_body(self):
-        pass
 
 
 help_view = View()
@@ -216,6 +206,8 @@ help_view.add_wrapped(menu_text, 'body')
 help_view.set_body()
 help_view.loop.run()
 
+# Using ecorator:
+agenda = Tree(Week) 
 # loop = urwid.MainLoop(help_view,unhandled_input=unhandled_input)
 # loop.run()
 
