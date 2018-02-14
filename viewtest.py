@@ -188,6 +188,26 @@ class ViewDecorator(View):
         super().__init__() 
         self.view = view
 
+class Week(ViewDecorator):
+
+    selected_week = None
+
+    @classmethod
+    def set_week(cls, dt):
+        """
+        yw is a tuple with the year and week number, e.g., (2081, 7)
+        """
+        cls.selected_week = dt.isocalendar()[:2]
+
+
+    def prev_week(sel)
+
+class Tree(ViewDecorator):
+
+    def set_body(self):
+        pass
+
+
 help_view = View()
 help_view.set_header()
 help_view.add_centered(logo, 'logo')
