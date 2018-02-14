@@ -1391,6 +1391,11 @@ def iso_to_gregorian(ywd):
 
 
 def getWeekNum(dt):
+    """
+    Return the year and week number for the datetime.
+    >>> getWeekNum(pendulum.Pendulum(2018, 2, 14, 10, 30))
+
+    """
     return dt.isocalendar()[:2]
 
 
