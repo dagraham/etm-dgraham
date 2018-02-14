@@ -1477,7 +1477,7 @@ def getMonthWeeks(dt, bef=0, aft=0):
     day = firstmonthday
     while day <= lastweekday:
         ret.append((y,w))
-        day = day + timedelta(days=7)
+        day = day + pendulum.interval(days=7)
         y, w, d = day.isocalendar()
     return ret
 
