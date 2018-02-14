@@ -1446,15 +1446,15 @@ def getWeeks(dt, bef=0, aft=0):
 def getMonthWeeks(dt, bef=0, aft=0):
     """
     Return (year, week number) tuples for the weeks in the months beginning bef months before the month containing dt and ending aft months after the month containing dt.
-    >>> getMonthWeeks(datetime(2015, 11, 3))
+    >>> getMonthWeeks(pendulum.date(2015, 11, 3))
     [(2015, 44), (2015, 45), (2015, 46), (2015, 47), (2015, 48), (2015, 49)]
-    >>> getMonthWeeks(datetime(2015, 12, 15))
+    >>> getMonthWeeks(pendulum.date(2015, 12, 15))
     [(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)]
-    >>> getMonthWeeks(datetime(2016, 1, 17))
+    >>> getMonthWeeks(pendulum.date(2016, 1, 17))
     [(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)]
-    >>> getMonthWeeks(datetime(2016, 2, 23))
+    >>> getMonthWeeks(pendulum.date(2016, 2, 23))
     [(2016, 5), (2016, 6), (2016, 7), (2016, 8), (2016, 9)]
-    >>> getMonthWeeks(datetime(2016, 1, 17), bef=2, aft=1)
+    >>> getMonthWeeks(pendulum.date(2016, 1, 17), bef=2, aft=1)
     [(2015, 44), (2015, 45), (2015, 46), (2015, 47), (2015, 48), (2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4), (2016, 5), (2016, 6), (2016, 7), (2016, 8), (2016, 9)]
     """
     ret = []
