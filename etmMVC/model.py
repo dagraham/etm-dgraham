@@ -1078,17 +1078,17 @@ def jobs(lofh, at_hsh={}):
        'p': [],
        'req': [],
        'status': 'f',
-       'summary': '1/1/1: Job One'},
+       'summary': ' 1/1/1: Job One'},
       {'j': 'Job Two',
        'p': ['1'],
        'req': [],
        'status': 'a',
-       'summary': '1/1/1: Job Two'},
+       'summary': ' 1/1/1: Job Two'},
       {'j': 'Job Three',
        'p': ['2'],
        'req': ['2'],
        'status': 'w',
-       'summary': '1/1/1: Job Three'}],
+       'summary': ' 1/1/1: Job Three'}],
      None)
     """
     if 's' in at_hsh:
