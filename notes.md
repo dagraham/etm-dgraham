@@ -1,5 +1,5 @@
 # Notes for etm
-**Last Edited: Wed 07 Feb 2018 11:58 EST**
+**Last modified: Wed 07 Feb 2018 11:58 EST**
 
 # Design
 ## Requirements
@@ -72,7 +72,7 @@
     * Agenda
     * Busy
     * Done
-    * Month      
+    * Month 
 * View stack - back to prior view
 
 # Saved
