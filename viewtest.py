@@ -220,7 +220,6 @@ help_view.set_body()
 help_view.loop.run()
 
 # Using decorator:
-agenda = WeekView()
 # loop = urwid.MainLoop(help_view,unhandled_input=unhandled_input)
 # loop.run()
 
