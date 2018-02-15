@@ -196,13 +196,10 @@ class DateView(View):
 
     def __init__(self, view): 
         super().__init__()
-        self.set_sele
-        ScheduledView.selected_day = View.today
-        ScheduledView.selected_week = View.today.isocalendar()[:2]
-        ScheduledView.selected_month = (View.today.year, View.today.month)
+        self.set_selected_dates()
 
     @classmethod
-    def set_selected_dates(cls, dt):
+    def set_selected_dates(cls, dt=View.today):
         cls.selected_day = dt
         cls.selected_week = dt.isocalendar()[:2]
         cls.selected_month = (dt.year, dt.month)
