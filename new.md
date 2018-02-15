@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**Last modified: Thu Feb 15, 2018  11:03AM EST
+**Last modified: Thu Feb 15, 2018 01:16PM EST
 
 # Goals
 
@@ -218,7 +218,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 View hotkeys: a)genda, b)usy, d)one, m)onthly, i)ndex, n)ext, s)omeday, o)riginally created, l)ast modified, t)ags and q)uery. In all views, pressing `l` prompts for the outline expansion level.
 
-ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in *urwid* each actually takes only 1 line which leaves 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
+ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in *urwid* each actually takes only 1 line leaving 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
 
 ## Weekly
 
