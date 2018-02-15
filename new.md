@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**Last Edited: Fri 09 Feb 2018 23:25 EST**
+**Last modified: Fri 09 Feb 2018 23:25 EST**
 
 # Goals
 
@@ -230,7 +230,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
         +------------------------- top bar --------------------------+  
         | Agenda - Week 3: Jan 15 - 21, 2018                 F1:help |  1
-        +------------------------------------------------------------+   
+        +------------------------------------------------------------+ 
         | Mon Jan 15                                                 |  2
         |   ^ Martin Luther King Day                                 |  3
         |   * Lunch with Joe                            12:30-1:30pm |  4
@@ -259,7 +259,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |                                                            | 27
         |                                                            | 28
         |                                                            | 29
-        +------------------------ status bar ------------------------+   
+        +------------------------ status bar ------------------------+ 
         | 8:49am Thu Jan 18                                10:30am+1 | 30
         +------------------------------------------------------------+
 
