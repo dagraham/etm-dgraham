@@ -208,13 +208,6 @@ class DateView(View):
         cls.selected_month = (dt.year, dt.month)
 
 
-class ViewDecorator(View):
-
-    def __init__(self, view): 
-        super().__init__() 
-
-
-
 help_view = View()
 help_view.set_header()
 help_view.add_centered(logo, 'logo')
