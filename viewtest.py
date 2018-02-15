@@ -208,7 +208,7 @@ agenda = DateView()
 print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
 
 done = DateView()
-done.set_selected_dates(pendulum.Pendulum.date(2018, 6, 10))
+done.set_selected_dates(pendulum.Date(2018, 6, 10))
 print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
 
 help_view = View()
