@@ -24,6 +24,7 @@ class WeekView(View):
 
 my_view = WeekView()
 another_view = WeekView()
+print(my_view.selected_week)
 
 my_view.set_week()
 
