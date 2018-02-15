@@ -214,7 +214,7 @@ help_view.set_body()
 help_view.loop.run()
 
 # Using ecorator:
-# agenda = WeekView()
+agenda = WeekView()
 # loop = urwid.MainLoop(help_view,unhandled_input=unhandled_input)
 # loop.run()
 
