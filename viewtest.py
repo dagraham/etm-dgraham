@@ -205,7 +205,7 @@ class DateView(View):
         cls.selected_month = (dt.year, dt.month)
 
 agenda = DateView()
-print(agenda.selected_day, agenda.selected_week, agenda_selected_month)
+print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
 
 
 help_view = View()
