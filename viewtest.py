@@ -185,7 +185,7 @@ class View:
         cls.set_footer("new week")
 
 
-class ScheduledView(View):
+class DateView(View):
     """
     All the week and month related stuff goes here. Used for agenda, busy, done and month.
     """
@@ -223,7 +223,7 @@ help_view.add_wrapped(menu_text, 'body')
 help_view.set_body()
 help_view.loop.run()
 
-# Using ecorator:
+# Using decorator:
 agenda = WeekView()
 # loop = urwid.MainLoop(help_view,unhandled_input=unhandled_input)
 # loop.run()
