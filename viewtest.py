@@ -190,12 +190,22 @@ class ScheduledView(View):
     All the week and month related stuff goes here. Used for agenda, busy, done and month.
     """
 
+    selected_day = None
     selected_week = None
     selected_month = None
 
     def __init__(self, view): 
         super().__init__()
+        self.set_sele
+        ScheduledView.selected_day = View.today
         ScheduledView.selected_week = View.today.isocalendar()[:2]
+        ScheduledView.selected_month = (View.today.year, View.today.month)
+
+    @classmethod
+    def set_selected_dates(cls, dt):
+        cls.selected_day = dt
+        cls.selected_week = dt.isocalendar()[:2]
+        cls.selected_month = (dt.year, dt.month)
 
 
 class ViewDecorator(View):
