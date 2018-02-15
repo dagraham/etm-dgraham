@@ -204,6 +204,9 @@ class DateView(View):
         cls.selected_week = dt.isocalendar()[:2]
         cls.selected_month = (dt.year, dt.month)
 
+agenda = DateView()
+print(agenda.selected_day, agenda.selected_week, agenda_selected_month)
+
 
 help_view = View()
 help_view.set_header()
