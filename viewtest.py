@@ -199,7 +199,7 @@ class DateView(View):
         self.set_selected_dates()
 
     @classmethod
-    def set_selected_dates(cls, dt=pendulum.Pendulum.today()):
+    def set_selected_dates(cls, dt=pendulum.Pendulum.today().date()):
         cls.selected_day = dt
         cls.selected_week = dt.isocalendar()[:2]
         cls.selected_month = (dt.year, dt.month)
