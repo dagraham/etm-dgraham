@@ -34,8 +34,8 @@ import textwrap
 import shutil
 
 import logging
-import logging.config
-logger = logging.getLogger()
+:import logging.config
+ogger = logging.getLogger()
 
 etmdir = None
 
