@@ -194,7 +194,7 @@ class DateView(View):
     selected_week = None
     selected_month = None
 
-    def __init__(self, view): 
+    def __init__(self): 
         super().__init__()
         self.set_selected_dates()
 
