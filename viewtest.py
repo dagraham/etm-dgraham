@@ -185,17 +185,24 @@ class View:
         cls.set_footer("new week")
 
 
-class WeekView(View):
+class ScheduledView(View):
+    """
+    All the week and month related stuff goes here. Used for agenda, busy, done and month.
+    """
+
+    selected_week = None
+    selected_month = None
 
     def __init__(self, view): 
-        super().__init__() 
+        super().__init__()
+        ScheduledView.selected_week = View.today.isocalendar()[:2]
 
 
 class ViewDecorator(View):
 
     def __init__(self, view): 
         super().__init__() 
-        self.view = view
+
 
 
 help_view = View()
@@ -207,7 +214,7 @@ help_view.set_body()
 help_view.loop.run()
 
 # Using ecorator:
-agenda = Tree(Week) 
+# agenda = WeekView()
 # loop = urwid.MainLoop(help_view,unhandled_input=unhandled_input)
 # loop.run()
 
