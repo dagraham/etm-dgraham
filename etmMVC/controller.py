@@ -48,6 +48,7 @@ at_keys = {
     'e': "extent (timeperiod)",
     'f': "finish (datetime)",
     'g': "goto (url or filepath)",
+    'h': "completions history (list of done:due datetimes)"
     'i': "index (colon delimited string)",
     'j': "job summary (string)",
     'l': "location (string)",
