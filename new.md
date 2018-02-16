@@ -1,5 +1,5 @@
 # What's planned for the next etm
-** Last modified: Fri Feb 16, 2018 05:23PM EST
+** Last modified: Fri Feb 16, 2018 05:30PM EST
 **
 
 # Goals
@@ -12,7 +12,7 @@
 
 - Simplify data entry. Provide "just in time" information when creating or editing data entries. See [Work Flow](#work-flow). 
 
-- Provide a simpler, terminal-based GUI using *urwid* along with a CLI that allows creating items and reports from the command line. From what I understand, *urwid* apps can be run in a terminal emulator under Android.
+- Provide a simpler, terminal-based GUI using *urwid* along with a CLI that allows creating items and reports from the command line. 
 
 # Data
 
