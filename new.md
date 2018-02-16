@@ -1,5 +1,5 @@
 # What's planned for the next etm
-** Last modified: Fri Feb 16, 2018 05:30PM EST
+** Last modified: Fri Feb 16, 2018 06:32PM EST
 **
 
 # Goals
@@ -36,8 +36,8 @@
     - `-`: unfinished task or job without unfinished prerequisites
     - `+`: job with unfinished prerequisites
 
-- When a task is finished an `@f` entry is added to record the datetime done and, if the task has an `@s` entry, then the due datetime as well using the format `@f done:due`. When a job is finished, a similar entry is recorded using `&f`. When the last job in a task is finished the `&f` entries are removed from the tasks and an `@f` entry is added to record the last done and due datetimes. 
-- Another step is taken for repeating tasks. When the task or last job is completed, the `@s` entry is updated using the setting for `@o` to show the next due datetime and the `@f` entry is removed and its content appended to `@h`. A user configuration setting determines the number of most recent done:due records retained in `@h`.  
+- When a job is finished, the "done" datetime is recorded in an `&f` entry in the job and, if there was a due datetime, that is appended using the format `&f done:due`. When the last job in a task is finished or when a task without jobs is finished a similar entry is recorded using `@f done:due`. If there are jobs, then the `&f` entries are removed from the jobs themselves. 
+- Another step is taken for repeating tasks with as yet unfinished future repetitions. When the task or last job in the current repetition is completed, the `@s` entry is updated using the setting for `@o` to show the next due datetime and the `@f` entry is removed and appended to `@h`. A user configuration setting determines the number of most recent done:due records retained.  
 
 ### `%`: Note
 
