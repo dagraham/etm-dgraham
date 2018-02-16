@@ -1,5 +1,5 @@
 # What's planned for the next etm
-** Last modified: Fri Feb 16, 2018 05:16PM EST
+** Last modified: Fri Feb 16, 2018 05:19PM EST
 **
 
 # Goals
@@ -46,7 +46,7 @@ Unchanged but for the change in the type character from `!` to `%`.
 ### `$`: action
 
   - In an *action*, `@s` records the datetime that the action was started, `@e` the timeperiod that the work on the action was active and `@f` the datetime that the action was finished. The timeperiod that work on the action was inactive is given implicitly by `finished` minus `started` minus `active`. 
-   - Each action is displayed in the *Done* view on the day of `finished` using the display character `$`, the item summary, the time of `finished` and the `timeperiod active`.
+   - Each action is displayed in the *Done* view on the date of `finished` using the display character `$`, the item summary, the time of `finished` and the `timeperiod active`.
   - It is **strongly recommended** that actions should have `@i`, *index*, entry since accounting reports which aggregate time expenditures are based on the index entries. Default reports suppose that index entries for actions take the form `client:job` and show aggregates for the previous and current months by 
 
         month
