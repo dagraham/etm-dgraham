@@ -1,5 +1,5 @@
 # What's planned for the next etm
-** Last modified: Sat Feb 17, 2018 10:34AM EST
+** Last modified: Sat Feb 17, 2018 12:03PM EST
 
 # Goals
 
@@ -351,6 +351,11 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 ## Monthly 
 
+- The top pane displays 6 weeks starting with the first week of the selected month.  Month day numbers are colored from dark blue to bright red to indicate the amount of time scheduled.
+
+- Week numbers and month day numbers in the top panel are buttons. Activating a week number switches to *Agenda* view for that week. Activating a date displayes the schedule for that date in the bottom pane using the same format as *Agenda* view. Switching to one of the weekly views will always display the week of the selected date. 
+
+
         +----------------------------------------------------------+
         | Monthly - August 2017                            F1:help |  1
         +----------------------------------------------------------+
@@ -385,10 +390,6 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +----------------------------------------------------------+
         | 8:49am Thu Jan 18                              10:30am+1 | 30
         +----------------------------------------------------------+
-
-- The top pane displays 6 weeks starting with the first week of the selected month.  Month day numbers are colored from dark blue to bright red to indicate the amount of time scheduled.
-
-- Week numbers and month day numbers in the top panel are buttons. Activating a week number switches to *Agenda* view for that week. Activating a date displayes the schedule for that date in the bottom pane using the same format as *Agenda* view. Switching to one of the weekly views will always display the week of the selected date. 
 
 
 ## Next
