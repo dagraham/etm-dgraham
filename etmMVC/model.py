@@ -35,7 +35,7 @@ import shutil
 
 import logging
 :import logging.config
-ogger = logging.getLogger()
+logger = logging.getLogger()
 
 etmdir = None
 
