@@ -184,6 +184,8 @@ class View:
     def new_week(cls):
         cls.set_footer("new week")
 
+# Wrapper for ItemView? Tools in all views. Selected item in all save help, busy and yearly.
+
 
 class DateView(View):
     """
