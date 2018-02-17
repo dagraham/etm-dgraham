@@ -1,7 +1,6 @@
 # What's planned for the next etm
 ** Last modified: Sat Feb 17, 2018 12:17PM EST **
 
-...
 # Goals
 
 - Prove a means for migrating existing etm data to the new format.
