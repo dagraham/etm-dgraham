@@ -206,9 +206,9 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 - Simple repetition is supported using a combination of `@s` and `@+` entries. E.g., 
 
-      * my event @s 2018-02-15 3p @+ 2018-03-01 4p, 2018-03-12 9a
+      * my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
 
-  would repeat at 3pm on Feb 15, 4pm on Mar 1 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are all used.
+  would repeat at 3pm on Thu Feb 15, 4pm on Fri Mar 2 and 9am on Mon Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are all used.
 
 - The *relevant datetime* of an item (used in index view): 
   - Non repeating events and unfinished tasks: the datetime given in `@s`
