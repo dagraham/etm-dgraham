@@ -55,7 +55,8 @@ at_keys = {
     'm': "memo (list of 'datetime, timeperiod, datetime')",
     'o': "overdue (r)estart, (s)kip or (k)eep)",
     'p': "priority (integer)",
-    'r': "repetition frequency (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly, mi(n)utely",
+    'r': "repetition frequency (y)early, (m)onthly, (w)eekly,"
+         " (d)aily, (h)ourly, mi(n)utely",
     's': "starting date or datetime",
     't': "tags (list of strings)",
     'u': "user (string)",
