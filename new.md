@@ -1,5 +1,4 @@
 # What's planned for the next etm
-**Last modified: Mon Feb 19, 2018 10:57AM EST**
 
 # Goals
 
