@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**Last modified: Sat Feb 17, 2018 03:58PM EST**
+**Last modified: Mon Feb 19, 2018 10:11AM EST**
 
 # Goals
 
@@ -104,7 +104,31 @@ would be equivalent to entering
       * Conflict and Cooperation @s 1/25/2018 9:35am @e 1h15m @a 10m, 3m: d 
         @l Math-Physics Bldg @i Work:Teaching
 
-The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for the event but the default for `@l` has been overridden by the explicit entry. 
+The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for the event but the default for `@l` has been overridden by the explicit entry.
+
+## @-keys
+
+    '+': "include (list of date-times)",
+    '-': "exclude (list of date-times)",
+    'a': "alert (timeperiod: cmd, optional args*)",
+    'b': "beginby (integer number of days)",
+    'c': "calendar (string)",
+    'd': "description (string)",
+    'e': "extent (timeperiod)",
+    'f': "finish (datetime)",
+    'g': "goto (url or filepath)",
+    'h': "completions history (list of done:due datetimes)"
+    'i': "index (colon delimited string)",
+    'j': "job summary (string)",
+    'l': "location (string)",
+    'm': "memo (list of 'datetime, timeperiod, datetime')",
+    'o': "overdue (r)estart, (s)kip or (k)eep)",
+    'p': "priority (integer)",
+    'r': "repetition frequency (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly, mi(n)utely",
+    's': "starting date or datetime",
+    't': "tags (list of strings)",
+    'u': "user (string)",
+    'x': "extract key for additional values from defaults",
 
 ## Storage
 
