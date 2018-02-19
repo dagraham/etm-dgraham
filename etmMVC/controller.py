@@ -216,9 +216,9 @@ def deal_with_i(at_hsh={}):
     Replaces the old filepath and to provide a heirarchial organization
     view of the data. Entered as a colon delineated string, stored as a
     list.
-    >>> deal_with_i({'i': "a:b:c"})
+    >>> deal_with_i({'i': "a:b:c"})[2]
     (True, ['a', 'b', 'c'])
-    >>> deal_with_i({'i': "plant:tree:oak"})
+    >>> deal_with_i({'i': "plant:tree:oak"})[2]
     (True, ['plant', 'tree', 'oak'])
     """
     s = at_hsh.get('i', None)
