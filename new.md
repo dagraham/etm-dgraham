@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**Last modified: Mon Feb 19, 2018 10:51AM EST**
+**Last modified: Mon Feb 19, 2018 10:57AM EST**
 
 # Goals
 
@@ -204,6 +204,12 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
                 Mon Feb 26 2018 2:00PM
                 Mon Mar 26 2018 2:00PM
             All times: America/New_York
+
+- Simple repetition is supported using a combination of `@s` and `@+` entries. E.g., 
+
+      * my event @s 2018-02-15 3p @+ 2018-03-01 4p, 2018-03-12 9a
+
+  would repeat at 3pm on Feb 15, 4pm on Mar 1 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are all used.
 
 - The *relevant datetime* of an item (used in index view): 
   - Non repeating events and unfinished tasks: the datetime given in `@s`
