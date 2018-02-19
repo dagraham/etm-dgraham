@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**Last modified: Mon Feb 19, 2018 10:23AM EST**
+**Last modified: Mon Feb 19, 2018 10:24AM EST**
 
 # Goals
 
@@ -154,7 +154,8 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
         'i': "unique identifier: integer or string",
         'l': "location: string",
         'm': "memo (list of 'datetime, timeperiod, datetime')",
-        'p': "prerequisites: comma separated list of identifiers of immediate prereqs",
+        'p': "prerequisites: comma separated list of "
+             "identifiers of immediate prereqs",
         's': "start/due: timeperiod before task start",
     },
 
