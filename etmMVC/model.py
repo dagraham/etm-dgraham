@@ -1362,6 +1362,190 @@ serialization.register_serializer(PendulumIntervalSerializer(), 'TinyPendulumInt
 ### end TinyDB setup ###
 ########################
 
+##################
+### start tree ###
+##################
+
+class Node:
+    def __init__(self, identifier):
+        self.__identifier = identifier
+        self.__children = []
+        self.__is_expanded = True
+
+    @property
+    def is_expanded(self):
+        return self.__is_expanded
+
+    def toggle_expanded(self):
+        self.__is_expanded = not self.__is_expanded
+
+    @property
+    def identifier(self):
+        return self.__identifier
+
+    @property
+    def children(self):
+        return self.__children
+
+    def add_child(self, identifier):
+        self.__children.append(identifier)
+
+
+(_ROOT, _DEPTH, _BREADTH) = range(3)
+
+
+class Tree:
+
+    def __init__(self):
+        self.__nodes = {}
+        self.nodeNum2Id = {}
+        self.rowNum2Id = {}
+        self.id2expanded = {}  # Note that clear() does not reset this.
+        self.rowNum = -1
+        self.nodeNum = 0
+        self.output = []
+        columns, rows = shutil.get_terminal_size()
+        self.columns = columns
+        self.clear()
+
+    @property
+    def nodes(self):
+        return self.__nodes
+
+    # def clear(self, columns=80):
+    def clear(self):
+        self.__nodes = {}
+        self.nodeNum2Id = {}
+        self.rowNum2Id = {}
+        self.rowNum = -1
+        self.nodeNum = 0
+        self.output = []
+        self.add_node("_")
+
+    def add_node(self, identifier, parent=None):
+        node = Node(identifier)
+        self[identifier] = node
+
+        if parent is not None:
+            self[parent].add_child(identifier)
+            if not self.id2expanded.get(identifier, True):
+                self[identifier].toggle_expanded()
+
+        return node
+
+    def format_output(self, identifier="_", depth=_ROOT):
+        children = self[identifier].children
+        tab = 2
+        black_box = u"\u25A0"
+        white_box = u"\u25A1"
+        if not self[identifier].is_expanded:
+            children = []
+        if depth == _ROOT:
+            pass
+            # print("{0}".format(identifier))
+        else:
+            self.rowNum += 1
+            if type(identifier) is tuple:
+                # start nodeNum with 1
+                dt = None
+                self.nodeNum += 1
+                if len(identifier) == 4:
+                    tup, dt, type_num, this_id = identifier
+                    attr = model.num2Type[type_num]
+                elif len(identifier) == 3:
+                    tup, type_num, this_id = identifier
+                    attr = model.num2Type[type_num]
+                else:
+                    tup, this_id = identifier
+                    attr = None
+
+                self.nodeNum2Id[self.nodeNum] = (this_id, dt)
+                self.rowNum2Id[self.rowNum] = (this_id, dt)
+                # 11:30am-12:30pm
+                # 123456789012345
+                # use 15 for column 2, 2 for space and the rest for column 1
+                w2 = 15
+                w1 = self.columns - tab * (depth - 1) - w2 - 2
+                col1 = ""
+                if len(tup) >= 1:
+                    col1 = "{0:<{width}}".format(tup[0], width=w1)
+                if len(tup) >= 2 and tup[1]:
+                    if type(tup[1]) is str:
+                        col2 = "{0:^{width}}".format(tup[1][:w2], width=w2)
+                    else:
+                        print('problem with', tup[1])
+                        col2 = "{0:^{width}}".format(tup[1].__str__(), width=w2)
+
+                else:
+                    col2 = " " * w2
+
+                self.output.append(
+                    urwid.AttrMap(
+                        urwid.Text("{0}{1}  {2}".format(" " * tab * (depth - 1), col1[:w1], col2)), attr, focus_map='focus'))
+
+            else:
+                self.rowNum2Id[self.rowNum] = identifier, '_'
+                self.id2expanded[identifier] = self[identifier].is_expanded
+                if self[identifier].is_expanded:
+                    box = white_box
+                else:
+                    box = black_box
+                self.output.append(
+                    urwid.AttrMap(
+                        urwid.Text("{0}{1} {2}".format(" " * tab * (depth - 1), box, identifier.split(":")[-1])), "path", focus_map='focus'))
+
+        depth += 1
+        for child in children:
+            self.format_output(child, depth)  # recursive call
+
+    def traverse(self, identifier, mode=_DEPTH):
+        # Python generator. Loosly based on an algorithm from
+        # 'Essential LISP' by John R. Anderson, Albert T. Corbett,
+        # and Brian J. Reiser, page 239-241
+        yield identifier
+        queue = self[identifier].children
+        while queue:
+            yield queue[0]
+            expansion = self[queue[0]].children
+            if mode == _DEPTH:
+                queue = expansion + queue[1:]  # depth-first
+            elif mode == _BREADTH:
+                queue = queue[1:] + expansion  # width-first
+
+    def add_rows(self, rows):
+        root = "_"
+        paths = []
+        self.add_node(root)
+        for row in rows:
+            for i in range(len(row)):
+                if (*row[:i], row[i]) in paths:
+                    continue
+                else:
+                    paths.append((*row[:i], row[i]))
+                if i == 0:
+                    parent = root
+                else:
+                    # parent = row[i-1]
+                    parent = ":".join(row[:i])
+                if i < len(row) - 1:
+                    # this is part of the branch
+                    child = ":".join(row[:i + 1])
+                else:
+                    # this is a leaf
+                    child = row[i]
+                self.add_node(child, parent)
+
+    def __getitem__(self, key):
+        return self.__nodes[key]
+
+    def __setitem__(self, key, item):
+        self.__nodes[key] = item
+
+################
+### end tree ###
+################
+
+
 ########################
 ### start week/month ###
 ########################
