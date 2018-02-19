@@ -1471,13 +1471,15 @@ def getMonthWeeks(dt, bef=0, aft=0):
     [(2015, 44), (2015, 45), (2015, 46), (2015, 47), (2015, 48), (2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4), (2016, 5), (2016, 6), (2016, 7), (2016, 8), (2016, 9)]
     """
     ret = []
+    # get the first day of the current month
     tmp = dt.replace(day=1)
     for i in range(bef):
+        # get the first day of the previous month
         tmp = (tmp - pendulum.interval(days=1)).replace(day=1)
     firstmonthday = tmp
 
+    # get a date from the next month
     tmp = dt.replace(day=28) + pendulum.interval(days=4)
-    # tmp = tmp - timedelta(days=tmp.day)
     for i in range(aft):
         tmp = tmp.replace(day=28) + pendulum.interval(days=4)
     lastmonthday = tmp - pendulum.interval(days=tmp.day)
