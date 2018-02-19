@@ -217,9 +217,9 @@ def deal_with_i(at_hsh={}):
     view of the data. Entered as a colon delineated string, stored as a
     list.
     >>> deal_with_i({'i': "a:b:c"})[2]
-    (True, ['a', 'b', 'c'])
+    ['a', 'b', 'c']
     >>> deal_with_i({'i': "plant:tree:oak"})[2]
-    (True, ['plant', 'tree', 'oak'])
+    ['plant', 'tree', 'oak']
     """
     s = at_hsh.get('i', None)
     top = "{}?\n".format(at_keys['i'])
