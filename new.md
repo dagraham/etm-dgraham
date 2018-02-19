@@ -107,8 +107,8 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 ## @-keys
 
-    '+': "include (list of date-times)",
-    '-': "exclude (list of date-times)",
+    '+': "include (list of date-times to include)",
+    '-': "exclude (list of date-times to exclude from rrule)",
     'a': "alert (timeperiod: cmd, optional args*)",
     'b': "beginby (integer number of days)",
     'c': "calendar (string)",
