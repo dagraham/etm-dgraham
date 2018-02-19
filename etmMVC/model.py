@@ -1366,6 +1366,8 @@ serialization.register_serializer(PendulumIntervalSerializer(), 'TinyPendulumInt
 ### start tree ###
 ##################
 
+(_ROOT, _DEPTH, _BREADTH) = range(3)
+
 class Node:
     def __init__(self, identifier):
         self.__identifier = identifier
@@ -1389,9 +1391,6 @@ class Node:
 
     def add_child(self, identifier):
         self.__children.append(identifier)
-
-
-(_ROOT, _DEPTH, _BREADTH) = range(3)
 
 
 class Tree:
