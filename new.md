@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**Last modified: Mon Feb 19, 2018 10:11AM EST**
+**Last modified: Mon Feb 19, 2018 10:12AM EST**
 
 # Goals
 
@@ -124,7 +124,8 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
     'm': "memo (list of 'datetime, timeperiod, datetime')",
     'o': "overdue (r)estart, (s)kip or (k)eep)",
     'p': "priority (integer)",
-    'r': "repetition frequency (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly, mi(n)utely",
+    'r': "repetition frequency (y)early, (m)onthly, (w)eekly, 
+          (d)aily, (h)ourly, mi(n)utely",
     's': "starting date or datetime",
     't': "tags (list of strings)",
     'u': "user (string)",
