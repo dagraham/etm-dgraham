@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**Last modified: Mon Feb 19, 2018 10:24AM EST**
+**Last modified: Mon Feb 19, 2018 10:50AM EST**
 
 # Goals
 
@@ -555,8 +555,8 @@ Analagous to the old custom view. Used to issue queries against the data store a
         | Available @keys:                                         |
         |   Required: @s                                           |
         |   Allowed: @c, @d, @e, @g, @i, @l, @m, @t, @v            |
-        |   Requires @s: @a, @b, @r                                |
-        |   Requires @r: @+, @-                                    |
+        |   Requires @s: @a, @b, @+, @r                                |
+        |   Requires @r: @-                                    |
 
   - With `@s fri` entered but without a time
 
