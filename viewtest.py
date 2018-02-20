@@ -110,6 +110,10 @@ class View:
 
     today = None
     this_week = None
+    selected_day = None
+    selected_week = None
+    selected_month = None
+
 
     def __init__(self, etmdir=None):
         if etmdir is None:
@@ -121,6 +125,7 @@ class View:
         View.screen.set_terminal_properties(256)
         View.screen.register_palette(View.palette)
         View.loop.widget = View.view
+        self.set_selected_dates()
 
         self.content = []
         self.refresh()
@@ -191,6 +196,13 @@ class View:
     def new_week(cls):
         cls.set_footer("new week")
 
+    @classmethod
+    def set_selected_dates(cls, dt=pendulum.Pendulum.today().date()):
+        cls.selected_day = dt
+        cls.selected_week = dt.isocalendar()[:2]
+        cls.selected_month = (dt.year, dt.month)
+
+
 # Wrapper for ItemView? Tools in all views. Selected item in all save help, busy and yearly.
 
 
@@ -236,6 +248,17 @@ def show_help():
     main_view.add_centered(menu, 'details')
     main_view.add_wrapped(menu_text, 'body')
     main_view.set_body()
+
+def show_agenda():
+    agenda.set_header("Agenda: {}".format(agenda.selected_week))
+    agenda.add_centered('The agenda display goes here.')
+    agenda.set_body()
+
+def show_done():
+    done.set_selected_dates(pendulum.Date(2018, 6, 10))
+    done.set_header("Done: {}".format(done.selected_week))
+    done.add_centered('The agenda display goes here.')
+    done.set_body()
 
 
 # main_view.set_header()
