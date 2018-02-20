@@ -107,6 +107,7 @@ class View:
         unhandled_input=unhandled_input,
     )
 
+    content =  []
 
     today = None
     this_week = None
@@ -127,7 +128,6 @@ class View:
         View.loop.widget = View.view
         self.set_selected_dates()
 
-        self.content = []
         self.refresh()
 
     def process_command(self, key):
@@ -150,29 +150,32 @@ class View:
         t2 = urwid.Text("{} ".format(text2), align='right')
         View.view.header = urwid.AttrMap(urwid.Columns([t1, ('fixed', len(text2)+1, t2)]), "title")
 
-    def set_body(self):
+    @classmethod
+    def set_body(cls):
         """
 
         """
         # listbox will provide the body or main panel of the view (Frame)
-        View.view.body = urwid.AttrMap(urwid.ListBox(self.content),
+        View.view.body = urwid.AttrMap(urwid.ListBox(cls.content),
             'body', None)
         # View.view.body.render((60, 30))
 
-    def set_outline(self, content):
-        pass
+    # def set_outline(self, content):
+    #     pass
 
-    def add_centered(self, list_of_strings=[], style=None):
+    @classmethod
+    def add_centered(cls, list_of_strings=[], style=None):
         """
 
         """
-        self.content.extend([urwid.AttrMap(urwid.Text(x, align='center'), style, None)  for x in list_of_strings])
+        cls.content.extend([urwid.AttrMap(urwid.Text(x, align='center'), style, None)  for x in list_of_strings])
 
-    def add_wrapped(self, list_of_strings=[], style=None):
+    @classmethod
+    def add_wrapped(cls, list_of_strings=[], style=None):
         """
 
         """
-        self.content.extend([urwid.AttrMap(urwid.Text(x, wrap="space"), style, None) for x in list_of_strings])
+        cls.content.extend([urwid.AttrMap(urwid.Text(x, wrap="space"), style, None) for x in list_of_strings])
 
     @classmethod
     def refresh(cls, *args):
