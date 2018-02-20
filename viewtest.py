@@ -258,7 +258,7 @@ def show_done():
     main_view.set_selected_dates(pendulum.Date(2018, 6, 10))
     main_view.set_header("Done: {}".format(main_view.selected_week))
     main_view.add_centered('The agenda display goes here.')
-    done.set_body()
+    main_view.set_body()
 
 
 # main_view.set_header()
