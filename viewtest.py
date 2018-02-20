@@ -255,12 +255,14 @@ def show_help():
 
 def show_agenda():
     main_view.set_header("Agenda: {}".format(main_view.selected_week))
-    main_view.add_centered('The agenda display goes here.')
+    main_view.add_centered(logo, 'logo')
+    main_view.add_wrapped('The agenda display goes here.')
     main_view.set_body()
 
 def show_done():
     main_view.set_selected_dates(pendulum.Date(2018, 6, 10))
     main_view.set_header("Done: {}".format(main_view.selected_week))
+    main_view.add_centered(logo, 'logo')
     main_view.add_centered('The agenda display goes here.')
     main_view.set_body()
 
