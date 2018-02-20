@@ -42,6 +42,10 @@ def unhandled_input(key):
         raise urwid.ExitMainLoop()
     elif key == 'f1':
         help_view.loop.run()
+    elif key == 'a':
+        agenda.loop.run()
+    elif key == 'd':
+        done.loop.run()
 
 
 
