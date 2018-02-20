@@ -40,6 +40,9 @@ def unhandled_input(key):
     """
     if key == 'f8':
         raise urwid.ExitMainLoop()
+    elif key == 'f1':
+        help_view.loop.run()
+
 
 
 class View:
@@ -207,11 +210,19 @@ class DateView(View):
         cls.selected_month = (dt.year, dt.month)
 
 agenda = DateView()
-print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
+agenda.set_header("Agenda: {}".format(agenda.selected_week))
+agenda.add_centered('The agenda display goes here.')
+agenda.set_body()
+
+# print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
 
 done = DateView()
 done.set_selected_dates(pendulum.Date(2018, 6, 10))
-print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
+done.set_header("Done: {}".format(done.selected_week))
+done.add_centered('The agenda display goes here.')
+done.set_body()
+
+# print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
 
 help_view = View()
 help_view.set_header()
