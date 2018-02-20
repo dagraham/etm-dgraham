@@ -41,11 +41,11 @@ def unhandled_input(key):
     if key == 'f8':
         raise urwid.ExitMainLoop()
     elif key == 'f1':
-        main_view.loop.run()
+        show_help()
     elif key == 'a':
-        agenda.loop.run()
+        show_agenda()
     elif key == 'd':
-        done.loop.run()
+        show_done()
 
 
 
@@ -206,37 +206,37 @@ class View:
 # Wrapper for ItemView? Tools in all views. Selected item in all save help, busy and yearly.
 
 
-class DateView(View):
-    """
-    All the week and month related stuff goes here. Used for agenda, busy, done and month.
-    """
+# class DateView(View):
+#     """
+#     All the week and month related stuff goes here. Used for agenda, busy, done and month.
+#     """
 
-    selected_day = None
-    selected_week = None
-    selected_month = None
+#     selected_day = None
+#     selected_week = None
+#     selected_month = None
 
-    def __init__(self): 
-        super().__init__()
-        self.set_selected_dates()
+#     def __init__(self): 
+#         super().__init__()
+#         self.set_selected_dates()
 
-    @classmethod
-    def set_selected_dates(cls, dt=pendulum.Pendulum.today().date()):
-        cls.selected_day = dt
-        cls.selected_week = dt.isocalendar()[:2]
-        cls.selected_month = (dt.year, dt.month)
+#     @classmethod
+#     def set_selected_dates(cls, dt=pendulum.Pendulum.today().date()):
+#         cls.selected_day = dt
+#         cls.selected_week = dt.isocalendar()[:2]
+#         cls.selected_month = (dt.year, dt.month)
 
-agenda = DateView()
-agenda.set_header("Agenda: {}".format(agenda.selected_week))
-agenda.add_centered('The agenda display goes here.')
-agenda.set_body()
+# agenda = DateView()
+# agenda.set_header("Agenda: {}".format(agenda.selected_week))
+# agenda.add_centered('The agenda display goes here.')
+# agenda.set_body()
 
-# print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
+# # print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
 
-done = DateView()
-done.set_selected_dates(pendulum.Date(2018, 6, 10))
-done.set_header("Done: {}".format(done.selected_week))
-done.add_centered('The agenda display goes here.')
-done.set_body()
+# done = DateView()
+# done.set_selected_dates(pendulum.Date(2018, 6, 10))
+# done.set_header("Done: {}".format(done.selected_week))
+# done.add_centered('The agenda display goes here.')
+# done.set_body()
 
 # print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
 
@@ -250,14 +250,14 @@ def show_help():
     main_view.set_body()
 
 def show_agenda():
-    agenda.set_header("Agenda: {}".format(agenda.selected_week))
-    agenda.add_centered('The agenda display goes here.')
-    agenda.set_body()
+    main_view.set_header("Agenda: {}".format(agenda.selected_week))
+    main_view.add_centered('The agenda display goes here.')
+    main_view.set_body()
 
 def show_done():
-    done.set_selected_dates(pendulum.Date(2018, 6, 10))
-    done.set_header("Done: {}".format(done.selected_week))
-    done.add_centered('The agenda display goes here.')
+    main_view.set_selected_dates(pendulum.Date(2018, 6, 10))
+    main_view.set_header("Done: {}".format(done.selected_week))
+    main_view.add_centered('The agenda display goes here.')
     done.set_body()
 
 
