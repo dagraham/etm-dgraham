@@ -1,5 +1,5 @@
 # What's planned for the next etm
-**Last modified: Tue Feb 20, 2018 08:26AM EST**
+**Last modified: Tue Feb 20, 2018 08:49AM EST**
 
 # Goals
 
@@ -129,7 +129,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
     's': "starting date or datetime",
     't': "tags (list of strings)",
     'u': "user (string)",
-    'x': "extract (key for additional values from extractions)",
+    'x': "extract (extractions key)",
 
 ## &-keys
 
