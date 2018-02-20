@@ -229,13 +229,6 @@ done.set_body()
 # print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
 
 main_view = View()
-# main_view.set_header()
-# main_view.add_centered(logo, 'logo')
-# main_view.add_centered(menu, 'details')
-# main_view.add_wrapped(menu_text, 'body')
-# main_view.set_body()
-show_help()
-main_view.loop.run()
 
 def show_help():
     main_view.set_header()
@@ -243,6 +236,15 @@ def show_help():
     main_view.add_centered(menu, 'details')
     main_view.add_wrapped(menu_text, 'body')
     main_view.set_body()
+
+
+# main_view.set_header()
+# main_view.add_centered(logo, 'logo')
+# main_view.add_centered(menu, 'details')
+# main_view.add_wrapped(menu_text, 'body')
+# main_view.set_body()
+show_help()
+main_view.loop.run()
 
 
 # Using decorator:
