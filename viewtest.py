@@ -41,7 +41,7 @@ def unhandled_input(key):
     if key == 'f8':
         raise urwid.ExitMainLoop()
     elif key == 'f1':
-        help_view.loop.run()
+        main_view.loop.run()
     elif key == 'a':
         agenda.loop.run()
     elif key == 'd':
@@ -228,16 +228,25 @@ done.set_body()
 
 # print(agenda.selected_day, agenda.selected_week, agenda.selected_month)
 
-help_view = View()
-help_view.set_header()
-help_view.add_centered(logo, 'logo')
-help_view.add_centered(menu, 'details')
-help_view.add_wrapped(menu_text, 'body')
-help_view.set_body()
-help_view.loop.run()
+main_view = View()
+# main_view.set_header()
+# main_view.add_centered(logo, 'logo')
+# main_view.add_centered(menu, 'details')
+# main_view.add_wrapped(menu_text, 'body')
+# main_view.set_body()
+show_help()
+main_view.loop.run()
+
+def show_help():
+    main_view.set_header()
+    main_view.add_centered(logo, 'logo')
+    main_view.add_centered(menu, 'details')
+    main_view.add_wrapped(menu_text, 'body')
+    main_view.set_body()
+
 
 # Using decorator:
-# loop = urwid.MainLoop(help_view,unhandled_input=unhandled_input)
+# loop = urwid.MainLoop(main_view,unhandled_input=unhandled_input)
 # loop.run()
 
 
