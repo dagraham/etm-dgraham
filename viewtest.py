@@ -155,7 +155,7 @@ class View:
 
         """
         # listbox will provide the body or main panel of the view (Frame)
-        View.view.body = urwid.AttrMap(urwid.ListBox(self.content),
+        self.body = urwid.AttrMap(urwid.ListBox(self.content),
             'body', None)
 
     def set_outline(self, content):
