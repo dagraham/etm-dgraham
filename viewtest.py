@@ -218,7 +218,9 @@ class View:
             if yw != cls.this_week:
                 cls.this_week = yw
                 cls.new_week()
-        cls.set_footer(cls, text1=now.format("h:mma ddd MMM D", formatter='alternative'))
+        t = now.format("h:mma", formatter='alternative').lower()[:-1]
+        d = now.format("ddd MMM D", formatter='alternative')
+        cls.set_footer(cls, text1="{} {}".format(t, d))
 
     @classmethod
     def new_day(cls):
