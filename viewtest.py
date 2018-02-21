@@ -289,7 +289,6 @@ def show_help():
         main_view.add_centered(menu[:1], 'details')
         main_view.add_centered(menu[1:], 'body')
     main_view.add_centered([""], 'body')
-
     main_view.add_wrapped(menu_text, 'body')
     main_view.set_body()
 
