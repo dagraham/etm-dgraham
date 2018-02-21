@@ -41,7 +41,7 @@ logo = [
 #   ]
 
 menu1 = [
-    "--- VIEWS ----------------------------------------- ",
+    "-- VIEWS ------------------------------------------ ",
     "a: agenda        n: next           t: tags          ",
     "b: busy          s: someday        f: set filter    ",
     "d: done          i: index          l: set level     ",
@@ -49,14 +49,14 @@ menu1 = [
     ]
 
 menu2 = [
-    "--- SELECTED ITEM --------------------------------- ",
+    "-- SELECTED ITEM ---------------------------------- ",
     "E: edit          R: reschedule     K: klone item    ",
     "D: delete        S: schedule new   T: start timer   ",
     "F: finish        O: open link      X: export ical   ",
     ]
 
 menu3 = [
-    "--- TOOLS ----------------------------------------- ",
+    "-- TOOLS ------------------------------------------ ",
     "N: new item      Q: query          F2: date calc    ",
     "J: jump to date  C: copy view      F3: yearly       ",
     "A: alerts        P: preferences    F8: quit         ",
