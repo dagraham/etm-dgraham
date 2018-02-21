@@ -284,6 +284,7 @@ main_view = View()
 def show_help():
     main_view.set_header()
     main_view.add_centered(logo, 'logo')
+    main_view.add_centered([""], 'body')
     for menu in [menu1, menu2, menu3]:
         main_view.add_centered(menu[:1], 'details')
         main_view.add_centered(menu[1:], 'body')
