@@ -287,6 +287,8 @@ def show_help():
     for menu in [menu1, menu2, menu3]:
         main_view.add_centered(menu[:1], 'details')
         main_view.add_centered(menu[1:], 'body')
+    main_view.add_centered([""], 'body')
+
     main_view.add_wrapped(menu_text, 'body')
     main_view.set_body()
 
