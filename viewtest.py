@@ -95,7 +95,7 @@ class View:
         ('body', 'black', 'white', 'default'),
         ('focus', 'default', 'light gray', '', '', '#adf'),
         ('edit', 'black', 'dark green', 'standout', 'bold', '#ad0'), # foot in edit mode
-        ('details', 'dark blue', 'white', 'bold'),    # item details
+        ('details', 'dark blue', 'white', 'standout', 'bold'),    # item details
         ('errors', 'dark red', 'white', 'bold'),      # job pastdue
         (None, 'black', 'white',''),
         ('logo', 'dark blue', 'white', ''),     # logo
