@@ -47,12 +47,14 @@ menu1 = [
     "d: done          i: index          l: set level     ",
     "m: month         h: history        c: set calendars ",
     ]
+
 menu2 = [
     "--- SELECTED ITEM --------------------------------- ",
     "E: edit          R: reschedule     K: klone item    ",
     "D: delete        S: schedule new   T: start timer   ",
     "F: finish        O: open link      X: export ical   ",
     ]
+
 menu3 = [
     "--- TOOLS ----------------------------------------- ",
     "N: new item      Q: query          F2: date calc    ",
@@ -283,7 +285,7 @@ def show_help():
     main_view.set_header()
     main_view.add_centered(logo, 'logo')
     for menu in [menu1, menu2, menu3]:
-        main_view.add_centered(menu[0], 'details')
+        main_view.add_centered(menu[:1], 'details')
         main_view.add_centered(menu[1:], 'body')
     main_view.add_wrapped(menu_text, 'body')
     main_view.set_body()
