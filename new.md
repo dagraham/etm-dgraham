@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Feb 22, 2018 08:58AM EST**
+**Last modified: Thu Feb 22, 2018 09:06AM EST**
 
 # Goals
 
@@ -162,7 +162,9 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 ## Storage
 
 - All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable - not easily anyway.  It can be backed up and/or queried using external tools as well as etm itself. 
-- Two timestamps are automatically created for each item in the data store, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. The creation timestamp is used as the unique identifier for the item in the data store. 
+- The actual entry string used to create the item is stored as the item's *entry* prettily formatted using a jinja2 template.
+- Additionally, individual components are stored in convenient formats. E.g., the components of a repetition rule are combined and stored as an rrulestr.
+- Two timestamps are automatically created for each item, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. The creation timestamp is used as the unique identifier for the item in the data store. 
 - The hierarchical organization that was provided by file paths is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry `@i plant:tree:oak` would store the item in the *index* view under:
     - plant
         - tree
@@ -221,12 +223,10 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 
 - Storage: 
-  - The actual entry string used to create the item is stored as the item's `entry` with datetimes expanded and formatted using a jinja2 template.
-  - Additionally, individual components are stored in ready to use formats. E.g., the components of a repetition rule are combined and stored as an rrulestr.
   - Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. 
-    - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
-    - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
-    - Naive dates and datetimes require no conversion either way. 
+  - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
+  - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
+  - Naive dates and datetimes require no conversion either way. 
 
 - Display:
 
