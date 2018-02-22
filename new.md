@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Feb 22, 2018 08:57AM EST**
+**Last modified: Thu Feb 22, 2018 08:58AM EST**
 
 # Goals
 
@@ -220,7 +220,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
   - Undated and unfinished items: *None*
 
 
-- *TinyDB* Storage: 
+- Storage: 
   - The actual entry string used to create the item is stored as the item's `entry` with datetimes expanded and formatted using a jinja2 template.
   - Additionally, individual components are stored in ready to use formats. E.g., the components of a repetition rule are combined and stored as an rrulestr.
   - Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. 
