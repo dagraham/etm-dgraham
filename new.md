@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Wed Feb 21, 2018 07:18PM EST**
+**Last modified: Wed Feb 21, 2018 07:57PM EST**
 
 # Goals
 
@@ -84,13 +84,13 @@ The old *defaults* item type, `=`, is eliminated. Its functionality is replaced 
             'a': '10m, 3m: d',
             'l': 'Social Sciences Bldg',
             'i': 'Work:Teaching'
-          },
+           },
           'tennis': {
             'e': '1h30m',
             'a': '30m, 15m: d',
             'l': 'Fitness Center',
             'i': 'Personal:Tennis'
-          },
+           },
           ...
         }
 
