@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Wed Feb 21, 2018 07:57PM EST**
+**Last modified: Wed Feb 21, 2018 08:08PM EST**
 
 # Goals
 
@@ -144,7 +144,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
         's': "set position: integer",
         'u': "until: datetime",
         'w': "weekday: list from SU, MO, ..., SA",
-    },
+        },
     'j': {
         'a': "alert: timeperiod: command, args*",
         'b': "beginby: integer number of days",
@@ -157,7 +157,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
         'p': "prerequisites (comma separated list of "
              "identifiers of immediate prereqs)",
         's': "start/due: timeperiod before task start",
-    },
+        },
 
 ## Storage
 
