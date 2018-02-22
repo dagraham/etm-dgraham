@@ -1,5 +1,5 @@
 # Notes for etm
-** Last modified: Fri Feb 16, 2018 05:17PM EST
+** Last modified: Thu Feb 22, 2018 10:03AM EST
 **
 
 # Design
@@ -64,6 +64,31 @@
       dated_item = Dated(Item())
 
 # ToDo
+
+## Data Migration
+
+export to json
+
+if @k is given use the value for @i
+else use the file path for @i
+
+for actions, keep @s as the starting time, @e as the extent and add @f = @s + @e. 
+
+in tasks, if @c is given, use/append the value to @l
+
+Use the calendar information for an item as the @c value
+
+convert + and % to -
+
+convert ^ to * with date
+convert ! to %
+convert $ to !
+convert ~ to $
+
+drop = and #
+
+
+
 
 ## Refactor Views
 
