@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Wed Feb 21, 2018 08:15PM EST**
+**Last modified: Wed Feb 21, 2018 08:16PM EST**
 
 # Goals
 
@@ -133,7 +133,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 ## &-keys
 
-### '@r':
+### `@r`:
       'c': "count: integer number of repetitions",
       'E': "easter: number of days before (-), on (0) or after (+) Easter",
       'h': "hour: list of integers in 0 ... 23",
@@ -145,7 +145,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
       'u': "until: datetime",
       'w': "weekday: list from SU, MO, ..., SA",
 
-### '@j':
+### `@j`:
       'a': "alert: timeperiod: command, args*",
       'b': "beginby: integer number of days",
       'd': "description: string",
