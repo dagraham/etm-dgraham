@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Feb 22, 2018 09:32AM EST**
+**Last modified: Thu Feb 22, 2018 09:43AM EST**
 
 # Goals
 
@@ -76,7 +76,7 @@ Unchanged but for the change in the type character from `$` to `!`.
 
 ### Defaults
 
-The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *extract*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *extractions*:
+The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *extraction key*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *extractions*:
 
         extractions = {
           'class': {
@@ -122,14 +122,14 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
     'j': "job summary (string)",
     'l': "location (string)",
     'm': "memo (list of 'datetime, timeperiod, datetime')",
-    'n': "delegate's name (string)",
+    'n': "delegate name (string)",
     'o': "overdue (r)estart, (s)kip or (k)eep)",
     'p': "priority (integer)",
     'r': "repetition frequency (y)early, (m)onthly, (w)eekly, " 
          "(d)aily, (h)ourly, mi(n)utely",
     's': "starting date or datetime",
     't': "tags (list of strings)",
-    'x': "extract (extractions key)",
+    'x': "extraction key (string)",
 
 ## &-keys
 
@@ -154,7 +154,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
       'i': "unique identifier: integer or string",
       'l': "location: string",
       'm': "memo (list of 'datetime, timeperiod, datetime')",
-      'n': "delegate's name (string)",
+      'n': "delegate name (string)",
       'p': "prerequisites (comma separated list of "
             "identifiers of immediate prereqs)",
       's': "start/due: timeperiod before task start",
