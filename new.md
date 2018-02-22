@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Wed Feb 21, 2018 08:16PM EST**
+**Last modified: Thu Feb 22, 2018 08:57AM EST**
 
 # Goals
 
@@ -220,12 +220,13 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
   - Undated and unfinished items: *None*
 
 
-- Storage: 
-
+- *TinyDB* Storage: 
+  - The actual entry string used to create the item is stored as the item's `entry` with datetimes expanded and formatted using a jinja2 template.
+  - Additionally, individual components are stored in ready to use formats. E.g., the components of a repetition rule are combined and stored as an rrulestr.
   - Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. 
-  - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
-  - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
-  - Naive dates and datetimes require no conversion either way. 
+    - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
+    - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
+    - Naive dates and datetimes require no conversion either way. 
 
 - Display:
 
