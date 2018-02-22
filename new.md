@@ -134,29 +134,29 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 ## &-keys
 
 ### 'r':
-        'c': "count: integer number of repetitions",
-        'E': "easter: number of days before (-), on (0) or after (+) Easter",
-        'h': "hour: list of integers in 0 ... 23",
-        'i': "interval: positive integer",
-        'm': "monthday: list of integers 1 ... 31",
-        'M': "month: list of integers in 1 ... 12",
-        'n': "minute: list of integers in 0 ... 59",
-        's': "set position: integer",
-        'u': "until: datetime",
-        'w': "weekday: list from SU, MO, ..., SA",
+      'c': "count: integer number of repetitions",
+      'E': "easter: number of days before (-), on (0) or after (+) Easter",
+      'h': "hour: list of integers in 0 ... 23",
+      'i': "interval: positive integer",
+      'm': "monthday: list of integers 1 ... 31",
+      'M': "month: list of integers in 1 ... 12",
+      'n': "minute: list of integers in 0 ... 59",
+      's': "set position: integer",
+      'u': "until: datetime",
+      'w': "weekday: list from SU, MO, ..., SA",
 
 ### 'j':
-        'a': "alert: timeperiod: command, args*",
-        'b': "beginby: integer number of days",
-        'd': "description: string",
-        'e': "extent: timeperiod",
-        'f': "finish: datetime",
-        'i': "unique identifier: integer or string",
-        'l': "location: string",
-        'm': "memo (list of 'datetime, timeperiod, datetime')",
-        'p': "prerequisites (comma separated list of "
-             "identifiers of immediate prereqs)",
-        's': "start/due: timeperiod before task start",
+      'a': "alert: timeperiod: command, args*",
+      'b': "beginby: integer number of days",
+      'd': "description: string",
+      'e': "extent: timeperiod",
+      'f': "finish: datetime",
+      'i': "unique identifier: integer or string",
+      'l': "location: string",
+      'm': "memo (list of 'datetime, timeperiod, datetime')",
+      'p': "prerequisites (comma separated list of "
+            "identifiers of immediate prereqs)",
+      's': "start/due: timeperiod before task start",
 
 
 ## Storage
