@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Feb 22, 2018 09:43AM EST**
+**Last modified: Thu Feb 22, 2018 09:44AM EST**
 
 # Goals
 
@@ -122,7 +122,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
     'j': "job summary (string)",
     'l': "location (string)",
     'm': "memo (list of 'datetime, timeperiod, datetime')",
-    'n': "delegate name (string)",
+    'n': "named delegate (string)",
     'o': "overdue (r)estart, (s)kip or (k)eep)",
     'p': "priority (integer)",
     'r': "repetition frequency (y)early, (m)onthly, (w)eekly, " 
@@ -154,7 +154,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
       'i': "unique identifier: integer or string",
       'l': "location: string",
       'm': "memo (list of 'datetime, timeperiod, datetime')",
-      'n': "delegate name (string)",
+      'n': "named delegate (string)",
       'p': "prerequisites (comma separated list of "
             "identifiers of immediate prereqs)",
       's': "start/due: timeperiod before task start",
