@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Feb 22, 2018 09:44AM EST**
+**Last modified: Fri Feb 23, 2018 01:11PM EST**
 
 # Goals
 
@@ -151,12 +151,12 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
       'd': "description: string",
       'e': "extent: timeperiod",
       'f': "finish: datetime",
-      'i': "unique identifier: integer or string",
+      'i': "unique id: integer or string",
       'l': "location: string",
       'm': "memo (list of 'datetime, timeperiod, datetime')",
       'n': "named delegate (string)",
       'p': "prerequisites (comma separated list of "
-            "identifiers of immediate prereqs)",
+            "ids of immediate prereqs)",
       's': "start/due: timeperiod before task start",
 
 

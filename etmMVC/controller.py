@@ -53,14 +53,14 @@ at_keys = {
     'j': "job summary (string)",
     'l': "location (string)",
     'm': "memo (list of 'datetime, timeperiod, datetime')",
+    'n': "named delegate (string)",
     'o': "overdue (r)estart, (s)kip or (k)eep)",
     'p': "priority (integer)",
     'r': "repetition frequency (y)early, (m)onthly, (w)eekly,"
          " (d)aily, (h)ourly, mi(n)utely",
     's': "starting date or datetime",
     't': "tags (list of strings)",
-    'u': "user (string)",
-    'x': "extract key for additional values from defaults",
+    'x': "extracton key (string)",
 }
 
 amp_keys = {
@@ -82,10 +82,11 @@ amp_keys = {
         'd': "description: string",
         'e': "extent: timeperiod",
         'f': "finish: datetime",
-        'i': "unique identifier: integer or string",
+        'i': "unique id: integer or string",
         'l': "location: string",
         'm': "memo (list of 'datetime, timeperiod, datetime')",
-        'p': "prerequisites: comma separated list of identifiers of immediate prereqs",
+        'n': "named delegate (string)",
+        'p': "prerequisites: comma separated list of ids of immediate prereqs",
         's': "start/due: timeperiod before task start",
     },
 }

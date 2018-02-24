@@ -1,5 +1,5 @@
 # Notes for etm
-** Last modified: Thu Feb 22, 2018 10:03AM EST
+** Last modified: Sat Feb 24, 2018 04:17PM EST
 **
 
 # Design
@@ -67,26 +67,34 @@
 
 ## Data Migration
 
-export to json
+* export to json from etmtk
+* script to process entries in the exported yaml file and create corresponding TinyDB items.
+  * for items with 's', also until in rrule
+    * with 'z' => aware datetime using 'z'
+    * without 'z' => naive datetime
+  * timestamps (f, h, ...) FIXME
+    * aware using local timezone
 
-if @k is given use the value for @i
-else use the file path for @i
+What do I need in the hash
 
-for actions, keep @s as the starting time, @e as the extent and add @f = @s + @e. 
+* For scheduled items
+  * created and modified timestamps
+  * entry for details and edit
+  * things that duplicate entry
+    * itemtype
+    * summary
+    * rrulestr - RRULE
+    * is rrulestr - RDATE needed? It is a string and repeats the datetime 
+    * @s datetime
+    * @e for 2nd column display
+    * @c 
+    * @t for tags
+    * @i for index
+    * @h for done, as a list of datetimes
+    * @b for begin
+    * @a for alerts
 
-in tasks, if @c is given, use/append the value to @l
-
-Use the calendar information for an item as the @c value
-
-convert + and % to -
-
-convert ^ to * with date
-convert ! to %
-convert $ to !
-convert ~ to $
-
-drop = and #
-
+* ??? Maybe store all the components but not the entry and create entry on the fly using jinja2 ???
 
 
 
@@ -101,7 +109,6 @@ drop = and #
     * Month 
 
 # Saved
-
 
 - `$`: action 
 

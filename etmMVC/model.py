@@ -8,11 +8,11 @@ from datetime import datetime
 import sys
 import re
 
-from tinydb_serialization import Serializer
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
 from tinydb.database import Table
 from tinydb.storages import JSONStorage
+from tinydb_serialization import Serializer
 from tinydb_serialization import SerializationMiddleware
 from tinydb_smartcache import SmartCacheTable
 
@@ -1282,6 +1282,8 @@ class DatetimeCacheTable(SmartCacheTable):
 
 
 TinyDB.table_class = DatetimeCacheTable
+TinyDB.DEFAULT_TABLE = 'items'
+Item = Query()
 
 class PendulumDateTimeSerializer(Serializer):
     """
@@ -1354,9 +1356,9 @@ class PendulumIntervalSerializer(Serializer):
 
 
 serialization = SerializationMiddleware()
-serialization.register_serializer(PendulumDateTimeSerializer(), 'TinyPendulumDateTime')
-serialization.register_serializer(PendulumDateSerializer(), 'TinyPendulumDate')
-serialization.register_serializer(PendulumIntervalSerializer(), 'TinyPendulumInterval')
+serialization.register_serializer(PendulumDateTimeSerializer(), 'T')
+serialization.register_serializer(PendulumDateSerializer(), 'D')
+serialization.register_serializer(PendulumIntervalSerializer(), 'I')
 
 ########################
 ### end TinyDB setup ###
@@ -1698,25 +1700,69 @@ def getWeeksForMonth(ym):
 ### end week/month ###
 ######################
 
+def pen_from_fmt(s, z='Factory'):
+    dt = pendulum.from_format(s, "%Y%m%dT%H%M", z)
+    if z == 'Factory' and dt.hour == dt.minute == 0:
+        dt = dt.date()
+    return dt
 
 if __name__ == '__main__':
     print('\n\n')
     import doctest
     from pprint import pprint
-    doctest.testmod()
+    # doctest.testmod()
 
-    db = TinyDB('db.json', storage=serialization)
+    import json
+    root = '/Users/dag/etm-mvc/tmp'
+    import_file = os.path.join(root, 'import.json')
+    with open(import_file, 'r') as fo:
+        import_hsh = json.load(fo)
+    items = import_hsh['items']
+
+    # dt1 = pendulum.Pendulum(2011, 6, 11, 12, 0, 0, tzinfo='Europe/Paris')
+    # dt2 = pendulum.from_format("20110611T1200", "%Y%m%dT%H%M", 'Europe/Paris')
+    # print(dt1)
+    # print(dt2)
+    # print(dt1 == dt2)
+
+    # db = TinyDB('db.json', storage=serialization, sort_keys=True, indent=2, ensure_ascii=False)
+    db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     db.purge()
-    db.insert({'naive pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='Factory')})
 
-    db.insert({'pacific pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='US/Pacific') })
-    db.insert({'local pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='local') })
-    db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='Factory'), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
-    # Absent tzinfo, the first item will be interpreted as noon UTC and will display as 8am Eastern. For the second where Factory is given explicitly, the item will be interpreted as noon in whatever the local timezone, i.e., an offset of 0, and thus noon Eastern. The third will be interpreted as noon Pacific and will display as 3pm Eastern.
-    db.insert({'pendulum date': pendulum.Pendulum(2017, 9, 7, tzinfo='Factory').date() })
-    db.insert({'pendulum interval': pendulum.Interval(weeks=1, days=3, hours=7, minutes=15)})
-    # hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
-    # db.insert(hsh)
-    for item in db:
-        print(item.eid, item)
+    docs = []
+    for id in items:
+        item_hsh = items[id]
+        z = item_hsh.get('z', 'Factory')
+        if 's' in item_hsh:
+            item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
+        if 'f' in item_hsh:
+            item_hsh['f'] = pen_from_fmt(item_hsh['f'], z)
+        if 'h' in item_hsh:
+            item_hsh['h'] = [pen_from_fmt(x, z) for x in item_hsh['h'] ]
+        if '+' in item_hsh:
+            item_hsh['+'] = [pen_from_fmt(x, z) for x in item_hsh['+'] ]
+        if '-' in item_hsh:
+            item_hsh['-'] = [pen_from_fmt(x, z) for x in item_hsh['-'] ]
+        if 'e' in item_hsh:
+            item_hsh['e'] = parse_period(item_hsh['e'])[1]
+        if 'z' in item_hsh:
+            del item_hsh['z']
+
+        docs.append(item_hsh)
+        # pprint(item_hsh)
+        # db.insert(item_hsh)
+    db.insert_multiple(docs)
+
+#     db.insert({'naive pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='Factory')})
+
+#     db.insert({'pacific pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='US/Pacific') })
+#     db.insert({'local pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='local') })
+#     db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='Factory'), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
+#     # Absent tzinfo, the first item will be interpreted as noon UTC and will display as 8am Eastern. For the second where Factory is given explicitly, the item will be interpreted as noon in whatever the local timezone, i.e., an offset of 0, and thus noon Eastern. The third will be interpreted as noon Pacific and will display as 3pm Eastern.
+#     db.insert({'pendulum date': pendulum.Pendulum(2017, 9, 7, tzinfo='Factory').date() })
+#     db.insert({'pendulum interval': pendulum.Interval(weeks=1, days=3, hours=7, minutes=15)})
+#     # hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
+#     # db.insert(hsh)
+    # for item in db:
+    #     print(item.eid, item)
 
