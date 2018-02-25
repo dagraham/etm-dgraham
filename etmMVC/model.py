@@ -385,7 +385,7 @@ class TimeIt(object):
 
 
 
-def wrap(txt, indent=5, width=shutil.get_terminal_size()[0]):
+def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
     """
     Wrap text to terminal width using indent spaces before each line.
     >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
@@ -609,14 +609,19 @@ def title(arg):
 entry_tmpl = """\
 {{ h.itemtype }} {{ h.summary }}\
 {% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %} \
-{% for k in ['e', 'b', 'l', 'c', 'n', 'm', 'g', 'u', 'i', 'v', 'f',  'p', 'q'] -%}\
-{%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}\
+{% for k in ['e', 'z'] -%} 
+{%- if k in h %}@{{ k }} {{ h[k] }} {% endif %} \
+{%- endfor %}
+{% for k in ['c', 'i'] -%} 
+{%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}
+{%- endfor %}\
+{% for k in ['l', 'm', 'n', 'o', 'g', 'u', 'x', 'f', 'p'] -%}\
+{%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}
 {%- endfor %}\
 {% if 't' in h %}{{ "@t {}".format(", ".join(h['t'])) }} {% endif %}\
 {% if 'a' in h %}\
 {%- for x in h['a'] %}{{ "@a {}: {}".format(x[0], ", ".join(x[1:])) }} {% endfor %}\
 {% endif %}\
-{%- if 'z' in h %}@z {{ h['z'] }}{% endif -%} \
 {%- if 'r' in h %}
     {%- for x in h['r'] %}
     {%- set rrule -%}
@@ -629,12 +634,12 @@ entry_tmpl = """\
     {%- endfor %}
 {%- endif -%}
 {% for k in ['+', '-', 'h'] -%}
-    {%- if k in h and h[k] %}
-  @{{ k }} {{ wrap(dtlst2str(h[k])) }}
-    {%- endif -%}\
+{%- if k in h and h[k] %}
+@{{ k }} {{ wrap(dtlst2str(h[k])) }}
+{%- endif -%}\
 {%- endfor %}\
 {% if 'd' in h %}
-  @d {{ wrap(h['d']) }}\
+@d {{ wrap(h['d']) }}\
 {% endif -%}
 {%- if 'j' in h %}
     {%- for x in h['j'] %}
@@ -1813,10 +1818,10 @@ def import_json():
         bad_keys = [x for x in item_hsh if x not in at_keys]
         for key in bad_keys:
             del item_hsh[key]
-        # if 'z' in item_hsh:
-        #     del item_hsh['z']
         if 's' in item_hsh:
             item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
+        elif 'z' in item_hsh:
+            del item_hsh['z']
         if 'f' in item_hsh:
             item_hsh['f'] = pen_from_fmt(item_hsh['f'], z)
         if 'h' in item_hsh:
