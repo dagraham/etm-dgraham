@@ -41,6 +41,70 @@ etmdir = None
 
 ETMFMT = "%Y%m%dT%H%M"
 
+type_keys = {
+    "*": "event",
+    "-": "task",
+    "%": "journal entry",
+    "?": "someday entry",
+    "!": "inbox entry",
+}
+
+at_keys = {
+    '+': "include (list of date-times)",
+    '-': "exclude (list of date-times)",
+    'a': "alert (timeperiod: cmd, optional args*)",
+    'b': "beginby (integer number of days)",
+    'c': "calendar (string)",
+    'd': "description (string)",
+    'e': "extent (timeperiod)",
+    'f': "finish (datetime)",
+    'g': "goto (url or filepath)",
+    'h': "completions history (list of done:due datetimes)",
+    'i': "index (colon delimited string)",
+    'j': "job summary (string)",
+    'l': "location (string)",
+    'm': "memo (list of 'datetime, timeperiod, datetime')",
+    'n': "named delegate (string)",
+    'o': "overdue (r)estart, (s)kip or (k)eep)",
+    'p': "priority (integer)",
+    'r': "repetition frequency (y)early, (m)onthly, (w)eekly,"
+         " (d)aily, (h)ourly, mi(n)utely",
+    's': "starting date or datetime",
+    't': "tags (list of strings)",
+    'x': "extracton key (string)",
+    'z': "timezone (string)",
+    'itemtype': "itemtype (character)",
+    'summary': "summary (string)"
+}
+
+amp_keys = {
+    'r': {
+        'c': "count: integer number of repetitions",
+        'E': "easter: number of days before (-), on (0) or after (+) Easter",
+        'h': "hour: list of integers in 0 ... 23",
+        'i': "interval: positive integer",
+        'm': "monthday: list of integers 1 ... 31",
+        'M': "month: list of integers in 1 ... 12",
+        'n': "minute: list of integers in 0 ... 59",
+        's': "set position: integer",
+        'u': "until: datetime",
+        'w': "weekday: list from SU, MO, ..., SA",
+    },
+    'j': {
+        'a': "alert: timeperiod: command, args*",
+        'b': "beginby: integer number of days",
+        'd': "description: string",
+        'e': "extent: timeperiod",
+        'f': "finish: datetime",
+        'i': "unique id: integer or string",
+        'l': "location: string",
+        'm': "memo (list of 'datetime, timeperiod, datetime')",
+        'n': "named delegate (string)",
+        'p': "prerequisites: comma separated list of ids of immediate prereqs",
+        's': "start/due: timeperiod before task start",
+    },
+}
+
 
 def parse_datetime(s):
     """
@@ -151,20 +215,30 @@ def format_datetime(obj):
     """
     if type(obj) == datetime:
         obj = pendulum.instance(obj)
-    if type(obj) != pendulum.pendulum.Pendulum:
+    if type(obj) == pendulum.pendulum.Pendulum: 
+        if obj.tzinfo.abbrev == '-00':
+            # naive
+            if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
+                # date
+                return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
+            else:
+                # naive datetime
+                return True, format(obj.format("ddd MMM D YYYY h:mmA", formatter='alternative'))
+        else:
+            # aware
+            return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA", formatter='alternative'))
+
+    elif type(obj) == pendulum.pendulum.Date:
+        return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
+
+    else:
         return False, "The argument must be a pendulum date or datetime."
 
-    if obj.tzinfo.abbrev == '-00':
-        # naive
-        if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
-            # date
-            return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
-        else:
-            # naive datetime
-            return True, format(obj.format("ddd MMM D YYYY h:mmA", formatter='alternative'))
-    else:
-        # aware
-        return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA z", formatter='alternative'))
+def format_datetime_list(obj_lst):
+
+    ret = ", ".join([format_datetime(x)[1] for x in obj_lst])
+    # print('got:', obj_lst, '; returning:', ret)
+    return ret
 
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
@@ -535,7 +609,7 @@ def title(arg):
 entry_tmpl = """\
 {{ h.itemtype }} {{ h.summary }}\
 {% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %} \
-{% for k in ['e', 'b', 'l', 'c', 'n', 'm', 'g', 'u', 'i', 'v', 'f', 'h', 'p', 'q'] -%}\
+{% for k in ['e', 'b', 'l', 'c', 'n', 'm', 'g', 'u', 'i', 'v', 'f',  'p', 'q'] -%}\
 {%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}\
 {%- endfor %}\
 {% if 't' in h %}{{ "@t {}".format(", ".join(h['t'])) }} {% endif %}\
@@ -556,7 +630,7 @@ entry_tmpl = """\
 {%- endif -%}
 {% for k in ['+', '-', 'h'] -%}
     {%- if k in h and h[k] %}
-  @{{ k }} {{ wrap(", ".join(h[k])) }}
+  @{{ k }} {{ wrap(dtlst2str(h[k])) }}
     {%- endif -%}\
 {%- endfor %}\
 {% if 'd' in h %}
@@ -580,6 +654,7 @@ entry_tmpl = """\
 
 jinja_entry_template = Template(entry_tmpl)
 jinja_entry_template.globals['dt2str'] = format_datetime
+jinja_entry_template.globals['dtlst2str'] = format_datetime_list
 jinja_entry_template.globals['one_or_more'] = one_or_more
 # jinja_entry_template.globals['set_summary'] = set_summary
 jinja_entry_template.globals['wrap'] = wrap
@@ -1706,33 +1781,40 @@ def pen_from_fmt(s, z='Factory'):
         dt = dt.date()
     return dt
 
-if __name__ == '__main__':
-    print('\n\n')
-    import doctest
-    from pprint import pprint
-    # doctest.testmod()
 
+def load_json():
+    import json
+    db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+    for item in db:
+        try:
+            print()
+            print(jinja_entry_template.render(h=item))
+        except Exception as e:
+            print('\nexception:', e)
+            pprint(item)
+
+
+def import_json():
     import json
     root = '/Users/dag/etm-mvc/tmp'
     import_file = os.path.join(root, 'import.json')
     with open(import_file, 'r') as fo:
         import_hsh = json.load(fo)
     items = import_hsh['items']
-
-    # dt1 = pendulum.Pendulum(2011, 6, 11, 12, 0, 0, tzinfo='Europe/Paris')
-    # dt2 = pendulum.from_format("20110611T1200", "%Y%m%dT%H%M", 'Europe/Paris')
-    # print(dt1)
-    # print(dt2)
-    # print(dt1 == dt2)
-
-    # db = TinyDB('db.json', storage=serialization, sort_keys=True, indent=2, ensure_ascii=False)
     db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     db.purge()
 
     docs = []
     for id in items:
         item_hsh = items[id]
+        if item_hsh['itemtype'] not in type_keys:
+            continue
         z = item_hsh.get('z', 'Factory')
+        bad_keys = [x for x in item_hsh if x not in at_keys]
+        for key in bad_keys:
+            del item_hsh[key]
+        # if 'z' in item_hsh:
+        #     del item_hsh['z']
         if 's' in item_hsh:
             item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
         if 'f' in item_hsh:
@@ -1745,14 +1827,41 @@ if __name__ == '__main__':
             item_hsh['-'] = [pen_from_fmt(x, z) for x in item_hsh['-'] ]
         if 'e' in item_hsh:
             item_hsh['e'] = parse_period(item_hsh['e'])[1]
-        if 'z' in item_hsh:
-            del item_hsh['z']
+        if 'j' in item_hsh:
+            jobs = []
+            for job in item_hsh['j']:
+                bad_keys = []
+                for key in job:
+                    if key not in amp_keys['j'] or not job[key]:
+                        bad_keys.append(key)
+                if bad_keys:
+                    for key in bad_keys:
+                        del job[key]
+                    jobs.append(job)
+            item_hsh['j'] = jobs
 
         docs.append(item_hsh)
-        # pprint(item_hsh)
-        # db.insert(item_hsh)
     db.insert_multiple(docs)
 
+
+
+if __name__ == '__main__':
+    print('\n\n')
+    import doctest
+    from pprint import pprint
+
+    # import_json()
+    load_json()
+
+    # doctest.testmod()
+
+    # dt1 = pendulum.Pendulum(2011, 6, 11, 12, 0, 0, tzinfo='Europe/Paris')
+    # dt2 = pendulum.from_format("20110611T1200", "%Y%m%dT%H%M", 'Europe/Paris')
+    # print(dt1)
+    # print(dt2)
+    # print(dt1 == dt2)
+
+    # db = TinyDB('db.json', storage=serialization, sort_keys=True, indent=2, ensure_ascii=False)
 #     db.insert({'naive pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='Factory')})
 
 #     db.insert({'pacific pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='US/Pacific') })
@@ -1764,5 +1873,5 @@ if __name__ == '__main__':
 #     # hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
 #     # db.insert(hsh)
     # for item in db:
-    #     print(item.eid, item)
+    #     print(jinja_entry_template(h=item) )
 

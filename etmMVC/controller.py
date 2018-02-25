@@ -6,7 +6,7 @@ pendulum.set_formatter('alternative')
 # from dateutil.tz import gettz, tzutc, tzlocal
 
 # from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE
-from model import parse_datetime, parse_period, rrule, jobs, format_datetime, set_summary
+from model import parse_datetime, parse_period, rrule, jobs, format_datetime, set_summary, type_keys, at_keys, amp_keys
 from dateutil.rrule import rrulestr
 
 testing = True
@@ -30,67 +30,6 @@ semicolon_regex = re.compile(r'\;\s*')
 item_hsh = {} # preserve state
 
 # TODO: move this to model
-type_keys = {
-    "*": "event",
-    "-": "task",
-    "%": "journal entry",
-    "?": "someday entry",
-    "!": "inbox entry",
-}
-
-at_keys = {
-    '+': "include (list of date-times)",
-    '-': "exclude (list of date-times)",
-    'a': "alert (timeperiod: cmd, optional args*)",
-    'b': "beginby (integer number of days)",
-    'c': "calendar (string)",
-    'd': "description (string)",
-    'e': "extent (timeperiod)",
-    'f': "finish (datetime)",
-    'g': "goto (url or filepath)",
-    'h': "completions history (list of done:due datetimes)",
-    'i': "index (colon delimited string)",
-    'j': "job summary (string)",
-    'l': "location (string)",
-    'm': "memo (list of 'datetime, timeperiod, datetime')",
-    'n': "named delegate (string)",
-    'o': "overdue (r)estart, (s)kip or (k)eep)",
-    'p': "priority (integer)",
-    'r': "repetition frequency (y)early, (m)onthly, (w)eekly,"
-         " (d)aily, (h)ourly, mi(n)utely",
-    's': "starting date or datetime",
-    't': "tags (list of strings)",
-    'x': "extracton key (string)",
-}
-
-amp_keys = {
-    'r': {
-        'c': "count: integer number of repetitions",
-        'E': "easter: number of days before (-), on (0) or after (+) Easter",
-        'h': "hour: list of integers in 0 ... 23",
-        'i': "interval: positive integer",
-        'm': "monthday: list of integers 1 ... 31",
-        'M': "month: list of integers in 1 ... 12",
-        'n': "minute: list of integers in 0 ... 59",
-        's': "set position: integer",
-        'u': "until: datetime",
-        'w': "weekday: list from SU, MO, ..., SA",
-    },
-    'j': {
-        'a': "alert: timeperiod: command, args*",
-        'b': "beginby: integer number of days",
-        'd': "description: string",
-        'e': "extent: timeperiod",
-        'f': "finish: datetime",
-        'i': "unique id: integer or string",
-        'l': "location: string",
-        'm': "memo (list of 'datetime, timeperiod, datetime')",
-        'n': "named delegate (string)",
-        'p': "prerequisites: comma separated list of ids of immediate prereqs",
-        's': "start/due: timeperiod before task start",
-    },
-}
-
 allowed = {}
 required = {}
 undated_methods = 'cdegilmstx'
