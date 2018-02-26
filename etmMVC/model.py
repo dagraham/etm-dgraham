@@ -403,7 +403,7 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
         all good men to come to the aid of their country.
     """
     # width, rows = shutil.get_terminal_size()
-    para = [textwrap.dedent(x).strip() for x in txt.split('\n')]
+    para = [textwrap.dedent(x).strip() for x in txt.split('\n') if x.strip()]
     tmp = []
     first = True
     for p in para:
@@ -414,6 +414,7 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
             initial_indent = ' '*indent
         tmp.append(textwrap.fill(p, initial_indent=initial_indent, subsequent_indent=' '*indent, width=width-indent-1))
     return "\n".join(tmp)
+
 
 def set_summary(s, dt=pendulum.Pendulum.now()):
     """
@@ -610,32 +611,36 @@ def title(arg):
 
 
 entry_tmpl = """\
-{%- set title -%}
+{%- set title -%}\
 {{ h.itemtype }} {{ h.summary }}\
-{% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %} \
-{% for k in ['e', 'z'] -%} 
-{%- if k in h %}@{{ k }} {{ h[k] }} {% endif %} \
-{%- endfor %}
-{%- endset %}
-{{ wrap(title) }}\
-{% if 'a' in h %}
-{%- set alerts -%}
+{% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %}\
+{%- for k in ['e', 'z'] -%}\
+{%- if k in h %} @{{ k }} {{ h[k] }}{% endif %}\
+{%- endfor %}\
+{%- endset %}\
+{{ wrap(title) }}
+{% if 'a' in h %}\
+{%- set alerts %}\
 {%- for x in h['a'] %}{{ "@a {}: {}".format(x[0], ", ".join(x[1:])) }} {% endfor %}\
-{%- endset %}
+{% endset %}\
 {{ wrap(alerts) }}
 {% endif %}\
-{% for k in ['c', 'i'] -%} 
-{%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}
-{%- endfor %}
-{%- set location -%}
-{% for k in ['l', 'm', 'n', 'o', 'g', 'u', 'x', 'f', 'p'] -%}\
-{%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}\
-{%- endfor %}\
-{%- endset %}
-{{ wrap(location) }}\
-{% if 't' in h %}{{ "@t {}".format(", ".join(h['t'])) }} {% endif %}\
+{% set index %}\
+{%- for k in ['c', 'i'] %}\
+{%- if k in h %}@{{ k }} {{ h[k] }}{% endif %}\
+{% endfor -%}\
+{% endset -%}\
+{{ wrap(index) }}\
+{% set ns = namespace(found=false) %}
+{% set location %}
+{%- for k in ['l', 'm', 'n', 'o', 'g', 'u', 'x', 'f', 'p'] -%}\
+{%- if k in h %}@{{ k }} {{ h[k] }}{% set ns.found = true %} {% endif %}\
+{% endfor -%}\
+{%- endset -%}
+{%- if ns.found -%}4 {{ wrap(location) }}{%- endif -%}\
+{%- if 't' in h %}{{ " @t {}".format(", ".join(h['t'])) }} {% endif %}\
 {%- if 'r' in h %}
-{%- for x in h['r'] %}
+{%- for x in h['r'] -%}
 {%- set rrule -%}
 {{ x['f'] }}\
 {%- for k in ['i', 'c', 's', 'u', 'M', 'm', 'n', 'w', 'h', 'E'] -%}
@@ -651,7 +656,7 @@ entry_tmpl = """\
 {%- endif -%}\
 {%- endfor %}\
 {% if 'd' in h %}
-@d {{ wrap(h['d']) }}\
+@d {{ wrap(h['d']) }} \
 {% endif -%}
 {%- if 'j' in h %}
 {%- for x in h['j'] %}
@@ -1805,6 +1810,7 @@ def load_json():
     for item in db:
         try:
             print(jinja_entry_template.render(h=item))
+            print()
         except Exception as e:
             print('\nexception:', e)
             pprint(item)
