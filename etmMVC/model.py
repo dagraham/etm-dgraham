@@ -74,6 +74,7 @@ at_keys = {
     'x': "extracton key (string)",
     'z': "timezone (string)",
     'itemtype': "itemtype (character)",
+    'rrulestr': "rrulestr (string)",
     'summary': "summary (string)"
 }
 
@@ -82,6 +83,7 @@ amp_keys = {
         'c': "count: integer number of repetitions",
         'E': "easter: number of days before (-), on (0) or after (+) Easter",
         'h': "hour: list of integers in 0 ... 23",
+        'f': "frequency: character in y, m, w, d, h, n",
         'i': "interval: positive integer",
         'm': "monthday: list of integers 1 ... 31",
         'M': "month: list of integers in 1 ... 12",
@@ -97,6 +99,7 @@ amp_keys = {
         'e': "extent: timeperiod",
         'f': "finish: datetime",
         'i': "unique id: integer or string",
+        'j': "job summary (string)",
         'l': "location: string",
         'm': "memo (list of 'datetime, timeperiod, datetime')",
         'n': "named delegate (string)",
@@ -607,31 +610,40 @@ def title(arg):
 
 
 entry_tmpl = """\
+{%- set title -%}
 {{ h.itemtype }} {{ h.summary }}\
 {% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %} \
 {% for k in ['e', 'z'] -%} 
 {%- if k in h %}@{{ k }} {{ h[k] }} {% endif %} \
 {%- endfor %}
+{%- endset %}
+{{ wrap(title) }}\
+{% if 'a' in h %}
+{%- set alerts -%}
+{%- for x in h['a'] %}{{ "@a {}: {}".format(x[0], ", ".join(x[1:])) }} {% endfor %}\
+{%- endset %}
+{{ wrap(alerts) }}
+{% endif %}\
 {% for k in ['c', 'i'] -%} 
 {%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}
-{%- endfor %}\
+{%- endfor %}
+{%- set location -%}
 {% for k in ['l', 'm', 'n', 'o', 'g', 'u', 'x', 'f', 'p'] -%}\
-{%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}
+{%- if k in h %}@{{ k }} {{ h[k] }} {% endif %}\
 {%- endfor %}\
+{%- endset %}
+{{ wrap(location) }}\
 {% if 't' in h %}{{ "@t {}".format(", ".join(h['t'])) }} {% endif %}\
-{% if 'a' in h %}\
-{%- for x in h['a'] %}{{ "@a {}: {}".format(x[0], ", ".join(x[1:])) }} {% endfor %}\
-{% endif %}\
 {%- if 'r' in h %}
-    {%- for x in h['r'] %}
-    {%- set rrule -%}
-        {{ x['r'] }}\
-        {%- for k in ['i', 's', 'u', 'M', 'm', 'w', 'h', 'u', 'E'] -%}
-            {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }} {%- endif %}
-        {%- endfor %}
-    {%- endset %}
-  @r {{ wrap(rrule) }}\
-    {%- endfor %}
+{%- for x in h['r'] %}
+{%- set rrule -%}
+{{ x['f'] }}\
+{%- for k in ['i', 'c', 's', 'u', 'M', 'm', 'n', 'w', 'h', 'E'] -%}
+{%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }} {%- endif %}\
+{%- endfor %}
+{%- endset %}
+@r {{ wrap(rrule) }}\
+{%- endfor %}
 {%- endif -%}
 {% for k in ['+', '-', 'h'] -%}
 {%- if k in h and h[k] %}
@@ -642,18 +654,18 @@ entry_tmpl = """\
 @d {{ wrap(h['d']) }}\
 {% endif -%}
 {%- if 'j' in h %}
-    {%- for x in h['j'] %}
-    {%- set job -%}
-        {{ x['j'] }}\
-        {%- for k in ['s', 'b', 'd', 'e', 'f', 'l', 'i', 'p'] -%}
-            {%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
-        {%- endfor %}
-        {%- if 'a' in x %}\
-            {%- for a in x['a'] %} &a {{ "{}: {}".format(a[0], ", ".join(a[1:])) }}{% endfor %}\
-        {%- endif %}\
-    {%- endset %}
-  @j {{ wrap(job) }}\
-    {%- endfor %}\
+{%- for x in h['j'] %}
+{%- set job -%}
+{{ x['j'] }}\
+{%- for k in ['s', 'b', 'd', 'e', 'f', 'l', 'i', 'p'] -%}
+{%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
+{%- endfor %}
+{%- if 'a' in x %}\
+{%- for a in x['a'] %} &a {{ "{}: {}".format(a[0], ", ".join(a[1:])) }}{% endfor %}\
+{%- endif %}\
+{%- endset %}
+@j {{ wrap(job) }}\
+{%- endfor %}\
 {%- endif -%}
 """
 
@@ -1792,7 +1804,6 @@ def load_json():
     db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     for item in db:
         try:
-            print()
             print(jinja_entry_template.render(h=item))
         except Exception as e:
             print('\nexception:', e)
@@ -1842,8 +1853,21 @@ def import_json():
                 if bad_keys:
                     for key in bad_keys:
                         del job[key]
-                    jobs.append(job)
+                jobs.append(job)
             item_hsh['j'] = jobs
+
+        if 'r' in item_hsh:
+            ruls = []
+            for rul in item_hsh['r']:
+                bad_keys = []
+                for key in rul:
+                    if key not in amp_keys['r'] or not rul[key]:
+                        bad_keys.append(key)
+                if bad_keys:
+                    for key in bad_keys:
+                        del rul[key]
+                ruls.append(rul)
+            item_hsh['r'] = ruls
 
         docs.append(item_hsh)
     db.insert_multiple(docs)
@@ -1879,4 +1903,3 @@ if __name__ == '__main__':
 #     # db.insert(hsh)
     # for item in db:
     #     print(jinja_entry_template(h=item) )
-
