@@ -626,30 +626,30 @@ entry_tmpl = """\
 {{ wrap(alerts) }}
 {% endif %}\
 {% set index %}\
-{%- for k in ['c', 'i'] %}\
-{%- if k in h %}@{{ k }} {{ h[k] }}{% endif %}\
+{% for k in ['c', 'i'] %}\
+{% if k in h %} @{{ k }} {{ h[k] }}{% endif %}\
 {% endfor -%}\
-{% endset -%}\
+{% endset -%}
 {{ wrap(index) }}\
-{% set ns = namespace(found=false) %}
-{% set location %}
+{%- if 't' in h %}{{ " @t {}".format(", ".join(h['t'])) }} {% endif %}\
+{% set ns = namespace(found=false) %}\
+{% set location %}\
 {%- for k in ['l', 'm', 'n', 'o', 'g', 'u', 'x', 'f', 'p'] -%}\
 {%- if k in h %}@{{ k }} {{ h[k] }}{% set ns.found = true %} {% endif %}\
 {% endfor -%}\
-{%- endset -%}
+{%- endset -%}\
 {%- if ns.found -%}4 {{ wrap(location) }}{%- endif -%}\
-{%- if 't' in h %}{{ " @t {}".format(", ".join(h['t'])) }} {% endif %}\
-{%- if 'r' in h %}
-{%- for x in h['r'] -%}
-{%- set rrule -%}
+{%- if 'r' in h %}\
+{%- for x in h['r'] -%}\
+{%- set rrule -%}\
 {{ x['f'] }}\
-{%- for k in ['i', 'c', 's', 'u', 'M', 'm', 'n', 'w', 'h', 'E'] -%}
-{%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }} {%- endif %}\
-{%- endfor %}
+{%- for k in ['i', 'c', 's', 'u', 'M', 'm', 'n', 'w', 'h', 'E'] -%}\
+{%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
+{%- endfor %}\
 {%- endset %}
-@r {{ wrap(rrule) }}\
-{%- endfor %}
-{%- endif -%}
+@r {{ wrap(rrule) }}
+{%- endfor %}\
+{%- endif -%}\
 {% for k in ['+', '-', 'h'] -%}
 {%- if k in h and h[k] %}
 @{{ k }} {{ wrap(dtlst2str(h[k])) }}
