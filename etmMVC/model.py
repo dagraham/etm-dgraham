@@ -634,11 +634,12 @@ entry_tmpl = """\
 {%- if 't' in h %}{{ " @t {}".format(", ".join(h['t'])) }} {% endif %}\
 {% set ns = namespace(found=false) %}\
 {% set location %}\
-{%- for k in ['l', 'm', 'n', 'o', 'g', 'u', 'x', 'f', 'p'] -%}\
+{%- for k in ['l', 'm', 'n', 'g', 'u', 'x', 'f', 'p'] -%}\
 {%- if k in h %}@{{ k }} {{ h[k] }}{% set ns.found = true %} {% endif %}\
-{% endfor -%}\
-{%- endset -%}\
-{%- if ns.found -%}4 {{ wrap(location) }}{%- endif -%}\
+{% endfor %}\
+{% endset %}\
+{% if ns.found %}
+{{ wrap(location) }}{% endif -%}\
 {%- if 'r' in h %}\
 {%- for x in h['r'] -%}\
 {%- set rrule -%}\
@@ -649,6 +650,8 @@ entry_tmpl = """\
 {%- endset %}
 @r {{ wrap(rrule) }}
 {%- endfor %}\
+{% if 'o' in h %}
+@o {{ h['o'] }}{% endif -%}\
 {%- endif -%}\
 {% for k in ['+', '-', 'h'] -%}
 {%- if k in h and h[k] %}
