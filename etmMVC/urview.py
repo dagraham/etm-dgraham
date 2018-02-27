@@ -4,6 +4,7 @@ from controller import check_entry, str2hsh
 import os
 import sys
 import inspect
+import difflib
 
 # realpath() will make your script run, even if you symlink it :)
 cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile(
@@ -156,7 +157,7 @@ def main():
     main_loop = urwid.MainLoop(body.frame, palette, input_filter=input_handler)
     main_loop.run()
 
-type_prompt = u"type character for new item?\n"
+type_prompt = u"type character for new item?"
 item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
 
 palette = [
@@ -164,7 +165,8 @@ palette = [
         ('warn', 'dark red,bold', 'default', 'bold')]
 
 # ask sets the caption for the edit widget which will be followed by the actual entry field.
-ask = urwid.Edit(('say', type_prompt), multiline=True)
+prompt = urwid.Text(type_prompt)
+ask = urwid.Edit(('say', ""), multiline=True)
 # reply sets the text for the reply TEXT widget
 reply = urwid.Text(item_types)
 save_button = BracketButton(u'Save')
@@ -182,16 +184,34 @@ dates = urwid.Padding(urwid.GridFlow(
 div = urwid.Divider('-')
 
 # pile = urwid.Pile([ask, div, reply, div, save_button, exit_button])
-pile = urwid.Pile([ask, div, reply, div, buttons, dates])
+pile = urwid.Pile([prompt, ask, div, reply, div, buttons, dates])
 top = urwid.Filler(pile, valign='top')
 
 # top.append(urwid.AttrMap(date1, None, focus_map='reversed'))
 # top.append(urwid.AttrMap(date2, None, focus_map='reversed'))
 
-def on_ask_change(edit, entry_text):
-    pos = ask.edit_pos
-    a, r = check_entry(entry_text, pos)
-    ask.set_caption(a)
+def report_diff(a, b):
+    res = 0, ''
+    for i,s in enumerate(difflib.ndiff(a, b)):
+        if s[0]==' ': 
+            continue
+        elif s[0]=='-':
+            res = i, 'position {}: deleted "{}" '.format(i, s[-1])
+            break
+        elif s[0]=='+':
+            res = i, 'position {}: added "{}" '.format(i, s[-1])
+            break
+    return res
+
+old_text = ''
+def on_ask_change(edit, new_text):
+    global old_text
+    old_text = ask.get_text()[0]
+    pos, res = report_diff(old_text, new_text)
+    # pos = ask.edit_pos
+    a, r = check_entry(new_text, pos)
+    prompt.set_text(a)
+    # reply.set_text(('say', "{}\n{}\n{}".format(old_text, new_text, res)))
     reply.set_text(r)
 
 

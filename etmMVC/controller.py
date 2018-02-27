@@ -99,7 +99,7 @@ def deal_with_s(at_hsh = {}):
 
     """
     s = at_hsh.get('s', None)
-    top = "{}?\n".format(at_keys['s'])
+    top = "{}?".format(at_keys['s'])
     bot = ''
     if s is None:
         return top, bot
@@ -137,7 +137,7 @@ def deal_with_e(at_hsh={}):
     Check the current state of at_hsh regarding the 'e' key.
     """
     s = at_hsh.get('e', None)
-    top = "{}?\n".format(at_keys['e'])
+    top = "{}?".format(at_keys['e'])
     bot = ''
     if s is None:
         return top, bot, item_hsh
@@ -162,7 +162,7 @@ def deal_with_i(at_hsh={}):
     ['plant', 'tree', 'oak']
     """
     s = at_hsh.get('i', None)
-    top = "{}?\n".format(at_keys['i'])
+    top = "{}?".format(at_keys['i'])
     bot = ''
     if s is None:
         return top, bot, None
@@ -411,7 +411,7 @@ def check_entry(s, cursor_pos):
                 break
 
         if at_entry:
-            ask =  ('say', "{} @keys:\n".format(type_keys[itemtype]))
+            ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
             current_required = ["@{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
             reply_str = ""
             if current_required:
@@ -422,33 +422,33 @@ def check_entry(s, cursor_pos):
             reply = ('say', reply_str)
         elif act_key:
             if act_key in at_keys:
-                ask = ('say', "{0}?\n".format(at_keys[act_key]))
+                ask = ('say', "{0}?".format(at_keys[act_key]))
 
             else:
-                ask =  ('say', "{} @keys:\n".format(type_keys[itemtype]))
+                ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
 
             if act_key == itemtype:
-                ask = ('say', "{} summary:\n".format(type_keys[itemtype]))
+                ask = ('say', "{} summary:".format(type_keys[itemtype]))
                 reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs\n'.format(type_keys[itemtype]))
 
             else:
                 ok, res = check_requires(act_key, hsh)
                 if not ok:
-                    ask = ('say', '{0}\n'.format(at_keys[act_key]))
+                    ask = ('say', '{0}'.format(at_keys[act_key]))
                     reply = res
 
 
                 elif act_key in allowed[itemtype]:
 
                     if amp_entry:
-                        ask = ('say', "&key for @{}?\n".format(act_key))
+                        ask = ('say', "&key for @{}?".format(act_key))
                         reply =  ('say', "Allowed: {}\n".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key]])))
                     elif act_key in deal_with:
                         top, bot, obj = deal_with[act_key](hsh)
                         ask = ('say', top)
                         reply = ('say', "{}\n".format(bot))
                     else:
-                        ask = ('say', "{0}?\n".format(at_keys[act_key]))
+                        ask = ('say', "{0}?".format(at_keys[act_key]))
                 else:
                     reply = ('warn', "@{0} is not allowed for item type '{1}'\n".format(act_key, itemtype))
         else:
