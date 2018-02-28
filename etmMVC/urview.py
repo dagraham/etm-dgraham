@@ -196,7 +196,7 @@ def report_diff(a, b):
         if s[0]==' ': 
             continue
         elif s[0]=='-':
-            res = i, 'position {}: deleted "{}" '.format(i, s[-1])
+            res = i-1, 'position {}: deleted "{}" '.format(i, s[-1])
             break
         elif s[0]=='+':
             res = i, 'position {}: added "{}" '.format(i, s[-1])

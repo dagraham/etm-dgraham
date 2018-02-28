@@ -47,8 +47,8 @@ required['-'] = ''
 allowed['-'] = undated_methods + datetime_methods + task_methods
 
 # journal entries
-required['#'] = ''
-allowed['#'] = undated_methods + datetime_methods
+required['%'] = ''
+allowed['%'] = undated_methods + datetime_methods
 
 # someday entries
 required['?'] = ''
