@@ -41,9 +41,52 @@ etmdir = None
 
 ETMFMT = "%Y%m%dT%H%M"
 
+# display characters 
+datedChar2Type = {
+    '!': "ib",
+    '*': "ev",
+    '~': "ac",
+    '%': "nt",
+    '-': "ts",
+    '+': "tw",
+    'x': "fn",
+    '?': "so",
+}
+
+pastdueTaskChar2Type = {
+    '-': "tp",
+    '+': "tw"
+}
+
+undatedChar2Type = {
+    '-': "tu",
+    '%': "nt",
+    '!': "ib",
+    '?': "so",
+    'x': "fn",
+}
+
+# type codes in the order in which they should be sorted
+# palette settings will determine display colors for each
+types = [
+        'ib',  # inbox
+        'oc',  # occasion
+        'ev',  # event
+        'tp',  # pastdue task or available job 
+        'tw',  # job with unfinished prereqs - scheduled or unscheduled 
+        'ts',  # scheduled but not pastdue task or available job
+        'tu',  # unscheduled task or available job
+        'by',  # beginby"
+        'ac',  # action
+        'nt',  # note
+        'so',  # someday
+        'fn',  # finished task or job
+         ]
+
 type_keys = {
     "*": "event",
     "-": "task",
+    "~": "action",
     "%": "journal entry",
     "?": "someday entry",
     "!": "inbox entry",

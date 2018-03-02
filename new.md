@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Mar 01, 2018 05:12PM EST**
+**Last modified: Fri Mar 02, 2018 01:18PM EST**
 
 # Goals
 
@@ -42,7 +42,7 @@
 
 Unchanged but for the change in the type character from `!` to `%`.
 
-### `$`: action
+### `~`: action
 
   - In an *action*, `@s` records the datetime that the action was started, `@e` the timeperiod that the work on the action was active and `@f` the datetime that the action was finished. The timeperiod that work on the action was inactive is given implicitly by `finished` minus `started` minus `active`. 
   - Each action is displayed in the *Done* view on the date of `finished` using the display character `$`, the item summary, the time of `finished` and the `timeperiod active`.
@@ -296,7 +296,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         | Agenda - Week 3: Jan 15 - 21, 2018                 F1:help |  1
         +------------------------------------------------------------+ 
         | Mon Jan 15                                                 |  2
-        |   ^ Martin Luther King Day                                 |  3
+        |   * Martin Luther King Day                                 |  3
         |   * Lunch with Joe                            12:30-1:30pm |  4
         |   - Revise 1st quarter schedule                    3pm     |  5
         | Thu Jan 18 - Today                                         |  6
@@ -330,7 +330,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 - The top title bar shows the selected week.
 - The bottom status bar shows current time, the next alarm and the number of remaining alarms for the current date.
 - The main panel shows scheduled items grouped and sorted by date and time.
-- Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the display would show "Nothing scheduled". E.g, 
+- Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the displayould show "Nothing scheduled". E.g, 
 
         Week 2: Jan 8 - 14, 2018                            F1:Help
           Nothing scheduled
@@ -472,7 +472,7 @@ Someday items grouped and sorted by the last modified datetime
 
 
         +------------------------- top bar --------------------------+  
-        | History by creation date ascending                 F1:help |  1
+        | History: creation datetime ascending               F1:help |  1
         +------------------------------------------------------------+ 
         | * Martin Luther King Day                       2016-01-02  |  2
         |                                                            |  3
