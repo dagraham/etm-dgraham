@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Fri Mar 02, 2018 01:18PM EST**
+**Last modified: Fri Mar 02, 2018 01:26PM EST**
 
 # Goals
 
@@ -179,23 +179,21 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 ## Dates and Date Times
 
-- The time zone entry, `@z`, is eliminated. 
-
 - Dates (naive) and datetimes (both naive and aware) are suppored. 
 
 - Fuzzy parsing of entries is suppored.
 
-- The format for the `@s` entry is `date [time][, TimeZone|float]`. In the following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern.
+- The format for the `@s` entry is `date [time]`. In the following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern.
 
     - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. *Without a time*, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone.
 
     - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. *With a time specified*, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
 
-    - Aware date-time, e.g., `@s fri 2p, US/Pacific`. *With the timezone specified*, this is interpreted as `Fri, Jan 5 2018 2pm PST`. 
+    - Aware date-time, e.g., `@s fri 2p @z US/Pacific`. *With the timezone specified*, this is interpreted as `Fri, Jan 5 2018 2pm PST`. 
 
-    - Naive date-time, e.g., `@s fri 2p, float`. *With float specified*, this is interpreted as `Fri, Jan 5, 2018 2pm` in whatever happens to be the local time zone.
+    - Naive date-time, e.g., `@s fri 2p @z float`. *With float specified*, this is interpreted as `Fri, Jan 5, 2018 2pm` in whatever happens to be the local time zone.
 
-    The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the comma and the timezone. Still less probably, one that floats and this requires the addition of the comma and `float`.
+    The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
 
 - When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time. E.g., in the following all repetitions are at 2pm even though the first two are EST and the third is EDT.
 
@@ -212,7 +210,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
       * my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
 
-  would repeat at 3pm on Thu Feb 15, 4pm on Fri Mar 2 and 9am on Mon Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are all used.
+    would repeat at 3pm on Thu Feb 15, 4pm on Fri Mar 2 and 9am on Mon Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are all used.
 
 - The *relevant datetime* of an item (used in index view): 
   - Non repeating events and unfinished tasks: the datetime given in `@s`
