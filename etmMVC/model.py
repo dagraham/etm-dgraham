@@ -1853,7 +1853,6 @@ def timestamp_from_eid(eid):
     return pendulum.from_format(str(eid)[:12], "%Y%m%d%H%M").in_timezone('local')
 
 def load_json():
-    import json
     db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     for item in db:
         try:
@@ -1864,6 +1863,41 @@ def load_json():
         except Exception as e:
             print('\nexception:', e)
             pprint(item)
+
+def test_sort():
+    db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+    rows = []
+    for item in db:
+        if item['itemtype'] in "!?" or 's' not in item:
+            continue
+        if type(item['s']) == pendulum.Pendulum:
+            rhc = item['s'].format("h:mmA", formatter="alternative")
+        else:
+            rhc = ""
+
+        rows.append(
+                  {
+                    'id': item.eid,
+                    'sort': item['s'].format("YYYYMMDD", formatter="alternative"),
+                    'path': (
+                        item['s'].year, 
+                        item['s'].week_of_year, 
+                        item['s'].format("ddd MMM D", formatter="alternative"),
+                        ),
+                    'columns': (
+                        f"{item['itemtype']} {item['summary']}", 
+                        rhc
+                        )
+                  }
+                )
+    from operator import itemgetter
+    from itertools import groupby
+    rows.sort(key=itemgetter('sort'))
+
+    for path, items in groupby(rows, key=itemgetter('path')):
+        print(path)
+        for i in items:
+            print(f"    {i['columns'][0]}     {i['columns'][1]}" )
 
 
 def import_json():
@@ -1936,26 +1970,8 @@ if __name__ == '__main__':
     from pprint import pprint
 
     # import_json()
-    load_json()
+    # load_json()
+    test_sort()
 
     # doctest.testmod()
 
-    # dt1 = pendulum.Pendulum(2011, 6, 11, 12, 0, 0, tzinfo='Europe/Paris')
-    # dt2 = pendulum.from_format("20110611T1200", "%Y%m%dT%H%M", 'Europe/Paris')
-    # print(dt1)
-    # print(dt2)
-    # print(dt1 == dt2)
-
-    # db = TinyDB('db.json', storage=serialization, sort_keys=True, indent=2, ensure_ascii=False)
-#     db.insert({'naive pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='Factory')})
-
-#     db.insert({'pacific pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='US/Pacific') })
-#     db.insert({'local pendulum': pendulum.Pendulum(2017, 9, 7, 14, 0, 0, tzinfo='local') })
-#     db.insert({'pendulum list': [pendulum.Pendulum(2017, 9, 7, 12, 0, 0), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='Factory'), pendulum.Pendulum(2017, 9, 7, 12, 0, 0, tzinfo='US/Pacific')]})
-#     # Absent tzinfo, the first item will be interpreted as noon UTC and will display as 8am Eastern. For the second where Factory is given explicitly, the item will be interpreted as noon in whatever the local timezone, i.e., an offset of 0, and thus noon Eastern. The third will be interpreted as noon Pacific and will display as 3pm Eastern.
-#     db.insert({'pendulum date': pendulum.Pendulum(2017, 9, 7, tzinfo='Factory').date() })
-#     db.insert({'pendulum interval': pendulum.Interval(weeks=1, days=3, hours=7, minutes=15)})
-#     # hsh = {'type': '*', 'summary': 'my event', 's':  datetime(2017, 9, 7, 12, 0, 0, tzinfo=gettz('US/Pacific')), 'e': timedelta(hours=1, minutes=15)}
-#     # db.insert(hsh)
-    # for item in db:
-    #     print(jinja_entry_template(h=item) )

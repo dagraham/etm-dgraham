@@ -1,5 +1,5 @@
 # Notes for etm
-** Last modified: Thu Mar 01, 2018 05:16PM EST
+** Last modified: Fri Mar 02, 2018 05:17PM EST
 **
 
 # Design
@@ -442,6 +442,77 @@ Maybe add an @key to tasks (events, notes?)
 - @s, @a, @b ignored
 
 # Views
+
+## What's needed
+
+* views in which an item contributes a single row:
+  * index
+  * history-created
+  * history-modified
+  * index
+  * someday
+
+* views in which each instance contributes a single row
+  * agenda
+  * busy
+  * done
+  * month
+  * next (tasks with jobs contribute one row for each job)
+
+For single row views
+
+    items: id -> | type | summary | c_dt | m_dt | index | 
+
+Tag view
+    tags: id -> | tags |
+
+    rows = []
+    for id in tags:
+        for tag in tags[id]:
+            row.append(stuff from items[id], tag)
+
+Scheduled views (Agenda, Month)
+    instances: id -> | datetimes |
+    rows = []
+    for id in instances:
+        for dt in instances[id]:
+            row.append(stuff from item[id], dt)
+
+
+
+For tags
+    id -> tags
+
+For 
+
+id -> [instances in beg-end interval]
+only events and tasks repeat
+for events instances correspond to datetimes in interval
+for tasks instances correspond to history datetimes and unfinished instances in interval
+
+
+
+views: view -> list of rows
+
+views = {
+  'weekly': weekview_rows,
+  'index': index_row,
+  'history_created': row,
+  'history_modified': 
+}
+
+* A hash: id -> list of tuples where each tuple as a means for sorting, a path tuple to describe the path to the displayed node and a columns tuple to describe what is to be displayed in columns 1 and 2 for the node.
+
+* In the etm-urwid each view was a list of lists with each list element = [sort_tuple, path_tuple, columns_tuple]
+
+Methods
+
+- Set/update header and footer
+- Set view
+
+- Home (spacebar)
+
+
 
 ## week and month views 
 
