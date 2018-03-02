@@ -1,5 +1,5 @@
 # Notes for etm
-** Last modified: Sat Feb 24, 2018 04:17PM EST
+** Last modified: Thu Mar 01, 2018 05:16PM EST
 **
 
 # Design
@@ -710,12 +710,24 @@ Details for the selected item.
 
 ## View Mode keys
 
-- `F1`: help
-- `a`: agenda view
-- `w`: week view
-- `m`: month view
-- `t`: tags view
-- `i`: index view
-- `h`: history view
+      menu1 = [
+          "-- VIEWS ------------------------------------------ ",
+          "a: agenda        n: next           t: tags          ",
+          "b: busy          s: someday        f: set filter    ",
+          "d: done          i: index          l: set level     ",
+          "m: month         h: history        c: set calendars ",
+          ]
 
-- `n`: create new item
+      menu2 = [
+          "-- SELECTED ITEM ---------------------------------- ",
+          "E: edit          R: reschedule     K: klone item    ",
+          "D: delete        S: schedule new   T: start timer   ",
+          "F: finish        O: open link      X: export ical   ",
+          ]
+
+      menu3 = [
+          "-- TOOLS ------------------------------------------ ",
+          "N: new item      Q: query          F2: date calc    ",
+          "J: jump to date  C: copy view      F3: yearly       ",
+          "A: alerts        P: preferences    F8: quit         ",
+      ]

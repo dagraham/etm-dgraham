@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Fri Feb 23, 2018 01:11PM EST**
+**Last modified: Thu Mar 01, 2018 05:12PM EST**
 
 # Goals
 
@@ -163,9 +163,9 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 ## Storage
 
 - All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable - not easily anyway.  It can be backed up and/or queried using external tools as well as etm itself. 
-- The actual entry string used to create the item is stored as the item's *entry* prettily formatted using a jinja2 template.
 - Additionally, individual components are stored in convenient formats. E.g., the components of a repetition rule are combined and stored as an rrulestr.
-- Two timestamps are automatically created for each item, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. The creation timestamp is used as the unique identifier for the item in the data store. 
+- Two timestamps are automatically created for each item, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. 
+- The creation timestamp is used as the unique identifier for the item in the data store and is accessed as `item.eid`. 
 - The hierarchical organization that was provided by file paths is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry `@i plant:tree:oak` would store the item in the *index* view under:
     - plant
         - tree
@@ -469,6 +469,43 @@ Someday items grouped and sorted by the last modified datetime
 - Items without `@i` entries are listed last under *None*.
 
 ## History
+
+
+        +------------------------- top bar --------------------------+  
+        | History by creation date ascending                 F1:help |  1
+        +------------------------------------------------------------+ 
+        | * Martin Luther King Day                       2016-01-02  |  2
+        |                                                            |  3
+        |                                                            |  4
+        |                                                            |  5
+        |                                                            |  6
+        |                                                            |  7
+        |                                                            |  8
+        |                                                            |  9
+        |                                                            | 10 
+        |                                                            | 11
+        |                                                            | 12
+        |                                                            | 13
+        |                                                            | 14
+        |                                                            | 15
+        |                                                            | 16
+        |                                                            | 17 
+        |                                                            | 18
+        |                                                            | 19
+        |                                                            | 20
+        |                                                            | 21
+        |                                                            | 22
+        |                                                            | 23
+        |                                                            | 24
+        |                                                            | 25
+        |                                                            | 26
+        |                                                            | 27
+        |                                                            | 28
+        |                                                            | 29
+        +------------------------ status bar ------------------------+ 
+        | 8:49am Thu Jan 18                                10:30am+1 | 30
+        +------------------------------------------------------------+
+
 
 ### Orignally Created
 

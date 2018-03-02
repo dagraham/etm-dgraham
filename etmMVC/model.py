@@ -1806,12 +1806,16 @@ def pen_from_fmt(s, z='Factory'):
         dt = dt.date()
     return dt
 
+def timestamp_from_eid(eid):
+    return pendulum.from_format(str(eid)[:12], "%Y%m%d%H%M").in_timezone('local')
 
 def load_json():
     import json
     db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     for item in db:
         try:
+            print(item.eid, item['itemtype'])
+            print(timestamp_from_eid(item.eid))
             print(jinja_entry_template.render(h=item))
             print()
         except Exception as e:

@@ -1,15 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [Tables](#tables)
-  - [Items](#items)
-  - [Dates](#dates)
-    - [YearWeekDay lookup](#yearweekday-lookup)
-    - [tinydb storage for `@s` and `@z`](#tinydb-storage-for-s-and-z)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Tables
 
 
@@ -20,6 +8,77 @@ of the UTC times in the database.
 All tables should be indexed by CID, the creation datetime uuid.
 
 ## Items
+
+items (every item has these)
+  *item_id:     item.eid (int)  
+  type:    item['itemtype'] in '*', '-', '%', '?', '!'
+  summary: item['summary'] (string)
+  calendar: item['calendar'] (string) 
+  cdt:     item.eid truncated after minutes (datetime) 
+  mdt:     item['modified'] (datetime)
+
+
+Week and Month
+scheduled
+  *start_dt:     @s/@z date or datetime
+  item_id: REFERENCES items
+
+finished
+  *finished_dt:     @s/@z date or datetime
+  item_id: REFERENCES items
+
+pastdue
+  *due_dt:
+  item_id: REFERENCES items
+
+  query: if due_dt < today: show (today - due_dt).days 
+
+beginning
+  *starting_dt:
+  *begin_dt: 
+  item_id: REFERENCES items
+
+  query: if begin_dt <= today: show (starting_dt - today).days
+
+
+indices: (one item to )
+  *index_id:
+  index_name: colon delimited string
+  item_id: REFERENCES items
+
+tags 
+  *tag_id: 
+  *tag_name:
+
+item_tags (many to many bridge)
+  item_id: REFERENCES items
+  tag_id:  REFERENCES tags
+
+
+item
+
+
+THINK ABOUT VIEWS!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Used for history view
