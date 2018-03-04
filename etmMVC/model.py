@@ -126,7 +126,7 @@ amp_keys = {
         'c': "count: integer number of repetitions",
         'E': "easter: number of days before (-), on (0) or after (+) Easter",
         'h': "hour: list of integers in 0 ... 23",
-        'f': "frequency: character in y, m, w, d, h, n",
+        'r': "frequency: character in y, m, w, d, h, n",
         'i': "interval: positive integer",
         'm': "monthday: list of integers 1 ... 31",
         'M': "month: list of integers in 1 ... 12",
@@ -1049,7 +1049,7 @@ rrule_methods = dict(
 )
 
 rrule_names = {
-    # 'r': 'FREQUENCY',  # unicode
+    'r': 'FREQUENCY',  # character in rrule_frequency
     'i': 'INTERVAL',  # positive integer
     'c': 'COUNT',  # integer
     's': 'BYSETPOS',  # integer
@@ -1949,6 +1949,9 @@ def import_json():
         if 'r' in item_hsh:
             ruls = []
             for rul in item_hsh['r']:
+                if 'f' in rul:
+                    rul['r'] = rul['f']
+                    del rul['f']
                 bad_keys = []
                 for key in rul:
                     if key not in amp_keys['r'] or not rul[key]:
@@ -1969,9 +1972,9 @@ if __name__ == '__main__':
     import doctest
     from pprint import pprint
 
-    # import_json()
-    # load_json()
-    test_sort()
+    import_json()
+    load_json()
+    # test_sort()
 
     # doctest.testmod()
 

@@ -35,7 +35,7 @@ starting_table (
 ); """
 
 finished_table = """ CREATE TABLE IF NOT EXISTS \ 
-starting_table (
+finished_table (
     finished_id integer PRIMARY KEY,
     finished_dt text NOT NULL,
     past_due text,

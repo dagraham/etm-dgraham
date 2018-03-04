@@ -1,5 +1,5 @@
 # Notes for etm
-** Last modified: Fri Mar 02, 2018 05:17PM EST
+** Last modified: Sun Mar 04, 2018 08:40AM EST
 **
 
 # Design
@@ -549,6 +549,8 @@ someday items
 ## Week View
 
 - Period: year-weeks in current week + 12 weeks before + 39 weeks after
+- Period: year-weeks in current week + 25 weeks before + 52 weeks after
+- Period: year-weeks in current month + 5 months before + 12 months after 
 - Dates and datetimes with float left as is; aware datetimes converted from 
   UTC to local time zone with the timezone information then removed.
 - sort tuple: (year-week, weekday number, type)
