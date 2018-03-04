@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Fri Mar 02, 2018 01:26PM EST**
+**Last modified: Sun Mar 04, 2018 09:21AM EST**
 
 # Goals
 
@@ -357,7 +357,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 ### Busy
 
 - Hours in the day that are partially or wholly "busy" are marked with `#`.
-- Hours in which a conflict occurs are marked with `+++`. 
+- Hours in which a conflict occurs are marked with `XXX`. 
 
         +----------------------------------------------------------+
         | Busy - Week 4: Jan 22 - 28, 2018                 F1:help |  1
@@ -377,7 +377,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |      |   .      #      .      .      .      #      .     | 14
         |      |   .      #      .      #      .      #      #     | 15
         |  12p |   #      .      .      #      .      #      #     | 16
-        |      |   #      .      .     +++     .      #      #     | 17
+        |      |   #      .      .     XXX     .      #      #     | 17
         |      |   .      .      .      #      .      .      #     | 18
         |      |   .      .      .      .      .      .      #     | 19
         |      |   #      .      .      .      .      .      .     | 20
