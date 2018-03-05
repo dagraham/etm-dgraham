@@ -286,6 +286,33 @@ def format_datetime_list(obj_lst):
     # print('got:', obj_lst, '; returning:', ret)
     return ret
 
+def format_interval(obj):
+    # """
+    # >>> td = pendulum.interval(weeks=1, days=2, hours=3, minutes=27)
+    # >>> format_interval(td)
+
+    # """
+    # if type(obj) == timedelta:
+    #     obj = pendulum.interval.instance(obj)
+
+    until =[]
+    if obj.weeks:
+        until.append(f"{obj.weeks}w")
+    if obj.remaining_days:
+        until.append(f"{obj.remaining_days}d")
+    if obj.hours:
+        until.append(f"{obj.hours}h")
+    if obj.minutes:
+        until.append(f"{obj.minutes}m")
+    if not until:
+        until.append("0m")
+    return "".join(until)
+
+def format_interval_list(obj_lst):
+    return ", ".join([format_interval(x) for x in obj_lst])
+
+
+
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 threeday_regex = re.compile(r'(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
@@ -299,13 +326,13 @@ period_hsh = dict(
     w=pendulum.Interval(weeks=1),
         )
 
-def parse_period(s):
+def parse_interval(s):
     """\
     Take a period string and return a corresponding pendulum interval.
     Examples:
-        parse_period('-2w3d4h5m')= Interval(weeks=-2,days=3,hours=4,minutes=5)
-        parse_period('1h30m') = Interval(hours=1, minutes=30)
-        parse_period('-10m') = Interval(minutes=10)
+        parse_interval('-2w3d4h5m')= Interval(weeks=-2,days=3,hours=4,minutes=5)
+        parse_interval('1h30m') = Interval(hours=1, minutes=30)
+        parse_interval('-10m') = Interval(minutes=10)
     where:
         w: weeks
         d: days
@@ -314,13 +341,13 @@ def parse_period(s):
 
     >>> 3*60*60+5*60
     11100
-    >>> parse_period("2d-3h5m")[1]
+    >>> parse_interval("2d-3h5m")[1]
     <Interval [1 day 21 hours 5 minutes]>
-    >>> pendulum.create(2015, 10, 15, 9, 0, tz='local') + parse_period("-25m")[1]
+    >>> pendulum.create(2015, 10, 15, 9, 0, tz='local') + parse_interval("-25m")[1]
     <Pendulum [2015-10-15T08:35:00-04:00]>
-    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_period("1d")[1]
+    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_interval("1d")[1]
     <Pendulum [2015-10-16T09:00:00+00:00]>
-    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_period("1w-2d+3h")[1]
+    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_interval("1w-2d+3h")[1]
     <Pendulum [2015-10-20T12:00:00+00:00]>
     """
     td = period_hsh['z']
@@ -664,7 +691,7 @@ entry_tmpl = """\
 {{ wrap(title) }}
 {% if 'a' in h %}\
 {%- set alerts %}\
-{%- for x in h['a'] %}{{ "@a {}: {}".format(x[0], ", ".join(x[1:])) }} {% endfor %}\
+{%- for x in h['a'] %}{{ "@a {}: {}".format(inlst2str(x[0]), ", ".join(x[1:])) }} {% endfor %}\
 {% endset %}\
 {{ wrap(alerts) }}
 {% endif %}\
@@ -712,7 +739,7 @@ entry_tmpl = """\
 {%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
 {%- endfor %}
 {%- if 'a' in x %}\
-{%- for a in x['a'] %} &a {{ "{}: {}".format(a[0], ", ".join(a[1:])) }}{% endfor %}\
+{%- for a in x['a'] %} &a {{ wrap(inlst2str(a[0])) + ": {}, ".format(join(a[1:])) }}{% endfor %}\
 {%- endif %}\
 {%- endset %}
 @j {{ wrap(job) }}\
@@ -722,7 +749,9 @@ entry_tmpl = """\
 
 jinja_entry_template = Template(entry_tmpl)
 jinja_entry_template.globals['dt2str'] = format_datetime
+jinja_entry_template.globals['in2str'] = format_interval
 jinja_entry_template.globals['dtlst2str'] = format_datetime_list
+jinja_entry_template.globals['inlst2str'] = format_interval_list
 jinja_entry_template.globals['one_or_more'] = one_or_more
 # jinja_entry_template.globals['set_summary'] = set_summary
 jinja_entry_template.globals['wrap'] = wrap
@@ -744,7 +773,7 @@ def description(arg):
 
 
 def extent(arg):
-    return parse_period(arg)
+    return parse_interval(arg)
 
 
 def history(arg):
@@ -1488,14 +1517,13 @@ class PendulumIntervalSerializer(Serializer):
         """
         Serialize the timedelta object as days.seconds.
         """
-        return "{0}.{1}".format(obj.days, obj.seconds)
+        return format_interval(obj)
 
     def decode(self, s):
         """
         Return the serialization as a timedelta object.
         """
-        days_seconds = (int(x) for x in s.split('.'))
-        return pendulum.Interval(*days_seconds)
+        return parse_interval(s)[1]
 
 
 serialization = SerializationMiddleware()
@@ -1902,8 +1930,9 @@ def test_sort():
 
 def import_json():
     import json
-    root = '/Users/dag/etm-mvc/tmp'
-    import_file = os.path.join(root, 'import.json')
+    # root = '/Users/dag/etm-mvc/tmp'
+    # import_file = os.path.join(root, 'import.json')
+    import_file = '/Users/dag/.etm/data/etm-db.json'
     with open(import_file, 'r') as fo:
         import_hsh = json.load(fo)
     items = import_hsh['items']
@@ -1926,13 +1955,21 @@ def import_json():
         if 'f' in item_hsh:
             item_hsh['f'] = pen_from_fmt(item_hsh['f'], z)
         if 'h' in item_hsh:
-            item_hsh['h'] = [pen_from_fmt(x, z) for x in item_hsh['h'] ]
+            item_hsh['h'] = [pen_from_fmt(x, z) for x in item_hsh['h']]
         if '+' in item_hsh:
             item_hsh['+'] = [pen_from_fmt(x, z) for x in item_hsh['+'] ]
         if '-' in item_hsh:
             item_hsh['-'] = [pen_from_fmt(x, z) for x in item_hsh['-'] ]
         if 'e' in item_hsh:
-            item_hsh['e'] = parse_period(item_hsh['e'])[1]
+            item_hsh['e'] = parse_interval(item_hsh['e'])[1]
+        if 'a' in item_hsh:
+            alerts = []
+            for alert in item_hsh['a']:
+                comps = list(alert)
+                tds = [parse_interval(x)[1] for x in comps[0]]
+                comps[0] = tds
+                alerts.append(comps)
+            item_hsh['a'] = alerts
         if 'j' in item_hsh:
             jobs = []
             for job in item_hsh['j']:
@@ -1972,9 +2009,9 @@ if __name__ == '__main__':
     import doctest
     from pprint import pprint
 
-    import_json()
+    # import_json()
     load_json()
     # test_sort()
 
-    # doctest.testmod()
+    doctest.testmod()
 
