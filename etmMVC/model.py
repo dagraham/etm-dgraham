@@ -1918,8 +1918,8 @@ def test_sort():
     rows.sort(key=itemgetter('sort'))
 
     for week, items in groupby(rows, key=itemgetter('week')):
-        wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).zfill(2)}").date().format("MMM D", formatter='alternative')
-        wkend = pendulum.parse(f"{week[0]}W{str(week[1]).zfill(2)}-7").date().format("MMM D", formatter='alternative')
+        wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}").date().format("MMM D", formatter='alternative')
+        wkend = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}-7").date().format("MMM D", formatter='alternative')
 
         print(f"{week[0]} Week {week[1]}: {wkbeg} - {wkend}")
         for day, columns in groupby(items, key=itemgetter('day')):
