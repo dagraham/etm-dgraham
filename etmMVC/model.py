@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from pprint import pprint
 import pendulum
 from pendulum import parse, timezone
 
@@ -152,9 +153,9 @@ amp_keys = {
 }
 
 
-def parse_datetime(s):
+def parse_datetime(s, z=None):
     """
-    's' will have the format 'datetime string' followed, optionally by a comma and a tz specification. Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if tz == 'float' or an aware datetime object converting to UTC using tzlocal if tz is None (missing) and using the provided tz otherwise.
+    's' will have the format 'datetime string' Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if 'z == float' or an aware datetime object converting to UTC using tzlocal if z == None  is missing and using the timezone specified in z otherwise.
     >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt[1]
     <Pendulum [2015-10-15T18:00:00+00:00]>
@@ -166,30 +167,26 @@ def parse_datetime(s):
     >>> dt = parse_datetime("2015-10-15 00:00:01")
     >>> dt[1]
     <Pendulum [2015-10-15T04:00:01+00:00]>
-    >>> dt = parse_datetime("2015-10-15 2p, float")
+    >>> dt = parse_datetime("2015-10-15 2p", "float")
     >>> dt[1]
     <Pendulum [2015-10-15T14:00:00+00:00]>
     >>> dt[1].tzinfo
     <TimezoneInfo [Factory, -00, +00:00:00, STD]>
-    >>> dt = parse_datetime("2015-10-15 2p, US/Pacific")
+    >>> dt = parse_datetime("2015-10-15 2p", "US/Pacific")
     >>> dt
     ('aware', <Pendulum [2015-10-15T21:00:00+00:00]>, 'US/Pacific')
     >>> dt[1].tzinfo
     <TimezoneInfo [UTC, GMT, +00:00:00, STD]>
     """
-    parts = s.split(", ")
-    if len(parts) < 2:
-        tz = tzinfo = None
+    if z is None:
+        tzinfo = 'local'
         ok = 'aware'
+    elif z == 'float':
+        tzinfo = 'Factory'
+        ok = 'naive'
     else:
-        tz = parts[1].strip()
-        if tz == 'float':
-            tzinfo = 'Factory'
-            ok = 'naive'
-        else:
-            tzinfo = tz
-            ok = 'aware'
-    s = parts[0]
+        tzinfo = z
+        ok = 'aware'
 
     try:
         res = parse(s, tz=tzinfo)
@@ -197,14 +194,14 @@ def parse_datetime(s):
             tz = res.format("zz", formatter='alternative')
 
     except:
-        return False, "Invalid date-time: '{}'".format(s), tz
+        return False, "Invalid date-time: '{}'".format(s), z
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-            return 'date', res.replace(tzinfo='Factory'), tz
+            return 'date', res.replace(tzinfo='Factory'), z
         elif ok == 'aware':
-            return ok, res.in_timezone('UTC'), tz
+            return ok, res.in_timezone('UTC'), z
         else:
-            return ok, res, tz
+            return ok, res, z
 
 def timestamp(arg):
     """
@@ -252,7 +249,7 @@ def format_datetime(obj):
     """
     >>> format_datetime(parse_datetime("20160710T1730")[1])
     (True, 'Sun Jul 10 2016 5:30PM EDT')
-    >>> format_datetime(parse_datetime("2015-07-10 5:30p, float")[1])
+    >>> format_datetime(parse_datetime("2015-07-10 5:30p", "float")[1])
     (True, 'Fri Jul 10 2015 5:30PM')
     >>> format_datetime(parse_datetime("20160710")[1])
     (True, 'Sun Jul 10 2016')
@@ -272,7 +269,7 @@ def format_datetime(obj):
                 return True, format(obj.format("ddd MMM D YYYY h:mmA", formatter='alternative'))
         else:
             # aware
-            return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA", formatter='alternative'))
+            return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA z", formatter='alternative'))
 
     elif type(obj) == pendulum.pendulum.Date:
         return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
@@ -287,14 +284,11 @@ def format_datetime_list(obj_lst):
     return ret
 
 def format_interval(obj):
-    # """
-    # >>> td = pendulum.interval(weeks=1, days=2, hours=3, minutes=27)
-    # >>> format_interval(td)
-
-    # """
-    # if type(obj) == timedelta:
-    #     obj = pendulum.interval.instance(obj)
-
+    """
+    >>> td = pendulum.interval(weeks=1, days=2, hours=3, minutes=27)
+    >>> format_interval(td)
+    '1w2d3h27m'
+    """
     until =[]
     if obj.weeks:
         until.append(f"{obj.weeks}w")
@@ -691,7 +685,7 @@ entry_tmpl = """\
 {{ wrap(title) }}
 {% if 'a' in h %}\
 {%- set alerts %}\
-{%- for x in h['a'] %}{{ "@a {}: {}".format(inlst2str(x[0]), ", ".join(x[1:])) }} {% endfor %}\
+{%- for x in h['a'] %}{{ "@a {}: {} ".format(inlst2str(x[0]), ", ".join(x[1:])) }} {% endfor %}\
 {% endset %}\
 {{ wrap(alerts) }}
 {% endif %}\
@@ -739,7 +733,7 @@ entry_tmpl = """\
 {%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
 {%- endfor %}
 {%- if 'a' in x %}\
-{%- for a in x['a'] %} &a {{ wrap(inlst2str(a[0])) + ": {}, ".format(join(a[1:])) }}{% endfor %}\
+{%- for a in x['a'] %} &a {{ "&a {}: {}".format(inlst2str(a[0]), ", ".join(a[1:])) }}{% endfor %}\
 {%- endif %}\
 {%- endset %}
 @j {{ wrap(job) }}\
@@ -1077,8 +1071,8 @@ rrule_methods = dict(
     E=easter,
 )
 
+# Note: 'r' (FREQ) is not included in the following.
 rrule_names = {
-    'r': 'FREQUENCY',  # character in rrule_frequency
     'i': 'INTERVAL',  # positive integer
     'c': 'COUNT',  # integer
     's': 'BYSETPOS',  # integer
@@ -1092,7 +1086,6 @@ rrule_names = {
     'E': 'BYEASTER',  # non-negative integer number of days after easter
 }
 
-# rrule_keys = [x for x in "iMmWwhnEus"]
 rrule_keys = [x for x in rrule_names]
 rrule_keys.sort()
 
@@ -1455,7 +1448,7 @@ class DatetimeCacheTable(SmartCacheTable):
 
 TinyDB.table_class = DatetimeCacheTable
 TinyDB.DEFAULT_TABLE = 'items'
-Item = Query()
+# Item = Query()
 
 class PendulumDateTimeSerializer(Serializer):
     """
@@ -2007,10 +2000,9 @@ def import_json():
 if __name__ == '__main__':
     print('\n\n')
     import doctest
-    from pprint import pprint
 
     # import_json()
-    load_json()
+    # load_json()
     # test_sort()
 
     doctest.testmod()
