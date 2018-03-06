@@ -1900,9 +1900,11 @@ def test_sort():
                   {
                     'id': item.eid,
                     'sort': item['s'].format("YYYYMMDD", formatter="alternative"),
-                    'path': (
+                    'week': (
                         item['s'].year, 
                         item['s'].week_of_year, 
+                        ),
+                    'day': (
                         item['s'].format("ddd MMM D", formatter="alternative"),
                         ),
                     'columns': (
@@ -1915,10 +1917,17 @@ def test_sort():
     from itertools import groupby
     rows.sort(key=itemgetter('sort'))
 
-    for path, items in groupby(rows, key=itemgetter('path')):
-        print(path)
-        for i in items:
-            print(f"    {i['columns'][0]}     {i['columns'][1]}" )
+    for week, items in groupby(rows, key=itemgetter('week')):
+        wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).zfill(2)}").date().format("MMM D", formatter='alternative')
+        wkend = pendulum.parse(f"{week[0]}W{str(week[1]).zfill(2)}-7").date().format("MMM D", formatter='alternative')
+
+        print(f"{week[0]} Week {week[1]}: {wkbeg} - {wkend}")
+        for day, columns in groupby(items, key=itemgetter('day')):
+            for d in day:
+                print(" ", d)
+                for i in columns:
+                    space = " "*(50 - len(i['columns'][0]) - len(i['columns'][1]))
+                    print(f"    {i['columns'][0]}{space}{i['columns'][1]}" )
 
 
 def import_json():
@@ -2002,8 +2011,8 @@ if __name__ == '__main__':
     import doctest
 
     # import_json()
-    # load_json()
-    # test_sort()
+    load_json()
+    test_sort()
 
     doctest.testmod()
 
