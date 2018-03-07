@@ -40,6 +40,10 @@ logger = logging.getLogger()
 
 etmdir = None
 
+pendulum.set_formatter('alternative')
+# FIXME
+ampm = True
+
 ETMFMT = "%Y%m%dT%H%M"
 
 # display characters 
@@ -155,7 +159,7 @@ amp_keys = {
 
 def parse_datetime(s, z=None):
     """
-    's' will have the format 'datetime string' Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if 'z == float' or an aware datetime object converting to UTC using tzlocal if z == None  is missing and using the timezone specified in z otherwise.
+    's' will have the format 'datetime string' Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if 'z == float' or an aware datetime object converting to UTC using tzlocal if z == None and using the timezone specified in z otherwise.
     >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt[1]
     <Pendulum [2015-10-15T18:00:00+00:00]>
@@ -1873,6 +1877,69 @@ def pen_from_fmt(s, z='Factory'):
 def timestamp_from_eid(eid):
     return pendulum.from_format(str(eid)[:12], "%Y%m%d%H%M").in_timezone('local')
 
+def drop_zero_minutes(dt):
+    """
+    >>> drop_zero_minutes(parse('2018-03-07 10am'))
+    '10'
+    >>> drop_zero_minutes(parse('2018-03-07 2:45pm'))
+    '2:45'
+    """
+    if dt.minute == 0:
+        if ampm:
+            return dt.format("h", formatter='alternative')
+        else:
+            return dt.format("H", formatter='alternative')
+    else:
+        if ampm:
+            return dt.format("h:mm", formatter='alternative')
+        else:
+            return dt.format("H:mm", formatter='alternative')
+
+def fmt_extent(beg_dt, end_dt):
+    """
+    >>> beg_dt = parse('2018-03-07 10am')
+    >>> end_dt = parse('2018-03-07 11:30am')
+    >>> fmt_extent(beg_dt, end_dt)
+    '10-11:30am'
+    >>> end_dt = parse('2018-03-07 2pm')
+    >>> fmt_extent(beg_dt, end_dt)
+    '10am-2pm'
+    """
+    diff = beg_dt.hour < 12 and end_dt.hour >= 12
+    beg_suffix = end_suffix = ""
+
+    if ampm:
+        end_suffix = end_dt.format("A").lower()
+        if diff:
+            beg_suffix = beg_dt.format("A").lower()
+
+    beg_fmt = drop_zero_minutes(beg_dt)
+    end_fmt = drop_zero_minutes(end_dt)
+
+    return f"{beg_fmt}{beg_suffix}-{end_fmt}{end_suffix}"
+
+
+
+def beg_ends(starting_dt, extent_interval, z=None):
+    """
+    >>> starting = parse('2018-03-02 9am') 
+    >>> beg_ends(starting, parse_interval('2d2h20m')[1])
+    [(<Pendulum [2018-03-02T09:00:00+00:00]>, '9am-11:59pm'), (<Pendulum [2018-03-03T00:00:00+00:00]>, '12am-11:59pm'), (<Pendulum [2018-03-04T00:00:00+00:00]>, '12-11:20am')]
+    >>> beg_ends(starting, parse_interval('8h20m')[1])
+    [(<Pendulum [2018-03-02T09:00:00+00:00]>, '9am-5:20pm')]
+    """
+
+    pairs = []
+    beg = starting_dt
+    ending = starting_dt + extent_interval
+    while ending.date() > beg.date():
+        end = beg.end_of('day')
+        pairs.append((beg, fmt_extent(beg, end)))
+        beg = beg.start_of('day').add(days=1)
+    pairs.append((beg, fmt_extent(beg, ending)))
+    return pairs
+
+
 def load_json():
     db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     for item in db:
@@ -1885,14 +1952,33 @@ def load_json():
             print('\nexception:', e)
             pprint(item)
 
+def fmt_week(dt_obj):
+    """
+    >>> fmt_week(pendulum.parse('2018-03-06 9:30pm'))
+    '2018 Week 10: Mar 5 - 11'
+    """
+    dt_year = dt_obj.year
+    dt_week = dt_obj.week_of_year
+    year_week = f"{dt_year} Week {dt_week}"
+    wkbeg = pendulum.parse(f"{dt_year}W{str(dt_week).rjust(2, '0')}")
+    wkend = pendulum.parse(f"{dt_year}W{str(dt_week).rjust(2, '0')}-7")
+    week_begin = wkbeg.format("MMM D")
+    if wkbeg.month == wkend.month:
+        week_end = wkend.format("D")
+    else:
+        week_end = wk.end.format("MMM D")
+    return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
+
+
 def test_sort():
     db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     rows = []
     for item in db:
         if item['itemtype'] in "!?" or 's' not in item:
             continue
-        if type(item['s']) == pendulum.Pendulum:
-            rhc = item['s'].format("h:mmA", formatter="alternative")
+        if type(item['s']) == pendulum.Pendulum and 'e' in item:
+            rhc = beg_ends(item['s'], item['e'])[0][1].center(16, ' ')
+            # rhc = item['s'].format("h:mmA", formatter="alternative")
         else:
             rhc = ""
 
@@ -1926,7 +2012,7 @@ def test_sort():
             for d in day:
                 print(" ", d)
                 for i in columns:
-                    space = " "*(50 - len(i['columns'][0]) - len(i['columns'][1]))
+                    space = " "*(60 - len(i['columns'][0]) - len(i['columns'][1]))
                     print(f"    {i['columns'][0]}{space}{i['columns'][1]}" )
 
 
@@ -2008,10 +2094,11 @@ def import_json():
 
 if __name__ == '__main__':
     print('\n\n')
+    # pendulum.set_locale('fr')
     import doctest
 
     # import_json()
-    load_json()
+    # load_json()
     test_sort()
 
     doctest.testmod()

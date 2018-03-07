@@ -1,25 +1,12 @@
 import sqlite3
 from sqlite3 import Error
+from pendulum import Pendulum
+from sqlite3 import register_adapter
+register_adapter(Pendulum, lambda val: val.isoformat(' '))
+
 from datetime import date, datetime
 from model import timestamp_from_eid
 import os
-
-db = sqlite3.connect(':memory:', detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
-
-def create_connection(db_file=':memory:', overwrite=True):
-    """ create a database connection to the SQLite database
-        specified by db_file
-    :param db_file: database file
-    :return: Connection object or None
-    """
-    if overwrite and db_file != ':memory:' and os.path.isfile(db_file):
-        os.remove(db_file) 
-    try:
-        conn = sqlite3.connect(db_file, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
-        return conn
-    except Error as e:
-        print(e)
-    return None
 
 tables = dict(
     items = """ CREATE TABLE
@@ -35,21 +22,15 @@ tables = dict(
         ); """,
     indices = """ CREATE TABLE 
         indices (
-            item_index TEXT PRIMARY KEY
+            index_id integer PRIMARY KEY,
+            item_index text UNIQUE
         ); """,
-    starts = """ CREATE TABLE 
-        starts (
-            starts_id integer PRIMARY KEY,
-            starts_dt TIMESTAMP NOT NULL,
-            ends_dt TIMESTAMP,
-            item_id,
-            FOREIGN KEY (item_id) REFERENCES items (item_id)
-        ); """,
-    dones = """ CREATE TABLE  
-        dones (
-            done_id integer PRIMARY KEY,
-            done_dt TIMESTAMP NOT NULL,
-            past_due text,
+    moments = """ CREATE TABLE 
+        moments ( 
+            moment_id integer PRIMARY KEY,
+            moment_dt TIMESTAMP NOT NULL,
+            moment_type TEXT NOT NULL,  -- in s)tart, f)inish, b)egin
+            extent TEXT,
             item_id,
             FOREIGN KEY (item_id) REFERENCES items (item_id)
         ); """,
@@ -58,13 +39,6 @@ tables = dict(
             alerts_id integer PRIMARY KEY,
             alerts_dt TIMESTAMP NOT NULL,
             command text NOT NULL,
-            item_id,
-            FOREIGN KEY (item_id) REFERENCES items (item_id)
-        ); """,
-    begins = """ CREATE TABLE  
-        begins (
-            begins_id integer PRIMARY KEY,
-            begins_dt TIMESTAMP NOT NULL,
             item_id,
             FOREIGN KEY (item_id) REFERENCES items (item_id)
         ); """,
@@ -83,54 +57,73 @@ tables = dict(
     )
 
 
-def sqlite_insert(conn, table, row):
-    keys = row.keys()
-    cols = ', '.join('"{}"'.format(col) for col in keys)
-    vals = ', '.join(':{}'.format(row[col]) for col in keys)
-    sql = f'INSERT INTO "{table}" ({cols}) VALUES ({vals})'
-    c = conn.cursor()
-    c.execute(sql, row)
-    conn.commit()
-    return c.lastrowid
+class Table(object):
 
-def add_item(conn, item):
-    """
-    Add the elements of a TinyDB item to the relevant tables.
-    """
-    row = dict(
-            item_id = item.eid,
-            item_type = item['itemtype'],
-            summary = item['summary'],
-            item_index = item.get('i', "none"),
-            calendar = item.get('c', "none"),
-            created_dt = timestamp_from_eid(item.eid),
-            )
-    rid = sqlite_insert(conn, 'items', row)
+    def __init__(self, db_file=':memory:', overwrite=True):
+        self.db_file = db_file
+        self.overwrite = overwrite
+        self.lastrowid =  None
+        self.conn = self.create_connection()
+        self.sqlite3_version = sqlite3.version
+        self.sqlite_version = sqlite3.sqlite_version
+        if self.conn is not None:
+            with self.conn:
+                c = self.conn.cursor()
+                for table in tables:
+                    try:
+                        c.execute(tables[table])
+                    except Error as e:
+                        print(e)
+                        print(tables[table])
+                self.conn.commit()
 
-    # if 's' in item
+    def create_connection(self):
+        """ create a database connection to the SQLite database
+            specified by db_file
+        :param db_file: database file
+        :return: Connection object or None
+        """
+        if (self.overwrite 
+                and self.db_file != ':memory:' 
+                and os.path.isfile(self.db_file)):
+            os.remove(self.db_file) 
+        try:
+            conn = sqlite3.connect(self.db_file, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+            return conn
+        except Error as e:
+            print(e)
+        return None
+
+
+    def sqlite_insert(self, table, row):
+        keys = row.keys()
+        cols = ', '.join('"{}"'.format(col) for col in keys)
+        vals = ', '.join(':{}'.format(row[col]) for col in keys)
+        sql = f'INSERT INTO "{table}" ({cols}) VALUES ({vals})'
+        c = self.conn.cursor()
+        c.execute(sql, row)
+        self.conn.commit()
+        self.lastrowid = c.lastrowid
+
+    def add_item(self, item):
+        """
+        Add the elements of a TinyDB item to the relevant tables.
+        """
+        row = dict(
+                item_id = item.eid,
+                item_type = item['itemtype'],
+                summary = item['summary'],
+                item_index = item.get('i', "none"),
+                calendar = item.get('c', "none"),
+                created_dt = timestamp_from_eid(item.eid),
+                )
+        self.sqlite_insert('items', row)
 
 
 
 def main():
-    conn = create_connection('test/items.db')
-    if conn is not None:
-        with conn:
-            c = conn.cursor()
-            # for table in tables.keys():
-            #     try:
-            #         sql = f"DROP TABLE IF EXISTS {table};"
-            #         c.execute(sql)
-            #     except Error as e:
-            #         print(e)
-            #         print(sql)
-            conn.commit()
-            for table in tables:
-                try:
-                    c.execute(tables[table])
-                except Error as e:
-                    print(e)
-                    print(tables[table])
-            # conn.commit()
+    items = Table('test/items.db')
+    print(f"sqlite3: {items.sqlite3_version}, sqlite: {items.sqlite_version}")
 
 if __name__ == '__main__':
     main()
