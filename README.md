@@ -1,9 +1,9 @@
 # What's planned for the next etm?
-**Last modified: Sun Mar 04, 2018 09:21AM EST**
+**Last modified: Tue Mar 06, 2018 10:19PM EST**
 
 # Goals
 
-- Prove a means for migrating existing etm data to the new format.
+- Provide a means for migrating existing etm data to the new format.
 
 - Simplify code. Refactor, document code and add doc tests - make the code more easilty maintainable. See [Item Types](#item-types), [Dates and Date Times](#dates-and-date-times) and [Jobs](#jobs). 
 
