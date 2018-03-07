@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Mar 06, 2018 10:19PM EST**
+**Last modified: Tue Mar 06, 2018 10:21PM EST**
 
 # Goals
 
@@ -183,7 +183,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 - Fuzzy parsing of entries is suppored.
 
-- The format for the `@s` entry is `date [time]`. In the following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern.
+- The format for the `@s` entry is `date|datetime`. In the following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern.
 
     - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. *Without a time*, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone.
 
