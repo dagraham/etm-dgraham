@@ -18,7 +18,9 @@ class Views(object):
                 next_view = [],
                 someday_view = []
                 )
-        self.created = {}
+        self.relevant = {}  # id -> dt
+        self.begins =  []   # (beg_dt, start_dt, id)
+        self.created = {}   # id -> dt
 
         self.commands = dict(
                 update_index = self._update_index_view,
@@ -117,6 +119,15 @@ class Views(object):
                         @o r, k: first unfinished instance: "s" - pastdue if before today or "f" is last instance is finished
             non repeating tasks or repeating and finish
             beginby: relevant > today and relevant - "b" < today
+
+The relevant datetime of an item (used in index view):
+Non repeating events and unfinished tasks: the datetime given in @s
+    done: Actions: the datetime given in @f
+    done: Finished tasks: the datetime given in @f
+Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance
+Repeating tasks: the datetime of the first unfinished instance
+Undated and unfinished items: None
+
         """
         if (self.item['itemtype'] in ['?', '!', '~'] 
                 or 'f' in self.item 
@@ -130,16 +141,27 @@ class Views(object):
         # note: multiday events will contribute several rows for each instance
 
 
-    def _get_relevant(self):
+    def _refresh(self):
         # finished tasks
+        if self.item['itemtype'] in ['?', '!']:
+            return
         if "f" in self.item and self.item['f']:
             # this includes finished, undated tasks and actions
             # no past dues or begin bys for these
-            return self.item['f']
+             self.relevant[self.id] = self.item['f']
+             return 
         # unfinished tasks or scheduled events
         if 's' in self.item:
-            if self.item['itemtype'] == '-':
-                return self.item['s']
+            if 'r' in self.item or '+' in self.item:
+                # repeating
+                if self.item['itemtype'] == '-':
+                    if 'o' in self.item and self.item['o'] == 's':
+                        # FIXME
+                        pass
+                    else:
+                        # keep or restart
+                        return self.item['s']
+
 
 
 
