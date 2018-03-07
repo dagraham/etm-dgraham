@@ -1,5 +1,5 @@
 # Notes for etm
-** Last modified: Sun Mar 04, 2018 08:40AM EST
+** Last modified: Wed Mar 07, 2018 10:00AM EST
 **
 
 # Design
@@ -64,6 +64,38 @@
       dated_item = Dated(Item())
 
 # ToDo
+
+## tasks with @s and @+ but not @r
+
+finish 
+  while @+:
+    @s = @+.pop(0)
+    @h.append(finish)
+  then @f = finish 
+
+
+## alerts
+
+[
+  [(i1, i2, ...), cmd, args],
+
+]
+
+2nd column event
+
+
+multiday?
+
+from starting and ending date times
+pairs = []
+beg = starting
+end = ending
+while end.date > beg.date:
+  end = beg.end_of('day')
+  pairs.append(beg, end)
+  beg = beg.start_of('day').add(days=1)
+pairs.append(beg, end)
+
 
 ## Data Migration
 
