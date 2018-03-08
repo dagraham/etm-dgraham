@@ -2,7 +2,7 @@
 
 from pprint import pprint
 import pendulum
-from pendulum import parse, timezone
+from pendulum import parse
 
 from datetime import datetime
 
@@ -20,8 +20,9 @@ from tinydb_smartcache import SmartCacheTable
 from copy import deepcopy
 import calendar as clndr
 
+import dateutil
+from dateutil.rrule import *
 from dateutil.easter import easter
-import dateutil.rrule as dtutrrule
 from dateutil import __version__ as dateutil_version
 
 from jinja2 import Environment, Template
@@ -40,7 +41,7 @@ logger = logging.getLogger()
 
 etmdir = None
 
-pendulum.set_formatter('alternative')
+# pendulum.set_formatter('alternative')
 # FIXME
 ampm = True
 
@@ -122,7 +123,6 @@ at_keys = {
     'x': "extracton key (string)",
     'z': "timezone (string)",
     'itemtype': "itemtype (character)",
-    'rrulestr': "rrulestr (string)",
     'summary': "summary (string)"
 }
 
@@ -371,7 +371,7 @@ def setup_logging(level, dir=None):
     if etmdir:
         etmdir = os.path.normpath(etmdir)
     else:
-        etmdir = os.path.normpath(os.path.join(os.path.expanduser("~/.etm-lite")))
+        etmdir = os.path.normpath(os.path.join(os.path.expanduser("~/etm-mvc")))
 
 
     if not os.path.isdir(etmdir):
@@ -852,7 +852,7 @@ def frequency(arg):
     False
     """
 
-    freq = [x for x in rrule_frequency]
+    freq = [x for x in rrule_freq]
     freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely."
     if arg in freq:
         return True, arg
@@ -1075,75 +1075,62 @@ rrule_methods = dict(
     E=easter,
 )
 
-# Note: 'r' (FREQ) is not included in the following.
-rrule_names = {
-    'i': 'INTERVAL',  # positive integer
-    'c': 'COUNT',  # integer
-    's': 'BYSETPOS',  # integer
-    'u': 'UNTIL',  # unicode
-    'M': 'BYMONTH',  # integer 1...12
-    'm': 'BYMONTHDAY',  # positive integer
-    'W': 'BYWEEKNO',  # positive integer
-    'w': 'BYWEEKDAY',  # integer 0 (SU) ... 6 (SA)
-    'h': 'BYHOUR',  # positive integer
-    'n': 'BYMINUTE',  # positive integer
-    'E': 'BYEASTER',  # non-negative integer number of days after easter
+rrule_freq = {
+    'y': 0,     #'YEARLY',
+    'm': 1,     #'MONTHLY',
+    'w': 2,     #'WEEKLY',
+    'd': 3,     #'DAILY',
+    'h': 4,     #'HOURLY',
+    'n': 5,     #'MINUTELY',
 }
 
-rrule_keys = [x for x in rrule_names]
+rrule_weekdays = dict(
+        MO = MO,
+        TU = TU,
+        WE = WE,
+        TH = TH,
+        FR = FR,
+        SA = SA,
+        SU = SU
+        )
+
+# Note: 'r' (FREQ) is not included in the following.
+rrule_name = {
+    'i': 'interval',  # positive integer
+    'c': 'count',  # integer
+    's': 'bysetpos',  # integer
+    'u': 'until',  # unicode
+    'M': 'bymonth',  # integer 1...12
+    'm': 'bymonthday',  # positive integer
+    'W': 'byweekno',  # positive integer
+    'w': 'byweekday',  # integer 0 (SU) ... 6 (SA)
+    'h': 'byhour',  # positive integer
+    'n': 'byminute',  # positive integer
+}
+
+rrule_keys = [x for x in rrule_name]
 rrule_keys.sort()
 
-rrule_frequency = {
-    'y': 'YEARLY',
-    'm': 'MONTHLY',
-    'w': 'WEEKLY',
-    'd': 'DAILY',
-    'h': 'HOURLY',
-    'n': 'MINUTELY',
-    'E': 'EASTERLY',
-}
-
-
-def rrule(lofh):
+def check_rrule(lofh):
     """
-    An rrule hash or a sequence of such hashes.
+    An check_rrule hash or a sequence of such hashes.
     >>> data = {'r': ''}
-    >>> rrule(data)
+    >>> check_rrule(data)
     (False, 'repetition frequency: character from (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
     >>> good_data = {"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SU"}
-    >>> pprint(rrule(good_data))
-    (True,
-     [{'M': [5],
-       'i': 1,
-       'm': [3],
-       'r': 'y',
-       'rrulestr': 'RRULE:FREQ=YEARLY;BYMONTH=5;INTERVAL=1;BYMONTHDAY=3;BYWEEKDAY=2SU',
-       'w': ['2SU']}])
+    >>> pprint(check_rrule(good_data))
+    (True, [{'M': [5], 'i': 1, 'm': [3], 'r': 'y', 'w': ['2SU']}])
     >>> good_data = {"M": [5, 12], "i": 1, "m": [3, 15], "r": "y", "w": "2SU"}
-    >>> pprint(rrule(good_data))
-    (True,
-     [{'M': [5, 12],
-       'i': 1,
-       'm': [3, 15],
-       'r': 'y',
-       'rrulestr': 'RRULE:FREQ=YEARLY;BYMONTH=5,12;INTERVAL=1;BYMONTHDAY=3,15;BYWEEKDAY=2SU',
-       'w': ['2SU']}])
+    >>> pprint(check_rrule(good_data))
+    (True, [{'M': [5, 12], 'i': 1, 'm': [3, 15], 'r': 'y', 'w': ['2SU']}])
     >>> bad_data = [{"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SE"}, {"M": [11, 12], "i": 4, "m": [2, 3, 4, 5, 6, 7, 8], "r": "z", "w": ["TU", "-1FR"]}]
-    >>> print(rrule(bad_data))
+    >>> print(check_rrule(bad_data))
     (False, 'invalid weekdays: 2SE; invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
     >>> data = [{"r": "w", "w": "TU", "h": 14}, {"r": "w", "w": "TH", "h": 16}]
-    >>> pprint(rrule(data))
+    >>> pprint(check_rrule(data))
     (True,
-     [{'h': [14],
-       'i': 1,
-       'r': 'w',
-       'rrulestr': 'RRULE:FREQ=WEEKLY;BYHOUR=14;BYWEEKDAY=TU',
-       'w': ['TU']},
-      {'h': [16],
-       'i': 1,
-       'r': 'w',
-       'rrulestr': 'RRULE:FREQ=WEEKLY;BYHOUR=16;BYWEEKDAY=TH',
-       'w': ['TH']}])
+     [{'h': [14], 'i': 1, 'r': 'w', 'w': ['TU']},
+      {'h': [16], 'i': 1, 'r': 'w', 'w': ['TH']}])
     """
     msg = []
     ret = []
@@ -1169,28 +1156,133 @@ def rrule(lofh):
                     msg.append(out)
 
         if not msg:
-            l = ["RRULE:FREQ=%s" % rrule_frequency[hsh['r']]]
+            # l = ["RRULE:FREQ=%s" % rrule_frequency[hsh['r']]]
 
-            for k in rrule_keys:
-                if k in hsh and hsh[k]:
-                    v = hsh[k]
-                    if type(v) == list:
-                        v = ",".join(map(str, v))
-                    if k == 'w':
-                        # make weekdays upper case
-                        v = v.upper()
-                        m = threeday_regex.search(v)
-                        while m:
-                            v = threeday_regex.sub("%s" % m.group(1)[:2], v, count=1)
-                            m = threeday_regex.search(v)
-                    l.append("%s=%s" % (rrule_names[k], v))
-            res['rrulestr'] = ";".join(l)
+            # for k in rrule_keys:
+            #     if k in hsh and hsh[k]:
+            #         v = hsh[k]
+            #         if type(v) == list:
+            #             v = ",".join(map(str, v))
+            #         if k == 'w':
+            #             # make weekdays upper case
+            #             v = v.upper()
+            #             m = threeday_regex.search(v)
+            #             while m:
+            #                 v = threeday_regex.sub("%s" % m.group(1)[:2], v, count=1)
+            #                 m = threeday_regex.search(v)
+            #         l.append("%s=%s" % (rrule_names[k], v))
+            # res['rrulestr'] = ";".join(l)
             ret.append(res)
 
     if msg:
         return False, "{}".format("; ".join(msg))
     else:
         return True, ret
+
+def rrule_args(r_hsh):
+    """
+    >>> item_eg = { "s": parse('2018-03-07 8am'), "r": [ { "c": 4, "r": "d", "u": parse('2018-08-31 8am'), }, ], }
+    >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
+    [<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-08T08:00:00+00:00]>, <Pendulum [2018-03-09T08:00:00+00:00]>, <Pendulum [2018-03-10T08:00:00+00:00]>]
+    >>> r_hsh = item_eg['r'][0]
+    >>> rrule_args(r_hsh)
+    (3, {'count': 4})
+    """
+
+    # force integers
+    for k in "icsMmWhm":
+        if k in r_hsh:
+            args = r_hsh[k]
+            if not isinstance(args, list):
+                args = [args]
+            tmp = [int(x) for x in args]
+            if len(tmp) == 1:
+                r_hsh[k] = tmp[0]
+            else:
+                r_hsh[k] = tmp
+    # fix weekdays
+    if 'w' in r_hsh:
+        tmp = []
+        weekdays = r_hsh['w']
+        if not isinstance(weekdays, list):
+            weekdays = [weekdays]
+        for weekday in weekdays:
+            # wpart = weekday[-2:].upper()
+            wpart = rrule_weekdays[weekday[-2:].upper()]
+            ipart = weekday[:-2]
+            if ipart:
+                # tmp.append(f"{wpart}({int(ipart)})")
+                tmp.append(wpart(int(ipart)))
+            else:
+                tmp.append(wpart)
+        if len(tmp) == 1:
+            r_hsh['w'] = tmp[0]
+        else:
+            r_hsh['w'] = tuple(tmp)
+    # fix until
+    if 'u' in r_hsh and 'c' in r_hsh:
+        logger.warn(f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}")
+    # remove easter
+    if 'E'in r_hsh:
+        del r_hsh['E']
+    freq = rrule_freq[r_hsh['r']]
+    kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
+    return freq, kwd
+
+def item_instances(item, aft_dt, bef_dt):
+    """
+    Get instances from item falling on or after aft_dt and on or 
+    before bef_dt. All datetimes will be returned with zero offsets.
+    >>> item_eg = { "s": parse('2018-03-07 8am'), "r": [ { "c": 4, "r": "d", "u": parse('2018-08-31 8am'), }, ], }
+    >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
+    [<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-08T08:00:00+00:00]>, <Pendulum [2018-03-09T08:00:00+00:00]>, <Pendulum [2018-03-10T08:00:00+00:00]>]
+    """
+    if 's' not in item:
+        return []
+    dts = item['s']
+    if type(dts) == pendulum.pendulum.Date:
+        # change to datetime at midnight on the same date
+        dtstart = pendulum.create(year=dts.year, month=dts.month, day=dts.day, hour=0, minute=0, tz=None)
+    else:
+        # dtstart = dts.replace(tzinfo=None)
+        dtstart = dts
+    if 'r' in item:
+        lofh = item['r']
+        rset = rruleset()
+
+        for hsh in lofh:
+            freq, kwd = rrule_args(hsh)
+            kwd['dtstart'] = dtstart
+            try:
+                rset.rrule(rrule(freq, **kwd))
+            except Exception as e:
+                print('Error processing:')
+                print('  ', freq, kwd)
+                print(e)
+                print(item)
+                return []
+
+        if '-' in item:
+            for dt in item['-']:
+                rset.exdate(dt)
+
+        if '+' in item:
+            for dt in item['+']:
+                rset.rdate(dt)
+
+        return [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
+
+    if '+' in item:
+        tmp = item['+'].append(dtstart)
+        return [x for x in tmp if (x >= aft_dt and x <= bef_dt)]
+
+    if dtstart >= aft_dt and dtstart <= bef_dt:
+        return [dtstart]
+
+    return []
+
+
+
 
 ########################
 ### end rrule setup ####
@@ -1909,9 +2001,9 @@ def fmt_extent(beg_dt, end_dt):
     beg_suffix = end_suffix = ""
 
     if ampm:
-        end_suffix = end_dt.format("A").lower()
+        end_suffix = end_dt.format("A", formatter='alternative').lower()
         if diff:
-            beg_suffix = beg_dt.format("A").lower()
+            beg_suffix = beg_dt.format("A", formatter='alternative').lower()
 
     beg_fmt = drop_zero_minutes(beg_dt)
     end_fmt = drop_zero_minutes(end_dt)
@@ -1962,11 +2054,11 @@ def fmt_week(dt_obj):
     year_week = f"{dt_year} Week {dt_week}"
     wkbeg = pendulum.parse(f"{dt_year}W{str(dt_week).rjust(2, '0')}")
     wkend = pendulum.parse(f"{dt_year}W{str(dt_week).rjust(2, '0')}-7")
-    week_begin = wkbeg.format("MMM D")
+    week_begin = wkbeg.format("MMM D", formatter='alternative')
     if wkbeg.month == wkend.month:
-        week_end = wkend.format("D")
+        week_end = wkend.format("D", formatter='alternative')
     else:
-        week_end = wk.end.format("MMM D")
+        week_end = wk.end.format("MMM D", formatter='alternative')
     return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
 
 
@@ -1982,23 +2074,26 @@ def test_sort():
         else:
             rhc = ""
 
-        rows.append(
-                  {
-                    'id': item.eid,
-                    'sort': item['s'].format("YYYYMMDD", formatter="alternative"),
-                    'week': (
-                        item['s'].year, 
-                        item['s'].week_of_year, 
-                        ),
-                    'day': (
-                        item['s'].format("ddd MMM D", formatter="alternative"),
-                        ),
-                    'columns': (
-                        f"{item['itemtype']} {item['summary']}", 
-                        rhc
-                        )
-                  }
-                )
+        aft_dt = parse('2018-01-01 12am').replace(tzinfo=None)
+        bef_dt = parse('2018-12-31 11:59pm').replace(tzinfo=None)
+        for dt in item_instances(item, aft_dt, bef_dt):
+            rows.append(
+                    {
+                        'id': item.eid,
+                        'sort': dt.format("YYYYMMDD", formatter="alternative"),
+                        'week': (
+                            dt.year, 
+                            dt.week_of_year, 
+                            ),
+                        'day': (
+                            dt.format("ddd MMM D", formatter="alternative"),
+                            ),
+                        'columns': (
+                            f"{item['itemtype']} {item['summary']}", 
+                            rhc
+                            )
+                    }
+                    )
     from operator import itemgetter
     from itertools import groupby
     rows.sort(key=itemgetter('sort'))
@@ -2077,6 +2172,11 @@ def import_json():
                 if 'f' in rul:
                     rul['r'] = rul['f']
                     del rul['f']
+                if 't' in rul:
+                    rul['c'] = rul['t']
+                    del rul['t']
+                if 'u' in rul:
+                    rul['u'] = pen_from_fmt(rul['u'], z)
                 bad_keys = []
                 for key in rul:
                     if key not in amp_keys['r'] or not rul[key]:
@@ -2094,6 +2194,7 @@ def import_json():
 
 if __name__ == '__main__':
     print('\n\n')
+    setup_logging(1)
     # pendulum.set_locale('fr')
     import doctest
 
