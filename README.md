@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Mar 06, 2018 10:21PM EST**
+**Last modified: Thu Mar 08, 2018 05:34PM EST**
 
 # Goals
 
@@ -108,61 +108,82 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 ## @-keys
 
-    '+': "include (list of date-times to include)",
-    '-': "exclude (list of date-times to exclude from rrule)",
-    'a': "alert (timeperiod: cmd, optional args*)",
-    'b': "beginby (integer number of days)",
-    'c': "calendar (string)",
-    'd': "description (string)",
-    'e': "extent (timeperiod)",
-    'f': "finish (datetime)",
-    'g': "goto (url or filepath)",
-    'h': "completions history (list of done:due datetimes)"
-    'i': "index (colon delimited string)",
-    'j': "job summary (string)",
-    'l': "location (string)",
-    'm': "memo (list of 'datetime, timeperiod, datetime')",
-    'n': "named delegate (string)",
-    'o': "overdue (r)estart, (s)kip or (k)eep)",
-    'p': "priority (integer)",
-    'r': "repetition frequency (y)early, (m)onthly, (w)eekly, " 
-         "(d)aily, (h)ourly, mi(n)utely",
-    's': "starting date or datetime",
-    't': "tags (list of strings)",
-    'x': "extraction key (string)",
+    +: include: list of date-times to include,
+    -: exclude: list of date-times to exclude from rrule,
+    a: alert (list of timeperiods[: cmd[, list of cmd args]]),
+    b: beginby: integer (number of days),
+    c: calendar: string,
+    d: description: string,
+    e: extent: timeperiod,
+    f: finish: datetime,
+    g: goto: string (url or filepath),
+    h: history: list of completion datetimes)
+    i: index: colon delimited string,
+    j: job summary: string,
+    l: location/context: string,
+    m: memo: string,
+    n: named delegate: string,
+    o: overdue: character from (r)estart, (s)kip or (k)eep),
+    p: priority: integer,
+    r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
+         (d)aily, (h)ourly, mi(n)utely,
+    s: starting: date or datetime,
+    t: tags: list of strings,
+    x: extraction key: string,
+    z: timezone: string,
 
 ## &-keys
 
 ### `@r`:
-      'c': "count: integer number of repetitions",
-      'E': "easter: number of days before (-), on (0) or after (+) Easter",
-      'h': "hour: list of integers in 0 ... 23",
-      'i': "interval: positive integer",
-      'm': "monthday: list of integers 1 ... 31",
-      'M': "month: list of integers in 1 ... 12",
-      'n': "minute: list of integers in 0 ... 59",
-      's': "set position: integer",
-      'u': "until: datetime",
-      'w': "weekday: list from SU, MO, ..., SA",
+      c: count: integer number of repetitions,
+      E: easter: number of days before (-), on (0) or after (+) Easter,
+      h: hour: list of integers in 0 ... 23,
+      i: interval: positive integer,
+      m: monthday: list of integers 1 ... 31,
+      M: month: list of integers in 1 ... 12,
+      n: minute: list of integers in 0 ... 59,
+      s: set position: integer,
+      u: until: datetime,
+      w: weekday: list from SU, MO, ..., SA possibly prepended with a
+            positive or negative integer,
 
 ### `@j`:
-      'a': "alert: timeperiod: command, args*",
-      'b': "beginby: integer number of days",
-      'd': "description: string",
-      'e': "extent: timeperiod",
-      'f': "finish: datetime",
-      'i': "unique id: integer or string",
-      'l': "location: string",
-      'm': "memo (list of 'datetime, timeperiod, datetime')",
-      'n': "named delegate (string)",
-      'p': "prerequisites (comma separated list of "
-            "ids of immediate prereqs)",
-      's': "start/due: timeperiod before task start",
+      a: alert: (list of timeperiods[: cmd[, list of cmd args]]),
+      b: beginby: integer number of days relative to &s,
+      d: description: string,
+      e: extent: timeperiod,
+      f: finish: datetime,
+      i: unique id: integer or string,
+      l: location/context: string,
+      m: memo: string,
+      n: named delegate (string),
+      p: prerequisites (comma separated list of 
+            ids of immediate prereqs),
+      s: start/due: timeperiod relative to @s entry (default 0m),
 
 
 ## Storage
 
-- All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable - not easily anyway.  It can be backed up and/or queried using external tools as well as etm itself. 
+- All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable - not easily anyway.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
+
+      "20100308190247362888": {
+        "c": "shared",
+        "itemtype": "*",
+        "r": [
+          {
+          "M": "3",
+          "r": "y",
+          "w": "2SU"
+          }
+        ],
+        "s": "{D}:20100314",
+        "summary": "Daylight saving time begins"
+        }
+
+    corresponding to the entry:
+
+      * Daylight saving time begins @s 2010-03-14 @r y &M 3 &w 2SU @c shared
+
 - Additionally, individual components are stored in convenient formats. E.g., the components of a repetition rule are combined and stored as an rrulestr.
 - Two timestamps are automatically created for each item, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. 
 - The creation timestamp is used as the unique identifier for the item in the data store and is accessed as `item.eid`. 
@@ -177,58 +198,58 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 - The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
-## Dates and Date Times
+## Dates, Date Times and Time Periods
 
-- Dates (naive) and datetimes (both naive and aware) are suppored. 
+- Dates (naive) and datetimes (both naive and aware) are suppored along with time periods (python timedeltas/pendulum intervals). 
 
 - Fuzzy parsing of entries is suppored.
 
+- Storage: 
+  - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and interval storage. *Pendulum* date,  datetime and interval objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date,  datetime and interval objects when retrieved by etm. 
+  - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
+  - Examples
+    - The date `2018/1/5` would be serialized as `{D}:20180105`.
+    - The datetime `2018/1/5 2pm` would be serialized either as `{T}:20180105T1400A` or `{T}:20180105T1400N`, depending upon the `@z` entry for the item. Details in the next bullet.
+    - The interval `1 day 2 hours 13 minutes` would be serialized as `{I}:1d2h13m`. 
+  - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
+  - Naive dates and datetimes are not converted. 
+
 - The format for the `@s` entry is `date|datetime`. In the following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern.
 
-    - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. *Without a time*, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone.
+    - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. *With only a **date** specified*, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone.
+    - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. *With both a **date** and a **time** specified*, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
+    - Aware date-time, e.g., `@s fri 2p @z US/Pacific`. *With the **timezone** specified*, this is interpreted as `Fri, Jan 5 2018 2pm PST`. 
 
-    - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. *With a time specified*, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
-
-    - Aware date-time, e.g., `@s fri 2p @z US/Pacific`. *With the timezone specified*, this is interpreted as `Fri, Jan 5 2018 2pm PST`. 
-
-    - Naive date-time, e.g., `@s fri 2p @z float`. *With float specified*, this is interpreted as `Fri, Jan 5, 2018 2pm` in whatever happens to be the local time zone.
+    - Naive date-time, e.g., `@s fri 2p @z float`. *With **float** specified*, this is interpreted as `Fri, Jan 5, 2018 2pm` in whatever happens to be the local time zone. 
 
     The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
 
 - When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time. E.g., in the following all repetitions are at 2pm even though the first two are EST and the third is EDT.
 
-            repetition rule:
-                RRULE:FREQ=MONTHLY
-                DTSTART:Fri Jan 26 2018 2:00PM EST
-            The first 3 repetitions on or after DTSTART:
+            With
+              @s Fri Jan 26 2018 2pm @z US/Eastern 
+              @r m
+            The first 3 repetitions would be:
                 Fri Jan 26 2018 2:00PM
                 Mon Feb 26 2018 2:00PM
                 Mon Mar 26 2018 2:00PM
             All times: America/New_York
 
-- Simple repetition is supported using a combination of `@s` and `@+` entries. E.g., 
+- *Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
 
       * my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
 
     would repeat at 3pm on Thu Feb 15, 4pm on Fri Mar 2 and 9am on Mon Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are all used.
 
-- The *relevant datetime* of an item (used in index view): 
-  - Non repeating events and unfinished tasks: the datetime given in `@s`
-  - Actions: the datetime given in `@f`
-  - Finished tasks: the datetime given in `@f`
-  - Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance
-  - Repeating tasks: the datetime of the first unfinished instance
-  - Undated and unfinished items: *None*
-
-
-- Storage: 
-  - Special storage classes have been added to etm's instance of *TinyDB* for both date and datetime storage. *Pendulum* Date and datetime objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date and datetime objects when retrieved by etm. 
-  - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
-  - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
-  - Naive dates and datetimes require no conversion either way. 
-
+- The *relevant datetime* of an item (used, e.g., in index view): 
+  - Non-repeating events and non-repeating unfinished tasks: the datetime given in `@s`
+  - Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance.
+  - Repeating unfinished tasks with `@o r` or `@o k` (the default): the datetime given in `@s`. This datetime is automatically updated when an instance is completed to the due datetime of the next instance.
+  - Repeating unfinished tasks with `@o s`: the datetime of the first instance falling during or after the current date.
+  - Finished tasks: the datetime given in `@f`.
+  - Actions: the datetime given in `@f`.
+  - Someday entries, inbox enties, undated journal entries and undated, unfinished tasks: *None*
 - Display:
-
     - Naive dates are displayed without conversion and without a starting time. 
     - Naive datetimes are displayed without conversion.
     - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as starting at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `fri 2p, US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
@@ -278,7 +299,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 # Views
 
-View hotkeys: a)genda, b)usy, d)one, m)onthly, i)ndex, n)ext, s)omeday, o)riginally created, l)ast modified, t)ags and q)uery. In all views, pressing `l` prompts for the outline expansion level.
+View hotkeys: a)genda, b)usy, d)one, m)onthly, h)istory, i)ndex, n)ext, s)omeday and t)ags. In all views, pressing `l` prompts for the outline expansion level.
 
 ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in *urwid* each actually takes only 1 line leaving 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
 
