@@ -1186,7 +1186,7 @@ def rrule_args(r_hsh):
     [<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-08T08:00:00+00:00]>, <Pendulum [2018-03-09T08:00:00+00:00]>, <Pendulum [2018-03-10T08:00:00+00:00]>]
     >>> r_hsh = item_eg['r'][0]
     >>> rrule_args(r_hsh)
-    (3, {'count': 4})
+    (3, {'count': 4, 'until': <Pendulum [2018-08-31T08:00:00+00:00]>})
     """
 
     # force integers
@@ -2038,11 +2038,15 @@ def load_json():
         try:
             print(item.eid, item['itemtype'])
             print(timestamp_from_eid(item.eid))
-            print(jinja_entry_template.render(h=item))
+            print(item_details(item))
             print()
         except Exception as e:
             print('\nexception:', e)
             pprint(item)
+
+def item_details(item):
+    return jinja_entry_template.render(h=item)
+
 
 def fmt_week(dt_obj):
     """
@@ -2058,7 +2062,7 @@ def fmt_week(dt_obj):
     if wkbeg.month == wkend.month:
         week_end = wkend.format("D", formatter='alternative')
     else:
-        week_end = wk.end.format("MMM D", formatter='alternative')
+        week_end = wkend.format("MMM D", formatter='alternative')
     return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
 
 
@@ -2199,8 +2203,8 @@ if __name__ == '__main__':
     import doctest
 
     # import_json()
-    # load_json()
-    test_sort()
+    load_json()
+    # test_sort()
 
     doctest.testmod()
 
