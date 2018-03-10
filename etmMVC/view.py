@@ -70,11 +70,7 @@ class Views(object):
         """
         If the current month has changed, reset the begin and end dates for the period to include the current month, the preceeding 5 months and the subsequent 18 months. Adjust the dates to include 6 complete weeks for each of the 24 months.
         """
-        today = pendulum.today('Factory')
-        if today != self.today:
-            self.today = today
-
-
+        self.today = today = pendulum.today('Factory')
         # self.now = now = pendulum.now('Factory')
         yearmonth = (today.year, today.month)
         if yearmonth != self.yearmonth:
@@ -93,6 +89,11 @@ class Views(object):
             e = e.subtract(days=e.weekday())
             self.end_dt = e.add(weeks=6)
             self.load_TinyDB()
+            self._update_agenda()
+        if today != self.today:
+            self.today = today
+            self._update_agenda()
+
 
     def nothing_secheduled(self):
         pass
@@ -108,7 +109,6 @@ class Views(object):
         for view in self.views:
             if isinstance(self.views[view], list):
                 self.views[view].sort()
-        self._update_agenda()
 
         with open('views.json', 'w') as jo:
             json.dump(self.views, jo, indent=1, sort_keys=True)
@@ -225,8 +225,8 @@ class Views(object):
             day = dt.day_of_week
             day = str(day) if day > 0 else "7"
             self.views['weeks'].setdefault(week, {}).update({'fmt': fmt_week(dt)})
-            self.views['weeks'][week].setdefault(day, {}).update({'fmt': dt.format('ddd MMM D'), 'items': []})
-            self.views['weeks'][week][day]['items'].append(
+            self.views['weeks'][week].setdefault(day, {}).update({'fmt': dt.format('ddd MMM D')})
+            self.views['weeks'][week][day].setdefault('items', []).append(
                     (
                         f"{item['itemtype']} {item['summary']}", 
                         rhc,
@@ -244,14 +244,26 @@ class Views(object):
         # note: tasks with jobs will contribute several rows for each instance
 
     def _update_agenda(self):
+        this_week = f"{self.today.year}-{str(self.today.week_of_year).zfill(2)}"
+        this_day = str(self.today.day_of_week)
+        if this_week not in self.views['weeks']:
+            self.views['weeks'].setdefault(this_week, {}).update({'fmt': fmt_week(self.today)})
+        if this_day not in self.views['weeks'][this_week]: 
+            self.views['weeks'][this_week].setdefault(this_day, {}).update({'fmt': f"{self.today.format('ddd MMM D')} (Today)"})
+            self.views['weeks'][this_week][this_day].setdefault('items', []).append(
+                (
+                    "Nothing scheduled", 
+                    "",
+                    ""
+                    )
+                )
+
         mws = getMonthWeeks(self.today, self.bef_months, self.aft_months)
         for mw in mws:
             key = f"{mw[0]}-{str(mw[1]).zfill(2)}"
             if key not in self.views['weeks']:
                 print("missing week:", key)
-            else:
-                print("found week:", key)
-
+                self.views['weeks'][key]["0"] = "Nothing scheduled"
 
     def _update_relevant(self, item):
         # finished tasks
@@ -275,7 +287,9 @@ class Views(object):
                         return item['s']
 
     def _update_alerts(self, item):
-        if not 'a' in item:
+        if 'a' not in item:
+            return
+        if 's' not in item:
             return
         alerts = []
         for alert in item['a']:
