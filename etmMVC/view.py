@@ -64,6 +64,7 @@ class Views(object):
         self.beg_dt = self.end_dt = None
         self.bef_months = 5
         self.aft_months = 18
+        self.modified = False
         self.maybe_refresh()
 
     def maybe_refresh(self):
@@ -89,10 +90,19 @@ class Views(object):
             e = e.subtract(days=e.weekday())
             self.end_dt = e.add(weeks=6)
             self.load_TinyDB()
+            self.load_views()
             self._update_agenda()
+            self.modified = True
         if today != self.today:
             self.today = today
             self._update_agenda()
+            self.modified = True
+        if self.modified:
+            self.save_views()
+
+    def save_views(self):
+        with open('views.json', 'w') as jo:
+            json.dump(self.views, jo, indent=1, sort_keys=True)
 
 
     def nothing_secheduled(self):
@@ -103,15 +113,15 @@ class Views(object):
         Populate the views 
         """
         self.items = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+
+    def load_views(self):
         for item in self.items:
             for cmd in self.commands:
                 self.commands[cmd](item)
         for view in self.views:
             if isinstance(self.views[view], list):
                 self.views[view].sort()
-
-        with open('views.json', 'w') as jo:
-            json.dump(self.views, jo, indent=1, sort_keys=True)
+        self.save_views()
 
 
     def _add_rows(self, view, list_of_rows):
@@ -244,11 +254,16 @@ class Views(object):
         # note: tasks with jobs will contribute several rows for each instance
 
     def _update_agenda(self):
+        print('update')
         this_week = f"{self.today.year}-{str(self.today.week_of_year).zfill(2)}"
         this_day = str(self.today.day_of_week)
         if this_week not in self.views['weeks']:
             self.views['weeks'].setdefault(this_week, {}).update({'fmt': fmt_week(self.today)})
-        if this_day not in self.views['weeks'][this_week]: 
+        if this_day in self.views['weeks'][this_week]:
+            print('today found')
+            self.views['weeks'][this_week][this_day]['fmt'] = f"{self.today.format('ddd MMM D')} (Today)"
+        else:
+            print('today missing')
             self.views['weeks'][this_week].setdefault(this_day, {}).update({'fmt': f"{self.today.format('ddd MMM D')} (Today)"})
             self.views['weeks'][this_week][this_day].setdefault('items', []).append(
                 (
@@ -264,6 +279,7 @@ class Views(object):
             if key not in self.views['weeks']:
                 print("missing week:", key)
                 self.views['weeks'][key]["0"] = "Nothing scheduled"
+        self.modified = True
 
     def _update_relevant(self, item):
         # finished tasks
