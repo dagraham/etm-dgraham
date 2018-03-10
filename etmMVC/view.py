@@ -1,5 +1,5 @@
 import pendulum
-from model import timestamp_from_eid, fmt_week, setup_logging, serialization, item_details
+from model import timestamp_from_eid, fmt_week, setup_logging, serialization, item_details, item_instances, fmt_week, beg_ends, format_interval, getMonthWeeks
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
 from tinydb.database import Table
@@ -36,24 +36,66 @@ class Views(object):
                 index_view = [],
                 modified_view = [],
                 tags_view = [],
+                weeks = {},
                 agenda_view = [],
                 next_view = [],
                 someday_view = [],
-                done_view = []
+                done_view = [],
+                alerts = [],  
+                begins = [],    # dt -> list of ids
+                relevant = {},  # id -> list of dts
                 )
-        items = {}
-        self.relevant = {}  # id -> dt
-        self.begins =  []   # (beg_dt, start_dt, id)
+        self.items = {}
+        self.begins =  []   # (beg_dt, end_dt, id)
 
         self.commands = dict(
                 update_index = self._update_index_view,
+                update_created = self._update_created_view,
                 update_modified = self._update_modified_view,
+                update_weeks = self._update_weeks,
+                update_alerts = self._update_alerts,
+                update_begins = self._update_begins,
                 update_tags = self._update_tags_view,
                 update_done = self._update_done_view,
                 update_busy = self._update_busy_view,
                 )
+        self.today = None
+        self.yearmonth = None
+        self.beg_dt = self.end_dt = None
+        self.bef_months = 5
+        self.aft_months = 18
+        self.maybe_refresh()
+
+    def maybe_refresh(self):
+        """
+        If the current month has changed, reset the begin and end dates for the period to include the current month, the preceeding 5 months and the subsequent 18 months. Adjust the dates to include 6 complete weeks for each of the 24 months.
+        """
+        today = pendulum.today('Factory')
+        if today != self.today:
+            self.today = today
 
 
+        # self.now = now = pendulum.now('Factory')
+        yearmonth = (today.year, today.month)
+        if yearmonth != self.yearmonth:
+            # update year month
+            self.yearmonth = yearmonth
+            # get the first day of the current month
+            n_beg = pendulum.create(year=yearmonth[0], month=yearmonth[1], day=1, hour=0, minute=0, second=0, microsecond=0)
+            # get the first day of the month bef_months before
+            b = n_beg.subtract(months=self.bef_months)
+            # get the first day of the month aft_months after
+            e = n_beg.add(months=self.aft_months)
+            # get 12am Monday of the first week in the begin month
+            self.beg_dt = b.subtract(days=b.weekday())
+            # to include 6 weeks, get 12am Monday of the 6th week
+            # after the first week in the end month
+            e = e.subtract(days=e.weekday())
+            self.end_dt = e.add(weeks=6)
+            self.load_TinyDB()
+
+    def nothing_secheduled(self):
+        pass
 
     def load_TinyDB(self):
         """
@@ -64,7 +106,9 @@ class Views(object):
             for cmd in self.commands:
                 self.commands[cmd](item)
         for view in self.views:
-            self.views[view].sort()
+            if isinstance(self.views[view], list):
+                self.views[view].sort()
+        self._update_agenda()
 
         with open('views.json', 'w') as jo:
             json.dump(self.views, jo, indent=1, sort_keys=True)
@@ -92,7 +136,7 @@ class Views(object):
         self._update_rows(
                 'created_view',
                 [
-                    ( item.eid, (), (f"{item['itemtype']} {item['summary']}", created.format(short_dt_fmt), item.eid))
+                    ( item.eid, (), (f"{item['itemtype']} {item['summary']}", created.format(short_dt_fmt)))
                     ],
                 item.eid
                 )
@@ -123,10 +167,11 @@ class Views(object):
     def _update_tags_view(self, item):
         if 't' in item:
             rows = []
-            tags = [x.strip() for x in item['t']]
-            for tag in tags:
-                rows.append((tag, tag, (f"{item['itemtype']} {item['summary']}"), item.eid))
-            self._update_rows('tags_view', rows, item.eid)
+            tags = [x.strip() for x in item['t'] if x.strip()]
+            if tags:
+                for tag in tags:
+                    rows.append((tag, tag, (f"{item['itemtype']} {item['summary']}"), item.eid))
+                self._update_rows('tags_view', rows, item.eid)
 
     def _update_done_view(self, item):
         dts = []
@@ -152,50 +197,70 @@ class Views(object):
         sort = (date, type, time)
         path = (year_week, date)
         cols = (display_char summary, ?)
-
-        relevant datetime:
-            repeating events: first instance on or after today
-            non repeating events: "s"
-            repeating tasks:
-                last or only instance finished: "f" - no alerts or beginbys
-                unfinished:
-                    non-repeating: "s"
-                    repeating:
-                        @o s: first unfinished instance on or after today - can't be pastdue 
-                        @o r, k: first unfinished instance: "s" - pastdue if before today or "f" is last instance is finished
-            non repeating tasks or repeating and finish
-            beginby: relevant > today and relevant - "b" < today
-
-The relevant datetime of an item (used in index view):
-Non repeating events and unfinished tasks: the datetime given in @s
-    done: Actions: the datetime given in @f
-    done: Finished tasks: the datetime given in @f
-Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance
-Repeating tasks: the datetime of the first unfinished instance
-Undated and unfinished items: None
-
         """
+        if 'f' in item:
+            fin = item['f']
+            if type(fin) == pendulum.pendulum.Date:
+                # change to datetime at midnight on the same date
+                fin = pendulum.create(year=fin.year, month=fin.month, day=fin.day, hour=0, minute=0, tz=None)
+            # self.views['relevant'].setdefault(item.eid, []).append(fin.format(ETMFMT))
+            self.views['relevant'][item.eid] = fin.format(ETMFMT)
+            return
         if (item['itemtype'] in ['?', '!', '~'] 
-                or 'f' in item 
                 or 's' not in item
                 ):
             return
-        pass
-        # if @r in item get instances from rrulestr
-        # elif @+ get instances from @s and @+
-        # else @s is the only instance
+        if type(item['s']) == pendulum.Pendulum and 'e' in item:
+            rhc = beg_ends(item['s'], item['e'])[0][1].center(16, ' ')
+            # rhc = item['s'].format("h:mmA", formatter="alternative")
+        else:
+            rhc = ""
+        rows = []
+        instances = []
+        # FIXME deal with jobs: skip finished, add available and waiting
+        # only for the next instance
+        for dt in item_instances(item, self.beg_dt, self.end_dt):
+            instances.append(dt)
+            week = (f"{dt.year}-{str(dt.week_of_year).zfill(2)}")
+            day = dt.day_of_week
+            day = str(day) if day > 0 else "7"
+            self.views['weeks'].setdefault(week, {}).update({'fmt': fmt_week(dt)})
+            self.views['weeks'][week].setdefault(day, {}).update({'fmt': dt.format('ddd MMM D'), 'items': []})
+            self.views['weeks'][week][day]['items'].append(
+                    (
+                        f"{item['itemtype']} {item['summary']}", 
+                        rhc,
+                        item.eid
+                        )
+                    )
+        for dt in instances:
+            # get the first instance on or after today or, if none, the last
+            relevant = dt
+            if dt >= self.today:
+                self.views['relevant'][item.eid] = relevant.format(ETMFMT)
+                break
+
+
         # note: tasks with jobs will contribute several rows for each instance
-        # note: multiday events will contribute several rows for each instance
+
+    def _update_agenda(self):
+        mws = getMonthWeeks(self.today, self.bef_months, self.aft_months)
+        for mw in mws:
+            key = f"{mw[0]}-{str(mw[1]).zfill(2)}"
+            if key not in self.views['weeks']:
+                print("missing week:", key)
+            else:
+                print("found week:", key)
 
 
-    def _refresh(self, item):
+    def _update_relevant(self, item):
         # finished tasks
         if item['itemtype'] in ['?', '!']:
             return
         if "f" in item and item['f']:
             # this includes finished, undated tasks and actions
             # no past dues or begin bys for these
-             self.relevant[self.id] = item['f']
+             self.views[relevant][item.eid] = item['f']
              return 
         # unfinished tasks or scheduled events
         if 's' in item:
@@ -208,6 +273,44 @@ Undated and unfinished items: None
                     else:
                         # keep or restart
                         return item['s']
+
+    def _update_alerts(self, item):
+        if not 'a' in item:
+            return
+        alerts = []
+        for alert in item['a']:
+            cmd = alert[1]
+            args = alert[2:]
+            for td in alert[0]:
+                dt = item['s']-td
+                if dt < self.today:
+                    continue
+                alerts.append(
+                        (dt.format(ETMFMT),
+                            format_interval(td),
+                            f"{item['itemtype']} {item['summary']}",
+                            cmd,
+                            args,
+                            )
+                        )
+        self._update_rows('alerts', alerts, item.eid)
+
+    def _update_begins(self, item):
+        if not 'b' in item or item['s'] < self.today:
+            return
+        end = item['s']
+        if type(end) == pendulum.pendulum.Date:
+            # change to datetime at midnight on the same date
+            end = pendulum.create(year=end.year, month=end.month, day=end.day, hour=0, minute=0, tz=None)
+        td = pendulum.interval(days=item['b'])
+        beg = end - td
+        begins = [
+                beg.format(ETMFMT), 
+                end.format(ETMFMT), 
+                f"{item['itemtype']} {item['summary']}",
+                ]
+        self._update_rows('begins', [begins], item.eid)
+
 
 
 
@@ -235,7 +338,7 @@ if __name__ == '__main__':
     setup_logging(1)
     import doctest
     my_views = Views()
-    my_views.load_TinyDB()
+    print(my_views.beg_dt, my_views.end_dt)
 
     # for item in my_views.items:
     #     try:
