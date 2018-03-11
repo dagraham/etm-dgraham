@@ -71,7 +71,7 @@ class Views(object):
         """
         If the current month has changed, reset the begin and end dates for the period to include the current month, the preceeding 5 months and the subsequent 18 months. Adjust the dates to include 6 complete weeks for each of the 24 months.
         """
-        self.today = today = pendulum.today('Factory')
+        self.today = today = pendulum.today()
         # self.now = now = pendulum.now('Factory')
         yearmonth = (today.year, today.month)
         if yearmonth != self.yearmonth:
@@ -243,27 +243,28 @@ class Views(object):
                         item.eid
                         )
                     )
+        relevant = None
         for dt in instances:
             # get the first instance on or after today or, if none, the last
             relevant = dt
             if dt >= self.today:
                 self.views['relevant'][item.eid] = relevant.format(ETMFMT)
                 break
+        if relevant:
+            self.views['relevant'][item.eid] = relevant.format(ETMFMT)
 
 
         # note: tasks with jobs will contribute several rows for each instance
 
     def _update_agenda(self):
-        print('update')
         this_week = f"{self.today.year}-{str(self.today.week_of_year).zfill(2)}"
-        this_day = str(self.today.day_of_week)
+        this_day = self.today.day_of_week
+        this_day = str(this_day) if this_day > 0 else "7"
         if this_week not in self.views['weeks']:
             self.views['weeks'].setdefault(this_week, {}).update({'fmt': fmt_week(self.today)})
         if this_day in self.views['weeks'][this_week]:
-            print('today found')
             self.views['weeks'][this_week][this_day]['fmt'] = f"{self.today.format('ddd MMM D')} (Today)"
         else:
-            print('today missing')
             self.views['weeks'][this_week].setdefault(this_day, {}).update({'fmt': f"{self.today.format('ddd MMM D')} (Today)"})
             self.views['weeks'][this_week][this_day].setdefault('items', []).append(
                 (
