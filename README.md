@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Mar 08, 2018 05:34PM EST**
+**Last modified: Sat Mar 10, 2018 10:23PM EST**
 
 # Goals
 
@@ -184,7 +184,6 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
       * Daylight saving time begins @s 2010-03-14 @r y &M 3 &w 2SU @c shared
 
-- Additionally, individual components are stored in convenient formats. E.g., the components of a repetition rule are combined and stored as an rrulestr.
 - Two timestamps are automatically created for each item, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. 
 - The creation timestamp is used as the unique identifier for the item in the data store and is accessed as `item.eid`. 
 - The hierarchical organization that was provided by file paths is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry `@i plant:tree:oak` would store the item in the *index* view under:
