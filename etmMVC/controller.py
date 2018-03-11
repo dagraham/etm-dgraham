@@ -47,8 +47,8 @@ required['-'] = ''
 allowed['-'] = undated_methods + datetime_methods + task_methods
 
 # journal entries
-required['#'] = ''
-allowed['#'] = undated_methods + datetime_methods
+required['%'] = ''
+allowed['%'] = undated_methods + datetime_methods
 
 # someday entries
 required['?'] = ''
@@ -81,7 +81,7 @@ def check_requires(key, hsh):
         return True, ('say', '')
 
 
-type_prompt = u"type character for new item:\n"
+type_prompt = u"type character for new item:"
 item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
 
 
@@ -227,7 +227,7 @@ def deal_with_r(at_hsh={}):
     """
     Check the current state of at_hsh regarding r and s.
     """
-    top = "repetition rule?\n"
+    top = "repetition rule?"
     bot = "{}".format(at_keys['r'])
     lofh = at_hsh.get('r', [])
     if not lofh:
@@ -290,7 +290,7 @@ def deal_with_j(at_hsh={}):
     else:
         # An undated task
         dated = False
-    top = "job?\n"
+    top = "job?"
     bot = "{}".format(at_keys['j'])
     lofh = at_hsh.get('j', [])
     ok, res, lastcompletion = jobs(lofh, at_hsh)
