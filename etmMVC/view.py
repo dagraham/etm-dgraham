@@ -1,5 +1,5 @@
 import pendulum
-from model import timestamp_from_eid, fmt_week, setup_logging, serialization, item_details, item_instances, fmt_week, beg_ends, format_interval, getMonthWeeks
+from model import timestamp_from_eid, fmt_week, setup_logging, serialization, item_details, item_instances, fmt_week, beg_ends, format_interval, getMonthWeeks, set_summary
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
 from tinydb.database import Table
@@ -139,7 +139,6 @@ class Views(object):
         self.views[view] = [x for x in self.views[view] if x[-1] != id]
 
     def _update_rows(self, view, list_of_rows, id):
-        self._remove_rows(view, id)
         self._add_rows(view, list_of_rows, id)
 
     def _update_created_view(self, item):
@@ -232,9 +231,10 @@ class Views(object):
         # only for the next instance
         for dt in item_instances(item, self.beg_dt, self.end_dt):
             instances.append(dt)
+            summary = set_summary(item['summary'], dt)
             sort = (dt.format(ETMFMT))
             path = (fmt_week(dt), dt.format('ddd MMM D'))
-            cols = (f"{item['itemtype']} {item['summary']}", rhc)
+            cols = (f"{item['itemtype']} {summary}", rhc)
             row = (sort, path, cols)
             self._update_rows('weeks_view', row, item.eid)
             self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
