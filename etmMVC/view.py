@@ -37,6 +37,7 @@ class Views(object):
                 modified_view = [],
                 tags_view = [],
                 weeks = {},
+                weeks_view = [],
                 agenda_view = [],
                 next_view = [],
                 someday_view = [],
@@ -124,11 +125,11 @@ class Views(object):
         self.save_views()
 
 
-    def _add_rows(self, view, list_of_rows):
+    def _add_rows(self, view, list_of_rows, id):
         if not isinstance(list_of_rows, list):
             list_of_rows = [list_of_rows]
         for row in list_of_rows:
-            self.views[view].append(row)
+            self.views[view].append((row, id))
         # self.views[view].sort() # FIXME do this after all rows have been added from all items 
 
     def _remove_rows(self, view, id):
@@ -139,7 +140,7 @@ class Views(object):
 
     def _update_rows(self, view, list_of_rows, id):
         self._remove_rows(view, id)
-        self._add_rows(view, list_of_rows)
+        self._add_rows(view, list_of_rows, id)
 
     def _update_created_view(self, item):
         created = timestamp_from_eid(item.eid)
@@ -231,18 +232,12 @@ class Views(object):
         # only for the next instance
         for dt in item_instances(item, self.beg_dt, self.end_dt):
             instances.append(dt)
-            week = (f"{dt.year}-{str(dt.week_of_year).zfill(2)}")
-            day = dt.day_of_week
-            day = str(day) if day > 0 else "7"
-            self.views['weeks'].setdefault(week, {}).update({'fmt': fmt_week(dt)})
-            self.views['weeks'][week].setdefault(day, {}).update({'fmt': dt.format('ddd MMM D')})
-            self.views['weeks'][week][day].setdefault('items', []).append(
-                    (
-                        f"{item['itemtype']} {item['summary']}", 
-                        rhc,
-                        item.eid
-                        )
-                    )
+            sort = (dt.format(ETMFMT))
+            path = (fmt_week(dt), dt.format('ddd MMM D'))
+            cols = (f"{item['itemtype']} {item['summary']}", rhc)
+            row = (sort, path, cols)
+            self._update_rows('weeks_view', row, item.eid)
+            self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
         relevant = None
         for dt in instances:
             # get the first instance on or after today or, if none, the last
@@ -257,30 +252,24 @@ class Views(object):
         # note: tasks with jobs will contribute several rows for each instance
 
     def _update_agenda(self):
-        this_week = f"{self.today.year}-{str(self.today.week_of_year).zfill(2)}"
-        this_day = self.today.day_of_week
-        this_day = str(this_day) if this_day > 0 else "7"
-        if this_week not in self.views['weeks']:
-            self.views['weeks'].setdefault(this_week, {}).update({'fmt': fmt_week(self.today)})
-        if this_day in self.views['weeks'][this_week]:
-            self.views['weeks'][this_week][this_day]['fmt'] = f"{self.today.format('ddd MMM D')} (Today)"
-        else:
-            self.views['weeks'][this_week].setdefault(this_day, {}).update({'fmt': f"{self.today.format('ddd MMM D')} (Today)"})
-            self.views['weeks'][this_week][this_day].setdefault('items', []).append(
-                (
-                    "Nothing scheduled", 
-                    "",
-                    ""
-                    )
-                )
+        this_week = fmt_week(self.today)
+        this_day = self.today.format("ddd MMM D")
+        # this_week_instances = [x for x in self.weeks_view if x[1][0] == this_week]
+        # this_day_instances = [x for x in this_week_instances if x[1][1] == this_day]
+        this_week_instances = self.views['weeks'].get(this_week, [])
+        this_day_instances = [x for x in this_week_instances if x[0] == this_day]
+        if not this_day_instances:
+            row = (self.today.format(ETMFMT), (this_week, this_day), ("Nothing scheduled", ""))
+            self._update_rows('weeks_view', row, "")
+            self.modified = True
 
-        mws = getMonthWeeks(self.today, self.bef_months, self.aft_months)
-        for mw in mws:
-            key = f"{mw[0]}-{str(mw[1]).zfill(2)}"
-            if key not in self.views['weeks']:
-                print("missing week:", key)
-                self.views['weeks'][key]["0"] = "Nothing scheduled"
-        self.modified = True
+
+        # mws = getMonthWeeks(self.today, self.bef_months, self.aft_months)
+        # for mw in mws:
+        #     key = f"{mw[0]}-{str(mw[1]).zfill(2)}"
+        #     if key not in self.views['weeks']:
+        #         print("missing week:", key)
+        #         self.views['weeks'][key]["0"] = "Nothing scheduled"
 
     def _update_relevant(self, item):
         # finished tasks
