@@ -288,7 +288,7 @@ class Views(object):
         if "f" in item and item['f']:
             # this includes finished, undated tasks and actions
             # no past dues or begin bys for these
-             self.views[relevant][item.eid] = item['f']
+             self.views['relevant'][item.eid] = item['f']
              return 
         # unfinished tasks or scheduled events
         if 's' in item:
