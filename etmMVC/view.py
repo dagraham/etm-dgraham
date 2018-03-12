@@ -1,5 +1,5 @@
 import pendulum
-from model import timestamp_from_eid, fmt_week, setup_logging, serialization, item_details, item_instances, fmt_week, beg_ends, format_interval, getMonthWeeks, set_summary
+from model import timestamp_from_eid, fmt_week, setup_logging, serialization, item_details, item_instances, fmt_week, beg_ends, fmt_extent, format_interval, getMonthWeeks, set_summary
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
 from tinydb.database import Table
@@ -222,7 +222,6 @@ class Views(object):
             return
         if type(item['s']) == pendulum.Pendulum and 'e' in item:
             rhc = beg_ends(item['s'], item['e'])[0][1].center(16, ' ')
-            # rhc = item['s'].format("h:mmA", formatter="alternative")
         else:
             rhc = ""
         rows = []
@@ -235,9 +234,9 @@ class Views(object):
             sort = (dt.format(ETMFMT))
             path = (fmt_week(dt), dt.format('ddd MMM D'))
             cols = (f"{item['itemtype']} {summary}", rhc)
-            row = (sort, path, cols)
-            self._update_rows('weeks_view', row, item.eid)
+            rows.append((sort, path, cols))
             self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
+        self._update_rows('weeks_view', rows, item.eid)
         relevant = None
         for dt in instances:
             # get the first instance on or after today or, if none, the last

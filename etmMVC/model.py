@@ -1233,12 +1233,14 @@ def item_instances(item, aft_dt, bef_dt):
     """
     Get instances from item falling on or after aft_dt and on or 
     before bef_dt. All datetimes will be returned with zero offsets.
-    >>> item_eg = { "s": parse('2018-03-07 8am'), "r": [ { "c": 4, "r": "d", "u": parse('2018-08-31 8am'), }, ], }
+    >>> item_eg = { "s": parse('2018-03-07 8am'), "e": pendulum.interval(days=1, hours=5), "r": [ { "c": 4, "r": "d", "i": 2, "u": parse('2018-08-31 8am')}], "z": "US/Eastern"  }
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-08T08:00:00+00:00]>, <Pendulum [2018-03-09T08:00:00+00:00]>, <Pendulum [2018-03-10T08:00:00+00:00]>]
+    [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T23:59:59.999999+00:00]>), (<Pendulum [2018-03-08T00:00:00+00:00]>, <Pendulum [2018-03-08T13:00:00+00:00]>), (<Pendulum [2018-03-09T08:00:00+00:00]>, <Pendulum [2018-03-09T23:59:59.999999+00:00]>), (<Pendulum [2018-03-10T00:00:00+00:00]>, <Pendulum [2018-03-10T13:00:00+00:00]>), (<Pendulum [2018-03-11T08:00:00+00:00]>, <Pendulum [2018-03-11T23:59:59.999999+00:00]>), (<Pendulum [2018-03-12T00:00:00+00:00]>, <Pendulum [2018-03-12T13:00:00+00:00]>), (<Pendulum [2018-03-13T08:00:00+00:00]>, <Pendulum [2018-03-13T23:59:59.999999+00:00]>), (<Pendulum [2018-03-14T00:00:00+00:00]>, <Pendulum [2018-03-14T13:00:00+00:00]>)]
     """
+    # FIXME deal with multidays
     if 's' not in item:
         return []
+    instances = []
     dts = item['s']
     if type(dts) == pendulum.pendulum.Date:
         # change to datetime at midnight on the same date
@@ -1269,17 +1271,26 @@ def item_instances(item, aft_dt, bef_dt):
         if '+' in item:
             for dt in item['+']:
                 rset.rdate(dt)
+        instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
+        # return [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
 
-        return [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
-
-    if '+' in item:
+    elif '+' in item:
         tmp = item['+'].append(dtstart)
-        return [x for x in tmp if (x >= aft_dt and x <= bef_dt)]
+        instances = [x for x in tmp if (x >= aft_dt and x <= bef_dt)]
+        # return [x for x in tmp if (x >= aft_dt and x <= bef_dt)]
 
-    if dtstart >= aft_dt and dtstart <= bef_dt:
-        return [dtstart]
+    elif dtstart >= aft_dt and dtstart <= bef_dt:
+        instances = [dtstart]
+        # return [dtstart]
 
-    return []
+    if instances and 'e' in item:
+        tmp = []
+        for instance in instances:
+            for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
+                tmp.append(pair)
+        instances = tmp
+
+    return instances
 
 
 
@@ -1997,10 +2008,10 @@ def fmt_extent(beg_dt, end_dt):
     >>> fmt_extent(beg_dt, end_dt)
     '10am-2pm'
     """
-    diff = beg_dt.hour < 12 and end_dt.hour >= 12
     beg_suffix = end_suffix = ""
 
     if ampm:
+        diff = beg_dt.hour < 12 and end_dt.hour >= 12
         end_suffix = end_dt.format("A", formatter='alternative').lower()
         if diff:
             beg_suffix = beg_dt.format("A", formatter='alternative').lower()
@@ -2011,14 +2022,13 @@ def fmt_extent(beg_dt, end_dt):
     return f"{beg_fmt}{beg_suffix}-{end_fmt}{end_suffix}"
 
 
-
 def beg_ends(starting_dt, extent_interval, z=None):
     """
     >>> starting = parse('2018-03-02 9am') 
     >>> beg_ends(starting, parse_interval('2d2h20m')[1])
-    [(<Pendulum [2018-03-02T09:00:00+00:00]>, '9am-11:59pm'), (<Pendulum [2018-03-03T00:00:00+00:00]>, '12am-11:59pm'), (<Pendulum [2018-03-04T00:00:00+00:00]>, '12-11:20am')]
+    [(<Pendulum [2018-03-02T09:00:00+00:00]>, <Pendulum [2018-03-02T23:59:59.999999+00:00]>), (<Pendulum [2018-03-03T00:00:00+00:00]>, <Pendulum [2018-03-03T23:59:59.999999+00:00]>), (<Pendulum [2018-03-04T00:00:00+00:00]>, <Pendulum [2018-03-04T11:20:00+00:00]>)]
     >>> beg_ends(starting, parse_interval('8h20m')[1])
-    [(<Pendulum [2018-03-02T09:00:00+00:00]>, '9am-5:20pm')]
+    [(<Pendulum [2018-03-02T09:00:00+00:00]>, <Pendulum [2018-03-02T17:20:00+00:00]>)]
     """
 
     pairs = []
@@ -2026,9 +2036,9 @@ def beg_ends(starting_dt, extent_interval, z=None):
     ending = starting_dt + extent_interval
     while ending.date() > beg.date():
         end = beg.end_of('day')
-        pairs.append((beg, fmt_extent(beg, end)))
+        pairs.append((beg, end))
         beg = beg.start_of('day').add(days=1)
-    pairs.append((beg, fmt_extent(beg, ending)))
+    pairs.append((beg, ending))
     return pairs
 
 
