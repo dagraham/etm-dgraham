@@ -223,12 +223,11 @@ class Views(object):
                         status = 'finished'
                         break
                     elif dt < today:
-                        if o in ['na', 's']:
-                            continue
-                        else:
-                            # pastdue if dt < today
+                        if o:
                             status = 'pastdue'
                             break
+                        else:
+                            continue
                     else:
                         # not pastdue
                         if b:
@@ -284,7 +283,8 @@ class Views(object):
                 busy.append(tmp)
             self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
         self._update_rows('weeks_view', rows, item.eid)
-        instance_rows = [(x.format(ETMFMT), item['itemtype'], 'b' in item, 'f' in item, item.get('o', "na")) for x in instances]
+        overdue = 'r' not in item or ('o' in item and item['o'] != 's')
+        instance_rows = [(x.format(ETMFMT), item['itemtype'], 'b' in item, 'f' in item, overdue) for x in instances]
         self._update_rows('busy', busy, item.eid)
         self._update_rows('instances', instance_rows, item.eid)
 
