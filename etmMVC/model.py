@@ -2213,7 +2213,7 @@ if __name__ == '__main__':
     # pendulum.set_locale('fr')
     import doctest
 
-    # import_json()
+    import_json()
     load_json()
     # test_sort()
 
