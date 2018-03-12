@@ -1181,7 +1181,7 @@ def check_rrule(lofh):
 
 def rrule_args(r_hsh):
     """
-    >>> item_eg = { "s": parse('2018-03-07 8am'), "r": [ { "c": 4, "r": "d", "u": parse('2018-08-31 8am'), }, ], }
+    >>> item_eg = { "s": parse('2018-03-07 8am'), "r": [ { "c": 4, "r": "d", "u": parse('2018-08-31 8am'), }, ], "itemtype": "*"}
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
     [(<Pendulum [2018-03-07T08:00:00+00:00]>, None), (<Pendulum [2018-03-08T08:00:00+00:00]>, None), (<Pendulum [2018-03-09T08:00:00+00:00]>, None), (<Pendulum [2018-03-10T08:00:00+00:00]>, None)]
     >>> r_hsh = item_eg['r'][0]
@@ -1233,9 +1233,13 @@ def item_instances(item, aft_dt, bef_dt):
     """
     Get instances from item falling on or after aft_dt and on or 
     before bef_dt. All datetimes will be returned with zero offsets.
-    >>> item_eg = { "s": parse('2018-03-07 8am'), "e": pendulum.interval(days=1, hours=5), "r": [ { "c": 4, "r": "d", "i": 2, "u": parse('2018-08-31 8am')}], "z": "US/Eastern"  }
+    >>> item_eg = { "s": parse('2018-03-07 8am'), "e": pendulum.interval(days=1, hours=5), "r": [ { "c": 4, "r": "d", "i": 2, "u": parse('2018-08-31 8am')}], "z": "US/Eastern", "itemtype": "*" }
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
     [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T23:59:59.999999+00:00]>), (<Pendulum [2018-03-08T00:00:00+00:00]>, <Pendulum [2018-03-08T13:00:00+00:00]>), (<Pendulum [2018-03-09T08:00:00+00:00]>, <Pendulum [2018-03-09T23:59:59.999999+00:00]>), (<Pendulum [2018-03-10T00:00:00+00:00]>, <Pendulum [2018-03-10T13:00:00+00:00]>), (<Pendulum [2018-03-11T08:00:00+00:00]>, <Pendulum [2018-03-11T23:59:59.999999+00:00]>), (<Pendulum [2018-03-12T00:00:00+00:00]>, <Pendulum [2018-03-12T13:00:00+00:00]>), (<Pendulum [2018-03-13T08:00:00+00:00]>, <Pendulum [2018-03-13T23:59:59.999999+00:00]>), (<Pendulum [2018-03-14T00:00:00+00:00]>, <Pendulum [2018-03-14T13:00:00+00:00]>)]
+    >>> del item_eg['r']
+    >>> del item_eg['e']
+    >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
+    [(<Pendulum [2018-03-07T08:00:00+00:00]>, None)]
     """
     # FIXME only for events
     if 's' not in item:
@@ -2212,7 +2216,7 @@ if __name__ == '__main__':
     # pendulum.set_locale('fr')
     import doctest
 
-    import_json()
+    # import_json()
     load_json()
     # test_sort()
 

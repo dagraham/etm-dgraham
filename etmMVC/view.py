@@ -1,4 +1,5 @@
 import pendulum
+from pendulum import parse
 from model import timestamp_from_eid, fmt_week, setup_logging, serialization, item_details, item_instances, beg_ends, fmt_extent, format_interval, getMonthWeeks, set_summary
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
@@ -43,11 +44,11 @@ class Views(object):
                 alerts = [],  
                 instances = [],
                 begins = [],    # (beg_dt, end_dt, id)
+                busy = [],    # (beg_dt, end_dt, id)
                 pastdues = [],  # (due_dt, id)
                 relevant = [],  # (relevant_dt, id)
                 )
         self.items = {}
-        self.begins =  [] 
 
         self.commands = dict(
                 update_index = self._update_index_view,
@@ -55,10 +56,8 @@ class Views(object):
                 update_modified = self._update_modified_view,
                 update_weeks = self._update_weeks,
                 update_alerts = self._update_alerts,
-                update_begins = self._update_begins,
                 update_tags = self._update_tags_view,
                 update_done = self._update_done_view,
-                update_busy = self._update_busy_view,
                 )
         self.today = None
         self.yearmonth = None
@@ -100,6 +99,8 @@ class Views(object):
             self.modified = True
         if self.modified:
             self._update_relevant()
+            self._update_begins()
+            self._update_pastdues()
             self.save_views()
 
     def save_views(self):
@@ -122,7 +123,12 @@ class Views(object):
                 self.commands[cmd](item)
         for view in self.views:
             if isinstance(self.views[view], list):
-                self.views[view].sort()
+                try:
+                    self.views[view].sort()
+                except Exception as e:
+                    print(e)
+                    print(view)
+                    print(self.views[view])
         self.save_views()
 
 
@@ -140,7 +146,8 @@ class Views(object):
         self.views[view] = [x for x in self.views[view] if x[-1] != id]
 
     def _update_rows(self, view, list_of_rows, id):
-        self._add_rows(view, list_of_rows, id)
+        if list_of_rows:
+            self._add_rows(view, list_of_rows, id)
 
     def _update_created_view(self, item):
         created = timestamp_from_eid(item.eid)
@@ -198,17 +205,14 @@ class Views(object):
                 rows.append((dt.format(ETMFMT), (fmt_week(dt), dt.format('ddd MMM 2')),  (f"{item['itemtype']} {item['summary']}", dt.format("H:mm"))))
             self._update_rows('done_view', rows, item.eid)
 
-    def _update_busy_view(self, item):
-        pass
-
     def _update_relevant(self):
         relevant = None
         hsh = {}
-        for ((dt, t, f, o), id) in self.views['instances']:
-            hsh.setdefault(id, []).append((dt, t, f, o))
+        for ((dt, t, b, f, o), id) in self.views['instances']:
+            hsh.setdefault(id, []).append((dt, t, b, f, o))
         for id in hsh:
             status = 'last'
-            for (dt, t, f, o) in hsh[id]:
+            for (dt, t, b, f, o) in hsh[id]:
                 # get the first instance of an unfinished task
                 # or the first instance on or after today 
                 # or, if none, the last
@@ -219,7 +223,7 @@ class Views(object):
                         status = 'finished'
                         break
                     elif dt < today:
-                        if o == 'na':
+                        if o in ['na', 's']:
                             continue
                         else:
                             # pastdue if dt < today
@@ -227,7 +231,10 @@ class Views(object):
                             break
                     else:
                         # not pastdue
-                        status = 'available'
+                        if b:
+                            status = 'begin'
+                        else:
+                            status = 'available'
                         break
                 else:
                     if dt < today:
@@ -235,7 +242,10 @@ class Views(object):
                         continue
                     else:
                         # the first after today
-                        status = 'next'
+                        if b:
+                            status = 'begin'
+                        else:
+                            status = 'next'
                         break
             self._update_rows('relevant', (relevant, t, status), id)
 
@@ -247,20 +257,13 @@ class Views(object):
         path = (year_week, date)
         cols = (display_char summary, ?)
         """
-        # if 'f' in item:
-        #     fin = item['f']
-        #     if type(fin) == pendulum.pendulum.Date:
-        #         # change to datetime at midnight on the same date
-        #         fin = pendulum.create(year=fin.year, month=fin.month, day=fin.day, hour=0, minute=0, tz=None)
-        #     # self.views['relevant'].setdefault(item.eid, []).append(fin.format(ETMFMT))
-        #     self.views['relevant'][item.eid] = fin.format(ETMFMT)
-        #     return
         if (item['itemtype'] in ['?', '!', '~'] 
                 or 's' not in item
                 ):
             return
         rows = []
         instances = []
+        busy = []
         # FIXME deal with jobs: skip finished, add available and waiting
         # only for the next instance
         for (beg, end) in item_instances(item, self.beg_dt, self.end_dt):
@@ -274,45 +277,17 @@ class Views(object):
             path = (fmt_week(beg), beg.format('ddd MMM D'))
             cols = (f"{item['itemtype']} {summary}", rhc)
             rows.append((sort, path, cols))
+            if item['itemtype'] == "*" and end:
+                beg_min = beg.hour*60 + beg.minute
+                end_min = end.hour*60 + end.minute
+                tmp = (beg.format("YYYYMMDDT0000"), beg_min, end_min)
+                busy.append(tmp)
             self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
         self._update_rows('weeks_view', rows, item.eid)
-        instance_rows = [(x.format(ETMFMT), item['itemtype'], 'f' in item, item.get('o', "na")) for x in instances]
+        instance_rows = [(x.format(ETMFMT), item['itemtype'], 'b' in item, 'f' in item, item.get('o', "na")) for x in instances]
+        self._update_rows('busy', busy, item.eid)
         self._update_rows('instances', instance_rows, item.eid)
-        # relevant = None
-        # for dt in instances:
-        #     # get the first instance of an unfinished task
-        #     # or the first instance on or after today 
-        #     # or, if none, the last
-        #     relevant = dt
-        #     if item['itemtype'] == '-':
-        #         if 'f' in item:
-        #             # finished
-        #             # self.views['relevant'][item.eid] = relevant.format(ETMFMT)
-        #             break
-        #         elif dt < self.today:
-        #             if item.get('o', 's') == 's':
-        #                 continue
-        #             else:
-        #                 # pastdue if dt < today
-        #                 # self.views['relevant'][item.eid] = relevant.format(ETMFMT)
-        #                 break
-        #         else:
-        #             # not pastdue
-        #             # self.views['relevant'][item.eid] = relevant.format(ETMFMT)
-        #             break
-        #     else:
-        #         if dt < self.today:
-        #             # relevant is the first on or after today
-        #             continue
-        #         else:
-        #             # the first after today
-        #             # self.views['relevant'][item.eid] = relevant.format(ETMFMT)
-        #             break
-        # if relevant:
-        #     self.views['relevant'][item.eid] = relevant.format(ETMFMT)
 
-
-        # note: tasks with jobs will contribute several rows for each instance
 
     def _update_agenda(self):
         this_week = fmt_week(self.today)
@@ -358,22 +333,41 @@ class Views(object):
                         )
         self._update_rows('alerts', alerts, item.eid)
 
-    def _update_begins(self, item):
-        if not 'b' in item or item['s'] < self.today:
-            return
-        end = item['s']
-        if type(end) == pendulum.pendulum.Date:
-            # change to datetime at midnight on the same date
-            end = pendulum.create(year=end.year, month=end.month, day=end.day, hour=0, minute=0, tz=None)
-        td = pendulum.interval(days=item['b'])
-        beg = end - td
-        begins = [
-                beg.format(ETMFMT), 
-                end.format(ETMFMT), 
-                f"{item['itemtype']} {item['summary']}",
-                ]
-        self._update_rows('begins', [begins], item.eid)
+    def _update_begins(self):
+        beg_instances = [x for x in self.views['relevant'] if x[0][2] == 'begin']
+        rows = []
 
+        today = self.today.format(ETMFMT)
+        for instance in beg_instances:
+            id = instance[-1]
+            item = self.items.get(eid=id)
+            end_begin = beg = instance[0][0]
+            beg_dt = parse(beg)
+            # the begin interval runs from b days before beg to beg
+            start_begin = (beg_dt - pendulum.interval(days=item['b'])).format("YYYYMMDDT0000")
+            if start_begin <= today < end_begin:
+                days = (beg_dt - self.today).days
+
+                print('begins', start_begin, today, end_begin, days)
+                tmp = (today, days)
+                self._update_rows('begins', tmp, id)
+
+
+    def _update_pastdues(self):
+        pd_instances = [x for x in self.views['relevant'] if x[0][2] == 'pastdue']
+        rows = []
+
+        today = self.today.format(ETMFMT)
+        for instance in pd_instances:
+            id = instance[-1]
+            item = self.items.get(eid=id)
+            due = instance[0][0]
+            due_dt = parse(due)
+            days = (self.today - due_dt).days
+
+            print('pastdue', due, today, days)
+            tmp = (today, days)
+            self._update_rows('pastdues', tmp, id)
 
 
 
