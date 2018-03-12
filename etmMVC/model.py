@@ -1283,14 +1283,15 @@ def item_instances(item, aft_dt, bef_dt):
         instances = [dtstart]
         # return [dtstart]
 
-    if instances and 'e' in item:
-        tmp = []
-        for instance in instances:
+    pairs = []
+    for instance in instances:
+        if 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
-                tmp.append(pair)
-        instances = tmp
+                pairs.append(pair)
+        else:
+            pairs.append((instance, None))
 
-    return instances
+    return pairs
 
 
 

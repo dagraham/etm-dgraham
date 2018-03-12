@@ -220,19 +220,19 @@ class Views(object):
                 or 's' not in item
                 ):
             return
-        if type(item['s']) == pendulum.Pendulum and 'e' in item:
-            rhc = beg_ends(item['s'], item['e'])[0][1].center(16, ' ')
-        else:
-            rhc = ""
         rows = []
         instances = []
         # FIXME deal with jobs: skip finished, add available and waiting
         # only for the next instance
-        for dt in item_instances(item, self.beg_dt, self.end_dt):
-            instances.append(dt)
-            summary = set_summary(item['summary'], dt)
-            sort = (dt.format(ETMFMT))
-            path = (fmt_week(dt), dt.format('ddd MMM D'))
+        for (beg, end) in item_instances(item, self.beg_dt, self.end_dt):
+            if end is None:
+                rhc = ""
+            else:
+                rhc = fmt_extent(beg, end).center(15, ' ')
+            instances.append(beg)
+            summary = set_summary(item['summary'], beg)
+            sort = (beg.format(ETMFMT))
+            path = (fmt_week(beg), beg.format('ddd MMM D'))
             cols = (f"{item['itemtype']} {summary}", rhc)
             rows.append((sort, path, cols))
             self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
