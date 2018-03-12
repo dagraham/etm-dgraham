@@ -1,5 +1,5 @@
 import pendulum
-from model import timestamp_from_eid, fmt_week, setup_logging, serialization, item_details, item_instances, fmt_week, beg_ends, fmt_extent, format_interval, getMonthWeeks, set_summary
+from model import timestamp_from_eid, fmt_week, setup_logging, serialization, item_details, item_instances, beg_ends, fmt_extent, format_interval, getMonthWeeks, set_summary
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
 from tinydb.database import Table
@@ -23,8 +23,6 @@ ETMFMT = "YYYYMMDDTHHmm"
 class Views(object):
     """
     TODO
-    with open(json_file, 'w') as jo:
-        json.dump(self.views, jo, indent=1, sort_keys=True)
 
 
     """
@@ -43,11 +41,13 @@ class Views(object):
                 someday_view = [],
                 done_view = [],
                 alerts = [],  
-                begins = [],    # dt -> list of ids
-                relevant = {},  # id -> list of dts
+                instances = [],
+                begins = [],    # (beg_dt, end_dt, id)
+                pastdues = [],  # (due_dt, id)
+                relevant = [],  # (relevant_dt, id)
                 )
         self.items = {}
-        self.begins =  []   # (beg_dt, end_dt, id)
+        self.begins =  [] 
 
         self.commands = dict(
                 update_index = self._update_index_view,
@@ -99,6 +99,7 @@ class Views(object):
             self._update_agenda()
             self.modified = True
         if self.modified:
+            self._update_relevant()
             self.save_views()
 
     def save_views(self):
@@ -194,11 +195,49 @@ class Views(object):
             for dt in dts:
                 if type(dt) == pendulum.pendulum.Date:
                     dt = pendulum.create(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz=None)
-                rows.append((dt.format(ETMFMT), (fmt_week(dt), dt.format('ddd MMM 2')),  (f"{item['itemtype']} {item['summary']}", dt.format("H:mm")), item.eid ))
+                rows.append((dt.format(ETMFMT), (fmt_week(dt), dt.format('ddd MMM 2')),  (f"{item['itemtype']} {item['summary']}", dt.format("H:mm"))))
             self._update_rows('done_view', rows, item.eid)
 
     def _update_busy_view(self, item):
         pass
+
+    def _update_relevant(self):
+        relevant = None
+        hsh = {}
+        for ((dt, t, f, o), id) in self.views['instances']:
+            hsh.setdefault(id, []).append((dt, t, f, o))
+        for id in hsh:
+            status = 'last'
+            for (dt, t, f, o) in hsh[id]:
+                # get the first instance of an unfinished task
+                # or the first instance on or after today 
+                # or, if none, the last
+                today = self.today.format(ETMFMT)
+                relevant = dt
+                if t == '-':
+                    if f:
+                        status = 'finished'
+                        break
+                    elif dt < today:
+                        if o == 'na':
+                            continue
+                        else:
+                            # pastdue if dt < today
+                            status = 'pastdue'
+                            break
+                    else:
+                        # not pastdue
+                        status = 'available'
+                        break
+                else:
+                    if dt < today:
+                        # relevant is the first on or after today
+                        continue
+                    else:
+                        # the first after today
+                        status = 'next'
+                        break
+            self._update_rows('relevant', (relevant, t, status), id)
 
 
     def _update_weeks(self, item):
@@ -208,14 +247,14 @@ class Views(object):
         path = (year_week, date)
         cols = (display_char summary, ?)
         """
-        if 'f' in item:
-            fin = item['f']
-            if type(fin) == pendulum.pendulum.Date:
-                # change to datetime at midnight on the same date
-                fin = pendulum.create(year=fin.year, month=fin.month, day=fin.day, hour=0, minute=0, tz=None)
-            # self.views['relevant'].setdefault(item.eid, []).append(fin.format(ETMFMT))
-            self.views['relevant'][item.eid] = fin.format(ETMFMT)
-            return
+        # if 'f' in item:
+        #     fin = item['f']
+        #     if type(fin) == pendulum.pendulum.Date:
+        #         # change to datetime at midnight on the same date
+        #         fin = pendulum.create(year=fin.year, month=fin.month, day=fin.day, hour=0, minute=0, tz=None)
+        #     # self.views['relevant'].setdefault(item.eid, []).append(fin.format(ETMFMT))
+        #     self.views['relevant'][item.eid] = fin.format(ETMFMT)
+        #     return
         if (item['itemtype'] in ['?', '!', '~'] 
                 or 's' not in item
                 ):
@@ -237,15 +276,40 @@ class Views(object):
             rows.append((sort, path, cols))
             self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
         self._update_rows('weeks_view', rows, item.eid)
-        relevant = None
-        for dt in instances:
-            # get the first instance on or after today or, if none, the last
-            relevant = dt
-            if dt >= self.today:
-                self.views['relevant'][item.eid] = relevant.format(ETMFMT)
-                break
-        if relevant:
-            self.views['relevant'][item.eid] = relevant.format(ETMFMT)
+        instance_rows = [(x.format(ETMFMT), item['itemtype'], 'f' in item, item.get('o', "na")) for x in instances]
+        self._update_rows('instances', instance_rows, item.eid)
+        # relevant = None
+        # for dt in instances:
+        #     # get the first instance of an unfinished task
+        #     # or the first instance on or after today 
+        #     # or, if none, the last
+        #     relevant = dt
+        #     if item['itemtype'] == '-':
+        #         if 'f' in item:
+        #             # finished
+        #             # self.views['relevant'][item.eid] = relevant.format(ETMFMT)
+        #             break
+        #         elif dt < self.today:
+        #             if item.get('o', 's') == 's':
+        #                 continue
+        #             else:
+        #                 # pastdue if dt < today
+        #                 # self.views['relevant'][item.eid] = relevant.format(ETMFMT)
+        #                 break
+        #         else:
+        #             # not pastdue
+        #             # self.views['relevant'][item.eid] = relevant.format(ETMFMT)
+        #             break
+        #     else:
+        #         if dt < self.today:
+        #             # relevant is the first on or after today
+        #             continue
+        #         else:
+        #             # the first after today
+        #             # self.views['relevant'][item.eid] = relevant.format(ETMFMT)
+        #             break
+        # if relevant:
+        #     self.views['relevant'][item.eid] = relevant.format(ETMFMT)
 
 
         # note: tasks with jobs will contribute several rows for each instance
@@ -270,26 +334,6 @@ class Views(object):
         #         print("missing week:", key)
         #         self.views['weeks'][key]["0"] = "Nothing scheduled"
 
-    def _update_relevant(self, item):
-        # finished tasks
-        if item['itemtype'] in ['?', '!']:
-            return
-        if "f" in item and item['f']:
-            # this includes finished, undated tasks and actions
-            # no past dues or begin bys for these
-             self.views['relevant'][item.eid] = item['f']
-             return 
-        # unfinished tasks or scheduled events
-        if 's' in item:
-            if 'r' in item or '+' in item:
-                # repeating
-                if item['itemtype'] == '-':
-                    if 'o' in item and item['o'] == 's':
-                        # FIXME
-                        pass
-                    else:
-                        # keep or restart
-                        return item['s']
 
     def _update_alerts(self, item):
         if 'a' not in item:

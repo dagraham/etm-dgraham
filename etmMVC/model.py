@@ -1183,7 +1183,7 @@ def rrule_args(r_hsh):
     """
     >>> item_eg = { "s": parse('2018-03-07 8am'), "r": [ { "c": 4, "r": "d", "u": parse('2018-08-31 8am'), }, ], }
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-08T08:00:00+00:00]>, <Pendulum [2018-03-09T08:00:00+00:00]>, <Pendulum [2018-03-10T08:00:00+00:00]>]
+    [(<Pendulum [2018-03-07T08:00:00+00:00]>, None), (<Pendulum [2018-03-08T08:00:00+00:00]>, None), (<Pendulum [2018-03-09T08:00:00+00:00]>, None), (<Pendulum [2018-03-10T08:00:00+00:00]>, None)]
     >>> r_hsh = item_eg['r'][0]
     >>> rrule_args(r_hsh)
     (3, {'count': 4, 'until': <Pendulum [2018-08-31T08:00:00+00:00]>})
@@ -1237,7 +1237,7 @@ def item_instances(item, aft_dt, bef_dt):
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
     [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T23:59:59.999999+00:00]>), (<Pendulum [2018-03-08T00:00:00+00:00]>, <Pendulum [2018-03-08T13:00:00+00:00]>), (<Pendulum [2018-03-09T08:00:00+00:00]>, <Pendulum [2018-03-09T23:59:59.999999+00:00]>), (<Pendulum [2018-03-10T00:00:00+00:00]>, <Pendulum [2018-03-10T13:00:00+00:00]>), (<Pendulum [2018-03-11T08:00:00+00:00]>, <Pendulum [2018-03-11T23:59:59.999999+00:00]>), (<Pendulum [2018-03-12T00:00:00+00:00]>, <Pendulum [2018-03-12T13:00:00+00:00]>), (<Pendulum [2018-03-13T08:00:00+00:00]>, <Pendulum [2018-03-13T23:59:59.999999+00:00]>), (<Pendulum [2018-03-14T00:00:00+00:00]>, <Pendulum [2018-03-14T13:00:00+00:00]>)]
     """
-    # FIXME deal with multidays
+    # FIXME only for events
     if 's' not in item:
         return []
     instances = []
@@ -1277,15 +1277,14 @@ def item_instances(item, aft_dt, bef_dt):
     elif '+' in item:
         tmp = item['+'].append(dtstart)
         instances = [x for x in tmp if (x >= aft_dt and x <= bef_dt)]
-        # return [x for x in tmp if (x >= aft_dt and x <= bef_dt)]
 
     elif dtstart >= aft_dt and dtstart <= bef_dt:
         instances = [dtstart]
-        # return [dtstart]
 
     pairs = []
     for instance in instances:
-        if 'e' in item:
+        # multidays only for events
+        if item['itemtype'] == "*" and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                 pairs.append(pair)
         else:
