@@ -35,7 +35,6 @@ class Views(object):
                 index_view = [],
                 modified_view = [],
                 tags_view = [],
-                weeks = {},
                 weeks_view = [],
                 agenda_view = [],
                 next_view = [],
@@ -193,6 +192,11 @@ class Views(object):
 
     def _update_done_view(self, item):
         dts = []
+        if item['itemtype'] == '-':
+            char = 'x'
+        else:
+            char = item['itemtype']
+
         if 'f' in item:
             dts.append(item['f'])
         if 'h' in item:
@@ -202,7 +206,7 @@ class Views(object):
             for dt in dts:
                 if type(dt) == pendulum.pendulum.Date:
                     dt = pendulum.create(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz=None)
-                rows.append((dt.format(ETMFMT), (fmt_week(dt), dt.format('ddd MMM 2')),  (f"{item['itemtype']} {item['summary']}", dt.format("H:mm"))))
+                rows.append((dt.format(ETMFMT), (fmt_week(dt), dt.format('ddd MMM 2')),  (f"{char} {item['summary']}", dt.format("H:mm"))))
             self._update_rows('done_view', rows, item.eid)
 
     def _update_relevant(self):
@@ -272,7 +276,7 @@ class Views(object):
                 rhc = fmt_extent(beg, end).center(15, ' ')
             instances.append(beg)
             summary = set_summary(item['summary'], beg)
-            sort = (beg.format(ETMFMT))
+            sort = beg.format(ETMFMT)
             path = (fmt_week(beg), beg.format('ddd MMM D'))
             cols = (f"{item['itemtype']} {summary}", rhc)
             rows.append((sort, path, cols))
@@ -281,7 +285,7 @@ class Views(object):
                 end_min = end.hour*60 + end.minute
                 tmp = (beg.format("YYYYMMDDT0000"), beg_min, end_min)
                 busy.append(tmp)
-            self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
+            # self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
         self._update_rows('weeks_view', rows, item.eid)
         overdue = 'r' not in item or ('o' in item and item['o'] != 's')
         instance_rows = [(x.format(ETMFMT), item['itemtype'], 'b' in item, 'f' in item, overdue) for x in instances]
@@ -292,10 +296,10 @@ class Views(object):
     def _update_agenda(self):
         this_week = fmt_week(self.today)
         this_day = self.today.format("ddd MMM D")
-        # this_week_instances = [x for x in self.weeks_view if x[1][0] == this_week]
-        # this_day_instances = [x for x in this_week_instances if x[1][1] == this_day]
-        this_week_instances = self.views['weeks'].get(this_week, [])
-        this_day_instances = [x for x in this_week_instances if x[0] == this_day]
+        this_week_instances = [x for x in self.views['weeks_view'] if x[0][1][0] == this_week]
+        this_day_instances = [x for x in this_week_instances if x[0][1][1] == this_day]
+        # this_week_instances = self.views['weeks'].get(this_week, [])
+        # this_day_instances = [x for x in this_week_instances if x[0] == this_day]
         if not this_day_instances:
             row = (self.today.format(ETMFMT), (this_week, this_day), ("Nothing scheduled", ""))
             self._update_rows('weeks_view', row, "")
@@ -361,13 +365,22 @@ class Views(object):
         for instance in pd_instances:
             id = instance[-1]
             item = self.items.get(eid=id)
+
             due = instance[0][0]
             due_dt = parse(due)
             days = (self.today - due_dt).days
 
-            print('pastdue', due, today, days)
+
+            summary = set_summary(item['summary'], due)
+            sort = today
+            path = (fmt_week(self.today), self.today.format('ddd MMM D'))
+            cols = (f"<  {summary}", f"{days}d")
+            rows = ((sort, path, cols))
+
+            print('pastdue', sort, path, cols)
             tmp = (today, days)
-            self._update_rows('pastdues', tmp, id)
+            # self._update_rows('pastdues', tmp, id)
+            self._update_rows('weeks_view', rows, id)
 
 
 
