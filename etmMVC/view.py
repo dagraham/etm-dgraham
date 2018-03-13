@@ -103,6 +103,14 @@ class Views(object):
             self.save_views()
 
     def save_views(self):
+        for view in self.views:
+            if isinstance(self.views[view], list):
+                try:
+                    self.views[view].sort()
+                except Exception as e:
+                    print(e)
+                    print(view)
+                    print(self.views[view])
         with open('views.json', 'w') as jo:
             json.dump(self.views, jo, indent=1, sort_keys=True)
 
@@ -120,15 +128,6 @@ class Views(object):
         for item in self.items:
             for cmd in self.commands:
                 self.commands[cmd](item)
-        for view in self.views:
-            if isinstance(self.views[view], list):
-                try:
-                    self.views[view].sort()
-                except Exception as e:
-                    print(e)
-                    print(view)
-                    print(self.views[view])
-        self.save_views()
 
 
     def _add_rows(self, view, list_of_rows, id):
@@ -352,9 +351,14 @@ class Views(object):
             if start_begin <= today < end_begin:
                 days = (beg_dt - self.today).days
 
-                print('begins', start_begin, today, end_begin, days)
-                tmp = (today, days)
-                self._update_rows('begins', tmp, id)
+                summary = set_summary(item['summary'], beg_dt)
+                sort = today
+                path = (fmt_week(self.today), self.today.format('ddd MMM D'))
+                cols = (f">  {summary}", f"{days}d")
+                rows = ((sort, path, cols))
+
+                print('begins', sort, path, cols)
+                self._update_rows('weeks_view', rows, id)
 
 
     def _update_pastdues(self):
