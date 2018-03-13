@@ -251,7 +251,6 @@ class Views(object):
                         break
             self._update_rows('relevant', (relevant, t, status), id)
 
-
     def _update_weeks(self, item):
         """
         events and dated unfinished tasks and journal entries 
@@ -268,6 +267,20 @@ class Views(object):
         busy = []
         # FIXME deal with jobs: skip finished, add available and waiting
         # only for the next instance
+        if type(item['s']) == pendulum.pendulum.Date:
+            # all day item
+            it = item['itemtype']
+            if it == '*':
+                sort_code = 1
+            elif it == '-':
+                sort_code = 6
+            else:
+                sort_code = 7
+        else:
+            # datetime item
+            sort_code = 5
+        # set inbox (2), pastdue (3) and begins (4) later
+
         for (beg, end) in item_instances(item, self.beg_dt, self.end_dt):
             if end is None:
                 rhc = ""
@@ -275,7 +288,9 @@ class Views(object):
                 rhc = fmt_extent(beg, end).center(15, ' ')
             instances.append(beg)
             summary = set_summary(item['summary'], beg)
-            sort = beg.format(ETMFMT)
+            # sort = beg.format(ETMFMT)
+
+            sort = (beg.year, beg.week_of_year, beg.day_of_week, sort_code, beg.hour, beg.minute)
             path = (fmt_week(beg), beg.format('ddd MMM D'))
             cols = (f"{item['itemtype']} {summary}", rhc)
             rows.append((sort, path, cols))
@@ -352,7 +367,8 @@ class Views(object):
                 days = (beg_dt - self.today).days
 
                 summary = set_summary(item['summary'], beg_dt)
-                sort = today
+
+                sort = (self.today.year, self.today.week_of_year, self.today.day_of_week, 4, self.today.hour, self.today.minute)
                 path = (fmt_week(self.today), self.today.format('ddd MMM D'))
                 cols = (f">  {summary}", f"{days}d")
                 rows = ((sort, path, cols))
@@ -376,7 +392,8 @@ class Views(object):
 
 
             summary = set_summary(item['summary'], due)
-            sort = today
+            sort = (self.today.year, self.today.week_of_year, self.today.day_of_week, 3, self.today.hour, self.today.minute)
+
             path = (fmt_week(self.today), self.today.format('ddd MMM D'))
             cols = (f"<  {summary}", f"{days}d")
             rows = ((sort, path, cols))
