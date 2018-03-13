@@ -45,6 +45,7 @@ class Views(object):
                 begins = [],    # (beg_dt, end_dt, id)
                 busy = [],    # (beg_dt, end_dt, id)
                 pastdues = [],  # (due_dt, id)
+                inbox = [],
                 relevant = [],  # (relevant_dt, id)
                 )
         self.items = {}
@@ -54,9 +55,12 @@ class Views(object):
                 update_created = self._update_created_view,
                 update_modified = self._update_modified_view,
                 update_weeks = self._update_weeks,
+                # update_relevant = self._update_relevant,
                 update_alerts = self._update_alerts,
                 update_tags = self._update_tags_view,
                 update_done = self._update_done_view,
+                update_next = self._update_next_view,
+                update_someday = self._update_someday_view,
                 )
         self.today = None
         self.yearmonth = None
@@ -64,6 +68,7 @@ class Views(object):
         self.bef_months = 5
         self.aft_months = 18
         self.modified = False
+        self.todays_alerts = []
         self.maybe_refresh()
 
     def maybe_refresh(self):
@@ -100,6 +105,7 @@ class Views(object):
             self._update_relevant()
             self._update_begins()
             self._update_pastdues()
+            self._todays_alerts()
             self.save_views()
 
     def save_views(self):
@@ -174,7 +180,7 @@ class Views(object):
             self._update_rows(
                     'modified_view',
                     [
-                        ( modified.format(ETMFMT), (), (f"{item['itemtype']} {item['summary']}", modified.format(short_dt_fmt), item.eid)
+                        ( modified.format(ETMFMT), (), (f"{item['itemtype']} {item['summary']}", modified.format(short_dt_fmt))
                         )
                         ],
                 item.eid
@@ -186,8 +192,24 @@ class Views(object):
             tags = [x.strip() for x in item['t'] if x.strip()]
             if tags:
                 for tag in tags:
-                    rows.append((tag, tag, (f"{item['itemtype']} {item['summary']}"), item.eid))
+                    rows.append((tag, tag, (f"{item['itemtype']} {item['summary']}")))
                 self._update_rows('tags_view', rows, item.eid)
+
+    def _update_next_view(self, item):
+        if item['itemtype'] == '-' and 's' not in item:
+            loc = item.get('l', "~")
+            row = (loc, loc, (f"- {item['summary']}"))
+            self._update_rows('next_view', row, item.eid)
+
+    def _update_someday_view(self, item):
+        if item['itemtype'] == '?':
+            if 'modified' in item:
+                dt = item['modified']
+            else:
+                dt = timestamp_from_eid(item.eid)
+            row = (dt.format(ETMFMT), (), (f"? {item['summary']}", 
+                dt.format(short_dt_fmt)))
+            self._update_rows('someday_view', row, item.eid)
 
     def _update_done_view(self, item):
         dts = []
@@ -205,7 +227,8 @@ class Views(object):
             for dt in dts:
                 if type(dt) == pendulum.pendulum.Date:
                     dt = pendulum.create(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz=None)
-                rows.append((dt.format(ETMFMT), (fmt_week(dt), dt.format('ddd MMM 2')),  (f"{char} {item['summary']}", dt.format("H:mm"))))
+                # FIXME sort should match week_view
+                rows.append((dt.format(ETMFMT), (fmt_week(dt), dt.format('ddd MMM D')),  (f"{char} {item['summary']}", dt.format("H:mm"))))
             self._update_rows('done_view', rows, item.eid)
 
     def _update_relevant(self):
@@ -261,6 +284,15 @@ class Views(object):
         if (item['itemtype'] in ['?', '!', '~'] 
                 or 's' not in item
                 ):
+            # if item['itemtype'] == '?':
+            #     self.someday.append(item.eid)
+
+            # elif item['itemtype'] == '!':
+            #     self.inbox.append(item.eid)
+
+            # elif item['itemtype'] == '-':
+            #     self.next.append(item.eid)
+
             return
         rows = []
         instances = []
@@ -336,20 +368,45 @@ class Views(object):
         alerts = []
         for alert in item['a']:
             cmd = alert[1]
-            args = alert[2:]
+            args = ""
+            if len(alert) > 2 and alert[2]: 
+                args = alert[2:]
             for td in alert[0]:
                 dt = item['s']-td
                 if dt < self.today:
                     continue
-                alerts.append(
-                        (dt.format(ETMFMT),
-                            format_interval(td),
-                            f"{item['itemtype']} {item['summary']}",
-                            cmd,
-                            args,
+                if args:
+                    alerts.append(
+                            (
+                                dt.format(ETMFMT),
+                                cmd,
+                                args,
+                                format_interval(td),
+                                item['summary'],
+                                item.eid
+                                )
                             )
-                        )
+                else:
+                    alerts.append(
+                            (dt.format(ETMFMT),
+                                cmd,
+                                format_interval(td),
+                                item['summary'],
+                                item.eid
+                                )
+                            )
         self._update_rows('alerts', alerts, item.eid)
+
+    def _todays_alerts(self):
+        alerts = []
+        today = self.today.format(ETMFMT)
+        tomorrow = self.today.add(days=1).format(ETMFMT)
+        for alert in self.views['alerts']:
+            if today <= alert[0][0] < tomorrow:
+                print(today, alert[0][0], tomorrow)
+                alerts.append(alert)
+        self.todays_alerts = alerts
+
 
     def _update_begins(self):
         beg_instances = [x for x in self.views['relevant'] if x[0][2] == 'begin']
@@ -365,15 +422,11 @@ class Views(object):
             start_begin = (beg_dt - pendulum.interval(days=item['b'])).format("YYYYMMDDT0000")
             if start_begin <= today < end_begin:
                 days = (beg_dt - self.today).days
-
                 summary = set_summary(item['summary'], beg_dt)
-
                 sort = (self.today.year, self.today.week_of_year, self.today.day_of_week, 4, self.today.hour, self.today.minute)
                 path = (fmt_week(self.today), self.today.format('ddd MMM D'))
                 cols = (f">  {summary}", f"{days}d")
                 rows = ((sort, path, cols))
-
-                print('begins', sort, path, cols)
                 self._update_rows('weeks_view', rows, id)
 
 
@@ -397,18 +450,15 @@ class Views(object):
             path = (fmt_week(self.today), self.today.format('ddd MMM D'))
             cols = (f"<  {summary}", f"{days}d")
             rows = ((sort, path, cols))
-
-            print('pastdue', sort, path, cols)
             tmp = (today, days)
-            # self._update_rows('pastdues', tmp, id)
             self._update_rows('weeks_view', rows, id)
+
 
 
 
 
     def _update_all(self):
         for cmd in self.commands:
-            print(f'processing {cmd}')
             cmd()
 
 
@@ -429,7 +479,6 @@ if __name__ == '__main__':
     setup_logging(1)
     import doctest
     my_views = Views()
-    print(my_views.beg_dt, my_views.end_dt)
 
     # for item in my_views.items:
     #     try:

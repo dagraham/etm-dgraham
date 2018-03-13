@@ -282,9 +282,7 @@ def format_datetime(obj):
         return False, "The argument must be a pendulum date or datetime."
 
 def format_datetime_list(obj_lst):
-
     ret = ", ".join([format_datetime(x)[1] for x in obj_lst])
-    # print('got:', obj_lst, '; returning:', ret)
     return ret
 
 def format_interval(obj):
@@ -293,21 +291,31 @@ def format_interval(obj):
     >>> format_interval(td)
     '1w2d3h27m'
     """
-    until =[]
-    if obj.weeks:
-        until.append(f"{obj.weeks}w")
-    if obj.remaining_days:
-        until.append(f"{obj.remaining_days}d")
-    if obj.hours:
-        until.append(f"{obj.hours}h")
-    if obj.minutes:
-        until.append(f"{obj.minutes}m")
-    if not until:
-        until.append("0m")
-    return "".join(until)
+    try:
+        until =[]
+        if obj.weeks:
+            until.append(f"{obj.weeks}w")
+        if obj.remaining_days:
+            until.append(f"{obj.remaining_days}d")
+        if obj.hours:
+            until.append(f"{obj.hours}h")
+        if obj.minutes:
+            until.append(f"{obj.minutes}m")
+        if not until:
+            until.append("0m")
+        ret = "".join(until)
+        return "".join(until)
+    except Exception as e:
+        print('format_interval', e)
+        print(obj)
 
 def format_interval_list(obj_lst):
-    return ", ".join([format_interval(x) for x in obj_lst])
+    try:
+        ret = ", ".join([format_interval(x) for x in obj_lst])
+        return ret
+    except Exception as e:
+        print('format_interval_list', e)
+        print(obj_lst)
 
 
 
@@ -1487,7 +1495,6 @@ def jobs(lofh, at_hsh={}):
             this_completion = id2hsh[i]['f']
             if last_completion is None or last_completion < this_completion:
                 last_completion = this_completion
-                # print('last_completion', last_completion)
         else:
             last_completion = None
             break
@@ -1524,8 +1531,6 @@ def jobs(lofh, at_hsh={}):
         id2hsh[i]['req'] = req[i]
 
     if msg:
-        # print('msg', msg)
-        # return False, msg
         return False, "; ".join(msg), None
     else:
         # return the list of job hashes
@@ -1718,7 +1723,6 @@ class Tree:
             children = []
         if depth == _ROOT:
             pass
-            # print("{0}".format(identifier))
         else:
             self.rowNum += 1
             if type(identifier) is tuple:
@@ -2053,13 +2057,18 @@ def load_json():
             print(item.eid, item['itemtype'])
             print(timestamp_from_eid(item.eid))
             print(item_details(item))
-            print()
         except Exception as e:
-            print('\nexception:', e)
+            print('exception:', e)
             pprint(item)
+            print()
+        print()
 
 def item_details(item):
-    return jinja_entry_template.render(h=item)
+    try:
+        return jinja_entry_template.render(h=item)
+    except Exception as e:
+        print('item_details', e)
+        print(item)
 
 
 def fmt_week(dt_obj):
@@ -2166,10 +2175,18 @@ def import_json():
         if 'a' in item_hsh:
             alerts = []
             for alert in item_hsh['a']:
-                comps = list(alert)
-                tds = [parse_interval(x)[1] for x in comps[0]]
-                comps[0] = tds
-                alerts.append(comps)
+                # drop the True from parse_interval
+                tds = [parse_interval(x)[1] for x in alert[0]]
+                cmds = alert[1:2]
+                args = ""
+                if len(alert) > 2 and alert[2]:
+                    args = ", ".join(alert[2])
+                for cmd in cmds:
+                    if args:
+                        row = (tds, cmd, args)
+                    else:
+                        row = (tds, cmd)
+                    alerts.append(row)
             item_hsh['a'] = alerts
         if 'j' in item_hsh:
             jobs = []
@@ -2194,7 +2211,12 @@ def import_json():
                     rul['c'] = rul['t']
                     del rul['t']
                 if 'u' in rul:
-                    rul['u'] = pen_from_fmt(rul['u'], z)
+                    if type(rul['u']) == str:
+                        try:
+                            rul['u'] = parse(rul['u'], tz=z)
+                        except Exception as e:
+                            print(e)
+                            print(rul['u'])
                 bad_keys = []
                 for key in rul:
                     if key not in amp_keys['r'] or not rul[key]:
@@ -2206,6 +2228,12 @@ def import_json():
             item_hsh['r'] = ruls
 
         docs.append(item_hsh)
+        # try:
+        #     db.insert(item_hsh)
+        # except Exception as e:
+        #     print(e)
+        #     print(item_hsh)
+        #     break
     db.insert_multiple(docs)
 
 
@@ -2216,7 +2244,7 @@ if __name__ == '__main__':
     # pendulum.set_locale('fr')
     import doctest
 
-    # import_json()
+    import_json()
     load_json()
     # test_sort()
 
