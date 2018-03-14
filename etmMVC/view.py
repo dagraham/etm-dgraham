@@ -21,6 +21,74 @@ ETMFMT = "YYYYMMDDTHHmm"
 
 # each view in views: (row, eid) where row = ((sort), (path), (columns))
 
+def busy_conf_minutes(lofp):
+    """
+    lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi > ei. By sort, bi >= bi+1. Suppose we have
+    [(540, 600), (600, 720)]
+    >>> busy_conf_minutes([(540, 600), (600, 720)])
+    ([(540, 600), (600, 720)], [])
+    >>> busy_conf_minutes([(540, 620), (600, 720), (660, 700)])
+    ([(540, 600), (620, 720), (620, 660), (700, 720)], [(600, 620), (660, 700)])
+    """
+    lofp.sort()
+    busy_minutes = []
+    conf_minutes = []
+    (b, e) = lofp.pop(0)
+    while lofp:
+        (B, E) = lofp.pop(0)
+        if e <= B:  # no conflict
+            busy_minutes.append((b, e))
+            b = B
+            e = E
+        else:  # B < e
+            busy_minutes.append((b, B))
+            if e <= E:
+                conf_minutes.append((B, e))
+                b = e
+                e = E
+            else:  # E < e
+                conf_minutes.append((B, E))
+                b = E
+                e = e
+        busy_minutes.append((b, e))
+    return busy_minutes, conf_minutes
+
+def busy_conf_hours(lofp):
+    """
+    >>> busy_conf_hours([(540, 600), (600, 720)])
+    ([9, 10, 11], [])
+    >>> busy_conf_hours([(540, 620), (600, 720), (660, 700)])
+    ([9], [10, 11])
+    >>> busy_conf_hours([(540, 620), (620, 720), (700, 720)])
+    ([9, 10], [11])
+    """
+
+    busy_ranges, conf_ranges = busy_conf_minutes(lofp)
+    busy_hours = []
+    conf_hours = []
+
+    for (b, e) in conf_ranges:
+        h_b = b // 60
+        h_e = e // 60
+        if e % 60: h_e += 1
+        for i in range(h_b, h_e):
+            if i not in conf_hours:
+                # print("adding", i, "to conf")
+                conf_hours.append(i)
+
+    for (b, e) in busy_ranges:
+        h_b = b // 60
+        h_e = e // 60
+        if e % 60: h_e += 1
+        for i in range(h_b, h_e):
+            if i not in conf_hours and i not in busy_hours:
+                # print("adding", i, "to busy")
+                busy_hours.append(i)
+    return busy_hours, conf_hours
+
+
+
+
 class Views(object):
     """
     TODO

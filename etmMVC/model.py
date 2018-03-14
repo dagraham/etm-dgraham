@@ -2228,12 +2228,6 @@ def import_json():
             item_hsh['r'] = ruls
 
         docs.append(item_hsh)
-        # try:
-        #     db.insert(item_hsh)
-        # except Exception as e:
-        #     print(e)
-        #     print(item_hsh)
-        #     break
     db.insert_multiple(docs)
 
 
