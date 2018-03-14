@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Sat Mar 10, 2018 10:23PM EST**
+**Last modified: Wed Mar 14, 2018 01:31PM EDT**
 
 # Goals
 
@@ -377,39 +377,40 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 ### Busy
 
 - Hours in the day that are partially or wholly "busy" are marked with `#`.
-- Hours in which a conflict occurs are marked with `XXX`. 
+- Hours in which a conflict occurs are marked with `XXX`.
+- The total number of minutes scheduled for the days are given at the bottom of the day columns.
 
         +----------------------------------------------------------+
         | Busy - Week 4: Jan 22 - 28, 2018                 F1:help |  1
         +----------------------------------------------------------+
-        |  Hr      Mo     Tu     We     Th     Fr     Sa     Su    |  2
-        |  ----+-------------------------------------------------  |  3
-        |  12a |   .      .      .      .      .      .      .     |  4
-        |      |   .      .      .      .      .      .      .     |  5
-        |      |   .      .      .      .      .      .      .     |  6
-        |      |   .      .      .      .      .      .      .     |  7
-        |      |   .      .      .      .      .      .      .     |  8
-        |      |   .      .      .      .      .      .      .     |  9
-        |   6a |   .      .      .      .      .      .      .     | 10 
-        |      |   .      .      .      .      .      .      .     | 11
-        |      |   #      .      #      .      #      #      .     | 12
-        |      |   #      .      #      .      #      #      .     | 13
-        |      |   .      #      .      .      .      #      .     | 14
-        |      |   .      #      .      #      .      #      #     | 15
-        |  12p |   #      .      .      #      .      #      #     | 16
-        |      |   #      .      .     XXX     .      #      #     | 17
-        |      |   .      .      .      #      .      .      #     | 18
-        |      |   .      .      .      .      .      .      #     | 19
-        |      |   #      .      .      .      .      .      .     | 20
-        |      |   #      .      .      .      .      .      .     | 21
-        |   6p |   .      .      #      .      .      .      .     | 22
-        |      |   #      .      #      .      .      .      .     | 23
-        |      |   #      .      #      .      .      .      .     | 24
-        |      |   #      .      .      .      .      .      .     | 25
-        |      |   .      .      .      .      .      .      .     | 26
-        |      |   .      .      .      .      .      .      .     | 27
-        |  ----+-------------------------------------------------  | 28
-        |          22     23     24     25     26     27     28    | 29
+        |        Mo 22  Tu 23  We 24  Th 25  Fr 26  Sa 27  Su 28   |  2
+        |        -----------------------------------------------   |  3
+        |    12a   .      .      .      .      .      .      .     |  4
+        |          .      .      .      .      .      .      .     |  5
+        |          .      .      .      .      .      .      .     |  6
+        |          .      .      .      .      .      .      .     |  7
+        |          .      .      .      .      .      .      .     |  8
+        |          .      .      .      .      .      .      .     |  9
+        |     6a   .      .      .      .      .      .      .     | 10 
+        |          .      .      .      .      .      .      .     | 11
+        |          #      .      #      .      #      #      .     | 12
+        |          #      .      #      .      #      #      .     | 13
+        |          .      #      .      .      .      #      .     | 14
+        |          .      #      .      #      .      #      #     | 15
+        |    12p   #      .      .      #      .      #      #     | 16
+        |          #      .      .     XXX     .      #      #     | 17
+        |          .      .      .      #      .      .      #     | 18
+        |          .      .      .      .      .      .      #     | 19
+        |          #      .      .      .      .      .      .     | 20
+        |          #      .      .      .      .      .      .     | 21
+        |     6p   .      .      #      .      .      .      .     | 22
+        |          #      .      #      .      .      .      .     | 23
+        |          #      .      #      .      .      .      .     | 24
+        |          #      .      .      .      .      .      .     | 25
+        |          .      .      .      .      .      .      .     | 26
+        |    12a   .      .      .      .      .      .      .     | 27
+        |        -----------------------------------------------   | 28
+        |  total  320    120    210    180     90    320    250    | 29
         +----------------------------------------------------------+
         | 8:49am Thu Jan 18                              10:30am+1 | 30
         +----------------------------------------------------------+
@@ -479,7 +480,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 ## Someday
 
-Someday items grouped and sorted by the last modified datetime
+Someday items grouped and sorted by the last modified datetime.
 
 ## Index
 

@@ -1,6 +1,6 @@
 import pendulum
 from pendulum import parse
-from model import timestamp_from_eid, fmt_week, setup_logging, serialization, item_details, item_instances, beg_ends, fmt_extent, format_interval, getMonthWeeks, set_summary
+from model import timestamp_from_id, fmt_week, setup_logging, serialization, item_details, item_instances, beg_ends, fmt_extent, format_interval, getMonthWeeks, set_summary
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
 from tinydb.database import Table
@@ -25,10 +25,12 @@ def busy_conf_minutes(lofp):
     """
     lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi > ei. By sort, bi >= bi+1. Suppose we have
     [(540, 600), (600, 720)]
+    >>> busy_conf_minutes([(540, 600)])
+    ([(540, 600)], [], 60)
     >>> busy_conf_minutes([(540, 600), (600, 720)])
-    ([(540, 600), (600, 720)], [])
+    ([(540, 600), (600, 720)], [], 180)
     >>> busy_conf_minutes([(540, 620), (600, 720), (660, 700)])
-    ([(540, 600), (620, 720), (620, 660), (700, 720)], [(600, 620), (660, 700)])
+    ([(540, 600), (620, 660), (700, 720)], [(600, 620), (660, 700)], 180)
     """
     lofp.sort()
     busy_minutes = []
@@ -50,20 +52,23 @@ def busy_conf_minutes(lofp):
                 conf_minutes.append((B, E))
                 b = E
                 e = e
-        busy_minutes.append((b, e))
-    return busy_minutes, conf_minutes
+    busy_minutes.append((b, e))
+    total_minutes = 0
+    for (b, e) in busy_minutes + conf_minutes:
+        total_minutes += e - b
+    return busy_minutes, conf_minutes, total_minutes
 
 def busy_conf_hours(lofp):
     """
     >>> busy_conf_hours([(540, 600), (600, 720)])
-    ([9, 10, 11], [])
+    ([9, 10, 11], [], 180)
     >>> busy_conf_hours([(540, 620), (600, 720), (660, 700)])
-    ([9], [10, 11])
+    ([9], [10, 11], 180)
     >>> busy_conf_hours([(540, 620), (620, 720), (700, 720)])
-    ([9, 10], [11])
+    ([9, 10], [11], 180)
     """
 
-    busy_ranges, conf_ranges = busy_conf_minutes(lofp)
+    busy_ranges, conf_ranges, total = busy_conf_minutes(lofp)
     busy_hours = []
     conf_hours = []
 
@@ -84,9 +89,28 @@ def busy_conf_hours(lofp):
             if i not in conf_hours and i not in busy_hours:
                 # print("adding", i, "to busy")
                 busy_hours.append(i)
-    return busy_hours, conf_hours
+    return busy_hours, conf_hours, total
 
+def busy_bar(lofp):
+    """
+    >>> busy_bar([(540, 600), (600, 720)])
+    ([' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' # ', ' # ', ' # ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . '], 180)
+    >>> busy_bar([(540, 620), (600, 720), (660, 700)])
+    ([' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' # ', '###', '###', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . '], 180)
+    >>> busy_bar([(540, 620), (620, 720), (700, 720)])
+    ([' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' # ', ' # ', '###', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . '], 180)
 
+    """
+    busy_hours, conf_hours, total_minutes = busy_conf_hours(lofp)
+    bar = []
+    for i in range(23):
+        if i in busy_hours:
+            bar.append('#'.center(3, ' '))
+        elif i in conf_hours:
+            bar.append('###')
+        else:
+            bar.append('.'.center(3, ' '))
+    return bar, total_minutes
 
 
 class Views(object):
@@ -222,7 +246,7 @@ class Views(object):
             self._add_rows(view, list_of_rows, id)
 
     def _update_created_view(self, item):
-        created = timestamp_from_eid(item.eid)
+        created = item['created']
         self._update_rows(
                 'created_view',
                 [
@@ -274,7 +298,7 @@ class Views(object):
             if 'modified' in item:
                 dt = item['modified']
             else:
-                dt = timestamp_from_eid(item.eid)
+                dt = item['created']
             row = (dt.format(ETMFMT), (), (f"? {item['summary']}", 
                 dt.format(short_dt_fmt)))
             self._update_rows('someday_view', row, item.eid)
@@ -451,7 +475,6 @@ class Views(object):
                                 args,
                                 format_interval(td),
                                 item['summary'],
-                                item.eid
                                 )
                             )
                 else:
@@ -460,7 +483,6 @@ class Views(object):
                                 cmd,
                                 format_interval(td),
                                 item['summary'],
-                                item.eid
                                 )
                             )
         self._update_rows('alerts', alerts, item.eid)
@@ -562,5 +584,11 @@ if __name__ == '__main__':
 
     doctest.testmod()
 
-
-
+a =   " 1 "
+b =   " 2 "
+c =   " 3 "
+d =   " 4 "
+print(f"""
+      |  This     is     a    test |
+      |  {a}      {b}   {c}    {d} |
+        """)

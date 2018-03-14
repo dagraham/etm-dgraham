@@ -1562,7 +1562,8 @@ class DatetimeCacheTable(SmartCacheTable):
         return current_id
 
 
-TinyDB.table_class = DatetimeCacheTable
+# TinyDB.table_class = DatetimeCacheTable
+TinyDB.table_class = SmartCacheTable
 TinyDB.DEFAULT_TABLE = 'items'
 # Item = Query()
 
@@ -1985,8 +1986,8 @@ def pen_from_fmt(s, z='Factory'):
         dt = dt.date()
     return dt
 
-def timestamp_from_eid(eid):
-    return pendulum.from_format(str(eid)[:12], "%Y%m%d%H%M").in_timezone('local')
+def timestamp_from_id(doc_id, z='local'):
+    return pendulum.from_format(str(doc_id)[:12], "%Y%m%d%H%M").in_timezone(z)
 
 def drop_zero_minutes(dt):
     """
@@ -2054,8 +2055,8 @@ def load_json():
     db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     for item in db:
         try:
-            print(item.eid, item['itemtype'])
-            print(timestamp_from_eid(item.eid))
+            print(item.doc_id, item.doc_id, item['itemtype'])
+            print(timestamp_from_id(item.doc_id))
             print(item_details(item))
         except Exception as e:
             print('exception:', e)
@@ -2089,25 +2090,33 @@ def fmt_week(dt_obj):
     return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
 
 
-def test_sort():
+def schedule(weeks_bef=1, weeks_aft=2):
+    today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo='Factory')
+    week_beg = today.subtract(days=today.day_of_week - 1)
+    aft_dt = week_beg.subtract(weeks=weeks_bef)
+    bef_dt = week_beg.add(weeks=weeks_aft + 1)
+
     db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     rows = []
     for item in db:
         if item['itemtype'] in "!?" or 's' not in item:
             continue
-        if type(item['s']) == pendulum.Pendulum and 'e' in item:
-            rhc = beg_ends(item['s'], item['e'])[0][1].center(16, ' ')
-            # rhc = item['s'].format("h:mmA", formatter="alternative")
-        else:
-            rhc = ""
+        # if type(item['s']) == pendulum.Pendulum and 'e' in item:
+        #     rhc = fmt_extent(item['s'], item['s'] + item['e']).center(16, ' ')
+        #     # rhc = fmt_extent(beg_ends(item['s'], item['e'])[0]).center(16, ' ')
+        #     # rhc = item['s'].format("h:mmA", formatter="alternative")
+        # else:
+        #     rhc = ""
 
-        aft_dt = parse('2018-01-01 12am').replace(tzinfo=None)
-        bef_dt = parse('2018-12-31 11:59pm').replace(tzinfo=None)
-        for dt in item_instances(item, aft_dt, bef_dt):
+        # aft_dt = parse('2018-01-01 12am').replace(tzinfo=None)
+        # bef_dt = parse('2018-12-31 11:59pm').replace(tzinfo=None)
+        for dt, et in item_instances(item, aft_dt, bef_dt):
+            rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else ""
+
             rows.append(
                     {
-                        'id': item.eid,
-                        'sort': dt.format("YYYYMMDD", formatter="alternative"),
+                        'id': item.doc_id,
+                        'sort': dt.format("YYYYMMDDHHmm", formatter="alternative"),
                         'week': (
                             dt.year, 
                             dt.week_of_year, 
@@ -2227,8 +2236,11 @@ def import_json():
                 ruls.append(rul)
             item_hsh['r'] = ruls
 
+        item_hsh['created'] = timestamp_from_id(id, 'Factory')
+        # item_hsh['doc_id'] = id
         docs.append(item_hsh)
     db.insert_multiple(docs)
+    # db.write_back(docs)
 
 
 
@@ -2240,7 +2252,7 @@ if __name__ == '__main__':
 
     import_json()
     load_json()
-    # test_sort()
+    schedule(0, 3)
 
     doctest.testmod()
 
