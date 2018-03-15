@@ -19,7 +19,93 @@ short_dt_fmt = "YYYY-MM-DD HH:mm"
 
 ETMFMT = "YYYYMMDDTHHmm"
 
+# set up 2 character weekday name abbreviations 
+WA = {}
+today = pendulum.today()
+day = today.end_of('week')  # Sunday
+for i in range(7):
+    # 0 -> Su will, 1 -> Mo and so forth
+    WA[i] = day.add(days=i).format('ddd')[:2]
+print(WA)
+
+
+# Mo 22  Tu 23  We 24  Th 25  Fr 26  Sa 27  Su 28  
+busy_header_template = """\
+     {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[0]} {DD[0]} 
+"""
+
 # each view in views: (row, eid) where row = ((sort), (path), (columns))
+
+# these use .center(5, ' ')
+# h[row][col] where col 0 is last
+# regular row
+"""
+
+{l[0]}  {h[0][1]}  {h[0][2]}  {h[0][3]}  {h[0][4]}  {h[0][5]}  {h[0][6]}  {h[0][7]}
+{l[1]}  {h[1][1]}  {h[1][2]}  {h[1][3]}  {h[1][4]}  {h[1][5]}  {h[1][6]}  {h[1][7]}
+{l[2]}  {h[2][1]}  {h[2][2]}  {h[2][3]}  {h[2][4]}  {h[2][5]}  {h[2][6]}  {h[2][7]}
+{l[3]}  {h[3][1]}  {h[3][2]}  {h[3][3]}  {h[3][4]}  {h[3][5]}  {h[3][6]}  {h[3][7]}
+{l[4]}  {h[4][1]}  {h[4][2]}  {h[4][3]}  {h[4][4]}  {h[4][5]}  {h[4][6]}  {h[4][7]}
+{l[5]}  {h[5][1]}  {h[5][2]}  {h[5][3]}  {h[5][4]}  {h[5][5]}  {h[5][6]}  {h[5][7]}
+{l[6]}  {h[6][1]}  {h[6][2]}  {h[6][3]}  {h[6][4]}  {h[6][5]}  {h[6][6]}  {h[6][7]}
+{l[7]}  {h[7][1]}  {h[7][2]}  {h[7][3]}  {h[7][4]}  {h[7][5]}  {h[7][6]}  {h[7][7]}
+{l[8]}  {h[8][1]}  {h[8][2]}  {h[8][3]}  {h[8][4]}  {h[8][5]}  {h[8][6]}  {h[8][7]}
+{l[9]}  {h[9][1]}  {h[9][2]}  {h[9][3]}  {h[9][4]}  {h[9][5]}  {h[9][6]}  {h[9][7]}
+{l[10]}  {h[10][1]}  {h[10][2]}  {h[10][3]}  {h[10][4]}  {h[10][5]}  {h[10][6]}  {h[10][7]}
+{l[11]}  {h[11][1]}  {h[11][2]}  {h[11][3]}  {h[11][4]}  {h[11][5]}  {h[11][6]}  {h[11][7]}
+{l[12]}  {h[12][1]}  {h[12][2]}  {h[12][3]}  {h[12][4]}  {h[12][5]}  {h[12][6]}  {h[12][7]}
+{l[13]}  {h[13][1]}  {h[13][2]}  {h[13][3]}  {h[13][4]}  {h[13][5]}  {h[13][6]}  {h[13][7]}
+{l[14]}  {h[14][1]}  {h[14][2]}  {h[14][3]}  {h[14][4]}  {h[14][5]}  {h[14][6]}  {h[14][7]}
+{l[15]}  {h[15][1]}  {h[15][2]}  {h[15][3]}  {h[15][4]}  {h[15][5]}  {h[15][6]}  {h[15][7]}
+{l[16]}  {h[16][1]}  {h[16][2]}  {h[16][3]}  {h[16][4]}  {h[16][5]}  {h[16][6]}  {h[16][7]}
+{l[17]}  {h[17][1]}  {h[17][2]}  {h[17][3]}  {h[17][4]}  {h[17][5]}  {h[17][6]}  {h[17][7]}
+{l[18]}  {h[18][1]}  {h[18][2]}  {h[18][3]}  {h[18][4]}  {h[18][5]}  {h[18][6]}  {h[18][7]}
+{l[19]}  {h[19][1]}  {h[19][2]}  {h[19][3]}  {h[19][4]}  {h[19][5]}  {h[19][6]}  {h[19][7]}
+{l[20]}  {h[20][1]}  {h[20][2]}  {h[20][3]}  {h[20][4]}  {h[20][5]}  {h[20][6]}  {h[20][7]}
+{l[21]}  {h[21][1]}  {h[21][2]}  {h[21][3]}  {h[21][4]}  {h[21][5]}  {h[21][6]}  {h[21][7]}
+{l[22]}  {h[22][1]}  {h[22][2]}  {h[22][3]}  {h[22][4]}  {h[22][5]}  {h[22][6]}  {h[22][7]}
+{l[23]}  {h[23][1]}  {h[23][2]}  {h[23][3]}  {h[23][4]}  {h[23][5]}  {h[23][6]}  {h[23][7]}
+{l[24]}  {t[1]}  {t[2]}  {t[3]}  {t[4]}  {t[5]}  {t[6]}  {t[7]}
+
+
+"""
+# totals row
+" l[24]  t[1]  t[2]  t[3]  t[4]  t[5]  t[6]  t[0]"
+
+# label row
+# label .rjust(6, ' ')
+
+busy_template = """\
+       Mo 22  Tu 23  We 24  Th 25  Fr 26  Sa 27  Su 28  
+       -----------------------------------------------  
+   12a   .      .      .      .      .      .      . 
+         .      .      .      .      .      .      . 
+         .      .      .      .      .      .      . 
+         .      .      .      .      .      .      . 
+         .      .      .      .      .      .      . 
+         .      .      .      .      .      .      . 
+    6a   .      .      .      .      .      .      . 
+         .      .      .      .      .      .      . 
+         #      .      #      .      #      #      . 
+         #      .      #      .      #      #      . 
+         .      #      .      .      .      #      . 
+         .      #      .      #      .      #      # 
+   12p   #      .      .      #      .      #      # 
+         #      .      .     XXX     .      #      # 
+         .      .      .      #      .      .      # 
+         .      .      .      .      .      .      # 
+         #      .      .      .      .      .      . 
+         #      .      .      .      .      .      . 
+    6p   .      .      #      .      .      .      . 
+         #      .      #      .      .      .      . 
+         #      .      #      .      .      .      . 
+         #      .      .      .      .      .      . 
+         .      .      .      .      .      .      . 
+   12a   .      .      .      .      .      .      . 
+       -----------------------------------------------  
+ total  320    120    210    180     90    320    250 
+"""
+
 
 def busy_conf_minutes(lofp):
     """
@@ -35,6 +121,8 @@ def busy_conf_minutes(lofp):
     lofp.sort()
     busy_minutes = []
     conf_minutes = []
+    if not lofp:
+        return ([], [], 0)
     (b, e) = lofp.pop(0)
     while lofp:
         (B, E) = lofp.pop(0)
@@ -58,14 +146,16 @@ def busy_conf_minutes(lofp):
         total_minutes += e - b
     return busy_minutes, conf_minutes, total_minutes
 
-def busy_conf_hours(lofp):
+def busy_conf_day(lofp):
     """
-    >>> busy_conf_hours([(540, 600), (600, 720)])
-    ([9, 10, 11], [], 180)
-    >>> busy_conf_hours([(540, 620), (600, 720), (660, 700)])
-    ([9], [10, 11], 180)
-    >>> busy_conf_hours([(540, 620), (620, 720), (700, 720)])
-    ([9, 10], [11], 180)
+    >>> busy_conf_day([(540, 600), (600, 720)])
+    {'total': 180, 9: ' # ', 10: ' # ', 11: ' # '}
+    >>> busy_conf_day([(540, 620), (600, 720), (660, 700)])
+    {'total': 180, 9: ' # ', 10: '###', 11: '###'}
+    >>> busy_conf_day([(540, 620), (620, 720), (700, 720)])
+    {'total': 180, 9: ' # ', 10: ' # ', 11: '###'}
+    >>> busy_conf_day([])
+    {'total': 0}
     """
 
     busy_ranges, conf_ranges, total = busy_conf_minutes(lofp)
@@ -89,19 +179,6 @@ def busy_conf_hours(lofp):
             if i not in conf_hours and i not in busy_hours:
                 # print("adding", i, "to busy")
                 busy_hours.append(i)
-    return busy_hours, conf_hours, total
-
-def busy_bar(lofp):
-    """
-    >>> busy_bar([(540, 600), (600, 720)])
-    {'total': 180, 9: ' # ', 10: ' # ', 11: ' # '}
-    >>> busy_bar([(540, 620), (600, 720), (660, 700)])
-    {'total': 180, 9: ' # ', 10: '###', 11: '###'}
-    >>> busy_bar([(540, 620), (620, 720), (700, 720)])
-    {'total': 180, 9: ' # ', 10: ' # ', 11: '###'}
-
-    """
-    busy_hours, conf_hours, total_minutes = busy_conf_hours(lofp)
     h = {} 
     for i in range(23):
         if i in busy_hours:
@@ -110,8 +187,30 @@ def busy_bar(lofp):
             h[i] = '###'
         # else:
         #     h[i] = '.'.center(3, ' ')
-        h['total'] = total_minutes
+        h['total'] = total
     return h
+
+# def busy_bar(lofp):
+#     """
+#     >>> busy_bar([(540, 600), (600, 720)])
+#     {'total': 180, 9: ' # ', 10: ' # ', 11: ' # '}
+#     >>> busy_bar([(540, 620), (600, 720), (660, 700)])
+#     {'total': 180, 9: ' # ', 10: '###', 11: '###'}
+#     >>> busy_bar([(540, 620), (620, 720), (700, 720)])
+#     {'total': 180, 9: ' # ', 10: ' # ', 11: '###'}
+
+#     """
+#     busy_hours, conf_hours, total_minutes = busy_conf_hours(lofp)
+#     h = {} 
+#     for i in range(23):
+#         if i in busy_hours:
+#             h[i] = '#'.center(3, ' ')
+#         elif i in conf_hours:
+#             h[i] = '###'
+#         # else:
+#         #     h[i] = '.'.center(3, ' ')
+#         h['total'] = total_minutes
+#     return h
 
 
 class Views(object):
@@ -142,7 +241,6 @@ class Views(object):
                 relevant = [],  # (relevant_dt, id)
                 )
         self.items = {}
-        # busy_view {(year, week): day_of_week: busy_bar}}
         self.busy_view = {}
 
         self.commands = dict(
@@ -157,7 +255,9 @@ class Views(object):
                 update_next = self._update_next_view,
                 update_someday = self._update_someday_view,
                 )
-        self.today = None
+
+        # set 2 character weekday name abbreviations
+
         self.yearmonth = None
         self.beg_dt = self.end_dt = None
         self.bef_months = 5
@@ -165,6 +265,7 @@ class Views(object):
         self.modified = False
         self.todays_alerts = []
         self.maybe_refresh()
+
 
     def maybe_refresh(self):
         """
@@ -191,6 +292,7 @@ class Views(object):
             self.load_TinyDB()
             self.load_views()
             self._update_agenda()
+
             self.modified = True
         if today != self.today:
             self.today = today
@@ -448,13 +550,26 @@ class Views(object):
             year_week, day, begend = row[0]
             begends.setdefault(year_week, {})
             begends[year_week].setdefault(day, []).append(begend)
-        h = {}
+        busy = {}
         for year_week in begends:
-            h.setdefault(year_week, {})
+            busy.setdefault(year_week, {})
             for day in begends[year_week]:
                 lofp = begends[year_week][day]
-                h[year_week][day] = busy_bar(lofp)
-        print(h)
+                busy[year_week][day] = busy_conf_day(lofp)
+
+        active = self.end_dt - self.beg_dt
+        # print(self.beg_dt, self.end_dt, active)
+        # week: 1 Monday ... 6 Saturday, 0 Sunday
+        weekdays = [1, 2, 3, 4, 5, 6, 0]
+        for week in active.range('weeks'):
+            # print(week.year, week.week_of_year, week.day_of_week)
+            year_week = (week.year, week.week_of_year)
+            if year_week in busy:
+                for week_day in weekdays:
+                    if week_day in busy[year_week]:
+                        # things are scheduled
+                        pass
+
 
     def _update_agenda(self):
         this_week = fmt_week(self.today)
