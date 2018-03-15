@@ -1,5 +1,5 @@
 # Notes for etm
-** Last modified: Wed Mar 07, 2018 10:00AM EST
+** Last modified: Thu Mar 15, 2018 08:40AM EDT
 **
 
 # Design
@@ -65,14 +65,9 @@
 
 # ToDo
 
-## tasks with @s and @+ but not @r
+## Busy
 
-finish 
-  while @+:
-    @s = @+.pop(0)
-    @h.append(finish)
-  then @f = finish 
-
+busy {year_week: {day_of_week: busy_bar}}
 
 ## alerts
 

@@ -94,23 +94,24 @@ def busy_conf_hours(lofp):
 def busy_bar(lofp):
     """
     >>> busy_bar([(540, 600), (600, 720)])
-    ([' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' # ', ' # ', ' # ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . '], 180)
+    {'total': 180, 9: ' # ', 10: ' # ', 11: ' # '}
     >>> busy_bar([(540, 620), (600, 720), (660, 700)])
-    ([' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' # ', '###', '###', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . '], 180)
+    {'total': 180, 9: ' # ', 10: '###', 11: '###'}
     >>> busy_bar([(540, 620), (620, 720), (700, 720)])
-    ([' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' # ', ' # ', '###', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . ', ' . '], 180)
+    {'total': 180, 9: ' # ', 10: ' # ', 11: '###'}
 
     """
     busy_hours, conf_hours, total_minutes = busy_conf_hours(lofp)
-    bar = []
+    h = {} 
     for i in range(23):
         if i in busy_hours:
-            bar.append('#'.center(3, ' '))
+            h[i] = '#'.center(3, ' ')
         elif i in conf_hours:
-            bar.append('###')
-        else:
-            bar.append('.'.center(3, ' '))
-    return bar, total_minutes
+            h[i] = '###'
+        # else:
+        #     h[i] = '.'.center(3, ' ')
+        h['total'] = total_minutes
+    return h
 
 
 class Views(object):
@@ -141,6 +142,8 @@ class Views(object):
                 relevant = [],  # (relevant_dt, id)
                 )
         self.items = {}
+        # busy_view {(year, week): day_of_week: busy_bar}}
+        self.busy_view = {}
 
         self.commands = dict(
                 update_index = self._update_index_view,
@@ -196,6 +199,7 @@ class Views(object):
         if self.modified:
             self._update_relevant()
             self._update_begins()
+            self._update_busy_view()
             self._update_pastdues()
             self._todays_alerts()
             self.save_views()
@@ -250,10 +254,24 @@ class Views(object):
         self._update_rows(
                 'created_view',
                 [
-                    ( item.eid, (), (f"{item['itemtype']} {item['summary']}", created.format(short_dt_fmt)))
+                    ( created.format(ETMFMT), (), (f"{item['itemtype']} {item['summary']}", created.format(short_dt_fmt))
+                        )
                     ],
-                item.eid
+                item.doc_id
                 )
+
+    def _update_modified_view(self, item):
+        if 'modified' in item:
+            modified = item['modified']
+            self._update_rows(
+                    'modified_view',
+                    [
+                        ( modified.format(ETMFMT), (), (f"{item['itemtype']} {item['summary']}", modified.format(short_dt_fmt))
+                        )
+                        ],
+                item.doc_id
+                    )
+
 
     def _update_index_view(self, item):
         if 'i' in item:
@@ -266,18 +284,6 @@ class Views(object):
                     item.eid
                     )
 
-    def _update_modified_view(self, item):
-        if 'modified' in item:
-            modified = item['modified']
-            self._update_rows(
-                    'modified_view',
-                    [
-                        ( modified.format(ETMFMT), (), (f"{item['itemtype']} {item['summary']}", modified.format(short_dt_fmt))
-                        )
-                        ],
-                item.eid
-                    )
-
     def _update_tags_view(self, item):
         if 't' in item:
             rows = []
@@ -288,6 +294,8 @@ class Views(object):
                 self._update_rows('tags_view', rows, item.eid)
 
     def _update_next_view(self, item):
+        if 'f' in item:
+            return
         if item['itemtype'] == '-' and 's' not in item:
             loc = item.get('l', "~")
             row = (loc, loc, (f"- {item['summary']}"))
@@ -421,7 +429,8 @@ class Views(object):
             if item['itemtype'] == "*" and end:
                 beg_min = beg.hour*60 + beg.minute
                 end_min = end.hour*60 + end.minute
-                tmp = (beg.format("YYYYMMDDT0000"), beg_min, end_min)
+                # tmp = (beg.format("YYYYMMDDT0000"), beg_min, end_min)
+                tmp = ((beg.year, beg.week_of_year), beg.day_of_week,  (beg_min, end_min))
                 busy.append(tmp)
             # self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
         self._update_rows('weeks_view', rows, item.eid)
@@ -430,6 +439,22 @@ class Views(object):
         self._update_rows('busy', busy, item.eid)
         self._update_rows('instances', instance_rows, item.eid)
 
+    def _update_busy_view(self):
+        """
+
+        """
+        begends = {}
+        for row in self.views['busy']:
+            year_week, day, begend = row[0]
+            begends.setdefault(year_week, {})
+            begends[year_week].setdefault(day, []).append(begend)
+        h = {}
+        for year_week in begends:
+            h.setdefault(year_week, {})
+            for day in begends[year_week]:
+                lofp = begends[year_week][day]
+                h[year_week][day] = busy_bar(lofp)
+        print(h)
 
     def _update_agenda(self):
         this_week = fmt_week(self.today)
