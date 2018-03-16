@@ -23,16 +23,10 @@ ETMFMT = "YYYYMMDDTHHmm"
 WA = {}
 today = pendulum.today()
 day = today.end_of('week')  # Sunday
-for i in range(7):
-    # 0 -> Su will, 1 -> Mo and so forth
+for i in range(1, 8):
+    # 1 -> Mo, ...,  7 -> Su
     WA[i] = day.add(days=i).format('ddd')[:2]
-print(WA)
 
-
-# Mo 22  Tu 23  We 24  Th 25  Fr 26  Sa 27  Su 28  
-busy_header_template = """\
-     {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[0]} {DD[0]} 
-"""
 
 # each view in views: (row, eid) where row = ((sort), (path), (columns))
 
@@ -67,8 +61,8 @@ busy_header_template = """\
 
 
 busy_template = """
-     {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[0]} {DD[0]} 
-       -----------------------------------------------  
+        {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[7]} {DD[7]} 
+        -----------------------------------------------  
 {l[0]}  {h[0][1]}  {h[0][2]}  {h[0][3]}  {h[0][4]}  {h[0][5]}  {h[0][6]}  {h[0][7]}
 {l[1]}  {h[1][1]}  {h[1][2]}  {h[1][3]}  {h[1][4]}  {h[1][5]}  {h[1][6]}  {h[1][7]}
 {l[2]}  {h[2][1]}  {h[2][2]}  {h[2][3]}  {h[2][4]}  {h[2][5]}  {h[2][6]}  {h[2][7]}
@@ -94,10 +88,10 @@ busy_template = """
 {l[22]}  {h[22][1]}  {h[22][2]}  {h[22][3]}  {h[22][4]}  {h[22][5]}  {h[22][6]}  {h[22][7]}
 {l[23]}  {h[23][1]}  {h[23][2]}  {h[23][3]}  {h[23][4]}  {h[23][5]}  {h[23][6]}  {h[23][7]}
        -----------------------------------------------  
-{l[24]}  {t[1]}  {t[2]}  {t[3]}  {t[4]}  {t[5]}  {t[6]}  {t[7]}
+{t[0]}  {t[1]}  {t[2]}  {t[3]}  {t[4]}  {t[5]}  {t[6]}  {t[7]}
 """
 # l .rjust(6, ' ')
-# h & t .center(3, ' ')
+# h & t .center(5, ' ')
 
 def busy_conf_minutes(lofp):
     """
@@ -141,11 +135,11 @@ def busy_conf_minutes(lofp):
 def busy_conf_day(lofp):
     """
     >>> busy_conf_day([(540, 600), (600, 720)])
-    {'total': 180, 9: ' # ', 10: ' # ', 11: ' # '}
+    {'total': 180, 9: '  #  ', 10: '  #  ', 11: '  #  '}
     >>> busy_conf_day([(540, 620), (600, 720), (660, 700)])
-    {'total': 180, 9: ' # ', 10: '###', 11: '###'}
+    {'total': 180, 9: '  #  ', 10: ' ### ', 11: ' ### '}
     >>> busy_conf_day([(540, 620), (620, 720), (700, 720)])
-    {'total': 180, 9: ' # ', 10: ' # ', 11: '###'}
+    {'total': 180, 9: '  #  ', 10: '  #  ', 11: ' ### '}
     >>> busy_conf_day([])
     {'total': 0}
     """
@@ -174,9 +168,9 @@ def busy_conf_day(lofp):
     h = {} 
     for i in range(23):
         if i in busy_hours:
-            h[i] = '#'.center(3, ' ')
+            h[i] = '#'.center(5, ' ')
         elif i in conf_hours:
-            h[i] = '###'
+            h[i] = '###'.center(5, ' ')
         # else:
         #     h[i] = '.'.center(3, ' ')
         h['total'] = total
@@ -293,7 +287,7 @@ class Views(object):
         if self.modified:
             self._update_relevant()
             self._update_begins()
-            self._update_busy_view()
+            # self._update_busy_view()
             self._update_pastdues()
             self._todays_alerts()
             self.save_views()
@@ -516,15 +510,16 @@ class Views(object):
             summary = set_summary(item['summary'], beg)
             # sort = beg.format(ETMFMT)
 
-            sort = (beg.year, beg.week_of_year, beg.day_of_week, sort_code, beg.hour, beg.minute)
+            # hack to make sunday day 7
+            day_of_week = beg.day_of_week if beg.day_of_week > 0 else 7
+            sort = (beg.year, beg.week_of_year, day_of_week, sort_code, beg.hour, beg.minute)
             path = (fmt_week(beg), beg.format('ddd MMM D'))
             cols = (f"{item['itemtype']} {summary}", rhc)
             rows.append((sort, path, cols))
             if item['itemtype'] == "*" and end:
                 beg_min = beg.hour*60 + beg.minute
                 end_min = end.hour*60 + end.minute
-                # tmp = (beg.format("YYYYMMDDT0000"), beg_min, end_min)
-                tmp = ((beg.year, beg.week_of_year), beg.day_of_week,  (beg_min, end_min))
+                tmp = ((beg.year, beg.week_of_year), day_of_week,  (beg_min, end_min))
                 busy.append(tmp)
             # self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
         self._update_rows('weeks_view', rows, item.eid)
@@ -563,9 +558,49 @@ class Views(object):
                 for week_day in weekdays:
                     lofp = busy[year_week].get(day, [])
                     h[year_week][day] = busy_conf_day(lofp)
+            # else:
+            #     for week_day in weekdays: 
+            #         h[year_week][day] = busy_conf_day([])
+
+    def get_busy_week(self, year_week):
+        """
+
+        """
+        # get monthdays for the week
+        mon = parse(f"{year_week[0]}-W{str(year_week[1]).zfill(2)}-1")
+        DD = {}
+        for i in range(7):
+            DD[i+1] = mon.add(days=i).format("D").ljust(2, ' ')
+        # get (day_of_week, list of beg_end tups) for the week
+        h = {}
+        t = {0: 'total'.rjust(6, ' ')}
+        for weekday in range(1, 8):
+            t[weekday] = '0'.center(5, ' ')
+
+        l = {}
+        for hour in range(24):
+            h.setdefault(hour, {})
+            if hour % 6 == 0:
+                l[hour] = f"{hour}h".rjust(6, ' ')
             else:
-                for week_day in weekdays: 
-                h[year_week][day] = busy_conf_day([])
+                l[hour] = ' ' * 6
+            for weekday in range(1, 8):
+                h[hour][weekday] = '  .  '
+        busy_tups = [(x[0][1], x[0][2]) for x in self.views['busy'] if x[0][0] == year_week]
+        if busy_tups: 
+            busy = {}
+            for tup in busy_tups:
+                busy.setdefault(tup[0], []).append(tup[1])
+            for weekday in range(1, 8):
+                lofp = busy.get(weekday, [])
+                hours = busy_conf_day(lofp)
+                t[weekday] = str(hours['total']).center(5, ' ')
+                for hour in range(24):
+                    if hour in hours:
+                        h[hour][weekday] = hours[hour]
+
+        return busy_template.format(WA=WA, DD=DD, t=t, h=h, l=l)
+
 
 
 
@@ -707,6 +742,8 @@ if __name__ == '__main__':
     setup_logging(1)
     import doctest
     my_views = Views()
+    week = my_views.get_busy_week((2018, 11))
+    print(week)
 
     # for item in my_views.items:
     #     try:
@@ -721,12 +758,3 @@ if __name__ == '__main__':
 
 
     doctest.testmod()
-
-a =   " 1 "
-b =   " 2 "
-c =   " 3 "
-d =   " 4 "
-print(f"""
-      |  This     is     a    test |
-      |  {a}      {b}   {c}    {d} |
-        """)
