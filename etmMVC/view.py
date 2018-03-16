@@ -533,8 +533,9 @@ class Views(object):
         self._update_rows('busy', busy, item.eid)
         self._update_rows('instances', instance_rows, item.eid)
 
-    def _update_busy_view(self):
+    def _update_busy_view(self, year_week):
         """
+        Get one week at at time? 
 
         """
         begends = {}
@@ -553,14 +554,19 @@ class Views(object):
         # print(self.beg_dt, self.end_dt, active)
         # week: 1 Monday ... 6 Saturday, 0 Sunday
         weekdays = [1, 2, 3, 4, 5, 6, 0]
+        h = {}
         for week in active.range('weeks'):
             # print(week.year, week.week_of_year, week.day_of_week)
             year_week = (week.year, week.week_of_year)
+            h[year_week] = {}
             if year_week in busy:
                 for week_day in weekdays:
-                    if week_day in busy[year_week]:
-                        # things are scheduled
-                        pass
+                    lofp = busy[year_week].get(day, [])
+                    h[year_week][day] = busy_conf_day(lofp)
+            else:
+                for week_day in weekdays: 
+                h[year_week][day] = busy_conf_day([])
+
 
 
     def _update_agenda(self):
