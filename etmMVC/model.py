@@ -46,6 +46,7 @@ etmdir = None
 ampm = True
 
 ETMFMT = "%Y%m%dT%H%M"
+ZERO = pendulum.interval(minutes=0)
 
 # display characters 
 datedChar2Type = {
@@ -388,17 +389,17 @@ def setup_logging(level, dir=None):
         return
 
     log_levels = {
-        '1': logging.DEBUG,
-        '2': logging.INFO,
-        '3': logging.WARN,
-        '4': logging.ERROR,
-        '5': logging.CRITICAL
+        1: logging.DEBUG,
+        2: logging.INFO,
+        3: logging.WARN,
+        4: logging.ERROR,
+        5: logging.CRITICAL
     }
 
     if level in log_levels:
         loglevel = log_levels[level]
     else:
-        loglevel = log_levels['3']
+        loglevel = log_levels[3]
 
     # if we get here, we have an existing etmdir
     logfile = os.path.normpath(os.path.abspath(os.path.join(etmdir, "etm.log")))
@@ -445,11 +446,13 @@ class TimeIt(object):
     def __init__(self, loglevel=1, label=""):
         self.loglevel = loglevel
         self.label = label
-        msg = "{0} timer started".format(self.label)
+        msg = "{0} timer started; loglevel: {1}".format(self.label, self.loglevel)
         if self.loglevel == 1:
             logger.debug(msg)
         elif self.loglevel == 2:
             logger.info(msg)
+        elif self.loglevel == 3:
+            logger.warn(msg)
         self.start = timer()
 
     def stop(self, *args):
@@ -461,6 +464,8 @@ class TimeIt(object):
             logger.debug(msg)
         elif self.loglevel == 2:
             logger.info(msg)
+        elif self.loglevel == 3:
+            logger.warn(msg)
 
 
 
@@ -1189,12 +1194,12 @@ def check_rrule(lofh):
 
 def rrule_args(r_hsh):
     """
-    >>> item_eg = { "s": parse('2018-03-07 8am'), "r": [ { "c": 4, "r": "d", "u": parse('2018-08-31 8am'), }, ], "itemtype": "*"}
+    >>> item_eg = { "s": parse('2018-03-07 8am'), "r": [ { "r": "w", "u": parse('2018-04-01 8am'), }, ], "itemtype": "*"}
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [(<Pendulum [2018-03-07T08:00:00+00:00]>, None), (<Pendulum [2018-03-08T08:00:00+00:00]>, None), (<Pendulum [2018-03-09T08:00:00+00:00]>, None), (<Pendulum [2018-03-10T08:00:00+00:00]>, None)]
+    [(<Pendulum [2018-03-07T08:00:00+00:00]>, None), (<Pendulum [2018-03-14T08:00:00+00:00]>, None), (<Pendulum [2018-03-21T08:00:00+00:00]>, None), (<Pendulum [2018-03-28T08:00:00+00:00]>, None)]
     >>> r_hsh = item_eg['r'][0]
     >>> rrule_args(r_hsh)
-    (3, {'count': 4, 'until': <Pendulum [2018-08-31T08:00:00+00:00]>})
+    (2, {'until': <Pendulum [2018-04-01T08:00:00+00:00]>})
     """
 
     # force integers
@@ -1227,7 +1232,6 @@ def rrule_args(r_hsh):
             r_hsh['w'] = tmp[0]
         else:
             r_hsh['w'] = tuple(tmp)
-    # fix until
     if 'u' in r_hsh and 'c' in r_hsh:
         logger.warn(f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}")
     # remove easter
@@ -1241,11 +1245,18 @@ def item_instances(item, aft_dt, bef_dt):
     """
     Get instances from item falling on or after aft_dt and on or 
     before bef_dt. All datetimes will be returned with zero offsets.
-    >>> item_eg = { "s": parse('2018-03-07 8am'), "e": pendulum.interval(days=1, hours=5), "r": [ { "c": 4, "r": "d", "i": 2, "u": parse('2018-08-31 8am')}], "z": "US/Eastern", "itemtype": "*" }
+    >>> item_eg = { "s": parse('2018-03-07 8am'), "e": pendulum.interval(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "*" }
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T23:59:59.999999+00:00]>), (<Pendulum [2018-03-08T00:00:00+00:00]>, <Pendulum [2018-03-08T13:00:00+00:00]>), (<Pendulum [2018-03-09T08:00:00+00:00]>, <Pendulum [2018-03-09T23:59:59.999999+00:00]>), (<Pendulum [2018-03-10T00:00:00+00:00]>, <Pendulum [2018-03-10T13:00:00+00:00]>), (<Pendulum [2018-03-11T08:00:00+00:00]>, <Pendulum [2018-03-11T23:59:59.999999+00:00]>), (<Pendulum [2018-03-12T00:00:00+00:00]>, <Pendulum [2018-03-12T13:00:00+00:00]>), (<Pendulum [2018-03-13T08:00:00+00:00]>, <Pendulum [2018-03-13T23:59:59.999999+00:00]>), (<Pendulum [2018-03-14T00:00:00+00:00]>, <Pendulum [2018-03-14T13:00:00+00:00]>)]
+    [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T23:59:59.999999+00:00]>), (<Pendulum [2018-03-08T00:00:00+00:00]>, <Pendulum [2018-03-08T13:00:00+00:00]>), (<Pendulum [2018-03-21T08:00:00+00:00]>, <Pendulum [2018-03-21T23:59:59.999999+00:00]>), (<Pendulum [2018-03-22T00:00:00+00:00]>, <Pendulum [2018-03-22T13:00:00+00:00]>)]
+    >>> item_eg['+'] = [parse("20180311T1000")]
+    >>> item_eg['-'] = [parse("20180311T0800")]
+    >>> item_eg['e'] = pendulum.interval(hours=2)
+    >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
+    [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T10:00:00+00:00]>), (<Pendulum [2018-03-11T10:00:00+00:00]>, <Pendulum [2018-03-11T12:00:00+00:00]>), (<Pendulum [2018-03-21T08:00:00+00:00]>, <Pendulum [2018-03-21T10:00:00+00:00]>)]
     >>> del item_eg['r']
     >>> del item_eg['e']
+    >>> del item_eg['-']
+    >>> del item_eg['+']
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
     [(<Pendulum [2018-03-07T08:00:00+00:00]>, None)]
     """
@@ -1260,6 +1271,7 @@ def item_instances(item, aft_dt, bef_dt):
     else:
         # dtstart = dts.replace(tzinfo=None)
         dtstart = dts
+        startdst = dtstart.dst()
     if 'r' in item:
         lofh = item['r']
         rset = rruleset()
@@ -1278,6 +1290,12 @@ def item_instances(item, aft_dt, bef_dt):
 
         if '-' in item:
             for dt in item['-']:
+                if type(dt) == pendulum.pendulum.Date:
+                    pass
+                elif dt.dst() and not startdst:
+                    dt = dt + dt.dst()
+                elif startdst and not dt.dst():
+                    dt = dt - startdst
                 rset.exdate(dt)
 
         if '+' in item:
@@ -2056,7 +2074,6 @@ def load_json():
     for item in db:
         try:
             print(item.doc_id, item.doc_id, item['itemtype'])
-            print(timestamp_from_id(item.doc_id))
             print(item_details(item))
         except Exception as e:
             print('exception:', e)
@@ -2167,6 +2184,7 @@ def import_json():
         bad_keys = [x for x in item_hsh if x not in at_keys]
         for key in bad_keys:
             del item_hsh[key]
+        item_hsh['created'] = timestamp_from_id(id, 'Factory')
         if 's' in item_hsh:
             item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
         elif 'z' in item_hsh:
@@ -2219,6 +2237,9 @@ def import_json():
                 if 't' in rul:
                     rul['c'] = rul['t']
                     del rul['t']
+                if 'c' in rul and 'u' in rul:
+                    # depreciated: remove t
+                    del rul['c']
                 if 'u' in rul:
                     if type(rul['u']) == str:
                         try:
@@ -2236,11 +2257,8 @@ def import_json():
                 ruls.append(rul)
             item_hsh['r'] = ruls
 
-        item_hsh['created'] = timestamp_from_id(id, 'Factory')
-        # item_hsh['doc_id'] = id
         docs.append(item_hsh)
     db.insert_multiple(docs)
-    # db.write_back(docs)
 
 
 
@@ -2250,8 +2268,8 @@ if __name__ == '__main__':
     # pendulum.set_locale('fr')
     import doctest
 
-    import_json()
-    load_json()
+    # import_json()
+    # load_json()
     schedule(0, 3)
 
     doctest.testmod()

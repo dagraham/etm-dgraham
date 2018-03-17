@@ -1,6 +1,7 @@
 import pendulum
 from pendulum import parse
-from model import timestamp_from_id, fmt_week, setup_logging, serialization, item_details, item_instances, beg_ends, fmt_extent, format_interval, getMonthWeeks, set_summary
+from model import timestamp_from_id, fmt_week, setup_logging, serialization, item_details, item_instances, beg_ends, fmt_extent, format_interval, getMonthWeeks, set_summary, TimeIt
+
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
 from tinydb.database import Table
@@ -10,6 +11,9 @@ from tinydb_serialization import SerializationMiddleware
 from tinydb_smartcache import SmartCacheTable
 import json
 
+import logging
+import logging.config
+logger = logging.getLogger()
 
 from pprint import pprint
 
@@ -27,6 +31,23 @@ for i in range(1, 8):
     # 1 -> Mo, ...,  7 -> Su
     WA[i] = day.add(days=i).format('ddd')[:2]
 
+ampm = False
+LL = {}
+for hour in range(24):
+    if hour % 6 == 0:
+        if ampm:
+            suffix = 'am' if hour < 12 else 'pm'
+            if hour == 0:
+                hr = 12
+            elif hour <= 12:
+                hr = hour
+            elif hour > 12:
+                hr = hour - 12
+            LL[hour] = f"{hr}{suffix}".rjust(6, ' ')
+        else:
+            LL[hour] = f"{hour}h".rjust(6, ' ')
+    else:
+        LL[hour] = '-'.rjust(6, ' ')
 
 # each view in views: (row, eid) where row = ((sort), (path), (columns))
 
@@ -61,34 +82,34 @@ for i in range(1, 8):
 
 
 busy_template = """
-        {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[7]} {DD[7]} 
-        -----------------------------------------------  
-{l[0]}  {h[0][1]}  {h[0][2]}  {h[0][3]}  {h[0][4]}  {h[0][5]}  {h[0][6]}  {h[0][7]}
-{l[1]}  {h[1][1]}  {h[1][2]}  {h[1][3]}  {h[1][4]}  {h[1][5]}  {h[1][6]}  {h[1][7]}
-{l[2]}  {h[2][1]}  {h[2][2]}  {h[2][3]}  {h[2][4]}  {h[2][5]}  {h[2][6]}  {h[2][7]}
-{l[3]}  {h[3][1]}  {h[3][2]}  {h[3][3]}  {h[3][4]}  {h[3][5]}  {h[3][6]}  {h[3][7]}
-{l[4]}  {h[4][1]}  {h[4][2]}  {h[4][3]}  {h[4][4]}  {h[4][5]}  {h[4][6]}  {h[4][7]}
-{l[5]}  {h[5][1]}  {h[5][2]}  {h[5][3]}  {h[5][4]}  {h[5][5]}  {h[5][6]}  {h[5][7]}
-{l[6]}  {h[6][1]}  {h[6][2]}  {h[6][3]}  {h[6][4]}  {h[6][5]}  {h[6][6]}  {h[6][7]}
-{l[7]}  {h[7][1]}  {h[7][2]}  {h[7][3]}  {h[7][4]}  {h[7][5]}  {h[7][6]}  {h[7][7]}
-{l[8]}  {h[8][1]}  {h[8][2]}  {h[8][3]}  {h[8][4]}  {h[8][5]}  {h[8][6]}  {h[8][7]}
-{l[9]}  {h[9][1]}  {h[9][2]}  {h[9][3]}  {h[9][4]}  {h[9][5]}  {h[9][6]}  {h[9][7]}
-{l[10]}  {h[10][1]}  {h[10][2]}  {h[10][3]}  {h[10][4]}  {h[10][5]}  {h[10][6]}  {h[10][7]}
-{l[11]}  {h[11][1]}  {h[11][2]}  {h[11][3]}  {h[11][4]}  {h[11][5]}  {h[11][6]}  {h[11][7]}
-{l[12]}  {h[12][1]}  {h[12][2]}  {h[12][3]}  {h[12][4]}  {h[12][5]}  {h[12][6]}  {h[12][7]}
-{l[13]}  {h[13][1]}  {h[13][2]}  {h[13][3]}  {h[13][4]}  {h[13][5]}  {h[13][6]}  {h[13][7]}
-{l[14]}  {h[14][1]}  {h[14][2]}  {h[14][3]}  {h[14][4]}  {h[14][5]}  {h[14][6]}  {h[14][7]}
-{l[15]}  {h[15][1]}  {h[15][2]}  {h[15][3]}  {h[15][4]}  {h[15][5]}  {h[15][6]}  {h[15][7]}
-{l[16]}  {h[16][1]}  {h[16][2]}  {h[16][3]}  {h[16][4]}  {h[16][5]}  {h[16][6]}  {h[16][7]}
-{l[17]}  {h[17][1]}  {h[17][2]}  {h[17][3]}  {h[17][4]}  {h[17][5]}  {h[17][6]}  {h[17][7]}
-{l[18]}  {h[18][1]}  {h[18][2]}  {h[18][3]}  {h[18][4]}  {h[18][5]}  {h[18][6]}  {h[18][7]}
-{l[19]}  {h[19][1]}  {h[19][2]}  {h[19][3]}  {h[19][4]}  {h[19][5]}  {h[19][6]}  {h[19][7]}
-{l[20]}  {h[20][1]}  {h[20][2]}  {h[20][3]}  {h[20][4]}  {h[20][5]}  {h[20][6]}  {h[20][7]}
-{l[21]}  {h[21][1]}  {h[21][2]}  {h[21][3]}  {h[21][4]}  {h[21][5]}  {h[21][6]}  {h[21][7]}
-{l[22]}  {h[22][1]}  {h[22][2]}  {h[22][3]}  {h[22][4]}  {h[22][5]}  {h[22][6]}  {h[22][7]}
-{l[23]}  {h[23][1]}  {h[23][2]}  {h[23][3]}  {h[23][4]}  {h[23][5]}  {h[23][6]}  {h[23][7]}
-       -----------------------------------------------  
-{t[0]}  {t[1]}  {t[2]}  {t[3]}  {t[4]}  {t[5]}  {t[6]}  {t[7]}
+         {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[7]} {DD[7]} 
+         -----------------------------------------------  
+{l[0]}   {h[0][1]}  {h[0][2]}  {h[0][3]}  {h[0][4]}  {h[0][5]}  {h[0][6]}  {h[0][7]}
+{l[1]}   {h[1][1]}  {h[1][2]}  {h[1][3]}  {h[1][4]}  {h[1][5]}  {h[1][6]}  {h[1][7]}
+{l[2]}   {h[2][1]}  {h[2][2]}  {h[2][3]}  {h[2][4]}  {h[2][5]}  {h[2][6]}  {h[2][7]}
+{l[3]}   {h[3][1]}  {h[3][2]}  {h[3][3]}  {h[3][4]}  {h[3][5]}  {h[3][6]}  {h[3][7]}
+{l[4]}   {h[4][1]}  {h[4][2]}  {h[4][3]}  {h[4][4]}  {h[4][5]}  {h[4][6]}  {h[4][7]}
+{l[5]}   {h[5][1]}  {h[5][2]}  {h[5][3]}  {h[5][4]}  {h[5][5]}  {h[5][6]}  {h[5][7]}
+{l[6]}   {h[6][1]}  {h[6][2]}  {h[6][3]}  {h[6][4]}  {h[6][5]}  {h[6][6]}  {h[6][7]}
+{l[7]}   {h[7][1]}  {h[7][2]}  {h[7][3]}  {h[7][4]}  {h[7][5]}  {h[7][6]}  {h[7][7]}
+{l[8]}   {h[8][1]}  {h[8][2]}  {h[8][3]}  {h[8][4]}  {h[8][5]}  {h[8][6]}  {h[8][7]}
+{l[9]}   {h[9][1]}  {h[9][2]}  {h[9][3]}  {h[9][4]}  {h[9][5]}  {h[9][6]}  {h[9][7]}
+{l[10]}   {h[10][1]}  {h[10][2]}  {h[10][3]}  {h[10][4]}  {h[10][5]}  {h[10][6]}  {h[10][7]}
+{l[11]}   {h[11][1]}  {h[11][2]}  {h[11][3]}  {h[11][4]}  {h[11][5]}  {h[11][6]}  {h[11][7]}
+{l[12]}   {h[12][1]}  {h[12][2]}  {h[12][3]}  {h[12][4]}  {h[12][5]}  {h[12][6]}  {h[12][7]}
+{l[13]}   {h[13][1]}  {h[13][2]}  {h[13][3]}  {h[13][4]}  {h[13][5]}  {h[13][6]}  {h[13][7]}
+{l[14]}   {h[14][1]}  {h[14][2]}  {h[14][3]}  {h[14][4]}  {h[14][5]}  {h[14][6]}  {h[14][7]}
+{l[15]}   {h[15][1]}  {h[15][2]}  {h[15][3]}  {h[15][4]}  {h[15][5]}  {h[15][6]}  {h[15][7]}
+{l[16]}   {h[16][1]}  {h[16][2]}  {h[16][3]}  {h[16][4]}  {h[16][5]}  {h[16][6]}  {h[16][7]}
+{l[17]}   {h[17][1]}  {h[17][2]}  {h[17][3]}  {h[17][4]}  {h[17][5]}  {h[17][6]}  {h[17][7]}
+{l[18]}   {h[18][1]}  {h[18][2]}  {h[18][3]}  {h[18][4]}  {h[18][5]}  {h[18][6]}  {h[18][7]}
+{l[19]}   {h[19][1]}  {h[19][2]}  {h[19][3]}  {h[19][4]}  {h[19][5]}  {h[19][6]}  {h[19][7]}
+{l[20]}   {h[20][1]}  {h[20][2]}  {h[20][3]}  {h[20][4]}  {h[20][5]}  {h[20][6]}  {h[20][7]}
+{l[21]}   {h[21][1]}  {h[21][2]}  {h[21][3]}  {h[21][4]}  {h[21][5]}  {h[21][6]}  {h[21][7]}
+{l[22]}   {h[22][1]}  {h[22][2]}  {h[22][3]}  {h[22][4]}  {h[22][5]}  {h[22][6]}  {h[22][7]}
+{l[23]}   {h[23][1]}  {h[23][2]}  {h[23][3]}  {h[23][4]}  {h[23][5]}  {h[23][6]}  {h[23][7]}
+         -----------------------------------------------  
+{t[0]}   {t[1]}  {t[2]}  {t[3]}  {t[4]}  {t[5]}  {t[6]}  {t[7]}
 """
 # l .rjust(6, ' ')
 # h & t .center(5, ' ')
@@ -142,6 +163,8 @@ def busy_conf_day(lofp):
     {'total': 180, 9: '  #  ', 10: '  #  ', 11: ' ### '}
     >>> busy_conf_day([])
     {'total': 0}
+    >>> busy_conf_day([(0, 1439)])
+    {0: '  #  ', 'total': 1439, 1: '  #  ', 2: '  #  ', 3: '  #  ', 4: '  #  ', 5: '  #  ', 6: '  #  ', 7: '  #  ', 8: '  #  ', 9: '  #  ', 10: '  #  ', 11: '  #  ', 12: '  #  ', 13: '  #  ', 14: '  #  ', 15: '  #  ', 16: '  #  ', 17: '  #  ', 18: '  #  ', 19: '  #  ', 20: '  #  ', 21: '  #  ', 22: '  #  ', 23: '  #  '}
     """
 
     busy_ranges, conf_ranges, total = busy_conf_minutes(lofp)
@@ -166,7 +189,7 @@ def busy_conf_day(lofp):
                 # print("adding", i, "to busy")
                 busy_hours.append(i)
     h = {} 
-    for i in range(23):
+    for i in range(24):
         if i in busy_hours:
             h[i] = '#'.center(5, ' ')
         elif i in conf_hours:
@@ -577,13 +600,8 @@ class Views(object):
         for weekday in range(1, 8):
             t[weekday] = '0'.center(5, ' ')
 
-        l = {}
         for hour in range(24):
             h.setdefault(hour, {})
-            if hour % 6 == 0:
-                l[hour] = f"{hour}h".rjust(6, ' ')
-            else:
-                l[hour] = ' ' * 6
             for weekday in range(1, 8):
                 h[hour][weekday] = '  .  '
         busy_tups = [(x[0][1], x[0][2]) for x in self.views['busy'] if x[0][0] == year_week]
@@ -599,7 +617,7 @@ class Views(object):
                     if hour in hours:
                         h[hour][weekday] = hours[hour]
 
-        return busy_template.format(WA=WA, DD=DD, t=t, h=h, l=l)
+        return busy_template.format(WA=WA, DD=DD, t=t, h=h, l=LL)
 
 
 
@@ -741,9 +759,17 @@ if __name__ == '__main__':
     print('\n\n')
     setup_logging(1)
     import doctest
+    tt = TimeIt(loglevel=1, label=f"views")
     my_views = Views()
-    week = my_views.get_busy_week((2018, 11))
-    print(week)
+    tt.stop()
+    weeks = [(2018, 2), (2018, 11), (2018, 12)]
+    for week in weeks:
+        tt = TimeIt(loglevel=1, label=f"week: {week[0]}-{week[1]}")
+        week = my_views.get_busy_week(week)
+        tt.stop()
+        print(week)
+    # item = my_views.items.get(doc_id=757)
+    # print(item)
 
     # for item in my_views.items:
     #     try:
