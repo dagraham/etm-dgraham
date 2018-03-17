@@ -31,7 +31,7 @@ for i in range(1, 8):
     # 1 -> Mo, ...,  7 -> Su
     WA[i] = day.add(days=i).format('ddd')[:2]
 
-ampm = False
+ampm = True
 LL = {}
 for hour in range(24):
     if hour % 6 == 0:
@@ -81,7 +81,7 @@ for hour in range(24):
 #total  320    120    210    180     90    320    250 
 
 
-busy_template = """
+busy_template = """\
          {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[7]} {DD[7]} 
          -----------------------------------------------  
 {l[0]}   {h[0][1]}  {h[0][2]}  {h[0][3]}  {h[0][4]}  {h[0][5]}  {h[0][6]}  {h[0][7]}
@@ -257,10 +257,9 @@ class Views(object):
                 update_created = self._update_created_view,
                 update_modified = self._update_modified_view,
                 update_weeks = self._update_weeks,
-                # update_relevant = self._update_relevant,
+                update_dones = self._update_dones,
                 update_alerts = self._update_alerts,
                 update_tags = self._update_tags_view,
-                update_done = self._update_done_view,
                 update_next = self._update_next_view,
                 update_someday = self._update_someday_view,
                 )
@@ -310,8 +309,7 @@ class Views(object):
         if self.modified:
             self._update_relevant()
             self._update_begins()
-            # self._update_busy_view()
-            self._update_pastdues()
+            self._todays_pastdues()
             self._todays_alerts()
             self.save_views()
 
@@ -335,12 +333,16 @@ class Views(object):
         """
         Populate the views 
         """
+        tt = TimeIt(1, label="load_TinyDB")
         self.items = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        tt.stop()
 
     def load_views(self):
+        tt = TimeIt(1, "load_views")
         for item in self.items:
             for cmd in self.commands:
                 self.commands[cmd](item)
+        tt.stop()
 
 
     def _add_rows(self, view, list_of_rows, id):
@@ -422,12 +424,16 @@ class Views(object):
                 dt.format(short_dt_fmt)))
             self._update_rows('someday_view', row, item.eid)
 
-    def _update_done_view(self, item):
+    def _update_dones(self, item):
         dts = []
+        if item['itemtype'] not in ['-', '~']:
+            return 
+        if 'f' not in item and 'h' not in item:
+            return
         if item['itemtype'] == '-':
             char = 'x'
         else:
-            char = item['itemtype']
+            char = '~'
 
         if 'f' in item:
             dts.append(item['f'])
@@ -438,8 +444,17 @@ class Views(object):
             for dt in dts:
                 if type(dt) == pendulum.pendulum.Date:
                     dt = pendulum.create(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz=None)
-                # FIXME sort should match week_view
-                rows.append((dt.format(ETMFMT), (fmt_week(dt), dt.format('ddd MMM D')),  (f"{char} {item['summary']}", dt.format("H:mm"))))
+                if not self.beg_dt <= dt <= self.end_dt:
+                    continue
+                if dt.hour == dt.minute == 0:
+                    rhc = ""
+                else:
+                    if ampm:
+                        rhc = dt.format("h:mmA").lower()
+                    else:
+                        rhc = dt.format("H:mm")
+                weekday = dt.day_of_week if dt.day_of_week > 0 else 7
+                rows.append(((dt.year, dt.week_of_year, weekday), (fmt_week(dt), dt.format('ddd MMM D')),  (f"{char} {item['summary']}", rhc)))
             self._update_rows('done_view', rows, item.eid)
 
     def _update_relevant(self):
@@ -551,46 +566,50 @@ class Views(object):
         self._update_rows('busy', busy, item.eid)
         self._update_rows('instances', instance_rows, item.eid)
 
-    def _update_busy_view(self, year_week):
-        """
-        Get one week at at time? 
+    # def _update_busy_view(self, year_week):
+    #     """
+    #     Get one week at at time? 
 
-        """
-        begends = {}
-        for row in self.views['busy']:
-            year_week, day, begend = row[0]
-            begends.setdefault(year_week, {})
-            begends[year_week].setdefault(day, []).append(begend)
-        busy = {}
-        for year_week in begends:
-            busy.setdefault(year_week, {})
-            for day in begends[year_week]:
-                lofp = begends[year_week][day]
-                busy[year_week][day] = busy_conf_day(lofp)
+    #     """
+    #     tt = TimeIt(1, label="_update_busy_view")
+    #     begends = {}
+    #     for row in self.views['busy']:
+    #         year_week, day, begend = row[0]
+    #         begends.setdefault(year_week, {})
+    #         begends[year_week].setdefault(day, []).append(begend)
+    #     busy = {}
+    #     for year_week in begends:
+    #         busy.setdefault(year_week, {})
+    #         for day in begends[year_week]:
+    #             lofp = begends[year_week][day]
+    #             busy[year_week][day] = busy_conf_day(lofp)
 
-        active = self.end_dt - self.beg_dt
-        # print(self.beg_dt, self.end_dt, active)
-        # week: 1 Monday ... 6 Saturday, 0 Sunday
-        weekdays = [1, 2, 3, 4, 5, 6, 0]
-        h = {}
-        for week in active.range('weeks'):
-            # print(week.year, week.week_of_year, week.day_of_week)
-            year_week = (week.year, week.week_of_year)
-            h[year_week] = {}
-            if year_week in busy:
-                for week_day in weekdays:
-                    lofp = busy[year_week].get(day, [])
-                    h[year_week][day] = busy_conf_day(lofp)
-            # else:
-            #     for week_day in weekdays: 
-            #         h[year_week][day] = busy_conf_day([])
+    #     active = self.end_dt - self.beg_dt
+    #     # print(self.beg_dt, self.end_dt, active)
+    #     # week: 1 Monday ... 6 Saturday, 0 Sunday
+    #     weekdays = [1, 2, 3, 4, 5, 6, 0]
+    #     h = {}
+    #     for week in active.range('weeks'):
+    #         # print(week.year, week.week_of_year, week.day_of_week)
+    #         year_week = (week.year, week.week_of_year)
+    #         h[year_week] = {}
+    #         if year_week in busy:
+    #             for week_day in weekdays:
+    #                 lofp = busy[year_week].get(day, [])
+    #                 h[year_week][day] = busy_conf_day(lofp)
+    #         # else:
+    #         #     for week_day in weekdays: 
+    #         #         h[year_week][day] = busy_conf_day([])
+    #     tt.stop()
 
     def get_busy_week(self, year_week):
         """
 
         """
+        tt = TimeIt(1, "get_busy_week")
         # get monthdays for the week
         mon = parse(f"{year_week[0]}-W{str(year_week[1]).zfill(2)}-1")
+        week_fmt = fmt_week(mon)
         DD = {}
         for i in range(7):
             DD[i+1] = mon.add(days=i).format("D").ljust(2, ' ')
@@ -616,10 +635,33 @@ class Views(object):
                 for hour in range(24):
                     if hour in hours:
                         h[hour][weekday] = hours[hour]
+        tt.stop()
+        return week_fmt, busy_template.format(WA=WA, DD=DD, t=t, h=h, l=LL)
 
-        return busy_template.format(WA=WA, DD=DD, t=t, h=h, l=LL)
 
+    def get_done_week(self, year_week):
+        """
 
+        """
+        tt = TimeIt(1, "get_done_week")
+        # get monthdays for the week
+        mon = parse(f"{year_week[0]}-W{str(year_week[1]).zfill(2)}-1")
+        week_fmt = fmt_week(mon)
+        ret = [x for x in self.views['done_view'] if (x[0][0][0], x[0][0][1]) == year_week]
+        tt.stop()
+        return ret
+
+    def get_agenda_week(self, year_week):
+        """
+
+        """
+        tt = TimeIt(1, "get_agenda_week")
+        # get monthdays for the week
+        mon = parse(f"{year_week[0]}-W{str(year_week[1]).zfill(2)}-1")
+        week_fmt = fmt_week(mon)
+        ret = [x for x in self.views['weeks_view'] if (x[0][0][0], x[0][0][1]) == year_week]
+        tt.stop()
+        return ret
 
 
     def _update_agenda(self):
@@ -679,6 +721,7 @@ class Views(object):
         self._update_rows('alerts', alerts, item.eid)
 
     def _todays_alerts(self):
+        tt = TimeIt(1, "_todays_alerts")
         alerts = []
         today = self.today.format(ETMFMT)
         tomorrow = self.today.add(days=1).format(ETMFMT)
@@ -687,13 +730,15 @@ class Views(object):
                 print(today, alert[0][0], tomorrow)
                 alerts.append(alert)
         self.todays_alerts = alerts
+        tt.stop()
 
 
     def _update_begins(self):
+        tt = TimeIt(1, label="_update_begins")
+        today = self.today.format(ETMFMT)
         beg_instances = [x for x in self.views['relevant'] if x[0][2] == 'begin']
         rows = []
 
-        today = self.today.format(ETMFMT)
         for instance in beg_instances:
             id = instance[-1]
             item = self.items.get(eid=id)
@@ -709,9 +754,11 @@ class Views(object):
                 cols = (f">  {summary}", f"{days}d")
                 rows = ((sort, path, cols))
                 self._update_rows('weeks_view', rows, id)
+        tt.stop()
 
 
-    def _update_pastdues(self):
+    def _todays_pastdues(self):
+        tt = TimeIt(1, label="_todays_pastdues")
         pd_instances = [x for x in self.views['relevant'] if x[0][2] == 'pastdue']
         rows = []
 
@@ -733,15 +780,11 @@ class Views(object):
             rows = ((sort, path, cols))
             tmp = (today, days)
             self._update_rows('weeks_view', rows, id)
-
-
-
-
+        tt.stop()
 
     def _update_all(self):
         for cmd in self.commands:
             cmd()
-
 
     def process_item(self, item):
         item = item
@@ -764,23 +807,12 @@ if __name__ == '__main__':
     tt.stop()
     weeks = [(2018, 2), (2018, 11), (2018, 12)]
     for week in weeks:
-        tt = TimeIt(loglevel=1, label=f"week: {week[0]}-{week[1]}")
-        week = my_views.get_busy_week(week)
-        tt.stop()
-        print(week)
-    # item = my_views.items.get(doc_id=757)
-    # print(item)
-
-    # for item in my_views.items:
-    #     try:
-    #         print(item.eid, item['itemtype'])
-    #         print(timestamp_from_eid(item.eid))
-    #         print(item_details(item))
-    #         print()
-    #     except Exception as e:
-    #         print('\nexception:', e)
-    #         pprint(item)
-
-
+        head, weekfmt = my_views.get_busy_week(week)
+        print(f"  {head}")
+        print(weekfmt)
+        print(my_views.get_done_week(week))
+        print()
+        print(my_views.get_agenda_week(week))
+        print()
 
     doctest.testmod()
