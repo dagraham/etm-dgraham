@@ -24,6 +24,7 @@ short_dt_fmt = "YYYY-MM-DD HH:mm"
 ETMFMT = "YYYYMMDDTHHmm"
 
 # set up 2 character weekday name abbreviations 
+# pendulum.set_locale('fr')
 WA = {}
 today = pendulum.today()
 day = today.end_of('week')  # Sunday

@@ -2263,14 +2263,18 @@ def import_json():
 
 
 if __name__ == '__main__':
+    import sys
     print('\n\n')
     setup_logging(1)
-    # pendulum.set_locale('fr')
     import doctest
 
-    # import_json()
-    # load_json()
-    schedule(0, 3)
+    if len(sys.argv) > 1:
+        if 'i' in sys.argv[1]:
+            import_json()
+        if 'l' in sys.argv[1]:
+            load_json()
+        if 's' in sys.argv[1]:
+            schedule(0, 3)
 
     doctest.testmod()
 
