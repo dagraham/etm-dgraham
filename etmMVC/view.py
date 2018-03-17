@@ -299,12 +299,9 @@ class Views(object):
             self.end_dt = e.add(weeks=6)
             self.load_TinyDB()
             self.load_views()
-            self._update_agenda()
-
             self.modified = True
         if today != self.today:
             self.today = today
-            self._update_agenda()
             self.modified = True
         if self.modified:
             self._update_relevant()
@@ -662,28 +659,6 @@ class Views(object):
         ret = [x for x in self.views['weeks_view'] if (x[0][0][0], x[0][0][1]) == year_week]
         tt.stop()
         return ret
-
-
-    def _update_agenda(self):
-        this_week = fmt_week(self.today)
-        this_day = self.today.format("ddd MMM D")
-        this_week_instances = [x for x in self.views['weeks_view'] if x[0][1][0] == this_week]
-        this_day_instances = [x for x in this_week_instances if x[0][1][1] == this_day]
-        # this_week_instances = self.views['weeks'].get(this_week, [])
-        # this_day_instances = [x for x in this_week_instances if x[0] == this_day]
-        if not this_day_instances:
-            row = (self.today.format(ETMFMT), (this_week, this_day), ("Nothing scheduled", ""))
-            self._update_rows('weeks_view', row, "")
-            self.modified = True
-
-
-        # mws = getMonthWeeks(self.today, self.bef_months, self.aft_months)
-        # for mw in mws:
-        #     key = f"{mw[0]}-{str(mw[1]).zfill(2)}"
-        #     if key not in self.views['weeks']:
-        #         print("missing week:", key)
-        #         self.views['weeks'][key]["0"] = "Nothing scheduled"
-
 
     def _update_alerts(self, item):
         if 'a' not in item:
