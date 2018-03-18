@@ -201,28 +201,6 @@ def busy_conf_day(lofp):
         h['total'] = total
     return h
 
-# def busy_bar(lofp):
-#     """
-#     >>> busy_bar([(540, 600), (600, 720)])
-#     {'total': 180, 9: ' # ', 10: ' # ', 11: ' # '}
-#     >>> busy_bar([(540, 620), (600, 720), (660, 700)])
-#     {'total': 180, 9: ' # ', 10: '###', 11: '###'}
-#     >>> busy_bar([(540, 620), (620, 720), (700, 720)])
-#     {'total': 180, 9: ' # ', 10: ' # ', 11: '###'}
-
-#     """
-#     busy_hours, conf_hours, total_minutes = busy_conf_hours(lofp)
-#     h = {} 
-#     for i in range(23):
-#         if i in busy_hours:
-#             h[i] = '#'.center(3, ' ')
-#         elif i in conf_hours:
-#             h[i] = '###'
-#         # else:
-#         #     h[i] = '.'.center(3, ' ')
-#         h['total'] = total_minutes
-#     return h
-
 
 class Views(object):
     """
@@ -230,7 +208,7 @@ class Views(object):
 
 
     """
-
+    # TODO: indices, tags, locations, timezones for completions
 
     def __init__(self):
         self.views = dict(
@@ -270,6 +248,25 @@ class Views(object):
         self.modified = False
         self.todays_alerts = []
         self.maybe_refresh()
+
+    def day_of_week(self, dt):
+        """
+        Make Sundays day 7
+        """
+        return dt.day_of_week if dt.day_of_week > 0 else 7
+
+    def fmt_weekday(self, dt):
+        """
+        Format the day and append (Today) if dt.date() is today.
+        """
+        today = " (Today)" if dt.date() == self.today else ""
+        return f"{dt.format('ddd MMM D')}{today}"
+
+    def dt_from_year_week_day(self, yw, d):
+        """
+        Return datetime from ((year, week_of_year), day_of_week)
+        """
+        return parse(f"{yw[0]}-W{str(yw[1]).zfill(2)}-{d}")
 
 
     def maybe_refresh(self):
@@ -447,8 +444,11 @@ class Views(object):
                         rhc = dt.format("h:mmA").lower()
                     else:
                         rhc = dt.format("H:mm")
-                weekday = dt.day_of_week if dt.day_of_week > 0 else 7
-                rows.append(((dt.year, dt.week_of_year, weekday), (fmt_week(dt), dt.format('ddd MMM D')),  (f"{char} {item['summary']}", rhc)))
+                day_of_week = self.day_of_week(dt)
+                sort = (dt.year, dt.week_of_year, day_of_week, dt.hour, dt.minute)
+                path = (sort[:2], sort[2])
+                cols = (f"{char} {item['summary']}", rhc)
+                rows.append((sort, path, cols))
             self._update_rows('done_view', rows, item.eid)
 
     def _update_relevant(self):
@@ -502,20 +502,18 @@ class Views(object):
         cols = (display_char summary, ?)
         """
         if item['itemtype'] == '!':
-            day_of_week = self.today.day_of_week if self.today.day_of_week > 0 else 7
+            day_of_week = self.day_of_week(self.today)
             sort = (self.today.year, self.today.week_of_year, day_of_week, 2)
-            path = (fmt_week(self.today), self.today.format('ddd MMM D'))
+            # path = (fmt_week(self.today), self.today.format('ddd MMM D'))
+            path = (sort[:2], sort[2])
             cols = (f"! {item['summary']}")
             rows = ((sort, path, cols))
             self._update_rows('weeks_view', rows, item.doc_id)
             return
-        if item['itemtype'] == '?':
-            self.views['someday_view'].append(item.doc_id)
-            return
         if (item['itemtype'] == '-'  and 's' not in item):
             self.views['next_view'].append(item.doc_id)
             return
-        if 's' not in item:
+        if item['itemtype'] == '?' or 's' not in item:
             return
         rows = []
         instances = []
@@ -546,9 +544,10 @@ class Views(object):
             # sort = beg.format(ETMFMT)
 
             # hack to make sunday day 7
-            day_of_week = beg.day_of_week if beg.day_of_week > 0 else 7
+            day_of_week = self.day_of_week(beg)
             sort = (beg.year, beg.week_of_year, day_of_week, sort_code, beg.hour, beg.minute)
-            path = (fmt_week(beg), beg.format('ddd MMM D'))
+            # path = (fmt_week(beg), beg.format('ddd MMM D'))
+            path = (sort[:2], sort[2])
             cols = (f"{item['itemtype']} {summary}", rhc)
             rows.append((sort, path, cols))
             if item['itemtype'] == "*" and end:
@@ -563,49 +562,13 @@ class Views(object):
         self._update_rows('busy', busy, item.eid)
         self._update_rows('instances', instance_rows, item.eid)
 
-    # def _update_busy_view(self, year_week):
-    #     """
-    #     Get one week at at time? 
-
-    #     """
-    #     tt = TimeIt(1, label="_update_busy_view")
-    #     begends = {}
-    #     for row in self.views['busy']:
-    #         year_week, day, begend = row[0]
-    #         begends.setdefault(year_week, {})
-    #         begends[year_week].setdefault(day, []).append(begend)
-    #     busy = {}
-    #     for year_week in begends:
-    #         busy.setdefault(year_week, {})
-    #         for day in begends[year_week]:
-    #             lofp = begends[year_week][day]
-    #             busy[year_week][day] = busy_conf_day(lofp)
-
-    #     active = self.end_dt - self.beg_dt
-    #     # print(self.beg_dt, self.end_dt, active)
-    #     # week: 1 Monday ... 6 Saturday, 0 Sunday
-    #     weekdays = [1, 2, 3, 4, 5, 6, 0]
-    #     h = {}
-    #     for week in active.range('weeks'):
-    #         # print(week.year, week.week_of_year, week.day_of_week)
-    #         year_week = (week.year, week.week_of_year)
-    #         h[year_week] = {}
-    #         if year_week in busy:
-    #             for week_day in weekdays:
-    #                 lofp = busy[year_week].get(day, [])
-    #                 h[year_week][day] = busy_conf_day(lofp)
-    #         # else:
-    #         #     for week_day in weekdays: 
-    #         #         h[year_week][day] = busy_conf_day([])
-    #     tt.stop()
-
     def get_busy_week(self, year_week):
         """
 
         """
         tt = TimeIt(1, "get_busy_week")
         # get monthdays for the week
-        mon = parse(f"{year_week[0]}-W{str(year_week[1]).zfill(2)}-1")
+        mon = self.dt_from_year_week_day((year_week[0], year_week[1]), 1)
         week_fmt = fmt_week(mon)
         DD = {}
         for i in range(7):
@@ -642,11 +605,18 @@ class Views(object):
         """
         tt = TimeIt(1, "get_done_week")
         # get monthdays for the week
-        mon = parse(f"{year_week[0]}-W{str(year_week[1]).zfill(2)}-1")
+        mon = self.dt_from_year_week_day((year_week[0], year_week[1]), 1)
         week_fmt = fmt_week(mon)
-        ret = [x for x in self.views['done_view'] if (x[0][0][0], x[0][0][1]) == year_week]
+        tmp = [x for x in self.views['done_view'] if (x[0][0][0], x[0][0][1]) == year_week]
+        ret = []
+        for ((sort, path, cols), id) in tmp:
+            path = list(path)
+            dt = self.dt_from_year_week_day(path[0], path[1])
+            path = (fmt_week(dt), self.fmt_weekday(dt))
+            ret.append(((sort, path, cols), id))
         tt.stop()
         return ret
+
 
     def get_agenda_week(self, year_week):
         """
@@ -654,9 +624,15 @@ class Views(object):
         """
         tt = TimeIt(1, "get_agenda_week")
         # get monthdays for the week
-        mon = parse(f"{year_week[0]}-W{str(year_week[1]).zfill(2)}-1")
+        mon = self.dt_from_year_week_day((year_week[0], year_week[1]), 1)
         week_fmt = fmt_week(mon)
-        ret = [x for x in self.views['weeks_view'] if (x[0][0][0], x[0][0][1]) == year_week]
+        tmp = [x for x in self.views['weeks_view'] if (x[0][0][0], x[0][0][1]) == year_week]
+        ret = []
+        for ((sort, path, cols), id) in tmp:
+            path = list(path)
+            dt = self.dt_from_year_week_day(path[0], path[1])
+            path = (fmt_week(dt), self.fmt_weekday(dt))
+            ret.append(((sort, path, cols), id))
         tt.stop()
         return ret
 
@@ -724,8 +700,11 @@ class Views(object):
             if start_begin <= today < end_begin:
                 days = (beg_dt - self.today).days
                 summary = set_summary(item['summary'], beg_dt)
-                sort = (self.today.year, self.today.week_of_year, self.today.day_of_week, 4, self.today.hour, self.today.minute)
-                path = (fmt_week(self.today), self.today.format('ddd MMM D'))
+
+                day_of_week = self.day_of_week(self.today)
+                sort = (self.today.year, self.today.week_of_year, day_of_week, 4, self.today.hour, self.today.minute)
+                # path = (fmt_week(self.today), self.today.format('ddd MMM D'))
+                path = (sort[:2], sort[2])
                 cols = (f">  {summary}", f"{days}d")
                 rows = ((sort, path, cols))
                 self._update_rows('weeks_view', rows, id)
@@ -737,7 +716,6 @@ class Views(object):
         pd_instances = [x for x in self.views['relevant'] if x[0][2] == 'pastdue']
         rows = []
 
-        today = self.today.format(ETMFMT)
         for instance in pd_instances:
             id = instance[-1]
             item = self.items.get(eid=id)
@@ -746,14 +724,12 @@ class Views(object):
             due_dt = parse(due)
             days = (self.today - due_dt).days
 
-
             summary = set_summary(item['summary'], due)
-            sort = (self.today.year, self.today.week_of_year, self.today.day_of_week, 3, self.today.hour, self.today.minute)
-
-            path = (fmt_week(self.today), self.today.format('ddd MMM D'))
+            day_of_week = self.day_of_week(self.today)
+            sort = (self.today.year, self.today.week_of_year, day_of_week, 3, self.today.hour, self.today.minute)
+            path = (sort[:2], sort[2])
             cols = (f"<  {summary}", f"{days}d")
             rows = ((sort, path, cols))
-            tmp = (today, days)
             self._update_rows('weeks_view', rows, id)
         tt.stop()
 
