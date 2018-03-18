@@ -52,34 +52,35 @@ for hour in range(24):
 
 # each view in views: (row, eid) where row = ((sort), (path), (columns))
 
-#      Mo 22  Tu 23  We 24  Th 25  Fr 26  Sa 27  Su 28  
-#      -----------------------------------------------  
-#  12a   .      .      .      .      .      .      . 
-#        .      .      .      .      .      .      . 
-#        .      .      .      .      .      .      . 
-#        .      .      .      .      .      .      . 
-#        .      .      .      .      .      .      . 
-#        .      .      .      .      .      .      . 
-#   6a   .      .      .      .      .      .      . 
-#        .      .      .      .      .      .      . 
-#        #      .      #      .      #      #      . 
-#        #      .      #      .      #      #      . 
-#        .      #      .      .      .      #      . 
-#        .      #      .      #      .      #      # 
-#  12p   #      .      .      #      .      #      # 
-#        #      .      .     XXX     .      #      # 
-#        .      .      .      #      .      .      # 
-#        .      .      .      .      .      .      # 
-#        #      .      .      .      .      .      . 
-#        #      .      .      .      .      .      . 
-#   6p   .      .      #      .      .      .      . 
-#        #      .      #      .      .      .      . 
-#        #      .      #      .      .      .      . 
-#        #      .      .      .      .      .      . 
-#        .      .      .      .      .      .      . 
-#  12a   .      .      .      .      .      .      . 
-#      -----------------------------------------------  
-#total  320    120    210    180     90    320    250 
+# 2018 Week 11: Mar 12 - 18
+#        Mo 12  Tu 13  We 14  Th 15  Fr 16  Sa 17  Su 18
+#        -----------------------------------------------
+# 12am     .      #      .      .      .      .      .
+#    -     .      #      .      .      .      .      .
+#    -     .      #      .      .      .      .      .
+#    -     .      #      .      .      .      .      .
+#    -     .      #      .      .      .      .      .
+#    -     .      #      .      .      .      .      .
+#  6am     .      #      .      .      .      .      .
+#    -     .      #      .      .      .      .      .
+#    -     .      #      .      .      .      .      .
+#    -     .      #      .      .      #      .      .
+#    -     #      #      .      .      #      .      .
+#    -     #      #      .      #      .      .      .
+# 12pm     #      #      .      #      .      .      .
+#    -     #      #      .      #      .      .      .
+#    -     #      #      .      .      .      .      .
+#    -     #      #      #      .      .      .      .
+#    -     #      #      #      .      .      .      .
+#    -     #      #      .      .      .      .      .
+#  6pm     #      #      .      .      #      .      .
+#    -     #      #      .      .      #      .      .
+#    -     #      #      .      .      #      .      .
+#    -     #      #      .      .      #      .      .
+#    -     #      .      .      .      .      .      .
+#    -     #      .      .      .      .      .      .
+#        -----------------------------------------------
+#total    839    1275    90    120    270     0      0
 
 
 busy_template = """\
@@ -238,20 +239,16 @@ class Views(object):
                 modified_view = [],
                 tags_view = [],
                 weeks_view = [],
-                agenda_view = [],
                 next_view = [],
                 someday_view = [],
                 done_view = [],
                 alerts = [],  
+                inbox = [],  
                 instances = [],
-                begins = [],    # (beg_dt, end_dt, id)
                 busy = [],    # (beg_dt, end_dt, id)
-                pastdues = [],  # (due_dt, id)
-                inbox = [],
                 relevant = [],  # (relevant_dt, id)
                 )
         self.items = {}
-        self.busy_view = {}
 
         self.commands = dict(
                 update_index = self._update_index_view,
@@ -306,7 +303,7 @@ class Views(object):
             self.modified = True
         if self.modified:
             self._update_relevant()
-            self._update_begins()
+            self._todays_begins()
             self._todays_pastdues()
             self._todays_alerts()
             self.save_views()
@@ -505,18 +502,21 @@ class Views(object):
         path = (year_week, date)
         cols = (display_char summary, ?)
         """
-        if (item['itemtype'] in ['?', '!', '~'] 
-                or 's' not in item
-                ):
-            # if item['itemtype'] == '?':
-            #     self.someday.append(item.eid)
-
-            # elif item['itemtype'] == '!':
-            #     self.inbox.append(item.eid)
-
-            # elif item['itemtype'] == '-':
-            #     self.next.append(item.eid)
-
+        if item['itemtype'] == '!':
+            day_of_week = self.today.day_of_week if self.today.day_of_week > 0 else 7
+            sort = (self.today.year, self.today.week_of_year, day_of_week, 2)
+            path = (fmt_week(self.today), self.today.format('ddd MMM D'))
+            cols = (f"! {item['summary']}")
+            rows = ((sort, path, cols))
+            self._update_rows('weeks_view', rows, item.doc_id)
+            return
+        if item['itemtype'] == '?':
+            self.views['someday_view'].append(item.doc_id)
+            return
+        if (item['itemtype'] == '-'  and 's' not in item):
+            self.views['next_view'].append(item.doc_id)
+            return
+        if 's' not in item:
             return
         rows = []
         instances = []
@@ -709,8 +709,8 @@ class Views(object):
         tt.stop()
 
 
-    def _update_begins(self):
-        tt = TimeIt(1, label="_update_begins")
+    def _todays_begins(self):
+        tt = TimeIt(1, label="_todays_begins")
         today = self.today.format(ETMFMT)
         beg_instances = [x for x in self.views['relevant'] if x[0][2] == 'begin']
         rows = []
