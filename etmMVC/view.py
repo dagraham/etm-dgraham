@@ -243,7 +243,6 @@ class Views(object):
                 someday_view = [],
                 done_view = [],
                 alerts = [],  
-                inbox = [],  
                 instances = [],
                 busy = [],    # (beg_dt, end_dt, id)
                 relevant = [],  # (relevant_dt, id)
