@@ -204,8 +204,6 @@ def busy_conf_day(lofp):
 
 class Views(object):
     """
-    TODO
-
 
     """
     # TODO: indices, tags, locations, timezones for completions
@@ -247,6 +245,9 @@ class Views(object):
         self.aft_months = 18
         self.modified = False
         self.todays_alerts = []
+        self.completions = {}
+        for c in ['i', 'c', 't', 'z']:
+            self.completions[c] = set([])
         self.maybe_refresh()
 
     def day_of_week(self, dt):
@@ -331,6 +332,15 @@ class Views(object):
     def load_views(self):
         tt = TimeIt(1, "load_views")
         for item in self.items:
+            for c in self.completions:
+                if c in item:
+                    if c == 't':
+                        for tag in item['t']:
+                            tag = tag.strip()
+                            if tag:
+                                self.completions['t'].add(tag)
+                    else:
+                        self.completions[c].add(item[c])
             for cmd in self.commands:
                 self.commands[cmd](item)
         tt.stop()
@@ -765,5 +775,6 @@ if __name__ == '__main__':
         print()
         print(my_views.get_agenda_week(week))
         print()
+    print('completions:', my_views.completions)
 
     doctest.testmod()
