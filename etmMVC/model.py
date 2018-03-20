@@ -2338,8 +2338,12 @@ def beg_ends(starting_dt, extent_interval, z=None):
     return pairs
 
 
+def load_tinydb():
+
+    return TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+
 def print_json():
-    db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+    db = load_tinydb()
     for item in db:
         try:
             print(item.doc_id, item.doc_id, item['itemtype'])

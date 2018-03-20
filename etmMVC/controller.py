@@ -1,18 +1,21 @@
  #! /usr/bin/env python3
 # Last Edited: Mon 05 Feb 2018 09:59 EST
+import json
 import pendulum
+from pendulum import parse
 pendulum.set_formatter('alternative')
 
 # from dateutil.tz import gettz, tzutc, tzlocal
 
 # from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE
-from model import parse_datetime, parse_interval, rrule, jobs, format_datetime, set_summary, type_keys, at_keys, amp_keys
-from dateutil.rrule import rrulestr
+from model import  set_summary 
+from model import item_instances
+from model import fmt_extent, format_interval, fmt_week
+from model import TimeIt
+from model import load_tinydb
 
 testing = True
 # testing = False
-
-import re
 
 pendulum.set_formatter('alternative')
 
@@ -168,22 +171,6 @@ def busy_conf_day(lofp):
         h['total'] = total
     return h
 
-
-class Item:
-    """
-
-    """
-    def __init__(self, s=''):
-        self.cur_pos = 0
-        self.act_key = ''
-        self.act_val = ''
-        self.entry_
-        self.ask = ''
-        self.reply = ''
-        self.msg = []
-        self.temp_hsh = {}
-        self.item_hsh = {}
-
 class Views(object):
     """
 
@@ -312,7 +299,7 @@ class Views(object):
         Populate the views 
         """
         tt = TimeIt(1, label="load_TinyDB")
-        self.items = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        self.items = load_tinydb()
         tt.stop()
 
     def load_views(self):

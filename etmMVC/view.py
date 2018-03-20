@@ -1,21 +1,13 @@
-import pendulum
-from pendulum import parse
-from model import timestamp_from_id, fmt_week, setup_logging, serialization, item_details, item_instances, beg_ends, fmt_extent, format_interval, getMonthWeeks, set_summary, TimeIt
-
-from tinydb import TinyDB, Query, Storage
-from tinydb.operations import delete
-from tinydb.database import Table
-from tinydb.storages import JSONStorage
-from tinydb_serialization import Serializer
-from tinydb_serialization import SerializationMiddleware
-from tinydb_smartcache import SmartCacheTable
-import json
+# import pendulum
+# from pendulum import parse
+# from model import timestamp_from_id, fmt_week, setup_logging, serialization, item_details, item_instances, beg_ends, fmt_extent, format_interval, getMonthWeeks, set_summary, TimeIt
+from controller import Views
 
 import logging
-import logging.config
 logger = logging.getLogger()
+from model import  setup_logging
+from model import TimeIt
 
-from pprint import pprint
 
 if __name__ == '__main__':
     print('\n\n')
