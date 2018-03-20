@@ -206,22 +206,23 @@ class Views(object):
     """
 
     """
-    # TODO: indices, tags, locations, timezones for completions
+    # TODO: 
 
     def __init__(self):
+        # lists in views only need to be updated on month change or item add/modify/remove
         self.views = dict(
-                created_view = [],   # row for id not changed with updates to that item
                 index_view = [],
+                created_view = [], 
                 modified_view = [],
-                tags_view = [],
                 weeks_view = [],
-                next_view = [],
-                someday_view = [],
                 done_view = [],
                 alerts = [],  
+                tags_view = [],
+                next_view = [],
+                someday_view = [],
                 instances = [],
-                busy = [],    # (beg_dt, end_dt, id)
-                relevant = [],  # (relevant_dt, id)
+                busy = [], 
+                relevant = [],  
                 )
         self.items = {}
 
@@ -241,6 +242,7 @@ class Views(object):
 
         self.yearmonth = None
         self.beg_dt = self.end_dt = None
+        # total months for week views = 1 + bef + aft
         self.bef_months = 5
         self.aft_months = 18
         self.modified = False
@@ -303,9 +305,9 @@ class Views(object):
             self._todays_begins()
             self._todays_pastdues()
             self._todays_alerts()
-            self.save_views()
+            self.sort_views()
 
-    def save_views(self):
+    def sort_views(self):
         for view in self.views:
             if isinstance(self.views[view], list):
                 try:
@@ -314,6 +316,7 @@ class Views(object):
                     print(e)
                     print(view)
                     print(self.views[view])
+        # write views to permit viewing - not needed otherwise
         with open('views.json', 'w') as jo:
             json.dump(self.views, jo, indent=1, sort_keys=True)
 
