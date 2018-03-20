@@ -157,6 +157,459 @@ amp_keys = {
     },
 }
 
+at_regex = re.compile(r'\s@', re.MULTILINE)
+amp_regex = re.compile(r'\s&', re.MULTILINE)
+week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
+day_regex = re.compile(r'[+-]?(\d+)d', flags=re.I)
+hour_regex = re.compile(r'[+-]?(\d+)h', flags=re.I)
+minute_regex = re.compile(r'[+-]?(\d+)m', flags=re.I)
+sign_regex = re.compile(r'(^\s*([+-])?)')
+int_regex = re.compile(r'^\s*([+-]?\d+)\s*$')
+period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
+period_parts = re.compile(r'([wWdDhHmM])')
+comma_regex = re.compile(r',\s*')
+colon_regex = re.compile(r'\:\s*')
+semicolon_regex = re.compile(r'\;\s*')
+
+item_hsh = {} # preserve state
+
+allowed = {}
+required = {}
+undated_methods = 'cdegilmstx'
+date_methods = 'br'
+datetime_methods = date_methods + 'ea+-'
+task_methods = 'fjp'
+
+# events
+required['*'] = 's'
+allowed['*'] = undated_methods + datetime_methods
+
+
+# tasks
+required['-'] = ''
+allowed['-'] = undated_methods + datetime_methods + task_methods
+
+# journal entries
+required['%'] = ''
+allowed['%'] = undated_methods + datetime_methods
+
+# someday entries
+required['?'] = ''
+allowed['?'] = undated_methods + task_methods + datetime_methods
+
+# inbox entries
+required['!'] = ''
+allowed['!'] = undated_methods + task_methods
+
+# item type t and has s
+# allowed['date'] = allowed[t] + 'br'
+# allowed['datetime'] = allowed[t] + 'abr'
+# allowed['r'] = '+-'
+
+requires = {
+        'a': 's',
+        'b': 's',
+        'r': 's',
+        '+': 'r',
+        '-': 'r',
+        }
+
+def check_requires(key, hsh):
+    """
+    Check that hsh has the prerequisite entries for key.
+    """
+    if key in requires and requires[key] not in hsh:
+        return False, ('warn', "@{0} is required for @{1}\n".format(requires[key], key))
+    else:
+        return True, ('say', '')
+
+
+type_prompt = u"type character for new item:"
+item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
+
+
+def deal_with_at(at_hsh={}):
+    """
+    When an '@' has been entered but not yet with its key, show required and available keys with descriptions. Note, for example, that until a valid entry for @s has been given, @a, @b and @z are not available.
+    """
+    pass
+
+deal_with = {}
+
+def deal_with_s(at_hsh = {}):
+    """
+    Check the currents state of at_hsh regarding the 's' key
+
+    """
+    s = at_hsh.get('s', None)
+    top = "{}?".format(at_keys['s'])
+    bot = ''
+    if s is None:
+        return top, bot
+    ok, obj, tz = parse_datetime(s)
+    if not ok or not obj:
+        return top, "considering: '{}'".format(s), None
+    item_hsh['s'] = obj
+    item_hsh['z'] = tz
+    if ok == 'date':
+        # 'dateonly'
+        bot = "starting: {}".format(obj.format("ddd MMM D YYYY"))
+        bot += '\nWithout a time, this schedules an all-day, floating item for the specified date in whatever happens to be the local timezone.'
+    elif ok == 'naive':
+        bot = "starting: {}".format(obj.in_tz('Factory').format("ddd MMM D YYYY h:mmA"))
+        bot += "\nThe datetime entry for @s will be interpreted as a naive datetime in whatever happens to be the local timezone."
+    elif ok == 'aware':
+        # bot = "starting: {}".format(obj.format("ddd MMM D h:mmA z"))
+        bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D YYYY h:mmA z"))
+        bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the specified timezone."
+    else:
+        bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D YYYY h:mmA z"))
+        bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a comma and then 'float' to make the datetime floating (naive) or a specific timezone, e.g., 'US/Pacific', to use that timezone."
+
+    # if 'summary' in item_hsh:
+    #     summary = set_summary(item_hsh['summary'], obj)
+    #     bot += "\n{}".format(summary)
+    #     item_hsh['summary'] = summary
+
+    return top, bot, obj
+
+deal_with['s'] = deal_with_s
+
+def deal_with_e(at_hsh={}):
+    """
+    Check the current state of at_hsh regarding the 'e' key.
+    """
+    s = at_hsh.get('e', None)
+    top = "{}?".format(at_keys['e'])
+    bot = ''
+    if s is None:
+        return top, bot, item_hsh
+    ok, obj = parse_interval(s)
+    if not ok:
+        return top, "considering: '{}'".format(s), None
+    item_hsh['e'] = obj
+    bot = "extent: {0}".format(item_hsh['e'].in_words())
+    # bot += "\n\n{}".format(str(at_hsh))
+    return top, bot, obj
+
+deal_with['e'] = deal_with_e
+
+def deal_with_i(at_hsh={}):
+    """
+    Replaces the old filepath and to provide a heirarchial organization
+    view of the data. Entered as a colon delineated string, stored as a
+    list.
+    >>> deal_with_i({'i': "a:b:c"})[2]
+    ['a', 'b', 'c']
+    >>> deal_with_i({'i': "plant:tree:oak"})[2]
+    ['plant', 'tree', 'oak']
+    """
+    s = at_hsh.get('i', None)
+    top = "{}?".format(at_keys['i'])
+    bot = ''
+    if s is None:
+        return top, bot, None
+
+    try:
+        res = [x.strip() for x in s.split(':')]
+        ok = True
+    except:
+        res = None
+        ok = False
+
+    if not ok or type(res) != list:
+        return top, "considering: '{}'".format(s), None
+
+    if type(res) != list:
+        return False, "index {}".format(arg)
+
+    item_hsh['i'] = res
+    bot = "index: " + ", ".join(['level {0} -> {1}'.format(i, res[i]) for i in range(len(res))])
+    return top, bot, res
+
+deal_with['i'] = deal_with_i
+
+
+def get_reps(n=3):
+    """
+    Return the first n instances of the repetition rule.
+    """
+    if 's' not in item_hsh or 'rrulestr' not in item_hsh:
+        return False, "Both @s and @r are required for repetitions"
+
+    tz = item_hsh['s'].tzinfo
+    naive = tz.abbrev == '-00'
+    if naive:
+        start = item_hsh['s']
+        zone = 'floating'
+    else:
+        local = item_hsh['s'].in_timezone('local')
+        start = local.replace(tzinfo='Factory')
+        zone =  local.format("zz")
+    rrs = rrulestr(item_hsh['rrulestr'], dtstart=start)
+    out = rrs.xafter(start, n+1, inc=True)
+    dtstart = format_datetime(item_hsh['s'])[1]
+    # dtstart = format_datetime(start)[1]
+    lst = []
+    for x in out:
+        lst.append(format_datetime(x)[1])
+    outstr = "\n    ".join(lst[:n])
+    if len(lst) <= n:
+        countstr = "Repetitions on or after DTSTART"
+    else:
+        countstr = "The first {} repetitions on or after DTSTART".format(n)
+    res = """\
+    DTSTART:{}
+{}:
+    {}
+All times: {}""".format(dtstart, countstr,  outstr, zone)
+    return True, res
+
+
+def deal_with_r(at_hsh={}):
+    """
+    Check the current state of at_hsh regarding r and s.
+    """
+    top = "repetition rule?"
+    bot = "{}".format(at_keys['r'])
+    lofh = at_hsh.get('r', [])
+    if not lofh:
+        return top, bot, None
+
+    ok, res = rrule(lofh)
+    if not ok:
+        return top, res, None
+
+    rrulelst = []
+
+    # dtut_format = "YYYYMMDD[T]HHmm[00]"
+    dtut_format = ";[TZID=]zz:YYYYMMDD[T]HHmm[00]"
+    if 's' in item_hsh:
+        if type(item_hsh['s']) == pendulum.pendulum.Date:
+            # dtut_format = "YYYYMMDD[T][000000]"
+            dtut_format = ";[TZID=]zz:YYYYMMDD[T][000000]"
+    else:
+        bot = "An entry for @s is required for repetition."
+        return top, bot, None
+    for hsh in res:
+        r = hsh.get('r', None)
+        if r:
+            keys = ['&{}'.format(x) for x in amp_keys['r'] if x not in hsh]
+            for key in hsh:
+                if hsh[key] and key in amp_keys['r']:
+                    bot = "{}".format(amp_keys['r'][key])
+                else:
+                    bot = 'Allowed: {}'.format(", ".join(keys))
+        else:
+            # shouldn't happen
+            pass
+        rrulelst.append(hsh['rrulestr'])
+
+    if '+' in item_hsh:
+        for rdate in item_hsh['+']:
+            rrulelst.append("RDATE:{}".format(rdate.format(dtut_format, formatter='alternative')))
+
+    if '-' in item_hsh:
+        for exdate in item_hsh['-']:
+            rrulelst.append("EXDATE:{}".format(exdate.format(dtut_format, formatter='alternative')))
+
+    res = item_hsh['rrulestr'] = "\n".join(rrulelst)
+    bot = "repetition rule:\n    {}\n".format(res)
+    ok, res = get_reps()
+    bot += res
+
+    return top, bot, res
+
+
+deal_with['r'] = deal_with_r
+
+def deal_with_j(at_hsh={}):
+    """
+    Check the current state of at_hsh regarding j and s.
+    """
+    if 's' in item_hsh:
+        # Either a dated task or a naive or aware datetimed task
+        dated = True
+    else:
+        # An undated task
+        dated = False
+    top = "job?"
+    bot = "{}".format(at_keys['j'])
+    lofh = at_hsh.get('j', [])
+    ok, res, lastcompletion = jobs(lofh, at_hsh)
+    if ok:
+        item_hsh['jobs'] = res
+        show = "".join(["    {}\n".format(x) for x in res])
+        bot = "jobs:\n{}".format(show)
+    else:
+        bot = "jobs:\n{}\n".format(res)
+    return top, bot, res
+
+
+deal_with['j'] = deal_with_j
+
+
+def str2hsh(s):
+    """
+    Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an @ key has been entered without the corresponding key, True or False) for use by check_entry.
+    """
+    hsh = {}
+
+    if not s.strip():
+        return hsh, [], False, [], [], False, []
+
+    at_parts = [x.strip() for x in at_regex.split(s)]
+    at_tups = []
+    at_entry = False
+    amp_entry = False
+    amp_tups = []
+    amp_parts = []
+    delta = 1
+    if at_parts:
+        place = -1
+        tmp = at_parts.pop(0)
+        hsh['itemtype'] = tmp[0]
+        hsh['summary'] = tmp[1:].strip()
+        at_tups.append( (hsh['itemtype'], hsh['summary'], place) )
+        place += delta + len(tmp)
+
+        for part in at_parts:
+            if part:
+                at_entry = False
+            else:
+                at_entry = True
+                break
+            k = part[0]
+            v = part[1:].strip()
+            if k in ('a', 'j', 'r'):
+                # there can be more than one entry for these keys
+                hsh.setdefault(k, []).append(v)
+            else:
+                hsh[k] = v
+            at_tups.append( (k, v, place) )
+            place += delta + len(part)
+
+    for key in ['r', 'j']:
+        if key not in hsh: continue
+        lst = []
+        amp_tups = []
+        amp_entry = False
+        for part in hsh[key]:  # an individual @r or @j entry
+            amp_hsh = {}
+            amp_parts = [x.strip() for x in amp_regex.split(part)]
+            if amp_parts:
+                amp_hsh[key] = "".join(amp_parts.pop(0))
+                # k = amp_part
+                for part in amp_parts:  # the & keys and values for the given entry
+                    if part:
+                        amp_entry = False
+                    else:
+                        amp_entry = True
+                        break
+                    # if len(part) < 2:
+                    #     continue
+                    k = part[0]
+                    v = part[1:].strip()
+                    if v in ["''", '""']:
+                        # don't add if the value was either '' or ""
+                        pass
+                    elif key == 'r' and k in ['M', 'e', 'm', 'w']:
+                        # make these lists
+                        amp_hsh[k] = comma_regex.split(v)
+                    elif k == 'a':
+                        amp_hsh.setdefault(k, []).append(v)
+                    else:
+                        amp_hsh[k] = v
+                    amp_tups.append( (k, v, place) )
+                    # place += 2 + len(part)
+                lst.append(amp_hsh)
+        hsh[key] = lst
+
+    return hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts
+
+
+def check_entry(s, cursor_pos):
+    """
+    Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
+    """
+    hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts = str2hsh(s)
+
+    ask = ('say', '')
+    reply = ('say', '\n')
+    if not at_tups:
+        ask = ('say', type_prompt)
+        reply = ('say', item_types)
+        return ask, reply
+
+    # itemtype, summary, end = at_tups.pop(0)
+    itemtype, summary, end = at_tups[0]
+    act_key = act_val = amp_key = ''
+
+    if itemtype in type_keys:
+        for tup in at_tups:
+            if tup[-1] < cursor_pos:
+                act_key = tup[0]
+                act_val = tup[1]
+            else:
+                break
+
+        if at_entry:
+            ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
+            current_required = ["@{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
+            reply_str = ""
+            if current_required:
+                reply_str += "Required: {}\n".format(", ".join(current_required))
+            current_allowed = ["@{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'ajr']
+            if current_allowed:
+                reply_str += "Allowed: {}\n".format(", ".join(current_allowed))
+            reply = ('say', reply_str)
+        elif act_key:
+            if act_key in at_keys:
+                ask = ('say', "{0}?".format(at_keys[act_key]))
+
+            else:
+                ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
+
+            if act_key == itemtype:
+                ask = ('say', "{} summary:".format(type_keys[itemtype]))
+                reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs\n'.format(type_keys[itemtype]))
+
+            else:
+                ok, res = check_requires(act_key, hsh)
+                if not ok:
+                    ask = ('say', '{0}'.format(at_keys[act_key]))
+                    reply = res
+
+
+                elif act_key in allowed[itemtype]:
+
+                    if amp_entry:
+                        ask = ('say', "&key for @{}?".format(act_key))
+                        reply =  ('say', "Allowed: {}\n".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key]])))
+                    elif act_key in deal_with:
+                        top, bot, obj = deal_with[act_key](hsh)
+                        ask = ('say', top)
+                        reply = ('say', "{}\n".format(bot))
+                    else:
+                        ask = ('say', "{0}?".format(at_keys[act_key]))
+                else:
+                    reply = ('warn', "@{0} is not allowed for item type '{1}'\n".format(act_key, itemtype))
+        else:
+            reply = ('warn', 'no act_key')
+
+    else:
+        ask = ('say', type_prompt)
+        reply = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
+
+    if 'summary' in hsh:
+        item_hsh['summary'] = hsh['summary']
+
+    # for testing and debugging:1
+    if testing:
+        reply = (reply[0], reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\namp_entry: {4}: {5}\n{6}\n{7}\n{8}\n{9}".format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh, item_hsh))
+
+    return ask, reply
+
 
 def parse_datetime(s, z=None):
     """
@@ -1659,187 +2112,6 @@ serialization.register_serializer(PendulumIntervalSerializer(), 'I')
 ########################
 ### end TinyDB setup ###
 ########################
-
-##################
-### start tree ###
-##################
-
-(_ROOT, _DEPTH, _BREADTH) = range(3)
-
-class Node:
-    def __init__(self, identifier):
-        self.__identifier = identifier
-        self.__children = []
-        self.__is_expanded = True
-
-    @property
-    def is_expanded(self):
-        return self.__is_expanded
-
-    def toggle_expanded(self):
-        self.__is_expanded = not self.__is_expanded
-
-    @property
-    def identifier(self):
-        return self.__identifier
-
-    @property
-    def children(self):
-        return self.__children
-
-    def add_child(self, identifier):
-        self.__children.append(identifier)
-
-
-class Tree:
-
-    def __init__(self):
-        self.__nodes = {}
-        self.nodeNum2Id = {}
-        self.rowNum2Id = {}
-        self.id2expanded = {}  # Note that clear() does not reset this.
-        self.rowNum = -1
-        self.nodeNum = 0
-        self.output = []
-        columns, rows = shutil.get_terminal_size()
-        self.columns = columns
-        self.clear()
-
-    @property
-    def nodes(self):
-        return self.__nodes
-
-    # def clear(self, columns=80):
-    def clear(self):
-        self.__nodes = {}
-        self.nodeNum2Id = {}
-        self.rowNum2Id = {}
-        self.rowNum = -1
-        self.nodeNum = 0
-        self.output = []
-        self.add_node("_")
-
-    def add_node(self, identifier, parent=None):
-        node = Node(identifier)
-        self[identifier] = node
-
-        if parent is not None:
-            self[parent].add_child(identifier)
-            if not self.id2expanded.get(identifier, True):
-                self[identifier].toggle_expanded()
-
-        return node
-
-    def format_output(self, identifier="_", depth=_ROOT):
-        children = self[identifier].children
-        tab = 2
-        black_box = u"\u25A0"
-        white_box = u"\u25A1"
-        if not self[identifier].is_expanded:
-            children = []
-        if depth == _ROOT:
-            pass
-        else:
-            self.rowNum += 1
-            if type(identifier) is tuple:
-                # start nodeNum with 1
-                dt = None
-                self.nodeNum += 1
-                if len(identifier) == 4:
-                    tup, dt, type_num, this_id = identifier
-                    attr = model.num2Type[type_num]
-                elif len(identifier) == 3:
-                    tup, type_num, this_id = identifier
-                    attr = model.num2Type[type_num]
-                else:
-                    tup, this_id = identifier
-                    attr = None
-
-                self.nodeNum2Id[self.nodeNum] = (this_id, dt)
-                self.rowNum2Id[self.rowNum] = (this_id, dt)
-                # 11:30am-12:30pm
-                # 123456789012345
-                # use 15 for column 2, 2 for space and the rest for column 1
-                w2 = 15
-                w1 = self.columns - tab * (depth - 1) - w2 - 2
-                col1 = ""
-                if len(tup) >= 1:
-                    col1 = "{0:<{width}}".format(tup[0], width=w1)
-                if len(tup) >= 2 and tup[1]:
-                    if type(tup[1]) is str:
-                        col2 = "{0:^{width}}".format(tup[1][:w2], width=w2)
-                    else:
-                        print('problem with', tup[1])
-                        col2 = "{0:^{width}}".format(tup[1].__str__(), width=w2)
-
-                else:
-                    col2 = " " * w2
-
-                self.output.append(
-                    urwid.AttrMap(
-                        urwid.Text("{0}{1}  {2}".format(" " * tab * (depth - 1), col1[:w1], col2)), attr, focus_map='focus'))
-
-            else:
-                self.rowNum2Id[self.rowNum] = identifier, '_'
-                self.id2expanded[identifier] = self[identifier].is_expanded
-                if self[identifier].is_expanded:
-                    box = white_box
-                else:
-                    box = black_box
-                self.output.append(
-                    urwid.AttrMap(
-                        urwid.Text("{0}{1} {2}".format(" " * tab * (depth - 1), box, identifier.split(":")[-1])), "path", focus_map='focus'))
-
-        depth += 1
-        for child in children:
-            self.format_output(child, depth)  # recursive call
-
-    def traverse(self, identifier, mode=_DEPTH):
-        # Python generator. Loosly based on an algorithm from
-        # 'Essential LISP' by John R. Anderson, Albert T. Corbett,
-        # and Brian J. Reiser, page 239-241
-        yield identifier
-        queue = self[identifier].children
-        while queue:
-            yield queue[0]
-            expansion = self[queue[0]].children
-            if mode == _DEPTH:
-                queue = expansion + queue[1:]  # depth-first
-            elif mode == _BREADTH:
-                queue = queue[1:] + expansion  # width-first
-
-    def add_rows(self, rows):
-        root = "_"
-        paths = []
-        self.add_node(root)
-        for row in rows:
-            for i in range(len(row)):
-                if (*row[:i], row[i]) in paths:
-                    continue
-                else:
-                    paths.append((*row[:i], row[i]))
-                if i == 0:
-                    parent = root
-                else:
-                    # parent = row[i-1]
-                    parent = ":".join(row[:i])
-                if i < len(row) - 1:
-                    # this is part of the branch
-                    child = ":".join(row[:i + 1])
-                else:
-                    # this is a leaf
-                    child = row[i]
-                self.add_node(child, parent)
-
-    def __getitem__(self, key):
-        return self.__nodes[key]
-
-    def __setitem__(self, key, item):
-        self.__nodes[key] = item
-
-################
-### end tree ###
-################
 
 
 ########################
