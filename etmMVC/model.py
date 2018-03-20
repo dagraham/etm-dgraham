@@ -2503,12 +2503,14 @@ def import_json():
                 if 'f' in rul:
                     rul['r'] = rul['f']
                     del rul['f']
-                if 't' in rul:
+                if 'u' in rul:
+                    if 't' in rul:
+                        del rul['t']
+                    if 'c' in rul:
+                        del rul['c']
+                elif 't' in rul:
                     rul['c'] = rul['t']
                     del rul['t']
-                if 'c' in rul and 'u' in rul:
-                    # depreciated: remove t
-                    del rul['c']
                 if 'u' in rul:
                     if type(rul['u']) == str:
                         try:
