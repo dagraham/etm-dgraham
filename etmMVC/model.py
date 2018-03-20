@@ -1564,23 +1564,20 @@ def jobs(lofh, at_hsh={}):
 ### begin TinyDB setup ###
 ##########################
 
-class DatetimeCacheTable(SmartCacheTable):
-
-    def _get_next_id(self):
-        """
-        Use a readable, integer timestamp as the id - unique and stores
-        the creation datetime - instead of consecutive integers. E.g.,
-        the the id for an item created 2016-06-24 08:14:11:601637 would
-        be 20160624081411601637.
-        """
-        # This must be an int even though it will be stored as a str
-        current_id = int(pendulum.now('UTC').format("%Y%m%d%H%M%S%f"))
-        self._last_id = current_id
-
-        return current_id
-
-
+# class DatetimeCacheTable(SmartCacheTable):
+#     def _get_next_id(self):
+#         """
+#         Use a readable, integer timestamp as the id - unique and stores
+#         the creation datetime - instead of consecutive integers. E.g.,
+#         the the id for an item created 2016-06-24 08:14:11:601637 would
+#         be 20160624081411601637.
+#         """
+#         # This must be an int even though it will be stored as a str
+#         current_id = int(pendulum.now('UTC').format("%Y%m%d%H%M%S%f"))
+#         self._last_id = current_id
+#         return current_id
 # TinyDB.table_class = DatetimeCacheTable
+
 TinyDB.table_class = SmartCacheTable
 TinyDB.DEFAULT_TABLE = 'items'
 # Item = Query()
@@ -2069,7 +2066,7 @@ def beg_ends(starting_dt, extent_interval, z=None):
     return pairs
 
 
-def load_json():
+def print_json():
     db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     for item in db:
         try:
@@ -2271,8 +2268,8 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         if 'i' in sys.argv[1]:
             import_json()
-        if 'l' in sys.argv[1]:
-            load_json()
+        if 'p' in sys.argv[1]:
+            print_json()
         if 's' in sys.argv[1]:
             schedule(0, 3)
 

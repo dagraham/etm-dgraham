@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Wed Mar 14, 2018 01:31PM EDT**
+**Last modified: Tue Mar 20, 2018 10:53AM EDT**
 
 # Goals
 
@@ -40,7 +40,7 @@
 
 ### `%`: Note
 
-Unchanged but for the change in the type character from `!` to `%`.
+Unchanged but for the change in the type character from `!` to `%`. An entry for `@s` is optional.
 
 ### `~`: action
 
@@ -68,11 +68,11 @@ Unchanged but for the change in the type character from `!` to `%`.
 
 ### `?`: someday
 
-Unchanged.
+Unchanged. An entry for `@s` is not allowed
 
 ### `!`: inbox
 
-Unchanged but for the change in the type character from `$` to `!`.
+Unchanged but for the change in the type character from `$` to `!`. An entry for `@s` is optional.
 
 ### Defaults
 

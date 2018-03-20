@@ -6,7 +6,7 @@ pendulum.set_formatter('alternative')
 # from dateutil.tz import gettz, tzutc, tzlocal
 
 # from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE
-from model import parse_datetime, parse_period, rrule, jobs, format_datetime, set_summary, type_keys, at_keys, amp_keys
+from model import parse_datetime, parse_interval, rrule, jobs, format_datetime, set_summary, type_keys, at_keys, amp_keys
 from dateutil.rrule import rrulestr
 
 testing = True
@@ -141,7 +141,7 @@ def deal_with_e(at_hsh={}):
     bot = ''
     if s is None:
         return top, bot, item_hsh
-    ok, obj = parse_period(s)
+    ok, obj = parse_interval(s)
     if not ok:
         return top, "considering: '{}'".format(s), None
     item_hsh['e'] = obj

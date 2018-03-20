@@ -1,6 +1,5 @@
 # Notes for etm
-** Last modified: Thu Mar 15, 2018 08:40AM EDT
-**
+**Last modified: Tue Mar 20, 2018 03:40PM EDT**
 
 # Design
 ## Requirements
@@ -64,6 +63,76 @@
       dated_item = Dated(Item())
 
 # ToDo
+
+## Refactor
+
+* controller -> model
+* view -> controller
+* urwid/urview -> view
+
+## Initialization
+
+allow creation of ~/.etm-mvc ?
+* yes
+  * create ~/.etm-mvc
+	* create database with default/illustrative entries
+	* create default options
+* no
+	* load empty database into memory
+	* load default options
+	* display warning about memory storage
+
+
+## sort and color codes
+
+* 1 Inbox (inbox color)
+* 2 Pastdue (pastdue color)
+* 3 Begins (begins color)
+* Date only
+	* 0 event (event color) before datetimes
+	* 5 task or available job (task color) after datetimes
+	* 6 waiting job (task color) after datetimes
+	* 7 action (action color) 
+	* 8 note (note color)
+* 4 Datetime (sort by starting time)
+	* event  (event color)
+	* task or available job  (task color)
+	* waiting job (waiting color)
+	* note  (note color)
+* Undated
+  * task (task color)
+	* note (note color)
+	* 9 someday (someday color)
+
+colors for these codes:
+* 0 event
+* 1 inbox
+* 2 pastdue
+* 3 begin
+* 4 (sort code for datetime times - no color)
+* 5 task or available job
+* 6 waiting job
+* 7 action
+* 8 note
+* 9 someday
+
+types = [
+		'ev',  # event
+		'ib',  # inbox
+		'td',  # pastdue (for a task group, only jobs can be past due)
+		'by',  # beginby
+		'ta',  # available task or job 
+		'tw',  # job scheduled and waiting 
+		'ac',  # action
+		'nt',  # note 
+		'so',  # someday
+		]
+
+type2Num = {key: val for val, key in enumerate(types)}
+num2Type = {key: val for key, val in enumerate(types)}
+
+
+
 
 ## Busy
 

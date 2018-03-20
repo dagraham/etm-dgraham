@@ -280,7 +280,7 @@ class Views(object):
         # self.now = now = pendulum.now('Factory')
         yearmonth = (today.year, today.month)
         if yearmonth != self.yearmonth:
-            # update year month
+            # update year month - this will run on init since self.yearmonth is None
             self.yearmonth = yearmonth
             # get the first day of the current month
             n_beg = pendulum.create(year=yearmonth[0], month=yearmonth[1], day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -294,6 +294,7 @@ class Views(object):
             # after the first week in the end month
             e = e.subtract(days=e.weekday())
             self.end_dt = e.add(weeks=6)
+            # load the TinyDB database from file (or memory?)
             self.load_TinyDB()
             self.load_views()
             self.modified = True
