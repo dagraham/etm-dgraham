@@ -507,14 +507,14 @@ class Views(object):
             # all day item
             it = item['itemtype']
             if it == '*':
-                sort_code = 1
+                sort_code = color_code = 0
             elif it == '-':
-                sort_code = 6
+                sort_code = color_code = 5
             else:
-                sort_code = 7
+                sort_code = color_code = 6
         else:
             # datetime item
-            sort_code = 5
+            sort_code = 4
         # set inbox (2), pastdue (3) and begins (4) later
 
         for (beg, end) in item_instances(item, self.beg_dt, self.end_dt):

@@ -54,23 +54,23 @@ datedChar2Type = {
     '*': "ev",
     '~': "ac",
     '%': "nt",
-    '-': "ts",
+    '-': "ta",
     '+': "tw",
-    'x': "fn",
+    'x': "tf",
     '?': "so",
 }
 
 pastdueTaskChar2Type = {
-    '-': "tp",
+    '-': "td",
     '+': "tw"
 }
 
 undatedChar2Type = {
-    '-': "tu",
+    '-': "ta",
     '%': "nt",
     '!': "ib",
     '?': "so",
-    'x': "fn",
+    'x': "tf",
 }
 
 # type codes in the order in which they should be sorted
@@ -79,15 +79,14 @@ types = [
         'ib',  # inbox
         'oc',  # occasion
         'ev',  # event
-        'tp',  # pastdue task or available job 
+        'td',  # pastdue task or available job 
         'tw',  # job with unfinished prereqs - scheduled or unscheduled 
-        'ts',  # scheduled but not pastdue task or available job
-        'tu',  # unscheduled task or available job
+        'ta',  # task or job that is not pastdue 
         'by',  # beginby"
         'ac',  # action
         'nt',  # note
         'so',  # someday
-        'fn',  # finished task or job
+        'tf',  # finished task or job
          ]
 
 type_keys = {
@@ -330,25 +329,25 @@ def deal_with_i(at_hsh={}):
 deal_with['i'] = deal_with_i
 
 
-def get_reps(n=3):
+def get_reps(n=3, at_hsh={}):
     """
     Return the first n instances of the repetition rule.
     """
-    if 's' not in item_hsh or 'rrulestr' not in item_hsh:
+    if not at_hsh or 's' not in at_hsh or 'rrulestr' not in at_hsh:
         return False, "Both @s and @r are required for repetitions"
 
-    tz = item_hsh['s'].tzinfo
+    tz = at_hsh['s'].tzinfo
     naive = tz.abbrev == '-00'
     if naive:
-        start = item_hsh['s']
+        start = at_hsh['s']
         zone = 'floating'
     else:
-        local = item_hsh['s'].in_timezone('local')
+        local = at_hsh['s'].in_timezone('local')
         start = local.replace(tzinfo='Factory')
         zone =  local.format("zz")
-    rrs = rrulestr(item_hsh['rrulestr'], dtstart=start)
+    rrs = rrulestr(at_hsh['rrulestr'], dtstart=start)
     out = rrs.xafter(start, n+1, inc=True)
-    dtstart = format_datetime(item_hsh['s'])[1]
+    dtstart = format_datetime(at_hsh['s'])[1]
     # dtstart = format_datetime(start)[1]
     lst = []
     for x in out:
@@ -364,6 +363,11 @@ def get_reps(n=3):
     {}
 All times: {}""".format(dtstart, countstr,  outstr, zone)
     return True, res
+
+def get_next(at_hsh={}):
+    if not at_hsh or 's' not in at_hsh or 'rrulestr' not in at_hsh:
+        return False, "Both @s and @r are required for repetitions"
+
 
 
 def deal_with_r(at_hsh={}):
@@ -665,12 +669,15 @@ def timestamp(arg):
     """
     Fuzzy parse a datetime string and return the YYYYMMDDTHHMM formatted version.
     >>> timestamp("6/16/16 4p")
-    (True, '20160616T1600')
+    (True, <Pendulum [2016-06-16T16:00:00+00:00]>)
     >>> timestamp("13/16/16 2p")
     (False, 'invalid date-time: 13/16/16 2p')
     """
+    if type(arg) is pendulum.Pendulum:
+        return True, arg
     try:
-        res = parse(arg).strftime(ETMFMT)
+        # res = parse(arg).strftime(ETMFMT)
+        res = parse(arg)
     except:
         return False, 'invalid date-time: {}'.format(arg)
     return True, res
@@ -1694,10 +1701,9 @@ def rrule_args(r_hsh):
     kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
 
-def item_instances(item, aft_dt, bef_dt):
+def item_instances(item, aft_dt, bef_dt=None):
     """
-    Get instances from item falling on or after aft_dt and on or 
-    before bef_dt. All datetimes will be returned with zero offsets.
+    Get instances from item falling on or after aft_dt and on or before bef_dt or, if bef_dt is None, the first instance after aft_dt. All datetimes will be returned with zero offsets.
     >>> item_eg = { "s": parse('2018-03-07 8am'), "e": pendulum.interval(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "*" }
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
     [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T23:59:59.999999+00:00]>), (<Pendulum [2018-03-08T00:00:00+00:00]>, <Pendulum [2018-03-08T13:00:00+00:00]>), (<Pendulum [2018-03-21T08:00:00+00:00]>, <Pendulum [2018-03-21T23:59:59.999999+00:00]>), (<Pendulum [2018-03-22T00:00:00+00:00]>, <Pendulum [2018-03-22T13:00:00+00:00]>)]
@@ -1706,8 +1712,10 @@ def item_instances(item, aft_dt, bef_dt):
     >>> item_eg['e'] = pendulum.interval(hours=2)
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
     [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T10:00:00+00:00]>), (<Pendulum [2018-03-11T10:00:00+00:00]>, <Pendulum [2018-03-11T12:00:00+00:00]>), (<Pendulum [2018-03-21T08:00:00+00:00]>, <Pendulum [2018-03-21T10:00:00+00:00]>)]
-    >>> del item_eg['r']
     >>> del item_eg['e']
+    >>> item_instances(item_eg, parse('2018-03-07 8am'))
+    [(<Pendulum [2018-03-11T10:00:00+00:00]>, None)]
+    >>> del item_eg['r']
     >>> del item_eg['-']
     >>> del item_eg['+']
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
@@ -1754,15 +1762,25 @@ def item_instances(item, aft_dt, bef_dt):
         if '+' in item:
             for dt in item['+']:
                 rset.rdate(dt)
-        instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
-        # return [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
+        if bef_dt is None:
+            # get the first instance after aft_dt
+            instances = [pendulum.instance(rset.after(aft_dt, inc=False))]
+        else:
+            instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
 
     elif '+' in item:
         tmp = item['+'].append(dtstart)
-        instances = [x for x in tmp if (x >= aft_dt and x <= bef_dt)]
+        if bef_dt is None:
+            instances = [x for x in tmp if (x > aft_dt)][:1]
+        else:
+            instances = [x for x in tmp if (x >= aft_dt and x <= bef_dt)]
 
-    elif dtstart >= aft_dt and dtstart <= bef_dt:
-        instances = [dtstart]
+    else:
+        # dtstart >= aft_dt
+        if bef_dt is None:
+            instances = [dtstart] if dtstart > aft_dt else []
+        else:
+            instances = [dtstart] if aft_dt <= dtstart <= bef_dt else []
 
     pairs = []
     for instance in instances:
@@ -1822,13 +1840,93 @@ datetime_job_methods = dict(
 )
 datetime_job_methods.update(undated_job_methods)
 
+def task(at_hsh):
+    """
+    Evaluate task/job completions and update the f and s entries if appropriate 
+    >>> item_eg = {"summary": "Task Group",  "s": parse('2018-03-07 8am'), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "-", 'j': [ {'j': 'Job 1', 'f': parse('2018-03-06 10am')}, {'j': 'Job 2'} ] }
+    >>> pprint(task(item_eg))
+    {'itemtype': '-',
+     'j': [{'f': <Pendulum [2018-03-06T10:00:00+00:00]>,
+            'j': 'Job 1',
+            'p': [],
+            'req': [],
+            'status': 'f',
+            'summary': 'Task Group 1/1/0: Job 1'},
+           {'j': 'Job 2',
+            'p': ['1'],
+            'req': [],
+            'status': 'a',
+            'summary': 'Task Group 1/1/0: Job 2'}],
+     'r': [{'i': 2, 'r': 'w', 'u': <Pendulum [2018-04-01T08:00:00+00:00]>}],
+     's': <Pendulum [2018-03-07T08:00:00+00:00]>,
+     'summary': 'Task Group',
+     'z': 'US/Eastern'}
+
+
+
+    Now finish the last job and note the update for h and s
+    >>> item_eg = {"summary": "Task Group",  "s": parse('2018-03-07 8am'), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "-", 'j': [ {'j': 'Job 1', 'f': parse('2018-03-06 10am')}, {'j': 'Job 2', 'f': parse('2018-03-07 1pm') } ] }
+    >>> pprint(task(item_eg))
+    {'h': [<Pendulum [2018-03-07T13:00:00+00:00]>],
+     'itemtype': '-',
+     'j': [{'j': 'Job 1',
+            'p': [],
+            'req': [],
+            'status': 'a',
+            'summary': 'Task Group 0/1/1: Job 1'},
+           {'j': 'Job 2',
+            'p': ['1'],
+            'req': ['1'],
+            'status': 'w',
+            'summary': 'Task Group 0/1/1: Job 2'}],
+     'r': [{'i': 2, 'r': 'w', 'u': <Pendulum [2018-04-01T08:00:00+00:00]>}],
+     's': [(<Pendulum [2018-03-21T08:00:00+00:00]>, None)],
+     'summary': 'Task Group',
+     'z': 'US/Eastern'}
+    """
+    if not at_hsh or at_hsh.get('itemtype', None) != '-':
+        return at_hsh
+    if 'j' in at_hsh:
+        ok, jbs, finished = jobs(at_hsh['j'], at_hsh)
+        if ok: 
+            at_hsh['j'] = jbs
+            if finished is not None:
+                # all jobs were completed
+                at_hsh['f'] = finished
+
+    if 's' not in at_hsh:
+        return at_hsh
+
+    finished = at_hsh.get('f', None)
+
+    if finished:
+        overdue = at_hsh.get('o', 'k') 
+        if overdue == 'k':
+            # keep
+            aft = at_hsh['s']
+        elif overdue == 'r':
+            # restart
+            aft = at_hsh['f']
+        elif overdue == 's':
+            # skip
+            aft = pendulum.now(tz=at_hsh.get('z', None))
+        due = item_instances(at_hsh, aft)
+        if due:
+            # we have another instance
+            at_hsh['s'] = due
+            at_hsh.setdefault('h', []).append(at_hsh['f'])
+            del at_hsh['f']
+    return(at_hsh)
+
+
+
 def jobs(lofh, at_hsh={}):
     """
     Process the job hashes in lofh
-    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': '6/20/18 12p'}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
+    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
     (True,
-     [{'f': '20180620T1200',
+     [{'f': <Pendulum [2018-06-20T12:00:00+00:00]>,
        'j': 'Job One',
        'p': [],
        'req': [],
@@ -1845,6 +1943,71 @@ def jobs(lofh, at_hsh={}):
        'status': 'w',
        'summary': ' 1/1/1: Job Three'}],
      None)
+    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m'}]
+    >>> pprint(jobs(data))
+    (True,
+     [{'f': <Pendulum [2018-06-20T12:00:00+00:00]>,
+       'j': 'Job One',
+       'p': [],
+       'req': [],
+       'status': 'f',
+       'summary': ' 2/1/0: Job One'},
+      {'f': <Pendulum [2018-06-21T12:00:00+00:00]>,
+       'j': 'Job Two',
+       'p': ['1'],
+       'req': [],
+       'status': 'f',
+       'summary': ' 2/1/0: Job Two'},
+      {'j': 'Job Three',
+       'p': ['2'],
+       'req': [],
+       'status': 'a',
+       'summary': ' 2/1/0: Job Three'}],
+     None)
+    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
+    >>> pprint(jobs(data))
+    (True,
+     [{'f': <Pendulum [2018-06-20T12:00:00+00:00]>,
+       'j': 'Job One',
+       'p': [],
+       'req': [],
+       'status': 'f',
+       'summary': ' 3/0/0: Job One'},
+      {'f': <Pendulum [2018-06-21T12:00:00+00:00]>,
+       'j': 'Job Two',
+       'p': ['1'],
+       'req': ['1'],
+       'status': 'f',
+       'summary': ' 3/0/0: Job Two'},
+      {'f': <Pendulum [2018-06-22T12:00:00+00:00]>,
+       'j': 'Job Three',
+       'p': ['2'],
+       'req': ['2', '1'],
+       'status': 'f',
+       'summary': ' 3/0/0: Job Three'}],
+     <Pendulum [2018-06-22T12:00:00+00:00]>)
+
+
+    Now add an 'r' entry for at_hsh.
+    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
+    >>> pprint(jobs(data, {'r': 'd'}))
+    (True,
+     [{'j': 'Job One',
+       'p': [],
+       'req': [],
+       'status': 'a',
+       'summary': ' 0/1/2: Job One'},
+      {'j': 'Job Two',
+       'p': ['1'],
+       'req': ['1'],
+       'status': 'w',
+       'summary': ' 0/1/2: Job Two'},
+      {'j': 'Job Three',
+       'p': ['2'],
+       'req': ['2', '1'],
+       'status': 'w',
+       'summary': ' 0/1/2: Job Three'}],
+     <Pendulum [2018-06-22T12:00:00+00:00]>)
     """
     if 's' in at_hsh:
         job_methods = datetime_job_methods
@@ -1962,18 +2125,20 @@ def jobs(lofh, at_hsh={}):
     # Are all jobs finished:
     last_completion = None
     for i in ids:
-        if id2hsh[i].get('f', None):
+        if id2hsh[i].get('f', None) is None:
+            last_completion = None
+            break
+        else:
             this_completion = id2hsh[i]['f']
             if last_completion is None or last_completion < this_completion:
                 last_completion = this_completion
-        else:
-            last_completion = None
-            break
 
     for i in ids:
         if last_completion:
-            # remove all completions
-            del id2hsh[i]['f']
+            # remove all completions if repeating
+            # last_completion will be returned to set @s for the next instance or @f if there are none
+            if 'r' in at_hsh:
+                del id2hsh[i]['f']
         else:
             # remove finished jobs from the requirements
             if id2hsh[i].get('f', None):
@@ -2489,17 +2654,32 @@ def import_json():
                     alerts.append(row)
             item_hsh['a'] = alerts
         if 'j' in item_hsh:
-            jobs = []
-            for job in item_hsh['j']:
-                bad_keys = []
-                for key in job:
-                    if key not in amp_keys['j'] or not job[key]:
-                        bad_keys.append(key)
-                if bad_keys:
-                    for key in bad_keys:
-                        del job[key]
-                jobs.append(job)
-            item_hsh['j'] = jobs
+            jbs = []
+            adj = False
+            for jb in item_hsh['j']:
+                if 'h' in jb:
+                    if 'f' not in jb:
+                        jb['f'] = jb['h'][-1]
+                        adj = True
+                del jb['h']
+                jbs.append(jb)
+            ok, lofh, last_completed = jobs(jbs, item_hsh)
+            if adj: 
+                print('jbs:', jbs)
+                print('hsh:', lofh)
+                print('last_completed:', last_completed)
+            if ok:
+                item_hsh['j'] = lofh
+            # for job in item_hsh['j']:
+            #     bad_keys = []
+            #     for key in job:
+            #         if key not in amp_keys['j'] or not job[key]:
+            #             bad_keys.append(key)
+            #     if bad_keys:
+            #         for key in bad_keys:
+            #             del job[key]
+            #     jobs.append(job)
+            # item_hsh['j'] = jbs
 
         if 'r' in item_hsh:
             ruls = []
