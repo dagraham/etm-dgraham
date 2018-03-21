@@ -26,15 +26,13 @@ logo = [
 #   "                                       ", 
 #   " █████████████ █████████████     █████ ", 
 #   " █████████████ █████████████    ██████ ", 
-#   " ████          █████ █████     ███████ ", 
-#   " █████       █ █████ ██████   ████████ ", 
-#   " ██████     ██ █████ ███████ █████████ ", 
-#   " ███████   ███ █████ █████████████████ ", 
+#   " █████       █ █████ █████     ███████ ", 
+#   " ██████     ██ █████ ██████   ████████ ", 
+#   " ███████   ███ █████ ███████ █████████ ", 
 #   " ████████ ████ █████ █████████████████ ", 
 #   " ███████   ███ █████ ███ ███████ █████ ", 
-#   " ██████     ██ █████ ███  █████  █████ ", 
-#   " █████       █ █████ ███   ███   █████ ", 
-#   " ████          █████ ███    █    █████ ", 
+#   " ██████     ██ █████ ███   ███   █████ ", 
+#   " █████       █ █████ ███    █    █████ ", 
 #   " █████████████ █████ ███         █████ ", 
 #   " █████████████ █████ ███         █████ ", 
 #   "                                       ", 
@@ -104,30 +102,15 @@ class View:
         ('buttnf','white','dark blue','bold', '', '#adf'),
         ('timer', 'black', 'yellow', 'default'),       # path branch
         ('ib', 'light red', 'default', 'default'),     # inbox
-        ('oc', 'light magenta', 'default', 'default'), # occasion
         ('ev', 'dark green', 'default', 'standout', '#080', ''),    # event
-        ('rm', 'dark green', 'default', 'default', '#080', ''),   # reminder
         ('td', 'dark red', 'default', 'default'),      # task pastdue
-        ('jd', 'dark red', 'default', 'default'),      # job pastdue
-        ('dd', 'dark red', 'default', 'default'),      # delegated pastdue
-        ('jw', 'light red', 'default', 'default'),     # job scheduled and waiting
-        ('ts', 'dark blue', 'default', 'default', '#00f', ''),     # task or task group scheduled
-        ('js', 'dark blue', 'default', 'default', '#00f', ''),     # job scheduled and available
-        ('ds', 'dark blue', 'default', 'default', '#00f', ''),     # delegated scheduled
-        ('jp', 'light blue', 'default', 'default'),    # job scheduled with unfinished prereqs
-        ('tu', 'light blue', 'default', 'default'),    # task or task group unscheduled
-        ('ja', 'light blue', 'default', 'default'),    # job unscheduled
-        ('du', 'light blue', 'default', 'default'),    # delegated unscheduled
-        ('jb', 'light cyan', 'default', 'default'),    # job unscheduled with unfinished prereqs
+        ('tw', 'light red', 'default', 'default'),     # job scheduled and waiting
+        ('ta', 'dark blue', 'default', 'default', '#00f', ''),     # task or job available
+        ('jp', 'light blue', 'default', 'default'),    # job waiting
         ('by', 'dark magenta', 'default', 'default'),  # beginby"
         ('ac', 'dark cyan', 'default', 'default'),     # action
-        ('ns', 'brown', 'default', 'default'),         # note scheduled
-        ('nu', 'brown', 'default', 'default'),         # note unscheduled
+        ('nt', 'brown', 'default', 'default'),         # note 
         ('so', 'light blue', 'default', 'default'),    # someday
-        ('fn', 'dark gray', 'default', 'default'),     # finished task or job
-        ('df', 'brown', 'default', 'default'),     # default
-        ('dl', 'light gray', 'default', 'default'),    # deleted
-        ('co', 'light gray', 'default', 'default'),    # commented out
         ]
 
     screen = urwid.raw_display.Screen()

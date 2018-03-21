@@ -27,4 +27,21 @@ if __name__ == '__main__':
         print()
     print('completions:', my_views.completions)
 
+    types = [
+            'ev',  # event
+            'ib',  # inbox
+            'td',  # pastdue (for a task group, only jobs can be past due)
+            'by',  # beginby
+            'ta',  # available task or job 
+            'tw',  # job scheduled and waiting 
+            'ac',  # action
+            'nt',  # note 
+            'so',  # someday
+            ]
+
+    type2Num = {key: val for val, key in enumerate(types)}
+    num2Type = {key: val for key, val in enumerate(types)}
+    print('type2Num:', type2Num)
+    print('num2Type:', num2Type)
+
     doctest.testmod()
