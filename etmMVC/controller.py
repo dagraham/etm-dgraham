@@ -203,7 +203,7 @@ class Views(object):
                 update_dones = self._update_dones,
                 update_alerts = self._update_alerts,
                 update_tags = self._update_tags_view,
-                update_next = self._update_next_view,
+                # update_next = self._update_next_view,
                 update_someday = self._update_someday_view,
                 )
 
@@ -380,13 +380,13 @@ class Views(object):
                     rows.append((tag, tag, (f"{item['itemtype']} {item['summary']}")))
                 self._update_rows('tags_view', rows, item.eid)
 
-    def _update_next_view(self, item):
-        if 'f' in item:
-            return
-        if item['itemtype'] == '-' and 's' not in item:
-            loc = item.get('l', "~")
-            row = (loc, loc, (f"- {item['summary']}"))
-            self._update_rows('next_view', row, item.eid)
+    # def _update_next_view(self, item):
+    #     if 'f' in item:
+    #         return
+    #     if item['itemtype'] == '-' and 's' not in item:
+    #         loc = item.get('l', "~")
+    #         row = (loc, loc, (f"- {item['summary']}"))
+    #         self._update_rows('next_view', row, item.eid)
 
     def _update_someday_view(self, item):
         if item['itemtype'] == '?':
@@ -402,6 +402,10 @@ class Views(object):
         dts = []
         if item['itemtype'] not in ['-', '~']:
             return 
+        # if item['itemtype'] == '-' and 'j' in item:
+        #     for job in item['j']:
+        #         if job['status'] == 'x':
+
         if 'f' not in item and 'h' not in item:
             return
         if item['itemtype'] == '-':
@@ -484,6 +488,7 @@ class Views(object):
         path = (year_week, date)
         cols = (display_char summary, ?)
         """
+        # job_char = dict(f = 'x', w = '+', a = '-')
         if item['itemtype'] == '!':
             day_of_week = self.day_of_week(self.today)
             sort = (self.today.year, self.today.week_of_year, day_of_week, 1)
@@ -493,9 +498,21 @@ class Views(object):
             rows = ((sort, path, cols))
             self._update_rows('weeks_view', rows, item.doc_id)
             return
-        if (item['itemtype'] == '-'  and 's' not in item):
-            self.views['next_view'].append(item.doc_id)
-            return
+        jbs = []
+        if item['itemtype'] == '-' and 'f' not in item:
+            if 'j' in item:
+                for jb in item['j']:
+                    jbs.append((f"{jb['status']} {jb['j']}", ''))
+            else:
+                jbs = [(f"- {item['summary']}", '')]
+
+            if 's' not in item:
+                sort = path = (item.get('l', '~'))
+                rows = []
+                for cols in jbs:
+                    rows.append((sort, path, cols))
+                self._update_rows('next_view', rows, item.doc_id)
+                return
         if item['itemtype'] == '?' or 's' not in item:
             return
         rows = []
@@ -511,11 +528,11 @@ class Views(object):
             elif it == '-':
                 sort_code = 5
             else:
-                sort_code = 6
+                sort_code = 8
         else:
             # datetime item
             sort_code = 4
-        # set inbox (1), pastdue (2) and begins (3) later
+        # set inbox (1), available (5), waiting (6), pastdue (2) and begins (3) later
 
         count = 0
         for (beg, end) in item_instances(item, self.beg_dt, self.end_dt):
@@ -530,8 +547,12 @@ class Views(object):
             day_of_week = self.day_of_week(beg)
             sort = (beg.year, beg.week_of_year, day_of_week, sort_code, beg.hour, beg.minute)
             path = (sort[:2], sort[2])
-            cols = (f"{item['itemtype']} {summary}", rhc)
-            rows.append((sort, path, cols))
+            if jbs and count == 1:
+                for cols in jbs:
+                    rows.append((sort, path, cols))
+            else:
+                cols = (f"{item['itemtype']} {summary}", rhc)
+                rows.append((sort, path, cols))
             if item['itemtype'] == "*" and end:
                 beg_min = beg.hour*60 + beg.minute
                 end_min = end.hour*60 + end.minute

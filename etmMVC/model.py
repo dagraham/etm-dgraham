@@ -1857,12 +1857,12 @@ def task(at_hsh):
             'j': 'Job 1',
             'p': [],
             'req': [],
-            'status': 'f',
+            'status': 'x',
             'summary': 'Task Group 1/1/0: Job 1'},
            {'j': 'Job 2',
             'p': ['1'],
             'req': [],
-            'status': 'a',
+            'status': '-',
             'summary': 'Task Group 1/1/0: Job 2'}],
      'r': [{'i': 2, 'r': 'w', 'u': <Pendulum [2018-04-01T08:00:00+00:00]>}],
      's': <Pendulum [2018-03-07T08:00:00+00:00]>,
@@ -1879,12 +1879,12 @@ def task(at_hsh):
      'j': [{'j': 'Job 1',
             'p': [],
             'req': [],
-            'status': 'a',
+            'status': '-',
             'summary': 'Task Group 0/1/1: Job 1'},
            {'j': 'Job 2',
             'p': ['1'],
             'req': ['1'],
-            'status': 'w',
+            'status': '+',
             'summary': 'Task Group 0/1/1: Job 2'}],
      'r': [{'i': 2, 'r': 'w', 'u': <Pendulum [2018-04-01T08:00:00+00:00]>}],
      's': [(<Pendulum [2018-03-21T08:00:00+00:00]>, None)],
@@ -1937,17 +1937,17 @@ def jobs(lofh, at_hsh={}):
        'j': 'Job One',
        'p': [],
        'req': [],
-       'status': 'f',
+       'status': 'x',
        'summary': ' 1/1/1: Job One'},
       {'j': 'Job Two',
        'p': ['1'],
        'req': [],
-       'status': 'a',
+       'status': '-',
        'summary': ' 1/1/1: Job Two'},
       {'j': 'Job Three',
        'p': ['2'],
        'req': ['2'],
-       'status': 'w',
+       'status': '+',
        'summary': ' 1/1/1: Job Three'}],
      None)
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m'}]
@@ -1957,18 +1957,18 @@ def jobs(lofh, at_hsh={}):
        'j': 'Job One',
        'p': [],
        'req': [],
-       'status': 'f',
+       'status': 'x',
        'summary': ' 2/1/0: Job One'},
       {'f': <Pendulum [2018-06-21T12:00:00+00:00]>,
        'j': 'Job Two',
        'p': ['1'],
        'req': [],
-       'status': 'f',
+       'status': 'x',
        'summary': ' 2/1/0: Job Two'},
       {'j': 'Job Three',
        'p': ['2'],
        'req': [],
-       'status': 'a',
+       'status': '-',
        'summary': ' 2/1/0: Job Three'}],
      None)
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
@@ -1978,19 +1978,19 @@ def jobs(lofh, at_hsh={}):
        'j': 'Job One',
        'p': [],
        'req': [],
-       'status': 'f',
+       'status': 'x',
        'summary': ' 3/0/0: Job One'},
       {'f': <Pendulum [2018-06-21T12:00:00+00:00]>,
        'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
-       'status': 'f',
+       'status': 'x',
        'summary': ' 3/0/0: Job Two'},
       {'f': <Pendulum [2018-06-22T12:00:00+00:00]>,
        'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
-       'status': 'f',
+       'status': 'x',
        'summary': ' 3/0/0: Job Three'}],
      <Pendulum [2018-06-22T12:00:00+00:00]>)
 
@@ -2002,17 +2002,17 @@ def jobs(lofh, at_hsh={}):
      [{'j': 'Job One',
        'p': [],
        'req': [],
-       'status': 'a',
+       'status': '-',
        'summary': ' 0/1/2: Job One'},
       {'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
-       'status': 'w',
+       'status': '+',
        'summary': ' 0/1/2: Job Two'},
       {'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
-       'status': 'w',
+       'status': '+',
        'summary': ' 0/1/2: Job Three'}],
      <Pendulum [2018-06-22T12:00:00+00:00]>)
     """
@@ -2160,13 +2160,13 @@ def jobs(lofh, at_hsh={}):
     # set the job status for each job - f) finished, a) available or w) waiting
     for i in ids:
         if id2hsh[i].get('f', None): # i is finished
-            id2hsh[i]['status'] = 'f'
+            id2hsh[i]['status'] = 'x'
             faw[0] += 1
         elif req[i]: # there are unfinished requirements for i
-            id2hsh[i]['status'] = 'w'
+            id2hsh[i]['status'] = '+'
             faw[2] += 1
         else: # there are no unfinished requirements for i
-            id2hsh[i]['status'] = 'a'
+            id2hsh[i]['status'] = '-'
             faw[1] += 1
 
     for i in ids:
@@ -2608,16 +2608,20 @@ def schedule(weeks_bef=1, weeks_aft=2):
                     space = " "*(60 - len(i['columns'][0]) - len(i['columns'][1]))
                     print(f"    {i['columns'][0]}{space}{i['columns'][1]}" )
 
-
-def import_json():
+def import_json(etmdir=None):
     import json
+    global db
     # root = '/Users/dag/etm-mvc/tmp'
     # import_file = os.path.join(root, 'import.json')
-    import_file = '/Users/dag/.etm/data/etm-db.json'
+    db_file = 'db.json'
+    if etmdir:
+        import_file = os.path.join(etmdir, 'data', 'etm-db.json')
+    else:
+        import_file = '/Users/dag/.etm/data/etm-db.json'
     with open(import_file, 'r') as fo:
         import_hsh = json.load(fo)
     items = import_hsh['items']
-    db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+    db = TinyDB(db_file, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     db.purge()
 
     docs = []
@@ -2666,7 +2670,7 @@ def import_json():
                 if 'h' in jb:
                     if 'f' not in jb:
                         jb['f'] = jb['h'][-1]
-                del jb['h']
+                    del jb['h']
                 jbs.append(jb)
             ok, lofh, last_completed = jobs(jbs, item_hsh)
             if ok:
@@ -2685,9 +2689,16 @@ def import_json():
         if 'r' in item_hsh:
             ruls = []
             for rul in item_hsh['r']:
-                if 'f' in rul:
-                    rul['r'] = rul['f']
-                    del rul['f']
+                if 'r' in rul and rul['r'] == 'l':
+                    print('removed r = l', rul)
+                    continue
+                elif 'f' in rul:
+                    if rul['f'] == 'l':
+                        print('removed f = l', rul)
+                        continue
+                    else:
+                        rul['r'] = rul['f']
+                        del rul['f']
                 if 'u' in rul:
                     if 't' in rul:
                         del rul['t']
@@ -2710,8 +2721,12 @@ def import_json():
                 if bad_keys:
                     for key in bad_keys:
                         del rul[key]
-                ruls.append(rul)
-            item_hsh['r'] = ruls
+                if rul:
+                    ruls.append(rul)
+            if ruls:
+                item_hsh['r'] = ruls
+            else:
+                del item_hsh['r']
 
         docs.append(item_hsh)
     db.insert_multiple(docs)
@@ -2721,12 +2736,15 @@ def import_json():
 if __name__ == '__main__':
     import sys
     print('\n\n')
-    setup_logging(1)
     import doctest
+    etmdir = ''
+    if len(sys.argv) > 1:
+        etmdir = sys.argv.pop(1)
+    setup_logging(1, etmdir)
 
     if len(sys.argv) > 1:
         if 'i' in sys.argv[1]:
-            import_json()
+            import_json(etmdir)
         if 'p' in sys.argv[1]:
             print_json()
         if 's' in sys.argv[1]:
