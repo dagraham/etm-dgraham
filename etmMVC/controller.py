@@ -517,7 +517,9 @@ class Views(object):
             sort_code = 4
         # set inbox (1), pastdue (2) and begins (3) later
 
+        count = 0
         for (beg, end) in item_instances(item, self.beg_dt, self.end_dt):
+
             if end is None:
                 rhc = ""
             else:
@@ -540,8 +542,9 @@ class Views(object):
                     pass
 
         self._update_rows('weeks_view', rows, item.eid)
-        overdue = 'r' not in item or ('o' in item and item['o'] != 's')
-        instance_rows = [(x.format(ETMFMT), item['itemtype'], 'b' in item, 'f' in item, overdue) for x in instances]
+        # maybeoverdue = 'r' not in item or ('o' in item and item['o'] != 's')
+        maybeoverdue = 'r' not in item or (item.get('o', 'k') != 's')
+        instance_rows = [(x.format(ETMFMT), item['itemtype'], 'b' in item, 'f' in item, maybeoverdue) for x in instances]
         self._update_rows('busy', busy, item.eid)
         self._update_rows('instances', instance_rows, item.eid)
 
@@ -738,5 +741,14 @@ if __name__ == '__main__':
     print('\n\n')
     import doctest
     from pprint import pprint
+    my_views = Views()
+    for yw in [(2018, 2), (2018, 11), (2018, 12)]:
+        print('agenda')
+        pprint(my_views.get_agenda_week(yw))
+        print('\nbusy')
+        print(my_views.get_busy_week(yw)[1])
+        print('\ndone')
+        pprint(my_views.get_done_week(yw))
+        print("\n\n")
     doctest.testmod()
 

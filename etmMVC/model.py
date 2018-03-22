@@ -528,6 +528,9 @@ def str2hsh(s):
                     # place += 2 + len(part)
                 lst.append(amp_hsh)
         hsh[key] = lst
+        # if 'u' in hsh: 
+        #     # delegated
+        #     hsh['summary'] = f"[{hsh['u']}] {hsh['summary']}"
 
     return hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts
 
@@ -2659,19 +2662,13 @@ def import_json():
             item_hsh['a'] = alerts
         if 'j' in item_hsh:
             jbs = []
-            adj = False
             for jb in item_hsh['j']:
                 if 'h' in jb:
                     if 'f' not in jb:
                         jb['f'] = jb['h'][-1]
-                        adj = True
                 del jb['h']
                 jbs.append(jb)
             ok, lofh, last_completed = jobs(jbs, item_hsh)
-            if adj: 
-                print('jbs:', jbs)
-                print('hsh:', lofh)
-                print('last_completed:', last_completed)
             if ok:
                 item_hsh['j'] = lofh
             # for job in item_hsh['j']:
