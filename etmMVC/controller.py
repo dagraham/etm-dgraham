@@ -486,7 +486,7 @@ class Views(object):
         """
         if item['itemtype'] == '!':
             day_of_week = self.day_of_week(self.today)
-            sort = (self.today.year, self.today.week_of_year, day_of_week, 2)
+            sort = (self.today.year, self.today.week_of_year, day_of_week, 1)
             # path = (fmt_week(self.today), self.today.format('ddd MMM D'))
             path = (sort[:2], sort[2])
             cols = (f"! {item['summary']}")
@@ -507,15 +507,15 @@ class Views(object):
             # all day item
             it = item['itemtype']
             if it == '*':
-                sort_code = color_code = 0
+                sort_code = 0
             elif it == '-':
-                sort_code = color_code = 5
+                sort_code = 5
             else:
-                sort_code = color_code = 6
+                sort_code = 6
         else:
             # datetime item
             sort_code = 4
-        # set inbox (2), pastdue (3) and begins (4) later
+        # set inbox (1), pastdue (2) and begins (3) later
 
         for (beg, end) in item_instances(item, self.beg_dt, self.end_dt):
             if end is None:
@@ -524,12 +524,9 @@ class Views(object):
                 rhc = fmt_extent(beg, end).center(15, ' ')
             instances.append(beg)
             summary = set_summary(item['summary'], beg)
-            # sort = beg.format(ETMFMT)
 
-            # hack to make sunday day 7
             day_of_week = self.day_of_week(beg)
             sort = (beg.year, beg.week_of_year, day_of_week, sort_code, beg.hour, beg.minute)
-            # path = (fmt_week(beg), beg.format('ddd MMM D'))
             path = (sort[:2], sort[2])
             cols = (f"{item['itemtype']} {summary}", rhc)
             rows.append((sort, path, cols))
@@ -538,7 +535,10 @@ class Views(object):
                 end_min = end.hour*60 + end.minute
                 tmp = ((beg.year, beg.week_of_year), day_of_week,  (beg_min, end_min))
                 busy.append(tmp)
-            # self.views['weeks'].setdefault(path[0], []).append((path[1], item.eid))
+            elif item['itemtype'] == "-" and 'j' in item :
+                for job in item['j']:
+                    pass
+
         self._update_rows('weeks_view', rows, item.eid)
         overdue = 'r' not in item or ('o' in item and item['o'] != 's')
         instance_rows = [(x.format(ETMFMT), item['itemtype'], 'b' in item, 'f' in item, overdue) for x in instances]

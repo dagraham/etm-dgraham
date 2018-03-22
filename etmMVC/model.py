@@ -1788,6 +1788,10 @@ def item_instances(item, aft_dt, bef_dt=None):
         if item['itemtype'] == "*" and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                 pairs.append(pair)
+        elif item['itemtype'] == "-" and item.get('o', 'k') == 's':
+            # drop old skip instances
+            if instance >= pendulum.now(tz=item.get('z', None)):
+                pairs.append((instance, None))
         else:
             pairs.append((instance, None))
 

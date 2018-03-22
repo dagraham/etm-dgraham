@@ -294,8 +294,8 @@ class Menu:
         menu3 = [
             "-- TOOLS ------------------------------------------ ",
             "N: new item      Q: query          F2: date calc    ",
-            "J: jump to date  C: copy view      F3: yearly cal   ",
-            "A: alerts        P: preferences    F8: quit         ",
+            "X: export ical   C: copy view      F3: yearly cal   ",
+            "A: show alerts   P: preferences    F8: quit         ",
         ]
 
 
