@@ -703,7 +703,7 @@ class Views(object):
             end_begin = beg = instance[0][0]
             beg_dt = parse(beg)
             # the begin interval runs from b days before beg to beg
-            start_begin = (beg_dt - pendulum.interval(days=item['b'])).format("YYYYMMDDT0000")
+            start_begin = (beg_dt - pendulum.interval(days=int(item['b']))).format("YYYYMMDDT0000")
             if start_begin <= today < end_begin:
                 days = (beg_dt - self.today).days
                 summary = set_summary(item['summary'], beg_dt)

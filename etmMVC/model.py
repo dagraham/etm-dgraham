@@ -1772,7 +1772,9 @@ def item_instances(item, aft_dt, bef_dt=None):
             instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
 
     elif '+' in item:
-        tmp = item['+'].append(dtstart)
+        tmp = [dtstart]
+        tmp.extend(item['+'])
+        tmp.sort()
         if bef_dt is None:
             instances = [x for x in tmp if (x > aft_dt)][:1]
         else:
@@ -2673,6 +2675,11 @@ def import_json(etmdir=None):
                     del jb['h']
                 jbs.append(jb)
             ok, lofh, last_completed = jobs(jbs, item_hsh)
+
+            print('\nok ...')
+            print(ok, lofh, last_completed)
+            print(jbs)
+            print(item_hsh)
             if ok:
                 item_hsh['j'] = lofh
             # for job in item_hsh['j']:
