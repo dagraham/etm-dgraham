@@ -1976,30 +1976,27 @@ def jobs(lofh, at_hsh={}):
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
     >>> pprint(jobs(data))
     (True,
-     [{'f': <Pendulum [2018-06-20T12:00:00+00:00]>,
-       'j': 'Job One',
+     [{'j': 'Job One',
        'p': [],
        'req': [],
-       'status': 'x',
-       'summary': ' 3/0/0: Job One'},
-      {'f': <Pendulum [2018-06-21T12:00:00+00:00]>,
-       'j': 'Job Two',
+       'status': '-',
+       'summary': ' 0/1/2: Job One'},
+      {'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
-       'status': 'x',
-       'summary': ' 3/0/0: Job Two'},
-      {'f': <Pendulum [2018-06-22T12:00:00+00:00]>,
-       'j': 'Job Three',
+       'status': '+',
+       'summary': ' 0/1/2: Job Two'},
+      {'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
-       'status': 'x',
-       'summary': ' 3/0/0: Job Three'}],
+       'status': '+',
+       'summary': ' 0/1/2: Job Three'}],
      <Pendulum [2018-06-22T12:00:00+00:00]>)
 
 
     Now add an 'r' entry for at_hsh.
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
-    >>> pprint(jobs(data, {'r': 'd'}))
+    >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a'), 'j': data}))
     (True,
      [{'j': 'Job One',
        'p': [],
@@ -2146,8 +2143,21 @@ def jobs(lofh, at_hsh={}):
         if last_completion:
             # remove all completions if repeating
             # last_completion will be returned to set @s for the next instance or @f if there are none
-            if 'r' in at_hsh:
-                del id2hsh[i]['f']
+            del id2hsh[i]['f']
+            if at_hsh.get('s', None) and ('r' in at_hsh or '+' in at_hsh):
+                # repeating
+                overdue = at_hsh.get('o', 's')
+                if overdue == 's':
+                    dt = pendulum.now(tz=at_hsh.get('z', None))
+                elif overdue == 'k':
+                    dt = at_hsh['s']
+                else: # 'r'
+                    dt = last_completed
+                n = item_instances(at_hsh, dt)
+                if n:
+                    at_hsh['s'] = n
+                else:
+                    at_hsh['f'] = last_completed
         else:
             # remove finished jobs from the requirements
             if id2hsh[i].get('f', None):
@@ -2676,32 +2686,18 @@ def import_json(etmdir=None):
                 jbs.append(jb)
             ok, lofh, last_completed = jobs(jbs, item_hsh)
 
-            print('\nok ...')
-            print(ok, lofh, last_completed)
-            print(jbs)
-            print(item_hsh)
             if ok:
                 item_hsh['j'] = lofh
-            # for job in item_hsh['j']:
-            #     bad_keys = []
-            #     for key in job:
-            #         if key not in amp_keys['j'] or not job[key]:
-            #             bad_keys.append(key)
-            #     if bad_keys:
-            #         for key in bad_keys:
-            #             del job[key]
-            #     jobs.append(job)
-            # item_hsh['j'] = jbs
+            else:
+                print("ok:",  ok, lofh, last_completed)
 
         if 'r' in item_hsh:
             ruls = []
             for rul in item_hsh['r']:
                 if 'r' in rul and rul['r'] == 'l':
-                    print('removed r = l', rul)
                     continue
                 elif 'f' in rul:
                     if rul['f'] == 'l':
-                        print('removed f = l', rul)
                         continue
                     else:
                         rul['r'] = rul['f']
