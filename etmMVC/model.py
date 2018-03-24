@@ -1729,9 +1729,12 @@ def item_instances(item, aft_dt, bef_dt=None):
         return []
     instances = []
     dts = item['s']
+    print(type(item['s']), item['s'])
     if type(dts) == pendulum.pendulum.Date:
         # change to datetime at midnight on the same date
         dtstart = pendulum.create(year=dts.year, month=dts.month, day=dts.day, hour=0, minute=0, tz=None)
+    elif type(dts) == list:
+        dtstart = dts[0][0]
     else:
         # dtstart = dts.replace(tzinfo=None)
         dtstart = dts
