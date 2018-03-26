@@ -45,6 +45,9 @@ etmdir = None
 # FIXME
 ampm = True
 
+testing = True
+# testing = False
+
 ETMFMT = "%Y%m%dT%H%M"
 ZERO = pendulum.interval(minutes=0)
 
