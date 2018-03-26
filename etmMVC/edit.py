@@ -1,6 +1,6 @@
 # Last Edited: Mon 05 Feb 2018 10:00 EST
 import urwid
-from controller import check_entry, str2hsh
+from model import check_entry, str2hsh
 import os
 import sys
 import inspect
