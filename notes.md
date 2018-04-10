@@ -1,5 +1,5 @@
 # Notes for etm
-**Last modified: Tue Mar 20, 2018 03:40PM EDT**
+**Last modified: Sun Mar 25, 2018 11:50PM EDT**
 
 # Design
 ## Requirements
@@ -67,10 +67,30 @@
 ## Refactor
 
 * controller -> model
-* view -> controller
+* view -> controller & edit
 * urwid/urview -> view
 
-## Initialization
+## Defaults/Extractions
+
+## Completions
+
+## Jobs
+
+* only show for relevant instance
+* completions in done for task
+* unfinished instances in weeks (or next)
+
+* &s entries are intervals subtracted (+) or added (-) to @s - default 0m
+* &b entries apply to &s
+* &a entries apply to &s 
+
+* def finish()...
+  * when pressing F, how do I know which job is relevant?
+		* use the job id?
+	* take care of finishing a job and, if last_completed, the task itself
+
+
+## First Run
 
 allow creation of ~/.etm-mvc ?
 * yes
