@@ -1732,16 +1732,18 @@ def item_instances(item, aft_dt, bef_dt=None):
         return []
     instances = []
     dts = item['s']
-    print(type(item['s']), item['s'])
+    if type(dts) in [list, tuple]:
+        dts = dts[0]
     if type(dts) == pendulum.pendulum.Date:
         # change to datetime at midnight on the same date
         dtstart = pendulum.create(year=dts.year, month=dts.month, day=dts.day, hour=0, minute=0, tz=None)
-    elif type(dts) == list:
-        dtstart = dts[0][0]
-    else:
+    elif type(dts) == pendulum.pendulum.Pendulum:
         # dtstart = dts.replace(tzinfo=None)
         dtstart = dts
         startdst = dtstart.dst()
+    else:
+        dtstart = dts[0]
+
     if 'r' in item:
         lofh = item['r']
         rset = rruleset()
@@ -1773,7 +1775,8 @@ def item_instances(item, aft_dt, bef_dt=None):
                 rset.rdate(dt)
         if bef_dt is None:
             # get the first instance after aft_dt
-            instances = [pendulum.instance(rset.after(aft_dt, inc=False))]
+            nxt = rset.after(aft_dt, inc=False)
+            instances = [pendulum.instance(nxt)] if nxt else []
         else:
             instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
 
@@ -1880,7 +1883,7 @@ def task(at_hsh):
 
 
     Now finish the last job and note the update for h and s
-    >>> item_eg = {"summary": "Task Group",  "s": parse('2018-03-07 8am'), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "-", 'j': [ {'j': 'Job 1', 'f': parse('2018-03-06 10am')}, {'j': 'Job 2', 'f': parse('2018-03-07 1pm') } ] }
+    >>> item_eg = {"summary": "Task Group",  "s": parse('2018-03-07 8am'), "z": "US/Eastern",  "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "-", 'j': [ {'j': 'Job 1', 'f': parse('2018-03-06 10am')}, {'j': 'Job 2', 'f': parse('2018-03-07 1pm') } ] }
     >>> pprint(task(item_eg))
     {'h': [<Pendulum [2018-03-07T13:00:00+00:00]>],
      'itemtype': '-',
@@ -1938,6 +1941,25 @@ def task(at_hsh):
 def jobs(lofh, at_hsh={}):
     """
     Process the job hashes in lofh
+    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
+    >>> pprint(jobs(data))
+    (True,
+     [{'j': 'Job One',
+       'p': [],
+       'req': [],
+       'status': '-',
+       'summary': ' 0/1/2: Job One'},
+      {'j': 'Job Two',
+       'p': ['1'],
+       'req': ['1'],
+       'status': '+',
+       'summary': ' 0/1/2: Job Two'},
+      {'j': 'Job Three',
+       'p': ['2'],
+       'req': ['2', '1'],
+       'status': '+',
+       'summary': ' 0/1/2: Job Three'}],
+     None)
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
     (True,
@@ -2004,12 +2026,14 @@ def jobs(lofh, at_hsh={}):
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
     >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a'), 'j': data}))
     (True,
-     [{'j': 'Job One',
+     [{'b': 2,
+       'j': 'Job One',
        'p': [],
        'req': [],
        'status': '-',
        'summary': ' 0/1/2: Job One'},
-      {'j': 'Job Two',
+      {'b': 1,
+       'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
        'status': '+',
@@ -2158,12 +2182,12 @@ def jobs(lofh, at_hsh={}):
                 elif overdue == 'k':
                     dt = at_hsh['s']
                 else: # 'r'
-                    dt = last_completed
+                    dt = last_completion
                 n = item_instances(at_hsh, dt)
                 if n:
                     at_hsh['s'] = n
                 else:
-                    at_hsh['f'] = last_completed
+                    at_hsh['f'] = last_completion
         else:
             # remove finished jobs from the requirements
             if id2hsh[i].get('f', None):
@@ -2695,7 +2719,8 @@ def import_json(etmdir=None):
             if ok:
                 item_hsh['j'] = lofh
             else:
-                print("ok:",  ok, lofh, last_completed)
+                print('using jbs', jbs)
+                print("ok:", ok,  " lofh:", lofh, " last_completed:", last_completed)
 
         if 'r' in item_hsh:
             ruls = []

@@ -195,6 +195,9 @@ class Views(object):
                 )
         self.items = {}
 
+        # FIXME: why not do all this in one update_views method?
+        # or maybe dispatch item to method(s) depending upon type and entries
+        # eg. task with jobs -> jobs, item with alerts -> alerts
         self.commands = dict(
                 update_index = self._update_index_view,
                 update_created = self._update_created_view,
