@@ -2,7 +2,10 @@
 
 from pprint import pprint
 import pendulum
-from pendulum import parse
+from pendulum import parse as pendulum_parse
+
+def parse(s, **kwd):
+    return pendulum_parse(s, strict=False, **kwd)
 
 from datetime import datetime
 
@@ -41,15 +44,13 @@ logger = logging.getLogger()
 
 etmdir = None
 
-# pendulum.set_formatter('alternative')
-# FIXME
 ampm = True
 
 testing = True
 # testing = False
 
 ETMFMT = "%Y%m%dT%H%M"
-ZERO = pendulum.interval(minutes=0)
+ZERO = pendulum.duration(minutes=0)
 
 # display characters 
 datedChar2Type = {
@@ -414,11 +415,11 @@ def deal_with_r(at_hsh={}):
 
     if '+' in item_hsh:
         for rdate in item_hsh['+']:
-            rrulelst.append("RDATE:{}".format(rdate.format(dtut_format, formatter='alternative')))
+            rrulelst.append("RDATE:{}".format(rdate.format(dtut_format)))
 
     if '-' in item_hsh:
         for exdate in item_hsh['-']:
-            rrulelst.append("EXDATE:{}".format(exdate.format(dtut_format, formatter='alternative')))
+            rrulelst.append("EXDATE:{}".format(exdate.format(dtut_format)))
 
     res = item_hsh['rrulestr'] = "\n".join(rrulelst)
     bot = "repetition rule:\n    {}\n".format(res)
@@ -659,7 +660,7 @@ def parse_datetime(s, z=None):
     try:
         res = parse(s, tz=tzinfo)
         if ok ==  'aware':
-            tz = res.format("zz", formatter='alternative')
+            tz = res.format("zz")
 
     except:
         return False, "Invalid date-time: '{}'".format(s), z
@@ -679,7 +680,7 @@ def timestamp(arg):
     >>> timestamp("13/16/16 2p")
     (False, 'invalid date-time: 13/16/16 2p')
     """
-    if type(arg) is pendulum.Pendulum:
+    if type(arg) is pendulum:
         return True, arg
     try:
         # res = parse(arg).strftime(ETMFMT)
@@ -729,21 +730,21 @@ def format_datetime(obj):
     """
     if type(obj) == datetime:
         obj = pendulum.instance(obj)
-    if type(obj) == pendulum.pendulum.Pendulum: 
+    if type(obj) == pendulum.DateTime: 
         if obj.tzinfo.abbrev == '-00':
             # naive
             if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
                 # date
-                return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
+                return True, format(obj.format("ddd MMM D YYYY"))
             else:
                 # naive datetime
-                return True, format(obj.format("ddd MMM D YYYY h:mmA", formatter='alternative'))
+                return True, format(obj.format("ddd MMM D YYYY h:mmA"))
         else:
             # aware
-            return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA z", formatter='alternative'))
+            return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA z"))
 
-    elif type(obj) == pendulum.pendulum.Date:
-        return True, format(obj.format("ddd MMM D YYYY", formatter='alternative'))
+    elif type(obj) == pendulum.Date:
+        return True, format(obj.format("ddd MMM D YYYY"))
 
     else:
         return False, "The argument must be a pendulum date or datetime."
@@ -754,7 +755,7 @@ def format_datetime_list(obj_lst):
 
 def format_interval(obj):
     """
-    >>> td = pendulum.interval(weeks=1, days=2, hours=3, minutes=27)
+    >>> td = pendulum.duration(weeks=1, days=2, hours=3, minutes=27)
     >>> format_interval(td)
     '1w2d3h27m'
     """
@@ -792,16 +793,16 @@ threeday_regex = re.compile(r'(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
 
 period_hsh = dict(
-    z=pendulum.Interval(seconds=0),
-    m=pendulum.Interval(minutes=1),
-    h=pendulum.Interval(hours=1),
-    d=pendulum.Interval(days=1),
-    w=pendulum.Interval(weeks=1),
+    z=pendulum.duration(seconds=0),
+    m=pendulum.duration(minutes=1),
+    h=pendulum.duration(hours=1),
+    d=pendulum.duration(days=1),
+    w=pendulum.duration(weeks=1),
         )
 
 def parse_interval(s):
     """\
-    Take a period string and return a corresponding pendulum interval.
+    Take a period string and return a corresponding pendulum.duration.
     Examples:
         parse_interval('-2w3d4h5m')= Interval(weeks=-2,days=3,hours=4,minutes=5)
         parse_interval('1h30m') = Interval(hours=1, minutes=30)
@@ -963,16 +964,16 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
     return "\n".join(tmp)
 
 
-def set_summary(s, dt=pendulum.Pendulum.now()):
+def set_summary(s, dt=pendulum.now()):
     """
     Replace the anniversary string in s with the ordinal represenation of the number of years between the anniversary string and dt.
-    >>> set_summary('!1944! birthday', pendulum.Pendulum(2017, 11, 19))
+    >>> set_summary('!1944! birthday', pendulum(2017, 11, 19))
     '73rd birthday'
-    >>> set_summary('!1978! anniversary', pendulum.Pendulum(2017, 11, 19))
+    >>> set_summary('!1978! anniversary', pendulum(2017, 11, 19))
     '39th anniversary'
     """
     if not dt:
-        dt = pendulum.Pendulum.now()
+        dt = pendulum.now()
 
     mtch = anniversary_regex.search(s)
     retval = s
@@ -1710,12 +1711,12 @@ def rrule_args(r_hsh):
 def item_instances(item, aft_dt, bef_dt=None):
     """
     Get instances from item falling on or after aft_dt and on or before bef_dt or, if bef_dt is None, the first instance after aft_dt. All datetimes will be returned with zero offsets.
-    >>> item_eg = { "s": parse('2018-03-07 8am'), "e": pendulum.interval(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "*" }
+    >>> item_eg = { "s": parse('2018-03-07 8am'), "e": pendulum.duration(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "*" }
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
     [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T23:59:59.999999+00:00]>), (<Pendulum [2018-03-08T00:00:00+00:00]>, <Pendulum [2018-03-08T13:00:00+00:00]>), (<Pendulum [2018-03-21T08:00:00+00:00]>, <Pendulum [2018-03-21T23:59:59.999999+00:00]>), (<Pendulum [2018-03-22T00:00:00+00:00]>, <Pendulum [2018-03-22T13:00:00+00:00]>)]
     >>> item_eg['+'] = [parse("20180311T1000")]
     >>> item_eg['-'] = [parse("20180311T0800")]
-    >>> item_eg['e'] = pendulum.interval(hours=2)
+    >>> item_eg['e'] = pendulum.duration(hours=2)
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
     [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T10:00:00+00:00]>), (<Pendulum [2018-03-11T10:00:00+00:00]>, <Pendulum [2018-03-11T12:00:00+00:00]>), (<Pendulum [2018-03-21T08:00:00+00:00]>, <Pendulum [2018-03-21T10:00:00+00:00]>)]
     >>> del item_eg['e']
@@ -1737,7 +1738,7 @@ def item_instances(item, aft_dt, bef_dt=None):
     if type(dts) == pendulum.pendulum.Date:
         # change to datetime at midnight on the same date
         dtstart = pendulum.create(year=dts.year, month=dts.month, day=dts.day, hour=0, minute=0, tz=None)
-    elif type(dts) == pendulum.pendulum.Pendulum:
+    elif type(dts) == pendulum.pendulum:
         # dtstart = dts.replace(tzinfo=None)
         dtstart = dts
         startdst = dtstart.dst()
@@ -2259,16 +2260,16 @@ class PendulumDateTimeSerializer(Serializer):
     This serialization discards both seconds and microseconds but preserves hours and minutes.
     """
 
-    OBJ_CLASS = pendulum.pendulum.Pendulum
+    OBJ_CLASS = pendulum.DateTime
 
     def encode(self, obj):
         """
         Serialize '-00' objects without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
         """
         if obj.tzinfo.abbrev == '-00':
-            return obj.format('YYYYMMDDTHHmm[N]', formatter='alternative')
+            return obj.format('YYYYMMDDTHHmm[N]')
         else:
-            return obj.in_timezone('UTC').format('YYYYMMDDTHHmm[A]', formatter='alternative' )
+            return obj.in_timezone('UTC').format('YYYYMMDDTHHmm[A]')
 
     def decode(self, s):
         """
@@ -2284,7 +2285,7 @@ class PendulumDateSerializer(Serializer):
     """
     This class handles pendulum date objects.
     """
-    OBJ_CLASS = pendulum.pendulum.Date
+    OBJ_CLASS = pendulum.Date
 
     def encode(self, obj):
         """
@@ -2301,9 +2302,9 @@ class PendulumDateSerializer(Serializer):
 
 class PendulumIntervalSerializer(Serializer):
     """
-    This class handles pendulum interval (timedelta) objects.
+    This class handles pendulum.duration (timedelta) objects.
     """
-    OBJ_CLASS = pendulum.Interval
+    OBJ_CLASS = pendulum.duration
 
     def encode(self, obj):
         """
@@ -2342,7 +2343,7 @@ def iso_year_start(iso_year):
     <Date [2018-01-01]>
     """
     fourth_jan = pendulum.date(iso_year, 1, 4)
-    delta = pendulum.interval(fourth_jan.isoweekday()-1)
+    delta = pendulum.duration(fourth_jan.isoweekday()-1)
     return (fourth_jan - delta)
 
 
@@ -2353,13 +2354,13 @@ def iso_to_gregorian(ywd):
     <Date [2018-02-14]>
     """
     year_start = iso_year_start(ywd[0])
-    return year_start + pendulum.interval(days=ywd[2]-1, weeks=ywd[1]-1)
+    return year_start + pendulum.duration(days=ywd[2]-1, weeks=ywd[1]-1)
 
 
 def getWeekNum(dt):
     """
     Return the year and week number for the datetime.
-    >>> getWeekNum(pendulum.Pendulum(2018, 2, 14, 10, 30))
+    >>> getWeekNum(pendulum(2018, 2, 14, 10, 30))
     (2018, 7)
     >>> getWeekNum(pendulum.date(2018, 2, 14))
     (2018, 7)
@@ -2372,7 +2373,7 @@ def nextWeek(yw):
     >>> nextWeek((2015,53))
     (2016, 1)
     """
-    return (iso_to_gregorian((*yw, 7)) + pendulum.interval(days=1)).isocalendar()[:2]
+    return (iso_to_gregorian((*yw, 7)) + pendulum.duration(days=1)).isocalendar()[:2]
 
 
 def prevWeek(yw):
@@ -2380,7 +2381,7 @@ def prevWeek(yw):
     >>> prevWeek((2016,1))
     (2015, 53)
     """
-    return (iso_to_gregorian((*yw, 1)) - pendulum.interval(days=1)).isocalendar()[:2]
+    return (iso_to_gregorian((*yw, 1)) - pendulum.duration(days=1)).isocalendar()[:2]
 
 
 def nextMonthWeeks(yw_lst):
@@ -2389,7 +2390,7 @@ def nextMonthWeeks(yw_lst):
     >>> nextMonthWeeks([(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)])
     [(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)]
     """
-    return getMonthWeeks(iso_to_gregorian((*yw_lst[-1], 7)) + pendulum.interval(days=1))
+    return getMonthWeeks(iso_to_gregorian((*yw_lst[-1], 7)) + pendulum.duration(days=1))
 
 
 def prevMonthWeeks(yw_lst):
@@ -2398,7 +2399,7 @@ def prevMonthWeeks(yw_lst):
     >>> prevMonthWeeks([(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)])
     [(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)]
     """
-    return getMonthWeeks(iso_to_gregorian((*yw_lst[0], 1)) - pendulum.interval(days=1))
+    return getMonthWeeks(iso_to_gregorian((*yw_lst[0], 1)) - pendulum.duration(days=1))
 
 
 def getWeeks(dt, bef=0, aft=0):
@@ -2409,15 +2410,15 @@ def getWeeks(dt, bef=0, aft=0):
     >>> getWeeks(datetime(2015, 10, 3))
     [(2015, 40)]
     """
-    beg_dt = dt - bef * pendulum.interval(days=7)
-    end_dt = dt + aft * pendulum.interval(days=7)
+    beg_dt = dt - bef * pendulum.duration(days=7)
+    end_dt = dt + aft * pendulum.duration(days=7)
     beg_yw = beg_dt.isocalendar()[:2]
     end_yw = end_dt.isocalendar()[:2]
     ret = [beg_yw]
     tmp_dt = beg_dt
     tmp_yw = beg_yw
     while tmp_yw < end_yw:
-        tmp_dt = tmp_dt + pendulum.interval(days=7)
+        tmp_dt = tmp_dt + pendulum.duration(days=7)
         tmp_yw = tmp_dt.isocalendar()[:2]
         ret.append(tmp_yw)
     return ret
@@ -2441,14 +2442,14 @@ def getMonthWeeks(dt, bef=0, aft=0):
     tmp = dt.replace(day=1)
     for i in range(bef):
         # get the first day of the previous month
-        tmp = (tmp - pendulum.interval(days=1)).replace(day=1)
+        tmp = (tmp - pendulum.duration(days=1)).replace(day=1)
     firstmonthday = tmp
 
     # get a date from the next month
-    tmp = dt.replace(day=28) + pendulum.interval(days=4)
+    tmp = dt.replace(day=28) + pendulum.duration(days=4)
     for i in range(aft):
-        tmp = tmp.replace(day=28) + pendulum.interval(days=4)
-    lastmonthday = tmp - pendulum.interval(days=tmp.day)
+        tmp = tmp.replace(day=28) + pendulum.duration(days=4)
+    lastmonthday = tmp - pendulum.duration(days=tmp.day)
 
     by, bw, bd = firstmonthday.isocalendar()
     ey, ew, ed = lastmonthday.isocalendar()
@@ -2458,7 +2459,7 @@ def getMonthWeeks(dt, bef=0, aft=0):
     day = firstmonthday
     while day <= lastweekday:
         ret.append((y,w))
-        day = day + pendulum.interval(days=7)
+        day = day + pendulum.duration(days=7)
         y, w, d = day.isocalendar()
     return ret
 
@@ -2499,14 +2500,14 @@ def drop_zero_minutes(dt):
     """
     if dt.minute == 0:
         if ampm:
-            return dt.format("h", formatter='alternative')
+            return dt.format("h")
         else:
-            return dt.format("H", formatter='alternative')
+            return dt.format("H")
     else:
         if ampm:
-            return dt.format("h:mm", formatter='alternative')
+            return dt.format("h:mm")
         else:
-            return dt.format("H:mm", formatter='alternative')
+            return dt.format("H:mm")
 
 def fmt_extent(beg_dt, end_dt):
     """
@@ -2522,9 +2523,9 @@ def fmt_extent(beg_dt, end_dt):
 
     if ampm:
         diff = beg_dt.hour < 12 and end_dt.hour >= 12
-        end_suffix = end_dt.format("A", formatter='alternative').lower()
+        end_suffix = end_dt.format("A").lower()
         if diff:
-            beg_suffix = beg_dt.format("A", formatter='alternative').lower()
+            beg_suffix = beg_dt.format("A").lower()
 
     beg_fmt = drop_zero_minutes(beg_dt)
     end_fmt = drop_zero_minutes(end_dt)
@@ -2578,19 +2579,22 @@ def item_details(item):
 
 def fmt_week(dt_obj):
     """
-    >>> fmt_week(pendulum.parse('2018-03-06 9:30pm'))
+    >>> d = parse('2018-03-06 9:30pm', tz='US/Eastern')
+    >>> d
+    DateTime(2018, 3, 6, 21, 30, 0, tzinfo=Timezone('US/Eastern'))
+    >>> fmt_week(d)
     '2018 Week 10: Mar 5 - 11'
     """
     dt_year = dt_obj.year
     dt_week = dt_obj.week_of_year
-    year_week = f"{dt_year} Week {dt_week}"
+    # year_week = f"{dt_year} Week {dt_week}"
     wkbeg = pendulum.parse(f"{dt_year}W{str(dt_week).rjust(2, '0')}")
     wkend = pendulum.parse(f"{dt_year}W{str(dt_week).rjust(2, '0')}-7")
-    week_begin = wkbeg.format("MMM D", formatter='alternative')
+    week_begin = wkbeg.format("MMM D")
     if wkbeg.month == wkend.month:
-        week_end = wkend.format("D", formatter='alternative')
+        week_end = wkend.format("D")
     else:
-        week_end = wkend.format("MMM D", formatter='alternative')
+        week_end = wkend.format("MMM D")
     return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
 
 
@@ -2605,7 +2609,7 @@ def schedule(weeks_bef=1, weeks_aft=2):
     for item in db:
         if item['itemtype'] in "!?" or 's' not in item:
             continue
-        # if type(item['s']) == pendulum.Pendulum and 'e' in item:
+        # if type(item['s']) == pendulum and 'e' in item:
         #     rhc = fmt_extent(item['s'], item['s'] + item['e']).center(16, ' ')
         #     # rhc = fmt_extent(beg_ends(item['s'], item['e'])[0]).center(16, ' ')
         #     # rhc = item['s'].format("h:mmA", formatter="alternative")
@@ -2639,8 +2643,8 @@ def schedule(weeks_bef=1, weeks_aft=2):
     rows.sort(key=itemgetter('sort'))
 
     for week, items in groupby(rows, key=itemgetter('week')):
-        wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}").date().format("MMM D", formatter='alternative')
-        wkend = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}-7").date().format("MMM D", formatter='alternative')
+        wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}").date().format("MMM D")
+        wkend = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}-7").date().format("MMM D")
 
         print(f"{week[0]} Week {week[1]}: {wkbeg} - {wkend}")
         for day, columns in groupby(items, key=itemgetter('day')):

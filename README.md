@@ -1,9 +1,7 @@
 # What's planned for the next etm?
-**Last modified: Tue Mar 20, 2018 10:53AM EDT**
+**Last modified: Tue Jul 10, 2018 06:56PM EDT**
 
 # Goals
-
-- Provide a means for migrating existing etm data to the new format.
 
 - Simplify code. Refactor, document code and add doc tests - make the code more easilty maintainable. See [Item Types](#item-types), [Dates and Date Times](#dates-and-date-times) and [Jobs](#jobs). 
 
@@ -12,6 +10,45 @@
 - Simplify data entry. Provide "just in time" information when creating or editing data entries. See [Work Flow](#work-flow). 
 
 - Provide a simpler, terminal-based GUI using *urwid* along with a CLI that allows creating items and reports from the command line. 
+
+- Provide a means for migrating existing etm data to the new format.
+
+# Menus
+
+- Views
+    - a: agenda
+    - b: busy
+    - d: done
+    - m: month
+    - n: next
+    - s: someday
+    - i: index
+    - h: history
+    - t: tags
+    - f: set filter
+    - l: set level
+    - c: set calendars
+- Selected Item
+    - C: copy
+    - D: delete
+    - E: edit
+    - F: finish
+    - R: reschedule
+    - S: schedule new
+    - I: export ical
+    - L: open link
+    - T: timer
+- Tools
+    - A: show alerts
+    - J: jump to date
+    - N: new item
+    - P: preferences
+    - Q: query
+    - V: view as text
+    - F2: date calculator
+    - F3: yearly
+    - F8: quit
+
 
 # Data
 
@@ -26,10 +63,10 @@
 
 - The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* terminology. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
 - The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
-- The old `%`, *delegated*, item type is eliminated. The functionality is replaced by using an `@n`, *delegate name*, entry to indicate that the task has been delegated to that person. When displaying delegated tasks, the name followed by a colon is prepended to the task summary.
+- The old `%`, *delegated*, item type is eliminated. An option would be to prepend the name of the person to whom a task is delegated to the task summary. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
 - The old `@c`, *context*, for tasks has been merged into *location*, `@l`. 
-- The `@c` entry is now used to denote the *calendar* to which the item belongs. I use calendars named `dag` (me), `erp` (wife) and `shared`. My default is to display `dag` and `shared` and to assign `dag` to items without an `@c` entry. 
-- Display characters for tasks and jobs including (delegated) ones with `@u` entries:
+- The `@c` entry is now used to denote the *calendar* to which the item belongs. E.g., I use calendars named `dag` (me), `erp` (wife) and `shared`. My default is to display `dag` and `shared` and to interpret items without an `@c` entry as belonging to `dag`. 
+- Display characters for tasks and jobs:
 
     - `x`: finished task or job
     - `-`: unfinished task or job without unfinished prerequisites
@@ -45,8 +82,8 @@ Unchanged but for the change in the type character from `!` to `%`. An entry for
 ### `~`: action
 
   - In an *action*, `@s` records the datetime that the action was started, `@e` the timeperiod that the work on the action was active and `@f` the datetime that the action was finished. The timeperiod that work on the action was inactive is given implicitly by `finished` minus `started` minus `active`. 
-  - Each action is displayed in the *Done* view on the date of `finished` using the display character `$`, the item summary, the time of `finished` and the `timeperiod active`.
-  - It is **strongly recommended** that actions should have `@i`, *index*, entry since accounting reports which aggregate time expenditures are based on the index entries. Default reports suppose that index entries for actions take the form `client:job` and show aggregates for the previous and current months by 
+  - Each action is displayed in the *Done* view on the `finished` date using the display character `~`, the item summary, the `finished` time and the `timeperiod active`.
+  - It is **strongly recommended** that actions should be given an `@i`, *index*, entry since accounting reports which aggregate time expenditures are based on the index entries. Default reports suppose that index entries for actions take the form `client:job` and show aggregates for the previous and current months by 
 
         month
           client
@@ -56,7 +93,7 @@ Unchanged but for the change in the type character from `!` to `%`. An entry for
 
       - Begin:
           - Either select an item (event, task, note or existing action) on which the action should be based. The summary and `@i` entry from the item will be used for the new action.
-          - Or create a new item with the action type character `$` and a summary for the new action. An `@i` entry is recommended but can be added later. 
+          - Or create a new item with the action type character `~` and a summary for the new action. An `@i` entry is recommended but can be added later. Save and select the new action.
       - Start the timer.
       - Pause/resume the timer as often as desired.
       - Finish the timer to record the action. The entry will contain:
@@ -68,11 +105,11 @@ Unchanged but for the change in the type character from `!` to `%`. An entry for
 
 ### `?`: someday
 
-Unchanged. An entry for `@s` is not allowed
+Unchanged.
 
 ### `!`: inbox
 
-Unchanged but for the change in the type character from `$` to `!`. An entry for `@s` is optional.
+Unchanged but for the change in the type character from `$` to `!`.
 
 ### Defaults
 
@@ -115,14 +152,13 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
     c: calendar: string,
     d: description: string,
     e: extent: timeperiod,
-    f: finish: datetime,
+    f: finished: datetime,
     g: goto: string (url or filepath),
-    h: history: list of completion datetimes)
+    h: history: list of (done:due datetimes)
     i: index: colon delimited string,
     j: job summary: string,
     l: location/context: string,
     m: memo: string,
-    n: named delegate: string,
     o: overdue: character from (r)estart, (s)kip or (k)eep),
     p: priority: integer,
     r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
@@ -136,16 +172,16 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 ### `@r`:
       c: count: integer number of repetitions,
-      E: easter: number of days before (-), on (0) or after (+) Easter,
+      d: monthday: list of integers 1 ... 31,
+      e: easter: number of days before (-), on (0) or after (+) Easter,
       h: hour: list of integers in 0 ... 23,
       i: interval: positive integer,
-      m: monthday: list of integers 1 ... 31,
-      M: month: list of integers in 1 ... 12,
+      m: month: list of integers in 1 ... 12,
       n: minute: list of integers in 0 ... 59,
       s: set position: integer,
-      u: until: datetime,
-      w: weekday: list from SU, MO, ..., SA possibly prepended with a
-            positive or negative integer,
+      u: until: datetime (&u takes precedence over &c),
+      w: weekday: list from SU, MO, ..., SA possibly prepended with 
+         a positive or negative integer,
 
 ### `@j`:
       a: alert: (list of timeperiods[: cmd[, list of cmd args]]),
@@ -156,9 +192,9 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
       i: unique id: integer or string,
       l: location/context: string,
       m: memo: string,
-      n: named delegate (string),
-      p: prerequisites (comma separated list of 
-            ids of immediate prereqs),
+      n: delegate name (string),
+      p: prerequisites (comma separated list of ids of immediate
+         prereqs),
       s: start/due: timeperiod relative to @s entry (default 0m),
 
 
@@ -166,26 +202,29 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 - All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable - not easily anyway.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
 
-      "20100308190247362888": {
-        "c": "shared",
-        "itemtype": "*",
-        "r": [
-          {
-          "M": "3",
-          "r": "y",
-          "w": "2SU"
+        "2756": {
+          "c": "shared",
+          "created": "20180301T1537",
+          "itemtype": "*",
+          "modified": "20180301T1537",
+          "r": [
+            {
+            "m": "3",
+            "r": "y",
+            "w": "2SU"
+            }
+          ],
+          "s": "{D}:20180310",
+          "summary": "Daylight saving time begins"
           }
-        ],
-        "s": "{D}:20100314",
-        "summary": "Daylight saving time begins"
-        }
 
-    corresponding to the entry:
+    corresponding to creating the entry:
 
-      * Daylight saving time begins @s 2010-03-14 @r y &M 3 &w 2SU @c shared
+        * Daylight saving time begins @s 2018-03-10 @r y &M 3 &w 2SU @c shared
 
-- Two timestamps are automatically created for each item, one corresponding to the moment (microsecond) the item was created and the other to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. 
-- The creation timestamp is used as the unique identifier for the item in the data store and is accessed as `item.eid`. 
+    on March 1, 2018 at 15:37 UTC. The unique identifier, `2756`, is created automatically by *TinyDB*.
+
+- Two timestamps are automatically created for items, one, `created`, corresponding to the moment the item was created and another, `modified`, corresponding to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. 
 - The hierarchical organization that was provided by file paths is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry `@i plant:tree:oak` would store the item in the *index* view under:
     - plant
         - tree
@@ -204,14 +243,15 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 - Fuzzy parsing of entries is suppored.
 
 - Storage: 
-  - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and interval storage. *Pendulum* date,  datetime and interval objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date,  datetime and interval objects when retrieved by etm. 
-  - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
-  - Examples
-    - The date `2018/1/5` would be serialized as `{D}:20180105`.
-    - The datetime `2018/1/5 2pm` would be serialized either as `{T}:20180105T1400A` or `{T}:20180105T1400N`, depending upon the `@z` entry for the item. Details in the next bullet.
-    - The interval `1 day 2 hours 13 minutes` would be serialized as `{I}:1d2h13m`. 
-  - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
-  - Naive dates and datetimes are not converted. 
+
+    - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and interval storage. *Pendulum* date,  datetime and interval objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date,  datetime and interval objects when retrieved by etm. 
+    - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
+    - Examples
+        - The date `2018/1/5` would be serialized as `{D}:20180105`.
+        - The datetime `2018/1/5 2pm` would be serialized either as `{T}:20180105T1400A` or `{T}:20180105T1400N`, depending upon the `@z` entry for the item. Details in the next bullet.
+        - The interval `1 day 2 hours 13 minutes` would be serialized as `{I}:1d2h13m`. 
+    - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
+    - Naive dates and datetimes are not converted. 
 
 - The format for the `@s` entry is `date|datetime`. In the following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern.
 
@@ -238,7 +278,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
       * my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
 
-    would repeat at 3pm on Thu Feb 15, 4pm on Fri Mar 2 and 9am on Mon Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are all used.
+    would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used.
 
 - The *relevant datetime* of an item (used, e.g., in index view): 
   - Non-repeating events and non-repeating unfinished tasks: the datetime given in `@s`
@@ -286,7 +326,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
             @j job b &i b
             @j job c &i 3 &p a, b
 
-    Neither `job a` nor `job b` have any prerequisites but `job a` and `job b` are both prerequistes for `job c`. Note that the order in which the jobs are listed is ignored in this case. 
+    Neither `job a` nor `job b` have any prerequisites but `job a` and `job b` are both prerequistes for `job c`. Note that the order in which the jobs are listed is irrelevant in this case. 
 
 - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
@@ -294,7 +334,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
           - manually assigned [1/1/1]: job b
           + manually assigned [1/1/1]: job c
 
-  would indicate that `job a` is *finished*, `job b` is *available* (has no unfinished prerequistites) and that `job c` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, active and waiting jobs, respectively.
+  would indicate that `job a` is *finished*, `job b` is *available* (has no unfinished prerequistites) and that `job c` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, available and waiting jobs, respectively.
 
 # Views
 
@@ -316,7 +356,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         | Mon Jan 15                                                 |  2
         |   * Martin Luther King Day                                 |  3
         |   * Lunch with Joe                            12:30-1:30pm |  4
-        |   - Revise 1st quarter schedule                    3pm     |  5
+        |   - Revise 1st quarter schedule                 3pm  1h    |  5
         | Thu Jan 18 - Today                                         |  6
         |   < Revise 1st quarter schedule                    3d      |  7
         |   > Duke vs Pitt                                   2d      |  8
@@ -346,9 +386,8 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +------------------------------------------------------------+
 
 - The top title bar shows the selected week.
-- The bottom status bar shows current time, the next alarm and the number of remaining alarms for the current date.
 - The main panel shows scheduled items grouped and sorted by date and time.
-- Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the displayould show "Nothing scheduled". E.g, 
+- Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the displayould shows "Nothing scheduled". E.g, 
 
         Week 2: Jan 8 - 14, 2018                            F1:Help
           Nothing scheduled
@@ -370,14 +409,14 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
         Note that the items included for the current date are those from the old *agenda* view.
 
-    - Scheduled events, notes, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events and tasks with *extent*, the ending time is also displayed. Each item is highlighted using the type color for that item.
+    - Scheduled events, notes, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events with *extent*, the ending time is also displayed. For tasks with *extent*, the extent period is also displayed. Each item is highlighted using the type color for that item.
     - Unfinished all day tasks, if any, highlighted using the task color.
     - All day notes, if any, using the note color.
 
 ### Busy
 
 - Hours in the day that are partially or wholly "busy" are marked with `#`.
-- Hours in which a conflict occurs are marked with `XXX`.
+- Hours in which a conflict occurs are marked with `###`.
 - The total number of minutes scheduled for the days are given at the bottom of the day columns.
 
         +----------------------------------------------------------+
@@ -398,7 +437,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |          .      #      .      .      .      #      .     | 14
         |          .      #      .      #      .      #      #     | 15
         |    12p   #      .      .      #      .      #      #     | 16
-        |          #      .      .     XXX     .      #      #     | 17
+        |          #      .      .     ###     .      #      #     | 17
         |          .      .      .      #      .      .      #     | 18
         |          .      .      .      .      .      .      #     | 19
         |          #      .      .      .      .      .      .     | 20
@@ -410,7 +449,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |          .      .      .      .      .      .      .     | 26
         |    12a   .      .      .      .      .      .      .     | 27
         |        -----------------------------------------------   | 28
-        |  total  320    120    210    180     90    320    250    | 29
+        | minutes 320    120    210    180     90    320    250    | 29
         +----------------------------------------------------------+
         | 8:49am Thu Jan 18                              10:30am+1 | 30
         +----------------------------------------------------------+
@@ -419,13 +458,13 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 ### Done
 
 - Actions and finished tasks grouped and sorted by week and day using the finished datetime
-- Actions are displayed with type character `$`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
+- Actions are displayed with type character `~`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
 
         +------------------------- top bar ------------------------+
         | Done - Week 3: Jan 15 - 21, 2018                 F1:help |
         +----------------------------------------------------------+
         | Mon Jan 15                                               |
-        |   $ report summary                          4:29pm - 47m |
+        |   ~ report summary                          4:29pm   47m |
         |   x report summary                             4:30pm    | 
 
 
@@ -435,6 +474,14 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 - Week numbers and month day numbers in the top panel are buttons. Activating a week number switches to *Agenda* view for that week. Activating a date displayes the schedule for that date in the bottom pane using the same format as *Agenda* view. Switching to one of the weekly views will always display the week of the selected date. 
 
+  Dates with busy periods are coded:
+
+    - night: 12am - 6am:    #___
+    - morning 6am-12pm:     _#__
+    - afternoon 12pm - 6pm: __#_
+    - evening 6pm - 12am:   ___#
+
+  These can be combined. E.g., Aug 1 below shows events scheduled for both  morning and evening: `_#_#`.
 
         +----------------------------------------------------------+
         | Monthly - August 2017                            F1:help |  1
@@ -442,25 +489,25 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |   Wk     Mo     Tu     We     Th     Fr     Su     Su    |  2
         |  ----+-------------------------------------------------  |  3
         |   31 |   31      1      2      3      4      5      6    |  4
-        |      |                                                   |  5
-        |   32 |    7      8      9     10     11     12     13    |  6
-        |      |                                                   |  7
-        |   33 |   14     15     16     17     18     19     20    |  8
+        |      |         _#_#                                      |  5
+        |      |                                                   |  6
+        |   32 |    7      8      9     10     11     12     13    |  7
+        |      |                                                   |  8
         |      |                                                   |  9
-        |   34 |   21     22     23     24     25     26     27    | 10
+        |   33 |   14     15     16     17     18     19     20    | 10
         |      |                                                   | 11
-        |   35 |   28    [29]    30     31      1      2      3    | 12
-        |      |                                                   | 13
-        |   36 |    4      5      6      7      8      9     10    | 14
-        +------+---------------------------------------------------+ 15
-        | Tue Aug 29 2017                                          | 16
-        |   Nothing scheduled                                      | 17
-        |                                                          | 18
-        |                                                          | 19
-        |                                                          | 20
-        |                                                          | 21
-        |                                                          | 22
-        |                                                          | 23
+        |      |                                                   | 12
+        |   34 |   21     22     23     24     25     26     27    | 13
+        |      |                                                   | 14
+        |      |                                                   | 15
+        |   35 |   28    [29]    30     31      1      2      3    | 16
+        |      |                                                   | 17
+        |      |                                                   | 18
+        |   36 |    4      5      6      7      8      9     10    | 19
+        |      |                                                   | 20
+        +------+---------------------------------------------------+ 21
+        | Tue Aug 29 2017                                          | 22
+        |   Nothing scheduled                                      | 23
         |                                                          | 24
         |                                                          | 25
         |                                                          | 26 
@@ -528,11 +575,11 @@ Someday items grouped and sorted by the last modified datetime.
 
 ### Orignally Created
 
-All items, sorted by the datetime created and grouped by year and month.
+All items, sorted by the datetime created.
 
 ### Last Modified
 
-All items, sorted by the datetime last modified and grouped by year and month.
+All items, sorted by the datetime last modified.
 
 ## Tags
 
@@ -556,6 +603,10 @@ Analagous to the old custom view. Used to issue queries against the data store a
         |   @j Job A &s 4w &b 2 &i 1 &a 2d: m &a 2d: v             |
         |   @j Job B &s 2w &b 3 &i 2 &p 1 &a 2d: m &a 2d: v        |
         |   @j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v        |
+        |                                                          |
+        | created:  20160601T1400                                  |
+        | modified: 20160601T1400                                  |
+        |                                                          |
 
 
 - When `Shift-E` (edit), `Shift-D` (delete) or `Shift-C` (copy) is pressed and the item is repeating then select the appropriate instances with these check  boxes: 

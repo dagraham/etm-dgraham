@@ -48,16 +48,16 @@ menu1 = [
 
 menu2 = [
     "-- SELECTED ITEM ---------------------------------- ",
-    "E: edit          R: reschedule     K: klone item    ",
-    "D: delete        S: schedule new   T: start timer   ",
-    "F: finish        O: open link      X: export ical   ",
+    "C: copy          F: finish         I: export ical   ",
+    "D: delete        R: reschedule     L: open link     ",
+    "E: edit          S: schedule new   T: start timer   ",
     ]
 
 menu3 = [
     "-- TOOLS ------------------------------------------ ",
-    "N: new item      Q: query          F2: date calc    ",
-    "J: jump to date  C: copy view      F3: yearly       ",
-    "A: alerts        P: preferences    F8: quit         ",
+    "A: show alerts   P: preferences    F2: date calc    ",
+    "J: jump to date  Q: query          F3: yearly       ",
+    "N: new item      V: view as text   F8: quit         ",
 ]
 
 menu_text = [
@@ -195,7 +195,7 @@ class View:
 
     @classmethod
     def refresh(cls, *args):
-        now = pendulum.Pendulum.now()
+        now = pendulum.now()
         nxt = 60 - now.second
         cls.loop.set_alarm_in(nxt, cls.refresh)
         td = now.date()
@@ -206,8 +206,8 @@ class View:
             if yw != cls.this_week:
                 cls.this_week = yw
                 cls.new_week()
-        t = now.format("h:mmA", formatter='alternative').lower()
-        d = now.format("ddd MMM D", formatter='alternative')
+        t = now.format("h:mmA").lower()
+        d = now.format("ddd MMM D")
         cls.set_footer(cls, text1="{} {}".format(t, d))
 
     @classmethod
@@ -219,7 +219,7 @@ class View:
         cls.set_footer("new week")
 
     @classmethod
-    def set_selected_dates(cls, dt=pendulum.Pendulum.today().date()):
+    def set_selected_dates(cls, dt=pendulum.today().date()):
         cls.selected_day = dt
         cls.selected_week = dt.isocalendar()[:2]
         cls.selected_month = (dt.year, dt.month)
