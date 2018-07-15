@@ -3,7 +3,7 @@
 import json
 import pendulum
 from pendulum import parse
-pendulum.set_formatter('alternative')
+# pendulum.set_formatter('alternative')
 
 # from dateutil.tz import gettz, tzutc, tzlocal
 
@@ -17,7 +17,6 @@ from model import load_tinydb
 testing = True
 # testing = False
 
-pendulum.set_formatter('alternative')
 
 short_dt_fmt = "YYYY-MM-DD HH:mm"
 
@@ -255,7 +254,7 @@ class Views(object):
             # update year month - this will run on init since self.yearmonth is None
             self.yearmonth = yearmonth
             # get the first day of the current month
-            n_beg = pendulum.create(year=yearmonth[0], month=yearmonth[1], day=1, hour=0, minute=0, second=0, microsecond=0)
+            n_beg = pendulum.DateTime(year=yearmonth[0], month=yearmonth[1], day=1, hour=0, minute=0, second=0, microsecond=0)
             # get the first day of the month bef_months before
             b = n_beg.subtract(months=self.bef_months)
             # get the first day of the month aft_months after
@@ -523,7 +522,7 @@ class Views(object):
         busy = []
         # FIXME deal with jobs: skip finished, add available and waiting
         # only for the next instance
-        if type(item['s']) == pendulum.pendulum.Date:
+        if type(item['s']) == pendulum.Date:
             # all day item
             it = item['itemtype']
             if it == '*':

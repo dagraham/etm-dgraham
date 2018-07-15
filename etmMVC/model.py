@@ -1735,16 +1735,18 @@ def item_instances(item, aft_dt, bef_dt=None):
     dts = item['s']
     if type(dts) in [list, tuple]:
         dts = dts[0]
-    if type(dts) == pendulum.pendulum.Date:
+    if type(dts) == pendulum.Date:
         # change to datetime at midnight on the same date
-        dtstart = pendulum.create(year=dts.year, month=dts.month, day=dts.day, hour=0, minute=0, tz=None)
-    elif type(dts) == pendulum.pendulum:
+        dtstart = pendulum.DateTime(year=dts.year, month=dts.month, day=dts.day, hour=0, minute=0, tz=None)
+    elif type(dts) == pendulum.DateTime:
         # dtstart = dts.replace(tzinfo=None)
         dtstart = dts
         startdst = dtstart.dst()
     else:
         dtstart = dts[0]
 
+    dtstart = dts.replace(tzinfo=None)
+    print('dtstart', dtstart)
     if 'r' in item:
         lofh = item['r']
         rset = rruleset()
@@ -1763,7 +1765,7 @@ def item_instances(item, aft_dt, bef_dt=None):
 
         if '-' in item:
             for dt in item['-']:
-                if type(dt) == pendulum.pendulum.Date:
+                if type(dt) == pendulum.Date:
                     pass
                 elif dt.dst() and not startdst:
                     dt = dt + dt.dst()
@@ -1792,6 +1794,7 @@ def item_instances(item, aft_dt, bef_dt=None):
 
     else:
         # dtstart >= aft_dt
+        print(aft_dt, bef_dt, dtstart)
         if bef_dt is None:
             instances = [dtstart] if dtstart > aft_dt else []
         else:
@@ -2276,9 +2279,11 @@ class PendulumDateTimeSerializer(Serializer):
         Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object. If the serialization ends with 'N', returning without conversion as a naive datetime object.
         """
         if s[-1] == 'A':
-            return pendulum.from_format(s[:-1], '%Y%m%dT%H%M', 'UTC').in_timezone('local')
+            # return pendulum.from_format(s[:-1], '%Y%m%dT%H%M', 'UTC').in_timezone('local')
+            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'UTC').in_timezone('local')
         else:
-            return pendulum.from_format(s[:-1], '%Y%m%dT%H%M', 'Factory')
+            # return pendulum.from_format(s[:-1], '%Y%m%dT%H%M', 'Factory')
+            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'Factory')
 
 
 class PendulumDateSerializer(Serializer):
@@ -2297,7 +2302,7 @@ class PendulumDateSerializer(Serializer):
         """
         Return the serialization as a date object.
         """
-        return pendulum.from_format(s, '%Y%m%d').date()
+        return pendulum.from_format(s, 'YYYYMMDD').date()
 
 
 class PendulumIntervalSerializer(Serializer):

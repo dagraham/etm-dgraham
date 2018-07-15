@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Jul 10, 2018 06:56PM EDT**
+**Last modified: Thu Jul 12, 2018 07:38AM EDT**
 
 # Goals
 
@@ -57,7 +57,7 @@
 ### `*`: event
 
 - The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
-- The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See  [Dates and Date Times](#dates-and-date-times).
+- The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See  [Dates, Date Times and Time Periods](#dates,-date-times-and-time-periods).
 
 ### `-`: task
 
