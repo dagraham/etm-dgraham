@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Jul 12, 2018 07:38AM EDT**
+**Last modified: Sun Jul 22, 2018 01:06PM EDT**
 
 # Goals
 
@@ -111,11 +111,11 @@ Unchanged.
 
 Unchanged but for the change in the type character from `$` to `!`.
 
-### Defaults
+### Expansions
 
-The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *extraction key*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *extractions*:
+The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *expansion key*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
-        extractions = {
+        expansions = {
           'class': {
             'e': '1h15m',
             'a': '10m, 3m: d',
@@ -143,6 +143,8 @@ would be equivalent to entering
 
 The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for the event but the default for `@l` has been overridden by the explicit entry.
 
+Note that changing `expansions` will only affect items created/modified after the change. When an item is saved, the actual expansion is used to replace the key. 
+
 ## @-keys
 
     +: include: list of date-times to include,
@@ -165,13 +167,13 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
          (d)aily, (h)ourly, mi(n)utely,
     s: starting: date or datetime,
     t: tags: list of strings,
-    x: extraction key: string,
+    x: expansion key: string,
     z: timezone: string,
 
 ## &-keys
 
 ### `@r`:
-      c: count: integer number of repetitions,
+      c: count: integer number of repetitions (See Count versus Until below),
       d: monthday: list of integers 1 ... 31,
       e: easter: number of days before (-), on (0) or after (+) Easter,
       h: hour: list of integers in 0 ... 23,
@@ -179,7 +181,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
       m: month: list of integers in 1 ... 12,
       n: minute: list of integers in 0 ... 59,
       s: set position: integer,
-      u: until: datetime (&u takes precedence over &c),
+      u: until: datetime (See Count versus Until below),
       w: weekday: list from SU, MO, ..., SA possibly prepended with 
          a positive or negative integer,
 
@@ -198,15 +200,27 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
       s: start/due: timeperiod relative to @s entry (default 0m),
 
 
+### Count versus Until 
+
+Specifying both `&c` and `&u` in an `@r` entry is not allowed. If both are given, `&u` is used and `&c` is ignored.
+
+A distinction between *count* and *until* is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday  and repeats daily using either `&c` or `&u`:
+
+  - Using *count*: `@s mon 10am @r d &c 5`
+  - Using *until*: `@s mon 10am @r d &u fri 10a`
+
+Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises is you later decided to delete one of the instances, say the one falling on Wednesday. With *count*, you will have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* so that the requirement for a count of five instances is maintained. With *until*, you will have only the four instances on Monday, Tuesday, Thursday and Friday so that the requirement that the last instance falls on or before 10am Friday is maintained.
+
+
 ## Storage
 
 - All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable - not easily anyway.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
 
         "2756": {
           "c": "shared",
-          "created": "20180301T1537",
+          "created": "20180301T1537A",
           "itemtype": "*",
-          "modified": "20180301T1537",
+          "modified": "20180301T1537A",
           "r": [
             {
             "m": "3",
@@ -222,9 +236,9 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
         * Daylight saving time begins @s 2018-03-10 @r y &M 3 &w 2SU @c shared
 
-    on March 1, 2018 at 15:37 UTC. The unique identifier, `2756`, is created automatically by *TinyDB*.
+    which was created (and last modified) on March 1, 2018 at 15:37 UTC. The unique identifier, `2756`, is created automatically by *TinyDB*.
 
-- Two timestamps are automatically created for items, one, `created`, corresponding to the moment the item was created and another, `modified`, corresponding to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. 
+- Two timestamps are automatically created for items: `created`, corresponding to the moment the item was created and `modified`, corresponding to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. 
 - The hierarchical organization that was provided by file paths is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry `@i plant:tree:oak` would store the item in the *index* view under:
     - plant
         - tree
@@ -274,20 +288,20 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
                 Mon Mar 26 2018 2:00PM
             All times: America/New_York
 
-- *Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
+- **New**: *Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
 
       * my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
 
-    would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used.
+    would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used. This replaces and simplifies the old `@r l`, list only, repetition frequency.
 
 - The *relevant datetime* of an item (used, e.g., in index view): 
-  - Non-repeating events and non-repeating unfinished tasks: the datetime given in `@s`
-  - Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance.
-  - Repeating unfinished tasks with `@o r` or `@o k` (the default): the datetime given in `@s`. This datetime is automatically updated when an instance is completed to the due datetime of the next instance.
-  - Repeating unfinished tasks with `@o s`: the datetime of the first instance falling during or after the current date.
-  - Finished tasks: the datetime given in `@f`.
-  - Actions: the datetime given in `@f`.
-  - Someday entries, inbox enties, undated journal entries and undated, unfinished tasks: *None*
+    - Non-repeating events and non-repeating unfinished tasks: the datetime given in `@s`
+    - Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance.
+    - Repeating unfinished tasks with `@o r` or `@o k` (the default): the datetime given in `@s`. This datetime is automatically updated when an instance is completed to the due datetime of the next instance.
+    - Repeating unfinished tasks with `@o s`: the datetime of the first instance falling during or after the current date.
+    - Finished tasks: the datetime given in `@f`.
+    - Actions: the datetime given in `@f`.
+    - Someday entries, inbox enties, undated journal entries and undated, unfinished tasks: *None*
 - Display:
     - Naive dates are displayed without conversion and without a starting time. 
     - Naive datetimes are displayed without conversion.
