@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Sun Jul 22, 2018 01:06PM EDT**
+**Last modified: Mon Jul 23, 2018 10:04AM EDT**
 
 # Goals
 
@@ -13,42 +13,37 @@
 
 - Provide a means for migrating existing etm data to the new format.
 
-# Menus
+# Command Shortcut Keys
 
-- Views
-    - a: agenda
-    - b: busy
-    - d: done
-    - m: month
-    - n: next
-    - s: someday
-    - i: index
-    - h: history
-    - t: tags
-    - f: set filter
-    - l: set level
-    - c: set calendars
-- Selected Item
-    - C: copy
-    - D: delete
-    - E: edit
-    - F: finish
-    - R: reschedule
-    - S: schedule new
-    - I: export ical
-    - L: open link
-    - T: timer
-- Tools
-    - A: show alerts
-    - J: jump to date
-    - N: new item
-    - P: preferences
-    - Q: query
-    - V: view as text
-    - F2: date calculator
-    - F3: yearly
-    - F8: quit
+  ---------------  ----------------  -----------------
+  **VIEWS** 
 
+  a: agenda        n: next           t: tags 
+
+  b: busy          s: someday        f: filter view 
+
+  d: done          i: index          l: outline level 
+
+  m: month         h: history        c: set calendars 
+
+  **SELECTED ITEM** 
+
+  C: copy          F: finish         I: export ical 
+
+  D: delete        R: reschedule     L: open link 
+
+  E: edit          S: schedule new   T: start timer 
+
+  **TOOLS** 
+
+  A: show alerts   P: preferences    F2: date calc 
+
+  J: jump to date  Q: query          F3: yearly 
+
+  N: new item      V: view as text   F8: quit 
+  ---------------  ----------------  -----------------
+
+The key bindings for the various commands are listed above. E.g., press 'a' to open agenda view. In any of the views, 'Enter' toggles the expansion of the selected node or item. In any of the dated views, 'Shift Left' and 'Shift Right' change the period displayed and 'Space' changes the display to the current date.
 
 # Data
 

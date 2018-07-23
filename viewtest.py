@@ -41,8 +41,8 @@ logo = [
 menu1 = [
     "-- VIEWS ------------------------------------------ ",
     "a: agenda        n: next           t: tags          ",
-    "b: busy          s: someday        f: set filter    ",
-    "d: done          i: index          l: set level     ",
+    "b: busy          s: someday        f: filter view   ",
+    "d: done          i: index          l: outline level ",
     "m: month         h: history        c: set calendars ",
     ]
 
