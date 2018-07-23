@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Mon Jul 23, 2018 10:12AM EDT**
+**Last modified: Mon Jul 23, 2018 11:43AM EDT**
 
 # Goals
 
@@ -9,7 +9,8 @@
 
 - Simplify data entry. Provide "just in time" information when creating or editing data entries. See [Work Flow](#work-flow). 
 
-- Provide a simpler, terminal-based GUI using *urwid* along with a CLI that allows creating items and reports from the command line. 
+- Provide a simpler, terminal-based GUI using *urwid* along with a CLI that allows creating items and reports from the command line. See [Views](#views) for details about the various views.
+
 
 - Provide a means for migrating existing etm data to the new format.
 
@@ -31,6 +32,7 @@
 
 
 The key bindings for the various commands are listed above. E.g., press 'a' to open agenda view. In any of the views, 'Enter' toggles the expansion of the selected node or item. In any of the dated views, 'Shift Left' and 'Shift Right' change the period displayed and 'Space' changes the display to the current date.
+
 
 # Data
 
@@ -334,7 +336,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 # Views
 
-View hotkeys: a)genda, b)usy, d)one, m)onthly, h)istory, i)ndex, n)ext, s)omeday and t)ags. In all views, pressing `l` prompts for the outline expansion level.
+View shortcut keys: a)genda, b)usy, d)one, m)onthly, h)istory, i)ndex, n)ext, s)omeday and t)ags. In all views, pressing `l` prompts for the outline expansion level and `f` prompts for a filter to apply to the displayed items.
 
 ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in *urwid* each actually takes only 1 line leaving 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
 
