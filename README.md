@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Mon Jul 23, 2018 10:04AM EDT**
+**Last modified: Mon Jul 23, 2018 10:12AM EDT**
 
 # Goals
 
@@ -15,33 +15,20 @@
 
 # Command Shortcut Keys
 
-  ---------------  ----------------  -----------------
-  **VIEWS** 
+    -- VIEWS ------------------------------------------ 
+    a: agenda        n: next           t: tags 
+    b: busy          s: someday        f: filter view 
+    d: done          i: index          l: outline level 
+    m: month         h: history        c: set calendars 
+    -- SELECTED ITEM ---------------------------------- 
+    C: copy          F: finish         I: export ical 
+    D: delete        R: reschedule     L: open link 
+    E: edit          S: schedule new   T: start timer 
+    -- TOOLS ------------------------------------------ 
+    A: show alerts   P: preferences    F2: date calc 
+    J: jump to date  Q: query          F3: yearly 
+    N: new item      V: view as text   F8: quit 
 
-  a: agenda        n: next           t: tags 
-
-  b: busy          s: someday        f: filter view 
-
-  d: done          i: index          l: outline level 
-
-  m: month         h: history        c: set calendars 
-
-  **SELECTED ITEM** 
-
-  C: copy          F: finish         I: export ical 
-
-  D: delete        R: reschedule     L: open link 
-
-  E: edit          S: schedule new   T: start timer 
-
-  **TOOLS** 
-
-  A: show alerts   P: preferences    F2: date calc 
-
-  J: jump to date  Q: query          F3: yearly 
-
-  N: new item      V: view as text   F8: quit 
-  ---------------  ----------------  -----------------
 
 The key bindings for the various commands are listed above. E.g., press 'a' to open agenda view. In any of the views, 'Enter' toggles the expansion of the selected node or item. In any of the dated views, 'Shift Left' and 'Shift Right' change the period displayed and 'Space' changes the display to the current date.
 
