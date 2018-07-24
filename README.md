@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Jul 24, 2018 04:50PM EDT**
+**Last modified: Tue Jul 24, 2018 04:53PM EDT**
 
 # Goals
 
@@ -274,13 +274,13 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 				@s fri 2p
 
-		Interpreted as `Fri, Jan 5, 2018 2pm EST`. *With both a **date** and a **time** specified* but without an entry for `@z`, this schedules an item starting at the specified date-time in the **current timezone** (US/Eastern) and would be serialized as `{T}:20180105T1900A`. Note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
+		Interpreted as `Fri, Jan 5, 2018 2pm EST`. With both a **date** and a **time** specified but without an entry for `@z`, this schedules an item starting at the specified date-time in the **current timezone** (US/Eastern) and would be serialized as `{T}:20180105T1900A`. Note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
 
     - Aware date-time in a different timezone:
 
 				@s fri 2p @z US/Pacific
 
-		With the **timezone** specified*, this would be interpreted as `Fri, Jan 5 2018 2pm PST` and would be serialized as `{T}:20180105T2200A`. Again note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
+		With the **timezone** specified, this would be interpreted as `Fri, Jan 5 2018 2pm PST` and would be serialized as `{T}:20180105T2200A`. Again note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
 
 		In the local timezone (US/Eastern) this item would be displayed as starting at 5pm EST.
 
@@ -288,7 +288,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 				@s fri 2p @z float
 
-		With both a **date** and a **time** specified* and with `float` as the timezone, this would be interpreted as `Fri, Jan 5, 2018 2pm`, in whatever happens to be the local timezone, and would be serialized as `{T}:20180105T1400N`. Note the appended `N` to indicate that this is a naive datetime.
+		With both a **date** and a **time** specified and with `float` as the timezone, this would be interpreted as `Fri, Jan 5, 2018 2pm`, in whatever happens to be the local timezone, and would be serialized as `{T}:20180105T1400N`. Note the appended `N` to indicate that this is a naive datetime.
 
     The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
 
