@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Jul 24, 2018 05:09PM EDT**
+**Last modified: Tue Jul 24, 2018 05:26PM EDT**
 
 # Goals
 
@@ -296,7 +296,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 			@s Fri Jan 26 2018 2pm @r m @z US/Eastern
 
-	the first three repetitions are at 2pm even though the first two are EST and the third is EDT: 
+	the first three repetitions would all be at 2pm even though the first two are EST and the third is EDT: 
 
 			Fri Jan 26 2018 2:00PM
 			Mon Feb 26 2018 2:00PM
