@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Mon Jul 23, 2018 11:43AM EDT**
+**Last modified: Tue Jul 24, 2018 04:38PM EDT**
 
 # Goals
 
@@ -41,15 +41,21 @@ The key bindings for the various commands are listed above. E.g., press 'a' to o
 ### `*`: event
 
 - The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
-- The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See  [Dates, Date Times and Time Periods](#dates,-date-times-and-time-periods).
+
+	**New**: The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See  [Dates, Date Times and Time Periods](#dates,-date-times-and-time-periods).
 
 ### `-`: task
 
 - The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* terminology. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
-- The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
-- The old `%`, *delegated*, item type is eliminated. An option would be to prepend the name of the person to whom a task is delegated to the task summary. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
-- The old `@c`, *context*, for tasks has been merged into *location*, `@l`. 
-- The `@c` entry is now used to denote the *calendar* to which the item belongs. E.g., I use calendars named `dag` (me), `erp` (wife) and `shared`. My default is to display `dag` and `shared` and to interpret items without an `@c` entry as belonging to `dag`. 
+
+	**New**: The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
+
+	**New**: The old `%`, *delegated*, item type is eliminated. An option would be to prepend the name of the person to whom a task is delegated to the task summary. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
+
+	**New**: The old `@c`, *context*, for tasks has been merged into *location*, `@l`. 
+
+	**New**: The `@c` entry is now used to denote the *calendar* to which the item belongs. E.g., I use calendars named `dag` (me), `erp` (wife) and `shared`. My default is to display `dag` and `shared` and to interpret items without an `@c` entry as belonging to `dag`. 
+
 - Display characters for tasks and jobs:
 
     - `x`: finished task or job
@@ -65,9 +71,11 @@ Unchanged but for the change in the type character from `!` to `%`. An entry for
 
 ### `~`: action
 
-  - In an *action*, `@s` records the datetime that the action was started, `@e` the timeperiod that the work on the action was active and `@f` the datetime that the action was finished. The timeperiod that work on the action was inactive is given implicitly by `finished` minus `started` minus `active`. 
-  - Each action is displayed in the *Done* view on the `finished` date using the display character `~`, the item summary, the `finished` time and the `timeperiod active`.
-  - It is **strongly recommended** that actions should be given an `@i`, *index*, entry since accounting reports which aggregate time expenditures are based on the index entries. Default reports suppose that index entries for actions take the form `client:job` and show aggregates for the previous and current months by 
+  - In an *action*, `@s` records the datetime that the action was started, `@e` the timeperiod that the work on the action was active and `@f` the datetime that the action was finished. The timeperiod that work on the action was inactive is given implicitly by `finished` minus `started` minus `active`.
+
+	**New**: Each action is displayed in the *Done* view on the `finished` date using the display character `~`, the item summary, the `finished` time and the `timeperiod active`.
+
+  - It is **strongly recommended** that actions should be given an `@i`, *index*, entry since accounting reports which aggregate time expenditures are based on the index entries. Default action reports suppose that index entries for actions take the form `client:job` and show aggregates for the previous and current months by 
 
         month
           client
@@ -93,7 +101,14 @@ Unchanged.
 
 ### `!`: inbox
 
-Unchanged but for the change in the type character from `$` to `!`.
+Unchanged but for the change in the type character from `$` to `!`. Inbox items will always be shown in dated views on the current date. 
+
+Illustrative uses for inbox items:
+
+- A task that is due on the current date.
+- An event for which the starting time needs to be confirned. 
+- A note that needs to be completed.
+
 
 ### Expansions
 
@@ -120,14 +135,14 @@ Then entering the item
       * Conflict and Cooperation @s 1/25/2018 9:35am @x class 
         @l Math-Physics Bldg 
 
-would be equivalent to entering
+is equivalent to entering
 
       * Conflict and Cooperation @s 1/25/2018 9:35am @e 1h15m @a 10m, 3m: d 
         @l Math-Physics Bldg @i Work:Teaching
 
 The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for the event but the default for `@l` has been overridden by the explicit entry.
 
-Note that changing `expansions` will only affect items created/modified after the change. When an item is saved, the actual expansion is used to replace the key. 
+Note that changing the entry for  `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the actual expansion is used to replace the key. 
 
 ## @-keys
 
@@ -155,6 +170,8 @@ Note that changing `expansions` will only affect items created/modified after th
     z: timezone: string,
 
 ## &-keys
+
+These keys are only used in `@r` (repetition) and `@j` (job) entries.
 
 ### `@r`:
       c: count: integer number of repetitions (See Count versus Until below),
@@ -184,7 +201,7 @@ Note that changing `expansions` will only affect items created/modified after th
       s: start/due: timeperiod relative to @s entry (default 0m),
 
 
-### Count versus Until 
+### Count versus Until in Repetition Entries
 
 Specifying both `&c` and `&u` in an `@r` entry is not allowed. If both are given, `&u` is used and `&c` is ignored.
 
@@ -216,48 +233,62 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
           "summary": "Daylight saving time begins"
           }
 
-    corresponding to creating the entry:
+    which corresponds to creating the following entry on March 1, 2018 at 15:37 UTC:
 
         * Daylight saving time begins @s 2018-03-10 @r y &M 3 &w 2SU @c shared
 
-    which was created (and last modified) on March 1, 2018 at 15:37 UTC. The unique identifier, `2756`, is created automatically by *TinyDB*.
+    The unique identifier, `2756`, is created automatically by *TinyDB*.
 
-- Two timestamps are automatically created for items: `created`, corresponding to the moment the item was created and `modified`, corresponding to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp. The default is to show oldest first for created timestamps and newest first for last modified timestamps. 
-- The hierarchical organization that was provided by file paths is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry `@i plant:tree:oak` would store the item in the *index* view under:
+- Two timestamps are automatically created for items: `created`, corresponding to the moment the item was created and `modified`, corresponding to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp.  
+- **New**. The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry 
+
+		@i plant:tree:oak
+
+	would display the item in the *index* view under:
+
     - plant
         - tree
             - oak
 
-    The default for `@i` is *None*. Note that `@i` replaces the functionality of  the old `@k`, *keyword*.
-
-    *Action accounting reports are based on the index entries of the items*.
-
-- The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
+- **New**. The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
 ## Dates, Date Times and Time Periods
 
 - Dates (naive) and datetimes (both naive and aware) are suppored along with time periods (python timedeltas/pendulum intervals). 
-
-- Fuzzy parsing of entries is suppored.
-
 - Storage: 
 
-    - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and interval storage. *Pendulum* date,  datetime and interval objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date,  datetime and interval objects when retrieved by etm. 
+    - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and period storage. *Pendulum* date,  datetime and period objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date,  datetime and interval objects when retrieved by etm. 
     - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
-    - Examples
-        - The date `2018/1/5` would be serialized as `{D}:20180105`.
-        - The datetime `2018/1/5 2pm` would be serialized either as `{T}:20180105T1400A` or `{T}:20180105T1400N`, depending upon the `@z` entry for the item. Details in the next bullet.
-        - The interval `1 day 2 hours 13 minutes` would be serialized as `{I}:1d2h13m`. 
     - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
     - Naive dates and datetimes are not converted. 
+- Fuzzy parsing of entries is suppored. 
+- Here are examples of fuzzy parsing and serialization supposing that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern:
 
-- The format for the `@s` entry is `date|datetime`. In the following entries for `@s` suppose that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern.
+    - Naive date:
 
-    - Naive date, e.g., `@s fri`.  Interpreted as `Fri, Jan 5, 2018`. *With only a **date** specified*, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone.
-    - Aware date-time, e.g, `@s fri 2p`. Interpreted as `Fri, Jan 5, 2018 2pm EST`. *With both a **date** and a **time** specified*, this schedules an item starting at the specified date-time in the current timezone (US/Eastern).
-    - Aware date-time, e.g., `@s fri 2p @z US/Pacific`. *With the **timezone** specified*, this is interpreted as `Fri, Jan 5 2018 2pm PST`. 
+				@s fri
 
-    - Naive date-time, e.g., `@s fri 2p @z float`. *With **float** specified*, this is interpreted as `Fri, Jan 5, 2018 2pm` in whatever happens to be the local time zone. 
+	    Interpreted as `Fri, Jan 5, 2018`. *With only a **date** specified*, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone and would be serialized as `{D}:20180105`. Note that dates are necessarily naive and thus there is no need to append an `N` to the serialization.
+
+    - Aware date-time in the local timezone:
+
+				@s fri 2p
+
+		  Interpreted as `Fri, Jan 5, 2018 2pm EST`. *With both a **date** and a **time** specified* but without an entry for `@z`, this schedules an item starting at the specified date-time in the **current timezone** (US/Eastern) and would be serialized as `{T}:20180105T1900A`. Note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
+
+    - Aware date-time in a different timezone:
+
+				@s fri 2p @z US/Pacific
+
+		  *With the **timezone** specified*, this would be interpreted as `Fri, Jan 5 2018 2pm PST` and would be serialized as `{T}:20180105T2200A`. Again note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
+
+		  in the local timezone (US/Eastern) this item would be displayed as starting at 5pm EST.
+
+    - Naive date-time:
+
+				@s fri 2p @z float
+
+		  *With both a **date** and a **time** specified* and with `float` as the timezone, this would be interpreted as `Fri, Jan 5, 2018 2pm`, in whatever happens to be the local timezone, and would be serialized as `{T}:20180105T1400N`. Note the appended `N` to indicate that this is a naive datetime.
 
     The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
 
