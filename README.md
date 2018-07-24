@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Jul 24, 2018 04:53PM EDT**
+**Last modified: Tue Jul 24, 2018 05:09PM EDT**
 
 # Goals
 
@@ -292,16 +292,15 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
     The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
 
-- When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time. E.g., in the following all repetitions are at 2pm even though the first two are EST and the third is EDT.
+- When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time changes. E.g., with
 
-            With
-              @s Fri Jan 26 2018 2pm @z US/Eastern 
-              @r m
-            The first 3 repetitions would be:
-                Fri Jan 26 2018 2:00PM
-                Mon Feb 26 2018 2:00PM
-                Mon Mar 26 2018 2:00PM
-            All times: America/New_York
+			@s Fri Jan 26 2018 2pm @r m @z US/Eastern
+
+	the first three repetitions are at 2pm even though the first two are EST and the third is EDT: 
+
+			Fri Jan 26 2018 2:00PM
+			Mon Feb 26 2018 2:00PM
+			Mon Mar 26 2018 2:00PM
 
 - **New**: *Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
 
@@ -339,23 +338,23 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 - Prerequisites
 
-  - Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
+	- Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
 
-          - automatically assigned
-            @j job A
-            @j job B
-            @j job C
+			- automatically assigned
+				@j job A
+				@j job B
+				@j job C
 
-    `job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C`. 
+		`job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C`. 
 
-  - Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
+	- Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (identifier) and `&p`, (comma separated list of identifiers of immediate prequisites). E.g., with
 
-          - manually assigned
-            @j job a &i a
-            @j job b &i b
-            @j job c &i 3 &p a, b
+			- manually assigned
+				@j job a &i a
+				@j job b &i b
+				@j job c &i 3 &p a, b
 
-    Neither `job a` nor `job b` have any prerequisites but `job a` and `job b` are both prerequistes for `job c`. Note that the order in which the jobs are listed is irrelevant in this case. 
+		Neither `job a` nor `job b` have any prerequisites but `job a` and `job b` are both prerequistes for `job c`. The order in which the jobs are listed is irrelevant in this case. 
 
 - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
