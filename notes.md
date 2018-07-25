@@ -1,5 +1,5 @@
 # Notes for etm
-**Last modified: Sun Mar 25, 2018 11:50PM EDT**
+**Last modified: Wed Jul 25, 2018 03:51PM EDT**
 
 # Design
 ## Requirements
@@ -663,6 +663,22 @@ undated tasks - grouped by location or None
 someday items
 
 ## Week View
+
+### New 2018-07-25
+
+- Period (using Pendulum >= 2.0.2) weeks in current month + weeks in 5 prior months + weeks in 12 subsequent months
+  - begin: now.start_of('month').subtract(months=5).start_of('week')
+  - end: now.start_of('month').add(months=12).add(weeks=5).end_of('week')
+
+- Date range, **first** to **last** for dated items
+  - Non repeating
+    - first = @s
+    - last = @s
+  - Repeating
+    - first = @s
+    - last = last instance or None if repeating forever
+
+
 
 - Period: year-weeks in current week + 12 weeks before + 39 weeks after
 - Period: year-weeks in current week + 25 weeks before + 52 weeks after

@@ -1,6 +1,6 @@
 Jinja2>=2.10
 MarkupSafe>=1.0
-pendulum>=1.4.0
+pendulum>=2.0.2
 python-dateutil>=2.6.1
 pytz>=2017.3
 pytzdata>=2017.3.1

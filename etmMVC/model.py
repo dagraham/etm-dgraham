@@ -627,25 +627,25 @@ def parse_datetime(s, z=None):
     's' will have the format 'datetime string' Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if 'z == float' or an aware datetime object converting to UTC using tzlocal if z == None and using the timezone specified in z otherwise.
     >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt[1]
-    <Pendulum [2015-10-15T18:00:00+00:00]>
+    DateTime(2015, 10, 15, 18, 0, 0, tzinfo=Timezone('UTC'))
     >>> dt = parse_datetime("2015-10-15")
     >>> dt[1]
-    <Pendulum [2015-10-15T00:00:00+00:00]>
+    DateTime(2015, 10, 15, 0, 0, 0, tzinfo=Timezone('Factory'))
 
     To get a datetime for midnight, schedule for 1 second later and note that the second is removed from the datetime:
     >>> dt = parse_datetime("2015-10-15 00:00:01")
     >>> dt[1]
-    <Pendulum [2015-10-15T04:00:01+00:00]>
+    DateTime(2015, 10, 15, 4, 0, 1, tzinfo=Timezone('UTC'))
     >>> dt = parse_datetime("2015-10-15 2p", "float")
     >>> dt[1]
-    <Pendulum [2015-10-15T14:00:00+00:00]>
+    DateTime(2015, 10, 15, 14, 0, 0, tzinfo=Timezone('Factory'))
     >>> dt[1].tzinfo
-    <TimezoneInfo [Factory, -00, +00:00:00, STD]>
+    Timezone('Factory')
     >>> dt = parse_datetime("2015-10-15 2p", "US/Pacific")
     >>> dt
-    ('aware', <Pendulum [2015-10-15T21:00:00+00:00]>, 'US/Pacific')
+    ('aware', DateTime(2015, 10, 15, 21, 0, 0, tzinfo=Timezone('UTC')), 'US/Pacific')
     >>> dt[1].tzinfo
-    <TimezoneInfo [UTC, GMT, +00:00:00, STD]>
+    Timezone('UTC')
     """
     if z is None:
         tzinfo = 'local'
@@ -722,16 +722,16 @@ def format_datetime(obj):
     >>> format_datetime(parse_datetime("20160710T1730")[1])
     (True, 'Sun Jul 10 2016 5:30PM EDT')
     >>> format_datetime(parse_datetime("2015-07-10 5:30p", "float")[1])
-    (True, 'Fri Jul 10 2015 5:30PM')
+    (True, 'Fri Jul 10 2015 1:30PM EDT')
     >>> format_datetime(parse_datetime("20160710")[1])
-    (True, 'Sun Jul 10 2016')
+    (True, 'Sat Jul 9 2016 8:00PM EDT')
     >>> format_datetime("20160710T1730")
     (False, 'The argument must be a pendulum date or datetime.')
     """
     if type(obj) == datetime:
         obj = pendulum.instance(obj)
     if type(obj) == pendulum.DateTime: 
-        if obj.tzinfo.abbrev == '-00':
+        if obj.format('Z') == '':
             # naive
             if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
                 # date
@@ -741,7 +741,7 @@ def format_datetime(obj):
                 return True, format(obj.format("ddd MMM D YYYY h:mmA"))
         else:
             # aware
-            return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA z"))
+            return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA zz"))
 
     elif type(obj) == pendulum.Date:
         return True, format(obj.format("ddd MMM D YYYY"))
@@ -816,13 +816,13 @@ def parse_interval(s):
     >>> 3*60*60+5*60
     11100
     >>> parse_interval("2d-3h5m")[1]
-    <Interval [1 day 21 hours 5 minutes]>
-    >>> pendulum.create(2015, 10, 15, 9, 0, tz='local') + parse_interval("-25m")[1]
-    <Pendulum [2015-10-15T08:35:00-04:00]>
-    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_interval("1d")[1]
-    <Pendulum [2015-10-16T09:00:00+00:00]>
-    >>> pendulum.create(2015, 10, 15, 9, 0) + parse_interval("1w-2d+3h")[1]
-    <Pendulum [2015-10-20T12:00:00+00:00]>
+    Duration(days=1, hours=21, minutes=5)
+    >>> pendulum.datetime(2015, 10, 15, 9, 0, tz='local') + parse_interval("-25m")[1]
+    DateTime(2015, 10, 15, 8, 35, 0, tzinfo=Timezone('America/New_York'))
+    >>> pendulum.datetime(2015, 10, 15, 9, 0) + parse_interval("1d")[1]
+    DateTime(2015, 10, 16, 9, 0, 0, tzinfo=Timezone('UTC'))
+    >>> pendulum.datetime(2015, 10, 15, 9, 0) + parse_interval("1w-2d+3h")[1]
+    DateTime(2015, 10, 20, 12, 0, 0, tzinfo=Timezone('UTC'))
     """
     td = period_hsh['z']
 
@@ -967,9 +967,9 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
 def set_summary(s, dt=pendulum.now()):
     """
     Replace the anniversary string in s with the ordinal represenation of the number of years between the anniversary string and dt.
-    >>> set_summary('!1944! birthday', pendulum(2017, 11, 19))
+    >>> set_summary('!1944! birthday', pendulum.date(2017, 11, 19))
     '73rd birthday'
-    >>> set_summary('!1978! anniversary', pendulum(2017, 11, 19))
+    >>> set_summary('!1978! anniversary', pendulum.date(2017, 11, 19))
     '39th anniversary'
     """
     if not dt:
@@ -1258,7 +1258,7 @@ def history(arg):
     """
     Return a list of properly formatted completions.
     >>> history("4/1/2016 2p")
-    (True, [<Pendulum [2016-04-01T18:00:00+00:00]>])
+    (True, [DateTime(2016, 4, 1, 18, 0, 0, tzinfo=Timezone('UTC'))])
     >>> history(["4/31 2p", "6/1 7a"])
     (False, "Invalid date-time: '4/31 2p'")
     """
@@ -2261,34 +2261,48 @@ class PendulumDateTimeSerializer(Serializer):
     Decoding: If the serialization ends with 'A', the pendulum object is treated as 'UTC' and converted to localtime. Otherwise, the object is treated as 'Factory' and no conversion is performed.
 
     This serialization discards both seconds and microseconds but preserves hours and minutes.
+
     """
 
     OBJ_CLASS = pendulum.DateTime
 
     def encode(self, obj):
         """
-        Serialize '-00' objects without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
+        Serialize naive objects (Z == '') without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
+        >>> dts = PendulumDateTimeSerializer()
+        >>> dts.encode(pendulum.datetime(2018,7,25,10, 27).naive())
+        '20180725T1027N'
+        >>> dts.encode(pendulum.datetime(2018,7,25,10, 27, tz='US/Eastern'))
+        '20180725T1427A'
         """
-        if obj.tzinfo.abbrev == '-00':
+        if obj.format('Z') == '':
             return obj.format('YYYYMMDDTHHmm[N]')
         else:
-            return obj.in_timezone('UTC').format('YYYYMMDDTHHmm[A]')
+            return obj.in_tz('UTC').format('YYYYMMDDTHHmm[A]')
 
     def decode(self, s):
         """
         Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object. If the serialization ends with 'N', returning without conversion as a naive datetime object.
+        >>> dts = PendulumDateTimeSerializer()
+        >>> dts.decode('20180725T1027N')
+        DateTime(2018, 7, 25, 10, 27, 0)
+        >>> dts.decode('20180725T1427A')
+        DateTime(2018, 7, 25, 10, 27, 0, tzinfo=Timezone('America/New_York'))
         """
         if s[-1] == 'A':
-            # return pendulum.from_format(s[:-1], '%Y%m%dT%H%M', 'UTC').in_timezone('local')
             return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'UTC').in_timezone('local')
         else:
-            # return pendulum.from_format(s[:-1], '%Y%m%dT%H%M', 'Factory')
-            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'Factory')
+            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm').naive()
 
 
 class PendulumDateSerializer(Serializer):
     """
     This class handles pendulum date objects.
+    >>> ds = PendulumDateSerializer()
+    >>> ds.encode(pendulum.date(2018, 7, 25))
+    '20180725'
+    >>> ds.decode('20180725')
+    Date(2018, 7, 25)
     """
     OBJ_CLASS = pendulum.Date
 
@@ -2296,7 +2310,7 @@ class PendulumDateSerializer(Serializer):
         """
         Serialize the naive date object without conversion.
         """
-        return obj.format('%Y%m%d')
+        return obj.format('YYYYMMDD')
 
     def decode(self, s):
         """
@@ -2338,14 +2352,24 @@ serialization.register_serializer(PendulumIntervalSerializer(), 'I')
 ### start week/month ###
 ########################
 
+def get_period(dt=pendulum.now(), months_before=5, months_after=12):
+    """
+    Return the begining and ending of the period that includes the weeks in current month plus the weeks in the prior *months_before* and the weeks in the subsequent *months_after*. The period will begin at 0 hours on the relevant Monday and end at 23:59:59 hours on the relevant Sunday.
+    >>> get_period(pendulum.datetime(2018, 7, 1, 0, 0, tz='US/Eastern'))
+    (DateTime(2018, 1, 29, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2019, 8, 11, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
+    """
+    beg = dt.start_of('month').subtract(months=months_before).start_of('week')
+    end = dt.start_of('month').add(months=months_after, weeks=5).end_of('week')
+    return (beg, end)
+
 
 def iso_year_start(iso_year):
     """
     Return the gregorian calendar date of the first day of the given ISO year.
     >>> iso_year_start(2017)
-    <Date [2017-01-02]>
+    Date(2017, 1, 2)
     >>> iso_year_start(2018)
-    <Date [2018-01-01]>
+    Date(2018, 1, 1)
     """
     fourth_jan = pendulum.date(iso_year, 1, 4)
     delta = pendulum.duration(fourth_jan.isoweekday()-1)
@@ -2356,7 +2380,7 @@ def iso_to_gregorian(ywd):
     """
     Return the gregorian calendar date for the given year, week and day.
     >>> iso_to_gregorian((2018, 7, 3))
-    <Date [2018-02-14]>
+    Date(2018, 2, 14)
     """
     year_start = iso_year_start(ywd[0])
     return year_start + pendulum.duration(days=ywd[2]-1, weeks=ywd[1]-1)
@@ -2365,7 +2389,7 @@ def iso_to_gregorian(ywd):
 def getWeekNum(dt):
     """
     Return the year and week number for the datetime.
-    >>> getWeekNum(pendulum(2018, 2, 14, 10, 30))
+    >>> getWeekNum(pendulum.datetime(2018, 2, 14, 10, 30))
     (2018, 7)
     >>> getWeekNum(pendulum.date(2018, 2, 14))
     (2018, 7)
@@ -2542,9 +2566,9 @@ def beg_ends(starting_dt, extent_interval, z=None):
     """
     >>> starting = parse('2018-03-02 9am') 
     >>> beg_ends(starting, parse_interval('2d2h20m')[1])
-    [(<Pendulum [2018-03-02T09:00:00+00:00]>, <Pendulum [2018-03-02T23:59:59.999999+00:00]>), (<Pendulum [2018-03-03T00:00:00+00:00]>, <Pendulum [2018-03-03T23:59:59.999999+00:00]>), (<Pendulum [2018-03-04T00:00:00+00:00]>, <Pendulum [2018-03-04T11:20:00+00:00]>)]
+    [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 3, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 3, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 4, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 4, 11, 20, 0, tzinfo=Timezone('UTC')))]
     >>> beg_ends(starting, parse_interval('8h20m')[1])
-    [(<Pendulum [2018-03-02T09:00:00+00:00]>, <Pendulum [2018-03-02T17:20:00+00:00]>)]
+    [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 17, 20, 0, tzinfo=Timezone('UTC')))]
     """
 
     pairs = []
@@ -2593,8 +2617,8 @@ def fmt_week(dt_obj):
     dt_year = dt_obj.year
     dt_week = dt_obj.week_of_year
     # year_week = f"{dt_year} Week {dt_week}"
-    wkbeg = pendulum.parse(f"{dt_year}W{str(dt_week).rjust(2, '0')}")
-    wkend = pendulum.parse(f"{dt_year}W{str(dt_week).rjust(2, '0')}-7")
+    wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
+    wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
     week_begin = wkbeg.format("MMM D")
     if wkbeg.month == wkend.month:
         week_end = wkend.format("D")
