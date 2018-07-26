@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Jul 24, 2018 05:26PM EDT**
+**Last modified: Thu Jul 26, 2018 03:05PM EDT**
 
 # Goals
 
@@ -254,13 +254,14 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 ## Dates, Date Times and Time Periods
 
-- Dates (naive) and datetimes (both naive and aware) are suppored along with time periods (python timedeltas/pendulum intervals). 
+- Dates (naive) and datetimes (both naive and aware) are suppored along with time periods (pendulum durations which are analagous to python timedeltas). 
 - Storage: 
 
-    - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and period storage. *Pendulum* date,  datetime and period objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date,  datetime and interval objects when retrieved by etm. 
+    - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and period storage. *Pendulum* date,  datetime and period objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as datetime and interval objects when retrieved by etm. 
     - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
     - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
-    - Naive dates and datetimes are not converted. 
+    - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to midnight and then treated as aware in the local timezone.
+
 - Fuzzy parsing of entries is suppored. 
 - Here are examples of fuzzy parsing and serialization supposing that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern:
 
@@ -268,7 +269,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 				@s fri
 
-	  Interpreted as `Fri, Jan 5, 2018`. *With only a **date** specified*, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone and would be serialized as `{D}:20180105`. Note that dates are necessarily naive and thus there is no need to append an `N` to the serialization.
+	  Interpreted as `Fri, Jan 5, 2018`. With only a **date** specified, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone and would be serialized as `{D}:20180105`. Note that dates are necessarily naive and thus there is no need to append an `N` to the serialization.
 
     - Aware date-time in the local timezone:
 
@@ -291,6 +292,8 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 		With both a **date** and a **time** specified and with `float` as the timezone, this would be interpreted as `Fri, Jan 5, 2018 2pm`, in whatever happens to be the local timezone, and would be serialized as `{T}:20180105T1400N`. Note the appended `N` to indicate that this is a naive datetime.
 
     The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
+
+- Since python cannot compare either aware and naive date-times or dates and date-times, etm converts everything to aware date-times in the local timezone of the user. Since aware date-times are are stored as UTC times, they are converted to the local timezone. Dates are first converted to date-times using midnight as the time and then treated as aware local times without conversion. Similarly, naive date-times are treated as aware local times without conversion. 
 
 - When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time changes. E.g., with
 

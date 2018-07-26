@@ -1,5 +1,5 @@
 # Notes for etm
-**Last modified: Wed Jul 25, 2018 10:09PM EDT**
+**Last modified: Thu Jul 26, 2018 03:10PM EDT**
 
 # Design
 ## Requirements
@@ -561,6 +561,15 @@ Maybe add an @key to tasks (events, notes?)
 
 ## What's needed
 
+### Issues
+
+- Aware / Naive
+	- TinyDB
+		- Dates are naive
+		- Datetimes can be naive or aware
+	- period begin and end are aware local time
+
+
 * views in which an item contributes a single row:
   * index
   * history-created
@@ -668,7 +677,7 @@ someday items
 
 - Period (using Pendulum >= 2.0.2) weeks in current month + weeks in 5 prior months + weeks in 12 subsequent months
   - begin: now.start_of('month').subtract(months=5).start_of('week')
-  - end: now.start_of('month').add(months=12, weeks=5).end_of('week')
+  - end: now.start_of('month').add(months=12).add(weeks=5).end_of('week')
 
 - Date range, **first** to **last** for dated items
   - Non repeating
