@@ -1,5 +1,5 @@
 # Notes for etm
-**Last modified: Thu Jul 26, 2018 03:10PM EDT**
+**Last modified: Thu Jul 26, 2018 03:13PM EDT**
 
 # Design
 ## Requirements
@@ -150,9 +150,6 @@ types = [
 
 type2Num = {key: val for val, key in enumerate(types)}
 num2Type = {key: val for key, val in enumerate(types)}
-
-
-
 
 ## Busy
 

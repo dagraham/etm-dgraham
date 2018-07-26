@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Jul 26, 2018 03:05PM EDT**
+**Last modified: Thu Jul 26, 2018 03:15PM EDT**
 
 # Goals
 
@@ -260,7 +260,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
     - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and period storage. *Pendulum* date,  datetime and period objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as datetime and interval objects when retrieved by etm. 
     - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
     - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
-    - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to midnight and then treated as aware in the local timezone.
+    - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to midnight and then, along with naive date-times, are treated as aware in the local timezone.
 
 - Fuzzy parsing of entries is suppored. 
 - Here are examples of fuzzy parsing and serialization supposing that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern:
