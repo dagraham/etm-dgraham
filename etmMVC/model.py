@@ -287,7 +287,7 @@ def deal_with_e(at_hsh={}):
     bot = ''
     if s is None:
         return top, bot, item_hsh
-    ok, obj = parse_interval(s)
+    ok, obj = parse_duration(s)
     if not ok:
         return top, "considering: '{}'".format(s), None
     item_hsh['e'] = obj
@@ -638,9 +638,9 @@ def parse_datetime(s, z=None):
     DateTime(2015, 10, 15, 4, 0, 1, tzinfo=Timezone('UTC'))
     >>> dt = parse_datetime("2015-10-15 2p", "float")
     >>> dt[1]
-    DateTime(2015, 10, 15, 14, 0, 0, tzinfo=Timezone('Factory'))
-    >>> dt[1].tzinfo
-    Timezone('Factory')
+    DateTime(2015, 10, 15, 14, 0, 0)
+    >>> dt[1].tzinfo == None
+    True
     >>> dt = parse_datetime("2015-10-15 2p", "US/Pacific")
     >>> dt
     ('aware', DateTime(2015, 10, 15, 21, 0, 0, tzinfo=Timezone('UTC')), 'US/Pacific')
@@ -651,7 +651,7 @@ def parse_datetime(s, z=None):
         tzinfo = 'local'
         ok = 'aware'
     elif z == 'float':
-        tzinfo = 'Factory'
+        tzinfo = None
         ok = 'naive'
     else:
         tzinfo = z
@@ -676,17 +676,17 @@ def timestamp(arg):
     """
     Fuzzy parse a datetime string and return the YYYYMMDDTHHMM formatted version.
     >>> timestamp("6/16/16 4p")
-    (True, <Pendulum [2016-06-16T16:00:00+00:00]>)
+    (True, DateTime(2016, 6, 16, 16, 0, 0, tzinfo=Timezone('UTC')))
     >>> timestamp("13/16/16 2p")
-    (False, 'invalid date-time: 13/16/16 2p')
+    (False, 'invalid time-stamp: 13/16/16 2p')
     """
-    if type(arg) is pendulum:
+    if type(arg) is pendulum.DateTime:
         return True, arg
     try:
         # res = parse(arg).strftime(ETMFMT)
         res = parse(arg)
     except:
-        return False, 'invalid date-time: {}'.format(arg)
+        return False, 'invalid time-stamp: {}'.format(arg)
     return True, res
 
 
@@ -722,7 +722,7 @@ def format_datetime(obj):
     >>> format_datetime(parse_datetime("20160710T1730")[1])
     (True, 'Sun Jul 10 2016 5:30PM EDT')
     >>> format_datetime(parse_datetime("2015-07-10 5:30p", "float")[1])
-    (True, 'Fri Jul 10 2015 1:30PM EDT')
+    (True, 'Fri Jul 10 2015 5:30PM')
     >>> format_datetime(parse_datetime("20160710")[1])
     (True, 'Sat Jul 9 2016 8:00PM EDT')
     >>> format_datetime("20160710T1730")
@@ -753,10 +753,10 @@ def format_datetime_list(obj_lst):
     ret = ", ".join([format_datetime(x)[1] for x in obj_lst])
     return ret
 
-def format_interval(obj):
+def format_duration(obj):
     """
     >>> td = pendulum.duration(weeks=1, days=2, hours=3, minutes=27)
-    >>> format_interval(td)
+    >>> format_duration(td)
     '1w2d3h27m'
     """
     try:
@@ -774,15 +774,15 @@ def format_interval(obj):
         ret = "".join(until)
         return "".join(until)
     except Exception as e:
-        print('format_interval', e)
+        print('format_duration', e)
         print(obj)
 
-def format_interval_list(obj_lst):
+def format_duration_list(obj_lst):
     try:
-        ret = ", ".join([format_interval(x) for x in obj_lst])
+        ret = ", ".join([format_duration(x) for x in obj_lst])
         return ret
     except Exception as e:
-        print('format_interval_list', e)
+        print('format_duration_list', e)
         print(obj_lst)
 
 
@@ -800,13 +800,13 @@ period_hsh = dict(
     w=pendulum.duration(weeks=1),
         )
 
-def parse_interval(s):
+def parse_duration(s):
     """\
     Take a period string and return a corresponding pendulum.duration.
     Examples:
-        parse_interval('-2w3d4h5m')= Interval(weeks=-2,days=3,hours=4,minutes=5)
-        parse_interval('1h30m') = Interval(hours=1, minutes=30)
-        parse_interval('-10m') = Interval(minutes=10)
+        parse_duration('-2w3d4h5m')= Duration(weeks=-2,days=3,hours=4,minutes=5)
+        parse_duration('1h30m') = Duration(hours=1, minutes=30)
+        parse_duration('-10m') = Duration(minutes=10)
     where:
         w: weeks
         d: days
@@ -815,13 +815,13 @@ def parse_interval(s):
 
     >>> 3*60*60+5*60
     11100
-    >>> parse_interval("2d-3h5m")[1]
+    >>> parse_duration("2d-3h5m")[1]
     Duration(days=1, hours=21, minutes=5)
-    >>> pendulum.datetime(2015, 10, 15, 9, 0, tz='local') + parse_interval("-25m")[1]
+    >>> pendulum.datetime(2015, 10, 15, 9, 0, tz='local') + parse_duration("-25m")[1]
     DateTime(2015, 10, 15, 8, 35, 0, tzinfo=Timezone('America/New_York'))
-    >>> pendulum.datetime(2015, 10, 15, 9, 0) + parse_interval("1d")[1]
+    >>> pendulum.datetime(2015, 10, 15, 9, 0) + parse_duration("1d")[1]
     DateTime(2015, 10, 16, 9, 0, 0, tzinfo=Timezone('UTC'))
-    >>> pendulum.datetime(2015, 10, 15, 9, 0) + parse_interval("1w-2d+3h")[1]
+    >>> pendulum.datetime(2015, 10, 15, 9, 0) + parse_duration("1w-2d+3h")[1]
     DateTime(2015, 10, 20, 12, 0, 0, tzinfo=Timezone('UTC'))
     """
     td = period_hsh['z']
@@ -1227,9 +1227,9 @@ entry_tmpl = """\
 
 jinja_entry_template = Template(entry_tmpl)
 jinja_entry_template.globals['dt2str'] = format_datetime
-jinja_entry_template.globals['in2str'] = format_interval
+jinja_entry_template.globals['in2str'] = format_duration
 jinja_entry_template.globals['dtlst2str'] = format_datetime_list
-jinja_entry_template.globals['inlst2str'] = format_interval_list
+jinja_entry_template.globals['inlst2str'] = format_duration_list
 jinja_entry_template.globals['one_or_more'] = one_or_more
 # jinja_entry_template.globals['set_summary'] = set_summary
 jinja_entry_template.globals['wrap'] = wrap
@@ -1251,7 +1251,7 @@ def description(arg):
 
 
 def extent(arg):
-    return parse_interval(arg)
+    return parse_duration(arg)
 
 
 def history(arg):
@@ -1661,13 +1661,14 @@ def check_rrule(lofh):
 
 def rrule_args(r_hsh):
     """
-    >>> item_eg = { "s": parse('2018-03-07 8am'), "r": [ { "r": "w", "u": parse('2018-04-01 8am'), }, ], "itemtype": "*"}
-    >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [(<Pendulum [2018-03-07T08:00:00+00:00]>, None), (<Pendulum [2018-03-14T08:00:00+00:00]>, None), (<Pendulum [2018-03-21T08:00:00+00:00]>, None), (<Pendulum [2018-03-28T08:00:00+00:00]>, None)]
+    >>> item_eg = { "s": parse('2018-03-07 8am').naive(), "r": [ { "r": "w", "u": parse('2018-04-01 8am').naive(), }, ], "itemtype": "*"}
+    >>> item_instances(item_eg, parse('2018-03-01 12am').naive(), parse('2018-04-01 12am').naive())
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 14, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 28, 8, 0, 0, tzinfo=Timezone('UTC')), None)]
     >>> r_hsh = item_eg['r'][0]
     >>> rrule_args(r_hsh)
-    (2, {'until': <Pendulum [2018-04-01T08:00:00+00:00]>})
+    (2, {'until': DateTime(2018, 4, 1, 8, 0, 0)})
     """
+    # FIXME: the example works but doesn't seem right
 
     # force integers
     for k in "icsMmWhm":
@@ -1712,21 +1713,27 @@ def item_instances(item, aft_dt, bef_dt=None):
     """
     Get instances from item falling on or after aft_dt and on or before bef_dt or, if bef_dt is None, the first instance after aft_dt. All datetimes will be returned with zero offsets.
     >>> item_eg = { "s": parse('2018-03-07 8am'), "e": pendulum.duration(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "*" }
+    >>> item_eg
+    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), 'e': Duration(days=1, hours=5), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}], 'z': 'US/Eastern', 'itemtype': '*'}
+    >>> item_eg
+    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), 'e': Duration(days=1, hours=5), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}], 'z': 'US/Eastern', 'itemtype': '*'}
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T23:59:59.999999+00:00]>), (<Pendulum [2018-03-08T00:00:00+00:00]>, <Pendulum [2018-03-08T13:00:00+00:00]>), (<Pendulum [2018-03-21T08:00:00+00:00]>, <Pendulum [2018-03-21T23:59:59.999999+00:00]>), (<Pendulum [2018-03-22T00:00:00+00:00]>, <Pendulum [2018-03-22T13:00:00+00:00]>)]
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 7, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 8, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 8, 13, 0, 0, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 21, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 22, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 22, 13, 0, 0, tzinfo=Timezone('UTC')))]
     >>> item_eg['+'] = [parse("20180311T1000")]
     >>> item_eg['-'] = [parse("20180311T0800")]
     >>> item_eg['e'] = pendulum.duration(hours=2)
+    >>> item_eg
+    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), 'e': Duration(hours=2), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}], 'z': 'US/Eastern', 'itemtype': '*', '+': [DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('UTC'))], '-': [DateTime(2018, 3, 11, 8, 0, 0, tzinfo=Timezone('UTC'))]}
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [(<Pendulum [2018-03-07T08:00:00+00:00]>, <Pendulum [2018-03-07T10:00:00+00:00]>), (<Pendulum [2018-03-11T10:00:00+00:00]>, <Pendulum [2018-03-11T12:00:00+00:00]>), (<Pendulum [2018-03-21T08:00:00+00:00]>, <Pendulum [2018-03-21T10:00:00+00:00]>)]
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 7, 10, 0, 0, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 11, 12, 0, 0, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 21, 10, 0, 0, tzinfo=Timezone('UTC')))]
     >>> del item_eg['e']
     >>> item_instances(item_eg, parse('2018-03-07 8am'))
-    [(<Pendulum [2018-03-11T10:00:00+00:00]>, None)]
+    [(DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('UTC')), None)]
     >>> del item_eg['r']
     >>> del item_eg['-']
     >>> del item_eg['+']
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [(<Pendulum [2018-03-07T08:00:00+00:00]>, None)]
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), None)]
     """
     # FIXME only for events
     if 's' not in item:
@@ -1745,8 +1752,7 @@ def item_instances(item, aft_dt, bef_dt=None):
     else:
         dtstart = dts[0]
 
-    dtstart = dts.replace(tzinfo=None)
-    print('dtstart', dtstart)
+    # dtstart = dts.replace(tzinfo=None)
     if 'r' in item:
         lofh = item['r']
         rset = rruleset()
@@ -1794,7 +1800,6 @@ def item_instances(item, aft_dt, bef_dt=None):
 
     else:
         # dtstart >= aft_dt
-        print(aft_dt, bef_dt, dtstart)
         if bef_dt is None:
             instances = [dtstart] if dtstart > aft_dt else []
         else:
@@ -1868,7 +1873,7 @@ def task(at_hsh):
     >>> item_eg = {"summary": "Task Group",  "s": parse('2018-03-07 8am'), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "-", 'j': [ {'j': 'Job 1', 'f': parse('2018-03-06 10am')}, {'j': 'Job 2'} ] }
     >>> pprint(task(item_eg))
     {'itemtype': '-',
-     'j': [{'f': <Pendulum [2018-03-06T10:00:00+00:00]>,
+     'j': [{'f': DateTime(2018, 3, 6, 10, 0, 0, tzinfo=Timezone('UTC')),
             'j': 'Job 1',
             'p': [],
             'req': [],
@@ -1879,17 +1884,19 @@ def task(at_hsh):
             'req': [],
             'status': '-',
             'summary': 'Task Group 1/1/0: Job 2'}],
-     'r': [{'i': 2, 'r': 'w', 'u': <Pendulum [2018-04-01T08:00:00+00:00]>}],
-     's': <Pendulum [2018-03-07T08:00:00+00:00]>,
+     'r': [{'i': 2,
+            'r': 'w',
+            'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}],
+     's': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')),
      'summary': 'Task Group',
      'z': 'US/Eastern'}
 
-
-
     Now finish the last job and note the update for h and s
     >>> item_eg = {"summary": "Task Group",  "s": parse('2018-03-07 8am'), "z": "US/Eastern",  "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "-", 'j': [ {'j': 'Job 1', 'f': parse('2018-03-06 10am')}, {'j': 'Job 2', 'f': parse('2018-03-07 1pm') } ] }
+    >>> item_eg
+    {'summary': 'Task Group', 's': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), 'z': 'US/Eastern', 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}], 'itemtype': '-', 'j': [{'j': 'Job 1', 'f': DateTime(2018, 3, 6, 10, 0, 0, tzinfo=Timezone('UTC'))}, {'j': 'Job 2', 'f': DateTime(2018, 3, 7, 13, 0, 0, tzinfo=Timezone('UTC'))}]}
     >>> pprint(task(item_eg))
-    {'h': [<Pendulum [2018-03-07T13:00:00+00:00]>],
+    {'h': [DateTime(2018, 3, 7, 13, 0, 0, tzinfo=Timezone('UTC'))],
      'itemtype': '-',
      'j': [{'j': 'Job 1',
             'p': [],
@@ -1901,8 +1908,10 @@ def task(at_hsh):
             'req': ['1'],
             'status': '+',
             'summary': 'Task Group 0/1/1: Job 2'}],
-     'r': [{'i': 2, 'r': 'w', 'u': <Pendulum [2018-04-01T08:00:00+00:00]>}],
-     's': [(<Pendulum [2018-03-21T08:00:00+00:00]>, None)],
+     'r': [{'i': 2,
+            'r': 'w',
+            'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}],
+     's': [(DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('UTC')), None)],
      'summary': 'Task Group',
      'z': 'US/Eastern'}
     """
@@ -1967,7 +1976,7 @@ def jobs(lofh, at_hsh={}):
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
     (True,
-     [{'f': <Pendulum [2018-06-20T12:00:00+00:00]>,
+     [{'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
        'j': 'Job One',
        'p': [],
        'req': [],
@@ -1987,13 +1996,13 @@ def jobs(lofh, at_hsh={}):
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
     (True,
-     [{'f': <Pendulum [2018-06-20T12:00:00+00:00]>,
+     [{'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
        'j': 'Job One',
        'p': [],
        'req': [],
        'status': 'x',
        'summary': ' 2/1/0: Job One'},
-      {'f': <Pendulum [2018-06-21T12:00:00+00:00]>,
+      {'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('UTC')),
        'j': 'Job Two',
        'p': ['1'],
        'req': [],
@@ -2023,11 +2032,12 @@ def jobs(lofh, at_hsh={}):
        'req': ['2', '1'],
        'status': '+',
        'summary': ' 0/1/2: Job Three'}],
-     <Pendulum [2018-06-22T12:00:00+00:00]>)
-
+     DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC')))
 
     Now add an 'r' entry for at_hsh.
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
+    >>> data
+    [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC'))}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('UTC'))}, {'j': 'Job Three', 'a': '6h: m', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC'))}]
     >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a'), 'j': data}))
     (True,
      [{'b': 2,
@@ -2047,7 +2057,7 @@ def jobs(lofh, at_hsh={}):
        'req': ['2', '1'],
        'status': '+',
        'summary': ' 0/1/2: Job Three'}],
-     <Pendulum [2018-06-22T12:00:00+00:00]>)
+     DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC')))
     """
     if 's' in at_hsh:
         job_methods = datetime_job_methods
@@ -2319,7 +2329,7 @@ class PendulumDateSerializer(Serializer):
         return pendulum.from_format(s, 'YYYYMMDD').date()
 
 
-class PendulumIntervalSerializer(Serializer):
+class PendulumDurationSerializer(Serializer):
     """
     This class handles pendulum.duration (timedelta) objects.
     """
@@ -2329,19 +2339,19 @@ class PendulumIntervalSerializer(Serializer):
         """
         Serialize the timedelta object as days.seconds.
         """
-        return format_interval(obj)
+        return format_duration(obj)
 
     def decode(self, s):
         """
         Return the serialization as a timedelta object.
         """
-        return parse_interval(s)[1]
+        return parse_duration(s)[1]
 
 
 serialization = SerializationMiddleware()
 serialization.register_serializer(PendulumDateTimeSerializer(), 'T')
 serialization.register_serializer(PendulumDateSerializer(), 'D')
-serialization.register_serializer(PendulumIntervalSerializer(), 'I')
+serialization.register_serializer(PendulumDurationSerializer(), 'I')
 
 ########################
 ### end TinyDB setup ###
@@ -2372,7 +2382,7 @@ def iso_year_start(iso_year):
     Date(2018, 1, 1)
     """
     fourth_jan = pendulum.date(iso_year, 1, 4)
-    delta = pendulum.duration(fourth_jan.isoweekday()-1)
+    delta = pendulum.duration(days=fourth_jan.isoweekday()-1)
     return (fourth_jan - delta)
 
 
@@ -2562,18 +2572,18 @@ def fmt_extent(beg_dt, end_dt):
     return f"{beg_fmt}{beg_suffix}-{end_fmt}{end_suffix}"
 
 
-def beg_ends(starting_dt, extent_interval, z=None):
+def beg_ends(starting_dt, extent_duration, z=None):
     """
     >>> starting = parse('2018-03-02 9am') 
-    >>> beg_ends(starting, parse_interval('2d2h20m')[1])
+    >>> beg_ends(starting, parse_duration('2d2h20m')[1])
     [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 3, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 3, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 4, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 4, 11, 20, 0, tzinfo=Timezone('UTC')))]
-    >>> beg_ends(starting, parse_interval('8h20m')[1])
+    >>> beg_ends(starting, parse_duration('8h20m')[1])
     [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 17, 20, 0, tzinfo=Timezone('UTC')))]
     """
 
     pairs = []
     beg = starting_dt
-    ending = starting_dt + extent_interval
+    ending = starting_dt + extent_duration
     while ending.date() > beg.date():
         end = beg.end_of('day')
         pairs.append((beg, end))
@@ -2722,12 +2732,12 @@ def import_json(etmdir=None):
         if '-' in item_hsh:
             item_hsh['-'] = [pen_from_fmt(x, z) for x in item_hsh['-'] ]
         if 'e' in item_hsh:
-            item_hsh['e'] = parse_interval(item_hsh['e'])[1]
+            item_hsh['e'] = parse_duration(item_hsh['e'])[1]
         if 'a' in item_hsh:
             alerts = []
             for alert in item_hsh['a']:
-                # drop the True from parse_interval
-                tds = [parse_interval(x)[1] for x in alert[0]]
+                # drop the True from parse_duration
+                tds = [parse_duration(x)[1] for x in alert[0]]
                 cmds = alert[1:2]
                 args = ""
                 if len(alert) > 2 and alert[2]:
