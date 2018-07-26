@@ -1744,7 +1744,7 @@ def item_instances(item, aft_dt, bef_dt=None):
         dts = dts[0]
     if type(dts) == pendulum.Date:
         # change to datetime at midnight on the same date
-        dtstart = pendulum.DateTime(year=dts.year, month=dts.month, day=dts.day, hour=0, minute=0, tz=None)
+        dtstart = pendulum.datetime(year=dts.year, month=dts.month, day=dts.day, hour=0, minute=0)
     elif type(dts) == pendulum.DateTime:
         # dtstart = dts.replace(tzinfo=None)
         dtstart = dts
@@ -2292,27 +2292,27 @@ class PendulumDateTimeSerializer(Serializer):
 
     def decode(self, s):
         """
-        Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object. If the serialization ends with 'N', returning without conversion as a naive datetime object.
+        Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object in the local timezone. If the serialization ends with 'N', returning without conversion as an aware datetime object in the local timezone.
         >>> dts = PendulumDateTimeSerializer()
         >>> dts.decode('20180725T1027N')
-        DateTime(2018, 7, 25, 10, 27, 0)
+        DateTime(2018, 7, 25, 10, 27, 0, tzinfo=Timezone('America/New_York'))
         >>> dts.decode('20180725T1427A')
         DateTime(2018, 7, 25, 10, 27, 0, tzinfo=Timezone('America/New_York'))
         """
         if s[-1] == 'A':
             return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'UTC').in_timezone('local')
         else:
-            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm').naive()
+            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm').naive().in_timezone('local')
 
 
 class PendulumDateSerializer(Serializer):
     """
-    This class handles pendulum date objects.
+    This class handles pendulum date objects. Encode as date string and decode as a midnight datetime without conversion in the local timezone.
     >>> ds = PendulumDateSerializer()
     >>> ds.encode(pendulum.date(2018, 7, 25))
     '20180725'
     >>> ds.decode('20180725')
-    Date(2018, 7, 25)
+    DateTime(2018, 7, 25, 0, 0, 0, tzinfo=Timezone('America/New_York'))
     """
     OBJ_CLASS = pendulum.Date
 
@@ -2326,7 +2326,7 @@ class PendulumDateSerializer(Serializer):
         """
         Return the serialization as a date object.
         """
-        return pendulum.from_format(s, 'YYYYMMDD').date()
+        return pendulum.from_format(s, 'YYYYMMDD').naive().in_timezone('local')
 
 
 class PendulumDurationSerializer(Serializer):
@@ -2362,11 +2362,11 @@ serialization.register_serializer(PendulumDurationSerializer(), 'I')
 ### start week/month ###
 ########################
 
-def get_period(dt=pendulum.now(), months_before=5, months_after=12):
+def get_period(dt=pendulum.now(), months_before=5, months_after=18):
     """
     Return the begining and ending of the period that includes the weeks in current month plus the weeks in the prior *months_before* and the weeks in the subsequent *months_after*. The period will begin at 0 hours on the relevant Monday and end at 23:59:59 hours on the relevant Sunday.
     >>> get_period(pendulum.datetime(2018, 7, 1, 0, 0, tz='US/Eastern'))
-    (DateTime(2018, 1, 29, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2019, 8, 11, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
+    (DateTime(2018, 1, 29, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2020, 2, 9, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
     """
     beg = dt.start_of('month').subtract(months=months_before).start_of('week')
     end = dt.start_of('month').add(months=months_after, weeks=5).end_of('week')

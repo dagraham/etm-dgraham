@@ -10,7 +10,7 @@ from pendulum import parse
 # from model import ONEWEEK, ONEDAY, ONEHOUR, ONEMINUTE
 from model import  set_summary 
 from model import item_instances
-from model import fmt_extent, format_interval, fmt_week
+from model import fmt_extent, format_duration, fmt_week, get_period
 from model import TimeIt
 from model import load_tinydb
 
@@ -211,11 +211,9 @@ class Views(object):
 
         # set 2 character weekday name abbreviations
 
-        self.yearmonth = None
-        self.beg_dt = self.end_dt = None
-        # total months for week views = 1 + bef + aft
-        self.bef_months = 5
-        self.aft_months = 18
+        self.today = None
+        self.beg_dt = None
+        self.end_dt = None
         self.modified = False
         self.todays_alerts = []
         self.completions = {}
@@ -247,31 +245,19 @@ class Views(object):
         """
         If the current month has changed, reset the begin and end dates for the period to include the current month, the preceeding 5 months and the subsequent 18 months. Adjust the dates to include 6 complete weeks for each of the 24 months.
         """
-        self.today = today = pendulum.today()
-        # self.now = now = pendulum.now('Factory')
-        yearmonth = (today.year, today.month)
-        if yearmonth != self.yearmonth:
-            # update year month - this will run on init since self.yearmonth is None
-            self.yearmonth = yearmonth
-            # get the first day of the current month
-            n_beg = pendulum.DateTime(year=yearmonth[0], month=yearmonth[1], day=1, hour=0, minute=0, second=0, microsecond=0)
-            # get the first day of the month bef_months before
-            b = n_beg.subtract(months=self.bef_months)
-            # get the first day of the month aft_months after
-            e = n_beg.add(months=self.aft_months)
-            # get 12am Monday of the first week in the begin month
-            self.beg_dt = b.subtract(days=b.weekday())
-            # to include 6 weeks, get 12am Monday of the 6th week
-            # after the first week in the end month
-            e = e.subtract(days=e.weekday())
-            self.end_dt = e.add(weeks=6)
-            # load the TinyDB database from file (or memory?)
+        n_beg, n_end = get_period()
+        today = pendulum.today()
+        if self.today != today:
+            self.today = today
+            self.modified = True
+
+        if self.beg_dt != n_beg or self.end_dt != n_end:
+            self.beg_dt = n_beg
+            self.end_dt = n_end
             self.load_TinyDB()
             self.load_views()
             self.modified = True
-        if today != self.today:
-            self.today = today
-            self.modified = True
+
         if self.modified:
             self._update_relevant()
             self._todays_begins()
@@ -422,8 +408,8 @@ class Views(object):
         if dts:
             rows = []
             for dt in dts:
-                if type(dt) == pendulum.pendulum.Date:
-                    dt = pendulum.create(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz=None)
+                if type(dt) == pendulum.Date:
+                    dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0)
                 if not self.beg_dt <= dt <= self.end_dt:
                     continue
                 if dt.hour == dt.minute == 0:
@@ -666,7 +652,7 @@ class Views(object):
                                 dt.format(ETMFMT),
                                 cmd,
                                 args,
-                                format_interval(td),
+                                format_duration(td),
                                 item['summary'],
                                 )
                             )
@@ -674,7 +660,7 @@ class Views(object):
                     alerts.append(
                             (dt.format(ETMFMT),
                                 cmd,
-                                format_interval(td),
+                                format_duration(td),
                                 item['summary'],
                                 )
                             )
@@ -764,7 +750,9 @@ if __name__ == '__main__':
     print('\n\n')
     import doctest
     from pprint import pprint
+    print('Initializing Views')
     my_views = Views()
+    print('done')
     for yw in [(2018, 2), (2018, 11), (2018, 12)]:
         print('agenda')
         pprint(my_views.get_agenda_week(yw))

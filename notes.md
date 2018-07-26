@@ -1,5 +1,5 @@
 # Notes for etm
-**Last modified: Wed Jul 25, 2018 03:51PM EDT**
+**Last modified: Thu Jul 26, 2018 02:41PM EDT**
 
 # Design
 ## Requirements
@@ -560,6 +560,15 @@ Maybe add an @key to tasks (events, notes?)
 # Views
 
 ## What's needed
+
+### Issues
+
+- Aware / Naive
+	- TinyDB
+		- Dates are naive
+		- Datetimes can be naive or aware
+	- period begin and end are aware local time
+
 
 * views in which an item contributes a single row:
   * index
