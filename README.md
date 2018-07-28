@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Sat Jul 28, 2018 06:15PM EDT**
+**Last modified: Sat Jul 28, 2018 07:21PM EDT**
 
 # Goals
 
@@ -356,9 +356,9 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 					@j job a &i a
 					@j job b &i b &p a
 					@j job c &i c &p a
-					@j job d &i d &p c
+					@j job d &i d &p b, c
 
-		Here `job a` has no prequisites but is a prerequisite for both `job b` and `job c` and `job c` is a prerequisite for `job d`. The order in which the jobs are listed is irrelevant in this case. 
+		Here `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
 
 - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
