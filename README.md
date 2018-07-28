@@ -1,9 +1,9 @@
 # What's planned for the next etm?
-**Last modified: Thu Jul 26, 2018 03:15PM EDT**
+**Last modified: Sat Jul 28, 2018 04:47PM EDT**
 
 # Goals
 
-- Simplify code. Refactor, document code and add doc tests - make the code more easilty maintainable. See [Item Types](#item-types), [Dates and Date Times](#dates-and-date-times) and [Jobs](#jobs). 
+- Simplify code. Refactor, document code and add doc tests - make the code more easilty maintainable. See [Item Types](#item-types), [Dates and Date Times](#dates-and-datetimes) and [Jobs](#jobs). 
 
 - Speed up performance. Make use of a text-based document store called *TinyDB* that is designed for quick insertions, modifications and retrievals. Make use of stored unique identifiers, to limit view updates to the item actually changed. See [Storage](#storage).
 
@@ -40,40 +40,42 @@ The key bindings for the various commands are listed above. E.g., press 'a' to o
 
 ### `*`: event
 
-- The `@s` entry is required and is interpreted as the starting date or datetime of the event. If the event has an `@e` entry it is interpreted as the extent or duration of the event and the end of the event is then given implicitly by starting datetime plus extent.
+- The `@s` entry is required and can be specified either as a date or as a datetime. It is interpreted as the starting date or datetime of the event. 
+- If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date using the display character `^`. 
+- If `@s` is a datetime, an `@e` entry is allowed and is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.  Events with datetimes are displayed on the relevant date according to the starting time using the display character `*`. 
+- **New**
+	- The old *occasion* item type, `^`, has been replaced by the ability to use a date rather than a datetime in `@s`.
 
-	**New**: The old `^`, *occasion*,  item type is eliminated. The functionality is replaced by using a *date* entry rather than a *datetime* in an event. See  [Dates, Date Times and Time Periods](#dates,-date-times-and-time-periods).
 
 ### `-`: task
 
-- The optional `@s` entry records the datetime at which the task is due or should be finished. Tasks with an `@s` entry are regarded as pastdue after this datetime. Tasks without an `@s` entry are to be completed when possible and are regarded as *next* items in the *Getting Things Done* terminology. An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
-
-	**New**: The old `+`, *task group*, item type is eliminated. The functionality is replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
-
-	**New**: The old `%`, *delegated*, item type is eliminated. An option would be to prepend the name of the person to whom a task is delegated to the task summary. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
-
-	**New**: The old `@c`, *context*, for tasks has been merged into *location*, `@l`. 
-
-	**New**: The `@c` entry is now used to denote the *calendar* to which the item belongs. E.g., I use calendars named `dag` (me), `erp` (wife) and `shared`. My default is to display `dag` and `shared` and to interpret items without an `@c` entry as belonging to `dag`. 
-
-- Display characters for tasks and jobs:
-
-    - `x`: finished task or job
-    - `-`: unfinished task or job without unfinished prerequisites
-    - `+`: job with unfinished prerequisites
-
+- The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is due. 
+- An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
+- Tasks with an `@s` datetime entry are regarded as pastdue after this datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
+- Tasks with `@s` date entry are regarded as pastdue at the end of the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
+- Each pastdue task is also displayed in *Agenda View* on the current date together with the number of days that the task is past due.
+- Tasks without an `@s` entry are to be completed when possible. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Next View* grouped by `@l` (location/context).
+- *Display* characters. Tasks are always entered using the type character `-` but are displayed using `-`, `+` or `x`, depending upon the status of the task or job:
+	- `-`: available (an unfinished task or a job with no unfinished prerequisites)
+	- `+`: waiting (an unfinished job with unfinished prerequisites)
+	- `x`: a finished task or job
 - When a job is finished, the "done" datetime is recorded in an `&f` entry in the job and, if there was a due datetime, that is appended using the format `&f done:due`. When the last job in a task is finished or when a task without jobs is finished a similar entry in the task itself using `@f done:due`. If there are jobs, then the `&f` entries are removed from the jobs. 
 - Another step is taken for repeating tasks with as yet unfinished future repetitions. When the task or last job in the current repetition is completed, the `@s` entry is updated using the setting for `@o` to show the next due datetime and the `@f` entry is removed and appended to `@h`. A user configuration setting determines the number of most recent done:due records retained.  
 
+- **New** 
+	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
+	- The old `%`, *delegated*, item type is eliminated. An option would be to prepend the name of the person to whom a task is delegated to the task summary followed by a colon. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
+	-	The old `@c`, *context*, for tasks has been merged into *location*, `@l`.  
+	- Undated tasks are displayed in *Next View* grouped by *location*.
+
 ### `%`: Note
 
-Unchanged but for the change in the type character from `!` to `%`. An entry for `@s` is optional.
+Unchanged but for the change in the type character from `!` to `%`. The type character `!` is now used for *inbox items* to suggest their urgency.  
 
 ### `~`: action
 
   - In an *action*, `@s` records the datetime that the action was started, `@e` the timeperiod that the work on the action was active and `@f` the datetime that the action was finished. The timeperiod that work on the action was inactive is given implicitly by `finished` minus `started` minus `active`.
 
-	**New**: Each action is displayed in the *Done* view on the `finished` date using the display character `~`, the item summary, the `finished` time and the `timeperiod active`.
 
   - It is **strongly recommended** that actions should be given an `@i`, *index*, entry since accounting reports which aggregate time expenditures are based on the index entries. Default action reports suppose that index entries for actions take the form `client:job` and show aggregates for the previous and current months by 
 
@@ -82,7 +84,6 @@ Unchanged but for the change in the type character from `!` to `%`. An entry for
             job
 
   - An etm *timer* can be used to record an action based upon a selected item or a newly created action:
-
       - Begin:
           - Either select an item (event, task, note or existing action) on which the action should be based. The summary and `@i` entry from the item will be used for the new action.
           - Or create a new item with the action type character `~` and a summary for the new action. An `@i` entry is recommended but can be added later. Save and select the new action.
@@ -94,6 +95,8 @@ Unchanged but for the change in the type character from `!` to `%`. An entry for
           - the moment at which the timer was stopped as `@f`
       - Choose whether or not to edit the action. If the action does not have an `@i` entry, you will be prompted to add one.
       - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
+- **New**
+	- Each action is displayed in the *Done View* on the date `finished`   according to the time `finished`.
 
 ### `?`: someday
 
@@ -101,16 +104,9 @@ Unchanged.
 
 ### `!`: inbox
 
-Unchanged but for the change in the type character from `$` to `!`. Inbox items will always be shown in dated views on the current date. 
+Unchanged but for the change in the type character from `$` to `!`. Inbox items are displayed in dated views on the current date. 
 
-Illustrative uses for inbox items:
-
-- A task that is due on the current date.
-- An event for which the starting time needs to be confirned. 
-- A note that needs to be completed.
-
-
-### Expansions
+### Expansions (**New**)
 
 The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *expansion key*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
@@ -146,8 +142,8 @@ Note that changing the entry for  `expansions` in your configuration settings wi
 
 ## @-keys
 
-    +: include: list of date-times to include,
-    -: exclude: list of date-times to exclude from rrule,
+    +: include: list of datetimes to include,
+    -: exclude: list of datetimes to exclude from rrule,
     a: alert (list of timeperiods[: cmd[, list of cmd args]]),
     b: beginby: integer (number of days),
     c: calendar: string,
@@ -240,17 +236,19 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
     The unique identifier, `2756`, is created automatically by *TinyDB*.
 
 - Two timestamps are automatically created for items: `created`, corresponding to the moment the item was created and `modified`, corresponding to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp.  
-- **New**. The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry 
 
-		@i plant:tree:oak
+- **New**
+	- The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry 
 
-	would display the item in the *index* view under:
+			@i plant:tree:oak
 
-    - plant
-        - tree
-            - oak
+		would display the item in the *index* view under:
 
-- **New**. The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
+			- plant
+				  - tree
+					    - oak
+
+	- The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
 ## Dates, Date Times and Time Periods
 
@@ -260,7 +258,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
     - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and period storage. *Pendulum* date,  datetime and period objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as datetime and interval objects when retrieved by etm. 
     - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
     - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
-    - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to midnight and then, along with naive date-times, are treated as aware in the local timezone.
+    - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to midnight and then, along with naive datetimes, are treated as aware in the local timezone.
 
 - Fuzzy parsing of entries is suppored. 
 - Here are examples of fuzzy parsing and serialization supposing that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern:
@@ -271,13 +269,13 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 	  Interpreted as `Fri, Jan 5, 2018`. With only a **date** specified, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone and would be serialized as `{D}:20180105`. Note that dates are necessarily naive and thus there is no need to append an `N` to the serialization.
 
-    - Aware date-time in the local timezone:
+    - Aware datetime in the local timezone:
 
 				@s fri 2p
 
-		Interpreted as `Fri, Jan 5, 2018 2pm EST`. With both a **date** and a **time** specified but without an entry for `@z`, this schedules an item starting at the specified date-time in the **current timezone** (US/Eastern) and would be serialized as `{T}:20180105T1900A`. Note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
+		Interpreted as `Fri, Jan 5, 2018 2pm EST`. With both a **date** and a **time** specified but without an entry for `@z`, this schedules an item starting at the specified datetime in the **local timezone** (US/Eastern) and would be serialized as `{T}:20180105T1900A`. Note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
 
-    - Aware date-time in a different timezone:
+    - Aware datetime in a different timezone:
 
 				@s fri 2p @z US/Pacific
 
@@ -285,7 +283,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 		In the local timezone (US/Eastern) this item would be displayed as starting at 5pm EST.
 
-    - Naive date-time:
+    - Naive datetime:
 
 				@s fri 2p @z float
 
@@ -293,23 +291,17 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
     The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
 
-- Since python cannot compare either aware and naive date-times or dates and date-times, etm converts everything to aware date-times in the local timezone of the user. Since aware date-times are are stored as UTC times, they are converted to the local timezone. Dates are first converted to date-times using midnight as the time and then treated as aware local times without conversion. Similarly, naive date-times are treated as aware local times without conversion. 
+- Since python cannot compare aware with naive datetimes or dates with datetimes, etm converts everything to aware datetimes in the local timezone of the user. Since aware datetimes are are stored as UTC times, they are converted to the local timezone. Dates are first converted to datetimes using midnight as the time and then treated as aware in the local timezone without conversion. Similarly, naive datetimes are treated as aware in the local timezone without conversion. 
 
 - When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time changes. E.g., with
 
-			@s Fri Jan 26 2018 2pm @r m @z US/Eastern
+			@s Fri Jan 26 2018 2pm @r m -1FR @z US/Eastern
 
 	the first three repetitions would all be at 2pm even though the first two are EST and the third is EDT: 
 
 			Fri Jan 26 2018 2:00PM
-			Mon Feb 26 2018 2:00PM
-			Mon Mar 26 2018 2:00PM
-
-- **New**: *Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
-
-      * my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
-
-    would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used. This replaces and simplifies the old `@r l`, list only, repetition frequency.
+			Fri Feb 23 2018 2:00PM
+			Fri Mar 30 2018 2:00PM
 
 - The *relevant datetime* of an item (used, e.g., in index view): 
     - Non-repeating events and non-repeating unfinished tasks: the datetime given in `@s`
@@ -324,6 +316,13 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
     - Naive datetimes are displayed without conversion.
     - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as starting at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `fri 2p, US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
     - Datetimes are rounded to the nearest minute for display.
+- **New**
+	- *Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
+
+				* my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
+
+		would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used. This replaces and simplifies the old `@r l`, list only, repetition frequency.
+
 
 ## Jobs
 

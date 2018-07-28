@@ -2521,14 +2521,14 @@ def getWeeksForMonth(ym):
 ### end week/month ###
 ######################
 
-def pen_from_fmt(s, z='Factory'):
-    dt = pendulum.from_format(s, "%Y%m%dT%H%M", z)
+def pen_from_fmt(s, z='local'):
+    dt = pendulum.from_format(s, "YYYYMMDDTHHmm", z)
     if z == 'Factory' and dt.hour == dt.minute == 0:
         dt = dt.date()
     return dt
 
 def timestamp_from_id(doc_id, z='local'):
-    return pendulum.from_format(str(doc_id)[:12], "%Y%m%d%H%M").in_timezone(z)
+    return pendulum.from_format(str(doc_id)[:12], "YYYYMMDDHHmm").in_timezone(z)
 
 def drop_zero_minutes(dt):
     """
@@ -2714,11 +2714,11 @@ def import_json(etmdir=None):
         item_hsh = items[id]
         if item_hsh['itemtype'] not in type_keys:
             continue
-        z = item_hsh.get('z', 'Factory')
+        z = item_hsh.get('z', 'float')
         bad_keys = [x for x in item_hsh if x not in at_keys]
         for key in bad_keys:
             del item_hsh[key]
-        item_hsh['created'] = timestamp_from_id(id, 'Factory')
+        item_hsh['created'] = timestamp_from_id(id, 'UTC')
         if 's' in item_hsh:
             item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
         elif 'z' in item_hsh:
