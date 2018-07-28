@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Sat Jul 28, 2018 04:47PM EDT**
+**Last modified: Sat Jul 28, 2018 06:15PM EDT**
 
 # Goals
 
@@ -96,7 +96,7 @@ Unchanged but for the change in the type character from `!` to `%`. The type cha
       - Choose whether or not to edit the action. If the action does not have an `@i` entry, you will be prompted to add one.
       - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
 - **New**
-	- Each action is displayed in the *Done View* on the date `finished`   according to the time `finished`.
+	- Each action is displayed in the *Done View* on the finished date   according to the finished time.
 
 ### `?`: someday
 
@@ -342,29 +342,32 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 	- Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
 
-			- automatically assigned
-				@j job A
-				@j job B
-				@j job C
+				- automatically assigned
+					@j job A
+					@j job B
+					@j job C
+					@j job D
 
-		`job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C`. 
+		`job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C` which, finally, is a prerequisite for `job D`. 
 
 	- Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (identifier) and `&p`, (comma separated list of identifiers of immediate prequisites). E.g., with
 
-			- manually assigned
-				@j job a &i a
-				@j job b &i b
-				@j job c &i 3 &p a, b
+				- manually assigned
+					@j job a &i a
+					@j job b &i b &p a
+					@j job c &i c &p a
+					@j job d &i d &p c
 
-		Neither `job a` nor `job b` have any prerequisites but `job a` and `job b` are both prerequistes for `job c`. The order in which the jobs are listed is irrelevant in this case. 
+		Here `job a` has no prequisites but is a prerequisite for both `job b` and `job c` and `job c` is a prerequisite for `job d`. The order in which the jobs are listed is irrelevant in this case. 
 
 - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
-          x manually assigned [1/1/1]: job a
-          - manually assigned [1/1/1]: job b
-          + manually assigned [1/1/1]: job c
+          x manually assigned [1/2/1]: job a
+          - manually assigned [1/2/1]: job b
+          - manually assigned [1/2/1]: job c
+          + manually assigned [1/2/1]: job d
 
-  would indicate that `job a` is *finished*, `job b` is *available* (has no unfinished prerequistites) and that `job c` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, available and waiting jobs, respectively.
+	would indicate that `job a` is *finished*, `job b`  and `job c` are *available* (have no unfinished prerequistites) and that `job d` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, available and waiting jobs in the task, respectively.
 
 # Views
 
