@@ -1,9 +1,9 @@
 # What's planned for the next etm?
-**Last modified: Sat Jul 28, 2018 09:39PM EDT**
+**Last modified: Sat Jul 28, 2018 09:50PM EDT**
 
 # Goals
 
-- Simplify code. Refactor, document code and add doc tests - make the code more easilty maintainable. See [Item Types](#item-types), [Dates and Date Times](#dates-and-datetimes) and [Jobs](#jobs). 
+- Simplify code. Refactor, document code and add doc tests - make the code more easilty maintainable. See [Item Types](#item-types), [Dates, Date Times and Durations](#dates-datetimes-and-durations) and [Jobs](#jobs). 
 - Speed up performance. Make use of a text-based document store called *TinyDB* that is designed for quick insertions, modifications and retrievals. Make use of stored unique identifiers, to limit view updates to the item actually changed. See [Storage](#storage).
 - Simplify data entry. Provide "just in time" information when creating or editing data entries. See [Work Flow](#work-flow). 
 - Provide a simpler, terminal-based GUI using *urwid* along with a CLI that allows creating items and reports from the command line. See [Views](#views) for details about the various views.
@@ -220,11 +220,11 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 	- The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
-## Dates, Date Times and Time Periods
+## Dates, DateTimes and Durations
 
-- Dates (naive) and datetimes (both naive and aware) are suppored along with time periods (pendulum durations which are analagous to python timedeltas). 
+- Dates (naive) and datetimes (both naive and aware) are suppored along with durations (pendulum durations which are analagous to python timedeltas). 
 - Storage: 
-    - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and period storage. *Pendulum* date,  datetime and period objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as datetime and interval objects when retrieved by etm. 
+    - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and duration storage. *Pendulum* date,  datetime and duration objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date, datetime and duration objects when retrieved by etm. 
     - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
     - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
     - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to midnight and then, along with naive datetimes, are treated as aware in the local timezone.
