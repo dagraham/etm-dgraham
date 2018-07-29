@@ -1,38 +1,13 @@
 # What's planned for the next etm?
-**Last modified: Sat Jul 28, 2018 07:21PM EDT**
+**Last modified: Sat Jul 28, 2018 09:39PM EDT**
 
 # Goals
 
 - Simplify code. Refactor, document code and add doc tests - make the code more easilty maintainable. See [Item Types](#item-types), [Dates and Date Times](#dates-and-datetimes) and [Jobs](#jobs). 
-
 - Speed up performance. Make use of a text-based document store called *TinyDB* that is designed for quick insertions, modifications and retrievals. Make use of stored unique identifiers, to limit view updates to the item actually changed. See [Storage](#storage).
-
 - Simplify data entry. Provide "just in time" information when creating or editing data entries. See [Work Flow](#work-flow). 
-
 - Provide a simpler, terminal-based GUI using *urwid* along with a CLI that allows creating items and reports from the command line. See [Views](#views) for details about the various views.
-
-
 - Provide a means for migrating existing etm data to the new format.
-
-# Command Shortcut Keys
-
-    -- VIEWS ------------------------------------------ 
-    a: agenda        n: next           t: tags 
-    b: busy          s: someday        f: filter view 
-    d: done          i: index          l: outline level 
-    m: month         h: history        c: set calendars 
-    -- SELECTED ITEM ---------------------------------- 
-    C: copy          F: finish         I: export ical 
-    D: delete        R: reschedule     L: open link 
-    E: edit          S: schedule new   T: start timer 
-    -- TOOLS ------------------------------------------ 
-    A: show alerts   P: preferences    F2: date calc 
-    J: jump to date  Q: query          F3: yearly 
-    N: new item      V: view as text   F8: quit 
-
-
-The key bindings for the various commands are listed above. E.g., press 'a' to open agenda view. In any of the views, 'Enter' toggles the expansion of the selected node or item. In any of the dated views, 'Shift Left' and 'Shift Right' change the period displayed and 'Space' changes the display to the current date.
-
 
 # Data
 
@@ -45,7 +20,6 @@ The key bindings for the various commands are listed above. E.g., press 'a' to o
 - If `@s` is a datetime, an `@e` entry is allowed and is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.  Events with datetimes are displayed on the relevant date according to the starting time using the display character `*`. 
 - **New**
 	- The old *occasion* item type, `^`, has been replaced by the ability to use a date rather than a datetime in `@s`.
-
 
 ### `-`: task
 
@@ -61,7 +35,6 @@ The key bindings for the various commands are listed above. E.g., press 'a' to o
 	- `x`: a finished task or job
 - When a job is finished, the "done" datetime is recorded in an `&f` entry in the job and, if there was a due datetime, that is appended using the format `&f done:due`. When the last job in a task is finished or when a task without jobs is finished a similar entry in the task itself using `@f done:due`. If there are jobs, then the `&f` entries are removed from the jobs. 
 - Another step is taken for repeating tasks with as yet unfinished future repetitions. When the task or last job in the current repetition is completed, the `@s` entry is updated using the setting for `@o` to show the next due datetime and the `@f` entry is removed and appended to `@h`. A user configuration setting determines the number of most recent done:due records retained.  
-
 - **New** 
 	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
 	- The old `%`, *delegated*, item type is eliminated. An option would be to prepend the name of the person to whom a task is delegated to the task summary followed by a colon. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
@@ -75,8 +48,6 @@ Unchanged but for the change in the type character from `!` to `%`. The type cha
 ### `~`: action
 
   - In an *action*, `@s` records the datetime that the action was started, `@e` the timeperiod that the work on the action was active and `@f` the datetime that the action was finished. The timeperiod that work on the action was inactive is given implicitly by `finished` minus `started` minus `active`.
-
-
   - It is **strongly recommended** that actions should be given an `@i`, *index*, entry since accounting reports which aggregate time expenditures are based on the index entries. Default action reports suppose that index entries for actions take the form `client:job` and show aggregates for the previous and current months by 
 
         month
@@ -211,7 +182,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 ## Storage
 
-- All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not human-editable - not easily anyway.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
+- All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not easily human-editable.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
 
         "2756": {
           "c": "shared",
@@ -236,7 +207,6 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
     The unique identifier, `2756`, is created automatically by *TinyDB*.
 
 - Two timestamps are automatically created for items: `created`, corresponding to the moment the item was created and `modified`, corresponding to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp.  
-
 - **New**
 	- The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry 
 
@@ -254,12 +224,10 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 - Dates (naive) and datetimes (both naive and aware) are suppored along with time periods (pendulum durations which are analagous to python timedeltas). 
 - Storage: 
-
     - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and period storage. *Pendulum* date,  datetime and period objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as datetime and interval objects when retrieved by etm. 
     - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
     - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
     - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to midnight and then, along with naive datetimes, are treated as aware in the local timezone.
-
 - Fuzzy parsing of entries is suppored. 
 - Here are examples of fuzzy parsing and serialization supposing that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern:
 
@@ -274,7 +242,6 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 				@s fri 2p
 
 		Interpreted as `Fri, Jan 5, 2018 2pm EST`. With both a **date** and a **time** specified but without an entry for `@z`, this schedules an item starting at the specified datetime in the **local timezone** (US/Eastern) and would be serialized as `{T}:20180105T1900A`. Note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
-
     - Aware datetime in a different timezone:
 
 				@s fri 2p @z US/Pacific
@@ -282,7 +249,6 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 		With the **timezone** specified, this would be interpreted as `Fri, Jan 5 2018 2pm PST` and would be serialized as `{T}:20180105T2200A`. Again note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
 
 		In the local timezone (US/Eastern) this item would be displayed as starting at 5pm EST.
-
     - Naive datetime:
 
 				@s fri 2p @z float
@@ -290,9 +256,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 		With both a **date** and a **time** specified and with `float` as the timezone, this would be interpreted as `Fri, Jan 5, 2018 2pm`, in whatever happens to be the local timezone, and would be serialized as `{T}:20180105T1400N`. Note the appended `N` to indicate that this is a naive datetime.
 
     The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
-
 - Since python cannot compare aware with naive datetimes or dates with datetimes, etm converts everything to aware datetimes in the local timezone of the user. Since aware datetimes are are stored as UTC times, they are converted to the local timezone. Dates are first converted to datetimes using midnight as the time and then treated as aware in the local timezone without conversion. Similarly, naive datetimes are treated as aware in the local timezone without conversion. 
-
 - When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time changes. E.g., with
 
 			@s Fri Jan 26 2018 2pm @r m -1FR @z US/Eastern
@@ -302,7 +266,6 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 			Fri Jan 26 2018 2:00PM
 			Fri Feb 23 2018 2:00PM
 			Fri Mar 30 2018 2:00PM
-
 - The *relevant datetime* of an item (used, e.g., in index view): 
     - Non-repeating events and non-repeating unfinished tasks: the datetime given in `@s`
     - Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance.
@@ -323,13 +286,10 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 		would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used. This replaces and simplifies the old `@r l`, list only, repetition frequency.
 
-
 ## Jobs
 
 - Tasks, both with and without `@s` entries can have component jobs using `@j` entries.  A task with jobs thus replaces the old task group.
-
 - For tasks with an `@s` entry, jobs can have an `&s` entry to set the due date/datetime for the job. It can be entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task or as date/datetime. However entered, the value of `&s` is stored as a relative timeperiod with zero minutes as the default.
-
 - For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b`, beginning soon, notices. The entry for `&a` is given as a time period relative to `&s` (+ before or - after) and the entry for `&b` is a positive integer number of days before the starting date/time to begin displaying "beginning soon" notices. Entries for `@a` and `@b` in the task become the defaults for `&a` and `&b`, respectively.  E.g., with
 
           - beginning soon example @s 1/30/2018 @b 10
@@ -337,9 +297,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
             @j job B 
 
     Beginning soon notices would begin on Jan 15 for job A (due Jan 25) and on January 20 for job B (due Jan 30).
-
 - Prerequisites
-
 	- Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
 
 				- automatically assigned
@@ -349,7 +307,6 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 					@j job D
 
 		`job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C` which, finally, is a prerequisite for `job D`. 
-
 	- Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (identifier) and `&p`, (comma separated list of identifiers of immediate prequisites). E.g., with
 
 				- manually assigned
@@ -359,7 +316,6 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 					@j job d &i d &p b, c
 
 		Here `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
-
 - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
 
           x manually assigned [1/2/1]: job a
@@ -785,3 +741,24 @@ Analagous to the old custom view. Used to issue queries against the data store a
         |    Fri Feb 16 2018 2:00PM                                |
         |    Fri Mar 23 2018 2:00PM                                |
         | All times: America/New_York                              |
+
+
+# Command Shortcut Keys
+
+    -- VIEWS ------------------------------------------ 
+    a: agenda        n: next           t: tags 
+    b: busy          s: someday        f: filter view 
+    d: done          i: index          l: outline level 
+    m: month         h: history        c: set calendars 
+    -- SELECTED ITEM ---------------------------------- 
+    C: copy          F: finish         I: export ical 
+    D: delete        R: reschedule     L: open link 
+    E: edit          S: schedule new   T: start timer 
+    -- TOOLS ------------------------------------------ 
+    A: show alerts   P: preferences    F2: date calc 
+    J: jump to date  Q: query          F3: yearly 
+    N: new item      V: view as text   F8: quit 
+
+
+The key bindings for the various commands are listed above. E.g., press 'a' to open agenda view. In any of the views, 'Enter' toggles the expansion of the selected node or item. In any of the dated views, 'Shift Left' and 'Shift Right' change the period displayed and 'Space' changes the display to the current date.
+
