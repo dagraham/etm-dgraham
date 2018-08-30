@@ -2332,8 +2332,13 @@ class PendulumDateSerializer(Serializer):
 class PendulumDurationSerializer(Serializer):
     """
     This class handles pendulum.duration (timedelta) objects.
+    >>> dus = PendulumDurationSerializer()
+    >>> dus.encode(pendulum.duration(days=3, hours=5, minutes=15))
+    '3d5h15m'
+    >>> dus.decode('3d5h15m')
+    Duration(days=3, hours=5, minutes=15)
     """
-    OBJ_CLASS = pendulum.duration
+    OBJ_CLASS = pendulum.Duration
 
     def encode(self, obj):
         """
@@ -2714,7 +2719,7 @@ def import_json(etmdir=None):
         item_hsh = items[id]
         if item_hsh['itemtype'] not in type_keys:
             continue
-        z = item_hsh.get('z', 'float')
+        z = item_hsh.get('z', 'local')
         bad_keys = [x for x in item_hsh if x not in at_keys]
         for key in bad_keys:
             del item_hsh[key]
@@ -2805,6 +2810,8 @@ def import_json(etmdir=None):
             else:
                 del item_hsh['r']
 
+        # pprint(item_hsh)
+        # db.insert(item_hsh)
         docs.append(item_hsh)
     db.insert_multiple(docs)
 

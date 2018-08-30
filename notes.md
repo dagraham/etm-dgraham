@@ -1,7 +1,31 @@
 # Notes for etm
-**Last modified: Thu Jul 26, 2018 03:13PM EDT**
+**Last modified: Wed Aug 29, 2018 02:05PM EDT**
+
+# Qt/QML
+
+## Main/View Window
+
+### Menus
+
+* View Selection
+  * Agenda
+  * Busy
+  * Done
+  * Monthly?
+  * Next
+  * Someday (make someday a location for viewing in next?)
+  * Index
+  * History (3 columns: summary, date-created, date-modified)
+  * Tags
+
+  * Query?
+  * Set Filter
+  * Set Outline Level
+
+
 
 # Design
+
 ## Requirements
 
 * Create a new item
@@ -63,6 +87,10 @@
       dated_item = Dated(Item())
 
 # ToDo
+
+## Issues
+
+* FIXME: modifying a repeated item with @- entries that don't fit the new rule
 
 ## Refactor
 

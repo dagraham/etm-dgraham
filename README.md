@@ -1,5 +1,46 @@
 # What's planned for the next etm?
-**Last modified: Sat Jul 28, 2018 09:50PM EDT**
+**Last modified: Thu Aug 30, 2018 11:14AM EDT**
+
+**Contents**
+<!-- vim-markdown-toc GFM -->
+
+* [Goals](#goals)
+* [Data](#data)
+  * [Item Types](#item-types)
+    * [event](#event)
+    * [task](#task)
+    * [note](#note)
+    * [action](#action)
+    * [inbox](#inbox)
+  * [Expansions (**New**)](#expansions-new)
+  * [`@`keys](#keys)
+  * [`&`keys](#keys-1)
+    * [`@r`:](#r)
+    * [`@j`:](#j)
+    * [Count versus Until in Repetition Entries](#count-versus-until-in-repetition-entries)
+  * [Storage](#storage)
+  * [Dates, DateTimes and Durations](#dates-datetimes-and-durations)
+  * [Jobs](#jobs)
+* [Views](#views)
+  * [Weekly](#weekly)
+    * [Agenda](#agenda)
+    * [Busy](#busy)
+    * [Done](#done)
+  * [Monthly](#monthly)
+  * [Next](#next)
+  * [Index](#index)
+  * [History](#history)
+    * [Orignally Created](#orignally-created)
+    * [Last Modified](#last-modified)
+  * [Tags](#tags)
+  * [Query](#query)
+* [Work Flow](#work-flow)
+  * [Editing an existing item](#editing-an-existing-item)
+  * [Creating a new item](#creating-a-new-item)
+* [Command Shortcut Keys](#command-shortcut-keys)
+
+<!-- vim-markdown-toc -->
+
 
 # Goals
 
@@ -13,7 +54,9 @@
 
 ## Item Types
 
-### `*`: event
+### event
+
+Type character: `*`
 
 - The `@s` entry is required and can be specified either as a date or as a datetime. It is interpreted as the starting date or datetime of the event. 
 - If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date using the display character `^`. 
@@ -21,14 +64,16 @@
 - **New**
 	- The old *occasion* item type, `^`, has been replaced by the ability to use a date rather than a datetime in `@s`.
 
-### `-`: task
+### task
+
+Type character: `-`
 
 - The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is due. 
+  - Tasks with an `@s` datetime entry are regarded as pastdue after this datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
+  - Tasks with `@s` date entry are regarded as pastdue at the end of the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
 - An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
-- Tasks with an `@s` datetime entry are regarded as pastdue after this datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
-- Tasks with `@s` date entry are regarded as pastdue at the end of the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
 - Each pastdue task is also displayed in *Agenda View* on the current date together with the number of days that the task is past due.
-- Tasks without an `@s` entry are to be completed when possible. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Next View* grouped by `@l` (location/context).
+- Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Next View* grouped by `@l` (location/context).
 - *Display* characters. Tasks are always entered using the type character `-` but are displayed using `-`, `+` or `x`, depending upon the status of the task or job:
 	- `-`: available (an unfinished task or a job with no unfinished prerequisites)
 	- `+`: waiting (an unfinished job with unfinished prerequisites)
@@ -36,27 +81,31 @@
 - When a job is finished, the "done" datetime is recorded in an `&f` entry in the job and, if there was a due datetime, that is appended using the format `&f done:due`. When the last job in a task is finished or when a task without jobs is finished a similar entry in the task itself using `@f done:due`. If there are jobs, then the `&f` entries are removed from the jobs. 
 - Another step is taken for repeating tasks with as yet unfinished future repetitions. When the task or last job in the current repetition is completed, the `@s` entry is updated using the setting for `@o` to show the next due datetime and the `@f` entry is removed and appended to `@h`. A user configuration setting determines the number of most recent done:due records retained.  
 - **New** 
-	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
-	- The old `%`, *delegated*, item type is eliminated. An option would be to prepend the name of the person to whom a task is delegated to the task summary followed by a colon. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
 	-	The old `@c`, *context*, for tasks has been merged into *location*, `@l`.  
-	- Undated tasks are displayed in *Next View* grouped by *location*.
+	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
+	- The old `%`, *delegated*, item type is eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
+  - The old `?` *someday* item type has been eliminated. Setting `@l someday` for such items is recommended.
 
-### `%`: Note
+### note
+
+Type character: `%`
 
 Unchanged but for the change in the type character from `!` to `%`. The type character `!` is now used for *inbox items* to suggest their urgency.  
 
-### `~`: action
+### action
+
+Type character: `~`
 
   - In an *action*, `@s` records the datetime that the action was started, `@e` the timeperiod that the work on the action was active and `@f` the datetime that the action was finished. The timeperiod that work on the action was inactive is given implicitly by `finished` minus `started` minus `active`.
-  - It is **strongly recommended** that actions should be given an `@i`, *index*, entry since accounting reports which aggregate time expenditures are based on the index entries. Default action reports suppose that index entries for actions take the form `client:job` and show aggregates for the previous and current months by 
+  - Action reports aggregate time expenditures by month and index entry. If, e.g.,  index entries take the form `project:job` then the grouping would be: 
 
         month
-          client
+          project
             job
 
   - An etm *timer* can be used to record an action based upon a selected item or a newly created action:
       - Begin:
-          - Either select an item (event, task, note or existing action) on which the action should be based. The summary and `@i` entry from the item will be used for the new action.
+          - Either select an item (event, task, note or existing completed action) on which the action should be based. The summary and `@i` entry from the selected item will be used for the new action.
           - Or create a new item with the action type character `~` and a summary for the new action. An `@i` entry is recommended but can be added later. Save and select the new action.
       - Start the timer.
       - Pause/resume the timer as often as desired.
@@ -69,15 +118,13 @@ Unchanged but for the change in the type character from `!` to `%`. The type cha
 - **New**
 	- Each action is displayed in the *Done View* on the finished date   according to the finished time.
 
-### `?`: someday
+### inbox
 
-Unchanged.
-
-### `!`: inbox
+Type character: `!`
 
 Unchanged but for the change in the type character from `$` to `!`. Inbox items are displayed in dated views on the current date. 
 
-### Expansions (**New**)
+## Expansions (**New**)
 
 The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *expansion key*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
@@ -111,7 +158,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 Note that changing the entry for  `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the actual expansion is used to replace the key. 
 
-## @-keys
+## `@`keys
 
     +: include: list of datetimes to include,
     -: exclude: list of datetimes to exclude from rrule,
@@ -136,7 +183,7 @@ Note that changing the entry for  `expansions` in your configuration settings wi
     x: expansion key: string,
     z: timezone: string,
 
-## &-keys
+## `&`keys
 
 These keys are only used in `@r` (repetition) and `@j` (job) entries.
 
@@ -222,7 +269,13 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 ## Dates, DateTimes and Durations
 
-- Dates (naive) and datetimes (both naive and aware) are suppored along with durations (pendulum durations which are analagous to python timedeltas). 
+- Dates (naive) and datetimes (both naive and aware) are suppored along with durations (pendulum durations which are analagous to python timedeltas).
+- Localization is supported using Pendulum, e.g. 
+
+			>>> pendulum.set_locale('fr')
+			>>> dt = pendulum.datetime(2018, 8, 4)
+			>>> dt.format('dddd D MMMM YYYY')
+			'samedi 4 août 2018'
 - Storage: 
     - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and duration storage. *Pendulum* date,  datetime and duration objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date, datetime and duration objects when retrieved by etm. 
     - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
@@ -230,14 +283,12 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
     - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to midnight and then, along with naive datetimes, are treated as aware in the local timezone.
 - Fuzzy parsing of entries is suppored. 
 - Here are examples of fuzzy parsing and serialization supposing that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern:
-
-    - Naive date:
+	- Naive date:
 
 				@s fri
 
-	  Interpreted as `Fri, Jan 5, 2018`. With only a **date** specified, this schedules an all-day, floating (naive) item for the specified date in whatever happens to be the local timezone and would be serialized as `{D}:20180105`. Note that dates are necessarily naive and thus there is no need to append an `N` to the serialization.
-
-    - Aware datetime in the local timezone:
+		Interpreted as `Fri, Jan 5, 2018`. With only a **date** specified, this schedules a floating (naive) item for the specified date in whatever happens to be the local timezone and would be serialized as `{D}:20180105`. Note that dates are necessarily naive and thus there is no need to append an `N` to the serialization.
+	- Aware datetime in the local timezone:
 
 				@s fri 2p
 
@@ -327,9 +378,9 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 # Views
 
-View shortcut keys: a)genda, b)usy, d)one, m)onthly, h)istory, i)ndex, n)ext, s)omeday and t)ags. In all views, pressing `l` prompts for the outline expansion level and `f` prompts for a filter to apply to the displayed items.
+View shortcut keys: a)genda, b)usy, d)one, m)onthly, h)istory, i)ndex, n)ext, q)uery and t)ags. In all views, pressing `l` prompts for the outline expansion level and `f` prompts for a filter to apply to the displayed items.
 
-ASCII art is used in the following to suggest the appearance of the view in the *urwid* GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in *urwid* each actually takes only 1 line leaving 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
+ASCII art is used in the following to suggest the appearance of the view in the GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in each actually takes only 1 line leaving 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
 
 ## Weekly
 
@@ -404,9 +455,9 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 ### Busy
 
-- Hours in the day that are partially or wholly "busy" are marked with `#`.
-- Hours in which a conflict occurs are marked with `###`.
-- The total number of minutes scheduled for the days are given at the bottom of the day columns.
+- Hours in the day that are partially or wholly "busy" are filled using the color of the calendar for the relevant item. Shown here with `#`.
+- Hours in which a conflict occurs are filled with the overlapping calendar colors of the relevant items. Shown here with `###`.
+- Mouse over tool tips show the summary and times for the relevant item.
 
         +----------------------------------------------------------+
         | Busy - Week 4: Jan 22 - 28, 2018                 F1:help |  1
@@ -438,7 +489,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |          .      .      .      .      .      .      .     | 26
         |    12a   .      .      .      .      .      .      .     | 27
         |        -----------------------------------------------   | 28
-        | minutes 320    120    210    180     90    320    250    | 29
+        |                                                          | 29
         +----------------------------------------------------------+
         | 8:49am Thu Jan 18                              10:30am+1 | 30
         +----------------------------------------------------------+
@@ -510,13 +561,8 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 ## Next
 
-- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*
-
+- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*. 
 - As tasks and jobs are finished, they are removed from this view and added to *Done* using the completion datetime.
-
-## Someday
-
-Someday items grouped and sorted by the last modified datetime.
 
 ## Index
 
@@ -746,19 +792,18 @@ Analagous to the old custom view. Used to issue queries against the data store a
 # Command Shortcut Keys
 
     -- VIEWS ------------------------------------------ 
-    a: agenda        n: next           t: tags 
-    b: busy          s: someday        f: filter view 
+    a: agenda        n: next           q: query 
+    b: busy          t: tags           f: filter view 
     d: done          i: index          l: outline level 
-    m: month         h: history        c: set calendars 
+    m: month         h: history        c: calendars 
     -- SELECTED ITEM ---------------------------------- 
     C: copy          F: finish         I: export ical 
     D: delete        R: reschedule     L: open link 
     E: edit          S: schedule new   T: start timer 
     -- TOOLS ------------------------------------------ 
     A: show alerts   P: preferences    F2: date calc 
-    J: jump to date  Q: query          F3: yearly 
+    J: jump to date                    F3: yearly 
     N: new item      V: view as text   F8: quit 
 
 
 The key bindings for the various commands are listed above. E.g., press 'a' to open agenda view. In any of the views, 'Enter' toggles the expansion of the selected node or item. In any of the dated views, 'Shift Left' and 'Shift Right' change the period displayed and 'Space' changes the display to the current date.
-
