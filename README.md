@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Aug 30, 2018 11:14AM EDT**
+**Last modified: Thu Aug 30, 2018 02:51PM EDT**
 
 **Contents**
 <!-- vim-markdown-toc GFM -->
@@ -9,8 +9,7 @@
   * [Item Types](#item-types)
     * [event](#event)
     * [task](#task)
-    * [note](#note)
-    * [action](#action)
+    * [journal entry](#journal-entry)
     * [inbox](#inbox)
   * [Expansions (**New**)](#expansions-new)
   * [`@`keys](#keys)
@@ -58,6 +57,8 @@
 
 Type character: `*`
 
+Corresponds to VEVENT in the vcalendar specification.
+
 - The `@s` entry is required and can be specified either as a date or as a datetime. It is interpreted as the starting date or datetime of the event. 
 - If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date using the display character `^`. 
 - If `@s` is a datetime, an `@e` entry is allowed and is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.  Events with datetimes are displayed on the relevant date according to the starting time using the display character `*`. 
@@ -67,6 +68,8 @@ Type character: `*`
 ### task
 
 Type character: `-`
+
+Corresponds to VTODO in the vcalendar specification.
 
 - The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is due. 
   - Tasks with an `@s` datetime entry are regarded as pastdue after this datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
@@ -86,37 +89,39 @@ Type character: `-`
 	- The old `%`, *delegated*, item type is eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
   - The old `?` *someday* item type has been eliminated. Setting `@l someday` for such items is recommended.
 
-### note
+### journal entry
 
 Type character: `%`
 
-Unchanged but for the change in the type character from `!` to `%`. The type character `!` is now used for *inbox items* to suggest their urgency.  
+Corresponds to VJOURNAL in the vcalendar specification.
 
-### action
+A combination of the old *note* and *action* item types. 
 
-Type character: `~`
+- If entries for both `@s` and `@e` are given, a journal entry is equivalent to the old *action* item type. In this case:
 
-  - In an *action*, `@s` records the datetime that the action was started, `@e` the timeperiod that the work on the action was active and `@f` the datetime that the action was finished. The timeperiod that work on the action was inactive is given implicitly by `finished` minus `started` minus `active`.
-  - Action reports aggregate time expenditures by month and index entry. If, e.g.,  index entries take the form `project:job` then the grouping would be: 
+    - `@s` is interpreted as the datetime that the action was completed and `@e` is interpreted as the timeperiod that the work on the action was active.
+    - Action reports aggregate time expenditures by month and index entry. If, e.g.,  index entries take the form `project:job` then the grouping would be: 
 
-        month
-          project
-            job
+            month
+              project
+                job
 
-  - An etm *timer* can be used to record an action based upon a selected item or a newly created action:
-      - Begin:
-          - Either select an item (event, task, note or existing completed action) on which the action should be based. The summary and `@i` entry from the selected item will be used for the new action.
-          - Or create a new item with the action type character `~` and a summary for the new action. An `@i` entry is recommended but can be added later. Save and select the new action.
-      - Start the timer.
-      - Pause/resume the timer as often as desired.
-      - Finish the timer to record the action. The entry will contain:
-          - the moment at which the timer was first started as `@s`
-          - the accumulated time period during which the timer was active as `@e`
-          - the moment at which the timer was stopped as `@f`
-      - Choose whether or not to edit the action. If the action does not have an `@i` entry, you will be prompted to add one.
-      - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
-- **New**
-	- Each action is displayed in the *Done View* on the finished date   according to the finished time.
+      - An etm *timer* can be used to record an action based upon a selected item or a newly created action:
+          - Begin:
+              - Either select an item (event, task, note or existing completed action) on which the action should be based. The summary and `@i` entry from the selected item will be used for the new action.
+              - Or create a new item with the action type character `~` and a summary for the new action. An `@i` entry is recommended but can be added later. Save and select the new action.
+          - Start the timer.
+          - Pause/resume the timer as often as desired.
+          - Finish the timer to record the action. The entry will contain:
+              - the moment at which the timer was stopped as `@s`
+              - the accumulated time period during which the timer was active as `@e`
+          - Choose whether or not to edit the action. If the action does not have an `@i` entry, you will be prompted to add one.
+          - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
+    - **New**
+        - Actions are displayed in the *Done View* on the completion date showing the summary, the completion time and active time period.
+
+- If `@f` is omitted, a journal entry is equivalent to the old *note* item type.
+
 
 ### inbox
 
