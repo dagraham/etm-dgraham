@@ -1,15 +1,17 @@
 # What's planned for the next etm?
-**Last modified: Thu Aug 30, 2018 02:51PM EDT**
+**Last modified: Sat Sep 01, 2018 10:49PM EDT**
 
 **Contents**
 <!-- vim-markdown-toc GFM -->
 
 * [Goals](#goals)
+* [Model/View/Controller](#modelviewcontroller)
+  * [Model API](#model-api)
 * [Data](#data)
   * [Item Types](#item-types)
     * [event](#event)
     * [task](#task)
-    * [journal entry](#journal-entry)
+    * [record](#record)
     * [inbox](#inbox)
   * [Expansions (**New**)](#expansions-new)
   * [`@`keys](#keys)
@@ -46,8 +48,27 @@
 - Simplify code. Refactor, document code and add doc tests - make the code more easilty maintainable. See [Item Types](#item-types), [Dates, Date Times and Durations](#dates-datetimes-and-durations) and [Jobs](#jobs). 
 - Speed up performance. Make use of a text-based document store called *TinyDB* that is designed for quick insertions, modifications and retrievals. Make use of stored unique identifiers, to limit view updates to the item actually changed. See [Storage](#storage).
 - Simplify data entry. Provide "just in time" information when creating or editing data entries. See [Work Flow](#work-flow). 
-- Provide a simpler, terminal-based GUI using *urwid* along with a CLI that allows creating items and reports from the command line. See [Views](#views) for details about the various views.
+- Provide a simpler, GUI along with a CLI that allows creating items and reports from the command line. See [Views](#views) for details about the various views.
 - Provide a means for migrating existing etm data to the new format.
+
+# Model/View/Controller
+
+Smart models, thin controllers, dumb views!
+
+## Model API
+
+- create_item(str)
+- check_item(str)
+- update_item(uid, str)
+- delete_item(uid)
+- get_items()
+    - returns list of row tuples starting with uid, summary, 
+- get_item(id)
+- get_tags
+    - returns list of row tuples starting with tag, uid
+- get_instances
+    - returns tree
+
 
 # Data
 
@@ -89,7 +110,7 @@ Corresponds to VTODO in the vcalendar specification.
 	- The old `%`, *delegated*, item type is eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
   - The old `?` *someday* item type has been eliminated. Setting `@l someday` for such items is recommended.
 
-### journal entry
+### record
 
 Type character: `%`
 
@@ -97,37 +118,27 @@ Corresponds to VJOURNAL in the vcalendar specification.
 
 A combination of the old *note* and *action* item types. 
 
-- If entries for both `@s` and `@e` are given, a journal entry is equivalent to the old *action* item type. In this case:
-
-    - `@s` is interpreted as the datetime that the action was completed and `@e` is interpreted as the timeperiod that the work on the action was active.
-    - Action reports aggregate time expenditures by month and index entry. If, e.g.,  index entries take the form `project:job` then the grouping would be: 
-
-            month
-              project
-                job
-
-      - An etm *timer* can be used to record an action based upon a selected item or a newly created action:
-          - Begin:
-              - Either select an item (event, task, note or existing completed action) on which the action should be based. The summary and `@i` entry from the selected item will be used for the new action.
-              - Or create a new item with the action type character `~` and a summary for the new action. An `@i` entry is recommended but can be added later. Save and select the new action.
-          - Start the timer.
-          - Pause/resume the timer as often as desired.
-          - Finish the timer to record the action. The entry will contain:
-              - the moment at which the timer was stopped as `@s`
-              - the accumulated time period during which the timer was active as `@e`
-          - Choose whether or not to edit the action. If the action does not have an `@i` entry, you will be prompted to add one.
-          - Note: One or more timers can be active at the same time but only one can be running - the others will automatically be paused.
-    - **New**
-        - Actions are displayed in the *Done View* on the completion date showing the summary, the completion time and active time period.
-
-- If `@f` is omitted, a journal entry is equivalent to the old *note* item type.
+- The `@s` is optional and, if given, is interpreted as the datetime to which the record applies. 
+- Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime.
+- Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of a particular day and enter that date as `@s`.
+- Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type.
 
 
 ### inbox
 
 Type character: `!`
 
+Corresponds to VTODO in the vcalendar specification.
+
+Inbox items can be regarded as tasks that are always due on the current date. E.g., need to record Phil's name and phone number in your contacts app? Just create the inbox item:
+
+    ! Phil 123 456-7890
+
+and this entry will appear highlighted in the agenda view on the current date until you deal with it. 
+
+
 Unchanged but for the change in the type character from `$` to `!`. Inbox items are displayed in dated views on the current date. 
+
 
 ## Expansions (**New**)
 
@@ -329,7 +340,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
     - Repeating unfinished tasks with `@o s`: the datetime of the first instance falling during or after the current date.
     - Finished tasks: the datetime given in `@f`.
     - Actions: the datetime given in `@f`.
-    - Someday entries, inbox enties, undated journal entries and undated, unfinished tasks: *None*
+    - Someday entries, inbox enties, undated record entries and undated, unfinished tasks: *None*
 - Display:
     - Naive dates are displayed without conversion and without a starting time. 
     - Naive datetimes are displayed without conversion.
