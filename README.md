@@ -1,80 +1,67 @@
 # What's planned for the next etm?
-**Last modified: Sat Sep 01, 2018 10:49PM EDT**
+**Last modified: Tue Sep 04, 2018 12:42PM EDT**
 
-**Contents**
+# TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Goals](#goals)
-* [Model/View/Controller](#modelviewcontroller)
-  * [Model API](#model-api)
 * [Data](#data)
-  * [Item Types](#item-types)
-    * [event](#event)
-    * [task](#task)
-    * [record](#record)
-    * [inbox](#inbox)
-  * [Expansions (**New**)](#expansions-new)
-  * [`@`keys](#keys)
-  * [`&`keys](#keys-1)
-    * [`@r`:](#r)
-    * [`@j`:](#j)
-    * [Count versus Until in Repetition Entries](#count-versus-until-in-repetition-entries)
-  * [Storage](#storage)
-  * [Dates, DateTimes and Durations](#dates-datetimes-and-durations)
-  * [Jobs](#jobs)
+    * [Item Types](#item-types)
+        * [event](#event)
+        * [task](#task)
+        * [record](#record)
+        * [inbox](#inbox)
+    * [Expansions (**New**)](#expansions-new)
+    * [`@`keys](#keys)
+    * [`&`keys](#keys-1)
+        * [`@r`:](#r)
+        * [`@j`:](#j)
+        * [Count versus Until in Repetition Entries](#count-versus-until-in-repetition-entries)
+    * [Storage](#storage)
+    * [Dates, DateTimes and Durations](#dates-datetimes-and-durations)
+    * [Jobs](#jobs)
 * [Views](#views)
-  * [Weekly](#weekly)
-    * [Agenda](#agenda)
-    * [Busy](#busy)
-    * [Done](#done)
-  * [Monthly](#monthly)
-  * [Next](#next)
-  * [Index](#index)
-  * [History](#history)
-    * [Orignally Created](#orignally-created)
-    * [Last Modified](#last-modified)
-  * [Tags](#tags)
-  * [Query](#query)
+    * [Weekly](#weekly)
+        * [Agenda](#agenda)
+        * [Busy](#busy)
+        * [Done](#done)
+    * [Monthly ](#monthly-)
+    * [Next](#next)
+    * [Index](#index)
+    * [History](#history)
+        * [Orignally Created](#orignally-created)
+        * [Last Modified](#last-modified)
+    * [Tags](#tags)
+    * [Query](#query)
 * [Work Flow](#work-flow)
-  * [Editing an existing item](#editing-an-existing-item)
-  * [Creating a new item](#creating-a-new-item)
+    * [Editing an existing item](#editing-an-existing-item)
+    * [Creating a new item](#creating-a-new-item)
 * [Command Shortcut Keys](#command-shortcut-keys)
+* [Model/View/Controller](#modelviewcontroller)
+    * [Model ](#model-)
+        * [Tree Structure](#tree-structure)
+        * [API](#api)
 
 <!-- vim-markdown-toc -->
 
+# [Goals](#toc)
 
-# Goals
+- Simplify etm usage. 
+    - Reduce the number of item types and make them more flexible. See [Item Types](#item-types).
+    - Enhance support for component jobs within tasks. See [Jobs](#jobs).
+    - Simplify support for dates and datetimes, both aware and naive. See [Dates, Date Times and Durations](#dates-datetimes-and-durations). 
+    - Similify data entry with automatic suggestions and result previews. See [Work Flow](#work-flow).
+- Improve code.
+    - Refactor and decouple code using "smart model, thin controller and dumb view" approach in which the model provides an API that can be used by a variety of views including a command line interface.
+    - Simplify code, document it and add doc tests - make the code more easilty maintainable. 
+    - Speed up performance. Make use of a text-based document store called *TinyDB* that is designed for quick insertions, modifications and retrievals. Make use of stored unique identifiers, to limit view updates to the item actually changed. See [Storage](#storage).
+    - Provide a simpler, GUI along with a CLI that allows creating items and reports from the command line. See [Views](#views) for details about the various views.
 
-- Simplify code. Refactor, document code and add doc tests - make the code more easilty maintainable. See [Item Types](#item-types), [Dates, Date Times and Durations](#dates-datetimes-and-durations) and [Jobs](#jobs). 
-- Speed up performance. Make use of a text-based document store called *TinyDB* that is designed for quick insertions, modifications and retrievals. Make use of stored unique identifiers, to limit view updates to the item actually changed. See [Storage](#storage).
-- Simplify data entry. Provide "just in time" information when creating or editing data entries. See [Work Flow](#work-flow). 
-- Provide a simpler, GUI along with a CLI that allows creating items and reports from the command line. See [Views](#views) for details about the various views.
-- Provide a means for migrating existing etm data to the new format.
+# [Data](#toc)
 
-# Model/View/Controller
+## [Item Types](#toc)
 
-Smart models, thin controllers, dumb views!
-
-## Model API
-
-- create_item(str)
-- check_item(str)
-- update_item(uid, str)
-- delete_item(uid)
-- get_items()
-    - returns list of row tuples starting with uid, summary, 
-- get_item(id)
-- get_tags
-    - returns list of row tuples starting with tag, uid
-- get_instances
-    - returns tree
-
-
-# Data
-
-## Item Types
-
-### event
+### [event](#toc)
 
 Type character: `*`
 
@@ -86,7 +73,7 @@ Corresponds to VEVENT in the vcalendar specification.
 - **New**
 	- The old *occasion* item type, `^`, has been replaced by the ability to use a date rather than a datetime in `@s`.
 
-### task
+### [task](#toc)
 
 Type character: `-`
 
@@ -110,7 +97,7 @@ Corresponds to VTODO in the vcalendar specification.
 	- The old `%`, *delegated*, item type is eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
   - The old `?` *someday* item type has been eliminated. Setting `@l someday` for such items is recommended.
 
-### record
+### [record](#toc)
 
 Type character: `%`
 
@@ -124,7 +111,7 @@ A combination of the old *note* and *action* item types.
 - Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type.
 
 
-### inbox
+### [inbox](#toc)
 
 Type character: `!`
 
@@ -140,7 +127,7 @@ and this entry will appear highlighted in the agenda view on the current date un
 Unchanged but for the change in the type character from `$` to `!`. Inbox items are displayed in dated views on the current date. 
 
 
-## Expansions (**New**)
+## [Expansions (**New**)](#toc)
 
 The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *expansion key*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
@@ -174,7 +161,7 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 Note that changing the entry for  `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the actual expansion is used to replace the key. 
 
-## `@`keys
+## [`@`keys](#toc)
 
     +: include: list of datetimes to include,
     -: exclude: list of datetimes to exclude from rrule,
@@ -199,11 +186,11 @@ Note that changing the entry for  `expansions` in your configuration settings wi
     x: expansion key: string,
     z: timezone: string,
 
-## `&`keys
+## [`&`keys](#toc)
 
 These keys are only used in `@r` (repetition) and `@j` (job) entries.
 
-### `@r`:
+### [`@r`:](#toc)
       c: count: integer number of repetitions (See Count versus Until below),
       d: monthday: list of integers 1 ... 31,
       e: easter: number of days before (-), on (0) or after (+) Easter,
@@ -216,7 +203,7 @@ These keys are only used in `@r` (repetition) and `@j` (job) entries.
       w: weekday: list from SU, MO, ..., SA possibly prepended with 
          a positive or negative integer,
 
-### `@j`:
+### [`@j`:](#toc)
       a: alert: (list of timeperiods[: cmd[, list of cmd args]]),
       b: beginby: integer number of days relative to &s,
       d: description: string,
@@ -231,7 +218,7 @@ These keys are only used in `@r` (repetition) and `@j` (job) entries.
       s: start/due: timeperiod relative to @s entry (default 0m),
 
 
-### Count versus Until in Repetition Entries
+### [Count versus Until in Repetition Entries](#toc)
 
 Specifying both `&c` and `&u` in an `@r` entry is not allowed. If both are given, `&u` is used and `&c` is ignored.
 
@@ -243,7 +230,7 @@ A distinction between *count* and *until* is worth noting and can be illustrated
 Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises is you later decided to delete one of the instances, say the one falling on Wednesday. With *count*, you will have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* so that the requirement for a count of five instances is maintained. With *until*, you will have only the four instances on Monday, Tuesday, Thursday and Friday so that the requirement that the last instance falls on or before 10am Friday is maintained.
 
 
-## Storage
+## [Storage](#toc)
 
 - All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not easily human-editable.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
 
@@ -283,7 +270,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 	- The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
-## Dates, DateTimes and Durations
+## [Dates, DateTimes and Durations](#toc)
 
 - Dates (naive) and datetimes (both naive and aware) are suppored along with durations (pendulum durations which are analagous to python timedeltas).
 - Localization is supported using Pendulum, e.g. 
@@ -353,7 +340,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 		would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used. This replaces and simplifies the old `@r l`, list only, repetition frequency.
 
-## Jobs
+## [Jobs](#toc)
 
 - Tasks, both with and without `@s` entries can have component jobs using `@j` entries.  A task with jobs thus replaces the old task group.
 - For tasks with an `@s` entry, jobs can have an `&s` entry to set the due date/datetime for the job. It can be entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task or as date/datetime. However entered, the value of `&s` is stored as a relative timeperiod with zero minutes as the default.
@@ -392,17 +379,17 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
 	would indicate that `job a` is *finished*, `job b`  and `job c` are *available* (have no unfinished prerequistites) and that `job d` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, available and waiting jobs in the task, respectively.
 
-# Views
+# [Views](#toc)
 
 View shortcut keys: a)genda, b)usy, d)one, m)onthly, h)istory, i)ndex, n)ext, q)uery and t)ags. In all views, pressing `l` prompts for the outline expansion level and `f` prompts for a filter to apply to the displayed items.
 
 ASCII art is used in the following to suggest the appearance of the view in the GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in each actually takes only 1 line leaving 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
 
-## Weekly
+## [Weekly](#toc)
 
 *Agenda*, *Busy* and *Done* views are synchronized so that switching from one of these views to another always displays the same week.
 
-### Agenda
+### [Agenda](#toc)
 
 - Scheduled items, grouped and sorted by week and day
 
@@ -469,7 +456,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
     - Unfinished all day tasks, if any, highlighted using the task color.
     - All day notes, if any, using the note color.
 
-### Busy
+### [Busy](#toc)
 
 - Hours in the day that are partially or wholly "busy" are filled using the color of the calendar for the relevant item. Shown here with `#`.
 - Hours in which a conflict occurs are filled with the overlapping calendar colors of the relevant items. Shown here with `###`.
@@ -511,7 +498,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +----------------------------------------------------------+
 
 
-### Done
+### [Done](#toc)
 
 - Actions and finished tasks grouped and sorted by week and day using the finished datetime
 - Actions are displayed with type character `~`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
@@ -524,7 +511,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |   x report summary                             4:30pm    | 
 
 
-## Monthly 
+## [Monthly ](#toc)
 
 - The top pane displays 6 weeks starting with the first week of the selected month.  Month day numbers are colored from dark blue to bright red to indicate the amount of time scheduled.
 
@@ -575,17 +562,17 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +----------------------------------------------------------+
 
 
-## Next
+## [Next](#toc)
 
 - Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*. 
 - As tasks and jobs are finished, they are removed from this view and added to *Done* using the completion datetime.
 
-## Index
+## [Index](#toc)
 
 - All items, grouped and sorted by their *index* entries and then *relevant datetime*. 
 - Items without `@i` entries are listed last under *None*.
 
-## History
+## [History](#toc)
 
 
         +------------------------- top bar --------------------------+  
@@ -624,25 +611,25 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +------------------------------------------------------------+
 
 
-### Orignally Created
+### [Orignally Created](#toc)
 
 All items, sorted by the datetime created.
 
-### Last Modified
+### [Last Modified](#toc)
 
 All items, sorted by the datetime last modified.
 
-## Tags
+## [Tags](#toc)
 
 Tagged items grouped and sorted by tag.
 
-## Query
+## [Query](#toc)
 
 Analagous to the old custom view. Used to issue queries against the data store and display the results. 
 
-# Work Flow
+# [Work Flow](#toc)
 
-## Editing an existing item
+## [Editing an existing item](#toc)
 
 - Pressing Return with an item selected shows details:
 
@@ -681,7 +668,7 @@ Analagous to the old custom view. Used to issue queries against the data store a
     - topbar: `editing: no unsaved changes`
     - status bar: `^Q:close` 
 
-## Creating a new item
+## [Creating a new item](#toc)
 
 - When creating a new item, the process is the same but for the fact that the initial entry will be empty. 
 
@@ -805,7 +792,7 @@ Analagous to the old custom view. Used to issue queries against the data store a
         | All times: America/New_York                              |
 
 
-# Command Shortcut Keys
+# [Command Shortcut Keys](#toc)
 
     -- VIEWS ------------------------------------------ 
     a: agenda        n: next           q: query 
@@ -823,3 +810,50 @@ Analagous to the old custom view. Used to issue queries against the data store a
 
 
 The key bindings for the various commands are listed above. E.g., press 'a' to open agenda view. In any of the views, 'Enter' toggles the expansion of the selected node or item. In any of the dated views, 'Shift Left' and 'Shift Right' change the period displayed and 'Space' changes the display to the current date.
+
+
+# [Model/View/Controller](#toc)
+
+Smart models, thin controllers, dumb views!
+
+- Views
+    - Grouped/Displayed by Year, Week
+        - Agenda: tree week-day -> instances
+        - Busy: graphical
+    - Groupded/Displayed by Year, Month
+        - Month: table
+    - All items
+        - Index: tree index[0] -> index[1] -> ...
+        - History: list
+    - Undated tasks
+        - Next: tree location -> item
+    - Items with tags
+        - Tag: tree tag -> item
+
+## [Model ](#toc)
+
+### [Tree Structure](#toc)
+
+Each row
+- node index
+- parent index
+- list of childen indices
+
+Agenda view example
+- node index: (2018, 35)
+- parent index: root
+- list of children indices
+
+
+### [API](#toc)
+
+- create_item(str)
+- check_item(str)
+- update_item(uid, str)
+- delete_item(uid)
+- get_items() -> list of items
+- get_item(id) -> details for id
+- get_tags -> hash: tag -> list of items
+- get_instances -> hash: year-week -> week day -> list of instances
+
+

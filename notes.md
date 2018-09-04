@@ -1,5 +1,5 @@
 # Notes for etm
-**Last modified: Wed Aug 29, 2018 02:05PM EDT**
+**Last modified: Sun Sep 02, 2018 09:51AM EDT**
 
 # Qt/QML
 
@@ -700,9 +700,10 @@ someday items
 
 ### New 2018-07-25
 
-- Period (using Pendulum >= 2.0.2) weeks in current month + weeks in 5 prior months + weeks in 12 subsequent months
-  - begin: now.start_of('month').subtract(months=5).start_of('week')
-  - end: now.start_of('month').add(months=12).add(weeks=5).end_of('week')
+- before_months = 5
+- after_months = 12
+- begin: now.start_of('month').subtract(months=before_months).start_of('week')
+- end: now.start_of('month').add(months=after_months).add(weeks=5).end_of('week')
 
 - Date range, **first** to **last** for dated items
   - Non repeating
@@ -711,6 +712,8 @@ someday items
   - Repeating
     - first = @s
     - last = last instance or None if repeating forever
+
+id in period if first <= end and last == None or last >= begin
 
 
 

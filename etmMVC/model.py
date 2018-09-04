@@ -2668,13 +2668,13 @@ def schedule(weeks_bef=1, weeks_aft=2):
             rows.append(
                     {
                         'id': item.doc_id,
-                        'sort': dt.format("YYYYMMDDHHmm", formatter="alternative"),
+                        'sort': dt.format("YYYYMMDDHHmm"),
                         'week': (
                             dt.year, 
                             dt.week_of_year, 
                             ),
                         'day': (
-                            dt.format("ddd MMM D", formatter="alternative"),
+                            dt.format("ddd MMM D"),
                             ),
                         'columns': (
                             f"{item['itemtype']} {item['summary']}", 
@@ -2687,8 +2687,8 @@ def schedule(weeks_bef=1, weeks_aft=2):
     rows.sort(key=itemgetter('sort'))
 
     for week, items in groupby(rows, key=itemgetter('week')):
-        wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}").date().format("MMM D")
-        wkend = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}-7").date().format("MMM D")
+        wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}", strict=False).date().format("MMM D")
+        wkend = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}7", strict=False).date().format("MMM D")
 
         print(f"{week[0]} Week {week[1]}: {wkbeg} - {wkend}")
         for day, columns in groupby(items, key=itemgetter('day')):
