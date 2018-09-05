@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Sep 04, 2018 12:42PM EDT**
+**Last modified: Tue Sep 04, 2018 10:25PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -38,8 +38,6 @@
     * [Creating a new item](#creating-a-new-item)
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [Model/View/Controller](#modelviewcontroller)
-    * [Model ](#model-)
-        * [Tree Structure](#tree-structure)
         * [API](#api)
 
 <!-- vim-markdown-toc -->
@@ -816,33 +814,24 @@ The key bindings for the various commands are listed above. E.g., press 'a' to o
 
 Smart models, thin controllers, dumb views!
 
-- Views
-    - Grouped/Displayed by Year, Week
-        - Agenda: tree week-day -> instances
-        - Busy: graphical
-    - Groupded/Displayed by Year, Month
-        - Month: table
-    - All items
-        - Index: tree index[0] -> index[1] -> ...
-        - History: list
-    - Undated tasks
-        - Next: tree location -> item
-    - Items with tags
-        - Tag: tree tag -> item
+- Instance model (all dates and times in local timezone using locale setting)
+    - data
+        - instance table row columns: uid, calendar, type code, summary, year, week, week day, month, month day, start, end, minutes
+        - update uid: remove all rows matching uid*; insert new rows for updated uid*.
+    - view support
+        - Agenda and Busy: rows matching year* and week*
+        - Month: rows matching year-weeks in year* and month*. E.g., December, 2017 would include year-weeks (2017, 48), ..., (2017, 52), (2018, 1).
+        - Year: rows matching year-weeks in year*. E.g., 2017 would include year-weeks (2016, 52), (2017, 1), ..., (2017, 52), (2018, 1)
 
-## [Model ](#toc)
-
-### [Tree Structure](#toc)
-
-Each row
-- node index
-- parent index
-- list of childen indices
-
-Agenda view example
-- node index: (2018, 35)
-- parent index: root
-- list of children indices
+- Items model
+    - data
+        - items table row columns: uid, created, modified, index, list of tags, relevant datetime?
+        - update uid: remove row matching uid; insert new row for updated uid.
+    - view support
+        - index: tree index -> list [uid, type, summary, relevant datetime?]
+        - tabs: tree tab -> list [uid, type, summary, relevant datetime?]
+        - history: table [uid, type, summary, created, modified]
+        - next: tree location -> list [uid, type, summary, extent] 
 
 
 ### [API](#toc)
