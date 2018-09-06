@@ -1,17 +1,17 @@
 # What's planned for the next etm?
-**Last modified: Wed Sep 05, 2018 05:48PM EDT**
+**Last modified: Thu Sep 06, 2018 10:56AM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Goals](#goals)
 * [Data](#data)
-    * [Item Types](#item-types)
+    * [User Item Types](#user-item-types)
         * [event](#event)
         * [task](#task)
         * [record](#record)
         * [inbox](#inbox)
-    * [Internal Item Types](#internal-item-types)
+    * [Internally Generated Types](#internally-generated-types)
         * [Beginning Soon](#beginning-soon)
         * [Past Due](#past-due)
         * [Waiting](#waiting)
@@ -19,11 +19,10 @@
     * [Expansions (New)](#expansions-new)
     * [`@`keys](#keys)
     * [`&`keys](#keys-1)
-        * [`@r`:](#r)
-        * [`@j`:](#j)
-        * [Count versus Until in Repetition Entries](#count-versus-until-in-repetition-entries)
-    * [Storage](#storage)
-    * [Dates, DateTimes and Durations](#dates-datetimes-and-durations)
+        * [for use with `@r`:](#for-use-with-r)
+        * [for use with `@j`:](#for-use-with-j)
+    * [Data Store](#data-store)
+    * [Time](#time)
 * [Views](#views)
     * [Weekly](#weekly)
         * [Agenda](#agenda)
@@ -33,8 +32,6 @@
     * [Next](#next)
     * [Index](#index)
     * [History](#history)
-        * [Orignally Created](#orignally-created)
-        * [Last Modified](#last-modified)
     * [Tags](#tags)
     * [Query](#query)
 * [Work Flow](#work-flow)
@@ -63,29 +60,28 @@
 
 # [Data](#toc)
 
-## [Item Types](#toc)
+## [User Item Types](#toc)
 
 ### [event](#toc)
 
-Type character: `*`
+Type character: **\***
 
 Corresponds to VEVENT in the vcalendar specification.
 
 - The `@s` entry is required and can be specified either as a date or as a datetime. It is interpreted as the starting date or datetime of the event. 
 - If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date using the display character `^`. 
 - If `@s` is a datetime, an `@e` entry is allowed and is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.  Events with datetimes are displayed on the relevant date according to the starting time using the display character `*`. 
-- **New**
-	- The old *occasion* item type, `^`, has been replaced by the ability to use a date rather than a datetime in `@s`.
+- **New**: The old *occasion* item type, `^`, has been replaced by the ability to use a date rather than a datetime in `@s`.
 
 ### [task](#toc)
 
-Type character: `-`
+Type character: **-**
 
 Corresponds to VTODO in the vcalendar specification.
 
 - The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is due. 
-  - Tasks with an `@s` datetime entry are regarded as pastdue after this datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
-  - Tasks with `@s` date entry are regarded as pastdue at the end of the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
+    - Tasks with an `@s` datetime entry are regarded as pastdue after the datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
+    - Tasks with `@s` date entry are regarded as pastdue after the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Next View* grouped by `@l` (location/context).
 - Jobs
     - Tasks, both with and without `@s` entries can have component jobs using `@j` entries.  A task with jobs thus replaces the old task group.
@@ -100,28 +96,28 @@ Corresponds to VTODO in the vcalendar specification.
     - Prerequisites
         - Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
 
-                    - automatically assigned
-                        @j job A
-                        @j job B
-                        @j job C
-                        @j job D
+                - automatically assigned
+                    @j job A
+                    @j job B
+                    @j job C
+                    @j job D
 
             `job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C` which, finally, is a prerequisite for `job D`. 
         - Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (identifier) and `&p`, (comma separated list of identifiers of immediate prequisites). E.g., with
 
-                    - manually assigned
-                        @j job a &i a
-                        @j job b &i b &p a
-                        @j job c &i c &p a
-                        @j job d &i d &p b, c
+                - manually assigned
+                    @j job a &i a
+                    @j job b &i b &p a
+                    @j job c &i c &p a
+                    @j job d &i d &p b, c
 
             Here `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
-    - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
+    - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g.,  
 
             x manually assigned [1/2/1]: job a
             - manually assigned [1/2/1]: job b
             - manually assigned [1/2/1]: job c
-            + manually assigned [1/2/1]: job d
+            ~ manually assigned [1/2/1]: job d
 
         would indicate that `job a` is *finished*, `job b`  and `job c` are *available* (have no unfinished prerequistites) and that `job d` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, available and waiting jobs in the task, respectively.
 
@@ -131,12 +127,12 @@ Corresponds to VTODO in the vcalendar specification.
 - **New** 
 	-	The old `@c`, *context*, for tasks has been merged into *location*, `@l`.  
 	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
-	- The old `%`, *delegated*, item type is eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
-    - The old `?` *someday* item type has been eliminated. Setting `@l someday` for such items is suggested.
+	- The old `%`, *delegated*, item type has been eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
+    - The old `?` *someday* item type has been eliminated. Setting `@l ~someday` and omitting @s is recommended for such tasks. They will then be displayed last in the next view under *~someday*. [The tilde character, `~`, sorts after alphanumeric characters.]  
 
 ### [record](#toc)
 
-Type character: `%`
+Type character: **%**
 
 Corresponds to VJOURNAL in the vcalendar specification.
 
@@ -150,43 +146,39 @@ A combination of the old *note* and *action* item types.
 
 ### [inbox](#toc)
 
-Type character: `!`
+Type character: **!**
 
 Corresponds to VTODO in the vcalendar specification.
 
-Inbox items can be regarded as tasks that are always due on the current date. E.g., need to record Phil's name and phone number in your contacts app? Just create the inbox item:
-
-    ! Phil 123 456-7890
-
-and this entry will appear highlighted in the agenda view on the current date until you deal with it. 
+An inbox items can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using `!` instead of `*` and the entry  will appear highlighted in the agenda view on the current date until you confirm the starting time. 
 
 Unchanged but for the change in the type character from `$` to `!`. Inbox items are displayed in dated views on the current date. 
 
-## [Internal Item Types](#toc)
+## [Internally Generated Types](#toc)
 
 ### [Beginning Soon](#toc)
 
-Type character: `>`
+Type character: **>**
 
 For items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining.
 
 ### [Past Due](#toc)
 
-Type character: `<`
+Type character: **<**
 
 When a task is past due, a warning that the task is past due appears on the current date together with the item summary and the number of days past due. 
 
 ### [Waiting](#toc)
 
-Type character: `+`
+Type character: **~**
 
-When a task job has unfinished prerequisites, it is displayed using this type character rather than `-`.
+When a task job has unfinished prerequisites, it is displayed using **~** rather than **-**.
 
 ### [Finished](#toc)
 
-Type character: `x`
+Type character: **x**
 
-When a task or job is finished, it is displayed on the finished date using this type character rather than `-`. 
+When a task or job is finished, it is displayed on the finished date using **x** rather than **-**. 
 
 ##  [Expansions (New)](#toc)
 
@@ -220,7 +212,7 @@ is equivalent to entering
 
 The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for the event but the default for `@l` has been overridden by the explicit entry.
 
-Note that changing the entry for  `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the actual expansion is used to replace the key. 
+Note that changing the entry for `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the `@x` entry is replaced by its expansion. 
 
 ## [`@`keys](#toc)
 
@@ -235,13 +227,13 @@ Note that changing the entry for  `expansions` in your configuration settings wi
     g: goto: string (url or filepath),
     h: history: list of (done:due datetimes)
     i: index: colon delimited string,
-    j: job summary: string,
+    j: job summary: string, optionally followed by &key entries
     l: location/context: string,
     m: memo: string,
     o: overdue: character from (r)estart, (s)kip or (k)eep),
     p: priority: integer,
     r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
-         (d)aily, (h)ourly, mi(n)utely,
+       (d)aily, (h)ourly or mi(n)utely, optionally followed by &key entries
     s: starting: date or datetime,
     t: tags: list of strings,
     x: expansion key: string,
@@ -251,8 +243,8 @@ Note that changing the entry for  `expansions` in your configuration settings wi
 
 These keys are only used in `@r` (repetition) and `@j` (job) entries.
 
-### [`@r`:](#toc)
-      c: count: integer number of repetitions (See Count versus Until below),
+### [for use with `@r`:](#toc)
+      c: count: integer number of repetitions 
       d: monthday: list of integers 1 ... 31,
       e: easter: number of days before (-), on (0) or after (+) Easter,
       h: hour: list of integers in 0 ... 23,
@@ -260,11 +252,14 @@ These keys are only used in `@r` (repetition) and `@j` (job) entries.
       m: month: list of integers in 1 ... 12,
       n: minute: list of integers in 0 ... 59,
       s: set position: integer,
-      u: until: datetime (See Count versus Until below),
+      u: until: datetime 
       w: weekday: list from SU, MO, ..., SA possibly prepended with 
          a positive or negative integer,
 
-### [`@j`:](#toc)
+> Note. It is an error to specify both `&c` and `&u`. A distinction between using `@c` and `@u` is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday  and repeats daily using either count, `&c 5`, or until, `&u fri 10a`.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
+
+
+### [for use with `@j`:](#toc)
       a: alert: (list of timeperiods[: cmd[, list of cmd args]]),
       b: beginby: integer number of days relative to &s,
       d: description: string,
@@ -278,28 +273,14 @@ These keys are only used in `@r` (repetition) and `@j` (job) entries.
          prereqs),
       s: start/due: timeperiod relative to @s entry (default 0m),
 
+## [Data Store](#toc)
 
-### [Count versus Until in Repetition Entries](#toc)
-
-Specifying both `&c` and `&u` in an `@r` entry is not allowed. If both are given, `&u` is used and `&c` is ignored.
-
-A distinction between *count* and *until* is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday  and repeats daily using either `&c` or `&u`:
-
-  - Using *count*: `@s mon 10am @r d &c 5`
-  - Using *until*: `@s mon 10am @r d &u fri 10a`
-
-Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises is you later decided to delete one of the instances, say the one falling on Wednesday. With *count*, you will have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* so that the requirement for a count of five instances is maintained. With *until*, you will have only the four instances on Monday, Tuesday, Thursday and Friday so that the requirement that the last instance falls on or before 10am Friday is maintained.
-
-
-## [Storage](#toc)
-
-- All etm data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not easily human-editable.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
+- All etm item data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not easily human-editable.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
 
         "2756": {
           "c": "shared",
           "created": "20180301T1537A",
           "itemtype": "*",
-          "modified": "20180301T1537A",
           "r": [
             {
             "m": "3",
@@ -315,10 +296,10 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 
         * Daylight saving time begins @s 2018-03-10 @r y &M 3 &w 2SU @c shared
 
-    The unique identifier, `2756`, is created automatically by *TinyDB*.
-
-- Two timestamps are automatically created for items: `created`, corresponding to the moment the item was created and `modified`, corresponding to the moment the item was last modified. A new *history* view in etm  displays all items and allows sorting by either timestamp.  
+- The unique identifier, `2756`, is created automatically by *TinyDB*.
+- Two timestamps are automatically created for items: `created`, corresponding to the moment the item was created and `modified`, if the item is subsequently modified,  corresponding to the moment the item was last modified.  
 - **New**
+    - A *history* view displays all items and allows sorting by either created or modified. 
 	- The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry 
 
 			@i plant:tree:oak
@@ -329,11 +310,13 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 				  - tree
 					    - oak
 
+        Similarly, the default action report groups actions (records with both `@s` and `@e` entries) by month and index.
+
 	- The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
-## [Dates, DateTimes and Durations](#toc)
+## [Time](#toc)
 
-- Dates (naive) and datetimes (both naive and aware) are suppored along with durations (pendulum durations which are analagous to python timedeltas).
+- Dates (necessarily naive) and datetimes (both naive and aware) are suppored along with durations (pendulum durations which are analagous to python timedeltas).
 - Localization is supported using Pendulum, e.g. 
 
 			>>> pendulum.set_locale('fr')
@@ -346,7 +329,7 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
     - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
     - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to midnight and then, along with naive datetimes, are treated as aware in the local timezone.
 - Fuzzy parsing of entries is suppored. 
-- Here are examples of fuzzy parsing and serialization supposing that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern:
+- Examples of fuzzy parsing and serialization supposing that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern:
 	- Naive date:
 
 				@s fri
@@ -523,13 +506,13 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 ### [Done](#toc)
 
 - Actions and finished tasks grouped and sorted by week and day using the finished datetime
-- Actions are displayed with type character `~`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
+- Actions are displayed with type character `%`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
 
         +------------------------- top bar ------------------------+
         | Done - Week 3: Jan 15 - 21, 2018                 F1:help |
         +----------------------------------------------------------+
         | Mon Jan 15                                               |
-        |   ~ report summary                          4:29pm   47m |
+        |   % report summary                          4:29pm   47m |
         |   x report summary                             4:30pm    | 
 
 
@@ -633,13 +616,9 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +------------------------------------------------------------+
 
 
-### [Orignally Created](#toc)
+- All items, sorted by the datetime created.
 
-All items, sorted by the datetime created.
-
-### [Last Modified](#toc)
-
-All items, sorted by the datetime last modified.
+- All items, sorted by the datetime last modified.
 
 ## [Tags](#toc)
 
