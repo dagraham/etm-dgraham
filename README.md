@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Sep 04, 2018 10:25PM EDT**
+**Last modified: Wed Sep 05, 2018 05:48PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -11,7 +11,12 @@
         * [task](#task)
         * [record](#record)
         * [inbox](#inbox)
-    * [Expansions (**New**)](#expansions-new)
+    * [Internal Item Types](#internal-item-types)
+        * [Beginning Soon](#beginning-soon)
+        * [Past Due](#past-due)
+        * [Waiting](#waiting)
+        * [Finished](#finished)
+    * [Expansions (New)](#expansions-new)
     * [`@`keys](#keys)
     * [`&`keys](#keys-1)
         * [`@r`:](#r)
@@ -19,7 +24,6 @@
         * [Count versus Until in Repetition Entries](#count-versus-until-in-repetition-entries)
     * [Storage](#storage)
     * [Dates, DateTimes and Durations](#dates-datetimes-and-durations)
-    * [Jobs](#jobs)
 * [Views](#views)
     * [Weekly](#weekly)
         * [Agenda](#agenda)
@@ -37,7 +41,9 @@
     * [Editing an existing item](#editing-an-existing-item)
     * [Creating a new item](#creating-a-new-item)
 * [Command Shortcut Keys](#command-shortcut-keys)
-* [Model/View/Controller](#modelviewcontroller)
+* [MVC](#mvc)
+    * [Model](#model)
+        * [Data](#data-1)
         * [API](#api)
 
 <!-- vim-markdown-toc -->
@@ -46,7 +52,7 @@
 
 - Simplify etm usage. 
     - Reduce the number of item types and make them more flexible. See [Item Types](#item-types).
-    - Enhance support for component jobs within tasks. See [Jobs](#jobs).
+    - Enhance support for component jobs within tasks. See [Task](#task). 
     - Simplify support for dates and datetimes, both aware and naive. See [Dates, Date Times and Durations](#dates-datetimes-and-durations). 
     - Similify data entry with automatic suggestions and result previews. See [Work Flow](#work-flow).
 - Improve code.
@@ -80,20 +86,53 @@ Corresponds to VTODO in the vcalendar specification.
 - The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is due. 
   - Tasks with an `@s` datetime entry are regarded as pastdue after this datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
   - Tasks with `@s` date entry are regarded as pastdue at the end of the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
-- An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
-- Each pastdue task is also displayed in *Agenda View* on the current date together with the number of days that the task is past due.
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Next View* grouped by `@l` (location/context).
-- *Display* characters. Tasks are always entered using the type character `-` but are displayed using `-`, `+` or `x`, depending upon the status of the task or job:
-	- `-`: available (an unfinished task or a job with no unfinished prerequisites)
-	- `+`: waiting (an unfinished job with unfinished prerequisites)
-	- `x`: a finished task or job
+- Jobs
+    - Tasks, both with and without `@s` entries can have component jobs using `@j` entries.  A task with jobs thus replaces the old task group.
+    - For tasks with an `@s` entry, jobs can have an `&s` entry to set the due date/datetime for the job. It can be entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task or as date/datetime. However entered, the value of `&s` is stored as a relative timeperiod with zero minutes as the default.
+    - For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b`, beginning soon, notices. The entry for `&a` is given as a time period relative to `&s` (+ before or - after) and the entry for `&b` is a positive integer number of days before the starting date/time to begin displaying "beginning soon" notices. Entries for `@a` and `@b` in the task become the defaults for `&a` and `&b`, respectively.  E.g., with
+
+            - beginning soon example @s 1/30/2018 @b 10
+                @j job A &s 5d
+                @j job B 
+
+        Beginning soon notices would begin on Jan 15 for job A (due Jan 25) and on January 20 for job B (due Jan 30).
+    - Prerequisites
+        - Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
+
+                    - automatically assigned
+                        @j job A
+                        @j job B
+                        @j job C
+                        @j job D
+
+            `job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C` which, finally, is a prerequisite for `job D`. 
+        - Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (identifier) and `&p`, (comma separated list of identifiers of immediate prequisites). E.g., with
+
+                    - manually assigned
+                        @j job a &i a
+                        @j job b &i b &p a
+                        @j job c &i c &p a
+                        @j job d &i d &p b, c
+
+            Here `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
+    - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
+
+            x manually assigned [1/2/1]: job a
+            - manually assigned [1/2/1]: job b
+            - manually assigned [1/2/1]: job c
+            + manually assigned [1/2/1]: job d
+
+        would indicate that `job a` is *finished*, `job b`  and `job c` are *available* (have no unfinished prerequistites) and that `job d` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, available and waiting jobs in the task, respectively.
+
+- An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
 - When a job is finished, the "done" datetime is recorded in an `&f` entry in the job and, if there was a due datetime, that is appended using the format `&f done:due`. When the last job in a task is finished or when a task without jobs is finished a similar entry in the task itself using `@f done:due`. If there are jobs, then the `&f` entries are removed from the jobs. 
 - Another step is taken for repeating tasks with as yet unfinished future repetitions. When the task or last job in the current repetition is completed, the `@s` entry is updated using the setting for `@o` to show the next due datetime and the `@f` entry is removed and appended to `@h`. A user configuration setting determines the number of most recent done:due records retained.  
 - **New** 
 	-	The old `@c`, *context*, for tasks has been merged into *location*, `@l`.  
 	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
 	- The old `%`, *delegated*, item type is eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
-  - The old `?` *someday* item type has been eliminated. Setting `@l someday` for such items is recommended.
+    - The old `?` *someday* item type has been eliminated. Setting `@l someday` for such items is suggested.
 
 ### [record](#toc)
 
@@ -121,11 +160,35 @@ Inbox items can be regarded as tasks that are always due on the current date. E.
 
 and this entry will appear highlighted in the agenda view on the current date until you deal with it. 
 
-
 Unchanged but for the change in the type character from `$` to `!`. Inbox items are displayed in dated views on the current date. 
 
+## [Internal Item Types](#toc)
 
-## [Expansions (**New**)](#toc)
+### [Beginning Soon](#toc)
+
+Type character: `>`
+
+For items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining.
+
+### [Past Due](#toc)
+
+Type character: `<`
+
+When a task is past due, a warning that the task is past due appears on the current date together with the item summary and the number of days past due. 
+
+### [Waiting](#toc)
+
+Type character: `+`
+
+When a task job has unfinished prerequisites, it is displayed using this type character rather than `-`.
+
+### [Finished](#toc)
+
+Type character: `x`
+
+When a task or job is finished, it is displayed on the finished date using this type character rather than `-`. 
+
+##  [Expansions (New)](#toc)
 
 The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *expansion key*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
@@ -337,45 +400,6 @@ Both will create repetitions for 10am on each of the weekdays from Monday throug
 				* my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
 
 		would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used. This replaces and simplifies the old `@r l`, list only, repetition frequency.
-
-## [Jobs](#toc)
-
-- Tasks, both with and without `@s` entries can have component jobs using `@j` entries.  A task with jobs thus replaces the old task group.
-- For tasks with an `@s` entry, jobs can have an `&s` entry to set the due date/datetime for the job. It can be entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task or as date/datetime. However entered, the value of `&s` is stored as a relative timeperiod with zero minutes as the default.
-- For tasks with an `@s` entry, jobs can also have `&a`, alert, and `&b`, beginning soon, notices. The entry for `&a` is given as a time period relative to `&s` (+ before or - after) and the entry for `&b` is a positive integer number of days before the starting date/time to begin displaying "beginning soon" notices. Entries for `@a` and `@b` in the task become the defaults for `&a` and `&b`, respectively.  E.g., with
-
-          - beginning soon example @s 1/30/2018 @b 10
-            @j job A &s 5d
-            @j job B 
-
-    Beginning soon notices would begin on Jan 15 for job A (due Jan 25) and on January 20 for job B (due Jan 30).
-- Prerequisites
-	- Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
-
-				- automatically assigned
-					@j job A
-					@j job B
-					@j job C
-					@j job D
-
-		`job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C` which, finally, is a prerequisite for `job D`. 
-	- Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (identifier) and `&p`, (comma separated list of identifiers of immediate prequisites). E.g., with
-
-				- manually assigned
-					@j job a &i a
-					@j job b &i b &p a
-					@j job c &i c &p a
-					@j job d &i d &p b, c
-
-		Here `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
-- Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g., 
-
-          x manually assigned [1/2/1]: job a
-          - manually assigned [1/2/1]: job b
-          - manually assigned [1/2/1]: job c
-          + manually assigned [1/2/1]: job d
-
-	would indicate that `job a` is *finished*, `job b`  and `job c` are *available* (have no unfinished prerequistites) and that `job d` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, available and waiting jobs in the task, respectively.
 
 # [Views](#toc)
 
@@ -810,20 +834,35 @@ Analagous to the old custom view. Used to issue queries against the data store a
 The key bindings for the various commands are listed above. E.g., press 'a' to open agenda view. In any of the views, 'Enter' toggles the expansion of the selected node or item. In any of the dated views, 'Shift Left' and 'Shift Right' change the period displayed and 'Space' changes the display to the current date.
 
 
-# [Model/View/Controller](#toc)
+# [MVC](#toc)
 
-Smart models, thin controllers, dumb views!
+Smart **M**odels, dumb **V**iews and thin **C**ontrollers!
 
-- Instance model (all dates and times in local timezone using locale setting)
+## [Model](#toc)
+
+This is the data interface. It handles CRUD (create, read, update and delete) operations as well as preparing reports in useful formats for use by views. 
+
+Questions:
+
+- What additional data stores should be used, if any, to facilitate report creation?
+    - Could the items table from TinyDB be queried for any item related report?
+        - Look at use cases
+            - index
+
+### [Data](#toc)
+
+- Data store (TinyDB)
+
+- Instances (all dates and times in local timezone using locale setting)
     - data
         - instance table row columns: uid, calendar, type code, summary, year, week, week day, month, month day, start, end, minutes
         - update uid: remove all rows matching uid*; insert new rows for updated uid*.
     - view support
-        - Agenda and Busy: rows matching year* and week*
-        - Month: rows matching year-weeks in year* and month*. E.g., December, 2017 would include year-weeks (2017, 48), ..., (2017, 52), (2018, 1).
-        - Year: rows matching year-weeks in year*. E.g., 2017 would include year-weeks (2016, 52), (2017, 1), ..., (2017, 52), (2018, 1)
+        - Agenda and Busy: rows matching year* and week* with start times
+        - Month: rows matching year-weeks in year* and month* with start times. E.g., December, 2017 would include year-weeks (2017, 48), ..., (2017, 52), (2018, 1).
+        - Year: rows matching year-weeks in year* with start times. E.g., 2017 would include year-weeks (2016, 52), (2017, 1), ..., (2017, 52), (2018, 1)
 
-- Items model
+- Items
     - data
         - items table row columns: uid, created, modified, index, list of tags, relevant datetime?
         - update uid: remove row matching uid; insert new row for updated uid.
@@ -836,9 +875,9 @@ Smart models, thin controllers, dumb views!
 
 ### [API](#toc)
 
-- create_item(str)
-- check_item(str)
+- create_item(str) creates item corresponding to str, adds it to the data store and updates the instances and items tables 
 - update_item(uid, str)
+- check_item(str, pos)
 - delete_item(uid)
 - get_items() -> list of items
 - get_item(id) -> details for id
