@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Sep 06, 2018 10:56AM EDT**
+**Last modified: Fri Sep 07, 2018 06:00PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -19,8 +19,8 @@
     * [Expansions (New)](#expansions-new)
     * [`@`keys](#keys)
     * [`&`keys](#keys-1)
-        * [for use with `@r`:](#for-use-with-r)
         * [for use with `@j`:](#for-use-with-j)
+        * [for use with `@r`:](#for-use-with-r)
     * [Data Store](#data-store)
     * [Time](#time)
 * [Views](#views)
@@ -103,13 +103,13 @@ Corresponds to VTODO in the vcalendar specification.
                     @j job D
 
             `job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C` which, finally, is a prerequisite for `job D`. 
-        - Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (identifier) and `&p`, (comma separated list of identifiers of immediate prequisites). E.g., with
+        - Manually assigned.  Job prequisites can also be assigned manually using entries for `&n` (name) and `&p`, (comma separated list of names of immediate prequisites). E.g., with
 
                 - manually assigned
-                    @j job a &i a
-                    @j job b &i b &p a
-                    @j job c &i c &p a
-                    @j job d &i d &p b, c
+                    @j job a &n a
+                    @j job b &n b &p a
+                    @j job c &n c &p a
+                    @j job d &n d &p b, c
 
             Here `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
     - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g.,  
@@ -227,13 +227,14 @@ Note that changing the entry for `expansions` in your configuration settings wil
     g: goto: string (url or filepath),
     h: history: list of (done:due datetimes)
     i: index: colon delimited string,
-    j: job summary: string, optionally followed by &key entries
+    j: job summary: string, optionally followed by job &key entries
     l: location/context: string,
     m: memo: string,
     o: overdue: character from (r)estart, (s)kip or (k)eep),
     p: priority: integer,
     r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
-       (d)aily, (h)ourly or mi(n)utely, optionally followed by &key entries
+       (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition
+       &key entries
     s: starting: date or datetime,
     t: tags: list of strings,
     x: expansion key: string,
@@ -241,37 +242,37 @@ Note that changing the entry for `expansions` in your configuration settings wil
 
 ## [`&`keys](#toc)
 
-These keys are only used in `@r` (repetition) and `@j` (job) entries.
+These keys are only used with `@j` (job) and `@r` (repetition) entries.
+
+### [for use with `@j`:](#toc)
+      a: alert: (list of timeperiods[: cmd[, list of cmd args]])
+      b: beginby: integer number of days relative to &s
+      d: description: string
+      e: extent: timeperiod
+      f: finish: datetime
+      l: location/context: string
+      m: memo: string
+      n: job name (string)
+      p: prerequisites (comma separated list of job names of immediate
+         prereqs)
+      s: start/due: timeperiod relative to @s entry (default 0m)
 
 ### [for use with `@r`:](#toc)
       c: count: integer number of repetitions 
-      d: monthday: list of integers 1 ... 31,
-      e: easter: number of days before (-), on (0) or after (+) Easter,
-      h: hour: list of integers in 0 ... 23,
-      i: interval: positive integer,
-      m: month: list of integers in 1 ... 12,
-      n: minute: list of integers in 0 ... 59,
-      s: set position: integer,
+      d: monthday: list of integers 1 ... 31
+      e: easter: number of days before (-), on (0) or after (+) Easter
+      h: hour: list of integers in 0 ... 23
+      i: interval: positive integer to apply to frequency, e.g., with
+         @r m &i 3, repetition would occur every 3 months
+      m: month: list of integers in 1 ... 12
+      n: minute: list of integers in 0 ... 59
+      s: set position: integer
       u: until: datetime 
       w: weekday: list from SU, MO, ..., SA possibly prepended with 
-         a positive or negative integer,
+         a positive or negative integer
 
 > Note. It is an error to specify both `&c` and `&u`. A distinction between using `@c` and `@u` is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday  and repeats daily using either count, `&c 5`, or until, `&u fri 10a`.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
-
-### [for use with `@j`:](#toc)
-      a: alert: (list of timeperiods[: cmd[, list of cmd args]]),
-      b: beginby: integer number of days relative to &s,
-      d: description: string,
-      e: extent: timeperiod,
-      f: finish: datetime,
-      i: unique id: integer or string,
-      l: location/context: string,
-      m: memo: string,
-      n: delegate name (string),
-      p: prerequisites (comma separated list of ids of immediate
-         prereqs),
-      s: start/due: timeperiod relative to @s entry (default 0m),
 
 ## [Data Store](#toc)
 
@@ -833,11 +834,20 @@ Questions:
 - Data store (TinyDB)
 
 - Instances (all dates and times in local timezone using locale setting)
-    - data
-        - instance table row columns: uid, calendar, type code, summary, year, week, week day, month, month day, start, end, minutes
+    - date reference data
+        - hash: (year, week) -> formatted week, (tuple of 7 long formatted days, e.g., Mon Jan 22), (tuple of 7 short formatted days, e.g.,  Mo 22)
+    - instance data
+        - row columns = (year, week), wkday, (typecode, formatted time, summary), calendar, index tuple, tags tuple, (start minutes, end minutes, total minutes), uid
         - update uid: remove all rows matching uid*; insert new rows for updated uid*.
+        - rows sorted
     - view support
-        - Agenda and Busy: rows matching year* and week* with start times
+        - filter rows based on calendar selection and filters
+        - Agenda: filtered rows matching (year, week)
+            - week header and long formatted days from date reference data for year, week
+            - uid, display columns from typecode tuple
+        - Busy: filtered rows matching (year, week)
+            - week header and short day headers from reference data for year, week
+            - uid, display columns from minutes tuple
         - Month: rows matching year-weeks in year* and month* with start times. E.g., December, 2017 would include year-weeks (2017, 48), ..., (2017, 52), (2018, 1).
         - Year: rows matching year-weeks in year* with start times. E.g., 2017 would include year-weeks (2016, 52), (2017, 1), ..., (2017, 52), (2018, 1)
 
