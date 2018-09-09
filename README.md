@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Fri Sep 07, 2018 06:00PM EDT**
+**Last modified: Sun Sep 09, 2018 05:53PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -21,8 +21,8 @@
     * [`&`keys](#keys-1)
         * [for use with `@j`:](#for-use-with-j)
         * [for use with `@r`:](#for-use-with-r)
-    * [Data Store](#data-store)
-    * [Time](#time)
+    * [TinyDB](#tinydb)
+    * [Dates, Times and Periods](#dates-times-and-periods)
 * [Views](#views)
     * [Weekly](#weekly)
         * [Agenda](#agenda)
@@ -40,7 +40,7 @@
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
     * [Model](#model)
-        * [Data](#data-1)
+        * [CRUD](#crud)
         * [API](#api)
 
 <!-- vim-markdown-toc -->
@@ -50,7 +50,7 @@
 - Simplify etm usage. 
     - Reduce the number of item types and make them more flexible. See [Item Types](#item-types).
     - Enhance support for component jobs within tasks. See [Task](#task). 
-    - Simplify support for dates and datetimes, both aware and naive. See [Dates, Date Times and Durations](#dates-datetimes-and-durations). 
+    - Simplify support for dates and datetimes, both aware and naive. See [Dates, Times and Periods](#dates-times-and-periods). 
     - Similify data entry with automatic suggestions and result previews. See [Work Flow](#work-flow).
 - Improve code.
     - Refactor and decouple code using "smart model, thin controller and dumb view" approach in which the model provides an API that can be used by a variety of views including a command line interface.
@@ -274,7 +274,7 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 > Note. It is an error to specify both `&c` and `&u`. A distinction between using `@c` and `@u` is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday  and repeats daily using either count, `&c 5`, or until, `&u fri 10a`.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
 
-## [Data Store](#toc)
+## [TinyDB](#toc)
 
 - All etm item data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not easily human-editable.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
 
@@ -315,7 +315,7 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
 	- The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
 
-## [Time](#toc)
+## [Dates, Times and Periods](#toc)
 
 - Dates (necessarily naive) and datetimes (both naive and aware) are suppored along with durations (pendulum durations which are analagous to python timedeltas).
 - Localization is supported using Pendulum, e.g. 
@@ -820,51 +820,56 @@ Smart **M**odels, dumb **V**iews and thin **C**ontrollers!
 
 ## [Model](#toc)
 
-This is the data interface. It handles CRUD (create, read, update and delete) operations as well as preparing reports in useful formats for use by views. 
+See [TinyDB](#tinydb) for details about the data store. The Model handles CRUD (create, read, update and delete) operations on the data store as well as preparing data output in useful formats for views. 
 
-Questions:
+There are two basic types of views: items and instances. The distinction arises because repeating items have more than one instance associated with each item - one for each datetime on which the item repeats. Views such as Agenda View show each of these instances on the date and time at which the item repeats. On the other hand, item views show the item itself rather than the instances. History View, for example shows each item along with the datetimes it was created and last modified. 
 
-- What additional data stores should be used, if any, to facilitate report creation?
-    - Could the items table from TinyDB be queried for any item related report?
-        - Look at use cases
-            - index
+To support views, the model is responsible for maintaining two tables with data relevant to items and to instances. Both tables store the unique id of the relevant item on each row along with data relevant to the item or instance. When an item is updated, only the relevant rows of these tables need to be changed.
 
-### [Data](#toc)
+- Items Table
+    - row columns: created, modified, index tuple, tags tuple, relevant datetime, uid
+    - update uid: remove row matching uid and insert new row for the updated item.
+- Instances Table
+    - row columns: (year, week), wkday, (typecode, formatted time, summary), calendar, index tuple, tags tuple, (start minutes, end minutes, total minutes), uid
+    - update uid: remove all rows matching uid and insert new rows for the updated uid.
 
-- Data store (TinyDB)
+The model is also responsible for providing data appropriate for each view from the relevant table.
 
-- Instances (all dates and times in local timezone using locale setting)
-    - date reference data
-        - hash: (year, week) -> formatted week, (tuple of 7 long formatted days, e.g., Mon Jan 22), (tuple of 7 short formatted days, e.g.,  Mo 22)
-    - instance data
-        - row columns = (year, week), wkday, (typecode, formatted time, summary), calendar, index tuple, tags tuple, (start minutes, end minutes, total minutes), uid
-        - update uid: remove all rows matching uid*; insert new rows for updated uid*.
-        - rows sorted
-    - view support
-        - filter rows based on calendar selection and filters
-        - Agenda: filtered rows matching (year, week)
+### [CRUD](#toc)
+
+- create
+    - create new item from string, insert in data store and retrieve its uid
+    - insert new row in the items table for the returned uid and sort table
+    - insert new rows in the instances table for the returned uid and sort table
+- read:
+    - preparation for views: filter appropriate table rows based on calendar, tabs, index, ...
+    - items views
+        - index view: tree with node paths corresponding to index components and leaves corresponding to  (uid, type, summary, relevant datetime)
+        - tab view: hash tab -> (uid, type, summary, relevant datetime)
+        - history view: table [uid, type, summary, created, modified]
+        - next: hash location -> (uid, type, summary, extent) 
+    - instances views
+        - Agenda View: filter rows matching (year, week)
             - week header and long formatted days from date reference data for year, week
             - uid, display columns from typecode tuple
-        - Busy: filtered rows matching (year, week)
+        - Busy View: filter rows matching (year, week)
             - week header and short day headers from reference data for year, week
             - uid, display columns from minutes tuple
-        - Month: rows matching year-weeks in year* and month* with start times. E.g., December, 2017 would include year-weeks (2017, 48), ..., (2017, 52), (2018, 1).
-        - Year: rows matching year-weeks in year* with start times. E.g., 2017 would include year-weeks (2016, 52), (2017, 1), ..., (2017, 52), (2018, 1)
-
-- Items
-    - data
-        - items table row columns: uid, created, modified, index, list of tags, relevant datetime?
-        - update uid: remove row matching uid; insert new row for updated uid.
-    - view support
-        - index: tree index -> list [uid, type, summary, relevant datetime?]
-        - tabs: tree tab -> list [uid, type, summary, relevant datetime?]
-        - history: table [uid, type, summary, created, modified]
-        - next: tree location -> list [uid, type, summary, extent] 
-
+        - Month: rows matching (year, week) in the six year-weeks for year* and month*. E.g., December, 2017 would include year-weeks (2017, 48), ..., (2017, 52), (2018, 1).
+- update uid: 
+    - update item matching uid in the data store
+    - remove row matching uid in the items table
+    - remove rows matching uid in the instances table
+    - insert new row in the items table and sort
+    - insert new rows in the instances table and sort
+- delete uid
+    - remove item matching uid from the data store
+    - remove row matching uid in the items table
+    - remove rows matching uid in the instances table
 
 ### [API](#toc)
 
-- create_item(str) creates item corresponding to str, adds it to the data store and updates the instances and items tables 
+- create_item(str): creates item corresponding to str, adds it to the data store and updates the instances and items tables 
 - update_item(uid, str)
 - check_item(str, pos)
 - delete_item(uid)
