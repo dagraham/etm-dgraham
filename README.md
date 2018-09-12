@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Sun Sep 09, 2018 05:53PM EDT**
+**Last modified: Tue Sep 11, 2018 06:13PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -16,7 +16,7 @@
         * [Past Due](#past-due)
         * [Waiting](#waiting)
         * [Finished](#finished)
-    * [Expansions (New)](#expansions-new)
+    * [Expansions](#expansions)
     * [`@`keys](#keys)
     * [`&`keys](#keys-1)
         * [for use with `@j`:](#for-use-with-j)
@@ -180,7 +180,7 @@ Type character: **x**
 
 When a task or job is finished, it is displayed on the finished date using **x** rather than **-**. 
 
-##  [Expansions (New)](#toc)
+## [Expansions](#toc)
 
 The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *expansion key*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
@@ -471,33 +471,33 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +----------------------------------------------------------+
         | Busy - Week 4: Jan 22 - 28, 2018                 F1:help |  1
         +----------------------------------------------------------+
-        |        Mo 22  Tu 23  We 24  Th 25  Fr 26  Sa 27  Su 28   |  2
-        |        -----------------------------------------------   |  3
-        |    12a   .      .      .      .      .      .      .     |  4
-        |          .      .      .      .      .      .      .     |  5
+        |        Mon    Tue    Wed    Thu    Fri    Sat    Sun     |  2
+        |         22     23     24     25     26     27     28     |  3
+        |        -----------------------------------------------   |  4
+        |    12a   .      .      .      .      .      .      .     |  5
         |          .      .      .      .      .      .      .     |  6
         |          .      .      .      .      .      .      .     |  7
         |          .      .      .      .      .      .      .     |  8
         |          .      .      .      .      .      .      .     |  9
-        |     6a   .      .      .      .      .      .      .     | 10 
-        |          .      .      .      .      .      .      .     | 11
-        |          #      .      #      .      #      #      .     | 12
+        |          .      .      .      .      .      .      .     | 10
+        |     6a   .      .      .      .      .      .      .     | 11 
+        |          .      .      .      .      .      .      .     | 12
         |          #      .      #      .      #      #      .     | 13
-        |          .      #      .      .      .      #      .     | 14
-        |          .      #      .      #      .      #      #     | 15
-        |    12p   #      .      .      #      .      #      #     | 16
-        |          #      .      .     ###     .      #      #     | 17
-        |          .      .      .      #      .      .      #     | 18
-        |          .      .      .      .      .      .      #     | 19
-        |          #      .      .      .      .      .      .     | 20
+        |          #      .      #      .      #      #      .     | 14
+        |          .      #      .      .      .      #      .     | 15
+        |          .      #      .      #      .      #      #     | 16
+        |    12p   #      .      .      #      .      #      #     | 17
+        |          #      .      .     ###     .      #      #     | 18
+        |          .      .      .      #      .      .      #     | 19
+        |          .      .      .      .      .      .      #     | 20
         |          #      .      .      .      .      .      .     | 21
-        |     6p   .      .      #      .      .      .      .     | 22
-        |          #      .      #      .      .      .      .     | 23
+        |          #      .      .      .      .      .      .     | 22
+        |     6p   .      .      #      .      .      .      .     | 23
         |          #      .      #      .      .      .      .     | 24
-        |          #      .      .      .      .      .      .     | 25
-        |          .      .      .      .      .      .      .     | 26
-        |    12a   .      .      .      .      .      .      .     | 27
-        |        -----------------------------------------------   | 28
+        |          #      .      #      .      .      .      .     | 25
+        |          #      .      .      .      .      .      .     | 26
+        |          .      .      .      .      .      .      .     | 27
+        |    12a   .      .      .      .      .      .      .     | 28
         |                                                          | 29
         +----------------------------------------------------------+
         | 8:49am Thu Jan 18                              10:30am+1 | 30
@@ -535,7 +535,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +----------------------------------------------------------+
         | Monthly - August 2017                            F1:help |  1
         +----------------------------------------------------------+
-        |   Wk     Mo     Tu     We     Th     Fr     Su     Su    |  2
+        |   Wk    Mon    Tue    Wed    Thu    Fri    Sat    Sun    |  2
         |  ----+-------------------------------------------------  |  3
         |   31 |   31      1      2      3      4      5      6    |  4
         |      |         _#_#                                      |  5
@@ -833,7 +833,12 @@ To support views, the model is responsible for maintaining two tables with data 
     - row columns: (year, week), wkday, (typecode, formatted time, summary), calendar, index tuple, tags tuple, (start minutes, end minutes, total minutes), uid
     - update uid: remove all rows matching uid and insert new rows for the updated uid.
 
-The model is also responsible for providing data appropriate for each view from the relevant table.
+The model is also responsible for maintaining a reference table containing the relevant locale representations of dates for use in view headers.
+
+- Dates Table
+    - row columns: (year, week), locale repr of week, (tuple of long weekday locale representations, e.g., Mon Sep 10 2018), (tuple of short weekday representations, e.g., Mon 10)
+
+The model is also responsible for providing data appropriate for each view from the relevant table. Unlike the items and instances tables which are updated only when an item changes, data provided for views is generated on-demand. E.g., when the agenda view is asked to display a particular week, 
 
 ### [CRUD](#toc)
 
@@ -874,8 +879,9 @@ The model is also responsible for providing data appropriate for each view from 
 - check_item(str, pos)
 - delete_item(uid)
 - get_items() -> list of items
-- get_item(id) -> details for id
-- get_tags -> hash: tag -> list of items
-- get_instances -> hash: year-week -> week day -> list of instances
-
+- get_item(uid) -> str representation of item corresponding to uid
+- get_tags -> hash: tag -> list of items containing tag, sorted by tag
+- get_agenda(year, week) -> list of 7 lists of instances, one for each week day, 0 (Mon) - 6 (Sun)
+- get
+- get_month(year, month) -> nested list of instances for the weekdays in the 6 year-weeks beginning with the week containing the first day in month
 
