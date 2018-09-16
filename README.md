@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Sep 11, 2018 06:13PM EDT**
+**Last modified: Thu Sep 13, 2018 09:51PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -40,6 +40,8 @@
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
     * [Model](#model)
+        * [Item Views](#item-views)
+        * [Instance Views](#instance-views)
         * [CRUD](#crud)
         * [API](#api)
 
@@ -827,18 +829,73 @@ There are two basic types of views: items and instances. The distinction arises 
 To support views, the model is responsible for maintaining two tables with data relevant to items and to instances. Both tables store the unique id of the relevant item on each row along with data relevant to the item or instance. When an item is updated, only the relevant rows of these tables need to be changed.
 
 - Items Table
-    - row columns: created, modified, index tuple, tags tuple, relevant datetime, uid
+    - columns: 
+        0. index tuple* 
+        0. typecode
+        0. summary
+        0. created
+        0. modified 
+        0. relevant datetime
+        0. location
+        0. tags tuple
+        0. uid*
     - update uid: remove row matching uid and insert new row for the updated item.
 - Instances Table
-    - row columns: (year, week), wkday, (typecode, formatted time, summary), calendar, index tuple, tags tuple, (start minutes, end minutes, total minutes), uid
+    - columns: 
+        0. year week tuple* 
+        0. wkday 
+        0. typecode 
+        0. summary
+        0. start time,  end time,  interval
+        0. start minutes, end minutes, total minutes 
+        0. calendar 
+        0. index tuple 
+        0. tags tuple 
+        0. uid*
     - update uid: remove all rows matching uid and insert new rows for the updated uid.
 
-The model is also responsible for maintaining a reference table containing the relevant locale representations of dates for use in view headers.
+Note on remove and insert. Use list comprehensions for removing rows without affecting the sort order of the remaining rows
 
-- Dates Table
-    - row columns: (year, week), locale repr of week, (tuple of long weekday locale representations, e.g., Mon Sep 10 2018), (tuple of short weekday representations, e.g., Mon 10)
+        table = [x for x in table if x[-1] != uid]
+
+and 
+
+        import bisect
+        for row in instances:
+            bisect.insort(table, row)
+
+to insert new instances to preserve the sort order.
+
+**TODO**: Look at `collections.groupby`
+
+
+The model is also responsible for maintaining a reference hash containing the relevant locale representations of dates for use in view headers.
+
+- Dates hash: (year, week) ->
+    0. locale representation of week, e.g., Week 35: Aug 27 - Sep 2 2018 
+    1. tuple of long weekday locale representations, e.g., Mon Sep 10 2018
+    2. tuple of short weekday representations, e.g., Mon 10.
 
 The model is also responsible for providing data appropriate for each view from the relevant table. Unlike the items and instances tables which are updated only when an item changes, data provided for views is generated on-demand. E.g., when the agenda view is asked to display a particular week, 
+
+### [Item Views](#toc)
+
+- Next view
+
+    locations = {}
+    for row in filtered_table:
+        if row.location:
+            tmp = (row.type, row.summary, row.relevant_datetime, row.uid)
+            locations.setdefault(row.location, []).add(tmp)
+
+
+
+- Index View
+    - Use recursive_dict to create tree with index paths and list of items values
+- 
+
+
+### [Instance Views](#toc)
 
 ### [CRUD](#toc)
 
@@ -847,7 +904,7 @@ The model is also responsible for providing data appropriate for each view from 
     - insert new row in the items table for the returned uid and sort table
     - insert new rows in the instances table for the returned uid and sort table
 - read:
-    - preparation for views: filter appropriate table rows based on calendar, tabs, index, ...
+    - preparation for views: filter appropriate table rows based on calendar, tabs, index, ... and return appropriated sorted
     - items views
         - index view: tree with node paths corresponding to index components and leaves corresponding to  (uid, type, summary, relevant datetime)
         - tab view: hash tab -> (uid, type, summary, relevant datetime)

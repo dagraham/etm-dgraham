@@ -2605,7 +2605,7 @@ def print_json():
     db = load_tinydb()
     for item in db:
         try:
-            print(item.doc_id, item.doc_id, item['itemtype'])
+            print(item.doc_id, item['itemtype'])
             print(item_details(item))
         except Exception as e:
             print('exception:', e)
