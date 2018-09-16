@@ -18,7 +18,7 @@ Index: path[0] -> path[1] -> ... -> (typecode, summary, datetime, uid)
 """
 
 class RDict(dict):
-    tab = " " * 3
+    tab = 3 * " "
 
     def __missing__(self, key):
             self[key] = RDict()
@@ -33,9 +33,10 @@ class RDict(dict):
                 self.setdefault(key, []).append(values)
             self = self[key]
 
-    def as_tree(self, t={}, depth = 0):
+    def as_tree(self, t = None, depth = 0):
         """ print a tree """
-        # tab = " "*3
+        if t is None:
+            t = self
         for k in t.keys():
             print("%s%s" % (depth * RDict.tab,  k))
             depth += 1
@@ -52,15 +53,15 @@ class SList(list):
     """
 
     def add(self, path_tuple, values_tuple):
-        ###############################
-        # use bisect to preserve order
-        ###############################
+        """
+        Use bisect to preserve order
+        """
         bisect.insort(self, ('.'.join(path_tuple), values_tuple))
 
     def remove(self, uid):
-        _beg_len = len(self)
+        _len = len(self)
         tmp = [x for x in self if x[1][-1] != uid]
-        print('removed: {} rows for {}'.format(_beg_len - len(tmp), uid))
+        print('removed: {} rows for {}'.format(_len - len(tmp), uid))
         self[:] = tmp
 
 if __name__ == '__main__':
@@ -92,7 +93,6 @@ if __name__ == '__main__':
 
     print("ending data:", len(data), "items")
     pprint(data)
-    print()
 
     # create recursive dict from data
     index = RDict()
