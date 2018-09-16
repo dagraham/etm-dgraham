@@ -43,7 +43,8 @@ class RDict(dict):
             if type(t[k]) == RDict:
                 self.as_tree(t[k], depth)
             else:
-                print("%s%s" % (depth * RDict.tab, t[k]))
+                for v in t[k]:
+                    print("%s%s" % (depth * RDict.tab, v))
             depth -= 1
 
 import bisect
@@ -70,7 +71,17 @@ if __name__ == '__main__':
     from pprint import pprint
 
     # sample data
+    types = [
+            ['*', 'event', 'datetime'],
+            ['-', 'task', 'due'],
+            ['%', 'record', 'date'],
+            ]
+    items = []
     uids = []
+    for i in range(100):
+        u = randint(100, 1000)
+        items.append(tuple(choice(types) + [str(u)]))
+
     data = SList()
     for y in range(2016, 2019):
         year = "{}".format(y)
@@ -79,9 +90,12 @@ if __name__ == '__main__':
             for d in range(1, randint(2, 6)):
                 day = "{}".format(randint(0, 6))
                 for j in range(1, randint(2, 5)):
-                    u = "{}".format(randint(1, 1000))
-                    uids.append(u)
-                    data.add((year, week, day), (u,))
+                    item = choice(items)
+                    uids.append(item[-1])
+                    data.add((year, week, day), item)
+                    # u = "{}".format(randint(1, 1000))
+                    # uids.append(u)
+                    # data.add((year, week, day), (u,))
 
     print()
     print("starting data:", len(data), "items")
