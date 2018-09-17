@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 from model import TimeIt
 from model import setup_logging
+from collections import namedtuple
 
 """
 Handle lists of path and value tuples and their conversion to tree structurs.
@@ -16,6 +17,10 @@ Examples
 Agenda: year -> week -> day -> [(typecode, summary, times, uid)]
 Index: path[0] -> path[1] -> ... -> (typecode, summary, datetime, uid)
 """
+
+# FIXME
+Instance = namedtuple('Instance', ['path', 'type', 'summary', 'time', 'calendar', 'uid'])
+Item = namedtuple('Item', ['path', 'type', 'summary', 'relevant', 'created', 'modified', 'location', 'calendar', 'uid'])
 
 class RDict(dict):
     tab = 3 * " "

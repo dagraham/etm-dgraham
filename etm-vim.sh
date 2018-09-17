@@ -1,2 +1,2 @@
 /Applications/MacVim.app/Contents/MacOS/Vim -g -p etmMVC/edit.py etmMVC/model.py etmMVC/controller.py etmMVC/urview.py 
-/Applications/MacVim.app/Contents/MacOS/Vim -g -p etmMVC/view.py viewtest.py notes.md README.md 
+/Applications/MacVim.app/Contents/MacOS/Vim -g -p etmMVC/view.py etmMVC/rdict.py viewtest.py notes.md README.md 

@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Sep 13, 2018 09:51PM EDT**
+**Last modified: Mon Sep 17, 2018 04:22PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -830,7 +830,7 @@ To support views, the model is responsible for maintaining two tables with data 
 
 - Items Table
     - columns: 
-        0. index tuple* 
+        0. index path* 
         0. typecode
         0. summary
         0. created
@@ -842,14 +842,13 @@ To support views, the model is responsible for maintaining two tables with data 
     - update uid: remove row matching uid and insert new row for the updated item.
 - Instances Table
     - columns: 
-        0. year week tuple* 
-        0. wkday 
+        0. year.week.weekday path* 
         0. typecode 
         0. summary
         0. start time,  end time,  interval
         0. start minutes, end minutes, total minutes 
         0. calendar 
-        0. index tuple 
+        0. index path
         0. tags tuple 
         0. uid*
     - update uid: remove all rows matching uid and insert new rows for the updated uid.
