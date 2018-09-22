@@ -18,7 +18,7 @@ Agenda: year -> week -> day -> [(typecode, summary, times, uid)]
 Index: path[0] -> path[1] -> ... -> (typecode, summary, datetime, uid)
 """
 
-# FIXME
+# TODO
 Instance = namedtuple('Instance', ['path', 'type', 'summary', 'time', 'calendar', 'uid'])
 Item = namedtuple('Item', ['path', 'type', 'summary', 'relevant', 'created', 'modified', 'location', 'calendar', 'uid'])
 

@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Mon Sep 17, 2018 04:22PM EDT**
+**Last modified: Fri Sep 21, 2018 07:23PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -23,6 +23,7 @@
         * [for use with `@r`:](#for-use-with-r)
     * [TinyDB](#tinydb)
     * [Dates, Times and Periods](#dates-times-and-periods)
+    * [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
 * [Views](#views)
     * [Weekly](#weekly)
         * [Agenda](#agenda)
@@ -40,6 +41,10 @@
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
     * [Model](#model)
+        * [Data Store:  hash uid -> all item details including:](#data-store--hash-uid---all-item-details-including)
+        * [Supporting queries](#supporting-queries)
+        * [Items Tables - on demand created by query for requested view](#items-tables---on-demand-created-by-query-for-requested-view)
+        * [Instances Table](#instances-table)
         * [Item Views](#item-views)
         * [Instance Views](#instance-views)
         * [CRUD](#crud)
@@ -367,14 +372,6 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 			Fri Jan 26 2018 2:00PM
 			Fri Feb 23 2018 2:00PM
 			Fri Mar 30 2018 2:00PM
-- The *relevant datetime* of an item (used, e.g., in index view): 
-    - Non-repeating events and non-repeating unfinished tasks: the datetime given in `@s`
-    - Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance.
-    - Repeating unfinished tasks with `@o r` or `@o k` (the default): the datetime given in `@s`. This datetime is automatically updated when an instance is completed to the due datetime of the next instance.
-    - Repeating unfinished tasks with `@o s`: the datetime of the first instance falling during or after the current date.
-    - Finished tasks: the datetime given in `@f`.
-    - Actions: the datetime given in `@f`.
-    - Someday entries, inbox enties, undated record entries and undated, unfinished tasks: *None*
 - Display:
     - Naive dates are displayed without conversion and without a starting time. 
     - Naive datetimes are displayed without conversion.
@@ -386,6 +383,18 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 				* my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
 
 		would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used. This replaces and simplifies the old `@r l`, list only, repetition frequency.
+
+## [The relevant datetime of an item](#toc)
+
+Used, e.g., in index view.
+
+- Non-repeating events and non-repeating unfinished tasks: the datetime given in `@s`. 
+- Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance. (needs updating)
+- Repeating unfinished tasks with `@o r` or `@o k` (the default): the datetime given in `@s`. This datetime is automatically updated when an instance is completed to the due datetime of the next instance.
+- Repeating unfinished tasks with `@o s`: the datetime of the first instance falling during or after the current date. (needs updating)
+- Finished tasks: the datetime given in `@f`.
+- Actions: the datetime given in `@f`.
+- Someday entries, inbox enties, undated record entries and undated, unfinished tasks: *None*
 
 # [Views](#toc)
 
@@ -828,45 +837,77 @@ There are two basic types of views: items and instances. The distinction arises 
 
 To support views, the model is responsible for maintaining two tables with data relevant to items and to instances. Both tables store the unique id of the relevant item on each row along with data relevant to the item or instance. When an item is updated, only the relevant rows of these tables need to be changed.
 
-- Items Table
-    - columns: 
-        0. index path* 
-        0. typecode
-        0. summary
-        0. created
-        0. modified 
-        0. relevant datetime
-        0. location
-        0. tags tuple
-        0. uid*
-    - update uid: remove row matching uid and insert new row for the updated item.
-- Instances Table
-    - columns: 
-        0. year.week.weekday path* 
-        0. typecode 
-        0. summary
-        0. start time,  end time,  interval
-        0. start minutes, end minutes, total minutes 
-        0. calendar 
-        0. index path
-        0. tags tuple 
-        0. uid*
-    - update uid: remove all rows matching uid and insert new rows for the updated uid.
+### Data Store:  hash uid -> all item details including: 
 
-Note on remove and insert. Use list comprehensions for removing rows without affecting the sort order of the remaining rows
+- index path 
+- typecode
+- summary
+- created
+- modified 
+- calendar
+- location
+- tags tuple
+- description
 
-        table = [x for x in table if x[-1] != uid]
+### Supporting queries
 
-and 
+- uid -> relevant datetime (updated daily)
 
-        import bisect
-        for row in instances:
-            bisect.insort(table, row)
+- for today
+    - inbox: [list of uids of inbox items]
+    - beginbys: [list of uids with beg and tdy < rel and rel <= tdy + beg]
+    - pastdues: [list of uids of unfinished tasks with rel < tdy]
+    - alerts: [list of uids with alerts occuring today]
 
-to insert new instances to preserve the sort order.
 
-**TODO**: Look at `collections.groupby`
+### Items Tables - on demand created by query for requested view 
+- index
+    - index path
+    - typecode
+    - summary
+    - relevant datetime
+    - uid
+- tags
+    - tag
+    - typecode
+    - summary
+    - relevant datetime
+    - uid
+- location
+    - location
+    - typecode
+    - summary
+    - relevant datetime
+    - uid
+- created
+    - created
+    - typecode
+    - summary
+    - relevant datetime
+    - uid
+- modified
+    - modified
+    - typecode
+    - summary
+    - relevant datetime
+    - uid
 
+
+### Instances Table
+
+- columns: 
+    - year.week.weekday path* 
+    - typecode 
+    - summary
+    - start time,  end time,  interval
+    - start minutes, end minutes, total minutes 
+    - calendar 
+    - index path
+    - tags tuple 
+    - uid*
+- update uid: remove all rows matching uid and insert new rows for the updated uid.
+
+Note: use SList from rdict.py for tables.
 
 The model is also responsible for maintaining a reference hash containing the relevant locale representations of dates for use in view headers.
 

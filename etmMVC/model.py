@@ -2367,11 +2367,11 @@ serialization.register_serializer(PendulumDurationSerializer(), 'I')
 ### start week/month ###
 ########################
 
-def get_period(dt=pendulum.now(), months_before=5, months_after=18):
+def get_period(dt=pendulum.now(), months_before=11, months_after=24):
     """
     Return the begining and ending of the period that includes the weeks in current month plus the weeks in the prior *months_before* and the weeks in the subsequent *months_after*. The period will begin at 0 hours on the relevant Monday and end at 23:59:59 hours on the relevant Sunday.
     >>> get_period(pendulum.datetime(2018, 7, 1, 0, 0, tz='US/Eastern'))
-    (DateTime(2018, 1, 29, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2020, 2, 9, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
+    (DateTime(2017, 7, 31, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2020, 8, 9, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
     """
     beg = dt.start_of('month').subtract(months=months_before).start_of('week')
     end = dt.start_of('month').add(months=months_after, weeks=5).end_of('week')
@@ -2428,84 +2428,84 @@ def prevWeek(yw):
     return (iso_to_gregorian((*yw, 1)) - pendulum.duration(days=1)).isocalendar()[:2]
 
 
-def nextMonthWeeks(yw_lst):
-    """
-    Weeks for December 2015
-    >>> nextMonthWeeks([(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)])
-    [(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)]
-    """
-    return getMonthWeeks(iso_to_gregorian((*yw_lst[-1], 7)) + pendulum.duration(days=1))
+# def nextMonthWeeks(yw_lst):
+#     """
+#     Weeks for December 2015
+#     >>> nextMonthWeeks([(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)])
+#     [(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)]
+#     """
+#     return getMonthWeeks(iso_to_gregorian((*yw_lst[-1], 7)) + pendulum.duration(days=1))
 
 
-def prevMonthWeeks(yw_lst):
-    """
-    Weeks for January 2016
-    >>> prevMonthWeeks([(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)])
-    [(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)]
-    """
-    return getMonthWeeks(iso_to_gregorian((*yw_lst[0], 1)) - pendulum.duration(days=1))
+# def prevMonthWeeks(yw_lst):
+#     """
+#     Weeks for January 2016
+#     >>> prevMonthWeeks([(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)])
+#     [(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)]
+#     """
+#     return getMonthWeeks(iso_to_gregorian((*yw_lst[0], 1)) - pendulum.duration(days=1))
 
 
-def getWeeks(dt, bef=0, aft=0):
-    """
-    Return (year, week number) tuples for the bef weeks before the week containing dt and the aft weeks after
-    >>> getWeeks(datetime(2015, 10, 3), bef=0, aft=4)
-    [(2015, 40), (2015, 41), (2015, 42), (2015, 43), (2015, 44)]
-    >>> getWeeks(datetime(2015, 10, 3))
-    [(2015, 40)]
-    """
-    beg_dt = dt - bef * pendulum.duration(days=7)
-    end_dt = dt + aft * pendulum.duration(days=7)
-    beg_yw = beg_dt.isocalendar()[:2]
-    end_yw = end_dt.isocalendar()[:2]
-    ret = [beg_yw]
-    tmp_dt = beg_dt
-    tmp_yw = beg_yw
-    while tmp_yw < end_yw:
-        tmp_dt = tmp_dt + pendulum.duration(days=7)
-        tmp_yw = tmp_dt.isocalendar()[:2]
-        ret.append(tmp_yw)
-    return ret
+# def getWeeks(dt, bef=0, aft=0):
+#     """
+#     Return (year, week number) tuples for the bef weeks before the week containing dt and the aft weeks after
+#     >>> getWeeks(datetime(2015, 10, 3), bef=0, aft=4)
+#     [(2015, 40), (2015, 41), (2015, 42), (2015, 43), (2015, 44)]
+#     >>> getWeeks(datetime(2015, 10, 3))
+#     [(2015, 40)]
+#     """
+#     beg_dt = dt - bef * pendulum.duration(days=7)
+#     end_dt = dt + aft * pendulum.duration(days=7)
+#     beg_yw = beg_dt.isocalendar()[:2]
+#     end_yw = end_dt.isocalendar()[:2]
+#     ret = [beg_yw]
+#     tmp_dt = beg_dt
+#     tmp_yw = beg_yw
+#     while tmp_yw < end_yw:
+#         tmp_dt = tmp_dt + pendulum.duration(days=7)
+#         tmp_yw = tmp_dt.isocalendar()[:2]
+#         ret.append(tmp_yw)
+#     return ret
 
-def getMonthWeeks(dt, bef=0, aft=0):
-    """
-    Return (year, week number) tuples for the weeks in the months beginning bef months before the month containing dt and ending aft months after the month containing dt.
-    >>> getMonthWeeks(pendulum.date(2015, 11, 3))
-    [(2015, 44), (2015, 45), (2015, 46), (2015, 47), (2015, 48), (2015, 49)]
-    >>> getMonthWeeks(pendulum.date(2015, 12, 15))
-    [(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)]
-    >>> getMonthWeeks(pendulum.date(2016, 1, 17))
-    [(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)]
-    >>> getMonthWeeks(pendulum.date(2016, 2, 23))
-    [(2016, 5), (2016, 6), (2016, 7), (2016, 8), (2016, 9)]
-    >>> getMonthWeeks(pendulum.date(2016, 1, 17), bef=2, aft=1)
-    [(2015, 44), (2015, 45), (2015, 46), (2015, 47), (2015, 48), (2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4), (2016, 5), (2016, 6), (2016, 7), (2016, 8), (2016, 9)]
-    """
-    ret = []
-    # get the first day of the current month
-    tmp = dt.replace(day=1)
-    for i in range(bef):
-        # get the first day of the previous month
-        tmp = (tmp - pendulum.duration(days=1)).replace(day=1)
-    firstmonthday = tmp
+# def getMonthWeeks(dt, bef=0, aft=0):
+#     """
+#     Return (year, week number) tuples for the weeks in the months beginning bef months before the month containing dt and ending aft months after the month containing dt.
+#     >>> getMonthWeeks(pendulum.date(2015, 11, 3))
+#     [(2015, 44), (2015, 45), (2015, 46), (2015, 47), (2015, 48), (2015, 49)]
+#     >>> getMonthWeeks(pendulum.date(2015, 12, 15))
+#     [(2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53)]
+#     >>> getMonthWeeks(pendulum.date(2016, 1, 17))
+#     [(2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4)]
+#     >>> getMonthWeeks(pendulum.date(2016, 2, 23))
+#     [(2016, 5), (2016, 6), (2016, 7), (2016, 8), (2016, 9)]
+#     >>> getMonthWeeks(pendulum.date(2016, 1, 17), bef=2, aft=1)
+#     [(2015, 44), (2015, 45), (2015, 46), (2015, 47), (2015, 48), (2015, 49), (2015, 50), (2015, 51), (2015, 52), (2015, 53), (2016, 1), (2016, 2), (2016, 3), (2016, 4), (2016, 5), (2016, 6), (2016, 7), (2016, 8), (2016, 9)]
+#     """
+#     ret = []
+#     # get the first day of the current month
+#     tmp = dt.replace(day=1)
+#     for i in range(bef):
+#         # get the first day of the previous month
+#         tmp = (tmp - pendulum.duration(days=1)).replace(day=1)
+#     firstmonthday = tmp
 
-    # get a date from the next month
-    tmp = dt.replace(day=28) + pendulum.duration(days=4)
-    for i in range(aft):
-        tmp = tmp.replace(day=28) + pendulum.duration(days=4)
-    lastmonthday = tmp - pendulum.duration(days=tmp.day)
+#     # get a date from the next month
+#     tmp = dt.replace(day=28) + pendulum.duration(days=4)
+#     for i in range(aft):
+#         tmp = tmp.replace(day=28) + pendulum.duration(days=4)
+#     lastmonthday = tmp - pendulum.duration(days=tmp.day)
 
-    by, bw, bd = firstmonthday.isocalendar()
-    ey, ew, ed = lastmonthday.isocalendar()
-    lastweekday = iso_to_gregorian((ey, ew, 7))
-    y = by
-    w = bw
-    day = firstmonthday
-    while day <= lastweekday:
-        ret.append((y,w))
-        day = day + pendulum.duration(days=7)
-        y, w, d = day.isocalendar()
-    return ret
+#     by, bw, bd = firstmonthday.isocalendar()
+#     ey, ew, ed = lastmonthday.isocalendar()
+#     lastweekday = iso_to_gregorian((ey, ew, 7))
+#     y = by
+#     w = bw
+#     day = firstmonthday
+#     while day <= lastweekday:
+#         ret.append((y,w))
+#         day = day + pendulum.duration(days=7)
+#         y, w, d = day.isocalendar()
+#     return ret
 
 def getWeeksForMonth(ym):
     """
