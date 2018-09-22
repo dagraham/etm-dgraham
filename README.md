@@ -1,17 +1,17 @@
 # What's planned for the next etm?
-**Last modified: Fri Sep 21, 2018 07:23PM EDT**
+**Last modified: Sat Sep 22, 2018 07:35PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Goals](#goals)
 * [Data](#data)
-    * [User Item Types](#user-item-types)
+    * [Item Types](#item-types)
         * [event](#event)
         * [task](#task)
         * [record](#record)
         * [inbox](#inbox)
-    * [Internally Generated Types](#internally-generated-types)
+    * [Notices](#notices)
         * [Beginning Soon](#beginning-soon)
         * [Past Due](#past-due)
         * [Waiting](#waiting)
@@ -41,9 +41,9 @@
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
     * [Model](#model)
-        * [Data Store:  hash uid -> all item details including:](#data-store--hash-uid---all-item-details-including)
+        * [Data Store](#data-store)
         * [Supporting queries](#supporting-queries)
-        * [Items Tables - on demand created by query for requested view](#items-tables---on-demand-created-by-query-for-requested-view)
+        * [Items Tables](#items-tables)
         * [Instances Table](#instances-table)
         * [Item Views](#item-views)
         * [Instance Views](#instance-views)
@@ -67,7 +67,7 @@
 
 # [Data](#toc)
 
-## [User Item Types](#toc)
+## [Item Types](#toc)
 
 ### [event](#toc)
 
@@ -147,8 +147,8 @@ A combination of the old *note* and *action* item types.
 
 - The `@s` is optional and, if given, is interpreted as the datetime to which the record applies. 
 - Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime.
-- Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of a particular day and enter that date as `@s`.
-- Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type.
+- Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of the day given by `@s`.
+- Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type. An built-in report groups and totals times for such "actions" by month and then index entry.
 
 
 ### [inbox](#toc)
@@ -159,9 +159,9 @@ Corresponds to VTODO in the vcalendar specification.
 
 An inbox items can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using `!` instead of `*` and the entry  will appear highlighted in the agenda view on the current date until you confirm the starting time. 
 
-Unchanged but for the change in the type character from `$` to `!`. Inbox items are displayed in dated views on the current date. 
+Unchanged but for the change in the type character from `$` to `!` to better reflect the urgency associated with such items.  Inbox items are displayed in dated views on the current date. 
 
-## [Internally Generated Types](#toc)
+## [Notices](#toc)
 
 ### [Beginning Soon](#toc)
 
@@ -177,9 +177,9 @@ When a task is past due, a warning that the task is past due appears on the curr
 
 ### [Waiting](#toc)
 
-Type character: **~**
+Type character: **+**
 
-When a task job has unfinished prerequisites, it is displayed using **~** rather than **-**.
+When a task job has one or more unfinished prerequisites, it is displayed using **+** rather than **-**.
 
 ### [Finished](#toc)
 
@@ -219,7 +219,7 @@ is equivalent to entering
 
 The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for the event but the default for `@l` has been overridden by the explicit entry.
 
-Note that changing the entry for `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the `@x` entry is replaced by its expansion. 
+Note that changing the entry for `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the `@x` entry is replaced by its expansion. [Is this the correct behavior?]
 
 ## [`@`keys](#toc)
 
@@ -461,7 +461,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 - Starting from the top, the display for a day includes the following:
 
     - All day events (occasions), if any, using the display character `^` instead of the event type character `*` and highlighted using the occasion color.
-    - For the current date (today) only:
+    - *For the current date (today) only*:
 
         - Inbox entries, if any, highlighted using the inbox color.
         - Pastdue tasks, if any, with the number of days that have passed since the task was due using the display character `<` and highlighted using the pastdue color. 
@@ -837,7 +837,9 @@ There are two basic types of views: items and instances. The distinction arises 
 
 To support views, the model is responsible for maintaining two tables with data relevant to items and to instances. Both tables store the unique id of the relevant item on each row along with data relevant to the item or instance. When an item is updated, only the relevant rows of these tables need to be changed.
 
-### Data Store:  hash uid -> all item details including: 
+### [Data Store](#toc)  
+
+hash uid -> all item details including: 
 
 - index path 
 - typecode
@@ -849,7 +851,7 @@ To support views, the model is responsible for maintaining two tables with data 
 - tags tuple
 - description
 
-### Supporting queries
+### [Supporting queries](#toc)
 
 - uid -> relevant datetime (updated daily)
 
@@ -860,7 +862,10 @@ To support views, the model is responsible for maintaining two tables with data 
     - alerts: [list of uids with alerts occuring today]
 
 
-### Items Tables - on demand created by query for requested view 
+### [Items Tables](#toc)
+
+on demand created by query for requested view 
+
 - index
     - index path
     - typecode
@@ -893,18 +898,18 @@ To support views, the model is responsible for maintaining two tables with data 
     - uid
 
 
-### Instances Table
+### [Instances Table](#toc)
 
 - columns: 
-    - year.week.weekday path* 
+    - year.week.weekday path
     - typecode 
     - summary
-    - start time,  end time,  interval
+    - start time, end time, interval
     - start minutes, end minutes, total minutes 
     - calendar 
     - index path
     - tags tuple 
-    - uid*
+    - uid
 - update uid: remove all rows matching uid and insert new rows for the updated uid.
 
 Note: use SList from rdict.py for tables.
@@ -927,8 +932,6 @@ The model is also responsible for providing data appropriate for each view from 
         if row.location:
             tmp = (row.type, row.summary, row.relevant_datetime, row.uid)
             locations.setdefault(row.location, []).add(tmp)
-
-
 
 - Index View
     - Use recursive_dict to create tree with index paths and list of items values
