@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Sat Sep 22, 2018 07:35PM EDT**
+**Last modified: Sat Sep 22, 2018 11:38PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -124,7 +124,7 @@ Corresponds to VTODO in the vcalendar specification.
             x manually assigned [1/2/1]: job a
             - manually assigned [1/2/1]: job b
             - manually assigned [1/2/1]: job c
-            ~ manually assigned [1/2/1]: job d
+            + manually assigned [1/2/1]: job d
 
         would indicate that `job a` is *finished*, `job b`  and `job c` are *available* (have no unfinished prerequistites) and that `job d` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, available and waiting jobs in the task, respectively.
 
