@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Sat Sep 22, 2018 11:38PM EDT**
+**Last modified: Sat Sep 22, 2018 11:44PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -233,7 +233,7 @@ Note that changing the entry for `expansions` in your configuration settings wil
     f: finished: datetime,
     g: goto: string (url or filepath),
     h: history: list of (done:due datetimes)
-    i: index: colon delimited string,
+    i: index: period delimited string,
     j: job summary: string, optionally followed by job &key entries
     l: location/context: string,
     m: memo: string,
@@ -308,15 +308,15 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 - Two timestamps are automatically created for items: `created`, corresponding to the moment the item was created and `modified`, if the item is subsequently modified,  corresponding to the moment the item was last modified.  
 - **New**
     - A *history* view displays all items and allows sorting by either created or modified. 
-	- The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry 
+	- The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a period delimited string. E.g., the entry 
 
-			@i plant:tree:oak
+			@i plant.tree.oak
 
 		would display the item in the *index* view under:
 
 			- plant
-				  - tree
-					    - oak
+			    - tree
+			        - oak
 
         Similarly, the default action report groups actions (records with both `@s` and `@e` entries) by month and index.
 
