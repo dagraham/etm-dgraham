@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Sat Sep 22, 2018 11:44PM EDT**
+**Last modified: Wed Sep 26, 2018 01:39PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -9,8 +9,9 @@
     * [Item Types](#item-types)
         * [event](#event)
         * [task](#task)
-        * [record](#record)
         * [inbox](#inbox)
+        * [someday](#someday)
+        * [record](#record)
     * [Notices](#notices)
         * [Beginning Soon](#beginning-soon)
         * [Past Due](#past-due)
@@ -29,7 +30,7 @@
         * [Agenda](#agenda)
         * [Busy](#busy)
         * [Done](#done)
-    * [Monthly ](#monthly-)
+    * [Monthly](#monthly)
     * [Next](#next)
     * [Index](#index)
     * [History](#history)
@@ -135,7 +136,24 @@ Corresponds to VTODO in the vcalendar specification.
 	-	The old `@c`, *context*, for tasks has been merged into *location*, `@l`.  
 	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
 	- The old `%`, *delegated*, item type has been eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
-    - The old `?` *someday* item type has been eliminated. Setting `@l ~someday` and omitting @s is recommended for such tasks. They will then be displayed last in the next view under *~someday*. [The tilde character, `~`, sorts after alphanumeric characters.]  
+
+### [inbox](#toc)
+
+Type character: **!**
+
+Corresponds to VTODO in the vcalendar specification.
+
+An inbox items can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using `!` instead of `*` and the entry  will appear highlighted in the agenda view on the current date until you confirm the starting time. 
+
+Unchanged but for the change in the type character from `$` to `!` to better reflect the urgency associated with such items.  Inbox items are displayed in dated views on the current date. 
+
+### [someday](#toc)
+
+Type character: **?**
+
+Unchanged.
+
+Corresponds to VTODO in the vcalendar specification.
 
 ### [record](#toc)
 
@@ -149,17 +167,6 @@ A combination of the old *note* and *action* item types.
 - Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime.
 - Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of the day given by `@s`.
 - Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type. An built-in report groups and totals times for such "actions" by month and then index entry.
-
-
-### [inbox](#toc)
-
-Type character: **!**
-
-Corresponds to VTODO in the vcalendar specification.
-
-An inbox items can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using `!` instead of `*` and the entry  will appear highlighted in the agenda view on the current date until you confirm the starting time. 
-
-Unchanged but for the change in the type character from `$` to `!` to better reflect the urgency associated with such items.  Inbox items are displayed in dated views on the current date. 
 
 ## [Notices](#toc)
 
@@ -375,7 +382,8 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 - Display:
     - Naive dates are displayed without conversion and without a starting time. 
     - Naive datetimes are displayed without conversion.
-    - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as starting at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `fri 2p, US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
+    - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as starting at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `@s fri 2p @z US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
+    - When *editing* an item with an aware datetime, the datetime is displayed in the timezone specified in `@z`.
     - Datetimes are rounded to the nearest minute for display.
 - **New**
 	- *Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
@@ -394,7 +402,7 @@ Used, e.g., in index view.
 - Repeating unfinished tasks with `@o s`: the datetime of the first instance falling during or after the current date. (needs updating)
 - Finished tasks: the datetime given in `@f`.
 - Actions: the datetime given in `@f`.
-- Someday entries, inbox enties, undated record entries and undated, unfinished tasks: *None*
+- Inbox entries, undated record entries, undated, unfinished tasks and someday entries: *None*
 
 # [Views](#toc)
 
@@ -404,7 +412,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 ## [Weekly](#toc)
 
-*Agenda*, *Busy* and *Done* views are synchronized so that switching from one of these views to another always displays the same week.
+*Agenda* and *Busy* views are synchronized so that switching from one of these views to another always displays the same week.
 
 ### [Agenda](#toc)
 
@@ -469,15 +477,16 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
         Note that the items included for the current date are those from the old *agenda* view.
 
-    - Scheduled events, notes, actions and unfinished tasks sorted by `@s` which is displayed in the 2nd column. For events with *extent*, the ending time is also displayed. For tasks with *extent*, the extent period is also displayed. Each item is highlighted using the type color for that item.
-    - Unfinished all day tasks, if any, highlighted using the task color.
-    - All day notes, if any, using the note color.
+    - Datetime events, notes, records and unfinished tasks sorted by `@s` together with finished tasks sorted by `@f` with relevant time  displayed in the 2nd column. For events with *extent*, the ending time is also displayed. For tasks with *extent*, the extent period is also displayed. 
+    - Date only tasks.
+    - Date only notes.
 
 ### [Busy](#toc)
 
 - Hours in the day that are partially or wholly "busy" are filled using the color of the calendar for the relevant item. Shown here with `#`.
 - Hours in which a conflict occurs are filled with the overlapping calendar colors of the relevant items. Shown here with `###`.
 - Mouse over tool tips show the summary and times for the relevant item.
+
 
         +----------------------------------------------------------+
         | Busy - Week 4: Jan 22 - 28, 2018                 F1:help |  1
@@ -517,8 +526,8 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 ### [Done](#toc)
 
-- Actions and finished tasks grouped and sorted by week and day using the finished datetime
-- Actions are displayed with type character `%`, the item summary,  the time finished and the active time period. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
+- Records with datetimes and finished tasks grouped and sorted by week and day.
+- Records are displayed with the type character, `%`, the item summary,  the time from `@s` and, if given, the extent from `@e`. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
 
         +------------------------- top bar ------------------------+
         | Done - Week 3: Jan 15 - 21, 2018                 F1:help |
@@ -528,7 +537,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |   x report summary                             4:30pm    | 
 
 
-## [Monthly ](#toc)
+## [Monthly](#toc)
 
 - The top pane displays 6 weeks starting with the first week of the selected month.  Month day numbers are colored from dark blue to bright red to indicate the amount of time scheduled.
 
@@ -584,10 +593,12 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 - Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*. 
 - As tasks and jobs are finished, they are removed from this view and added to *Done* using the completion datetime.
 
+
 ## [Index](#toc)
 
 - All items, grouped and sorted by their *index* entries and then *relevant datetime*. 
 - Items without `@i` entries are listed last under *None*.
+
 
 ## [History](#toc)
 
@@ -692,8 +703,8 @@ Analagous to the old custom view. Used to issue queries against the data store a
         | > _                                                      |
         | -------------------------------------------------------- |
         | item type characters:                                    |
-        |   *: event       -: task          $: action              |
-        |   %: note     ?: someday       !: inbox               |
+        |   *: event       -: task          %: record              |
+        |   ?: someday     !: inbox                                |
 
 - Editing takes place in the line beginning with the `>` prompt. The current cursor position is shown by the underscore `_`.
 
@@ -839,27 +850,52 @@ To support views, the model is responsible for maintaining two tables with data 
 
 ### [Data Store](#toc)  
 
-hash uid -> all item details including: 
+TinyDB json file: hash uid -> all item details including: 
 
-- index path 
 - typecode
 - summary
-- created
-- modified 
 - calendar
-- location
-- tags tuple
+- created
 - description
+- index
+- location
+- modified 
+- tags tuple
 
 ### [Supporting queries](#toc)
 
-- uid -> relevant datetime (updated daily)
+    db = TinyDB(database, default_table='items')
+    Item = Query()
+
+items = db.search(Item.rrulestr.exists() & ~ Item.f.exists())
+
+
 
 - for today
+    - tdy_beg and tdy_end
+
+    - uid -> 
+        - reldt (relevant datetime for uid - updated daily)
+
+            items = db.search(Item.s.exists ! Item.f.exists()
+            reldt = {}
+            for item in items:
+                if 'f' in item:
+                    reldt[item.doc_id] = item['f']
+                elif 'r' in item:
+
+            items = db.search(Item.s.exists()  & ~ Item.f.exists())
+
+
+
+    for item in items
+        - pastdue: uid.itemtype == task and reldt < tdy_beg 
+        - beginning soon: uid has beginby and tdy_end < reldt <= tdy_end + beginby * oneday
+        - alerts: [(time, cmd) for (times, cmd) in alerts for time in times if tdy_beg <= reldt - time <= tdy_end]
+
     - inbox: [list of uids of inbox items]
-    - beginbys: [list of uids with beg and tdy < rel and rel <= tdy + beg]
-    - pastdues: [list of uids of unfinished tasks with rel < tdy]
-    - alerts: [list of uids with alerts occuring today]
+    - beginbys: [list of uids with beg and tdy < reldt and reldt <= tdy + beg]
+    - pastdues: [list of uids of unfinished tasks with reldt < tdy]
 
 
 ### [Items Tables](#toc)

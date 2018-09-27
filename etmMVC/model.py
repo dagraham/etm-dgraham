@@ -1711,46 +1711,78 @@ def rrule_args(r_hsh):
 
 def item_instances(item, aft_dt, bef_dt=None):
     """
+    Dates and datetimes decoded from the data store will all be aware and in the local timezone. aft_dt and bef_dt must therefore also be aware and in the local timezone.
+    In dateutil, the starting datetime (dtstart) is not the first recurrence instance, unless it does fit in the specified rules.  Notice that you can easily get the original behavior by using a rruleset and adding the dtstart as an rdate recurrence.
+    Each instance is a tuple (beginning datetime, ending datetime) where ending datetime is None unless the item is an event.
+
     Get instances from item falling on or after aft_dt and on or before bef_dt or, if bef_dt is None, the first instance after aft_dt. All datetimes will be returned with zero offsets.
-    >>> item_eg = { "s": parse('2018-03-07 8am'), "e": pendulum.duration(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "*" }
+    >>> item_eg = { "s": parse('2018-03-07 8am', tz="US/Eastern"), "e": pendulum.duration(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am', tz="US/Eastern")}], "z": "US/Eastern", "itemtype": "*" }
     >>> item_eg
-    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), 'e': Duration(days=1, hours=5), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}], 'z': 'US/Eastern', 'itemtype': '*'}
-    >>> item_eg
-    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), 'e': Duration(days=1, hours=5), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}], 'z': 'US/Eastern', 'itemtype': '*'}
-    >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 7, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 8, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 8, 13, 0, 0, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 21, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 22, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 22, 13, 0, 0, tzinfo=Timezone('UTC')))]
-    >>> item_eg['+'] = [parse("20180311T1000")]
-    >>> item_eg['-'] = [parse("20180311T0800")]
+    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), 'e': Duration(days=1, hours=5), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*'}
+    >>> item_instances(item_eg, parse('2018-03-01 12am', tz="US/Eastern"), parse('2018-04-01 12am', tz="US/Eastern"))
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 7, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 8, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 8, 13, 0, 0, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 21, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 22, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 22, 13, 0, 0, tzinfo=Timezone('US/Eastern')))]
+    >>> item_eg['+'] = [parse("20180311T1000", tz="US/Eastern")]
+    >>> item_eg['-'] = [parse("20180311T0800", tz="US/Eastern")]
     >>> item_eg['e'] = pendulum.duration(hours=2)
     >>> item_eg
-    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), 'e': Duration(hours=2), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}], 'z': 'US/Eastern', 'itemtype': '*', '+': [DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('UTC'))], '-': [DateTime(2018, 3, 11, 8, 0, 0, tzinfo=Timezone('UTC'))]}
+    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), 'e': Duration(hours=2), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*', '+': [DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('US/Eastern'))], '-': [DateTime(2018, 3, 11, 8, 0, 0, tzinfo=Timezone('US/Eastern'))]}
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 7, 10, 0, 0, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 11, 12, 0, 0, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 21, 10, 0, 0, tzinfo=Timezone('UTC')))]
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 7, 10, 0, 0, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 11, 12, 0, 0, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 21, 10, 0, 0, tzinfo=Timezone('US/Eastern')))]
     >>> del item_eg['e']
-    >>> item_instances(item_eg, parse('2018-03-07 8am'))
-    [(DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('UTC')), None)]
+    >>> item_instances(item_eg, parse('2018-03-07 8am', tz="US/Eastern"))
+    [(DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
     >>> del item_eg['r']
     >>> del item_eg['-']
     >>> del item_eg['+']
-    >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), None)]
+    >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am', tz="US/Eastern"))
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
     """
-    # FIXME only for events
+    # FIXME 
+    # @r given: dateutil behavior @s included only if it fits the repetiton rule
+    # @r not given 
+    #    @s included
+    #    @+ given: @s and each date in @+ added as rdates
+
     if 's' not in item:
         return []
     instances = []
     dts = item['s']
-    if type(dts) in [list, tuple]:
-        dts = dts[0]
-    if type(dts) == pendulum.Date:
-        # change to datetime at midnight on the same date
-        dtstart = pendulum.datetime(year=dts.year, month=dts.month, day=dts.day, hour=0, minute=0)
-    elif type(dts) == pendulum.DateTime:
-        # dtstart = dts.replace(tzinfo=None)
-        dtstart = dts
-        startdst = dtstart.dst()
-    else:
-        dtstart = dts[0]
+    print('starting dts:', dts)
+    dts_list = isinstance(dts, list) or isinstance(dts, tuple)
+    if not dts_list:
+        print('starting dts:', dts)
+        dts = [dts]
+        print('ending dts:', dts)
+    tmp = []
+    for dt in dts:
+        if isinstance(dt, pendulum.DateTime):
+            tmp.append(dt)
+        elif isinstance(dt, pendulum.Date):
+            tmp.append(pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0))
+        else:
+            print('error:', type(dt), dt)
+    dts = tmp
+    if dts_list:
+        ret = []
+        for dt in dts:
+            if dt >= aft_dt:
+                if bef_dt is None:
+                    return [dt]
+                elif dt <= bef_dt:
+                    ret.append(dt)
+                else:
+                    break
+        if ret:
+            return ret
+        else:
+            try:
+                return [dts[-1]]
+            except:
+                return []
+
+    dtstart = dts[0]
+    startdst = dtstart.dst()
+    print('dtstart:', dts, dtstart, startdst)
 
     # dtstart = dts.replace(tzinfo=None)
     if 'r' in item:
@@ -1784,10 +1816,11 @@ def item_instances(item, aft_dt, bef_dt=None):
                 rset.rdate(dt)
         if bef_dt is None:
             # get the first instance after aft_dt
-            nxt = rset.after(aft_dt, inc=False)
+            nxt = rset.after(aft_dt, inc=True)
             instances = [pendulum.instance(nxt)] if nxt else []
         else:
             instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
+        print('from i')
 
     elif '+' in item:
         tmp = [dtstart]
@@ -2035,10 +2068,10 @@ def jobs(lofh, at_hsh={}):
      DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC')))
 
     Now add an 'r' entry for at_hsh.
-    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
+    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p', tz="US/Eastern")}]
     >>> data
     [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC'))}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('UTC'))}, {'j': 'Job Three', 'a': '6h: m', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC'))}]
-    >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a'), 'j': data}))
+    >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a', tz="US/Eastern"), 'j': data}))
     (True,
      [{'b': 2,
        'j': 'Job One',
@@ -2057,7 +2090,7 @@ def jobs(lofh, at_hsh={}):
        'req': ['2', '1'],
        'status': '+',
        'summary': ' 0/1/2: Job Three'}],
-     DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC')))
+     DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern')))
     """
     if 's' in at_hsh:
         job_methods = datetime_job_methods
@@ -2197,7 +2230,7 @@ def jobs(lofh, at_hsh={}):
                     dt = at_hsh['s']
                 else: # 'r'
                     dt = last_completion
-                n = item_instances(at_hsh, dt)
+                n = item_instances(at_hsh, dt, None)
                 if n:
                     at_hsh['s'] = n
                 else:
@@ -2526,7 +2559,7 @@ def print_json():
     db = load_tinydb()
     for item in db:
         try:
-            print(item.doc_id, item['itemtype'])
+            print(item.doc_id)
             print(item_details(item))
         except Exception as e:
             print('exception:', e)
