@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Wed Sep 26, 2018 01:39PM EDT**
+**Last modified: Sun Sep 30, 2018 09:01AM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -111,13 +111,13 @@ Corresponds to VTODO in the vcalendar specification.
                     @j job D
 
             `job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C` which, finally, is a prerequisite for `job D`. 
-        - Manually assigned.  Job prequisites can also be assigned manually using entries for `&n` (name) and `&p`, (comma separated list of names of immediate prequisites). E.g., with
+        - Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
 
                 - manually assigned
-                    @j job a &n a
-                    @j job b &n b &p a
-                    @j job c &n c &p a
-                    @j job d &n d &p b, c
+                    @j job a &i a
+                    @j job b &i b &p a
+                    @j job c &i c &p a
+                    @j job d &i d &p b, c
 
             Here `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
     - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g.,  
@@ -266,7 +266,7 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
       f: finish: datetime
       l: location/context: string
       m: memo: string
-      n: job name (string)
+      i: job unique id (string)
       p: prerequisites (comma separated list of job names of immediate
          prereqs)
       s: start/due: timeperiod relative to @s entry (default 0m)

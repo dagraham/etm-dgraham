@@ -25,7 +25,7 @@ import calendar as clndr
 
 import dateutil
 from dateutil.rrule import *
-from dateutil.easter import easter
+# from dateutil.easter import easter
 from dateutil import __version__ as dateutil_version
 
 from jinja2 import Environment, Template
@@ -381,6 +381,7 @@ def deal_with_r(at_hsh={}):
     top = "repetition rule?"
     bot = "{}".format(at_keys['r'])
     lofh = at_hsh.get('r', [])
+    print('lofh:', at_hsh, lofh)
     if not lofh:
         return top, bot, None
 
@@ -1307,13 +1308,16 @@ def easter(arg):
     or after, > 0, Easter.
     >>> easter(0)
     (True, [0])
-    >>> easter([-364, -30, "45", 260])
-    (True, [-364, -30, 45, 260])
+    >>> easter([-364, -30, 0, "45", 260])
+    (True, [-364, -30, 0, 45, 260])
     """
     easterstr = "easter: a comma separated list of integer numbers of days before, < 0, or after, > 0, Easter."
 
-    if arg or arg == 0:
-        ok, res = integer_list(arg, None, None, True)
+    if arg == 0:
+        arg = [0]
+
+    if arg:
+        ok, res = integer_list(arg, None, None, True, 'easter')
         if ok:
             return True, res
         else:
@@ -1586,6 +1590,7 @@ rrule_name = {
     'w': 'byweekday',  # integer 0 (SU) ... 6 (SA)
     'h': 'byhour',  # positive integer
     'n': 'byminute',  # positive integer
+    'E': 'byeaster', # interger number of days before (-) or after (+) Easter Sunday
 }
 
 rrule_keys = [x for x in rrule_name]
@@ -1661,14 +1666,24 @@ def check_rrule(lofh):
 
 def rrule_args(r_hsh):
     """
+    Housekeeping: Check for u and c, fix integers and weekdays. Replace etm arg names with dateutil. E.g., frequency 'y' with 0, 'E' with 'byeaster', ... Called by item_instances. 
     >>> item_eg = { "s": parse('2018-03-07 8am').naive(), "r": [ { "r": "w", "u": parse('2018-04-01 8am').naive(), }, ], "itemtype": "*"}
     >>> item_instances(item_eg, parse('2018-03-01 12am').naive(), parse('2018-04-01 12am').naive())
     [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 14, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 28, 8, 0, 0, tzinfo=Timezone('UTC')), None)]
     >>> r_hsh = item_eg['r'][0]
+    >>> r_hsh
+    {'r': 'w', 'u': DateTime(2018, 4, 1, 8, 0, 0)}
     >>> rrule_args(r_hsh)
     (2, {'until': DateTime(2018, 4, 1, 8, 0, 0)})
+    >>> item_eg = { "s": parse('2016-01-01 8am').naive(), "r": [ { "r": "y", "E": 0, }, ], "itemtype": "*"}
+    >>> item_instances(item_eg, parse('2016-03-01 12am').naive(), parse('2019-06-01 12am').naive())
+    [(DateTime(2016, 3, 27, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2017, 4, 16, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2019, 4, 21, 8, 0, 0, tzinfo=Timezone('UTC')), None)]
+    >>> r_hsh = item_eg['r'][0]
+    >>> r_hsh
+    {'r': 'y', 'E': 0}
+    >>> rrule_args(r_hsh)
+    (0, {'byeaster': 0})
     """
-    # FIXME: the example works but doesn't seem right
 
     # force integers
     for k in "icsMmWhm":
@@ -1703,8 +1718,8 @@ def rrule_args(r_hsh):
     if 'u' in r_hsh and 'c' in r_hsh:
         logger.warn(f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}")
     # remove easter
-    if 'E'in r_hsh:
-        del r_hsh['E']
+    # if 'E'in r_hsh:
+    #     del r_hsh['E']
     freq = rrule_freq[r_hsh['r']]
     kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
@@ -1729,7 +1744,7 @@ def item_instances(item, aft_dt, bef_dt=None):
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
     [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 7, 10, 0, 0, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 11, 12, 0, 0, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 21, 10, 0, 0, tzinfo=Timezone('US/Eastern')))]
     >>> del item_eg['e']
-    >>> item_instances(item_eg, parse('2018-03-07 8am', tz="US/Eastern"))
+    >>> item_instances(item_eg, parse('2018-03-07 8:01am', tz="US/Eastern"))
     [(DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
     >>> del item_eg['r']
     >>> del item_eg['-']
@@ -1746,45 +1761,20 @@ def item_instances(item, aft_dt, bef_dt=None):
     if 's' not in item:
         return []
     instances = []
-    dts = item['s']
-    print('starting dts:', dts)
-    dts_list = isinstance(dts, list) or isinstance(dts, tuple)
-    if not dts_list:
-        print('starting dts:', dts)
-        dts = [dts]
-        print('ending dts:', dts)
-    tmp = []
-    for dt in dts:
-        if isinstance(dt, pendulum.DateTime):
-            tmp.append(dt)
-        elif isinstance(dt, pendulum.Date):
-            tmp.append(pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0))
-        else:
-            print('error:', type(dt), dt)
-    dts = tmp
-    if dts_list:
-        ret = []
-        for dt in dts:
-            if dt >= aft_dt:
-                if bef_dt is None:
-                    return [dt]
-                elif dt <= bef_dt:
-                    ret.append(dt)
-                else:
-                    break
-        if ret:
-            return ret
-        else:
-            try:
-                return [dts[-1]]
-            except:
-                return []
+    dtstart = item['s']
+    # print('starting dts:', dtstart)
+    # This should not be necessary since the data store decodes dates as datetimes
+    if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
+        dts = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0)
 
-    dtstart = dts[0]
-    startdst = dtstart.dst()
-    print('dtstart:', dts, dtstart, startdst)
+    # for discarding daylight saving time differences in repetitions
+    try:
+        startdst = dtstart.dst()
+    except:
+        print('dtstart:', dtstart)
+        dtstart = dtstart[0]
+        startdst = dtstart.dst()
 
-    # dtstart = dts.replace(tzinfo=None)
     if 'r' in item:
         lofh = item['r']
         rset = rruleset()
@@ -1820,9 +1810,9 @@ def item_instances(item, aft_dt, bef_dt=None):
             instances = [pendulum.instance(nxt)] if nxt else []
         else:
             instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
-        print('from i')
 
     elif '+' in item:
+        # no @r but @+ => simple repetition
         tmp = [dtstart]
         tmp.extend(item['+'])
         tmp.sort()
@@ -1944,7 +1934,7 @@ def task(at_hsh):
      'r': [{'i': 2,
             'r': 'w',
             'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}],
-     's': [(DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('UTC')), None)],
+     's': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')),
      'summary': 'Task Group',
      'z': 'US/Eastern'}
     """
@@ -1977,7 +1967,7 @@ def task(at_hsh):
         due = item_instances(at_hsh, aft)
         if due:
             # we have another instance
-            at_hsh['s'] = due
+            at_hsh['s'] = due[0][0]
             at_hsh.setdefault('h', []).append(at_hsh['f'])
             del at_hsh['f']
     return(at_hsh)
@@ -2068,9 +2058,9 @@ def jobs(lofh, at_hsh={}):
      DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC')))
 
     Now add an 'r' entry for at_hsh.
-    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p', tz="US/Eastern")}]
+    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p', tz="US/Eastern")}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p', tz="US/Eastern")}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p', tz="US/Eastern")}]
     >>> data
-    [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC'))}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('UTC'))}, {'j': 'Job Three', 'a': '6h: m', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC'))}]
+    [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Three', 'a': '6h: m', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}]
     >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a', tz="US/Eastern"), 'j': data}))
     (True,
      [{'b': 2,
@@ -2232,7 +2222,8 @@ def jobs(lofh, at_hsh={}):
                     dt = last_completion
                 n = item_instances(at_hsh, dt, None)
                 if n:
-                    at_hsh['s'] = n
+                    # n will be a list of beg, end tuples - get the first beg
+                    at_hsh['s'] = n[0][0]
                 else:
                     at_hsh['f'] = last_completion
         else:
