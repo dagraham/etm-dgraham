@@ -86,20 +86,31 @@ types = [
         'td',  # pastdue task or available job 
         'tw',  # job with unfinished prereqs - scheduled or unscheduled 
         'ta',  # task or job that is not pastdue 
-        'by',  # beginby"
+        'by',  # beginby
         'ac',  # action
         'nt',  # note
         'so',  # someday
         'tf',  # finished task or job
          ]
 
+type_code = {
+        'oe': (0, '*'),  # all day event
+        'ib': (1, '!'),  # inbox                   today only
+        'pd': (2, '<'),  # task or job pastdue     today only
+        'by': (3, '>'),  # beginby                 today only
+        'ev': (4, '*'),  # event
+        'av': (4, '-'),  # available datetime task or job 
+        'jw': (5, '+'),  # datetime job waiting
+        'at': (6, '-'),  # available all day task or job
+        'rd': (7, '%'),  # datetime record         done view
+        'tf': (7, 'x'),  # finished task or job    done view
+        }
+
 type_keys = {
     "*": "event",
     "-": "task",
-    "~": "action",
-    "%": "journal entry",
-    "?": "someday entry",
-    "!": "inbox entry",
+    "%": "record",
+    "!": "inbox",
 }
 
 at_keys = {
@@ -137,9 +148,9 @@ amp_keys = {
         'h': "hour: list of integers in 0 ... 23",
         'r': "frequency: character in y, m, w, d, h, n",
         'i': "interval: positive integer",
-        'm': "monthday: list of integers 1 ... 31",
-        'M': "month: list of integers in 1 ... 12",
-        'n': "minute: list of integers in 0 ... 59",
+        'm': "monthday: list of integers 1 ... 31", 
+        'M': "month: list of integers in 1 ... 12", 
+        'n': "minute: list of integers in 0 ... 59", 
         's': "set position: integer",
         'u': "until: datetime",
         'w': "weekday: list from SU, MO, ..., SA",
@@ -1683,6 +1694,12 @@ def rrule_args(r_hsh):
     {'r': 'y', 'E': 0}
     >>> rrule_args(r_hsh)
     (0, {'byeaster': 0})
+    >>> item_eg = { "s": parse('2018-03-07 8am', tz="US/Eastern"), "e": pendulum.duration(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am', tz="US/Eastern")}], "z": "US/Eastern", "itemtype": "*" }
+    >>> r_hsh = item_eg['r'][0]
+    >>> r_hsh
+    {'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}
+    >>> rrule_args(r_hsh)
+    (2, {'interval': 2, 'until': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))})
     """
 
     # force integers

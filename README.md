@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Sun Sep 30, 2018 09:01AM EDT**
+**Last modified: Wed Oct 03, 2018 12:35PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -10,9 +10,8 @@
         * [event](#event)
         * [task](#task)
         * [inbox](#inbox)
-        * [someday](#someday)
         * [record](#record)
-    * [Notices](#notices)
+    * [Notice Types](#notice-types)
         * [Beginning Soon](#beginning-soon)
         * [Past Due](#past-due)
         * [Waiting](#waiting)
@@ -119,7 +118,7 @@ Corresponds to VTODO in the vcalendar specification.
                     @j job c &i c &p a
                     @j job d &i d &p b, c
 
-            Here `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
+            `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
     - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g.,  
 
             x manually assigned [1/2/1]: job a
@@ -134,8 +133,9 @@ Corresponds to VTODO in the vcalendar specification.
 - Another step is taken for repeating tasks with as yet unfinished future repetitions. When the task or last job in the current repetition is completed, the `@s` entry is updated using the setting for `@o` to show the next due datetime and the `@f` entry is removed and appended to `@h`. A user configuration setting determines the number of most recent done:due records retained.  
 - **New** 
 	-	The old `@c`, *context*, for tasks has been merged into *location*, `@l`.  
-	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task. See [Jobs](#jobs) below.
+	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task.
 	- The old `%`, *delegated*, item type has been eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
+    - The old *someday* item type, `?`, has been eliminated. Using the location entry `@l ~someday` with an undated task will cause it to be displayed in the *next* view under `~someday`. Prepending the tilde character causes `~someday` to be displayed as the last location.
 
 ### [inbox](#toc)
 
@@ -146,14 +146,6 @@ Corresponds to VTODO in the vcalendar specification.
 An inbox items can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using `!` instead of `*` and the entry  will appear highlighted in the agenda view on the current date until you confirm the starting time. 
 
 Unchanged but for the change in the type character from `$` to `!` to better reflect the urgency associated with such items.  Inbox items are displayed in dated views on the current date. 
-
-### [someday](#toc)
-
-Type character: **?**
-
-Unchanged.
-
-Corresponds to VTODO in the vcalendar specification.
 
 ### [record](#toc)
 
@@ -166,9 +158,9 @@ A combination of the old *note* and *action* item types.
 - The `@s` is optional and, if given, is interpreted as the datetime to which the record applies. 
 - Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime.
 - Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of the day given by `@s`.
-- Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type. An built-in report groups and totals times for such "actions" by month and then index entry.
+- Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type. A built-in report groups and totals times for such "actions" by month and then index entry.
 
-## [Notices](#toc)
+## [Notice Types](#toc)
 
 ### [Beginning Soon](#toc)
 
@@ -232,15 +224,15 @@ Note that changing the entry for `expansions` in your configuration settings wil
 
     +: include: list of datetimes to include,
     -: exclude: list of datetimes to exclude from rrule,
-    a: alert (list of timeperiods[: cmd[, list of cmd args]]),
+    a: alert (list of periods[: cmd[, list of cmd args]]),
     b: beginby: integer (number of days),
     c: calendar: string,
     d: description: string,
-    e: extent: timeperiod,
+    e: extent: period,
     f: finished: datetime,
     g: goto: string (url or filepath),
     h: history: list of (done:due datetimes)
-    i: index: period delimited string,
+    i: index: colon delimited string,
     j: job summary: string, optionally followed by job &key entries
     l: location/context: string,
     m: memo: string,
@@ -259,17 +251,17 @@ Note that changing the entry for `expansions` in your configuration settings wil
 These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
 ### [for use with `@j`:](#toc)
-      a: alert: (list of timeperiods[: cmd[, list of cmd args]])
+      a: alert: (list of periods relative to &s: cmd[, list of cmd args])
       b: beginby: integer number of days relative to &s
       d: description: string
-      e: extent: timeperiod
+      e: extent: period
       f: finish: datetime
       l: location/context: string
       m: memo: string
       i: job unique id (string)
-      p: prerequisites (comma separated list of job names of immediate
+      p: prerequisites (comma separated list of ids of immediate
          prereqs)
-      s: start/due: timeperiod relative to @s entry (default 0m)
+      s: start/due: period relative to @s entry (default 0m)
 
 ### [for use with `@r`:](#toc)
       c: count: integer number of repetitions 
@@ -312,12 +304,12 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
         * Daylight saving time begins @s 2018-03-10 @r y &M 3 &w 2SU @c shared
 
 - The unique identifier, `2756`, is created automatically by *TinyDB*.
-- Two timestamps are automatically created for items: `created`, corresponding to the moment the item was created and `modified`, if the item is subsequently modified,  corresponding to the moment the item was last modified.  
+- Two timestamps are automatically created for items: *created*, corresponding to the moment the item was created and *modified*, corresponding to the moment the item was last modified. There is no entry for *modified* unless it would be different (later) than *created*.
 - **New**
-    - A *history* view displays all items and allows sorting by either created or modified. 
-	- The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a period delimited string. E.g., the entry 
+    - A *history* view displays all items and allows sorting by either the created or the last modified datetime. 
+	- The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry 
 
-			@i plant.tree.oak
+			@i plant:tree:oak
 
 		would display the item in the *index* view under:
 
@@ -396,13 +388,12 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
 Used, e.g., in index view.
 
-- Non-repeating events and non-repeating unfinished tasks: the datetime given in `@s`. 
+- Non-repeating events and non-repeating unfinished tasks and records with datetimes: the datetime given in `@s`. 
 - Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance. (needs updating)
-- Repeating unfinished tasks with `@o r` or `@o k` (the default): the datetime given in `@s`. This datetime is automatically updated when an instance is completed to the due datetime of the next instance.
-- Repeating unfinished tasks with `@o s`: the datetime of the first instance falling during or after the current date. (needs updating)
+- Repeating unfinished tasks with `@o r` (restart) or `@o k` (keep - the default): the datetime given in `@s`. This datetime is automatically updated when an instance is completed to the due datetime of the next instance.
+- Repeating unfinished tasks with `@o s` (skip): the datetime of the first instance falling during or after the current date. (needs updating)
 - Finished tasks: the datetime given in `@f`.
-- Actions: the datetime given in `@f`.
-- Inbox entries, undated record entries, undated, unfinished tasks and someday entries: *None*
+- Inbox entries, undated record entries, undated and unfinished tasks: *None*
 
 # [Views](#toc)
 
@@ -850,17 +841,54 @@ To support views, the model is responsible for maintaining two tables with data 
 
 ### [Data Store](#toc)  
 
-TinyDB json file: hash uid -> all item details including: 
+TinyDB json file: hash uid -> all item details.
 
-- typecode
-- summary
-- calendar
-- created
-- description
-- index
-- location
-- modified 
-- tags tuple
+Supporting instances
+
+    # no error checking for data store items 
+    id2rset = {}
+    for item in items:
+        if 's' not in item:
+            continue
+        # we have a starting time
+        dtstart = item['s']           # This will be local time
+        doc_id = item.doc_id
+        rset = dateutil.rrule.rruleset()
+        id2rset[doc_id] = rset
+        if 'r' in item:
+            # rrule repeating 
+            lofh = item['r'] 
+            for hsh in lofh:
+                freq, kwd = rrule_args(hsh)
+                # if there is an &u in here it will be local time, e.g.
+                # (2, {'interval': 2, 'until': DateTime(2018, 4, 1, 8, 0,
+                #  0, tzinfo=Timezone('US/Eastern'))})
+                kwd['dtstart'] = dtstart
+                rset.rrule(rrule(freq, **kwd))
+        # assuming @+ and @- contain no common elements
+        if '+' in item:
+            if 'r' not in item:
+                # simple repetion
+                rset.rdate(dtstart)   # This will be local time
+            for dt in item['+']:
+                rset.rdate(dt)        # These will be local time
+        if '-' in item:
+            for dt in item['-']:
+                rset.exdate(dt)       # These will be local time
+
+Using
+
+    # by year, week and week day
+    instances = []
+    for id in id2rset:
+        item_dts = id2rset[id].between(aft, bef, include=True)
+        for dt in item_dts:
+            bisect.insert(instances, [dt.isocalendar(), id])
+
+
+
+
+
 
 ### [Supporting queries](#toc)
 
@@ -885,8 +913,6 @@ items = db.search(Item.rrulestr.exists() & ~ Item.f.exists())
                 elif 'r' in item:
 
             items = db.search(Item.s.exists()  & ~ Item.f.exists())
-
-
 
     for item in items
         - pastdue: uid.itemtype == task and reldt < tdy_beg 
