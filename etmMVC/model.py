@@ -93,17 +93,18 @@ types = [
         'tf',  # finished task or job
          ]
 
-type_code = {
-        'oe': (0, '*'),  # all day event
+type_tuple = {
+        'ed': (0, '*'),  # date/all day event
         'ib': (1, '!'),  # inbox                   today only
-        'pd': (2, '<'),  # task or job pastdue     today only
+        'tp': (2, '<'),  # task or job pastdue     today only
         'by': (3, '>'),  # beginby                 today only
-        'ev': (4, '*'),  # event
-        'av': (4, '-'),  # available datetime task or job 
-        'jw': (5, '+'),  # datetime job waiting
-        'at': (6, '-'),  # available all day task or job
-        'rd': (7, '%'),  # datetime record         done view
+        'et': (4, '*'),  # datetime event
+        'tt': (4, '-'),  # available datetime task or job 
+        'tw': (5, '+'),  # datetime job waiting
+        'td': (6, '-'),  # available all day task or job
         'tf': (7, 'x'),  # finished task or job    done view
+        'rt': (7, '%'),  # datetime record         done view
+        'rd': (8, '%'),  # date record             done view
         }
 
 type_keys = {
@@ -1703,7 +1704,7 @@ def rrule_args(r_hsh):
     """
 
     # force integers
-    for k in "icsMmWhm":
+    for k in "icsMmWhmE":
         if k in r_hsh:
             args = r_hsh[k]
             if not isinstance(args, list):
@@ -2615,15 +2616,6 @@ def schedule(weeks_bef=1, weeks_aft=2):
     for item in db:
         if item['itemtype'] in "!?" or 's' not in item:
             continue
-        # if type(item['s']) == pendulum and 'e' in item:
-        #     rhc = fmt_extent(item['s'], item['s'] + item['e']).center(16, ' ')
-        #     # rhc = fmt_extent(beg_ends(item['s'], item['e'])[0]).center(16, ' ')
-        #     # rhc = item['s'].format("h:mmA", formatter="alternative")
-        # else:
-        #     rhc = ""
-
-        # aft_dt = parse('2018-01-01 12am').replace(tzinfo=None)
-        # bef_dt = parse('2018-12-31 11:59pm').replace(tzinfo=None)
         for dt, et in item_instances(item, aft_dt, bef_dt):
             rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else ""
 
@@ -2794,7 +2786,7 @@ if __name__ == '__main__':
         if 'p' in sys.argv[1]:
             print_json()
         if 's' in sys.argv[1]:
-            schedule(0, 3)
+            schedule(1, 3)
 
     doctest.testmod()
 

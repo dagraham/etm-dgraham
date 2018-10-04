@@ -1,54 +1,54 @@
 # What's planned for the next etm?
-**Last modified: Wed Oct 03, 2018 12:35PM EDT**
+**Last modified: Thu Oct 04, 2018 10:39AM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Goals](#goals)
 * [Data](#data)
-    * [Item Types](#item-types)
-        * [event](#event)
-        * [task](#task)
-        * [inbox](#inbox)
-        * [record](#record)
-    * [Notice Types](#notice-types)
-        * [Beginning Soon](#beginning-soon)
-        * [Past Due](#past-due)
-        * [Waiting](#waiting)
-        * [Finished](#finished)
-    * [Expansions](#expansions)
-    * [`@`keys](#keys)
-    * [`&`keys](#keys-1)
-        * [for use with `@j`:](#for-use-with-j)
-        * [for use with `@r`:](#for-use-with-r)
-    * [TinyDB](#tinydb)
-    * [Dates, Times and Periods](#dates-times-and-periods)
-    * [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
+	* [Item Types](#item-types)
+		* [event](#event)
+		* [task](#task)
+		* [inbox](#inbox)
+		* [record](#record)
+	* [Notice Types](#notice-types)
+		* [Beginning Soon](#beginning-soon)
+		* [Past Due](#past-due)
+		* [Waiting](#waiting)
+		* [Finished](#finished)
+	* [Expansions](#expansions)
+	* [`@`keys](#keys)
+	* [`&`keys](#keys-1)
+		* [for use with `@j`:](#for-use-with-j)
+		* [for use with `@r`:](#for-use-with-r)
+	* [TinyDB](#tinydb)
+	* [Dates, Times and Periods](#dates-times-and-periods)
+	* [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
 * [Views](#views)
-    * [Weekly](#weekly)
-        * [Agenda](#agenda)
-        * [Busy](#busy)
-        * [Done](#done)
-    * [Monthly](#monthly)
-    * [Next](#next)
-    * [Index](#index)
-    * [History](#history)
-    * [Tags](#tags)
-    * [Query](#query)
+	* [Weekly](#weekly)
+		* [Agenda](#agenda)
+		* [Busy](#busy)
+		* [Done](#done)
+	* [Monthly](#monthly)
+	* [Next](#next)
+	* [Index](#index)
+	* [History](#history)
+	* [Tags](#tags)
+	* [Query](#query)
 * [Work Flow](#work-flow)
-    * [Editing an existing item](#editing-an-existing-item)
-    * [Creating a new item](#creating-a-new-item)
+	* [Editing an existing item](#editing-an-existing-item)
+	* [Creating a new item](#creating-a-new-item)
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
-    * [Model](#model)
-        * [Data Store](#data-store)
-        * [Supporting queries](#supporting-queries)
-        * [Items Tables](#items-tables)
-        * [Instances Table](#instances-table)
-        * [Item Views](#item-views)
-        * [Instance Views](#instance-views)
-        * [CRUD](#crud)
-        * [API](#api)
+	* [Model](#model)
+		* [Data Store](#data-store)
+		* [Supporting queries](#supporting-queries)
+		* [Items Tables](#items-tables)
+		* [Instances Table](#instances-table)
+		* [Item Views](#item-views)
+		* [Instance Views](#instance-views)
+		* [CRUD](#crud)
+		* [API](#api)
 
 <!-- vim-markdown-toc -->
 
@@ -129,8 +129,10 @@ Corresponds to VTODO in the vcalendar specification.
         would indicate that `job a` is *finished*, `job b`  and `job c` are *available* (have no unfinished prerequistites) and that `job d` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, available and waiting jobs in the task, respectively.
 
 - An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
-- When a job is finished, the "done" datetime is recorded in an `&f` entry in the job and, if there was a due datetime, that is appended using the format `&f done:due`. When the last job in a task is finished or when a task without jobs is finished a similar entry in the task itself using `@f done:due`. If there are jobs, then the `&f` entries are removed from the jobs. 
-- Another step is taken for repeating tasks with as yet unfinished future repetitions. When the task or last job in the current repetition is completed, the `@s` entry is updated using the setting for `@o` to show the next due datetime and the `@f` entry is removed and appended to `@h`. A user configuration setting determines the number of most recent done:due records retained.  
+- When a job is finished, the "done" datetime is recorded in an `&f` entry in the job. When the last job in a task is finished or when a task without jobs is finished a similar entry in the task itself using `@f done`. If there are jobs, then the `&f` entries are removed from the jobs. 
+- Another step is taken for repeating tasks with as yet unfinished future repetitions. When the task or last job in the current repetition is completed, the `@s` entry is updated using the setting for `@o` to show the next due datetime and the `@f` entry is removed and appended to the list of completions in `@h`. A user configuration setting determines the number of most recent completion records retained for repeating tasks with 3 as the default.  
+- When the last instance of a repeating task is finished, `@f` will contain the datetime of the last completion and `@h` the list of prior completions.
+- A task, repeating or not, will have an  `@f` entry if and only if the task has been completed.
 - **New** 
 	-	The old `@c`, *context*, for tasks has been merged into *location*, `@l`.  
 	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task.
@@ -231,7 +233,7 @@ Note that changing the entry for `expansions` in your configuration settings wil
     e: extent: period,
     f: finished: datetime,
     g: goto: string (url or filepath),
-    h: history: list of (done:due datetimes)
+    h: history: (list of completion datetimes)
     i: index: colon delimited string,
     j: job summary: string, optionally followed by job &key entries
     l: location/context: string,
