@@ -117,7 +117,7 @@ type_keys = {
 at_keys = {
     '+': "include (list of date-times)",
     '-': "exclude (list of date-times)",
-    'a': "alert (timeperiod: cmd, optional args*)",
+    'a': "alert (list of periods: cmd[, list of cmd args*])",
     'b': "beginby (integer number of days)",
     'c': "calendar (string)",
     'd': "description (string)",
@@ -128,15 +128,14 @@ at_keys = {
     'i': "index (colon delimited string)",
     'j': "job summary (string)",
     'l': "location (string)",
-    'm': "memo (list of 'datetime, timeperiod, datetime')",
-    'n': "named delegate (string)",
+    'm': "memo (string)",
     'o': "overdue (r)estart, (s)kip or (k)eep)",
     'p': "priority (integer)",
     'r': "repetition frequency (y)early, (m)onthly, (w)eekly,"
          " (d)aily, (h)ourly, mi(n)utely",
     's': "starting date or datetime",
     't': "tags (list of strings)",
-    'x': "extracton key (string)",
+    'x': "expansion key (string)",
     'z': "timezone (string)",
     'itemtype': "itemtype (character)",
     'summary': "summary (string)"
@@ -145,16 +144,16 @@ at_keys = {
 amp_keys = {
     'r': {
         'c': "count: integer number of repetitions",
-        'E': "easter: number of days before (-), on (0) or after (+) Easter",
+        'd': "monthday: list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", 
+        'e': "easter: number of days before (-), on (0) or after (+) Easter",
         'h': "hour: list of integers in 0 ... 23",
         'r': "frequency: character in y, m, w, d, h, n",
         'i': "interval: positive integer",
-        'm': "monthday: list of integers 1 ... 31", 
-        'M': "month: list of integers in 1 ... 12", 
+        'm': "month: list of integers in 1 ... 12", 
         'n': "minute: list of integers in 0 ... 59", 
         's': "set position: integer",
         'u': "until: datetime",
-        'w': "weekday: list from SU, MO, ..., SA",
+        'w': "weekday: list from SU, MO, ..., SA, possibly prepended with a positive or negative integer",
     },
     'j': {
         'a': "alert: timeperiod: command, args*",
