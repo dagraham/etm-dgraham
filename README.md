@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Oct 04, 2018 10:39AM EDT**
+**Last modified: Fri Oct 12, 2018 10:50AM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -267,17 +267,18 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
 ### [for use with `@r`:](#toc)
       c: count: integer number of repetitions 
-      d: monthday: list of integers 1 ... 31
       e: easter: number of days before (-), on (0) or after (+) Easter
       h: hour: list of integers in 0 ... 23
       i: interval: positive integer to apply to frequency, e.g., with
          @r m &i 3, repetition would occur every 3 months
-      m: month: list of integers in 1 ... 12
+      m: monthday: list of integers 1 ... 31
+      M: month number: list of integers in 1 ... 12
       n: minute: list of integers in 0 ... 59
       s: set position: integer
       u: until: datetime 
       w: weekday: list from SU, MO, ..., SA possibly prepended with 
          a positive or negative integer
+      W: week number: list of integers in (1, ..., 53)
 
 > Note. It is an error to specify both `&c` and `&u`. A distinction between using `@c` and `@u` is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday  and repeats daily using either count, `&c 5`, or until, `&u fri 10a`.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
@@ -589,19 +590,21 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 ## [Index](#toc)
 
-- All items, grouped and sorted by their *index* entries and then *relevant datetime*. 
-- Items without `@i` entries are listed last under *None*.
+- All items, grouped and sorted by their *index* entries and then their relevant datetime*. 
+- Items without `@i` entries are listed last under *~none*.
 
 
 ## [History](#toc)
 
+- All items, sorted by the last modified or created datetime, most recent first.
+
 
         +------------------------- top bar --------------------------+  
-        | History: creation datetime ascending               F1:help |  1
+        | History: items by created/last modified date       F1:help |  1
         +------------------------------------------------------------+ 
-        | * Martin Luther King Day                       2016-01-02  |  2
-        |                                                            |  3
-        |                                                            |  4
+        | * Martin Luther King Day            2018-01-02             |  2
+        | * Easter                            2016-03-01  2017-03-15 |  3
+        | * Independence Day                  2016-07-01             |  4
         |                                                            |  5
         |                                                            |  6
         |                                                            |  7
