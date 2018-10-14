@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Fri Oct 12, 2018 10:50AM EDT**
+**Last modified: Sun Oct 14, 2018 05:18PM EDT**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -406,7 +406,9 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 ## [Weekly](#toc)
 
-*Agenda* and *Busy* views are synchronized so that switching from one of these views to another always displays the same week.
+*Agenda*,  *Busy* and *Done* views are synchronized so that switching from one of these views to another always displays the same week.
+
+> Calling `get_week(year, weeknum)` returns all three pages for the given week. The advantage here is that *any* week is available on demand. The disadvantage is that *filter* has limited value. 
 
 ### [Agenda](#toc)
 
@@ -582,6 +584,17 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +----------------------------------------------------------+
 
 
+## [Search](#toc)
+
+All items ordered by relevant datetime displaying item type, summary and relevant datetime (or none). Case insensitive, regular expression search for matches in specified list of fields:
+
+- s: summary (including job summaries)
+- d: description (including job descriptions)
+- m: memo (including job memos)
+- l: location (including job locations)
+
+E.g., searching for `joe` in `sd` would list items matching "joe" in either the summary or the description.
+
 ## [Next](#toc)
 
 - Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*. 
@@ -600,11 +613,11 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 
         +------------------------- top bar --------------------------+  
-        | History: items by created/last modified date       F1:help |  1
+        | History: items by [c]reated or [m]odified date     F1:help |  1
         +------------------------------------------------------------+ 
-        | * Martin Luther King Day            2018-01-02             |  2
-        | * Easter                            2016-03-01  2017-03-15 |  3
-        | * Independence Day                  2016-07-01             |  4
+        | * Martin Luther King Day                     2018-01-01:c  |  2
+        | * Easter                                     2017-03-15:m  |  3
+        | * Independence Day                           2017-06-01:c  |  4
         |                                                            |  5
         |                                                            |  6
         |                                                            |  7

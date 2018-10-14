@@ -51,6 +51,7 @@ testing = True
 
 ETMFMT = "%Y%m%dT%H%M"
 ZERO = pendulum.duration(minutes=0)
+finished_char = u"\u2713"  #  ✓
 
 # display characters 
 datedChar2Type = {
@@ -60,7 +61,7 @@ datedChar2Type = {
     '%': "nt",
     '-': "ta",
     '+': "tw",
-    'x': "tf",
+    finished_char: "tf",
     '?': "so",
 }
 
@@ -74,7 +75,7 @@ undatedChar2Type = {
     '%': "nt",
     '!': "ib",
     '?': "so",
-    'x': "tf",
+    finished_char: "tf",
 }
 
 # type codes in the order in which they should be sorted
