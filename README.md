@@ -1,54 +1,56 @@
 # What's planned for the next etm?
-**Last modified: Sun Oct 14, 2018 05:18PM EDT**
+**Last modified: Tue Nov 06, 2018 03:51PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Goals](#goals)
 * [Data](#data)
-	* [Item Types](#item-types)
-		* [event](#event)
-		* [task](#task)
-		* [inbox](#inbox)
-		* [record](#record)
-	* [Notice Types](#notice-types)
-		* [Beginning Soon](#beginning-soon)
-		* [Past Due](#past-due)
-		* [Waiting](#waiting)
-		* [Finished](#finished)
-	* [Expansions](#expansions)
-	* [`@`keys](#keys)
-	* [`&`keys](#keys-1)
-		* [for use with `@j`:](#for-use-with-j)
-		* [for use with `@r`:](#for-use-with-r)
-	* [TinyDB](#tinydb)
-	* [Dates, Times and Periods](#dates-times-and-periods)
-	* [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
+    * [Item Types](#item-types)
+        * [event](#event)
+        * [task](#task)
+        * [record](#record)
+        * [inbox](#inbox)
+    * [Notice Types](#notice-types)
+        * [Beginning Soon](#beginning-soon)
+        * [Past Due](#past-due)
+        * [Waiting](#waiting)
+        * [Finished](#finished)
+    * [Expansions](#expansions)
+    * [`@`keys](#keys)
+    * [`&`keys](#keys-1)
+        * [for use with `@j`:](#for-use-with-j)
+        * [for use with `@r`:](#for-use-with-r)
+    * [TinyDB](#tinydb)
+    * [Dates, Times and Periods](#dates-times-and-periods)
+    * [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
 * [Views](#views)
-	* [Weekly](#weekly)
-		* [Agenda](#agenda)
-		* [Busy](#busy)
-		* [Done](#done)
-	* [Monthly](#monthly)
-	* [Next](#next)
-	* [Index](#index)
-	* [History](#history)
-	* [Tags](#tags)
-	* [Query](#query)
+    * [Weekly](#weekly)
+        * [Agenda](#agenda)
+        * [Busy](#busy)
+        * [Done](#done)
+    * [Monthly](#monthly)
+    * [Relevant](#relevant)
+    * [Search](#search)
+    * [Next](#next)
+    * [Index](#index)
+    * [History](#history)
+    * [Tags](#tags)
+    * [Query](#query)
 * [Work Flow](#work-flow)
-	* [Editing an existing item](#editing-an-existing-item)
-	* [Creating a new item](#creating-a-new-item)
+    * [Editing an existing item](#editing-an-existing-item)
+    * [Creating a new item](#creating-a-new-item)
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
-	* [Model](#model)
-		* [Data Store](#data-store)
-		* [Supporting queries](#supporting-queries)
-		* [Items Tables](#items-tables)
-		* [Instances Table](#instances-table)
-		* [Item Views](#item-views)
-		* [Instance Views](#instance-views)
-		* [CRUD](#crud)
-		* [API](#api)
+    * [Model](#model)
+        * [Data Store](#data-store)
+        * [Supporting queries](#supporting-queries)
+        * [Items Tables](#items-tables)
+        * [Instances Table](#instances-table)
+        * [Item Views](#item-views)
+        * [Instance Views](#instance-views)
+        * [CRUD](#crud)
+        * [API](#api)
 
 <!-- vim-markdown-toc -->
 
@@ -89,6 +91,7 @@ Corresponds to VTODO in the vcalendar specification.
 - The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is due. 
     - Tasks with an `@s` datetime entry are regarded as pastdue after the datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
     - Tasks with `@s` date entry are regarded as pastdue after the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
+    - Tasks that are pastdue are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Next View* grouped by `@l` (location/context).
 - Jobs
     - Tasks, both with and without `@s` entries can have component jobs using `@j` entries.  A task with jobs thus replaces the old task group.
@@ -137,17 +140,7 @@ Corresponds to VTODO in the vcalendar specification.
 	-	The old `@c`, *context*, for tasks has been merged into *location*, `@l`.  
 	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task.
 	- The old `%`, *delegated*, item type has been eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
-    - The old *someday* item type, `?`, has been eliminated. Using the location entry `@l ~someday` with an undated task will cause it to be displayed in the *next* view under `~someday`. Prepending the tilde character causes `~someday` to be displayed as the last location.
-
-### [inbox](#toc)
-
-Type character: **!**
-
-Corresponds to VTODO in the vcalendar specification.
-
-An inbox items can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using `!` instead of `*` and the entry  will appear highlighted in the agenda view on the current date until you confirm the starting time. 
-
-Unchanged but for the change in the type character from `$` to `!` to better reflect the urgency associated with such items.  Inbox items are displayed in dated views on the current date. 
+    - The old *someday* item type, `?`, has been eliminated. Using a location entry, e.g. `@l ~someday`, with an undated task will cause it to be displayed in the *next* view under `~someday`. Prepending the tilde character causes `~someday` to be displayed as the last location.
 
 ### [record](#toc)
 
@@ -161,6 +154,16 @@ A combination of the old *note* and *action* item types.
 - Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime.
 - Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of the day given by `@s`.
 - Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type. A built-in report groups and totals times for such "actions" by month and then index entry.
+
+### [inbox](#toc)
+
+Type character: **!**
+
+Corresponds to VTODO in the vcalendar specification.
+
+An inbox items can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using `!` instead of `*` and the entry  will appear highlighted in the agenda view on the current date until you confirm the starting time. 
+
+Unchanged but for the change in the type character from `$` to `!` to better reflect the urgency associated with such items.  Inbox items are displayed in dated views on the current date. 
 
 ## [Notice Types](#toc)
 
@@ -184,7 +187,7 @@ When a task job has one or more unfinished prerequisites, it is displayed using 
 
 ### [Finished](#toc)
 
-Type character: **x**
+Type character: **✓**
 
 When a task or job is finished, it is displayed on the finished date using **x** rather than **-**. 
 
@@ -248,6 +251,8 @@ Note that changing the entry for `expansions` in your configuration settings wil
     x: expansion key: string,
     z: timezone: string,
 
+> With an email alert, the item summary is used as the subject and the description as the body of the email. Memo is not included.
+
 ## [`&`keys](#toc)
 
 These keys are only used with `@j` (job) and `@r` (repetition) entries.
@@ -280,7 +285,7 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
          a positive or negative integer
       W: week number: list of integers in (1, ..., 53)
 
-> Note. It is an error to specify both `&c` and `&u`. A distinction between using `@c` and `@u` is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday  and repeats daily using either count, `&c 5`, or until, `&u fri 10a`.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
+> It is an error in dateutil to specify both `&c` and `&u` since providing both would either be consistent, and one would be redundant, or inconsistent. A distinction between using `@c` and `@u` is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday  and repeats daily using either count, `&c 5`, or until, `&u fri 10a`.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
 
 ## [TinyDB](#toc)
@@ -307,7 +312,7 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
         * Daylight saving time begins @s 2018-03-10 @r y &M 3 &w 2SU @c shared
 
 - The unique identifier, `2756`, is created automatically by *TinyDB*.
-- Two timestamps are automatically created for items: *created*, corresponding to the moment the item was created and *modified*, corresponding to the moment the item was last modified. There is no entry for *modified* unless it would be different (later) than *created*.
+- Two timestamps are automatically created for items: *created*, corresponding to the moment the item was created and, if the item has subsequently been changed, *modified* corresponding to the moment the item was last changed. 
 - **New**
     - A *history* view displays all items and allows sorting by either the created or the last modified datetime. 
 	- The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry 
@@ -389,18 +394,20 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
 ## [The relevant datetime of an item](#toc)
 
-Used, e.g., in index view.
+Used in search and index views.
 
-- Non-repeating events and non-repeating unfinished tasks and records with datetimes: the datetime given in `@s`. 
-- Repeating events: the datetime of the first instance falling on or after today or, if none, the datetime of the last instance. (needs updating)
-- Repeating unfinished tasks with `@o r` (restart) or `@o k` (keep - the default): the datetime given in `@s`. This datetime is automatically updated when an instance is completed to the due datetime of the next instance.
-- Repeating unfinished tasks with `@o s` (skip): the datetime of the first instance falling during or after the current date. (needs updating)
 - Finished tasks: the datetime given in `@f`.
-- Inbox entries, undated record entries, undated and unfinished tasks: *None*
+- Inbox entries: the current date.
+- Records and unfinished tasks without an `@s` entry: *None*
+- Other items with `@s` entries:
+    - Non-repeating events, unfinished tasks and records: the datetime given in `@s`. 
+    - Repeating events: the datetime of the first instance falling on or after the current date or, if none, the datetime of the last instance. 
+    - Repeating unfinished tasks with `@o r` (restart) or `@o k` (keep - the default): the datetime given in `@s`. This datetime is automatically updated when an instance is completed to the due datetime of the next instance.
+    - Repeating unfinished tasks with `@o s` (skip): the datetime of the first instance falling on or after the current date. 
 
 # [Views](#toc)
 
-View shortcut keys: a)genda, b)usy, d)one, m)onthly, h)istory, i)ndex, n)ext, q)uery and t)ags. In all views, pressing `l` prompts for the outline expansion level and `f` prompts for a filter to apply to the displayed items.
+View shortcut keys: a)genda, b)usy, d)one, m)onthly, s)earch, h)istory, i)ndex, n)ext, q)uery and t)ags. In all views, pressing `l` prompts for the outline expansion level and `f` prompts for a filter to apply to the displayed items.
 
 ASCII art is used in the following to suggest the appearance of the view in the GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in each actually takes only 1 line leaving 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
 
@@ -451,31 +458,29 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 - The top title bar shows the selected week.
 - The main panel shows scheduled items grouped and sorted by date and time.
-- Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the displayould shows "Nothing scheduled". E.g, 
+- Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the display would show "Nothing scheduled". E.g, 
 
         Week 2: Jan 8 - 14, 2018                            F1:Help
           Nothing scheduled
 
-    For the current week, the display would show "Nothing scheduled" under the current date. E.g.,
+    For the current week, the display would show "Nothing scheduled for the current week", e.g.,
 
         Week 3: Jan 15 - 21, 2018                           F1:Help
-        - Thu Jan 18 - Today
-          Nothing scheduled
+        - Nothing scheduled for the current week
 
 - Starting from the top, the display for a day includes the following:
-
-    - All day events (occasions), if any, using the display character `^` instead of the event type character `*` and highlighted using the occasion color.
+    - All day events (occasions), if any.
     - *For the current date (today) only*:
 
         - Inbox entries, if any, highlighted using the inbox color.
         - Pastdue tasks, if any, with the number of days that have passed since the task was due using the display character `<` and highlighted using the pastdue color. 
         - Beginning soon notices, if any, with the number of days remaining until the starting date of the item using the display character `>` and highlighted using the beginning soon color.
 
-        Note that the items included for the current date are those from the old *agenda* view.
+        > Note that the items included for the current date are those from the old *agenda* view.
 
-    - Datetime events, notes, records and unfinished tasks sorted by `@s` together with finished tasks sorted by `@f` with relevant time  displayed in the 2nd column. For events with *extent*, the ending time is also displayed. For tasks with *extent*, the extent period is also displayed. 
+    - Datetime events, notes, records and unfinished tasks sorted by `@s` together with finished tasks sorted by `@f` with the starting time  displayed in the 2nd column. For events with *extent*, the ending time is also displayed. For tasks or records with *extent*, the extent period is also displayed. 
     - Date only tasks.
-    - Date only notes.
+    - Date only records.
 
 ### [Busy](#toc)
 
@@ -523,14 +528,14 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 ### [Done](#toc)
 
 - Records with datetimes and finished tasks grouped and sorted by week and day.
-- Records are displayed with the type character, `%`, the item summary,  the time from `@s` and, if given, the extent from `@e`. Finished tasks are displayed with type character `x`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
+- Records are displayed with the type character, `%`, the item summary,  the time from `@s` and, if given, the extent from `@e`. Finished tasks are displayed with type character `✓`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
 
         +------------------------- top bar ------------------------+
         | Done - Week 3: Jan 15 - 21, 2018                 F1:help |
         +----------------------------------------------------------+
         | Mon Jan 15                                               |
         |   % report summary                          4:29pm   47m |
-        |   x report summary                             4:30pm    | 
+        |   ✓ report summary                             4:30pm    | 
 
 
 ## [Monthly](#toc)
@@ -541,12 +546,12 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
   Dates with busy periods are coded:
 
-    - night: 12am - 6am:    #___
-    - morning 6am-12pm:     _#__
-    - afternoon 12pm - 6pm: __#_
-    - evening 6pm - 12am:   ___#
+    - night: 12am - 6am:    :...  1
+    - morning 6am-12pm:     .:..  2 
+    - afternoon 12pm - 6pm: ..:.  4
+    - evening 6pm - 12am:   ...:  8
 
-  These can be combined. E.g., Aug 1 below shows events scheduled for both  morning and evening: `_#_#`.
+  These can be combined. E.g., Aug 1 below shows events scheduled for both  morning and evening: `.:.:`.
 
         +----------------------------------------------------------+
         | Monthly - August 2017                            F1:help |  1
@@ -554,11 +559,11 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |   Wk    Mon    Tue    Wed    Thu    Fri    Sat    Sun    |  2
         |  ----+-------------------------------------------------  |  3
         |   31 |   31      1      2      3      4      5      6    |  4
-        |      |         _#_#                                      |  5
+        |      |         .:.:                                      |  5
         |      |                                                   |  6
         |   32 |    7      8      9     10     11     12     13    |  7
         |      |                                                   |  8
-        |      |                                                   |  9
+        |      |                         -                         |  9
         |   33 |   14     15     16     17     18     19     20    | 10
         |      |                                                   | 11
         |      |                                                   | 12
@@ -584,16 +589,34 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +----------------------------------------------------------+
 
 
+## [Relevant](#toc)
+
+Items ordered by relevant datetime and grouped by year, week and week day. Displays item type, summary and relevant datetime. 
+
 ## [Search](#toc)
 
-All items ordered by relevant datetime displaying item type, summary and relevant datetime (or none). Case insensitive, regular expression search for matches in specified list of fields:
+Case insensitive, regular expression search for matches in specified list of fields:
 
 - s: summary (including job summaries)
 - d: description (including job descriptions)
 - m: memo (including job memos)
 - l: location (including job locations)
 
-E.g., searching for `joe` in `sd` would list items matching "joe" in either the summary or the description.
+Usage: `regex[: fields]`. The default for fields is `s`.
+
+E.g., searching for `joe` in `sd` would list items matching "joe" in either the summary or the description:
+
+        +------------------------ top bar -------------------------+
+        | Search                                           F1:help |
+        +----------------------------------------------------------+
+        | > joe: sd                                                |
+        | -------------------------------------------------------- |
+        | * Joe's 30th Birthday                     Oct 11 2019    |
+        |                                                          |
+        |                                                          |
+        |                                                          |
+
+> The relevant datetime of a repeating item is the first instance falling on or after the current date or, if none, then the last instance. See [relevant date time](#the-relevant-datetime-of-an-item) for details. 
 
 ## [Next](#toc)
 
@@ -603,7 +626,8 @@ E.g., searching for `joe` in `sd` would list items matching "joe" in either the 
 
 ## [Index](#toc)
 
-- All items, grouped and sorted by their *index* entries and then their relevant datetime*. 
+- All items, grouped and sorted by their *index* entries and then their 
+  *relevant datetime*. 
 - Items without `@i` entries are listed last under *~none*.
 
 
@@ -847,7 +871,7 @@ The key bindings for the various commands are listed above. E.g., press 'a' to o
 
 # [MVC](#toc)
 
-Smart **M**odels, dumb **V**iews and thin **C**ontrollers!
+Smart **Models**, dumb **Views** and thin **Controllers**!
 
 ## [Model](#toc)
 
@@ -901,7 +925,7 @@ Using
     for id in id2rset:
         item_dts = id2rset[id].between(aft, bef, include=True)
         for dt in item_dts:
-            bisect.insert(instances, [dt.isocalendar(), id])
+            bisect.insort(instances, [dt.isocalendar(), id])
 
 
 

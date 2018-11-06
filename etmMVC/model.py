@@ -3,6 +3,7 @@
 from pprint import pprint
 import pendulum
 from pendulum import parse as pendulum_parse
+from bisect import insort
 
 def parse(s, **kwd):
     return pendulum_parse(s, strict=False, **kwd)
@@ -145,16 +146,17 @@ at_keys = {
 amp_keys = {
     'r': {
         'c': "count: integer number of repetitions",
-        'd': "monthday: list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", 
-        'e': "easter: number of days before (-), on (0) or after (+) Easter",
+        'm': "monthday: list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", 
+        'E': "easter: number of days before (-), on (0) or after (+) Easter",
         'h': "hour: list of integers in 0 ... 23",
         'r': "frequency: character in y, m, w, d, h, n",
         'i': "interval: positive integer",
-        'm': "month: list of integers in 1 ... 12", 
+        'M': "month: list of integers in 1 ... 12", 
         'n': "minute: list of integers in 0 ... 59", 
         's': "set position: integer",
         'u': "until: datetime",
         'w': "weekday: list from SU, MO, ..., SA, possibly prepended with a positive or negative integer",
+        'W': "week number: list of integers in 1, ... 53"
     },
     'j': {
         'a': "alert: timeperiod: command, args*",
@@ -2409,6 +2411,8 @@ serialization.register_serializer(PendulumDurationSerializer(), 'I')
 ### start week/month ###
 ########################
 
+# FIXME: Process only one week at a time on demand => no need to store and update extended periods or to limit the weeks that can be displayed.
+
 def get_period(dt=pendulum.now(), months_before=11, months_after=24):
     """
     Return the begining and ending of the period that includes the weeks in current month plus the weeks in the prior *months_before* and the weeks in the subsequent *months_after*. The period will begin at 0 hours on the relevant Monday and end at 23:59:59 hours on the relevant Sunday.
@@ -2605,6 +2609,130 @@ def fmt_week(dt_obj):
     return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
 
 
+def relevant():
+    # now = pendulum.now('local').replace(tzinfo='Factory')
+    today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo='Factory')
+    # week_beg = today.subtract(days=today.day_of_week - 1)
+    # aft_dt = week_beg.subtract(weeks=weeks_bef)
+    # bef_dt = week_beg.add(weeks=weeks_aft + 1)
+
+    db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+    rows = []
+
+    for item in db:
+        if item['itemtype'] == '!':
+            relevant = today
+        elif item['itemtype'] == '-' and 'f' in item:
+            relevant = item['f']
+
+        elif 's' in item:
+            dtstart = item['s'] 
+            # for daylight savings time changes
+            startdst = dtstart.dst()
+
+            if 'r' in item:
+                lofh = item['r']
+                rset = rruleset()
+
+                for hsh in lofh:
+                    freq, kwd = rrule_args(hsh)
+                    kwd['dtstart'] = dtstart
+                    try:
+                        rset.rrule(rrule(freq, **kwd))
+                    except Exception as e:
+                        print('Error processing:')
+                        print('  ', freq, kwd)
+                        print(e)
+                        print(item)
+                        return []
+
+                if '-' in item:
+                    for dt in item['-']:
+                        if type(dt) == pendulum.Date:
+                            pass
+                        elif dt.dst() and not startdst:
+                            dt = dt + dt.dst()
+                        elif startdst and not dt.dst():
+                            dt = dt - startdst
+                        rset.exdate(dt)
+
+                if '+' in item:
+                    for dt in item['+']:
+                        rset.rdate(dt)
+
+                if (item['itemtype'] == '-' 
+                        and ('o' not in item or item['o'] in 'rk')):
+                    # for a restart or keep task, relevant is dtstart
+                    relevant = dtstart
+                else:
+                    # get the first instance after today
+                    relevant = rset.after(today, inc=True)
+                    if not relevant:
+                        relevant = rset.before(today, inc=True)
+
+            elif '+' in item:
+                # no @r but @+ => simple repetition
+                tmp = [dtstart]
+                for x in item['+']:
+                    tmp.insort(x)
+                aft = [x for x in tmp if x >= today]
+                if aft:
+                    relevant = aft[0]
+                else:
+                    bef = [x for x in tmp if x < today]
+                    relevant = bef[-1]
+            else:
+                # 's' but not 'r' or '+'
+                relevant = dtstart
+        else:
+            # no 's'
+            relevant = None
+
+
+        if relevant: 
+            relevant = pendulum.instance(relevant)
+        else:
+            continue
+
+        if relevant.hour or relevant.minute:
+            rhc = relevant.format("HH:mm")
+        else:
+            rhc = ""
+
+        rows.append(
+                {
+                    'id': item.doc_id,
+                    'sort': relevant.format("YYYYMMDDHHmm"),
+                    'week': (
+                        relevant.year, 
+                        relevant.week_of_year, 
+                        ),
+                    'day': (
+                        relevant.format("ddd MMM D"),
+                        ),
+                    'columns': (
+                        f"{item['itemtype']} {item['summary']}", 
+                        rhc,
+                        ),
+                }
+                )
+
+    from operator import itemgetter
+    from itertools import groupby
+    rows.sort(key=itemgetter('sort'))
+
+    for week, items in groupby(rows, key=itemgetter('week')):
+        wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}", strict=False).date().format("MMM D")
+        wkend = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}7", strict=False).date().format("MMM D")
+
+        print(f"{week[0]} Week {week[1]}: {wkbeg} - {wkend}")
+        for day, columns in groupby(items, key=itemgetter('day')):
+            for d in day:
+                print(" ", d)
+                for i in columns:
+                    space = " "*(60 - len(i['columns'][0]) - len(i['columns'][1]))
+                    print(f"    {i['columns'][0]}{space}{i['columns'][1]}" )
+
 def schedule(weeks_bef=1, weeks_aft=2):
     today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo='Factory')
     week_beg = today.subtract(days=today.day_of_week - 1)
@@ -2786,7 +2914,9 @@ if __name__ == '__main__':
         if 'p' in sys.argv[1]:
             print_json()
         if 's' in sys.argv[1]:
-            schedule(1, 3)
+            schedule(1, 4)
+        if 'r' in sys.argv[1]:
+            relevant()
 
     doctest.testmod()
 

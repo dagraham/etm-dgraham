@@ -504,8 +504,7 @@ class Menu:
         self.set_prompt(text=None, modified=True)
 
     def quit_etm(self, widget, confirm):
-        confirm = confirm.lower() == 'y'
-        if confirm:
+        if confirm.lower() == 'y':
             raise urwid.ExitMainLoop()
         else:
             pass
