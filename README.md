@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Nov 06, 2018 03:51PM EST**
+**Last modified: Mon Nov 12, 2018 10:30AM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -18,6 +18,7 @@
         * [Finished](#finished)
     * [Expansions](#expansions)
     * [`@`keys](#keys)
+    * [Notices for repeating items](#notices-for-repeating-items)
     * [`&`keys](#keys-1)
         * [for use with `@j`:](#for-use-with-j)
         * [for use with `@r`:](#for-use-with-r)
@@ -171,7 +172,7 @@ Unchanged but for the change in the type character from `$` to `!` to better ref
 
 Type character: **>**
 
-For items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining.
+For unfinished tasks and other items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining.
 
 ### [Past Due](#toc)
 
@@ -229,14 +230,14 @@ Note that changing the entry for `expansions` in your configuration settings wil
 
     +: include: list of datetimes to include,
     -: exclude: list of datetimes to exclude from rrule,
-    a: alert (list of periods[: cmd[, list of cmd args]]),
+    a: alert (list of + or - periods[: cmd[, list of cmd args]]),
     b: beginby: integer (number of days),
     c: calendar: string,
     d: description: string,
     e: extent: period,
     f: finished: datetime,
     g: goto: string (url or filepath),
-    h: history: (list of completion datetimes)
+    h: history: (for repeating tasks, a list of the most recent completion datetimes)
     i: index: colon delimited string,
     j: job summary: string, optionally followed by job &key entries
     l: location/context: string,
@@ -251,7 +252,24 @@ Note that changing the entry for `expansions` in your configuration settings wil
     x: expansion key: string,
     z: timezone: string,
 
+## Notices for repeating items
+
+* Alerts
+    - positive: on or after today
+    - negative: on or before today
+* Beginbys: after today
+
+
+
+> For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance. 
+
+> When an item with entries for both `@s` and `@r` is created or modified, the entry for `@s` is automatically changed to match the first instance from the recurrence rule. This has no effect on the instances generated but removes a possible source of confusion. 
+
+> An entry without `@r` but with `@s` and `@+` entries will generate instances corresponding to the entered `@s` and to each of the entries in `@+`. 
+
 > With an email alert, the item summary is used as the subject and the description as the body of the email. Memo is not included.
+
+> New: an alert with a **negative** time period will be triggered **after** the datetime specified in `@s`.
 
 ## [`&`keys](#toc)
 
@@ -397,10 +415,12 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 Used in search and index views.
 
 - Finished tasks: the datetime given in `@f`.
+- Finished jobs: the datetime given in `&f`.
 - Inbox entries: the current date.
 - Records and unfinished tasks without an `@s` entry: *None*
 - Other items with `@s` entries:
     - Non-repeating events, unfinished tasks and records: the datetime given in `@s`. 
+    - Unfinished jobs: the datetime given in `&s`.
     - Repeating events: the datetime of the first instance falling on or after the current date or, if none, the datetime of the last instance. 
     - Repeating unfinished tasks with `@o r` (restart) or `@o k` (keep - the default): the datetime given in `@s`. This datetime is automatically updated when an instance is completed to the due datetime of the next instance.
     - Repeating unfinished tasks with `@o s` (skip): the datetime of the first instance falling on or after the current date. 
@@ -591,7 +611,7 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 ## [Relevant](#toc)
 
-Items ordered by relevant datetime and grouped by year, week and week day. Displays item type, summary and relevant datetime. 
+All items with datetimes ordered by relevant datetime and grouped by year, week and week day. Displays item type, summary and relevant datetime. 
 
 ## [Search](#toc)
 

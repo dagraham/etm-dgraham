@@ -52,7 +52,11 @@ testing = True
 
 ETMFMT = "%Y%m%dT%H%M"
 ZERO = pendulum.duration(minutes=0)
+DAY = pendulum.duration(days=1)
 finished_char = u"\u2713"  #  ✓
+
+WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
+WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
 
 # display characters 
 datedChar2Type = {
@@ -1431,31 +1435,42 @@ def weekdays(arg):
     >>> weekdays(["5Su", "1SA"])
     (False, 'invalid weekdays: 5SU')
     >>> weekdays('3FR, -1M')
-    (False, 'considering weekdays: -1M')
+    (False, 'invalid weekdays: -1M')
     """
-    wkdays = ["{0}{1}".format(n, d) for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
-        for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']]
     if type(arg) == list:
         args = [x.strip().upper() for x in arg if x.strip()]
     elif arg:
         args = [x.strip().upper() for x in arg.split(",") if x.strip()]
     else:
         args = None
+
     if args:
-        bad = [x for x in args]
+        bad = []
+        good = []
         for x in args:
-            for y in wkdays:
-                if x in bad and y.startswith(x):
-                    bad.remove(x)
-        # bad = [x for x in args if x and x not in wkdays]
+            if x in WKDAYS_DECODE:
+                good.append(x)
+            else:
+                bad.append(x)
         if bad:
             return False, "invalid weekdays: {}".format(", ".join(bad))
         else:
-            invalid = [x for x in args if x not in wkdays]
-            if invalid:
-                return False, "considering weekdays: {}".format(", ".join(invalid))
-            else:
-                return True, args
+            return True, good
+    # if args:
+    #     bad = [x for x in args]
+    #     for x in args:
+    #         for y in wkdays:
+    #             if x in bad and y.startswith(x):
+    #                 bad.remove(x)
+    #     # bad = [x for x in args if x and x not in wkdays]
+    #     if bad:
+    #         return False, "invalid weekdays: {}".format(", ".join(bad))
+    #     else:
+    #         invalid = [x for x in args if x not in wkdays]
+    #         if invalid:
+    #             return False, "considering weekdays: {}".format(", ".join(invalid))
+    #         else:
+    #             return True, args
     else:
         return False, "weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month."
 
@@ -1582,6 +1597,7 @@ rrule_freq = {
     'n': 5,     #'MINUTELY',
 }
 
+# Note: the values such as MO in the following are dateutil.rrule WEEKDAY methods and not strings. A dict is used to dispatch the relevant method
 rrule_weekdays = dict(
         MO = MO,
         TU = TU,
@@ -1703,6 +1719,12 @@ def rrule_args(r_hsh):
     {'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}
     >>> rrule_args(r_hsh)
     (2, {'interval': 2, 'until': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))})
+    >>> item_eg = { "s": parse('2018-03-07 8am', tz="US/Eastern"),  "r": [ { "r": "w", "w": "2mo", "u": parse('2018-06-30 8am', tz="US/Eastern")}], "z": "US/Eastern", "itemtype": "*" }
+    >>> r_hsh = item_eg['r'][0]
+    >>> r_hsh
+    {'r': 'w', 'w': '2mo', 'u': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}
+    >>> rrule_args(r_hsh)
+    (2, {'byweekday': MO(+2), 'until': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=Timezone('US/Eastern'))})
     """
 
     # force integers
@@ -1728,6 +1750,7 @@ def rrule_args(r_hsh):
             ipart = weekday[:-2]
             if ipart:
                 # tmp.append(f"{wpart}({int(ipart)})")
+                # tmp.append(wpart+ "("+ ipart + ")")
                 tmp.append(wpart(int(ipart)))
             else:
                 tmp.append(wpart)
@@ -1771,6 +1794,11 @@ def item_instances(item, aft_dt, bef_dt=None):
     >>> del item_eg['+']
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am', tz="US/Eastern"))
     [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
+    >>> item_eg = { "s": parse('2018-03-07 8am', tz="US/Eastern"), "r": [ { "r": "w", "w": "2mo", "u": parse('2018-06-30 8am', tz="US/Eastern")}], "z": "US/Eastern", "itemtype": "*" }
+    >>> item_eg
+    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), 'r': [{'r': 'w', 'w': '2mo', 'u': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*'}
+    >>> item_instances(item_eg, parse('2018-03-01 12am', tz="US/Eastern"), parse('2018-04-01 12am', tz="US/Eastern"))
+    [(DateTime(2018, 3, 12, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None), (DateTime(2018, 3, 19, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None), (DateTime(2018, 3, 26, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
     """
     # FIXME 
     # @r given: dateutil behavior @s included only if it fits the repetiton rule
@@ -1807,6 +1835,7 @@ def item_instances(item, aft_dt, bef_dt=None):
             except Exception as e:
                 print('Error processing:')
                 print('  ', freq, kwd)
+                print(hsh)
                 print(e)
                 print(item)
                 return []
@@ -2303,7 +2332,7 @@ def jobs(lofh, at_hsh={}):
 #         return current_id
 # TinyDB.table_class = DatetimeCacheTable
 
-TinyDB.table_class = SmartCacheTable
+# TinyDB.table_class = SmartCacheTable
 TinyDB.DEFAULT_TABLE = 'items'
 # Item = Query()
 
@@ -2396,11 +2425,37 @@ class PendulumDurationSerializer(Serializer):
         """
         return parse_duration(s)[1]
 
+class PendulumWeekdaySerializer(Serializer):
+    """
+    This class handles dateutil.rrule.weeday objects.
+    >>> wds = PendulumWeekdaySerializer()
+    >>> wds.encode(dateutil.rrule.MO(-3))
+    '-3MO'
+    >>> wds.decode('-3MO')
+    MO(-3)
+    """
+
+    OBJ_CLASS = dateutil.rrule.weekday
+
+    def encode(self, obj):
+        """
+        Serialize the weekday object.
+        """
+        return WKDAYS_ENCODE[obj.__repr__()]
+
+    def decode(self, s):
+        """
+        Return the serialization as a weekday object.
+        """
+        return eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[s]))
+
+
 
 serialization = SerializationMiddleware()
 serialization.register_serializer(PendulumDateTimeSerializer(), 'T')
 serialization.register_serializer(PendulumDateSerializer(), 'D')
 serialization.register_serializer(PendulumDurationSerializer(), 'I')
+serialization.register_serializer(PendulumWeekdaySerializer(), 'W')
 
 ########################
 ### end TinyDB setup ###
@@ -2610,20 +2665,40 @@ def fmt_week(dt_obj):
 
 
 def relevant():
+    """
+    Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
+    """
     # now = pendulum.now('local').replace(tzinfo='Factory')
     today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo='Factory')
+    tomorrow = today + DAY
     # week_beg = today.subtract(days=today.day_of_week - 1)
     # aft_dt = week_beg.subtract(weeks=weeks_bef)
     # bef_dt = week_beg.add(weeks=weeks_aft + 1)
 
     db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-    rows = []
+    # rows = []
+    id2relevant = {}
+    inbox = []
+    done = []
+    pastdue = []
+    beginby = []
+    alerts = []
 
     for item in db:
         if item['itemtype'] == '!':
-            relevant = today
-        elif item['itemtype'] == '-' and 'f' in item:
-            relevant = item['f']
+            inbox.append(item.doc_id)
+            id2relevant[item.doc_id] = relevant
+            # no pastdues, beginbys or alerts]
+            continue
+        if item['itemtype'] == '-' and 'f' in item:
+            done.append([item.doc_id, item['f']])
+            id2relevant[item.doc_id] = item['f'] # the last completion
+            if 'h' in item:
+                # the history will be limited to the n most recent completions
+                for dt in item['h']:
+                    done. append([item.doc_id, dt])
+            # no pastdues, beginbys or alerts
+            continue
 
         elif 's' in item:
             dtstart = item['s'] 
@@ -2644,7 +2719,7 @@ def relevant():
                         print('  ', freq, kwd)
                         print(e)
                         print(item)
-                        return []
+                        break
 
                 if '-' in item:
                     for dt in item['-']:
@@ -2660,10 +2735,18 @@ def relevant():
                     for dt in item['+']:
                         rset.rdate(dt)
 
-                if (item['itemtype'] == '-' 
-                        and ('o' not in item or item['o'] in 'rk')):
-                    # for a restart or keep task, relevant is dtstart
-                    relevant = dtstart
+                if item['itemtype'] == '-': 
+                    if 'o' in item and item['o'] == 's':
+                        relevant = rset.after(today, inc=True)
+                        item['s'] = relevant
+                        try:
+                            db.update(item, doc_ids=[item.doc_id])
+                        except Exception as e:
+                            print(e)
+                            print(item.doc_id, item, '\n')
+                    else: 
+                        # for a restart or keep task, relevant is dtstart
+                        relevant = dtstart
                 else:
                     # get the first instance after today
                     relevant = rset.after(today, inc=True)
@@ -2694,44 +2777,85 @@ def relevant():
         else:
             continue
 
-        if relevant.hour or relevant.minute:
-            rhc = relevant.format("HH:mm")
-        else:
-            rhc = ""
+        # if item['itemtype'] == '-' and 'j' in item:
+        #     # jobs
+        #     items = []
+        #     job_id = 0
+        #     for job in item['j']:
+        #         job['id'] = "{}:{}".format(item.doc_id, job_id)
+        #         job_id += 1
+        #         if 's' in job:
+        #             job['s'] = 
 
-        rows.append(
-                {
-                    'id': item.doc_id,
-                    'sort': relevant.format("YYYYMMDDHHmm"),
-                    'week': (
-                        relevant.year, 
-                        relevant.week_of_year, 
-                        ),
-                    'day': (
-                        relevant.format("ddd MMM D"),
-                        ),
-                    'columns': (
-                        f"{item['itemtype']} {item['summary']}", 
-                        rhc,
-                        ),
-                }
-                )
 
-    from operator import itemgetter
-    from itertools import groupby
-    rows.sort(key=itemgetter('sort'))
 
-    for week, items in groupby(rows, key=itemgetter('week')):
-        wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}", strict=False).date().format("MMM D")
-        wkend = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}7", strict=False).date().format("MMM D")
 
-        print(f"{week[0]} Week {week[1]}: {wkbeg} - {wkend}")
-        for day, columns in groupby(items, key=itemgetter('day')):
-            for d in day:
-                print(" ", d)
-                for i in columns:
-                    space = " "*(60 - len(i['columns'][0]) - len(i['columns'][1]))
-                    print(f"    {i['columns'][0]}{space}{i['columns'][1]}" )
+        id2relevant[item.doc_id] = relevant
+
+        if item['itemtype'] == '-' and 'f' not in item and relevant < today:
+            print('pastdue', item)
+            pastdue.append([item.doc_id, relevant - today])
+        elif 'b' in item and relevant > today and relevant - int(item['b']) * DAY <= today:
+            beginby.append([item.doc_id, relevant - today]) 
+        if 'a' in item:
+            # alerts
+            for alert in  item['a']:
+                tds = alert[0]
+                cmd = alert[1]
+                args = alert[2:]
+                for td in tds:
+                    alert_time = relevant - td
+                    if alert_time >= today and alert_time <= tomorrow:
+                        alerts.append([item.doc_id, alert_time, cmd, args])
+
+    # print(id2relevant) 
+    print("\ninbox", inbox)
+    print("\npastdue", pastdue)
+    print("\nbeginby", beginby)
+    print("\nalerts", alerts)
+    return 
+
+
+
+        # ### skip the following
+        # if relevant.hour or relevant.minute:
+        #     rhc = relevant.format("HH:mm")
+        # else:
+        #     rhc = ""
+
+        # rows.append(
+        #         {
+        #             'id': item.doc_id,
+        #             'sort': relevant.format("YYYYMMDDHHmm"),
+        #             'week': (
+        #                 relevant.year, 
+        #                 relevant.week_of_year, 
+        #                 ),
+        #             'day': (
+        #                 relevant.format("ddd MMM D"),
+        #                 ),
+        #             'columns': (
+        #                 f"{item['itemtype']} {item['summary']}", 
+        #                 rhc,
+        #                 ),
+        #         }
+        #         )
+
+    # from operator import itemgetter
+    # from itertools import groupby
+    # rows.sort(key=itemgetter('sort'))
+
+    # for week, items in groupby(rows, key=itemgetter('week')):
+        # wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}", strict=False).date().format("MMM D")
+        # wkend = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}7", strict=False).date().format("MMM D")
+
+        # print(f"{week[0]} Week {week[1]}: {wkbeg} - {wkend}")
+        # for day, columns in groupby(items, key=itemgetter('day')):
+        #     for d in day:
+        #         print(" ", d)
+        #         for i in columns:
+        #             space = " "*(60 - len(i['columns'][0]) - len(i['columns'][1]))
+        #             print(f"    {i['columns'][0]}{space}{i['columns'][1]}" )
 
 def schedule(weeks_bef=1, weeks_aft=2):
     today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo='Factory')
