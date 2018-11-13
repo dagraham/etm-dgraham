@@ -1951,12 +1951,14 @@ def task(at_hsh):
     >>> pprint(task(item_eg))
     {'itemtype': '-',
      'j': [{'f': DateTime(2018, 3, 6, 10, 0, 0, tzinfo=Timezone('UTC')),
+            'i': '1',
             'j': 'Job 1',
             'p': [],
             'req': [],
             'status': 'x',
             'summary': 'Task Group 1/1/0: Job 1'},
-           {'j': 'Job 2',
+           {'i': '2',
+            'j': 'Job 2',
             'p': ['1'],
             'req': [],
             'status': '-',
@@ -1975,12 +1977,14 @@ def task(at_hsh):
     >>> pprint(task(item_eg))
     {'h': [DateTime(2018, 3, 7, 13, 0, 0, tzinfo=Timezone('UTC'))],
      'itemtype': '-',
-     'j': [{'j': 'Job 1',
+     'j': [{'i': '1',
+            'j': 'Job 1',
             'p': [],
             'req': [],
             'status': '-',
             'summary': 'Task Group 0/1/1: Job 1'},
-           {'j': 'Job 2',
+           {'i': '2',
+            'j': 'Job 2',
             'p': ['1'],
             'req': ['1'],
             'status': '+',
@@ -2034,17 +2038,20 @@ def jobs(lofh, at_hsh={}):
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
     (True,
-     [{'j': 'Job One',
+     [{'i': '1',
+       'j': 'Job One',
        'p': [],
        'req': [],
        'status': '-',
        'summary': ' 0/1/2: Job One'},
-      {'j': 'Job Two',
+      {'i': '2',
+       'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
        'status': '+',
        'summary': ' 0/1/2: Job Two'},
-      {'j': 'Job Three',
+      {'i': '3',
+       'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
        'status': '+',
@@ -2054,17 +2061,20 @@ def jobs(lofh, at_hsh={}):
     >>> pprint(jobs(data))
     (True,
      [{'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
+       'i': '1',
        'j': 'Job One',
        'p': [],
        'req': [],
        'status': 'x',
        'summary': ' 1/1/1: Job One'},
-      {'j': 'Job Two',
+      {'i': '2',
+       'j': 'Job Two',
        'p': ['1'],
        'req': [],
        'status': '-',
        'summary': ' 1/1/1: Job Two'},
-      {'j': 'Job Three',
+      {'i': '3',
+       'j': 'Job Three',
        'p': ['2'],
        'req': ['2'],
        'status': '+',
@@ -2074,18 +2084,21 @@ def jobs(lofh, at_hsh={}):
     >>> pprint(jobs(data))
     (True,
      [{'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
+       'i': '1',
        'j': 'Job One',
        'p': [],
        'req': [],
        'status': 'x',
        'summary': ' 2/1/0: Job One'},
       {'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('UTC')),
+       'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': [],
        'status': 'x',
        'summary': ' 2/1/0: Job Two'},
-      {'j': 'Job Three',
+      {'i': '3',
+       'j': 'Job Three',
        'p': ['2'],
        'req': [],
        'status': '-',
@@ -2094,17 +2107,20 @@ def jobs(lofh, at_hsh={}):
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
     >>> pprint(jobs(data))
     (True,
-     [{'j': 'Job One',
+     [{'i': '1',
+       'j': 'Job One',
        'p': [],
        'req': [],
        'status': '-',
        'summary': ' 0/1/2: Job One'},
-      {'j': 'Job Two',
+      {'i': '2',
+       'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
        'status': '+',
        'summary': ' 0/1/2: Job Two'},
-      {'j': 'Job Three',
+      {'i': '3',
+       'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
        'status': '+',
@@ -2118,18 +2134,21 @@ def jobs(lofh, at_hsh={}):
     >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a', tz="US/Eastern"), 'j': data}))
     (True,
      [{'b': 2,
+       'i': '1',
        'j': 'Job One',
        'p': [],
        'req': [],
        'status': '-',
        'summary': ' 0/1/2: Job One'},
       {'b': 1,
+       'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
        'status': '+',
        'summary': ' 0/1/2: Job Two'},
-      {'j': 'Job Three',
+      {'i': '3',
+       'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
        'status': '+',
@@ -2306,11 +2325,13 @@ def jobs(lofh, at_hsh={}):
     for i in ids:
         id2hsh[i]['summary'] = "{} {}: {}".format(summary, "/".join([str(x) for x in faw]), id2hsh[i]['j'])
         id2hsh[i]['req'] = req[i]
+        id2hsh[i]['i'] = i
 
     if msg:
         return False, "; ".join(msg), None
     else:
         # return the list of job hashes
+        # print('id2hsh', id2hsh)
         return True, [id2hsh[i] for i in ids], last_completion
 
 
@@ -2337,6 +2358,7 @@ def jobs(lofh, at_hsh={}):
 #         return current_id
 # TinyDB.table_class = DatetimeCacheTable
 
+# FIXME SmartCacheTable doesn't seem to work with tinydb 3.12
 # TinyDB.table_class = SmartCacheTable
 TinyDB.DEFAULT_TABLE = 'items'
 # Item = Query()
@@ -2432,16 +2454,20 @@ class PendulumDurationSerializer(Serializer):
 
 class PendulumWeekdaySerializer(Serializer):
     """
-    This class handles dateutil.rrule.weeday objects.
+    This class handles dateutil.rrule.weeday objects. Note in the following examples that unquoted weekdays, eg. MO(-3), are dateutil.rrule.weekday objects.
     >>> wds = PendulumWeekdaySerializer()
-    >>> wds.encode(dateutil.rrule.MO(-3))
+    >>> wds.encode(MO(-3))
     '-3MO'
     >>> wds.encode(SA(+3))
     '3SA'
+    >>> wds.encode(WE)
+    'WE'
     >>> wds.decode('-3MO')
     MO(-3)
     >>> wds.decode('3SA')
     SA(+3)
+    >>> wds.decode('WE')
+    WE
     """
 
     OBJ_CLASS = dateutil.rrule.weekday
@@ -2453,6 +2479,7 @@ class PendulumWeekdaySerializer(Serializer):
         r = obj.__repr__()
         s = WKDAYS_ENCODE[obj.__repr__()]
         if s.startswith('+'): 
+            # drop the leading + sign
             s = s[1:]
         # print('serializing', obj.__repr__(), type(obj), 'as', s)
         return s
@@ -2467,10 +2494,10 @@ class PendulumWeekdaySerializer(Serializer):
 
 
 serialization = SerializationMiddleware()
-serialization.register_serializer(PendulumDateTimeSerializer(), 'T')
-serialization.register_serializer(PendulumDateSerializer(), 'D')
-serialization.register_serializer(PendulumDurationSerializer(), 'I')
-serialization.register_serializer(PendulumWeekdaySerializer(), 'W')
+serialization.register_serializer(PendulumDateTimeSerializer(), 'T') # Time
+serialization.register_serializer(PendulumDateSerializer(), 'D')     # Date
+serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
+serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday 
 
 ########################
 ### end TinyDB setup ###
@@ -2954,6 +2981,7 @@ def import_json(etmdir=None):
         if 'j' in item_hsh:
             jbs = []
             for jb in item_hsh['j']:
+                print('job keys:', jb.keys())
                 if 'h' in jb:
                     if 'f' not in jb:
                         jb['f'] = jb['h'][-1]
