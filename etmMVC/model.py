@@ -2944,7 +2944,7 @@ def import_json(etmdir=None):
         item_hsh = items[id]
         if item_hsh['itemtype'] not in type_keys:
             continue
-        z = item_hsh.get('z', 'local')
+        z = item_hsh.get('z', 'Factory')
         bad_keys = [x for x in item_hsh if x not in at_keys]
         for key in bad_keys:
             del item_hsh[key]
