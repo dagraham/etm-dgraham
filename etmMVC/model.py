@@ -653,7 +653,7 @@ def parse_datetime(s, z=None):
     DateTime(2015, 10, 15, 18, 0, 0, tzinfo=Timezone('UTC'))
     >>> dt = parse_datetime("2015-10-15")
     >>> dt[1]
-    DateTime(2015, 10, 15, 0, 0, 0, tzinfo=Timezone('Factory'))
+    Date(2015, 10, 15)
 
     To get a datetime for midnight, schedule for 1 second later and note that the second is removed from the datetime:
     >>> dt = parse_datetime("2015-10-15 00:00:01")
@@ -689,7 +689,7 @@ def parse_datetime(s, z=None):
         return False, "Invalid date-time: '{}'".format(s), z
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
-            return 'date', res.replace(tzinfo='Factory'), z
+            return 'date', res.replace(tzinfo='Factory').date(), z
         elif ok == 'aware':
             return ok, res.in_timezone('UTC'), z
         else:
@@ -747,13 +747,18 @@ def format_datetime(obj):
     >>> format_datetime(parse_datetime("2015-07-10 5:30p", "float")[1])
     (True, 'Fri Jul 10 2015 5:30PM')
     >>> format_datetime(parse_datetime("20160710")[1])
-    (True, 'Sat Jul 9 2016 8:00PM EDT')
+    (True, 'Sun Jul 10 2016')
+    >>> format_datetime(parse_datetime("2015-07-10", "float")[1])
+    (True, 'Fri Jul 10 2015')
     >>> format_datetime("20160710T1730")
     (False, 'The argument must be a pendulum date or datetime.')
     """
-    if type(obj) == datetime:
-        obj = pendulum.instance(obj)
-    if type(obj) == pendulum.DateTime: 
+    # if type(obj) == datetime:
+    #     obj = pendulum.instance(obj)
+    if type(obj) == pendulum.Date:
+        return True, format(obj.format("ddd MMM D YYYY"))
+
+    elif type(obj) == pendulum.DateTime: 
         if obj.format('Z') == '':
             # naive
             if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
@@ -765,9 +770,6 @@ def format_datetime(obj):
         else:
             # aware
             return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA zz"))
-
-    elif type(obj) == pendulum.Date:
-        return True, format(obj.format("ddd MMM D YYYY"))
 
     else:
         return False, "The argument must be a pendulum date or datetime."
@@ -1820,15 +1822,16 @@ def item_instances(item, aft_dt, bef_dt=None):
     # print('starting dts:', dtstart)
     # This should not be necessary since the data store decodes dates as datetimes
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
-        dts = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0)
-
-    # for discarding daylight saving time differences in repetitions
-    try:
-        startdst = dtstart.dst()
-    except:
-        print('dtstart:', dtstart)
-        dtstart = dtstart[0]
-        startdst = dtstart.dst()
+        dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
+        startdst = None
+    else:
+        # for discarding daylight saving time differences in repetitions
+        try:
+            startdst = dtstart.dst()
+        except:
+            print('dtstart:', dtstart)
+            dtstart = dtstart[0]
+            startdst = dtstart.dst()
 
     if 'r' in item:
         lofh = item['r']
@@ -2414,7 +2417,7 @@ class PendulumDateSerializer(Serializer):
     >>> ds.encode(pendulum.date(2018, 7, 25))
     '20180725'
     >>> ds.decode('20180725')
-    DateTime(2018, 7, 25, 0, 0, 0, tzinfo=Timezone('America/New_York'))
+    Date(2018, 7, 25)
     """
     OBJ_CLASS = pendulum.Date
 
@@ -2428,7 +2431,8 @@ class PendulumDateSerializer(Serializer):
         """
         Return the serialization as a date object.
         """
-        return pendulum.from_format(s, 'YYYYMMDD').naive().in_timezone('local')
+        # return pendulum.from_format(s, 'YYYYMMDD').naive().in_timezone('local')
+        return pendulum.from_format(s, 'YYYYMMDD').date()
 
 
 class PendulumDurationSerializer(Serializer):
