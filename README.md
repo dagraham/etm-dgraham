@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Mon Nov 12, 2018 10:30AM EST**
+**Last modified: Wed Nov 14, 2018 02:34PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -125,12 +125,12 @@ Corresponds to VTODO in the vcalendar specification.
             `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
     - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g.,  
 
-            x manually assigned [1/2/1]: job a
-            - manually assigned [1/2/1]: job b
-            - manually assigned [1/2/1]: job c
-            + manually assigned [1/2/1]: job d
+            x manually assigned [2/1/1]: job a
+            - manually assigned [2/1/1]: job b
+            - manually assigned [2/1/1]: job c
+            + manually assigned [2/1/1]: job d
 
-        would indicate that `job a` is *finished*, `job b`  and `job c` are *available* (have no unfinished prerequistites) and that `job d` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of finished, available and waiting jobs in the task, respectively.
+        would indicate that `job a` is *finished*, `job b`  and `job c` are *available* (have no unfinished prerequistites) and that `job d` is *waiting* (has one or more unfinished prerequisties). The status indicator in square brackets indicates the numbers of available, waiting and finished jobs in the task, respectively.
 
 - An entry for `@e` can be given with or without an `@s` entry and is interpreted as the estimated time required to complete the task.
 - When a job is finished, the "done" datetime is recorded in an `&f` entry in the job. When the last job in a task is finished or when a task without jobs is finished a similar entry in the task itself using `@f done`. If there are jobs, then the `&f` entries are removed from the jobs. 

@@ -1190,6 +1190,8 @@ entry_tmpl = """\
 {%- endfor %}\
 {%- endset %}\
 {{ wrap(title) }}
+{% if 'f' in h %}{{ "@f {} ".format(dt2str(h['f'])[1]) }}
+{% endif %}\
 {% if 'a' in h %}\
 {%- set alerts %}\
 {%- for x in h['a'] %}{{ "@a {}: {} ".format(inlst2str(x[0]), ", ".join(x[1:])) }} {% endfor %}\
@@ -1205,7 +1207,7 @@ entry_tmpl = """\
 {%- if 't' in h %}{{ " @t {}".format(", ".join(h['t'])) }} {% endif %}\
 {% set ns = namespace(found=false) %}\
 {% set location %}\
-{%- for k in ['l', 'm', 'n', 'g', 'u', 'x', 'f', 'p'] -%}\
+{%- for k in ['l', 'm', 'n', 'g', 'u', 'x', 'p'] -%}\
 {%- if k in h %}@{{ k }} {{ h[k] }}{% set ns.found = true %} {% endif %}\
 {% endfor %}\
 {% endset %}\
@@ -1214,7 +1216,7 @@ entry_tmpl = """\
 {%- if 'r' in h %}\
 {%- for x in h['r'] -%}\
 {%- set rrule -%}\
-{{ x['f'] }}\
+{{ x['r'] }}\
 {%- for k in ['i', 'c', 's', 'u', 'M', 'm', 'n', 'w', 'h', 'E'] -%}\
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}\
@@ -1956,13 +1958,13 @@ def task(at_hsh):
             'p': [],
             'req': [],
             'status': 'x',
-            'summary': 'Task Group 1/1/0: Job 1'},
+            'summary': 'Task Group 1/0/1: Job 1'},
            {'i': '2',
             'j': 'Job 2',
             'p': ['1'],
             'req': [],
             'status': '-',
-            'summary': 'Task Group 1/1/0: Job 2'}],
+            'summary': 'Task Group 1/0/1: Job 2'}],
      'r': [{'i': 2,
             'r': 'w',
             'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}],
@@ -1982,13 +1984,13 @@ def task(at_hsh):
             'p': [],
             'req': [],
             'status': '-',
-            'summary': 'Task Group 0/1/1: Job 1'},
+            'summary': 'Task Group 1/1/0: Job 1'},
            {'i': '2',
             'j': 'Job 2',
             'p': ['1'],
             'req': ['1'],
             'status': '+',
-            'summary': 'Task Group 0/1/1: Job 2'}],
+            'summary': 'Task Group 1/1/0: Job 2'}],
      'r': [{'i': 2,
             'r': 'w',
             'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}],
@@ -2031,7 +2033,6 @@ def task(at_hsh):
     return(at_hsh)
 
 
-
 def jobs(lofh, at_hsh={}):
     """
     Process the job hashes in lofh
@@ -2043,19 +2044,19 @@ def jobs(lofh, at_hsh={}):
        'p': [],
        'req': [],
        'status': '-',
-       'summary': ' 0/1/2: Job One'},
+       'summary': ' 1/2/0: Job One'},
       {'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
        'status': '+',
-       'summary': ' 0/1/2: Job Two'},
+       'summary': ' 1/2/0: Job Two'},
       {'i': '3',
        'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
        'status': '+',
-       'summary': ' 0/1/2: Job Three'}],
+       'summary': ' 1/2/0: Job Three'}],
      None)
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
@@ -2089,20 +2090,20 @@ def jobs(lofh, at_hsh={}):
        'p': [],
        'req': [],
        'status': 'x',
-       'summary': ' 2/1/0: Job One'},
+       'summary': ' 1/0/2: Job One'},
       {'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('UTC')),
        'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': [],
        'status': 'x',
-       'summary': ' 2/1/0: Job Two'},
+       'summary': ' 1/0/2: Job Two'},
       {'i': '3',
        'j': 'Job Three',
        'p': ['2'],
        'req': [],
        'status': '-',
-       'summary': ' 2/1/0: Job Three'}],
+       'summary': ' 1/0/2: Job Three'}],
      None)
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
     >>> pprint(jobs(data))
@@ -2112,19 +2113,19 @@ def jobs(lofh, at_hsh={}):
        'p': [],
        'req': [],
        'status': '-',
-       'summary': ' 0/1/2: Job One'},
+       'summary': ' 1/2/0: Job One'},
       {'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
        'status': '+',
-       'summary': ' 0/1/2: Job Two'},
+       'summary': ' 1/2/0: Job Two'},
       {'i': '3',
        'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
        'status': '+',
-       'summary': ' 0/1/2: Job Three'}],
+       'summary': ' 1/2/0: Job Three'}],
      DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC')))
 
     Now add an 'r' entry for at_hsh.
@@ -2139,20 +2140,20 @@ def jobs(lofh, at_hsh={}):
        'p': [],
        'req': [],
        'status': '-',
-       'summary': ' 0/1/2: Job One'},
+       'summary': ' 1/2/0: Job One'},
       {'b': 1,
        'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
        'status': '+',
-       'summary': ' 0/1/2: Job Two'},
+       'summary': ' 1/2/0: Job Two'},
       {'i': '3',
        'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
        'status': '+',
-       'summary': ' 0/1/2: Job Three'}],
+       'summary': ' 1/2/0: Job Three'}],
      DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern')))
     """
     if 's' in at_hsh:
@@ -2309,21 +2310,21 @@ def jobs(lofh, at_hsh={}):
                         # since i is finished, remove it from j's requirements
                         req[j].remove(i)
 
-    faw = [0, 0, 0]
+    awf = [0, 0, 0]
     # set the job status for each job - f) finished, a) available or w) waiting
     for i in ids:
         if id2hsh[i].get('f', None): # i is finished
             id2hsh[i]['status'] = 'x'
-            faw[0] += 1
+            awf[2] += 1
         elif req[i]: # there are unfinished requirements for i
             id2hsh[i]['status'] = '+'
-            faw[2] += 1
+            awf[1] += 1
         else: # there are no unfinished requirements for i
             id2hsh[i]['status'] = '-'
-            faw[1] += 1
+            awf[0] += 1
 
     for i in ids:
-        id2hsh[i]['summary'] = "{} {}: {}".format(summary, "/".join([str(x) for x in faw]), id2hsh[i]['j'])
+        id2hsh[i]['summary'] = "{} {}: {}".format(summary, "/".join([str(x) for x in awf]), id2hsh[i]['j'])
         id2hsh[i]['req'] = req[i]
         id2hsh[i]['i'] = i
 
@@ -2361,6 +2362,7 @@ def jobs(lofh, at_hsh={}):
 # FIXME SmartCacheTable doesn't seem to work with tinydb 3.12
 # TinyDB.table_class = SmartCacheTable
 TinyDB.DEFAULT_TABLE = 'items'
+
 # Item = Query()
 
 class PendulumDateTimeSerializer(Serializer):
@@ -2498,6 +2500,8 @@ serialization.register_serializer(PendulumDateTimeSerializer(), 'T') # Time
 serialization.register_serializer(PendulumDateSerializer(), 'D')     # Date
 serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
 serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday 
+
+ETMDB = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
 
 ########################
 ### end TinyDB setup ###
@@ -2661,13 +2665,8 @@ def beg_ends(starting_dt, extent_duration, z=None):
     return pairs
 
 
-def load_tinydb():
-
-    return TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-
 def print_json():
-    db = load_tinydb()
-    for item in db:
+    for item in ETMDB:
         try:
             print(item.doc_id)
             print(item_details(item))
@@ -2705,6 +2704,18 @@ def fmt_week(dt_obj):
         week_end = wkend.format("MMM D")
     return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
 
+def get_item(id):
+    """
+    Return the hash correponding to id.
+    """
+    pass
+
+
+def finish(id, dt):
+    """
+    Record a completion at dt for the task corresponding to id.  
+    """
+    pass
 
 def relevant():
     """
@@ -2717,8 +2728,6 @@ def relevant():
     # aft_dt = week_beg.subtract(weeks=weeks_bef)
     # bef_dt = week_beg.add(weeks=weeks_aft + 1)
 
-    db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-    # rows = []
     id2relevant = {}
     inbox = []
     done = []
@@ -2726,10 +2735,10 @@ def relevant():
     beginby = []
     alerts = []
 
-    for item in db:
+    for item in ETMDB:
         if item['itemtype'] == '!':
             inbox.append(item.doc_id)
-            id2relevant[item.doc_id] = relevant
+            id2relevant[item.doc_id] = today
             # no pastdues, beginbys or alerts]
             continue
         if item['itemtype'] == '-' and 'f' in item:
@@ -2859,20 +2868,18 @@ def relevant():
 
 
 def update_db(id, hsh):
-    db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-    old = db.get(doc_id=id)
+    old = ETMDB.get(doc_id=id)
     if old != hsh:
         if 'r' in hsh:
             for rr in hsh['r']:
                 if 'w' in rr:
                     print('found w:', rr['w'], type(rr['w']))
-        db.update(hsh, doc_ids=[id])
-        # try:
-        #     db.update(hsh, doc_ids=[id])
-        # except Exception as e:
-        #     print("Error updating db")
-        #     print(repr(e))
-        #     print(id, "old:", old, "\n", "new:", hsh, '\n')
+        try:
+            ETMDB.update(hsh, doc_ids=[id])
+        except Exception as e:
+            print("Error updating db")
+            print(repr(e))
+            print(id, "old:", old, "\n", "new:", hsh, '\n')
 
 
 def schedule(weeks_bef=1, weeks_aft=2):
@@ -2881,9 +2888,8 @@ def schedule(weeks_bef=1, weeks_aft=2):
     aft_dt = week_beg.subtract(weeks=weeks_bef)
     bef_dt = week_beg.add(weeks=weeks_aft + 1)
 
-    db = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     rows = []
-    for item in db:
+    for item in ETMDB:
         if item['itemtype'] in "!?" or 's' not in item:
             continue
         for dt, et in item_instances(item, aft_dt, bef_dt):
@@ -2924,10 +2930,6 @@ def schedule(weeks_bef=1, weeks_aft=2):
 
 def import_json(etmdir=None):
     import json
-    global db
-    # root = '/Users/dag/etm-mvc/tmp'
-    # import_file = os.path.join(root, 'import.json')
-    db_file = 'db.json'
     if etmdir:
         import_file = os.path.join(etmdir, 'data', 'etm-db.json')
     else:
@@ -2935,8 +2937,7 @@ def import_json(etmdir=None):
     with open(import_file, 'r') as fo:
         import_hsh = json.load(fo)
     items = import_hsh['items']
-    db = TinyDB(db_file, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-    db.purge()
+    ETMDB.purge()
 
     docs = []
     for id in items:
@@ -2945,6 +2946,9 @@ def import_json(etmdir=None):
             continue
         z = item_hsh.get('z', 'local')
         bad_keys = [x for x in item_hsh if x not in at_keys]
+        for key in bad_keys:
+            del item_hsh[key]
+        bad_keys = [x for x in item_hsh if not item_hsh[x]]
         for key in bad_keys:
             del item_hsh[key]
         item_hsh['created'] = timestamp_from_id(id, 'UTC')
@@ -2981,7 +2985,6 @@ def import_json(etmdir=None):
         if 'j' in item_hsh:
             jbs = []
             for jb in item_hsh['j']:
-                print('job keys:', jb.keys())
                 if 'h' in jb:
                     if 'f' not in jb:
                         jb['f'] = jb['h'][-1]
@@ -3043,7 +3046,7 @@ def import_json(etmdir=None):
         # pprint(item_hsh)
         # db.insert(item_hsh)
         docs.append(item_hsh)
-    db.insert_multiple(docs)
+    ETMDB.insert_multiple(docs)
 
 
 
