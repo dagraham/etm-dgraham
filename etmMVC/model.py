@@ -1734,6 +1734,7 @@ def rrule_args(r_hsh):
     {'r': 'w', 'w': MO(+2), 'u': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}
     >>> rrule_args(r_hsh)
     (2, {'byweekday': MO(+2), 'until': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=Timezone('US/Eastern'))})
+
     """
 
     # force integers
@@ -1747,32 +1748,8 @@ def rrule_args(r_hsh):
                 r_hsh[k] = tmp[0]
             else:
                 r_hsh[k] = tmp
-    # fix weekdays
-    # weekdays should be rrule objects
-    # if 'w' in r_hsh:
-    #     tmp = []
-    #     weekdays = r_hsh['w']
-    #     if not isinstance(weekdays, list):
-    #         weekdays = [weekdays]
-    #     for weekday in weekdays:
-    #         # wpart = weekday[-2:].upper()
-    #         wpart = rrule_weekdays[weekday[-2:].upper()]
-    #         ipart = weekday[:-2]
-    #         if ipart:
-    #             # tmp.append(f"{wpart}({int(ipart)})")
-    #             # tmp.append(wpart+ "("+ ipart + ")")
-    #             tmp.append(wpart(int(ipart)))
-    #         else:
-    #             tmp.append(wpart)
-    #     if len(tmp) == 1:
-    #         r_hsh['w'] = tmp[0]
-    #     else:
-    #         r_hsh['w'] = tuple(tmp)
     if 'u' in r_hsh and 'c' in r_hsh:
         logger.warn(f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}")
-    # remove easter
-    # if 'E'in r_hsh:
-    #     del r_hsh['E']
     freq = rrule_freq[r_hsh['r']]
     kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
@@ -1809,6 +1786,11 @@ def item_instances(item, aft_dt, bef_dt=None):
     {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), 'r': [{'r': 'w', 'w': MO(+2), 'u': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*'}
     >>> item_instances(item_eg, parse('2018-03-01 12am', tz="US/Eastern"), parse('2018-04-01 12am', tz="US/Eastern"))
     [(DateTime(2018, 3, 12, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None), (DateTime(2018, 3, 19, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None), (DateTime(2018, 3, 26, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
+
+    Simple repetition:
+    >>> item_eg = { "itemtype": "*", "s": parse('2018-11-15 8a', tz="US/Eastern"), "+": [parse('2018-11-16 10a', tz="US/Eastern"), parse('2018-11-18 3p', tz="US/Eastern"), parse('2018-11-27 8p', tz="US/Eastern")] }
+    >>> item_instances(item_eg, parse('2018-11-17 9am', tz="US/Eastern"))
+    [(DateTime(2018, 11, 18, 15, 0, 0, tzinfo=Timezone('US/Eastern')), None), (DateTime(2018, 11, 27, 20, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
     """
     # FIXME 
     # @r given: dateutil behavior @s included only if it fits the repetiton rule
@@ -1877,9 +1859,9 @@ def item_instances(item, aft_dt, bef_dt=None):
         tmp.extend(item['+'])
         tmp.sort()
         if bef_dt is None:
-            instances = [x for x in tmp if (x > aft_dt)][:1]
+            instances = [x for x in tmp if (x > aft_dt)]#[:1]
         else:
-            instances = [x for x in tmp if (x >= aft_dt and x <= bef_dt)]
+            instances = [x for x in tmp if (x > aft_dt and x <= bef_dt)]
 
     else:
         # dtstart >= aft_dt
@@ -1900,6 +1882,7 @@ def item_instances(item, aft_dt, bef_dt=None):
                 pairs.append((instance, None))
         else:
             pairs.append((instance, None))
+    pairs.sort()
 
     return pairs
 
@@ -2001,6 +1984,22 @@ def task(at_hsh):
      's': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')),
      'summary': 'Task Group',
      'z': 'US/Eastern'}
+
+    Simple repetition:
+    >>> item_eg = { "itemtype": "-", "s": parse('2018-11-15 8a', tz="US/Eastern"),  "+": [parse('2018-11-16 10a', tz="US/Eastern"), parse('2018-11-18 3p', tz="US/Eastern"), parse('2018-11-27 8p', tz="US/Eastern")], 'f': parse('2018-11-17 9a', tz='US/Eastern') }
+    >>> pprint(task(item_eg))
+    {'+': [DateTime(2018, 11, 18, 15, 0, 0, tzinfo=Timezone('US/Eastern')),
+           DateTime(2018, 11, 27, 20, 0, 0, tzinfo=Timezone('US/Eastern'))],
+     'h': [DateTime(2018, 11, 17, 9, 0, 0, tzinfo=Timezone('US/Eastern'))],
+     'itemtype': '-',
+     's': DateTime(2018, 11, 16, 10, 0, 0, tzinfo=Timezone('US/Eastern'))}
+    >>> item_eg = { "itemtype": "-", "s": parse('2018-11-15 8a', tz="US/Eastern"),  "+": [parse('2018-11-16 10a', tz="US/Eastern"), parse('2018-11-18 3p', tz="US/Eastern"), parse('2018-11-27 8p', tz="US/Eastern")], 'f': parse('2018-11-17 9a', tz='US/Eastern'), 'o': 'r' }
+    >>> pprint(task(item_eg))
+    {'+': [DateTime(2018, 11, 27, 20, 0, 0, tzinfo=Timezone('US/Eastern'))],
+     'h': [DateTime(2018, 11, 17, 9, 0, 0, tzinfo=Timezone('US/Eastern'))],
+     'itemtype': '-',
+     'o': 'r',
+     's': DateTime(2018, 11, 18, 15, 0, 0, tzinfo=Timezone('US/Eastern'))}
     """
     if not at_hsh or at_hsh.get('itemtype', None) != '-':
         return at_hsh
@@ -2027,11 +2026,15 @@ def task(at_hsh):
             aft = at_hsh['f']
         elif overdue == 's':
             # skip
+            # FIXME: is this the right tz setting?
             aft = pendulum.now(tz=at_hsh.get('z', None))
         due = item_instances(at_hsh, aft)
         if due:
             # we have another instance
             at_hsh['s'] = due[0][0]
+            if '+' in at_hsh and 'r' not in at_hsh:
+                # simple repetition
+                at_hsh['+'] = [x for x in at_hsh['+'] if x > at_hsh['s']]
             at_hsh.setdefault('h', []).append(at_hsh['f'])
             del at_hsh['f']
     return(at_hsh)
@@ -2878,7 +2881,7 @@ def relevant():
                     if alert_time >= today and alert_time <= tomorrow:
                         alerts.append([item.doc_id, alert_time, cmd, args])
 
-    # print(id2relevant) 
+    print(id2relevant) 
     print("\ninbox", inbox)
     print("\npastdue", pastdue)
     print("\nbeginby", beginby)
