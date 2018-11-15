@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Wed Nov 14, 2018 02:34PM EST**
+**Last modified: Wed Nov 14, 2018 05:41PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -18,7 +18,7 @@
         * [Finished](#finished)
     * [Expansions](#expansions)
     * [`@`keys](#keys)
-    * [Notices for repeating items](#notices-for-repeating-items)
+        * [Notices](#notices)
     * [`&`keys](#keys-1)
         * [for use with `@j`:](#for-use-with-j)
         * [for use with `@r`:](#for-use-with-r)
@@ -252,14 +252,12 @@ Note that changing the entry for `expansions` in your configuration settings wil
     x: expansion key: string,
     z: timezone: string,
 
-## Notices for repeating items
+### Notices 
 
 * Alerts
-    - positive: on or after today
-    - negative: on or before today
-* Beginbys: after today
-
-
+    - positive: triggered before dtstart, relevant for dtstart on or after today
+    - negative: triggered after dtstart, relevant for dtstart on or before today
+* Beginbys: relevant for dtstart after today
 
 > For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance. 
 
@@ -415,7 +413,7 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 Used in search and index views.
 
 - Finished tasks: the datetime given in `@f`.
-- Finished jobs: the datetime given in `&f`.
+- Finished jobs in unfinished tasks: the datetime given in `&f`.
 - Inbox entries: the current date.
 - Records and unfinished tasks without an `@s` entry: *None*
 - Other items with `@s` entries:

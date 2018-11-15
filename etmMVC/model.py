@@ -1219,9 +1219,10 @@ entry_tmpl = """\
 {%- for x in h['r'] -%}\
 {%- set rrule -%}\
 {{ x['r'] }}\
-{%- for k in ['i', 'c', 's', 'u', 'M', 'm', 'n', 'w', 'h', 'E'] -%}\
+{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'h', 'E', 'c'] -%}\
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}\
+{% if 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
 {%- endset %}
 @r {{ wrap(rrule) }}
 {%- endfor %}\
@@ -2755,10 +2756,20 @@ def relevant():
             # no pastdues, beginbys or alerts
             continue
 
-        elif 's' in item:
+        if 's' in item:
             dtstart = item['s'] 
             # for daylight savings time changes
-            startdst = dtstart.dst()
+            if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
+                dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
+                startdst = None
+            else:
+                # for discarding daylight saving time differences in repetitions
+                try:
+                    startdst = dtstart.dst()
+                except:
+                    print('dtstart:', dtstart)
+                    dtstart = dtstart[0]
+                    startdst = dtstart.dst()
 
             if 'r' in item:
                 lofh = item['r']
@@ -2797,7 +2808,7 @@ def relevant():
                             item['s'] = pendulum.instance(relevant)
                             update_db(item.doc_id, item)
                         else:
-                            relevant = item['s']
+                            relevant = dtstart
                     else: 
                         # for a restart or keep task, relevant is dtstart
                         relevant = dtstart
@@ -2828,7 +2839,11 @@ def relevant():
 
 
         if relevant: 
-            relevant = pendulum.instance(relevant)
+            try:
+                relevant = pendulum.instance(relevant)
+            except Exception as e:
+                print(repr(e))
+                print('relevant:', relevant, startdst)
         else:
             continue
 
