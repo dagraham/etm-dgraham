@@ -1,57 +1,57 @@
 # What's planned for the next etm?
-**Last modified: Wed Nov 14, 2018 05:41PM EST**
+**Last modified: Thu Nov 15, 2018 03:03PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Goals](#goals)
 * [Data](#data)
-    * [Item Types](#item-types)
-        * [event](#event)
-        * [task](#task)
-        * [record](#record)
-        * [inbox](#inbox)
-    * [Notice Types](#notice-types)
-        * [Beginning Soon](#beginning-soon)
-        * [Past Due](#past-due)
-        * [Waiting](#waiting)
-        * [Finished](#finished)
-    * [Expansions](#expansions)
-    * [`@`keys](#keys)
-        * [Notices](#notices)
-    * [`&`keys](#keys-1)
-        * [for use with `@j`:](#for-use-with-j)
-        * [for use with `@r`:](#for-use-with-r)
-    * [TinyDB](#tinydb)
-    * [Dates, Times and Periods](#dates-times-and-periods)
-    * [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
+	* [Item Types](#item-types)
+		* [event](#event)
+		* [task](#task)
+		* [record](#record)
+		* [inbox](#inbox)
+	* [Notice Types](#notice-types)
+		* [Beginning Soon](#beginning-soon)
+		* [Past Due](#past-due)
+		* [Waiting](#waiting)
+		* [Finished](#finished)
+	* [Expansions](#expansions)
+	* [`@`keys](#keys)
+		* [Notices](#notices)
+	* [`&`keys](#keys-1)
+		* [for use with `@j`:](#for-use-with-j)
+		* [for use with `@r`:](#for-use-with-r)
+	* [TinyDB](#tinydb)
+	* [Dates, Times and Periods](#dates-times-and-periods)
+	* [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
 * [Views](#views)
-    * [Weekly](#weekly)
-        * [Agenda](#agenda)
-        * [Busy](#busy)
-        * [Done](#done)
-    * [Monthly](#monthly)
-    * [Relevant](#relevant)
-    * [Search](#search)
-    * [Next](#next)
-    * [Index](#index)
-    * [History](#history)
-    * [Tags](#tags)
-    * [Query](#query)
+	* [Weekly](#weekly)
+		* [Agenda](#agenda)
+		* [Busy](#busy)
+		* [Done](#done)
+	* [Monthly](#monthly)
+	* [Relevant](#relevant)
+	* [Search](#search)
+	* [Next](#next)
+	* [Index](#index)
+	* [History](#history)
+	* [Tags](#tags)
+	* [Query](#query)
 * [Work Flow](#work-flow)
-    * [Editing an existing item](#editing-an-existing-item)
-    * [Creating a new item](#creating-a-new-item)
+	* [Editing an existing item](#editing-an-existing-item)
+	* [Creating a new item](#creating-a-new-item)
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
-    * [Model](#model)
-        * [Data Store](#data-store)
-        * [Supporting queries](#supporting-queries)
-        * [Items Tables](#items-tables)
-        * [Instances Table](#instances-table)
-        * [Item Views](#item-views)
-        * [Instance Views](#instance-views)
-        * [CRUD](#crud)
-        * [API](#api)
+	* [Model](#model)
+		* [Data Store](#data-store)
+		* [Supporting queries](#supporting-queries)
+		* [Items Tables](#items-tables)
+		* [Instances Table](#instances-table)
+		* [Item Views](#item-views)
+		* [Instance Views](#instance-views)
+		* [CRUD](#crud)
+		* [API](#api)
 
 <!-- vim-markdown-toc -->
 
@@ -564,10 +564,10 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
   Dates with busy periods are coded:
 
-    - night: 12am - 6am:    :...  1
-    - morning 6am-12pm:     .:..  2 
-    - afternoon 12pm - 6pm: ..:.  4
-    - evening 6pm - 12am:   ...:  8
+    - night: 12am - 6am:    #___  1
+    - morning 6am-12pm:     _#__  2 
+    - afternoon 12pm - 6pm: __#_  4
+    - evening 6pm - 12am:   ___#  8
 
   These can be combined. E.g., Aug 1 below shows events scheduled for both  morning and evening: `.:.:`.
 
@@ -577,10 +577,10 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |   Wk    Mon    Tue    Wed    Thu    Fri    Sat    Sun    |  2
         |  ----+-------------------------------------------------  |  3
         |   31 |   31      1      2      3      4      5      6    |  4
-        |      |         .:.:                                      |  5
-        |      |                                                   |  6
-        |   32 |    7      8      9     10     11     12     13    |  7
-        |      |                                                   |  8
+        |      |         _#_#                                      |  5
+        |      |                  ─                                |  6
+        |   32 |    7      8     │9│    10     11     12     13    |  7
+        |      |                  ─                                |  8
         |      |                         -                         |  9
         |   33 |   14     15     16     17     18     19     20    | 10
         |      |                                                   | 11

@@ -60,7 +60,6 @@ WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for 
 WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4']}
 for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
     WKDAYS_ENCODE[wkd] = wkd
-# pprint(WKDAYS_ENCODE)
 
 # display characters 
 datedChar2Type = {
@@ -1196,7 +1195,7 @@ entry_tmpl = """\
 {% endif %}\
 {% if 'a' in h %}\
 {%- set alerts %}\
-{%- for x in h['a'] %}{{ "@a {}: {} ".format(inlst2str(x[0]), ", ".join(x[1:])) }} {% endfor %}\
+{% for x in h['a'] %}{{ "@a {}: {} ".format(inlst2str(x[0]), ", ".join(x[1:])) }}{% endfor %}\
 {% endset %}\
 {{ wrap(alerts) }}
 {% endif %}\
@@ -1986,6 +1985,7 @@ def task(at_hsh):
      'z': 'US/Eastern'}
 
     Simple repetition:
+    default overdue = k
     >>> item_eg = { "itemtype": "-", "s": parse('2018-11-15 8a', tz="US/Eastern"),  "+": [parse('2018-11-16 10a', tz="US/Eastern"), parse('2018-11-18 3p', tz="US/Eastern"), parse('2018-11-27 8p', tz="US/Eastern")], 'f': parse('2018-11-17 9a', tz='US/Eastern') }
     >>> pprint(task(item_eg))
     {'+': [DateTime(2018, 11, 18, 15, 0, 0, tzinfo=Timezone('US/Eastern')),
@@ -1993,6 +1993,8 @@ def task(at_hsh):
      'h': [DateTime(2018, 11, 17, 9, 0, 0, tzinfo=Timezone('US/Eastern'))],
      'itemtype': '-',
      's': DateTime(2018, 11, 16, 10, 0, 0, tzinfo=Timezone('US/Eastern'))}
+
+    overdue = r
     >>> item_eg = { "itemtype": "-", "s": parse('2018-11-15 8a', tz="US/Eastern"),  "+": [parse('2018-11-16 10a', tz="US/Eastern"), parse('2018-11-18 3p', tz="US/Eastern"), parse('2018-11-27 8p', tz="US/Eastern")], 'f': parse('2018-11-17 9a', tz='US/Eastern'), 'o': 'r' }
     >>> pprint(task(item_eg))
     {'+': [DateTime(2018, 11, 27, 20, 0, 0, tzinfo=Timezone('US/Eastern'))],
@@ -2486,7 +2488,6 @@ class PendulumWeekdaySerializer(Serializer):
         """
         Serialize the weekday object.
         """
-        r = obj.__repr__()
         s = WKDAYS_ENCODE[obj.__repr__()]
         if s.startswith('+'): 
             # drop the leading + sign
@@ -2740,10 +2741,14 @@ def relevant():
     inbox = []
     done = []
     pastdue = []
-    beginby = []
+    beginbys = []
     alerts = []
 
     for item in ETMDB:
+        instance_interval = [] 
+        possible_beginby = None
+        possible_alerts = []
+        all_tds = []
         if item['itemtype'] == '!':
             inbox.append(item.doc_id)
             id2relevant[item.doc_id] = today
@@ -2761,6 +2766,8 @@ def relevant():
 
         if 's' in item:
             dtstart = item['s'] 
+            has_a = 'a' in item
+            has_b = 'b' in item
             # for daylight savings time changes
             if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
                 dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
@@ -2773,6 +2780,29 @@ def relevant():
                     print('dtstart:', dtstart)
                     dtstart = dtstart[0]
                     startdst = dtstart.dst()
+
+            if has_b:
+                days = int(item['b']) * DAY
+                # today + DAY <= startdt <= tomorrow + days
+                # instance_interval.append([tomorrow, today + days])
+                all_tds.extend([DAY, days])
+                possible_beginby = days
+
+            if has_a:
+                # alerts
+                for alert in  item['a']:
+                    tds = alert[0]
+                    cmd = alert[1]
+                    args = alert[2:]
+                    all_tds.extend(tds)
+
+                    for td in tds:
+                        # td > 0m => earlier than startdt; dt < 0m => later than startdt
+                        # beg_dt <= startdt <= end_dt => alert today
+                        possible_alerts.append([td, cmd, args])
+            # this catches all alerts and beginbys for the item
+            if all_tds:
+                instance_interval = [today + min(all_tds), tomorrow + max(all_tds)]
 
             if 'r' in item:
                 lofh = item['r']
@@ -2822,6 +2852,20 @@ def relevant():
                         relevant = rset.before(today, inc=True)
                     relevant = pendulum.instance(relevant)
 
+                # rset
+                if instance_interval:
+                    instances = rset.between(instance_interval[0], instance_interval[1], inc=True)
+                    if possible_beginby:
+                        for instance in instances:
+                            if today + DAY <= instance <= tomorrow + possible_beginby:
+                                beginbys.append([item.doc_id, (instance - today).days])
+                    if possible_alerts:
+                        for instance in instances:
+                            for possible_alert in possible_alerts:
+                                if today + possible_alert[0] <= instance <= tomorrow + possible_alert[0]:
+                                    alerts.append([item.doc_id, instance - possible_alert[0], possible_alert[1], possible_alert[2]])
+
+
             elif '+' in item:
                 # no @r but @+ => simple repetition
                 tmp = [dtstart]
@@ -2867,24 +2911,24 @@ def relevant():
 
         if item['itemtype'] == '-' and 'f' not in item and relevant < today:
             # print('pastdue', item)
-            pastdue.append([item.doc_id, relevant - today])
-        elif 'b' in item and relevant > today and relevant - int(item['b']) * DAY <= today:
-            beginby.append([item.doc_id, relevant - today]) 
-        if 'a' in item:
-            # alerts
-            for alert in  item['a']:
-                tds = alert[0]
-                cmd = alert[1]
-                args = alert[2:]
-                for td in tds:
-                    alert_time = relevant - td
-                    if alert_time >= today and alert_time <= tomorrow:
-                        alerts.append([item.doc_id, alert_time, cmd, args])
+            pastdue.append([item.doc_id, (relevant - today).days])
+        # elif 'b' in item and relevant > today and relevant - int(item['b']) * DAY <= today:
+        #     beginbys.append([item.doc_id, relevant - today]) 
+        # if 'a' in item:
+        #     # alerts
+        #     for alert in  item['a']:
+        #         tds = alert[0]
+        #         cmd = alert[1]
+        #         args = alert[2:]
+        #         for td in tds:
+        #             alert_time = relevant - td
+        #             if alert_time >= today and alert_time <= tomorrow:
+        #                 alerts.append([item.doc_id, alert_time, cmd, args])
 
-    print(id2relevant) 
+    # print(id2relevant) 
     print("\ninbox", inbox)
     print("\npastdue", pastdue)
-    print("\nbeginby", beginby)
+    print("\nbeginbys", beginbys)
     print("\nalerts", alerts)
     return 
 
@@ -2993,6 +3037,8 @@ def import_json(etmdir=None):
             for alert in item_hsh['a']:
                 # drop the True from parse_duration
                 tds = [parse_duration(x)[1] for x in alert[0]]
+                # put the largest duration first
+                tds.sort(reverse=True)
                 cmds = alert[1:2]
                 args = ""
                 if len(alert) > 2 and alert[2]:
