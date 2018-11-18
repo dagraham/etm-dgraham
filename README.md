@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Thu Nov 15, 2018 03:03PM EST**
+**Last modified: Fri Nov 16, 2018 08:46PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -578,10 +578,10 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |  ----+-------------------------------------------------  |  3
         |   31 |   31      1      2      3      4      5      6    |  4
         |      |         _#_#                                      |  5
-        |      |                  ─                                |  6
-        |   32 |    7      8     │9│    10     11     12     13    |  7
-        |      |                  ─                                |  8
-        |      |                         -                         |  9
+        |      |                                                   |  6
+        |   32 |    7      8      9     10     11     12     13    |  7
+        |      |                                                   |  8
+        |      |                                                   |  9
         |   33 |   14     15     16     17     18     19     20    | 10
         |      |                                                   | 11
         |      |                                                   | 12

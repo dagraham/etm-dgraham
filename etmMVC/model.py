@@ -2730,12 +2730,9 @@ def relevant():
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
     """
-    # now = pendulum.now('local').replace(tzinfo='Factory')
-    today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo='Factory')
+    # These need to be local times since all times from the datastore and rrule will be local times
+    today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0)
     tomorrow = today + DAY
-    # week_beg = today.subtract(days=today.day_of_week - 1)
-    # aft_dt = week_beg.subtract(weeks=weeks_bef)
-    # bef_dt = week_beg.add(weeks=weeks_aft + 1)
 
     id2relevant = {}
     inbox = []
@@ -2783,8 +2780,6 @@ def relevant():
 
             if has_b:
                 days = int(item['b']) * DAY
-                # today + DAY <= startdt <= tomorrow + days
-                # instance_interval.append([tomorrow, today + days])
                 all_tds.extend([DAY, days])
                 possible_beginby = days
 
@@ -2798,7 +2793,6 @@ def relevant():
 
                     for td in tds:
                         # td > 0m => earlier than startdt; dt < 0m => later than startdt
-                        # beg_dt <= startdt <= end_dt => alert today
                         possible_alerts.append([td, cmd, args])
             # this catches all alerts and beginbys for the item
             if all_tds:
@@ -2862,8 +2856,8 @@ def relevant():
                     if possible_alerts:
                         for instance in instances:
                             for possible_alert in possible_alerts:
-                                if today + possible_alert[0] <= instance <= tomorrow + possible_alert[0]:
-                                    alerts.append([item.doc_id, instance - possible_alert[0], possible_alert[1], possible_alert[2]])
+                                if today <= instance - possible_alert[0] <= tomorrow:
+                                    alerts.append([item.doc_id, instance - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2]])
 
 
             elif '+' in item:
@@ -2926,6 +2920,7 @@ def relevant():
         #                 alerts.append([item.doc_id, alert_time, cmd, args])
 
     # print(id2relevant) 
+    print('today:', today, "tomorrow:", tomorrow)
     print("\ninbox", inbox)
     print("\npastdue", pastdue)
     print("\nbeginbys", beginbys)
