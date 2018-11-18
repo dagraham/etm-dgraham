@@ -2871,9 +2871,27 @@ def relevant():
                 else:
                     bef = [x for x in tmp if x < today]
                     relevant = bef[-1]
+
+                if possible_beginby:
+                    for instance in aft:
+                        if today + DAY <= instance <= tomorrow + possible_beginby:
+                            beginbys.append([item.doc_id, (instance - today).days])
+                if possible_alerts:
+                    for instance in aft + bef:
+                        for possible_alert in possible_alerts:
+                            if today <= instance - possible_alert[0] <= tomorrow:
+                                alerts.append([item.doc_id, instance - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2]])
+
             else:
                 # 's' but not 'r' or '+'
                 relevant = dtstart
+                if possible_beginby:
+                    if today + DAY <= dtstart <= tomorrow + possible_beginby:
+                        beginbys.append([item.doc_id, (instance - today).days])
+                if possible_alerts:
+                    for possible_alert in possible_alerts:
+                        if today <= dtstart - possible_alert[0] <= tomorrow:
+                            alerts.append([item.doc_id, dtstart - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2]])
         else:
             # no 's'
             relevant = None
