@@ -2731,7 +2731,8 @@ def relevant():
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
     """
     # These need to be local times since all times from the datastore and rrule will be local times
-    today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0)
+    now = pendulum.now('local')
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     tomorrow = today + DAY
 
     id2relevant = {}
@@ -2783,6 +2784,7 @@ def relevant():
                 all_tds.extend([DAY, days])
                 possible_beginby = days
 
+
             if has_a:
                 # alerts
                 for alert in  item['a']:
@@ -2794,6 +2796,8 @@ def relevant():
                     for td in tds:
                         # td > 0m => earlier than startdt; dt < 0m => later than startdt
                         possible_alerts.append([td, cmd, args])
+
+
             # this catches all alerts and beginbys for the item
             if all_tds:
                 instance_interval = [today + min(all_tds), tomorrow + max(all_tds)]
@@ -2852,12 +2856,12 @@ def relevant():
                     if possible_beginby:
                         for instance in instances:
                             if today + DAY <= instance <= tomorrow + possible_beginby:
-                                beginbys.append([item.doc_id, (instance - today).days])
+                                beginbys.append([(instance - today).days, item['summary'], item.doc_id])
                     if possible_alerts:
                         for instance in instances:
                             for possible_alert in possible_alerts:
                                 if today <= instance - possible_alert[0] <= tomorrow:
-                                    alerts.append([item.doc_id, instance - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2]])
+                                    alerts.append([instance - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2], item['summary'], item.doc_id])
 
 
             elif '+' in item:
@@ -2875,46 +2879,63 @@ def relevant():
                 if possible_beginby:
                     for instance in aft:
                         if today + DAY <= instance <= tomorrow + possible_beginby:
-                            beginbys.append([item.doc_id, (instance - today).days])
+                            beginbys.append([(instance - today).days, item['summary'], item.doc_id])
                 if possible_alerts:
                     for instance in aft + bef:
                         for possible_alert in possible_alerts:
                             if today <= instance - possible_alert[0] <= tomorrow:
-                                alerts.append([item.doc_id, instance - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2]])
+                                alerts.append([instance - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2], item['summary]'], item.doc_id])
 
             else:
                 # 's' but not 'r' or '+'
                 relevant = dtstart
                 if possible_beginby:
                     if today + DAY <= dtstart <= tomorrow + possible_beginby:
-                        beginbys.append([item.doc_id, (instance - today).days])
+                        beginbys.append([(instance - today).days, item['summary'],  item.doc_id])
                 if possible_alerts:
                     for possible_alert in possible_alerts:
                         if today <= dtstart - possible_alert[0] <= tomorrow:
-                            alerts.append([item.doc_id, dtstart - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2]])
+                            alerts.append([dtstart - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2], item['summary'], item.doc_id])
         else:
             # no 's'
             relevant = None
 
 
-        if relevant: 
+        if not relevant:
+            continue
+        else:
             try:
                 relevant = pendulum.instance(relevant)
             except Exception as e:
                 print(repr(e))
                 print('relevant:', relevant, startdst)
-        else:
-            continue
+                continue
 
-        # if item['itemtype'] == '-' and 'j' in item:
-        #     # jobs
-        #     items = []
-        #     job_id = 0
-        #     for job in item['j']:
-        #         job['id'] = "{}:{}".format(item.doc_id, job_id)
-        #         job_id += 1
-        #         if 's' in job:
-        #             job['s'] = 
+        if 'j' in item and 'f' not in item:
+            # jobs only for the relevant instance of unfinished tasks
+            items = []
+            job_id = 0
+            for job in item['j']:
+                job_id += 1
+                if 'f' in job:
+                    continue
+                # adjust job starting time if 's' in job
+                jobstart = relevant - job.get('s', ZERO)
+                if jobstart < today:
+                    pastdue.append([(jobstart - today).days, job['summary'], item.doc_id, job_id])
+                if 'b' in job:
+                    days = int(job['b'] * DAY)
+                    if today + DAY <= jobstart <= tomorrow + days:
+                        beginbys.append([(jobstart - today).days, job['summary'], item.item_id, job_id])
+                if 'a' in job:
+                    for alert in job['a']:
+                        for td in alert[0]:
+                            if today <= jobstart - td <= tomorrow:
+                                alerts.append([dtstart - td, td, alert[1], alert[2], job['summary'], item.doc_id, job_id])
+
+
+
+
 
 
 
@@ -2922,20 +2943,8 @@ def relevant():
         id2relevant[item.doc_id] = relevant
 
         if item['itemtype'] == '-' and 'f' not in item and relevant < today:
-            # print('pastdue', item)
-            pastdue.append([item.doc_id, (relevant - today).days])
-        # elif 'b' in item and relevant > today and relevant - int(item['b']) * DAY <= today:
-        #     beginbys.append([item.doc_id, relevant - today]) 
-        # if 'a' in item:
-        #     # alerts
-        #     for alert in  item['a']:
-        #         tds = alert[0]
-        #         cmd = alert[1]
-        #         args = alert[2:]
-        #         for td in tds:
-        #             alert_time = relevant - td
-        #             if alert_time >= today and alert_time <= tomorrow:
-        #                 alerts.append([item.doc_id, alert_time, cmd, args])
+            pastdue.append([(relevant - today).days, item['summary'], item.doc_id])
+
 
     # print(id2relevant) 
     print('today:', today, "tomorrow:", tomorrow)

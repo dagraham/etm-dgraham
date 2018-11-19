@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Fri Nov 16, 2018 08:46PM EST**
+**Last modified: Mon Nov 19, 2018 02:49PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -104,6 +104,7 @@ Corresponds to VTODO in the vcalendar specification.
                 @j job B 
 
         Beginning soon notices would begin on Jan 15 for job A (due Jan 25) and on January 20 for job B (due Jan 30).
+	- Job alerts and beginbys are only triggered for unfinished jobs and, in repeating tasks, only for the instance of the task that is currently due.
     - Prerequisites
         - Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
 
