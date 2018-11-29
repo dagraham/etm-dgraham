@@ -2970,7 +2970,7 @@ def update_db(id, hsh):
             print(id, "old:", old, "\n", "new:", hsh, '\n')
 
 
-def schedule(weeks_bef=1, weeks_aft=2):
+def schedule(weeks_bef=1, weeks_aft=2, select=False):
     today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo='Factory')
     week_beg = today.subtract(days=today.day_of_week - 1)
     aft_dt = week_beg.subtract(weeks=weeks_bef)
@@ -2982,7 +2982,6 @@ def schedule(weeks_bef=1, weeks_aft=2):
             continue
         for dt, et in item_instances(item, aft_dt, bef_dt):
             rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else ""
-
             rows.append(
                     {
                         'id': item.doc_id,
@@ -2994,15 +2993,22 @@ def schedule(weeks_bef=1, weeks_aft=2):
                         'day': (
                             dt.format("ddd MMM D"),
                             ),
-                        'columns': (
-                            f"{item['itemtype']} {item['summary']}", 
+                        'columns': [item['itemtype'],
+                            item['summary'], 
                             rhc
-                            )
+                            ]
                     }
                     )
     from operator import itemgetter
     from itertools import groupby
     rows.sort(key=itemgetter('sort'))
+
+    selection_number = 0
+    selection2id ={}
+    for row in rows:
+        selection_number += 1
+        row['columns'].append(selection_number)
+        selection2id[selection_number] = row['id']
 
     for week, items in groupby(rows, key=itemgetter('week')):
         wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}", strict=False).date().format("MMM D")
@@ -3013,8 +3019,14 @@ def schedule(weeks_bef=1, weeks_aft=2):
             for d in day:
                 print(" ", d)
                 for i in columns:
-                    space = " "*(60 - len(i['columns'][0]) - len(i['columns'][1]))
-                    print(f"    {i['columns'][0]}{space}{i['columns'][1]}" )
+                    if select:
+                        num = str(i['columns'][3])
+                        space = " "*(60 - len(i['columns'][1]) - len(i['columns'][2]) - len(num) - 3 - 2)
+                        print(f"    {i['columns'][0]} [{i['columns'][3]}] {i['columns'][1]}{space}{i['columns'][2]}" )
+                    else:
+                        space = " "*(60 - len(i['columns'][1]) - len(i['columns'][2]) - 2)
+                        print(f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}" )
+
 
 def import_json(etmdir=None):
     import json
@@ -3142,7 +3154,6 @@ def import_json(etmdir=None):
 
 if __name__ == '__main__':
     import sys
-    print('\n\n')
     import doctest
     etmdir = ''
     if len(sys.argv) > 1:
@@ -3155,7 +3166,9 @@ if __name__ == '__main__':
         if 'p' in sys.argv[1]:
             print_json()
         if 's' in sys.argv[1]:
-            schedule(1, 4)
+            schedule(0, 0, False)
+        if 'S' in sys.argv[1]:
+            schedule(0, 0, True)
         if 'r' in sys.argv[1]:
             relevant()
 

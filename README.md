@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Nov 20, 2018 10:12PM EST**
+**Last modified: Wed Nov 28, 2018 01:47PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -454,6 +454,43 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         | Sat Jan 20                                                 | 10 
         |   * Duke vs Pitt                                  4-6pm    | 11
         |   * Dinner                                        7-9pm    | 12
+        |                                                            | 13
+        |                                                            | 14
+        |                                                            | 15
+        |                                                            | 16
+        |                                                            | 17 
+        |                                                            | 18
+        |                                                            | 19
+        |                                                            | 20
+        |                                                            | 21
+        |                                                            | 22
+        |                                                            | 23
+        |                                                            | 24
+        |                                                            | 25
+        |                                                            | 26
+        |                                                            | 27
+        |                                                            | 28
+        |                                                            | 29
+        +------------------------ status bar ------------------------+ 
+        | 8:49am Thu Jan 18                                10:30am+1 | 30
+        +------------------------------------------------------------+
+
+- Selection mode: labels showing
+
+        +------------------------- top bar --------------------------+  
+        | Agenda - Week 3: Jan 15 - 21, 2018                 F1:help |  1
+        +------------------------------------------------------------+ 
+        | Mon Jan 15                                                 |  2
+        |   * [1] Martin Luther King Day                             |  3
+        |   * [2] Lunch with Joe                        12:30-1:30pm |  4
+        |   - [3] Revise 1st quarter schedule             3pm  1h    |  5
+        | Thu Jan 18 - Today                                         |  6
+        |   < [4] Revise 1st quarter schedule                3d      |  7
+        |   > [5] Duke vs Pitt                               2d      |  8
+        |   * [6] Conference call                        11:30am-1pm |  9
+        | Sat Jan 20                                                 | 10 
+        |   * [7] Duke vs Pitt                              4-6pm    | 11
+        |   * [8] Dinner                                    7-9pm    | 12
         |                                                            | 13
         |                                                            | 14
         |                                                            | 15
