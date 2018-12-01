@@ -959,6 +959,47 @@ class TimeIt(object):
             logger.warn(msg)
 
 
+class WeekView(object):
+
+    def __init__(self, loglevel=1):
+        self.activeView = 'agenda'  # (other views: busy, done)
+        # self.activeYrWk = self.currentYrWk = None
+        self.currYrWk()
+        self.inbox = []
+        self.alerts = []
+        self.beginbys = []
+        self.pastdues = []
+        self.agenda_view = ""
+        self.agenda_select = ""
+        self.refreshAgenda()
+        self.refreshRelevant()
+
+    def nextYrWk(self):
+        self.activeYrWk = nextWeek(self.activeYrWk) 
+        self.refreshAgenda()
+
+    def prevYrWk(self):
+        self.activeYrWk = prevWeek(self.activeYrWk) 
+        self.refreshAgenda()
+
+    def currYrWk(self):
+        """Set the active week to one containing today."""
+        self.currentYrWk = self.activeYrWk = getWeekNum()
+        self.refreshAgenda()
+
+    def dtYrWk(self, dt):
+        self.activeYrWk = getWeekNum(dt)
+        self.refreshAgenda()
+
+    def refreshRelevant(self):
+        """
+        Called to set the relevant items for the current date.
+        """
+        pass
+
+    def refreshAgenda(self):
+        self.agenda_view, self.agenda_select, self.section2id = schedule(self.activeYrWk)
+
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
     """
@@ -2557,7 +2598,7 @@ def iso_to_gregorian(ywd):
     return year_start + pendulum.duration(days=ywd[2]-1, weeks=ywd[1]-1)
 
 
-def getWeekNum(dt):
+def getWeekNum(dt=pendulum.now()):
     """
     Return the year and week number for the datetime.
     >>> getWeekNum(pendulum.datetime(2018, 2, 14, 10, 30))
@@ -2891,7 +2932,7 @@ def relevant():
                 relevant = dtstart
                 if possible_beginby:
                     if today + DAY <= dtstart <= tomorrow + possible_beginby:
-                        beginbys.append([(instance - today).days, item['summary'],  item.doc_id])
+                        beginbys.append([(relevant - today).days, item['summary'],  item.doc_id])
                 if possible_alerts:
                     for possible_alert in possible_alerts:
                         if today <= dtstart - possible_alert[0] <= tomorrow:
@@ -2933,13 +2974,6 @@ def relevant():
                             if today <= jobstart - td <= tomorrow:
                                 alerts.append([dtstart - td, td, alert[1], alert[2], job['summary'], item.doc_id, job_id])
 
-
-
-
-
-
-
-
         id2relevant[item.doc_id] = relevant
 
         if item['itemtype'] == '-' and 'f' not in item and relevant < today:
@@ -2947,12 +2981,12 @@ def relevant():
 
 
     # print(id2relevant) 
-    print('today:', today, "tomorrow:", tomorrow)
+    # print('today:', today, "tomorrow:", tomorrow)
     print("\ninbox", inbox)
     print("\npastdue", pastdue)
     print("\nbeginbys", beginbys)
     print("\nalerts", alerts)
-    return 
+    return inbox, pastdue, beginbys, alerts 
 
 
 def update_db(id, hsh):
@@ -2970,11 +3004,13 @@ def update_db(id, hsh):
             print(id, "old:", old, "\n", "new:", hsh, '\n')
 
 
-def schedule(weeks_bef=1, weeks_aft=2, select=False):
+def schedule(yw=getWeekNum()):
+    # wkbeg = 0 hours on the Monday of yw
+    # print('yw', yw)
+    aft_dt = wkbeg = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
+    # wkend = 0 hours on the Monday of the following week
+    bef_dt = wkend = wkbeg.add(days=7)
     today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo='Factory')
-    week_beg = today.subtract(days=today.day_of_week - 1)
-    aft_dt = week_beg.subtract(weeks=weeks_bef)
-    bef_dt = week_beg.add(weeks=weeks_aft + 1)
 
     rows = []
     for item in ETMDB:
@@ -2985,6 +3021,7 @@ def schedule(weeks_bef=1, weeks_aft=2, select=False):
             rows.append(
                     {
                         'id': item.doc_id,
+                        # FIXME: add itemtype sort code to sort 
                         'sort': dt.format("YYYYMMDDHHmm"),
                         'week': (
                             dt.year, 
@@ -3005,6 +3042,8 @@ def schedule(weeks_bef=1, weeks_aft=2, select=False):
 
     selection_number = 0
     selection2id ={}
+    out_view = []
+    out_sel = []
     for row in rows:
         selection_number += 1
         row['columns'].append(selection_number)
@@ -3014,18 +3053,23 @@ def schedule(weeks_bef=1, weeks_aft=2, select=False):
         wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}", strict=False).date().format("MMM D")
         wkend = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}7", strict=False).date().format("MMM D")
 
-        print(f"{week[0]} Week {week[1]}: {wkbeg} - {wkend}")
+        tmp = f"{week[0]} Week {week[1]}: {wkbeg} - {wkend}"
+        out_view.append(tmp)
+        out_sel.append(tmp)
         for day, columns in groupby(items, key=itemgetter('day')):
             for d in day:
-                print(" ", d)
+                tmp = f" {d}"
+                out_view.append(tmp)
+                out_sel.append(tmp)
                 for i in columns:
-                    if select:
-                        num = str(i['columns'][3])
-                        space = " "*(60 - len(i['columns'][1]) - len(i['columns'][2]) - len(num) - 3 - 2)
-                        print(f"    {i['columns'][0]} [{i['columns'][3]}] {i['columns'][1]}{space}{i['columns'][2]}" )
-                    else:
-                        space = " "*(60 - len(i['columns'][1]) - len(i['columns'][2]) - 2)
-                        print(f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}" )
+                    num = str(i['columns'][3])
+                    space = " "*(60 - len(i['columns'][1]) - len(i['columns'][2]) - len(num) - 3 - 2)
+                    tmp = f"    {i['columns'][0]} [{i['columns'][3]}] {i['columns'][1]}{space}{i['columns'][2]}" 
+                    out_sel.append(tmp)
+                    space = " "*(60 - len(i['columns'][1]) - len(i['columns'][2]) - 2)
+                    tmp = f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}" 
+                    out_view.append(tmp)
+        return "\n".join(out_view), "\n".join(out_sel), selection2id
 
 
 def import_json(etmdir=None):
@@ -3166,11 +3210,29 @@ if __name__ == '__main__':
         if 'p' in sys.argv[1]:
             print_json()
         if 's' in sys.argv[1]:
-            schedule(0, 0, False)
-        if 'S' in sys.argv[1]:
-            schedule(0, 0, True)
+            v, s, h =schedule()
+            print(v)
+            print()
+            print(s)
+            print()
+            print(h)
         if 'r' in sys.argv[1]:
             relevant()
+        if 'v' in sys.argv[1]:
+            weekview = WeekView()
+            print(weekview.agenda_view)
+            weekview.nextYrWk()
+            print(weekview.agenda_view)
+            weekview.nextYrWk()
+            print(weekview.agenda_select)
+            weekview.currYrWk()
+            print(weekview.agenda_select)
+            weekview.prevYrWk()
+            print(weekview.agenda_view)
+
+
+
+
 
     doctest.testmod()
 
