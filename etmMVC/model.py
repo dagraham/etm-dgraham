@@ -964,15 +964,11 @@ class WeekView(object):
     def __init__(self, loglevel=1):
         self.activeView = 'agenda'  # (other views: busy, done)
         # self.activeYrWk = self.currentYrWk = None
-        self.currYrWk()
-        self.inbox = []
-        self.alerts = []
-        self.beginbys = []
-        self.pastdues = []
+        self.current = []
         self.agenda_view = ""
         self.agenda_select = ""
-        self.refreshAgenda()
         self.refreshRelevant()
+        self.currYrWk()
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk) 
@@ -995,10 +991,10 @@ class WeekView(object):
         """
         Called to set the relevant items for the current date.
         """
-        pass
+        self.current, self.alerts = relevant()
 
     def refreshAgenda(self):
-        self.agenda_view, self.agenda_select, self.section2id = schedule(self.activeYrWk)
+        self.agenda_view, self.agenda_select, self.section2id = schedule(self.activeYrWk, self.current)
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
@@ -2775,6 +2771,7 @@ def relevant():
     now = pendulum.now('local')
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     tomorrow = today + DAY
+    today_fmt = today.format("YYYYMMDD")
 
     id2relevant = {}
     inbox = []
@@ -2782,6 +2779,7 @@ def relevant():
     pastdue = []
     beginbys = []
     alerts = []
+    current = []
 
     for item in ETMDB:
         instance_interval = [] 
@@ -2789,19 +2787,20 @@ def relevant():
         possible_alerts = []
         all_tds = []
         if item['itemtype'] == '!':
-            inbox.append(item.doc_id)
+            inbox.append([0, item['summary'], item.doc_id])
             id2relevant[item.doc_id] = today
             # no pastdues, beginbys or alerts]
             continue
         if item['itemtype'] == '-' and 'f' in item:
-            done.append([item.doc_id, item['f']])
-            id2relevant[item.doc_id] = item['f'] # the last completion
-            if 'h' in item:
-                # the history will be limited to the n most recent completions
-                for dt in item['h']:
-                    done. append([item.doc_id, dt])
-            # no pastdues, beginbys or alerts
+            # no pastdues, beginbys or alerts for finished tasks
             continue
+            # This should be in schedule
+            # done.append([item.doc_id, item['f']])
+            # id2relevant[item.doc_id] = item['f'] # the last completion
+            # if 'h' in item:
+            #     # the history will be limited to the n most recent completions
+            #     for dt in item['h']:
+            #         done. append([item.doc_id, dt])
 
         if 's' in item:
             dtstart = item['s'] 
@@ -2954,7 +2953,6 @@ def relevant():
 
         if 'j' in item and 'f' not in item:
             # jobs only for the relevant instance of unfinished tasks
-            items = []
             job_id = 0
             for job in item['j']:
                 job_id += 1
@@ -2982,11 +2980,31 @@ def relevant():
 
     # print(id2relevant) 
     # print('today:', today, "tomorrow:", tomorrow)
-    print("\ninbox", inbox)
-    print("\npastdue", pastdue)
-    print("\nbeginbys", beginbys)
-    print("\nalerts", alerts)
-    return inbox, pastdue, beginbys, alerts 
+    inbox.sort()
+    pastdue.sort()
+    beginbys.sort()
+    alerts.sort()
+    week = (today.year, today.week_of_year)
+    day = (today.format("ddd MMM D"), )
+    for item in inbox:
+        current.append({'id': item[0], 'sort': (today_fmt, 0), 'week': week, 'day': day, 'columns': ['!', item[1], '']})
+
+    for item in pastdue:
+        # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
+        rhc = str(item[0]) + " "*7 if item[0] in item else ""
+        current.append({'id': item[2], 'sort': (today_fmt, 1, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], rhc]})
+
+    for item in beginbys:
+        # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
+        rhc = str(item[0]) + " "*7 if item[0] in item else ""
+        current.append({'id': item[2], 'sort': (today_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], rhc]})
+
+    # print("\ninbox", inbox)
+    # print("\npastdue", pastdue)
+    # print("\nbeginbys", beginbys)
+    # print("\ncurrent", current)
+    # print("\nalerts", alerts)
+    return current, alerts 
 
 
 def update_db(id, hsh):
@@ -3004,17 +3022,16 @@ def update_db(id, hsh):
             print(id, "old:", old, "\n", "new:", hsh, '\n')
 
 
-def schedule(yw=getWeekNum()):
-    # wkbeg = 0 hours on the Monday of yw
-    # print('yw', yw)
-    aft_dt = wkbeg = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
-    # wkend = 0 hours on the Monday of the following week
-    bef_dt = wkend = wkbeg.add(days=7)
-    today = pendulum.now('local').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo='Factory')
+def schedule(yw=getWeekNum(), current={}):
+    # aft_dt = 0 hours on the Monday of week
+    aft_dt = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
+    # bef_dt = 0 hours on the Monday of the following week
+    bef_dt = aft_dt.add(days=7)
+
 
     rows = []
     for item in ETMDB:
-        if item['itemtype'] in "!?" or 's' not in item:
+        if item['itemtype'] in "!?" or ('s' not in item and 'f' not in item):
             continue
         for dt, et in item_instances(item, aft_dt, bef_dt):
             rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else ""
@@ -3022,7 +3039,7 @@ def schedule(yw=getWeekNum()):
                     {
                         'id': item.doc_id,
                         # FIXME: add itemtype sort code to sort 
-                        'sort': dt.format("YYYYMMDDHHmm"),
+                        'sort': (dt.format("YYYYMMDDHHmm"), ),
                         'week': (
                             dt.year, 
                             dt.week_of_year, 
@@ -3036,6 +3053,8 @@ def schedule(yw=getWeekNum()):
                             ]
                     }
                     )
+    if yw == getWeekNum():
+        rows.extend(current)
     from operator import itemgetter
     from itertools import groupby
     rows.sort(key=itemgetter('sort'))
@@ -3063,10 +3082,10 @@ def schedule(yw=getWeekNum()):
                 out_sel.append(tmp)
                 for i in columns:
                     num = str(i['columns'][3])
-                    space = " "*(60 - len(i['columns'][1]) - len(i['columns'][2]) - len(num) - 3 - 2)
+                    space = " "*(60 - len(str(i['columns'][1])) - len(str(i['columns'][2])) - len(num) - 3 - 2)
                     tmp = f"    {i['columns'][0]} [{i['columns'][3]}] {i['columns'][1]}{space}{i['columns'][2]}" 
                     out_sel.append(tmp)
-                    space = " "*(60 - len(i['columns'][1]) - len(i['columns'][2]) - 2)
+                    space = " "*(60 - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
                     tmp = f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}" 
                     out_view.append(tmp)
         return "\n".join(out_view), "\n".join(out_sel), selection2id
@@ -3210,23 +3229,34 @@ if __name__ == '__main__':
         if 'p' in sys.argv[1]:
             print_json()
         if 's' in sys.argv[1]:
-            v, s, h =schedule()
-            print(v)
-            print()
-            print(s)
-            print()
-            print(h)
+            weekview = WeekView()
+            print(weekview.agenda_view)
+        if 'S' in sys.argv[1]:
+            weekview = WeekView()
+            print(weekview.agenda_select)
+            # v, s, h =schedule()
+            # print(v)
+            # print()
+            # print(s)
+            # print()
+            # print(h)
         if 'r' in sys.argv[1]:
-            relevant()
+            current, alerts = relevant()
+            pprint(current)
+            pprint(alerts)
         if 'v' in sys.argv[1]:
             weekview = WeekView()
             print(weekview.agenda_view)
+            print()
             weekview.nextYrWk()
             print(weekview.agenda_view)
+            print()
             weekview.nextYrWk()
             print(weekview.agenda_select)
+            print()
             weekview.currYrWk()
             print(weekview.agenda_select)
+            print()
             weekview.prevYrWk()
             print(weekview.agenda_view)
 
