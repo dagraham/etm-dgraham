@@ -61,7 +61,7 @@ WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for 
 for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
     WKDAYS_ENCODE[wkd] = wkd
 
-# display characters 
+# FIXME: display characters 
 datedChar2Type = {
     '!': "ib",
     '*': "ev",
@@ -2690,6 +2690,11 @@ def fmt_extent(beg_dt, end_dt):
 
     return f"{beg_fmt}{beg_suffix}-{end_fmt}{end_suffix}"
 
+def fmt_time(dt):
+    suffix = dt.format("A").lower() if ampm else ""
+    dt_fmt = drop_zero_minutes(dt)
+    return f"{dt_fmt}{suffix}"
+
 
 def beg_ends(starting_dt, extent_duration, z=None):
     """
@@ -3031,15 +3036,62 @@ def schedule(yw=getWeekNum(), current={}):
 
     rows = []
     for item in ETMDB:
-        if item['itemtype'] in "!?" or ('s' not in item and 'f' not in item):
+        if item['itemtype'] in "!?":
             continue
+
+        if item['itemtype'] == '-':
+            done = []
+            if 'f' in item:
+                done.append([item['f'], item['summary'], item.doc_id, 0])
+            if 'h' in item:
+                for dt in item['h']:
+                    done.append([dt, item['summary'], item.doc_id, 0])
+            if 'j' in item:
+                j = 0
+                for job in item['j']:
+                    j += 1
+                    if 'f' in job:
+                        done.append([job['f'], job['summary'], item.doc_id, j])
+            if done:
+                # FIXME: h and f timestamps in datastore may not be UTC times
+                for row in done:
+                    dt = row[0] 
+                    if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
+                        dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
+                        dt.set(hour=23, minute=59, second=59)
+                        rhc = ''
+                    else:
+                        rhc = fmt_time(dt).center(16, ' ') 
+
+                    if dt < aft_dt or dt > bef_dt:
+                        continue
+                    rows.append(
+                            {
+                                'id': row[2:],
+                                'sort': (dt.format("YYYYMMDDHHmm"), 1),
+                                'week': (
+                                    dt.year, 
+                                    dt.week_of_year, 
+                                    ),
+                                'day': (
+                                    dt.format("ddd MMM D"),
+                                    ),
+                                'columns': [finished_char,
+                                    row[1], 
+                                    rhc
+                                    ]
+                            }
+                            )
+
+        if 's' not in item or 'f' in item:
+            continue
+
         for dt, et in item_instances(item, aft_dt, bef_dt):
             rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else ""
             rows.append(
                     {
                         'id': item.doc_id,
-                        # FIXME: add itemtype sort code to sort 
-                        'sort': (dt.format("YYYYMMDDHHmm"), ),
+                        'sort': (dt.format("YYYYMMDDHHmm"), 0),
                         'week': (
                             dt.year, 
                             dt.week_of_year, 
@@ -3123,6 +3175,7 @@ def import_json(etmdir=None):
             item_hsh['f'] = pen_from_fmt(item_hsh['f'], z)
         if 'h' in item_hsh:
             item_hsh['h'] = [pen_from_fmt(x, z) for x in item_hsh['h']]
+            print(item_hsh['summary'], z, item_hsh['h'])
         if '+' in item_hsh:
             item_hsh['+'] = [pen_from_fmt(x, z) for x in item_hsh['+'] ]
         if '-' in item_hsh:
