@@ -1028,7 +1028,13 @@ class WeekView(object):
         self.current, self.alerts = relevant()
 
     def refreshAgenda(self):
-        self.agenda_view, self.agenda_select, self.section2id = schedule(self.activeYrWk, self.current, self.weeks)
+        self.agenda_view, self.agenda_select, self.num2id = schedule(self.activeYrWk, self.current, self.weeks)
+
+    def show_details(self, num):
+        item_id = self.num2id.get(num, None)
+        if item_id is not None:
+            item = ETMDB.get(doc_id=item_id)
+            print(item_details(item))
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
@@ -2770,7 +2776,6 @@ def item_details(item):
         print('item_details', e)
         print(item)
 
-
 def fmt_week(dt_obj):
     """
     >>> d = parse('2018-03-06 9:30pm', tz='US/Eastern')
@@ -3067,6 +3072,7 @@ def update_db(id, hsh):
 
 
 def schedule(yw=getWeekNum(), current=[], weeks=1):
+    width = 56
     # aft_dt = 0 hours on the Monday of week
     aft_dt = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
     # bef_dt = 0 hours on the Monday of the following week
@@ -3153,7 +3159,7 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
     from operator import itemgetter
     from itertools import groupby
     rows.sort(key=itemgetter('sort'))
-    pprint(rows)
+    # pprint(rows)
 
     selection_number = 0
     selection2id ={}
@@ -3167,7 +3173,7 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
     for week, items in groupby(rows, key=itemgetter('week')):
         week_beg = pendulum.parse(f"{week[0]}-W{str(week[1]).rjust(2, '0')}")
         # week_beg = pendulum.parse("{}-W{}".format(week[0], week[1]))
-        tmp = "\n{}\n".format(fmt_week(week_beg)) 
+        tmp = "{}\n".format(fmt_week(week_beg)) 
         out_view.append(('class:plain', tmp))
         out_sel.append(('class:plain', tmp))
         for day, columns in groupby(items, key=itemgetter('day')):
@@ -3179,10 +3185,10 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
                 out_sel.append(('class:plain', tmp))
                 for i in columns:
                     num = str(i['columns'][3])
-                    space = " "*(60 - len(str(i['columns'][1])) - len(str(i['columns'][2])) - len(num) - 3 - 2)
+                    space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - len(num) - 3 - 2)
                     tmp = f"    {i['columns'][0]} [{i['columns'][3]}] {i['columns'][1]}{space}{i['columns'][2]}\n" 
                     out_sel.append((type2style[i['columns'][0]], tmp))
-                    space = " "*(60 - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
+                    space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
                     tmp = f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}\n" 
                     out_view.append((type2style[i['columns'][0]], tmp))
     return FormattedText(out_view), FormattedText(out_sel), selection2id
@@ -3331,12 +3337,8 @@ if __name__ == '__main__':
         if 'S' in sys.argv[1]:
             weekview = WeekView()
             print_formatted_text(weekview.agenda_select, style=style)
-            # v, s, h =schedule()
-            # print(v)
-            # print()
-            # print(s)
-            # print()
-            # print(h)
+            print()
+            print(weekview.num2id)
         if 'r' in sys.argv[1]:
             current, alerts = relevant()
             pprint(current)
@@ -3345,12 +3347,7 @@ if __name__ == '__main__':
             weekview = WeekView(dtstr="2018/12/25", weeks=2)
             # weekview.prevYrWk()
             print_formatted_text(weekview.agenda_view, style=style)
-            print()
-            # weekview.currYrWk()
-            # print_formatted_text(weekview.agenda_view, style=style)
-            # print()
-            # weekview.nextYrWk()
-            # print_formatted_text(weekview.agenda_view, style=style)
+            weekview.show_details(3)
         if 'V' in sys.argv[1]:
             weekview = WeekView()
             nyeve = pendulum.datetime(2018, 12, 31, 9, 0)
