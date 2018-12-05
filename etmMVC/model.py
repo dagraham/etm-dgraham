@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 from pprint import pprint
 import pendulum
 from pendulum import parse as pendulum_parse
@@ -37,12 +36,43 @@ import textwrap
 import os
 import platform
 
-import textwrap
 import shutil
 
 import logging
 import logging.config
 logger = logging.getLogger()
+
+
+from prompt_toolkit import print_formatted_text
+from prompt_toolkit.formatted_text import FormattedText
+from prompt_toolkit.styles import Style
+from prompt_toolkit.output import ColorDepth
+# print = print_formatted_text
+
+# The style sheet.
+style = Style.from_dict({
+    'plain':        '#fffafa',
+    'selection':    '#fffafa',
+    'inbox':        '#ff00ff',
+    'pastdue':      '#87ceeb',
+    'begin':        '#ffff00',
+    'record':       '#daa520',
+    'event':        '#90ee90',
+    'available':    '#1e90ff',
+    'waiting':      '#6495ed',
+    'finished':     '#191970',
+})
+
+type2style = {
+        '!': 'class:inbox',
+        '<': 'class:pastdue',
+        '>': 'class:begin',
+        '%': 'class:record',
+        '*': 'class:event',
+        '-': 'class:available',
+        '+': 'class:waiting',
+        '✓': 'class:finished',
+        }
 
 etmdir = None
 
@@ -2601,6 +2631,8 @@ def getWeekNum(dt=pendulum.now()):
     (2018, 7)
     >>> getWeekNum(pendulum.date(2018, 2, 14))
     (2018, 7)
+    >>> getWeekNum(pendulum.date(2018, 12, 31))
+    (2019, 1)
     """
     return dt.isocalendar()[:2]
 
@@ -2742,9 +2774,12 @@ def fmt_week(dt_obj):
     DateTime(2018, 3, 6, 21, 30, 0, tzinfo=Timezone('US/Eastern'))
     >>> fmt_week(d)
     '2018 Week 10: Mar 5 - 11'
+    >>> d = parse('2018-12-31 9:30pm', tz='US/Eastern')
+    >>> fmt_week(d)
+    '2019 Week 1: Dec 31 - Jan 6'
     """
-    dt_year = dt_obj.year
-    dt_week = dt_obj.week_of_year
+    dt_year, dt_week = dt_obj.isocalendar()[:2]
+    # dt_week = dt_obj.week_of_year
     # year_week = f"{dt_year} Week {dt_week}"
     wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
     wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
@@ -3027,12 +3062,16 @@ def update_db(id, hsh):
             print(id, "old:", old, "\n", "new:", hsh, '\n')
 
 
-def schedule(yw=getWeekNum(), current={}):
+def schedule(yw=getWeekNum(), current=[]):
     # aft_dt = 0 hours on the Monday of week
     aft_dt = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
     # bef_dt = 0 hours on the Monday of the following week
     bef_dt = aft_dt.add(days=7)
 
+    current_day = ""
+    current_week = yw == getWeekNum()
+    if current_week:
+        current_day = pendulum.today().format("ddd MMM D")
 
     rows = []
     for item in ETMDB:
@@ -3065,13 +3104,13 @@ def schedule(yw=getWeekNum(), current={}):
 
                     if dt < aft_dt or dt > bef_dt:
                         continue
+
                     rows.append(
                             {
                                 'id': row[2:],
                                 'sort': (dt.format("YYYYMMDDHHmm"), 1),
                                 'week': (
-                                    dt.year, 
-                                    dt.week_of_year, 
+                                    dt.isocalendar()[:2]
                                     ),
                                 'day': (
                                     dt.format("ddd MMM D"),
@@ -3079,7 +3118,7 @@ def schedule(yw=getWeekNum(), current={}):
                                 'columns': [finished_char,
                                     row[1], 
                                     rhc
-                                    ]
+                                    ],
                             }
                             )
 
@@ -3093,8 +3132,7 @@ def schedule(yw=getWeekNum(), current={}):
                         'id': item.doc_id,
                         'sort': (dt.format("YYYYMMDDHHmm"), 0),
                         'week': (
-                            dt.year, 
-                            dt.week_of_year, 
+                            dt.isocalendar()[:2]
                             ),
                         'day': (
                             dt.format("ddd MMM D"),
@@ -3120,27 +3158,26 @@ def schedule(yw=getWeekNum(), current={}):
         row['columns'].append(selection_number)
         selection2id[selection_number] = row['id']
 
+    tmp = "{}\n".format(fmt_week(aft_dt)) 
+    out_view.append(('class:plain', tmp))
+    out_sel.append(('class:plain', tmp))
     for week, items in groupby(rows, key=itemgetter('week')):
-        wkbeg = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}", strict=False).date().format("MMM D")
-        wkend = pendulum.parse(f"{week[0]}W{str(week[1]).rjust(2, '0')}7", strict=False).date().format("MMM D")
-
-        tmp = f"{week[0]} Week {week[1]}: {wkbeg} - {wkend}"
-        out_view.append(tmp)
-        out_sel.append(tmp)
         for day, columns in groupby(items, key=itemgetter('day')):
             for d in day:
-                tmp = f" {d}"
-                out_view.append(tmp)
-                out_sel.append(tmp)
+                if current_week and d == current_day:
+                    d += " (Today)"
+                tmp = f" {d}\n"
+                out_view.append(('class:plain', tmp))
+                out_sel.append(('class:plain', tmp))
                 for i in columns:
                     num = str(i['columns'][3])
                     space = " "*(60 - len(str(i['columns'][1])) - len(str(i['columns'][2])) - len(num) - 3 - 2)
-                    tmp = f"    {i['columns'][0]} [{i['columns'][3]}] {i['columns'][1]}{space}{i['columns'][2]}" 
-                    out_sel.append(tmp)
+                    tmp = f"    {i['columns'][0]} [{i['columns'][3]}] {i['columns'][1]}{space}{i['columns'][2]}\n" 
+                    out_sel.append((type2style[i['columns'][0]], tmp))
                     space = " "*(60 - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
-                    tmp = f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}" 
-                    out_view.append(tmp)
-        return "\n".join(out_view), "\n".join(out_sel), selection2id
+                    tmp = f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}\n" 
+                    out_view.append((type2style[i['columns'][0]], tmp))
+        return FormattedText(out_view), FormattedText(out_sel), selection2id
 
 
 def import_json(etmdir=None):
@@ -3175,7 +3212,6 @@ def import_json(etmdir=None):
             item_hsh['f'] = pen_from_fmt(item_hsh['f'], z)
         if 'h' in item_hsh:
             item_hsh['h'] = [pen_from_fmt(x, z) for x in item_hsh['h']]
-            print(item_hsh['summary'], z, item_hsh['h'])
         if '+' in item_hsh:
             item_hsh['+'] = [pen_from_fmt(x, z) for x in item_hsh['+'] ]
         if '-' in item_hsh:
@@ -3283,10 +3319,10 @@ if __name__ == '__main__':
             print_json()
         if 's' in sys.argv[1]:
             weekview = WeekView()
-            print(weekview.agenda_view)
+            print_formatted_text(weekview.agenda_view, style=style)
         if 'S' in sys.argv[1]:
             weekview = WeekView()
-            print(weekview.agenda_select)
+            print_formatted_text(weekview.agenda_select, style=style)
             # v, s, h =schedule()
             # print(v)
             # print()
@@ -3299,22 +3335,23 @@ if __name__ == '__main__':
             pprint(alerts)
         if 'v' in sys.argv[1]:
             weekview = WeekView()
-            print(weekview.agenda_view)
-            print()
-            weekview.nextYrWk()
-            print(weekview.agenda_view)
-            print()
-            weekview.nextYrWk()
-            print(weekview.agenda_select)
+            weekview.prevYrWk()
+            print_formatted_text(weekview.agenda_view, style=style)
             print()
             weekview.currYrWk()
-            print(weekview.agenda_select)
+            print_formatted_text(weekview.agenda_view, style=style)
             print()
-            weekview.prevYrWk()
-            print(weekview.agenda_view)
-
-
-
+            weekview.nextYrWk()
+            print_formatted_text(weekview.agenda_view, style=style)
+        if 'V' in sys.argv[1]:
+            weekview = WeekView()
+            nyeve = pendulum.datetime(2018, 12, 31, 9, 0)
+            weekview.dtYrWk(nyeve)
+            print_formatted_text(weekview.agenda_view, style=style)
+            print()
+            weekview.nextYrWk()
+            print_formatted_text(weekview.agenda_view, style=style)
+            print()
 
 
     doctest.testmod()
