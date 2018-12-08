@@ -2732,7 +2732,9 @@ def fmt_extent(beg_dt, end_dt):
 
     return f"{beg_fmt}{beg_suffix}-{end_fmt}{end_suffix}"
 
-def fmt_time(dt):
+def fmt_time(dt, ignore_midnight=True):
+    if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0:
+        return ""
     suffix = dt.format("A").lower() if ampm else ""
     dt_fmt = drop_zero_minutes(dt)
     return f"{dt_fmt}{suffix}"
@@ -3070,6 +3072,56 @@ def update_db(id, hsh):
             print(repr(e))
             print(id, "old:", old, "\n", "new:", hsh, '\n')
 
+def show_history(selection=False):
+    from operator import itemgetter
+    from itertools import groupby
+    width = 60
+    rows = []
+    for item in ETMDB:
+        for dt, label in [(item.get('created', None), 'c'), (item.get('modified', None), 'm')]:
+            if dt is not None:
+                dtfmt = dt.format("YYYY-MM-DD")
+                itemtype = finished_char if 'f' in item else item['itemtype']
+                rows.append(
+                        {
+                            'id': item.doc_id,
+                            'sort': dtfmt,
+                            'week': (
+                                dt.isocalendar()[:2]
+                                ),
+                            'day': (
+                                dt.format("ddd MMM D"),
+                                ),
+                            'columns': [itemtype,
+                                item['summary'], 
+                                f"{dtfmt}[{label}]"
+                                ]
+                        }
+                        )
+    rows.sort(key=itemgetter('sort'), reverse=False)
+    out_view = []
+    out_sel = []
+    selection2id = {}
+    selection_number = 0
+    for row in rows:
+        selection_number += 1
+        row['columns'].append(selection_number)
+        selection2id[selection_number] = row['id']
+
+    view_width = width - 15 
+    for i in rows:
+        num = str(i['columns'][3])
+        sel_width = view_width - len(num) - 3
+        view_summary = i['columns'][1][:view_width].ljust(view_width, ' ')
+        sel_summary = i['columns'][1][:sel_width].ljust(sel_width, ' ')
+        # space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - len(num) - 3 - 2)
+        tmp = f"{i['columns'][0]} [{i['columns'][3]}] {sel_summary}{i['columns'][2]}\n" 
+        out_sel.append((type2style[i['columns'][0]], tmp))
+        space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
+        tmp = f"{i['columns'][0]} {view_summary}{i['columns'][2]}\n" 
+        out_view.append((type2style[i['columns'][0]], tmp))
+    return FormattedText(out_view), FormattedText(out_sel), selection2id
+
 
 def schedule(yw=getWeekNum(), current=[], weeks=1):
     width = 56
@@ -3137,7 +3189,7 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
             continue
 
         for dt, et in item_instances(item, aft_dt, bef_dt):
-            rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else ""
+            rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
             rows.append(
                     {
                         'id': item.doc_id,
@@ -3332,7 +3384,7 @@ if __name__ == '__main__':
         if 'p' in sys.argv[1]:
             print_json()
         if 's' in sys.argv[1]:
-            weekview = WeekView()
+            weekview = WeekView(weeks=2)
             print_formatted_text(weekview.agenda_view, style=style)
         if 'S' in sys.argv[1]:
             weekview = WeekView()
@@ -3343,20 +3395,24 @@ if __name__ == '__main__':
             current, alerts = relevant()
             pprint(current)
             pprint(alerts)
-        if 'v' in sys.argv[1]:
+        if 'V' in sys.argv[1]:
             weekview = WeekView(dtstr="2018/12/25", weeks=2)
             # weekview.prevYrWk()
-            print_formatted_text(weekview.agenda_view, style=style)
+            print_formatted_text(weekview.agenda_select, style=style)
+            print(weekview.num2id)
+            print("details for 3:", weekview.num2id[3])
             weekview.show_details(3)
-        if 'V' in sys.argv[1]:
-            weekview = WeekView()
-            nyeve = pendulum.datetime(2018, 12, 31, 9, 0)
-            weekview.dtYrWk(nyeve)
+        if 'v' in sys.argv[1]:
+            weekview = WeekView(dtstr="2018/12/25", weeks=2)
             print_formatted_text(weekview.agenda_view, style=style)
             print()
-            weekview.nextYrWk()
-            print_formatted_text(weekview.agenda_view, style=style)
-            print()
+        if 'h' in sys.argv[1]:
+            plain_view, sel_view, selection2id = show_history()
+            print_formatted_text(plain_view, style=style)
+
+        if 'H' in sys.argv[1]:
+            plain_view, sel_view, selection2id = show_history()
+            print_formatted_text(sel_view, style=style)
 
 
     doctest.testmod()
