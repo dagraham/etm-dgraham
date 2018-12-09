@@ -1,57 +1,57 @@
 # What's planned for the next etm?
-**Last modified: Mon Dec 03, 2018 11:38AM EST**
+**Last modified: Sat Dec 08, 2018 05:50PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Goals](#goals)
 * [Data](#data)
-    * [Item Types](#item-types)
-        * [event](#event)
-        * [task](#task)
-        * [record](#record)
-        * [inbox](#inbox)
-    * [Notice Types](#notice-types)
-        * [Beginning Soon](#beginning-soon)
-        * [Past Due](#past-due)
-        * [Waiting](#waiting)
-        * [Finished](#finished)
-    * [Expansions](#expansions)
-    * [`@`keys](#keys)
-        * [Notices](#notices)
-    * [`&`keys](#keys-1)
-        * [for use with `@j`:](#for-use-with-j)
-        * [for use with `@r`:](#for-use-with-r)
-    * [TinyDB](#tinydb)
-    * [Dates, Times and Periods](#dates-times-and-periods)
-    * [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
+	* [Item Types](#item-types)
+		* [event](#event)
+		* [task](#task)
+		* [record](#record)
+		* [inbox](#inbox)
+	* [Notice Types](#notice-types)
+		* [Beginning Soon](#beginning-soon)
+		* [Past Due](#past-due)
+		* [Waiting](#waiting)
+		* [Finished](#finished)
+	* [Expansions](#expansions)
+	* [`@`keys](#keys)
+		* [Notices](#notices)
+	* [`&`keys](#keys-1)
+		* [for use with `@j`:](#for-use-with-j)
+		* [for use with `@r`:](#for-use-with-r)
+	* [TinyDB](#tinydb)
+	* [Dates, Times and Periods](#dates-times-and-periods)
+	* [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
 * [Views](#views)
-    * [Weekly](#weekly)
-        * [Agenda](#agenda)
-        * [Busy](#busy)
-        * [Done](#done)
-    * [Monthly](#monthly)
-    * [Relevant](#relevant)
-    * [Search](#search)
-    * [Next](#next)
-    * [Index](#index)
-    * [History](#history)
-    * [Tags](#tags)
-    * [Query](#query)
+	* [Weekly](#weekly)
+		* [Agenda](#agenda)
+		* [Busy](#busy)
+		* [Done](#done)
+	* [Monthly](#monthly)
+	* [Relevant](#relevant)
+	* [Search](#search)
+	* [Next](#next)
+	* [Index](#index)
+	* [History](#history)
+	* [Tags](#tags)
+	* [Query](#query)
 * [Work Flow](#work-flow)
-    * [Editing an existing item](#editing-an-existing-item)
-    * [Creating a new item](#creating-a-new-item)
+	* [Editing an existing item](#editing-an-existing-item)
+	* [Creating a new item](#creating-a-new-item)
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
-    * [Model](#model)
-        * [Data Store](#data-store)
-        * [Supporting queries](#supporting-queries)
-        * [Items Tables](#items-tables)
-        * [Instances Table](#instances-table)
-        * [Item Views](#item-views)
-        * [Instance Views](#instance-views)
-        * [CRUD](#crud)
-        * [API](#api)
+	* [Model](#model)
+		* [Data Store](#data-store)
+		* [Supporting queries](#supporting-queries)
+		* [Items Tables](#items-tables)
+		* [Instances Table](#instances-table)
+		* [Item Views](#item-views)
+		* [Instance Views](#instance-views)
+		* [CRUD](#crud)
+		* [API](#api)
 
 <!-- vim-markdown-toc -->
 
@@ -484,15 +484,15 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         |   * [1] Martin Luther King Day                             |  3
         |   * [2] Lunch with Joe                        12:30-1:30pm |  4
         |   - [3] Revise 1st quarter schedule             3pm  1h    |  5
-        |   % report summary                            4:29pm  47m  |  6
-        |   ✓ report summary                               4:30pm    |  7
-        | Thu Jan 18 - Today                                         |  8
-        |   < [4] Revise 1st quarter schedule                3d      |  9
-        |   > [5] Duke vs Pitt                               2d      | 10
-        |   * [6] Conference call                        11:30am-1pm | 11
-        | Sat Jan 20                                                 | 12 
-        |   * [7] Duke vs Pitt                              4-6pm    | 13
-        |   * [8] Dinner                                    7-9pm    | 14
+        | Thu Jan 18 - Today                                         |  6
+        |   < [4] Revise 1st quarter schedule                3d      |  7
+        |   > [5] Duke vs Pitt                               2d      |  8
+        |   * [6] Conference call                        11:30am-1pm |  9
+        | Sat Jan 20                                                 | 10 
+        |   * [7] Duke vs Pitt                              4-6pm    | 11
+        |   * [8] Dinner                                    7-9pm    | 12
+        |                                                            | 13
+        |                                                            | 14
         |                                                            | 15
         |                                                            | 16
         |                                                            | 17 

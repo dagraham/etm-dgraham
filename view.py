@@ -14,11 +14,13 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import TextArea, SearchToolbar
 from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
+from asyncio import get_event_loop
+from prompt_toolkit.eventloop import use_asyncio_event_loop
+from prompt_toolkit.output import Output
 
-from prompt_toolkit.lexers import Lexer
 import pendulum
 import re
-from etmMVC.model import *
+from etmMVC.model import WeekView
 
 
 etmstyle = {
@@ -67,29 +69,39 @@ class ETMLexer(Lexer):
 
         return get_line
 
-file = "./test/schedule.txt"
-with open(file, 'rb') as f:
-    text = f.read().decode('utf-8')
+# file = "./test/schedule.txt"
+# with open(file, 'rb') as f:
+#     content = f.read().decode('utf-8')
 
+weekview = WeekView(plain=True)
+content = "".join(weekview.agenda_view)
 
-current_datetime = ""
+current_datetime = pendulum.now().format("YYYYMMDD")
 def event_handler(loop):
     global current_datetime
     now = pendulum.now()
+    tmp = now.format("YYYYMMDD")
+    if tmp != current_datetime:
+        current_datetime = tmp
+        weekview.refreshRelevant()
     wait = 60 - now.second
-    print(now.format("h:mmA"))
+    # text_area.text = now.format("h:mmA ddd MMM D").center(58, ' ') + "\n" + content
+    # text_area.text = content
+    # Output.set_title(t, 'left')
     loop.call_later(wait, event_handler, loop)
 
 def get_statusbar_text():
     return [
-        ('class:status', pendulum.now().format(" h:mmA ddd MMM D") + ": "),
-        ('class:status', '{}'.format(
-            text_area.document.cursor_position_row + 1)),
-        ('class:status', ' - Press '),
-        ('class:status.key', 'q'),
-        ('class:status', ' to exit, '),
+        # ('class:status',"line: "),
+        ('class:status', '[{}]'.format(
+            text_area.document.cursor_position_row)),
+        ('class:status', ' Press '),
+        ('class:status.key', 'F1'),
+        ('class:status', ' for help, '),
         ('class:status.key', '/'),
-        ('class:status', ' to search'),
+        ('class:status', ' to search or '),
+        ('class:status.key', 'q'),
+        ('class:status', ' to exit'),
     ]
 
 
@@ -97,10 +109,10 @@ search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")])
 
 def get_line_prefix(linenum, wrap=2):
-    return(str(linenum).rjust(3, ' ') + " ") if not linenum % 5 else "    "
+    return(str(linenum).rjust(2, ' ') + " ") # if not linenum % 5 else "    "
 
 text_area = TextArea(
-    text=text,
+    text=content,
     read_only=True,
     scrollbar=True,
     # get_line_prefix=get_line_prefix,
@@ -111,14 +123,14 @@ text_area = TextArea(
 
 
 root_container = HSplit([
+    # The main content.
+    text_area,
     # The top toolbar.
     Window(content=FormattedTextControl(
         get_statusbar_text),
         height=D.exact(1),
         style='class:status'),
 
-    # The main content.
-    text_area,
     search_field,
 ])
 
@@ -132,6 +144,22 @@ bindings = KeyBindings()
 def _(event):
     " Quit. "
     event.app.exit()
+
+@bindings.add('n')
+def nextweek(event):
+    weekview.nextYrWk()
+    text_area.text = "".join(weekview.agenda_view)
+
+
+@bindings.add('p')
+def prevweek(event):
+    weekview.prevYrWk()
+    text_area.text = "".join(weekview.agenda_view)
+
+@bindings.add('space')
+def currweek(event):
+    weekview.currYrWk()
+    text_area.text = "".join(weekview.agenda_view)
 
 style = Style.from_dict({
     'status': '{} bg:{}'.format(NAMED_COLORS['White'], NAMED_COLORS['DimGrey']),
@@ -157,6 +185,18 @@ application = Application(
 def run():
     application.run()
 
+def main():
+    # Tell prompt_toolkit to use asyncio.
+    use_asyncio_event_loop()
+
+    # Run application async.
+    loop = get_event_loop()
+    loop.call_later(0, event_handler, loop)
+    loop.run_until_complete(
+        application.run_async().to_asyncio_future())
+
+
 
 if __name__ == '__main__':
-    run()
+    # run()
+    main()

@@ -995,6 +995,7 @@ class WeekView(object):
         self.activeView = 'agenda'  # (other views: busy, done)
         # self.activeYrWk = self.currentYrWk = None
         self.current = []
+        self.num2id = []
         self.plain = plain
         self.weeks = weeks
         self.agenda_view = ""
@@ -3140,10 +3141,11 @@ def schedule(yw=getWeekNum(), current=[], weeks=1, plain=False):
     bef_dt = aft_dt.add(days=7*weeks)
     # print('in interval', aft_dt, bef_dt, weeks)
 
+    now = pendulum.now()
     current_day = ""
     current_week = yw == getWeekNum()
     if current_week:
-        current_day = pendulum.today().format("ddd MMM D")
+        current_day = now.format("ddd MMM D")
 
     rows = []
     for item in ETMDB:
@@ -3210,7 +3212,7 @@ def schedule(yw=getWeekNum(), current=[], weeks=1, plain=False):
                             dt.format("ddd MMM D"),
                             ),
                         'columns': [item['itemtype'],
-                            item['summary'], 
+                            set_summary(item['summary'], now), 
                             rhc
                             ]
                     }
