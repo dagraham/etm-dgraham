@@ -1138,7 +1138,7 @@ class TimeIt(object):
 class DataView(object):
 
     def __init__(self, loglevel=1, dtstr=None, weeks=1, plain=False):
-        self.activeView = 'agenda'  # (other views: busy, done)
+        self.active_view = 'agenda'  # (other view: busy)
         # self.activeYrWk = self.currentYrWk = None
         self.current = []
         self.num2id = []
@@ -1153,6 +1153,15 @@ class DataView(object):
             self.currYrWk()
         else:
             self.dtYrWk(pendulum.parse(dtstr))
+
+    def toggle_active_view(self):
+        self.active_view = 'busy' if self.active_view == 'agenda' else 'agenda'
+
+    def show_active_view(self):
+        if self.active_view == 'agenda':
+            return self.agenda_view
+        elif self.active_view == 'busy':
+            return self.busy_view
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk) 
@@ -3390,6 +3399,8 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
     rows.sort(key=itemgetter('sort'))
     busy.sort(key=itemgetter('sort'))
 
+    # FIXME: deal with weeks without busy times
+
     for week, items in groupby(busy, key=itemgetter('week')):
         busy_tups = []
         for day, period in groupby(items, key=itemgetter('day')):
@@ -3431,6 +3442,7 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
 
     row2id = {}
     row_num = -1
+    # FIXME: deal with weeks without scheduled items
     for week, items in groupby(rows, key=itemgetter('week')):
         agenda.append("{}".format(fmt_week(week))) 
         row_num += 1

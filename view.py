@@ -148,20 +148,26 @@ def _(event):
     " Quit. "
     event.app.exit()
 
+@bindings.add('t', filter=is_not_searching)
+def toggle_view(event):
+    dataview.toggle_active_view()
+    text_area.text = dataview.show_active_view()
+
 @bindings.add('n', filter=is_not_searching)
 def nextweek(event):
     dataview.nextYrWk()
-    text_area.text = dataview.agenda_view
+    text_area.text = dataview.show_active_view()
 
 
 @bindings.add('p', filter=is_not_searching)
 def prevweek(event):
     dataview.prevYrWk()
-    text_area.text = dataview.agenda_view
+    text_area.text = dataview.show_active_view()
 
 @bindings.add('space', filter=is_not_searching)
 def currweek(event):
     dataview.currYrWk()
+    text_area.text = dataview.show_active_view()
     text_area.text = dataview.agenda_view
 
 @bindings.add('enter', filter=is_not_searching)
