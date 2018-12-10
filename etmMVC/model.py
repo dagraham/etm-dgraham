@@ -394,7 +394,6 @@ def busy_conf_day(lofp):
         if e % 60: h_e += 1
         for i in range(h_b, h_e):
             if i not in conf_hours:
-                # print("adding", i, "to conf")
                 conf_hours.append(i)
 
     for (b, e) in busy_ranges:
@@ -403,7 +402,6 @@ def busy_conf_day(lofp):
         if e % 60: h_e += 1
         for i in range(h_b, h_e):
             if i not in conf_hours and i not in busy_hours:
-                # print("adding", i, "to busy")
                 busy_hours.append(i)
     h = {} 
     for i in range(24):
@@ -3383,22 +3381,26 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
                 end_min = et.hour * 60 + et.minute
                 y, w, d = dt.isocalendar()
                 #             x[0] x[1]  x[2]     x[3]
-                busy.append([(y,w), d, beg_min, end_min])
+                # busy.append([(y,w), d, beg_min, end_min])
+                busy.append({'sort': dt.format("YYYYMMDDHHmm"), 'week': (y, w), 'day': d, 'period': (beg_min, end_min)})
     if yw == getWeekNum():
         rows.extend(current)
     from operator import itemgetter
     from itertools import groupby
     rows.sort(key=itemgetter('sort'))
-    busy.sort()
+    busy.sort(key=itemgetter('sort'))
 
-    busy_tups = [(x[1], (x[2], x[3])) for x in busy if x[0] == yw]
-    if busy_tups: 
+    for week, items in groupby(busy, key=itemgetter('week')):
+        busy_tups = []
+        for day, period in groupby(items, key=itemgetter('day')):
+            for p in period:
+                busy_tups.append([day, p['period']])
+        busy_tups.sort()
         h = {}
         busy = {}
-
         t = {0: 'total'.rjust(6, ' ')}
 
-        monday = parse(f"{yw[0]}-W{str(yw[1]).zfill(2)}-1")
+        monday = parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
         DD = {}
         for i in range(7):
             DD[i+1] = monday.add(days=i).format("D").ljust(2, ' ')
@@ -3422,7 +3424,8 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
                 if hour in hours:
                     h[hour][weekday] = hours[hour]
 
-        busy_view =  busy_template.format(week=fmt_week(yw), WA=WA, DD=DD, t=t, h=h, l=LL)
+
+        busy_view +=  busy_template.format(week=fmt_week(week), WA=WA, DD=DD, t=t, h=h, l=LL)
 
     agenda = []
 
@@ -3591,8 +3594,9 @@ if __name__ == '__main__':
             print(dataview.agenda_view)
             print(dataview.busy_view)
         if 'P' in sys.argv[1]:
-            dataview = DataView(weeks=3, plain=True)
+            dataview = DataView(weeks=4, plain=True)
             print(dataview.agenda_view)
+            print(dataview.busy_view)
         if 's' in sys.argv[1]:
             dataview = DataView(weeks=1)
             print_formatted_text(dataview.agenda_view, style=style)
