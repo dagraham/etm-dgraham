@@ -268,6 +268,34 @@ requires = {
         '-': 'r',
         }
 
+# set up 2 character weekday name abbreviations for busy view
+# pendulum.set_locale('fr')
+WA = {}
+today = pendulum.today()
+day = today.end_of('week')  # Sunday
+for i in range(1, 8):
+    # 1 -> Mo, ...,  7 -> Su
+    WA[i] = day.add(days=i).format('ddd')[:2]
+
+AMPM = True
+LL = {}
+for hour in range(24):
+    if hour % 6 == 0:
+        if AMPM:
+            suffix = 'am' if hour < 12 else 'pm'
+            if hour == 0:
+                hr = 12
+            elif hour <= 12:
+                hr = hour
+            elif hour > 12:
+                hr = hour - 12
+            LL[hour] = f"{hr}{suffix}".rjust(6, ' ')
+        else:
+            LL[hour] = f"{hour}h".rjust(6, ' ')
+    else:
+        LL[hour] = '-'.rjust(6, ' ')
+
+
 def check_requires(key, hsh):
     """
     Check that hsh has the prerequisite entries for key.
@@ -989,17 +1017,19 @@ class TimeIt(object):
             logger.warn(msg)
 
 
-class WeekView(object):
+class DataView(object):
 
     def __init__(self, loglevel=1, dtstr=None, weeks=1, plain=False):
         self.activeView = 'agenda'  # (other views: busy, done)
         # self.activeYrWk = self.currentYrWk = None
         self.current = []
         self.num2id = []
+        self.details = False
+        self.current_row = 0
         self.plain = plain
         self.weeks = weeks
         self.agenda_view = ""
-        self.agenda_select = ""
+        self.busy = []
         self.refreshRelevant()
         if dtstr is None:
             self.currYrWk()
@@ -1030,13 +1060,25 @@ class WeekView(object):
         self.current, self.alerts = relevant()
 
     def refreshAgenda(self):
-        self.agenda_view, self.agenda_select, self.num2id = schedule(self.activeYrWk, self.current, self.weeks, self.plain)
+        self.agenda_view, self.busy, self.num2id = schedule(self.activeYrWk, self.current, self.weeks)
 
     def show_details(self, num):
+        if self.details:
+            self.details = False
+            return self.agenda_view
+
+        self.current_row = num
         item_id = self.num2id.get(num, None)
-        if item_id is not None:
-            item = ETMDB.get(doc_id=item_id)
-            print(item_details(item))
+        if item_id is None:
+            return None
+
+        if isinstance(item_id, list):
+            item_id = item_id[0]
+        item = ETMDB.get(doc_id=item_id)
+        if item:
+            self.details = True
+            return [item_details(item)]
+        return None
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
@@ -3133,7 +3175,7 @@ def fmt_class(txt, cls=None, plain=False):
     else:
         return txt
 
-def schedule(yw=getWeekNum(), current=[], weeks=1, plain=False):
+def schedule(yw=getWeekNum(), current=[], weeks=1):
     width = 56
     # aft_dt = 0 hours on the Monday of week
     aft_dt = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
@@ -3148,6 +3190,7 @@ def schedule(yw=getWeekNum(), current=[], weeks=1, plain=False):
         current_day = now.format("ddd MMM D")
 
     rows = []
+    busy = []
     for item in ETMDB:
         if item['itemtype'] in "!?":
             continue
@@ -3217,53 +3260,43 @@ def schedule(yw=getWeekNum(), current=[], weeks=1, plain=False):
                             ]
                     }
                     )
+            if et:
+                beg_min = dt.hour * 60 + dt.minute
+                end_min = et.hour * 60 + et.minute
+                busy.append([dt, beg_min, end_min])
     if yw == getWeekNum():
         rows.extend(current)
     from operator import itemgetter
     from itertools import groupby
     rows.sort(key=itemgetter('sort'))
+    busy.sort()
     # pprint(rows)
 
-    selection_number = 0
-    selection2id ={}
-    out_view = []
-    out_sel = []
-    for row in rows:
-        selection_number += 1
-        row['columns'].append(selection_number)
-        selection2id[selection_number] = row['id']
+    view = []
 
+    row2id = {}
+    row_num = -1
     for week, items in groupby(rows, key=itemgetter('week')):
         week_beg = pendulum.parse(f"{week[0]}-W{str(week[1]).rjust(2, '0')}")
         # week_beg = pendulum.parse("{}-W{}".format(week[0], week[1]))
-        tmp = "{}\n".format(fmt_week(week_beg)) 
-        # out_view.append(('class:plain', tmp))
-        out_view.append(fmt_class(tmp, 'class:plain', plain))
-        # out_sel.append(('class:plain', tmp))
-        out_sel.append(fmt_class(tmp, 'class:plain', plain))
+        view.append("{}".format(fmt_week(week_beg))) 
+        row_num += 1
         for day, columns in groupby(items, key=itemgetter('day')):
             for d in day:
                 if current_week and d == current_day:
                     d += " (Today)"
-                tmp = f"  {d}\n"
-                # out_view.append(('class:plain', tmp))
-                out_view.append(fmt_class(tmp, 'class:plain', plain))
-                # out_sel.append(('class:plain', tmp))
-                out_sel.append(fmt_class(tmp, 'class:plain', plain))
+                view.append(f"  {d}")
+                row_num += 1
                 for i in columns:
-                    num = str(i['columns'][3])
-                    space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - len(num) - 3 - 2)
-                    tmp = f"    {i['columns'][0]} [{i['columns'][3]}] {i['columns'][1]}{space}{i['columns'][2]}\n" 
-                    # out_sel.append((type2style[i['columns'][0]], tmp))
-                    out_sel.append(fmt_class(tmp, type2style[i['columns'][0]], plain))
                     space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
-                    tmp = f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}\n" 
-                    # out_view.append((type2style[i['columns'][0]], tmp))
-                    out_view.append(fmt_class(tmp, type2style[i['columns'][0]], plain))
-    if plain:
-        return out_view, out_sel, selection2id
-    else:
-        return FormattedText(out_view), FormattedText(out_sel), selection2id
+                    view.append(f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}") 
+                    row_num += 1
+                    row2id[row_num] = i['id']
+    return view, busy, row2id
+    # if plain:
+    #     return view, out_sel, selection2id
+    # else:
+    #     return FormattedText(view), FormattedText(out_sel), selection2id
 
 
 def import_json(etmdir=None):
@@ -3407,35 +3440,37 @@ if __name__ == '__main__':
         if 'j' in sys.argv[1]:
             print_json()
         if 'p' in sys.argv[1]:
-            weekview = WeekView(weeks=3, plain=True)
-            for row in weekview.agenda_view:
+            dataview = DataView(weeks=1, plain=True)
+            for row in dataview.agenda_view:
                 print(row.rstrip())
+            for row in dataview.busy:
+                print(row)
         if 'P' in sys.argv[1]:
-            weekview = WeekView(weeks=3, plain=True)
-            for row in weekview.agenda_select:
+            dataview = DataView(weeks=3, plain=True)
+            for row in dataview.agenda_select:
                 print(row.rstrip())
         if 's' in sys.argv[1]:
-            weekview = WeekView(weeks=1)
-            print_formatted_text(weekview.agenda_view, style=style)
+            dataview = DataView(weeks=1)
+            print_formatted_text(dataview.agenda_view, style=style)
         if 'S' in sys.argv[1]:
-            weekview = WeekView()
-            print_formatted_text(weekview.agenda_select, style=style)
+            dataview = DataView()
+            print_formatted_text(dataview.agenda_select, style=style)
             print()
-            print(weekview.num2id)
+            print(dataview.num2id)
         if 'r' in sys.argv[1]:
             current, alerts = relevant()
             pprint(current)
             pprint(alerts)
         if 'V' in sys.argv[1]:
-            weekview = WeekView(dtstr="2018/12/25", weeks=2)
-            # weekview.prevYrWk()
-            print_formatted_text(weekview.agenda_select, style=style)
-            print(weekview.num2id)
-            print("details for 3:", weekview.num2id[3])
-            weekview.show_details(3)
+            dataview = DataView(dtstr="2018/12/25", weeks=2)
+            # dataview.prevYrWk()
+            print_formatted_text(dataview.agenda_select, style=style)
+            print(dataview.num2id)
+            print("details for 3:", dataview.num2id[3])
+            dataview.show_details(3)
         if 'v' in sys.argv[1]:
-            weekview = WeekView(dtstr="2018/12/25", weeks=2)
-            print_formatted_text(weekview.agenda_view, style=style)
+            dataview = DataView(dtstr="2018/12/25", weeks=2)
+            print_formatted_text(dataview.agenda_view, style=style)
             print()
         if 'h' in sys.argv[1]:
             plain_view, sel_view, selection2id = show_history(plain=True)

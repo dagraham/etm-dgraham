@@ -11,17 +11,23 @@ from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import LayoutDimension as D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import TextArea, SearchToolbar
+from prompt_toolkit.widgets import TextArea, SearchToolbar, SystemToolbar
 from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from asyncio import get_event_loop
 from prompt_toolkit.eventloop import use_asyncio_event_loop
 from prompt_toolkit.output import Output
+from prompt_toolkit.application.current import get_app
+from prompt_toolkit.filters import Condition
 
 import pendulum
 import re
 from etmMVC.model import WeekView
 
+
+@Condition
+def is_not_searching():
+    return not application.layout.is_searching
 
 etmstyle = {
     'plain':        'Beige',
@@ -54,7 +60,9 @@ def first_char(s):
     if m:
         return s[len(m.group(0))]
     elif len(s):
-        return s[0]
+        # no leading spaces
+        # return s[0]
+        return None
     else:
         return None
 
@@ -69,25 +77,19 @@ class ETMLexer(Lexer):
 
         return get_line
 
-# file = "./test/schedule.txt"
-# with open(file, 'rb') as f:
-#     content = f.read().decode('utf-8')
+weekview = WeekView()
+content = "\n".join(weekview.agenda_view)
 
-weekview = WeekView(plain=True)
-content = "".join(weekview.agenda_view)
-
-current_datetime = pendulum.now().format("YYYYMMDD")
+current_today = pendulum.now().format("YYYYMMDD")
 def event_handler(loop):
-    global current_datetime
+    global current_today
     now = pendulum.now()
-    tmp = now.format("YYYYMMDD")
-    if tmp != current_datetime:
-        current_datetime = tmp
+    today = now.format("YYYYMMDD")
+    if today != current_today:
+        current_today = today
         weekview.refreshRelevant()
+        weekview.refreshAgenda()
     wait = 60 - now.second
-    # text_area.text = now.format("h:mmA ddd MMM D").center(58, ' ') + "\n" + content
-    # text_area.text = content
-    # Output.set_title(t, 'left')
     loop.call_later(wait, event_handler, loop)
 
 def get_statusbar_text():
@@ -106,7 +108,9 @@ def get_statusbar_text():
 
 
 search_field = SearchToolbar(text_if_not_searching=[
-    ('class:not-searching', "Press '/' to start searching.")])
+    ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
+
+system_field = SystemToolbar()
 
 def get_line_prefix(linenum, wrap=2):
     return(str(linenum).rjust(2, ' ') + " ") # if not linenum % 5 else "    "
@@ -130,7 +134,6 @@ root_container = HSplit([
         get_statusbar_text),
         height=D.exact(1),
         style='class:status'),
-
     search_field,
 ])
 
@@ -145,21 +148,33 @@ def _(event):
     " Quit. "
     event.app.exit()
 
-@bindings.add('n')
+@bindings.add('n', filter=is_not_searching)
 def nextweek(event):
     weekview.nextYrWk()
-    text_area.text = "".join(weekview.agenda_view)
+    text_area.text = "\n".join(weekview.agenda_view)
 
 
-@bindings.add('p')
+@bindings.add('p', filter=is_not_searching)
 def prevweek(event):
     weekview.prevYrWk()
-    text_area.text = "".join(weekview.agenda_view)
+    text_area.text = "\n".join(weekview.agenda_view)
 
-@bindings.add('space')
+@bindings.add('space', filter=is_not_searching)
 def currweek(event):
     weekview.currYrWk()
-    text_area.text = "".join(weekview.agenda_view)
+    text_area.text = "\n".join(weekview.agenda_view)
+
+@bindings.add('enter', filter=is_not_searching)
+def show(event):
+    # print(text_area.document.cursor_position_row, weekview.num2id)
+    tmp = weekview.show_details(text_area.document.cursor_position_row)
+    if tmp is not None:
+        text_area.text = "\n".join(tmp)
+    if not weekview.details:
+        pass
+        # Output.cursor_goto(text_area, row=weekview.current_row, column=0)
+        # Output.cursor_goto(row=weekview.current_row, column=0)
+
 
 style = Style.from_dict({
     'status': '{} bg:{}'.format(NAMED_COLORS['White'], NAMED_COLORS['DimGrey']),
