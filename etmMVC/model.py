@@ -296,6 +296,126 @@ for hour in range(24):
         LL[hour] = '-'.rjust(6, ' ')
 
 
+busy_template = """\
+{week}
+         {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[7]} {DD[7]} 
+         -----------------------------------------------  
+{l[0]}   {h[0][1]}  {h[0][2]}  {h[0][3]}  {h[0][4]}  {h[0][5]}  {h[0][6]}  {h[0][7]}
+{l[1]}   {h[1][1]}  {h[1][2]}  {h[1][3]}  {h[1][4]}  {h[1][5]}  {h[1][6]}  {h[1][7]}
+{l[2]}   {h[2][1]}  {h[2][2]}  {h[2][3]}  {h[2][4]}  {h[2][5]}  {h[2][6]}  {h[2][7]}
+{l[3]}   {h[3][1]}  {h[3][2]}  {h[3][3]}  {h[3][4]}  {h[3][5]}  {h[3][6]}  {h[3][7]}
+{l[4]}   {h[4][1]}  {h[4][2]}  {h[4][3]}  {h[4][4]}  {h[4][5]}  {h[4][6]}  {h[4][7]}
+{l[5]}   {h[5][1]}  {h[5][2]}  {h[5][3]}  {h[5][4]}  {h[5][5]}  {h[5][6]}  {h[5][7]}
+{l[6]}   {h[6][1]}  {h[6][2]}  {h[6][3]}  {h[6][4]}  {h[6][5]}  {h[6][6]}  {h[6][7]}
+{l[7]}   {h[7][1]}  {h[7][2]}  {h[7][3]}  {h[7][4]}  {h[7][5]}  {h[7][6]}  {h[7][7]}
+{l[8]}   {h[8][1]}  {h[8][2]}  {h[8][3]}  {h[8][4]}  {h[8][5]}  {h[8][6]}  {h[8][7]}
+{l[9]}   {h[9][1]}  {h[9][2]}  {h[9][3]}  {h[9][4]}  {h[9][5]}  {h[9][6]}  {h[9][7]}
+{l[10]}   {h[10][1]}  {h[10][2]}  {h[10][3]}  {h[10][4]}  {h[10][5]}  {h[10][6]}  {h[10][7]}
+{l[11]}   {h[11][1]}  {h[11][2]}  {h[11][3]}  {h[11][4]}  {h[11][5]}  {h[11][6]}  {h[11][7]}
+{l[12]}   {h[12][1]}  {h[12][2]}  {h[12][3]}  {h[12][4]}  {h[12][5]}  {h[12][6]}  {h[12][7]}
+{l[13]}   {h[13][1]}  {h[13][2]}  {h[13][3]}  {h[13][4]}  {h[13][5]}  {h[13][6]}  {h[13][7]}
+{l[14]}   {h[14][1]}  {h[14][2]}  {h[14][3]}  {h[14][4]}  {h[14][5]}  {h[14][6]}  {h[14][7]}
+{l[15]}   {h[15][1]}  {h[15][2]}  {h[15][3]}  {h[15][4]}  {h[15][5]}  {h[15][6]}  {h[15][7]}
+{l[16]}   {h[16][1]}  {h[16][2]}  {h[16][3]}  {h[16][4]}  {h[16][5]}  {h[16][6]}  {h[16][7]}
+{l[17]}   {h[17][1]}  {h[17][2]}  {h[17][3]}  {h[17][4]}  {h[17][5]}  {h[17][6]}  {h[17][7]}
+{l[18]}   {h[18][1]}  {h[18][2]}  {h[18][3]}  {h[18][4]}  {h[18][5]}  {h[18][6]}  {h[18][7]}
+{l[19]}   {h[19][1]}  {h[19][2]}  {h[19][3]}  {h[19][4]}  {h[19][5]}  {h[19][6]}  {h[19][7]}
+{l[20]}   {h[20][1]}  {h[20][2]}  {h[20][3]}  {h[20][4]}  {h[20][5]}  {h[20][6]}  {h[20][7]}
+{l[21]}   {h[21][1]}  {h[21][2]}  {h[21][3]}  {h[21][4]}  {h[21][5]}  {h[21][6]}  {h[21][7]}
+{l[22]}   {h[22][1]}  {h[22][2]}  {h[22][3]}  {h[22][4]}  {h[22][5]}  {h[22][6]}  {h[22][7]}
+{l[23]}   {h[23][1]}  {h[23][2]}  {h[23][3]}  {h[23][4]}  {h[23][5]}  {h[23][6]}  {h[23][7]}
+         -----------------------------------------------  
+{t[0]}   {t[1]}  {t[2]}  {t[3]}  {t[4]}  {t[5]}  {t[6]}  {t[7]}
+"""
+
+def busy_conf_minutes(lofp):
+    """
+    lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi < ei. By sort, bi <= bi+1. 
+    Return list of busy intervals, list of conflict intervals, busy minutes.
+    [(540, 600), (600, 720)]
+    >>> busy_conf_minutes([(540, 600)])
+    ([(540, 600)], [], 60)
+    >>> busy_conf_minutes([(540, 600), (600, 720)])
+    ([(540, 600), (600, 720)], [], 180)
+    >>> busy_conf_minutes([(540, 620), (600, 720), (660, 700)])
+    ([(540, 600), (620, 660), (700, 720)], [(600, 620), (660, 700)], 180)
+    """
+    lofp.sort()
+    busy_minutes = []
+    conf_minutes = []
+    if not lofp:
+        return ([], [], 0)
+    (b, e) = lofp.pop(0)
+    while lofp:
+        (B, E) = lofp.pop(0)
+        if e <= B:  # no conflict
+            busy_minutes.append((b, e))
+            b = B
+            e = E
+        else:  # B < e
+            busy_minutes.append((b, B))
+            if e <= E:
+                conf_minutes.append((B, e))
+                b = e
+                e = E
+            else:  # E < e
+                conf_minutes.append((B, E))
+                b = E
+                e = e
+    busy_minutes.append((b, e))
+    total_minutes = 0
+    for (b, e) in busy_minutes + conf_minutes:
+        total_minutes += e - b
+    return busy_minutes, conf_minutes, total_minutes
+
+def busy_conf_day(lofp):
+    """
+    lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi < ei. By sort, bi <= bi+1.
+    Return a hash giving total minutes and appropriate symbols for busy hours.
+    >>> busy_conf_day([(540, 600), (600, 720)])
+    {'total': 180, 9: '  #  ', 10: '  #  ', 11: '  #  '}
+    >>> busy_conf_day([(540, 620), (600, 720), (660, 700)])
+    {'total': 180, 9: '  #  ', 10: ' ### ', 11: ' ### '}
+    >>> busy_conf_day([(540, 620), (620, 720), (700, 720)])
+    {'total': 180, 9: '  #  ', 10: '  #  ', 11: ' ### '}
+    >>> busy_conf_day([])
+    {'total': 0}
+    >>> busy_conf_day([(0, 1439)])
+    {0: '  #  ', 'total': 1439, 1: '  #  ', 2: '  #  ', 3: '  #  ', 4: '  #  ', 5: '  #  ', 6: '  #  ', 7: '  #  ', 8: '  #  ', 9: '  #  ', 10: '  #  ', 11: '  #  ', 12: '  #  ', 13: '  #  ', 14: '  #  ', 15: '  #  ', 16: '  #  ', 17: '  #  ', 18: '  #  ', 19: '  #  ', 20: '  #  ', 21: '  #  ', 22: '  #  ', 23: '  #  '}
+    """
+
+    busy_ranges, conf_ranges, total = busy_conf_minutes(lofp)
+    busy_hours = []
+    conf_hours = []
+
+    for (b, e) in conf_ranges:
+        h_b = b // 60
+        h_e = e // 60
+        if e % 60: h_e += 1
+        for i in range(h_b, h_e):
+            if i not in conf_hours:
+                # print("adding", i, "to conf")
+                conf_hours.append(i)
+
+    for (b, e) in busy_ranges:
+        h_b = b // 60
+        h_e = e // 60
+        if e % 60: h_e += 1
+        for i in range(h_b, h_e):
+            if i not in conf_hours and i not in busy_hours:
+                # print("adding", i, "to busy")
+                busy_hours.append(i)
+    h = {} 
+    for i in range(24):
+        if i in busy_hours:
+            h[i] = '#'.center(5, ' ')
+        elif i in conf_hours:
+            h[i] = '###'.center(5, ' ')
+        # else:
+        #     h[i] = '.'.center(3, ' ')
+        h['total'] = total
+    return h
+
 def check_requires(key, hsh):
     """
     Check that hsh has the prerequisite entries for key.
@@ -1029,7 +1149,7 @@ class DataView(object):
         self.plain = plain
         self.weeks = weeks
         self.agenda_view = ""
-        self.busy = []
+        self.busy_view = ""
         self.refreshRelevant()
         if dtstr is None:
             self.currYrWk()
@@ -1060,7 +1180,7 @@ class DataView(object):
         self.current, self.alerts = relevant()
 
     def refreshAgenda(self):
-        self.agenda_view, self.busy, self.num2id = schedule(self.activeYrWk, self.current, self.weeks)
+        self.agenda_view, self.busy_view, self.num2id = schedule(self.activeYrWk, self.current, self.weeks)
 
     def show_details(self, num):
         if self.details:
@@ -1077,7 +1197,7 @@ class DataView(object):
         item = ETMDB.get(doc_id=item_id)
         if item:
             self.details = True
-            return [item_details(item)]
+            return item_details(item)
         return None
 
 
@@ -2822,18 +2942,14 @@ def item_details(item):
         print('item_details', e)
         print(item)
 
-def fmt_week(dt_obj):
+def fmt_week(yrwk):
     """
-    >>> d = parse('2018-03-06 9:30pm', tz='US/Eastern')
-    >>> d
-    DateTime(2018, 3, 6, 21, 30, 0, tzinfo=Timezone('US/Eastern'))
-    >>> fmt_week(d)
+    >>> fmt_week((2018, 10))
     '2018 Week 10: Mar 5 - 11'
-    >>> d = parse('2018-12-31 9:30pm', tz='US/Eastern')
-    >>> fmt_week(d)
+    >>> fmt_week((2019, 1))
     '2019 Week 1: Dec 31 - Jan 6'
     """
-    dt_year, dt_week = dt_obj.isocalendar()[:2]
+    dt_year, dt_week = yrwk
     # dt_week = dt_obj.week_of_year
     # year_week = f"{dt_year} Week {dt_week}"
     wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
@@ -3191,6 +3307,8 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
 
     rows = []
     busy = []
+    agenda_view = ""
+    busy_view = ""
     for item in ETMDB:
         if item['itemtype'] in "!?":
             continue
@@ -3263,40 +3381,69 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
             if et:
                 beg_min = dt.hour * 60 + dt.minute
                 end_min = et.hour * 60 + et.minute
-                busy.append([dt, beg_min, end_min])
+                y, w, d = dt.isocalendar()
+                #             x[0] x[1]  x[2]     x[3]
+                busy.append([(y,w), d, beg_min, end_min])
     if yw == getWeekNum():
         rows.extend(current)
     from operator import itemgetter
     from itertools import groupby
     rows.sort(key=itemgetter('sort'))
     busy.sort()
-    # pprint(rows)
 
-    view = []
+    busy_tups = [(x[1], (x[2], x[3])) for x in busy if x[0] == yw]
+    if busy_tups: 
+        h = {}
+        busy = {}
+
+        t = {0: 'total'.rjust(6, ' ')}
+
+        monday = parse(f"{yw[0]}-W{str(yw[1]).zfill(2)}-1")
+        DD = {}
+        for i in range(7):
+            DD[i+1] = monday.add(days=i).format("D").ljust(2, ' ')
+
+        for weekday in range(1, 8):
+            t[weekday] = '0'.center(5, ' ')
+
+        for hour in range(24):
+            h.setdefault(hour, {})
+            for weekday in range(1, 8):
+                h[hour][weekday] = '  .  '
+
+        for tup in busy_tups:
+            #                 d             (beg_min, end_min)
+            busy.setdefault(tup[0], []).append(tup[1])
+        for weekday in range(1, 8):
+            lofp = busy.get(weekday, [])
+            hours = busy_conf_day(lofp)
+            t[weekday] = str(hours['total']).center(5, ' ')
+            for hour in range(24):
+                if hour in hours:
+                    h[hour][weekday] = hours[hour]
+
+        busy_view =  busy_template.format(week=fmt_week(yw), WA=WA, DD=DD, t=t, h=h, l=LL)
+
+    agenda = []
 
     row2id = {}
     row_num = -1
     for week, items in groupby(rows, key=itemgetter('week')):
-        week_beg = pendulum.parse(f"{week[0]}-W{str(week[1]).rjust(2, '0')}")
-        # week_beg = pendulum.parse("{}-W{}".format(week[0], week[1]))
-        view.append("{}".format(fmt_week(week_beg))) 
+        agenda.append("{}".format(fmt_week(week))) 
         row_num += 1
         for day, columns in groupby(items, key=itemgetter('day')):
             for d in day:
                 if current_week and d == current_day:
                     d += " (Today)"
-                view.append(f"  {d}")
+                agenda.append(f"  {d}")
                 row_num += 1
                 for i in columns:
                     space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
-                    view.append(f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}") 
+                    agenda.append(f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}") 
                     row_num += 1
                     row2id[row_num] = i['id']
-    return view, busy, row2id
-    # if plain:
-    #     return view, out_sel, selection2id
-    # else:
-    #     return FormattedText(view), FormattedText(out_sel), selection2id
+    agenda_view = "\n".join(agenda)
+    return agenda_view, busy_view, row2id
 
 
 def import_json(etmdir=None):
@@ -3441,14 +3588,11 @@ if __name__ == '__main__':
             print_json()
         if 'p' in sys.argv[1]:
             dataview = DataView(weeks=1, plain=True)
-            for row in dataview.agenda_view:
-                print(row.rstrip())
-            for row in dataview.busy:
-                print(row)
+            print(dataview.agenda_view)
+            print(dataview.busy_view)
         if 'P' in sys.argv[1]:
             dataview = DataView(weeks=3, plain=True)
-            for row in dataview.agenda_select:
-                print(row.rstrip())
+            print(dataview.agenda_view)
         if 's' in sys.argv[1]:
             dataview = DataView(weeks=1)
             print_formatted_text(dataview.agenda_view, style=style)

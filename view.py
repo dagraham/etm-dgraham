@@ -22,7 +22,7 @@ from prompt_toolkit.filters import Condition
 
 import pendulum
 import re
-from etmMVC.model import WeekView
+from etmMVC.model import DataView
 
 
 @Condition
@@ -77,8 +77,8 @@ class ETMLexer(Lexer):
 
         return get_line
 
-weekview = WeekView()
-content = "\n".join(weekview.agenda_view)
+dataview = DataView()
+content = dataview.agenda_view
 
 current_today = pendulum.now().format("YYYYMMDD")
 def event_handler(loop):
@@ -87,8 +87,8 @@ def event_handler(loop):
     today = now.format("YYYYMMDD")
     if today != current_today:
         current_today = today
-        weekview.refreshRelevant()
-        weekview.refreshAgenda()
+        dataview.refreshRelevant()
+        dataview.refreshAgenda()
     wait = 60 - now.second
     loop.call_later(wait, event_handler, loop)
 
@@ -150,30 +150,29 @@ def _(event):
 
 @bindings.add('n', filter=is_not_searching)
 def nextweek(event):
-    weekview.nextYrWk()
-    text_area.text = "\n".join(weekview.agenda_view)
+    dataview.nextYrWk()
+    text_area.text = dataview.agenda_view
 
 
 @bindings.add('p', filter=is_not_searching)
 def prevweek(event):
-    weekview.prevYrWk()
-    text_area.text = "\n".join(weekview.agenda_view)
+    dataview.prevYrWk()
+    text_area.text = dataview.agenda_view
 
 @bindings.add('space', filter=is_not_searching)
 def currweek(event):
-    weekview.currYrWk()
-    text_area.text = "\n".join(weekview.agenda_view)
+    dataview.currYrWk()
+    text_area.text = dataview.agenda_view
 
 @bindings.add('enter', filter=is_not_searching)
 def show(event):
-    # print(text_area.document.cursor_position_row, weekview.num2id)
-    tmp = weekview.show_details(text_area.document.cursor_position_row)
+    tmp = dataview.show_details(text_area.document.cursor_position_row)
     if tmp is not None:
-        text_area.text = "\n".join(tmp)
-    if not weekview.details:
+        text_area.text = tmp
+    if not dataview.details:
         pass
-        # Output.cursor_goto(text_area, row=weekview.current_row, column=0)
-        # Output.cursor_goto(row=weekview.current_row, column=0)
+        # Output.cursor_goto(text_area, row=dataview.current_row, column=0)
+        # application.output.cursor_goto(row=dataview.current_row, column=0)
 
 
 style = Style.from_dict({

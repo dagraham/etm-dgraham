@@ -87,7 +87,8 @@ busy_template = """\
 
 def busy_conf_minutes(lofp):
     """
-    lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi > ei. By sort, bi >= bi+1. Suppose we have
+    lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi < ei. By sort, bi <= bi+1. 
+    Return list of busy intervals, list of conflict intervals, busy minutes.
     [(540, 600), (600, 720)]
     >>> busy_conf_minutes([(540, 600)])
     ([(540, 600)], [], 60)
@@ -126,6 +127,8 @@ def busy_conf_minutes(lofp):
 
 def busy_conf_day(lofp):
     """
+    lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi < ei. By sort, bi <= bi+1.
+    Return a hash giving total minutes and appropriate symbols for busy hours.
     >>> busy_conf_day([(540, 600), (600, 720)])
     {'total': 180, 9: '  #  ', 10: '  #  ', 11: '  #  '}
     >>> busy_conf_day([(540, 620), (600, 720), (660, 700)])
