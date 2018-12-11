@@ -293,7 +293,7 @@ for hour in range(24):
         else:
             LL[hour] = f"{hour}h".rjust(6, ' ')
     else:
-        LL[hour] = '-'.rjust(6, ' ')
+        LL[hour] = ' '.rjust(6, ' ')
 
 
 busy_template = """\
@@ -3205,7 +3205,7 @@ def relevant():
     week = (today.year, today.week_of_year)
     day = (today.format("ddd MMM D"), )
     for item in inbox:
-        current.append({'id': item[0], 'sort': (today_fmt, 0), 'week': week, 'day': day, 'columns': ['!', item[1], '']})
+        current.append({'id': item[2], 'sort': (today_fmt, 0), 'week': week, 'day': day, 'columns': ['!', item[1], '']})
 
     for item in pastdue:
         # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
@@ -3217,11 +3217,6 @@ def relevant():
         rhc = str(item[0]) + " "*7 if item[0] in item else ""
         current.append({'id': item[2], 'sort': (today_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], rhc]})
 
-    # print("\ninbox", inbox)
-    # print("\npastdue", pastdue)
-    # print("\nbeginbys", beginbys)
-    # print("\ncurrent", current)
-    # print("\nalerts", alerts)
     return current, alerts 
 
 
@@ -3605,6 +3600,7 @@ if __name__ == '__main__':
             dataview = DataView(weeks=1, plain=True)
             print(dataview.agenda_view)
             print(dataview.busy_view)
+            pprint(dataview.num2id)
         if 'P' in sys.argv[1]:
             dataview = DataView(weeks=4, plain=True)
             print(dataview.agenda_view)

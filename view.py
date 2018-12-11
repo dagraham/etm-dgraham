@@ -168,7 +168,6 @@ def prevweek(event):
 def currweek(event):
     dataview.currYrWk()
     text_area.text = dataview.show_active_view()
-    text_area.text = dataview.agenda_view
 
 @bindings.add('enter', filter=is_not_searching)
 def show(event):
