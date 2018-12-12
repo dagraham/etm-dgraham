@@ -3577,8 +3577,9 @@ def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
         agenda = []
+        row2id = {}
+        row_num = 0
         agenda.append("{}".format(fmt_week(week).center(width, ' '))) 
-        row_num += 1
         for day, columns in groupby(items, key=itemgetter('day')):
             for d in day:
                 if current_week and d == current_day:
@@ -3607,7 +3608,7 @@ def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
         else:
             tup.append("{}\n\n   No busy periods".format(fmt_week(week).center(width, ' ')))
         if week in row2id_hsh:
-            tup.append(row2id_hsh)
+            tup.append(row2id_hsh[week])
         else:
             tup.append({})
         cache[week] = tup
