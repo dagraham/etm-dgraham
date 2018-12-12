@@ -3601,11 +3601,11 @@ def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
         if week in agenda_hsh:
             tup.append(agenda_hsh[week])
         else:
-            tup.append("{}\n   Nothing scheduled".format(fmt_week(week)))
+            tup.append("{}\n   Nothing scheduled".format(fmt_week(week).center(width, ' ')))
         if week in busy_hsh:
             tup.append(busy_hsh[week])
         else:
-            tup.append("{}\n\n   No busy periods".format(fmt_week(week)))
+            tup.append("{}\n\n   No busy periods".format(fmt_week(week).center(width, ' ')))
         if week in row2id_hsh:
             tup.append(row2id_hsh)
         else:
