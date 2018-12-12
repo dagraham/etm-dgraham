@@ -1,57 +1,57 @@
 # What's planned for the next etm?
-**Last modified: Sat Dec 08, 2018 05:50PM EST**
+**Last modified: Tue Dec 11, 2018 10:14AM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Goals](#goals)
 * [Data](#data)
-	* [Item Types](#item-types)
-		* [event](#event)
-		* [task](#task)
-		* [record](#record)
-		* [inbox](#inbox)
-	* [Notice Types](#notice-types)
-		* [Beginning Soon](#beginning-soon)
-		* [Past Due](#past-due)
-		* [Waiting](#waiting)
-		* [Finished](#finished)
-	* [Expansions](#expansions)
-	* [`@`keys](#keys)
-		* [Notices](#notices)
-	* [`&`keys](#keys-1)
-		* [for use with `@j`:](#for-use-with-j)
-		* [for use with `@r`:](#for-use-with-r)
-	* [TinyDB](#tinydb)
-	* [Dates, Times and Periods](#dates-times-and-periods)
-	* [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
+    * [Item Types](#item-types)
+        * [event](#event)
+        * [task](#task)
+        * [record](#record)
+        * [inbox](#inbox)
+    * [Notice Types](#notice-types)
+        * [Beginning Soon](#beginning-soon)
+        * [Past Due](#past-due)
+        * [Waiting](#waiting)
+        * [Finished](#finished)
+    * [Expansions](#expansions)
+    * [`@`keys](#keys)
+        * [Notices](#notices)
+    * [`&`keys](#keys-1)
+        * [for use with `@j`:](#for-use-with-j)
+        * [for use with `@r`:](#for-use-with-r)
+    * [TinyDB](#tinydb)
+    * [Dates, Times and Periods](#dates-times-and-periods)
+    * [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
 * [Views](#views)
-	* [Weekly](#weekly)
-		* [Agenda](#agenda)
-		* [Busy](#busy)
-		* [Done](#done)
-	* [Monthly](#monthly)
-	* [Relevant](#relevant)
-	* [Search](#search)
-	* [Next](#next)
-	* [Index](#index)
-	* [History](#history)
-	* [Tags](#tags)
-	* [Query](#query)
+    * [Weekly](#weekly)
+        * [Agenda](#agenda)
+        * [Busy](#busy)
+        * [Done](#done)
+    * [Monthly](#monthly)
+    * [Relevant](#relevant)
+    * [Search](#search)
+    * [Next](#next)
+    * [Index](#index)
+    * [History](#history)
+    * [Tags](#tags)
+    * [Query](#query)
 * [Work Flow](#work-flow)
-	* [Editing an existing item](#editing-an-existing-item)
-	* [Creating a new item](#creating-a-new-item)
+    * [Editing an existing item](#editing-an-existing-item)
+    * [Creating a new item](#creating-a-new-item)
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
-	* [Model](#model)
-		* [Data Store](#data-store)
-		* [Supporting queries](#supporting-queries)
-		* [Items Tables](#items-tables)
-		* [Instances Table](#instances-table)
-		* [Item Views](#item-views)
-		* [Instance Views](#instance-views)
-		* [CRUD](#crud)
-		* [API](#api)
+    * [Model](#model)
+        * [Data Store](#data-store)
+        * [Supporting queries](#supporting-queries)
+        * [Items Tables](#items-tables)
+        * [Instances Table](#instances-table)
+        * [Item Views](#item-views)
+        * [Instance Views](#instance-views)
+        * [CRUD](#crud)
+        * [API](#api)
 
 <!-- vim-markdown-toc -->
 
@@ -579,6 +579,38 @@ ASCII art is used in the following to suggest the appearance of the view in the 
         +----------------------------------------------------------+
         | 8:49am Thu Jan 18                              10:30am+1 | 30
         +----------------------------------------------------------+
+
+
+          2018 Week 50: Dec 10 - 16
+                   Mo 10  Tu 11  We 12  Th 13  Fr 14  Sa 15  Su 16
+                   -----------------------------------------------
+            12am     .      .      .      .      .      .      .
+                     .      .      .      .      .      .      .
+                     .      .      .      .      .      .      .
+                     .      .      .      .      .      .      .
+                     .      .      .      .      .      .      .
+                     .      .      .      .      .      .      .
+             6am     .      .      .      .      .      .      .
+                     .      .      .      .      .      .      .
+                     .      .      .      .      .      .      .
+                     .      .      .      .      #      .      .
+                     .      .      .      .      #      .      .
+                     .      .      #      .      .      .      .
+            12pm     .      #      #      .      #      .      .
+                     .      #      .      .      #      .      .
+                     .      #      .      #      #      .      .
+                     .      .      .      #      .      .      .
+                     .      .      .      .      .      .      .
+                     .      .      .      .      .      .      .
+             6pm     .      .      #      #      .      .      #
+                     .      .      #      #      .      .      #
+                     .      .      #      #      .      .      #
+                     .      .      .      #      .      #      #
+                     .      .      .      .      .      #      .
+                     .      .      .      .      .      .      .
+                   -----------------------------------------------
+           total     0     180    180    300    210    120    180
+
 
 
 ### [Done](#toc)

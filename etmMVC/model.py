@@ -915,7 +915,10 @@ def timestamp_list(arg, typ=None):
     else:
         return True, tmp
 
-def format_datetime(obj):
+def plain_datetime(obj):
+    return format_datetime(obj, plain=True)
+
+def format_datetime(obj, plain=False):
     """
     >>> format_datetime(parse_datetime("20160710T1730")[1])
     (True, 'Sun Jul 10 2016 5:30PM EDT')
@@ -931,26 +934,42 @@ def format_datetime(obj):
     # if type(obj) == datetime:
     #     obj = pendulum.instance(obj)
     if type(obj) == pendulum.Date:
-        return True, format(obj.format("ddd MMM D YYYY"))
+        if plain:
+            return True, format(obj.format("YYYY-MM-DD"))
+        else:
+            return True, format(obj.format("ddd MMM D YYYY"))
 
     elif type(obj) == pendulum.DateTime: 
         if obj.format('Z') == '':
             # naive
             if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
                 # date
-                return True, format(obj.format("ddd MMM D YYYY"))
+                if plain:
+                    return True, format(obj.format("YYYY-MM-DD"))
+                else:
+                    return True, format(obj.format("ddd MMM D YYYY"))
             else:
                 # naive datetime
-                return True, format(obj.format("ddd MMM D YYYY h:mmA"))
+                if plain:
+                    return True, format(obj.format("YYYY-MM-DD h:mmA"))
+                else:
+                    return True, format(obj.format("ddd MMM D YYYY h:mmA"))
         else:
             # aware
-            return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA zz"))
+            if plain:
+                return True, format(obj.format("YYYY-MM-DD h:mmA"))
+            else:
+                return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA zz"))
 
     else:
         return False, "The argument must be a pendulum date or datetime."
 
 def format_datetime_list(obj_lst):
     ret = ", ".join([format_datetime(x)[1] for x in obj_lst])
+    return ret
+
+def plain_datetime_list(obj_lst):
+    ret = ", ".join([plain_datetime(x)[1] for x in obj_lst])
     return ret
 
 def format_duration(obj):
@@ -1138,7 +1157,7 @@ class TimeIt(object):
 class DataView(object):
 
     def __init__(self, loglevel=1, dtstr=None, weeks=1, plain=False):
-        self.active_view = 'agenda'  # (other view: busy)
+        self.active_view = 'agenda'  # (other views: history)
         # self.activeYrWk = self.currentYrWk = None
         self.current = []
         self.num2id = []
@@ -1148,20 +1167,42 @@ class DataView(object):
         self.weeks = weeks
         self.agenda_view = ""
         self.busy_view = ""
+        self.history_view = ""
         self.refreshRelevant()
+        self.cache = {} # yrwk -> [agenda, busy, num2id]
+        self.views = {
+                'a': 'agenda',
+                'b': 'busy',
+                'h': 'history',
+                }
+
         if dtstr is None:
             self.currYrWk()
         else:
             self.dtYrWk(pendulum.parse(dtstr))
 
-    def toggle_active_view(self):
-        self.active_view = 'busy' if self.active_view == 'agenda' else 'agenda'
+    def set_active_view(self, c):
+        self.active_view = self.views.get(c, 'agenda')
 
     def show_active_view(self):
         if self.active_view == 'agenda':
             return self.agenda_view
         elif self.active_view == 'busy':
             return self.busy_view
+        elif self.active_view == 'history':
+            self.history_view, self.num2id = show_history()
+            return self.history_view
+
+    def toggle_agenda_busy(self):
+        if self.active_view == 'agenda':
+            self.active_view = 'busy'
+            return self.busy_view
+        elif self.active_view == 'busy':
+            self.active_view = 'agenda'
+            return self.agenda_view
+        else:
+            self.active_view = 'agenda'
+            return self.agenda_view
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk) 
@@ -1187,12 +1228,14 @@ class DataView(object):
         self.current, self.alerts = relevant()
 
     def refreshAgenda(self):
-        self.agenda_view, self.busy_view, self.num2id = schedule(self.activeYrWk, self.current, self.weeks)
+        if self.activeYrWk not in self.cache:
+            self.cache[self.activeYrWk] = schedule(self.activeYrWk, self.current)
+        self.agenda_view, self.busy_view, self.num2id = self.cache[self.activeYrWk]
 
     def show_details(self, num):
         if self.details:
             self.details = False
-            return self.agenda_view
+            return self.show_active_view()
 
         self.current_row = num
         item_id = self.num2id.get(num, None)
@@ -1206,6 +1249,9 @@ class DataView(object):
             self.details = True
             return item_details(item)
         return None
+
+    def clear_cache(self):
+        self.cache = {}
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
@@ -1497,17 +1543,34 @@ entry_tmpl = """\
 {%- endset %}
 @j {{ wrap(job) }}\
 {%- endfor %}\
-{%- endif -%}
+{%- endif %}
+"""
+
+display_tmpl = entry_tmpl + """\
+
+{{ '-' * 58 }}
+doc_id:  {{ h.doc_id }}
+created: {{ dt2str(h.created)[1] }}
+{% if 'modified' in h %}\
+modified: {{ dt2str(h.modified)[1] }}
+{%- endif %}\
 """
 
 jinja_entry_template = Template(entry_tmpl)
-jinja_entry_template.globals['dt2str'] = format_datetime
+jinja_entry_template.globals['dt2str'] = plain_datetime
 jinja_entry_template.globals['in2str'] = format_duration
 jinja_entry_template.globals['dtlst2str'] = format_datetime_list
 jinja_entry_template.globals['inlst2str'] = format_duration_list
 jinja_entry_template.globals['one_or_more'] = one_or_more
-# jinja_entry_template.globals['set_summary'] = set_summary
 jinja_entry_template.globals['wrap'] = wrap
+
+jinja_display_template = Template(display_tmpl)
+jinja_display_template.globals['dt2str'] = plain_datetime
+jinja_display_template.globals['in2str'] = format_duration
+jinja_display_template.globals['dtlst2str'] = plain_datetime_list
+jinja_display_template.globals['inlst2str'] = format_duration_list
+jinja_display_template.globals['one_or_more'] = one_or_more
+jinja_display_template.globals['wrap'] = wrap
 
 def beginby(arg):
     return integer(arg, 1, None, False, 'beginby')
@@ -2931,20 +2994,24 @@ def beg_ends(starting_dt, extent_duration, z=None):
     return pairs
 
 
-def print_json():
+def print_json(edit=False):
     for item in ETMDB:
         try:
             print(item.doc_id)
-            print(item_details(item))
+            print(item_details(item, edit))
         except Exception as e:
             print('exception:', e)
             pprint(item)
             print()
         print()
 
-def item_details(item):
+def item_details(item, edit=False):
     try:
-        return jinja_entry_template.render(h=item)
+        if edit:
+            return jinja_entry_template.render(h=item)
+        else:
+            return jinja_display_template.render(h=item)
+
     except Exception as e:
         print('item_details', e)
         print(item)
@@ -3215,6 +3282,7 @@ def relevant():
     for item in beginbys:
         # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
         rhc = str(item[0]) + " "*7 if item[0] in item else ""
+        # rhc = str(item[0]) if item[0] in item else ""
         current.append({'id': item[2], 'sort': (today_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], rhc]})
 
     return current, alerts 
@@ -3234,10 +3302,10 @@ def update_db(id, hsh):
             print(repr(e))
             print(id, "old:", old, "\n", "new:", hsh, '\n')
 
-def show_history(selection=False, plain=False):
+def show_history(reverse=True):
     from operator import itemgetter
     from itertools import groupby
-    width = 60
+    width = 58
     rows = []
     for item in ETMDB:
         for dt, label in [(item.get('created', None), 'c'), (item.get('modified', None), 'm')]:
@@ -3256,36 +3324,70 @@ def show_history(selection=False, plain=False):
                                 ),
                             'columns': [itemtype,
                                 item['summary'], 
-                                f"{dtfmt}[{label}]"
+                                f"{dtfmt} {label}"
                                 ]
                         }
                         )
-    rows.sort(key=itemgetter('sort'), reverse=True)
+    rows.sort(key=itemgetter('sort'), reverse=reverse)
     out_view = []
-    out_sel = []
-    selection2id = {}
-    selection_number = 0
-    for row in rows:
-        selection_number += 1
-        row['columns'].append(selection_number)
-        selection2id[selection_number] = row['id']
+    num2id = {}
 
-    view_width = width - 15 
+    summary_width = width - 18 
+    num = 0
     for i in rows:
-        num = str(i['columns'][3])
-        sel_width = view_width - len(num) - 3
-        view_summary = i['columns'][1][:view_width].ljust(view_width, ' ')
-        sel_summary = i['columns'][1][:sel_width].ljust(sel_width, ' ')
+        num2id[num] = i['id']
+        num += 1
+        view_summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
+        # sel_summary = i['columns'][1][:sel_width].ljust(sel_width, ' ')
         # space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - len(num) - 3 - 2)
-        tmp = f"{i['columns'][0]} [{i['columns'][3]}] {sel_summary}{i['columns'][2]}\n" 
-        out_sel.append(fmt_class(tmp, type2style[i['columns'][0]], plain))
-        space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
-        tmp = f"{i['columns'][0]} {view_summary}{i['columns'][2]}\n" 
-        out_view.append(fmt_class(tmp, type2style[i['columns'][0]], plain))
-    if plain:
-        return out_view, out_sel, selection2id
-    else:
-        return FormattedText(out_view), FormattedText(out_sel), selection2id
+        # tmp = f"{i['columns'][0]} [{i['columns'][3]}] {sel_summary}{i['columns'][2]}\n" 
+        # out_sel.append(fmt_class(tmp, type2style[i['columns'][0]], plain))
+        tmp = f" {i['columns'][0]} {view_summary}  {i['columns'][2]}" 
+        # out_view.append(fmt_class(tmp, type2style[i['columns'][0]], plain))
+        out_view.append(tmp)
+    return "\n".join(out_view), num2id
+
+def show_next():
+    """
+    Unfinished, undated tasks and jobs
+    """
+    from operator import itemgetter
+    from itertools import groupby
+    width = 58
+    rows = []
+    for item in ETMDB:
+        if 's' in item or 'f' in item:
+            continue
+        location = item.get('l', '~none')
+        rows.append(
+                {
+                    'id': item.doc_id,
+                    'sort': (location, item['itemtype'], item['summary']),
+                    'location': location,
+                    'columns': [item['itemtype'],
+                        item['summary'], 
+                        ]
+                }
+                )
+    rows.sort(key=itemgetter('sort'))
+    out_view = []
+    num2id = {}
+
+    view_width = width
+    num = 0
+    for i in rows:
+        num2id[num] = i['id']
+        num += 1
+        # sel_width = view_width - len(num) - 3
+        view_summary = i['columns'][1][:25].ljust(view_width, ' ')
+        # sel_summary = i['columns'][1][:sel_width].ljust(sel_width, ' ')
+        # space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - len(num) - 3 - 2)
+        # tmp = f"{i['columns'][0]} [{i['columns'][3]}] {sel_summary}{i['columns'][2]}\n" 
+        # out_sel.append(fmt_class(tmp, type2style[i['columns'][0]], plain))
+        tmp = f" {i['columns'][0]} {view_summary}  {i['columns'][2]}" 
+        # out_view.append(fmt_class(tmp, type2style[i['columns'][0]], plain))
+        out_view.append(tmp)
+    return "\n".join(out_view), num2id
 
 def fmt_class(txt, cls=None, plain=False):
     if not plain and cls is not None:
@@ -3294,11 +3396,12 @@ def fmt_class(txt, cls=None, plain=False):
         return txt
 
 def schedule(yw=getWeekNum(), current=[], weeks=1):
-    width = 56
+    width = 58
+    summary_width = width - 7 - 16
     # aft_dt = 0 hours on the Monday of week
     aft_dt = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
     # bef_dt = 0 hours on the Monday of the following week
-    bef_dt = aft_dt.add(days=7*weeks)
+    bef_dt = aft_dt.add(days=7*weeks, minutes=-1)
     # print('in interval', aft_dt, bef_dt, weeks)
 
     now = pendulum.now()
@@ -3431,15 +3534,17 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
                     h[hour][weekday] = hours[hour]
 
 
-        busy_view +=  busy_template.format(week=fmt_week(week), WA=WA, DD=DD, t=t, h=h, l=LL)
+        busy_view +=  busy_template.format(week=fmt_week(week).center(width, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
+    if not busy_view:
+        busy_view = "{}\n\n   No busy periods".format(fmt_week(yw).center(width, ' '))
     agenda = []
 
     row2id = {}
     row_num = -1
     # FIXME: deal with weeks without scheduled items
     for week, items in groupby(rows, key=itemgetter('week')):
-        agenda.append("{}".format(fmt_week(week))) 
+        agenda.append("{}".format(fmt_week(week).center(width, ' '))) 
         row_num += 1
         for day, columns in groupby(items, key=itemgetter('day')):
             for d in day:
@@ -3448,11 +3553,15 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
                 agenda.append(f"  {d}")
                 row_num += 1
                 for i in columns:
-                    space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
-                    agenda.append(f"    {i['columns'][0]} {i['columns'][1]}{space}{i['columns'][2]}") 
+                    summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
+                    rhc = i['columns'][2].rjust(16, ' ')
+                    # space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
+                    agenda.append(f"    {i['columns'][0]} {summary}{rhc}") 
                     row_num += 1
                     row2id[row_num] = i['id']
     agenda_view = "\n".join(agenda)
+    if not agenda_view:
+        agenda_view = "{}\n   Nothing scheduled".format(fmt_week(yw))
     return agenda_view, busy_view, row2id
 
 
@@ -3629,14 +3738,9 @@ if __name__ == '__main__':
             print_formatted_text(dataview.agenda_view, style=style)
             print()
         if 'h' in sys.argv[1]:
-            plain_view, sel_view, selection2id = show_history(plain=True)
-            for row in plain_view:
-                print(row.rstrip())
+            history_view, num2id = show_history()
+            print(history_view)
 
-        if 'H' in sys.argv[1]:
-            plain_view, sel_view, selection2id = show_history(plain=True)
-            for row in sel_view:
-                print(row.rstrip())
 
 
     doctest.testmod()

@@ -19,6 +19,7 @@ from prompt_toolkit.eventloop import use_asyncio_event_loop
 from prompt_toolkit.output import Output
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.filters import Condition
+from prompt_toolkit import prompt
 
 import pendulum
 import re
@@ -29,8 +30,16 @@ from etmMVC.model import DataView
 def is_not_searching():
     return not application.layout.is_searching
 
+@Condition
+def is_not_busy_view():
+    return dataview.active_view != 'busy'
+
+@Condition
+def is_agenda_view():
+    return dataview.active_view in ['agenda', 'busy']
+
 etmstyle = {
-    'plain':        'Beige',
+    'plain':        'Ivory',
     'inbox':        'LightCoral',
     'pastdue':      'DeepSkyBlue',
     'begin':        'Khaki',
@@ -102,7 +111,7 @@ def get_statusbar_text():
         ('class:status', ' for help, '),
         ('class:status.key', '/'),
         ('class:status', ' to search or '),
-        ('class:status.key', 'q'),
+        ('class:status.key', 'Q '),
         ('class:status', ' to exit'),
     ]
 
@@ -110,7 +119,7 @@ def get_statusbar_text():
 search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
 
-system_field = SystemToolbar()
+system_field = SystemToolbar(prompt=">>> " )
 
 def get_line_prefix(linenum, wrap=2):
     return(str(linenum).rjust(2, ' ') + " ") # if not linenum % 5 else "    "
@@ -134,6 +143,7 @@ root_container = HSplit([
         get_statusbar_text),
         height=D.exact(1),
         style='class:status'),
+    system_field,
     search_field,
 ])
 
@@ -142,41 +152,53 @@ root_container = HSplit([
 bindings = KeyBindings()
 
 
-@bindings.add('q')
+@bindings.add('Q')
 @bindings.add('f8')
 def _(event):
     " Quit. "
     event.app.exit()
 
-@bindings.add('t', filter=is_not_searching)
-def toggle_view(event):
-    dataview.toggle_active_view()
+@bindings.add('a', filter=is_not_searching)
+def toggle_agena_busy(event):
+    text_area.text = dataview.toggle_agenda_busy()
+
+# @bindings.add('b', filter=is_not_searching)
+# def agenda_view(event):
+#     dataview.set_active_view('b')
+#     text_area.text = dataview.show_active_view()
+
+@bindings.add('h', filter=is_not_searching)
+def agenda_view(event):
+    dataview.set_active_view('h')
     text_area.text = dataview.show_active_view()
 
-@bindings.add('n', filter=is_not_searching)
+@bindings.add('right', filter=is_agenda_view & is_not_searching)
 def nextweek(event):
     dataview.nextYrWk()
     text_area.text = dataview.show_active_view()
 
 
-@bindings.add('p', filter=is_not_searching)
+@bindings.add('left', filter=is_agenda_view & is_not_searching)
 def prevweek(event):
     dataview.prevYrWk()
     text_area.text = dataview.show_active_view()
 
-@bindings.add('space', filter=is_not_searching)
+@bindings.add('space', filter=is_agenda_view & is_not_searching)
 def currweek(event):
     dataview.currYrWk()
     text_area.text = dataview.show_active_view()
 
-@bindings.add('enter', filter=is_not_searching)
+@bindings.add('enter', filter=is_not_searching & is_not_busy_view)
 def show(event):
     tmp = dataview.show_details(text_area.document.cursor_position_row)
     if tmp is not None:
         text_area.text = tmp
     if not dataview.details:
-        pass
+        dataview.show_active_view()
+        # event.app.output.cursor_goto(row=dataview.current_row, column=0)
         # Output.cursor_goto(text_area, row=dataview.current_row, column=0)
+        # application.output.cursor_goto(row=dataview.current_row, column=0)
+        # application.output.cursor_goto(row=0, column=0)
         # application.output.cursor_goto(row=dataview.current_row, column=0)
 
 
