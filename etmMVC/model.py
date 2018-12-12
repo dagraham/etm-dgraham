@@ -1169,7 +1169,8 @@ class DataView(object):
         self.busy_view = ""
         self.history_view = ""
         self.refreshRelevant()
-        self.cache = {} # yrwk -> [agenda, busy, num2id]
+        self.cache = {}
+        # self.refreshCache() # yrwk -> [agenda, busy, num2id]
         self.views = {
                 'a': 'agenda',
                 'b': 'busy',
@@ -1229,7 +1230,7 @@ class DataView(object):
 
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
-            self.cache[self.activeYrWk] = schedule(self.activeYrWk, self.current)
+            self.cache.update(schedule(self.activeYrWk, self.current))
         self.agenda_view, self.busy_view, self.num2id = self.cache[self.activeYrWk]
 
     def show_details(self, num):
@@ -1250,8 +1251,14 @@ class DataView(object):
             return item_details(item)
         return None
 
-    def clear_cache(self):
+    def clearCache(self):
         self.cache = {}
+
+    def refreshCache(self):
+        tmp = schedule(self.activeYrWk, self.current, 3, 9)
+        self.cache.update(tmp)
+
+
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
@@ -2834,14 +2841,14 @@ ETMDB = TinyDB('db.json', storage=serialization, default_table='items', indent=1
 
 # FIXME: Process only one week at a time on demand => no need to store and update extended periods or to limit the weeks that can be displayed.
 
-def get_period(dt=pendulum.now(), months_before=11, months_after=24):
+def get_period(dt=pendulum.now(), weeks_before=3, weeks_after=9):
     """
     Return the begining and ending of the period that includes the weeks in current month plus the weeks in the prior *months_before* and the weeks in the subsequent *months_after*. The period will begin at 0 hours on the relevant Monday and end at 23:59:59 hours on the relevant Sunday.
-    >>> get_period(pendulum.datetime(2018, 7, 1, 0, 0, tz='US/Eastern'))
-    (DateTime(2017, 7, 31, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2020, 8, 9, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
+    >>> get_period(pendulum.datetime(2018, 12, 15, 0, 0, tz='US/Eastern'))
+    (DateTime(2018, 11, 19, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2019, 2, 17, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
     """
-    beg = dt.start_of('month').subtract(months=months_before).start_of('week')
-    end = dt.start_of('month').add(months=months_after, weeks=5).end_of('week')
+    beg = dt.start_of('week').subtract(weeks=weeks_before).start_of('week')
+    end = dt.start_of('week').add(weeks=weeks_after).end_of('week')
     return (beg, end)
 
 
@@ -2911,6 +2918,20 @@ def getWeeksForMonth(ym):
         wp = wn
 
     return wl
+
+def getWeekNumbers(dt=pendulum.now(), bef=3, after=9):
+    """
+    >>> dt = pendulum.date(2018, 12, 7)
+    >>> getWeekNumbers(dt)
+    [(2018, 46), (2018, 47), (2018, 48), (2018, 49), (2018, 50), (2018, 51), (2018, 52), (2019, 1), (2019, 2), (2019, 3), (2019, 4), (2019, 5), (2019, 6)]
+    """
+    yw = dt.add(days=-bef*7).isocalendar()[:2]
+    weeks = [yw]
+    for i in range(1, bef + after + 1):
+        yw = nextWeek(yw)
+        weeks.append(yw)
+    return weeks
+
 
 ######################
 ### end week/month ###
@@ -3395,18 +3416,23 @@ def fmt_class(txt, cls=None, plain=False):
     else:
         return txt
 
-def schedule(yw=getWeekNum(), current=[], weeks=1):
+def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
     width = 58
     summary_width = width - 7 - 16
-    # aft_dt = 0 hours on the Monday of week
-    aft_dt = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
+    # dt = 0 hours on the Monday of yw
+    dt = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
+
+    week_numbers = getWeekNumbers(dt, weeks_before, weeks_after)
+    aft_dt, bef_dt = get_period(dt, weeks_before, weeks_after)
+
+    # aft_dt = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
     # bef_dt = 0 hours on the Monday of the following week
-    bef_dt = aft_dt.add(days=7*weeks, minutes=-1)
+    # bef_dt = aft_dt.add(days=7*weeks, minutes=-1)
     # print('in interval', aft_dt, bef_dt, weeks)
 
-    now = pendulum.now()
     current_day = ""
     current_week = yw == getWeekNum()
+    now = pendulum.now()
     if current_week:
         current_day = now.format("ddd MMM D")
 
@@ -3497,9 +3523,14 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
     rows.sort(key=itemgetter('sort'))
     busy.sort(key=itemgetter('sort'))
 
-    # FIXME: deal with weeks without busy times
+    # for the individual weeks
+    agenda_hsh = {}       # yw -> agenda_view
+    busy_hsh = {}       # yw -> busy_view
+    row2id_hsh = {}     # yw -> row2id
+    weeks = set([])
 
     for week, items in groupby(busy, key=itemgetter('week')):
+        weeks.add(week)
         busy_tups = []
         for day, period in groupby(items, key=itemgetter('day')):
             for p in period:
@@ -3534,16 +3565,18 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
                     h[hour][weekday] = hours[hour]
 
 
-        busy_view +=  busy_template.format(week=fmt_week(week).center(width, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
+        busy_hsh[week] = busy_template.format(week=fmt_week(week).center(width, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
-    if not busy_view:
-        busy_view = "{}\n\n   No busy periods".format(fmt_week(yw).center(width, ' '))
-    agenda = []
+
+    # if not busy_view:
+    #     busy_view = "{}\n\n   No busy periods".format(fmt_week(yw).center(width, ' '))
 
     row2id = {}
     row_num = -1
     # FIXME: deal with weeks without scheduled items
     for week, items in groupby(rows, key=itemgetter('week')):
+        weeks.add(week)
+        agenda = []
         agenda.append("{}".format(fmt_week(week).center(width, ' '))) 
         row_num += 1
         for day, columns in groupby(items, key=itemgetter('day')):
@@ -3559,10 +3592,27 @@ def schedule(yw=getWeekNum(), current=[], weeks=1):
                     agenda.append(f"    {i['columns'][0]} {summary}{rhc}") 
                     row_num += 1
                     row2id[row_num] = i['id']
-    agenda_view = "\n".join(agenda)
-    if not agenda_view:
-        agenda_view = "{}\n   Nothing scheduled".format(fmt_week(yw))
-    return agenda_view, busy_view, row2id
+        agenda_hsh[week] = "\n".join(agenda)
+        row2id_hsh[week] = row2id
+
+    cache = {}
+    for week in week_numbers:
+        tup = []
+        if week in agenda_hsh:
+            tup.append(agenda_hsh[week])
+        else:
+            tup.append("{}\n   Nothing scheduled".format(fmt_week(week)))
+        if week in busy_hsh:
+            tup.append(busy_hsh[week])
+        else:
+            tup.append("{}\n\n   No busy periods".format(fmt_week(week)))
+        if week in row2id_hsh:
+            tup.append(row2id_hsh)
+        else:
+            tup.append({})
+        cache[week] = tup
+
+    return cache
 
 
 def import_json(etmdir=None):
@@ -3705,6 +3755,15 @@ if __name__ == '__main__':
             import_json(etmdir)
         if 'j' in sys.argv[1]:
             print_json()
+        if 'c' in sys.argv[1]:
+            dataview = DataView()
+            dataview.refreshCache()
+            print([wk for wk in dataview.cache])
+            schedule, busy, row2id = dataview.cache[dataview.activeYrWk] 
+            print(schedule)
+            print(busy)
+            pprint(row2id)
+            print([wk for wk in dataview.cache])
         if 'p' in sys.argv[1]:
             dataview = DataView(weeks=1, plain=True)
             print(dataview.agenda_view)
@@ -3713,7 +3772,8 @@ if __name__ == '__main__':
         if 'P' in sys.argv[1]:
             dataview = DataView(weeks=4, plain=True)
             print(dataview.agenda_view)
-            print(dataview.busy_view)
+            dataview.nextYrWk()
+            print(dataview.agenda_view)
         if 's' in sys.argv[1]:
             dataview = DataView(weeks=1)
             print_formatted_text(dataview.agenda_view, style=style)

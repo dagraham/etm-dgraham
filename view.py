@@ -20,6 +20,7 @@ from prompt_toolkit.output import Output
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.filters import Condition
 from prompt_toolkit import prompt
+from prompt_toolkit.document import Document
 
 import pendulum
 import re
@@ -87,6 +88,7 @@ class ETMLexer(Lexer):
         return get_line
 
 dataview = DataView()
+dataview.refreshCache()
 content = dataview.agenda_view
 
 current_today = pendulum.now().format("YYYYMMDD")
@@ -134,6 +136,27 @@ text_area = TextArea(
     lexer=ETMLexer()
     )
 
+# input_field = TextArea(
+#     height=1, prompt='>>> ', style='class:input-field', multiline=False,
+#     wrap_lines=False)
+
+
+# def accept(buff):
+#     # Evaluate "calculator" expression.
+#     try:
+#         output = '\n\nIn:  {}\nOut: {}'.format(
+#             input_field.text,
+#             eval(input_field.text))  # Don't do 'eval' in real code!
+#     except BaseException as e:
+#         output = '\n\n{}'.format(e)
+#     new_text = output_field.text + output
+
+#     # Add text to output buffer.
+#     text_area.buffer.document = Document(
+#         text=new_text, cursor_position=len(new_text))
+
+# input_field.accept_handler = accept
+
 
 root_container = HSplit([
     # The main content.
@@ -145,6 +168,7 @@ root_container = HSplit([
         style='class:status'),
     system_field,
     search_field,
+    # input_field,
 ])
 
 
@@ -158,8 +182,13 @@ def _(event):
     " Quit. "
     event.app.exit()
 
+def set_text(txt):
+    text_area.buffer.document = Document(
+        text=txt, cursor_position=len(txt))
+
+
 @bindings.add('a', filter=is_not_searching)
-def toggle_agena_busy(event):
+def toggle_agenda_busy(event):
     text_area.text = dataview.toggle_agenda_busy()
 
 # @bindings.add('b', filter=is_not_searching)
