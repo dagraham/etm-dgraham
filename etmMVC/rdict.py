@@ -27,6 +27,7 @@ class RDict(dict):
 
     def __missing__(self, key):
             self[key] = RDict()
+            self.rows = []
             return self[key]
 
     def add(self, tkeys, values=()):
@@ -43,14 +44,16 @@ class RDict(dict):
         if t is None:
             t = self
         for k in t.keys():
-            print("%s%s" % (depth * RDict.tab,  k))
+            # self.rows.append("%s%s" % (depth * RDict.tab,  k))
+            self.rows.append((depth * RDict.tab,  k))
             depth += 1
             if type(t[k]) == RDict:
-                self.as_tree(t[k], depth)
+                self.as_tree(t=t[k], depth=depth)
             else:
                 for v in t[k]:
-                    print("%s%s" % (depth * RDict.tab, v))
+                    self.rows.append((depth * RDict.tab, v))
             depth -= 1
+
 
 import bisect
 class SList(list):
@@ -121,6 +124,13 @@ if __name__ == '__main__':
 
     print("\ndata as tree")
     index.as_tree()
+    num = -1
+    for row in index.rows:
+        num += 1
+        if isinstance(row[-1], tuple):
+            print(f"{row[0]}{row[1]} [{num}]")
+        else:
+            print(f"{row[0]}{row[1]}")
 
 # starting data: 125 items
 # removed: 3 rows for 824

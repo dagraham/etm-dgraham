@@ -3416,6 +3416,26 @@ def fmt_class(txt, cls=None, plain=False):
     else:
         return txt
 
+def no_busy_periods(week, width):
+    monday = parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
+    DD = {}
+    h = {}
+    t = {0: 'total'.rjust(6, ' ')}
+    for i in range(7):
+        DD[i+1] = monday.add(days=i).format("D").ljust(2, ' ')
+
+    for weekday in range(1, 8):
+        t[weekday] = '0'.center(5, ' ')
+
+    for hour in range(24):
+        h.setdefault(hour, {})
+        for weekday in range(1, 8):
+            h[hour][weekday] = '  .  '
+    return busy_template.format(week=fmt_week(week).center(width, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
+
+
+
+
 def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
     width = 58
     summary_width = width - 7 - 16
@@ -3424,11 +3444,6 @@ def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
 
     week_numbers = getWeekNumbers(dt, weeks_before, weeks_after)
     aft_dt, bef_dt = get_period(dt, weeks_before, weeks_after)
-
-    # aft_dt = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
-    # bef_dt = 0 hours on the Monday of the following week
-    # bef_dt = aft_dt.add(days=7*weeks, minutes=-1)
-    # print('in interval', aft_dt, bef_dt, weeks)
 
     current_day = ""
     current_week = yw == getWeekNum()
@@ -3567,10 +3582,6 @@ def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
 
         busy_hsh[week] = busy_template.format(week=fmt_week(week).center(width, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
-
-    # if not busy_view:
-    #     busy_view = "{}\n\n   No busy periods".format(fmt_week(yw).center(width, ' '))
-
     row2id = {}
     row_num = -1
     # FIXME: deal with weeks without scheduled items
@@ -3589,7 +3600,6 @@ def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
                 for i in columns:
                     summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
                     rhc = i['columns'][2].rjust(16, ' ')
-                    # space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - 2)
                     agenda.append(f"    {i['columns'][0]} {summary}{rhc}") 
                     row_num += 1
                     row2id[row_num] = i['id']
@@ -3606,7 +3616,8 @@ def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
         if week in busy_hsh:
             tup.append(busy_hsh[week])
         else:
-            tup.append("{}\n\n   No busy periods".format(fmt_week(week).center(width, ' ')))
+            # tup.append("{}\n\n   No busy periods".format(fmt_week(week).center(width, ' ')))
+            tup.append(no_busy_periods(week, width))
         if week in row2id_hsh:
             tup.append(row2id_hsh[week])
         else:
