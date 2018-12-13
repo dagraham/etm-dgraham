@@ -1233,23 +1233,27 @@ class DataView(object):
             self.cache.update(schedule(self.activeYrWk, self.current))
         self.agenda_view, self.busy_view, self.num2id = self.cache[self.activeYrWk]
 
-    def show_details(self, num):
-        if self.details:
-            self.details = False
-            return self.show_active_view()
+    def show_details(self):
+        self.details = True 
+
+    def hide_details(self):
+        self.details = False 
+
+    def get_details(self, num=None):
+        if not self.details or num is None:
+            return ''
 
         self.current_row = num
         item_id = self.num2id.get(num, None)
         if item_id is None:
-            return None
+            return ''
 
         if isinstance(item_id, list):
             item_id = item_id[0]
         item = ETMDB.get(doc_id=item_id)
         if item:
-            self.details = True
             return item_details(item)
-        return None
+        return ''
 
     def clearCache(self):
         self.cache = {}

@@ -8,20 +8,14 @@ from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
 from prompt_toolkit.layout.controls import FormattedTextControl
-from prompt_toolkit.layout.dimension import LayoutDimension as D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import TextArea, SearchToolbar, SystemToolbar, Box
+from prompt_toolkit.widgets import TextArea, SearchToolbar 
 from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from asyncio import get_event_loop
 from prompt_toolkit.eventloop import use_asyncio_event_loop
-from prompt_toolkit.output import Output
-from prompt_toolkit.application.current import get_app
 from prompt_toolkit.filters import Condition
-from prompt_toolkit import prompt
-from prompt_toolkit.document import Document
-from prompt_toolkit.application import get_app
 
 import pendulum
 import re
@@ -126,11 +120,12 @@ def get_statusbar_text():
         ('class:status', ' to exit'),
     ]
 
+def get_details_text():
+    tmp = dataview.get_details(text_area.document.cursor_position_row)
+    return [('class:details', tmp),]
 
 search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
-
-system_field = SystemToolbar(prompt=">>> " )
 
 text_area = TextArea(
     text=content,
@@ -147,6 +142,10 @@ input_area = TextArea(
     dont_extend_height=True,
     )
 
+input_area = Window(content=FormattedTextControl(
+        get_details_text),
+        style='class:details')
+
 status_area = Window(content=FormattedTextControl(
         get_statusbar_text),
         height=1,
@@ -162,7 +161,7 @@ root_container = HSplit([
     #     filter=not_showing_details),
     ConditionalContainer(
         content=input_area,
-        filter=showing_details),
+        filter=showing_details & is_not_busy_view),
     search_field,
 ])
 
@@ -182,9 +181,20 @@ def set_text(txt, row=0):
     # text_area.buffer = Document(text=txt, cursor_position=row)
     # get_app().invalidate()
 
-@bindings.add('a', filter=is_not_searching & not_showing_details)
+@bindings.add('d')
+def show_details(event):
+    dataview.hide_details() if dataview.details else dataview.show_details()
+    if not dataview.details:
+        return None
+    tmp = dataview.get_details(text_area.document.cursor_position_row)
+    if tmp is None:
+        return None
+        # text_area.text = tmp
+    input_area.text = tmp.rstrip()
+
+@bindings.add('a', filter=is_not_searching)
 def toggle_agenda_busy(event):
-    # text_area.text = dataview.toggle_agenda_busy()
+    dataview.hide_details()
     set_text(dataview.toggle_agenda_busy())
 
 # @bindings.add('b', filter=is_not_searching)
@@ -192,7 +202,7 @@ def toggle_agenda_busy(event):
 #     dataview.set_active_view('b')
 #     text_area.text = dataview.show_active_view()
 
-@bindings.add('h', filter=is_not_searching & not_showing_details)
+@bindings.add('h', filter=is_not_searching)
 def agenda_view(event):
     dataview.set_active_view('h')
     # text_area.text = dataview.show_active_view()
@@ -219,7 +229,7 @@ def currweek(event):
 
 @bindings.add('enter', filter=is_not_searching & is_not_busy_view)
 def show(event):
-    tmp = dataview.show_details(text_area.document.cursor_position_row)
+    tmp = dataview.get_details(text_area.document.cursor_position_row)
     if tmp is not None:
         # text_area.text = tmp
         input_area.text = tmp.rstrip()
