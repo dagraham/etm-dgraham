@@ -6,12 +6,12 @@ from __future__ import unicode_literals
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout.containers import HSplit, Window
+from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import LayoutDimension as D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import TextArea, SearchToolbar, SystemToolbar
+from prompt_toolkit.widgets import TextArea, SearchToolbar, SystemToolbar, Box
 from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from asyncio import get_event_loop
@@ -21,6 +21,7 @@ from prompt_toolkit.application.current import get_app
 from prompt_toolkit.filters import Condition
 from prompt_toolkit import prompt
 from prompt_toolkit.document import Document
+from prompt_toolkit.application import get_app
 
 import pendulum
 import re
@@ -38,6 +39,14 @@ def is_not_busy_view():
 @Condition
 def is_agenda_view():
     return dataview.active_view in ['agenda', 'busy']
+
+@Condition
+def not_showing_details():
+    return dataview.details == False
+
+@Condition
+def showing_details():
+    return dataview.details
 
 etmstyle = {
     'plain':        'Ivory',
@@ -123,54 +132,39 @@ search_field = SearchToolbar(text_if_not_searching=[
 
 system_field = SystemToolbar(prompt=">>> " )
 
-def get_line_prefix(linenum, wrap=2):
-    return(str(linenum).rjust(2, ' ') + " ") # if not linenum % 5 else "    "
-
 text_area = TextArea(
     text=content,
     read_only=True,
     scrollbar=True,
-    # get_line_prefix=get_line_prefix,
-    # line_numbers=True,
     search_field=search_field,
+    focus_on_click=True,
     lexer=ETMLexer()
     )
 
-# input_field = TextArea(
-#     height=1, prompt='>>> ', style='class:input-field', multiline=False,
-#     wrap_lines=False)
+input_area = TextArea(
+    style='class:details', multiline=True,
+    wrap_lines=True, focus_on_click=True, 
+    dont_extend_height=True,
+    )
 
-
-# def accept(buff):
-#     # Evaluate "calculator" expression.
-#     try:
-#         output = '\n\nIn:  {}\nOut: {}'.format(
-#             input_field.text,
-#             eval(input_field.text))  # Don't do 'eval' in real code!
-#     except BaseException as e:
-#         output = '\n\n{}'.format(e)
-#     new_text = output_field.text + output
-
-#     # Add text to output buffer.
-#     text_area.buffer.document = Document(
-#         text=new_text, cursor_position=len(new_text))
-
-# input_field.accept_handler = accept
-
+status_area = Window(content=FormattedTextControl(
+        get_statusbar_text),
+        height=1,
+        style='class:status')
 
 root_container = HSplit([
     # The main content.
     text_area,
-    # The top toolbar.
-    Window(content=FormattedTextControl(
-        get_statusbar_text),
-        height=D.exact(1),
-        style='class:status'),
-    system_field,
+    # The toolbar
+    status_area,
+    # ConditionalContainer(
+    #     content=status_area,
+    #     filter=not_showing_details),
+    ConditionalContainer(
+        content=input_area,
+        filter=showing_details),
     search_field,
-    # input_field,
 ])
-
 
 # Key bindings.
 bindings = KeyBindings()
@@ -182,57 +176,61 @@ def _(event):
     " Quit. "
     event.app.exit()
 
-def set_text(txt):
-    text_area.buffer.document = Document(
-        text=txt, cursor_position=len(txt))
+def set_text(txt, row=0):
+    text_area.text = txt
+    # text_area.cursor_down = 7
+    # text_area.buffer = Document(text=txt, cursor_position=row)
+    # get_app().invalidate()
 
-
-@bindings.add('a', filter=is_not_searching)
+@bindings.add('a', filter=is_not_searching & not_showing_details)
 def toggle_agenda_busy(event):
-    text_area.text = dataview.toggle_agenda_busy()
+    # text_area.text = dataview.toggle_agenda_busy()
+    set_text(dataview.toggle_agenda_busy())
 
 # @bindings.add('b', filter=is_not_searching)
 # def agenda_view(event):
 #     dataview.set_active_view('b')
 #     text_area.text = dataview.show_active_view()
 
-@bindings.add('h', filter=is_not_searching)
+@bindings.add('h', filter=is_not_searching & not_showing_details)
 def agenda_view(event):
     dataview.set_active_view('h')
-    text_area.text = dataview.show_active_view()
+    # text_area.text = dataview.show_active_view()
+    set_text(dataview.show_active_view())
 
 @bindings.add('right', filter=is_agenda_view & is_not_searching)
 def nextweek(event):
     dataview.nextYrWk()
-    text_area.text = dataview.show_active_view()
+    # text_area.text = dataview.show_active_view()
+    set_text(dataview.show_active_view())
 
 
 @bindings.add('left', filter=is_agenda_view & is_not_searching)
 def prevweek(event):
     dataview.prevYrWk()
-    text_area.text = dataview.show_active_view()
+    # text_area.text = dataview.show_active_view()
+    set_text(dataview.show_active_view())
 
 @bindings.add('space', filter=is_agenda_view & is_not_searching)
 def currweek(event):
     dataview.currYrWk()
-    text_area.text = dataview.show_active_view()
+    # text_area.text = dataview.show_active_view()
+    set_text(dataview.show_active_view())
 
 @bindings.add('enter', filter=is_not_searching & is_not_busy_view)
 def show(event):
     tmp = dataview.show_details(text_area.document.cursor_position_row)
     if tmp is not None:
-        text_area.text = tmp
+        # text_area.text = tmp
+        input_area.text = tmp.rstrip()
     if not dataview.details:
-        dataview.show_active_view()
-        # event.app.output.cursor_goto(row=dataview.current_row, column=0)
-        # Output.cursor_goto(text_area, row=dataview.current_row, column=0)
-        # application.output.cursor_goto(row=dataview.current_row, column=0)
-        # application.output.cursor_goto(row=0, column=0)
-        # application.output.cursor_goto(row=dataview.current_row, column=0)
+        pass
+        # textdataview.show_active_view())
 
 
 style = Style.from_dict({
     'status': '{} bg:{}'.format(NAMED_COLORS['White'], NAMED_COLORS['DimGrey']),
+    'details': '{}'.format(NAMED_COLORS['Ivory']),
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
     'not-searching': '#888888',

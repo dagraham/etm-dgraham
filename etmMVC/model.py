@@ -1255,7 +1255,7 @@ class DataView(object):
         self.cache = {}
 
     def refreshCache(self):
-        tmp = schedule(self.activeYrWk, self.current, 3, 9)
+        tmp = schedule(self.activeYrWk, self.current, 5, 20)
         self.cache.update(tmp)
 
 
@@ -1555,12 +1555,12 @@ entry_tmpl = """\
 
 display_tmpl = entry_tmpl + """\
 
-{{ '-' * 58 }}
+{{ '-' * 3 }}
 doc_id:  {{ h.doc_id }}
 created: {{ dt2str(h.created)[1] }}
 {% if 'modified' in h %}\
 modified: {{ dt2str(h.modified)[1] }}
-{%- endif %}\
+{%- endif -%}\
 """
 
 jinja_entry_template = Template(entry_tmpl)

@@ -28,11 +28,13 @@ class RDict(dict):
     def __missing__(self, key):
             self[key] = RDict()
             self.rows = []
+            self.num2id = {}
             return self[key]
 
     def add(self, tkeys, values=()):
         i = 0
-        keys = tkeys.split('.')
+        # keys = tkeys.split('.')
+        keys = tkeys
         for key in keys:
             i = i + 1
             if i == len(keys):
@@ -40,7 +42,7 @@ class RDict(dict):
             self = self[key]
 
     def as_tree(self, t = None, depth = 0):
-        """ print a tree """
+        """ return a tree as row tuples """
         if t is None:
             t = self
         for k in t.keys():
@@ -54,6 +56,25 @@ class RDict(dict):
                     self.rows.append((depth * RDict.tab, v))
             depth -= 1
 
+    def tree_as_string(self, width):
+        self.as_tree()
+        num = -1
+        num2id = {}
+        output = []
+        for row in self.rows:
+            num += 1
+            indent = row[0]
+            if isinstance(row[-1], tuple):
+                summary_width = width - len(indent) - 18 
+                num2id[num] = row[-1][-1]
+                item_type, summary, rhc = row[1][:-1]
+                summary = summary.ljust(summary_width, ' ')
+                rhc = rhc.center(16, ' ')
+                output.append(f"{indent}{item_type} {summary}{rhc}")
+            else:
+                output.append(f"{row[0]}{row[1]}")
+
+        return "\n".join(output), num2id
 
 import bisect
 class SList(list):
@@ -65,7 +86,8 @@ class SList(list):
         """
         Use bisect to preserve order
         """
-        bisect.insort(self, ('.'.join(path_tuple), values_tuple))
+        # bisect.insort(self, ('.'.join(path_tuple), values_tuple))
+        bisect.insort(self, (path_tuple, values_tuple))
 
     def remove(self, uid):
         _len = len(self)
@@ -84,6 +106,8 @@ if __name__ == '__main__':
             ['-', 'task', 'due'],
             ['%', 'record', 'date'],
             ['!', 'inbox', ''],
+            # ['<', 'pastdue', 'days'],
+            # ['>', 'soon', 'days'],
             ]
     items = []
     uids = []
@@ -123,14 +147,9 @@ if __name__ == '__main__':
     pprint(index)
 
     print("\ndata as tree")
-    index.as_tree()
-    num = -1
-    for row in index.rows:
-        num += 1
-        if isinstance(row[-1], tuple):
-            print(f"{row[0]}{row[1]} [{num}]")
-        else:
-            print(f"{row[0]}{row[1]}")
+    output, num2id = index.tree_as_string(58)
+    print(output)
+    pprint(num2id)
 
 # starting data: 125 items
 # removed: 3 rows for 824
