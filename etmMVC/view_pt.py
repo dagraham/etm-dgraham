@@ -24,7 +24,7 @@ from prompt_toolkit.document import Document
 
 import pendulum
 import re
-from etmMVC.model import DataView
+from model import DataView
 
 
 @Condition
