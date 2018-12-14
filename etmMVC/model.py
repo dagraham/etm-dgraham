@@ -38,9 +38,9 @@ import platform
 
 import shutil
 
-import logging
-import logging.config
-logger = logging.getLogger()
+# import logging
+# import logging.config
+# logger = logging.getLogger()
 
 
 from prompt_toolkit import print_formatted_text
@@ -1061,6 +1061,10 @@ def setup_logging(level, dir=None):
     Setup logging configuration. Override root:level in
     logging.yaml with default_level.
     """
+    import logging
+    import logging.config
+    logger = logging.getLogger()
+
     global etmdir
     etmdir = dir
     if etmdir:
@@ -1226,7 +1230,8 @@ class DataView(object):
         """
         Called to set the relevant items for the current date.
         """
-        self.current, self.alerts = relevant()
+        self.now = pendulum.now()
+        self.current, self.alerts = relevant(self.now)
 
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
@@ -3073,12 +3078,12 @@ def finish(id, dt):
     """
     pass
 
-def relevant():
+def relevant(now):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
     """
     # These need to be local times since all times from the datastore and rrule will be local times
-    now = pendulum.now('local')
+    # now = pendulum.now('local')
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     tomorrow = today + DAY
     today_fmt = today.format("YYYYMMDD")
@@ -3523,7 +3528,7 @@ def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
                             dt.format("ddd MMM D"),
                             ),
                         'columns': [item['itemtype'],
-                            set_summary(item['summary'], now), 
+                            set_summary(item['summary'], dt), 
                             rhc
                             ]
                     }

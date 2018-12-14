@@ -16,11 +16,15 @@ from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from asyncio import get_event_loop
 from prompt_toolkit.eventloop import use_asyncio_event_loop
 from prompt_toolkit.filters import Condition
+from prompt_toolkit.application.current import get_app
 
 import pendulum
 import re
-from model import DataView
+from model import DataView, drop_zero_minutes
+from help import show_help
 
+ampm = True
+showing_help = False
 
 @Condition
 def is_not_searching():
@@ -41,6 +45,14 @@ def not_showing_details():
 @Condition
 def showing_details():
     return dataview.details
+
+@Condition
+def is_showing_help():
+    return showing_help
+
+@Condition
+def not_showing_help():
+    return not showing_help
 
 etmstyle = {
     'plain':        'Ivory',
@@ -94,35 +106,56 @@ dataview = DataView()
 dataview.refreshCache()
 content = dataview.agenda_view
 
-current_today = pendulum.now().format("YYYYMMDD")
+def status_time(dt):
+    """
+    >>> status_time(parse('2018-03-07 10am'))
+    '10'
+    >>> status_time(parse('2018-03-07 2:45pm'))
+    '2:45'
+    """
+    d_fmt = dt.format("ddd MMM D")
+    suffix = dt.format("A").lower() if ampm else ""
+    if dt.minute == 0:
+        if ampm:
+            t_fmt = dt.format("h")
+        else:
+            t_fmt = dt.format("H")
+    else:
+        if ampm:
+            t_fmt = dt.format("h:mm")
+        else:
+            t_fmt = dt.format("H:mm")
+    return f"{t_fmt}{suffix} {d_fmt}"
+
+
+
+current_datetime = status_time(dataview.now)
+
 def event_handler(loop):
-    global current_today
+    global current_datetime
+    current_today = dataview.now.format("YYYYMMDD")
     now = pendulum.now()
+    current_datetime = status_time(now)
     today = now.format("YYYYMMDD")
     if today != current_today:
-        current_today = today
         dataview.refreshRelevant()
         dataview.refreshAgenda()
+    get_app().invalidate()
     wait = 60 - now.second
     loop.call_later(wait, event_handler, loop)
 
 def get_statusbar_text():
+    space = ' ' * (58 - 7 - len(current_datetime))
     return [
-        # ('class:status',"line: "),
-        ('class:status', '[{}]'.format(
-            text_area.document.cursor_position_row)),
-        ('class:status', ' Press '),
-        ('class:status.key', 'F1'),
-        ('class:status', ' for help, '),
-        ('class:status.key', '/'),
-        ('class:status', ' to search or '),
-        ('class:status.key', 'Q '),
-        ('class:status', ' to exit'),
+            # ('class:status', f' {current_datetime} [{text_area.document.cursor_position_row}]{space}F1:help'),
+            ('class:status', f' {current_datetime}{space}F1:help'),
     ]
 
 def get_details_text():
     tmp = dataview.get_details(text_area.document.cursor_position_row)
     return [('class:details', tmp),]
+    # return tmp
+
 
 search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
@@ -136,15 +169,31 @@ text_area = TextArea(
     lexer=ETMLexer()
     )
 
-input_area = TextArea(
-    style='class:details', multiline=True,
-    wrap_lines=True, focus_on_click=True, 
-    dont_extend_height=True,
-    )
+# help_area = TextArea(
+#     text=show_help(),
+#     style='class:details', multiline=True,
+#     wrap_lines=True, focus_on_click=True, 
+#     )
 
-input_area = Window(content=FormattedTextControl(
+details_area = Window(content=FormattedTextControl(
         get_details_text),
         style='class:details')
+
+# details_area = TextArea(
+#     text=get_details_text(),
+#     style='class:details', 
+#     multiline=True,
+#     wrap_lines=True, 
+#     focus_on_click=True, 
+#     )
+
+help_area = TextArea(
+    text=show_help(),
+    style='class:details', 
+    multiline=True,
+    wrap_lines=True, 
+    focus_on_click=True, 
+    )
 
 status_area = Window(content=FormattedTextControl(
         get_statusbar_text),
@@ -160,8 +209,11 @@ root_container = HSplit([
     #     content=status_area,
     #     filter=not_showing_details),
     ConditionalContainer(
-        content=input_area,
+        content=details_area,
         filter=showing_details & is_not_busy_view),
+    ConditionalContainer(
+        content=help_area,
+        filter=not_showing_details & is_showing_help),
     search_field,
 ])
 
@@ -181,26 +233,22 @@ def set_text(txt, row=0):
     # text_area.buffer = Document(text=txt, cursor_position=row)
     # get_app().invalidate()
 
+@bindings.add('f1')
+def toggle_help(event):
+    global showing_help
+    showing_help = not showing_help
+    if showing_help:
+        if dataview.details:
+            dataview.hide_details()
+        details_area.text = show_help()
+
 @bindings.add('d')
-def show_details(event):
+def toggle_details(event):
     dataview.hide_details() if dataview.details else dataview.show_details()
-    if not dataview.details:
-        return None
-    tmp = dataview.get_details(text_area.document.cursor_position_row)
-    if tmp is None:
-        return None
-        # text_area.text = tmp
-    input_area.text = tmp.rstrip()
 
 @bindings.add('a', filter=is_not_searching)
 def toggle_agenda_busy(event):
-    dataview.hide_details()
     set_text(dataview.toggle_agenda_busy())
-
-# @bindings.add('b', filter=is_not_searching)
-# def agenda_view(event):
-#     dataview.set_active_view('b')
-#     text_area.text = dataview.show_active_view()
 
 @bindings.add('h', filter=is_not_searching)
 def agenda_view(event):
@@ -208,14 +256,14 @@ def agenda_view(event):
     # text_area.text = dataview.show_active_view()
     set_text(dataview.show_active_view())
 
-@bindings.add('right', filter=is_agenda_view & is_not_searching)
+@bindings.add('s-right', filter=is_agenda_view & is_not_searching)
 def nextweek(event):
     dataview.nextYrWk()
     # text_area.text = dataview.show_active_view()
     set_text(dataview.show_active_view())
 
 
-@bindings.add('left', filter=is_agenda_view & is_not_searching)
+@bindings.add('s-left', filter=is_agenda_view & is_not_searching)
 def prevweek(event):
     dataview.prevYrWk()
     # text_area.text = dataview.show_active_view()
@@ -232,7 +280,7 @@ def show(event):
     tmp = dataview.get_details(text_area.document.cursor_position_row)
     if tmp is not None:
         # text_area.text = tmp
-        input_area.text = tmp.rstrip()
+        details_area.text = tmp.rstrip()
     if not dataview.details:
         pass
         # textdataview.show_active_view())
