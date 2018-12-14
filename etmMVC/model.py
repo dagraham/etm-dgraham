@@ -1245,7 +1245,8 @@ class DataView(object):
         self.details = False 
 
     def get_details(self, num=None):
-        if not self.details or num is None:
+        # if not self.details or num is None:
+        if num is None:
             return ''
 
         self.current_row = num

@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
-from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.layout.controls import FormattedTextControl, BufferControl
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import TextArea, SearchToolbar 
@@ -43,7 +43,7 @@ def not_showing_details():
     return dataview.details == False
 
 @Condition
-def showing_details():
+def is_showing_details():
     return dataview.details
 
 @Condition
@@ -147,14 +147,13 @@ def event_handler(loop):
 def get_statusbar_text():
     space = ' ' * (58 - 7 - len(current_datetime))
     return [
-            # ('class:status', f' {current_datetime} [{text_area.document.cursor_position_row}]{space}F1:help'),
             ('class:status', f' {current_datetime}{space}F1:help'),
     ]
 
 def get_details_text():
     tmp = dataview.get_details(text_area.document.cursor_position_row)
     return [('class:details', tmp),]
-    # return tmp
+    return tmp
 
 
 search_field = SearchToolbar(text_if_not_searching=[
@@ -175,24 +174,26 @@ text_area = TextArea(
 #     wrap_lines=True, focus_on_click=True, 
 #     )
 
-details_area = Window(content=FormattedTextControl(
-        get_details_text),
-        style='class:details')
+# details_area = Window(content=FormattedTextControl(
+#         get_details_text),
+#         style='class:details')
 
-# details_area = TextArea(
-#     text=get_details_text(),
-#     style='class:details', 
-#     multiline=True,
-#     wrap_lines=True, 
-#     focus_on_click=True, 
-#     )
+details_area = TextArea(
+    text=dataview.get_details(text_area.document.cursor_position_row),
+    style='class:details', 
+    read_only=True,
+    scrollbar=True,
+    search_field=search_field,
+    # focus_on_click=True, 
+    )
 
 help_area = TextArea(
     text=show_help(),
     style='class:details', 
-    multiline=True,
-    wrap_lines=True, 
-    focus_on_click=True, 
+    read_only=True,
+    scrollbar=True,
+    search_field=search_field,
+    # focus_on_click=True, 
     )
 
 status_area = Window(content=FormattedTextControl(
@@ -201,16 +202,11 @@ status_area = Window(content=FormattedTextControl(
         style='class:status')
 
 root_container = HSplit([
-    # The main content.
-    text_area,
-    # The toolbar
-    status_area,
-    # ConditionalContainer(
-    #     content=status_area,
-    #     filter=not_showing_details),
+    text_area,      # main content
+    status_area,    # toolbar
     ConditionalContainer(
         content=details_area,
-        filter=showing_details & is_not_busy_view),
+        filter=is_showing_details & is_not_busy_view),
     ConditionalContainer(
         content=help_area,
         filter=not_showing_details & is_showing_help),
@@ -229,61 +225,65 @@ def _(event):
 
 def set_text(txt, row=0):
     text_area.text = txt
-    # text_area.cursor_down = 7
-    # text_area.buffer = Document(text=txt, cursor_position=row)
-    # get_app().invalidate()
 
 @bindings.add('f1')
 def toggle_help(event):
     global showing_help
     showing_help = not showing_help
     if showing_help:
-        if dataview.details:
-            dataview.hide_details()
+        if not dataview.details:
+            dataview.show_details()
         details_area.text = show_help()
+        application.layout.focus(details_area)
+    else:
+        application.layout.focus(text_area)
+        dataview.hide_details()
 
-@bindings.add('d')
-def toggle_details(event):
-    dataview.hide_details() if dataview.details else dataview.show_details()
 
-@bindings.add('a', filter=is_not_searching)
+# @bindings.add('d')
+# def toggle_details(event):
+#     dataview.hide_details() if dataview.details else dataview.show_details()
+
+@bindings.add('a', filter=is_not_searching & not_showing_details)
 def toggle_agenda_busy(event):
     set_text(dataview.toggle_agenda_busy())
 
-@bindings.add('h', filter=is_not_searching)
+@bindings.add('h', filter=is_not_searching & not_showing_details)
 def agenda_view(event):
     dataview.set_active_view('h')
     # text_area.text = dataview.show_active_view()
     set_text(dataview.show_active_view())
 
-@bindings.add('s-right', filter=is_agenda_view & is_not_searching)
+@bindings.add('right', filter=is_agenda_view & is_not_searching & not_showing_details)
 def nextweek(event):
     dataview.nextYrWk()
     # text_area.text = dataview.show_active_view()
     set_text(dataview.show_active_view())
 
 
-@bindings.add('s-left', filter=is_agenda_view & is_not_searching)
+@bindings.add('left', filter=is_agenda_view & is_not_searching & not_showing_details)
 def prevweek(event):
     dataview.prevYrWk()
     # text_area.text = dataview.show_active_view()
     set_text(dataview.show_active_view())
 
-@bindings.add('space', filter=is_agenda_view & is_not_searching)
+@bindings.add('space', filter=is_agenda_view & is_not_searching & not_showing_details)
 def currweek(event):
     dataview.currYrWk()
     # text_area.text = dataview.show_active_view()
     set_text(dataview.show_active_view())
 
-@bindings.add('enter', filter=is_not_searching & is_not_busy_view)
-def show(event):
-    tmp = dataview.get_details(text_area.document.cursor_position_row)
-    if tmp is not None:
-        # text_area.text = tmp
-        details_area.text = tmp.rstrip()
-    if not dataview.details:
-        pass
-        # textdataview.show_active_view())
+@bindings.add('enter', filter=is_not_searching & is_not_busy_view & not_showing_help)
+def show_details(event):
+    if dataview.details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    else:
+        tmp = dataview.get_details(text_area.document.cursor_position_row)
+        if tmp:
+            dataview.show_details()
+            details_area.text = tmp.rstrip()
+            application.layout.focus(details_area)
 
 
 style = Style.from_dict({
