@@ -235,6 +235,7 @@ def toggle_help(event):
             dataview.show_details()
         details_area.text = show_help()
         application.layout.focus(details_area)
+        set_text(dataview.show_active_view)
     else:
         application.layout.focus(text_area)
         dataview.hide_details()
@@ -251,26 +252,22 @@ def toggle_agenda_busy(event):
 @bindings.add('h', filter=is_not_searching & not_showing_details)
 def agenda_view(event):
     dataview.set_active_view('h')
-    # text_area.text = dataview.show_active_view()
     set_text(dataview.show_active_view())
 
 @bindings.add('right', filter=is_agenda_view & is_not_searching & not_showing_details)
 def nextweek(event):
     dataview.nextYrWk()
-    # text_area.text = dataview.show_active_view()
     set_text(dataview.show_active_view())
 
 
 @bindings.add('left', filter=is_agenda_view & is_not_searching & not_showing_details)
 def prevweek(event):
     dataview.prevYrWk()
-    # text_area.text = dataview.show_active_view()
     set_text(dataview.show_active_view())
 
 @bindings.add('space', filter=is_agenda_view & is_not_searching & not_showing_details)
 def currweek(event):
     dataview.currYrWk()
-    # text_area.text = dataview.show_active_view()
     set_text(dataview.show_active_view())
 
 @bindings.add('enter', filter=is_not_searching & is_not_busy_view & not_showing_help)
