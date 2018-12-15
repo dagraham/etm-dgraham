@@ -916,14 +916,14 @@ def timestamp_list(arg, typ=None):
         return True, tmp
 
 def plain_datetime(obj):
-    return format_datetime(obj, plain=True)
+    return format_datetime(obj, short=True)
 
-def format_datetime(obj, plain=False):
+def format_datetime(obj, short=False):
     """
     >>> format_datetime(parse_datetime("20160710T1730")[1])
-    (True, 'Sun Jul 10 2016 5:30PM EDT')
+    (True, 'Sun Jul 10 2016 5:30pm EDT')
     >>> format_datetime(parse_datetime("2015-07-10 5:30p", "float")[1])
-    (True, 'Fri Jul 10 2015 5:30PM')
+    (True, 'Fri Jul 10 2015 5:30pm')
     >>> format_datetime(parse_datetime("20160710")[1])
     (True, 'Sun Jul 10 2016')
     >>> format_datetime(parse_datetime("2015-07-10", "float")[1])
@@ -933,33 +933,44 @@ def format_datetime(obj, plain=False):
     """
     # if type(obj) == datetime:
     #     obj = pendulum.instance(obj)
+    short_date = obj.format("YYYY-MM-DD")
+    long_date = obj.format("ddd MMM D YYYY")
+
     if type(obj) == pendulum.Date:
-        if plain:
-            return True, format(obj.format("YYYY-MM-DD"))
+        if short:
+            return True, short_date
         else:
-            return True, format(obj.format("ddd MMM D YYYY"))
+            return True, long_date
 
     elif type(obj) == pendulum.DateTime: 
-        if obj.format('Z') == '':
-            # naive
-            if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
-                # date
-                if plain:
-                    return True, format(obj.format("YYYY-MM-DD"))
-                else:
-                    return True, format(obj.format("ddd MMM D YYYY"))
-            else:
-                # naive datetime
-                if plain:
-                    return True, format(obj.format("YYYY-MM-DD h:mmA"))
-                else:
-                    return True, format(obj.format("ddd MMM D YYYY h:mmA"))
+        if obj.format('Z') == '' :
+            zone = ''
         else:
-            # aware
-            if plain:
-                return True, format(obj.format("YYYY-MM-DD h:mmA"))
+            obj = obj.in_timezone('local')
+            zone = obj.format('zz')
+        if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
+            # treat as date
+            if short:
+                return True, short_date
             else:
-                return True, format(obj.in_timezone('local').format("ddd MMM D YYYY h:mmA zz"))
+                return True, long_date
+
+        if ampm:
+            time = obj.format('h:mmA').lower()
+        else:
+            time = obj.format('H:mm')
+        if obj.format('Z') == '':
+            # naive datetime
+            if short:
+                return True, f"{short_date} {time}" 
+            else:
+                return True, f"{long_date} {time}" 
+        else:
+            # aware datetime
+            if short:
+                return True, f"{short_date} {time}" 
+            else:
+                return True, f"{long_date} {time} {zone}"
 
     else:
         return False, "The argument must be a pendulum date or datetime."
