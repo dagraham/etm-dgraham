@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-A simple application that shows a Pager application.
+A user interface based on prompt_toolkit.
 """
 from __future__ import unicode_literals
 
@@ -140,7 +140,7 @@ def event_handler(loop):
     if today != current_today:
         dataview.refreshRelevant()
         dataview.refreshAgenda()
-        set_text(dataview.show_active_view)
+        set_text(dataview.show_active_view())
     get_app().invalidate()
     wait = 60 - now.second
     loop.call_later(wait, event_handler, loop)
@@ -185,6 +185,15 @@ details_area = TextArea(
     read_only=True,
     # scrollbar=True,
     search_field=search_field,
+    # focus_on_click=True, 
+    )
+
+edit_area = TextArea(
+    text=dataview.get_details(text_area.document.cursor_position_row),
+    style='class:details', 
+    read_only=False,
+    # scrollbar=True,
+    # search_field=search_field,
     # focus_on_click=True, 
     )
 

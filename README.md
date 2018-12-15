@@ -1,5 +1,5 @@
 # What's planned for the next etm?
-**Last modified: Tue Dec 11, 2018 10:14AM EST**
+**Last modified: Fri Dec 14, 2018 10:22PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -29,8 +29,6 @@
     * [Weekly](#weekly)
         * [Agenda](#agenda)
         * [Busy](#busy)
-        * [Done](#done)
-    * [Monthly](#monthly)
     * [Relevant](#relevant)
     * [Search](#search)
     * [Next](#next)
@@ -542,46 +540,8 @@ ASCII art is used in the following to suggest the appearance of the view in the 
 
 - Hours in the day that are partially or wholly "busy" are filled using the color of the calendar for the relevant item. Shown here with `#`.
 - Hours in which a conflict occurs are filled with the overlapping calendar colors of the relevant items. Shown here with `###`.
-- Mouse over tool tips show the summary and times for the relevant item.
 
-
-        +----------------------------------------------------------+
-        | Busy - Week 4: Jan 22 - 28, 2018                 F1:help |  1
-        +----------------------------------------------------------+
-        |        Mon    Tue    Wed    Thu    Fri    Sat    Sun     |  2
-        |         22     23     24     25     26     27     28     |  3
-        |        -----------------------------------------------   |  4
-        |    12a   .      .      .      .      .      .      .     |  5
-        |          .      .      .      .      .      .      .     |  6
-        |          .      .      .      .      .      .      .     |  7
-        |          .      .      .      .      .      .      .     |  8
-        |          .      .      .      .      .      .      .     |  9
-        |          .      .      .      .      .      .      .     | 10
-        |     6a   .      .      .      .      .      .      .     | 11 
-        |          .      .      .      .      .      .      .     | 12
-        |          #      .      #      .      #      #      .     | 13
-        |          #      .      #      .      #      #      .     | 14
-        |          .      #      .      .      .      #      .     | 15
-        |          .      #      .      #      .      #      #     | 16
-        |    12p   #      .      .      #      .      #      #     | 17
-        |          #      .      .     ###     .      #      #     | 18
-        |          .      .      .      #      .      .      #     | 19
-        |          .      .      .      .      .      .      #     | 20
-        |          #      .      .      .      .      .      .     | 21
-        |          #      .      .      .      .      .      .     | 22
-        |     6p   .      .      #      .      .      .      .     | 23
-        |          #      .      #      .      .      .      .     | 24
-        |          #      .      #      .      .      .      .     | 25
-        |          #      .      .      .      .      .      .     | 26
-        |          .      .      .      .      .      .      .     | 27
-        |    12a   .      .      .      .      .      .      .     | 28
-        |                                                          | 29
-        +----------------------------------------------------------+
-        | 8:49am Thu Jan 18                              10:30am+1 | 30
-        +----------------------------------------------------------+
-
-
-          2018 Week 50: Dec 10 - 16
+                           2018 Week 50: Dec 10 - 16
                    Mo 10  Tu 11  We 12  Th 13  Fr 14  Sa 15  Su 16
                    -----------------------------------------------
             12am     .      .      .      .      .      .      .
@@ -610,71 +570,6 @@ ASCII art is used in the following to suggest the appearance of the view in the 
                      .      .      .      .      .      .      .
                    -----------------------------------------------
            total     0     180    180    300    210    120    180
-
-
-
-### [Done](#toc)
-
-- Records with datetimes and finished tasks grouped and sorted by week and day.
-- Records are displayed with the type character, `%`, the item summary,  the time from `@s` and, if given, the extent from `@e`. Finished tasks are displayed with type character `✓`, the summary and time finished. E.g., here is a record of time spent working on a task and then marking the task finished:
-
-        +------------------------- top bar ------------------------+
-        | Done - Week 3: Jan 15 - 21, 2018                 F1:help |
-        +----------------------------------------------------------+
-        | Mon Jan 15                                               |
-        |   % report summary                          4:29pm   47m |
-        |   ✓ report summary                             4:30pm    | 
-
-
-## [Monthly](#toc)
-
-- The top pane displays 6 weeks starting with the first week of the selected month.  Month day numbers are colored from dark blue to bright red to indicate the amount of time scheduled.
-
-- Week numbers and month day numbers in the top panel are buttons. Activating a week number switches to *Agenda* view for that week. Activating a date displayes the schedule for that date in the bottom pane using the same format as *Agenda* view. Switching to one of the weekly views will always display the week of the selected date. 
-
-  Dates with busy periods are coded:
-
-    - night: 12am - 6am:    #___  1
-    - morning 6am-12pm:     _#__  2 
-    - afternoon 12pm - 6pm: __#_  4
-    - evening 6pm - 12am:   ___#  8
-
-  These can be combined. E.g., Aug 1 below shows events scheduled for both  morning and evening: `.:.:`.
-
-        +----------------------------------------------------------+
-        | Monthly - August 2017                            F1:help |  1
-        +----------------------------------------------------------+
-        |   Wk    Mon    Tue    Wed    Thu    Fri    Sat    Sun    |  2
-        |  ----+-------------------------------------------------  |  3
-        |   31 |   31      1      2      3      4      5      6    |  4
-        |      |         _#_#                                      |  5
-        |      |                                                   |  6
-        |   32 |    7      8      9     10     11     12     13    |  7
-        |      |                                                   |  8
-        |      |                                                   |  9
-        |   33 |   14     15     16     17     18     19     20    | 10
-        |      |                                                   | 11
-        |      |                                                   | 12
-        |   34 |   21     22     23     24     25     26     27    | 13
-        |      |                                                   | 14
-        |      |                                                   | 15
-        |   35 |   28    [29]    30     31      1      2      3    | 16
-        |      |                                                   | 17
-        |      |                                                   | 18
-        |   36 |    4      5      6      7      8      9     10    | 19
-        |      |                                                   | 20
-        +------+---------------------------------------------------+ 21
-        | Tue Aug 29 2017                                          | 22
-        |   Nothing scheduled                                      | 23
-        |                                                          | 24
-        |                                                          | 25
-        |                                                          | 26 
-        |                                                          | 27
-        |                                                          | 28
-        |                                                          | 29
-        +----------------------------------------------------------+
-        | 8:49am Thu Jan 18                              10:30am+1 | 30
-        +----------------------------------------------------------+
 
 
 ## [Relevant](#toc)
