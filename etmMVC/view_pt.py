@@ -140,6 +140,7 @@ def event_handler(loop):
     if today != current_today:
         dataview.refreshRelevant()
         dataview.refreshAgenda()
+        set_text(dataview.show_active_view)
     get_app().invalidate()
     wait = 60 - now.second
     loop.call_later(wait, event_handler, loop)
@@ -182,7 +183,7 @@ details_area = TextArea(
     text=dataview.get_details(text_area.document.cursor_position_row),
     style='class:details', 
     read_only=True,
-    scrollbar=True,
+    # scrollbar=True,
     search_field=search_field,
     # focus_on_click=True, 
     )
@@ -191,7 +192,7 @@ help_area = TextArea(
     text=show_help(),
     style='class:details', 
     read_only=True,
-    scrollbar=True,
+    # scrollbar=True,
     search_field=search_field,
     # focus_on_click=True, 
     )
@@ -235,7 +236,6 @@ def toggle_help(event):
             dataview.show_details()
         details_area.text = show_help()
         application.layout.focus(details_area)
-        set_text(dataview.show_active_view)
     else:
         application.layout.focus(text_area)
         dataview.hide_details()
