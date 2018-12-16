@@ -18,10 +18,11 @@ from asyncio import get_event_loop
 from prompt_toolkit.eventloop import use_asyncio_event_loop
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.application.current import get_app
+from prompt_toolkit.completion import WordCompleter
 
 import pendulum
 import re
-from model import DataView, drop_zero_minutes
+from model import DataView, drop_zero_minutes, at_keys, amp_keys
 from help import show_help
 
 ampm = True
@@ -54,6 +55,13 @@ def is_showing_help():
 @Condition
 def not_showing_help():
     return not showing_help
+
+at_completions = [f"@{k}" for k in at_keys]
+r_completions = [f"&{k}" for k in amp_keys['r']] 
+j_completions = [f"&{k}" for k in amp_keys['j']] 
+
+
+item_completer = WordCompleter(at_completions + r_completions + j_completions, ignore_case=False)
 
 etmstyle = {
     'plain':        'Ivory',
@@ -129,6 +137,11 @@ def status_time(dt):
     return f"{t_fmt}{suffix} {d_fmt}"
 
 
+def new_day(loop):
+    dataview.refreshRelevant()
+    dataview.refreshAgenda()
+    set_text(dataview.show_active_view())
+
 
 current_datetime = status_time(dataview.now)
 
@@ -139,9 +152,7 @@ def event_handler(loop):
     current_datetime = status_time(now)
     today = now.format("YYYYMMDD")
     if today != current_today:
-        dataview.refreshRelevant()
-        dataview.refreshAgenda()
-        set_text(dataview.show_active_view())
+        loop.call_later(1, new_day, loop)
     get_app().invalidate()
     wait = 60 - now.second
     loop.call_later(wait, event_handler, loop)
@@ -197,6 +208,8 @@ edit_area = TextArea(
     # search_field=search_field,
     # focus_on_click=True, 
     )
+
+# edit_buff = Buffer(completer=item_completer, complete_while_typing=True, accept_handler=process_input)
 
 help_area = TextArea(
     text=show_help(),

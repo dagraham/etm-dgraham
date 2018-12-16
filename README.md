@@ -1,9 +1,12 @@
 # What's planned for the next etm?
-**Last modified: Fri Dec 14, 2018 10:22PM EST**
+**Last modified: Sat Dec 15, 2018 04:57PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
 
+* [Getting started](#getting-started)
+    * [Installation](#installation)
+        * [Installing etm From PyPi - the Python Software Foundation Package Index](#installing-etm-from-pypi---the-python-software-foundation-package-index)
 * [Goals](#goals)
 * [Data](#data)
     * [Item Types](#item-types)
@@ -52,6 +55,79 @@
         * [API](#api)
 
 <!-- vim-markdown-toc -->
+
+# Getting started 
+
+*etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used in which an item begins with a *type character* followed by a brief summary of the item and then, perhaps, by one or more `@key value` pairs. There are only 4 item types:
+
+1) An event with type character `*`
+1) A task with type character `-`
+
+
+
+* A sales meeting (an event) [s]tarting seven days from today at 9:00am and [e]xtending for one hour with a default [a]lert 5 minutes before the start:
+
+        * sales meeting @s +7 9a @e 1h @a 5
+
+* The sales meeting with another [a]lert 2 days before the meeting to (e)mail a reminder to a list of recipients:
+
+        * sales meeting @s +7 9a @e 1h @a 5
+          @a 2d: e; who@when.com, what@where.org
+
+* Prepare a report (a task) for the sales meeting [b]eginning 3 days early:
+
+        - prepare report @s +7 @b 3
+
+* A period [e]xtending 35 minutes (an action) spent working on the report yesterday:
+
+        ~ report preparation @s -1 @e 35
+
+* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion,  (r)estart from the completion date:
+
+        - get haircut @s 24 @r d &i 14 @o r
+
+* Payday (an occasion) on the last week day of each month. The `&s -1` part of the entry extracts the last date which is both a weekday and falls within the last three days of the month):
+
+        ^ payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
+
+* Take a prescribed medication daily (a reminder) [s]tarting today and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil (12am on) the fourth day from today. Trigger the default [a]lert zero minutes before each reminder:
+
+        * take Rx @s +0 @r d &h 10, 14, 18, 22 &u +4 @a 0
+
+* Move the water sprinkler (a reminder) every thirty mi[n]utes on Sunday afternoons using the default alert zero minutes before each reminder:
+
+        * Move sprinkler @s 1 @r n &i 30 &w SU &h 14, 15, 16, 17 @a 0
+
+    To limit the sprinkler movement reminders to the [M]onths of April through September each year, append `&M 4, 5, 6, 7, 8, 9` to the @r entry.
+
+* Presidential election day (an occasion) every four years on the first Tuesday after a Monday in November:
+
+        ^ Presidential Election Day @s 2012-11-06
+          @r y &i 4 &M 11 &m 2, 3, 4, 5, 6, 7, 8 &w TU
+
+* Join the etm discussion group (a task) [s]tarting on the first day of the next month. Because of the @g (goto) link, pressing Ctrl-G when the details of this item are displayed in the gui would open the link using the system default application which, in this case, would be your default browser:
+
+        - join the etm discussion group @s +1/1
+          @g http://groups.google.com/group/eventandtaskmanager/topics
+
+## Installation ##
+
+Python >= 3.6.0 is required.
+
+### Installing etm From PyPi - the Python Software Foundation Package Index
+
+If you have [pip] installed on your system you can install etm with the single command:
+
+    sudo pip install etmmv
+
+and later update to the latest version with
+
+    sudo pip install -U etmmv
+
+
+[pip]: https://pypi.python.org/pypi/pip
+
+
 
 # [Goals](#toc)
 

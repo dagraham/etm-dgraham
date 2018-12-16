@@ -1183,8 +1183,8 @@ class DataView(object):
         self.agenda_view = ""
         self.busy_view = ""
         self.history_view = ""
-        self.refreshRelevant()
         self.cache = {}
+        self.refreshRelevant()
         # self.refreshCache() # yrwk -> [agenda, busy, num2id]
         self.views = {
                 'a': 'agenda',
@@ -1239,10 +1239,12 @@ class DataView(object):
 
     def refreshRelevant(self):
         """
-        Called to set the relevant items for the current date.
+        Called to set the relevant items for the current date and to change the currentYrWk and activeYrWk to that containing the current date.
         """
         self.now = pendulum.now()
+        self.currentYrWk = self.activeYrWk = self.now.isocalendar()[:2]
         self.current, self.alerts = relevant(self.now)
+        self.refreshCache()
 
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
@@ -1276,10 +1278,9 @@ class DataView(object):
         self.cache = {}
 
     def refreshCache(self):
-        tmp = schedule(self.activeYrWk, self.current, 5, 20)
-        self.cache.update(tmp)
-
-
+        # tmp = schedule(self.currentYrWk, self.current, 5, 20)
+        # self.cache.update(tmp)
+        self.cache = schedule(self.currentYrWk, self.current, 5, 20)
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
@@ -1508,9 +1509,9 @@ entry_tmpl = """\
 {%- set title -%}\
 {{ h.itemtype }} {{ h.summary }}\
 {% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %}\
-{%- for k in ['e', 'z'] -%}\
+{%- if 'e' in h %}{{ " @e {}".format(in2str(h['e'])) }}{% endif %}\
+{%- if 'z' in h %}{{ " @z {}".format(h['z']) }}{% endif %}\
 {%- if k in h %} @{{ k }} {{ h[k] }}{% endif %}\
-{%- endfor %}\
 {%- endset %}\
 {{ wrap(title) }}
 {% if 'f' in h %}{{ "@f {} ".format(dt2str(h['f'])[1]) }}
