@@ -9,7 +9,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer, FloatContainer
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.buffer import Buffer
+# from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import TextArea, SearchToolbar 
 from prompt_toolkit.lexers import Lexer
@@ -22,7 +22,7 @@ from prompt_toolkit.completion import WordCompleter
 
 import pendulum
 import re
-from model import DataView, drop_zero_minutes, at_keys, amp_keys
+from model import DataView, at_keys, amp_keys
 from help import show_help
 
 ampm = True
@@ -111,6 +111,7 @@ class ETMLexer(Lexer):
 
         return get_line
 
+# dataview = DataView(dtstr="2018-12-16") # for testing
 dataview = DataView()
 dataview.refreshCache()
 content = dataview.agenda_view
@@ -138,6 +139,8 @@ def status_time(dt):
 
 
 def new_day(loop):
+    dataview.set_active_view('a')
+    dataview.now = pendulum.now()
     dataview.refreshRelevant()
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
@@ -152,7 +155,7 @@ def event_handler(loop):
     current_datetime = status_time(now)
     today = now.format("YYYYMMDD")
     if today != current_today:
-        loop.call_later(1, new_day, loop)
+        loop.call_later(0, new_day, loop)
     get_app().invalidate()
     wait = 60 - now.second
     loop.call_later(wait, event_handler, loop)
@@ -337,10 +340,10 @@ def main():
 
     # Run application async.
     loop = get_event_loop()
+    # FIXME: 10 -> 0
     loop.call_later(0, event_handler, loop)
     loop.run_until_complete(
         application.run_async().to_asyncio_future())
-
 
 
 if __name__ == '__main__':

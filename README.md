@@ -1,94 +1,116 @@
 # What's planned for the next etm?
-**Last modified: Sat Dec 15, 2018 04:57PM EST**
+**Last modified: Mon Dec 17, 2018 05:31PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Getting started](#getting-started)
-    * [Installation](#installation)
-        * [Installing etm From PyPi - the Python Software Foundation Package Index](#installing-etm-from-pypi---the-python-software-foundation-package-index)
+	* [Simple reminders](#simple-reminders)
+	* [Tasks with component jobs](#tasks-with-component-jobs)
+	* [Reminders that repeat](#reminders-that-repeat)
+	* [Installation](#installation)
+		* [Installing etm From PyPi - the Python Software Foundation Package Index](#installing-etm-from-pypi---the-python-software-foundation-package-index)
 * [Goals](#goals)
 * [Data](#data)
-    * [Item Types](#item-types)
-        * [event](#event)
-        * [task](#task)
-        * [record](#record)
-        * [inbox](#inbox)
-    * [Notice Types](#notice-types)
-        * [Beginning Soon](#beginning-soon)
-        * [Past Due](#past-due)
-        * [Waiting](#waiting)
-        * [Finished](#finished)
-    * [Expansions](#expansions)
-    * [`@`keys](#keys)
-        * [Notices](#notices)
-    * [`&`keys](#keys-1)
-        * [for use with `@j`:](#for-use-with-j)
-        * [for use with `@r`:](#for-use-with-r)
-    * [TinyDB](#tinydb)
-    * [Dates, Times and Periods](#dates-times-and-periods)
-    * [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
+	* [Item Types](#item-types)
+		* [event](#event)
+		* [task](#task)
+		* [record](#record)
+		* [inbox](#inbox)
+	* [Notice Types](#notice-types)
+		* [Beginning Soon](#beginning-soon)
+		* [Past Due](#past-due)
+		* [Waiting](#waiting)
+		* [Finished](#finished)
+	* [Expansions](#expansions)
+	* [`@`keys](#keys)
+		* [Notices](#notices)
+	* [`&`keys](#keys-1)
+		* [for use with `@j`:](#for-use-with-j)
+		* [for use with `@r`:](#for-use-with-r)
+	* [TinyDB](#tinydb)
+	* [Dates, Times and Periods](#dates-times-and-periods)
+	* [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
 * [Views](#views)
-    * [Weekly](#weekly)
-        * [Agenda](#agenda)
-        * [Busy](#busy)
-    * [Relevant](#relevant)
-    * [Search](#search)
-    * [Next](#next)
-    * [Index](#index)
-    * [History](#history)
-    * [Tags](#tags)
-    * [Query](#query)
+	* [Weekly](#weekly)
+		* [Agenda](#agenda)
+		* [Busy](#busy)
+	* [Relevant](#relevant)
+	* [Search](#search)
+	* [Next](#next)
+	* [Index](#index)
+	* [History](#history)
+	* [Tags](#tags)
+	* [Query](#query)
 * [Work Flow](#work-flow)
-    * [Editing an existing item](#editing-an-existing-item)
-    * [Creating a new item](#creating-a-new-item)
+	* [Editing an existing item](#editing-an-existing-item)
+	* [Creating a new item](#creating-a-new-item)
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
-    * [Model](#model)
-        * [Data Store](#data-store)
-        * [Supporting queries](#supporting-queries)
-        * [Items Tables](#items-tables)
-        * [Instances Table](#instances-table)
-        * [Item Views](#item-views)
-        * [Instance Views](#instance-views)
-        * [CRUD](#crud)
-        * [API](#api)
+	* [Model](#model)
+		* [Data Store](#data-store)
+		* [Supporting queries](#supporting-queries)
+		* [Items Tables](#items-tables)
+		* [Instances Table](#instances-table)
+		* [Item Views](#item-views)
+		* [Instance Views](#instance-views)
+		* [CRUD](#crud)
+		* [API](#api)
 
 <!-- vim-markdown-toc -->
 
 # Getting started 
 
-*etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used in which an item begins with a *type character* followed by a brief summary of the item and then, perhaps, by one or more `@key value` pairs. There are only 4 item types:
+*etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used in which an item begins with a *type character* followed by a brief summary of the item and then, perhaps, by one or more `@key value` pairs to specify other attributes of the reminder.
 
-1) An event with type character `*`
-1) A task with type character `-`
+Here are some examples:
+
+## Simple reminders
+
+* A reminder (task) to pick up milk. 
+
+		- pick up milk
+* Append the [l]ocation errands to the milk task. (Undated tasks are displayed grouped by their locations.) 
+
+		- pick up milk @l errands
+* A sales meeting (an event) [s]tarting next Monday at 9:00am and [e]xtending for one hour.
+
+        * sales meeting @s mon 9a @e 1h 
+* The sales meeting with a default [a]lert 5 minutes before start of the meeting:
+
+        * sales meeting @s mon 9a @e 1h @a 5
+* Prepare a report (a task) for the sales meeting with a [b]eginning soon notice starting 3 days before the meeting:
+
+        - prepare report @s mon 9a @b 3
+* A record of 35 minutes spent yesterday working on the report:
+
+        % report preparation @s -1 @e 35
+* An inbox reminder that the location for the lunch meeting has not been confirmed:
+
+		! lunch with Burk @s tue 12p @e 90m @l ? 
+
+See [item Types](#item-types) for details about the four item types and [`@`keys](#keys) for details about possible attributes.
 
 
+## Tasks with component jobs
 
-* A sales meeting (an event) [s]tarting seven days from today at 9:00am and [e]xtending for one hour with a default [a]lert 5 minutes before the start:
+* Build a dog house (a task) by breaking the task down into component [j]obs 
 
-        * sales meeting @s +7 9a @e 1h @a 5
+		- Build dog house @j pick up materials @j cut pieces @j assemble pieces @j sand @j paint
 
-* The sales meeting with another [a]lert 2 days before the meeting to (e)mail a reminder to a list of recipients:
+* Include a list of the materials as a [d]iscussion element for the first job:
 
-        * sales meeting @s +7 9a @e 1h @a 5
-          @a 2d: e; who@when.com, what@where.org
+		- Build dog house @j pick up materials &d lumber, nails, sand paper, paint @j cut pieces @j assemble pieces @j sand @j paint
 
-* Prepare a report (a task) for the sales meeting [b]eginning 3 days early:
+## Reminders that repeat
 
-        - prepare report @s +7 @b 3
-
-* A period [e]xtending 35 minutes (an action) spent working on the report yesterday:
-
-        ~ report preparation @s -1 @e 35
-
-* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion,  (r)estart from the completion date:
+* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the completion date:
 
         - get haircut @s 24 @r d &i 14 @o r
 
-* Payday (an occasion) on the last week day of each month. The `&s -1` part of the entry extracts the last date which is both a weekday and falls within the last three days of the month):
+* Payday (an event) on the last week day of each month. The `&s -1` part of the entry extracts the last date which is both a weekday and falls within the last three days of the month):
 
-        ^ payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
+        * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
 
 * Take a prescribed medication daily (a reminder) [s]tarting today and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil (12am on) the fourth day from today. Trigger the default [a]lert zero minutes before each reminder:
 

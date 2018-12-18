@@ -1184,18 +1184,18 @@ class DataView(object):
         self.busy_view = ""
         self.history_view = ""
         self.cache = {}
-        self.refreshRelevant()
-        # self.refreshCache() # yrwk -> [agenda, busy, num2id]
+        self.set_now(dtstr) 
         self.views = {
                 'a': 'agenda',
                 'b': 'busy',
                 'h': 'history',
                 }
 
-        if dtstr is None:
-            self.currYrWk()
-        else:
-            self.dtYrWk(pendulum.parse(dtstr))
+        self.refreshRelevant()
+        self.currYrWk()
+
+    def set_now(self, dtstr=None):
+        self.now = pendulum.now() if dtstr is None else pendulum.parse(dtstr)
 
     def set_active_view(self, c):
         self.active_view = self.views.get(c, 'agenda')
@@ -1230,7 +1230,7 @@ class DataView(object):
 
     def currYrWk(self):
         """Set the active week to one containing today."""
-        self.currentYrWk = self.activeYrWk = getWeekNum()
+        self.currentYrWk = self.activeYrWk = getWeekNum(self.now)
         self.refreshAgenda()
 
     def dtYrWk(self, dt):
@@ -1241,14 +1241,15 @@ class DataView(object):
         """
         Called to set the relevant items for the current date and to change the currentYrWk and activeYrWk to that containing the current date.
         """
-        self.now = pendulum.now()
+        # self.now = pendulum.now()
+        self.set_now()
         self.currentYrWk = self.activeYrWk = self.now.isocalendar()[:2]
         self.current, self.alerts = relevant(self.now)
         self.refreshCache()
 
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
-            self.cache.update(schedule(self.activeYrWk, self.current))
+            self.cache.update(schedule(yw=self.activeYrWk, current=self.current, now=self.now))
         self.agenda_view, self.busy_view, self.num2id = self.cache[self.activeYrWk]
 
     def show_details(self):
@@ -1278,9 +1279,7 @@ class DataView(object):
         self.cache = {}
 
     def refreshCache(self):
-        # tmp = schedule(self.currentYrWk, self.current, 5, 20)
-        # self.cache.update(tmp)
-        self.cache = schedule(self.currentYrWk, self.current, 5, 20)
+        self.cache = schedule(self.currentYrWk, self.current, self.now, 5, 20)
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
@@ -2385,6 +2384,29 @@ def task(at_hsh):
 def jobs(lofh, at_hsh={}):
     """
     Process the job hashes in lofh
+    >>> data = [{'j': 'Pick up materials', 'd': 'lumber, nails, paint'}, {'j': 'Cut pieces'}, {'j': 'Assemble'}]
+    >>> pprint(jobs(data))
+    (True,
+     [{'d': 'lumber, nails, paint',
+       'i': '1',
+       'j': 'Pick up materials',
+       'p': [],
+       'req': [],
+       'status': '-',
+       'summary': ' 1/2/0: Pick up materials'},
+      {'i': '2',
+       'j': 'Cut pieces',
+       'p': ['1'],
+       'req': ['1'],
+       'status': '+',
+       'summary': ' 1/2/0: Cut pieces'},
+      {'i': '3',
+       'j': 'Assemble',
+       'p': ['2'],
+       'req': ['2', '1'],
+       'status': '+',
+       'summary': ' 1/2/0: Assemble'}],
+     None)
     >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
     >>> pprint(jobs(data))
     (True,
@@ -3122,13 +3144,6 @@ def relevant(now):
         if item['itemtype'] == '-' and 'f' in item:
             # no pastdues, beginbys or alerts for finished tasks
             continue
-            # This should be in schedule
-            # done.append([item.doc_id, item['f']])
-            # id2relevant[item.doc_id] = item['f'] # the last completion
-            # if 'h' in item:
-            #     # the history will be limited to the n most recent completions
-            #     for dt in item['h']:
-            #         done. append([item.doc_id, dt])
 
         if 's' in item:
             dtstart = item['s'] 
@@ -3458,18 +3473,17 @@ def no_busy_periods(week, width):
 
 
 
-def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
+def schedule(yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0):
     width = 58
     summary_width = width - 7 - 16
-    # dt = 0 hours on the Monday of yw
-    dt = pendulum.parse(f"{yw[0]}-W{str(yw[1]).rjust(2, '0')}")
+    # yw will be the active week, but now will be the current moment
+    dt = now
 
     week_numbers = getWeekNumbers(dt, weeks_before, weeks_after)
     aft_dt, bef_dt = get_period(dt, weeks_before, weeks_after)
 
     current_day = ""
-    current_week = yw == getWeekNum()
-    now = pendulum.now()
+    current_week = yw 
     if current_week:
         current_day = now.format("ddd MMM D")
 
@@ -3553,7 +3567,7 @@ def schedule(yw=getWeekNum(), current=[], weeks_before=0, weeks_after=0):
                 #             x[0] x[1]  x[2]     x[3]
                 # busy.append([(y,w), d, beg_min, end_min])
                 busy.append({'sort': dt.format("YYYYMMDDHHmm"), 'week': (y, w), 'day': d, 'period': (beg_min, end_min)})
-    if yw == getWeekNum():
+    if yw == getWeekNum(now):
         rows.extend(current)
     from operator import itemgetter
     from itertools import groupby
@@ -3809,7 +3823,9 @@ if __name__ == '__main__':
             dataview.nextYrWk()
             print(dataview.agenda_view)
         if 's' in sys.argv[1]:
-            dataview = DataView(weeks=1)
+            dataview = DataView(dtstr="20181216T1200", weeks=1)
+            pprint(dataview.now)
+            pprint(dataview.current)
             print_formatted_text(dataview.agenda_view, style=style)
         if 'S' in sys.argv[1]:
             dataview = DataView()
