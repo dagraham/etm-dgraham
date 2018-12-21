@@ -307,6 +307,9 @@ def show_details(event):
             details_area.text = tmp.rstrip()
             application.layout.focus(details_area)
 
+@bindings.add('e', filter=is_showing_details)
+def edit(event):
+    details_area.readonly = False
 
 style = Style.from_dict({
     'status': '{} bg:{}'.format(NAMED_COLORS['White'], NAMED_COLORS['DimGrey']),

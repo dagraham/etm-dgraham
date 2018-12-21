@@ -1,7 +1,7 @@
 # etm: event and task manager
-*Last modified: Wed Dec 19, 2018 11:59AM EST*
+*Last modified: Fri Dec 21, 2018 11:04AM EST*
 
-####TOC
+#### TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Getting started](#getting-started)
@@ -13,15 +13,16 @@
 	* [task](#task)
 	* [record](#record)
 	* [inbox](#inbox)
-	* [notices](#notices)
-		* [beginning Soon](#beginning-soon)
-		* [past due](#past-due)
-		* [waiting](#waiting)
-		* [finished](#finished)
-* [`@` keys](#-keys)
+* [notices](#notices)
+	* [beginning soon](#beginning-soon)
+	* [past due](#past-due)
+	* [waiting](#waiting)
+	* [finished](#finished)
+* [`@`keys](#keys)
 	* [`@a` and `@b` notices](#a-and-b-notices)
+	* [`@+` repetition](#-repetition)
 	* [`@x` expansions](#x-expansions)
-* [`&` keys](#-keys-1)
+* [`&`keys](#keys-1)
 	* [for use with `@j`](#for-use-with-j)
 	* [for use with `@r`](#for-use-with-r)
 * [The TinyDB Data Store](#the-tinydb-data-store)
@@ -154,18 +155,20 @@ Installing etm in this virtual environment makes it possible to remove etm and a
 
 Type character: **\***
 
-Corresponds to VEVENT in the vcalendar specification.
+An event is something that happens at a particular date or datetime without any action from the user. Christmas, for example, is an event that happens whether or not the user does anything about it.
+
 
 - The `@s` entry is required and can be specified either as a date or as a datetime. It is interpreted as the starting date or datetime of the event. 
 - If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date using the display character `^`. 
 - If `@s` is a datetime, an `@e` entry is allowed and is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.  Events with datetimes are displayed on the relevant date according to the starting time using the display character `*`. 
-- **New**: The old *occasion* item type, `^`, has been replaced by the ability to use a date rather than a datetime in `@s`.
+
+Corresponds to VEVENT in the vcalendar specification.
 
 ## [task](#toc)
 
 Type character: **-**
 
-Corresponds to VTODO in the vcalendar specification.
+A task is something that requires action from the user and lasts, so to speak, until the task is completed and marked finished. Filing a tax return, for example, is a task. 
 
 - The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is due. 
     - Tasks with an `@s` datetime entry are regarded as pastdue after the datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
@@ -216,62 +219,65 @@ Corresponds to VTODO in the vcalendar specification.
 - Another step is taken for repeating tasks with as yet unfinished future repetitions. When the task or last job in the current repetition is completed, the `@s` entry is updated using the setting for `@o` to show the next due datetime and the `@f` entry is removed and appended to the list of completions in `@h`. A user configuration setting determines the number of most recent completion records retained for repeating tasks with 3 as the default.  
 - When the last instance of a repeating task is finished, `@f` will contain the datetime of the last completion and `@h` the list of prior completions.
 - A task, repeating or not, will have an  `@f` entry if and only if the task has been completed.
-- **New** 
-	-	The old `@c`, *context*, for tasks has been merged into *location*, `@l`.  
-	- The old *task group* item type, `+`, has been replaced by the ability to add job entries, `@j`, to any task.
-	- The old `%`, *delegated*, item type has been eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
-    - The old *someday* item type, `?`, has been eliminated. Using a location entry, e.g. `@l ~someday`, with an undated task will cause it to be displayed in the *next* view under `~someday`. Prepending the tilde character causes `~someday` to be displayed as the last location.
+
+Corresponds to VTODO in the vcalendar specification.
 
 ## [record](#toc)
 
 Type character: **%**
 
-Corresponds to VJOURNAL in the vcalendar specification.
-
-A combination of the old *note* and *action* item types. 
+A record is, well, a record of something that the user wants to remember. The userid and password for a website would be an example. A journal entry for vacation day is another example. 
 
 - The `@s` is optional and, if given, is interpreted as the datetime to which the record applies. 
 - Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime.
 - Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of the day given by `@s`.
 - Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type. A built-in report groups and totals times for such "actions" by month and then index entry.
 
+Corresponds to VJOURNAL in the vcalendar specification.
+
 ## [inbox](#toc)
 
 Type character: **!**
 
+An inbox item can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using `!` instead of `*` and the entry  will appear highlighted in the agenda view on the current date until you confirm the starting time. 
+
 Corresponds to VTODO in the vcalendar specification.
 
-An inbox items can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using `!` instead of `*` and the entry  will appear highlighted in the agenda view on the current date until you confirm the starting time. 
+# [notices](#toc)
 
-Unchanged but for the change in the type character from `$` to `!` to better reflect the urgency associated with such items.  Inbox items are displayed in dated views on the current date. 
+These are generated automatically by *etm*.
 
-## [notices](#toc)
-
-### [beginning Soon](#toc)
+## [beginning soon](#toc)
 
 Type character: **>**
 
 For unfinished tasks and other items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining.
 
-### [past due](#toc)
+## [past due](#toc)
 
 Type character: **<**
 
 When a task is past due, a warning that the task is past due appears on the current date together with the item summary and the number of days past due. 
 
-### [waiting](#toc)
+## [waiting](#toc)
 
 Type character: **+**
 
 When a task job has one or more unfinished prerequisites, it is displayed using **+** rather than **-**.
 
-### [finished](#toc)
+## [finished](#toc)
 
 Type character: **✓**
 
-When a task or job is finished, it is displayed on the finished date using **x** rather than **-**. 
+When a task or job is finished, it is displayed on the finished date using **✓** rather than **-**. 
 
-# [`@` keys](#toc)
+# [`@`keys](#toc)
+
+`@` followed by a key from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
+
+	@s mon 9a
+
+would specify the the starting datetime for the item is 9am on the Monday following the current date.
 
     +: include: list of datetimes to include,
     -: exclude: list of datetimes to exclude from rrule,
@@ -304,15 +310,21 @@ When a task or job is finished, it is displayed on the finished date using **x**
     - negative: triggered after dtstart, relevant for dtstart on or before today
 * Beginbys: relevant for dtstart after today
 
-> For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance. 
+For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance. 
 
-> When an item with entries for both `@s` and `@r` is created or modified, the entry for `@s` is automatically changed to match the first instance from the recurrence rule. This has no effect on the instances generated but removes a possible source of confusion. 
+When an item with entries for both `@s` and `@r` is created or modified, the entry for `@s` is automatically changed to match the first instance from the recurrence rule. This has no effect on the instances generated but removes a possible source of confusion. 
 
-> An entry without `@r` but with `@s` and `@+` entries will generate instances corresponding to the entered `@s` and to each of the entries in `@+`. 
+An entry without `@r` but with `@s` and `@+` entries will generate instances corresponding to the entered `@s` and to each of the entries in `@+`. 
 
-> With an email alert, the item summary is used as the subject and the description as the body of the email. Memo is not included.
+With an email alert, the item summary is used as the subject and the description as the body of the email. Memo is not included.
 
-> New: an alert with a **negative** time period will be triggered **after** the datetime specified in `@s`.
+## [`@+` repetition](#toc)
+
+*Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
+
+			* my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
+
+would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used. This replaces and simplifies the old `@r l`, list only, repetition frequency.
 
 ## [`@x` expansions](#toc)
 
@@ -339,17 +351,16 @@ Then entering the item
       * Conflict and Cooperation @s 1/25/2018 9:35am @x class 
         @l Math-Physics Bldg 
 
-is equivalent to entering
+would expand to the following when saved
 
       * Conflict and Cooperation @s 1/25/2018 9:35am @e 1h15m @a 10m, 3m: d 
         @l Math-Physics Bldg @i Work:Teaching
 
 The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for the event but the default for `@l` has been overridden by the explicit entry.
 
-Note that changing the entry for `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the `@x` entry is replaced by its expansion. [Is this the correct behavior?]
+Note that changing the entry for `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the `@x` entry is replaced by its expansion. 
 
-
-# [`&` keys](#toc)
+# [`&`keys](#toc)
 
 These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
@@ -381,12 +392,12 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
          a positive or negative integer
       W: week number: list of integers in (1, ..., 53)
 
-> It is an error in dateutil to specify both `&c` and `&u` since providing both would either be consistent, and one would be redundant, or inconsistent. A distinction between using `@c` and `@u` is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday  and repeats daily using either count, `&c 5`, or until, `&u fri 10a`.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
+It is an error in dateutil to specify both `&c` and `&u` since providing both would at best be redundant. A distinction between using `@c` and `@u` is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, `&c 5`, or until, `&u fri 10a`.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
 
 # [The TinyDB Data Store](#toc)
 
-- All etm item data is stored in a single, *JSON* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not easily human-editable.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
+All etm item data is stored in a single, *JSON* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not easily human-editable.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
 
 		  "32": {
 		   "c": "shared",
@@ -412,7 +423,10 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
 ## [Dates, Times and Intervals](#toc)
 
-- *Aware* datetime objects have information about the timezone that applies to the object. *Naive* datetimes and dates are missing such timezone information. Aware and naive objects are thus like 'apples and oranges' and cannot be compared. Similarly, dates and datetimes are not comparable. Etm takes care of all the details of dealing with these issues and they need not concern the user.
+*Aware* datetime objects have information about the timezone that applies to the object. *Naive* datetimes and dates are missing such timezone information. Aware and naive objects are thus like 'apples and oranges' and cannot be compared. Similarly, dates and datetimes are not comparable. Etm takes care of all the details of dealing with these issues and they need not concern the user.
+
+Why provide for both aware and naive objects? Since naive objects have no timezone information they "float". A reminder to take your meds at 10am and 4pm that uses a *naive* starting datetime will display the reminder at 10am and 4pm in whatever timezone you happen to be. On the other hand, a reminder to phone your friend in Los Angeles at 2pm that uses an *aware* starting datetime with US/Pacific as the timezone, will display the reminder in whatever timezone you happen to be at the local time corresponding to 2pm US/Pacific.
+
 - Dates (necessarily naive) and datetimes (both naive and aware) are suppored along with intervals (analagous to python timedeltas).
 - Storage: 
     - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and interval storage. *Pendulum* date,  datetime and interval objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date, datetime and interval objects when retrieved by etm. 
@@ -444,27 +458,21 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
 		With both a **date** and a **time** specified and with `float` as the timezone, this would be interpreted as `Fri, Jan 5, 2018 2pm`, in whatever happens to be the local timezone, and would be serialized as `{T}:20180105T1400N`. Note the appended `N` to indicate that this is a naive datetime and that the datetime has not been converted.
 
-    The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
-- When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time changes. E.g., with
+	- The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
+	- When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time changes. E.g., with
 
-			@s Fri Jan 26 2018 2pm @r m -1FR @z US/Eastern
-	the first three repetitions would all be at 2pm even though the first two are EST and the third is EDT: 
+				@s Fri Jan 26 2018 2pm @r m -1FR @z US/Eastern
+		the first three repetitions would all be at 2pm even though the first two are EST and the third is EDT: 
 
-			Fri Jan 26 2018 2:00PM
-			Fri Feb 23 2018 2:00PM
-			Fri Mar 30 2018 2:00PM
+				Fri Jan 26 2018 2:00PM
+				Fri Feb 23 2018 2:00PM
+				Fri Mar 30 2018 2:00PM
 - Display:
     - Naive dates are displayed without conversion and without a starting time. 
     - Naive datetimes are displayed without conversion.
     - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as starting at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `@s fri 2p @z US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
     - When *editing* an item with an aware datetime, the datetime is displayed in the timezone specified in `@z`. 
     - Datetimes are rounded to the nearest minute for display.
-- **New**
-	- *Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
-
-				* my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
-
-		would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used. This replaces and simplifies the old `@r l`, list only, repetition frequency.
 
 ## [The relevant datetime of an item](#toc)
 
