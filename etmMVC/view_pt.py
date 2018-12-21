@@ -144,7 +144,7 @@ def new_day(loop):
     dataview.refreshRelevant()
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
-
+    get_app().invalidate()
 
 current_datetime = status_time(dataview.now)
 
@@ -244,7 +244,6 @@ root_container = HSplit([
 bindings = KeyBindings()
 
 
-@bindings.add('Q')
 @bindings.add('f8')
 def _(event):
     " Quit. "

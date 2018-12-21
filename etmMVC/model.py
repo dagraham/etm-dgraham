@@ -38,9 +38,9 @@ import platform
 
 import shutil
 
-# import logging
-# import logging.config
-# logger = logging.getLogger()
+import logging
+import logging.config
+logger = logging.getLogger()
 
 
 from prompt_toolkit import print_formatted_text
@@ -1195,7 +1195,8 @@ class DataView(object):
         self.currYrWk()
 
     def set_now(self, dtstr=None):
-        self.now = pendulum.now() if dtstr is None else pendulum.parse(dtstr)
+        # self.now = pendulum.now() if dtstr is None else pendulum.parse(dtstr)
+        self.now = pendulum.parse(dtstr, tz='local') if dtstr else pendulum.now('local')  
 
     def set_active_view(self, c):
         self.active_view = self.views.get(c, 'agenda')
@@ -1233,7 +1234,8 @@ class DataView(object):
         self.currentYrWk = self.activeYrWk = getWeekNum(self.now)
         self.refreshAgenda()
 
-    def dtYrWk(self, dt):
+    def dtYrWk(self, dtstr):
+        dt = pendulum.parse(dtstr)
         self.activeYrWk = getWeekNum(dt)
         self.refreshAgenda()
 
@@ -3113,7 +3115,7 @@ def finish(id, dt):
     """
     pass
 
-def relevant(now):
+def relevant(now=pendulum.now('local')):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
     """
@@ -3473,24 +3475,26 @@ def no_busy_periods(week, width):
 
 
 
-def schedule(yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0):
+def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_before=0, weeks_after=0):
     width = 58
     summary_width = width - 7 - 16
     # yw will be the active week, but now will be the current moment
-    dt = now
 
+    d = iso_to_gregorian((yw[0], yw[1], 1))
+    dt = pendulum.datetime(d.year, d.month, d.day, 0, 0, 0, tz='local')
     week_numbers = getWeekNumbers(dt, weeks_before, weeks_after)
+    if yw not in week_numbers:
+        week_numbers.append(yw)
+        week_numbers.sort()
     aft_dt, bef_dt = get_period(dt, weeks_before, weeks_after)
 
     current_day = ""
-    current_week = yw 
+    current_week = yw == getWeekNum() 
     if current_week:
         current_day = now.format("ddd MMM D")
 
     rows = []
     busy = []
-    agenda_view = ""
-    busy_view = ""
     for item in ETMDB:
         if item['itemtype'] in "!?":
             continue
@@ -3621,6 +3625,7 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, we
     row2id = {}
     row_num = -1
     # FIXME: deal with weeks without scheduled items
+    cache = {}
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
         agenda = []
@@ -3642,7 +3647,6 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, we
         agenda_hsh[week] = "\n".join(agenda)
         row2id_hsh[week] = row2id
 
-    cache = {}
     for week in week_numbers:
         tup = []
         if week in agenda_hsh:
@@ -3823,9 +3827,8 @@ if __name__ == '__main__':
             dataview.nextYrWk()
             print(dataview.agenda_view)
         if 's' in sys.argv[1]:
-            dataview = DataView(dtstr="20181216T1200", weeks=1)
-            pprint(dataview.now)
-            pprint(dataview.current)
+            dataview = DataView(weeks=1)
+            dataview.dtYrWk('2018/02/12')
             print_formatted_text(dataview.agenda_view, style=style)
         if 'S' in sys.argv[1]:
             dataview = DataView()
@@ -3839,10 +3842,10 @@ if __name__ == '__main__':
         if 'V' in sys.argv[1]:
             dataview = DataView(dtstr="2018/12/25", weeks=2)
             # dataview.prevYrWk()
-            print_formatted_text(dataview.agenda_select, style=style)
+            # print_formatted_text(dataview.agenda_select, style=style)
             print(dataview.num2id)
             print("details for 3:", dataview.num2id[3])
-            dataview.show_details(3)
+            print(dataview.get_details(3))
         if 'v' in sys.argv[1]:
             dataview = DataView(dtstr="2018/12/25", weeks=2)
             print_formatted_text(dataview.agenda_view, style=style)

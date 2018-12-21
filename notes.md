@@ -1,5 +1,5 @@
 # Notes for etm
-**Last modified: Fri Dec 14, 2018 11:01PM EST**
+**Last modified: Thu Dec 20, 2018 08:17PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -15,7 +15,7 @@
 ## Coding
 
 * Foundation
-    * Incorporate RDict
+    * Incorporate RDict and use for index view
     * View class for view_pt
     * Logging
     * Timing

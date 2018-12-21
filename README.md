@@ -1,39 +1,35 @@
-# What's planned for the next etm?
-**Last modified: Mon Dec 17, 2018 05:31PM EST**
+# etm: event and task manager
+*Last modified: Wed Dec 19, 2018 11:59AM EST*
 
-# TOC
+####TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Getting started](#getting-started)
 	* [Simple reminders](#simple-reminders)
-	* [Tasks with component jobs](#tasks-with-component-jobs)
 	* [Reminders that repeat](#reminders-that-repeat)
 	* [Installation](#installation)
-		* [Installing etm From PyPi - the Python Software Foundation Package Index](#installing-etm-from-pypi---the-python-software-foundation-package-index)
-* [Goals](#goals)
-* [Data](#data)
-	* [Item Types](#item-types)
-		* [event](#event)
-		* [task](#task)
-		* [record](#record)
-		* [inbox](#inbox)
-	* [Notice Types](#notice-types)
-		* [Beginning Soon](#beginning-soon)
-		* [Past Due](#past-due)
-		* [Waiting](#waiting)
-		* [Finished](#finished)
-	* [Expansions](#expansions)
-	* [`@`keys](#keys)
-		* [Notices](#notices)
-	* [`&`keys](#keys-1)
-		* [for use with `@j`:](#for-use-with-j)
-		* [for use with `@r`:](#for-use-with-r)
-	* [TinyDB](#tinydb)
-	* [Dates, Times and Periods](#dates-times-and-periods)
+* [Item Types](#item-types)
+	* [event](#event)
+	* [task](#task)
+	* [record](#record)
+	* [inbox](#inbox)
+	* [notices](#notices)
+		* [beginning Soon](#beginning-soon)
+		* [past due](#past-due)
+		* [waiting](#waiting)
+		* [finished](#finished)
+* [`@` keys](#-keys)
+	* [`@a` and `@b` notices](#a-and-b-notices)
+	* [`@x` expansions](#x-expansions)
+* [`&` keys](#-keys-1)
+	* [for use with `@j`](#for-use-with-j)
+	* [for use with `@r`](#for-use-with-r)
+* [The TinyDB Data Store](#the-tinydb-data-store)
+	* [Dates, Times and Intervals](#dates-times-and-intervals)
 	* [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
 * [Views](#views)
-	* [Weekly](#weekly)
-		* [Agenda](#agenda)
+	* [Agenda](#agenda)
+		* [Schedule](#schedule)
 		* [Busy](#busy)
 	* [Relevant](#relevant)
 	* [Search](#search)
@@ -59,13 +55,13 @@
 
 <!-- vim-markdown-toc -->
 
-# Getting started 
+# [Getting started](#toc) 
 
 *etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used in which an item begins with a *type character* followed by a brief summary of the item and then, perhaps, by one or more `@key value` pairs to specify other attributes of the reminder.
 
 Here are some examples:
 
-## Simple reminders
+## [Simple reminders](#toc)
 
 * A reminder (task) to pick up milk. 
 
@@ -89,20 +85,17 @@ Here are some examples:
 
 		! lunch with Burk @s tue 12p @e 90m @l ? 
 
-See [item Types](#item-types) for details about the four item types and [`@`keys](#keys) for details about possible attributes.
+* Build a dog house (a task) by breaking the task down into component [j]obs:
 
+		- Build dog house @j pick up materials @j cut pieces @j assemble
+		  @j sand @j paint
 
-## Tasks with component jobs
+* Join the etm discussion group (a task) [s]tarting on the first day of the next month. Because of the @g (goto) link, pressing *L* when the item is selected in the gui would open the link using the system default application which, in this case, would be the default browser:
 
-* Build a dog house (a task) by breaking the task down into component [j]obs 
+        - join the etm discussion group @s +1/1
+          @g http://groups.google.com/group/eventandtaskmanager/topics
 
-		- Build dog house @j pick up materials @j cut pieces @j assemble pieces @j sand @j paint
-
-* Include a list of the materials as a [d]iscussion element for the first job:
-
-		- Build dog house @j pick up materials &d lumber, nails, sand paper, paint @j cut pieces @j assemble pieces @j sand @j paint
-
-## Reminders that repeat
+## [Reminders that repeat](#toc)
 
 * Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the completion date:
 
@@ -127,48 +120,37 @@ See [item Types](#item-types) for details about the four item types and [`@`keys
         ^ Presidential Election Day @s 2012-11-06
           @r y &i 4 &M 11 &m 2, 3, 4, 5, 6, 7, 8 &w TU
 
-* Join the etm discussion group (a task) [s]tarting on the first day of the next month. Because of the @g (goto) link, pressing Ctrl-G when the details of this item are displayed in the gui would open the link using the system default application which, in this case, would be your default browser:
+See [item Types](#item-types) for details about the four item types and [`@`keys](#keys) for details about possible attributes.
 
-        - join the etm discussion group @s +1/1
-          @g http://groups.google.com/group/eventandtaskmanager/topics
 
 ## Installation ##
 
 Python >= 3.6.0 is required.
 
-### Installing etm From PyPi - the Python Software Foundation Package Index
+1) Create a directory for etm and its supporting files:
 
-If you have [pip] installed on your system you can install etm with the single command:
+		$ mkdir ~/.etm
+1) Change to this directory, create and activate a virtual environment for etm:
 
-    sudo pip install etmmv
+		$ cd ~/.etm
+		$ python3 -m venv env
+		$ . env/bin/activate
+1)  Activating the virtual environment in the last step typically changes the system prompt from something like `$` to something like `(env) $`. You can then install etm and its dependencies with the single command:
 
-and later update to the latest version with
+		(env) $ pip install etm_mv
+	and later update to the latest version with
 
-    sudo pip install -U etmmv
+		(env) $ pip install -U etm_mv
+1) etm can now be started with the command
+
+		(env) $ ./etm 
+
+Installing etm in this virtual environment makes it possible to remove etm and all its dependencies by simply deleting this directory. 
 
 
-[pip]: https://pypi.python.org/pypi/pip
+# [Item Types](#toc)
 
-
-
-# [Goals](#toc)
-
-- Simplify etm usage. 
-    - Reduce the number of item types and make them more flexible. See [Item Types](#item-types).
-    - Enhance support for component jobs within tasks. See [Task](#task). 
-    - Simplify support for dates and datetimes, both aware and naive. See [Dates, Times and Periods](#dates-times-and-periods). 
-    - Similify data entry with automatic suggestions and result previews. See [Work Flow](#work-flow).
-- Improve code.
-    - Refactor and decouple code using "smart model, thin controller and dumb view" approach in which the model provides an API that can be used by a variety of views including a command line interface.
-    - Simplify code, document it and add doc tests - make the code more easilty maintainable. 
-    - Speed up performance. Make use of a text-based document store called *TinyDB* that is designed for quick insertions, modifications and retrievals. Make use of stored unique identifiers, to limit view updates to the item actually changed. See [Storage](#storage).
-    - Provide a simpler, GUI along with a CLI that allows creating items and reports from the command line. See [Views](#views) for details about the various views.
-
-# [Data](#toc)
-
-## [Item Types](#toc)
-
-### [event](#toc)
+## [event](#toc)
 
 Type character: **\***
 
@@ -179,7 +161,7 @@ Corresponds to VEVENT in the vcalendar specification.
 - If `@s` is a datetime, an `@e` entry is allowed and is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.  Events with datetimes are displayed on the relevant date according to the starting time using the display character `*`. 
 - **New**: The old *occasion* item type, `^`, has been replaced by the ability to use a date rather than a datetime in `@s`.
 
-### [task](#toc)
+## [task](#toc)
 
 Type character: **-**
 
@@ -240,7 +222,7 @@ Corresponds to VTODO in the vcalendar specification.
 	- The old `%`, *delegated*, item type has been eliminated. Prepending the name of the person to whom a task is delegated to the task summary followed by a colon is recommended for such tasks. Setting a filter corresponding to the person's name would then show all tasks delegated to that person.
     - The old *someday* item type, `?`, has been eliminated. Using a location entry, e.g. `@l ~someday`, with an undated task will cause it to be displayed in the *next* view under `~someday`. Prepending the tilde character causes `~someday` to be displayed as the last location.
 
-### [record](#toc)
+## [record](#toc)
 
 Type character: **%**
 
@@ -253,7 +235,7 @@ A combination of the old *note* and *action* item types.
 - Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of the day given by `@s`.
 - Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type. A built-in report groups and totals times for such "actions" by month and then index entry.
 
-### [inbox](#toc)
+## [inbox](#toc)
 
 Type character: **!**
 
@@ -263,35 +245,78 @@ An inbox items can be regarded as a task that is always due on the current date.
 
 Unchanged but for the change in the type character from `$` to `!` to better reflect the urgency associated with such items.  Inbox items are displayed in dated views on the current date. 
 
-## [Notice Types](#toc)
+## [notices](#toc)
 
-### [Beginning Soon](#toc)
+### [beginning Soon](#toc)
 
 Type character: **>**
 
 For unfinished tasks and other items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining.
 
-### [Past Due](#toc)
+### [past due](#toc)
 
 Type character: **<**
 
 When a task is past due, a warning that the task is past due appears on the current date together with the item summary and the number of days past due. 
 
-### [Waiting](#toc)
+### [waiting](#toc)
 
 Type character: **+**
 
 When a task job has one or more unfinished prerequisites, it is displayed using **+** rather than **-**.
 
-### [Finished](#toc)
+### [finished](#toc)
 
 Type character: **✓**
 
 When a task or job is finished, it is displayed on the finished date using **x** rather than **-**. 
 
-## [Expansions](#toc)
+# [`@` keys](#toc)
 
-The old *defaults* item type, `=`, is eliminated. Its functionality is replaced by the `@x`, *expansion key*, entry which is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
+    +: include: list of datetimes to include,
+    -: exclude: list of datetimes to exclude from rrule,
+    a: alert (list of + or - periods[: cmd[, list of cmd args]]),
+    b: beginby: integer (number of days),
+    c: calendar: string,
+    d: description: string,
+    e: extent: period,
+    f: finished: datetime,
+    g: goto: string (url or filepath),
+    h: history: (for repeating tasks, a list of the most recent completion datetimes)
+    i: index: colon delimited string,
+    j: job summary: string, optionally followed by job &key entries
+    l: location/context: string,
+    m: memo: string,
+    o: overdue: character from (r)estart, (s)kip or (k)eep),
+    p: priority: integer,
+    r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
+       (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition
+       &key entries
+    s: starting: date or datetime,
+    t: tags: list of strings,
+    x: expansion key: string,
+    z: timezone: string,
+
+## [`@a` and `@b` notices](#toc) 
+
+* Alerts
+    - positive: triggered before dtstart, relevant for dtstart on or after today
+    - negative: triggered after dtstart, relevant for dtstart on or before today
+* Beginbys: relevant for dtstart after today
+
+> For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance. 
+
+> When an item with entries for both `@s` and `@r` is created or modified, the entry for `@s` is automatically changed to match the first instance from the recurrence rule. This has no effect on the instances generated but removes a possible source of confusion. 
+
+> An entry without `@r` but with `@s` and `@+` entries will generate instances corresponding to the entered `@s` and to each of the entries in `@+`. 
+
+> With an email alert, the item summary is used as the subject and the description as the body of the email. Memo is not included.
+
+> New: an alert with a **negative** time period will be triggered **after** the datetime specified in `@s`.
+
+## [`@x` expansions](#toc)
+
+The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
         expansions = {
           'class': {
@@ -323,54 +348,12 @@ The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for 
 
 Note that changing the entry for `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the `@x` entry is replaced by its expansion. [Is this the correct behavior?]
 
-## [`@`keys](#toc)
 
-    +: include: list of datetimes to include,
-    -: exclude: list of datetimes to exclude from rrule,
-    a: alert (list of + or - periods[: cmd[, list of cmd args]]),
-    b: beginby: integer (number of days),
-    c: calendar: string,
-    d: description: string,
-    e: extent: period,
-    f: finished: datetime,
-    g: goto: string (url or filepath),
-    h: history: (for repeating tasks, a list of the most recent completion datetimes)
-    i: index: colon delimited string,
-    j: job summary: string, optionally followed by job &key entries
-    l: location/context: string,
-    m: memo: string,
-    o: overdue: character from (r)estart, (s)kip or (k)eep),
-    p: priority: integer,
-    r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
-       (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition
-       &key entries
-    s: starting: date or datetime,
-    t: tags: list of strings,
-    x: expansion key: string,
-    z: timezone: string,
-
-### Notices 
-
-* Alerts
-    - positive: triggered before dtstart, relevant for dtstart on or after today
-    - negative: triggered after dtstart, relevant for dtstart on or before today
-* Beginbys: relevant for dtstart after today
-
-> For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance. 
-
-> When an item with entries for both `@s` and `@r` is created or modified, the entry for `@s` is automatically changed to match the first instance from the recurrence rule. This has no effect on the instances generated but removes a possible source of confusion. 
-
-> An entry without `@r` but with `@s` and `@+` entries will generate instances corresponding to the entered `@s` and to each of the entries in `@+`. 
-
-> With an email alert, the item summary is used as the subject and the description as the body of the email. Memo is not included.
-
-> New: an alert with a **negative** time period will be triggered **after** the datetime specified in `@s`.
-
-## [`&`keys](#toc)
+# [`&` keys](#toc)
 
 These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
-### [for use with `@j`:](#toc)
+## [for use with `@j`](#toc)
       a: alert: (list of + (before) or - (after) periods relative to &s: cmd[, list of cmd args])
       b: beginby: integer number of days before &s
       d: description: string
@@ -383,7 +366,7 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
          prereqs)
       s: start/due: period relative to @s entry (default 0m)
 
-### [for use with `@r`:](#toc)
+## [for use with `@r`](#toc)
       c: count: integer number of repetitions 
       e: easter: number of days before (-), on (0) or after (+) Easter
       h: hour: list of integers in 0 ... 23
@@ -401,72 +384,52 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 > It is an error in dateutil to specify both `&c` and `&u` since providing both would either be consistent, and one would be redundant, or inconsistent. A distinction between using `@c` and `@u` is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday  and repeats daily using either count, `&c 5`, or until, `&u fri 10a`.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
 
-## [TinyDB](#toc)
+# [The TinyDB Data Store](#toc)
 
-- All etm item data is stored in a single, *json* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not easily human-editable.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
+- All etm item data is stored in a single, *JSON* file using the python data store *TinyDB*. This is a plain text file that is human-readable, but not easily human-editable.  It can be backed up and/or queried using external tools as well as etm itself. Here is an illustrative record:
 
-        "2756": {
-          "c": "shared",
-          "created": "20180301T1537A",
-          "itemtype": "*",
-          "r": [
-            {
-            "m": "3",
-            "r": "y",
-            "w": "2SU"
-            }
-          ],
-          "s": "{D}:20180310",
-          "summary": "Daylight saving time begins"
-          }
+		  "32": {
+		   "c": "shared",
+		   "itemtype": "*",
+		   "r": [
+			{
+			 "M": "3",
+			 "r": "y",
+			 "w": "{W}:2SU"
+			}
+		   ],
+		   "s": "{D}:20100314",
+		   "summary": "Daylight saving time begins",
+		   "created": "{T}:20160812T2348A"
+		  },
 
-    which corresponds to creating the following entry on March 1, 2018 at 15:37 UTC:
+    which corresponds to creating the following entry on August 12, 2016 at 23:48 UTC:
 
-        * Daylight saving time begins @s 2018-03-10 @r y &M 3 &w 2SU @c shared
+        * Daylight saving time begins @s 2010-03-14 @r y &M 3 &w 2SU @c shared
 
-- The unique identifier, `2756`, is created automatically by *TinyDB*.
+- The unique identifier, `32`, is created automatically by *TinyDB*.
 - Two timestamps are automatically created for items: *created*, corresponding to the moment the item was created and, if the item has subsequently been changed, *modified* corresponding to the moment the item was last changed. 
-- **New**
-    - A *history* view displays all items and allows sorting by either the created or the last modified datetime. 
-	- The hierarchical organization that was provided by file paths and/or `@k keyword` entries is provided by the *index* entry, `@i`, which takes a colon delimited string. E.g., the entry 
 
-			@i plant:tree:oak
+## [Dates, Times and Intervals](#toc)
 
-		would display the item in the *index* view under:
-
-			- plant
-			    - tree
-			        - oak
-
-        Similarly, the default action report groups actions (records with both `@s` and `@e` entries) by month and index.
-
-	- The organization that was provided by calendars is provided by the *calendar* entry, `@c`. A default value for calendar specified in preferences is assigned to an item when an explicit value is not provided. 
-
-## [Dates, Times and Periods](#toc)
-
-- Dates (necessarily naive) and datetimes (both naive and aware) are suppored along with durations (pendulum durations which are analagous to python timedeltas).
-- Localization is supported using Pendulum, e.g. 
-
-			>>> pendulum.set_locale('fr')
-			>>> dt = pendulum.datetime(2018, 8, 4)
-			>>> dt.format('dddd D MMMM YYYY')
-			'samedi 4 août 2018'
+- *Aware* datetime objects have information about the timezone that applies to the object. *Naive* datetimes and dates are missing such timezone information. Aware and naive objects are thus like 'apples and oranges' and cannot be compared. Similarly, dates and datetimes are not comparable. Etm takes care of all the details of dealing with these issues and they need not concern the user.
+- Dates (necessarily naive) and datetimes (both naive and aware) are suppored along with intervals (analagous to python timedeltas).
 - Storage: 
-    - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and duration storage. *Pendulum* date,  datetime and duration objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date, datetime and duration objects when retrieved by etm. 
-    - Preserving the *naive* or *aware* state of the object is accomplished by appending either an *N* or an *A* to the serialized string. 
-    - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded. 
-    - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to midnight and then, along with naive datetimes, are treated as aware in the local timezone.
-- Fuzzy parsing of entries is suppored. 
-- Examples of fuzzy parsing and serialization supposing that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern:
+    - Special storage classes have been added to etm's instance of *TinyDB* for date, datetime and interval storage. *Pendulum* date,  datetime and interval objects used by etm are automatically encoded (serialized) as strings when stored in *TinyDB* and then automatically decoded as date, datetime and interval objects when retrieved by etm. 
+	- Date serializtions begin with `{D}:` and continue with the `YYYYMMMDD` format of the date. E.g., `{D}:20161023`.
+	- Datetime serializations begin with `{T}:` and continue with the `YYYYMMDDTHHmm` format of the datetime. Preserving the *naive* or *aware* state of a datetime object is accomplished by appending either an *N* (naive) or an *A* (aware) to the serialized string. 
+	  E.g., `{T}:20181215T2200A`
+    - Aware datetimes are converted to UTC when encoded and are converted to the local time when decoded.
+    - Naive dates and datetimes are not converted when encoded. When decoded, dates are converted to a datetime corresponding to midnight on the given date and then, along with naive datetimes, given the local timezone.
+	- Interval serializations begin with `{I}:` and continue with a string representation of the interval. E.g., `{I}:2h30m`.
+- Fuzzy parsing of dates and datetimes is suppored. Examples supposing that it is currently Wed, Jan 4, 2018 and that the local timezone is US/Eastern:
 	- Naive date:
 
 				@s fri
-
 		Interpreted as `Fri, Jan 5, 2018`. With only a **date** specified, this schedules a floating (naive) item for the specified date in whatever happens to be the local timezone and would be serialized as `{D}:20180105`. Note that dates are necessarily naive and thus there is no need to append an `N` to the serialization.
 	- Aware datetime in the local timezone:
 
 				@s fri 2p
-
 		Interpreted as `Fri, Jan 5, 2018 2pm EST`. With both a **date** and a **time** specified but without an entry for `@z`, this schedules an item starting at the specified datetime in the **local timezone** (US/Eastern) and would be serialized as `{T}:20180105T1900A`. Note the conversion to UTC time and the appended `A` to indicate that this is an aware datetime.
     - Aware datetime in a different timezone:
 
@@ -479,14 +442,12 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
 				@s fri 2p @z float
 
-		With both a **date** and a **time** specified and with `float` as the timezone, this would be interpreted as `Fri, Jan 5, 2018 2pm`, in whatever happens to be the local timezone, and would be serialized as `{T}:20180105T1400N`. Note the appended `N` to indicate that this is a naive datetime.
+		With both a **date** and a **time** specified and with `float` as the timezone, this would be interpreted as `Fri, Jan 5, 2018 2pm`, in whatever happens to be the local timezone, and would be serialized as `{T}:20180105T1400N`. Note the appended `N` to indicate that this is a naive datetime and that the datetime has not been converted.
 
     The assumption here is that when a user enters a date, a date is what the user wants. When both a date and time are given, what the user wants is a datetime and, most probably, one based on the local timezone. Less probably, one based on a different timezone and that requires the additon of the `@z` and the timezone. Still less probably, one that floats and this requires the addition of the `@z` and `float`.
-- Since python cannot compare aware with naive datetimes or dates with datetimes, etm converts everything to aware datetimes in the local timezone of the user. Since aware datetimes are are stored as UTC times, they are converted to the local timezone. Dates are first converted to datetimes using midnight as the time and then treated as aware in the local timezone without conversion. Similarly, naive datetimes are treated as aware in the local timezone without conversion. 
 - When an item with an aware `@s` entry repeats, the hour of the repetition instance *ignores* daylight savings time changes. E.g., with
 
 			@s Fri Jan 26 2018 2pm @r m -1FR @z US/Eastern
-
 	the first three repetitions would all be at 2pm even though the first two are EST and the third is EDT: 
 
 			Fri Jan 26 2018 2:00PM
@@ -496,7 +457,7 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
     - Naive dates are displayed without conversion and without a starting time. 
     - Naive datetimes are displayed without conversion.
     - Aware datetimes are converted to the current local timezone. E.g., in the US/Eastern timezone, `fri 2p` would display as starting at 2pm on Jan 5 if the computer is still in the Eastern timezone but would display as starting at 11am if the computer had been moved to the Pacific timezone. Similarly, `@s fri 2p @z US/Pacific` would display as starting at 5pm if the computer were in the Eastern timezone.
-    - When *editing* an item with an aware datetime, the datetime is displayed in the timezone specified in `@z`.
+    - When *editing* an item with an aware datetime, the datetime is displayed in the timezone specified in `@z`. 
     - Datetimes are rounded to the nearest minute for display.
 - **New**
 	- *Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
@@ -526,110 +487,42 @@ View shortcut keys: a)genda, b)usy, d)one, m)onthly, s)earch, h)istory, i)ndex, 
 
 ASCII art is used in the following to suggest the appearance of the view in the GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in each actually takes only 1 line leaving 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
 
-## [Weekly](#toc)
+## [Agenda](#toc)
 
-*Agenda*,  *Busy* and *Done* views are synchronized so that switching from one of these views to another always displays the same week.
+The weekly *Agenda - Schedule* and *Agenda - Busy* views are synchronized so that switching from one of these views to another always displays the same week.
 
-> Calling `get_week(year, weeknum)` returns all three pages for the given week. The advantage here is that *any* week is available on demand. The disadvantage is that *filter* has limited value. 
-
-### [Agenda](#toc)
+### [Schedule](#toc)
 
 - Scheduled items, grouped and sorted by week and day
 
-        +------------------------- top bar --------------------------+  
-        | Agenda - Week 3: Jan 15 - 21, 2018                 F1:help |  1
-        +------------------------------------------------------------+ 
-        | Mon Jan 15                                                 |  2
-        |   * Martin Luther King Day                                 |  3
-        |   * Lunch with Joe                            12:30-1:30pm |  4
-        |   - Revise 1st quarter schedule                 3pm  1h    |  5
-        | Thu Jan 18 - Today                                         |  6
-        |   < Revise 1st quarter schedule                    3d      |  7
-        |   > Duke vs Pitt                                   2d      |  8
-        |   * Conference call                            11:30am-1pm |  9
-        | Sat Jan 20                                                 | 10 
-        |   * Duke vs Pitt                                  4-6pm    | 11
-        |   * Dinner                                        7-9pm    | 12
-        |                                                            | 13
-        |                                                            | 14
-        |                                                            | 15
-        |                                                            | 16
-        |                                                            | 17 
-        |                                                            | 18
-        |                                                            | 19
-        |                                                            | 20
-        |                                                            | 21
-        |                                                            | 22
-        |                                                            | 23
-        |                                                            | 24
-        |                                                            | 25
-        |                                                            | 26
-        |                                                            | 27
-        |                                                            | 28
-        |                                                            | 29
-        +------------------------ status bar ------------------------+ 
-        | 8:49am Thu Jan 18                                10:30am+1 | 30
-        +------------------------------------------------------------+
+						 2018 Week 7: Feb 12 - 18
+		  Mon Feb 12
+			* Safety Meeting                         3:30-5pm
+		  Wed Feb 14
+			* Valentine's Day
+			* Ball machine                           10-11am
+			* Valentine's dinner                   6:30-9:30pm
+		  Thu Feb 15
+			* cleaners                               10:30am
+			* Manish                                  2-4pm
+			* Pottery Speaker's  Reception            6-8pm
+		  Fri Feb 16
+			* Tennis                                9:30-11am
+			* Lunch with Burk                      12:30-2:30pm
+		  Sun Feb 18
+			* Ride to Angies                         9am-1pm
 
-- Selection mode: labels showing
 
-        +------------------------- top bar --------------------------+  
-        | Agenda - Week 3: Jan 15 - 21, 2018                 F1:help |  1
-        +------------------------------------------------------------+ 
-        | Mon Jan 15                                                 |  2
-        |   * [1] Martin Luther King Day                             |  3
-        |   * [2] Lunch with Joe                        12:30-1:30pm |  4
-        |   - [3] Revise 1st quarter schedule             3pm  1h    |  5
-        | Thu Jan 18 - Today                                         |  6
-        |   < [4] Revise 1st quarter schedule                3d      |  7
-        |   > [5] Duke vs Pitt                               2d      |  8
-        |   * [6] Conference call                        11:30am-1pm |  9
-        | Sat Jan 20                                                 | 10 
-        |   * [7] Duke vs Pitt                              4-6pm    | 11
-        |   * [8] Dinner                                    7-9pm    | 12
-        |                                                            | 13
-        |                                                            | 14
-        |                                                            | 15
-        |                                                            | 16
-        |                                                            | 17 
-        |                                                            | 18
-        |                                                            | 19
-        |                                                            | 20
-        |                                                            | 21
-        |                                                            | 22
-        |                                                            | 23
-        |                                                            | 24
-        |                                                            | 25
-        |                                                            | 26
-        |                                                            | 27
-        |                                                            | 28
-        |                                                            | 29
-        +------------------------ status bar ------------------------+ 
-        | 8:49am Thu Jan 18                                10:30am+1 | 30
-        +------------------------------------------------------------+
-
-- The top title bar shows the selected week.
-- The main panel shows scheduled items grouped and sorted by date and time.
-- Weeks are displayed sequentially. If there is nothing to display for the week, then the main panel of the display would show "Nothing scheduled". E.g, 
-
-        Week 2: Jan 8 - 14, 2018                            F1:Help
-          Nothing scheduled
-
-    For the current week, the display would show "Nothing scheduled for the current week", e.g.,
-
-        Week 3: Jan 15 - 21, 2018                           F1:Help
-        - Nothing scheduled for the current week
-
+- The first line shows the selected week.
+- Subsequent lines show scheduled items grouped and sorted by date and time.
+- Weeks are displayed sequentially. If there is nothing to display for the week, then the display would show "Nothing scheduled". 
 - Starting from the top, the display for a day includes the following:
-    - All day events (occasions), if any.
+    - All day events (date rather than datetime starting time), if any.
     - *For the current date (today) only*:
-
         - Inbox entries, if any, highlighted using the inbox color.
         - Pastdue tasks, if any, with the number of days that have passed since the task was due using the display character `<` and highlighted using the pastdue color. 
         - Beginning soon notices, if any, with the number of days remaining until the starting date of the item using the display character `>` and highlighted using the beginning soon color.
-
         > Note that the items included for the current date are those from the old *agenda* view.
-
     - Datetime events, notes, records and unfinished tasks sorted by `@s` together with finished tasks sorted by `@f` with the starting time  displayed in the 2nd column. For events with *extent*, the ending time is also displayed. For tasks or records with *extent*, the extent period is also displayed. 
     - Date only tasks.
     - Date only records.

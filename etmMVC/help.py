@@ -17,7 +17,8 @@ menu1 = [
     #------------------ ------------------ ------------------#
     "-- VIEWS -----------------------------------------------",
     "a: agenda/busy     h: history         i: index          ",
-    "n: next            q: tags            F1: toggle help   ",
+    "n: next            t: tags            q: query          ",
+    "           F1: toggle displaying help                   ",
     ]
 
 menu2 = [
@@ -34,7 +35,7 @@ menu3 = [
     "-- TOOLS -----------------------------------------------",
     "A: show alerts     P: preferences     F2: date calc     ",
     "J: jump to date    Q: query           F3: yearly        ",
-    "N: new item        V: view as text    F8: quit          ",
+    "N: create new item V: view as text    F8: quit          ",
 ]
 
 menu_text = "The key bindings for the various commands are listed above. E.g., press 'a' to open agenda view. In agenda view, pressing 'a' toggles between displaying the schedule and busy views. Pressing 'right' or 'left', respectively, changes to the subsequent or previous week and presssing 'space' changes to the current week." 
