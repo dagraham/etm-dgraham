@@ -3555,25 +3555,27 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
                 ok, jobs = item['j']
                 if ok:
                     for job in jobs:
-                        {
-                            'id': item.doc_id,
-                            'sort': (dt.format("YYYYMMDDHHmm"), 0),
-                            'week': (
-                                dt.isocalendar()[:2]
-                                ),
-                            'day': (
-                                dt.format("ddd MMM D"),
-                                ),
-                            'columns': [itm['itemtype'],
-                                set_summary(itm['summary'], dt), 
-                                rhc
-                                ]
-                        }
-                        )
+                        try:
+                            rows.append(
+                            {
+                                'id': item.doc_id,
+                                'sort': (dt.format("YYYYMMDDHHmm"), 0),
+                                'week': (
+                                    dt.isocalendar()[:2]
+                                    ),
+                                'day': (
+                                    dt.format("ddd MMM D"),
+                                    ),
+                                'columns': [job['status'],
+                                    set_summary(job['summary'], dt), 
+                                    rhc
+                                    ]
+                            }
+                            )
+                        except Exception as e:
+                            print(e, job)
 
             else:
-                lofi = item
-            for itm in lofi:
                 rows.append(
                         {
                             'id': item.doc_id,
@@ -3584,8 +3586,8 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
                             'day': (
                                 dt.format("ddd MMM D"),
                                 ),
-                            'columns': [itm['itemtype'],
-                                set_summary(itm['summary'], dt), 
+                            'columns': [item['itemtype'],
+                                set_summary(item['summary'], dt), 
                                 rhc
                                 ]
                         }
