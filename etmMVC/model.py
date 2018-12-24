@@ -14,11 +14,11 @@ import re
 
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
-from tinydb.database import Table
-from tinydb.storages import JSONStorage
+# from tinydb.database import Table
+# from tinydb.storages import JSONStorage
 from tinydb_serialization import Serializer
 from tinydb_serialization import SerializationMiddleware
-from tinydb_smartcache import SmartCacheTable
+# from tinydb_smartcache import SmartCacheTable
 
 from copy import deepcopy
 import calendar as clndr
@@ -1184,6 +1184,7 @@ class DataView(object):
         self.busy_view = ""
         self.history_view = ""
         self.cache = {}
+        self.itemcache = {}
         self.set_now(dtstr) 
         self.views = {
                 'a': 'agenda',
@@ -1270,11 +1271,14 @@ class DataView(object):
         if item_id is None:
             return ''
 
-        if isinstance(item_id, list):
-            item_id = item_id[0]
+        # if isinstance(item_id, list):
+        #     item_id = item_id[0]
+        if item_id in self.itemcache:
+            return self.itemcache[item_id]
         item = ETMDB.get(doc_id=item_id)
         if item:
-            return item_details(item)
+            self.itemcache[item_id] = item_details(item)
+            return self.itemcache[item_id] 
         return ''
 
     def clearCache(self):
@@ -1282,6 +1286,7 @@ class DataView(object):
 
     def refreshCache(self):
         self.cache = schedule(self.currentYrWk, self.current, self.now, 5, 20)
+
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
@@ -3473,8 +3478,6 @@ def no_busy_periods(week, width):
     return busy_template.format(week=fmt_week(week).center(width, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
 
-
-
 def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_before=0, weeks_after=0):
     width = 58
     summary_width = width - 7 - 16
@@ -3528,7 +3531,7 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
 
                     rows.append(
                             {
-                                'id': row[2:],
+                                'id': row[2],
                                 'sort': (dt.format("YYYYMMDDHHmm"), 1),
                                 'week': (
                                     dt.isocalendar()[:2]
@@ -3548,22 +3551,45 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
 
         for dt, et in item_instances(item, aft_dt, bef_dt):
             rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
-            rows.append(
-                    {
-                        'id': item.doc_id,
-                        'sort': (dt.format("YYYYMMDDHHmm"), 0),
-                        'week': (
-                            dt.isocalendar()[:2]
-                            ),
-                        'day': (
-                            dt.format("ddd MMM D"),
-                            ),
-                        'columns': [item['itemtype'],
-                            set_summary(item['summary'], dt), 
-                            rhc
-                            ]
-                    }
-                    )
+            if 'j' in item:
+                ok, jobs = item['j']
+                if ok:
+                    for job in jobs:
+                        {
+                            'id': item.doc_id,
+                            'sort': (dt.format("YYYYMMDDHHmm"), 0),
+                            'week': (
+                                dt.isocalendar()[:2]
+                                ),
+                            'day': (
+                                dt.format("ddd MMM D"),
+                                ),
+                            'columns': [itm['itemtype'],
+                                set_summary(itm['summary'], dt), 
+                                rhc
+                                ]
+                        }
+                        )
+
+            else:
+                lofi = item
+            for itm in lofi:
+                rows.append(
+                        {
+                            'id': item.doc_id,
+                            'sort': (dt.format("YYYYMMDDHHmm"), 0),
+                            'week': (
+                                dt.isocalendar()[:2]
+                                ),
+                            'day': (
+                                dt.format("ddd MMM D"),
+                                ),
+                            'columns': [itm['itemtype'],
+                                set_summary(itm['summary'], dt), 
+                                rhc
+                                ]
+                        }
+                        )
             if et:
                 beg_min = dt.hour * 60 + dt.minute
                 end_min = et.hour * 60 + et.minute
@@ -3668,6 +3694,7 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
 
 
 def import_json(etmdir=None):
+    # FIXME: this purges ETMDB
     import json
     if etmdir:
         import_file = os.path.join(etmdir, 'data', 'etm-db.json')
@@ -3828,7 +3855,7 @@ if __name__ == '__main__':
             print(dataview.agenda_view)
         if 's' in sys.argv[1]:
             dataview = DataView(weeks=1)
-            dataview.dtYrWk('2018/02/12')
+            dataview.dtYrWk('2018/12/18')
             print_formatted_text(dataview.agenda_view, style=style)
         if 'S' in sys.argv[1]:
             dataview = DataView()
@@ -3840,14 +3867,15 @@ if __name__ == '__main__':
             pprint(current)
             pprint(alerts)
         if 'V' in sys.argv[1]:
-            dataview = DataView(dtstr="2018/12/25", weeks=2)
+            dataview = DataView(dtstr="2018/12/18", weeks=2)
             # dataview.prevYrWk()
             # print_formatted_text(dataview.agenda_select, style=style)
             print(dataview.num2id)
-            print("details for 3:", dataview.num2id[3])
-            print(dataview.get_details(3))
+            num = 9
+            print(f"details for {num}:", dataview.num2id[num])
+            print(dataview.get_details(num))
         if 'v' in sys.argv[1]:
-            dataview = DataView(dtstr="2018/12/25", weeks=2)
+            dataview = DataView(dtstr="2018/12/18", weeks=2)
             print_formatted_text(dataview.agenda_view, style=style)
             print()
         if 'h' in sys.argv[1]:

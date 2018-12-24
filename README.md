@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Fri Dec 21, 2018 11:04AM EST*
+*Last modified: Fri Dec 21, 2018 06:22PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -33,7 +33,6 @@
 		* [Schedule](#schedule)
 		* [Busy](#busy)
 	* [Relevant](#relevant)
-	* [Search](#search)
 	* [Next](#next)
 	* [Index](#index)
 	* [History](#history)
@@ -159,8 +158,8 @@ An event is something that happens at a particular date or datetime without any 
 
 
 - The `@s` entry is required and can be specified either as a date or as a datetime. It is interpreted as the starting date or datetime of the event. 
-- If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date using the display character `^`. 
-- If `@s` is a datetime, an `@e` entry is allowed and is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.  Events with datetimes are displayed on the relevant date according to the starting time using the display character `*`. 
+- If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date. 
+- If `@s` is a datetime, an `@e` entry is allowed and is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time. 
 
 Corresponds to VEVENT in the vcalendar specification.
 
@@ -185,7 +184,6 @@ A task is something that requires action from the user and lasts, so to speak, u
                 @j job B &b 5
 
         Beginning soon notices would begin on Jan 15 for job A (due Jan 25) and on January 25 for job B (due Jan 30).
-	- Job alerts and beginbys are only triggered for unfinished jobs and, in repeating tasks, only for the instance of the task that is currently due.
     - Prerequisites
         - Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
 
@@ -491,13 +489,13 @@ Used in search and index views.
 
 # [Views](#toc)
 
-View shortcut keys: a)genda, b)usy, d)one, m)onthly, s)earch, h)istory, i)ndex, n)ext, q)uery and t)ags. In all views, pressing `l` prompts for the outline expansion level and `f` prompts for a filter to apply to the displayed items.
+View shortcut keys: a)genda, h)istory, i)ndex, n)ext, q)uery and t)ags.
 
-ASCII art is used in the following to suggest the appearance of the view in the GUI. The recommended terminal size is 30 rows by 60 columns. In the ASCII representations the top bar and status bars each take 3 lines though in each actually takes only 1 line leaving 28 lines for the main panel. Line numbers are shown in the first few views to illustrate this.
+The recommended terminal size is a minimum of 30 rows by 60 columns. 
 
 ## [Agenda](#toc)
 
-The weekly *Agenda - Schedule* and *Agenda - Busy* views are synchronized so that switching from one of these views to another always displays the same week.
+The weekly *Agenda - Schedule* and *Agenda - Busy* views are synchronized so that switching from one of these views to another always displays the same week. Pressing "a" activates agenda view and, once active, toggles between schedule and busy. 
 
 ### [Schedule](#toc)
 
@@ -537,8 +535,8 @@ The weekly *Agenda - Schedule* and *Agenda - Busy* views are synchronized so tha
 
 ### [Busy](#toc)
 
-- Hours in the day that are partially or wholly "busy" are filled using the color of the calendar for the relevant item. Shown here with `#`.
-- Hours in which a conflict occurs are filled with the overlapping calendar colors of the relevant items. Shown here with `###`.
+- Hours in the day that are partially or wholly "busy" are filled using the character `#`.
+- Hours in which a conflict occurs are filled with the charaters `###`.
 
                            2018 Week 50: Dec 10 - 16
                    Mo 10  Tu 11  We 12  Th 13  Fr 14  Sa 15  Su 16
@@ -556,7 +554,7 @@ The weekly *Agenda - Schedule* and *Agenda - Busy* views are synchronized so tha
                      .      .      .      .      #      .      .
                      .      .      #      .      .      .      .
             12pm     .      #      #      .      #      .      .
-                     .      #      .      .      #      .      .
+                     .      #      .      .     ###     .      .
                      .      #      .      #      #      .      .
                      .      .      .      #      .      .      .
                      .      .      .      .      .      .      .
@@ -575,36 +573,10 @@ The weekly *Agenda - Schedule* and *Agenda - Busy* views are synchronized so tha
 
 All items with datetimes ordered by relevant datetime and grouped by year, week and week day. Displays item type, summary and relevant datetime. 
 
-## [Search](#toc)
-
-Case insensitive, regular expression search for matches in specified list of fields:
-
-- s: summary (including job summaries)
-- d: description (including job descriptions)
-- m: memo (including job memos)
-- l: location (including job locations)
-
-Usage: `regex[: fields]`. The default for fields is `s`.
-
-E.g., searching for `joe` in `sd` would list items matching "joe" in either the summary or the description:
-
-        +------------------------ top bar -------------------------+
-        | Search                                           F1:help |
-        +----------------------------------------------------------+
-        | > joe: sd                                                |
-        | -------------------------------------------------------- |
-        | * Joe's 30th Birthday                     Oct 11 2019    |
-        |                                                          |
-        |                                                          |
-        |                                                          |
-
-> The relevant datetime of a repeating item is the first instance falling on or after the current date or, if none, then the last instance. See [relevant date time](#the-relevant-datetime-of-an-item) for details. 
-
 ## [Next](#toc)
 
 - Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*. 
 - As tasks and jobs are finished, they are removed from this view and added to *Done* using the completion datetime.
-
 
 ## [Index](#toc)
 
@@ -615,48 +587,19 @@ E.g., searching for `joe` in `sd` would list items matching "joe" in either the 
 
 ## [History](#toc)
 
-- All items, sorted by the last modified or created datetime, most recent first.
+- All items, sorted by the created (c) and last modified (m) datetimes, most recent first.
 
-
-        +------------------------- top bar --------------------------+  
-        | History: items by [c]reated or [m]odified date     F1:help |  1
-        +------------------------------------------------------------+ 
-        | * Martin Luther King Day                     2018-01-01:c  |  2
-        | * Easter                                     2017-03-15:m  |  3
-        | * Independence Day                           2017-06-01:c  |  4
-        |                                                            |  5
-        |                                                            |  6
-        |                                                            |  7
-        |                                                            |  8
-        |                                                            |  9
-        |                                                            | 10 
-        |                                                            | 11
-        |                                                            | 12
-        |                                                            | 13
-        |                                                            | 14
-        |                                                            | 15
-        |                                                            | 16
-        |                                                            | 17 
-        |                                                            | 18
-        |                                                            | 19
-        |                                                            | 20
-        |                                                            | 21
-        |                                                            | 22
-        |                                                            | 23
-        |                                                            | 24
-        |                                                            | 25
-        |                                                            | 26
-        |                                                            | 27
-        |                                                            | 28
-        |                                                            | 29
-        +------------------------ status bar ------------------------+ 
-        | 8:49am Thu Jan 18                                10:30am+1 | 30
-        +------------------------------------------------------------+
-
-
-- All items, sorted by the datetime created.
-
-- All items, sorted by the datetime last modified.
+		 * Cassells for dinner                       2018-12-22 c
+		 * Squires for dinner                        2018-12-22 m
+		 * Jamie and Kelley with Ellen               2018-12-22 m
+		 * Will and Max for dinner                   2018-12-22 c
+		 ✓ Friday schedule                           2018-12-22 c
+		 * Service Experts                           2018-12-22 m
+		 * Mensa Lite                                2018-12-22 c
+		 * Tennis?                                   2018-12-22 c
+		 * Jamie & YuLing UA2333                     2018-12-22 c
+		 * Service Experts                           2018-12-21 c
+		 * Jamie and Kelley with Ellen               2018-12-18 c
 
 ## [Tags](#toc)
 
@@ -672,19 +615,14 @@ Analagous to the old custom view. Used to issue queries against the data store a
 
 - Pressing Return with an item selected shows details:
 
-        +------------------------ top bar -------------------------+
-        | details                                          F1:help |
-        +----------------------------------------------------------+
-        | - task group @s 2016-06-28 00:00 @b 7 @a 2d: m @a 2d: v  |
-        |   @r m &i 1                                              |
-        |   @j Job A &s 4w &b 2 &i 1 &a 2d: m &a 2d: v             |
-        |   @j Job B &s 2w &b 3 &i 2 &p 1 &a 2d: m &a 2d: v        |
-        |   @j Job C &s 0m &b 7 &i 3 &p 2 &a 2d: m &a 2d: v        |
-        |                                                          |
-        | created:  20160601T1400                                  |
-        | modified: 20160601T1400                                  |
-        |                                                          |
+		- Tuesday schedule @s 2018-12-17 @z US/Eastern
+		@f 2018-12-19 2:17pm
+		@c dag
 
+		---
+		doc_id:  1199
+		created: 2018-12-21 5:25pm
+        modified: none
 
 - When `Shift-E` (edit), `Shift-D` (delete) or `Shift-C` (copy) is pressed and the item is repeating then select the appropriate instances with these check  boxes: 
 

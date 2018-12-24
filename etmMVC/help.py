@@ -17,7 +17,7 @@ menu1 = [
     #------------------ ------------------ ------------------#
     "-- VIEWS -----------------------------------------------",
     "a: agenda/busy     h: history         i: index          ",
-    "n: next            t: tags            q: query          ",
+    "n: next            r: relevant        t: tags           ",
     "           F1: toggle displaying help                   ",
     ]
 
