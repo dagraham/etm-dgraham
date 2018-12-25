@@ -247,9 +247,9 @@ allowed['-'] = undated_methods + datetime_methods + task_methods
 required['%'] = ''
 allowed['%'] = undated_methods + datetime_methods
 
-# someday entries
-required['?'] = ''
-allowed['?'] = undated_methods + task_methods + datetime_methods
+# # someday entries
+# required['?'] = ''
+# allowed['?'] = undated_methods + task_methods + datetime_methods
 
 # inbox entries
 required['!'] = ''
@@ -1610,6 +1610,13 @@ jinja_display_template.globals['wrap'] = wrap
 def beginby(arg):
     return integer(arg, 1, None, False, 'beginby')
 
+def alert(arg):
+    # FIXME
+    return True, ''
+
+def job_datetime(arg):
+    # FIXME
+    return True, ''
 
 def location(arg):
     return string(arg, 'location')
@@ -2273,8 +2280,8 @@ undated_job_methods = dict(
 
 datetime_job_methods = dict(
     # a=alert,
+    # s=job_datetime
     b=beginby,
-    # s=job_date_time
 )
 datetime_job_methods.update(undated_job_methods)
 
@@ -2536,6 +2543,7 @@ def jobs(lofh, at_hsh={}):
     """
     if 's' in at_hsh:
         job_methods = datetime_job_methods
+        # TODO: deal with &s entries
     else:
         job_methods = undated_job_methods
 
@@ -3552,28 +3560,24 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
         for dt, et in item_instances(item, aft_dt, bef_dt):
             rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
             if 'j' in item:
-                ok, jobs = item['j']
-                if ok:
-                    for job in jobs:
-                        try:
-                            rows.append(
-                            {
-                                'id': item.doc_id,
-                                'sort': (dt.format("YYYYMMDDHHmm"), 0),
-                                'week': (
-                                    dt.isocalendar()[:2]
-                                    ),
-                                'day': (
-                                    dt.format("ddd MMM D"),
-                                    ),
-                                'columns': [job['status'],
-                                    set_summary(job['summary'], dt), 
-                                    rhc
-                                    ]
-                            }
-                            )
-                        except Exception as e:
-                            print(e, job)
+                # TODO: deal with &s entries
+                for job in item['j']:
+                    rows.append(
+                        {
+                            'id': item.doc_id,
+                            'sort': (dt.format("YYYYMMDDHHmm"), 0),
+                            'week': (
+                                dt.isocalendar()[:2]
+                                ),
+                            'day': (
+                                dt.format("ddd MMM D"),
+                                ),
+                            'columns': [job['status'],
+                                set_summary(job['summary'], dt), 
+                                rhc
+                                ]
+                        }
+                    )
 
             else:
                 rows.append(
@@ -3591,7 +3595,7 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
                                 rhc
                                 ]
                         }
-                        )
+                    )
             if et:
                 beg_min = dt.hour * 60 + dt.minute
                 end_min = et.hour * 60 + et.minute
