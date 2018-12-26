@@ -3309,6 +3309,7 @@ def relevant(now=pendulum.now('local')):
                 print('relevant:', relevant, startdst)
                 continue
 
+        pastdue_jobs = False
         if 'j' in item and 'f' not in item:
             # jobs only for the relevant instance of unfinished tasks
             job_id = 0
@@ -3319,6 +3320,7 @@ def relevant(now=pendulum.now('local')):
                 # adjust job starting time if 's' in job
                 jobstart = relevant - job.get('s', ZERO)
                 if jobstart < today:
+                    pastdue_jobs = True
                     pastdue.append([(jobstart - today).days, job['summary'], item.doc_id, job_id])
                 if 'b' in job:
                     days = int(job['b'] * DAY)
@@ -3332,7 +3334,7 @@ def relevant(now=pendulum.now('local')):
 
         id2relevant[item.doc_id] = relevant
 
-        if item['itemtype'] == '-' and 'f' not in item and relevant < today:
+        if item['itemtype'] == '-' and 'f' not in item and not pastdue_jobs and relevant < today:
             pastdue.append([(relevant - today).days, item['summary'], item.doc_id])
 
 
@@ -3558,28 +3560,29 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
             continue
 
         for dt, et in item_instances(item, aft_dt, bef_dt):
-            rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
             if 'j' in item:
-                # TODO: deal with &s entries
                 for job in item['j']:
+                    jobstart = dt - job.get('s', ZERO)
+                    rhc = fmt_extent(jobstart, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
                     rows.append(
                         {
                             'id': item.doc_id,
-                            'sort': (dt.format("YYYYMMDDHHmm"), 0),
+                            'sort': (jobstart.format("YYYYMMDDHHmm"), 0),
                             'week': (
-                                dt.isocalendar()[:2]
+                                jobstart.isocalendar()[:2]
                                 ),
                             'day': (
-                                dt.format("ddd MMM D"),
+                                jobstart.format("ddd MMM D"),
                                 ),
                             'columns': [job['status'],
-                                set_summary(job['summary'], dt), 
+                                set_summary(job['summary'], jobstart), 
                                 rhc
                                 ]
                         }
                     )
 
             else:
+                rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
                 rows.append(
                         {
                             'id': item.doc_id,
