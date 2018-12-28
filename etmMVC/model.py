@@ -118,33 +118,33 @@ undatedChar2Type = {
 
 # type codes in the order in which they should be sorted
 # palette settings will determine display colors for each
-types = [
-        'ib',  # inbox
-        'oc',  # occasion
-        'ev',  # event
-        'td',  # pastdue task or available job 
-        'tw',  # job with unfinished prereqs - scheduled or unscheduled 
-        'ta',  # task or job that is not pastdue 
-        'by',  # beginby
-        'ac',  # action
-        'nt',  # note
-        'so',  # someday
-        'tf',  # finished task or job
-         ]
+# types = [
+#         'ib',  # inbox
+#         'oc',  # occasion
+#         'ev',  # event
+#         'td',  # pastdue task or available job 
+#         'tw',  # job with unfinished prereqs - scheduled or unscheduled 
+#         'ta',  # task or job that is not pastdue 
+#         'by',  # beginby
+#         'ac',  # action
+#         'nt',  # note
+#         'so',  # someday
+#         'tf',  # finished task or job
+#          ]
 
-type_tuple = {
-        'ed': (0, '*'),  # date/all day event
-        'ib': (1, '!'),  # inbox                   today only
-        'tp': (2, '<'),  # task or job pastdue     today only
-        'by': (3, '>'),  # beginby                 today only
-        'et': (4, '*'),  # datetime event
-        'tt': (4, '-'),  # available datetime task or job 
-        'tw': (5, '+'),  # datetime job waiting
-        'td': (6, '-'),  # available all day task or job
-        'tf': (7, 'x'),  # finished task or job    done view
-        'rt': (7, '%'),  # datetime record         done view
-        'rd': (8, '%'),  # date record             done view
-        }
+# type_tuple = {
+#         'ed': (0, '*'),  # date/all day event
+#         'ib': (1, '!'),  # inbox                   today only
+#         'tp': (2, '<'),  # task or job pastdue     today only
+#         'by': (3, '>'),  # beginby                 today only
+#         'et': (4, '*'),  # datetime event
+#         'tt': (4, '-'),  # available datetime task or job 
+#         'tw': (5, '+'),  # datetime job waiting
+#         'td': (6, '-'),  # available all day task or job
+#         'tf': (7, 'x'),  # finished task or job    done view
+#         'rt': (7, '%'),  # datetime record         done view
+#         'rd': (8, '%'),  # date record             done view
+#         }
 
 type_keys = {
     "*": "event",
@@ -152,6 +152,11 @@ type_keys = {
     "%": "record",
     "!": "inbox",
 }
+
+type_prompt = u"type character for new item:"
+# item_types = u"item type characters:\n  *: event\n  -: task\n  %: journal entry\n  !: inbox entry"
+
+item_types = u"item type characters:\n" + "\n".join([f"  {k}: {v}" for k, v in type_keys.items()])
 
 at_keys = {
     '+': "include (list of date-times)",
@@ -424,9 +429,6 @@ def check_requires(key, hsh):
         return True, ('say', '')
 
 
-type_prompt = u"type character for new item:"
-item_types = u"item type characters:\n  *: event\n  -: task\n  #: journal entry\n  ?: someday entry\n  !: nbox entry"
-
 
 def deal_with_at(at_hsh={}):
     """
@@ -578,11 +580,15 @@ def deal_with_r(at_hsh={}):
     top = "repetition rule?"
     bot = "{}".format(at_keys['r'])
     lofh = at_hsh.get('r', [])
-    print('lofh:', at_hsh, lofh)
+    # print('lofh:', at_hsh, lofh)
     if not lofh:
         return top, bot, None
 
-    ok, res = rrule(lofh)
+    try:
+        ok, res = rrule(lofh)
+    except:
+        return top, bot, None
+
     if not ok:
         return top, res, None
 
@@ -670,8 +676,10 @@ def str2hsh(s):
     amp_entry = False
     amp_tups = []
     amp_parts = []
-    delta = 1
+    # delta = 1
+    delta = 2
     if at_parts:
+        # place = -1
         place = -1
         tmp = at_parts.pop(0)
         hsh['itemtype'] = tmp[0]
@@ -742,6 +750,8 @@ def check_entry(s, cursor_pos):
     Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
     """
     hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts = str2hsh(s)
+    # cursor_pos -= 1
+    # cursor_pos = cursor_pos - 1 if cursor_pos else cursor_pos
 
     ask = ('say', '')
     reply = ('say', '\n')
@@ -2887,7 +2897,7 @@ serialization.register_serializer(PendulumDateSerializer(), 'D')     # Date
 serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
 serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday 
 
-ETMDB = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+ETMDB = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False, cache_size=None)
 
 ########################
 ### end TinyDB setup ###

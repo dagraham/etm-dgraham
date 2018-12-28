@@ -111,7 +111,6 @@ class ETMLexer(Lexer):
 
         return get_line
 
-# dataview = DataView(dtstr="2018-12-16") # for testing
 dataview = DataView()
 dataview.refreshCache()
 content = dataview.agenda_view
