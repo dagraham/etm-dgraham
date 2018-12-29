@@ -183,32 +183,17 @@ text_area = TextArea(
     lexer=ETMLexer()
     )
 
-# help_area = TextArea(
-#     text=show_help(),
-#     style='class:details', multiline=True,
-#     wrap_lines=True, focus_on_click=True, 
-#     )
-
-# details_area = Window(content=FormattedTextControl(
-#         get_details_text),
-#         style='class:details')
-
 details_area = TextArea(
     text=dataview.get_details(text_area.document.cursor_position_row),
     style='class:details', 
     read_only=True,
-    # scrollbar=True,
     search_field=search_field,
-    # focus_on_click=True, 
     )
 
 edit_area = TextArea(
     text=dataview.get_details(text_area.document.cursor_position_row),
     style='class:details', 
     read_only=False,
-    # scrollbar=True,
-    # search_field=search_field,
-    # focus_on_click=True, 
     )
 
 # edit_buff = Buffer(completer=item_completer, complete_while_typing=True, accept_handler=process_input)
@@ -217,9 +202,7 @@ help_area = TextArea(
     text=show_help(),
     style='class:details', 
     read_only=True,
-    # scrollbar=True,
     search_field=search_field,
-    # focus_on_click=True, 
     )
 
 status_area = Window(content=FormattedTextControl(
@@ -263,11 +246,6 @@ def toggle_help(event):
     else:
         application.layout.focus(text_area)
         dataview.hide_details()
-
-
-# @bindings.add('d')
-# def toggle_details(event):
-#     dataview.hide_details() if dataview.details else dataview.show_details()
 
 @bindings.add('a', filter=is_not_searching & not_showing_details)
 def toggle_agenda_busy(event):
@@ -341,12 +319,10 @@ def main():
 
     # Run application async.
     loop = get_event_loop()
-    # FIXME: 10 -> 0
     loop.call_later(0, event_handler, loop)
     loop.run_until_complete(
         application.run_async().to_asyncio_future())
 
 
 if __name__ == '__main__':
-    # run()
     main()

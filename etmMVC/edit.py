@@ -22,55 +22,24 @@ from model import check_entry
 
 ask_buffer = Buffer()
 entry_buffer = Buffer(multiline=True)
-reply_buffer = Buffer(multiline=True)
+reply_buffer = Buffer()
 
 # 1. First we create the layout
 #    --------------------------
 
 ask_window = Window(BufferControl(buffer=ask_buffer), height=1)
-entry_window = Window(BufferControl(buffer=entry_buffer), wrap_lines=True)
-reply_window = Window(BufferControl(buffer=reply_buffer), wrap_lines=True)
+entry_window = Window(BufferControl(buffer=entry_buffer), wrap_lines=True,)
+reply_window = Window(BufferControl(buffer=reply_buffer), wrap_lines=True,)
 
 
 body = HSplit([
     ask_window,
     entry_window,
-
-    # A vertical line in the middle. We explicitly specify the width, to make
-    # sure that the layout engine will not try to divide the whole width by
-    # three for all these windows.
-    Window(height=1, char='-', style='class:line'),
-
-    # Display the Result buffer on the right.
+    HorizontalLine(),
     reply_window,
 ])
 
-# As a demonstration. Let's add a title bar to the top, displaying "Hello world".
-
-# somewhere, because usually the default key bindings include searching. (Press
-# Ctrl-R.) It would be really annoying if the search key bindings are handled,
-# but the user doesn't see any feedback. We will add the search toolbar to the
-# bottom by using an HSplit.
-
-
-def get_titlebar_text():
-    return [
-            ('class:title', f" cursor position: {entry_buffer.cursor_position}"),
-        ('class:title', ' (Press [Ctrl-Q] to quit.)'),
-    ]
-
-
 root_container = HSplit([
-    # The titlebar.
-    Window(height=1,
-           content=FormattedTextControl(get_titlebar_text),
-           align=WindowAlign.CENTER),
-
-    # Horizontal separator.
-    # Window(height=1, char='-', style='class:line'),
-    HorizontalLine(),
-
-    # The 'body', like defined above.
     body,
 ])
 
@@ -104,7 +73,6 @@ kb = KeyBindings()
 # existing key binding, and you definitely want to override that behaviour.
 
 
-@kb.add('c-c', eager=True)
 @kb.add('c-q', eager=True)
 def _(event):
     """

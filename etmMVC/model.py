@@ -236,7 +236,7 @@ allowed = {}
 required = {}
 undated_methods = 'cdegilmstx'
 date_methods = 'br'
-datetime_methods = date_methods + 'ea+-'
+datetime_methods = date_methods + 'eaz+-'
 task_methods = 'fjp'
 
 # events
@@ -438,17 +438,32 @@ def deal_with_at(at_hsh={}):
 
 deal_with = {}
 
+def deal_with_z(at_hsh = {}):
+    """
+    Check the currents state of at_hsh regarding the 's' key
+    """
+    top = "{}?".format(at_keys['z'])
+    bot = ''
+    tz = at_hsh.get('z', None)
+    if tz is None:
+        return top, bot
+    s = at_hsh.get('s', None)
+    if s is None:
+        return top, bot
+
+    return deal_with_s(at_hsh)
+
 def deal_with_s(at_hsh = {}):
     """
     Check the currents state of at_hsh regarding the 's' key
-
     """
     s = at_hsh.get('s', None)
     top = "{}?".format(at_keys['s'])
     bot = ''
     if s is None:
         return top, bot
-    ok, obj, tz = parse_datetime(s)
+    tz = at_hsh.get('z', None)
+    ok, obj, tz = parse_datetime(s, tz)
     if not ok or not obj:
         return top, "considering: '{}'".format(s), None
     item_hsh['s'] = obj
@@ -3715,6 +3730,7 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
 def import_json(etmdir=None):
     # FIXME: this purges ETMDB
     import json
+    ETMDB = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     if etmdir:
         import_file = os.path.join(etmdir, 'data', 'etm-db.json')
     else:
