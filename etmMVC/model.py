@@ -438,9 +438,9 @@ def deal_with_at(at_hsh={}):
 
 deal_with = {}
 
-def deal_with_z(at_hsh = {}):
+def deal_with_z(at_hsh={}):
     """
-    Check the currents state of at_hsh regarding the 's' key
+    Check the currents state of at_hsh regarding the 'z' key
     """
     top = "{}?".format(at_keys['z'])
     bot = ''
@@ -474,17 +474,17 @@ def deal_with_s(at_hsh = {}):
         # 'dateonly'
         bot = "starting: {}".format(obj.format("ddd MMM D YYYY"))
         bot += '\nWithout a time, this schedules an all-day, floating item for the specified date in whatever happens to be the local timezone.'
-    elif ok == 'naive':
+    elif ok == 'float':
         bot = "starting: {}".format(obj.in_tz('Factory').format("ddd MMM D YYYY h:mmA"))
-        bot += "\nThe datetime entry for @s will be interpreted as a naive datetime in whatever happens to be the local timezone."
+        bot += "\nBecause of the '@z float' entry, the datetime entry for @s will be interpreted as a naive datetime in whatever happens to be the local timezone."
     elif ok == 'aware':
         # bot = "starting: {}".format(obj.format("ddd MMM D h:mmA z"))
         bot = "starting: {}".format(obj.in_tz(tz).format("ddd MMM D YYYY h:mmA z"))
         # bot = "starting: {}".format(obj.format("ddd MMM D YYYY h:mmA z"))
-        bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the specified timezone."
+        bot += "\nWith an entry for '@z', The datetime entry for @s will be interpreted as an aware datetime in the specified timezone."
     else:
         bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D YYYY h:mmA z"))
-        bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a comma and then 'float' to make the datetime floating (naive) or a specific timezone, e.g., 'US/Pacific', to use that timezone."
+        bot += "\nWithout an entry for '@z', the datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a specific timezone, e.g., '@z US/Pacific', to use that timezone or '@z float' to make the datetime floating (naive)."
 
     # if 'summary' in item_hsh:
     #     summary = set_summary(item_hsh['summary'], obj)
@@ -853,7 +853,7 @@ def parse_datetime(s, z=None):
     's' will have the format 'datetime string' Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if 'z == float' or an aware datetime object converting to UTC using tzlocal if z == None and using the timezone specified in z otherwise.
     >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt[1]
-    DateTime(2015, 10, 15, 18, 0, 0, tzinfo=Timezone('UTC'))
+    DateTime(2015, 10, 15, 14, 0, 0, tzinfo=Timezone('America/New_York'))
     >>> dt = parse_datetime("2015-10-15")
     >>> dt[1]
     Date(2015, 10, 15)
@@ -861,7 +861,7 @@ def parse_datetime(s, z=None):
     To get a datetime for midnight, schedule for 1 second later and note that the second is removed from the datetime:
     >>> dt = parse_datetime("2015-10-15 00:00:01")
     >>> dt[1]
-    DateTime(2015, 10, 15, 4, 0, 1, tzinfo=Timezone('UTC'))
+    DateTime(2015, 10, 15, 0, 0, 1, tzinfo=Timezone('America/New_York'))
     >>> dt = parse_datetime("2015-10-15 2p", "float")
     >>> dt[1]
     DateTime(2015, 10, 15, 14, 0, 0)
@@ -875,10 +875,10 @@ def parse_datetime(s, z=None):
     """
     if z is None:
         tzinfo = 'local'
-        ok = 'aware'
+        ok = 'local'
     elif z == 'float':
         tzinfo = None
-        ok = 'naive'
+        ok = 'float'
     else:
         tzinfo = z
         ok = 'aware'
@@ -1666,7 +1666,7 @@ def history(arg):
     """
     Return a list of properly formatted completions.
     >>> history("4/1/2016 2p")
-    (True, [DateTime(2016, 4, 1, 18, 0, 0, tzinfo=Timezone('UTC'))])
+    (True, [DateTime(2016, 4, 1, 14, 0, 0, tzinfo=Timezone('America/New_York'))])
     >>> history(["4/31 2p", "6/1 7a"])
     (False, "Invalid date-time: '4/31 2p'")
     """
@@ -3373,6 +3373,7 @@ def relevant(now=pendulum.now('local')):
     beginbys.sort()
     alerts.sort()
     week = (today.year, today.week_of_year)
+    week = today.isocalendar()[:2]
     day = (today.format("ddd MMM D"), )
     for item in inbox:
         current.append({'id': item[2], 'sort': (today_fmt, 0), 'week': week, 'day': day, 'columns': ['!', item[1], '']})
@@ -3893,7 +3894,7 @@ if __name__ == '__main__':
             print(dataview.agenda_view)
         if 's' in sys.argv[1]:
             dataview = DataView(weeks=1)
-            dataview.dtYrWk('2018/12/18')
+            dataview.dtYrWk('2018/12/31')
             print_formatted_text(dataview.agenda_view, style=style)
         if 'S' in sys.argv[1]:
             dataview = DataView()

@@ -1,57 +1,57 @@
 # etm: event and task manager
-*Last modified: Fri Dec 21, 2018 06:22PM EST*
+*Last modified: Sun Dec 30, 2018 09:55PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Getting started](#getting-started)
-	* [Simple reminders](#simple-reminders)
-	* [Reminders that repeat](#reminders-that-repeat)
-	* [Installation](#installation)
+    * [Simple reminders](#simple-reminders)
+    * [Reminders that repeat](#reminders-that-repeat)
+    * [Installation](#installation)
 * [Item Types](#item-types)
-	* [event](#event)
-	* [task](#task)
-	* [record](#record)
-	* [inbox](#inbox)
+    * [event](#event)
+    * [task](#task)
+    * [record](#record)
+    * [inbox](#inbox)
 * [notices](#notices)
-	* [beginning soon](#beginning-soon)
-	* [past due](#past-due)
-	* [waiting](#waiting)
-	* [finished](#finished)
+    * [beginning soon](#beginning-soon)
+    * [past due](#past-due)
+    * [waiting](#waiting)
+    * [finished](#finished)
 * [`@`keys](#keys)
-	* [`@a` and `@b` notices](#a-and-b-notices)
-	* [`@+` repetition](#-repetition)
-	* [`@x` expansions](#x-expansions)
+    * [`@a` and `@b` notices](#a-and-b-notices)
+    * [`@+` repetition](#-repetition)
+    * [`@x` expansions](#x-expansions)
 * [`&`keys](#keys-1)
-	* [for use with `@j`](#for-use-with-j)
-	* [for use with `@r`](#for-use-with-r)
+    * [for use with `@j`](#for-use-with-j)
+    * [for use with `@r`](#for-use-with-r)
 * [The TinyDB Data Store](#the-tinydb-data-store)
-	* [Dates, Times and Intervals](#dates-times-and-intervals)
-	* [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
+    * [Dates, Times and Intervals](#dates-times-and-intervals)
+    * [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
 * [Views](#views)
-	* [Agenda](#agenda)
-		* [Schedule](#schedule)
-		* [Busy](#busy)
-	* [Relevant](#relevant)
-	* [Next](#next)
-	* [Index](#index)
-	* [History](#history)
-	* [Tags](#tags)
-	* [Query](#query)
+    * [Agenda](#agenda)
+        * [Schedule](#schedule)
+        * [Busy](#busy)
+    * [Relevant](#relevant)
+    * [Next](#next)
+    * [Index](#index)
+    * [History](#history)
+    * [Tags](#tags)
+    * [Query](#query)
 * [Work Flow](#work-flow)
-	* [Editing an existing item](#editing-an-existing-item)
-	* [Creating a new item](#creating-a-new-item)
+    * [Editing an existing item](#editing-an-existing-item)
+    * [Creating a new item](#creating-a-new-item)
 * [Command Shortcut Keys](#command-shortcut-keys)
 * [MVC](#mvc)
-	* [Model](#model)
-		* [Data Store](#data-store)
-		* [Supporting queries](#supporting-queries)
-		* [Items Tables](#items-tables)
-		* [Instances Table](#instances-table)
-		* [Item Views](#item-views)
-		* [Instance Views](#instance-views)
-		* [CRUD](#crud)
-		* [API](#api)
+    * [Model](#model)
+        * [Data Store](#data-store)
+        * [Supporting queries](#supporting-queries)
+        * [Items Tables](#items-tables)
+        * [Instances Table](#instances-table)
+        * [Item Views](#item-views)
+        * [Instance Views](#instance-views)
+        * [CRUD](#crud)
+        * [API](#api)
 
 <!-- vim-markdown-toc -->
 
@@ -123,7 +123,7 @@ Here are some examples:
 See [item Types](#item-types) for details about the four item types and [`@`keys](#keys) for details about possible attributes.
 
 
-## Installation ##
+## [Installation](#toc) ##
 
 Python >= 3.6.0 is required.
 
@@ -205,7 +205,7 @@ A task is something that requires action from the user and lasts, so to speak, u
             `job a` has no prequisites but is a prerequisite for both `job b` and `job c` which are both prerequisites for `job d`. The order in which the jobs are listed is irrelevant in this case. 
     - Tasks with jobs are displayed by job using a combination of the task and job summaries with a type character indicating the status of the job. E.g.,  
 
-            x manually assigned [2/1/1]: job a
+            ✓ manually assigned [2/1/1]: job a
             - manually assigned [2/1/1]: job b
             - manually assigned [2/1/1]: job c
             + manually assigned [2/1/1]: job d
@@ -224,7 +224,7 @@ Corresponds to VTODO in the vcalendar specification.
 
 Type character: **%**
 
-A record is, well, a record of something that the user wants to remember. The userid and password for a website would be an example. A journal entry for vacation day is another example. 
+A record of something that the user wants to remember. The userid and password for a website would be an example. A journal entry for vacation day is another example. 
 
 - The `@s` is optional and, if given, is interpreted as the datetime to which the record applies. 
 - Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime.
@@ -537,6 +537,7 @@ The weekly *Agenda - Schedule* and *Agenda - Busy* views are synchronized so tha
 
 - Hours in the day that are partially or wholly "busy" are filled using the character `#`.
 - Hours in which a conflict occurs are filled with the charaters `###`.
+
 
                            2018 Week 50: Dec 10 - 16
                    Mo 10  Tu 11  We 12  Th 13  Fr 14  Sa 15  Su 16
