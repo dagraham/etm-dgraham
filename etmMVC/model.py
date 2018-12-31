@@ -449,9 +449,11 @@ def deal_with_z(at_hsh = {}):
         return top, bot
     s = at_hsh.get('s', None)
     if s is None:
-        return top, bot
+        return top, bot, None
 
     return deal_with_s(at_hsh)
+
+deal_with['z'] = deal_with_z
 
 def deal_with_s(at_hsh = {}):
     """
@@ -477,7 +479,8 @@ def deal_with_s(at_hsh = {}):
         bot += "\nThe datetime entry for @s will be interpreted as a naive datetime in whatever happens to be the local timezone."
     elif ok == 'aware':
         # bot = "starting: {}".format(obj.format("ddd MMM D h:mmA z"))
-        bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D YYYY h:mmA z"))
+        bot = "starting: {}".format(obj.in_tz(tz).format("ddd MMM D YYYY h:mmA z"))
+        # bot = "starting: {}".format(obj.format("ddd MMM D YYYY h:mmA z"))
         bot += "\nThe datetime entry for @s will be interpreted as an aware datetime in the specified timezone."
     else:
         bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D YYYY h:mmA z"))
