@@ -117,7 +117,7 @@ entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
 def set_askreply(_):
-    ask, say = check_entry(entry_buffer.text, entry_buffer.cursor_position)
+    ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
     ask_buffer.text = ask[1]
     reply_buffer.text = say[1] 
 

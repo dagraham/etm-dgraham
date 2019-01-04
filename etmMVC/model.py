@@ -2,6 +2,8 @@
 from pprint import pprint
 import pendulum
 from pendulum import parse as pendulum_parse
+from pendulum import Date, DateTime, Duration
+from pendulum.datetime import Timezone
 from bisect import insort
 
 def parse(s, **kwd):
@@ -91,60 +93,30 @@ WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for 
 for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
     WKDAYS_ENCODE[wkd] = wkd
 
-# FIXME: display characters 
-datedChar2Type = {
-    '!': "ib",
-    '*': "ev",
-    '~': "ac",
-    '%': "nt",
-    '-': "ta",
-    '+': "tw",
-    finished_char: "tf",
-    '?': "so",
-}
+# # FIXME: display characters 
+# datedChar2Type = {
+#     '!': "ib",
+#     '*': "ev",
+#     '~': "ac",
+#     '%': "nt",
+#     '-': "ta",
+#     '+': "tw",
+#     finished_char: "tf",
+#     '?': "so",
+# }
 
-pastdueTaskChar2Type = {
-    '-': "td",
-    '+': "tw"
-}
+# pastdueTaskChar2Type = {
+#     '-': "td",
+#     '+': "tw"
+# }
 
-undatedChar2Type = {
-    '-': "ta",
-    '%': "nt",
-    '!': "ib",
-    '?': "so",
-    finished_char: "tf",
-}
-
-# type codes in the order in which they should be sorted
-# palette settings will determine display colors for each
-# types = [
-#         'ib',  # inbox
-#         'oc',  # occasion
-#         'ev',  # event
-#         'td',  # pastdue task or available job 
-#         'tw',  # job with unfinished prereqs - scheduled or unscheduled 
-#         'ta',  # task or job that is not pastdue 
-#         'by',  # beginby
-#         'ac',  # action
-#         'nt',  # note
-#         'so',  # someday
-#         'tf',  # finished task or job
-#          ]
-
-# type_tuple = {
-#         'ed': (0, '*'),  # date/all day event
-#         'ib': (1, '!'),  # inbox                   today only
-#         'tp': (2, '<'),  # task or job pastdue     today only
-#         'by': (3, '>'),  # beginby                 today only
-#         'et': (4, '*'),  # datetime event
-#         'tt': (4, '-'),  # available datetime task or job 
-#         'tw': (5, '+'),  # datetime job waiting
-#         'td': (6, '-'),  # available all day task or job
-#         'tf': (7, 'x'),  # finished task or job    done view
-#         'rt': (7, '%'),  # datetime record         done view
-#         'rd': (8, '%'),  # date record             done view
-#         }
+# undatedChar2Type = {
+#     '-': "ta",
+#     '%': "nt",
+#     '!': "ib",
+#     '?': "so",
+#     finished_char: "tf",
+# }
 
 type_keys = {
     "*": "event",
@@ -154,7 +126,6 @@ type_keys = {
 }
 
 type_prompt = u"type character for new item:"
-# item_types = u"item type characters:\n  *: event\n  -: task\n  %: journal entry\n  !: inbox entry"
 
 item_types = u"item type characters:\n" + "\n".join([f"  {k}: {v}" for k, v in type_keys.items()])
 
@@ -230,14 +201,14 @@ comma_regex = re.compile(r',\s*')
 colon_regex = re.compile(r'\:\s*')
 semicolon_regex = re.compile(r'\;\s*')
 
-item_hsh = {} # preserve state
+# item_hsh = {} # preserve state
 
 allowed = {}
 required = {}
 undated_methods = 'cdegilmstx'
-date_methods = 'br'
+date_methods = 'bro'
 datetime_methods = date_methods + 'eaz+-'
-task_methods = 'fjp'
+task_methods = 'fhjp'
 
 # events
 required['*'] = 's'
@@ -258,7 +229,7 @@ allowed['%'] = undated_methods + datetime_methods
 
 # inbox entries
 required['!'] = ''
-allowed['!'] = undated_methods + task_methods
+allowed['!'] = undated_methods + datetime_methods + task_methods
 
 # item type t and has s
 # allowed['date'] = allowed[t] + 'br'
@@ -269,8 +240,9 @@ requires = {
         'a': 's',
         'b': 's',
         'r': 's',
-        '+': 'r',
+        '+': 's',
         '-': 'r',
+        'o': 'r',
         }
 
 # set up 2 character weekday name abbreviations for busy view
@@ -446,12 +418,17 @@ def deal_with_z(at_hsh={}):
     bot = ''
     tz = at_hsh.get('z', None)
     if tz is None:
-        return top, bot
-    s = at_hsh.get('s', None)
-    if s is None:
         return top, bot, None
+    bot = f"timezone: {tz}"
+    return top, bot, tz
+    # s = at_hsh.get('s', None)
+    # if s is None:
+    #     return top, bot, None
 
-    return deal_with_s(at_hsh)
+    # t1, t2, obj = deal_with_s(at_hsh)
+    # if obj is None:
+    #     return top, bot, None
+    # return obj.tzinfo
 
 deal_with['z'] = deal_with_z
 
@@ -468,8 +445,8 @@ def deal_with_s(at_hsh = {}):
     ok, obj, tz = parse_datetime(s, tz)
     if not ok or not obj:
         return top, "considering: '{}'".format(s), None
-    item_hsh['s'] = obj
-    item_hsh['z'] = tz
+    at_hsh['s'] = obj
+    at_hsh['z'] = tz
     if ok == 'date':
         # 'dateonly'
         bot = "starting: {}".format(obj.format("ddd MMM D YYYY"))
@@ -486,14 +463,27 @@ def deal_with_s(at_hsh = {}):
         bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D YYYY h:mmA z"))
         bot += "\nWithout an entry for '@z', the datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a specific timezone, e.g., '@z US/Pacific', to use that timezone or '@z float' to make the datetime floating (naive)."
 
-    # if 'summary' in item_hsh:
-    #     summary = set_summary(item_hsh['summary'], obj)
-    #     bot += "\n{}".format(summary)
-    #     item_hsh['summary'] = summary
-
     return top, bot, obj
 
 deal_with['s'] = deal_with_s
+
+
+def deal_with_missing(at_hsh, key):
+
+    s = at_hsh.get(key, None)
+    top = "{}?".format(at_keys[key])
+    bot = ''
+    if s is None:
+        return top, bot, None
+
+    top = "{}".format(at_keys[key])
+    bot = f"{at_keys[key]}: {s}"
+    if key in ['t']:
+        ok, res = string_list(s)
+    else:
+        res = s
+
+    return top, bot, res
 
 def deal_with_e(at_hsh={}):
     """
@@ -503,12 +493,12 @@ def deal_with_e(at_hsh={}):
     top = "{}?".format(at_keys['e'])
     bot = ''
     if s is None:
-        return top, bot, item_hsh
+        return top, bot, None
     ok, obj = parse_duration(s)
     if not ok:
         return top, "considering: '{}'".format(s), None
-    item_hsh['e'] = obj
-    bot = "extent: {0}".format(item_hsh['e'].in_words())
+    # item_hsh['e'] = obj
+    bot = "extent: {0}".format(obj.in_words())
     # bot += "\n\n{}".format(str(at_hsh))
     return top, bot, obj
 
@@ -543,7 +533,7 @@ def deal_with_i(at_hsh={}):
     if type(res) != list:
         return False, "index {}".format(arg)
 
-    item_hsh['i'] = res
+    # item_hsh['i'] = res
     bot = "index: " + ", ".join(['level {0} -> {1}'.format(i, res[i]) for i in range(len(res))])
     return top, bot, res
 
@@ -585,9 +575,9 @@ def get_reps(n=3, at_hsh={}):
 All times: {}""".format(dtstart, countstr,  outstr, zone)
     return True, res
 
-def get_next(at_hsh={}):
-    if not at_hsh or 's' not in at_hsh or 'rrulestr' not in at_hsh:
-        return False, "Both @s and @r are required for repetitions"
+# def get_next(at_hsh={}):
+#     if not at_hsh or 's' not in at_hsh or 'rrulestr' not in at_hsh:
+#         return False, "Both @s and @r are required for repetitions"
 
 
 
@@ -595,60 +585,65 @@ def deal_with_r(at_hsh={}):
     """
     Check the current state of at_hsh regarding r and s.
     """
-    top = "repetition rule?"
+    top = "repeat?"
     bot = "{}".format(at_keys['r'])
     lofh = at_hsh.get('r', [])
     # print('lofh:', at_hsh, lofh)
-    if not lofh:
-        return top, bot, None
-
-    try:
-        ok, res = rrule(lofh)
-    except:
-        return top, bot, None
-
-    if not ok:
-        return top, res, None
-
-    rrulelst = []
-
-    # dtut_format = "YYYYMMDD[T]HHmm[00]"
-    dtut_format = ";[TZID=]zz:YYYYMMDD[T]HHmm[00]"
-    if 's' in item_hsh:
-        if type(item_hsh['s']) == pendulum.pendulum.Date:
-            # dtut_format = "YYYYMMDD[T][000000]"
-            dtut_format = ";[TZID=]zz:YYYYMMDD[T][000000]"
+    ok, res = check_rrule(lofh)
+    if ok:
+        show = "".join([f"    {x}\n" for x in res])
+        bot = f"repetition:\n{show}"
     else:
-        bot = "An entry for @s is required for repetition."
-        return top, bot, None
-    for hsh in res:
-        r = hsh.get('r', None)
-        if r:
-            keys = ['&{}'.format(x) for x in amp_keys['r'] if x not in hsh]
-            for key in hsh:
-                if hsh[key] and key in amp_keys['r']:
-                    bot = "{}".format(amp_keys['r'][key])
-                else:
-                    bot = 'Allowed: {}'.format(", ".join(keys))
-        else:
-            # shouldn't happen
-            pass
-        rrulelst.append(hsh['rrulestr'])
-
-    if '+' in item_hsh:
-        for rdate in item_hsh['+']:
-            rrulelst.append("RDATE:{}".format(rdate.format(dtut_format)))
-
-    if '-' in item_hsh:
-        for exdate in item_hsh['-']:
-            rrulelst.append("EXDATE:{}".format(exdate.format(dtut_format)))
-
-    res = item_hsh['rrulestr'] = "\n".join(rrulelst)
-    bot = "repetition rule:\n    {}\n".format(res)
-    ok, res = get_reps()
-    bot += res
-
+        bot = f"considering: {lofh}"
     return top, bot, res
+
+    # if not ok or not res:
+    #     return top, "considering: '{}'".format(lofh), None
+    # if ok:
+    #     return ok, "ok", None
+    # else:
+    #     return top, "not ok", None
+
+
+    # rrulelst = []
+
+    # # dtut_format = "YYYYMMDD[T]HHmm[00]"
+    # dtut_format = ";[TZID=]zz:YYYYMMDD[T]HHmm[00]"
+    # if 's' in item_hsh:
+    #     if type(item_hsh['s']) == pendulum.Date:
+    #         # dtut_format = "YYYYMMDD[T][000000]"
+    #         dtut_format = ";[TZID=]zz:YYYYMMDD[T][000000]"
+    # else:
+    #     bot = "An entry for @s is required for repetition."
+    #     return top, bot, None
+    # for hsh in res:
+    #     r = hsh.get('r', None)
+    #     if r:
+    #         # bad_keys = [f'&{x}' for x in hsh if x not in amp_keys['r']]
+    #         keys = ['&{}'.format(x) for x in amp_keys['r'] if x not in hsh]
+    #         for key in hsh:
+    #             if hsh[key] and key in amp_keys['r']:
+    #                 bot = "{}".format(amp_keys['r'][key])
+    #             else:
+    #                 bot = '{} is not allowed.\nAllowed: {}'.format(key, ", ".join(keys))
+    #     else:
+    #         # shouldn't happen
+    #         pass
+
+    # if '+' in item_hsh:
+    #     for rdate in item_hsh['+']:
+    #         rrulelst.append("RDATE:{}".format(rdate.format(dtut_format)))
+
+    # if '-' in item_hsh:
+    #     for exdate in item_hsh['-']:
+    #         rrulelst.append("EXDATE:{}".format(exdate.format(dtut_format)))
+
+    # res = item_hsh['rrulestr'] = "\n".join(rrulelst)
+    # bot += "repetition rule:\n    {}\n".format(res)
+    # ok, res = get_reps()
+    # bot += res
+
+    # return top, bot, res
 
 
 deal_with['r'] = deal_with_r
@@ -657,18 +652,13 @@ def deal_with_j(at_hsh={}):
     """
     Check the current state of at_hsh regarding j and s.
     """
-    if 's' in item_hsh:
-        # Either a dated task or a naive or aware datetimed task
-        dated = True
-    else:
-        # An undated task
-        dated = False
+    # dated = 's' in at_hsh
     top = "job?"
     bot = "{}".format(at_keys['j'])
     lofh = at_hsh.get('j', [])
     ok, res, lastcompletion = jobs(lofh, at_hsh)
     if ok:
-        item_hsh['jobs'] = res
+        # item_hsh['jobs'] = res
         show = "".join(["    {}\n".format(x) for x in res])
         bot = "jobs:\n{}".format(show)
     else:
@@ -692,7 +682,7 @@ def str2hsh(s):
     at_tups = []
     at_entry = False
     amp_entry = False
-    amp_tups = []
+    amp_tups = {}
     amp_parts = []
     # delta = 1
     delta = 2
@@ -724,7 +714,7 @@ def str2hsh(s):
     for key in ['r', 'j']:
         if key not in hsh: continue
         lst = []
-        amp_tups = []
+        amp_tups[key] = [] 
         amp_entry = False
         for part in hsh[key]:  # an individual @r or @j entry
             amp_hsh = {}
@@ -752,7 +742,7 @@ def str2hsh(s):
                         amp_hsh.setdefault(k, []).append(v)
                     else:
                         amp_hsh[k] = v
-                    amp_tups.append( (k, v, place) )
+                    amp_tups[key].append( (k, v, place) )
                     # place += 2 + len(part)
                 lst.append(amp_hsh)
         hsh[key] = lst
@@ -763,26 +753,46 @@ def str2hsh(s):
     return hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts
 
 
+class Item(object):
+    """
+    Preserve state when editing an item.
+    """
+
+    def __init__(self, s="", h={}):
+        """
+        We will either be editing an existing item from a doc_id and hash or creating a new item from a string.
+        """
+        self.item_hsh = h
+        self.item_str = s
+
+    def cursor_changed(self):
+        pass
+
+    def text_changed(self):
+        pass
+
+item_hsh = {}
 def check_entry(s, cursor_pos):
     """
     Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
+    >>> check_entry("* evnt @s 2018-12-31 4p @r d &c 3", 30)
     """
+    global item_hsh
     hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts = str2hsh(s)
-    # cursor_pos -= 1
-    # cursor_pos = cursor_pos - 1 if cursor_pos else cursor_pos
 
     ask = ('say', '')
     reply = ('say', '\n')
     if not at_tups:
         ask = ('say', type_prompt)
         reply = ('say', item_types)
-        return ask, reply
+        return ask, reply, hsh
 
     # itemtype, summary, end = at_tups.pop(0)
     itemtype, summary, end = at_tups[0]
-    act_key = act_val = amp_key = ''
+    act_key = act_val = '' 
 
     if itemtype in type_keys:
+        item_hsh['itemtype'] = itemtype
         for tup in at_tups:
             if tup[-1] < cursor_pos:
                 act_key = tup[0]
@@ -827,8 +837,13 @@ def check_entry(s, cursor_pos):
                         top, bot, obj = deal_with[act_key](hsh)
                         ask = ('say', top)
                         reply = ('say', "{}\n".format(bot))
+                        if obj:
+                            item_hsh[act_key] = obj
+                            # hsh[act_key] = obj
                     else:
-                        ask = ('say', "{0}?".format(at_keys[act_key]))
+                        top, bot, obj = deal_with_missing(hsh, act_key)
+                        if obj:
+                            item_hsh[act_key] = obj
                 else:
                     reply = ('warn', "@{0} is not allowed for item type '{1}'\n".format(act_key, itemtype))
         else:
@@ -841,11 +856,15 @@ def check_entry(s, cursor_pos):
     if 'summary' in hsh:
         item_hsh['summary'] = hsh['summary']
 
-    # for testing and debugging:1
-    if testing:
-        reply = (reply[0], reply[1] + "\nat_entry {0} {1}: {2}; pos {3}\namp_entry: {4}: {5}\n{6}\n{7}\n{8}\n{9}".format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh, item_hsh))
+    missing = [k for k in item_hsh if k not in hsh]
+    for k in missing:
+        del item_hsh[k]
 
-    return ask, reply
+    # for testing and debugging:
+    if testing:
+        reply = (reply[0], reply[1] + f"\ncursor pos: {cursor_pos}; active entry: '{act_key}' -> {act_val}\nwaiting for at_key: {at_entry}; amp_key: {amp_entry}\nat tups: {at_tups}\nhsh: {hsh}\nitem_hsh: {item_hsh}\n{item_details(item_hsh, edit=False)}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
+
+    return ask, reply, hsh
 
 
 def parse_datetime(s, z=None):
@@ -1017,6 +1036,8 @@ def format_duration(obj):
     >>> format_duration(td)
     '1w2d3h27m'
     """
+    if not isinstance(obj, pendulum.Duration):
+        return None
     try:
         until =[]
         if obj.weeks:
@@ -1034,6 +1055,7 @@ def format_duration(obj):
     except Exception as e:
         print('format_duration', e)
         print(obj)
+        return None
 
 def format_duration_list(obj_lst):
     try:
@@ -1303,7 +1325,7 @@ class DataView(object):
         #     item_id = item_id[0]
         if item_id in self.itemcache:
             return self.itemcache[item_id]
-        item = ETMDB.get(doc_id=item_id)
+        item = ETMDB_QUERY.get(doc_id=item_id)
         if item:
             self.itemcache[item_id] = item_details(item)
             return self.itemcache[item_id] 
@@ -1545,42 +1567,46 @@ entry_tmpl = """\
 {% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %}\
 {%- if 'e' in h %}{{ " @e {}".format(in2str(h['e'])) }}{% endif %}\
 {%- if 'z' in h %}{{ " @z {}".format(h['z']) }}{% endif %}\
-{%- if k in h %} @{{ k }} {{ h[k] }}{% endif %}\
 {%- endset %}\
 {{ wrap(title) }}
 {% if 'f' in h %}{{ "@f {} ".format(dt2str(h['f'])[1]) }}
-{% endif %}\
+{% endif -%}\
 {% if 'a' in h %}\
 {%- set alerts %}\
 {% for x in h['a'] %}{{ "@a {}: {} ".format(inlst2str(x[0]), ", ".join(x[1:])) }}{% endfor %}\
 {% endset %}\
 {{ wrap(alerts) }}
 {% endif %}\
-{% set index %}\
-{% for k in ['c', 'i'] %}\
-{% if k in h %} @{{ k }} {{ h[k] }}{% endif %}\
-{% endfor -%}\
-{% endset -%}
-{{ wrap(index) }}\
-{%- if 't' in h %}{{ " @t {}".format(", ".join(h['t'])) }} {% endif %}\
-{% set ns = namespace(found=false) %}\
-{% set location %}\
-{%- for k in ['l', 'm', 'n', 'g', 'u', 'x', 'p'] -%}\
+{%- set is = namespace(found=false) -%}\
+{%- set index -%}\
+{%- for k in ['c', 'i'] -%}\
+{%- if k in h %}@{{ k }} {{ h[k] }}{% set is.found = true %} {% endif %}\
+{%- endfor %}\
+{%- endset %}\
+{%- if is.found -%}
+{{ wrap(index) }}
+{% endif -%}\
+{%- if 't' in h %}@t {{ "{}".format(", ".join(h['t'])) }} {% endif %}\
+{%- set ns = namespace(found=false) -%}\
+{%- set location -%}\
+{% for k in ['l', 'm', 'n', 'g', 'x', 'p'] -%}\
 {%- if k in h %}@{{ k }} {{ h[k] }}{% set ns.found = true %} {% endif %}\
-{% endfor %}\
-{% endset %}\
-{% if ns.found %}
+{%- endfor %}\
+{%- endset %}\
+{%- if ns.found -%}
 {{ wrap(location) }}{% endif -%}\
 {%- if 'r' in h %}\
 {%- for x in h['r'] -%}\
+{%- if 'r' in x and x['r'] -%}\
 {%- set rrule -%}\
-{{ x['r'] }}\
+{{ x['r'] }}
 {%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'h', 'E', 'c'] -%}\
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}\
-{% if 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
+{% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
 {%- endset %}
 @r {{ wrap(rrule) }}
+{% endif %}
 {%- endfor %}\
 {% if 'o' in h %}
 @o {{ h['o'] }}{% endif -%}\
@@ -1611,12 +1637,22 @@ entry_tmpl = """\
 
 display_tmpl = entry_tmpl + """\
 
-{{ '-' * 3 }}
-doc_id:  {{ h.doc_id }}
+{{ '_' * 3 }}
+{% if 'created' in h %}\
 created: {{ dt2str(h.created)[1] }}
+{% else %}\
+created: ~ 
+{%- endif %}
 {% if 'modified' in h %}\
-modified: {{ dt2str(h.modified)[1] }}
-{%- endif -%}\
+modified: {{ dt2str(h.modified)[1] }}\
+{% else %}\
+modified: ~ 
+{%- endif %}
+{% if 'h.doc_id' %}\
+id: {{ h.doc_id }}\
+{% else %}\
+id: ~ 
+{%- endif %}
 """
 
 jinja_entry_template = Template(entry_tmpl)
@@ -1625,6 +1661,7 @@ jinja_entry_template.globals['in2str'] = format_duration
 jinja_entry_template.globals['dtlst2str'] = format_datetime_list
 jinja_entry_template.globals['inlst2str'] = format_duration_list
 jinja_entry_template.globals['one_or_more'] = one_or_more
+jinja_entry_template.globals['isinstance'] = isinstance
 jinja_entry_template.globals['wrap'] = wrap
 
 jinja_display_template = Template(display_tmpl)
@@ -1633,6 +1670,7 @@ jinja_display_template.globals['in2str'] = format_duration
 jinja_display_template.globals['dtlst2str'] = plain_datetime_list
 jinja_display_template.globals['inlst2str'] = format_duration_list
 jinja_display_template.globals['one_or_more'] = one_or_more
+jinja_entry_template.globals['isinstance'] = isinstance
 jinja_display_template.globals['wrap'] = wrap
 
 def beginby(arg):
@@ -1685,6 +1723,20 @@ def history(arg):
     else:
         return True, tmp
 
+# This won't work since @z needs to be considered
+def until(arg):
+    """
+    Return a datetime object. This will be an aware datetime in the local timezone. 
+    >>> until('2019-01-03 10am')
+    (True, DateTime(2019, 1, 3, 10, 0, 0, tzinfo=Timezone('America/New_York')))
+    >>> until('whenever')
+    (False, 'Include repetitions falling on or before this datetime.')
+    """
+    ok, res, tz = parse_datetime(arg)
+    if ok:
+        return True, res
+    else:
+        return False, "Include repetitions falling on or before this datetime."
 
 def priority(arg):
     """
@@ -1737,10 +1789,10 @@ def frequency(arg):
     """
     repetition frequency: character in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly
     or mi(n)utely.
-    >>> frequency('d')[0]
-    True
-    >>> frequency('z')[0]
-    False
+    >>> frequency('d')
+    (True, 'd')
+    >>> frequency('z')
+    (False, 'invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
     """
 
     freq = [x for x in rrule_freq]
@@ -1820,7 +1872,7 @@ def weekdays(arg):
     >>> weekdays(" ")
     (False, 'weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     >>> weekdays("-2mo, 3tU")
-    (True, ['-2MO', '3TU'])
+    (True, [MO(-2), TU(+3)])
     >>> weekdays(["5Su", "1SA"])
     (False, 'invalid weekdays: 5SU')
     >>> weekdays('3FR, -1M')
@@ -1838,7 +1890,8 @@ def weekdays(arg):
         good = []
         for x in args:
             if x in WKDAYS_DECODE:
-                good.append(x)
+                good.append(eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[x])))
+
             else:
                 bad.append(x)
         if bad:
@@ -1964,10 +2017,9 @@ def minutes(arg):
 rrule_methods = dict(
     r=frequency,
     i=interval,
-    f=frequency,
     s=setpos,
     c=count,
-    u=format_datetime,
+    u=until,
     M=months,
     m=monthdays,
     W=weeks,
@@ -2006,7 +2058,7 @@ rrule_name = {
     'M': 'bymonth',  # integer 1...12
     'm': 'bymonthday',  # positive integer
     'W': 'byweekno',  # positive integer
-    'w': 'byweekday',  # integer 0 (SU) ... 6 (SA)
+    'w': 'byweekday',  # rrule weekday MO ... SU
     'h': 'byhour',  # positive integer
     'n': 'byminute',  # positive integer
     'E': 'byeaster', # interger number of days before (-) or after (+) Easter Sunday
@@ -2023,18 +2075,18 @@ def check_rrule(lofh):
     (False, 'repetition frequency: character from (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
     >>> good_data = {"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SU"}
     >>> pprint(check_rrule(good_data))
-    (True, [{'M': [5], 'i': 1, 'm': [3], 'r': 'y', 'w': ['2SU']}])
+    (True, [{'M': [5], 'i': 1, 'm': [3], 'r': 'y', 'w': [SU(+2)]}])
     >>> good_data = {"M": [5, 12], "i": 1, "m": [3, 15], "r": "y", "w": "2SU"}
     >>> pprint(check_rrule(good_data))
-    (True, [{'M': [5, 12], 'i': 1, 'm': [3, 15], 'r': 'y', 'w': ['2SU']}])
+    (True, [{'M': [5, 12], 'i': 1, 'm': [3, 15], 'r': 'y', 'w': [SU(+2)]}])
     >>> bad_data = [{"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SE"}, {"M": [11, 12], "i": 4, "m": [2, 3, 4, 5, 6, 7, 8], "r": "z", "w": ["TU", "-1FR"]}]
     >>> print(check_rrule(bad_data))
     (False, 'invalid weekdays: 2SE; invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
     >>> data = [{"r": "w", "w": "TU", "h": 14}, {"r": "w", "w": "TH", "h": 16}]
     >>> pprint(check_rrule(data))
     (True,
-     [{'h': [14], 'i': 1, 'r': 'w', 'w': ['TU']},
-      {'h': [16], 'i': 1, 'r': 'w', 'w': ['TH']}])
+     [{'h': [14], 'i': 1, 'r': 'w', 'w': [TU]},
+      {'h': [16], 'i': 1, 'r': 'w', 'w': [TH]}])
     """
     msg = []
     ret = []
@@ -2050,32 +2102,17 @@ def check_rrule(lofh):
         if 'i' not in hsh:
             res['i'] = 1
         for key in hsh.keys():
-            if key not in rrule_methods:
-                msg.append("error: {} is not a valid key".format(key))
-            else:
+            if key in rrule_methods:
                 ok, out = rrule_methods[key](hsh[key])
+
                 if ok:
                     res[key] = out
                 else:
                     msg.append(out)
+            else:
+                msg.append("error: {} is not a valid key".format(key))
 
         if not msg:
-            # l = ["RRULE:FREQ=%s" % rrule_frequency[hsh['r']]]
-
-            # for k in rrule_keys:
-            #     if k in hsh and hsh[k]:
-            #         v = hsh[k]
-            #         if type(v) == list:
-            #             v = ",".join(map(str, v))
-            #         if k == 'w':
-            #             # make weekdays upper case
-            #             v = v.upper()
-            #             m = threeday_regex.search(v)
-            #             while m:
-            #                 v = threeday_regex.sub("%s" % m.group(1)[:2], v, count=1)
-            #                 m = threeday_regex.search(v)
-            #         l.append("%s=%s" % (rrule_names[k], v))
-            # res['rrulestr'] = ";".join(l)
             ret.append(res)
 
     if msg:
@@ -2915,7 +2952,8 @@ serialization.register_serializer(PendulumDateSerializer(), 'D')     # Date
 serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
 serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday 
 
-ETMDB = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False, cache_size=None)
+ETMDB = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+ETMDB_QUERY = ETMDB.table('items', cache_size=None)
 
 ########################
 ### end TinyDB setup ###
@@ -3114,6 +3152,12 @@ def print_json(edit=False):
         print()
 
 def item_details(item, edit=False):
+    """
+    >>> item = {'itemtype': '-', 'summary': 'todo', 's': DateTime(2019, 1, 7, 14, 0, 0, tzinfo=Timezone('America/New_York')), 'r': [{'i': 1, 'r ': 'w', 'w': [MO(+1)]}]}
+    >>> pprint(item)
+    >>> print(item_details(item, edit=True))
+
+    """
     try:
         if edit:
             return jinja_entry_template.render(h=item)
@@ -3174,7 +3218,7 @@ def relevant(now=pendulum.now('local')):
     alerts = []
     current = []
 
-    for item in ETMDB:
+    for item in ETMDB_QUERY:
         instance_interval = [] 
         possible_beginby = None
         possible_alerts = []
@@ -3372,7 +3416,6 @@ def relevant(now=pendulum.now('local')):
     pastdue.sort()
     beginbys.sort()
     alerts.sort()
-    week = (today.year, today.week_of_year)
     week = today.isocalendar()[:2]
     day = (today.format("ddd MMM D"), )
     for item in inbox:
@@ -3392,19 +3435,35 @@ def relevant(now=pendulum.now('local')):
     return current, alerts 
 
 
-def update_db(id, hsh):
+def update_db(id, hsh={}):
     old = ETMDB.get(doc_id=id)
-    if old != hsh:
-        if 'r' in hsh:
-            for rr in hsh['r']:
-                if 'w' in rr:
-                    print('found w:', rr['w'], type(rr['w']))
-        try:
-            ETMDB.update(hsh, doc_ids=[id])
-        except Exception as e:
-            print("Error updating db")
-            print(repr(e))
-            print(id, "old:", old, "\n", "new:", hsh, '\n')
+    if not old:
+        logger.error(f"Could not get document corresponding to id {id}")
+        return
+    if old == hsh:
+        logger.info(f"Doument corresponding to id {id} unchanged")
+        return
+    hsh['modified'] = pendulum.now()
+    try:
+        ETMDB.update(hsh, doc_ids=[id])
+    except Exception as e:
+        logger.error(f"Error updating document corresponding to id {id}\nhsh {hsh}\nexception: {repr(e)}")
+
+def insert_db(hsh={}):
+    """
+    Assume hsh has been vetted. 
+    """
+    if not hsh:
+        logger.warn(f"Empty hash passed to insert_db")
+        return
+    hsh['created'] = pendulum.now()
+    try:
+        ETMDB.insert(hsh)
+    except Exception as e:
+        logger.error(f"Error updating database:\nid {id}\nold {old}\nhsh {hsh}\ne {repr(e)}")
+
+
+
 
 def show_history(reverse=True):
     from operator import itemgetter
@@ -3537,7 +3596,7 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
 
     rows = []
     busy = []
-    for item in ETMDB:
+    for item in ETMDB_QUERY:
         if item['itemtype'] in "!?":
             continue
 
@@ -3734,7 +3793,7 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
 def import_json(etmdir=None):
     # FIXME: this purges ETMDB
     import json
-    ETMDB = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+    # ETMDB = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
     if etmdir:
         import_file = os.path.join(etmdir, 'data', 'etm-db.json')
     else:

@@ -226,6 +226,7 @@ root_container = HSplit([
 bindings = KeyBindings()
 
 
+@bindings.add('c-q')
 @bindings.add('f8')
 def _(event):
     " Quit. "
