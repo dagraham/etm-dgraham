@@ -432,9 +432,9 @@ def deal_with_z(at_hsh={}):
 
 deal_with['z'] = deal_with_z
 
-def deal_with_s(at_hsh = {}):
+def deal_with_datetime(at_hsh = {}):
     """
-    Check the currents state of at_hsh regarding the 's' key
+    Check the currents state of at_hsh regarding the key
     """
     s = at_hsh.get('s', None)
     top = "{}?".format(at_keys['s'])
@@ -445,8 +445,8 @@ def deal_with_s(at_hsh = {}):
     ok, obj, tz = parse_datetime(s, tz)
     if not ok or not obj:
         return top, "considering: '{}'".format(s), None
-    at_hsh['s'] = obj
-    at_hsh['z'] = tz
+    # at_hsh['s'] = obj
+    # at_hsh['z'] = tz
     if ok == 'date':
         # 'dateonly'
         bot = "starting: {}".format(obj.format("ddd MMM D YYYY"))
@@ -465,7 +465,10 @@ def deal_with_s(at_hsh = {}):
 
     return top, bot, obj
 
-deal_with['s'] = deal_with_s
+
+
+deal_with['s'] = deal_with_datetime
+deal_with['f'] = deal_with_datetime
 
 
 def deal_with_missing(at_hsh, key):
@@ -862,7 +865,9 @@ def check_entry(s, cursor_pos):
 
     # for testing and debugging:
     if testing:
-        reply = (reply[0], reply[1] + f"\ncursor pos: {cursor_pos}; active entry: '{act_key}' -> {act_val}\nwaiting for at_key: {at_entry}; amp_key: {amp_entry}\nat tups: {at_tups}\nhsh: {hsh}\nitem_hsh: {item_hsh}\n{item_details(item_hsh, edit=False)}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
+        # reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}") 
+        # reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}\n\ncursor pos: {cursor_pos}; active entry: '{act_key}' -> {act_val}\nhsh: {hsh}\nitem_hsh: {item_hsh}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
+        reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}\n\ncursor pos: {cursor_pos}; active entry: '{act_key}' -> {act_val}\n{hsh}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
 
     return ask, reply, hsh
 
@@ -905,7 +910,7 @@ def parse_datetime(s, z=None):
     try:
         res = parse(s, tz=tzinfo)
         if ok ==  'aware':
-            tz = res.format("zz")
+            z = res.format("zz")
 
     except:
         return False, "Invalid date-time: '{}'".format(s), z
@@ -1587,26 +1592,26 @@ entry_tmpl = """\
 {{ wrap(index) }}
 {% endif -%}\
 {%- if 't' in h %}@t {{ "{}".format(", ".join(h['t'])) }} {% endif %}\
-{%- set ns = namespace(found=false) -%}\
+{%- set ls = namespace(found=false) -%}\
 {%- set location -%}\
-{% for k in ['l', 'm', 'n', 'g', 'x', 'p'] -%}\
-{%- if k in h %}@{{ k }} {{ h[k] }}{% set ns.found = true %} {% endif %}\
-{%- endfor %}\
-{%- endset %}\
-{%- if ns.found -%}
+{%- for k in ['l', 'm', 'n', 'g', 'x', 'p'] -%}\
+{%- if k in h %}@{{ k }} {{ h[k] }}{% set ls.found = true %} {% endif -%}\
+{%- endfor -%}\
+{%- endset -%}\
+{%- if ls.found -%}\
 {{ wrap(location) }}{% endif -%}\
-{%- if 'r' in h %}\
+{%- if 'r' in h -%}\
 {%- for x in h['r'] -%}\
 {%- if 'r' in x and x['r'] -%}\
 {%- set rrule -%}\
-{{ x['r'] }}
+{{ x['r'] }}\
 {%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'h', 'E', 'c'] -%}\
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
-{%- endfor %}\
+{%- endfor -%}\
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
-{%- endset %}
+{%- endset -%}
 @r {{ wrap(rrule) }}
-{% endif %}
+{% endif -%}\
 {%- endfor %}\
 {% if 'o' in h %}
 @o {{ h['o'] }}{% endif -%}\
@@ -1639,7 +1644,7 @@ display_tmpl = entry_tmpl + """\
 
 {{ '_' * 3 }}
 {% if 'created' in h %}\
-created: {{ dt2str(h.created)[1] }}
+created: {{ dt2str(h.created)[1] }}\
 {% else %}\
 created: ~ 
 {%- endif %}
@@ -1648,7 +1653,7 @@ modified: {{ dt2str(h.modified)[1] }}\
 {% else %}\
 modified: ~ 
 {%- endif %}
-{% if 'h.doc_id' %}\
+{% if h.doc_id %}\
 id: {{ h.doc_id }}\
 {% else %}\
 id: ~ 
@@ -3815,13 +3820,17 @@ def import_json(etmdir=None):
         bad_keys = [x for x in item_hsh if not item_hsh[x]]
         for key in bad_keys:
             del item_hsh[key]
-        item_hsh['created'] = timestamp_from_id(id, 'UTC')
         if 's' in item_hsh:
             item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
         elif 'z' in item_hsh:
             del item_hsh['z']
         if 'f' in item_hsh:
             item_hsh['f'] = pen_from_fmt(item_hsh['f'], z)
+        item_hsh['created'] = timestamp_from_id(id, 'UTC')
+        # if 'f' in item_hsh and item_hsh['f'] < item_hsh['created']:
+        #     item_hsh['created'] = item_hsh['f']
+        # if 's' in item_hsh and item_hsh['s'] < item_hsh['created']:
+        #     item_hsh['created'] = item_hsh['s']
         if 'h' in item_hsh:
             item_hsh['h'] = [pen_from_fmt(x, z) for x in item_hsh['h']]
         if '+' in item_hsh:
