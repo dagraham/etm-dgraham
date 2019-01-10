@@ -13,6 +13,7 @@ from datetime import datetime
 
 import sys
 import re
+from re import finditer
 
 from tinydb import TinyDB, Query, Storage
 from tinydb.operations import delete
@@ -130,60 +131,60 @@ type_prompt = u"type character for new item:"
 item_types = u"item type characters:\n" + "\n".join([f"  {k}: {v}" for k, v in type_keys.items()])
 
 at_keys = {
-    '+': "include (list of date-times)",
-    '-': "exclude (list of date-times)",
-    'a': "alert (list of periods: cmd[, list of cmd args*])",
-    'b': "beginby (integer number of days)",
-    'c': "calendar (string)",
-    'd': "description (string)",
-    'e': "extent (timeperiod)",
-    'f': "finish (datetime)",
-    'g': "goto (url or filepath)",
-    'h': "completions history (list of done:due datetimes)",
-    'i': "index (colon delimited string)",
-    'j': "job summary (string)",
-    'l': "location (string)",
-    'm': "memo (string)",
-    'o': "overdue (r)estart, (s)kip or (k)eep)",
-    'p': "priority (integer)",
-    'r': "repetition frequency (y)early, (m)onthly, (w)eekly,"
+    '@+': "include (list of date-times)",
+    '@-': "exclude (list of date-times)",
+    '@a': "alert (list of periods: cmd[, list of cmd args*])",
+    '@b': "beginby (integer number of days)",
+    '@c': "calendar (string)",
+    '@d': "description (string)",
+    '@e': "extent (timeperiod)",
+    '@f': "finish (datetime)",
+    '@g': "goto (url or filepath)",
+    '@h': "completions history (list of done:due datetimes)",
+    '@i': "index (colon delimited string)",
+    '@j': "job summary (string)",
+    '@l': "location (string)",
+    '@m': "memo (string)",
+    '@o': "overdue (r)estart, (s)kip or (k)eep)",
+    '@p': "priority (integer)",
+    '@r': "repetition frequency (y)early, (m)onthly, (w)eekly,"
          " (d)aily, (h)ourly, mi(n)utely",
-    's': "starting date or datetime",
-    't': "tags (list of strings)",
-    'x': "expansion key (string)",
-    'z': "timezone (string)",
+    '@s': "starting date or datetime",
+    '@t': "tags (list of strings)",
+    '@x': "expansion key (string)",
+    '@z': "timezone (string)",
     'itemtype': "itemtype (character)",
     'summary': "summary (string)"
 }
 
 amp_keys = {
-    'r': {
-        'c': "count: integer number of repetitions",
-        'm': "monthday: list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", 
-        'E': "easter: number of days before (-), on (0) or after (+) Easter",
-        'h': "hour: list of integers in 0 ... 23",
-        'r': "frequency: character in y, m, w, d, h, n",
-        'i': "interval: positive integer",
-        'M': "month: list of integers in 1 ... 12", 
-        'n': "minute: list of integers in 0 ... 59", 
-        's': "set position: integer",
-        'u': "until: datetime",
-        'w': "weekday: list from SU, MO, ..., SA, possibly prepended with a positive or negative integer",
-        'W': "week number: list of integers in 1, ... 53"
+    '@r': {
+        '&c': "count: integer number of repetitions",
+        '&m': "monthday: list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", 
+        '&E': "easter: number of days before (-), on (0) or after (+) Easter",
+        '&h': "hour: list of integers in 0 ... 23",
+        '&r': "frequency: character in y, m, w, d, h, n",
+        '&i': "interval: positive integer",
+        '&M': "month: list of integers in 1 ... 12", 
+        '&n': "minute: list of integers in 0 ... 59", 
+        '&s': "set position: integer",
+        '&u': "until: datetime",
+        '&w': "weekday: list from SU, MO, ..., SA, possibly prepended with a positive or negative integer",
+        '&W': "week number: list of integers in 1, ... 53"
     },
     'j': {
-        'a': "alert: timeperiod: command, args*",
-        'b': "beginby: integer number of days",
-        'd': "description: string",
-        'e': "extent: timeperiod",
-        'f': "finish: datetime",
-        'i': "unique id: integer or string",
-        'j': "job summary (string)",
-        'l': "location: string",
-        'm': "memo (list of 'datetime, timeperiod, datetime')",
-        'n': "named delegate (string)",
-        'p': "prerequisites: comma separated list of ids of immediate prereqs",
-        's': "start/due: timeperiod before task start",
+        '&a': "alert: timeperiod: command, args*",
+        '&b': "beginby: integer number of days",
+        '&d': "description: string",
+        '&e': "extent: timeperiod",
+        '&f': "finish: datetime",
+        '&i': "unique id: integer or string",
+        '&j': "job summary (string)",
+        '&l': "location: string",
+        '&m': "memo (list of 'datetime, timeperiod, datetime')",
+        '&n': "named delegate (string)",
+        '&p': "prerequisites: comma separated list of ids of immediate prereqs",
+        '&s': "start/due: timeperiod before task start",
     },
 }
 
@@ -205,22 +206,22 @@ semicolon_regex = re.compile(r'\;\s*')
 
 allowed = {}
 required = {}
-undated_methods = 'cdegilmstx'
-date_methods = 'bro'
-datetime_methods = date_methods + 'eaz+-'
-task_methods = 'fhjp'
+undated_methods = [f"@{x}" for x in 'cdegilmstx']
+date_methods = [f"@{x}" for x in 'bro']
+datetime_methods = date_methods + [f"@{x}" for x in 'eaz+-']
+task_methods = [f"@{x}" for x in 'fhjp']
 
 # events
-required['*'] = 's'
+required['*'] = ['@s']
 allowed['*'] = undated_methods + datetime_methods
 
 
 # tasks
-required['-'] = ''
+required['-'] = []
 allowed['-'] = undated_methods + datetime_methods + task_methods
 
 # journal entries
-required['%'] = ''
+required['%'] = []
 allowed['%'] = undated_methods + datetime_methods
 
 # # someday entries
@@ -228,7 +229,7 @@ allowed['%'] = undated_methods + datetime_methods
 # allowed['?'] = undated_methods + task_methods + datetime_methods
 
 # inbox entries
-required['!'] = ''
+required['!'] = []
 allowed['!'] = undated_methods + datetime_methods + task_methods
 
 # item type t and has s
@@ -237,12 +238,12 @@ allowed['!'] = undated_methods + datetime_methods + task_methods
 # allowed['r'] = '+-'
 
 requires = {
-        'a': 's',
-        'b': 's',
-        'r': 's',
-        '+': 's',
-        '-': 'r',
-        'o': 'r',
+        '@a': '@s',
+        '@b': '@s',
+        '@r': '@s',
+        '@+': '@s',
+        '@-': '@r',
+        '@o': '@r',
         }
 
 # set up 2 character weekday name abbreviations for busy view
@@ -396,7 +397,7 @@ def check_requires(key, hsh):
     Check that hsh has the prerequisite entries for key.
     """
     if key in requires and requires[key] not in hsh:
-        return False, ('warn', "@{0} is required for @{1}\n".format(requires[key], key))
+        return False, ('warn', "{0} is required for {1}\n".format(requires[key], key))
     else:
         return True, ('say', '')
 
@@ -414,9 +415,9 @@ def deal_with_z(at_hsh={}):
     """
     Check the currents state of at_hsh regarding the 'z' key
     """
-    top = "{}?".format(at_keys['z'])
+    top = "{}?".format(at_keys['@z'])
     bot = ''
-    tz = at_hsh.get('z', None)
+    tz = at_hsh.get('@z', None)
     if tz is None:
         return top, bot, None
     bot = f"timezone: {tz}"
@@ -430,18 +431,18 @@ def deal_with_z(at_hsh={}):
     #     return top, bot, None
     # return obj.tzinfo
 
-deal_with['z'] = deal_with_z
+deal_with['@z'] = deal_with_z
 
-def deal_with_datetime(at_hsh = {}):
+def deal_with_s(at_hsh = {}):
     """
-    Check the currents state of at_hsh regarding the key
+    Check the currents state of at_hsh regarding the s and z keys
     """
-    s = at_hsh.get('s', None)
-    top = "{}?".format(at_keys['s'])
+    s = at_hsh.get('@s', None)
+    top = "{}?".format(at_keys['@s'])
     bot = ''
     if s is None:
         return top, bot
-    tz = at_hsh.get('z', None)
+    tz = at_hsh.get('@z', None)
     ok, obj, tz = parse_datetime(s, tz)
     if not ok or not obj:
         return top, "considering: '{}'".format(s), None
@@ -467,8 +468,7 @@ def deal_with_datetime(at_hsh = {}):
 
 
 
-deal_with['s'] = deal_with_datetime
-deal_with['f'] = deal_with_datetime
+deal_with['@s'] = deal_with_s
 
 
 def deal_with_missing(at_hsh, key):
@@ -492,8 +492,8 @@ def deal_with_e(at_hsh={}):
     """
     Check the current state of at_hsh regarding the 'e' key.
     """
-    s = at_hsh.get('e', None)
-    top = "{}?".format(at_keys['e'])
+    s = at_hsh.get('@e', None)
+    top = "{}?".format(at_keys['@e'])
     bot = ''
     if s is None:
         return top, bot, None
@@ -505,7 +505,7 @@ def deal_with_e(at_hsh={}):
     # bot += "\n\n{}".format(str(at_hsh))
     return top, bot, obj
 
-deal_with['e'] = deal_with_e
+deal_with['@e'] = deal_with_e
 
 def deal_with_i(at_hsh={}):
     """
@@ -517,8 +517,8 @@ def deal_with_i(at_hsh={}):
     >>> deal_with_i({'i': "plant:tree:oak"})[2]
     ['plant', 'tree', 'oak']
     """
-    s = at_hsh.get('i', None)
-    top = "{}?".format(at_keys['i'])
+    s = at_hsh.get('@i', None)
+    top = "{}?".format(at_keys['@i'])
     bot = ''
     if s is None:
         return top, bot, None
@@ -540,7 +540,7 @@ def deal_with_i(at_hsh={}):
     bot = "index: " + ", ".join(['level {0} -> {1}'.format(i, res[i]) for i in range(len(res))])
     return top, bot, res
 
-deal_with['i'] = deal_with_i
+deal_with['@i'] = deal_with_i
 
 
 def get_reps(n=3, at_hsh={}):
@@ -589,8 +589,8 @@ def deal_with_r(at_hsh={}):
     Check the current state of at_hsh regarding r and s.
     """
     top = "repeat?"
-    bot = "{}".format(at_keys['r'])
-    lofh = at_hsh.get('r', [])
+    bot = "{}".format(at_keys['@r'])
+    lofh = at_hsh.get('@r', [])
     # print('lofh:', at_hsh, lofh)
     ok, res = check_rrule(lofh)
     if ok:
@@ -649,7 +649,7 @@ def deal_with_r(at_hsh={}):
     # return top, bot, res
 
 
-deal_with['r'] = deal_with_r
+deal_with['@r'] = deal_with_r
 
 def deal_with_j(at_hsh={}):
     """
@@ -672,14 +672,98 @@ def deal_with_j(at_hsh={}):
 deal_with['j'] = deal_with_j
 
 
+def str2hashes(s):
+    """
+    Return tuples containing key, value and postion tuples for the string s. 
+    0         1         2         3         4         5         6 
+    0123456789012345678901234567890123456789012345678901234567890123456789
+    * evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home
+    >>> s = "* evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home"
+    >>> str2hashes(s)
+    ({'itemtype': '*', 'summary': 'evnt', 's': '2p fri', 'e': '90m', 'r': [{'r': 'w', 'w': '2fr', 'u': '6/1 9a'}], 'c': 'dag', 'l': 'home'}, {(0, 7): ['*', 'evnt'], (7, 17): ['@s', '2p fri'], (17, 24): ['@e', '90m'], (24, 29): ['@r', 'w'], (29, 36): ['&w', '2fr'], (36, 46): ['&u', '6/1 9a'], (46, 53): ['@c', 'dag'], (53, 60): ['@l', 'home']})
+    >>> str2hashes('')
+    ({}, {})
+    >>> str2hashes("- ")
+    ({'itemtype': '-', 'summary': ''}, {(0, 2): ['-', '']})
+    >>> str2hashes("- todo @")
+    ({'itemtype': '-', 'summary': 'todo @'}, {(0, 8): ['-', 'todo @']})
+    >>> str2hashes("- todo  @s mon 9a @j job 1 &s 2d @j job 2 &s 1d @j job 3")
+    ({'itemtype': '-', 'summary': 'todo', 's': 'mon 9a', 'j': [{'j': 'job 1', 's': '2d'}, {'j': 'job 2', 's': '1d'}, {'j': 'job 3'}]}, {(0, 8): ['-', 'todo'], (8, 18): ['@s', 'mon 9a'], (18, 27): ['@j', 'job 1'], (27, 33): ['&s', '2d'], (33, 42): ['@j', 'job 2'], (42, 48): ['&s', '1d'], (48, 56): ['@j', 'job 3']})
+    """
+    tups = []
+    hsh = {}
+    pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
+    if not s:
+        return hsh, pos_hsh
+    pattern = "\s[@&][a-zA-Z+-]\s"
+    parts = []
+    for match in finditer(pattern, s):
+        parts.append([match.span()[0]+1, match.span()[1], match.group().strip()])
+    if not parts:
+        hsh['itemtype'] = s[0]
+        hsh['summary'] = s[1:].strip()
+        tups.append((hsh['itemtype'], hsh['summary'], 0, len(s)))
+        pos_hsh[tuple([tups[-1][2], tups[-1][3]])] = [tups[-1][0], tups[-1][1]]
+        return hsh, pos_hsh
+
+    lastbeg = 0
+    lastend = 1
+    lastkey = s[0]
+    for beg, end, key in parts:
+        tups.append([lastkey, s[lastend:beg].strip(), lastbeg, beg])
+        pos_hsh[tuple([tups[-1][2], tups[-1][3]])] = [tups[-1][0], tups[-1][1]]
+        lastkey = key
+        lastbeg = beg
+        lastend = end
+    tups.append([lastkey, s[lastend:], lastbeg, len(s)])
+    pos_hsh[tuple([tups[-1][2], tups[-1][3]])] = [tups[-1][0], tups[-1][1]]
+
+    hsh = {'itemtype': tups[0][0], 'summary': tups[0][1]}
+    for key, value, beg, end in tups[1:]:
+        if key in ['@r', '@j']:
+            ampkey = f"&{key[-1]}"
+            hsh.setdefault(key, []).append({ampkey: value})
+            adding = key
+        elif key in ['@a']:
+            hsh.setdefault(key, []).append(value)
+            adding = None
+        elif key.startswith('&'):
+            if adding:
+                hsh[adding][-1][key] = value
+            else:
+                pass
+        else:
+            adding = None
+            hsh[key] = value
+
+    return hsh, pos_hsh
+
+def active_from_pos(pos_hsh, pos):
+    """
+    >>> s = "* evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home"
+    >>> hsh, pos_hsh = str2hashes(s)
+    >>> active_from_pos(pos_hsh, 18)
+    ((17, 24), ['@e', '90m'])
+    >>> active_from_pos(pos_hsh, 45)
+    ((36, 46), ['&u', '6/1 9a'])
+    >>> hsh, pos_hsh = str2hashes("- ")
+    >>> active_from_pos(pos_hsh, 1)
+    ((0, 2), ['-', ''])
+    """
+    for key in pos_hsh:
+        if key[0] <= pos <= key[1]:
+            return key, pos_hsh[key]
+    return None, None
+
 def str2hsh(s):
     """
     Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an @ key has been entered without the corresponding key, True or False) for use by check_entry.
     """
     hsh = {}
 
+
     if not s.strip():
-        return hsh, [], False, [], [], False, []
+        return hsh, [], False, [], [], False, [], {}
 
     at_parts = [x.strip() for x in at_regex.split(s)]
     at_tups = []
@@ -687,6 +771,7 @@ def str2hsh(s):
     amp_entry = False
     amp_tups = {}
     amp_parts = []
+    amp_hsh = {}
     # delta = 1
     delta = 2
     if at_parts:
@@ -704,56 +789,59 @@ def str2hsh(s):
             else:
                 at_entry = True
                 break
-            k = part[0]
-            v = part[1:].strip()
-            if k in ('a', 'j', 'r'):
+            key = part[0]
+            # v = part[1:].strip()
+            v = part[1:]
+            if key in ('a', 'j', 'r'):
                 # there can be more than one entry for these keys
-                hsh.setdefault(k, []).append(v)
+                hsh.setdefault(key, []).append(v)
             else:
-                hsh[k] = v
-            at_tups.append( (k, v, place) )
+                hsh[key] = v
+            at_tups.append( (key, v, place) )
+
+            if key in ['r', 'j']:
+                lst = []
+                amp_tups[key] = [] 
+                amp_entry = False
+                for part in hsh[key]:  # an individual @r or @j entry
+                    amp_hsh = {}
+                    amp_parts = [x.strip() for x in amp_regex.split(part)]
+                    if amp_parts:
+                        # amp_hsh[key] = "".join(amp_parts.pop(0))
+                        tmp = amp_parts.pop(0)
+                        amp_hsh[key] = "".join(tmp)
+                        amp_tups[key] = [(key, tmp, place)]
+                        amp_place = place + delta+ len(tmp)
+                        # place += len(amp_hsh[key])
+                        # k = amp_part
+                        for amppart in amp_parts:  # the & keys and values for the given entry
+                            if amppart:
+                                amp_entry = False
+                            else:
+                                amp_entry = True
+                                break
+                            if len(amppart) < 2:
+                                continue
+                            k = amppart[0]
+                            v = amppart[1:].strip()
+                            if v in ["''", '""']:
+                                # don't add if the value was either '' or ""
+                                pass
+                            elif key == 'r' and k in ['M', 'e', 'm', 'w']:
+                                # make these lists
+                                amp_hsh[k] = comma_regex.split(v)
+                            elif k == 'a':
+                                amp_hsh.setdefault(k, []).append(v)
+                            else:
+                                amp_hsh[k] = v
+                            amp_tups[key].append( (k, v, amp_place) )
+                            amp_place += delta + len(amppart)
+                    lst.append(amp_hsh)
+                hsh[key] = lst
             place += delta + len(part)
 
-    for key in ['r', 'j']:
-        if key not in hsh: continue
-        lst = []
-        amp_tups[key] = [] 
-        amp_entry = False
-        for part in hsh[key]:  # an individual @r or @j entry
-            amp_hsh = {}
-            amp_parts = [x.strip() for x in amp_regex.split(part)]
-            if amp_parts:
-                amp_hsh[key] = "".join(amp_parts.pop(0))
-                # k = amp_part
-                for part in amp_parts:  # the & keys and values for the given entry
-                    if part:
-                        amp_entry = False
-                    else:
-                        amp_entry = True
-                        break
-                    # if len(part) < 2:
-                    #     continue
-                    k = part[0]
-                    v = part[1:].strip()
-                    if v in ["''", '""']:
-                        # don't add if the value was either '' or ""
-                        pass
-                    elif key == 'r' and k in ['M', 'e', 'm', 'w']:
-                        # make these lists
-                        amp_hsh[k] = comma_regex.split(v)
-                    elif k == 'a':
-                        amp_hsh.setdefault(k, []).append(v)
-                    else:
-                        amp_hsh[k] = v
-                    amp_tups[key].append( (k, v, place) )
-                    # place += 2 + len(part)
-                lst.append(amp_hsh)
-        hsh[key] = lst
-        # if 'u' in hsh: 
-        #     # delegated
-        #     hsh['summary'] = f"[{hsh['u']}] {hsh['summary']}"
 
-    return hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts
+    return hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts, amp_hsh
 
 
 class Item(object):
@@ -761,55 +849,69 @@ class Item(object):
     Preserve state when editing an item.
     """
 
-    def __init__(self, s="", h={}):
+    def __init__(self, s=""):
         """
         We will either be editing an existing item from a doc_id and hash or creating a new item from a string.
         """
-        self.item_hsh = h
+        self.item_hsh = {}
+        self.working_hsh = {}
+        self.pos_hsh = {}
+        self.active
         self.item_str = s
 
-    def cursor_changed(self):
-        pass
 
-    def text_changed(self):
-        pass
+    def cursor_changed(self, pos):
+        self.active = active_from_pos(self.pos_hsh, pos)
+
+    def text_changed(self, s, pos):
+        self.item_str = s
+        hsh, self.pos_hsh = str2hashes(s)
+        self.update
+        self.cursor_changed(pos)
+
 
 item_hsh = {}
 def check_entry(s, cursor_pos):
     """
     Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
-    >>> check_entry("* evnt @s 2018-12-31 4p @r d &c 3", 30)
     """
     global item_hsh
-    hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts = str2hsh(s)
+    hsh, pos_hsh = str2hashes(s)
 
     ask = ('say', '')
     reply = ('say', '\n')
-    if not at_tups:
+    if not pos_hsh:
         ask = ('say', type_prompt)
         reply = ('say', item_types)
         return ask, reply, hsh
 
-    # itemtype, summary, end = at_tups.pop(0)
-    itemtype, summary, end = at_tups[0]
-    act_key = act_val = '' 
+    interval, res = active_from_pos(pos_hsh, cursor_pos)
+    if res:
+       act_key = res[0]
+       act_val = res[1]
+    else:
+        act_key = act_val = None
+    if act_val and act_val[-1] == '@':
+        amp_entry = False
+        at_entry = True
+    elif act_val and act_val[-1] == '&':
+        amp_entry = True
+        at_entry = False
+    else:
+        amp_entry = False
+        at_entry = False
 
+
+    itemtype = hsh.get('itemtype', None)
     if itemtype in type_keys:
-        item_hsh['itemtype'] = itemtype
-        for tup in at_tups:
-            if tup[-1] < cursor_pos:
-                act_key = tup[0]
-                act_val = tup[1]
-            else:
-                break
 
         if at_entry:
             ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
-            current_required = ["@{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
+            current_required = ["{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
             reply_str = ""
             if current_required:
                 reply_str += "Required: {}\n".format(", ".join(current_required))
-            current_allowed = ["@{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'ajr']
+            current_allowed = ["{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'ajr']
             if current_allowed:
                 reply_str += "Allowed: {}\n".format(", ".join(current_allowed))
             reply = ('say', reply_str)
@@ -830,12 +932,11 @@ def check_entry(s, cursor_pos):
                     ask = ('say', '{0}'.format(at_keys[act_key]))
                     reply = res
 
-
                 elif act_key in allowed[itemtype]:
 
                     if amp_entry:
                         ask = ('say', "&key for @{}?".format(act_key))
-                        reply =  ('say', "Allowed: {}\n".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key]])))
+                        reply =  ('say', "Allowed: {}\n".format(", ".join(["{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key]])))
                     elif act_key in deal_with:
                         top, bot, obj = deal_with[act_key](hsh)
                         ask = ('say', top)
@@ -848,7 +949,7 @@ def check_entry(s, cursor_pos):
                         if obj:
                             item_hsh[act_key] = obj
                 else:
-                    reply = ('warn', "@{0} is not allowed for item type '{1}'\n".format(act_key, itemtype))
+                    reply = ('warn', "{0} is not allowed for item type '{1}'\n".format(act_key, itemtype))
         else:
             reply = ('warn', 'no act_key')
 
@@ -867,7 +968,7 @@ def check_entry(s, cursor_pos):
     if testing:
         # reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}") 
         # reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}\n\ncursor pos: {cursor_pos}; active entry: '{act_key}' -> {act_val}\nhsh: {hsh}\nitem_hsh: {item_hsh}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
-        reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}\n\ncursor pos: {cursor_pos}; active entry: '{act_key}' -> {act_val}\n{hsh}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
+        reply = (reply[0], reply[1] + f"\n{hsh}\n\ncursor pos: {cursor_pos}; active entry: {res} '{act_key}' -> {act_val}\n{pos_hsh}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
 
     return ask, reply, hsh
 
@@ -909,9 +1010,6 @@ def parse_datetime(s, z=None):
 
     try:
         res = parse(s, tz=tzinfo)
-        if ok ==  'aware':
-            z = res.format("zz")
-
     except:
         return False, "Invalid date-time: '{}'".format(s), z
     else:
@@ -2019,20 +2117,20 @@ def minutes(arg):
 
 
 
-rrule_methods = dict(
-    r=frequency,
-    i=interval,
-    s=setpos,
-    c=count,
-    u=until,
-    M=months,
-    m=monthdays,
-    W=weeks,
-    w=weekdays,
-    h=hours,
-    n=minutes,
-    E=easter,
-)
+rrule_methods = {
+    '&r':  frequency,
+    '&i':  interval,
+    '&s':  setpos,
+    '&c':  count,
+    '&u':  until,
+    '&M':  months,
+    '&m':  monthdays,
+    '&W':  weeks,
+    '&w':  weekdays,
+    '&h':  hours,
+    '&n':  minutes,
+    '&E':  easter,
+    }
 
 rrule_freq = {
     'y': 0,     #'YEARLY',
@@ -2056,17 +2154,17 @@ rrule_weekdays = dict(
 
 # Note: 'r' (FREQ) is not included in the following.
 rrule_name = {
-    'i': 'interval',  # positive integer
-    'c': 'count',  # integer
-    's': 'bysetpos',  # integer
-    'u': 'until',  # unicode
-    'M': 'bymonth',  # integer 1...12
-    'm': 'bymonthday',  # positive integer
-    'W': 'byweekno',  # positive integer
-    'w': 'byweekday',  # rrule weekday MO ... SU
-    'h': 'byhour',  # positive integer
-    'n': 'byminute',  # positive integer
-    'E': 'byeaster', # interger number of days before (-) or after (+) Easter Sunday
+    '&i': 'interval',  # positive integer
+    '&c': 'count',  # integer
+    '&s': 'bysetpos',  # integer
+    '&u': 'until',  # unicode
+    '&M': 'bymonth',  # integer 1...12
+    '&m': 'bymonthday',  # positive integer
+    '&W': 'byweekno',  # positive integer
+    '&w': 'byweekday',  # rrule weekday MO ... SU
+    '&h': 'byhour',  # positive integer
+    '&n': 'byminute',  # positive integer
+    '&E': 'byeaster', # interger number of days before (-) or after (+) Easter Sunday
 }
 
 rrule_keys = [x for x in rrule_name]
@@ -2102,10 +2200,10 @@ def check_rrule(lofh):
         if type(hsh) != dict:
             msg.append('error: Elements must be hashes. Cannot process: "{}"'.format(hsh))
             continue
-        if 'r' not in hsh:
+        if '&r' not in hsh:
             msg.append('error: r is required but missing')
-        if 'i' not in hsh:
-            res['i'] = 1
+        if '&i' not in hsh:
+            res['&i'] = 1
         for key in hsh.keys():
             if key in rrule_methods:
                 ok, out = rrule_methods[key](hsh[key])
@@ -2161,19 +2259,20 @@ def rrule_args(r_hsh):
 
     # force integers
     for k in "icsMmWhmE":
-        if k in r_hsh:
-            args = r_hsh[k]
+        ak = f"&{k}"
+        if ak in r_hsh:
+            args = r_hsh[ak]
             if not isinstance(args, list):
                 args = [args]
             tmp = [int(x) for x in args]
             if len(tmp) == 1:
-                r_hsh[k] = tmp[0]
+                r_hsh[ak] = tmp[0]
             else:
-                r_hsh[k] = tmp
-    if 'u' in r_hsh and 'c' in r_hsh:
-        logger.warn(f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}")
-    freq = rrule_freq[r_hsh['r']]
-    kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
+                r_hsh[ak] = tmp
+    if '&u' in r_hsh and '&c' in r_hsh:
+        logger.warn(f"Warning: using both '&c' and '&u' is depreciated in {r_hsh}")
+    freq = rrule_freq[r_hsh['&r']]
+    kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != '&r'}
     return freq, kwd
 
 def item_instances(item, aft_dt, bef_dt=None):
