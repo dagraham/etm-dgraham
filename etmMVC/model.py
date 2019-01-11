@@ -647,14 +647,14 @@ def str2hashes(s):
     pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
     if not s:
         return hsh, pos_hsh
-    pattern = "\s[@&][a-zA-Z+-]\s"
+    pattern = "\s[@&][a-zA-Z+-]"
     parts = []
     for match in finditer(pattern, s):
-        parts.append([match.span()[0]+1, match.span()[1], match.group().strip()])
+        parts.append([match.span()[0], match.span()[1], match.group().strip()])
     if not parts:
         hsh['itemtype'] = s[0]
         hsh['summary'] = s[1:].strip()
-        tups.append((hsh['itemtype'], hsh['summary'], 0, len(s)))
+        tups.append((hsh['itemtype'], hsh['summary'], 0, len(s)+1))
         pos_hsh[tuple([tups[-1][2], tups[-1][3]])] = [tups[-1][0], tups[-1][1]]
         return hsh, pos_hsh
 
@@ -667,25 +667,29 @@ def str2hashes(s):
         lastkey = key
         lastbeg = beg
         lastend = end
-    tups.append([lastkey, s[lastend:], lastbeg, len(s)])
+    tups.append([lastkey, s[lastend:].strip(), lastbeg, len(s)+1])
     pos_hsh[tuple([tups[-1][2], tups[-1][3]])] = [tups[-1][0], tups[-1][1]]
 
+    pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
     hsh = {'itemtype': tups[0][0], 'summary': tups[0][1]}
     for key, value, beg, end in tups[1:]:
         if key in ['@r', '@j']:
-            ampkey = f"&{key[-1]}"
+            pos_hsh[tuple([beg, end])] = [key, value]
             hsh.setdefault(key[-1], []).append({key[-1]: value})
             adding = key[-1]
         elif key in ['@a']:
+            pos_hsh[tuple([beg, end])] = [key, value]
             hsh.setdefault(key[-1], []).append(value)
             adding = None
         elif key.startswith('&'):
             if adding:
+                pos_hsh[tuple([beg, end])] = [f"@{adding}{key}", value]
                 hsh[adding][-1][key[-1]] = value
             else:
                 pass
         else:
             adding = None
+            pos_hsh[tuple([beg, end])] = [key, value]
             hsh[key[-1]] = value
 
     return hsh, pos_hsh
@@ -703,7 +707,7 @@ def active_from_pos(pos_hsh, pos):
     ((0, 2), ['-', ''])
     """
     for key in pos_hsh:
-        if key[0] <= pos <= key[1]:
+        if key[0] <= pos < key[1]:
             return key, pos_hsh[key]
     return None, None
 
@@ -838,11 +842,16 @@ def check_entry(s, cursor_pos):
         return ask, reply, hsh
 
     interval, res = active_from_pos(pos_hsh, cursor_pos)
+    at_key = amp_key = None
+    act_key = act_val = None
     if res:
-       act_key = res[0][-1]
-       act_val = res[1]
-    else:
-        act_key = act_val = None
+        if res[0][0] == '@':
+            act_key = at_key = res[0][1]
+        elif res[0][0] == '&':
+            act_key = amp_key = res[0][1]
+        elif res[0][0] in type_keys:
+            act_key = at_key = res[0][0]
+        act_val = res[1]
     if act_val and act_val[-1] == '@':
         amp_entry = False
         at_entry = True
@@ -859,22 +868,22 @@ def check_entry(s, cursor_pos):
 
         if at_entry:
             ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
-            current_required = ["{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
+            current_required = ["@{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
             reply_str = ""
             if current_required:
                 reply_str += "Required: {}\n".format(", ".join(current_required))
-            current_allowed = ["{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'ajr']
+            current_allowed = ["@{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'ajr']
             if current_allowed:
                 reply_str += "Allowed: {}\n".format(", ".join(current_allowed))
             reply = ('say', reply_str)
-        elif act_key:
-            if act_key in at_keys:
-                ask = ('say', "{0}?".format(at_keys[act_key]))
+        elif at_key:
+            if at_key in at_keys:
+                ask = ('say', "{0}?".format(at_keys[at_key]))
 
             else:
                 ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
 
-            if act_key == itemtype:
+            if at_key == itemtype:
                 ask = ('say', "{} summary:".format(type_keys[itemtype]))
                 reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs\n'.format(type_keys[itemtype]))
 
@@ -888,7 +897,7 @@ def check_entry(s, cursor_pos):
 
                     if amp_entry:
                         ask = ('say', "&key for @{}?".format(act_key))
-                        reply =  ('say', "Allowed: {}\n".format(", ".join(["{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key]])))
+                        reply =  ('say', "Allowed: {}\n".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
                     elif act_key in deal_with:
                         top, bot, obj = deal_with[act_key](hsh)
                         ask = ('say', top)
