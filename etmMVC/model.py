@@ -131,60 +131,60 @@ type_prompt = u"type character for new item:"
 item_types = u"item type characters:\n" + "\n".join([f"  {k}: {v}" for k, v in type_keys.items()])
 
 at_keys = {
-    '@+': "include (list of date-times)",
-    '@-': "exclude (list of date-times)",
-    '@a': "alert (list of periods: cmd[, list of cmd args*])",
-    '@b': "beginby (integer number of days)",
-    '@c': "calendar (string)",
-    '@d': "description (string)",
-    '@e': "extent (timeperiod)",
-    '@f': "finish (datetime)",
-    '@g': "goto (url or filepath)",
-    '@h': "completions history (list of done:due datetimes)",
-    '@i': "index (colon delimited string)",
-    '@j': "job summary (string)",
-    '@l': "location (string)",
-    '@m': "memo (string)",
-    '@o': "overdue (r)estart, (s)kip or (k)eep)",
-    '@p': "priority (integer)",
-    '@r': "repetition frequency (y)early, (m)onthly, (w)eekly,"
+    '+': "include (list of date-times)",
+    '-': "exclude (list of date-times)",
+    'a': "alert (list of periods: cmd[, list of cmd args*])",
+    'b': "beginby (integer number of days)",
+    'c': "calendar (string)",
+    'd': "description (string)",
+    'e': "extent (timeperiod)",
+    'f': "finish (datetime)",
+    'g': "goto (url or filepath)",
+    'h': "completions history (list of done:due datetimes)",
+    'i': "index (colon delimited string)",
+    'j': "job summary (string)",
+    'l': "location (string)",
+    'm': "memo (string)",
+    'o': "overdue (r)estart, (s)kip or (k)eep)",
+    'p': "priority (integer)",
+    'r': "repetition frequency (y)early, (m)onthly, (w)eekly,"
          " (d)aily, (h)ourly, mi(n)utely",
-    '@s': "starting date or datetime",
-    '@t': "tags (list of strings)",
-    '@x': "expansion key (string)",
-    '@z': "timezone (string)",
+    's': "starting date or datetime",
+    't': "tags (list of strings)",
+    'x': "expansion key (string)",
+    'z': "timezone (string)",
     'itemtype': "itemtype (character)",
     'summary': "summary (string)"
 }
 
 amp_keys = {
-    '@r': {
-        '&c': "count: integer number of repetitions",
-        '&m': "monthday: list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", 
-        '&E': "easter: number of days before (-), on (0) or after (+) Easter",
-        '&h': "hour: list of integers in 0 ... 23",
-        '&r': "frequency: character in y, m, w, d, h, n",
-        '&i': "interval: positive integer",
-        '&M': "month: list of integers in 1 ... 12", 
-        '&n': "minute: list of integers in 0 ... 59", 
-        '&s': "set position: integer",
-        '&u': "until: datetime",
-        '&w': "weekday: list from SU, MO, ..., SA, possibly prepended with a positive or negative integer",
-        '&W': "week number: list of integers in 1, ... 53"
+    'r': {
+        'c': "count: integer number of repetitions",
+        'm': "monthday: list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", 
+        'E': "easter: number of days before (-), on (0) or after (+) Easter",
+        'h': "hour: list of integers in 0 ... 23",
+        'r': "frequency: character in y, m, w, d, h, n",
+        'i': "interval: positive integer",
+        'M': "month: list of integers in 1 ... 12", 
+        'n': "minute: list of integers in 0 ... 59", 
+        's': "set position: integer",
+        'u': "until: datetime",
+        'w': "weekday: list from SU, MO, ..., SA, possibly prepended with a positive or negative integer",
+        'W': "week number: list of integers in 1, ... 53"
     },
     'j': {
-        '&a': "alert: timeperiod: command, args*",
-        '&b': "beginby: integer number of days",
-        '&d': "description: string",
-        '&e': "extent: timeperiod",
-        '&f': "finish: datetime",
-        '&i': "unique id: integer or string",
-        '&j': "job summary (string)",
-        '&l': "location: string",
-        '&m': "memo (list of 'datetime, timeperiod, datetime')",
-        '&n': "named delegate (string)",
-        '&p': "prerequisites: comma separated list of ids of immediate prereqs",
-        '&s': "start/due: timeperiod before task start",
+        'a': "alert: timeperiod: command, args*",
+        'b': "beginby: integer number of days",
+        'd': "description: string",
+        'e': "extent: timeperiod",
+        'f': "finish: datetime",
+        'i': "unique id: integer or string",
+        'j': "job summary (string)",
+        'l': "location: string",
+        'm': "memo (list of 'datetime, timeperiod, datetime')",
+        'n': "named delegate (string)",
+        'p': "prerequisites: comma separated list of ids of immediate prereqs",
+        's': "start/due: timeperiod before task start",
     },
 }
 
@@ -206,13 +206,13 @@ semicolon_regex = re.compile(r'\;\s*')
 
 allowed = {}
 required = {}
-undated_methods = [f"@{x}" for x in 'cdegilmstx']
-date_methods = [f"@{x}" for x in 'bro']
-datetime_methods = date_methods + [f"@{x}" for x in 'eaz+-']
-task_methods = [f"@{x}" for x in 'fhjp']
+undated_methods = 'cdegilmstx'
+date_methods = 'bro'
+datetime_methods = date_methods + 'eaz+-'
+task_methods = 'fhjp'
 
 # events
-required['*'] = ['@s']
+required['*'] = ['s']
 allowed['*'] = undated_methods + datetime_methods
 
 
@@ -238,12 +238,12 @@ allowed['!'] = undated_methods + datetime_methods + task_methods
 # allowed['r'] = '+-'
 
 requires = {
-        '@a': '@s',
-        '@b': '@s',
-        '@r': '@s',
-        '@+': '@s',
-        '@-': '@r',
-        '@o': '@r',
+        'a': 's',
+        'b': 's',
+        'r': 's',
+        '+': 's',
+        '-': 'r',
+        'o': 'r',
         }
 
 # set up 2 character weekday name abbreviations for busy view
@@ -415,9 +415,9 @@ def deal_with_z(at_hsh={}):
     """
     Check the currents state of at_hsh regarding the 'z' key
     """
-    top = "{}?".format(at_keys['@z'])
+    top = "{}?".format(at_keys['z'])
     bot = ''
-    tz = at_hsh.get('@z', None)
+    tz = at_hsh.get('z', None)
     if tz is None:
         return top, bot, None
     bot = f"timezone: {tz}"
@@ -431,18 +431,18 @@ def deal_with_z(at_hsh={}):
     #     return top, bot, None
     # return obj.tzinfo
 
-deal_with['@z'] = deal_with_z
+deal_with['z'] = deal_with_z
 
 def deal_with_s(at_hsh = {}):
     """
     Check the currents state of at_hsh regarding the s and z keys
     """
-    s = at_hsh.get('@s', None)
-    top = "{}?".format(at_keys['@s'])
+    s = at_hsh.get('s', None)
+    top = "{}?".format(at_keys['s'])
     bot = ''
     if s is None:
         return top, bot
-    tz = at_hsh.get('@z', None)
+    tz = at_hsh.get('z', None)
     ok, obj, tz = parse_datetime(s, tz)
     if not ok or not obj:
         return top, "considering: '{}'".format(s), None
@@ -468,7 +468,7 @@ def deal_with_s(at_hsh = {}):
 
 
 
-deal_with['@s'] = deal_with_s
+deal_with['s'] = deal_with_s
 
 
 def deal_with_missing(at_hsh, key):
@@ -492,8 +492,8 @@ def deal_with_e(at_hsh={}):
     """
     Check the current state of at_hsh regarding the 'e' key.
     """
-    s = at_hsh.get('@e', None)
-    top = "{}?".format(at_keys['@e'])
+    s = at_hsh.get('e', None)
+    top = "{}?".format(at_keys['e'])
     bot = ''
     if s is None:
         return top, bot, None
@@ -505,7 +505,7 @@ def deal_with_e(at_hsh={}):
     # bot += "\n\n{}".format(str(at_hsh))
     return top, bot, obj
 
-deal_with['@e'] = deal_with_e
+deal_with['e'] = deal_with_e
 
 def deal_with_i(at_hsh={}):
     """
@@ -517,8 +517,8 @@ def deal_with_i(at_hsh={}):
     >>> deal_with_i({'i': "plant:tree:oak"})[2]
     ['plant', 'tree', 'oak']
     """
-    s = at_hsh.get('@i', None)
-    top = "{}?".format(at_keys['@i'])
+    s = at_hsh.get('i', None)
+    top = "{}?".format(at_keys['i'])
     bot = ''
     if s is None:
         return top, bot, None
@@ -589,8 +589,8 @@ def deal_with_r(at_hsh={}):
     Check the current state of at_hsh regarding r and s.
     """
     top = "repeat?"
-    bot = "{}".format(at_keys['@r'])
-    lofh = at_hsh.get('@r', [])
+    bot = "{}".format(at_keys['r'])
+    lofh = at_hsh.get('r', [])
     # print('lofh:', at_hsh, lofh)
     ok, res = check_rrule(lofh)
     if ok:
@@ -600,56 +600,8 @@ def deal_with_r(at_hsh={}):
         bot = f"considering: {lofh}"
     return top, bot, res
 
-    # if not ok or not res:
-    #     return top, "considering: '{}'".format(lofh), None
-    # if ok:
-    #     return ok, "ok", None
-    # else:
-    #     return top, "not ok", None
 
-
-    # rrulelst = []
-
-    # # dtut_format = "YYYYMMDD[T]HHmm[00]"
-    # dtut_format = ";[TZID=]zz:YYYYMMDD[T]HHmm[00]"
-    # if 's' in item_hsh:
-    #     if type(item_hsh['s']) == pendulum.Date:
-    #         # dtut_format = "YYYYMMDD[T][000000]"
-    #         dtut_format = ";[TZID=]zz:YYYYMMDD[T][000000]"
-    # else:
-    #     bot = "An entry for @s is required for repetition."
-    #     return top, bot, None
-    # for hsh in res:
-    #     r = hsh.get('r', None)
-    #     if r:
-    #         # bad_keys = [f'&{x}' for x in hsh if x not in amp_keys['r']]
-    #         keys = ['&{}'.format(x) for x in amp_keys['r'] if x not in hsh]
-    #         for key in hsh:
-    #             if hsh[key] and key in amp_keys['r']:
-    #                 bot = "{}".format(amp_keys['r'][key])
-    #             else:
-    #                 bot = '{} is not allowed.\nAllowed: {}'.format(key, ", ".join(keys))
-    #     else:
-    #         # shouldn't happen
-    #         pass
-
-    # if '+' in item_hsh:
-    #     for rdate in item_hsh['+']:
-    #         rrulelst.append("RDATE:{}".format(rdate.format(dtut_format)))
-
-    # if '-' in item_hsh:
-    #     for exdate in item_hsh['-']:
-    #         rrulelst.append("EXDATE:{}".format(exdate.format(dtut_format)))
-
-    # res = item_hsh['rrulestr'] = "\n".join(rrulelst)
-    # bot += "repetition rule:\n    {}\n".format(res)
-    # ok, res = get_reps()
-    # bot += res
-
-    # return top, bot, res
-
-
-deal_with['@r'] = deal_with_r
+deal_with['r'] = deal_with_r
 
 def deal_with_j(at_hsh={}):
     """
@@ -722,19 +674,19 @@ def str2hashes(s):
     for key, value, beg, end in tups[1:]:
         if key in ['@r', '@j']:
             ampkey = f"&{key[-1]}"
-            hsh.setdefault(key, []).append({ampkey: value})
-            adding = key
+            hsh.setdefault(key[-1], []).append({key[-1]: value})
+            adding = key[-1]
         elif key in ['@a']:
-            hsh.setdefault(key, []).append(value)
+            hsh.setdefault(key[-1], []).append(value)
             adding = None
         elif key.startswith('&'):
             if adding:
-                hsh[adding][-1][key] = value
+                hsh[adding][-1][key[-1]] = value
             else:
                 pass
         else:
             adding = None
-            hsh[key] = value
+            hsh[key[-1]] = value
 
     return hsh, pos_hsh
 
@@ -887,7 +839,7 @@ def check_entry(s, cursor_pos):
 
     interval, res = active_from_pos(pos_hsh, cursor_pos)
     if res:
-       act_key = res[0]
+       act_key = res[0][-1]
        act_val = res[1]
     else:
         act_key = act_val = None
@@ -2118,18 +2070,18 @@ def minutes(arg):
 
 
 rrule_methods = {
-    '&r':  frequency,
-    '&i':  interval,
-    '&s':  setpos,
-    '&c':  count,
-    '&u':  until,
-    '&M':  months,
-    '&m':  monthdays,
-    '&W':  weeks,
-    '&w':  weekdays,
-    '&h':  hours,
-    '&n':  minutes,
-    '&E':  easter,
+    'r':  frequency,
+    'i':  interval,
+    's':  setpos,
+    'c':  count,
+    'u':  until,
+    'M':  months,
+    'm':  monthdays,
+    'W':  weeks,
+    'w':  weekdays,
+    'h':  hours,
+    'n':  minutes,
+    'E':  easter,
     }
 
 rrule_freq = {
@@ -2154,17 +2106,17 @@ rrule_weekdays = dict(
 
 # Note: 'r' (FREQ) is not included in the following.
 rrule_name = {
-    '&i': 'interval',  # positive integer
-    '&c': 'count',  # integer
-    '&s': 'bysetpos',  # integer
-    '&u': 'until',  # unicode
-    '&M': 'bymonth',  # integer 1...12
-    '&m': 'bymonthday',  # positive integer
-    '&W': 'byweekno',  # positive integer
-    '&w': 'byweekday',  # rrule weekday MO ... SU
-    '&h': 'byhour',  # positive integer
-    '&n': 'byminute',  # positive integer
-    '&E': 'byeaster', # interger number of days before (-) or after (+) Easter Sunday
+    'i': 'interval',  # positive integer
+    'c': 'count',  # integer
+    's': 'bysetpos',  # integer
+    'u': 'until',  # unicode
+    'M': 'bymonth',  # integer 1...12
+    'm': 'bymonthday',  # positive integer
+    'W': 'byweekno',  # positive integer
+    'w': 'byweekday',  # rrule weekday MO ... SU
+    'h': 'byhour',  # positive integer
+    'n': 'byminute',  # positive integer
+    'E': 'byeaster', # interger number of days before (-) or after (+) Easter Sunday
 }
 
 rrule_keys = [x for x in rrule_name]
@@ -2200,10 +2152,10 @@ def check_rrule(lofh):
         if type(hsh) != dict:
             msg.append('error: Elements must be hashes. Cannot process: "{}"'.format(hsh))
             continue
-        if '&r' not in hsh:
+        if 'r' not in hsh:
             msg.append('error: r is required but missing')
-        if '&i' not in hsh:
-            res['&i'] = 1
+        if 'i' not in hsh:
+            res['i'] = 1
         for key in hsh.keys():
             if key in rrule_methods:
                 ok, out = rrule_methods[key](hsh[key])
@@ -2259,20 +2211,19 @@ def rrule_args(r_hsh):
 
     # force integers
     for k in "icsMmWhmE":
-        ak = f"&{k}"
-        if ak in r_hsh:
-            args = r_hsh[ak]
+        if k in r_hsh:
+            args = r_hsh[k]
             if not isinstance(args, list):
                 args = [args]
             tmp = [int(x) for x in args]
             if len(tmp) == 1:
-                r_hsh[ak] = tmp[0]
+                r_hsh[k] = tmp[0]
             else:
-                r_hsh[ak] = tmp
-    if '&u' in r_hsh and '&c' in r_hsh:
-        logger.warn(f"Warning: using both '&c' and '&u' is depreciated in {r_hsh}")
-    freq = rrule_freq[r_hsh['&r']]
-    kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != '&r'}
+                r_hsh[k] = tmp
+    if 'u' in r_hsh and 'c' in r_hsh:
+        logger.warn(f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}")
+    freq = rrule_freq[r_hsh['r']]
+    kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
 
 def item_instances(item, aft_dt, bef_dt=None):
@@ -3257,9 +3208,6 @@ def print_json(edit=False):
 
 def item_details(item, edit=False):
     """
-    >>> item = {'itemtype': '-', 'summary': 'todo', 's': DateTime(2019, 1, 7, 14, 0, 0, tzinfo=Timezone('America/New_York')), 'r': [{'i': 1, 'r ': 'w', 'w': [MO(+1)]}]}
-    >>> pprint(item)
-    >>> print(item_details(item, edit=True))
 
     """
     try:
