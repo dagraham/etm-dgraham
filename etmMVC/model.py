@@ -632,15 +632,15 @@ def str2hashes(s):
     * evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home
     >>> s = "* evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home"
     >>> str2hashes(s)
-    ({'itemtype': '*', 'summary': 'evnt', 's': '2p fri', 'e': '90m', 'r': [{'r': 'w', 'w': '2fr', 'u': '6/1 9a'}], 'c': 'dag', 'l': 'home'}, {(0, 7): ['*', 'evnt'], (7, 17): ['@s', '2p fri'], (17, 24): ['@e', '90m'], (24, 29): ['@r', 'w'], (29, 36): ['&w', '2fr'], (36, 46): ['&u', '6/1 9a'], (46, 53): ['@c', 'dag'], (53, 60): ['@l', 'home']})
+    ({'itemtype': '*', 'summary': 'evnt', 's': '2p fri', 'e': '90m', 'r': [{'r': 'w', 'w': '2fr', 'u': '6/1 9a'}], 'c': 'dag', 'l': 'home'}, {(7, 17): ['@s', '2p fri'], (17, 24): ['@e', '90m'], (24, 29): ['@r', 'w'], (29, 36): ['@r&w', '2fr'], (36, 46): ['@r&u', '6/1 9a'], (46, 53): ['@c', 'dag'], (53, 61): ['@l', 'home']})
     >>> str2hashes('')
     ({}, {})
     >>> str2hashes("- ")
-    ({'itemtype': '-', 'summary': ''}, {(0, 2): ['-', '']})
+    ({'itemtype': '-', 'summary': ''}, {(0, 3): ['-', '']})
     >>> str2hashes("- todo @")
-    ({'itemtype': '-', 'summary': 'todo @'}, {(0, 8): ['-', 'todo @']})
+    ({'itemtype': '-', 'summary': 'todo @'}, {(0, 9): ['-', 'todo @']})
     >>> str2hashes("- todo  @s mon 9a @j job 1 &s 2d @j job 2 &s 1d @j job 3")
-    ({'itemtype': '-', 'summary': 'todo', 's': 'mon 9a', 'j': [{'j': 'job 1', 's': '2d'}, {'j': 'job 2', 's': '1d'}, {'j': 'job 3'}]}, {(0, 8): ['-', 'todo'], (8, 18): ['@s', 'mon 9a'], (18, 27): ['@j', 'job 1'], (27, 33): ['&s', '2d'], (33, 42): ['@j', 'job 2'], (42, 48): ['&s', '1d'], (48, 56): ['@j', 'job 3']})
+    ({'itemtype': '-', 'summary': 'todo', 's': 'mon 9a', 'j': [{'j': 'job 1', 's': '2d'}, {'j': 'job 2', 's': '1d'}, {'j': 'job 3'}]}, {(8, 18): ['@s', 'mon 9a'], (18, 27): ['@j', 'job 1'], (27, 33): ['@j&s', '2d'], (33, 42): ['@j', 'job 2'], (42, 48): ['@j&s', '1d'], (48, 57): ['@j', 'job 3']})
     """
     tups = []
     hsh = {}
@@ -650,7 +650,7 @@ def str2hashes(s):
     pattern = "\s[@&][a-zA-Z+-]"
     parts = []
     for match in finditer(pattern, s):
-        parts.append([match.span()[0], match.span()[1], match.group().strip()])
+        parts.append([match.span()[0]+1, match.span()[1], match.group().strip()])
     if not parts:
         hsh['itemtype'] = s[0]
         hsh['summary'] = s[1:].strip()
@@ -663,7 +663,7 @@ def str2hashes(s):
     lastkey = s[0]
     for beg, end, key in parts:
         tups.append([lastkey, s[lastend:beg].strip(), lastbeg, beg])
-        pos_hsh[tuple([tups[-1][2], tups[-1][3]])] = [tups[-1][0], tups[-1][1]]
+        # pos_hsh[tuple([tups[-1][2], tups[-1][3]])] = [tups[-1][0], tups[-1][1]]
         lastkey = key
         lastbeg = beg
         lastend = end
@@ -701,10 +701,10 @@ def active_from_pos(pos_hsh, pos):
     >>> active_from_pos(pos_hsh, 18)
     ((17, 24), ['@e', '90m'])
     >>> active_from_pos(pos_hsh, 45)
-    ((36, 46), ['&u', '6/1 9a'])
+    ((36, 46), ['@r&u', '6/1 9a'])
     >>> hsh, pos_hsh = str2hashes("- ")
     >>> active_from_pos(pos_hsh, 1)
-    ((0, 2), ['-', ''])
+    ((0, 3), ['-', ''])
     """
     for key in pos_hsh:
         if key[0] <= pos < key[1]:
