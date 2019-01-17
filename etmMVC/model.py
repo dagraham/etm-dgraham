@@ -457,11 +457,11 @@ def deal_with_s(at_hsh = {}):
         bot += "\nBecause of the '@z float' entry, the datetime entry for @s will be interpreted as a naive datetime in whatever happens to be the local timezone."
     elif ok == 'aware':
         # bot = "starting: {}".format(obj.format("ddd MMM D h:mmA z"))
-        bot = "starting: {}".format(obj.in_tz(tz).format("ddd MMM D YYYY h:mmA z"))
+        bot = "starting: {}".format(obj.in_tz(tz).format("ddd MMM D YYYY h:mmA zz"))
         # bot = "starting: {}".format(obj.format("ddd MMM D YYYY h:mmA z"))
         bot += "\nWith an entry for '@z', The datetime entry for @s will be interpreted as an aware datetime in the specified timezone."
     else:
-        bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D YYYY h:mmA z"))
+        bot = "starting: {}".format(obj.in_tz('local').format("ddd MMM D YYYY h:mmA zz"))
         bot += "\nWithout an entry for '@z', the datetime entry for @s will be interpreted as an aware datetime in the current local timezone. Append a specific timezone, e.g., '@z US/Pacific', to use that timezone or '@z float' to make the datetime floating (naive)."
 
     return top, bot, obj
@@ -711,93 +711,93 @@ def active_from_pos(pos_hsh, pos):
             return key, pos_hsh[key]
     return None, None
 
-def str2hsh(s):
-    """
-    Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an @ key has been entered without the corresponding key, True or False) for use by check_entry.
-    """
-    hsh = {}
+# def str2hsh(s):
+#     """
+#     Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an @ key has been entered without the corresponding key, True or False) for use by check_entry.
+#     """
+#     hsh = {}
 
 
-    if not s.strip():
-        return hsh, [], False, [], [], False, [], {}
+#     if not s.strip():
+#         return hsh, [], False, [], [], False, [], {}
 
-    at_parts = [x.strip() for x in at_regex.split(s)]
-    at_tups = []
-    at_entry = False
-    amp_entry = False
-    amp_tups = {}
-    amp_parts = []
-    amp_hsh = {}
-    # delta = 1
-    delta = 2
-    if at_parts:
-        # place = -1
-        place = -1
-        tmp = at_parts.pop(0)
-        hsh['itemtype'] = tmp[0]
-        hsh['summary'] = tmp[1:].strip()
-        at_tups.append( (hsh['itemtype'], hsh['summary'], place) )
-        place += delta + len(tmp)
+#     at_parts = [x.strip() for x in at_regex.split(s)]
+#     at_tups = []
+#     at_entry = False
+#     amp_entry = False
+#     amp_tups = {}
+#     amp_parts = []
+#     amp_hsh = {}
+#     # delta = 1
+#     delta = 2
+#     if at_parts:
+#         # place = -1
+#         place = -1
+#         tmp = at_parts.pop(0)
+#         hsh['itemtype'] = tmp[0]
+#         hsh['summary'] = tmp[1:].strip()
+#         at_tups.append( (hsh['itemtype'], hsh['summary'], place) )
+#         place += delta + len(tmp)
 
-        for part in at_parts:
-            if part:
-                at_entry = False
-            else:
-                at_entry = True
-                break
-            key = part[0]
-            # v = part[1:].strip()
-            v = part[1:]
-            if key in ('a', 'j', 'r'):
-                # there can be more than one entry for these keys
-                hsh.setdefault(key, []).append(v)
-            else:
-                hsh[key] = v
-            at_tups.append( (key, v, place) )
+#         for part in at_parts:
+#             if part:
+#                 at_entry = False
+#             else:
+#                 at_entry = True
+#                 break
+#             key = part[0]
+#             # v = part[1:].strip()
+#             v = part[1:]
+#             if key in ('a', 'j', 'r'):
+#                 # there can be more than one entry for these keys
+#                 hsh.setdefault(key, []).append(v)
+#             else:
+#                 hsh[key] = v
+#             at_tups.append( (key, v, place) )
 
-            if key in ['r', 'j']:
-                lst = []
-                amp_tups[key] = [] 
-                amp_entry = False
-                for part in hsh[key]:  # an individual @r or @j entry
-                    amp_hsh = {}
-                    amp_parts = [x.strip() for x in amp_regex.split(part)]
-                    if amp_parts:
-                        # amp_hsh[key] = "".join(amp_parts.pop(0))
-                        tmp = amp_parts.pop(0)
-                        amp_hsh[key] = "".join(tmp)
-                        amp_tups[key] = [(key, tmp, place)]
-                        amp_place = place + delta+ len(tmp)
-                        # place += len(amp_hsh[key])
-                        # k = amp_part
-                        for amppart in amp_parts:  # the & keys and values for the given entry
-                            if amppart:
-                                amp_entry = False
-                            else:
-                                amp_entry = True
-                                break
-                            if len(amppart) < 2:
-                                continue
-                            k = amppart[0]
-                            v = amppart[1:].strip()
-                            if v in ["''", '""']:
-                                # don't add if the value was either '' or ""
-                                pass
-                            elif key == 'r' and k in ['M', 'e', 'm', 'w']:
-                                # make these lists
-                                amp_hsh[k] = comma_regex.split(v)
-                            elif k == 'a':
-                                amp_hsh.setdefault(k, []).append(v)
-                            else:
-                                amp_hsh[k] = v
-                            amp_tups[key].append( (k, v, amp_place) )
-                            amp_place += delta + len(amppart)
-                    lst.append(amp_hsh)
-                hsh[key] = lst
-            place += delta + len(part)
+#             if key in ['r', 'j']:
+#                 lst = []
+#                 amp_tups[key] = [] 
+#                 amp_entry = False
+#                 for part in hsh[key]:  # an individual @r or @j entry
+#                     amp_hsh = {}
+#                     amp_parts = [x.strip() for x in amp_regex.split(part)]
+#                     if amp_parts:
+#                         # amp_hsh[key] = "".join(amp_parts.pop(0))
+#                         tmp = amp_parts.pop(0)
+#                         amp_hsh[key] = "".join(tmp)
+#                         amp_tups[key] = [(key, tmp, place)]
+#                         amp_place = place + delta+ len(tmp)
+#                         # place += len(amp_hsh[key])
+#                         # k = amp_part
+#                         for amppart in amp_parts:  # the & keys and values for the given entry
+#                             if amppart:
+#                                 amp_entry = False
+#                             else:
+#                                 amp_entry = True
+#                                 break
+#                             if len(amppart) < 2:
+#                                 continue
+#                             k = amppart[0]
+#                             v = amppart[1:].strip()
+#                             if v in ["''", '""']:
+#                                 # don't add if the value was either '' or ""
+#                                 pass
+#                             elif key == 'r' and k in ['M', 'e', 'm', 'w']:
+#                                 # make these lists
+#                                 amp_hsh[k] = comma_regex.split(v)
+#                             elif k == 'a':
+#                                 amp_hsh.setdefault(k, []).append(v)
+#                             else:
+#                                 amp_hsh[k] = v
+#                             amp_tups[key].append( (k, v, amp_place) )
+#                             amp_place += delta + len(amppart)
+#                     lst.append(amp_hsh)
+#                 hsh[key] = lst
+#             place += delta + len(part)
 
 
-    return hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts, amp_hsh
+#     return hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts, amp_hsh
 
 
 class Item(object):
@@ -809,22 +809,51 @@ class Item(object):
         """
         We will either be editing an existing item from a doc_id and hash or creating a new item from a string.
         """
-        self.item_hsh = {}
-        self.working_hsh = {}
+        self.obj_hsh = {}
+        self.str_hsh = {}
         self.pos_hsh = {}
-        self.active
-        self.item_str = s
+        self.diff = {}
+        self.active = ""
+        self.interval = ()
+        self.entry = s
 
 
     def cursor_changed(self, pos):
-        self.active = active_from_pos(self.pos_hsh, pos)
+        self.interval, self.active = active_from_pos(self.pos_hsh, pos)
 
     def text_changed(self, s, pos):
-        self.item_str = s
-        hsh, self.pos_hsh = str2hashes(s)
-        self.update
+        self.entry = s
+        new_hsh, self.pos_hsh = str2hashes(s)
+        self.diff = dictdiff(self.str_hsh, new_hsh)
+        self.str_hsh = {x: new_hsh[x]}
+        self.update_hashes()
         self.cursor_changed(pos)
 
+    def update_hashes(self):
+        pass
+
+
+def dictdiff(old_hsh, new_hsh):
+    """
+    >>> old_hsh = {'a': 1, 'b': 2}
+    >>> new_hsh = {'b': 3, 'c': 5}
+    >>> dictdiff(old_hsh, new_hsh)
+    {'removed': {'a': 1}, 'changed': {'b': 3}, 'added': {'c': 5}}
+    """
+    removed = {}
+    changed = {}
+    added = {}
+    diff = {'removed': {}, 'changed': {}, 'added': {}}
+    for k, v in old_hsh.items():
+        if k not in new_hsh:
+            diff['removed'][k] = v
+    for k, v in new_hsh.items():
+        if k in old_hsh:
+            if v != old_hsh[k]:
+                diff['changed'][k] = v
+        else:
+            diff['added'][k] = v
+    return diff
 
 item_hsh = {}
 def check_entry(s, cursor_pos):
@@ -845,10 +874,11 @@ def check_entry(s, cursor_pos):
     at_key = amp_key = None
     act_key = act_val = None
     if res:
-        if res[0][0] == '@':
+        if len(res[0]) == 4 and res[0][-2] == '&':
+            at_key = res[0][1]
+            act_key = amp_key = res[0][-1]
+        elif res[0][0] == '@':
             act_key = at_key = res[0][1]
-        elif res[0][0] == '&':
-            act_key = amp_key = res[0][1]
         elif res[0][0] in type_keys:
             act_key = at_key = res[0][0]
         act_val = res[1]
@@ -929,7 +959,7 @@ def check_entry(s, cursor_pos):
     if testing:
         # reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}") 
         # reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}\n\ncursor pos: {cursor_pos}; active entry: '{act_key}' -> {act_val}\nhsh: {hsh}\nitem_hsh: {item_hsh}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
-        reply = (reply[0], reply[1] + f"\n{hsh}\n\ncursor pos: {cursor_pos}; active entry: {res} '{act_key}' -> {act_val}\n{pos_hsh}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
+        reply = (reply[0], reply[1] + f"\n{hsh}\n\ncursor pos: {cursor_pos}; active entry: {res} '{act_key}' -> {act_val}\n{pos_hsh}\nat_key: {at_key}; at_entry: {at_entry}\namp_key: {amp_key}; amp_entry: {amp_entry}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
 
     return ask, reply, hsh
 
