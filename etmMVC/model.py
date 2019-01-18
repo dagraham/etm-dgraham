@@ -629,10 +629,10 @@ def str2hashes(s):
     Return tuples containing key, value and postion tuples for the string s. 
     0         1         2         3         4         5         6 
     0123456789012345678901234567890123456789012345678901234567890123456789
-    * evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home
-    >>> s = "* evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home"
+    * evnt @s 2p fri @e 90m @r m &w 2fr &u 6/1 9a @c dag @l home
+    >>> s = "* evnt @s 2p fri @e 90m @r m &w 2fr &u 6/1 9a @c dag @l home"
     >>> str2hashes(s)
-    ({'itemtype': '*', 'summary': 'evnt', 's': '2p fri', 'e': '90m', 'r': [{'r': 'w', 'w': '2fr', 'u': '6/1 9a'}], 'c': 'dag', 'l': 'home'}, {(7, 17): ['@s', '2p fri'], (17, 24): ['@e', '90m'], (24, 29): ['@r', 'w'], (29, 36): ['@r&w', '2fr'], (36, 46): ['@r&u', '6/1 9a'], (46, 53): ['@c', 'dag'], (53, 61): ['@l', 'home']})
+    ({'itemtype': '*', 'summary': 'evnt', 's': '2p fri', 'e': '90m', 'r': [{'r': 'm', 'w': '2fr', 'u': '6/1 9a'}], 'c': 'dag', 'l': 'home'}, {(0, 7): ['*', 'evnt'], (7, 17): ['s', '2p fri'], (17, 24): ['e', '90m'], (24, 29): ['r', 'm'], (29, 36): ['rw', '2fr'], (36, 46): ['ru', '6/1 9a'], (46, 53): ['c', 'dag'], (53, 61): ['l', 'home']})
     >>> str2hashes('')
     ({}, {})
     >>> str2hashes("- ")
@@ -640,7 +640,7 @@ def str2hashes(s):
     >>> str2hashes("- todo @")
     ({'itemtype': '-', 'summary': 'todo @'}, {(0, 9): ['-', 'todo @']})
     >>> str2hashes("- todo  @s mon 9a @j job 1 &s 2d @j job 2 &s 1d @j job 3")
-    ({'itemtype': '-', 'summary': 'todo', 's': 'mon 9a', 'j': [{'j': 'job 1', 's': '2d'}, {'j': 'job 2', 's': '1d'}, {'j': 'job 3'}]}, {(8, 18): ['@s', 'mon 9a'], (18, 27): ['@j', 'job 1'], (27, 33): ['@j&s', '2d'], (33, 42): ['@j', 'job 2'], (42, 48): ['@j&s', '1d'], (48, 57): ['@j', 'job 3']})
+    ({'itemtype': '-', 'summary': 'todo', 's': 'mon 9a', 'j': [{'j': 'job 1', 's': '2d'}, {'j': 'job 2', 's': '1d'}, {'j': 'job 3'}]}, {(0, 8): ['-', 'todo'], (8, 18): ['s', 'mon 9a'], (18, 27): ['j', 'job 1'], (27, 33): ['js', '2d'], (33, 42): ['j', 'job 2'], (42, 48): ['js', '1d'], (48, 57): ['j', 'job 3']})
     """
     tups = []
     hsh = {}
@@ -672,24 +672,28 @@ def str2hashes(s):
 
     pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
     hsh = {'itemtype': tups[0][0], 'summary': tups[0][1]}
-    for key, value, beg, end in tups[1:]:
+
+    for key, value, beg, end in tups:
         if key in ['@r', '@j']:
-            pos_hsh[tuple([beg, end])] = [key, value]
+            pos_hsh[tuple([beg, end])] = [key[-1], value]
             hsh.setdefault(key[-1], []).append({key[-1]: value})
             adding = key[-1]
         elif key in ['@a']:
-            pos_hsh[tuple([beg, end])] = [key, value]
+            pos_hsh[tuple([beg, end])] = [key[-1], value]
             hsh.setdefault(key[-1], []).append(value)
             adding = None
         elif key.startswith('&'):
             if adding:
-                pos_hsh[tuple([beg, end])] = [f"@{adding}{key}", value]
+                pos_hsh[tuple([beg, end])] = [f"{adding}{key[-1]}", value]
                 hsh[adding][-1][key[-1]] = value
             else:
                 pass
+        elif key in item_types:
+            adding = None
+            pos_hsh[tuple([beg, end])] = [key[-1], value]
         else:
             adding = None
-            pos_hsh[tuple([beg, end])] = [key, value]
+            pos_hsh[tuple([beg, end])] = [key[-1], value]
             hsh[key[-1]] = value
 
     return hsh, pos_hsh
@@ -699,105 +703,17 @@ def active_from_pos(pos_hsh, pos):
     >>> s = "* evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home"
     >>> hsh, pos_hsh = str2hashes(s)
     >>> active_from_pos(pos_hsh, 18)
-    ((17, 24), ['@e', '90m'])
+    ((17, 24), ['e', '90m'])
     >>> active_from_pos(pos_hsh, 45)
-    ((36, 46), ['@r&u', '6/1 9a'])
+    ((36, 46), ['ru', '6/1 9a'])
     >>> hsh, pos_hsh = str2hashes("- ")
     >>> active_from_pos(pos_hsh, 1)
     ((0, 3), ['-', ''])
     """
-    for key in pos_hsh:
-        if key[0] <= pos < key[1]:
-            return key, pos_hsh[key]
+    for k, v in pos_hsh.items():
+        if k[0] <= pos < k[1]:
+            return k, v
     return None, None
-
-# def str2hsh(s):
-#     """
-#     Split s on @ and & keys and return the relevant hash along with at_tups (positions of @keys in s) and at_entry (an @ key has been entered without the corresponding key, True or False) for use by check_entry.
-#     """
-#     hsh = {}
-
-
-#     if not s.strip():
-#         return hsh, [], False, [], [], False, [], {}
-
-#     at_parts = [x.strip() for x in at_regex.split(s)]
-#     at_tups = []
-#     at_entry = False
-#     amp_entry = False
-#     amp_tups = {}
-#     amp_parts = []
-#     amp_hsh = {}
-#     # delta = 1
-#     delta = 2
-#     if at_parts:
-#         # place = -1
-#         place = -1
-#         tmp = at_parts.pop(0)
-#         hsh['itemtype'] = tmp[0]
-#         hsh['summary'] = tmp[1:].strip()
-#         at_tups.append( (hsh['itemtype'], hsh['summary'], place) )
-#         place += delta + len(tmp)
-
-#         for part in at_parts:
-#             if part:
-#                 at_entry = False
-#             else:
-#                 at_entry = True
-#                 break
-#             key = part[0]
-#             # v = part[1:].strip()
-#             v = part[1:]
-#             if key in ('a', 'j', 'r'):
-#                 # there can be more than one entry for these keys
-#                 hsh.setdefault(key, []).append(v)
-#             else:
-#                 hsh[key] = v
-#             at_tups.append( (key, v, place) )
-
-#             if key in ['r', 'j']:
-#                 lst = []
-#                 amp_tups[key] = [] 
-#                 amp_entry = False
-#                 for part in hsh[key]:  # an individual @r or @j entry
-#                     amp_hsh = {}
-#                     amp_parts = [x.strip() for x in amp_regex.split(part)]
-#                     if amp_parts:
-#                         # amp_hsh[key] = "".join(amp_parts.pop(0))
-#                         tmp = amp_parts.pop(0)
-#                         amp_hsh[key] = "".join(tmp)
-#                         amp_tups[key] = [(key, tmp, place)]
-#                         amp_place = place + delta+ len(tmp)
-#                         # place += len(amp_hsh[key])
-#                         # k = amp_part
-#                         for amppart in amp_parts:  # the & keys and values for the given entry
-#                             if amppart:
-#                                 amp_entry = False
-#                             else:
-#                                 amp_entry = True
-#                                 break
-#                             if len(amppart) < 2:
-#                                 continue
-#                             k = amppart[0]
-#                             v = amppart[1:].strip()
-#                             if v in ["''", '""']:
-#                                 # don't add if the value was either '' or ""
-#                                 pass
-#                             elif key == 'r' and k in ['M', 'e', 'm', 'w']:
-#                                 # make these lists
-#                                 amp_hsh[k] = comma_regex.split(v)
-#                             elif k == 'a':
-#                                 amp_hsh.setdefault(k, []).append(v)
-#                             else:
-#                                 amp_hsh[k] = v
-#                             amp_tups[key].append( (k, v, amp_place) )
-#                             amp_place += delta + len(amppart)
-#                     lst.append(amp_hsh)
-#                 hsh[key] = lst
-#             place += delta + len(part)
-
-
-#     return hsh, at_tups, at_entry, at_parts, amp_tups, amp_entry, amp_parts, amp_hsh
 
 
 class Item(object):
@@ -824,6 +740,7 @@ class Item(object):
     def text_changed(self, s, pos):
         self.entry = s
         new_hsh, self.pos_hsh = str2hashes(s)
+        key_vals = [v for k, v in self.pos_hsh]
         self.diff = dictdiff(self.str_hsh, new_hsh)
         self.str_hsh = {x: new_hsh[x]}
         self.update_hashes()
@@ -832,55 +749,66 @@ class Item(object):
     def update_hashes(self):
         pass
 
+def listdiff(old_lst, new_lst):
+    """
+    >>> old_lst = [('s', '2p fri'), ('z', 'US/Eastern')]
+    >>> new_lst = [('s', '3p fri'), ('e', '90m'), ('z', 'US/Eastern')] 
+    >>> listdiff(old_lst, new_lst)
+    {'removed': [('s', '2p fri')], 'changed': [('s', '3p fri'), ('e', '90m')]}
+    """
+    removed = [x for x in old_lst if x not in new_lst]
+    changed = [x for x in new_lst if x not in old_lst]
+    return {'removed': removed, 'changed': changed}
 
 def dictdiff(old_hsh, new_hsh):
     """
     >>> old_hsh = {'a': 1, 'b': 2}
     >>> new_hsh = {'b': 3, 'c': 5}
     >>> dictdiff(old_hsh, new_hsh)
-    {'removed': {'a': 1}, 'changed': {'b': 3}, 'added': {'c': 5}}
+    {'removed': {'a': 1}, 'changed': {'b': 3, 'c': 5}}
     """
     removed = {}
     changed = {}
-    added = {}
-    diff = {'removed': {}, 'changed': {}, 'added': {}}
     for k, v in old_hsh.items():
         if k not in new_hsh:
-            diff['removed'][k] = v
+            removed[k] = v
     for k, v in new_hsh.items():
-        if k in old_hsh:
-            if v != old_hsh[k]:
-                diff['changed'][k] = v
-        else:
-            diff['added'][k] = v
-    return diff
+        if k not in old_hsh or v != old_hsh[k]:
+            changed[k] = v
+    return {'removed': removed, 'changed': changed}
 
 item_hsh = {}
 def check_entry(s, cursor_pos):
     """
     Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
+    Need 
     """
     global item_hsh
     hsh, pos_hsh = str2hashes(s)
 
     ask = ('say', '')
     reply = ('say', '\n')
-    if not pos_hsh:
+    if not s or not pos_hsh:
         ask = ('say', type_prompt)
         reply = ('say', item_types)
         return ask, reply, hsh
+
+    interval, res = active_from_pos(pos_hsh, 0)
+    itemtype, summary = res
+    if itemtype not in type_keys:
+        ask = ('say', type_prompt)
+        reply = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
+        return ask, reply, hsh
+
+
 
     interval, res = active_from_pos(pos_hsh, cursor_pos)
     at_key = amp_key = None
     act_key = act_val = None
     if res:
-        if len(res[0]) == 4 and res[0][-2] == '&':
-            at_key = res[0][1]
-            act_key = amp_key = res[0][-1]
-        elif res[0][0] == '@':
-            act_key = at_key = res[0][1]
-        elif res[0][0] in type_keys:
-            act_key = at_key = res[0][0]
+        at_key = res[0][0]
+        amp_key = res[0][1:]
+        act_key = amp_key if amp_key else at_key
         act_val = res[1]
     if act_val and act_val[-1] == '@':
         amp_entry = False
@@ -893,60 +821,65 @@ def check_entry(s, cursor_pos):
         at_entry = False
 
 
-    itemtype = hsh.get('itemtype', None)
-    if itemtype in type_keys:
-
-        if at_entry:
-            ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
-            current_required = ["@{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
-            reply_str = ""
-            if current_required:
-                reply_str += "Required: {}\n".format(", ".join(current_required))
-            current_allowed = ["@{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'ajr']
-            if current_allowed:
-                reply_str += "Allowed: {}\n".format(", ".join(current_allowed))
-            reply = ('say', reply_str)
-        elif at_key:
-            if at_key in at_keys:
-                ask = ('say', "{0}?".format(at_keys[at_key]))
-
-            else:
-                ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
-
-            if at_key == itemtype:
-                ask = ('say', "{} summary:".format(type_keys[itemtype]))
-                reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs\n'.format(type_keys[itemtype]))
-
-            else:
-                ok, res = check_requires(act_key, hsh)
-                if not ok:
-                    ask = ('say', '{0}'.format(at_keys[act_key]))
-                    reply = res
-
-                elif act_key in allowed[itemtype]:
-
-                    if amp_entry:
-                        ask = ('say', "&key for @{}?".format(act_key))
-                        reply =  ('say', "Allowed: {}\n".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
-                    elif act_key in deal_with:
-                        top, bot, obj = deal_with[act_key](hsh)
-                        ask = ('say', top)
-                        reply = ('say', "{}\n".format(bot))
-                        if obj:
-                            item_hsh[act_key] = obj
-                            # hsh[act_key] = obj
-                    else:
-                        top, bot, obj = deal_with_missing(hsh, act_key)
-                        if obj:
-                            item_hsh[act_key] = obj
-                else:
-                    reply = ('warn', "{0} is not allowed for item type '{1}'\n".format(act_key, itemtype))
+    if at_entry:
+        ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
+        current_required = ["@{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
+        reply_str = ""
+        if current_required:
+            reply_str += "Required: {}\n".format(", ".join(current_required))
+        current_allowed = ["@{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'ajr']
+        if current_allowed:
+            reply_str += "Allowed: {}\n".format(", ".join(current_allowed))
+        reply = ('say', reply_str)
+    elif amp_entry:
+        ask = ('say', "&key for @{}?".format(act_key))
+        reply =  ('say', "Allowed: {}\n".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
+    elif amp_key:
+        if amp_key in amp_keys[at_key]:
+            ask = ('say', f"{amp_keys[at_key][amp_key]}?")
         else:
-            reply = ('warn', 'no act_key')
+            ask =  ('say', f"&{amp_key} is not allowed for @{at_key}")
 
+            reply =  ('say', "Allowed: {}\n".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
+
+    elif at_key:
+        if at_key in at_keys:
+            ask = ('say', "{0}?".format(at_keys[at_key]))
+
+        else:
+            ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
+
+        if at_key == itemtype:
+            ask = ('say', "{} summary:".format(type_keys[itemtype]))
+            reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs\n'.format(type_keys[itemtype]))
+
+        else:
+            ok, res = check_requires(act_key, hsh)
+            if not ok:
+                ask = ('say', '{0}'.format(at_keys[act_key]))
+                reply = res
+
+            elif act_key in allowed[itemtype]:
+
+                if amp_entry:
+                    ask = ('say', "&key for @{}?".format(act_key))
+                    reply =  ('say', "Allowed: {}\n".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
+                elif act_key in deal_with:
+                    top, bot, obj = deal_with[act_key](hsh)
+                    ask = ('say', top)
+                    reply = ('say', "{}\n".format(bot))
+                    if obj:
+                        item_hsh[act_key] = obj
+                        # hsh[act_key] = obj
+                else:
+                    top, bot, obj = deal_with_missing(hsh, act_key)
+                    if obj:
+                        item_hsh[act_key] = obj
+            else:
+                reply = ('warn', "{0} is not allowed for item type '{1}'\n".format(act_key, itemtype))
     else:
-        ask = ('say', type_prompt)
-        reply = ('warn', u"invalid item type character: '{0}'\n".format(itemtype))
+        reply = ('warn', 'no act_key')
+
 
     if 'summary' in hsh:
         item_hsh['summary'] = hsh['summary']
@@ -4078,4 +4011,3 @@ if __name__ == '__main__':
 
 
     doctest.testmod()
-
