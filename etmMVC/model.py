@@ -126,7 +126,7 @@ type_keys = {
     "!": "inbox",
 }
 
-type_prompt = u"type character for new item:"
+type_prompt = u"item type character:"
 
 item_types = """item type characters:\n    """ + """\n    """.join([f"{k}: {v}" for k, v in type_keys.items()])
 
@@ -632,22 +632,21 @@ def process_entry(s):
     * evnt @s 2p fri @e 90m @r m &w 2fr &u 6/1 9a @c dag @l home
     >>> s = "* evnt @s 2p fri @e 90m @r m &w 2fr & @c dag"
     >>> process_entry(s)
-    ({(0, 7): ['*', 'evnt'], (7, 17): ['s', '2p fri'], (17, 24): ['e', '90m'], (24, 29): ['rr', 'm'], (29, 36): ['rw', '2fr'], (36, 38): ['r?', ''], (38, 45): ['c', 'dag']}, [('itemtype', '*'), ('summary', 'evnt'), ('s', '2p fri'), ('e', '90m'), ('rr', 'm'), ('rw', '2fr'), ('r?', ''), ('c', 'dag')])
+    ({(0, 1): ['itemtype', '*'], (1, 7): ['summary', 'evnt'], (7, 17): ['s', '2p fri'], (17, 24): ['e', '90m'], (24, 29): ['rr', 'm'], (29, 36): ['rw', '2fr'], (36, 38): ['r?', ''], (38, 45): ['c', 'dag']}, [('itemtype', '*'), ('summary', 'evnt'), ('s', '2p fri'), ('e', '90m'), ('rr', 'm'), ('rw', '2fr'), ('r?', ''), ('c', 'dag')])
     >>> s = "* evnt @s 2p fri @e 90m @r m &w 2fr &u 6/1 9a @ @l home"
     >>> process_entry(s)
-    ({(0, 7): ['*', 'evnt'], (7, 17): ['s', '2p fri'], (17, 24): ['e', '90m'], (24, 29): ['rr', 'm'], (29, 36): ['rw', '2fr'], (36, 46): ['ru', '6/1 9a'], (46, 48): ['?', ''], (48, 56): ['l', 'home']}, [('itemtype', '*'), ('summary', 'evnt'), ('s', '2p fri'), ('e', '90m'), ('rr', 'm'), ('rw', '2fr'), ('ru', '6/1 9a'), ('?', ''), ('l', 'home')])
+    ({(0, 1): ['itemtype', '*'], (1, 7): ['summary', 'evnt'], (7, 17): ['s', '2p fri'], (17, 24): ['e', '90m'], (24, 29): ['rr', 'm'], (29, 36): ['rw', '2fr'], (36, 46): ['ru', '6/1 9a'], (46, 48): ['?', ''], (48, 56): ['l', 'home']}, [('itemtype', '*'), ('summary', 'evnt'), ('s', '2p fri'), ('e', '90m'), ('rr', 'm'), ('rw', '2fr'), ('ru', '6/1 9a'), ('?', ''), ('l', 'home')])
     >>> process_entry('')
     ({}, [])
     >>> process_entry("- ")
-    ({(0, 3): ['-', '']}, [('itemtype', '-'), ('summary', '')])
+    ({(0, 1): ['itemtype', '-'], (1, 3): ['summary', '']}, [('itemtype', '-'), ('summary', '')])
     >>> process_entry("- todo @")
-    ({(0, 7): ['-', 'todo'], (7, 9): ['?', '']}, [('itemtype', '-'), ('summary', 'todo'), ('?', '')])
+    ({(0, 1): ['itemtype', '-'], (1, 7): ['summary', 'todo'], (7, 9): ['?', '']}, [('itemtype', '-'), ('summary', 'todo'), ('?', '')])
     >>> process_entry("- todo  @s mon 9a @j job 1 &s 2d @j job 2 & @j job 3")
-    ({(0, 8): ['-', 'todo'], (8, 18): ['s', 'mon 9a'], (18, 27): ['jj', 'job 1'], (27, 33): ['js', '2d'], (33, 42): ['jj', 'job 2'], (42, 44): ['j?', ''], (44, 53): ['jj', 'job 3']}, [('itemtype', '-'), ('summary', 'todo'), ('s', 'mon 9a'), ('jj', 'job 1'), ('js', '2d'), ('jj', 'job 2'), ('j?', ''), ('jj', 'job 3')])
+    ({(0, 1): ['itemtype', '-'], (1, 8): ['summary', 'todo'], (8, 18): ['s', 'mon 9a'], (18, 27): ['jj', 'job 1'], (27, 33): ['js', '2d'], (33, 42): ['jj', 'job 2'], (42, 44): ['j?', ''], (44, 53): ['jj', 'job 3']}, [('itemtype', '-'), ('summary', 'todo'), ('s', 'mon 9a'), ('jj', 'job 1'), ('js', '2d'), ('jj', 'job 2'), ('j?', ''), ('jj', 'job 3')])
     """
     tups = []
     keyvals = []
-    # hsh = {}
     pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
     if not s:
         return pos_hsh, []
@@ -656,11 +655,7 @@ def process_entry(s):
     for match in finditer(pattern, s):
         parts.append([match.span()[0]+1, match.span()[1], match.group().strip()])
     if not parts:
-        # hsh['itemtype'] = s[0]
-        # hsh['summary'] = s[1:].strip()
         tups.append((s[0], s[1:].strip(), 0, len(s)+1))
-        # pos_hsh[tuple([tups[-1][2], tups[-1][3]])] = [tups[-1][0], tups[-1][1]]
-        # return pos_hsh, [('itemtype', s[0]), ('summary', s[1:].strip())]
 
     lastbeg = 0
     lastend = 1
@@ -676,9 +671,20 @@ def process_entry(s):
 
     pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
 
+    # add (@?, '') and (&?, '') tups for @ and & entries without keys
     aug_tups = []
     for key, value, beg, end in tups:
-        if value.endswith(' @') or value.endswith(' &'):
+        if beg == 0:
+            aug_tups.append(('itemtype', key, beg, 1))
+            if value.endswith(' @') or value.endswith(' &'):
+                aug_key = f"{value[-1]}?"
+                end -= 2
+                value = value[:-2]
+                aug_tups.append(('summary', value, 1, end))
+                aug_tups.append((aug_key, '', end, end + 2))
+            else:
+                aug_tups.append(('summary', value, 1, end))
+        elif value.endswith(' @') or value.endswith(' &'):
             aug_key = f"{value[-1]}?"
             end -= 2
             value = value[:-2]
@@ -690,25 +696,21 @@ def process_entry(s):
     for key, value, beg, end in aug_tups:
         if key in ['@r', '@j']:
             pos_hsh[tuple([beg, end])] = [f"{key[-1]}{key[-1]}", value]
-            # hsh.setdefault(key[-1], []).append({key[-1]: value})
             adding = key[-1]
         elif key in ['@a']:
             pos_hsh[tuple([beg, end])] = [key[-1], value]
-            # hsh.setdefault(key[-1], []).append(value)
             adding = None
         elif key.startswith('&'):
             if adding:
                 pos_hsh[tuple([beg, end])] = [f"{adding}{key[-1]}", value]
-                # hsh[adding][-1][key[-1]] = value
             else:
                 pass
-        elif key in item_types:
+        elif key in ['itemtype', 'summary']:
             adding = None
-            pos_hsh[tuple([beg, end])] = [key[-1], value]
+            pos_hsh[tuple([beg, end])] = [key, value]
         else:
             adding = None
             pos_hsh[tuple([beg, end])] = [key[-1], value]
-            # hsh[key[-1]] = value
 
     keyvals = [(k, v) for pos, (k, v) in pos_hsh.items()]
     if keyvals[0][0] in type_keys:
@@ -727,8 +729,10 @@ def active_from_pos(pos_hsh, pos):
     >>> active_from_pos(pos_hsh, 45)
     ((36, 46), ['ru', '6/1 9a'])
     >>> pos_hsh, hsh = process_entry("- ")
+    >>> active_from_pos(pos_hsh, 0)
+    ((0, 1), ['itemtype', '-'])
     >>> active_from_pos(pos_hsh, 1)
-    ((0, 3), ['-', ''])
+    ((1, 3), ['summary', ''])
     >>> pos_hsh, hsh = process_entry("")
     >>> active_from_pos(pos_hsh, 1)
     (None, None)
@@ -837,31 +841,29 @@ def verify_entry(entry, pos_hsh, ent_hsh, pos):
     ask, reply = ask_reply[what]
     return ask, reply
 
-ask_reply = {
-        'need_type': (('say', type_prompt), ('say', item_types)),
-        'bad_type': (('say', type_prompt), ('warn', "invalid item type character"))
-
-        }
 
 item_hsh = {}
 def check_entry(s, cursor_pos=0):
     """
     Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
     >>> check_entry('')
-    (('say', 'type character for new item:'), ('say', 'item type characters:\\n    *: event\\n    -: task\\n    %: record\\n    !: inbox'), {})
+    (('say', 'item type character:'), ('say', 'item type characters:\\n    *: event\\n    -: task\\n    %: record\\n    !: inbox'), {})
+    >>> check_entry('^')
+    (('say', 'item type character:'), ('warn', "invalid item type character: '^'"), {})
     >>> check_entry('- todo')
     (('say', 'task summary:'), ('say', 'Enter the summary for the task followed, optionally, by @key and value pairs'), {})
+    >>> check_entry('- todo @s 2019-01-22 4p @', 25)
     """
     global item_hsh
     pos_hsh, keyvals = process_entry(s)
     hsh = {}
-    keyvals = [(k, v) for pos, (k, v) in pos_hsh.items()]
-    if keyvals and keyvals[0][0] in type_keys:
-        k, v = keyvals.pop(0)
-        keyvals.insert(0, ('summary', v))
-        keyvals.insert(0, ('itemtype', k))
-    else:
-        keyvals = []
+    # keyvals = [(k, v) for pos, (k, v) in pos_hsh.items()]
+    # if keyvals and keyvals[0][0] in type_keys:
+    #     k, v = keyvals.pop(0)
+    #     keyvals.insert(0, ('summary', v))
+    #     keyvals.insert(0, ('itemtype', k))
+    # else:
+    #     keyvals = []
 
 
     ask = ('say', '')
@@ -871,8 +873,7 @@ def check_entry(s, cursor_pos=0):
         reply = ('say', item_types)
         return ask, reply, hsh
 
-    interval, res = active_from_pos(pos_hsh, 0)
-    itemtype, summary = res
+    interval, (key, itemtype) = active_from_pos(pos_hsh, 0)
     if itemtype not in type_keys:
         ask = ('say', type_prompt)
         reply = ('warn', u"invalid item type character: '{0}'".format(itemtype))

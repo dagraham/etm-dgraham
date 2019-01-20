@@ -16,6 +16,7 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.widgets import HorizontalLine, TextArea
 
 from model import Item
+from model import check_entry
 
 # 3. Create the buffers
 #    ------------------
@@ -99,8 +100,8 @@ def default_buffer_changed(_):
     the right. We just reverse the text.
     """
     # reply_buffer.text = entry_buffer.text[::-1]
-    item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
-    # ask, say = check_entry(entry_buffer.text, entry_buffer.cursor_position)
+    # item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
+    ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
     # reply_buffer.text = ask[1] + "\n" + say[1] 
     # reply_buffer.text = check_entry(entry_buffer.text, entry_buffer.cursor_position)[1][1]
 
@@ -108,8 +109,8 @@ def default_cursor_position_changed(_):
     """
     When the cursor position in the top changes, update the cursor position in the bottom.
     """
-    item.cursor_changed(entry_buffer.cursor_position)
-    # ask, say = check_entry(entry_buffer.text, entry_buffer.cursor_position)
+    # item.cursor_changed(entry_buffer.cursor_position)
+    ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
     # reply_buffer.text = ask[1] + "\n" + say[1] 
     # reply_buffer.text = entry_buffer.text + f" ({entry_buffer.cursor_position})"
 
