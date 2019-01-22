@@ -397,7 +397,7 @@ def check_requires(key, hsh):
     Check that hsh has the prerequisite entries for key.
     """
     if key in requires and requires[key] not in hsh:
-        return False, ('warn', "{0} is required for {1}\n".format(requires[key], key))
+        return False, ('warn', f"{requires[key]} is required for {key}")
     else:
         return True, ('say', '')
 
@@ -637,7 +637,7 @@ def process_entry(s):
     >>> process_entry(s)
     ({(0, 1): ['itemtype', '*'], (1, 7): ['summary', 'evnt'], (7, 17): ['s', '2p fri'], (17, 24): ['e', '90m'], (24, 29): ['rr', 'm'], (29, 36): ['rw', '2fr'], (36, 46): ['ru', '6/1 9a'], (46, 48): ['?', ''], (48, 56): ['l', 'home']}, [('itemtype', '*'), ('summary', 'evnt'), ('s', '2p fri'), ('e', '90m'), ('rr', 'm'), ('rw', '2fr'), ('ru', '6/1 9a'), ('?', ''), ('l', 'home')])
     >>> process_entry('')
-    ({}, [])
+    ({(0, 1): ['itemtype', '']}, [('itemtype', '')])
     >>> process_entry("- ")
     ({(0, 1): ['itemtype', '-'], (1, 3): ['summary', '']}, [('itemtype', '-'), ('summary', '')])
     >>> process_entry("- todo @")
@@ -649,7 +649,7 @@ def process_entry(s):
     keyvals = []
     pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
     if not s:
-        return pos_hsh, []
+        return {(0, 1): ['itemtype', '']}, [('itemtype', '')]
     pattern = "\s[@&][a-zA-Z+-]"
     parts = []
     for match in finditer(pattern, s):
@@ -737,9 +737,9 @@ def active_from_pos(pos_hsh, pos):
     >>> active_from_pos(pos_hsh, 1)
     (None, None)
     """
-    for k, v in pos_hsh.items():
-        if k[0] <= pos < k[1]:
-            return k, v
+    for p, v in pos_hsh.items():
+        if p[0] <= pos < p[1]:
+            return p, v
     return None, None
 
 
@@ -752,15 +752,15 @@ class Item(object):
         """
         We will either be editing an existing item from a doc_id and hash or creating a new item from a string.
         """
-        self.object_hsh = {}    # key -> object version of raw string for tinydb 
-        self.disp_hsh = {}      # key -> display version raw string
-        self.pos_hsh = {}       # (beg, end) -> (key, raw string)
-        self.keyvals = []       # key, value as entered
-        self.pos2askreply = {}
+        self.object_hsh = {}    # key, val -> object version of raw string for tinydb 
+        self.askreply_hsh = {}  # key, val -> display version raw string
+        self.pos_hsh = {}       # (beg, end) -> (key, val)
+        self.keyvals = [] 
         self.messages = []
         self.active = ()
         self.interval = ()
         self.entry = s
+        self.itemtype = ""
 
 
     # TODO: add ask, say outputs from check_entry
@@ -776,25 +776,107 @@ class Item(object):
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s)
         removed, changed = listdiff(self.keyvals, keyvals)
-        # only process changes
-        for k, v in removed.items():
-            if k in self.object_hsh:
-                del self.object_hsh[k]
-            if k in self.disp_hsh:
-                del self.disp_hsh[k]
-        for k, v in changed.items():
-            ok, res = self.dealwith(k, v)
+        # only process changes for kv entries
+        for kv in removed.items():
+            if kv in self.object_hsh:
+                del self.object_hsh[kv]
+            if kv in self.askreply:
+                del self.askreply[kv]
+        for kv in changed.items():
+            ok, res = self.update_keyval(kv)
             if ok:
                 self.object_hsh[k] = res
             else:
                 self.messages.append(res)
 
         # we need a tup2obj hsh, e.g., ('s', '2p fri') -> ('s', DateTime(2019, 1, 18, 14, 0, 0))
-        self.ent_hsh = {x: v for x, v in ent_hsh.items()}
+        self.keyvals = [kv for kv in keyvals]
         self.cursor_changed(pos)
 
-    def dealwith(self, k, v):
-        return True, v
+    def update_keyval(self, kv):
+        """
+        Update askreply and obj_hsh entries for kv
+        kv = ('itemtype', '')  -> item types
+        kv = ('itemtype', '-') -> task 
+        kv = ('summary', '')
+        kv = ('summary', 't')
+        """
+        key, val = kv
+        ok = ()
+        if key == "itemtype":
+            if val:
+                if val in type_keys:
+                    self.itemtype = val
+                    ask = ('say', f"{type_keys[val]}")
+                    reply = ('say', f"enter {type_keys[val]} summary")
+                    ok = ('itemtype', val)
+                else:
+                    ask = ('say', type_prompt)
+                    reply = ('warn', f"'{val}' is invalid")
+            else:
+                ask = ('say', type_prompt)
+                reply = ('say', item_types)
+        elif key == "summary":
+                ask = ('say', "item summary")
+                reply = ('say', f"summary: '{val}'")
+                ok = ('summary', val)
+        else:
+            at_key = key[0]
+            amp_key = key[1:]
+            if amp_key:
+                if amp_key == '?': 
+                    # only the & has been entered
+                    if at_key in amp_keys:
+                        available = [f"&{x]}" for x in amp_keys[at_key]]
+                        ask = ('say', 'enter &-key')
+                        reply = ('say', f"available &-keys: {" ".join(available)}")
+                    else:
+                        ask = ('warn', "&-keys are not allowed for @{at_key}")
+                        reply = ('say', '')
+                elif amp_key in amp_keys[at_key]:
+                    t, p = amp_keys[at_key][amp_key].split(':')
+                    ask = ('say', f"{t}")
+                    reply = ('say', f"{p.strip()}")
+                    ok = (at_key, amp_key, val)
+                else:
+                    available = [f"&{x]}" for x in amp_keys[at_key]]
+                    ask = ('warn', f"&[amp_key] is not allowed for @{at_key}")
+                    reply = ('say', f"available keys: {" ".join(available)}")
+            else:
+                if at_key == '?':
+                    # only the @ has been entered
+                    req = [f"@{x}" for x in required[self.itemtype]]
+                    prompt = f"{type_keys[self.itemtype]} @-keys:\n" 
+                    required = "    required:  {" ".join[req]}\n" if req else ""
+                    available = "    allowed: " + " ".join([f"@{x}" for x in allowed[self.itemtype]])
+                    ask = ('say', 'enter @-key')
+                    reply = ('say', prompt + required + available)
+                elif at_key in allowed[self.itemtype]:
+                    t, p = at_keys[at_key].split(':')
+                    ask = ('say', f"{t}")
+                    reply = ('say', f"{p.strip()}")
+                    ok = (at_key, '', val)
+                else:
+                    req = [f"@{x}" for x in required[self.itemtype]]
+                    prompt = f"{type_keys[self.itemtype]} @-keys:\n" 
+                    required = "    required:  {" ".join[req]}\n" if req else ""
+                    available = "    allowed: " + " ".join([f"@{x}" for x in allowed[self.itemtype]])
+                    ask = ('warn', f"@[at_key] is not allowed")
+                    reply = ('say', prompt + required + available)
+
+        if ok:
+            pass
+
+
+
+
+
+
+
+
+askreply = {
+        ('itemtype', ''): (type_prompt, item_types),
+        }
 
 def listdiff(old_lst, new_lst):
     """
@@ -836,8 +918,6 @@ def verify_entry(entry, pos_hsh, ent_hsh, pos):
 
         interval, (k, v) = active_from_pos(pos_hsh, 0)
 
-
-
     ask, reply = ask_reply[what]
     return ask, reply
 
@@ -857,14 +937,6 @@ def check_entry(s, cursor_pos=0):
     global item_hsh
     pos_hsh, keyvals = process_entry(s)
     hsh = {}
-    # keyvals = [(k, v) for pos, (k, v) in pos_hsh.items()]
-    # if keyvals and keyvals[0][0] in type_keys:
-    #     k, v = keyvals.pop(0)
-    #     keyvals.insert(0, ('summary', v))
-    #     keyvals.insert(0, ('itemtype', k))
-    # else:
-    #     keyvals = []
-
 
     ask = ('say', '')
     reply = ('say', '')
@@ -879,14 +951,12 @@ def check_entry(s, cursor_pos=0):
         reply = ('warn', u"invalid item type character: '{0}'".format(itemtype))
         return ask, reply, hsh
 
-
-
     interval, res = active_from_pos(pos_hsh, cursor_pos)
     at_key = amp_key = None
     act_key = act_val = None
     if res:
         at_key = res[0][0]
-        amp_key = res[0][1:]
+        amp_key = res[0][1]
         act_key = amp_key if amp_key else at_key
         act_val = res[1]
     if act_val and act_val[-1] == '@':
