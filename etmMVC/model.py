@@ -130,31 +130,32 @@ type_prompt = u"item type character:"
 
 item_types = """item type characters:\n    """ + """\n    """.join([f"{k}: {v}" for k, v in type_keys.items()])
 
+
 at_keys = {
-    '+': "include (list of date-times)",
-    '-': "exclude (list of date-times)",
-    'a': "alert (list of periods: cmd[, list of cmd args*])",
-    'b': "beginby (integer number of days)",
-    'c': "calendar (string)",
-    'd': "description (string)",
-    'e': "extent (timeperiod)",
-    'f': "finish (datetime)",
-    'g': "goto (url or filepath)",
-    'h': "completions history (list of done:due datetimes)",
-    'i': "index (colon delimited string)",
-    'j': "job summary (string)",
-    'l': "location (string)",
-    'm': "memo (string)",
-    'o': "overdue (r)estart, (s)kip or (k)eep)",
-    'p': "priority (integer)",
-    'r': "repetition frequency (y)early, (m)onthly, (w)eekly,"
-         " (d)aily, (h)ourly, mi(n)utely",
-    's': "starting date or datetime",
-    't': "tags (list of strings)",
-    'x': "expansion key (string)",
-    'z': "timezone (string)",
-    'itemtype': "itemtype (character)",
-    'summary': "summary (string)"
+        '+': "include: list of date-times",
+        '-': "exclude: list of date-times",
+        'a': "alert: list of periods followd by a colon and a command and, optionally, by a list of cmd arguments",
+        'b': "beginby: integer number of days",
+        'c': "calendar: string",
+        'd': "description: string",
+        'e': "extent: timeperiod",
+        'f': "finish: datetime",
+        'g': "goto url or filepath: string",
+        'h': "completions history: list of datetimes",
+        'i': "index: colon delimited string",
+        'j': "job summary: string",
+        'l': "location: string",
+        'm': "memo: string",
+        'o': "overdue: character from (r)estart, (s)kip or (k)eep",
+        'p': "priority: integer",
+        'r': "repetition frequency: character from (y)ear, (m)onth, (w)eek,"
+            " (d)ay, (h)our, mi(n)ute",
+        's': "start: date or datetime",
+        't': "tags: list of strings",
+        'x': "expansion key: string",
+        'z': "timezone: string",
+        'itemtype': "character from (*)event, (-)task, (%)record or (!)inbox",
+        'summary': "string"
 }
 
 amp_keys = {
@@ -182,7 +183,6 @@ amp_keys = {
         'j': "job summary (string)",
         'l': "location: string",
         'm': "memo (list of 'datetime, timeperiod, datetime')",
-        'n': "named delegate (string)",
         'p': "prerequisites: comma separated list of ids of immediate prereqs",
         's': "start/due: timeperiod before task start",
     },
@@ -403,11 +403,6 @@ def check_requires(key, hsh):
 
 
 
-def deal_with_at(at_hsh={}):
-    """
-    When an '@' has been entered but not yet with its key, show required and available keys with descriptions. Note, for example, that until a valid entry for @s has been given, @a, @b and @z are not available.
-    """
-    pass
 
 deal_with = {}
 
@@ -745,13 +740,15 @@ def active_from_pos(pos_hsh, pos):
 
 class Item(object):
     """
-    Preserve state when editing an item.
+
     """
 
-    def __init__(self, s=""):
+
+    def __init__(self, s=None):
         """
-        We will either be editing an existing item from a doc_id and hash or creating a new item from a string.
         """
+        self.entry = s
+        self.is_new = s is None
         self.object_hsh = {}    # key, val -> object version of raw string for tinydb 
         self.askreply_hsh = {}  # key, val -> display version raw string
         self.pos_hsh = {}       # (beg, end) -> (key, val)
@@ -759,11 +756,59 @@ class Item(object):
         self.messages = []
         self.active = ()
         self.interval = ()
-        self.entry = s
-        self.itemtype = ""
+        self.item_hsh = {}      # key -> obj
+        self.keys = {
+                'itemtype': ["item type", "character from * (event), - (task), % (record) or ! (inbox)", self.do_itemtype],
+                'summary': ["item summary", "string", self.do_string],
+                '+': ["include", "datetimes", self.do_datetimes],
+                '-': ["exclude", "datetimes", self.do_datetimes],
+                'a': ["alert", "list of periods followd by a colon and a command and, optionally, command arguments", self.do_alert],
+                'b': ["beginby", "integer number of days"],
+                'c': ["calendar", "string", self.do_string],
+                'd': ["description", "string", self.do_string],
+                'e': ["extent", "timeperiod", self.do_period],
+                'f': ["finish", "datetime", self.do_datetime],
+                'g': ["goto url or filepath", " string", self.do_string],
+                'h': ["completions history", "datetimes", self.do_datetimes],
+                'i': ["index", "colon delimited string", self.do_string],
+                'l': ["location", "string", self.do_string],
+                'm': ["memo", " string", self.do_string],
+                'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", self.do_overdue],
+                'p': ["priority", "positive integer"],
+                's': ["start", "date or datetime"],
+                't': ["tags", "list of strings"],
+                'x': ["expansion key", "string"],
+                'z': ["timezone", "string"],
+                '?': ["@-key", "enter @-key"],
 
+                'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute"],
+                'rc': ["count", "integer number of repetitions"],
+                'rm': ["monthday", "list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month"], 
+                'rE': ["easter", "number of days before (-), on (0) or after (+) Easter"],
+                'rh': ["hour", "list of integers in 0 ... 23"],
+                'ri': ["interval", "positive integer"],
+                'rM': ["month", "list of integers in 1 ... 12"], 
+                'rn': ["minute", "list of integers in 0 ... 59"], 
+                'rs': ["set position", "integer"],
+                'ru': ["until", "datetime"],
+                'rw': ["weekday", "list from SU, MO, ..., SA, possibly prepended with a positive or negative integer"],
+                'rW': ["week number", "list of integers in 1, ... 53"],
+                'r?': ["repetition &-key", "enter &-key"],
 
-    # TODO: add ask, say outputs from check_entry
+                'jj': ["job summary", "string"],
+                'ja': ["alert", "list of timeperiod before task start followed by a colon and a command and, optionally, command arguments"],
+                'jb': ["beginby", " integer number of days"],
+                'jd': ["description", " string"],
+                'je': ["extent", " timeperiod"],
+                'jf': ["finish", " datetime"],
+                'ji': ["unique id", " integer or string"],
+                'jl': ["location", " string"],
+                'jm': ["memo", "string"],
+                'jp': ["prerequisites", "list of ids of immediate prereqs"],
+                'js': ["start", "timeperiod before task start when job is due"],
+                'j?': ["job &-key", "enter &-key"],
+                }
+
 
     def cursor_changed(self, pos):
         self.interval, self.active = active_from_pos(self.pos_hsh, pos)
@@ -795,21 +840,33 @@ class Item(object):
 
     def update_keyval(self, kv):
         """
-        Update askreply and obj_hsh entries for kv
-        kv = ('itemtype', '')  -> item types
-        kv = ('itemtype', '-') -> task 
-        kv = ('summary', '')
-        kv = ('summary', 't')
         """
         key, val = kv
         ok = ()
+        # FIXME: simplify this to use keyval_keys
+        if key in self.keys:
+            a, r, do = self.keys[key]
+            ask = ('say', a)
+            if val:
+                ok, res = self.keys[key][2](val)
+                if ok:
+                    reply = ('say', f"{a}: {res}")
+                    ret = (kv, res)
+                else:
+                    reply = ('warn', f"{r}: '{val}' invalid")
+            else:
+                pass
+
+
+
+
         if key == "itemtype":
             if val:
                 if val in type_keys:
                     self.itemtype = val
                     ask = ('say', f"{type_keys[val]}")
                     reply = ('say', f"enter {type_keys[val]} summary")
-                    ok = ('itemtype', val)
+                    ok = (kv, val)
                 else:
                     ask = ('say', type_prompt)
                     reply = ('warn', f"'{val}' is invalid")
@@ -819,7 +876,7 @@ class Item(object):
         elif key == "summary":
                 ask = ('say', "item summary")
                 reply = ('say', f"summary: '{val}'")
-                ok = ('summary', val)
+                ok = (kv, val)
         else:
             at_key = key[0]
             amp_key = key[1:]
@@ -827,9 +884,9 @@ class Item(object):
                 if amp_key == '?': 
                     # only the & has been entered
                     if at_key in amp_keys:
-                        available = [f"&{x]}" for x in amp_keys[at_key]]
+                        available = [f"&{x}" for x in amp_keys[at_key]]
                         ask = ('say', 'enter &-key')
-                        reply = ('say', f"available &-keys: {" ".join(available)}")
+                        reply = ('say', f"available &-keys: {' '.join(available)}")
                     else:
                         ask = ('warn', "&-keys are not allowed for @{at_key}")
                         reply = ('say', '')
@@ -837,11 +894,11 @@ class Item(object):
                     t, p = amp_keys[at_key][amp_key].split(':')
                     ask = ('say', f"{t}")
                     reply = ('say', f"{p.strip()}")
-                    ok = (at_key, amp_key, val)
+                    ok = (kv, val)
                 else:
-                    available = [f"&{x]}" for x in amp_keys[at_key]]
-                    ask = ('warn', f"&[amp_key] is not allowed for @{at_key}")
-                    reply = ('say', f"available keys: {" ".join(available)}")
+                    available = [f"&{x}" for x in amp_keys[at_key]]
+                    ask = ('warn', f"&{amp_key} is not allowed for @{at_key}")
+                    reply = ('say', f"available keys: {' '.join(available)}")
             else:
                 if at_key == '?':
                     # only the @ has been entered
@@ -855,28 +912,145 @@ class Item(object):
                     t, p = at_keys[at_key].split(':')
                     ask = ('say', f"{t}")
                     reply = ('say', f"{p.strip()}")
-                    ok = (at_key, '', val)
+                    ok = (kv, val)
                 else:
                     req = [f"@{x}" for x in required[self.itemtype]]
                     prompt = f"{type_keys[self.itemtype]} @-keys:\n" 
                     required = "    required:  {" ".join[req]}\n" if req else ""
                     available = "    allowed: " + " ".join([f"@{x}" for x in allowed[self.itemtype]])
-                    ask = ('warn', f"@[at_key] is not allowed")
+                    ask = ('warn', f"@{at_key} is not allowed")
                     reply = ('say', prompt + required + available)
 
         if ok:
-            pass
+            k, v = ok
+            if k in ['itemtype', 'summary']:
+                self.obj_hsh[kv] = val
 
 
 
+        return ask, reply
+
+    # do_datetime, e.g. should return True/False, datetime/'', datetime.formatted/'' 
+
+    def do_string(self, arg):
+        obj = None
+        try:
+            obj = str(arg)
+            rep = obj
+        except:
+            rep = arg
+        return obj, rep
+
+    def do_stringlist(self, args):
+        obj = None
+        if not isinstance(args, list):
+            args = [args]
+        try:
+            obj = [str(arg) for arg in args]
+            rep = obj
+        except:
+            rep = args
+        return obj, rep
+
+    def do_itemtype(self, arg):
+        obj = arg if arg in type_keys else None
+        rep = arg
+        return obj, rep
+
+    def do_frequency(self, arg):
+        obj = arg if arg in rrule_freq else None
+        rep = arg
+        return obj, rep
+
+    def do_period(self, arg):
+        pass
+
+    def do_alert(self, arg):
+        pass
+
+    def do_datetime(self, arg):
+        """
+        >>> item = Item()
+        >>> item.do_datetime('fr')
+        (None, 'fr')
+        >>> item.do_datetime('2019-01-25')
+        (Date(2019, 1, 25), 'Fri Jan 25 2019')
+        >>> item.do_datetime('2019-01-25 2p')
+        (DateTime(2019, 1, 25, 14, 0, 0, tzinfo=Timezone('America/New_York')), 'Fri Jan 25 2019 2:00pm EST')
+        """
+        rep = arg
+        obj = None
+        tz = self.item_hsh.get('z', None)
+        ok, res, tz = parse_datetime(arg, tz)
+        if ok:
+            obj = res
+            rep = format_datetime(obj)[1]
+        return obj, rep
+
+    def do_datetimes(self, args):
+        """
+        >>> item = Item()
+        >>> item.do_datetimes(['2019-1-25 2p', '2019-1-30 4p'])
+        ([DateTime(2019, 1, 25, 14, 0, 0, tzinfo=Timezone('America/New_York')), DateTime(2019, 1, 30, 16, 0, 0, tzinfo=Timezone('America/New_York'))], ['Fri Jan 25 2019 2:00pm EST', 'Wed Jan 30 2019 4:00pm EST'])
+        >>> item.do_datetimes(['2019-1-25 2p', '2019-1-30 4p', '2019-2-29 8a'])
+        (None, ['Fri Jan 25 2019 2:00pm EST', 'Wed Jan 30 2019 4:00pm EST', '2019-2-29 8a'])
+        """
+        rep = args
+        obj = None
+        tz = self.item_hsh.get('z', None)
+        if not isinstance(args, list):
+            args = [args]
+        obj = []
+        rep = []
+        all_ok = True
+        for arg in args:
+            ok, res, tz = parse_datetime(arg, tz)
+            if ok:
+                obj.append(res)
+                rep.append(format_datetime(res)[1])
+            else:
+                all_ok = False
+                rep.append(arg)
+        obj = obj if all_ok else None
+        # rep = ', '.join(rep)
+        return obj, rep
+
+    def do_timezone(self, arg=None):
+        """
+        >>> item = Item()
+        >>> item.do_timezone()
+        ('local', 'local')
+        >>> item.do_timezone('local')
+        ('local', 'local')
+        >>> item.do_timezone('UTC')
+        ('UTC', 'UTC')
+        >>> item.do_timezone('Europe/Paris')
+        ('Europe/Paris', 'Europe/Paris')
+        >>> item.do_timezone('US/Pacifc')
+        (None, 'US/Pacifc')
+        """
+        if arg is None:
+            obj = rep = 'local'
+        elif arg in ['local', 'float']:
+            obj = rep = arg
+        else:
+            try:
+                Timezone(arg)
+                obj = rep = arg
+            except:
+                obj = None
+                rep = arg
+
+        self.item_hsh['z'] = obj
+        # if obj:
+        #     self.update_times()
+        return obj, rep
 
 
+    def do_overdue(self, arg):
+        ok = arg in ('k', 'r', 's')
+        return ok, arg
 
-
-
-askreply = {
-        ('itemtype', ''): (type_prompt, item_types),
-        }
 
 def listdiff(old_lst, new_lst):
     """
