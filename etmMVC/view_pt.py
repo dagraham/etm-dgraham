@@ -257,17 +257,20 @@ def agenda_view(event):
     dataview.set_active_view('h')
     set_text(dataview.show_active_view())
 
+@bindings.add('l', filter=is_agenda_view & is_not_searching & not_showing_details)
 @bindings.add('right', filter=is_agenda_view & is_not_searching & not_showing_details)
 def nextweek(event):
     dataview.nextYrWk()
     set_text(dataview.show_active_view())
 
 
+@bindings.add('j', filter=is_agenda_view & is_not_searching & not_showing_details)
 @bindings.add('left', filter=is_agenda_view & is_not_searching & not_showing_details)
 def prevweek(event):
     dataview.prevYrWk()
     set_text(dataview.show_active_view())
 
+@bindings.add('k', filter=is_agenda_view & is_not_searching & not_showing_details)
 @bindings.add('space', filter=is_agenda_view & is_not_searching & not_showing_details)
 def currweek(event):
     dataview.currYrWk()

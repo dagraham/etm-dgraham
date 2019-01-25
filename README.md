@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Wed Jan 02, 2019 07:48PM EST*
+*Last modified: Fri Jan 25, 2019 11:16AM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -56,7 +56,7 @@ Here are some examples:
 * A reminder (task) to pick up milk. 
 
 		- pick up milk
-* Append the [l]ocation errands to the milk task. (Undated tasks are displayed grouped by their locations.) 
+* Append the [l]ocation "errands" to the milk task. (Undated tasks are displayed grouped by their locations.) 
 
 		- pick up milk @l errands
 * A sales meeting (an event) [s]tarting next Monday at 9:00am and [e]xtending for one hour.
@@ -71,16 +71,16 @@ Here are some examples:
 * A record of 35 minutes spent yesterday working on the report:
 
         % report preparation @s -1 @e 35
-* An inbox reminder that the location for the lunch meeting has not been confirmed:
+* An inbox reminder that the time and location for the lunch meeting have not been confirmed:
 
-		! lunch with Burk @s tue 12p @e 90m @l ? 
+		! lunch with Burk @s tue ? @e 90m @l ? 
 
 * Build a dog house (a task) by breaking the task down into component [j]obs:
 
 		- Build dog house @j pick up materials @j cut pieces @j assemble
 		  @j sand @j paint
 
-* Join the etm discussion group (a task) [s]tarting on the first day of the next month. Because of the @g (goto) link, pressing *L* when the item is selected in the gui would open the link using the system default application which, in this case, would be the default browser:
+* Join the etm discussion group (a task) [s]tarting on the first day of the next month. Because of the @g goto link, pressing *g* when the item is selected in the gui would open the link using the system default application which, in this case, would be the default browser:
 
         - join the etm discussion group @s +1/1
           @g http://groups.google.com/group/eventandtaskmanager/topics
@@ -269,7 +269,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 
     +: include: list of datetimes to include,
     -: exclude: list of datetimes to exclude from rrule,
-    a: alert (list of + or - periods[: cmd[, list of cmd args]]),
+    a: alert (list of + or - periods: list of commands),
     b: beginby: integer (number of days),
     c: calendar: string,
     d: description: string,
@@ -281,6 +281,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
     j: job summary: string, optionally followed by job &key entries
     l: location/context: string,
     m: memo: string,
+    n: attendees: list of keys from options[email_addresses]
     o: overdue: character from (r)estart, (s)kip or (k)eep),
     p: priority: integer,
     r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
@@ -296,6 +297,8 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 * Alerts
     - positive: triggered before dtstart, relevant for dtstart on or after today
     - negative: triggered after dtstart, relevant for dtstart on or before today
+    - each command is a key from options[commands]
+
 * Beginbys: relevant for dtstart after today
 
 For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance. 

@@ -146,6 +146,7 @@ at_keys = {
         'j': "job summary: string",
         'l': "location: string",
         'm': "memo: string",
+        'n': "attendees: list of 'name <email address>'",
         'o': "overdue: character from (r)estart, (s)kip or (k)eep",
         'p': "priority: integer",
         'r': "repetition frequency: character from (y)ear, (m)onth, (w)eek,"
@@ -635,10 +636,12 @@ def process_entry(s):
     ({(0, 1): ['itemtype', '']}, [('itemtype', '')])
     >>> process_entry("- ")
     ({(0, 1): ['itemtype', '-'], (1, 3): ['summary', '']}, [('itemtype', '-'), ('summary', '')])
-    >>> process_entry("- todo @")
-    ({(0, 1): ['itemtype', '-'], (1, 7): ['summary', 'todo'], (7, 9): ['?', '']}, [('itemtype', '-'), ('summary', 'todo'), ('?', '')])
+    >>> process_entry("- todo @ @t red, green")
+    ({(0, 1): ['itemtype', '-'], (1, 7): ['summary', 'todo'], (7, 9): ['?', ''], (9, 23): ['t', 'red, green']}, [('itemtype', '-'), ('summary', 'todo'), ('?', ''), ('t', 'red, green')])
     >>> process_entry("- todo  @s mon 9a @j job 1 &s 2d @j job 2 & @j job 3")
     ({(0, 1): ['itemtype', '-'], (1, 8): ['summary', 'todo'], (8, 18): ['s', 'mon 9a'], (18, 27): ['jj', 'job 1'], (27, 33): ['js', '2d'], (33, 42): ['jj', 'job 2'], (42, 44): ['j?', ''], (44, 53): ['jj', 'job 3']}, [('itemtype', '-'), ('summary', 'todo'), ('s', 'mon 9a'), ('jj', 'job 1'), ('js', '2d'), ('jj', 'job 2'), ('j?', ''), ('jj', 'job 3')])
+    >>> process_entry("- todo  @s mon 9a @a 15m, 10m: d @a 15m, 10m: v")
+    ({(0, 1): ['itemtype', '-'], (1, 8): ['summary', 'todo'], (8, 18): ['s', 'mon 9a'], (18, 33): ['a', '15m, 10m: d'], (33, 48): ['a', '15m, 10m: v']}, [('itemtype', '-'), ('summary', 'todo'), ('s', 'mon 9a'), ('a', '15m, 10m: d'), ('a', '15m, 10m: v')])
     """
     tups = []
     keyvals = []
@@ -757,12 +760,14 @@ class Item(object):
         self.active = ()
         self.interval = ()
         self.item_hsh = {}      # key -> obj
+        # Note: datetime(s) require timezone and at requires itemtype
+        # all else do not need item_hsh
         self.keys = {
                 'itemtype': ["item type", "character from * (event), - (task), % (record) or ! (inbox)", self.do_itemtype],
                 'summary': ["item summary", "string", self.do_string],
                 '+': ["include", "datetimes", self.do_datetimes],
                 '-': ["exclude", "datetimes", self.do_datetimes],
-                'a': ["alert", "list of periods followd by a colon and a command and, optionally, command arguments", self.do_alert],
+                'a': ["alert", "list of alerts", self.do_alert],
                 'b': ["beginby", "integer number of days"],
                 'c': ["calendar", "string", self.do_string],
                 'd': ["description", "string", self.do_string],
@@ -773,20 +778,21 @@ class Item(object):
                 'i': ["index", "colon delimited string", self.do_string],
                 'l': ["location", "string", self.do_string],
                 'm': ["memo", " string", self.do_string],
+                'n': ["attendees", "list of 'name <email address>'", do_attendees],
                 'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", self.do_overdue],
-                'p': ["priority", "positive integer"],
-                's': ["start", "date or datetime"],
-                't': ["tags", "list of strings"],
-                'x': ["expansion key", "string"],
-                'z': ["timezone", "string"],
-                '?': ["@-key", "enter @-key"],
+                'p': ["priority", "positive integer", self.do_posint],
+                's': ["start", "date or datetime", self.do_datetime],
+                't': ["tags", "list of strings", self.do_stringlist],
+                'x': ["expansion key", "string", self.do_string],
+                'z': ["timezone", "string", self.do_timezone],
+                '?': ["@-key", "enter @-key", self.do_at],
 
-                'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute"],
-                'rc': ["count", "integer number of repetitions"],
-                'rm': ["monthday", "list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month"], 
+                'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute", self.do_frequency],
+                'rc': ["count", "integer number of repetitions", self.do_posint],
+                'rm': ["monthday", "list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", self.do_monthdays], 
                 'rE': ["easter", "number of days before (-), on (0) or after (+) Easter"],
                 'rh': ["hour", "list of integers in 0 ... 23"],
-                'ri': ["interval", "positive integer"],
+                'ri': ["interval", "positive integer", self.do_posint],
                 'rM': ["month", "list of integers in 1 ... 12"], 
                 'rn': ["minute", "list of integers in 0 ... 59"], 
                 'rs': ["set position", "integer"],
@@ -932,74 +938,262 @@ class Item(object):
 
     # do_datetime, e.g. should return True/False, datetime/'', datetime.formatted/'' 
 
+    def do_at(self, arg=''):
+        """
+        >>> item = Item()
+        >>> item.do_at()
+        (None, 'The type character must be entered before any @-keys')
+        >>> item.item_hsh['itemtype'] = '*'
+        >>> item.do_at()
+        (None, 'event @-keys:\\n    required: @s\\n    allowed: @c @d @e @g @i @l @m @s @t @x @b @r @o @e @a @z @+ @-')
+        """
+        itemtype = self.item_hsh.get('itemtype', '')
+        if itemtype:
+            prompt = f"{type_keys[itemtype]} @-keys:\n"
+            if required[itemtype]:
+                reqs = "    required: " +  " ".join([f"@{x}" for x in required[itemtype]]) + "\n"
+            else:
+                reqs = ""
+            if allowed[itemtype]:
+                avails = "    allowed: " + " ".join([f"@{x}" for x in allowed[itemtype]])
+            else:
+                avails = ""
+            rep = prompt + reqs + avails
+        else:
+            rep = "The type character must be entered before any @-keys"
+
+        return None, rep
+
+    def do_interval(self, arg):
+        """
+        interval (positive integer, default = 1) E.g, with frequency
+        w, interval 3 would repeat every three weeks.
+        >>> item = Item()
+        >>> item.do_interval("two")
+        (None, 'invalid interval: two. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
+        >>> item.do_interval(27)
+        (27, 27)
+        >>> item.do_interval([1, 2])
+        (None, 'invalid interval: [1, 2]. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
+        """
+
+        intstr = "interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks."
+
+        if arg:
+            ok, res = integer(arg, 1, None, False)
+            if ok:
+                return res, arg
+            else:
+                return None, f"invalid interval: {arg}. Required for {intstr}"
+        else:
+            return None, intstr
+
+
+    def do_posint(self, arg):
+        """
+        >>> item = Item()
+        >>> item.do_posint('')
+        (None, '')
+        >>> item.do_posint('one')
+        (None, '~one~')
+        """
+        try:
+            res = int(arg)
+        except:
+            res = None
+        if res and res > 0:
+            obj = res
+            rep = f"{res}"
+        else:
+            obj = None
+            rep = f"~{arg}~" if arg else ""
+        return obj, rep
+
+
     def do_string(self, arg):
-        obj = None
         try:
             obj = str(arg)
             rep = obj
         except:
-            rep = arg
+            obj = None
+            rep = f"~{arg}~"
         return obj, rep
 
     def do_stringlist(self, args):
+        """
+        >>> item = Item()
+        >>> item.do_stringlist('')
+        (None, '')
+        >>> item.do_stringlist('red')
+        (['red'], 'red')
+        >>> item.do_stringlist('red,  green,blue')
+        (['red', 'green', 'blue'], 'red, green, blue')
+        """
         obj = None
-        if not isinstance(args, list):
-            args = [args]
-        try:
-            obj = [str(arg) for arg in args]
-            rep = obj
-        except:
-            rep = args
+        rep = args
+        if args:
+            args = [x.strip() for x in args.split(',')]
+            all_ok = True
+            obj_lst = []
+            rep_lst = []
+            for arg in args:
+                try:
+                    res = str(arg)
+                    obj_lst.append(res)
+                    rep_lst.append(res)
+                except:
+                    all_ok = False
+                    rep_lst.append(f"~{arg}~")
+            obj = obj_lst if all_ok else None
+            rep = ", ".join(rep_lst)
         return obj, rep
 
     def do_itemtype(self, arg):
-        obj = arg if arg in type_keys else None
-        rep = arg
+        if not arg:
+            return None, arg
+        if arg in type_keys:
+            obj = rep = arg
+            self.item_hsh['itemtype'] = obj 
+        else:
+            obj = None
+            self.item_hsh['itemtype'] = '' 
+            rep = f"~{arg}~"
         return obj, rep
 
     def do_frequency(self, arg):
-        obj = arg if arg in rrule_freq else None
-        rep = arg
+        """
+        repetition frequency: character in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly
+        or mi(n)utely.
+        >>> item = Item()
+        >>> item.do_frequency('d')
+        ('d', 'd')
+        >>> item.do_frequency('z')
+        (None, 'invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
+        """
+
+        freq = [x for x in rrule_freq]
+        freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely."
+        if arg in freq:
+            return arg, arg
+        elif arg:
+            return None, f"invalid frequency: {arg} not in {freqstr}"
+        else:
+            return None, f"repetition frequency: character from {freqstr}"
+
+
+    def do_monthdays(self, arg):
+        """
+        >>> item = Item()
+        >>> item.do_monthdays("0, 1, 26, -1, -2")
+        (None, 'invalid monthdays: 0 is not allowed. Required for monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month.')
+        """
+
+        monthdaysstr = "monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month."
+        args = [x.strip() for x in arg.split(',')]
+
+        if args:
+            ok, res = integer_list(arg, -31, 31, False, "")
+            if ok:
+                obj = res
+                rep = ", ".join(res)
+            else:
+                obj = None
+                rep = f"invalid monthdays: {res}. Required for {monthdaysstr}"
+        else:
+            obj = None
+            rep = monthdaysstr
         return obj, rep
 
     def do_period(self, arg):
-        pass
+        """
+        >>> item = Item()
+        >>> item.do_period('')
+        (None, '')
+        >>> item.do_period('90')
+        (None, '~90~')
+        >>> item.do_period('90m')
+        (Duration(hours=1, minutes=30), '1h30m')
+        """
+        if not arg:
+            return None, arg
+        ok, res = parse_duration(arg)
+        if ok:
+            obj = res
+            rep = format_duration(res)
+        else:
+            obj = None
+            rep = f"~{arg}~"
+        return obj, rep
 
     def do_alert(self, arg):
-        pass
+        """
+        p1, p2, ...: cmd[, arg1, arg2, ...]
+        >>> item = Item()
+        >>> item.do_alert('')
+        (None, '')
+        >>> item.do_alert('90m, 45m')
+        ([[Duration(hours=1, minutes=30), Duration(minutes=45)], ''], '1h30m, 45m: ')
+        >>> item.do_alert('90m, 45m, 10: d')
+        (None, '1h30m, 45m, ~10~: d')
+        >>> item.do_alert('90m, 45m, 10m: d')
+        ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], 'd'], '1h30m, 45m, 10m: d')
+        """
+        obj = None
+        rep = arg
+        parts = arg.split(':')
+        periods = parts.pop(0)
+        command = parts[0].strip() if parts else ''
+        if periods:
+            all_ok = True
+            periods = [x.strip() for x in periods.split(',')]
+            obj_periods = []
+            rep_periods = []
+            for period in periods:
+                ok, res = parse_duration(period)
+                if ok:
+                    obj_periods.append(res)
+                    rep_periods.append(format_duration(res))
+                else:
+                    all_ok = False
+                    rep_periods.append(f"~{period}~")
+            obj = [obj_periods, command.strip()] if all_ok else None
+            rep = f"{', '.join(rep_periods)}: {command}"
+        return obj, rep
+
+
 
     def do_datetime(self, arg):
         """
         >>> item = Item()
         >>> item.do_datetime('fr')
-        (None, 'fr')
+        (None, '~fr~')
         >>> item.do_datetime('2019-01-25')
         (Date(2019, 1, 25), 'Fri Jan 25 2019')
         >>> item.do_datetime('2019-01-25 2p')
         (DateTime(2019, 1, 25, 14, 0, 0, tzinfo=Timezone('America/New_York')), 'Fri Jan 25 2019 2:00pm EST')
         """
-        rep = arg
         obj = None
         tz = self.item_hsh.get('z', None)
         ok, res, tz = parse_datetime(arg, tz)
         if ok:
             obj = res
             rep = format_datetime(obj)[1]
+        else:
+            rep = f"~{arg}~"
         return obj, rep
 
     def do_datetimes(self, args):
         """
         >>> item = Item()
-        >>> item.do_datetimes(['2019-1-25 2p', '2019-1-30 4p'])
-        ([DateTime(2019, 1, 25, 14, 0, 0, tzinfo=Timezone('America/New_York')), DateTime(2019, 1, 30, 16, 0, 0, tzinfo=Timezone('America/New_York'))], ['Fri Jan 25 2019 2:00pm EST', 'Wed Jan 30 2019 4:00pm EST'])
-        >>> item.do_datetimes(['2019-1-25 2p', '2019-1-30 4p', '2019-2-29 8a'])
-        (None, ['Fri Jan 25 2019 2:00pm EST', 'Wed Jan 30 2019 4:00pm EST', '2019-2-29 8a'])
+        >>> item.do_datetimes('2019-1-25 2p, 2019-1-30 4p')
+        ([DateTime(2019, 1, 25, 14, 0, 0, tzinfo=Timezone('America/New_York')), DateTime(2019, 1, 30, 16, 0, 0, tzinfo=Timezone('America/New_York'))], '2019-01-25 2:00pm, 2019-01-30 4:00pm')
+        >>> item.do_datetimes('2019-1-25 2p, 2019-1-30 4p, 2019-2-29 8a')
+        (None, '2019-01-25 2:00pm, 2019-01-30 4:00pm, ~2019-2-29 8a~')
         """
         rep = args
         obj = None
         tz = self.item_hsh.get('z', None)
-        if not isinstance(args, list):
-            args = [args]
+        args = [x.strip() for x in args.split(',')]
         obj = []
         rep = []
         all_ok = True
@@ -1007,12 +1201,12 @@ class Item(object):
             ok, res, tz = parse_datetime(arg, tz)
             if ok:
                 obj.append(res)
-                rep.append(format_datetime(res)[1])
+                rep.append(format_datetime(res, True)[1])
             else:
                 all_ok = False
-                rep.append(arg)
+                rep.append(f"~{arg}~")
         obj = obj if all_ok else None
-        # rep = ', '.join(rep)
+        rep = ', '.join(rep)
         return obj, rep
 
     def do_timezone(self, arg=None):
@@ -1027,7 +1221,7 @@ class Item(object):
         >>> item.do_timezone('Europe/Paris')
         ('Europe/Paris', 'Europe/Paris')
         >>> item.do_timezone('US/Pacifc')
-        (None, 'US/Pacifc')
+        (None, '~US/Pacifc~')
         """
         if arg is None:
             obj = rep = 'local'
@@ -1037,19 +1231,21 @@ class Item(object):
             try:
                 Timezone(arg)
                 obj = rep = arg
+                self.item_hsh['z'] = obj 
             except:
                 obj = None
-                rep = arg
+                rep = f"~{arg}~"
+                if 'z' in self.item_hsh:
+                    del self.item_hsh['z']
 
-        self.item_hsh['z'] = obj
-        # if obj:
-        #     self.update_times()
         return obj, rep
 
 
     def do_overdue(self, arg):
-        ok = arg in ('k', 'r', 's')
-        return ok, arg
+        if arg in ('k', 'r', 's'):
+            return arg, arg
+        else:
+            return None, f"~{arg}~"
 
 
 def listdiff(old_lst, new_lst):
@@ -1906,6 +2102,16 @@ def integer_list(arg, min, max, zero, typ=None):
     else:
         return True, ret
 
+def do_attendees(arg):
+    """
+    Process a list of attendee 'descriptive name <email_address>'.
+    """
+    ok, res = string_list(arg, 'attendees')
+    if ok:
+        return res, ", ".join(res)
+    else:
+        return None, res
+
 
 def title(arg):
     return string(arg, 'title')
@@ -2150,20 +2356,22 @@ def frequency(arg):
     if arg in freq:
         return True, arg
     elif arg:
-        return False, "invalid frequency: {} not in {}".format(arg, freqstr)
+        return False, f"invalid frequency: {arg} not in {freqstr}"
     else:
-        return False, "repetition frequency: character from {}".format(freqstr)
+        return False, f"repetition frequency: character from {freqstr}"
+
 
 def interval(arg):
     """
     interval (positive integer, default = 1) E.g, with frequency
     w, interval 3 would repeat every three weeks.
-    >>> interval("two")
-    (False, 'invalid interval: two. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
-    >>> interval(27)
-    (True, 27)
-    >>> interval([1, 2])
-    (False, 'invalid interval: [1, 2]. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
+    >>> item = Item()
+    >>> item.do_interval("two")
+    (None, 'invalid interval: two. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
+    >>> item.do_interval(27)
+    (27, 27)
+    >>> item.do_interval([1, 2])
+    (None, 'invalid interval: [1, 2]. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
     """
 
     intstr = "interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks."
@@ -2171,12 +2379,11 @@ def interval(arg):
     if arg:
         ok, res = integer(arg, 1, None, False)
         if ok:
-            return True, res
+            return res, arg
         else:
-            return False, "invalid interval: {}. Required for {}".format(res, intstr)
+            return None, f"invalid interval: {arg}. Required for {intstr}"
     else:
-        return False, intstr
-
+        return None, intstr
 
 def setpos(arg):
     """
