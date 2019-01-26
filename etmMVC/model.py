@@ -2,29 +2,29 @@
 from pprint import pprint
 import pendulum
 from pendulum import parse as pendulum_parse
-from pendulum import Date, DateTime, Duration
+# from pendulum import  DateTime, Duration
 from pendulum.datetime import Timezone
-from bisect import insort
+# from bisect import insort
 
 def parse(s, **kwd):
     return pendulum_parse(s, strict=False, **kwd)
 
-from datetime import datetime
+# from datetime import datetime
 
 import sys
 import re
 from re import finditer
 
-from tinydb import TinyDB, Query, Storage
-from tinydb.operations import delete
+from tinydb import TinyDB
+# from tinydb.operations import delete
 # from tinydb.database import Table
 # from tinydb.storages import JSONStorage
 from tinydb_serialization import Serializer
 from tinydb_serialization import SerializationMiddleware
 # from tinydb_smartcache import SmartCacheTable
 
-from copy import deepcopy
-import calendar as clndr
+# from copy import deepcopy
+# import calendar as clndr
 
 import dateutil
 import dateutil.rrule
@@ -32,7 +32,7 @@ from dateutil.rrule import *
 # from dateutil.easter import easter
 from dateutil import __version__ as dateutil_version
 
-from jinja2 import Environment, Template
+from jinja2 import Template
 
 import textwrap
 
@@ -764,38 +764,38 @@ class Item(object):
         # all else do not need item_hsh
         self.keys = {
                 'itemtype': ["item type", "character from * (event), - (task), % (record) or ! (inbox)", self.do_itemtype],
-                'summary': ["item summary", "string", self.do_string],
+                'summary': ["item summary", "string", do_string],
                 '+': ["include", "datetimes", self.do_datetimes],
                 '-': ["exclude", "datetimes", self.do_datetimes],
-                'a': ["alert", "list of alerts", self.do_alert],
+                'a': ["alert", "list of alerts", do_alert],
                 'b': ["beginby", "integer number of days"],
-                'c': ["calendar", "string", self.do_string],
-                'd': ["description", "string", self.do_string],
-                'e': ["extent", "timeperiod", self.do_period],
+                'c': ["calendar", "string", do_string],
+                'd': ["description", "string", do_string],
+                'e': ["extent", "timeperiod", do_period],
                 'f': ["finish", "datetime", self.do_datetime],
-                'g': ["goto url or filepath", " string", self.do_string],
+                'g': ["goto url or filepath", "string", do_string],
                 'h': ["completions history", "datetimes", self.do_datetimes],
-                'i': ["index", "colon delimited string", self.do_string],
-                'l': ["location", "string", self.do_string],
-                'm': ["memo", " string", self.do_string],
-                'n': ["attendees", "list of 'name <email address>'", do_attendees],
-                'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", self.do_overdue],
-                'p': ["priority", "positive integer", self.do_posint],
+                'i': ["index", "colon delimited string", do_string],
+                'l': ["location", "string", do_string],
+                'm': ["memo", " string", do_string],
+                'n': ["attendees", "list of 'name <email address>'", do_stringlist],
+                'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", do_overdue],
+                'p': ["priority", "positive integer", do_priority],
                 's': ["start", "date or datetime", self.do_datetime],
-                't': ["tags", "list of strings", self.do_stringlist],
-                'x': ["expansion key", "string", self.do_string],
+                't': ["tags", "list of strings", do_stringlist],
+                'x': ["expansion key", "string", do_string],
                 'z': ["timezone", "string", self.do_timezone],
                 '?': ["@-key", "enter @-key", self.do_at],
 
-                'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute", self.do_frequency],
-                'rc': ["count", "integer number of repetitions", self.do_posint],
-                'rm': ["monthday", "list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", self.do_monthdays], 
-                'rE': ["easter", "number of days before (-), on (0) or after (+) Easter"],
-                'rh': ["hour", "list of integers in 0 ... 23"],
-                'ri': ["interval", "positive integer", self.do_posint],
-                'rM': ["month", "list of integers in 1 ... 12"], 
-                'rn': ["minute", "list of integers in 0 ... 59"], 
-                'rs': ["set position", "integer"],
+                'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute", do_frequency],
+                'rc': ["count", "integer number of repetitions", do_count],
+                'rm': ["monthdays", "list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", do_monthdays], 
+                'rE': ["easterdays", "number of days before (-), on (0) or after (+) Easter", do_easterdays],
+                'rh': ["hours", "list of integers in 0 ... 23", do_hours],
+                'ri': ["interval", "positive integer", do_interval],
+                'rM': ["months", "list of integers in 1 ... 12", do_months], 
+                'rn': ["minutes", "list of integers in 0 ... 59"], 
+                'rs': ["set positions", "integer", do_setpositions],
                 'ru': ["until", "datetime"],
                 'rw': ["weekday", "list from SU, MO, ..., SA, possibly prepended with a positive or negative integer"],
                 'rW': ["week number", "list of integers in 1, ... 53"],
@@ -931,12 +931,7 @@ class Item(object):
             k, v = ok
             if k in ['itemtype', 'summary']:
                 self.obj_hsh[kv] = val
-
-
-
         return ask, reply
-
-    # do_datetime, e.g. should return True/False, datetime/'', datetime.formatted/'' 
 
     def do_at(self, arg=''):
         """
@@ -964,90 +959,6 @@ class Item(object):
 
         return None, rep
 
-    def do_interval(self, arg):
-        """
-        interval (positive integer, default = 1) E.g, with frequency
-        w, interval 3 would repeat every three weeks.
-        >>> item = Item()
-        >>> item.do_interval("two")
-        (None, 'invalid interval: two. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
-        >>> item.do_interval(27)
-        (27, 27)
-        >>> item.do_interval([1, 2])
-        (None, 'invalid interval: [1, 2]. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
-        """
-
-        intstr = "interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks."
-
-        if arg:
-            ok, res = integer(arg, 1, None, False)
-            if ok:
-                return res, arg
-            else:
-                return None, f"invalid interval: {arg}. Required for {intstr}"
-        else:
-            return None, intstr
-
-
-    def do_posint(self, arg):
-        """
-        >>> item = Item()
-        >>> item.do_posint('')
-        (None, '')
-        >>> item.do_posint('one')
-        (None, '~one~')
-        """
-        try:
-            res = int(arg)
-        except:
-            res = None
-        if res and res > 0:
-            obj = res
-            rep = f"{res}"
-        else:
-            obj = None
-            rep = f"~{arg}~" if arg else ""
-        return obj, rep
-
-
-    def do_string(self, arg):
-        try:
-            obj = str(arg)
-            rep = obj
-        except:
-            obj = None
-            rep = f"~{arg}~"
-        return obj, rep
-
-    def do_stringlist(self, args):
-        """
-        >>> item = Item()
-        >>> item.do_stringlist('')
-        (None, '')
-        >>> item.do_stringlist('red')
-        (['red'], 'red')
-        >>> item.do_stringlist('red,  green,blue')
-        (['red', 'green', 'blue'], 'red, green, blue')
-        """
-        obj = None
-        rep = args
-        if args:
-            args = [x.strip() for x in args.split(',')]
-            all_ok = True
-            obj_lst = []
-            rep_lst = []
-            for arg in args:
-                try:
-                    res = str(arg)
-                    obj_lst.append(res)
-                    rep_lst.append(res)
-                except:
-                    all_ok = False
-                    rep_lst.append(f"~{arg}~")
-            obj = obj_lst if all_ok else None
-            rep = ", ".join(rep_lst)
-        return obj, rep
-
     def do_itemtype(self, arg):
         if not arg:
             return None, arg
@@ -1059,108 +970,6 @@ class Item(object):
             self.item_hsh['itemtype'] = '' 
             rep = f"~{arg}~"
         return obj, rep
-
-    def do_frequency(self, arg):
-        """
-        repetition frequency: character in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly
-        or mi(n)utely.
-        >>> item = Item()
-        >>> item.do_frequency('d')
-        ('d', 'd')
-        >>> item.do_frequency('z')
-        (None, 'invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
-        """
-
-        freq = [x for x in rrule_freq]
-        freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely."
-        if arg in freq:
-            return arg, arg
-        elif arg:
-            return None, f"invalid frequency: {arg} not in {freqstr}"
-        else:
-            return None, f"repetition frequency: character from {freqstr}"
-
-
-    def do_monthdays(self, arg):
-        """
-        >>> item = Item()
-        >>> item.do_monthdays("0, 1, 26, -1, -2")
-        (None, 'invalid monthdays: 0 is not allowed. Required for monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month.')
-        """
-
-        monthdaysstr = "monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month."
-        args = [x.strip() for x in arg.split(',')]
-
-        if args:
-            ok, res = integer_list(arg, -31, 31, False, "")
-            if ok:
-                obj = res
-                rep = ", ".join(res)
-            else:
-                obj = None
-                rep = f"invalid monthdays: {res}. Required for {monthdaysstr}"
-        else:
-            obj = None
-            rep = monthdaysstr
-        return obj, rep
-
-    def do_period(self, arg):
-        """
-        >>> item = Item()
-        >>> item.do_period('')
-        (None, '')
-        >>> item.do_period('90')
-        (None, '~90~')
-        >>> item.do_period('90m')
-        (Duration(hours=1, minutes=30), '1h30m')
-        """
-        if not arg:
-            return None, arg
-        ok, res = parse_duration(arg)
-        if ok:
-            obj = res
-            rep = format_duration(res)
-        else:
-            obj = None
-            rep = f"~{arg}~"
-        return obj, rep
-
-    def do_alert(self, arg):
-        """
-        p1, p2, ...: cmd[, arg1, arg2, ...]
-        >>> item = Item()
-        >>> item.do_alert('')
-        (None, '')
-        >>> item.do_alert('90m, 45m')
-        ([[Duration(hours=1, minutes=30), Duration(minutes=45)], ''], '1h30m, 45m: ')
-        >>> item.do_alert('90m, 45m, 10: d')
-        (None, '1h30m, 45m, ~10~: d')
-        >>> item.do_alert('90m, 45m, 10m: d')
-        ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], 'd'], '1h30m, 45m, 10m: d')
-        """
-        obj = None
-        rep = arg
-        parts = arg.split(':')
-        periods = parts.pop(0)
-        command = parts[0].strip() if parts else ''
-        if periods:
-            all_ok = True
-            periods = [x.strip() for x in periods.split(',')]
-            obj_periods = []
-            rep_periods = []
-            for period in periods:
-                ok, res = parse_duration(period)
-                if ok:
-                    obj_periods.append(res)
-                    rep_periods.append(format_duration(res))
-                else:
-                    all_ok = False
-                    rep_periods.append(f"~{period}~")
-            obj = [obj_periods, command.strip()] if all_ok else None
-            rep = f"{', '.join(rep_periods)}: {command}"
-        return obj, rep
-
-
 
     def do_datetime(self, arg):
         """
@@ -1240,12 +1049,6 @@ class Item(object):
 
         return obj, rep
 
-
-    def do_overdue(self, arg):
-        if arg in ('k', 'r', 's'):
-            return arg, arg
-        else:
-            return None, f"~{arg}~"
 
 
 def listdiff(old_lst, new_lst):
@@ -1970,6 +1773,43 @@ def one_or_more(s):
         return str(s)
 
 
+def do_string(arg):
+    try:
+        obj = str(arg)
+        rep = arg
+    except:
+        obj = None
+        rep = f"~{arg}~"
+    return obj, rep
+
+def do_stringlist(args):
+    """
+    >>> do_stringlist('')
+    (None, '')
+    >>> do_stringlist('red')
+    (['red'], 'red')
+    >>> do_stringlist('red,  green,blue')
+    (['red', 'green', 'blue'], 'red, green, blue')
+    """
+    obj = None
+    rep = args
+    if args:
+        args = [x.strip() for x in args.split(',')]
+        all_ok = True
+        obj_lst = []
+        rep_lst = []
+        for arg in args:
+            try:
+                res = str(arg)
+                obj_lst.append(res)
+                rep_lst.append(res)
+            except:
+                all_ok = False
+                rep_lst.append(f"~{arg}~")
+        obj = obj_lst if all_ok else None
+        rep = ", ".join(rep_lst)
+    return obj, rep
+
 def string(arg, typ=None):
     try:
         arg = str(arg)
@@ -2102,16 +1942,6 @@ def integer_list(arg, min, max, zero, typ=None):
     else:
         return True, ret
 
-def do_attendees(arg):
-    """
-    Process a list of attendee 'descriptive name <email_address>'.
-    """
-    ok, res = string_list(arg, 'attendees')
-    if ok:
-        return res, ", ".join(res)
-    else:
-        return None, res
-
 
 def title(arg):
     return string(arg, 'title')
@@ -2232,6 +2062,66 @@ jinja_display_template.globals['wrap'] = wrap
 def beginby(arg):
     return integer(arg, 1, None, False, 'beginby')
 
+def do_alert(arg):
+    """
+    p1, p2, ...: cmd[, arg1, arg2, ...]
+    >>> do_alert('')
+    (None, '')
+    >>> do_alert('90m, 45m')
+    ([[Duration(hours=1, minutes=30), Duration(minutes=45)], ''], '1h30m, 45m: ')
+    >>> do_alert('90m, 45m, 10: d')
+    (None, '1h30m, 45m, ~10~: d')
+    >>> do_alert('90m, 45m, 10m: d')
+    ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], 'd'], '1h30m, 45m, 10m: d')
+    """
+    obj = None
+    rep = arg
+    parts = arg.split(':')
+    periods = parts.pop(0)
+    command = parts[0].strip() if parts else ''
+    if periods:
+        all_ok = True
+        periods = [x.strip() for x in periods.split(',')]
+        obj_periods = []
+        rep_periods = []
+        for period in periods:
+            ok, res = parse_duration(period)
+            if ok:
+                obj_periods.append(res)
+                rep_periods.append(format_duration(res))
+            else:
+                all_ok = False
+                rep_periods.append(f"~{period}~")
+        obj = [obj_periods, command.strip()] if all_ok else None
+        rep = f"{', '.join(rep_periods)}: {command}"
+    return obj, rep
+
+def do_period(arg):
+    """
+    >>> do_period('')
+    (None, '')
+    >>> do_period('90')
+    (None, '~90~')
+    >>> do_period('90m')
+    (Duration(hours=1, minutes=30), '1h30m')
+    """
+    if not arg:
+        return None, arg
+    ok, res = parse_duration(arg)
+    if ok:
+        obj = res
+        rep = format_duration(res)
+    else:
+        obj = None
+        rep = f"~{arg}~"
+    return obj, rep
+
+def do_overdue(arg):
+    if arg in ('k', 'r', 's'):
+        return arg, arg
+    else:
+        return None, f"~{arg}~"
+
 def alert(arg):
     # FIXME
     return True, ''
@@ -2294,14 +2184,31 @@ def until(arg):
     else:
         return False, "Include repetitions falling on or before this datetime."
 
+def do_priority(arg):
+    """
+    >>> do_priority("0")
+    (None, 'invalid priority: priority: 0 is less than the allowed minimum. Required for priority: an integer priority number from 1 (highest), to 9 (lowest)')
+    """
+    prioritystr = "priority: an integer priority number from 1 (highest), to 9 (lowest)"
+    if arg:
+        ok, res = integer(arg, 1, 9, False, "priority")
+        if ok:
+            obj = res
+            rep = arg
+        else:
+            obj = None
+            rep = f"invalid priority: {res}. Required for {prioritystr}"
+    else:
+        obj = None
+        rep = prioritystr
+    return obj, rep
+
 def priority(arg):
     """
     >>> priority(0)
     (False, 'priority: an integer priority numbers from 1 (highest), to 9 (lowest)')
     """
-
     prioritystr = "priority: an integer priority numbers from 1 (highest), to 9 (lowest)"
-
     if arg:
         ok, res = integer(arg, 1, 9, False, "priority")
         if ok:
@@ -2316,6 +2223,33 @@ def priority(arg):
 ### begin rrule setup ###############
 #####################################
 
+
+def do_easterdays(arg):
+    """
+    byeaster; integer or sequence of integers numbers of days before, < 0,
+    or after, > 0, Easter.
+    >>> do_easterdays("0")
+    ([0], '0')
+    >>> do_easterdays("-364, -30, 0, 45, 260")
+    ([-364, -30, 0, 45, 260], '-364, -30, 0, 45, 260')
+    """
+    easterstr = "easter: a comma separated list of integer numbers of days before, < 0, or after, > 0, Easter."
+
+    if arg == 0:
+        arg = [0]
+    args = arg.split(',')
+    if args:
+        ok, res = integer_list(arg, None, None, True, 'easter')
+        if ok:
+            obj = res
+            rep = arg
+        else:
+            obj = None
+            rep = f"invalid easter: {res}. Required for {easterstr}"
+    else:
+        obj = None
+        rep = easterstr
+    return obj, rep
 
 def easter(arg):
     """
@@ -2341,37 +2275,16 @@ def easter(arg):
         return False, easterstr
 
 
-def frequency(arg):
-    """
-    repetition frequency: character in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly
-    or mi(n)utely.
-    >>> frequency('d')
-    (True, 'd')
-    >>> frequency('z')
-    (False, 'invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
-    """
-
-    freq = [x for x in rrule_freq]
-    freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely."
-    if arg in freq:
-        return True, arg
-    elif arg:
-        return False, f"invalid frequency: {arg} not in {freqstr}"
-    else:
-        return False, f"repetition frequency: character from {freqstr}"
-
-
-def interval(arg):
+def do_interval(arg):
     """
     interval (positive integer, default = 1) E.g, with frequency
     w, interval 3 would repeat every three weeks.
-    >>> item = Item()
-    >>> item.do_interval("two")
-    (None, 'invalid interval: two. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
-    >>> item.do_interval(27)
+    >>> do_interval("two")
+    (None, "invalid interval: 'two'. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.")
+    >>> do_interval(27)
     (27, 27)
-    >>> item.do_interval([1, 2])
-    (None, 'invalid interval: [1, 2]. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.')
+    >>> do_interval("1, 2")
+    (None, "invalid interval: '1, 2'. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.")
     """
 
     intstr = "interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks."
@@ -2381,21 +2294,78 @@ def interval(arg):
         if ok:
             return res, arg
         else:
-            return None, f"invalid interval: {arg}. Required for {intstr}"
+            return None, f"invalid interval: '{res}'. Required for {intstr}"
     else:
         return None, intstr
 
-def setpos(arg):
+
+def do_frequency(arg):
     """
-    bysetpos (non-zero integer or sequence of non-zero integers). When
-    multiple dates satisfy the rule, take the dates from this/these positions
-    in the list, e.g, &s 1 would choose the first element and &s -1 the last.
-    >>> setpos(1)
-    (True, [1])
-    >>> setpos(["-1", 0])
-    (False, 'setpos: 0 is not allowed')
+    repetition frequency: character in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly
+    or mi(n)utely.
+    >>> do_frequency('d')
+    ('d', 'd')
+    >>> do_frequency('z')
+    (None, 'invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
     """
-    return integer_list(arg, None, None, False, "setpos")
+
+    freq = [x for x in rrule_freq]
+    freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely."
+    if arg in freq:
+        return arg, arg
+    elif arg:
+        return None, f"invalid frequency: {arg} not in {freqstr}"
+    else:
+        return None, f"repetition frequency: character from {freqstr}"
+
+def do_setpositions(arg):
+    """
+    >>> do_setpositions("1")
+    ([1], '1')
+    >>> do_setpositions("-1, 0")
+    (None, 'invalid setpos: setpos: 0 is not allowed. setpos (non-zero integer or sequence of non-zero integers). When multiple dates satisfy the rule, take the dates from this/these positions in the list, e.g, &s 1 would choose the first element and &s -1 the last.')
+    """
+    setposstr = "setpos (non-zero integer or sequence of non-zero integers). When multiple dates satisfy the rule, take the dates from this/these positions in the list, e.g, &s 1 would choose the first element and &s -1 the last."
+    args = arg.split(',')
+    if args:
+        ok, res = integer_list(arg, None, None, False, "setpos")
+        if ok:
+            obj = res
+            rep = arg
+        else:
+            obj = None
+            rep = f"invalid setpos: {res}. {setposstr}"
+    else:
+        obj = None
+        rep = setposstr
+    return obj, rep
+
+
+def do_count(arg):
+    """
+    count (positive integer) Include no more than this number of repetitions.
+    >>> count('three')
+    (False, 'invalid count: three. Required for count: a positive integer. Include no more than this number of repetitions.')
+    >>> count('3')
+    (True, 3)
+    >>> count([2, 3])
+    (False, 'invalid count: [2, 3]. Required for count: a positive integer. Include no more than this number of repetitions.')
+    """
+
+    countstr = "count: a positive integer. Include no more than this number of repetitions."
+
+    if arg:
+        ok, res = integer(arg, 1, None, False )
+        if ok:
+            obj = res
+            rep = arg
+        else:
+            obj = None
+            rep = f"invalid count: {res}. Required for {countstr}"
+    else:
+        obj = None
+        rep = countstr
+    return obj, rep
 
 
 def count(arg):
@@ -2493,24 +2463,50 @@ def weeks(arg):
         return False, weeksstr
 
 
-def months(arg):
+def do_months(arg):
     """
     bymonth (1, 2, ..., 12 or a sequence of such integers)
-    >>> months([0, 2, 7, 13])
-    (False, 'invalid months: 0 is not allowed; 13 is greater than the allowed maximum. Required for months: a comma separated list of integer month numbers from 1, 2, ..., 12')
+    >>> do_months("0, 2, 7, 13")
+    (None, 'invalid months: 0 is not allowed; 13 is greater than the allowed maximum. Required for months: a comma separated list of integer month numbers from 1, 2, ..., 12')
     """
-
     monthsstr = "months: a comma separated list of integer month numbers from 1, 2, ..., 12"
 
-    if arg:
-        ok, res = integer_list(arg, 0, 12, False, "")
+    args = arg.split(',')
+    if args:
+        ok, res = integer_list(args, 0, 12, False, "")
         if ok:
-            return True, res
+            obj = res
+            rep = arg
         else:
-            return False, "invalid months: {}. Required for {}".format(res, monthsstr)
+            obj = None
+            rep = f"invalid months: {res}. Required for {monthsstr}"
     else:
-        return False, monthsstr
+        obj = None
+        rep = monthsstr
+    return obj, rep
 
+
+def do_monthdays(arg):
+    """
+    >>> do_monthdays("0, 1, 26, -1, -2")
+    (None, 'invalid monthdays: 0 is not allowed. Required for monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month.')
+    """
+
+    monthdaysstr = "monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month."
+
+    args = arg.split(',')
+    if args:
+        ok, res = integer_list(args, -31, 31, False, "")
+        if ok:
+            obj = res
+            rep = arg
+        else:
+            obj = None
+            rep = f"invalid monthdays: {res}. Required for {monthdaysstr}"
+    else:
+        obj = None
+        rep = monthdaysstr
+    return obj, rep
 
 def monthdays(arg):
     """
@@ -2529,61 +2525,69 @@ def monthdays(arg):
     else:
         return False, monthdaysstr
 
-def hours(arg):
+def do_hours(arg):
     """
-    >>> hours([0, 6, 12, 18, 24])
-    (False, 'invalid hours: [0, 6, 12, 18, 24]. Required for hours: a comma separated of integer hour numbers from 0, 1,  ..., 23.')
-    >>> hours([0, "1"])
-    (True, [0, 1])
+    >>> do_hours("0, 6, 12, 18, 24")
+    (None, 'invalid hours: hours: 24 is greater than the allowed maximum. Required for hours: a comma separated of integer hour numbers from 0, 1,  ..., 23.')
+    >>> do_hours("0, 1")
+    ([0, 1], '0, 1')
     """
-
     hoursstr = "hours: a comma separated of integer hour numbers from 0, 1,  ..., 23."
 
-    if arg or arg == 0:
-        ok, res = integer_list(arg, 0, 23, True, "")
+    args = arg.split(',')
+
+    if args:
+        ok, res = integer_list(args, 0, 23, True, "hours")
         if ok:
-            return True, res
+            obj = res
+            rep = arg
         else:
-            return False, "invalid hours: {}. Required for {}".format(arg, hoursstr)
+            obj = None
+            rep = f"invalid hours: {res}. Required for {hoursstr}"
     else:
-        return False, hoursstr
+        obj = None
+        rep = hoursstr
+    return obj, rep
 
 
-def minutes(arg):
+def do_minutes(arg):
     """
     byminute (0 ... 59 or a sequence of such integers)
-    >>> minutes(27)
-    (True, [27])
-    >>> minutes([0, 60])
-    (False, 'invalid minutes: 60 is greater than the allowed maximum. Required for minutes: a comma separated of integer hour numbers from 0, 1, ..., 59.')
+    >>> do_minutes("27")
+    ([27], '27')
+    >>> do_minutes("0, 60")
+    (None, 'invalid minutes: 60 is greater than the allowed maximum. Required for minutes: a comma separated of integer minute numbers from 0 through 59.')
     """
+    minutesstr = "minutes: a comma separated of integer minute numbers from 0 through 59."
 
-    minutesstr = "minutes: a comma separated of integer hour numbers from 0, 1, ..., 59."
-
-    if arg or arg == 0:
+    args = arg.split(',')
+    if args:
         ok, res = integer_list(arg, 0, 59, True, "")
         if ok:
-            return True, res
+            obj = res
+            rep = arg
         else:
-            return False, "invalid minutes: {}. Required for {}".format(res, minutesstr)
+            obj = None
+            rep = f"invalid minutes: {res}. Required for {minutesstr}"
     else:
-        return False, minutesstr
-
+        obj = None
+        rep = minutesstr
+    return obj, rep
 
 
 rrule_methods = {
-    'r':  frequency,
-    'i':  interval,
-    's':  setpos,
-    'c':  count,
+    'r':  do_frequency,
+    'i':  do_interval,
+    's':  do_setpositions,
+    'c':  do_count,
     'u':  until,
-    'M':  months,
-    'm':  monthdays,
+    'M':  do_months,
+    'm':  do_monthdays,
     'W':  weeks,
     'w':  weekdays,
-    'h':  hours,
-    'n':  minutes,
-    'E':  easter,
+    'h':  do_hours,
+    'n':  do_minutes,
+    'E':  do_easterdays,
     }
 
 rrule_freq = {
