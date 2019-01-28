@@ -746,7 +746,6 @@ class Item(object):
 
     """
 
-
     def __init__(self, s=None):
         """
         """
@@ -2403,13 +2402,13 @@ def do_weekdays(arg):
     Use, e.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the
     month.
     >>> do_weekdays("")
-    (None, 'invalid weekdays: . weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
+    (None, 'incomplete or invalid weekdays: . weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     >>> do_weekdays("-2mo, 3tU")
     ([MO(-2), TU(+3)], '-2MO, 3TU')
     >>> do_weekdays("5Su, 1SA")
-    (None, 'invalid weekdays: 5SU. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
+    (None, 'incomplete or invalid weekdays: 5SU. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     >>> do_weekdays('3FR, -1M')
-    (None, 'invalid weekdays: -1M. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
+    (None, 'incomplete or invalid weekdays: -1M. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     """
     weekdaysstr = "weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month."
     args = [x.strip().upper() for x in arg.split(',')]
@@ -2423,7 +2422,7 @@ def do_weekdays(arg):
                 bad.append(x)
         if bad:
             obj = None
-            rep = f"invalid weekdays: {', '.join(bad)}. {weekdaysstr}"
+            rep = f"incomplete or invalid weekdays: {', '.join(bad)}. {weekdaysstr}"
         else:
             obj = good
             rep = arg.upper()
