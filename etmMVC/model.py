@@ -145,7 +145,7 @@ at_keys = {
         'i': "index: colon delimited string",
         'j': "job summary: string",
         'l': "location: string",
-        'm': "memo: string",
+        'm': "memo: string",  # maybe masked / crypted?
         'n': "attendees: list of 'name <email address>'",
         'o': "overdue: character from (r)estart, (s)kip or (k)eep",
         'p': "priority: integer",
@@ -207,36 +207,27 @@ semicolon_regex = re.compile(r'\;\s*')
 
 allowed = {}
 required = {}
-undated_methods = 'cdegilmstx'
-date_methods = 'bro'
-datetime_methods = date_methods + 'eaz+-'
+common_methods = 'cdegilmstx'
+repeating_methods = '+-ro'
+datetime_methods = 'abez'
 task_methods = 'fhjp'
 
 # events
 required['*'] = ['s']
-allowed['*'] = undated_methods + datetime_methods
+allowed['*'] = common_methods + datetime_methods + repeating_methods
 
 
 # tasks
 required['-'] = []
-allowed['-'] = undated_methods + datetime_methods + task_methods
+allowed['-'] = common_methods + datetime_methods + task_methods + repeating_methods
 
-# journal entries
+# record entries
 required['%'] = []
-allowed['%'] = undated_methods + datetime_methods
-
-# # someday entries
-# required['?'] = ''
-# allowed['?'] = undated_methods + task_methods + datetime_methods
+allowed['%'] = common_methods + datetime_methods
 
 # inbox entries
 required['!'] = []
-allowed['!'] = undated_methods + datetime_methods + task_methods
-
-# item type t and has s
-# allowed['date'] = allowed[t] + 'br'
-# allowed['datetime'] = allowed[t] + 'abr'
-# allowed['r'] = '+-'
+allowed['!'] = common_methods + datetime_methods + task_methods + repeating_methods
 
 requires = {
         'a': 's',
@@ -628,26 +619,30 @@ def process_entry(s):
     * evnt @s 2p fri @e 90m @r m &w 2fr &u 6/1 9a @c dag @l home
     >>> s = "* evnt @s 2p fri @e 90m @r m &w 2fr & @c dag"
     >>> process_entry(s)
-    ({(0, 1): ['itemtype', '*'], (1, 7): ['summary', 'evnt'], (7, 17): ['s', '2p fri'], (17, 24): ['e', '90m'], (24, 29): ['rr', 'm'], (29, 36): ['rw', '2fr'], (36, 38): ['r?', ''], (38, 45): ['c', 'dag']}, [('itemtype', '*'), ('summary', 'evnt'), ('s', '2p fri'), ('e', '90m'), ('rr', 'm'), ('rw', '2fr'), ('r?', ''), ('c', 'dag')])
+    ({(0, 1): ('itemtype', '*'), (1, 7): ('summary', 'evnt'), (7, 17): ('s', '2p fri'), (17, 24): ('e', '90m'), (24, 29): ('rr', 'm'), (29, 36): ('rw', '2fr'), (36, 38): ('r?', ''), (38, 45): ('c', 'dag')}, [('itemtype', '*'), ('summary', 'evnt'), ('s', '2p fri'), ('e', '90m'), ('rr', 'm'), ('rw', '2fr'), ('r?', ''), ('c', 'dag')])
     >>> s = "* evnt @s 2p fri @e 90m @r m &w 2fr &u 6/1 9a @ @l home"
     >>> process_entry(s)
-    ({(0, 1): ['itemtype', '*'], (1, 7): ['summary', 'evnt'], (7, 17): ['s', '2p fri'], (17, 24): ['e', '90m'], (24, 29): ['rr', 'm'], (29, 36): ['rw', '2fr'], (36, 46): ['ru', '6/1 9a'], (46, 48): ['?', ''], (48, 56): ['l', 'home']}, [('itemtype', '*'), ('summary', 'evnt'), ('s', '2p fri'), ('e', '90m'), ('rr', 'm'), ('rw', '2fr'), ('ru', '6/1 9a'), ('?', ''), ('l', 'home')])
+    ({(0, 1): ('itemtype', '*'), (1, 7): ('summary', 'evnt'), (7, 17): ('s', '2p fri'), (17, 24): ('e', '90m'), (24, 29): ('rr', 'm'), (29, 36): ('rw', '2fr'), (36, 46): ('ru', '6/1 9a'), (46, 48): ('?', ''), (48, 56): ('l', 'home')}, [('itemtype', '*'), ('summary', 'evnt'), ('s', '2p fri'), ('e', '90m'), ('rr', 'm'), ('rw', '2fr'), ('ru', '6/1 9a'), ('?', ''), ('l', 'home')])
     >>> process_entry('')
-    ({(0, 1): ['itemtype', '']}, [('itemtype', '')])
+    ({(0, 1): ('itemtype', '')}, [('itemtype', '')])
     >>> process_entry("- ")
-    ({(0, 1): ['itemtype', '-'], (1, 3): ['summary', '']}, [('itemtype', '-'), ('summary', '')])
+    ({(0, 1): ('itemtype', '-'), (1, 3): ('summary', '')}, [('itemtype', '-'), ('summary', '')])
     >>> process_entry("- todo @ @t red, green")
-    ({(0, 1): ['itemtype', '-'], (1, 7): ['summary', 'todo'], (7, 9): ['?', ''], (9, 23): ['t', 'red, green']}, [('itemtype', '-'), ('summary', 'todo'), ('?', ''), ('t', 'red, green')])
+    ({(0, 1): ('itemtype', '-'), (1, 7): ('summary', 'todo'), (7, 9): ('?', ''), (9, 23): ('t', 'red, green')}, [('itemtype', '-'), ('summary', 'todo'), ('?', ''), ('t', 'red, green')])
     >>> process_entry("- todo  @s mon 9a @j job 1 &s 2d @j job 2 & @j job 3")
-    ({(0, 1): ['itemtype', '-'], (1, 8): ['summary', 'todo'], (8, 18): ['s', 'mon 9a'], (18, 27): ['jj', 'job 1'], (27, 33): ['js', '2d'], (33, 42): ['jj', 'job 2'], (42, 44): ['j?', ''], (44, 53): ['jj', 'job 3']}, [('itemtype', '-'), ('summary', 'todo'), ('s', 'mon 9a'), ('jj', 'job 1'), ('js', '2d'), ('jj', 'job 2'), ('j?', ''), ('jj', 'job 3')])
+    ({(0, 1): ('itemtype', '-'), (1, 8): ('summary', 'todo'), (8, 18): ('s', 'mon 9a'), (18, 27): ('jj', 'job 1'), (27, 33): ('js', '2d'), (33, 42): ('jj', 'job 2'), (42, 44): ('j?', ''), (44, 53): ('jj', 'job 3')}, [('itemtype', '-'), ('summary', 'todo'), ('s', 'mon 9a'), ('jj', 'job 1'), ('js', '2d'), ('jj', 'job 2'), ('j?', ''), ('jj', 'job 3')])
     >>> process_entry("- todo  @s mon 9a @a 15m, 10m: d @a 15m, 10m: v")
-    ({(0, 1): ['itemtype', '-'], (1, 8): ['summary', 'todo'], (8, 18): ['s', 'mon 9a'], (18, 33): ['a', '15m, 10m: d'], (33, 48): ['a', '15m, 10m: v']}, [('itemtype', '-'), ('summary', 'todo'), ('s', 'mon 9a'), ('a', '15m, 10m: d'), ('a', '15m, 10m: v')])
+    ({(0, 1): ('itemtype', '-'), (1, 8): ('summary', 'todo'), (8, 18): ('s', 'mon 9a'), (18, 33): ('a', '15m, 10m: d'), (33, 48): ('a', '15m, 10m: v')}, [('itemtype', '-'), ('summary', 'todo'), ('s', 'mon 9a'), ('a', '15m, 10m: d'), ('a', '15m, 10m: v')])
+    >>> process_entry('+ bad type character')
+    ({(0, 21): ('itemtype', '+')}, [('itemtype', '+')])
     """
     tups = []
     keyvals = []
     pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
     if not s:
-        return {(0, 1): ['itemtype', '']}, [('itemtype', '')]
+        return {(0, 1): ('itemtype', '')}, [('itemtype', '')]
+    elif s[0] not in type_keys:
+        return {(0, len(s) + 1): ('itemtype', s[0])}, [('itemtype', s[0])]
     pattern = "\s[@&][a-zA-Z+-]"
     parts = []
     for match in finditer(pattern, s):
@@ -660,12 +655,12 @@ def process_entry(s):
     lastkey = s[0]
     for beg, end, key in parts:
         tups.append([lastkey, s[lastend:beg].strip(), lastbeg, beg])
-        pos_hsh[tuple([tups[-1][2], tups[-1][3]])] = [tups[-1][0], tups[-1][1]]
+        pos_hsh[tuple((tups[-1][2], tups[-1][3]))] = (tups[-1][0], tups[-1][1])
         lastkey = key
         lastbeg = beg
         lastend = end
     tups.append([lastkey, s[lastend:].strip(), lastbeg, len(s)+1])
-    pos_hsh[tuple([tups[-1][2], tups[-1][3]])] = [tups[-1][0], tups[-1][1]]
+    pos_hsh[tuple((tups[-1][2], tups[-1][3]))] = (tups[-1][0], tups[-1][1])
 
     pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
 
@@ -693,22 +688,22 @@ def process_entry(s):
 
     for key, value, beg, end in aug_tups:
         if key in ['@r', '@j']:
-            pos_hsh[tuple([beg, end])] = [f"{key[-1]}{key[-1]}", value]
+            pos_hsh[tuple([beg, end])] = (f"{key[-1]}{key[-1]}", value)
             adding = key[-1]
         elif key in ['@a']:
-            pos_hsh[tuple([beg, end])] = [key[-1], value]
+            pos_hsh[tuple((beg, end))] = (key[-1], value)
             adding = None
         elif key.startswith('&'):
             if adding:
-                pos_hsh[tuple([beg, end])] = [f"{adding}{key[-1]}", value]
+                pos_hsh[tuple((beg, end))] = (f"{adding}{key[-1]}", value)
             else:
                 pass
         elif key in ['itemtype', 'summary']:
             adding = None
-            pos_hsh[tuple([beg, end])] = [key, value]
+            pos_hsh[tuple((beg, end))] = (key, value)
         else:
             adding = None
-            pos_hsh[tuple([beg, end])] = [key[-1], value]
+            pos_hsh[tuple([beg, end])] = (key[-1], value)
 
     keyvals = [(k, v) for pos, (k, v) in pos_hsh.items()]
     if keyvals[0][0] in type_keys:
@@ -722,18 +717,23 @@ def active_from_pos(pos_hsh, pos):
     """
     >>> s = "* evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home"
     >>> pos_hsh, hsh = process_entry(s)
+    >>> print(pos_hsh)
+    {(0, 1): ('itemtype', '*'), (1, 7): ('summary', 'evnt'), (7, 17): ('s', '2p fri'), (17, 24): ('e', '90m'), (24, 29): ('rr', 'w'), (29, 36): ('rw', '2fr'), (36, 46): ('ru', '6/1 9a'), (46, 53): ('c', 'dag'), (53, 61): ('l', 'home')}
     >>> active_from_pos(pos_hsh, 18)
-    ((17, 24), ['e', '90m'])
+    ((17, 24), ('e', '90m'))
     >>> active_from_pos(pos_hsh, 45)
-    ((36, 46), ['ru', '6/1 9a'])
+    ((36, 46), ('ru', '6/1 9a'))
     >>> pos_hsh, hsh = process_entry("- ")
     >>> active_from_pos(pos_hsh, 0)
-    ((0, 1), ['itemtype', '-'])
+    ((0, 1), ('itemtype', '-'))
     >>> active_from_pos(pos_hsh, 1)
-    ((1, 3), ['summary', ''])
+    ((1, 3), ('summary', ''))
     >>> pos_hsh, hsh = process_entry("")
     >>> active_from_pos(pos_hsh, 1)
     (None, None)
+    >>> pos_hsh, hsh = process_entry("+ bad type character")
+    >>> active_from_pos(pos_hsh, 3)
+    ((0, 21), ('itemtype', '+'))
     """
     for p, v in pos_hsh.items():
         if p[0] <= pos < p[1]:
@@ -753,9 +753,10 @@ class Item(object):
         self.entry = s
         self.is_new = s is None
         self.object_hsh = {}    # key, val -> object version of raw string for tinydb 
-        self.askreply_hsh = {}  # key, val -> display version raw string
+        self.askreply= {}       # key, val -> display version raw string
         self.pos_hsh = {}       # (beg, end) -> (key, val)
         self.keyvals = [] 
+
         self.messages = []
         self.active = ()
         self.interval = ()
@@ -764,28 +765,28 @@ class Item(object):
         # all else do not need item_hsh
         self.keys = {
                 'itemtype': ["item type", "character from * (event), - (task), % (record) or ! (inbox)", self.do_itemtype],
-                'summary': ["item summary", "string", do_string],
-                '+': ["include", "datetimes", self.do_datetimes],
-                '-': ["exclude", "datetimes", self.do_datetimes],
-                'a': ["alert", "list of alerts", do_alert],
-                'b': ["beginby", "integer number of days"],
-                'c': ["calendar", "string", do_string],
-                'd': ["description", "string", do_string],
+                'summary': ["item summary", "summary", self.do_summary],
+                '+': ["include", "list of datetimes", self.do_datetimes],
+                '-': ["exclude", "list of datetimes", self.do_datetimes],
+                'a': ["alerts", "list of alerts", do_alert],
+                'b': ["beginby", "beginby days", do_beginby],
+                'c': ["calendar", "calendar", do_string],
+                'd': ["description", "description", do_string],
                 'e': ["extent", "timeperiod", do_period],
                 'f': ["finish", "datetime", self.do_datetime],
-                'g': ["goto url or filepath", "string", do_string],
-                'h': ["completions history", "datetimes", self.do_datetimes],
+                'g': ["goto", "url or filepath", do_string],
+                'h': ["completions", "list of datetimes", self.do_datetimes],
                 'i': ["index", "colon delimited string", do_string],
-                'l': ["location", "string", do_string],
-                'm': ["memo", " string", do_string],
+                'l': ["location", "location", do_string],
+                'm': ["memo", "memo", do_string],
                 'n': ["attendees", "list of 'name <email address>'", do_stringlist],
                 'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", do_overdue],
-                'p': ["priority", "positive integer", do_priority],
-                's': ["start", "date or datetime", self.do_datetime],
-                't': ["tags", "list of strings", do_stringlist],
-                'x': ["expansion key", "string", do_string],
-                'z': ["timezone", "string", self.do_timezone],
-                '?': ["@-key", "enter @-key", self.do_at],
+                'p': ["priority", "priority from 1 (highest) to 9 (lowest)", do_priority],
+                's': ["start", "starting date or datetime", self.do_datetime],
+                't': ["tags", "list of tags", do_stringlist],
+                'x': ["expansion", "expansion key", do_string],
+                'z': ["timezone", "timezone", self.do_timezone],
+                '?': ["@-key", "@-key", self.do_at],
 
                 'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute", do_frequency],
                 'rc': ["count", "integer number of repetitions", do_count],
@@ -794,188 +795,181 @@ class Item(object):
                 'rh': ["hours", "list of integers in 0 ... 23", do_hours],
                 'ri': ["interval", "positive integer", do_interval],
                 'rM': ["months", "list of integers in 1 ... 12", do_months], 
-                'rn': ["minutes", "list of integers in 0 ... 59"], 
+                'rn': ["minutes", "list of integers in 0 ... 59", do_minutes], 
                 'rs': ["set positions", "integer", do_setpositions],
-                'ru': ["until", "datetime"],
-                'rw': ["weekday", "list from SU, MO, ..., SA, possibly prepended with a positive or negative integer"],
-                'rW': ["week number", "list of integers in 1, ... 53"],
-                'r?': ["repetition &-key", "enter &-key"],
+                'ru': ["until", "datetime", self.do_datetime],
+                'rw': ["weekdays", "list from SU, MO, ..., SA, possibly prepended with a positive or negative integer", do_weekdays],
+                'rW': ["week numbers", "list of integers in 1, ... 53", do_weeknumbers],
+                'r?': ["repetition &-key", "enter &-key", self.do_ampr],
 
-                'jj': ["job summary", "string"],
-                'ja': ["alert", "list of timeperiod before task start followed by a colon and a command and, optionally, command arguments"],
-                'jb': ["beginby", " integer number of days"],
-                'jd': ["description", " string"],
-                'je': ["extent", " timeperiod"],
-                'jf': ["finish", " datetime"],
-                'ji': ["unique id", " integer or string"],
-                'jl': ["location", " string"],
-                'jm': ["memo", "string"],
-                'jp': ["prerequisites", "list of ids of immediate prereqs"],
+                'jj': ["summary", "string", do_string],
+                'ja': ["alert", "list of timeperiod before task start followed by a colon and a command and, optionally, command arguments", do_alert],
+                'jb': ["beginby", " integer number of days", do_beginby],
+                'jd': ["description", " string", do_string],
+                'je': ["extent", " timeperiod", do_period],
+                'jf': ["finished", " datetime", self.do_datetime],
+                'ji': ["unique id", " integer or string", do_string],
+                'jl': ["location", " string", do_string],
+                'jm': ["memo", "string", do_string],
+                'jp': ["prerequisite ids", "list of ids of immediate prereqs", do_stringlist],
                 'js': ["start", "timeperiod before task start when job is due"],
                 'j?': ["job &-key", "enter &-key"],
                 }
+        if not s:
+            self.text_changed('', 0)
+        # self.update_keyval(('itemtype', ''))
 
 
     def cursor_changed(self, pos):
+        # ((17, 24), ('e', '90m'))
         self.interval, self.active = active_from_pos(self.pos_hsh, pos)
-        # TODO: get ask, reply
+        logger.info(f"interval: {self.interval}; active: {self.active}")
+
 
     def text_changed(self, s, pos):
         """
 
         """
+        logger.info(f"s: {s}; pos: {pos}")
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s)
         removed, changed = listdiff(self.keyvals, keyvals)
         # only process changes for kv entries
-        for kv in removed.items():
+        for kv in removed:
             if kv in self.object_hsh:
                 del self.object_hsh[kv]
             if kv in self.askreply:
                 del self.askreply[kv]
-        for kv in changed.items():
-            ok, res = self.update_keyval(kv)
-            if ok:
-                self.object_hsh[k] = res
-            else:
-                self.messages.append(res)
+        for kv in changed:
+            self.update_keyval(kv)
 
         # we need a tup2obj hsh, e.g., ('s', '2p fri') -> ('s', DateTime(2019, 1, 18, 14, 0, 0))
         self.keyvals = [kv for kv in keyvals]
-        self.cursor_changed(pos)
+        # self.cursor_changed(pos)
 
     def update_keyval(self, kv):
         """
         """
+        logger.info(f"kv: {kv}")
         key, val = kv
-        ok = ()
         # FIXME: simplify this to use keyval_keys
         if key in self.keys:
             a, r, do = self.keys[key]
-            ask = ('say', a)
-            if val:
-                ok, res = self.keys[key][2](val)
-                if ok:
-                    reply = ('say', f"{a}: {res}")
-                    ret = (kv, res)
-                else:
-                    reply = ('warn', f"{r}: '{val}' invalid")
+            ask = a
+            obj, rep = do(val)
+            reply = rep if rep else r
+            if obj:
+                self.object_hsh[kv] = obj
             else:
-                pass
-
-
-
-
-        if key == "itemtype":
-            if val:
-                if val in type_keys:
-                    self.itemtype = val
-                    ask = ('say', f"{type_keys[val]}")
-                    reply = ('say', f"enter {type_keys[val]} summary")
-                    ok = (kv, val)
-                else:
-                    ask = ('say', type_prompt)
-                    reply = ('warn', f"'{val}' is invalid")
-            else:
-                ask = ('say', type_prompt)
-                reply = ('say', item_types)
-        elif key == "summary":
-                ask = ('say', "item summary")
-                reply = ('say', f"summary: '{val}'")
-                ok = (kv, val)
-        else:
-            at_key = key[0]
-            amp_key = key[1:]
-            if amp_key:
-                if amp_key == '?': 
-                    # only the & has been entered
-                    if at_key in amp_keys:
-                        available = [f"&{x}" for x in amp_keys[at_key]]
-                        ask = ('say', 'enter &-key')
-                        reply = ('say', f"available &-keys: {' '.join(available)}")
-                    else:
-                        ask = ('warn', "&-keys are not allowed for @{at_key}")
-                        reply = ('say', '')
-                elif amp_key in amp_keys[at_key]:
-                    t, p = amp_keys[at_key][amp_key].split(':')
-                    ask = ('say', f"{t}")
-                    reply = ('say', f"{p.strip()}")
-                    ok = (kv, val)
-                else:
-                    available = [f"&{x}" for x in amp_keys[at_key]]
-                    ask = ('warn', f"&{amp_key} is not allowed for @{at_key}")
-                    reply = ('say', f"available keys: {' '.join(available)}")
-            else:
-                if at_key == '?':
-                    # only the @ has been entered
-                    req = [f"@{x}" for x in required[self.itemtype]]
-                    prompt = f"{type_keys[self.itemtype]} @-keys:\n" 
-                    required = "    required:  {" ".join[req]}\n" if req else ""
-                    available = "    allowed: " + " ".join([f"@{x}" for x in allowed[self.itemtype]])
-                    ask = ('say', 'enter @-key')
-                    reply = ('say', prompt + required + available)
-                elif at_key in allowed[self.itemtype]:
-                    t, p = at_keys[at_key].split(':')
-                    ask = ('say', f"{t}")
-                    reply = ('say', f"{p.strip()}")
-                    ok = (kv, val)
-                else:
-                    req = [f"@{x}" for x in required[self.itemtype]]
-                    prompt = f"{type_keys[self.itemtype]} @-keys:\n" 
-                    required = "    required:  {" ".join[req]}\n" if req else ""
-                    available = "    allowed: " + " ".join([f"@{x}" for x in allowed[self.itemtype]])
-                    ask = ('warn', f"@{at_key} is not allowed")
-                    reply = ('say', prompt + required + available)
-
-        if ok:
-            k, v = ok
-            if k in ['itemtype', 'summary']:
-                self.obj_hsh[kv] = val
-        return ask, reply
+                if kv in self.object_hsh:
+                    del self.object_hsh[kv]
+            logger.info(f"kv: {kv}; ask: {ask}; reply: {reply}")
+            self.askreply[kv] = (ask, reply)
+            logger.info(f"askreply: {self.askreply}")
 
     def do_at(self, arg=''):
         """
+        Need access to itemtype - hence in Item()
         >>> item = Item()
         >>> item.do_at()
         (None, 'The type character must be entered before any @-keys')
         >>> item.item_hsh['itemtype'] = '*'
-        >>> item.do_at()
-        (None, 'event @-keys:\\n    required: @s\\n    allowed: @c @d @e @g @i @l @m @s @t @x @b @r @o @e @a @z @+ @-')
+        >>> obj, rep = item.do_at()
+        >>> print(rep)
+        event @-keys:
+          required: @s (start)
+          allowed: @+ (include), @- (exclude), @a (alerts), @b (beginby),
+            @c (calendar), @d (description), @e (extent),
+            @g (goto), @i (index), @l (location), @m (memo),
+            @o (overdue), @s (start), @t (tags),
+            @x (expansion), @z (timezone)
         """
         itemtype = self.item_hsh.get('itemtype', '')
         if itemtype:
+            require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if k in required[itemtype] and k != '?'] 
+            allow = [f"@{k}_({v[0]})" for k, v in self.keys.items() if k in allowed[itemtype] and k != '?'] 
             prompt = f"{type_keys[itemtype]} @-keys:\n"
-            if required[itemtype]:
-                reqs = "    required: " +  " ".join([f"@{x}" for x in required[itemtype]]) + "\n"
-            else:
-                reqs = ""
-            if allowed[itemtype]:
-                avails = "    allowed: " + " ".join([f"@{x}" for x in allowed[itemtype]])
-            else:
-                avails = ""
-            rep = prompt + reqs + avails
+            if require:
+                prompt += "  required: " +  wrap(", ".join(require), 4, 60) + "\n"
+            if allow:
+                prompt += "  allowed: " + wrap(", ".join(allow), 4, 60)
+            rep = prompt.replace('_', ' ')
         else:
             rep = "The type character must be entered before any @-keys"
 
         return None, rep
 
+    def do_ampr(self, arg=''):
+        """
+        Need access to &-keys and names - hence in Item()
+        >>> item = Item()
+        >>> obj, rep = item.do_ampr()
+        >>> print(rep)
+        repetition &-keys: &c (count), &m (monthdays),
+            &E (easterdays), &h (hours), &i (interval),
+            &M (months), &n (minutes), &s (set positions),
+            &u (until), &w (weekdays), &W (week numbers)
+        """
+        keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('r') and k[1] not in 'r?'] 
+        rep = wrap("repetition &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
+
+        return None, rep
+
+
+    def do_ampj(self, arg=''):
+        """
+        Need access to &-keys and names - hence in Item()
+        >>> item = Item()
+        >>> obj, rep = item.do_ampj()
+        >>> print(rep)
+        job &-keys: &a (alert), &b (beginby), &d (description),
+            &e (extent), &f (finished), &i (unique id),
+            &l (location), &m (memo), &p (prerequisite ids),
+            &s (start)
+        """
+        keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('j') and k[1] not in 'j?'] 
+        rep = wrap("job &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
+
+        return None, rep
+
+
     def do_itemtype(self, arg):
+        """
+        >>> item = Item()
+        >>> item.do_itemtype('')
+        (None, 'Choose a character from * (event), - (task), % (record) or ! (inbox)')
+        >>> item.do_itemtype('+')
+        (None, "'+' is invalid. Choose a character from * (event), - (task), % (record) or ! (inbox)")
+        >>> item.do_itemtype('*')
+        ('*', '* (event)')
+        """
+        a, r, d = self.keys['itemtype']
         if not arg:
-            return None, arg
-        if arg in type_keys:
-            obj = rep = arg
+            obj = None
+            rep = f"Choose a {r}"
+        elif arg in type_keys:
+            obj = arg
+            rep = f"{arg} ({type_keys[arg]})"
             self.item_hsh['itemtype'] = obj 
         else:
             obj = None
+            rep = f"'{arg}' is invalid. Choose a {r}"
             self.item_hsh['itemtype'] = '' 
-            rep = f"~{arg}~"
         return obj, rep
+
+    def do_summary(self, arg):
+        if not self.item_hsh['itemtype']:
+            return None, "a valid itemtype must be provided"
+        obj, rep = do_string(arg)
+        rep = f"{type_keys[self.item_hsh['itemtype']]} summary: {rep}"
+        return obj, rep
+
 
     def do_datetime(self, arg):
         """
         >>> item = Item()
         >>> item.do_datetime('fr')
-        (None, '~fr~')
+        (None, "'fr' is incomplete or invalid")
         >>> item.do_datetime('2019-01-25')
         (Date(2019, 1, 25), 'Fri Jan 25 2019')
         >>> item.do_datetime('2019-01-25 2p')
@@ -988,7 +982,7 @@ class Item(object):
             obj = res
             rep = format_datetime(obj)[1]
         else:
-            rep = f"~{arg}~"
+            rep = res
         return obj, rep
 
     def do_datetimes(self, args):
@@ -1097,16 +1091,16 @@ def verify_entry(entry, pos_hsh, ent_hsh, pos):
 
 item_hsh = {}
 def check_entry(s, cursor_pos=0):
-    """
-    Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
-    >>> check_entry('')
-    (('say', 'item type character:'), ('say', 'item type characters:\\n    *: event\\n    -: task\\n    %: record\\n    !: inbox'), {})
-    >>> check_entry('^')
-    (('say', 'item type character:'), ('warn', "invalid item type character: '^'"), {})
-    >>> check_entry('- todo')
-    (('say', 'task summary:'), ('say', 'Enter the summary for the task followed, optionally, by @key and value pairs'), {})
-    >>> check_entry('- todo @s 2019-01-22 4p @', 25)
-    """
+    # """
+    # Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
+    # >>> check_entry('')
+    # (('say', 'item type character:'), ('say', 'item type characters:\\n    *: event\\n    -: task\\n    %: record\\n    !: inbox'), {})
+    # >>> check_entry('^')
+    # (('say', 'item type character:'), ('warn', "invalid item type character: '^'"), {})
+    # >>> check_entry('- todo')
+    # (('say', 'task summary:'), ('say', 'Enter the summary for the task followed, optionally, by @key and value pairs'), {})
+    # >>> check_entry('- todo @s 2019-01-22 4p @', 25)
+    # """
     global item_hsh
     pos_hsh, keyvals = process_entry(s)
     hsh = {}
@@ -1254,10 +1248,12 @@ def parse_datetime(s, z=None):
         tzinfo = z
         ok = 'aware'
 
+    if not s:
+        return False, '', z
     try:
         res = parse(s, tz=tzinfo)
     except:
-        return False, "Invalid date-time: '{}'".format(s), z
+        return False, f"'{s}' is incomplete or invalid", z
     else:
         if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
             return 'date', res.replace(tzinfo='Factory').date(), z
@@ -1466,14 +1462,14 @@ def parse_duration(s):
         td += num * period_hsh[g[3]]
     return True, td
 
-def setup_logging(level, dir=None):
+def setup_logging(level, dir=None, file=None):
     """
     Setup logging configuration. Override root:level in
     logging.yaml with default_level.
     """
-    import logging
-    import logging.config
-    logger = logging.getLogger()
+    # import logging
+    # import logging.config
+    # logger = logging.getLogger()
 
     global etmdir
     etmdir = dir
@@ -1529,7 +1525,10 @@ def setup_logging(level, dir=None):
                   'level': loglevel},
               'version': 1}
     logging.config.dictConfig(config)
-    logger.info('logging at level: {0}\n    logging to file: {1}'.format(loglevel, logfile))
+    if file:
+        logger.info(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
+    else:
+        logger.info(f'logging at level: {loglevel}\n    logging to file: {logfile}')
 
 
 sys_platform = platform.system()
@@ -1779,7 +1778,7 @@ def do_string(arg):
         rep = arg
     except:
         obj = None
-        rep = f"~{arg}~"
+        rep = f"invalid: {arg}" 
     return obj, rep
 
 def do_stringlist(args):
@@ -2059,8 +2058,15 @@ jinja_display_template.globals['one_or_more'] = one_or_more
 jinja_entry_template.globals['isinstance'] = isinstance
 jinja_display_template.globals['wrap'] = wrap
 
-def beginby(arg):
-    return integer(arg, 1, None, False, 'beginby')
+def do_beginby(arg):
+    ok, res = integer(arg, 1, None, False, 'beginby')
+    if ok:
+        obj = res
+        rep = arg
+    else:
+        obj = None
+        rep = res
+    return obj, rep
 
 def do_alert(arg):
     """
@@ -2101,7 +2107,7 @@ def do_period(arg):
     >>> do_period('')
     (None, '')
     >>> do_period('90')
-    (None, '~90~')
+    (None, "'90' is incomplete or invalid")
     >>> do_period('90m')
     (Duration(hours=1, minutes=30), '1h30m')
     """
@@ -2113,7 +2119,7 @@ def do_period(arg):
         rep = format_duration(res)
     else:
         obj = None
-        rep = f"~{arg}~"
+        rep = f"'{arg}' is incomplete or invalid"
     return obj, rep
 
 def do_overdue(arg):
@@ -2152,7 +2158,7 @@ def history(arg):
     >>> history("4/1/2016 2p")
     (True, [DateTime(2016, 4, 1, 14, 0, 0, tzinfo=Timezone('America/New_York'))])
     >>> history(["4/31 2p", "6/1 7a"])
-    (False, "Invalid date-time: '4/31 2p'")
+    (False, "'4/31 2p' is incomplete or invalid")
     """
     if type(arg) != list:
         arg = [arg]
@@ -2391,76 +2397,63 @@ def count(arg):
         return False, countstr
 
 
-def weekdays(arg):
+def do_weekdays(arg):
     """
     byweekday (English weekday abbreviation SU ... SA or sequence of such).
     Use, e.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the
     month.
-    >>> weekdays(" ")
-    (False, 'weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
-    >>> weekdays("-2mo, 3tU")
-    (True, [MO(-2), TU(+3)])
-    >>> weekdays(["5Su", "1SA"])
-    (False, 'invalid weekdays: 5SU')
-    >>> weekdays('3FR, -1M')
-    (False, 'invalid weekdays: -1M')
+    >>> do_weekdays("")
+    (None, 'invalid weekdays: . weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
+    >>> do_weekdays("-2mo, 3tU")
+    ([MO(-2), TU(+3)], '-2MO, 3TU')
+    >>> do_weekdays("5Su, 1SA")
+    (None, 'invalid weekdays: 5SU. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
+    >>> do_weekdays('3FR, -1M')
+    (None, 'invalid weekdays: -1M. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     """
-    if type(arg) == list:
-        args = [x.strip().upper() for x in arg if x.strip()]
-    elif arg:
-        args = [x.strip().upper() for x in arg.split(",") if x.strip()]
-    else:
-        args = None
-
+    weekdaysstr = "weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month."
+    args = [x.strip().upper() for x in arg.split(',')]
     if args:
         bad = []
         good = []
         for x in args:
             if x in WKDAYS_DECODE:
                 good.append(eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[x])))
-
             else:
                 bad.append(x)
         if bad:
-            return False, "invalid weekdays: {}".format(", ".join(bad))
+            obj = None
+            rep = f"invalid weekdays: {', '.join(bad)}. {weekdaysstr}"
         else:
-            return True, good
-    # if args:
-    #     bad = [x for x in args]
-    #     for x in args:
-    #         for y in wkdays:
-    #             if x in bad and y.startswith(x):
-    #                 bad.remove(x)
-    #     # bad = [x for x in args if x and x not in wkdays]
-    #     if bad:
-    #         return False, "invalid weekdays: {}".format(", ".join(bad))
-    #     else:
-    #         invalid = [x for x in args if x not in wkdays]
-    #         if invalid:
-    #             return False, "considering weekdays: {}".format(", ".join(invalid))
-    #         else:
-    #             return True, args
+            obj = good
+            rep = arg.upper()
     else:
-        return False, "weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month."
+        obj = None
+        rep = weekdaysstr
+    return obj, rep
 
 
-def weeks(arg):
+def do_weeknumbers(arg):
     """
     byweekno (1, 2, ..., 53 or a sequence of such integers)
-    >>> weeks([0, 1, 5, 54])
-    (False, 'invalid weeks: 0 is not allowed; 54 is greater than the allowed maximum. Required for weeks: a comma separated list of integer week numbers from 1, 2, ..., 53')
+    >>> do_weeknumbers("0, 1, 5, 54")
+    (None, 'invalid weeknumbers: {res}. Required for {weeknumbersstr}')
     """
+    weeknumbersstr = "weeknumbers: a comma separated list of integer week numbers from 1, 2, ..., 53"
 
-    weeksstr = "weeks: a comma separated list of integer week numbers from 1, 2, ..., 53"
-
-    if arg:
-        ok, res = integer_list(arg, 0, 53, False)
+    args = arg.split(',')
+    if args:
+        ok, res = integer_list(args, 0, 53, False)
         if ok:
-            return True, res
+            obj = res
+            rep = arg
         else:
-            return False, "invalid weeks: {}. Required for {}".format(res, weeksstr)
+            obj = None
+            rep = "invalid weeknumbers: {res}. Required for {weeknumbersstr}"
     else:
-        return False, weeksstr
+        obj = None
+        rep = weeknumbersstr
+    return obj, rep
 
 
 def do_months(arg):
@@ -2583,8 +2576,8 @@ rrule_methods = {
     'u':  until,
     'M':  do_months,
     'm':  do_monthdays,
-    'W':  weeks,
-    'w':  weekdays,
+    'W':  do_weeknumbers,
+    'w':  do_weekdays,
     'h':  do_hours,
     'n':  do_minutes,
     'E':  do_easterdays,
@@ -2629,26 +2622,26 @@ rrule_keys = [x for x in rrule_name]
 rrule_keys.sort()
 
 def check_rrule(lofh):
-    """
-    An check_rrule hash or a sequence of such hashes.
-    >>> data = {'r': ''}
-    >>> check_rrule(data)
-    (False, 'repetition frequency: character from (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
-    >>> good_data = {"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SU"}
-    >>> pprint(check_rrule(good_data))
-    (True, [{'M': [5], 'i': 1, 'm': [3], 'r': 'y', 'w': [SU(+2)]}])
-    >>> good_data = {"M": [5, 12], "i": 1, "m": [3, 15], "r": "y", "w": "2SU"}
-    >>> pprint(check_rrule(good_data))
-    (True, [{'M': [5, 12], 'i': 1, 'm': [3, 15], 'r': 'y', 'w': [SU(+2)]}])
-    >>> bad_data = [{"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SE"}, {"M": [11, 12], "i": 4, "m": [2, 3, 4, 5, 6, 7, 8], "r": "z", "w": ["TU", "-1FR"]}]
-    >>> print(check_rrule(bad_data))
-    (False, 'invalid weekdays: 2SE; invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
-    >>> data = [{"r": "w", "w": "TU", "h": 14}, {"r": "w", "w": "TH", "h": 16}]
-    >>> pprint(check_rrule(data))
-    (True,
-     [{'h': [14], 'i': 1, 'r': 'w', 'w': [TU]},
-      {'h': [16], 'i': 1, 'r': 'w', 'w': [TH]}])
-    """
+    # """
+    # An check_rrule hash or a sequence of such hashes.
+    # >>> data = {'r': ''}
+    # >>> check_rrule(data)
+    # (False, 'repetition frequency: character from (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
+    # >>> good_data = {"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SU"}
+    # >>> pprint(check_rrule(good_data))
+    # (True, [{'M': [5], 'i': 1, 'm': [3], 'r': 'y', 'w': [SU(+2)]}])
+    # >>> good_data = {"M": [5, 12], "i": 1, "m": [3, 15], "r": "y", "w": "2SU"}
+    # >>> pprint(check_rrule(good_data))
+    # (True, [{'M': [5, 12], 'i': 1, 'm': [3, 15], 'r': 'y', 'w': [SU(+2)]}])
+    # >>> bad_data = [{"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SE"}, {"M": [11, 12], "i": 4, "m": [2, 3, 4, 5, 6, 7, 8], "r": "z", "w": ["TU", "-1FR"]}]
+    # >>> print(check_rrule(bad_data))
+    # (False, 'invalid weekdays: 2SE; invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
+    # >>> data = [{"r": "w", "w": "TU", "h": 14}, {"r": "w", "w": "TH", "h": 16}]
+    # >>> pprint(check_rrule(data))
+    # (True,
+    #  [{'h': [14], 'i': 1, 'r': 'w', 'w': [TU]},
+    #   {'h': [16], 'i': 1, 'r': 'w', 'w': [TH]}])
+    # """
     msg = []
     ret = []
     if type(lofh) == dict:
@@ -2664,12 +2657,12 @@ def check_rrule(lofh):
             res['i'] = 1
         for key in hsh.keys():
             if key in rrule_methods:
-                ok, out = rrule_methods[key](hsh[key])
+                obj, rep = rrule_methods[key](hsh[key])
 
-                if ok:
-                    res[key] = out
+                if obj:
+                    res[key] = obj
                 else:
-                    msg.append(out)
+                    msg.append(rep)
             else:
                 msg.append("error: {} is not a valid key".format(key))
 
@@ -2907,7 +2900,7 @@ undated_job_methods = dict(
 datetime_job_methods = dict(
     # a=alert,
     # s=job_datetime
-    b=beginby,
+    b=do_beginby,
 )
 datetime_job_methods.update(undated_job_methods)
 
@@ -4480,14 +4473,13 @@ def import_json(etmdir=None):
 def main():
     pass
 
-
 if __name__ == '__main__':
     import sys
     import doctest
     etmdir = ''
     if len(sys.argv) > 1:
         etmdir = sys.argv.pop(1)
-    setup_logging(1, etmdir)
+    setup_logging(1, etmdir, 'main.py')
 
     if len(sys.argv) > 1:
         if 'i' in sys.argv[1]:

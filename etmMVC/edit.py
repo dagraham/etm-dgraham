@@ -16,7 +16,13 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.widgets import HorizontalLine, TextArea
 
 from model import Item
-from model import check_entry
+# from model import check_entry
+
+import logging
+import logging.config
+logger = logging.getLogger()
+
+from model import setup_logging
 
 # 3. Create the buffers
 #    ------------------
@@ -100,8 +106,8 @@ def default_buffer_changed(_):
     the right. We just reverse the text.
     """
     # reply_buffer.text = entry_buffer.text[::-1]
-    # item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
-    ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
+    item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
+    # ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
     # reply_buffer.text = ask[1] + "\n" + say[1] 
     # reply_buffer.text = check_entry(entry_buffer.text, entry_buffer.cursor_position)[1][1]
 
@@ -109,10 +115,11 @@ def default_cursor_position_changed(_):
     """
     When the cursor position in the top changes, update the cursor position in the bottom.
     """
-    # item.cursor_changed(entry_buffer.cursor_position)
-    ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
+    item.cursor_changed(entry_buffer.cursor_position)
+    # ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
     # reply_buffer.text = ask[1] + "\n" + say[1] 
     # reply_buffer.text = entry_buffer.text + f" ({entry_buffer.cursor_position})"
+    set_askreply('_')
 
 
 # This is slick - add a call to default_buffer_changed 
@@ -120,11 +127,17 @@ entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
 def set_askreply(_):
-    ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
-    ask_buffer.text = ask[1]
-    reply_buffer.text = say[1] 
+    logger.info(f'item.active: {item.active}')
+    if item.active:
+        ask, reply = item.askreply[item.active]
+    else:
+        ask, reply = item.askreply[('itemtype', '')]
+    ask_buffer.text = ask
+    reply_buffer.text = reply 
 
+# set this first for an empty entry
 set_askreply('_')
+
 
 # 3. Creating an `Application` instance
 #    ----------------------------------
@@ -153,4 +166,9 @@ def run():
 
 
 if __name__ == '__main__':
+    import sys
+    etmdir = ''
+    if len(sys.argv) > 1:
+        etmdir = sys.argv.pop(1)
+    setup_logging(1, etmdir, 'edit.py')
     run()
