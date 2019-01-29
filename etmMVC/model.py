@@ -764,7 +764,7 @@ class Item(object):
         # all else do not need item_hsh
         self.keys = {
                 'itemtype': ["item type", "character from * (event), - (task), % (record) or ! (inbox)", self.do_itemtype],
-                'summary': ["item summary", "summary", self.do_summary],
+                'summary': ["summary", "summary", self.do_summary],
                 '+': ["include", "list of datetimes", self.do_datetimes],
                 '-': ["exclude", "list of datetimes", self.do_datetimes],
                 'a': ["alerts", "list of alerts", do_alert],
@@ -842,16 +842,13 @@ class Item(object):
         for kv in changed:
             self.update_keyval(kv)
 
-        # we need a tup2obj hsh, e.g., ('s', '2p fri') -> ('s', DateTime(2019, 1, 18, 14, 0, 0))
         self.keyvals = [kv for kv in keyvals]
-        # self.cursor_changed(pos)
 
     def update_keyval(self, kv):
         """
         """
-        logger.info(f"kv: {kv}")
+        logger.info(f"updating kv: {kv}")
         key, val = kv
-        # FIXME: simplify this to use keyval_keys
         if key in self.keys:
             a, r, do = self.keys[key]
             ask = a
@@ -862,9 +859,12 @@ class Item(object):
             else:
                 if kv in self.object_hsh:
                     del self.object_hsh[kv]
-            logger.info(f"kv: {kv}; ask: {ask}; reply: {reply}")
+            # logger.info(f"kv: {kv}; ask: {ask}; reply: {reply}")
             self.askreply[kv] = (ask, reply)
-            logger.info(f"askreply: {self.askreply}")
+            if obj:
+                logger.info(f"askreply: {self.askreply}")
+
+    # def update_timezone(self, obj)
 
     def do_at(self, arg=''):
         """
@@ -961,6 +961,11 @@ class Item(object):
             return None, "a valid itemtype must be provided"
         obj, rep = do_string(arg)
         rep = f"{type_keys[self.item_hsh['itemtype']]} summary: {rep}"
+        if obj:
+            self.item_hsh['summary'] = obj
+        elif 'summary' in self.item_hsh:
+            del self.item_hsh['summary']
+
         return obj, rep
 
 
@@ -976,10 +981,12 @@ class Item(object):
         """
         obj = None
         tz = self.item_hsh.get('z', None)
-        ok, res, tz = parse_datetime(arg, tz)
+        logger.info(f"got tz = {tz}")
+        ok, res, z = parse_datetime(arg, tz)
+        logger.info(f"tz: {tz}; ok: {ok}; res: {res}; z={z}")
         if ok:
-            obj = res
-            rep = format_datetime(obj)[1]
+            obj = res 
+            rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
         else:
             rep = res
         return obj, rep
@@ -988,9 +995,10 @@ class Item(object):
         """
         >>> item = Item()
         >>> item.do_datetimes('2019-1-25 2p, 2019-1-30 4p')
-        ([DateTime(2019, 1, 25, 14, 0, 0, tzinfo=Timezone('America/New_York')), DateTime(2019, 1, 30, 16, 0, 0, tzinfo=Timezone('America/New_York'))], '2019-01-25 2:00pm, 2019-01-30 4:00pm')
-        >>> item.do_datetimes('2019-1-25 2p, 2019-1-30 4p, 2019-2-29 8a')
-        (None, '2019-01-25 2:00pm, 2019-01-30 4:00pm, ~2019-2-29 8a~')
+        ([DateTime(2019, 1, 25, 14, 0, 0, tzinfo=Timezone('America/New_York')), DateTime(2019, 1, 30, 16, 0, 0, tzinfo=Timezone('America/New_York'))], 'datetimes: 2019-01-25 2:00pm, 2019-01-30 4:00pm')
+        >>> print(item.do_datetimes('2019-1-25 2p, 2019-1-30 4p, 2019-2-29 8a')[1])
+        datetimes: 2019-01-25 2:00pm, 2019-01-30 4:00pm
+        incomplete or invalid datetimes:  2019-2-29 8a
         """
         rep = args
         obj = None
@@ -998,17 +1006,22 @@ class Item(object):
         args = [x.strip() for x in args.split(',')]
         obj = []
         rep = []
+        bad = []
         all_ok = True
         for arg in args:
+            if not arg:
+                continue
             ok, res, tz = parse_datetime(arg, tz)
             if ok:
                 obj.append(res)
                 rep.append(format_datetime(res, True)[1])
             else:
                 all_ok = False
-                rep.append(f"~{arg}~")
-        obj = obj if all_ok else None
-        rep = ', '.join(rep)
+                bad.append(arg)
+        obj = obj if all_ok else None 
+        rep = f"local datetimes: {', '.join(rep)}" if (tz is not None and tz != 'float') else f"datetimes: {', '.join(rep)}" 
+        if bad:
+            rep += f"\nincomplete or invalid datetimes:  {', '.join(bad)}"
         return obj, rep
 
     def do_timezone(self, arg=None):
@@ -1016,29 +1029,43 @@ class Item(object):
         >>> item = Item()
         >>> item.do_timezone()
         ('local', 'local')
+        >>> item.do_timezone('float')
+        ('float', 'float')
         >>> item.do_timezone('local')
         ('local', 'local')
         >>> item.do_timezone('UTC')
-        ('UTC', 'UTC')
+        ('UTC', 'timezone: UTC')
         >>> item.do_timezone('Europe/Paris')
-        ('Europe/Paris', 'Europe/Paris')
+        ('Europe/Paris', 'timezone: Europe/Paris')
         >>> item.do_timezone('US/Pacifc')
-        (None, '~US/Pacifc~')
+        (None, "incomplete or invalid timezone: 'US/Pacifc'")
         """
+        logger.info(f"do_timezone arg: {arg}")
         if arg is None:
             obj = rep = 'local'
+            if 'z' in self.item_hsh:
+                del self.item_hsh['z']
         elif arg in ['local', 'float']:
+            self.item_hsh['z'] = arg 
             obj = rep = arg
         else:
             try:
                 Timezone(arg)
                 obj = rep = arg
                 self.item_hsh['z'] = obj 
+                logger.info(f"{obj}")
+                logger.info(f"item_hsh: {self.item_hsh}")
+                rep = f"timezone: {obj}"
             except:
                 obj = None
-                rep = f"~{arg}~"
+                rep = f"incomplete or invalid timezone: '{arg}'"
                 if 'z' in self.item_hsh:
                     del self.item_hsh['z']
+        if obj:
+            ud = [kv for kv in self.keyvals if kv[0] in ['s', 'u',  '+', '-']]
+            logger.info(f"ud: {ud}")
+            # for kv in ud:
+
 
         return obj, rep
 
@@ -1236,6 +1263,9 @@ def parse_datetime(s, z=None):
     ('aware', DateTime(2015, 10, 15, 21, 0, 0, tzinfo=Timezone('UTC')), 'US/Pacific')
     >>> dt[1].tzinfo
     Timezone('UTC')
+    >>> dt = parse_datetime("2019-02-01 12:30a", "Europe/Paris")
+    >>> dt
+    ('aware', DateTime(2019, 1, 31, 23, 30, 0, tzinfo=Timezone('UTC')), 'Europe/Paris')
     """
     if z is None:
         tzinfo = 'local'
@@ -1254,7 +1284,7 @@ def parse_datetime(s, z=None):
     except:
         return False, f"'{s}' is incomplete or invalid", z
     else:
-        if (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
+        if (tzinfo is 'local' or tzinfo == 'float') and (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
             return 'date', res.replace(tzinfo='Factory').date(), z
         elif ok == 'aware':
             return ok, res.in_timezone('UTC'), z
@@ -1321,6 +1351,10 @@ def format_datetime(obj, short=False):
     (True, 'Fri Jul 10 2015')
     >>> format_datetime("20160710T1730")
     (False, 'The argument must be a pendulum date or datetime.')
+    >>> format_datetime(parse_datetime("2019-02-01 12:30a", "Europe/Paris")[1])
+    (True, 'Thu Jan 31 2019 6:30pm EST')
+    >>> format_datetime(parse_datetime("2019-01-31 11:30p", "Europe/Paris")[1])
+    (True, 'Thu Jan 31 2019 5:30pm EST')
     """
     # if type(obj) == datetime:
     #     obj = pendulum.instance(obj)
