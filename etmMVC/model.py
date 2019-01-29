@@ -834,6 +834,14 @@ class Item(object):
         self.pos_hsh, keyvals = process_entry(s)
         removed, changed = listdiff(self.keyvals, keyvals)
         # only process changes for kv entries
+        update_timezone = False
+        for kv in removed + changed:
+            if kv[0] == 'z':
+                update_timezone = True
+                break
+        if update_timezone:
+            changed += [kv for kv in self.keyvals if kv[0] in ['s', 'u',  '+', '-']]
+
         for kv in removed:
             if kv in self.object_hsh:
                 del self.object_hsh[kv]
@@ -843,6 +851,7 @@ class Item(object):
             self.update_keyval(kv)
 
         self.keyvals = [kv for kv in keyvals]
+
 
     def update_keyval(self, kv):
         """
@@ -1061,12 +1070,11 @@ class Item(object):
                 rep = f"incomplete or invalid timezone: '{arg}'"
                 if 'z' in self.item_hsh:
                     del self.item_hsh['z']
-        if obj:
-            ud = [kv for kv in self.keyvals if kv[0] in ['s', 'u',  '+', '-']]
-            logger.info(f"ud: {ud}")
-            # for kv in ud:
-
-
+        # if obj:
+        #     ud = [kv for kv in self.keyvals if kv[0] in ['s', 'u',  '+', '-']]
+        #     logger.info(f"ud: {ud}")
+        #     for kv in ud:
+        #         self.update_keyval(kv)
         return obj, rep
 
 
@@ -1356,49 +1364,37 @@ def format_datetime(obj, short=False):
     >>> format_datetime(parse_datetime("2019-01-31 11:30p", "Europe/Paris")[1])
     (True, 'Thu Jan 31 2019 5:30pm EST')
     """
-    # if type(obj) == datetime:
-    #     obj = pendulum.instance(obj)
-    short_date = obj.format("YYYY-MM-DD")
-    long_date = obj.format("ddd MMM D YYYY")
+
+    short_date_fmt = "YYYY-MM-DD"
+    long_date_fmt = "ddd MMM D YYYY"
+
+    date_fmt = "YYYY-MM-DD" if short else "ddd MMM D YYYY"
+    time_fmt = "h:mmA" if ampm else "H:mm"
 
     if type(obj) == pendulum.Date:
-        if short:
-            return True, short_date
-        else:
-            return True, long_date
+        return True, obj.format(date_fmt)
 
-    elif type(obj) == pendulum.DateTime: 
-        if obj.format('Z') == '' :
-            zone = ''
-        else:
-            obj = obj.in_timezone('local')
-            zone = obj.format('zz')
+    if type(obj) != pendulum.DateTime:
+        return False, "The argument must be a pendulum date or datetime."
+
+    if obj.format('Z') == '':
+        # naive datetime
         if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
             # treat as date
-            if short:
-                return True, short_date
-            else:
-                return True, long_date
-
-        if ampm:
-            time = obj.format('h:mmA').lower()
-        else:
-            time = obj.format('H:mm')
-        if obj.format('Z') == '':
-            # naive datetime
-            if short:
-                return True, f"{short_date} {time}" 
-            else:
-                return True, f"{long_date} {time}" 
-        else:
-            # aware datetime
-            if short:
-                return True, f"{short_date} {time}" 
-            else:
-                return True, f"{long_date} {time} {zone}"
-
+            return True, obj.format(date_fmt)
+        res = obj.format(f"{date_fmt} {time_fmt}")
     else:
-        return False, "The argument must be a pendulum date or datetime."
+        # aware datetime
+        obj = obj.in_timezone('local')
+        if not short: time_fmt += " zz"
+        res = obj.format(f"{date_fmt} {time_fmt}")
+
+    if ampm:
+        res = res.replace('AM', 'am')
+        res = res.replace('PM', 'pm')
+    logger.info(f"res: {res}")
+    return True, res
+
 
 def format_datetime_list(obj_lst):
     ret = ", ".join([format_datetime(x)[1] for x in obj_lst])
