@@ -2097,13 +2097,16 @@ jinja_entry_template.globals['isinstance'] = isinstance
 jinja_display_template.globals['wrap'] = wrap
 
 def do_beginby(arg):
+    beginby_str = "beginby requires an integer number of days"
+    if not arg:
+        return None, beginby_str
     ok, res = integer(arg, 1, None, False, 'beginby')
     if ok:
         obj = res
-        rep = arg
+        rep = f"beginby: {arg} days"
     else:
         obj = None
-        rep = res
+        rep = f"'{arg}' is invalid. {beginby_str}."
     return obj, rep
 
 def do_alert(arg):
