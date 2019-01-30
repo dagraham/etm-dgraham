@@ -873,7 +873,16 @@ class Item(object):
             if obj:
                 logger.info(f"askreply: {self.askreply}")
 
-    # def update_timezone(self, obj)
+    def update_item_hsh(self):
+        cur_hsh = {}
+        for pos, (k, v) in self.pos_hsh.items():
+            obj = self.obj_hsh[(k, v)]
+            if k == 'a':
+                self.item_hsh.setdefault(k, []).append()
+            elif k in ['rr', 'jj']:
+                self.item_hsh.setdefault(k, []).append({})
+
+
 
     def do_at(self, arg=''):
         """
@@ -2102,33 +2111,44 @@ def do_alert(arg):
     p1, p2, ...: cmd[, arg1, arg2, ...]
     >>> do_alert('')
     (None, '')
-    >>> do_alert('90m, 45m')
-    ([[Duration(hours=1, minutes=30), Duration(minutes=45)], ''], '1h30m, 45m: ')
-    >>> do_alert('90m, 45m, 10: d')
-    (None, '1h30m, 45m, ~10~: d')
+    >>> print(do_alert('90m, 45m')[1])
+    alert: 1h30m, 45m -> None
+    commmand is required but missing
+    >>> print(do_alert('90m, 45m, 10: d')[1])
+    alert: 1h30m, 45m -> d
+    incomplete or invalid periods: 10
     >>> do_alert('90m, 45m, 10m: d')
-    ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], 'd'], '1h30m, 45m, 10m: d')
+    ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], 'd'], 'alert: 1h30m, 45m, 10m -> d')
     """
     obj = None
     rep = arg
     parts = arg.split(':')
     periods = parts.pop(0)
-    command = parts[0].strip() if parts else ''
+    command = parts[0].strip() if parts else None
     if periods:
         all_ok = True
         periods = [x.strip() for x in periods.split(',')]
         obj_periods = []
-        rep_periods = []
+        good_periods = []
+        bad_periods = []
         for period in periods:
             ok, res = parse_duration(period)
             if ok:
                 obj_periods.append(res)
-                rep_periods.append(format_duration(res))
+                good_periods.append(format_duration(res))
             else:
                 all_ok = False
-                rep_periods.append(f"~{period}~")
-        obj = [obj_periods, command.strip()] if all_ok else None
-        rep = f"{', '.join(rep_periods)}: {command}"
+                bad_periods.append(period)
+        rep = f"alert: {', '.join(good_periods)} -> {command}"
+        if bad_periods:
+            obj = None
+            rep += f"\nincomplete or invalid periods: {', '.join(bad_periods)}"
+        elif command is None:
+            obj = None
+            rep += f"\ncommmand is required but missing"
+        else:
+            obj = [obj_periods, command]
+
     return obj, rep
 
 def do_period(arg):
@@ -2156,10 +2176,6 @@ def do_overdue(arg):
         return arg, arg
     else:
         return None, f"~{arg}~"
-
-def alert(arg):
-    # FIXME
-    return True, ''
 
 def job_datetime(arg):
     # FIXME
@@ -2927,8 +2943,6 @@ undated_job_methods = dict(
 )
 
 datetime_job_methods = dict(
-    # a=alert,
-    # s=job_datetime
     b=do_beginby,
 )
 datetime_job_methods.update(undated_job_methods)
