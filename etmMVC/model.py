@@ -754,6 +754,9 @@ class Item(object):
         """
         self.entry = s
         self.is_new = s is None
+        self.doc_id = None
+        self.created = None
+        self.modified = None
         self.object_hsh = {}    # key, val -> object version of raw string for tinydb 
         self.askreply= {}       # key, val -> display version raw string
         self.pos_hsh = {}       # (beg, end) -> (key, val)
@@ -819,7 +822,8 @@ class Item(object):
                 }
         if not s:
             self.text_changed('', 0)
-        # self.update_keyval(('itemtype', ''))
+        self.etmdb = TinyDB('etm-mvc.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        self.etmdb_query = self.etmdb.table('items', cache_size=None)
 
 
     def cursor_changed(self, pos):
@@ -924,7 +928,20 @@ class Item(object):
             cur_key = None
             cur_hsh = {}
 
-        logger.info(f"update_item_hsh: {self.item_hsh}")
+        now = pendulum.now('UTC')
+        # keys = [x for x in self.item_hsh.keys()]
+        # keys.sort()
+        # hsh = {k: self.item_hsh[k] for k in keys}
+        if self.doc_id is None:
+            self.created = now
+            self.item_hsh['created'] = self.created
+            self.doc_id = self.etmdb.insert(self.item_hsh)
+        else:
+            self.item_hsh['created'] = self.created
+            self.item_hsh['modified'] = now
+            self.etmdb.write_back([self.item_hsh], doc_ids=[self.doc_id])
+        logger.info(f"doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
+
 
     def check_requires(self, key):
         """
@@ -976,12 +993,12 @@ class Item(object):
         >>> obj, rep = item.do_at()
         >>> print(rep)
         event @-keys:
-          required: @s (start)
-          allowed: @+ (include), @- (exclude), @a (alerts), @b (beginby),
-            @c (calendar), @d (description), @e (extent),
-            @g (goto), @i (index), @l (location), @m (memo),
-            @o (overdue), @s (start), @t (tags),
-            @x (expansion), @z (timezone)
+        required: @s (start)
+        allowed: @+ (include), @- (exclude), @a (alerts),
+          @b (beginby), @c (calendar), @d (description),
+          @e (extent), @g (goto), @i (index), @l (location),
+          @m (memo), @n (attendees), @o (overdue), @t (tags),
+          @x (expansion), @z (timezone)
         """
         itemtype = self.item_hsh.get('itemtype', '')
         if itemtype:
@@ -3658,7 +3675,8 @@ serialization.register_serializer(PendulumDateSerializer(), 'D')     # Date
 serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
 serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday 
 
-ETMDB = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+DBNAME = 'db.json'
+ETMDB = TinyDB(DBNAME, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
 ETMDB_QUERY = ETMDB.table('items', cache_size=None)
 
 ########################
@@ -3774,8 +3792,8 @@ def pen_from_fmt(s, z='local'):
         dt = dt.date()
     return dt
 
-def timestamp_from_id(doc_id, z='local'):
-    return pendulum.from_format(str(doc_id)[:12], "YYYYMMDDHHmm").in_timezone(z)
+# def timestamp_from_id(doc_id, z='local'):
+#     return pendulum.from_format(str(doc_id)[:12], "YYYYMMDDHHmm").in_timezone(z)
 
 def drop_zero_minutes(dt):
     """
