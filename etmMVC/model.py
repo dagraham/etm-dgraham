@@ -207,10 +207,10 @@ semicolon_regex = re.compile(r'\;\s*')
 
 allowed = {}
 required = {}
-common_methods = 'cdegilmstx'
-repeating_methods = '+-ro'
-datetime_methods = 'abez'
-task_methods = 'fhjp'
+common_methods = [x for x in 'cdegilmnstx']
+repeating_methods = [x for x in '+-o'] + ['rr', 'rc', 'rm', 'rE', 'rh', 'ri', 'rM', 'rn', 'rs', 'ru', 'rW', 'rw']
+datetime_methods = [x for x in 'abez']
+task_methods = [x for x in 'fhp'] + ['jj', 'ja', 'jb', 'jd', 'je', 'jf', 'ji', 'jl', 'jm', 'jp', 'js']
 
 # events
 required['*'] = ['s']
@@ -232,10 +232,13 @@ allowed['!'] = common_methods + datetime_methods + task_methods + repeating_meth
 requires = {
         'a': 's',
         'b': 's',
-        'r': 's',
         '+': 's',
         '-': 'r',
         'o': 'r',
+        'rr': 's',
+        'js': 's',
+        'ja': 's',
+        'jb': 's',
         }
 
 # set up 2 character weekday name abbreviations for busy view
@@ -801,7 +804,7 @@ class Item(object):
                 'rW': ["week numbers", "list of integers in 1, ... 53", do_weeknumbers],
                 'r?': ["repetition &-key", "enter &-key", self.do_ampr],
 
-                'jj': ["summary", "string", do_string],
+                'jj': ["summary", "job summary", do_string],
                 'ja': ["alert", "list of timeperiod before task start followed by a colon and a command and, optionally, command arguments", do_alert],
                 'jb': ["beginby", " integer number of days", do_beginby],
                 'jd': ["description", " string", do_string],
@@ -811,8 +814,8 @@ class Item(object):
                 'jl': ["location", " string", do_string],
                 'jm': ["memo", "string", do_string],
                 'jp': ["prerequisite ids", "list of ids of immediate prereqs", do_stringlist],
-                'js': ["start", "timeperiod before task start when job is due"],
-                'j?': ["job &-key", "enter &-key"],
+                'js': ["start", "timeperiod before task start when job is due", do_period],
+                'j?': ["job &-key", "enter &-key", self.do_ampj],
                 }
         if not s:
             self.text_changed('', 0)
@@ -840,7 +843,7 @@ class Item(object):
                 update_timezone = True
                 break
         if update_timezone:
-            changed += [kv for kv in self.keyvals if kv[0] in ['s', 'u',  '+', '-']]
+            changed += [kv for kv in self.keyvals if kv[0] in ['s', 'ru',  '+', '-']]
 
         for kv in removed:
             if kv in self.object_hsh:
@@ -858,30 +861,96 @@ class Item(object):
         """
         logger.info(f"updating kv: {kv}")
         key, val = kv
+
         if key in self.keys:
             a, r, do = self.keys[key]
             ask = a
-            obj, rep = do(val)
-            reply = rep if rep else r
-            if obj:
-                self.object_hsh[kv] = obj
-            else:
-                if kv in self.object_hsh:
-                    del self.object_hsh[kv]
+            msg = self.check_allowed(key)
+            if msg:
+                obj = None
+                reply = msg
+            else: # only do this for allowed keys
+                msg = self.check_requires(key)
+                if msg:
+                    obj = None
+                    reply = msg
+                else:
+                    obj, rep = do(val)
+                    reply = rep if rep else r
+                    if obj:
+                        self.object_hsh[kv] = obj
+                    else:
+                        if kv in self.object_hsh:
+                            del self.object_hsh[kv]
             # logger.info(f"kv: {kv}; ask: {ask}; reply: {reply}")
             self.askreply[kv] = (ask, reply)
             if obj:
                 logger.info(f"askreply: {self.askreply}")
+        else:
+            display_key = f"@{key}" if len(key) == 1 else f"&{key[-1]}"
+            self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
 
     def update_item_hsh(self):
         cur_hsh = {}
+        cur_key = None
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.obj_hsh[(k, v)]
             if k == 'a':
-                self.item_hsh.setdefault(k, []).append()
+                self.item_hsh.setdefault(k, []).append(obj)
             elif k in ['rr', 'jj']:
-                self.item_hsh.setdefault(k, []).append({})
+                cur_key = k[0]
+                cur_hsh = {k[0]: obj}
+                self.item_hsh.setdefault(k, []).append(current)
+            elif k[0] in ['r', 'j']:
+                if current:
+                    current[k[1]] = obj
+                else:
+                    pass
+            else:
+                if cur_key:
+                    self.item_hsh.setdefault(cur_key, []).append(cur_hsh)
+                    cur_key = None
+                    cur_hsh = {}
+                self.item_hsh[k] = obj
 
+    def check_requires(self, key):
+        """
+        Check that key has the prerequisite entries.
+        if key in requires, check that each key in requires[k] has a corresponding key, val in keyvals: [(k, v), (k, v), ...]
+        """
+
+        missing = []
+        if key in requires:
+            cur_keys = [k for (k, v) in self.keyvals]
+            missing = [f"@{k}" for k in requires[key] if k not in cur_keys]
+
+        if missing:
+            display_key = f"@{key[0]}" if len(key) == 1 or key[-1] in 'rj' else f"&{key[-1]}"
+            return f"Required for {display_key} but missing: {', '.join(missing)}"
+        else:
+            return ""
+
+    def check_allowed(self, key):
+        """
+        Check that key is allowed for the given item type or @-key.
+        """
+        if key in ['?', 'r?', 'j?', 'itemtype', 'summary']:
+            return ""
+        if key not in self.keys:
+            if len(key) > 1:
+                msg = f"&{key[1]} is invalid with @{key[0]}"
+            else:
+                msg = f"@{key} is invalid"
+            return msg
+        itemtype = self.item_hsh.get('itemtype', None)
+        if itemtype:
+            if key not in allowed[itemtype]:
+                display_key = f"@{key}" if len(key) == 1 else f"&{key[-1]}"
+                return f"{display_key} is not allowed for itemtype {itemtype} ({type_keys[itemtype]})"
+            else:
+                return ""
+        else:
+            return "missing itemtype"
 
 
     def do_at(self, arg=''):
@@ -903,13 +972,22 @@ class Item(object):
         """
         itemtype = self.item_hsh.get('itemtype', '')
         if itemtype:
-            require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if k in required[itemtype] and k != '?'] 
-            allow = [f"@{k}_({v[0]})" for k, v in self.keys.items() if k in allowed[itemtype] and k != '?'] 
+            # only @-keys; allow a, rr and jj more than once
+            already_entered = [k for (k, v) in self.keyvals if len(k) == 1 and k not in ['a']]
+            logger.info(f"already_entered: {already_entered}")
+            req = [k for k, v in self.keys.items() if (k in required[itemtype] and k not in already_entered)]
+            require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in required[itemtype] and k != '?' and k not in already_entered)] 
+            logger.info(f"require: {require}; required: {required[itemtype]}")
+            # allow rr to be entered as r and jj as j
+            avail = [x[0] for x in allowed[itemtype] if len(x) == 1 or x in ['rr', 'jj'] ]
+            allow = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in avail and k != '?' and k not in already_entered and k not in req)] 
             prompt = f"{type_keys[itemtype]} @-keys:\n"
             if require:
-                prompt += "  required: " +  wrap(", ".join(require), 4, 60) + "\n"
+                prompt += wrap(f"required: {', '.join(require)}", 2, 60) + "\n"
+                # prompt += "required: " +  wrap(, 2, 56) + "\n"
             if allow:
-                prompt += "  allowed: " + wrap(", ".join(allow), 4, 60)
+                prompt += wrap(f"allowed: {', '.join(allow)}", 2, 60)
+                # prompt += "allowed: " + wrap(", ".join(allow), 2, 56)
             rep = prompt.replace('_', ' ')
         else:
             rep = "The type character must be entered before any @-keys"
@@ -1066,6 +1144,9 @@ class Item(object):
         elif arg in ['local', 'float']:
             self.item_hsh['z'] = arg 
             obj = rep = arg
+        elif not arg.strip():
+            obj = None
+            rep = ""
         else:
             try:
                 Timezone(arg)
@@ -2097,16 +2178,16 @@ jinja_entry_template.globals['isinstance'] = isinstance
 jinja_display_template.globals['wrap'] = wrap
 
 def do_beginby(arg):
-    beginby_str = "beginby requires an integer number of days"
+    beginby_str = "an integer number of days"
     if not arg:
         return None, beginby_str
-    ok, res = integer(arg, 1, None, False, 'beginby')
+    ok, res = integer(arg, 1, None, False, 'beg')
     if ok:
         obj = res
-        rep = f"beginby: {arg} days"
+        rep = f"beginby: {arg} day(s)"
     else:
         obj = None
-        rep = f"'{arg}' is invalid. {beginby_str}."
+        rep = f"'{arg}' is invalid. Beginby requires {beginby_str}."
     return obj, rep
 
 def do_alert(arg):
@@ -2157,21 +2238,21 @@ def do_alert(arg):
 def do_period(arg):
     """
     >>> do_period('')
-    (None, '')
+    (None, 'period: ')
     >>> do_period('90')
-    (None, "'90' is incomplete or invalid")
+    (None, 'incomplete or invalid period: 90')
     >>> do_period('90m')
-    (Duration(hours=1, minutes=30), '1h30m')
+    (Duration(hours=1, minutes=30), 'period: 1h30m')
     """
     if not arg:
-        return None, arg
+        return None, f"period: {arg}"
     ok, res = parse_duration(arg)
     if ok:
         obj = res
-        rep = format_duration(res)
+        rep = f"period: {format_duration(res)}"
     else:
         obj = None
-        rep = f"'{arg}' is incomplete or invalid"
+        rep = f"incomplete or invalid period: {arg}"
     return obj, rep
 
 def do_overdue(arg):
@@ -2241,17 +2322,19 @@ def until(arg):
 def do_priority(arg):
     """
     >>> do_priority("0")
-    (None, 'invalid priority: priority: 0 is less than the allowed minimum. Required for priority: an integer priority number from 1 (highest), to 9 (lowest)')
+    (None, 'invalid priority: 0 is less than the allowed minimum. An integer priority number from 1 (highest), to 9 (lowest) is required')
+    >>> do_priority("1")
+    (1, 'priority: 1')
     """
-    prioritystr = "priority: an integer priority number from 1 (highest), to 9 (lowest)"
+    prioritystr = "An integer priority number from 1 (highest), to 9 (lowest)"
     if arg:
-        ok, res = integer(arg, 1, 9, False, "priority")
+        ok, res = integer(arg, 1, 9, False, "")
         if ok:
             obj = res
-            rep = arg
+            rep = f"priority: {arg}"
         else:
             obj = None
-            rep = f"invalid priority: {res}. Required for {prioritystr}"
+            rep = f"invalid priority: {res}. {prioritystr} is required"
     else:
         obj = None
         rep = prioritystr
@@ -2336,7 +2419,7 @@ def do_interval(arg):
     >>> do_interval("two")
     (None, "invalid interval: 'two'. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.")
     >>> do_interval(27)
-    (27, 27)
+    (27, 'interval: 27')
     >>> do_interval("1, 2")
     (None, "invalid interval: '1, 2'. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.")
     """
@@ -2346,7 +2429,7 @@ def do_interval(arg):
     if arg:
         ok, res = integer(arg, 1, None, False)
         if ok:
-            return res, arg
+            return res, f"interval: {arg}"
         else:
             return None, f"invalid interval: '{res}'. Required for {intstr}"
     else:
@@ -2358,15 +2441,15 @@ def do_frequency(arg):
     repetition frequency: character in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly
     or mi(n)utely.
     >>> do_frequency('d')
-    ('d', 'd')
+    ('d', 'repeating: daily')
     >>> do_frequency('z')
     (None, 'invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
     """
 
-    freq = [x for x in rrule_freq]
+    freq = [x for x in freq_names]
     freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely."
     if arg in freq:
-        return arg, arg
+        return arg, f"repeating: {freq_names[arg]}"
     elif arg:
         return None, f"invalid frequency: {arg} not in {freqstr}"
     else:
@@ -2375,20 +2458,20 @@ def do_frequency(arg):
 def do_setpositions(arg):
     """
     >>> do_setpositions("1")
-    ([1], '1')
+    ([1], 'set positions: 1')
     >>> do_setpositions("-1, 0")
-    (None, 'invalid setpos: setpos: 0 is not allowed. setpos (non-zero integer or sequence of non-zero integers). When multiple dates satisfy the rule, take the dates from this/these positions in the list, e.g, &s 1 would choose the first element and &s -1 the last.')
+    (None, 'invalid set positions: 0 is not allowed. set positions (non-zero integer or sequence of non-zero integers). When multiple dates satisfy the rule, take the dates from this/these positions in the list, e.g, &s 1 would choose the first element and &s -1 the last.')
     """
-    setposstr = "setpos (non-zero integer or sequence of non-zero integers). When multiple dates satisfy the rule, take the dates from this/these positions in the list, e.g, &s 1 would choose the first element and &s -1 the last."
-    args = arg.split(',')
-    if args:
-        ok, res = integer_list(arg, None, None, False, "setpos")
+    setposstr = "set positions (non-zero integer or sequence of non-zero integers). When multiple dates satisfy the rule, take the dates from this/these positions in the list, e.g, &s 1 would choose the first element and &s -1 the last."
+    if arg:
+        args = arg.split(',')
+        ok, res = integer_list(args, None, None, False, "")
         if ok:
-            obj = res
-            rep = arg
+            obj = res 
+            rep = f"set positions: {arg}"
         else:
             obj = None
-            rep = f"invalid setpos: {res}. {setposstr}"
+            rep = f"invalid set positions: {res}. {setposstr}"
     else:
         obj = None
         rep = setposstr
@@ -2397,13 +2480,13 @@ def do_setpositions(arg):
 
 def do_count(arg):
     """
-    count (positive integer) Include no more than this number of repetitions.
-    >>> count('three')
-    (False, 'invalid count: three. Required for count: a positive integer. Include no more than this number of repetitions.')
-    >>> count('3')
-    (True, 3)
-    >>> count([2, 3])
-    (False, 'invalid count: [2, 3]. Required for count: a positive integer. Include no more than this number of repetitions.')
+    do_count (positive integer) Include no more than this number of repetitions.
+    >>> do_count('three')
+    (None, 'invalid count: three. Required for count: a positive integer. Include no more than this number of repetitions.')
+    >>> do_count('3')
+    (3, 'count: 3')
+    >>> do_count([2, 3])
+    (None, 'invalid count: [2, 3]. Required for count: a positive integer. Include no more than this number of repetitions.')
     """
 
     countstr = "count: a positive integer. Include no more than this number of repetitions."
@@ -2412,7 +2495,7 @@ def do_count(arg):
         ok, res = integer(arg, 1, None, False )
         if ok:
             obj = res
-            rep = arg
+            rep = f"count: {arg}"
         else:
             obj = None
             rep = f"invalid count: {res}. Required for {countstr}"
@@ -2422,27 +2505,27 @@ def do_count(arg):
     return obj, rep
 
 
-def count(arg):
-    """
-    count (positive integer) Include no more than this number of repetitions.
-    >>> count('three')
-    (False, 'invalid count: three. Required for count: a positive integer. Include no more than this number of repetitions.')
-    >>> count('3')
-    (True, 3)
-    >>> count([2, 3])
-    (False, 'invalid count: [2, 3]. Required for count: a positive integer. Include no more than this number of repetitions.')
-    """
+# def count(arg):
+#     """
+#     count (positive integer) Include no more than this number of repetitions.
+#     >>> count('three')
+#     (False, 'invalid count: three. Required for count: a positive integer. Include no more than this number of repetitions.')
+#     >>> count('3')
+#     (True, 3)
+#     >>> count([2, 3])
+#     (False, 'invalid count: [2, 3]. Required for count: a positive integer. Include no more than this number of repetitions.')
+#     """
 
-    countstr = "count: a positive integer. Include no more than this number of repetitions."
+#     countstr = "count: a positive integer. Include no more than this number of repetitions."
 
-    if arg:
-        ok, res = integer(arg, 1, None, False )
-        if ok:
-            return True, res
-        else:
-            return False, "invalid count: {}. Required for {}".format(res, countstr)
-    else:
-        return False, countstr
+#     if arg:
+#         ok, res = integer(arg, 1, None, False )
+#         if ok:
+#             return True, res
+#         else:
+#             return False, "invalid count: {}. Required for {}".format(res, countstr)
+#     else:
+#         return False, countstr
 
 
 def do_weekdays(arg):
@@ -2451,17 +2534,17 @@ def do_weekdays(arg):
     Use, e.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the
     month.
     >>> do_weekdays("")
-    (None, 'incomplete or invalid weekdays: . weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
+    (None, 'weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     >>> do_weekdays("-2mo, 3tU")
-    ([MO(-2), TU(+3)], '-2MO, 3TU')
+    ([MO(-2), TU(+3)], 'weekdays: -2MO, 3TU')
     >>> do_weekdays("5Su, 1SA")
     (None, 'incomplete or invalid weekdays: 5SU. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     >>> do_weekdays('3FR, -1M')
     (None, 'incomplete or invalid weekdays: -1M. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     """
     weekdaysstr = "weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month."
-    args = [x.strip().upper() for x in arg.split(',')]
-    if args:
+    if arg:
+        args = [x.strip().upper() for x in arg.split(',')]
         bad = []
         good = []
         for x in args:
@@ -2474,7 +2557,7 @@ def do_weekdays(arg):
             rep = f"incomplete or invalid weekdays: {', '.join(bad)}. {weekdaysstr}"
         else:
             obj = good
-            rep = arg.upper()
+            rep = f"weekdays: {arg.upper()}"
     else:
         obj = None
         rep = weekdaysstr
@@ -2489,12 +2572,12 @@ def do_weeknumbers(arg):
     """
     weeknumbersstr = "weeknumbers: a comma separated list of integer week numbers from 1, 2, ..., 53"
 
-    args = arg.split(',')
-    if args:
+    if arg:
+        args = arg.split(',')
         ok, res = integer_list(args, 0, 53, False)
         if ok:
             obj = res
-            rep = arg
+            rep = f"week numbers: {arg}"
         else:
             obj = None
             rep = "invalid weeknumbers: {res}. Required for {weeknumbersstr}"
@@ -2512,12 +2595,12 @@ def do_months(arg):
     """
     monthsstr = "months: a comma separated list of integer month numbers from 1, 2, ..., 12"
 
-    args = arg.split(',')
-    if args:
+    if arg:
+        args = arg.split(',')
         ok, res = integer_list(args, 0, 12, False, "")
         if ok:
             obj = res
-            rep = arg
+            rep = f"months: {arg}"
         else:
             obj = None
             rep = f"invalid months: {res}. Required for {monthsstr}"
@@ -2536,11 +2619,12 @@ def do_monthdays(arg):
     monthdaysstr = "monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month."
 
     args = arg.split(',')
-    if args:
+    if arg:
+        args = arg.split(',')
         ok, res = integer_list(args, -31, 31, False, "")
         if ok:
             obj = res
-            rep = arg
+            rep = f"monthdays: {arg}"
         else:
             obj = None
             rep = f"invalid monthdays: {res}. Required for {monthdaysstr}"
@@ -2629,6 +2713,15 @@ rrule_methods = {
     'h':  do_hours,
     'n':  do_minutes,
     'E':  do_easterdays,
+    }
+
+freq_names = {
+    'y': 'yearly',
+    'm': 'monthly',
+    'w': 'weekly',
+    'd': 'daily',
+    'h': 'hourly', 
+    'n': 'minutely',
     }
 
 rrule_freq = {
@@ -3184,14 +3277,14 @@ def jobs(lofh, at_hsh={}):
     [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Three', 'a': '6h: m', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}]
     >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a', tz="US/Eastern"), 'j': data}))
     (True,
-     [{'b': 2,
+     [{'b': 'beginby: 2 day(s)',
        'i': '1',
        'j': 'Job One',
        'p': [],
        'req': [],
        'status': '-',
        'summary': ' 1/2/0: Job One'},
-      {'b': 1,
+      {'b': 'beginby: 1 day(s)',
        'i': '2',
        'j': 'Job Two',
        'p': ['1'],
@@ -4418,7 +4511,8 @@ def import_json(etmdir=None):
             del item_hsh['z']
         if 'f' in item_hsh:
             item_hsh['f'] = pen_from_fmt(item_hsh['f'], z)
-        item_hsh['created'] = timestamp_from_id(id, 'UTC')
+        # item_hsh['created'] = timestamp_from_id(id, 'UTC')
+        item_hsh['created'] = pendulum.now('UTC')
         # if 'f' in item_hsh and item_hsh['f'] < item_hsh['created']:
         #     item_hsh['created'] = item_hsh['f']
         # if 's' in item_hsh and item_hsh['s'] < item_hsh['created']:
