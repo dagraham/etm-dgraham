@@ -96,8 +96,8 @@ def _(event):
     event.app.exit()
 
 @kb.add('c-s', eager=True)
-def _(event):
-    pass
+def save_item(_):
+    item.update_item_hsh()
 
 # Now we add an event handler that captures change events to the buffer on the
 # left. If the text changes over there, we'll update the buffer on the right.

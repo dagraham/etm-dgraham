@@ -891,20 +891,26 @@ class Item(object):
             self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
 
     def update_item_hsh(self):
+        self.item_hsh = {}
         cur_hsh = {}
         cur_key = None
+        logger.info(f"pos_hsh: {self.pos_hsh.items()}")
+        logger.info(f"object_hsh: {self.object_hsh.items()}")
         for pos, (k, v) in self.pos_hsh.items():
-            obj = self.obj_hsh[(k, v)]
+            obj = self.object_hsh[(k, v)]
             if k == 'a':
                 self.item_hsh.setdefault(k, []).append(obj)
             elif k in ['rr', 'jj']:
+                if cur_hsh:
+                    # starting new rrule or job - append the old
+                    self.item_hsh.setdefault(cur_key, []).append(cur_hsh)
                 cur_key = k[0]
                 cur_hsh = {k[0]: obj}
-                self.item_hsh.setdefault(k, []).append(current)
             elif k[0] in ['r', 'j']:
-                if current:
-                    current[k[1]] = obj
+                if cur_hsh:
+                    cur_hsh[k[1]] = obj
                 else:
+                    # shouldn't happen
                     pass
             else:
                 if cur_key:
@@ -912,6 +918,13 @@ class Item(object):
                     cur_key = None
                     cur_hsh = {}
                 self.item_hsh[k] = obj
+        if cur_key:
+            # record the last if necessary 
+            self.item_hsh.setdefault(cur_key, []).append(cur_hsh)
+            cur_key = None
+            cur_hsh = {}
+
+        logger.info(f"update_item_hsh: {self.item_hsh}")
 
     def check_requires(self, key):
         """
