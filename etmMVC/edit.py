@@ -12,10 +12,15 @@ from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import  HSplit, Window
 from prompt_toolkit.layout.controls import BufferControl
+from prompt_toolkit.layout import Dimension
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.widgets import HorizontalLine, TextArea
+from prompt_toolkit.styles import Style
+from prompt_toolkit.styles.named_colors import NAMED_COLORS
 
 from model import Item
+from model import wrap
+
 # from model import check_entry
 
 import logging
@@ -30,21 +35,30 @@ from model import setup_logging
 item = Item()
 ask_buffer = Buffer()
 entry_buffer = Buffer(multiline=True)
-reply_buffer = Buffer()
+reply_buffer = Buffer(multiline=True)
 
 # 1. First we create the layout
 #    --------------------------
 
-ask_window = Window(BufferControl(buffer=ask_buffer), height=1)
-entry_window = Window(BufferControl(buffer=entry_buffer), wrap_lines=True,)
-reply_window = Window(BufferControl(buffer=reply_buffer), wrap_lines=True,)
+style = Style.from_dict({
+    'entry': f"{NAMED_COLORS['Khaki']}",
+    'ask': f"{NAMED_COLORS['LightCoral']} bold",
+    'reply': f"{NAMED_COLORS['DeepSkyBlue']}",
+})
+
+
+reply_dimension = Dimension(min=2, weight=1)
+entry_dimension = Dimension(weight=1)
+ask_window = Window(BufferControl(buffer=ask_buffer), height=1, style='class:ask')
+entry_window = Window(BufferControl(buffer=entry_buffer), height=entry_dimension, wrap_lines=True, style='class:entry')
+reply_window = Window(BufferControl(buffer=reply_buffer), height=reply_dimension,  wrap_lines=True, style='class:reply')
 
 
 body = HSplit([
-    ask_window,
     entry_window,
-    HorizontalLine(),
+    ask_window,
     reply_window,
+    # HorizontalLine(),
 ])
 
 root_container = HSplit([
@@ -136,11 +150,11 @@ def set_askreply(_):
     else:
         ask, reply = item.askreply[('itemtype', '')]
     ask_buffer.text = ask
-    reply_buffer.text = reply 
+    reply_buffer.text = wrap(reply, 0) 
+    # reply_buffer.text = ('class:status', reply)
 
 # set this first for an empty entry
 set_askreply('_')
-
 
 # 3. Creating an `Application` instance
 #    ----------------------------------
@@ -153,6 +167,7 @@ application = Application(
 
     # Let's add mouse support!
     mouse_support=True,
+    style=style,
 
     # Using an alternate screen buffer means as much as: "run full screen".
     # It switches the terminal to an alternate screen.

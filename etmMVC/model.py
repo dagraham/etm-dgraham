@@ -749,12 +749,13 @@ class Item(object):
 
     """
 
-    def __init__(self, s=None):
+    def __init__(self, doc_id=None):
         """
         """
-        self.entry = s
-        self.is_new = s is None
-        self.doc_id = None
+
+        self.entry = ""
+        self.is_new = doc_id is None
+        self.doc_id = doc_id
         self.created = None
         self.modified = None
         self.object_hsh = {}    # key, val -> object version of raw string for tinydb 
@@ -770,41 +771,41 @@ class Item(object):
         # all else do not need item_hsh
         self.keys = {
                 'itemtype': ["item type", "character from * (event), - (task), % (record) or ! (inbox)", self.do_itemtype],
-                'summary': ["summary", "summary", self.do_summary],
-                '+': ["include", "list of datetimes", self.do_datetimes],
-                '-': ["exclude", "list of datetimes", self.do_datetimes],
+                'summary': ["summary", "brief item description", self.do_summary],
+                '+': ["include", "list of datetimes to include", self.do_datetimes],
+                '-': ["exclude", "list of datetimes to exclude", self.do_datetimes],
                 'a': ["alerts", "list of alerts", do_alert],
-                'b': ["beginby", "beginby days", do_beginby],
+                'b': ["beginby", "number of days for beginby notices", do_beginby],
                 'c': ["calendar", "calendar", do_string],
-                'd': ["description", "description", do_string],
+                'd': ["description", "item details", do_string],
                 'e': ["extent", "timeperiod", do_period],
-                'f': ["finish", "datetime", self.do_datetime],
+                'f': ["finish", "completion datetime", self.do_datetime],
                 'g': ["goto", "url or filepath", do_string],
-                'h': ["completions", "list of datetimes", self.do_datetimes],
+                'h': ["completions", "list of completion datetimes", self.do_datetimes],
                 'i': ["index", "colon delimited string", do_string],
-                'l': ["location", "location", do_string],
-                'm': ["memo", "memo", do_string],
+                'l': ["location", "location or context", do_string],
+                'm': ["memo", "", do_string],
                 'n': ["attendees", "list of 'name <email address>'", do_stringlist],
                 'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", do_overdue],
                 'p': ["priority", "priority from 1 (highest) to 9 (lowest)", do_priority],
                 's': ["start", "starting date or datetime", self.do_datetime],
                 't': ["tags", "list of tags", do_stringlist],
                 'x': ["expansion", "expansion key", do_string],
-                'z': ["timezone", "timezone", self.do_timezone],
-                '?': ["@-key", "@-key", self.do_at],
+                'z': ["timezone", "", self.do_timezone],
+                '?': ["@-key", "", self.do_at],
 
                 'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute", do_frequency],
-                'rc': ["count", "integer number of repetitions", do_count],
+                'ri': ["interval", "positive integer", do_interval],
                 'rm': ["monthdays", "list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", do_monthdays], 
                 'rE': ["easterdays", "number of days before (-), on (0) or after (+) Easter", do_easterdays],
                 'rh': ["hours", "list of integers in 0 ... 23", do_hours],
-                'ri': ["interval", "positive integer", do_interval],
                 'rM': ["months", "list of integers in 1 ... 12", do_months], 
                 'rn': ["minutes", "list of integers in 0 ... 59", do_minutes], 
-                'rs': ["set positions", "integer", do_setpositions],
-                'ru': ["until", "datetime", self.do_datetime],
                 'rw': ["weekdays", "list from SU, MO, ..., SA, possibly prepended with a positive or negative integer", do_weekdays],
                 'rW': ["week numbers", "list of integers in 1, ... 53", do_weeknumbers],
+                'rc': ["count", "integer number of repetitions", do_count],
+                'ru': ["until", "datetime", self.do_datetime],
+                'rs': ["set positions", "integer", do_setpositions],
                 'r?': ["repetition &-key", "enter &-key", self.do_ampr],
 
                 'jj': ["summary", "job summary", do_string],
@@ -820,7 +821,7 @@ class Item(object):
                 'js': ["start", "timeperiod before task start when job is due", do_period],
                 'j?': ["job &-key", "enter &-key", self.do_ampj],
                 }
-        if not s:
+        if not self.entry:
             self.text_changed('', 0)
         self.etmdb = TinyDB('etm-mvc.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.etmdb_query = self.etmdb.table('items', cache_size=None)
@@ -994,11 +995,11 @@ class Item(object):
         >>> print(rep)
         event @-keys:
         required: @s (start)
-        allowed: @+ (include), @- (exclude), @a (alerts),
+        available: @+ (include), @- (exclude), @a (alerts),
           @b (beginby), @c (calendar), @d (description),
           @e (extent), @g (goto), @i (index), @l (location),
-          @m (memo), @n (attendees), @o (overdue), @t (tags),
-          @x (expansion), @z (timezone)
+          @m (memo), @n (attendees), @o (overdue), @s (start),
+          @t (tags), @x (expansion), @z (timezone)
         """
         itemtype = self.item_hsh.get('itemtype', '')
         if itemtype:
@@ -1010,13 +1011,14 @@ class Item(object):
             logger.info(f"require: {require}; required: {required[itemtype]}")
             # allow rr to be entered as r and jj as j
             avail = [x[0] for x in allowed[itemtype] if len(x) == 1 or x in ['rr', 'jj'] ]
-            allow = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in avail and k != '?' and k not in already_entered and k not in req)] 
-            prompt = f"{type_keys[itemtype]} @-keys:\n"
+            allow = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in avail and k != '?' and k not in already_entered)] 
+            # prompt = f"{type_keys[itemtype]} @-keys:\n"
+            prompt = ""
             if require:
-                prompt += wrap(f"required: {', '.join(require)}", 2, 60) + "\n"
+                prompt += wrap(f"required: {', '.join(require)}", 2) + "\n"
                 # prompt += "required: " +  wrap(, 2, 56) + "\n"
             if allow:
-                prompt += wrap(f"allowed: {', '.join(allow)}", 2, 60)
+                prompt += wrap(f"available: {', '.join(allow)}", 2)
                 # prompt += "allowed: " + wrap(", ".join(allow), 2, 56)
             rep = prompt.replace('_', ' ')
         else:
@@ -1030,10 +1032,10 @@ class Item(object):
         >>> item = Item()
         >>> obj, rep = item.do_ampr()
         >>> print(rep)
-        repetition &-keys: &c (count), &m (monthdays),
-            &E (easterdays), &h (hours), &i (interval),
-            &M (months), &n (minutes), &s (set positions),
-            &u (until), &w (weekdays), &W (week numbers)
+        repetition &-keys: &i (interval), &m (monthdays),
+            &E (easterdays), &h (hours), &M (months),
+            &n (minutes), &w (weekdays), &W (week numbers),
+            &c (count), &u (until), &s (set positions)
         """
         keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('r') and k[1] not in 'r?'] 
         rep = wrap("repetition &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
@@ -1086,9 +1088,10 @@ class Item(object):
         if not self.item_hsh['itemtype']:
             return None, "a valid itemtype must be provided"
         obj, rep = do_string(arg)
-        rep = f"{type_keys[self.item_hsh['itemtype']]} summary: {rep}"
+        # rep = f"{type_keys[self.item_hsh['itemtype']]} sum: {rep}"
         if obj:
             self.item_hsh['summary'] = obj
+            rep = arg
         elif 'summary' in self.item_hsh:
             del self.item_hsh['summary']
 
@@ -1243,128 +1246,128 @@ def verify_entry(entry, pos_hsh, ent_hsh, pos):
     return ask, reply
 
 
-item_hsh = {}
-def check_entry(s, cursor_pos=0):
-    # """
-    # Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
-    # >>> check_entry('')
-    # (('say', 'item type character:'), ('say', 'item type characters:\\n    *: event\\n    -: task\\n    %: record\\n    !: inbox'), {})
-    # >>> check_entry('^')
-    # (('say', 'item type character:'), ('warn', "invalid item type character: '^'"), {})
-    # >>> check_entry('- todo')
-    # (('say', 'task summary:'), ('say', 'Enter the summary for the task followed, optionally, by @key and value pairs'), {})
-    # >>> check_entry('- todo @s 2019-01-22 4p @', 25)
-    # """
-    global item_hsh
-    pos_hsh, keyvals = process_entry(s)
-    hsh = {}
+# item_hsh = {}
+# def check_entry(s, cursor_pos=0):
+#     # """
+#     # Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
+#     # >>> check_entry('')
+#     # (('say', 'item type character:'), ('say', 'item type characters:\\n    *: event\\n    -: task\\n    %: record\\n    !: inbox'), {})
+#     # >>> check_entry('^')
+#     # (('say', 'item type character:'), ('warn', "invalid item type character: '^'"), {})
+#     # >>> check_entry('- todo')
+#     # (('say', 'task summary:'), ('say', 'Enter the summary for the task followed, optionally, by @key and value pairs'), {})
+#     # >>> check_entry('- todo @s 2019-01-22 4p @', 25)
+#     # """
+#     global item_hsh
+#     pos_hsh, keyvals = process_entry(s)
+#     hsh = {}
 
-    ask = ('say', '')
-    reply = ('say', '')
-    if not s or not pos_hsh:
-        ask = ('say', type_prompt)
-        reply = ('say', item_types)
-        return ask, reply, hsh
+#     ask = ('say', '')
+#     reply = ('say', '')
+#     if not s or not pos_hsh:
+#         ask = ('say', type_prompt)
+#         reply = ('say', item_types)
+#         return ask, reply, hsh
 
-    interval, (key, itemtype) = active_from_pos(pos_hsh, 0)
-    if itemtype not in type_keys:
-        ask = ('say', type_prompt)
-        reply = ('warn', u"invalid item type character: '{0}'".format(itemtype))
-        return ask, reply, hsh
+#     interval, (key, itemtype) = active_from_pos(pos_hsh, 0)
+#     if itemtype not in type_keys:
+#         ask = ('say', type_prompt)
+#         reply = ('warn', u"invalid item type character: '{0}'".format(itemtype))
+#         return ask, reply, hsh
 
-    interval, res = active_from_pos(pos_hsh, cursor_pos)
-    at_key = amp_key = None
-    act_key = act_val = None
-    if res:
-        at_key = res[0][0]
-        amp_key = res[0][1]
-        act_key = amp_key if amp_key else at_key
-        act_val = res[1]
-    if act_val and act_val[-1] == '@':
-        amp_entry = False
-        at_entry = True
-    elif act_val and act_val[-1] == '&':
-        amp_entry = True
-        at_entry = False
-    else:
-        amp_entry = False
-        at_entry = False
-
-
-    if at_entry:
-        ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
-        current_required = ["@{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
-        reply_str = ""
-        if current_required:
-            reply_str += "Required: {}".format(", ".join(current_required))
-        current_allowed = ["@{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'ajr']
-        if current_allowed:
-            reply_str += "Allowed: {}".format(", ".join(current_allowed))
-        reply = ('say', reply_str)
-    elif amp_entry:
-        ask = ('say', "&key for @{}?".format(act_key))
-        reply =  ('say', "Allowed: {}".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
-    elif amp_key:
-        if amp_key in amp_keys[at_key]:
-            ask = ('say', f"{amp_keys[at_key][amp_key]}?")
-        else:
-            ask =  ('say', f"&{amp_key} is not allowed for @{at_key}")
-
-            reply =  ('say', "Allowed: {}".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
-
-    elif at_key:
-        if at_key in at_keys:
-            ask = ('say', "{0}?".format(at_keys[at_key]))
-
-        else:
-            ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
-
-        if at_key == itemtype:
-            ask = ('say', "{} summary:".format(type_keys[itemtype]))
-            reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs'.format(type_keys[itemtype]))
-
-        else:
-            ok, res = check_requires(act_key, hsh)
-            if not ok:
-                ask = ('say', '{0}'.format(at_keys[act_key]))
-                reply = res
-
-            elif act_key in allowed[itemtype]:
-
-                if amp_entry:
-                    ask = ('say', "&key for @{}?".format(act_key))
-                    reply =  ('say', "Allowed: {}".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
-                elif act_key in deal_with:
-                    top, bot, obj = deal_with[act_key](hsh)
-                    ask = ('say', top)
-                    reply = ('say', "{}".format(bot))
-                    if obj:
-                        item_hsh[act_key] = obj
-                        # hsh[act_key] = obj
-                else:
-                    top, bot, obj = deal_with_missing(hsh, act_key)
-                    if obj:
-                        item_hsh[act_key] = obj
-            else:
-                reply = ('warn', "{0} is not allowed for item type '{1}'".format(act_key, itemtype))
-    else:
-        reply = ('warn', 'no act_key')
+#     interval, res = active_from_pos(pos_hsh, cursor_pos)
+#     at_key = amp_key = None
+#     act_key = act_val = None
+#     if res:
+#         at_key = res[0][0]
+#         amp_key = res[0][1]
+#         act_key = amp_key if amp_key else at_key
+#         act_val = res[1]
+#     if act_val and act_val[-1] == '@':
+#         amp_entry = False
+#         at_entry = True
+#     elif act_val and act_val[-1] == '&':
+#         amp_entry = True
+#         at_entry = False
+#     else:
+#         amp_entry = False
+#         at_entry = False
 
 
-    if 'summary' in hsh:
-        item_hsh['summary'] = hsh['summary']
+#     if at_entry:
+#         ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
+#         current_required = ["@{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
+#         reply_str = ""
+#         if current_required:
+#             reply_str += "Required: {}".format(", ".join(current_required))
+#         current_allowed = ["@{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'ajr']
+#         if current_allowed:
+#             reply_str += "Allowed: {}".format(", ".join(current_allowed))
+#         reply = ('say', reply_str)
+#     elif amp_entry:
+#         ask = ('say', "&key for @{}?".format(act_key))
+#         reply =  ('say', "Allowed: {}".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
+#     elif amp_key:
+#         if amp_key in amp_keys[at_key]:
+#             ask = ('say', f"{amp_keys[at_key][amp_key]}?")
+#         else:
+#             ask =  ('say', f"&{amp_key} is not allowed for @{at_key}")
 
-    missing = [k for k in item_hsh if k not in hsh]
-    for k in missing:
-        del item_hsh[k]
+#             reply =  ('say', "Allowed: {}".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
 
-    # for testing and debugging:
-    if testing:
-        reply = (reply[0], reply[1]) 
-        # reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}\n\ncursor pos: {cursor_pos}; active entry: '{act_key}' -> {act_val}\nhsh: {hsh}\nitem_hsh: {item_hsh}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
-        # reply = (reply[0], reply[1] + f"\n{hsh}\n\ncursor pos: {cursor_pos}; active entry: {res} '{act_key}' -> {act_val}\n{pos_hsh}\nat_key: {at_key}; at_entry: {at_entry}\namp_key: {amp_key}; amp_entry: {amp_entry}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
+#     elif at_key:
+#         if at_key in at_keys:
+#             ask = ('say', "{0}?".format(at_keys[at_key]))
 
-    return ask, reply, hsh
+#         else:
+#             ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
+
+#         if at_key == itemtype:
+#             ask = ('say', "{} summary:".format(type_keys[itemtype]))
+#             reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs'.format(type_keys[itemtype]))
+
+#         else:
+#             ok, res = check_requires(act_key, hsh)
+#             if not ok:
+#                 ask = ('say', '{0}'.format(at_keys[act_key]))
+#                 reply = res
+
+#             elif act_key in allowed[itemtype]:
+
+#                 if amp_entry:
+#                     ask = ('say', "&key for @{}?".format(act_key))
+#                     reply =  ('say', "Allowed: {}".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
+#                 elif act_key in deal_with:
+#                     top, bot, obj = deal_with[act_key](hsh)
+#                     ask = ('say', top)
+#                     reply = ('say', "{}".format(bot))
+#                     if obj:
+#                         item_hsh[act_key] = obj
+#                         # hsh[act_key] = obj
+#                 else:
+#                     top, bot, obj = deal_with_missing(hsh, act_key)
+#                     if obj:
+#                         item_hsh[act_key] = obj
+#             else:
+#                 reply = ('warn', "{0} is not allowed for item type '{1}'".format(act_key, itemtype))
+#     else:
+#         reply = ('warn', 'no act_key')
+
+
+#     if 'summary' in hsh:
+#         item_hsh['summary'] = hsh['summary']
+
+#     missing = [k for k in item_hsh if k not in hsh]
+#     for k in missing:
+#         del item_hsh[k]
+
+#     # for testing and debugging:
+#     if testing:
+#         reply = (reply[0], reply[1]) 
+#         # reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}\n\ncursor pos: {cursor_pos}; active entry: '{act_key}' -> {act_val}\nhsh: {hsh}\nitem_hsh: {item_hsh}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
+#         # reply = (reply[0], reply[1] + f"\n{hsh}\n\ncursor pos: {cursor_pos}; active entry: {res} '{act_key}' -> {act_val}\n{pos_hsh}\nat_key: {at_key}; at_entry: {at_entry}\namp_key: {amp_key}; amp_entry: {amp_entry}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
+
+#     return ask, reply, hsh
 
 
 def parse_datetime(s, z=None):
@@ -2275,11 +2278,11 @@ def do_period(arg):
     (Duration(hours=1, minutes=30), 'period: 1h30m')
     """
     if not arg:
-        return None, f"period: {arg}"
+        return None, f"time period"
     ok, res = parse_duration(arg)
     if ok:
         obj = res
-        rep = f"period: {format_duration(res)}"
+        rep = f"{format_duration(res)}"
     else:
         obj = None
         rep = f"incomplete or invalid period: {arg}"
@@ -2447,21 +2450,21 @@ def do_interval(arg):
     interval (positive integer, default = 1) E.g, with frequency
     w, interval 3 would repeat every three weeks.
     >>> do_interval("two")
-    (None, "invalid interval: 'two'. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.")
+    (None, "invalid interval: 'two'. Interval requires a positive integer (default 1) that sets the frequency interval. E.g., with frequency w (weekly), interval 3 would repeat every three weeks.")
     >>> do_interval(27)
     (27, 'interval: 27')
     >>> do_interval("1, 2")
-    (None, "invalid interval: '1, 2'. Required for interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks.")
+    (None, "invalid interval: '1, 2'. Interval requires a positive integer (default 1) that sets the frequency interval. E.g., with frequency w (weekly), interval 3 would repeat every three weeks.")
     """
 
-    intstr = "interval: a positive integer. E.g., with frequency w, interval 3 would repeat every three weeks."
+    intstr = "Interval requires a positive integer (default 1) that sets the frequency interval. E.g., with frequency w (weekly), interval 3 would repeat every three weeks."
 
     if arg:
         ok, res = integer(arg, 1, None, False)
         if ok:
             return res, f"interval: {arg}"
         else:
-            return None, f"invalid interval: '{res}'. Required for {intstr}"
+            return None, f"invalid interval: '{res}'. {intstr}"
     else:
         return None, intstr
 
@@ -2472,18 +2475,19 @@ def do_frequency(arg):
     or mi(n)utely.
     >>> do_frequency('d')
     ('d', 'repeating: daily')
-    >>> do_frequency('z')
-    (None, 'invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
+    >>> print(do_frequency('z')[1])
+    invalid frequency: z not in (y)early, (m)onthly,
+      (w)eekly, (d)aily, (h)ourly or mi(n)utely.
     """
 
     freq = [x for x in freq_names]
     freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely."
     if arg in freq:
-        return arg, f"repeating: {freq_names[arg]}"
+        return arg, f"{freq_names[arg]}"
     elif arg:
-        return None, f"invalid frequency: {arg} not in {freqstr}"
+        return None, wrap(f"invalid frequency: {arg} not in {freqstr}", 2)
     else:
-        return None, f"repetition frequency: character from {freqstr}"
+        return None, wrap(f"repetition frequency: character from {freqstr}", 2)
 
 def do_setpositions(arg):
     """
@@ -2587,7 +2591,7 @@ def do_weekdays(arg):
             rep = f"incomplete or invalid weekdays: {', '.join(bad)}. {weekdaysstr}"
         else:
             obj = good
-            rep = f"weekdays: {arg.upper()}"
+            rep = f"{arg.upper()}"
     else:
         obj = None
         rep = weekdaysstr
@@ -2607,7 +2611,7 @@ def do_weeknumbers(arg):
         ok, res = integer_list(args, 0, 53, False)
         if ok:
             obj = res
-            rep = f"week numbers: {arg}"
+            rep = f"{arg}"
         else:
             obj = None
             rep = "invalid weeknumbers: {res}. Required for {weeknumbersstr}"
@@ -2630,7 +2634,7 @@ def do_months(arg):
         ok, res = integer_list(args, 0, 12, False, "")
         if ok:
             obj = res
-            rep = f"months: {arg}"
+            rep = f"{arg}"
         else:
             obj = None
             rep = f"invalid months: {res}. Required for {monthsstr}"
@@ -2654,7 +2658,7 @@ def do_monthdays(arg):
         ok, res = integer_list(args, -31, 31, False, "")
         if ok:
             obj = res
-            rep = f"monthdays: {arg}"
+            rep = f"{arg}"
         else:
             obj = None
             rep = f"invalid monthdays: {res}. Required for {monthdaysstr}"
@@ -3883,6 +3887,7 @@ def item_details(item, edit=False):
         if edit:
             return jinja_entry_template.render(h=item)
         else:
+            # return jinja_entry_template.render(h=item)
             return jinja_display_template.render(h=item)
 
     except Exception as e:
