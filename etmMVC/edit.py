@@ -14,7 +14,6 @@ from prompt_toolkit.layout.containers import  HSplit, Window
 from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.layout import Dimension
 from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.widgets import HorizontalLine, TextArea
 from prompt_toolkit.styles import Style
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 
@@ -26,7 +25,6 @@ from model import wrap
 import logging
 import logging.config
 logger = logging.getLogger()
-
 from model import setup_logging
 
 # 3. Create the buffers
@@ -41,11 +39,10 @@ reply_buffer = Buffer(multiline=True)
 #    --------------------------
 
 style = Style.from_dict({
-    'entry': f"{NAMED_COLORS['Khaki']}",
-    'ask': f"{NAMED_COLORS['LightCoral']} bold",
+    'entry': f"{NAMED_COLORS['LightGoldenRodYellow']}",
+    'ask':   f"{NAMED_COLORS['Lime']} bold",
     'reply': f"{NAMED_COLORS['DeepSkyBlue']}",
 })
-
 
 reply_dimension = Dimension(min=2, weight=1)
 entry_dimension = Dimension(weight=1)
@@ -61,7 +58,7 @@ body = HSplit([
     # HorizontalLine(),
 ])
 
-root_container = HSplit([
+edit_container = HSplit([
     body,
 ])
 
@@ -94,8 +91,6 @@ kb = KeyBindings()
 # `eager=True` to all key bindings, but do it when it conflicts with another
 # existing key binding, and you definitely want to override that behaviour.
 
-
-
 @kb.add('c-q', eager=True)
 def _(event):
     """
@@ -115,7 +110,6 @@ def save_item(_):
 
 # Now we add an event handler that captures change events to the buffer on the
 # left. If the text changes over there, we'll update the buffer on the right.
-
 
 def default_buffer_changed(_):
     """
@@ -162,13 +156,11 @@ set_askreply('_')
 # This glues everything together.
 
 application = Application(
-    layout=Layout(root_container, focused_element=entry_window),
+    layout=Layout(edit_container, focused_element=entry_window),
     key_bindings=kb,
-
     # Let's add mouse support!
     mouse_support=True,
     style=style,
-
     # Using an alternate screen buffer means as much as: "run full screen".
     # It switches the terminal to an alternate screen.
     full_screen=True)
