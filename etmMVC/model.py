@@ -1006,7 +1006,6 @@ class Item(object):
         >>> item.item_hsh['itemtype'] = '*'
         >>> obj, rep = item.do_at()
         >>> print(rep)
-        event @-keys:
         required: @s (start)
         available: @+ (include), @- (exclude), @a (alerts),
           @b (beginby), @c (calendar), @d (description),
@@ -2288,11 +2287,11 @@ def do_alert(arg):
 def do_period(arg):
     """
     >>> do_period('')
-    (None, 'period: ')
+    (None, 'time period')
     >>> do_period('90')
     (None, 'incomplete or invalid period: 90')
     >>> do_period('90m')
-    (Duration(hours=1, minutes=30), 'period: 1h30m')
+    (Duration(hours=1, minutes=30), '1h30m')
     """
     if not arg:
         return None, f"time period"
@@ -2491,7 +2490,7 @@ def do_frequency(arg):
     repetition frequency: character in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly
     or mi(n)utely.
     >>> do_frequency('d')
-    ('d', 'repeating: daily')
+    ('d', 'daily')
     >>> print(do_frequency('z')[1])
     invalid frequency: z not in (y)early, (m)onthly,
       (w)eekly, (d)aily, (h)ourly or mi(n)utely.
@@ -2587,7 +2586,7 @@ def do_weekdays(arg):
     >>> do_weekdays("")
     (None, 'weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     >>> do_weekdays("-2mo, 3tU")
-    ([MO(-2), TU(+3)], 'weekdays: -2MO, 3TU')
+    ([MO(-2), TU(+3)], '-2MO, 3TU')
     >>> do_weekdays("5Su, 1SA")
     (None, 'incomplete or invalid weekdays: 5SU. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     >>> do_weekdays('3FR, -1M')

@@ -316,14 +316,14 @@ def toggle_help(event):
         application.layout.focus(text_area)
         dataview.hide_details()
 
-@bindings.add('backspace', filter=is_showing_help, eager=True)
-def cancel_help(event):
-    global showing_help
-    if showing_help:
-        if dataview.details:
-            dataview.hide_details()
-        showing_help = False
-        application.layout.focus(text_area)
+# @bindings.add('backspace', filter=is_showing_help, eager=True)
+# def cancel_help(event):
+#     global showing_help
+#     if showing_help:
+#         if dataview.details:
+#             dataview.hide_details()
+#         showing_help = False
+#         application.layout.focus(text_area)
 
 @bindings.add('a', filter=is_not_searching & not_showing_details)
 def toggle_agenda_busy(event):
@@ -368,8 +368,17 @@ def show_details(event):
 @bindings.add('N', filter=is_not_editing)
 def edit(event):
     global editing
-    application.layout.focus(entry_buffer)
     editing = True
+    application.layout.focus(entry_buffer)
+
+@bindings.add('E', filter=is_not_editing)
+def edit(event):
+    global editing
+    editing = True
+    item_id, entry = dataview.get_details(text_area.document.cursor_position_row)
+    item.edit_item(item_id, entry)
+    application.layout.focus(entry_buffer)
+
 
 @edit_bindings.add('c-s', eager=True)
 def save_item(_):
