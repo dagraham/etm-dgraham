@@ -749,13 +749,14 @@ class Item(object):
 
     """
 
-    def __init__(self, doc_id=None):
+    def __init__(self, doc_id=None, s=""):
         """
         """
 
-        self.entry = ""
-        self.is_new = doc_id is None
         self.doc_id = doc_id
+        self.entry = s
+        self.is_new = doc_id is None
+        self.is_modified = False
         self.created = None
         self.modified = None
         self.object_hsh = {}    # key, val -> object version of raw string for tinydb 
@@ -823,8 +824,18 @@ class Item(object):
                 }
         if not self.entry:
             self.text_changed('', 0)
-        self.etmdb = TinyDB('etm-mvc.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        self.etmdb = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.etmdb_query = self.etmdb.table('items', cache_size=None)
+
+    def edit_item(self, item_id=None, entry=""):
+        if not (item_id and entry):
+            logger.info(f"item_id: {item_id}; entry: {entry}")
+            return None
+        item_hsh = ETMDB_QUERY.get(doc_id=item_id)
+        if item_hsh:
+            self.item_id = item_id
+            self.item_hsh = item_hsh # created and modified entries
+            self.entry = entry
 
 
     def cursor_changed(self, pos):
@@ -934,10 +945,12 @@ class Item(object):
         # keys.sort()
         # hsh = {k: self.item_hsh[k] for k in keys}
         if self.doc_id is None:
+            # creating a new item
             self.created = now
             self.item_hsh['created'] = self.created
             self.doc_id = self.etmdb.insert(self.item_hsh)
         else:
+            # editing an existing item
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = now
             self.etmdb.write_back([self.item_hsh], doc_ids=[self.doc_id])
@@ -1812,24 +1825,28 @@ class DataView(object):
         self.details = False 
 
     def get_details(self, num=None):
-        # if not self.details or num is None:
+        logger.info(f"num: {num}")
         if num is None:
-            return ''
+            return None, ''
 
         self.current_row = num
         item_id = self.num2id.get(num, None)
+        logger.info(f"item_id: {item_id}")
         if item_id is None:
-            return ''
+            return None, ''
 
-        # if isinstance(item_id, list):
-        #     item_id = item_id[0]
         if item_id in self.itemcache:
-            return self.itemcache[item_id]
+            logger.info(f"item_id in cache: {item_id}; str: {self.itemcache[item_id]}")
+            return item_id, self.itemcache[item_id]
         item = ETMDB_QUERY.get(doc_id=item_id)
         if item:
             self.itemcache[item_id] = item_details(item)
-            return self.itemcache[item_id] 
-        return ''
+            logger.info(f"item_id not in cache: {item_id}; item: {item}")
+            return item_id, self.itemcache[item_id] 
+        else:
+            logger.info(f"query failed for {item_id}; item: {item}")
+
+        return None, ''
 
     def clearCache(self):
         self.cache = {}

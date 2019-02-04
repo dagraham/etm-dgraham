@@ -16,6 +16,7 @@ from prompt_toolkit.layout import Dimension
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.styles import Style
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
+from prompt_toolkit.widgets import HorizontalLine
 
 from model import Item
 from model import wrap
