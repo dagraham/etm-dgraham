@@ -1,5 +1,5 @@
 # Notes for etm
-**Last modified: Mon Dec 31, 2018 10:10AM EST**
+**Last modified: Mon Feb 04, 2019 03:23PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -45,6 +45,78 @@
         * next 
         * tags
         * Query
+
+
+* View
+    * a: agenda
+    * b: busy
+    * h: history 
+    * i: index 
+    * n: next 
+    * r: relevant 
+    * t: tags
+
+* Item
+    * Enter: Toggle displaying details
+    * E: edit
+    * C: copy
+    * D: delete
+    * F: finish
+    * R: reschedule
+    * S: schedule new
+    * O: open link
+
+* Tools
+    * J: jump to date
+    * N: new item
+    * P: preferences
+    * V: view as text
+    * X: export to ical
+
+* Info
+    * F1: help 
+    * F2: about
+    * F3: date calculator
+    * F4: yearly calendary display
+    * F5: display today's alerts
+
+See full_screen_demo.py for these menu choices and a checkbox example of "which instances?"
+
+menu_items=[
+    MenuItem('View', children=[
+        MenuItem('a) agenda'),
+        MenuItem('b) busy'),
+        MenuItem('h) history'),
+        MenuItem('n) next'),
+        MenuItem('r) relevant'),
+        MenuItem('t) tags',  handler=do_exit),
+        ]),
+    MenuItem('Item', children=[
+        MenuItem('Enter) toggle details'),
+        MenuItem('E) edit'),
+        MenuItem('O) open copy'),
+        MenuItem('D) delete'),
+        MenuItem('F) finish'),
+        MenuItem('G) goto link', disabled=True),
+        MenuItem('R) reschedule'),
+        MenuItem('S) schedule new'),
+    ]),
+    MenuItem('Tools', children=[
+        MenuItem('J) jump to date'),
+        MenuItem('N) new item'),
+        MenuItem('P) preferences'),
+        MenuItem('V) view as text'),
+        MenuItem('X) export to ical'),
+    ]),
+    MenuItem('Info', children=[
+        MenuItem('F1) help'),
+        MenuItem('F2) about'),
+        MenuItem('F3) date calculator'),
+        MenuItem('F4) yearly calendar'),
+        MenuItem('F5) alerts'),
+    ])
+]
+
 
 ## Writing
 

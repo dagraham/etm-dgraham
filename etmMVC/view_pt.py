@@ -11,7 +11,7 @@ from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
 # from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import TextArea, SearchToolbar 
+from prompt_toolkit.widgets import TextArea, SearchToolbar, MenuContainer, MenuItem
 from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from asyncio import get_event_loop
@@ -23,6 +23,20 @@ from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.layout import Dimension
 from prompt_toolkit.widgets import HorizontalLine
+from prompt_toolkit.layout.menus import CompletionsMenu
+
+from prompt_toolkit.layout import FloatContainer, Float
+from prompt_toolkit.widgets import Dialog, Label, Button
+
+# def button_handler():
+#     pass
+
+# dialog = Dialog(
+#         title=title,
+#         body=Label(text="YOUR_TEXT", dont_extend_height=True),
+#         buttons=[
+#             Button(text="BUTTON_TEXT", handler=button_handler),
+# ])
 
 import pendulum
 import re
@@ -35,17 +49,28 @@ from model import setup_logging
 
 from help import show_help
 
+# class ViewState(object):
+
+#     def __init__(self):
+#         self.edit_item = None
+#         self.is_showing_details = False
+#         self.is_showing_help = False
+#         self.is_editing = False
+
+# dataview = ViewState()
+
 ampm = True
 showing_help = False
 editing = False
+item = None
 
 @Condition
 def is_editing():
-    return editing
+    return dataview.is_editing
 
 @Condition
 def is_not_editing():
-    return not editing
+    return not dataview.is_editing
 
 @Condition
 def is_not_searching():
@@ -61,19 +86,19 @@ def is_agenda_view():
 
 @Condition
 def not_showing_details():
-    return dataview.details == False
+    return dataview.is_showing_details == False
 
 @Condition
 def is_showing_details():
-    return dataview.details
+    return dataview.is_showing_details
 
 @Condition
 def is_showing_help():
-    return showing_help
+    return dataview.is_showing_help
 
 @Condition
 def not_showing_help():
-    return not showing_help
+    return not dataview.is_showing_help
 
 at_completions = [f"@{k}" for k in at_keys]
 r_completions = [f"&{k}" for k in amp_keys['r']] 
@@ -289,7 +314,54 @@ root_container = HSplit([
         content=edit_container,
         filter=is_editing),
     search_field,
+    ])
+
+item_not_selected = False
+
+root_container = MenuContainer(body=root_container, menu_items=[
+    MenuItem('etm', children=[
+        MenuItem('F1) about'),
+        MenuItem('F2) help'),
+        MenuItem('C-Q) quit'),
+    ]),
+    MenuItem('view', children=[
+        MenuItem('a) agenda'),
+        MenuItem('b) busy'),
+        MenuItem('h) history'),
+        MenuItem('i) index'),
+        MenuItem('n) next'),
+        MenuItem('r) relevant'),
+        MenuItem('t) tags'),
+        ]),
+    MenuItem('item', children=[
+        MenuItem('N) new'),
+        MenuItem('selected item', disabled=True), 
+        MenuItem('  E) edit', disabled=item_not_selected),
+        MenuItem('  C) edit copy', disabled=item_not_selected),
+        MenuItem('  D) delete', disabled=item_not_selected),
+        MenuItem('  F) finish', disabled=item_not_selected),
+        MenuItem('  R) reschedule', disabled=item_not_selected),
+        MenuItem('  S) schedule new', disabled=item_not_selected),
+        MenuItem('  G) goto link', disabled=item_not_selected),
+        MenuItem('  Enter) toggle details', disabled=item_not_selected),
+        ]),
+    MenuItem('tools', children=[
+        MenuItem('A) show alerts'),
+        MenuItem('J) jump to date'),
+        MenuItem('P) preferences'),
+        MenuItem('V) view as text'),
+        MenuItem('X) export to ical'),
+        MenuItem('F3) date calculator'),
+        MenuItem('F4) yearly calendar'),
+    ]),
+], floats=[
+    Float(xcursor=True,
+          ycursor=True,
+          content=CompletionsMenu(
+              max_height=16,
+              scroll_offset=1)),
 ])
+
 
 # Key bindings.
 bindings = KeyBindings()
@@ -325,37 +397,41 @@ def toggle_help(event):
 #         showing_help = False
 #         application.layout.focus(text_area)
 
-@bindings.add('a', filter=is_not_searching & not_showing_details)
+@bindings.add('a', filter=is_not_searching & not_showing_details & is_not_editing)
 def toggle_agenda_busy(event):
     set_text(dataview.toggle_agenda_busy())
 
-@bindings.add('h', filter=is_not_searching & not_showing_details)
+@bindings.add('b', filter=is_not_searching & not_showing_details & is_not_editing)
+def toggle_agenda_busy(event):
+    set_text(dataview.toggle_agenda_busy())
+
+@bindings.add('h', filter=is_not_searching & not_showing_details & is_not_editing)
 def agenda_view(event):
     dataview.set_active_view('h')
     set_text(dataview.show_active_view())
 
-@bindings.add('l', filter=is_agenda_view & is_not_searching & not_showing_details)
-@bindings.add('right', filter=is_agenda_view & is_not_searching & not_showing_details)
+@bindings.add('l', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('right', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 def nextweek(event):
     dataview.nextYrWk()
     set_text(dataview.show_active_view())
 
 
-@bindings.add('j', filter=is_agenda_view & is_not_searching & not_showing_details)
-@bindings.add('left', filter=is_agenda_view & is_not_searching & not_showing_details)
+@bindings.add('j', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('left', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 def prevweek(event):
     dataview.prevYrWk()
     set_text(dataview.show_active_view())
 
-@bindings.add('k', filter=is_agenda_view & is_not_searching & not_showing_details)
+@bindings.add('k', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 @bindings.add('space', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 def currweek(event):
     dataview.currYrWk()
     set_text(dataview.show_active_view())
 
-@bindings.add('enter', filter=is_not_searching & is_not_busy_view & not_showing_help)
+@bindings.add('enter', filter=is_not_searching & is_not_busy_view & not_showing_help & is_not_editing)
 def show_details(event):
-    if dataview.details:
+    if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
     else:
@@ -367,20 +443,32 @@ def show_details(event):
 
 @bindings.add('N', filter=is_not_editing)
 def edit(event):
-    global editing
-    editing = True
+    if dataview.is_showing_details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    dataview.is_editing = True
     application.layout.focus(entry_buffer)
 
 @bindings.add('E', filter=is_not_editing)
 def edit(event):
-    global editing
-    editing = True
-    item_id, entry = dataview.get_details(text_area.document.cursor_position_row)
+    if dataview.is_showing_details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    dataview.is_editing = True
+    item_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
     item.edit_item(item_id, entry)
+    entry_buffer.text = item.entry
+    default_buffer_changed(_)
+    default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
 
-@edit_bindings.add('c-s', eager=True)
+@bindings.add('escape', filter=is_editing, eager=True)
+def cancel_edit(event):
+    dataview.is_editing = False
+    application.layout.focus(text_area)
+
+@edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_item(_):
     item.update_item_hsh()
 
@@ -428,7 +516,7 @@ set_askreply('_')
 
 
 style = Style.from_dict({
-    'status': '{} bg:{}'.format(NAMED_COLORS['White'], NAMED_COLORS['DimGrey']),
+    'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'details': '{}'.format(NAMED_COLORS['Ivory']),
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
@@ -436,7 +524,20 @@ style = Style.from_dict({
     'entry': f"{NAMED_COLORS['LightGoldenRodYellow']}",
     'ask':   f"{NAMED_COLORS['Lime']} bold",
     'reply': f"{NAMED_COLORS['DeepSkyBlue']}",
-})
+
+    'window.border': '#888888',
+    'shadow': 'bg:#222222',
+
+    # 'menu-bar': 'bg:#aaaaaa #888888',
+    'menu-bar': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'menu-bar.selected-item': 'bg:#ffffff #000000',
+    'menu': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    # 'menu': 'bg:#888888 #ffffff',
+    'menu.border': '#aaaaaa',
+    'window.border shadow': '#444444',
+
+    'focused  button': 'bg:#880000 #ffffff noinherit',
+    })
 
 
 # create application.

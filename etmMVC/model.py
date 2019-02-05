@@ -1738,7 +1738,6 @@ class DataView(object):
         # self.activeYrWk = self.currentYrWk = None
         self.current = []
         self.num2id = []
-        self.details = False
         self.current_row = 0
         self.plain = plain
         self.weeks = weeks
@@ -1752,8 +1751,17 @@ class DataView(object):
                 'a': 'agenda',
                 'b': 'busy',
                 'h': 'history',
+                'i': 'index',
+                'n': 'next',
+                'r': 'relevant',
+                't': 'tags',
                 }
 
+        self.edit_item = None
+        self.is_showing_details = False
+        self.is_showing_help = False
+        self.is_editing = False
+        self.is_showing_items = True
         self.refreshRelevant()
         self.currYrWk()
 
@@ -1818,12 +1826,12 @@ class DataView(object):
         self.agenda_view, self.busy_view, self.num2id = self.cache[self.activeYrWk]
 
     def show_details(self):
-        self.details = True 
+        self.is_showing_details = True 
 
     def hide_details(self):
-        self.details = False 
+        self.is_showing_details = False 
 
-    def get_details(self, num=None):
+    def get_details(self, num=None, edit=False):
         logger.info(f"num: {num}")
         if num is None:
             return None, ''
@@ -1834,12 +1842,12 @@ class DataView(object):
         if item_id is None:
             return None, ''
 
-        if item_id in self.itemcache:
+        if not edit and item_id in self.itemcache:
             logger.info(f"item_id in cache: {item_id}; str: {self.itemcache[item_id]}")
             return item_id, self.itemcache[item_id]
         item = ETMDB_QUERY.get(doc_id=item_id)
         if item:
-            self.itemcache[item_id] = item_details(item)
+            self.itemcache[item_id] = item_details(item, edit)
             logger.info(f"item_id not in cache: {item_id}; item: {item}")
             return item_id, self.itemcache[item_id] 
         else:
@@ -4068,7 +4076,7 @@ def relevant(now=pendulum.now('local')):
                     if possible_beginby:
                         for instance in instances:
                             if today + DAY <= instance <= tomorrow + possible_beginby:
-                                beginbys.append([(instance - today).days, item['summary'], item.doc_id])
+                                beginbys.append([(instance.date() - today.date()).days, item['summary'], item.doc_id])
                     if possible_alerts:
                         for instance in instances:
                             for possible_alert in possible_alerts:
@@ -4091,7 +4099,7 @@ def relevant(now=pendulum.now('local')):
                 if possible_beginby:
                     for instance in aft:
                         if today + DAY <= instance <= tomorrow + possible_beginby:
-                            beginbys.append([(instance - today).days, item['summary'], item.doc_id])
+                            beginbys.append([(instance.date() - today.date()).days, item['summary'], item.doc_id])
                 if possible_alerts:
                     for instance in aft + bef:
                         for possible_alert in possible_alerts:
@@ -4103,7 +4111,7 @@ def relevant(now=pendulum.now('local')):
                 relevant = dtstart
                 if possible_beginby:
                     if today + DAY <= dtstart <= tomorrow + possible_beginby:
-                        beginbys.append([(relevant - today).days, item['summary'],  item.doc_id])
+                        beginbys.append([(relevant.date() - today.date()).days, item['summary'],  item.doc_id])
                 if possible_alerts:
                     for possible_alert in possible_alerts:
                         if today <= dtstart - possible_alert[0] <= tomorrow:
@@ -4135,11 +4143,11 @@ def relevant(now=pendulum.now('local')):
                 jobstart = relevant - job.get('s', ZERO)
                 if jobstart < today:
                     pastdue_jobs = True
-                    pastdue.append([(jobstart - today).days, job['summary'], item.doc_id, job_id])
+                    pastdue.append([(jobstart.date() - today.date()).days, job['summary'], item.doc_id, job_id])
                 if 'b' in job:
                     days = int(job['b'] * DAY)
                     if today + DAY <= jobstart <= tomorrow + days:
-                        beginbys.append([(jobstart - today).days, job['summary'], item.item_id, job_id])
+                        beginbys.append([(jobstart.date() - today.date()).days, job['summary'], item.item_id, job_id])
                 if 'a' in job:
                     for alert in job['a']:
                         for td in alert[0]:
@@ -4149,7 +4157,7 @@ def relevant(now=pendulum.now('local')):
         id2relevant[item.doc_id] = relevant
 
         if item['itemtype'] == '-' and 'f' not in item and not pastdue_jobs and relevant < today:
-            pastdue.append([(relevant - today).days, item['summary'], item.doc_id])
+            pastdue.append([(relevant.date() - today.date()).days, item['summary'], item.doc_id])
 
 
     # print(id2relevant) 
