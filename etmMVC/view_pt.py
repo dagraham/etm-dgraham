@@ -24,6 +24,8 @@ from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.layout import Dimension
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.layout.menus import CompletionsMenu
+from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+
 
 from prompt_toolkit.layout import FloatContainer, Float
 from prompt_toolkit.widgets import Dialog, Label, Button
@@ -322,37 +324,65 @@ root_container = MenuContainer(body=root_container, menu_items=[
     MenuItem('etm', children=[
         MenuItem('F1) about'),
         MenuItem('F2) help'),
-        MenuItem('C-Q) quit'),
+        MenuItem('F3) preferences'),
+        MenuItem('F4) check for new version'),
+
+        MenuItem('-', disabled=True),
+        MenuItem('^Q) quit'),
+    ]),
+    MenuItem('edit', children=[
+        MenuItem('N) new item'),
+        MenuItem('-', disabled=True),
+        MenuItem('selection', children=[
+                MenuItem('delete) delete'),
+                MenuItem('E) edit'),
+                MenuItem('C) edit copy'),
+                MenuItem('F) finish'),
+                MenuItem('R) reschedule'),
+                MenuItem('S) schedule new'),
+                MenuItem('timer', children=[
+                    MenuItem('T) start, pause or restart'),
+                    MenuItem("^T) add to extent and stop"),
+            ]),
+        ]),
+        MenuItem('editor', children=[
+            MenuItem('^S) save changes'),
+            MenuItem('^C) close'),
+        ]),
     ]),
     MenuItem('view', children=[
-        MenuItem('a) agenda'),
-        MenuItem('b) busy'),
+        MenuItem('weekly', children=[
+            MenuItem('a) agenda'),
+            MenuItem('b) busy'),
+            MenuItem('movement', children=[
+                MenuItem('right) next week'),
+                MenuItem('left) previous week'),
+                MenuItem('space) current week'),
+                MenuItem('g) go to date'),
+            ]),
+        ]),
         MenuItem('h) history'),
         MenuItem('i) index'),
         MenuItem('n) next'),
+        MenuItem('q) query'),
         MenuItem('r) relevant'),
         MenuItem('t) tags'),
+        MenuItem('selection', children=[
+            MenuItem('Enter) toggle details for selection'),
+            MenuItem('G) goto link'),
+            MenuItem('X) export ical to clipboard'),
         ]),
-    MenuItem('item', children=[
-        MenuItem('N) new'),
-        MenuItem('selected item', disabled=True), 
-        MenuItem('  E) edit', disabled=item_not_selected),
-        MenuItem('  C) edit copy', disabled=item_not_selected),
-        MenuItem('  D) delete', disabled=item_not_selected),
-        MenuItem('  F) finish', disabled=item_not_selected),
-        MenuItem('  R) reschedule', disabled=item_not_selected),
-        MenuItem('  S) schedule new', disabled=item_not_selected),
-        MenuItem('  G) goto link', disabled=item_not_selected),
-        MenuItem('  Enter) toggle details', disabled=item_not_selected),
+        MenuItem('-', disabled=True),
+        MenuItem('c) copy view to clipboard'),
+        MenuItem('search', children=[
+            MenuItem('/) forward'),
+            MenuItem('?) backward'),
         ]),
+    ]),
     MenuItem('tools', children=[
-        MenuItem('A) show alerts'),
-        MenuItem('J) jump to date'),
-        MenuItem('P) preferences'),
-        MenuItem('V) view as text'),
-        MenuItem('X) export to ical'),
-        MenuItem('F3) date calculator'),
-        MenuItem('F4) yearly calendar'),
+        MenuItem("F5) show today's alerts"),
+        MenuItem('F6) open date calculator'),
+        MenuItem('F7) show yearly calendar'),
     ]),
 ], floats=[
     Float(xcursor=True,
@@ -365,6 +395,14 @@ root_container = MenuContainer(body=root_container, menu_items=[
 
 # Key bindings.
 bindings = KeyBindings()
+bindings.add('tab')(focus_next)
+bindings.add('s-tab')(focus_previous)
+
+# @bindings.add('f5')
+# def show_menu(event):
+#     application.layout.focus(details_area)
+
+
 
 @bindings.add('c-q')
 @bindings.add('f8')
@@ -528,11 +566,9 @@ style = Style.from_dict({
     'window.border': '#888888',
     'shadow': 'bg:#222222',
 
-    # 'menu-bar': 'bg:#aaaaaa #888888',
     'menu-bar': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'menu-bar.selected-item': 'bg:#ffffff #000000',
     'menu': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    # 'menu': 'bg:#888888 #ffffff',
     'menu.border': '#aaaaaa',
     'window.border shadow': '#444444',
 
