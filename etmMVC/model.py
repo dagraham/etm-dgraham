@@ -827,13 +827,15 @@ class Item(object):
         self.etmdb = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.etmdb_query = self.etmdb.table('items', cache_size=None)
 
-    def edit_item(self, item_id=None, entry=""):
-        if not (item_id and entry):
-            logger.info(f"item_id: {item_id}; entry: {entry}")
+    def edit_item(self, doc_id=None, entry=""):
+        if not (doc_id and entry):
             return None
-        item_hsh = ETMDB_QUERY.get(doc_id=item_id)
+        logger.info(f"edit doc_id: {doc_id}; entry: {entry}")
+        item_hsh = ETMDB_QUERY.get(doc_id=doc_id)
         if item_hsh:
-            self.item_id = item_id
+            logger.info(f"found doc_id: {doc_id} in database")
+            self.doc_id = doc_id
+            self.is_new = False
             self.item_hsh = item_hsh # created and modified entries
             self.entry = entry
 
@@ -848,6 +850,7 @@ class Item(object):
         """
 
         """
+        self.modified = True
         logger.info(f"s: {s}; pos: {pos}")
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s)
@@ -907,11 +910,11 @@ class Item(object):
             self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
 
     def update_item_hsh(self):
-        self.item_hsh = {}
         cur_hsh = {}
         cur_key = None
-        logger.info(f"pos_hsh: {self.pos_hsh.items()}")
-        logger.info(f"object_hsh: {self.object_hsh.items()}")
+        logger.info(f"updating doc_id: {self.doc_id}; is_new: {self.is_new}")
+        # logger.info(f"pos_hsh: {self.pos_hsh.items()}")
+        # logger.info(f"object_hsh: {self.object_hsh.items()}")
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh[(k, v)]
             if k == 'a':
@@ -947,14 +950,15 @@ class Item(object):
         if self.doc_id is None:
             # creating a new item
             self.created = now
-            self.item_hsh['created'] = self.created
+            self.item_hsh['created'] = now
             self.doc_id = self.etmdb.insert(self.item_hsh)
+            logger.info(f"created doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
         else:
             # editing an existing item
-            self.item_hsh['created'] = self.created
+            # self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = now
+            logger.info(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
             self.etmdb.write_back([self.item_hsh], doc_ids=[self.doc_id])
-        logger.info(f"doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
 
 
     def check_requires(self, key):

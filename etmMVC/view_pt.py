@@ -24,8 +24,8 @@ from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.layout import Dimension
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.layout.menus import CompletionsMenu
-from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
-
+from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous  
+import shutil
 
 from prompt_toolkit.layout import FloatContainer, Float
 from prompt_toolkit.widgets import Dialog, Label, Button
@@ -64,7 +64,7 @@ from help import show_help
 ampm = True
 showing_help = False
 editing = False
-item = None
+item = Item()
 
 @Condition
 def is_editing():
@@ -206,7 +206,8 @@ def event_handler(loop):
     loop.call_later(wait, event_handler, loop)
 
 def get_statusbar_text():
-    space = ' ' * (58 - 7 - len(current_datetime))
+    width=shutil.get_terminal_size()[0]
+    space = ' ' * (width - 9 - len(current_datetime))
     return [
             ('class:status', f' {current_datetime}{space}F1:help'),
     ]
@@ -244,7 +245,6 @@ details_area = TextArea(
 # edit_buff = Buffer(completer=item_completer, complete_while_typing=True, accept_handler=process_input)
 
 edit_bindings = KeyBindings()
-item = Item()
 ask_buffer = Buffer()
 entry_buffer = Buffer(multiline=True)
 reply_buffer = Buffer(multiline=True)
@@ -334,15 +334,15 @@ root_container = MenuContainer(body=root_container, menu_items=[
         MenuItem('N) new item'),
         MenuItem('-', disabled=True),
         MenuItem('selection', children=[
-                MenuItem('delete) delete'),
                 MenuItem('E) edit'),
                 MenuItem('C) edit copy'),
                 MenuItem('F) finish'),
                 MenuItem('R) reschedule'),
                 MenuItem('S) schedule new'),
+                MenuItem('delete) delete'),
                 MenuItem('timer', children=[
                     MenuItem('T) start, pause or restart'),
-                    MenuItem("^T) add to extent and stop"),
+                    MenuItem("^T) stop & add time to @e"),
             ]),
         ]),
         MenuItem('editor', children=[
@@ -368,16 +368,14 @@ root_container = MenuContainer(body=root_container, menu_items=[
         MenuItem('r) relevant'),
         MenuItem('t) tags'),
         MenuItem('selection', children=[
-            MenuItem('Enter) toggle details for selection'),
+            MenuItem('Enter) toggle details'),
             MenuItem('G) goto link'),
             MenuItem('X) export ical to clipboard'),
         ]),
         MenuItem('-', disabled=True),
-        MenuItem('c) copy view to clipboard'),
-        MenuItem('search', children=[
-            MenuItem('/) forward'),
-            MenuItem('?) backward'),
-        ]),
+        MenuItem('c) copy to clipboard'),
+        MenuItem('/) search forward'),
+        MenuItem('?) search backward'),
     ]),
     MenuItem('tools', children=[
         MenuItem("F5) show today's alerts"),
@@ -398,9 +396,9 @@ bindings = KeyBindings()
 bindings.add('tab')(focus_next)
 bindings.add('s-tab')(focus_previous)
 
-# @bindings.add('f5')
+# @bindings.add('m')
 # def show_menu(event):
-#     application.layout.focus(details_area)
+#     application.layout.focus(root_container.menu_items)
 
 
 
@@ -418,7 +416,7 @@ def toggle_help(event):
     global showing_help
     showing_help = not showing_help
     if showing_help:
-        if not dataview.details:
+        if not dataview.is_showing_details:
             dataview.show_details()
         details_area.text = show_help()
         application.layout.focus(details_area)
@@ -480,28 +478,34 @@ def show_details(event):
             application.layout.focus(details_area)
 
 @bindings.add('N', filter=is_not_editing)
-def edit(event):
+def edit_new(event):
+    global item
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
     dataview.is_editing = True
+    item = Item()
+    item.edit_item(None, "")
     application.layout.focus(entry_buffer)
 
 @bindings.add('E', filter=is_not_editing)
-def edit(event):
+def edit_existing(event):
+    global item
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
     dataview.is_editing = True
-    item_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
-    item.edit_item(item_id, entry)
+    doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
+    logger.info(f"editing doc_id: {doc_id}; entry: {entry}")
+    item = Item(doc_id, entry)
+    item.edit_item(doc_id, entry)
     entry_buffer.text = item.entry
     default_buffer_changed(_)
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
 
-@bindings.add('escape', filter=is_editing, eager=True)
+@bindings.add('c-c', filter=is_editing, eager=True)
 def cancel_edit(event):
     dataview.is_editing = False
     application.layout.focus(text_area)
