@@ -153,6 +153,7 @@ at_keys = {
             " (d)ay, (h)our, mi(n)ute",
         's': "start: date or datetime",
         't': "tags: list of strings",
+        'u': "used time: timeperiod, datetime",
         'x': "expansion key: string",
         'z': "timezone: string",
         'itemtype': "character from (*)event, (-)task, (%)record or (!)inbox",
@@ -207,10 +208,10 @@ semicolon_regex = re.compile(r'\;\s*')
 
 allowed = {}
 required = {}
-common_methods = [x for x in 'cdegilmnstx']
+common_methods = [x for x in 'cdegilmnstux']
 repeating_methods = [x for x in '+-o'] + ['rr', 'rc', 'rm', 'rE', 'rh', 'ri', 'rM', 'rn', 'rs', 'ru', 'rW', 'rw']
 datetime_methods = [x for x in 'abez']
-task_methods = [x for x in 'fhp'] + ['jj', 'ja', 'jb', 'jd', 'je', 'jf', 'ji', 'jl', 'jm', 'jp', 'js']
+task_methods = [x for x in 'fhp'] + ['jj', 'ja', 'jb', 'jd', 'je', 'jf', 'ji', 'jl', 'jm', 'jp', 'js', 'ju']
 
 # events
 required['*'] = ['s']
@@ -693,7 +694,7 @@ def process_entry(s):
         if key in ['@r', '@j']:
             pos_hsh[tuple([beg, end])] = (f"{key[-1]}{key[-1]}", value)
             adding = key[-1]
-        elif key in ['@a']:
+        elif key in ['@a', '@u']:
             pos_hsh[tuple((beg, end))] = (key[-1], value)
             adding = None
         elif key.startswith('&'):
@@ -791,6 +792,7 @@ class Item(object):
                 'p': ["priority", "priority from 1 (highest) to 9 (lowest)", do_priority],
                 's': ["start", "starting date or datetime", self.do_datetime],
                 't': ["tags", "list of tags", do_stringlist],
+                'u': ["used time", "timeperiod, datetime", do_usedtime],
                 'x': ["expansion", "expansion key", do_string],
                 'z': ["timezone", "", self.do_timezone],
                 '?': ["@-key", "", self.do_at],
@@ -820,6 +822,7 @@ class Item(object):
                 'jm': ["memo", "string", do_string],
                 'jp': ["prerequisite ids", "list of ids of immediate prereqs", do_stringlist],
                 'js': ["start", "timeperiod before task start when job is due", do_period],
+                'ju': ["used time", "timeperiod, datetime", do_usedtime],
                 'j?': ["job &-key", "enter &-key", self.do_ampj],
                 }
         if not self.entry:
@@ -838,6 +841,13 @@ class Item(object):
             self.is_new = False
             self.item_hsh = item_hsh # created and modified entries
             self.entry = entry
+
+    def new_item(self):
+        logger.info("new item")
+        self.doc_id = None
+        self.is_new = True
+        self.item_hsh = {}
+        self.entry = ""
 
 
     def cursor_changed(self, pos):
@@ -917,7 +927,7 @@ class Item(object):
         # logger.info(f"object_hsh: {self.object_hsh.items()}")
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh[(k, v)]
-            if k == 'a':
+            if k in ['a', 'u']:
                 self.item_hsh.setdefault(k, []).append(obj)
             elif k in ['rr', 'jj']:
                 if cur_hsh:
@@ -1011,18 +1021,17 @@ class Item(object):
         >>> obj, rep = item.do_at()
         >>> print(rep)
         required: @s (start)
-        available: @+ (include), @- (exclude), @a (alerts),
-          @b (beginby), @c (calendar), @d (description),
-          @e (extent), @g (goto), @i (index), @l (location),
-          @m (memo), @n (attendees), @o (overdue), @s (start),
-          @t (tags), @x (expansion), @z (timezone)
+        available: @+ (include), @- (exclude), @a (alerts), @b (beginby), @c (calendar),
+          @d (description), @e (extent), @g (goto), @i (index), @l (location), @m (memo),
+          @n (attendees), @o (overdue), @s (start), @t (tags), @u (used time), @x (expansion),
+          @z (timezone)
         """
         itemtype = self.item_hsh.get('itemtype', '')
         if itemtype:
             # only @-keys; allow a, rr and jj more than once
             already_entered = [k for (k, v) in self.keyvals if len(k) == 1 and k not in ['a']]
             logger.info(f"already_entered: {already_entered}")
-            req = [k for k, v in self.keys.items() if (k in required[itemtype] and k not in already_entered)]
+            # req = [k for k, v in self.keys.items() if (k in required[itemtype] and k not in already_entered)]
             require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in required[itemtype] and k != '?' and k not in already_entered)] 
             logger.info(f"require: {require}; required: {required[itemtype]}")
             # allow rr to be entered as r and jj as j
@@ -1068,7 +1077,7 @@ class Item(object):
         job &-keys: &a (alert), &b (beginby), &d (description),
             &e (extent), &f (finished), &i (unique id),
             &l (location), &m (memo), &p (prerequisite ids),
-            &s (start)
+            &s (start), &u (used time)
         """
         keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('j') and k[1] not in 'j?'] 
         rep = wrap("job &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
@@ -1413,6 +1422,9 @@ def parse_datetime(s, z=None):
     >>> dt = parse_datetime("2019-02-01 12:30a", "Europe/Paris")
     >>> dt
     ('aware', DateTime(2019, 1, 31, 23, 30, 0, tzinfo=Timezone('UTC')), 'Europe/Paris')
+    >>> dt = parse_datetime("2019-02-01 12:30a", "UTC")
+    >>> dt
+    ('aware', DateTime(2019, 2, 1, 0, 30, 0, tzinfo=Timezone('UTC')), 'UTC')
     """
     if z is None:
         tzinfo = 'local'
@@ -2251,6 +2263,42 @@ def do_beginby(arg):
         rep = f"'{arg}' is invalid. Beginby requires {beginby_str}."
     return obj, rep
 
+def do_usedtime(arg):
+    """
+    >>> do_usedtime('75m, 9p 2019-02-01')
+    ([Duration(hours=1, minutes=15), DateTime(2019, 2, 2, 2, 0, 0, tzinfo=Timezone('UTC'))], 'used 1h15m ending Fri Feb 1 2019 9:00pm EST')
+    """
+    if not arg:
+        return None, ''
+    got_period = got_datetime = False
+    rep_period = rep_datetime = ''
+    parts = arg.split(',')
+    period = parts.pop(0)
+    if period:
+        ok, res = parse_duration(period)
+        if ok:
+            obj_period = res
+            rep_period = format_duration(res)
+            got_period = True
+        else:
+            rep_period = res
+    if parts:
+        dt = parts.pop(0)
+        ok, res, z = parse_datetime(dt, 'local')
+        if ok:
+            obj_datetime = res
+            rep_datetime = format_datetime(res)[1]
+            got_datetime = True
+        else:
+            rep_datetime = res
+
+    if got_period and got_datetime:
+        return [obj_period, obj_datetime], f"used {rep_period} ending {rep_datetime}"
+    else:
+        return None, f"{rep_period}, {rep_datetime}"
+
+
+
 def do_alert(arg):
     """
     p1, p2, ...: cmd[, arg1, arg2, ...]
@@ -2504,8 +2552,7 @@ def do_frequency(arg):
     >>> do_frequency('d')
     ('d', 'daily')
     >>> print(do_frequency('z')[1])
-    invalid frequency: z not in (y)early, (m)onthly,
-      (w)eekly, (d)aily, (h)ourly or mi(n)utely.
+    invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.
     """
 
     freq = [x for x in freq_names]

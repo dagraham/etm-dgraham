@@ -331,7 +331,7 @@ root_container = MenuContainer(body=root_container, menu_items=[
         MenuItem('^Q) quit'),
     ]),
     MenuItem('edit', children=[
-        MenuItem('N) new item'),
+        MenuItem('N) new item', handler=edit_new),
         MenuItem('-', disabled=True),
         MenuItem('selection', children=[
                 MenuItem('E) edit'),
@@ -342,7 +342,7 @@ root_container = MenuContainer(body=root_container, menu_items=[
                 MenuItem('delete) delete'),
                 MenuItem('timer', children=[
                     MenuItem('T) start, pause or restart'),
-                    MenuItem("^T) stop & add time to @e"),
+                    MenuItem("^T) stop & add time to @u"),
             ]),
         ]),
         MenuItem('editor', children=[
@@ -485,7 +485,10 @@ def edit_new(event):
         dataview.hide_details()
     dataview.is_editing = True
     item = Item()
-    item.edit_item(None, "")
+    item.new_item()
+    entry_buffer.text = item.entry
+    default_buffer_changed(_)
+    default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
 @bindings.add('E', filter=is_not_editing)
