@@ -201,7 +201,7 @@ int_regex = re.compile(r'^\s*([+-]?\d+)\s*$')
 period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
 period_parts = re.compile(r'([wWdDhHmM])')
 comma_regex = re.compile(r',\s*')
-colon_regex = re.compile(r'\:\s*')
+colon_regex = re.compile(r'\:\s+')
 semicolon_regex = re.compile(r'\;\s*')
 
 # item_hsh = {} # preserve state
@@ -750,13 +750,14 @@ class Item(object):
 
     """
 
-    def __init__(self, doc_id=None, s=""):
+    # def __init__(self, doc_id=None, s=""):
+    def __init__(self):
         """
         """
 
-        self.doc_id = doc_id
-        self.entry = s
-        self.is_new = doc_id is None
+        self.doc_id = None
+        self.entry = ""
+        self.is_new = True
         self.is_modified = False
         self.created = None
         self.modified = None
@@ -792,7 +793,7 @@ class Item(object):
                 'p': ["priority", "priority from 1 (highest) to 9 (lowest)", do_priority],
                 's': ["start", "starting date or datetime", self.do_datetime],
                 't': ["tags", "list of tags", do_stringlist],
-                'u': ["used time", "timeperiod, datetime", do_usedtime],
+                'u': ["used time", "timeperiod: datetime", do_usedtime],
                 'x': ["expansion", "expansion key", do_string],
                 'z': ["timezone", "", self.do_timezone],
                 '?': ["@-key", "", self.do_at],
@@ -822,7 +823,7 @@ class Item(object):
                 'jm': ["memo", "string", do_string],
                 'jp': ["prerequisite ids", "list of ids of immediate prereqs", do_stringlist],
                 'js': ["start", "timeperiod before task start when job is due", do_period],
-                'ju': ["used time", "timeperiod, datetime", do_usedtime],
+                'ju': ["used time", "timeperiod: datetime", do_usedtime],
                 'j?': ["job &-key", "enter &-key", self.do_ampj],
                 }
         if not self.entry:
@@ -837,8 +838,21 @@ class Item(object):
         item_hsh = ETMDB_QUERY.get(doc_id=doc_id)
         if item_hsh:
             logger.info(f"found doc_id: {doc_id} in database")
+            logger.info(f"item_hsh: {item_hsh}")
             self.doc_id = doc_id
             self.is_new = False
+            self.item_hsh = item_hsh # created and modified entries
+            self.entry = entry
+
+    def edit_copy(self, doc_id=None, entry=""):
+        if not (doc_id and entry):
+            return None
+        logger.info(f"copy doc_id: {doc_id}; entry: {entry}")
+        item_hsh = ETMDB_QUERY.get(doc_id=doc_id)
+        if item_hsh:
+            logger.info(f"found doc_id: {doc_id} in database")
+            self.doc_id = None
+            self.is_new = True
             self.item_hsh = item_hsh # created and modified entries
             self.entry = entry
 
@@ -853,15 +867,15 @@ class Item(object):
     def cursor_changed(self, pos):
         # ((17, 24), ('e', '90m'))
         self.interval, self.active = active_from_pos(self.pos_hsh, pos)
-        logger.info(f"interval: {self.interval}; active: {self.active}")
+        logger.debug(f"interval: {self.interval}; active: {self.active}")
 
 
     def text_changed(self, s, pos):
         """
 
         """
-        self.modified = True
-        logger.info(f"s: {s}; pos: {pos}")
+        self.is_modified = True
+        logger.debug(f"s: {s}; pos: {pos}")
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s)
         removed, changed = listdiff(self.keyvals, keyvals)
@@ -920,6 +934,8 @@ class Item(object):
             self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
 
     def update_item_hsh(self):
+        self.created = self.item_hsh.get('created', None)
+        self.item_hsh = {}
         cur_hsh = {}
         cur_key = None
         logger.info(f"updating doc_id: {self.doc_id}; is_new: {self.is_new}")
@@ -953,19 +969,21 @@ class Item(object):
             cur_key = None
             cur_hsh = {}
 
-        now = pendulum.now('UTC')
-        # keys = [x for x in self.item_hsh.keys()]
-        # keys.sort()
-        # hsh = {k: self.item_hsh[k] for k in keys}
-        if self.doc_id is None:
-            # creating a new item
+        now = pendulum.now('local')
+        if self.is_new:
+            # creating a new item or editing a copy of an existing item
             self.created = now
             self.item_hsh['created'] = now
-            self.doc_id = self.etmdb.insert(self.item_hsh)
-            logger.info(f"created doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
+            if self.doc_id is None:
+                self.doc_id = self.etmdb.insert(self.item_hsh)
+                log_action = 'created'
+            else:
+                self.etmdb.write_back([self.item_hsh], doc_ids=[self.doc_id])
+                log_action = 'updated'
+            logger.info(f"{log_action} doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
         else:
             # editing an existing item
-            # self.item_hsh['created'] = self.created
+            self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = now
             logger.info(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
             self.etmdb.write_back([self.item_hsh], doc_ids=[self.doc_id])
@@ -1019,11 +1037,13 @@ class Item(object):
         (None, 'The type character must be entered before any @-keys')
         >>> item.item_hsh['itemtype'] = '*'
         >>> obj, rep = item.do_at()
-        >>> print(rep)
+        >>> print(rep) # doctest: +NORMALIZE_WHITESPACE
         required: @s (start)
-        available: @+ (include), @- (exclude), @a (alerts), @b (beginby), @c (calendar),
-          @d (description), @e (extent), @g (goto), @i (index), @l (location), @m (memo),
-          @n (attendees), @o (overdue), @s (start), @t (tags), @u (used time), @x (expansion),
+        available: @+ (include), @- (exclude), @a (alerts),
+          @b (beginby), @c (calendar), @d (description),
+          @e (extent), @g (goto), @i (index), @l (location),
+          @m (memo), @n (attendees), @o (overdue), @s (start),
+          @t (tags), @u (used time), @x (expansion),
           @z (timezone)
         """
         itemtype = self.item_hsh.get('itemtype', '')
@@ -1545,7 +1565,6 @@ def format_datetime(obj, short=False):
         res = res.replace('PM', 'pm')
     logger.info(f"res: {res}")
     return True, res
-
 
 def format_datetime_list(obj_lst):
     ret = ", ".join([format_datetime(x)[1] for x in obj_lst])
@@ -2154,6 +2173,12 @@ entry_tmpl = """\
 {% endset %}\
 {{ wrap(alerts) }}
 {% endif %}\
+{% if 'u' in h %}\
+{%- set used %}\
+{% for x in h['u'] %}{{ "@u {}: {} ".format(in2str(x[0]), dt2str(x[1])[1]) }}{% endfor %}\
+{% endset %}\
+{{ wrap(used) }}
+{% endif %}\
 {%- set is = namespace(found=false) -%}\
 {%- set index -%}\
 {%- for k in ['c', 'i'] -%}\
@@ -2265,14 +2290,15 @@ def do_beginby(arg):
 
 def do_usedtime(arg):
     """
-    >>> do_usedtime('75m, 9p 2019-02-01')
+    >>> do_usedtime('75m: 9p 2019-02-01')
     ([Duration(hours=1, minutes=15), DateTime(2019, 2, 2, 2, 0, 0, tzinfo=Timezone('UTC'))], 'used 1h15m ending Fri Feb 1 2019 9:00pm EST')
     """
     if not arg:
         return None, ''
     got_period = got_datetime = False
-    rep_period = rep_datetime = ''
-    parts = arg.split(',')
+    rep_period = 'period' 
+    rep_datetime = 'datetime'
+    parts = re.split(':\s+', arg)
     period = parts.pop(0)
     if period:
         ok, res = parse_duration(period)
@@ -2295,7 +2321,7 @@ def do_usedtime(arg):
     if got_period and got_datetime:
         return [obj_period, obj_datetime], f"used {rep_period} ending {rep_datetime}"
     else:
-        return None, f"{rep_period}, {rep_datetime}"
+        return None, f"{rep_period}: {rep_datetime}"
 
 
 
@@ -2551,7 +2577,7 @@ def do_frequency(arg):
     or mi(n)utely.
     >>> do_frequency('d')
     ('d', 'daily')
-    >>> print(do_frequency('z')[1])
+    >>> print(do_frequency('z')[1]) # doctest: +NORMALIZE_WHITESPACE 
     invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.
     """
 
@@ -4274,7 +4300,7 @@ def show_history(reverse=True):
     for item in ETMDB:
         for dt, label in [(item.get('created', None), 'c'), (item.get('modified', None), 'm')]:
             if dt is not None:
-                dtfmt = dt.format("YYYY-MM-DD")
+                dtfmt = dt.format("YYYYMMDD HHmm")
                 itemtype = finished_char if 'f' in item else item['itemtype']
                 rows.append(
                         {
@@ -4296,7 +4322,7 @@ def show_history(reverse=True):
     out_view = []
     num2id = {}
 
-    summary_width = width - 18 
+    summary_width = width - 20 
     num = 0
     for i in rows:
         num2id[num] = i['id']
@@ -4730,7 +4756,7 @@ if __name__ == '__main__':
     etmdir = ''
     if len(sys.argv) > 1:
         etmdir = sys.argv.pop(1)
-    setup_logging(1, etmdir, 'main.py')
+    setup_logging(2, etmdir, 'main.py')
 
     if len(sys.argv) > 1:
         if 'i' in sys.argv[1]:

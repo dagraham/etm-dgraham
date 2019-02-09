@@ -25,6 +25,7 @@ from prompt_toolkit.layout import Dimension
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous  
+from prompt_toolkit.key_binding.key_processor import KeyProcessor
 import shutil
 
 from prompt_toolkit.layout import FloatContainer, Float
@@ -65,6 +66,11 @@ ampm = True
 showing_help = False
 editing = False
 item = Item()
+
+# Key bindings.
+bindings = KeyBindings()
+bindings.add('tab')(focus_next)
+bindings.add('s-tab')(focus_previous)
 
 @Condition
 def is_editing():
@@ -182,6 +188,12 @@ def status_time(dt):
             t_fmt = dt.format("H:mm")
     return f"{t_fmt}{suffix} {d_fmt}"
 
+def item_changed(loop):
+    item.update_item_hsh()
+    dataview.refreshRelevant()
+    dataview.refreshAgenda()
+    set_text(dataview.show_active_view())
+    get_app().invalidate()
 
 def new_day(loop):
     dataview.set_active_view('a')
@@ -211,11 +223,6 @@ def get_statusbar_text():
     return [
             ('class:status', f' {current_datetime}{space}F1:help'),
     ]
-
-# def get_details_text():
-#     tmp = dataview.get_details(text_area.document.cursor_position_row)[1]
-#     return [('class:details', tmp),]
-
 
 search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
@@ -272,20 +279,13 @@ def default_buffer_changed(_):
     When the buffer on the left changes, update the buffer on
     the right. We just reverse the text.
     """
-    # reply_buffer.text = entry_buffer.text[::-1]
     item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
-    # ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
-    # reply_buffer.text = ask[1] + "\n" + say[1] 
-    # reply_buffer.text = check_entry(entry_buffer.text, entry_buffer.cursor_position)[1][1]
 
 def default_cursor_position_changed(_):
     """
     When the cursor position in the top changes, update the cursor position in the bottom.
     """
     item.cursor_changed(entry_buffer.cursor_position)
-    # ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
-    # reply_buffer.text = ask[1] + "\n" + say[1] 
-    # reply_buffer.text = entry_buffer.text + f" ({entry_buffer.cursor_position})"
     set_askreply('_')
 
 entry_buffer.on_text_changed += default_buffer_changed
@@ -320,22 +320,96 @@ root_container = HSplit([
 
 item_not_selected = False
 
+@bindings.add('N', filter=is_not_editing)
+def edit_new(*event):
+    global item
+    if dataview.is_showing_details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    dataview.is_editing = True
+    item = Item()
+    item.new_item()
+    entry_buffer.text = item.entry
+    default_buffer_changed(_)
+    default_cursor_position_changed(_)
+    application.layout.focus(entry_buffer)
+
+@bindings.add('E', filter=is_not_editing)
+def edit_existing(*event):
+    global item
+    if dataview.is_showing_details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    dataview.is_editing = True
+    doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
+    logger.info(f"editing doc_id: {doc_id}; entry: {entry}")
+    # item = Item(doc_id, entry)
+    item = Item()
+    item.edit_item(doc_id, entry)
+    entry_buffer.text = item.entry
+    default_buffer_changed(_)
+    default_cursor_position_changed(_)
+    application.layout.focus(entry_buffer)
+
+@bindings.add('C', filter=is_not_editing)
+def edit_copy(*event):
+    global item
+    if dataview.is_showing_details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    dataview.is_editing = True
+    doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
+    logger.info(f"editing copy of doc_id: {doc_id}; entry: {entry}")
+    # item = Item(doc_id, entry)
+    item = Item()
+    item.edit_copy(doc_id, entry)
+    entry_buffer.text = item.entry
+    default_buffer_changed(_)
+    default_cursor_position_changed(_)
+    application.layout.focus(entry_buffer)
+
+@bindings.add('c-q')
+def exit(*event):
+    application.exit()
+
+@bindings.add('f8')
+def _(event):
+    " Quit. "
+    event.app.exit()
+
+def set_text(txt, row=0):
+    text_area.text = txt
+
+@bindings.add('f1')
+def toggle_help(*event):
+    global showing_help
+    showing_help = not showing_help
+    if showing_help:
+        if not dataview.is_showing_details:
+            dataview.show_details()
+        details_area.text = show_help()
+        application.layout.focus(details_area)
+    else:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+
+
 root_container = MenuContainer(body=root_container, menu_items=[
     MenuItem('etm', children=[
-        MenuItem('F1) about'),
-        MenuItem('F2) help'),
-        MenuItem('F3) preferences'),
-        MenuItem('F4) check for new version'),
+        MenuItem('F1) about', handler=toggle_help),
+        MenuItem('F2) help', disabled=True),
+        MenuItem('F3) preferences', disabled=True),
+        MenuItem('F4) check for new version', disabled=True),
 
         MenuItem('-', disabled=True),
-        MenuItem('^Q) quit'),
+        MenuItem('^Q) quit', handler=exit),
     ]),
     MenuItem('edit', children=[
         MenuItem('N) new item', handler=edit_new),
         MenuItem('-', disabled=True),
         MenuItem('selection', children=[
-                MenuItem('E) edit'),
-                MenuItem('C) edit copy'),
+                MenuItem('E) edit', handler=edit_existing),
+                MenuItem('C) edit copy', handler=edit_copy),
                 MenuItem('F) finish'),
                 MenuItem('R) reschedule'),
                 MenuItem('S) schedule new'),
@@ -391,48 +465,6 @@ root_container = MenuContainer(body=root_container, menu_items=[
 ])
 
 
-# Key bindings.
-bindings = KeyBindings()
-bindings.add('tab')(focus_next)
-bindings.add('s-tab')(focus_previous)
-
-# @bindings.add('m')
-# def show_menu(event):
-#     application.layout.focus(root_container.menu_items)
-
-
-
-@bindings.add('c-q')
-@bindings.add('f8')
-def _(event):
-    " Quit. "
-    event.app.exit()
-
-def set_text(txt, row=0):
-    text_area.text = txt
-
-@bindings.add('f1')
-def toggle_help(event):
-    global showing_help
-    showing_help = not showing_help
-    if showing_help:
-        if not dataview.is_showing_details:
-            dataview.show_details()
-        details_area.text = show_help()
-        application.layout.focus(details_area)
-    else:
-        application.layout.focus(text_area)
-        dataview.hide_details()
-
-# @bindings.add('backspace', filter=is_showing_help, eager=True)
-# def cancel_help(event):
-#     global showing_help
-#     if showing_help:
-#         if dataview.details:
-#             dataview.hide_details()
-#         showing_help = False
-#         application.layout.focus(text_area)
-
 @bindings.add('a', filter=is_not_searching & not_showing_details & is_not_editing)
 def toggle_agenda_busy(event):
     set_text(dataview.toggle_agenda_busy())
@@ -477,45 +509,22 @@ def show_details(event):
             details_area.text = tmp.rstrip()
             application.layout.focus(details_area)
 
-@bindings.add('N', filter=is_not_editing)
-def edit_new(event):
-    global item
-    if dataview.is_showing_details:
-        application.layout.focus(text_area)
-        dataview.hide_details()
-    dataview.is_editing = True
-    item = Item()
-    item.new_item()
-    entry_buffer.text = item.entry
-    default_buffer_changed(_)
-    default_cursor_position_changed(_)
-    application.layout.focus(entry_buffer)
-
-@bindings.add('E', filter=is_not_editing)
-def edit_existing(event):
-    global item
-    if dataview.is_showing_details:
-        application.layout.focus(text_area)
-        dataview.hide_details()
-    dataview.is_editing = True
-    doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
-    logger.info(f"editing doc_id: {doc_id}; entry: {entry}")
-    item = Item(doc_id, entry)
-    item.edit_item(doc_id, entry)
-    entry_buffer.text = item.entry
-    default_buffer_changed(_)
-    default_cursor_position_changed(_)
-    application.layout.focus(entry_buffer)
-
 
 @bindings.add('c-c', filter=is_editing, eager=True)
-def cancel_edit(event):
+def close_edit(event):
+    # TODO: warn if item.is_modified
     dataview.is_editing = False
+    logger.info(f"is_modified: {item.is_modified}")
     application.layout.focus(text_area)
+    set_text(dataview.show_active_view())
 
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
-def save_item(_):
-    item.update_item_hsh()
+def save_changes(_):
+    # TODO: refresh views
+    logger.info(f"is_modified: {item.is_modified}")
+    if item.is_modified:
+        loop = get_event_loop()
+        loop.call_later(0, item_changed, loop)
 
 # Now we add an event handler that captures change events to the buffer on the
 # left. If the text changes over there, we'll update the buffer on the right.
