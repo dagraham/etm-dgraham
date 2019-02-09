@@ -2239,22 +2239,20 @@ entry_tmpl = """\
 
 display_tmpl = entry_tmpl + """\
 
-{{ '_' * 3 }}
-{% if 'created' in h %}\
-created: {{ dt2str(h.created)[1] }}\
-{% else %}\
-created: ~ 
-{%- endif %}
-{% if 'modified' in h %}\
-modified: {{ dt2str(h.modified)[1] }}\
-{% else %}\
-modified: ~ 
-{%- endif %}
+{{ '-- ' }}
 {% if h.doc_id %}\
-id: {{ h.doc_id }}\
+id: {{ h.doc_id }}, \
 {% else %}\
-id: ~ 
-{%- endif %}
+id: ~, \
+{%- endif %}\
+{% if 'created' in h %}\
+c: {{ dt2str(h.created)[1] }}\
+{% else %}\
+c: ~;  
+{%- endif %}\
+{% if 'modified' in h %}\
+, m: {{ dt2str(h.modified)[1] }}\
+{%- endif %}\
 """
 
 jinja_entry_template = Template(entry_tmpl)
