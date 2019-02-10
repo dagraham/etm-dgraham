@@ -825,7 +825,7 @@ class Item(object):
                 'j?': ["job &-key", "enter &-key", self.do_ampj],
                 }
         if not self.entry:
-            self.text_changed('', 0)
+            self.text_changed('', 0, False)
         self.etmdb = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.etmdb_query = self.etmdb.table('items', cache_size=None)
 
@@ -842,7 +842,7 @@ class Item(object):
             self.item_hsh = item_hsh # created and modified entries
             # self.entry = entry
             self.keyvals = []
-            self.text_changed(entry, 0)
+            self.text_changed(entry, 0, False)
 
     def edit_copy(self, doc_id=None, entry=""):
         if not (doc_id and entry):
@@ -856,7 +856,7 @@ class Item(object):
             self.item_hsh = item_hsh # created and modified entries
             # self.entry = entry
             self.keyvals = []
-            self.text_changed(entry, 0)
+            self.text_changed(entry, 0, False)
 
     def new_item(self):
         logger.info("new item")
@@ -872,16 +872,16 @@ class Item(object):
         logger.debug(f"interval: {self.interval}; active: {self.active}")
 
 
-    def text_changed(self, s, pos):
+    def text_changed(self, s, pos, modified=True):
         """
 
         """
-        self.is_modified = True
+        self.is_modified = modified
         logger.debug(f"s: {s}; pos: {pos}")
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s)
         removed, changed = listdiff(self.keyvals, keyvals)
-        logger.info(f"self.keyvals: {self.keyvals}; keyvals: {keyvals}; removed: {removed}; changed: {changed}")
+        logger.debug(f"self.keyvals: {self.keyvals};  removed: {removed}; changed: {changed}")
         # only process changes for kv entries
         update_timezone = False
         for kv in removed + changed:
@@ -905,7 +905,7 @@ class Item(object):
     def update_keyval(self, kv):
         """
         """
-        logger.info(f"updating kv: {kv}")
+        logger.debug(f"updating kv: {kv}")
         key, val = kv
 
         if key in self.keys:
@@ -928,10 +928,9 @@ class Item(object):
                     else:
                         if kv in self.object_hsh:
                             del self.object_hsh[kv]
-            # logger.info(f"kv: {kv}; ask: {ask}; reply: {reply}")
             self.askreply[kv] = (ask, reply)
             if obj:
-                logger.info(f"askreply: {self.askreply}")
+                logger.debug(f"askreply: {self.askreply}")
         else:
             display_key = f"@{key}" if len(key) == 1 else f"&{key[-1]}"
             self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
@@ -1571,6 +1570,7 @@ def setup_logging(level, dir=None, file=None):
         5: logging.CRITICAL
     }
 
+    level = int(level)
     if level in log_levels:
         loglevel = log_levels[level]
     else:
@@ -4179,7 +4179,7 @@ def insert_db(hsh={}):
 def show_history(reverse=True):
     from operator import itemgetter
     from itertools import groupby
-    width = 58
+    width = shutil.get_terminal_size()[0] - 2 
     rows = []
     for item in ETMDB:
         for dt, label in [(item.get('created', None), 'c'), (item.get('modified', None), 'm')]:
@@ -4227,7 +4227,7 @@ def show_next():
     """
     from operator import itemgetter
     from itertools import groupby
-    width = 58
+    width = shutil.get_terminal_size()[0] - 2
     rows = []
     for item in ETMDB:
         if 's' in item or 'f' in item:
@@ -4288,7 +4288,7 @@ def no_busy_periods(week, width):
 
 
 def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_before=0, weeks_after=0):
-    width = 58
+    width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 7 - 16
     # yw will be the active week, but now will be the current moment
 

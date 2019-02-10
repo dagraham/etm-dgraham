@@ -342,8 +342,7 @@ def edit_existing(*event):
         dataview.hide_details()
     dataview.is_editing = True
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
-    logger.info(f"editing doc_id: {doc_id}; entry: {entry}")
-    # item = Item(doc_id, entry)
+    logger.debug(f"editing doc_id: {doc_id}; entry: {entry}")
     item = Item()
     item.edit_item(doc_id, entry)
     entry_buffer.text = item.entry
@@ -359,8 +358,7 @@ def edit_copy(*event):
         dataview.hide_details()
     dataview.is_editing = True
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
-    logger.info(f"editing copy of doc_id: {doc_id}; entry: {entry}")
-    # item = Item(doc_id, entry)
+    logger.debug(f"editing copy of doc_id: {doc_id}; entry: {entry}")
     item = Item()
     item.edit_copy(doc_id, entry)
     entry_buffer.text = item.entry
@@ -529,26 +527,26 @@ def save_changes(_):
 # Now we add an event handler that captures change events to the buffer on the
 # left. If the text changes over there, we'll update the buffer on the right.
 
-def default_buffer_changed(_):
-    """
-    When the buffer on the left changes, update the buffer on
-    the right. We just reverse the text.
-    """
-    # reply_buffer.text = entry_buffer.text[::-1]
-    item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
-    # ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
-    # reply_buffer.text = ask[1] + "\n" + say[1] 
-    # reply_buffer.text = check_entry(entry_buffer.text, entry_buffer.cursor_position)[1][1]
+# def default_buffer_changed(_):
+#     """
+#     When the buffer on the left changes, update the buffer on
+#     the right. We just reverse the text.
+#     """
+#     # reply_buffer.text = entry_buffer.text[::-1]
+#     item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
+#     # ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
+#     # reply_buffer.text = ask[1] + "\n" + say[1] 
+#     # reply_buffer.text = check_entry(entry_buffer.text, entry_buffer.cursor_position)[1][1]
 
-def default_cursor_position_changed(_):
-    """
-    When the cursor position in the top changes, update the cursor position in the bottom.
-    """
-    item.cursor_changed(entry_buffer.cursor_position)
-    # ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
-    # reply_buffer.text = ask[1] + "\n" + say[1] 
-    # reply_buffer.text = entry_buffer.text + f" ({entry_buffer.cursor_position})"
-    set_askreply('_')
+# def default_cursor_position_changed(_):
+#     """
+#     When the cursor position in the top changes, update the cursor position in the bottom.
+#     """
+#     item.cursor_changed(entry_buffer.cursor_position)
+#     # ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
+#     # reply_buffer.text = ask[1] + "\n" + say[1] 
+#     # reply_buffer.text = entry_buffer.text + f" ({entry_buffer.cursor_position})"
+#     set_askreply('_')
 
 
 # This is slick - add a call to default_buffer_changed 
@@ -623,6 +621,6 @@ if __name__ == '__main__':
     import sys
     etmdir = ''
     if len(sys.argv) > 1:
-        etmdir = sys.argv.pop(1)
-    setup_logging(1, etmdir, 'view_pt.py')
+        loglevel = sys.argv.pop(1)
+    setup_logging(loglevel, etmdir, 'view_pt.py')
     main()
