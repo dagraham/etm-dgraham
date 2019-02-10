@@ -391,6 +391,21 @@ def toggle_help(*event):
         application.layout.focus(text_area)
         dataview.hide_details()
 
+@bindings.add('a', filter=is_not_searching & not_showing_details & is_not_editing)
+def agenda_view(*event):
+    dataview.set_active_view('a')
+    set_text(dataview.show_active_view())
+
+@bindings.add('b', filter=is_not_searching & not_showing_details & is_not_editing)
+def busy_view(*event):
+    dataview.set_active_view('b')
+    set_text(dataview.show_active_view())
+
+@bindings.add('h', filter=is_not_searching & not_showing_details & is_not_editing)
+def history_view(*event):
+    dataview.set_active_view('h')
+    set_text(dataview.show_active_view())
+
 
 root_container = MenuContainer(body=root_container, menu_items=[
     MenuItem('etm', children=[
@@ -424,8 +439,8 @@ root_container = MenuContainer(body=root_container, menu_items=[
     ]),
     MenuItem('view', children=[
         MenuItem('weekly', children=[
-            MenuItem('a) agenda'),
-            MenuItem('b) busy'),
+            MenuItem('a) agenda', handler=agenda_view),
+            MenuItem('b) busy', handler=busy_view),
             MenuItem('movement', children=[
                 MenuItem('right) next week'),
                 MenuItem('left) previous week'),
@@ -433,7 +448,7 @@ root_container = MenuContainer(body=root_container, menu_items=[
                 MenuItem('g) go to date'),
             ]),
         ]),
-        MenuItem('h) history'),
+        MenuItem('h) history', handler=history_view),
         MenuItem('i) index'),
         MenuItem('n) next'),
         MenuItem('q) query'),
@@ -462,19 +477,6 @@ root_container = MenuContainer(body=root_container, menu_items=[
               scroll_offset=1)),
 ])
 
-
-@bindings.add('a', filter=is_not_searching & not_showing_details & is_not_editing)
-def toggle_agenda_busy(event):
-    set_text(dataview.toggle_agenda_busy())
-
-@bindings.add('b', filter=is_not_searching & not_showing_details & is_not_editing)
-def toggle_agenda_busy(event):
-    set_text(dataview.toggle_agenda_busy())
-
-@bindings.add('h', filter=is_not_searching & not_showing_details & is_not_editing)
-def agenda_view(event):
-    dataview.set_active_view('h')
-    set_text(dataview.show_active_view())
 
 @bindings.add('l', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 @bindings.add('right', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)

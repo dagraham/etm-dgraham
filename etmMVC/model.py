@@ -1691,6 +1691,7 @@ class DataView(object):
 
     def show_active_view(self):
         if self.active_view == 'agenda':
+            self.refreshAgenda()
             return self.agenda_view
         elif self.active_view == 'busy':
             return self.busy_view
@@ -4182,26 +4183,30 @@ def show_history(reverse=True):
     width = shutil.get_terminal_size()[0] - 2 
     rows = []
     for item in ETMDB:
-        for dt, label in [(item.get('created', None), 'c'), (item.get('modified', None), 'm')]:
-            if dt is not None:
-                dtfmt = dt.format("YYYYMMDD HHmm")
-                itemtype = finished_char if 'f' in item else item['itemtype']
-                rows.append(
-                        {
-                            'id': item.doc_id,
-                            'sort': dtfmt,
-                            'week': (
-                                dt.isocalendar()[:2]
-                                ),
-                            'day': (
-                                dt.format("ddd MMM D"),
-                                ),
-                            'columns': [itemtype,
-                                item['summary'], 
-                                f"{dtfmt} {label}"
-                                ]
-                        }
-                        )
+        mt = item.get('modified', None)
+        if mt is not None:
+            dt, label = mt, 'm'
+        else:
+            dt, label = item.get('created', None), 'c'
+        if dt is not None:
+            dtfmt = dt.format("YYYYMMDD HHmm")
+            itemtype = finished_char if 'f' in item else item['itemtype']
+            rows.append(
+                    {
+                        'id': item.doc_id,
+                        'sort': dtfmt,
+                        'week': (
+                            dt.isocalendar()[:2]
+                            ),
+                        'day': (
+                            dt.format("ddd MMM D"),
+                            ),
+                        'columns': [itemtype,
+                            item['summary'], 
+                            f"{dtfmt} {label}"
+                            ]
+                    }
+                    )
     rows.sort(key=itemgetter('sort'), reverse=reverse)
     out_view = []
     num2id = {}
