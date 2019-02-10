@@ -231,15 +231,15 @@ required['!'] = []
 allowed['!'] = common_methods + datetime_methods + task_methods + repeating_methods
 
 requires = {
-        'a': 's',
-        'b': 's',
-        '+': 's',
-        '-': 'r',
-        'o': 'r',
-        'rr': 's',
-        'js': 's',
-        'ja': 's',
-        'jb': 's',
+        'a': ['s'],
+        'b': ['s'],
+        '+': ['s'],
+        '-': ['rr'],
+        'o': ['rr'],
+        'rr': ['s'],
+        'js': ['s'],
+        'ja': ['s'],
+        'jb': ['s'],
         }
 
 # set up 2 character weekday name abbreviations for busy view
@@ -388,16 +388,14 @@ def busy_conf_day(lofp):
         h['total'] = total
     return h
 
-def check_requires(key, hsh):
-    """
-    Check that hsh has the prerequisite entries for key.
-    """
-    if key in requires and requires[key] not in hsh:
-        return False, ('warn', f"{requires[key]} is required for {key}")
-    else:
-        return True, ('say', '')
-
-
+# def check_requires(key, hsh):
+#     """
+#     Check that hsh has the prerequisite entries for key.
+#     """
+#     if key in requires and requires[key] not in hsh:
+#         return False, ('warn', f"{requires[key]} is required for {key}")
+#     else:
+#         return True, ('say', '')
 
 
 deal_with = {}
@@ -842,7 +840,9 @@ class Item(object):
             self.doc_id = doc_id
             self.is_new = False
             self.item_hsh = item_hsh # created and modified entries
-            self.entry = entry
+            # self.entry = entry
+            self.keyvals = []
+            self.text_changed(entry, 0)
 
     def edit_copy(self, doc_id=None, entry=""):
         if not (doc_id and entry):
@@ -854,7 +854,9 @@ class Item(object):
             self.doc_id = None
             self.is_new = True
             self.item_hsh = item_hsh # created and modified entries
-            self.entry = entry
+            # self.entry = entry
+            self.keyvals = []
+            self.text_changed(entry, 0)
 
     def new_item(self):
         logger.info("new item")
@@ -879,6 +881,7 @@ class Item(object):
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s)
         removed, changed = listdiff(self.keyvals, keyvals)
+        logger.info(f"self.keyvals: {self.keyvals}; keyvals: {keyvals}; removed: {removed}; changed: {changed}")
         # only process changes for kv entries
         update_timezone = False
         for kv in removed + changed:
@@ -893,10 +896,10 @@ class Item(object):
                 del self.object_hsh[kv]
             if kv in self.askreply:
                 del self.askreply[kv]
+        self.keyvals = [kv for kv in keyvals]
         for kv in changed:
             self.update_keyval(kv)
 
-        self.keyvals = [kv for kv in keyvals]
 
 
     def update_keyval(self, kv):
@@ -998,10 +1001,11 @@ class Item(object):
         missing = []
         if key in requires:
             cur_keys = [k for (k, v) in self.keyvals]
-            missing = [f"@{k}" for k in requires[key] if k not in cur_keys]
+            missing = [f"@{k[0]}" for k in requires[key] if k not in cur_keys]
 
         if missing:
-            display_key = f"@{key[0]}" if len(key) == 1 or key[-1] in 'rj' else f"&{key[-1]}"
+            logger.info(f"key: {key}; cur_keys: {cur_keys}; requires: {requires[key]}; missing: {missing}")
+            display_key = f"@{key[0]}" if len(key) == 1 or key in ['rr', 'jj'] else f"&{key[-1]}"
             return f"Required for {display_key} but missing: {', '.join(missing)}"
         else:
             return ""
@@ -1289,130 +1293,6 @@ def verify_entry(entry, pos_hsh, ent_hsh, pos):
 
     ask, reply = ask_reply[what]
     return ask, reply
-
-
-# item_hsh = {}
-# def check_entry(s, cursor_pos=0):
-#     # """
-#     # Process 's' as the current entry with the cursor at cursor_pos and return the relevant ask and reply prompts.
-#     # >>> check_entry('')
-#     # (('say', 'item type character:'), ('say', 'item type characters:\\n    *: event\\n    -: task\\n    %: record\\n    !: inbox'), {})
-#     # >>> check_entry('^')
-#     # (('say', 'item type character:'), ('warn', "invalid item type character: '^'"), {})
-#     # >>> check_entry('- todo')
-#     # (('say', 'task summary:'), ('say', 'Enter the summary for the task followed, optionally, by @key and value pairs'), {})
-#     # >>> check_entry('- todo @s 2019-01-22 4p @', 25)
-#     # """
-#     global item_hsh
-#     pos_hsh, keyvals = process_entry(s)
-#     hsh = {}
-
-#     ask = ('say', '')
-#     reply = ('say', '')
-#     if not s or not pos_hsh:
-#         ask = ('say', type_prompt)
-#         reply = ('say', item_types)
-#         return ask, reply, hsh
-
-#     interval, (key, itemtype) = active_from_pos(pos_hsh, 0)
-#     if itemtype not in type_keys:
-#         ask = ('say', type_prompt)
-#         reply = ('warn', u"invalid item type character: '{0}'".format(itemtype))
-#         return ask, reply, hsh
-
-#     interval, res = active_from_pos(pos_hsh, cursor_pos)
-#     at_key = amp_key = None
-#     act_key = act_val = None
-#     if res:
-#         at_key = res[0][0]
-#         amp_key = res[0][1]
-#         act_key = amp_key if amp_key else at_key
-#         act_val = res[1]
-#     if act_val and act_val[-1] == '@':
-#         amp_entry = False
-#         at_entry = True
-#     elif act_val and act_val[-1] == '&':
-#         amp_entry = True
-#         at_entry = False
-#     else:
-#         amp_entry = False
-#         at_entry = False
-
-
-#     if at_entry:
-#         ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
-#         current_required = ["@{} {}".format(x, at_keys[x]) for x in required[itemtype] if x not in hsh]
-#         reply_str = ""
-#         if current_required:
-#             reply_str += "Required: {}".format(", ".join(current_required))
-#         current_allowed = ["@{} {}".format(x, at_keys[x]) for x in allowed[itemtype] if x not in hsh or x in 'ajr']
-#         if current_allowed:
-#             reply_str += "Allowed: {}".format(", ".join(current_allowed))
-#         reply = ('say', reply_str)
-#     elif amp_entry:
-#         ask = ('say', "&key for @{}?".format(act_key))
-#         reply =  ('say', "Allowed: {}".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
-#     elif amp_key:
-#         if amp_key in amp_keys[at_key]:
-#             ask = ('say', f"{amp_keys[at_key][amp_key]}?")
-#         else:
-#             ask =  ('say', f"&{amp_key} is not allowed for @{at_key}")
-
-#             reply =  ('say', "Allowed: {}".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
-
-#     elif at_key:
-#         if at_key in at_keys:
-#             ask = ('say', "{0}?".format(at_keys[at_key]))
-
-#         else:
-#             ask =  ('say', "{} @keys:".format(type_keys[itemtype]))
-
-#         if at_key == itemtype:
-#             ask = ('say', "{} summary:".format(type_keys[itemtype]))
-#             reply = ('say', 'Enter the summary for the {} followed, optionally, by @key and value pairs'.format(type_keys[itemtype]))
-
-#         else:
-#             ok, res = check_requires(act_key, hsh)
-#             if not ok:
-#                 ask = ('say', '{0}'.format(at_keys[act_key]))
-#                 reply = res
-
-#             elif act_key in allowed[itemtype]:
-
-#                 if amp_entry:
-#                     ask = ('say', "&key for @{}?".format(act_key))
-#                     reply =  ('say', "Allowed: {}".format(", ".join(["&{} {}".format(key, amp_keys[act_key][key]) for key in amp_keys[act_key] if key != 'r'])))
-#                 elif act_key in deal_with:
-#                     top, bot, obj = deal_with[act_key](hsh)
-#                     ask = ('say', top)
-#                     reply = ('say', "{}".format(bot))
-#                     if obj:
-#                         item_hsh[act_key] = obj
-#                         # hsh[act_key] = obj
-#                 else:
-#                     top, bot, obj = deal_with_missing(hsh, act_key)
-#                     if obj:
-#                         item_hsh[act_key] = obj
-#             else:
-#                 reply = ('warn', "{0} is not allowed for item type '{1}'".format(act_key, itemtype))
-#     else:
-#         reply = ('warn', 'no act_key')
-
-
-#     if 'summary' in hsh:
-#         item_hsh['summary'] = hsh['summary']
-
-#     missing = [k for k in item_hsh if k not in hsh]
-#     for k in missing:
-#         del item_hsh[k]
-
-#     # for testing and debugging:
-#     if testing:
-#         reply = (reply[0], reply[1]) 
-#         # reply = (reply[0], reply[1] + f"\n{item_details(item_hsh, edit=True)}\n\ncursor pos: {cursor_pos}; active entry: '{act_key}' -> {act_val}\nhsh: {hsh}\nitem_hsh: {item_hsh}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
-#         # reply = (reply[0], reply[1] + f"\n{hsh}\n\ncursor pos: {cursor_pos}; active entry: {res} '{act_key}' -> {act_val}\n{pos_hsh}\nat_key: {at_key}; at_entry: {at_entry}\namp_key: {amp_key}; amp_entry: {amp_entry}") # .format(at_entry, act_key, act_val, cursor_pos,  amp_entry, amp_key, at_tups, at_parts, hsh))
-
-#     return ask, reply, hsh
 
 
 def parse_datetime(s, z=None):
@@ -1797,8 +1677,10 @@ class DataView(object):
         self.is_showing_help = False
         self.is_editing = False
         self.is_showing_items = True
+        self.set_now()
+        self.currentYrWk = self.activeYrWk = getWeekNum(self.now)
         self.refreshRelevant()
-        self.currYrWk()
+        self.refreshAgenda()
 
     def set_now(self, dtstr=None):
         # self.now = pendulum.now() if dtstr is None else pendulum.parse(dtstr)
@@ -1837,6 +1719,7 @@ class DataView(object):
 
     def currYrWk(self):
         """Set the active week to one containing today."""
+        self.set_now()
         self.currentYrWk = self.activeYrWk = getWeekNum(self.now)
         self.refreshAgenda()
 
@@ -1851,7 +1734,7 @@ class DataView(object):
         """
         # self.now = pendulum.now()
         self.set_now()
-        self.currentYrWk = self.activeYrWk = self.now.isocalendar()[:2]
+        # self.currentYrWk = self.activeYrWk = self.now.isocalendar()[:2]
         self.current, self.alerts = relevant(self.now)
         self.refreshCache()
 
@@ -2241,7 +2124,7 @@ entry_tmpl = """\
 
 display_tmpl = entry_tmpl + """\
 
-{{ '-- ' }}
+{{ '-- ' }}\
 {% if h.doc_id %}\
 id: {{ h.doc_id }}, \
 {% else %}\
@@ -2255,6 +2138,7 @@ c: ~;
 {% if 'modified' in h %}\
 , m: {{ dt2str(h.modified)[1] }}\
 {%- endif %}\
+{{ ' --' }}\
 """
 
 jinja_entry_template = Template(entry_tmpl)
