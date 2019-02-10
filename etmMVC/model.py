@@ -1694,21 +1694,11 @@ class DataView(object):
             self.refreshAgenda()
             return self.agenda_view
         elif self.active_view == 'busy':
+            self.refreshAgenda()
             return self.busy_view
         elif self.active_view == 'history':
             self.history_view, self.num2id = show_history()
             return self.history_view
-
-    def toggle_agenda_busy(self):
-        if self.active_view == 'agenda':
-            self.active_view = 'busy'
-            return self.busy_view
-        elif self.active_view == 'busy':
-            self.active_view = 'agenda'
-            return self.agenda_view
-        else:
-            self.active_view = 'agenda'
-            return self.agenda_view
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk) 
@@ -2125,21 +2115,20 @@ entry_tmpl = """\
 
 display_tmpl = entry_tmpl + """\
 
-{{ '-- ' }}\
 {% if h.doc_id %}\
 id: {{ h.doc_id }}, \
 {% else %}\
 id: ~, \
 {%- endif %}\
+{% if 'modified' in h %}\
+modified: {{ dt2str(h.modified)[1] }}\
+{%- else %}\
 {% if 'created' in h %}\
-c: {{ dt2str(h.created)[1] }}\
+created: {{ dt2str(h.created)[1] }}\
 {% else %}\
 c: ~;  
 {%- endif %}\
-{% if 'modified' in h %}\
-, m: {{ dt2str(h.modified)[1] }}\
 {%- endif %}\
-{{ ' --' }}\
 """
 
 jinja_entry_template = Template(entry_tmpl)

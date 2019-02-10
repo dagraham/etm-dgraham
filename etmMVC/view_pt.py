@@ -25,7 +25,6 @@ from prompt_toolkit.layout import Dimension
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous  
-from prompt_toolkit.key_binding.key_processor import KeyProcessor
 import shutil
 
 from prompt_toolkit.layout import FloatContainer, Float
@@ -71,6 +70,11 @@ item = Item()
 bindings = KeyBindings()
 bindings.add('tab')(focus_next)
 bindings.add('s-tab')(focus_previous)
+
+@bindings.add('f1')
+def menu(event):
+    " Focus menu. "
+    event.app.layout.focus(root_container.window)
 
 @Condition
 def is_editing():
@@ -221,7 +225,7 @@ def get_statusbar_text():
     width=shutil.get_terminal_size()[0]
     space = ' ' * (width - 9 - len(current_datetime))
     return [
-            ('class:status', f' {current_datetime}{space}F1:help'),
+            ('class:status', f' {current_datetime}{space}F1:menu'),
     ]
 
 search_field = SearchToolbar(text_if_not_searching=[
@@ -303,7 +307,7 @@ status_area = Window(content=FormattedTextControl(
         height=1,
         style='class:status')
 
-root_container = HSplit([
+body = HSplit([
     text_area,      # main content
     status_area,    # toolbar
     ConditionalContainer(
@@ -378,7 +382,7 @@ def _(event):
 def set_text(txt, row=0):
     text_area.text = txt
 
-@bindings.add('f1')
+@bindings.add('f2')
 def toggle_help(*event):
     global showing_help
     showing_help = not showing_help
@@ -407,12 +411,12 @@ def history_view(*event):
     set_text(dataview.show_active_view())
 
 
-root_container = MenuContainer(body=root_container, menu_items=[
+root_container = MenuContainer(body=body, menu_items=[
     MenuItem('etm', children=[
-        MenuItem('F1) about', handler=toggle_help),
-        MenuItem('F2) help', disabled=True),
-        MenuItem('F3) preferences', disabled=True),
-        MenuItem('F4) check for new version', disabled=True),
+        MenuItem('F2) about', handler=toggle_help),
+        MenuItem('F3) help', disabled=True),
+        MenuItem('F4) preferences', disabled=True),
+        MenuItem('F5) check for new version', disabled=True),
 
         MenuItem('-', disabled=True),
         MenuItem('^Q) quit', handler=exit),
@@ -442,9 +446,9 @@ root_container = MenuContainer(body=root_container, menu_items=[
             MenuItem('a) agenda', handler=agenda_view),
             MenuItem('b) busy', handler=busy_view),
             MenuItem('movement', children=[
-                MenuItem('right) next week'),
-                MenuItem('left) previous week'),
-                MenuItem('space) current week'),
+                MenuItem('left or j) previous week'),
+                MenuItem('space or k) current week'),
+                MenuItem('right or l) next week'),
                 MenuItem('g) go to date'),
             ]),
         ]),
@@ -525,30 +529,6 @@ def save_changes(_):
     if item.is_modified:
         loop = get_event_loop()
         loop.call_later(0, item_changed, loop)
-
-# Now we add an event handler that captures change events to the buffer on the
-# left. If the text changes over there, we'll update the buffer on the right.
-
-# def default_buffer_changed(_):
-#     """
-#     When the buffer on the left changes, update the buffer on
-#     the right. We just reverse the text.
-#     """
-#     # reply_buffer.text = entry_buffer.text[::-1]
-#     item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
-#     # ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
-#     # reply_buffer.text = ask[1] + "\n" + say[1] 
-#     # reply_buffer.text = check_entry(entry_buffer.text, entry_buffer.cursor_position)[1][1]
-
-# def default_cursor_position_changed(_):
-#     """
-#     When the cursor position in the top changes, update the cursor position in the bottom.
-#     """
-#     item.cursor_changed(entry_buffer.cursor_position)
-#     # ask, say, hsh = check_entry(entry_buffer.text, entry_buffer.cursor_position)
-#     # reply_buffer.text = ask[1] + "\n" + say[1] 
-#     # reply_buffer.text = entry_buffer.text + f" ({entry_buffer.cursor_position})"
-#     set_askreply('_')
 
 
 # This is slick - add a call to default_buffer_changed 
