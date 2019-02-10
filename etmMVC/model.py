@@ -2164,20 +2164,21 @@ entry_tmpl = """\
 {%- if 'e' in h %}{{ " @e {}".format(in2str(h['e'])) }}{% endif %}\
 {%- if 'z' in h %}{{ " @z {}".format(h['z']) }}{% endif %}\
 {%- endset %}\
-{{ wrap(title) }}
-{% if 'f' in h %}{{ "@f {} ".format(dt2str(h['f'])[1]) }}
+{{ wrap(title) }} \
+{% if 'f' in h %}\
+{{ "@f {} ".format(dt2str(h['f'])[1]) }} \
 {% endif -%}\
 {% if 'a' in h %}\
 {%- set alerts %}\
 {% for x in h['a'] %}{{ "@a {}: {} ".format(inlst2str(x[0]), ", ".join(x[1:])) }}{% endfor %}\
 {% endset %}\
-{{ wrap(alerts) }}
+{{ wrap(alerts) }} \
 {% endif %}\
 {% if 'u' in h %}\
 {%- set used %}\
 {% for x in h['u'] %}{{ "@u {}: {} ".format(in2str(x[0]), dt2str(x[1])[1]) }}{% endfor %}\
 {% endset %}\
-{{ wrap(used) }}
+{{ wrap(used) }} \
 {% endif %}\
 {%- set is = namespace(found=false) -%}\
 {%- set index -%}\
@@ -2185,9 +2186,9 @@ entry_tmpl = """\
 {%- if k in h %}@{{ k }} {{ h[k] }}{% set is.found = true %} {% endif %}\
 {%- endfor %}\
 {%- endset %}\
-{%- if is.found -%}
-{{ wrap(index) }}
-{% endif -%}\
+{% if is.found %}
+{{ wrap(index) }} \
+{% endif %}\
 {%- if 't' in h %}@t {{ "{}".format(", ".join(h['t'])) }} {% endif %}\
 {%- set ls = namespace(found=false) -%}\
 {%- set location -%}\
@@ -2196,34 +2197,35 @@ entry_tmpl = """\
 {%- endfor -%}\
 {%- endset -%}\
 {%- if ls.found -%}\
-{{ wrap(location) }}{% endif -%}\
+{{ wrap(location) }} \
+{% endif -%}\
 {%- if 'r' in h -%}\
 {%- for x in h['r'] -%}\
 {%- if 'r' in x and x['r'] -%}\
-{%- set rrule -%}\
+{%- set rrule %}\
 {{ x['r'] }}\
 {%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'h', 'E', 'c'] -%}\
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor -%}\
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
 {%- endset -%}
-@r {{ wrap(rrule) }}
+@r {{ wrap(rrule) }} \
 {% endif -%}\
 {%- endfor %}\
-{% if 'o' in h %}
-@o {{ h['o'] }}{% endif -%}\
-{%- endif -%}\
-{% for k in ['+', '-', 'h'] -%}
-{%- if k in h and h[k] %}
-@{{ k }} {{ wrap(dtlst2str(h[k])) }}
-{%- endif -%}\
+{% if 'o' in h %}\
+@o {{ h['o'] }}{% endif %} \
+{% endif %}\
+{% for k in ['+', '-', 'h'] %}\
+{% if k in h and h[k] %}
+@{{ k }} {{ wrap(dtlst2str(h[k])) }} \
+{%- endif %}\
 {%- endfor %}\
 {% if 'd' in h %}
 @d {{ wrap(h['d']) }} \
 {% endif -%}
-{%- if 'j' in h %}
-{%- for x in h['j'] %}
-{%- set job -%}
+{%- if 'j' in h %}\
+{%- for x in h['j'] %}\
+{%- set job -%}\
 {{ x['j'] }}\
 {%- for k in ['s', 'b', 'd', 'e', 'f', 'l', 'i', 'p'] -%}
 {%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
@@ -2232,7 +2234,7 @@ entry_tmpl = """\
 {%- for a in x['a'] %} &a {{ "&a {}: {}".format(inlst2str(a[0]), ", ".join(a[1:])) }}{% endfor %}\
 {%- endif %}\
 {%- endset %}
-@j {{ wrap(job) }}\
+@j {{ wrap(job) }} \
 {%- endfor %}\
 {%- endif %}
 """
