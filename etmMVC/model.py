@@ -785,7 +785,7 @@ class Item(object):
                 'h': ["completions", "list of completion datetimes", self.do_datetimes],
                 'i': ["index", "colon delimited string", do_string],
                 'l': ["location", "location or context", do_string],
-                'm': ["memo", "", do_string],
+                'm': ["mask", "string to be masked", do_mask],
                 'n': ["attendees", "list of 'name <email address>'", do_stringlist],
                 'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", do_overdue],
                 'p': ["priority", "priority from 1 (highest) to 9 (lowest)", do_priority],
@@ -818,7 +818,7 @@ class Item(object):
                 'jf': ["finished", " datetime", self.do_datetime],
                 'ji': ["unique id", " integer or string", do_string],
                 'jl': ["location", " string", do_string],
-                'jm': ["memo", "string", do_string],
+                'jm': ["mask", "string to be masked", do_mask],
                 'jp': ["prerequisite ids", "list of ids of immediate prereqs", do_stringlist],
                 'js': ["start", "timeperiod before task start when job is due", do_period],
                 'ju': ["used time", "timeperiod: datetime", do_usedtime],
@@ -848,7 +848,7 @@ class Item(object):
         if not (doc_id and entry):
             return None
         logger.info(f"copy doc_id: {doc_id}; entry: {entry}")
-        item_hsh = ETMDB_QUERY.get(doc_id=doc_id)
+        item_hsh = self.etmdb.get(doc_id=doc_id)
         if item_hsh:
             logger.info(f"found doc_id: {doc_id} in database")
             self.doc_id = None
@@ -864,6 +864,16 @@ class Item(object):
         self.is_new = True
         self.item_hsh = {}
         self.entry = ""
+
+
+    def delete_item(self, doc_id=None):
+        if not (doc_id):
+            return None
+        logger.info(f"delete doc_id: {doc_id}")
+        # item_hsh = self.etmdb.get(doc_id=doc_id)
+        if self.etmdb.contains(doc_ids=[doc_id]):
+            logger.info(f"found doc_id: {doc_id} in database")
+            self.etmdb.remove(doc_ids=[doc_id])
 
 
     def cursor_changed(self, pos):
@@ -1042,11 +1052,9 @@ class Item(object):
         >>> obj, rep = item.do_at()
         >>> print(rep) # doctest: +NORMALIZE_WHITESPACE
         required: @s (start)
-        available: @+ (include), @- (exclude), @a (alerts),
-          @b (beginby), @c (calendar), @d (description),
-          @e (extent), @g (goto), @i (index), @l (location),
-          @m (memo), @n (attendees), @o (overdue), @s (start),
-          @t (tags), @u (used time), @x (expansion),
+        available: @+ (include), @- (exclude), @a (alerts), @b (beginby), @c (calendar),
+          @d (description), @e (extent), @g (goto), @i (index), @l (location), @m (mask),
+          @n (attendees), @o (overdue), @s (start), @t (tags), @u (used time), @x (expansion),
           @z (timezone)
         """
         itemtype = self.item_hsh.get('itemtype', '')
@@ -2684,6 +2692,14 @@ def do_hours(arg):
     return obj, rep
 
 
+def do_mask(arg):
+    """
+    >>> do_mask('when to the sessions').encoded
+    'w6rDkMOGw5nChcOnw5_ChcOVw5rDisKTw5vDhsOew5jDnMOfw5PDlA=='
+    """
+    return Mask(arg), arg
+
+
 def do_minutes(arg):
     """
     byminute (0 ... 59 or a sequence of such integers)
@@ -3646,6 +3662,59 @@ class PendulumWeekdaySerializer(Serializer):
         # print('deseralizing', s, type(s))
         return eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[s]))
 
+import base64
+
+def encode(key, clear):
+    enc = []
+    for i in range(len(clear)):
+        key_c = key[i % len(key)]
+        enc_c = chr((ord(clear[i]) + ord(key_c)) % 256)
+        enc.append(enc_c)
+    return base64.urlsafe_b64encode("".join(enc).encode()).decode()
+
+def decode(key, enc):
+    dec = []
+    enc = base64.urlsafe_b64decode(enc).decode()
+    for i in range(len(enc)):
+        key_c = key[i % len(key)]
+        dec_c = chr((256 + ord(enc[i]) - ord(key_c)) % 256)
+        dec.append(dec_c)
+    return "".join(dec)
+
+# get this from options
+secret = "shakespeare"
+
+class Mask():
+    """
+    Provide an encoded value with an "isinstance" test for serializaton
+    """
+
+    def __init__(self, message=""):
+        self.encoded = encode(secret, message)
+
+
+class MaskSerializer(Serializer):
+    """
+    This class handles pendulum.duration (timedelta) objects.
+    >>> mask = MaskSerializer()
+    >>> mask.encode(Mask("when to the sessions")) # doctest: +NORMALIZE_WHITESPACE
+    'w6rDkMOGw5nChcOnw5_ChcOVw5rDisKTw5vDhsOew5jDnMOfw5PDlA==' 
+    >>> mask.decode('w6rDkMOGw5nChcOnw5_ChcOVw5rDisKTw5vDhsOew5jDnMOfw5PDlA==') # doctest: +NORMALIZE_WHITESPACE
+    'when to the sessions' 
+    """
+    OBJ_CLASS = Mask
+
+    def encode(self, obj):
+        """
+        Serialize the timedelta object as days.seconds.
+        """
+        return obj.encoded
+
+    def decode(self, s):
+        """
+        Return the serialization as a timedelta object.
+        """
+        return decode(secret, s)
 
 
 serialization = SerializationMiddleware()
@@ -3653,6 +3722,7 @@ serialization.register_serializer(PendulumDateTimeSerializer(), 'T') # Time
 serialization.register_serializer(PendulumDateSerializer(), 'D')     # Date
 serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
 serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday 
+serialization.register_serializer(MaskSerializer(), 'M')             # Mask 
 
 DBNAME = 'db.json'
 ETMDB = TinyDB(DBNAME, storage=serialization, default_table='items', indent=1, ensure_ascii=False)

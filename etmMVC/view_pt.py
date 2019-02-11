@@ -194,6 +194,9 @@ def status_time(dt):
 
 def item_changed(loop):
     item.update_item_hsh()
+    data_changed(loop)
+
+def data_changed(loop):
     dataview.refreshRelevant()
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
@@ -324,6 +327,19 @@ body = HSplit([
 
 item_not_selected = False
 
+@bindings.add('D', filter=is_not_editing)
+def delete_item(*event):
+    global item
+    if dataview.is_showing_details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
+    logger.info(f"deleting doc_id: {doc_id}")
+    item = Item()
+    item.delete_item(doc_id)
+    loop = get_event_loop()
+    loop.call_later(0, data_changed, loop)
+
 @bindings.add('N', filter=is_not_editing)
 def edit_new(*event):
     global item
@@ -430,7 +446,7 @@ root_container = MenuContainer(body=body, menu_items=[
                 MenuItem('F) finish'),
                 MenuItem('R) reschedule'),
                 MenuItem('S) schedule new'),
-                MenuItem('delete) delete'),
+                MenuItem('D) delete', handler=delete_item),
                 MenuItem('timer', children=[
                     MenuItem('T) start, pause or restart'),
                     MenuItem("^T) stop & add time to @u"),
