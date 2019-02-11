@@ -541,8 +541,9 @@ def close_edit(event):
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(_):
     # TODO: refresh views
-    logger.info(f"is_modified: {item.is_modified}")
+    logger.info(f"doc_id {item.doc_id} is_modified: {item.is_modified}")
     if item.is_modified:
+        del dataview.itemcache[item.doc_id]
         loop = get_event_loop()
         loop.call_later(0, item_changed, loop)
 
