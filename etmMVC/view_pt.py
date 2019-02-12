@@ -49,17 +49,17 @@ logger = logging.getLogger()
 from model import setup_logging
 
 
-from help import show_help
+from model import about
 
-# class ViewState(object):
 
-#     def __init__(self):
-#         self.edit_item = None
-#         self.is_showing_details = False
-#         self.is_showing_help = False
-#         self.is_editing = False
+import subprocess
+def check_output(cmd):
+    try:
+        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+    except subprocess.CalledProcessError as exc:
+        logger.error("command: {0}\n    output: {1}".format(cmd, exc.output))
 
-# dataview = ViewState()
+soundcmd = "/usr/bin/afplay -v 1 -q 1 /Users/dag/.etm/sounds/etm_ding.m4a"
 
 ampm = True
 showing_help = False
@@ -129,6 +129,8 @@ etmstyle = {
     'available':    'DodgerBlue',
     'waiting':      'RoyalBlue',
     'finished':     'DarkGrey',
+    'today':        f"{NAMED_COLORS['Ivory']} bg:{NAMED_COLORS['DimGrey']}",
+    # 'today':        f"{NAMED_COLORS['DodgerBlue']} bg:{NAMED_COLORS['DarkGrey']}",
 }
 
 type2style = {
@@ -163,7 +165,12 @@ class ETMLexer(Lexer):
         def get_line(lineno):
             tmp = document.lines[lineno]
             typ = first_char(tmp)
-            return [(etmstyle[type2style.get(typ, 'plain')], tmp)]
+            if typ in type2style:
+                return [(etmstyle[type2style[typ]], tmp)]
+            if tmp.rstrip().endswith("(Today)"):
+                return [(etmstyle['today'], f"{tmp} ")]
+            return [(etmstyle['plain'], tmp)]
+            # return [(etmstyle[type2style.get(typ, 'plain')], tmp)]
 
         return get_line
 
@@ -204,8 +211,9 @@ def data_changed(loop):
 
 def new_day(loop):
     dataview.set_active_view('a')
-    dataview.now = pendulum.now()
+    # dataview.now = pendulum.now()
     dataview.refreshRelevant()
+    dataview.activeYrWk = dataview.currentYrWk
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
     get_app().invalidate()
@@ -299,7 +307,7 @@ entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
 help_area = TextArea(
-    text=show_help(),
+    text=about(),
     style='class:details', 
     read_only=True,
     search_field=search_field,
@@ -386,6 +394,10 @@ def edit_copy(*event):
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
+@bindings.add('c-p')
+def play_sound(*event):
+    check_output(soundcmd)
+
 @bindings.add('c-q')
 def exit(*event):
     application.exit()
@@ -405,7 +417,7 @@ def toggle_help(*event):
     if showing_help:
         if not dataview.is_showing_details:
             dataview.show_details()
-        details_area.text = show_help()
+        details_area.text = about()
         application.layout.focus(details_area)
     else:
         application.layout.focus(text_area)

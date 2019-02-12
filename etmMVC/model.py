@@ -4,6 +4,7 @@ import pendulum
 from pendulum import parse as pendulum_parse
 # from pendulum import  DateTime, Duration
 from pendulum.datetime import Timezone
+from pendulum import __version__ as pendulum_version
 # from bisect import insort
 import base64
 
@@ -40,6 +41,9 @@ import textwrap
 import os
 import platform
 
+system_platform = platform.platform(terse=1)
+python_version = platform.python_version()
+developer = "dnlgrhm@gmail.com"
 import shutil
 
 import logging
@@ -51,7 +55,13 @@ from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.styles import Style
 from prompt_toolkit.output import ColorDepth
-# print = print_formatted_text
+from prompt_toolkit import __version__ as prompt_toolkit_version
+
+from v import version as etm_shortversion
+from version import version as etm_fullversion
+
+import pwd
+user_name = pwd.getpwuid(os.getuid()).pw_name
 
 # The style sheet.
 style = Style.from_dict({
@@ -1652,20 +1662,17 @@ class TimeIt(object):
 
 class DataView(object):
 
-    def __init__(self, loglevel=1, dtstr=None, weeks=1, plain=False):
-        self.active_view = 'agenda'  # (other views: history)
-        # self.activeYrWk = self.currentYrWk = None
+    # def __init__(self, loglevel=1, dtstr=None, weeks=1, plain=False):
+    def __init__(self):
+        self.active_view = 'agenda'  
         self.current = []
         self.num2id = []
         self.current_row = 0
-        self.plain = plain
-        self.weeks = weeks
         self.agenda_view = ""
         self.busy_view = ""
         self.history_view = ""
         self.cache = {}
         self.itemcache = {}
-        self.set_now(dtstr) 
         self.views = {
                 'a': 'agenda',
                 'b': 'busy',
@@ -1681,14 +1688,12 @@ class DataView(object):
         self.is_showing_help = False
         self.is_editing = False
         self.is_showing_items = True
-        self.set_now()
-        self.currentYrWk = self.activeYrWk = getWeekNum(self.now)
         self.refreshRelevant()
+        self.activeYrWk = self.currentYrWk
         self.refreshAgenda()
 
-    def set_now(self, dtstr=None):
-        # self.now = pendulum.now() if dtstr is None else pendulum.parse(dtstr)
-        self.now = pendulum.parse(dtstr, tz='local') if dtstr else pendulum.now('local')  
+    def set_now(self):
+        self.now = pendulum.now('local')  
 
     def set_active_view(self, c):
         self.active_view = self.views.get(c, 'agenda')
@@ -1727,9 +1732,8 @@ class DataView(object):
         """
         Called to set the relevant items for the current date and to change the currentYrWk and activeYrWk to that containing the current date.
         """
-        # self.now = pendulum.now()
         self.set_now()
-        # self.currentYrWk = self.activeYrWk = self.now.isocalendar()[:2]
+        self.currentYrWk = getWeekNum(self.now)
         self.current, self.alerts = relevant(self.now)
         self.refreshCache()
 
@@ -2120,17 +2124,13 @@ entry_tmpl = """\
 display_tmpl = entry_tmpl + """\
 
 {% if h.doc_id %}\
-id: {{ h.doc_id }}, \
-{% else %}\
-id: ~, \
-{%- endif %}\
+{{ h.doc_id }} \
+{% endif %}\
 {% if 'modified' in h %}\
-modified: {{ dt2str(h.modified)[1] }}\
+modified {{ dt2str(h.modified)[1] }}\
 {%- else %}\
 {% if 'created' in h %}\
-created: {{ dt2str(h.created)[1] }}\
-{% else %}\
-c: ~;  
+created {{ dt2str(h.created)[1] }}\
 {%- endif %}\
 {%- endif %}\
 """
@@ -3722,10 +3722,45 @@ serialization.register_serializer(MaskSerializer(), 'M')             # Mask
 DBNAME = 'db.json'
 ETMDB = TinyDB(DBNAME, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
 ETMDB_QUERY = ETMDB.table('items', cache_size=None)
+DB_ARCH = ETMDB.table('archive', cache_size=None)
+DB_OPTS = ETMDB.table('options', cache_size=None)
+
 
 ########################
 ### end TinyDB setup ###
 ########################
+
+###########################
+### start options setup ###
+###########################
+
+# options format: option name -> [description, starting/default value]
+default_options = {
+    "ampm": [
+        "True or False. Use AM/PM format for datetimes if True else use 24 hour format.",
+        True
+        ],
+    "calendars": [
+        "A list of (calendar name, display boolian) tuples. The default for items without @c entries is first calendar name in the list. Items are displayed in standard views if the display boolian for @c entry (or the default) is True.",
+        [
+            ('dag', True),
+        ],
+        ],
+    "alerts": [
+        "A dictionary with 'alert name' keys and corresponding 'system command' values. If 'wakeup' is among the keys, the corresponding system command will be run before any other alerts are triggered. The 'system command' string should be a comand with any applicable arguments that could be run in a terminal. Properties of the item triggering the alert can be included in the command arguments using the syntax '{property}', e.g., {summary} in the command string would be replaced byt the summary of the item. Similarly {start} by the starting time, {when} by the time remaining until the the starting time and {location} by the @l entry. E.g., If the event '* sales meeting @s 2019-02-12 3p' triggered an alert 30 minutes before the starting time the string '{summary} {when}' would expand to 'sales meeting in 30 minutes'.",
+        {
+            }
+        ],
+    "locale": [
+        "Locale abbreviation or ''. Use the locale, e.g., 'fr', else use system default.",
+        ''
+        ],
+
+}
+
+#########################
+### end options setup ###
+#########################
 
 
 ########################
@@ -4681,6 +4716,52 @@ def import_json(etmdir=None):
     ETMDB.insert_multiple(docs)
 
 
+def about():
+    logo_lines = [
+        "                          ",
+        " █████╗██████╗███╗   ███╗ ",
+        " ██╔══╝╚═██╔═╝████╗ ████║ ",
+        " ███╗    ██║  ██╔████╔██║ ",
+        " ██╔╝    ██║  ██║╚██╔╝██║ ",
+        " █████╗  ██║  ██║ ╚═╝ ██║ ",
+        " ╚════╝  ╚═╝  ╚═╝     ╚═╝ ",
+    ]
+    output = []
+    width = shutil.get_terminal_size()[0] - 2 
+    for line in logo_lines:
+        output.append(line.center(width, ' ') + "\n")
+    logo = "".join(output)
+
+    copyright = wrap(f"Copyright 2009-{pendulum.today().format('YYYY')}, Daniel A Graham. All rights reserved. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.", 0)
+
+    ret = f"""\
+{logo}
+Event and Task Manager
+etm-mvc {etm_fullversion}
+
+{wrap("This application provides a format for using plain text files to store events, tasks and other items and a prompt_toolkit based interface for creating and modifying items as well as viewing them.", 0)}
+
+System Information:
+  platform:         {system_platform}
+  python:           {python_version}
+  dateutil:         {dateutil_version}
+  pendulum:         {pendulum_version}
+  prompt_toolkit:   {prompt_toolkit_version}
+  current user:     {user_name}
+
+ETM Information:
+  Developer:
+    dnlgrhm@gmail.com
+  Discussion:
+    http://groups.google.com/group/eventandtaskmanager
+  GitHub:
+    https://github.com/dagraham/etm-mvc
+  GPL License:
+    http://www.gnu.org/licenses/gpl.html 
+
+{copyright}"""
+    return ret
+
 def main():
     pass
 
@@ -4745,6 +4826,5 @@ if __name__ == '__main__':
             history_view, num2id = show_history()
             print(history_view)
 
-
-
+    print(about())
     doctest.testmod()
