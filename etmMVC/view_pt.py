@@ -9,6 +9,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
+from prompt_toolkit.layout.dimension import D
 # from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import TextArea, SearchToolbar, MenuContainer, MenuItem
@@ -16,6 +17,8 @@ from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from asyncio import get_event_loop
 from prompt_toolkit.eventloop import use_asyncio_event_loop
+from prompt_toolkit.eventloop import Future, ensure_future, Return, From
+
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.completion import WordCompleter
@@ -42,7 +45,7 @@ from prompt_toolkit.widgets import Dialog, Label, Button
 
 import pendulum
 import re
-from model import DataView, Item, wrap #, at_keys, amp_keys 
+from model import DataView, Item, wrap, getWeekNum, parse_datetime #, at_keys, amp_keys 
 import logging
 import logging.config
 logger = logging.getLogger()
@@ -52,7 +55,140 @@ from model import setup_logging
 from model import about
 
 
-import subprocess
+import subprocess # for check_output
+
+dialog_style = Style.from_dict({
+    'dialog':             'bg:#88ff88',
+    'dialog frame-label': 'bg:#ffffff #000000',
+    'dialog.body':        'bg:#000000 #00ff00',
+    'dialog shadow':      'bg:#00aa00',
+})
+
+class TextInputDialog(object):
+    def __init__(self, title='', label_text='', completer=None):
+        self.future = Future()
+
+        def accept_text(buf):
+            get_app().layout.focus(ok_button)
+            buf.complete_state = None
+            return True
+
+        def accept():
+            self.future.set_result(self.text_area.text)
+
+        def cancel():
+            self.future.set_result(None)
+
+        self.text_area = TextArea(
+            completer=completer,
+            multiline=False,
+            width=D(preferred=shutil.get_terminal_size()[0]-10),
+            accept_handler=accept_text)
+
+        ok_button = Button(text='OK', handler=accept)
+        cancel_button = Button(text='Cancel', handler=cancel)
+
+        self.dialog = Dialog(
+            title=title,
+            body=HSplit([
+                Label(text=label_text),
+                self.text_area
+            ]),
+            buttons=[ok_button, cancel_button],
+            width=D(preferred=shutil.get_terminal_size()[0]-10),
+            modal=True)
+
+    def __pt_container__(self):
+        return self.dialog
+
+
+class MessageDialog(object):
+    def __init__(self, title, text):
+        self.future = Future()
+
+        def set_done():
+            self.future.set_result(None)
+
+        ok_button = Button(text='OK', handler=(lambda: set_done()))
+
+        self.dialog = Dialog(
+            title=title,
+            body=HSplit([
+                Label(text=text),
+            ]),
+            buttons=[ok_button],
+            width=D(preferred=shutil.get_terminal_size()[0]-10),
+            modal=True)
+
+    def __pt_container__(self):
+        return self.dialog
+
+def show_message(title, text):
+    def coroutine():
+        dialog = MessageDialog(title, text)
+        yield From(show_dialog_as_float(dialog))
+
+    ensure_future(coroutine())
+
+
+def show_dialog_as_float(dialog):
+    " Coroutine. "
+    float_ = Float(content=dialog)
+    root_container.floats.insert(0, float_)
+
+    app = get_app()
+
+    focused_before = app.layout.current_window
+    app.layout.focus(dialog)
+    result = yield dialog.future
+    app.layout.focus(focused_before)
+
+    if float_ in root_container.floats:
+        root_container.floats.remove(float_)
+
+    raise Return(result)
+
+def do_about():
+    show_message('About', 'Text editor demo.\nCreated by Jonathan Slenders.')
+
+
+def do_go_to():
+    def coroutine():
+        dialog = TextInputDialog(
+            title='Go to line',
+            label_text='Line number:')
+
+        line_number = yield From(show_dialog_as_float(dialog))
+
+        try:
+            line_number = int(line_number)
+        except ValueError:
+            show_message('go to line', 'Invalid line number')
+        else:
+            text_area.buffer.cursor_position = \
+                text_area.buffer.document.translate_row_col_to_index(line_number - 1, 0)
+
+    ensure_future(coroutine())
+
+def do_go_to_date():
+    def coroutine():
+        dialog = TextInputDialog(
+            title='Go to date',
+            label_text='date:')
+
+        target_date = yield From(show_dialog_as_float(dialog))
+
+        try:
+            dataview.dtYrWk(target_date)
+        except ValueError:
+            show_message('go to date', 'Invalid date')
+        else:
+            set_text(dataview.show_active_view())
+
+
+    ensure_future(coroutine())
+
+
 def check_output(cmd):
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
@@ -70,6 +206,14 @@ item = Item()
 bindings = KeyBindings()
 bindings.add('tab')(focus_next)
 bindings.add('s-tab')(focus_previous)
+
+@bindings.add('f7')
+def _(*event):
+    do_about()
+
+@bindings.add('f6')
+def _(*event):
+    do_go_to()
 
 @bindings.add('f1')
 def menu(event):
@@ -434,6 +578,10 @@ def busy_view(*event):
     dataview.set_active_view('b')
     set_text(dataview.show_active_view())
 
+@bindings.add('g', filter=is_agenda_view)
+def _(*event):
+    do_go_to_date()
+
 @bindings.add('h', filter=is_not_searching & not_showing_details & is_not_editing)
 def history_view(*event):
     dataview.set_active_view('h')
@@ -478,7 +626,7 @@ root_container = MenuContainer(body=body, menu_items=[
                 MenuItem('left or j) previous week'),
                 MenuItem('space or k) current week'),
                 MenuItem('right or l) next week'),
-                MenuItem('g) go to date'),
+                MenuItem('g) go to date', handler=do_go_to_date),
             ]),
         ]),
         MenuItem('h) history', handler=history_view),
@@ -581,6 +729,11 @@ set_askreply('_')
 
 
 style = Style.from_dict({
+    'dialog':             f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'dialog frame-label': 'bg:#ffffff #000000',
+    'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'dialog shadow':      'bg:#444444',
+
     'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'details': '{}'.format(NAMED_COLORS['Ivory']),
     'status.position': '#aaaa00',

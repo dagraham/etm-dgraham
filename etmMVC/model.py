@@ -1479,8 +1479,9 @@ class DataView(object):
         self.refreshAgenda()
 
     def dtYrWk(self, dtstr):
-        dt = pendulum.parse(dtstr)
+        dt = pendulum.parse(dtstr, strict=False)
         self.activeYrWk = getWeekNum(dt)
+        logger.info(f"activeYrWk: {self.activeYrWk}")
         self.refreshAgenda()
 
     def refreshRelevant(self):
