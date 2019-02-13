@@ -65,7 +65,7 @@ dialog_style = Style.from_dict({
 })
 
 class TextInputDialog(object):
-    def __init__(self, title='', label_text='', completer=None):
+    def __init__(self, title='', label_text='', padding=10, completer=None):
         self.future = Future()
 
         def accept_text(buf):
@@ -82,7 +82,7 @@ class TextInputDialog(object):
         self.text_area = TextArea(
             completer=completer,
             multiline=False,
-            width=D(preferred=shutil.get_terminal_size()[0]-10),
+            width=D(preferred=shutil.get_terminal_size()[0]-padding),
             accept_handler=accept_text)
 
         ok_button = Button(text='OK', handler=accept)
@@ -103,7 +103,7 @@ class TextInputDialog(object):
 
 
 class MessageDialog(object):
-    def __init__(self, title, text):
+    def __init__(self, title="", text="", padding=10):
         self.future = Future()
 
         def set_done():
@@ -117,15 +117,15 @@ class MessageDialog(object):
                 Label(text=text),
             ]),
             buttons=[ok_button],
-            width=D(preferred=shutil.get_terminal_size()[0]-10),
+            width=D(preferred=shutil.get_terminal_size()[0]-padding),
             modal=True)
 
     def __pt_container__(self):
         return self.dialog
 
-def show_message(title, text):
+def show_message(title, text, padding):
     def coroutine():
-        dialog = MessageDialog(title, text)
+        dialog = MessageDialog(title, text, padding)
         yield From(show_dialog_as_float(dialog))
 
     ensure_future(coroutine())
@@ -149,7 +149,11 @@ def show_dialog_as_float(dialog):
     raise Return(result)
 
 def do_about():
-    show_message('About', 'Text editor demo.\nCreated by Jonathan Slenders.')
+    show_message('ETM Information', about(2)[0], 0)
+
+
+def do_system():
+    show_message('System Information', about(22)[1], 20)
 
 
 def do_go_to():
@@ -198,7 +202,6 @@ def check_output(cmd):
 soundcmd = "/usr/bin/afplay -v 1 -q 1 /Users/dag/.etm/sounds/etm_ding.m4a"
 
 ampm = True
-showing_help = False
 editing = False
 item = Item()
 
@@ -207,9 +210,13 @@ bindings = KeyBindings()
 bindings.add('tab')(focus_next)
 bindings.add('s-tab')(focus_previous)
 
-@bindings.add('f7')
+@bindings.add('f2')
 def _(*event):
     do_about()
+
+@bindings.add('f3')
+def _(*event):
+    do_system()
 
 @bindings.add('f6')
 def _(*event):
@@ -247,14 +254,6 @@ def not_showing_details():
 @Condition
 def is_showing_details():
     return dataview.is_showing_details
-
-@Condition
-def is_showing_help():
-    return dataview.is_showing_help
-
-@Condition
-def not_showing_help():
-    return not dataview.is_showing_help
 
 # at_completions = [f"@{k}" for k in at_keys]
 # r_completions = [f"&{k}" for k in amp_keys['r']] 
@@ -451,12 +450,12 @@ def default_cursor_position_changed(_):
 entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
-help_area = TextArea(
-    text=about(),
-    style='class:details', 
-    read_only=True,
-    search_field=search_field,
-    )
+# help_area = TextArea(
+#     text=about()[1],
+#     style='class:details', 
+#     read_only=True,
+#     search_field=search_field,
+#     )
 
 status_area = Window(content=FormattedTextControl(
         get_statusbar_text),
@@ -469,9 +468,9 @@ body = HSplit([
     ConditionalContainer(
         content=details_area,
         filter=is_showing_details & is_not_busy_view),
-    ConditionalContainer(
-        content=help_area,
-        filter=not_showing_details & is_showing_help),
+    # ConditionalContainer(
+    #     content=help_area,
+    #     filter=not_showing_details),
     ConditionalContainer(
         content=edit_container,
         filter=is_editing),
@@ -555,18 +554,18 @@ def _(event):
 def set_text(txt, row=0):
     text_area.text = txt
 
-@bindings.add('f2')
-def toggle_help(*event):
-    global showing_help
-    showing_help = not showing_help
-    if showing_help:
-        if not dataview.is_showing_details:
-            dataview.show_details()
-        details_area.text = about()
-        application.layout.focus(details_area)
-    else:
-        application.layout.focus(text_area)
-        dataview.hide_details()
+# @bindings.add('f2')
+# def toggle_help(*event):
+#     global showing_help
+#     showing_help = not showing_help
+#     if showing_help:
+#         if not dataview.is_showing_details:
+#             dataview.show_details()
+#         details_area.text = about()
+#         application.layout.focus(details_area)
+#     else:
+#         application.layout.focus(text_area)
+#         dataview.hide_details()
 
 @bindings.add('a', filter=is_not_searching & not_showing_details & is_not_editing)
 def agenda_view(*event):
@@ -590,8 +589,8 @@ def history_view(*event):
 
 root_container = MenuContainer(body=body, menu_items=[
     MenuItem('etm', children=[
-        MenuItem('F2) about', handler=toggle_help),
-        MenuItem('F3) help', disabled=True),
+        MenuItem('F2) about', handler=do_about),
+        MenuItem('F3) system', handler=do_system),
         MenuItem('F4) preferences', disabled=True),
         MenuItem('F5) check for new version', disabled=True),
 
@@ -678,7 +677,7 @@ def currweek(event):
     dataview.currYrWk()
     set_text(dataview.show_active_view())
 
-@bindings.add('enter', filter=is_not_searching & is_not_busy_view & not_showing_help & is_not_editing)
+@bindings.add('enter', filter=is_not_searching & is_not_busy_view & is_not_editing)
 def show_details(event):
     if dataview.is_showing_details:
         application.layout.focus(text_area)

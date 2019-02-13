@@ -1535,7 +1535,7 @@ class DataView(object):
         self.cache = schedule(self.currentYrWk, self.current, self.now, 5, 20)
 
 
-def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
+def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-2):
     """
     Wrap text to terminal width using indent spaces before each line.
     >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
@@ -1549,7 +1549,6 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]):
         to the aid of their country. Now is the time for
         all good men to come to the aid of their country.
     """
-    # width, rows = shutil.get_terminal_size()
     para = [textwrap.dedent(x).strip() for x in txt.split('\n') if x.strip()]
     tmp = []
     first = True
@@ -4461,7 +4460,7 @@ def import_json(etmdir=None):
     ETMDB.insert_multiple(docs)
 
 
-def about():
+def about(padding=0):
     logo_lines = [
         "                          ",
         " █████╗██████╗███╗   ███╗ ",
@@ -4472,42 +4471,39 @@ def about():
         " ╚════╝  ╚═╝  ╚═╝     ╚═╝ ",
         "  Event and Task Manager  ",
     ]
+    width=shutil.get_terminal_size()[0]-2-padding
     output = []
-    width = shutil.get_terminal_size()[0] - 2 
     for line in logo_lines:
         output.append(line.center(width, ' ') + "\n")
     logo = "".join(output)
 
-    copyright = wrap(f"Copyright 2009-{pendulum.today().format('YYYY')}, Daniel A Graham. All rights reserved. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.", 0)
+    copyright = wrap(f"Copyright 2009-{pendulum.today().format('YYYY')}, Daniel A Graham. All rights reserved. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version. See www.gnu.org/licenses/gpl.html for details.", 0, width)
 
-    ret = f"""\
+    summary = wrap(f"This application provides a format for using plain text entries to create events, tasks and other items and a prompt_toolkit based interface for creating and modifying items as well as viewing them.", 0, width)
+
+    ret1 = f"""\
 {logo}
-{wrap("This application provides a format for using plain text entries to create events, tasks and other items and a prompt_toolkit based interface for creating and modifying items as well as viewing them.", 0)}
+{summary}
 
-ETM Information:
-  etm-mvc:
-    {etm_fullversion}
-  Developer:
-    dnlgrhm@gmail.com
-  Discussion:
-    http://groups.google.com/group/eventandtaskmanager
-  GitHub:
-    https://github.com/dagraham/etm-mvc
-  GPL License:
-    http://www.gnu.org/licenses/gpl.html 
+etm-mvc: {etm_fullversion}
+Developer: dnlgrhm@gmail.com
+GitHub: github.com/dagraham/etm-mvc
+Discussion: groups.google.com/group/eventandtaskmanager
 
-System Information:
-  platform:         {system_platform}
-  python:           {python_version}
-  dateutil:         {dateutil_version}
-  pendulum:         {pendulum_version}
-  prompt_toolkit:   {prompt_toolkit_version}
-  tinydb:           {tinydb_version}
-  jinja2:           {jinja2_version}
-  current user:     {user_name}
+{copyright}\
+"""
 
-{copyright}"""
-    return ret
+    ret2 = f"""\
+platform:         {system_platform}
+python:           {python_version}
+dateutil:         {dateutil_version}
+pendulum:         {pendulum_version}
+prompt_toolkit:   {prompt_toolkit_version}
+tinydb:           {tinydb_version}
+jinja2:           {jinja2_version}
+current user:     {user_name}
+"""
+    return ret1, ret2
 
 def main():
     pass
