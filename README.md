@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Fri Jan 25, 2019 11:16AM EST*
+*Last modified: Tue Feb 12, 2019 04:28PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -295,19 +295,18 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 ## [`@a` and `@b` notices](#toc) 
 
 * Alerts
-    - positive: triggered before dtstart, relevant for dtstart on or after today
-    - negative: triggered after dtstart, relevant for dtstart on or before today
-    - each command is a key from options[commands]
+    - a: alert: (list of + (before) or - (after) periods relative to @s: cmd)
+    - positive: triggered before dtstart, relevant for dtstart on or after the current time
+    - negative: triggered after dtstart, relevant for dtstart on or before the current time
+    - each command is a key from options['alerts']
 
 * Beginbys: relevant for dtstart after today
 
 For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance. 
 
-When an item with entries for both `@s` and `@r` is created or modified, the entry for `@s` is automatically changed to match the first instance from the recurrence rule. This has no effect on the instances generated but removes a possible source of confusion. 
-
 An entry without `@r` but with `@s` and `@+` entries will generate instances corresponding to the entered `@s` and to each of the entries in `@+`. 
 
-With an email alert, the item summary is used as the subject and the description as the body of the email. Memo is not included.
+With an email alert, the item summary is used as the subject and the description as the body of the email. 
 
 ## [`@+` repetition](#toc)
 
@@ -356,7 +355,7 @@ Note that changing the entry for `expansions` in your configuration settings wil
 These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
 ## [for use with @ j](#toc)
-      a: alert: (list of + (before) or - (after) periods relative to &s: cmd[, list of cmd args])
+      a: alert: (list of + (before) or - (after) periods relative to &s: cmd [args])
       b: beginby: integer number of days before &s
       d: description: string
       e: extent: period

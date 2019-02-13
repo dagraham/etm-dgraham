@@ -4006,7 +4006,6 @@ def relevant(now=pendulum.now('local')):
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
     """
     # These need to be local times since all times from the datastore and rrule will be local times
-    # now = pendulum.now('local')
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     tomorrow = today + DAY
     today_fmt = today.format("YYYYMMDD")
@@ -4725,6 +4724,7 @@ def about():
         " ██╔╝    ██║  ██║╚██╔╝██║ ",
         " █████╗  ██║  ██║ ╚═╝ ██║ ",
         " ╚════╝  ╚═╝  ╚═╝     ╚═╝ ",
+        "  Event and Task Manager  ",
     ]
     output = []
     width = shutil.get_terminal_size()[0] - 2 
@@ -4736,20 +4736,11 @@ def about():
 
     ret = f"""\
 {logo}
-Event and Task Manager
-etm-mvc {etm_fullversion}
-
-{wrap("This application provides a format for using plain text files to store events, tasks and other items and a prompt_toolkit based interface for creating and modifying items as well as viewing them.", 0)}
-
-System Information:
-  platform:         {system_platform}
-  python:           {python_version}
-  dateutil:         {dateutil_version}
-  pendulum:         {pendulum_version}
-  prompt_toolkit:   {prompt_toolkit_version}
-  current user:     {user_name}
+{wrap("This application provides a format for using plain text entries to create events, tasks and other items and a prompt_toolkit based interface for creating and modifying items as well as viewing them.", 0)}
 
 ETM Information:
+  etm-mvc:
+    {etm_fullversion}
   Developer:
     dnlgrhm@gmail.com
   Discussion:
@@ -4758,6 +4749,14 @@ ETM Information:
     https://github.com/dagraham/etm-mvc
   GPL License:
     http://www.gnu.org/licenses/gpl.html 
+
+System Information:
+  platform:         {system_platform}
+  python:           {python_version}
+  dateutil:         {dateutil_version}
+  pendulum:         {pendulum_version}
+  prompt_toolkit:   {prompt_toolkit_version}
+  current user:     {user_name}
 
 {copyright}"""
     return ret
@@ -4774,6 +4773,8 @@ if __name__ == '__main__':
     setup_logging(2, etmdir, 'main.py')
 
     if len(sys.argv) > 1:
+        if 'a' in sys.argv[1]:
+            print(about())
         if 'i' in sys.argv[1]:
             import_json(etmdir)
         if 'j' in sys.argv[1]:
@@ -4810,21 +4811,8 @@ if __name__ == '__main__':
             current, alerts = relevant()
             pprint(current)
             pprint(alerts)
-        if 'V' in sys.argv[1]:
-            dataview = DataView(dtstr="2018/12/18", weeks=2)
-            # dataview.prevYrWk()
-            # print_formatted_text(dataview.agenda_select, style=style)
-            print(dataview.num2id)
-            num = 9
-            print(f"details for {num}:", dataview.num2id[num])
-            print(dataview.get_details(num))
-        if 'v' in sys.argv[1]:
-            dataview = DataView(dtstr="2018/12/18", weeks=2)
-            print_formatted_text(dataview.agenda_view, style=style)
-            print()
         if 'h' in sys.argv[1]:
             history_view, num2id = show_history()
             print(history_view)
 
-    print(about())
     doctest.testmod()

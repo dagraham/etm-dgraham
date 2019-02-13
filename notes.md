@@ -1,5 +1,5 @@
 # Notes for etm
-**Last modified: Sun Feb 10, 2019 08:39AM EST**
+**Last modified: Tue Feb 12, 2019 08:32PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -25,14 +25,14 @@
 
 ## Coding
 
+* Handle DST in @- and @+ entries
+
 * Foundation
-    * Incorporate RDict and use for index view
-    * View class for view_pt
-    * Logging
+    x Logging
     * Timing
 * To use
-    * Create new item
-    * Edit exiting item
+    x Create new item
+    x Edit exiting item
         * Which instance dialog
     * Finish
     * Alarms

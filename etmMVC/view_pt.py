@@ -129,7 +129,8 @@ etmstyle = {
     'available':    'DodgerBlue',
     'waiting':      'RoyalBlue',
     'finished':     'DarkGrey',
-    'today':        f"{NAMED_COLORS['Ivory']} bg:{NAMED_COLORS['DimGrey']}",
+    'today':        f"{NAMED_COLORS['Yellow']} bold",
+    # 'today':        f"{NAMED_COLORS['Ivory']} bg:{NAMED_COLORS['DimGrey']}",
     # 'today':        f"{NAMED_COLORS['DodgerBlue']} bg:{NAMED_COLORS['DarkGrey']}",
 }
 
@@ -555,7 +556,8 @@ def save_changes(_):
     # TODO: refresh views
     logger.info(f"doc_id {item.doc_id} is_modified: {item.is_modified}")
     if item.is_modified:
-        del dataview.itemcache[item.doc_id]
+        if item.doc_id is not None:
+            del dataview.itemcache[item.doc_id]
         loop = get_event_loop()
         loop.call_later(0, item_changed, loop)
 
