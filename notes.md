@@ -1,5 +1,5 @@
 # Notes for etm
-**Last modified: Tue Feb 12, 2019 08:32PM EST**
+**Last modified: Tue Feb 12, 2019 08:54PM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
@@ -22,6 +22,13 @@
 <!-- vim-markdown-toc -->
 
 # ToDo
+
+Churchill:
+1) words
+2) sounds
+3) steady accumulation of argument
+4) analogy
+5) exaggerated, extreme, hyperbole expression
 
 ## Coding
 

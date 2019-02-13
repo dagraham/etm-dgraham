@@ -42,7 +42,7 @@ from prompt_toolkit.widgets import Dialog, Label, Button
 
 import pendulum
 import re
-from model import DataView, Item, at_keys, amp_keys, wrap
+from model import DataView, Item, wrap #, at_keys, amp_keys 
 import logging
 import logging.config
 logger = logging.getLogger()
@@ -112,12 +112,12 @@ def is_showing_help():
 def not_showing_help():
     return not dataview.is_showing_help
 
-at_completions = [f"@{k}" for k in at_keys]
-r_completions = [f"&{k}" for k in amp_keys['r']] 
-j_completions = [f"&{k}" for k in amp_keys['j']] 
+# at_completions = [f"@{k}" for k in at_keys]
+# r_completions = [f"&{k}" for k in amp_keys['r']] 
+# j_completions = [f"&{k}" for k in amp_keys['j']] 
 
 
-item_completer = WordCompleter(at_completions + r_completions + j_completions, ignore_case=False)
+# item_completer = WordCompleter(at_completions + r_completions + j_completions, ignore_case=False)
 
 etmstyle = {
     'plain':        'Ivory',
@@ -129,7 +129,7 @@ etmstyle = {
     'available':    'DodgerBlue',
     'waiting':      'RoyalBlue',
     'finished':     'DarkGrey',
-    'today':        f"{NAMED_COLORS['Yellow']} bold",
+    'today':        f"{NAMED_COLORS['Ivory']} bold",
     # 'today':        f"{NAMED_COLORS['Ivory']} bg:{NAMED_COLORS['DimGrey']}",
     # 'today':        f"{NAMED_COLORS['DodgerBlue']} bg:{NAMED_COLORS['DarkGrey']}",
 }

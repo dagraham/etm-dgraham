@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Tue Feb 12, 2019 04:28PM EST*
+*Last modified: Wed Feb 13, 2019 12:44PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -7,6 +7,7 @@
 * [Getting started](#getting-started)
     * [Simple reminders](#simple-reminders)
     * [Reminders that repeat](#reminders-that-repeat)
+    * [Editing](#editing)
     * [Installation](#installation)
 * [Item Types](#item-types)
     * [event](#event)
@@ -111,6 +112,20 @@ Here are some examples:
           @r y &i 4 &M 11 &m 2, 3, 4, 5, 6, 7, 8 &w TU
 
 See [item Types](#item-types) for details about the four item types and [`@`keys](#keys) for details about possible attributes.
+
+## [Editing](#toc) ##
+
+Etm offers several conveniences when creating or modifying an item.
+
+* Fuzzy parsing of dates and date times. Supposing it is currently Wed, Feb 13 2019:
+    * `@s 2` would be interpreted as the date Feb 2, 2019.
+    * `@s 2p` would be interpreted as the datetime 2pm on Feb 13, 2019 in the local timezone.
+    * `@s 2p fri` would be interpreted as the datetime 2pm Fri, Feb 15 2019 in the local timezone.
+    * `@s 2p fri @z US/Pacific` would be interpreted as the datetime 2pm Fri, Feb 15 2019 in the Pacific timezone.
+* Automatic completion for elements you have used before including @z (timezone), @c (calendar), @t (tags), @i (index), @l (location), @n (attendees) and @x (expansion). E.g. when entering `@z `, you can choose from any timezone you have previously used. 
+
+
+
 
 
 ## [Installation](#toc) ##
@@ -280,8 +295,8 @@ would specify the the starting datetime for the item is 9am on the Monday follow
     i: index: colon delimited string,
     j: job summary: string, optionally followed by job &key entries
     l: location/context: string,
-    m: memo: string,
-    n: attendees: list of keys from options[email_addresses]
+    m: mask: string stored in obfuscated form,
+    n: attendees: list of 'name <emailaddress>' strings 
     o: overdue: character from (r)estart, (s)kip or (k)eep),
     p: priority: integer,
     r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
@@ -361,7 +376,7 @@ These keys are only used with `@j` (job) and `@r` (repetition) entries.
       e: extent: period
       f: finish: datetime
       l: location/context: string
-      m: memo: string
+      m: mask: string
       i: job unique id (string)
       p: prerequisites (comma separated list of ids of immediate
          prereqs)
