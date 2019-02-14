@@ -15,7 +15,7 @@ import sys
 import re
 from re import finditer
 
-from tinydb import TinyDB
+from tinydb import TinyDB, Query
 from tinydb import __version__ as tinydb_version
 from tinydb_serialization import Serializer
 from tinydb_serialization import SerializationMiddleware
@@ -54,6 +54,8 @@ from prompt_toolkit import __version__ as prompt_toolkit_version
 
 from v import version as etm_version
 from version import version as etm_fullversion
+from options import Settings
+SETTINGS = Settings()
 
 import pwd
 user_name = pwd.getpwuid(os.getuid()).pw_name
@@ -85,7 +87,7 @@ type2style = {
 
 etmdir = None
 
-ampm = True
+ampm = SETTINGS.ampm
 
 # testing = True
 # testing = False
@@ -1175,6 +1177,14 @@ def timestamp_list(arg, typ=None):
 def plain_datetime(obj):
     return format_datetime(obj, short=True)
 
+def format_time(obj):
+    time_fmt = "h:mmA" if ampm else "H:mm"
+    res = obj.format(time_fmt)
+    if ampm:
+        res = res.replace('AM', 'am')
+        res = res.replace('PM', 'pm')
+    return res
+
 def format_datetime(obj, short=False):
     """
     >>> format_datetime(parse_datetime("20160710T1730")[1])
@@ -1421,6 +1431,7 @@ class DataView(object):
     def __init__(self):
         self.active_view = 'agenda'  
         self.current = []
+        self.alerts = []
         self.num2id = []
         self.current_row = 0
         self.agenda_view = ""
@@ -1965,7 +1976,7 @@ def do_usedtime(arg):
 
 def do_alert(arg):
     """
-    p1, p2, ...: cmd[, arg1, arg2, ...]
+    p1, p2, ...: cmd
     >>> do_alert('')
     (None, '')
     >>> print(do_alert('90m, 45m')[1])
@@ -1983,7 +1994,6 @@ def do_alert(arg):
     periods = parts.pop(0)
     command = parts[0].strip() if parts else None
     if periods:
-        all_ok = True
         periods = [x.strip() for x in periods.split(',')]
         obj_periods = []
         good_periods = []
@@ -1994,7 +2004,6 @@ def do_alert(arg):
                 obj_periods.append(res)
                 good_periods.append(format_duration(res))
             else:
-                all_ok = False
                 bad_periods.append(period)
         rep = f"alert: {', '.join(good_periods)} -> {command}"
         if bad_periods:
@@ -2004,7 +2013,11 @@ def do_alert(arg):
             obj = None
             rep += f"\ncommmand is required but missing"
         else:
-            obj = [obj_periods, command]
+            if command in SETTINGS.alerts:
+                obj = [obj_periods, command]
+            else:
+                obj = None
+                rep += f"\n{command} is not in {[x for x in SETTINGS.alerts]}"
 
     return obj, rep
 
@@ -3414,8 +3427,8 @@ def decode(key, enc):
         dec.append(dec_c)
     return "".join(dec)
 
-# get this from options
-secret = "shakespeare"
+# CHANGING THIS WILL MAKE ALL PREVIOUSLY MASKED ENTRIES UNREADABLE
+secret = "etm is great!"
 
 class Mask():
     """
@@ -3461,51 +3474,11 @@ DBNAME = 'db.json'
 ETMDB = TinyDB(DBNAME, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
 ETMDB_QUERY = ETMDB.table('items', cache_size=None)
 DB_ARCH = ETMDB.table('archive', cache_size=None)
-DB_OPTS = ETMDB.table('options', cache_size=None)
 
 
 ########################
 ### end TinyDB setup ###
 ########################
-
-###########################
-### start options setup ###
-###########################
-
-# options format: option name -> [description, starting/default value]
-default_options = {
-    "ampm": [
-        "True or False. Use AM/PM format for datetimes if True else use 24 hour format.",
-        True
-        ],
-    "locale": [
-        "Locale abbreviation or ''. Use the locale, e.g., 'fr', else use system default.",
-        ''
-        ],
-    "calendars": [ # FIXME
-        "A list of (calendar name, display boolian) tuples. The default for items without @c entries is first calendar name in the list. Items are displayed in standard views if the display boolian for @c entry (or the default) is True.",
-        [
-            ('dag', True),
-        ],
-        ],
-    "alerts": [
-        "A dictionary with 'alert name' keys and corresponding 'system command' values. If 'wakeup' is among the keys, the corresponding system command will be run before any other alerts are triggered. The 'system command' string should be a comand with any applicable arguments that could be run in a terminal. Properties of the item triggering the alert can be included in the command arguments using the syntax '{property}', e.g., {summary} in the command string would be replaced byt the summary of the item. Similarly {start} by the starting time, {when} by the time remaining until the the starting time and {location} by the @l entry. E.g., If the event '* sales meeting @s 2019-02-12 3p' triggered an alert 30 minutes before the starting time the string '{summary} {when}' would expand to 'sales meeting in 30 minutes'.",
-        {
-            }
-        ],
-    "expansions": [
-        "A dictionary with 'expansion name' keys and corresponding 'replacement string' values. E.g. with 'tennis' -> '@e 1h30m @a 30m @l Fitness Center @i personal:tennis', then when an item containing '@x tennis' is saved the '@x tennis' would be replaced by the corresponding value.",
-        {
-            }
-
-        ]
-
-
-}
-
-#########################
-### end options setup ###
-#########################
 
 
 ########################
@@ -3805,12 +3778,11 @@ def relevant(now=pendulum.now('local')):
                 for alert in  item['a']:
                     tds = alert[0]
                     cmd = alert[1]
-                    args = alert[2:]
                     all_tds.extend(tds)
 
                     for td in tds:
                         # td > 0m => earlier than startdt; dt < 0m => later than startdt
-                        possible_alerts.append([td, cmd, args])
+                        possible_alerts.append([td, cmd])
 
 
             # this catches all alerts and beginbys for the item
@@ -3910,7 +3882,7 @@ def relevant(now=pendulum.now('local')):
                 if possible_alerts:
                     for possible_alert in possible_alerts:
                         if today <= dtstart - possible_alert[0] <= tomorrow:
-                            alerts.append([dtstart - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2], item['summary'], item.doc_id])
+                            alerts.append([dtstart - possible_alert[0], possible_alert[0], possible_alert[1], item['summary'], item.doc_id])
         else:
             # no 's'
             relevant = None
@@ -4509,8 +4481,9 @@ def main():
     pass
 
 if __name__ == '__main__':
-    import sys
     import doctest
+    import sys
+
     etmdir = ''
     if len(sys.argv) > 1:
         etmdir = sys.argv.pop(1)

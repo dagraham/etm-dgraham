@@ -1,0 +1,26 @@
+#! /usr/bin/env python3
+import sys
+MIN_PYTHON = (3, 6)
+if sys.version_info < MIN_PYTHON:
+    sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
+
+import os
+lib_path = os.path.relpath('etmMVC/')
+sys.path.append(lib_path)
+
+from etmMVC.model import setup_logging
+from etmMVC.view_pt import main
+log_levels = [str(x) for x in range(1, 6)]
+
+loglevel = 2
+etmdir = ''
+
+if len(sys.argv) > 1 and sys.argv[1] in log_levels:
+    loglevel = sys.argv.pop(1)
+if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
+    etmdir = sys.argv.pop(1)
+
+setup_logging(loglevel, etmdir, 'view_pt.py')
+
+main()
+

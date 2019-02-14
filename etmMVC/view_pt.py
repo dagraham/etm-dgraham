@@ -4,6 +4,7 @@ A user interface based on prompt_toolkit.
 """
 from __future__ import unicode_literals
 
+import sys
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
@@ -45,7 +46,8 @@ from prompt_toolkit.widgets import Dialog, Label, Button
 
 import pendulum
 import re
-from model import DataView, Item, wrap, getWeekNum, parse_datetime #, at_keys, amp_keys 
+from model import DataView, Item, wrap, format_datetime #, at_keys, amp_keys 
+from options import Settings
 import logging
 import logging.config
 logger = logging.getLogger()
@@ -56,13 +58,6 @@ from model import about
 
 
 import subprocess # for check_output
-
-dialog_style = Style.from_dict({
-    'dialog':             'bg:#88ff88',
-    'dialog frame-label': 'bg:#ffffff #000000',
-    'dialog.body':        'bg:#000000 #00ff00',
-    'dialog shadow':      'bg:#00aa00',
-})
 
 class TextInputDialog(object):
     def __init__(self, title='', label_text='', padding=10, completer=None):
@@ -194,12 +189,17 @@ def do_go_to_date():
 
 
 def check_output(cmd):
+    if not cmd:
+        return
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError as exc:
         logger.error("command: {0}\n    output: {1}".format(cmd, exc.output))
 
-soundcmd = "/usr/bin/afplay -v 1 -q 1 /Users/dag/.etm/sounds/etm_ding.m4a"
+# soundcmd = "/usr/bin/afplay -v 1 -q 1 /Users/dag/.etm/sounds/etm_ding.m4a"
+settings = Settings()
+# options = settings.options
+soundcmd = settings.alerts['s']
 
 ampm = True
 editing = False
@@ -297,7 +297,6 @@ def first_char(s):
         return s[len(m.group(0))]
     elif len(s):
         # no leading spaces
-        # return s[0]
         return None
     else:
         return None
@@ -364,10 +363,25 @@ def new_day(loop):
 
 current_datetime = status_time(dataview.now)
 
+def maybe_alerts(now):
+    global current_datetime
+    for alert in dataview.alerts:
+        if alert[0].hour == now.hour and alert[0].minute == now.minute:
+            logger.info(f"{alert}")
+            startdt = (alert[0] + alert[1]).set(second=0, microsecond=now.microsecond+900)
+            when = startdt.diff_for_humans()
+            start = format_datetime(startdt)[1]
+            summary = alert[3]
+            doc_id = alert[4]
+            command = settings.alerts.get(alert[2], "").format(start=start, when=when, summary=summary)
+            logger.info(f"alert now: {now.microsecond}, startdt: {startdt.microsecond}, when: {when}, command: {command}, summary: {summary}, doc_id: {doc_id}")
+            check_output(command)
+
 def event_handler(loop):
     global current_datetime
     current_today = dataview.now.format("YYYYMMDD")
     now = pendulum.now()
+    maybe_alerts(now)
     current_datetime = status_time(now)
     today = now.format("YYYYMMDD")
     if today != current_today:
@@ -401,14 +415,6 @@ details_area = TextArea(
     read_only=True,
     search_field=search_field,
     )
-
-# edit_area = TextArea(
-#     text=dataview.get_details(text_area.document.cursor_position_row),
-#     style='class:details', 
-#     read_only=False,
-#     )
-
-# edit_buff = Buffer(completer=item_completer, complete_while_typing=True, accept_handler=process_input)
 
 edit_bindings = KeyBindings()
 ask_buffer = Buffer()
@@ -589,8 +595,8 @@ def history_view(*event):
 
 root_container = MenuContainer(body=body, menu_items=[
     MenuItem('etm', children=[
-        MenuItem('F2) about', handler=do_about),
-        MenuItem('F3) system', handler=do_system),
+        MenuItem('F2) about etm', handler=do_about),
+        MenuItem('F3) system info', handler=do_system),
         MenuItem('F4) preferences', disabled=True),
         MenuItem('F5) check for new version', disabled=True),
 
@@ -783,7 +789,6 @@ def main():
 
 
 if __name__ == '__main__':
-    import sys
     etmdir = ''
     if len(sys.argv) > 1:
         loglevel = sys.argv.pop(1)
