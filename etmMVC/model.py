@@ -774,6 +774,12 @@ class Item(object):
             cur_key = None
             cur_hsh = {}
 
+        if 'j' in self.item_hsh:
+            logger.info(f"jobs: {self.item_hsh['j']}")
+            ok, res, last = jobs(self.item_hsh['j'], self.item_hsh)
+            if ok:
+                logger.info(f"jobs: {res}")
+                self.item_hsh['j'] = res
         now = pendulum.now('local')
         if self.is_new:
             # creating a new item or editing a copy of an existing item
@@ -2450,7 +2456,7 @@ def do_hours(arg):
 def do_mask(arg):
     """
     >>> do_mask('when to the sessions')[0].encoded
-    'w6rDkMOGw5nChcOnw5_ChcOVw5rDisKTw5vDhsOew5jDnMOfw5PDlA=='
+    'w5zDnMOSwo7CicOnwo_Ch8Omw43DhsKUwpTDisOnw6DCicOYw6HCkw=='
     """
     return Mask(arg), arg
 
@@ -3444,8 +3450,8 @@ class MaskSerializer(Serializer):
     This class handles pendulum.duration (timedelta) objects.
     >>> mask = MaskSerializer()
     >>> mask.encode(Mask("when to the sessions")) # doctest: +NORMALIZE_WHITESPACE
-    'w6rDkMOGw5nChcOnw5_ChcOVw5rDisKTw5vDhsOew5jDnMOfw5PDlA==' 
-    >>> mask.decode('w6rDkMOGw5nChcOnw5_ChcOVw5rDisKTw5vDhsOew5jDnMOfw5PDlA==') # doctest: +NORMALIZE_WHITESPACE
+    'w5zDnMOSwo7CicOnwo_Ch8Omw43DhsKUwpTDisOnw6DCicOYw6HCkw=='
+    >>> mask.decode('    w5zDnMOSwo7CicOnwo_Ch8Omw43DhsKUwpTDisOnw6DCicOYw6HCkw==') # doctest: +NORMALIZE_WHITESPACE
     'when to the sessions' 
     """
     OBJ_CLASS = Mask
