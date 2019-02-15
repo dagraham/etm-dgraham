@@ -3854,7 +3854,7 @@ def relevant(now=pendulum.now('local')):
                         for instance in instances:
                             for possible_alert in possible_alerts:
                                 if today <= instance - possible_alert[0] <= tomorrow:
-                                    alerts.append([instance - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2], item['summary'], item.doc_id])
+                                    alerts.append([instance - possible_alert[0], possible_alert[0], possible_alert[1], item['summary'], item.doc_id])
 
 
             elif '+' in item:
