@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 import sys
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
+from prompt_toolkit.layout.containers import HSplit, VSplit, Window, WindowAlign, ConditionalContainer
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.dimension import D
@@ -434,12 +434,18 @@ def event_handler(loop):
     wait = 60 - now.second
     loop.call_later(wait, event_handler, loop)
 
+# def get_statusbar_text():
+#     width=shutil.get_terminal_size()[0]
+#     space = ' ' * (width - 9 - len(current_datetime))
+#     return [
+#             ('class:status', f' {current_datetime}{space}F1:menu'),
+#     ]
 def get_statusbar_text():
-    width=shutil.get_terminal_size()[0]
-    space = ' ' * (width - 9 - len(current_datetime))
-    return [
-            ('class:status', f' {current_datetime}{space}F1:menu'),
-    ]
+    return [ ('class:status',  f' {current_datetime}'), ]
+
+def get_statusbar_right_text():
+    return [ ('class:status',  f'{dataview.active_view} '), ]
+
 
 search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
@@ -507,10 +513,12 @@ entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 #     search_field=search_field,
 #     )
 
-status_area = Window(content=FormattedTextControl(
-        get_statusbar_text),
-        height=1,
-        style='class:status')
+status_area = VSplit([
+            Window(FormattedTextControl(get_statusbar_text), style='class:status'),
+            Window(FormattedTextControl(get_statusbar_right_text),
+                   style='class:status', width=20, align=WindowAlign.RIGHT),
+        ], height=1)
+
 
 body = HSplit([
     text_area,      # main content
@@ -632,11 +640,11 @@ def jottings_view(*event):
 
 root_container = MenuContainer(body=body, menu_items=[
     MenuItem('etm', children=[
+        MenuItem('F1) activate menu', disabled=True),
         MenuItem('F2) about etm', handler=do_about),
         MenuItem('F3) system info', handler=do_system),
         MenuItem('F4) preferences', disabled=True),
         MenuItem('F5) check for new version', disabled=True),
-
         MenuItem('-', disabled=True),
         MenuItem('^Q) quit', handler=exit),
     ]),

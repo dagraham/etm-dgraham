@@ -4061,7 +4061,7 @@ def show_next():
     for item in ETMDB:
         if item['itemtype'] not in ['-', '+'] or 's' in item or 'f' in item:
             continue
-        location = item.get('l', '~none')
+        location = item.get('l', '~')
         priority = item.get('p', '~')
         rows.append(
                 {
