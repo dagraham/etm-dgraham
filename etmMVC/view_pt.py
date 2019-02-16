@@ -46,13 +46,13 @@ from prompt_toolkit.widgets import Dialog, Label, Button
 
 import pendulum
 import re
-from model import DataView, Item, wrap, format_datetime #, at_keys, amp_keys 
+from model import DataView, Item, wrap, format_time, format_datetime #, at_keys, amp_keys 
 from options import Settings
 import logging
 import logging.config
 logger = logging.getLogger()
 from model import setup_logging
-
+from sixmonthcal import sixmonthcal
 
 from model import about
 
@@ -143,15 +143,25 @@ def show_dialog_as_float(dialog):
 
     raise Return(result)
 
-def do_about():
+# Key bindings.
+bindings = KeyBindings()
+bindings.add('tab')(focus_next)
+bindings.add('s-tab')(focus_previous)
+
+@bindings.add('f2')
+def do_about(*event):
     show_message('ETM Information', about(2)[0], 0)
 
-
-def do_system():
+@bindings.add('f3')
+def do_system(*event):
     show_message('System Information', about(22)[1], 20)
 
+@bindings.add('f5')
+def do_alerts(*event):
+    show_message("Today's Alerts", alerts(), 2)
 
-def do_go_to():
+@bindings.add('f6')
+def do_go_to(*event):
     def coroutine():
         dialog = TextInputDialog(
             title='Go to line',
@@ -169,23 +179,33 @@ def do_go_to():
 
     ensure_future(coroutine())
 
-def do_go_to_date():
-    def coroutine():
-        dialog = TextInputDialog(
-            title='Go to date',
-            label_text='date:')
+today = pendulum.today()
+calyear = today.year
+calmonth = today.month
 
-        target_date = yield From(show_dialog_as_float(dialog))
+@bindings.add('f7')
+def do_show_calendar(*event):
+    show_message("Six Month Calendar", sixmonthcal(0), 9)
+    # def coroutine():
+    #     global calyear, calmonth
+    #     dialog = TextInputDialog(
+    #         title='Show six month calendar',
+    #         label_text='year, month:')
 
-        try:
-            dataview.dtYrWk(target_date)
-        except ValueError:
-            show_message('go to date', 'Invalid date')
-        else:
-            set_text(dataview.show_active_view())
+    #     yearmonth = yield From(show_dialog_as_float(dialog))
 
+    #     if yearmonth:
+    #         try:
+    #             y, m = [int(x) for x in yearmonth.split(',')]
+    #         except ValueError:
+    #             show_message('invalid year, month', 'using current')
+    #         else:
+    #             calyear = y
+    #             calmonth = m
 
-    ensure_future(coroutine())
+    # ensure_future(coroutine())
+    # focus_next()
+
 
 
 def check_output(cmd):
@@ -204,23 +224,6 @@ soundcmd = settings.alerts['s']
 ampm = True
 editing = False
 item = Item()
-
-# Key bindings.
-bindings = KeyBindings()
-bindings.add('tab')(focus_next)
-bindings.add('s-tab')(focus_previous)
-
-@bindings.add('f2')
-def _(*event):
-    do_about()
-
-@bindings.add('f3')
-def _(*event):
-    do_system()
-
-@bindings.add('f6')
-def _(*event):
-    do_go_to()
 
 @bindings.add('f1')
 def menu(event):
@@ -254,6 +257,25 @@ def not_showing_details():
 @Condition
 def is_showing_details():
     return dataview.is_showing_details
+
+@bindings.add('g', filter=is_agenda_view & is_not_editing)
+def do_go_to_date(*event):
+    def coroutine():
+        dialog = TextInputDialog(
+            title='Go to date',
+            label_text='date:')
+
+        target_date = yield From(show_dialog_as_float(dialog))
+
+        try:
+            dataview.dtYrWk(target_date)
+        except ValueError:
+            show_message('go to date', 'Invalid date')
+        else:
+            set_text(dataview.show_active_view())
+
+
+    ensure_future(coroutine())
 
 # at_completions = [f"@{k}" for k in at_keys]
 # r_completions = [f"&{k}" for k in amp_keys['r']] 
@@ -363,12 +385,34 @@ def new_day(loop):
 
 current_datetime = status_time(dataview.now)
 
+def alerts():
+    alerts = []
+    now = pendulum.now('local')
+    for alert in dataview.alerts:
+        trigger_time = pendulum.instance(alert[0])
+        start_time = pendulum.instance(alert[1])
+        if start_time.date() == now.date():
+            start = format_time(start_time)[1]
+        else:
+            start = format_datetime(start_time, short=True)[1]
+        # period = (start_time - trigger_time).in_words()
+        trigger = format_time(trigger_time)[1]
+        command = alert[2]
+        summary = alert[3]
+        prefix = '<' if trigger_time < now else '>'
+        alerts.append(f"{prefix} {trigger} ({command}) {summary} {start}")
+    if alerts:
+        return "\n".join(alerts)
+    else:
+        return "There are no remaining alerts for today."
+
+
 def maybe_alerts(now):
     global current_datetime
     for alert in dataview.alerts:
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
             logger.info(f"{alert}")
-            startdt = (alert[0] + alert[1]).set(second=0, microsecond=now.microsecond+900)
+            startdt = alert[1]
             when = startdt.diff_for_humans()
             start = format_datetime(startdt)[1]
             summary = alert[3]
@@ -560,19 +604,6 @@ def _(event):
 def set_text(txt, row=0):
     text_area.text = txt
 
-# @bindings.add('f2')
-# def toggle_help(*event):
-#     global showing_help
-#     showing_help = not showing_help
-#     if showing_help:
-#         if not dataview.is_showing_details:
-#             dataview.show_details()
-#         details_area.text = about()
-#         application.layout.focus(details_area)
-#     else:
-#         application.layout.focus(text_area)
-#         dataview.hide_details()
-
 @bindings.add('a', filter=is_not_searching & not_showing_details & is_not_editing)
 def agenda_view(*event):
     dataview.set_active_view('a')
@@ -583,13 +614,19 @@ def busy_view(*event):
     dataview.set_active_view('b')
     set_text(dataview.show_active_view())
 
-@bindings.add('g', filter=is_agenda_view)
-def _(*event):
-    do_go_to_date()
-
 @bindings.add('h', filter=is_not_searching & not_showing_details & is_not_editing)
 def history_view(*event):
     dataview.set_active_view('h')
+    set_text(dataview.show_active_view())
+
+@bindings.add('n', filter=is_not_searching & not_showing_details & is_not_editing)
+def next_view(*event):
+    dataview.set_active_view('n')
+    set_text(dataview.show_active_view())
+
+@bindings.add('j', filter=is_not_searching & not_showing_details & is_not_editing)
+def jottings_view(*event):
+    dataview.set_active_view('j')
     set_text(dataview.show_active_view())
 
 
@@ -628,15 +665,16 @@ root_container = MenuContainer(body=body, menu_items=[
             MenuItem('a) agenda', handler=agenda_view),
             MenuItem('b) busy', handler=busy_view),
             MenuItem('movement', children=[
-                MenuItem('left or j) previous week'),
-                MenuItem('space or k) current week'),
-                MenuItem('right or l) next week'),
+                MenuItem('left) previous week'),
+                MenuItem('space) current week'),
+                MenuItem('right) next week'),
                 MenuItem('g) go to date', handler=do_go_to_date),
             ]),
         ]),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index'),
-        MenuItem('n) next'),
+        MenuItem('j) jottings', handler=jottings_view),
+        MenuItem('n) next', handler=next_view),
         MenuItem('q) query'),
         MenuItem('r) relevant'),
         MenuItem('t) tags'),
@@ -651,7 +689,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('?) search backward'),
     ]),
     MenuItem('tools', children=[
-        MenuItem("F5) show today's alerts"),
+        MenuItem("F5) show today's alerts", handler=do_alerts),
         MenuItem('F6) open date calculator'),
         MenuItem('F7) show yearly calendar'),
     ]),
@@ -664,20 +702,17 @@ root_container = MenuContainer(body=body, menu_items=[
 ])
 
 
-@bindings.add('l', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 @bindings.add('right', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 def nextweek(event):
     dataview.nextYrWk()
     set_text(dataview.show_active_view())
 
 
-@bindings.add('j', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 @bindings.add('left', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 def prevweek(event):
     dataview.prevYrWk()
     set_text(dataview.show_active_view())
 
-@bindings.add('k', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 @bindings.add('space', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 def currweek(event):
     dataview.currYrWk()

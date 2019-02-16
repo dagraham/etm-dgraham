@@ -45,6 +45,8 @@ import logging
 import logging.config
 logger = logging.getLogger()
 
+from operator import itemgetter
+from itertools import groupby
 
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import FormattedText
@@ -1184,12 +1186,15 @@ def plain_datetime(obj):
     return format_datetime(obj, short=True)
 
 def format_time(obj):
+    if type(obj) != pendulum.DateTime:
+        obj = pendulum.instance(obj)
+
     time_fmt = "h:mmA" if ampm else "H:mm"
     res = obj.format(time_fmt)
     if ampm:
         res = res.replace('AM', 'am')
         res = res.replace('PM', 'pm')
-    return res
+    return True, res
 
 def format_datetime(obj, short=False):
     """
@@ -1216,7 +1221,10 @@ def format_datetime(obj, short=False):
         return True, obj.format(date_fmt)
 
     if type(obj) != pendulum.DateTime:
-        return False, "The argument must be a pendulum date or datetime."
+        try:
+            obj = pendulum.instance(obj)
+        except:
+            return False, "The argument must be a pendulum date or datetime."
 
     if obj.format('Z') == '':
         # naive datetime
@@ -1450,6 +1458,7 @@ class DataView(object):
                 'b': 'busy',
                 'h': 'history',
                 'i': 'index',
+                'j': 'jottings',
                 'n': 'next',
                 'r': 'relevant',
                 't': 'tags',
@@ -1480,6 +1489,12 @@ class DataView(object):
         elif self.active_view == 'history':
             self.history_view, self.num2id = show_history()
             return self.history_view
+        elif self.active_view == 'next':
+            self.next_view, self.num2id = show_next()
+            return self.next_view
+        elif self.active_view == 'jottings':
+            self.jottings_view, self.num2id = show_jottings()
+            return self.jottings_view
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk) 
@@ -1879,7 +1894,7 @@ entry_tmpl = """\
 {%- endif %}\
 {%- endfor %}\
 {% if 'd' in h %}
-@d {{ wrap(h['d']) }} \
+@d {{ h['d'] }} \
 {% endif -%}
 {%- if 'j' in h %}\
 {%- for x in h['j'] %}\
@@ -3639,8 +3654,9 @@ def fmt_extent(beg_dt, end_dt):
 
     return f"{beg_fmt}{beg_suffix}-{end_fmt}{end_suffix}"
 
+
 def fmt_time(dt, ignore_midnight=True):
-    if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0:
+    if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0: 
         return ""
     suffix = dt.format("A").lower() if ampm else ""
     dt_fmt = drop_zero_minutes(dt)
@@ -3678,6 +3694,7 @@ def print_json(edit=False):
             print()
         print()
 
+
 def item_details(item, edit=False):
     """
 
@@ -3692,6 +3709,7 @@ def item_details(item, edit=False):
     except Exception as e:
         print('item_details', e)
         print(item)
+
 
 def fmt_week(yrwk):
     """
@@ -3712,6 +3730,7 @@ def fmt_week(yrwk):
         week_end = wkend.format("MMM D")
     return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
 
+
 def get_item(id):
     """
     Return the hash correponding to id.
@@ -3724,6 +3743,7 @@ def finish(id, dt):
     Record a completion at dt for the task corresponding to id.  
     """
     pass
+
 
 def relevant(now=pendulum.now('local')):
     """
@@ -3854,7 +3874,7 @@ def relevant(now=pendulum.now('local')):
                         for instance in instances:
                             for possible_alert in possible_alerts:
                                 if today <= instance - possible_alert[0] <= tomorrow:
-                                    alerts.append([instance - possible_alert[0], possible_alert[0], possible_alert[1], item['summary'], item.doc_id])
+                                    alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['summary'], item.doc_id])
 
 
             elif '+' in item:
@@ -3877,7 +3897,7 @@ def relevant(now=pendulum.now('local')):
                     for instance in aft + bef:
                         for possible_alert in possible_alerts:
                             if today <= instance - possible_alert[0] <= tomorrow:
-                                alerts.append([instance - possible_alert[0], possible_alert[0], possible_alert[1], possible_alert[2], item['summary]'], item.doc_id])
+                                alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['summary]'], item.doc_id])
 
             else:
                 # 's' but not 'r' or '+'
@@ -3888,7 +3908,7 @@ def relevant(now=pendulum.now('local')):
                 if possible_alerts:
                     for possible_alert in possible_alerts:
                         if today <= dtstart - possible_alert[0] <= tomorrow:
-                            alerts.append([dtstart - possible_alert[0], possible_alert[0], possible_alert[1], item['summary'], item.doc_id])
+                            alerts.append([dtstart - possible_alert[0], dtstart, possible_alert[1], item['summary'], item.doc_id])
         else:
             # no 's'
             relevant = None
@@ -3972,6 +3992,7 @@ def update_db(id, hsh={}):
     except Exception as e:
         logger.error(f"Error updating document corresponding to id {id}\nhsh {hsh}\nexception: {repr(e)}")
 
+
 def insert_db(hsh={}):
     """
     Assume hsh has been vetted. 
@@ -3985,8 +4006,8 @@ def insert_db(hsh={}):
     except Exception as e:
         logger.error(f"Error updating database:\nid {id}\nold {old}\nhsh {hsh}\ne {repr(e)}")
 
+
 def show_history(reverse=True):
-    from operator import itemgetter
     # from itertools import groupby
     width = shutil.get_terminal_size()[0] - 2 
     rows = []
@@ -4029,53 +4050,88 @@ def show_history(reverse=True):
         out_view.append(tmp)
     return "\n".join(out_view), num2id
 
+
 def show_next():
     """
     Unfinished, undated tasks and jobs
     """
-    from operator import itemgetter
-    from itertools import groupby
     width = shutil.get_terminal_size()[0] - 2
     rows = []
+    locations = set([])
     for item in ETMDB:
-        if 's' in item or 'f' in item:
+        if item['itemtype'] not in ['-', '+'] or 's' in item or 'f' in item:
             continue
         location = item.get('l', '~none')
+        priority = item.get('p', '~')
         rows.append(
                 {
                     'id': item.doc_id,
-                    'sort': (location, item['itemtype'], item['summary']),
+                    'sort': (location, priority, item['summary']),
                     'location': location,
                     'columns': [item['itemtype'],
                         item['summary'], 
+                        priority,
                         ]
                 }
                 )
     rows.sort(key=itemgetter('sort'))
-    out_view = []
-    num2id = {}
 
-    view_width = width
+    row2id = {}
+    next_view = []
     num = 0
-    for i in rows:
-        num2id[num] = i['id']
+    for location, items in groupby(rows, key=itemgetter('location')):
+        locations.add(location)
         num += 1
-        # sel_width = view_width - len(num) - 3
-        view_summary = i['columns'][1][:25].ljust(view_width, ' ')
-        # sel_summary = i['columns'][1][:sel_width].ljust(sel_width, ' ')
-        # space = " "*(width - len(str(i['columns'][1])) - len(str(i['columns'][2])) - len(num) - 3 - 2)
-        # tmp = f"{i['columns'][0]} [{i['columns'][3]}] {sel_summary}{i['columns'][2]}\n" 
-        # out_sel.append(fmt_class(tmp, type2style[i['columns'][0]], plain))
-        tmp = f" {i['columns'][0]} {view_summary}  {i['columns'][2]}" 
-        # out_view.append(fmt_class(tmp, type2style[i['columns'][0]], plain))
-        out_view.append(tmp)
-    return "\n".join(out_view), num2id
+        next_view.append(f"{location}")
+        for i in items:
+            row2id[num] = i['id']
+            num += 1
+            next_view.append(f"  {i['columns'][0]} {i['columns'][1][:width - 8].ljust(width - 8, ' ')}  {i['columns'][2]}")
+    return "\n".join(next_view), row2id
+
+def show_jottings():
+    """
+    Undated records grouped by index entry
+    """
+    width = shutil.get_terminal_size()[0] - 2
+    rows = []
+    indices = set([])
+    for item in ETMDB:
+        if item['itemtype'] != '%' or 's' in item:
+            continue
+        index = item.get('i', '~none')
+        rows.append(
+                {
+                    'id': item.doc_id,
+                    'sort': (index, item['summary']),
+                    'index': index,
+                    'columns': [item['itemtype'],
+                        item['summary'][:width - 5], 
+                        ]
+                }
+                )
+    rows.sort(key=itemgetter('sort'))
+
+    row2id = {}
+    jottings_view = []
+    num = 0
+    for index, items in groupby(rows, key=itemgetter('index')):
+        indices.add(index)
+        num += 1
+        jottings_view.append(f"{index}")
+        for i in items:
+            row2id[num] = i['id']
+            num += 1
+            jottings_view.append(f"  {i['columns'][0]} {i['columns'][1][:width - 2]}")
+    return "\n".join(jottings_view), row2id
+
 
 def fmt_class(txt, cls=None, plain=False):
     if not plain and cls is not None:
         return cls, txt
     else:
         return txt
+
 
 def no_busy_periods(week, width):
     monday = parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
@@ -4215,8 +4271,6 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
                 busy.append({'sort': dt.format("YYYYMMDDHHmm"), 'week': (y, w), 'day': d, 'period': (beg_min, end_min)})
     if yw == getWeekNum(now):
         rows.extend(current)
-    from operator import itemgetter
-    from itertools import groupby
     rows.sort(key=itemgetter('sort'))
     busy.sort(key=itemgetter('sort'))
 

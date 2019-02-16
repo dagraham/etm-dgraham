@@ -4,7 +4,7 @@ import pwd
 user_name = pwd.getpwuid(os.getuid()).pw_name
 
 class Settings:
-    _config_location = 'config.json'
+    _config_location = 'etm_cfg.json'
 
     # options format: option name -> [description, starting/default value]
     options = {
@@ -36,8 +36,8 @@ class Settings:
     }
 
     def __init__(self):
-        if os.path.exists(self._config_location):
-            self.__dict__ = json.load(open(self._config_location))
+        if os.path.exists(Settings._config_location):
+            self.__dict__ = json.load(open(Settings._config_location))
         else:
             for opt in self.options:
                 self.__dict__.setdefault(opt, self.options[opt][1]) 
@@ -47,7 +47,7 @@ class Settings:
 
 
     def __exit__(self, exc_type, exc_value, traceback):
-        json.dump(self.__dict__, open(self._config_location, 'w'), indent=1)
+        json.dump(self.__dict__, open(Settings._config_location, 'w'), indent=1)
 
 
     def set_value(self, option, value):
