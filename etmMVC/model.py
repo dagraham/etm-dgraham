@@ -1438,6 +1438,59 @@ class TimeIt(object):
         elif self.loglevel == 3:
             logger.warn(msg)
 
+class RDict(dict):
+    """
+    Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row. 
+    """
+
+    tab = " " * 2
+
+    def __init__(self, split_char=':'):
+        self.split_char = split_char
+        self.row = 0
+        self.row2id = {}
+        self.output = []
+
+    def __missing__(self, key):
+        self[key] = RDict()
+        return self[key]
+
+    def as_dict(self):
+        return self
+
+
+    def add(self, tkeys, values=()):
+        i = 0
+        keys = tkeys.split(self.split_char)
+        for key in keys:
+            i = i + 1
+            if i == len(keys):
+                try:
+                    self.setdefault(key, []).append(values)
+                except:
+                    logger.warn(f"error adding key: {key}, values: {values}\n self: {self}")
+            self = self[key]
+
+    def as_tree(self, t={}, depth = 0, level=0):
+        """ return an indented tree """
+        for k in t.keys():
+            self.output.append("%s%s" % (depth * RDict.tab,  k))
+            self.row += 1 
+            depth += 1
+            if level and depth > level:
+                depth -= 1
+                continue
+
+            if type(t[k]) == RDict:
+                self.as_tree(t[k], depth, level)
+            else:
+                for leaf in t[k]:
+                    self.output.append("%s%s" % (depth * RDict.tab, leaf[0]))
+                    self.row2id[self.row] = leaf[1]
+                    self.row += 1 
+            depth -= 1
+        return "\n".join(self.output), self.row2id
+
 
 class DataView(object):
 
@@ -1495,6 +1548,9 @@ class DataView(object):
         elif self.active_view == 'jottings':
             self.jottings_view, self.num2id = show_jottings()
             return self.jottings_view
+        elif self.active_view == 'index':
+            self.index_view, self.num2id = show_index()
+            return self.index_view
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk) 
@@ -1537,26 +1593,26 @@ class DataView(object):
         self.is_showing_details = False 
 
     def get_details(self, num=None, edit=False):
-        logger.info(f"num: {num}")
+        logger.debug(f"num: {num}")
         if num is None:
             return None, ''
 
         self.current_row = num
         item_id = self.num2id.get(num, None)
-        logger.info(f"item_id: {item_id}")
+        logger.debug(f"item_id: {item_id}")
         if item_id is None:
             return None, ''
 
         if not edit and item_id in self.itemcache:
-            logger.info(f"item_id in cache: {item_id}; str: {self.itemcache[item_id]}")
+            logger.debug(f"item_id in cache: {item_id}; str: {self.itemcache[item_id]}")
             return item_id, self.itemcache[item_id]
         item = ETMDB_QUERY.get(doc_id=item_id)
         if item:
             self.itemcache[item_id] = item_details(item, edit)
-            logger.info(f"item_id not in cache: {item_id}; item: {item}")
+            logger.debug(f"item_id not in cache: {item_id}; item: {item}")
             return item_id, self.itemcache[item_id] 
         else:
-            logger.info(f"query failed for {item_id}; item: {item}")
+            logger.debug(f"query failed for {item_id}; item: {item}")
 
         return None, ''
 
@@ -3984,7 +4040,7 @@ def update_db(id, hsh={}):
         logger.error(f"Could not get document corresponding to id {id}")
         return
     if old == hsh:
-        logger.info(f"Doument corresponding to id {id} unchanged")
+        logger.debug(f"Doument corresponding to id {id} unchanged")
         return
     hsh['modified'] = pendulum.now()
     try:
@@ -4100,30 +4156,64 @@ def show_jottings():
         if item['itemtype'] != '%' or 's' in item:
             continue
         index = item.get('i', '~none')
-        rows.append(
-                {
-                    'id': item.doc_id,
+        rows.append({
                     'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
-                        item['summary'][:width - 5], 
-                        ]
-                }
-                )
+                        item['summary'], 
+                        item.doc_id],
+                    })
     rows.sort(key=itemgetter('sort'))
+    logger.debug(f"rows: {rows}")
+    rdict = RDict()
+    for row in rows:
+        path = row['index']
+        # values = row['columns']
+        values = (
+                f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
+                ) 
+        rdict.add(path, values)
+    logger.debug(f"rdict: {rdict}")
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    logger.debug(f"tree: {tree}, row2id: {row2id}")
+    return tree, row2id
 
-    row2id = {}
-    jottings_view = []
-    num = 0
-    for index, items in groupby(rows, key=itemgetter('index')):
-        indices.add(index)
-        num += 1
-        jottings_view.append(f"{index}")
-        for i in items:
-            row2id[num] = i['id']
-            num += 1
-            jottings_view.append(f"  {i['columns'][0]} {i['columns'][1][:width - 2]}")
-    return "\n".join(jottings_view), row2id
+
+def show_index():
+    """
+    All records grouped by index entry
+    """
+    width = shutil.get_terminal_size()[0] - 2
+    rows = []
+    indices = set([])
+    for item in ETMDB:
+        if 'i' not in item:
+            continue
+        index = item.get('i', '~')
+        rows.append({
+                    'sort': (index, item['summary']),
+                    'index': index,
+                    'columns': [item['itemtype'][:width - 15],
+                        item['summary'], 
+                        item.doc_id],
+                    })
+    rows.sort(key=itemgetter('sort'))
+    logger.debug(f"rows: {rows}")
+    rdict = RDict()
+    for row in rows:
+        path = row['index']
+        # values = row['columns']
+        values = (
+                f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
+                ) 
+        try:
+            rdict.add(path, values)
+        except:
+            logger.error(f"error adding path: {path}, values: {values}")
+    logger.debug(f"rdict: {rdict}")
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    logger.debug(f"tree: {tree}, row2id: {row2id}")
+    return tree, row2id
 
 
 def fmt_class(txt, cls=None, plain=False):

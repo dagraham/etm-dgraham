@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Wed Feb 13, 2019 12:44PM EST*
+*Last modified: Sat Feb 16, 2019 03:26PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -35,6 +35,7 @@
         * [Busy](#busy)
     * [Relevant](#relevant)
     * [Next](#next)
+    * [Jottings](#jottings)
     * [Index](#index)
     * [History](#history)
     * [Tags](#tags)
@@ -92,13 +93,13 @@ Here are some examples:
 
         - get haircut @s 24 @r d &i 14 @o r
 
-* Payday (an event) on the last week day of each month. The `&s -1` part of the entry extracts the last date which is both a weekday and falls within the last three days of the month):
+* Payday (an event) on the last week day of each month. The `&s -1` part of the entry extracts the last (-1) set position which is both a weekday and falls within the last three days of the month):
 
         * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
 
-* Take a prescribed medication daily (a reminder) [s]tarting today and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil (12am on) the fourth day from today. Trigger the default [a]lert zero minutes before each reminder:
+* Take a prescribed medication daily (a reminder) [s]tarting at 12am Monday and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil 12am on Friday. Trigger the `d` [a]lert zero minutes before each reminder:
 
-        * take Rx @s +0 @r d &h 10, 14, 18, 22 &u +4 @a 0
+        * take Rx @s mon @r d &h 10, 14, 18, 22 &u fri @a 0: d
 
 * Move the water sprinkler (a reminder) every thirty mi[n]utes on Sunday afternoons using the default alert zero minutes before each reminder:
 
@@ -232,9 +233,8 @@ Type character: **%**
 A record of something that the user wants to remember. The userid and password for a website would be an example. A journal entry for vacation day is another example. 
 
 - The `@s` is optional and, if given, is interpreted as the datetime to which the record applies. 
-- Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime.
-- Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of the day given by `@s`.
-- Records with both `@s` and `@e` entries associate the record with the expenditure of the time given by `@e` ending at the datetime given by `@s`. Such records are equivalent to the old *action* item type. Records missing either an `@s` or an `@e` entry are equivalent to the old *note* item type. A built-in report groups and totals times for such "actions" by month and then index entry.
+- Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime. They are displayed in the *Jottings* view
+- Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of the day given by `@s`. They are displayed in the *Agenda* view.
 
 Corresponds to VJOURNAL in the vcalendar specification.
 
@@ -586,12 +586,13 @@ All items with datetimes ordered by relevant datetime and grouped by year, week 
 - Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*. 
 - As tasks and jobs are finished, they are removed from this view and added to *Done* using the completion datetime.
 
+## [Jottings](#toc)
+
+- Undated records (without `@s` entries) grouped and sorted by *index*.
+
 ## [Index](#toc)
 
-- All items, grouped and sorted by their *index* entries and then their 
-  *relevant datetime*. 
-- Items without `@i` entries are listed last under *~none*.
-
+- All items with @i (index) entries, grouped and sorted by index. 
 
 ## [History](#toc)
 

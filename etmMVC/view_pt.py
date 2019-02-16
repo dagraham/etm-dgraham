@@ -637,6 +637,11 @@ def jottings_view(*event):
     dataview.set_active_view('j')
     set_text(dataview.show_active_view())
 
+@bindings.add('i', filter=is_not_searching & not_showing_details & is_not_editing)
+def index_view(*event):
+    dataview.set_active_view('i')
+    set_text(dataview.show_active_view())
+
 
 root_container = MenuContainer(body=body, menu_items=[
     MenuItem('etm', children=[
@@ -680,7 +685,7 @@ root_container = MenuContainer(body=body, menu_items=[
             ]),
         ]),
         MenuItem('h) history', handler=history_view),
-        MenuItem('i) index'),
+        MenuItem('i) index', handler=index_view),
         MenuItem('j) jottings', handler=jottings_view),
         MenuItem('n) next', handler=next_view),
         MenuItem('q) query'),
