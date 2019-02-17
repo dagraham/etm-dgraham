@@ -29,9 +29,9 @@ if __name__ == "__main__":
     if not os.path.isdir(logdir):
         os.makedirs(logdir)
 
-    bakdir = os.path.normpath(os.path.join(etmdir, 'backups'))
-    if not os.path.isdir(bakdir):
-        os.makedirs(bakdir)
+    backdir = os.path.normpath(os.path.join(etmdir, 'backups'))
+    if not os.path.isdir(backdir):
+        os.makedirs(backdir)
 
     setup_logging(loglevel, logdir)
     logger.info(about()[1])

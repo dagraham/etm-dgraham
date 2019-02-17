@@ -46,12 +46,11 @@ from prompt_toolkit.widgets import Dialog, Label, Button
 
 import pendulum
 import re
-from model import DataView, Item, wrap, format_time, format_datetime #, at_keys, amp_keys 
+from model import wrap, format_time, format_datetime 
 from options import Settings
 import logging
 import logging.config
 logger = logging.getLogger()
-from model import setup_logging
 from sixmonthcal import sixmonthcal
 
 from model import about
@@ -223,7 +222,7 @@ soundcmd = settings.alerts['s']
 
 ampm = True
 editing = False
-item = Item()
+# item = Item()
 
 @bindings.add('f1')
 def menu(event):
@@ -339,9 +338,9 @@ class ETMLexer(Lexer):
 
         return get_line
 
-dataview = DataView()
-dataview.refreshCache()
-content = dataview.agenda_view
+# dataview = DataView()
+# dataview.refreshCache()
+# content = dataview.agenda_view
 
 def status_time(dt):
     """
@@ -383,7 +382,7 @@ def new_day(loop):
     set_text(dataview.show_active_view())
     get_app().invalidate()
 
-current_datetime = status_time(dataview.now)
+current_datetime = pendulum.now('local')
 
 def alerts():
     alerts = []
@@ -450,8 +449,9 @@ def get_statusbar_right_text():
 search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
 
+content = ""
 text_area = TextArea(
-    text=content,
+    text="",
     read_only=True,
     scrollbar=True,
     search_field=search_field,
@@ -460,7 +460,7 @@ text_area = TextArea(
     )
 
 details_area = TextArea(
-    text=dataview.get_details(text_area.document.cursor_position_row)[1],
+    text="",
     style='class:details', 
     read_only=True,
     search_field=search_field,
@@ -545,7 +545,6 @@ def delete_item(*event):
         dataview.hide_details()
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
     logger.info(f"deleting doc_id: {doc_id}")
-    item = Item()
     item.delete_item(doc_id)
     loop = get_event_loop()
     loop.call_later(0, data_changed, loop)
@@ -557,7 +556,6 @@ def edit_new(*event):
         application.layout.focus(text_area)
         dataview.hide_details()
     dataview.is_editing = True
-    item = Item()
     item.new_item()
     entry_buffer.text = item.entry
     default_buffer_changed(_)
@@ -573,7 +571,6 @@ def edit_existing(*event):
     dataview.is_editing = True
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
     logger.debug(f"editing doc_id: {doc_id}; entry: {entry}")
-    item = Item()
     item.edit_item(doc_id, entry)
     entry_buffer.text = item.entry
     default_buffer_changed(_)
@@ -589,7 +586,6 @@ def edit_copy(*event):
     dataview.is_editing = True
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
     logger.debug(f"editing copy of doc_id: {doc_id}; entry: {entry}")
-    item = Item()
     item.edit_copy(doc_id, entry)
     entry_buffer.text = item.entry
     default_buffer_changed(_)
@@ -778,7 +774,7 @@ def set_askreply(_):
     # reply_buffer.text = ('class:status', reply)
 
 # set this first for an empty entry
-set_askreply('_')
+# set_askreply('_')
 
 
 style = Style.from_dict({
@@ -821,10 +817,21 @@ application = Application(
     style=style,
     full_screen=True)
 
-
+dataview = None
+item = None
 def main(etmdir=""):
+    global dataview, item
+    from model import DataView
+    dataview = DataView(etmdir)
+    from model import Item
+    item = Item(etmdir)
+    dataview.refreshCache()
+    # content = dataview.agenda_view
+    # set_askreply('_')
+    agenda_view()
+
     # Tell prompt_toolkit to use asyncio.
-    dataview.set_etmdir(etmdir)
+
     use_asyncio_event_loop()
     # Run application async.
     loop = get_event_loop()

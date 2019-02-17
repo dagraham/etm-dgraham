@@ -546,7 +546,7 @@ class Item(object):
     """
 
     # def __init__(self, doc_id=None, s=""):
-    def __init__(self):
+    def __init__(self, etmdir):
         """
         """
 
@@ -556,6 +556,7 @@ class Item(object):
         self.is_modified = False
         self.created = None
         self.modified = None
+        self.set_etmdir(etmdir)
         self.object_hsh = {}    # key, val -> object version of raw string for tinydb 
         self.askreply= {}       # key, val -> display version raw string
         self.pos_hsh = {}       # (beg, end) -> (key, val)
@@ -623,14 +624,23 @@ class Item(object):
                 }
         if not self.entry:
             self.text_changed('', 0, False)
-        self.etmdb = TinyDB('db.json', storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-        self.etmdb_query = self.etmdb.table('items', cache_size=None)
+
+
+    def set_etmdir(self, etmdir):
+        if not etmdir:
+            return
+        self.etmdir = etmdir
+        self.dbname = os.path.normpath(os.path.join(etmdir, 'db.json'))
+        self.db = TinyDB(self.dbname, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        self.dbquery = self.db.table('items', cache_size=None)
+        logger.info(f"set etmdir in Item: {etmdir}; dbname: {self.dbname}")
+
 
     def edit_item(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
         logger.info(f"edit doc_id: {doc_id}; entry: {entry}")
-        item_hsh = ETMDB_QUERY.get(doc_id=doc_id)
+        item_hsh = self.dbquery.get(doc_id=doc_id)
         if item_hsh:
             logger.info(f"found doc_id: {doc_id} in database")
             logger.info(f"item_hsh: {item_hsh}")
@@ -641,11 +651,12 @@ class Item(object):
             self.keyvals = []
             self.text_changed(entry, 0, False)
 
+
     def edit_copy(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
         logger.info(f"copy doc_id: {doc_id}; entry: {entry}")
-        item_hsh = self.etmdb.get(doc_id=doc_id)
+        item_hsh = self.db.get(doc_id=doc_id)
         if item_hsh:
             logger.info(f"found doc_id: {doc_id} in database")
             self.doc_id = None
@@ -667,10 +678,9 @@ class Item(object):
         if not (doc_id):
             return None
         logger.info(f"delete doc_id: {doc_id}")
-        # item_hsh = self.etmdb.get(doc_id=doc_id)
-        if self.etmdb.contains(doc_ids=[doc_id]):
+        if self.db.contains(doc_ids=[doc_id]):
             logger.info(f"found doc_id: {doc_id} in database")
-            self.etmdb.remove(doc_ids=[doc_id])
+            self.db.remove(doc_ids=[doc_id])
 
 
     def cursor_changed(self, pos):
@@ -788,10 +798,10 @@ class Item(object):
             self.created = now
             self.item_hsh['created'] = now
             if self.doc_id is None:
-                self.doc_id = self.etmdb.insert(self.item_hsh)
+                self.doc_id = self.db.insert(self.item_hsh)
                 log_action = 'created'
             else:
-                self.etmdb.write_back([self.item_hsh], doc_ids=[self.doc_id])
+                self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
                 log_action = 'updated'
             logger.info(f"{log_action} doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
         else:
@@ -799,7 +809,7 @@ class Item(object):
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = now
             logger.info(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
-            self.etmdb.write_back([self.item_hsh], doc_ids=[self.doc_id])
+            self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
 
     def check_requires(self, key):
@@ -846,7 +856,7 @@ class Item(object):
     def do_at(self, arg=''):
         """
         Need access to itemtype - hence in Item()
-        >>> item = Item()
+        >>> item = Item("")
         >>> item.do_at()
         (None, 'The type character must be entered before any @-keys')
         >>> item.item_hsh['itemtype'] = '*'
@@ -886,7 +896,7 @@ class Item(object):
     def do_ampr(self, arg=''):
         """
         Need access to &-keys and names - hence in Item()
-        >>> item = Item()
+        >>> item = Item("")
         >>> obj, rep = item.do_ampr()
         >>> print(rep)
         repetition &-keys: &i (interval), &m (monthdays),
@@ -903,7 +913,7 @@ class Item(object):
     def do_ampj(self, arg=''):
         """
         Need access to &-keys and names - hence in Item()
-        >>> item = Item()
+        >>> item = Item("")
         >>> obj, rep = item.do_ampj()
         >>> print(rep)
         job &-keys: &a (alert), &b (beginby), &d (description),
@@ -919,7 +929,7 @@ class Item(object):
 
     def do_itemtype(self, arg):
         """
-        >>> item = Item()
+        >>> item = Item("")
         >>> item.do_itemtype('')
         (None, 'Choose a character from * (event), - (task), % (journal) or ! (inbox)')
         >>> item.do_itemtype('+')
@@ -957,7 +967,7 @@ class Item(object):
 
     def do_datetime(self, arg):
         """
-        >>> item = Item()
+        >>> item = Item("")
         >>> item.do_datetime('fr')
         (None, "'fr' is incomplete or invalid")
         >>> item.do_datetime('2019-01-25')
@@ -979,7 +989,7 @@ class Item(object):
 
     def do_datetimes(self, args):
         """
-        >>> item = Item()
+        >>> item = Item("")
         >>> item.do_datetimes('2019-1-25 2p, 2019-1-30 4p')
         ([DateTime(2019, 1, 25, 14, 0, 0, tzinfo=Timezone('America/New_York')), DateTime(2019, 1, 30, 16, 0, 0, tzinfo=Timezone('America/New_York'))], 'datetimes: 2019-01-25 2:00pm, 2019-01-30 4:00pm')
         >>> print(item.do_datetimes('2019-1-25 2p, 2019-1-30 4p, 2019-2-29 8a')[1])
@@ -1012,7 +1022,7 @@ class Item(object):
 
     def do_timezone(self, arg=None):
         """
-        >>> item = Item()
+        >>> item = Item("")
         >>> item.do_timezone()
         ('local', 'local')
         >>> item.do_timezone('float')
@@ -1495,7 +1505,7 @@ class RDict(dict):
 class DataView(object):
 
     # def __init__(self, loglevel=1, dtstr=None, weeks=1, plain=False):
-    def __init__(self):
+    def __init__(self, etmdir):
         self.active_view = 'agenda'  
         self.current = []
         self.alerts = []
@@ -1506,7 +1516,7 @@ class DataView(object):
         self.history_view = ""
         self.cache = {}
         self.itemcache = {}
-        self.etmdir = ""
+        self.set_etmdir(etmdir)
         self.views = {
                 'a': 'agenda',
                 'b': 'busy',
@@ -1528,8 +1538,12 @@ class DataView(object):
         self.refreshAgenda()
 
     def set_etmdir(self, etmdir):
-        logger.info(f"set etmdir: {etmdir}")
         self.etmdir = etmdir
+        self.dbname = os.path.normpath(os.path.join(etmdir, 'db.json'))
+        self.db = TinyDB(self.dbname, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        self.dbquery = self.db.table('items', cache_size=None)
+        logger.info(f"set etmdir in DataView: {etmdir}; dbname: {self.dbname}")
+
 
     def set_now(self):
         self.now = pendulum.now('local')  
@@ -1545,16 +1559,16 @@ class DataView(object):
             self.refreshAgenda()
             return self.busy_view
         elif self.active_view == 'history':
-            self.history_view, self.num2id = show_history()
+            self.history_view, self.num2id = show_history(self.db)
             return self.history_view
         elif self.active_view == 'next':
-            self.next_view, self.num2id = show_next()
+            self.next_view, self.num2id = show_next(self.db)
             return self.next_view
         elif self.active_view == 'journal':
-            self.journal_view, self.num2id = show_journal()
+            self.journal_view, self.num2id = show_journal(self.db)
             return self.journal_view
         elif self.active_view == 'index':
-            self.index_view, self.num2id = show_index()
+            self.index_view, self.num2id = show_index(self.db)
             return self.index_view
 
     def nextYrWk(self):
@@ -1583,12 +1597,12 @@ class DataView(object):
         """
         self.set_now()
         self.currentYrWk = getWeekNum(self.now)
-        self.current, self.alerts = relevant(self.now)
+        self.current, self.alerts = relevant(self.db, self.now)
         self.refreshCache()
 
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
-            self.cache.update(schedule(yw=self.activeYrWk, current=self.current, now=self.now))
+            self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now))
         self.agenda_view, self.busy_view, self.num2id = self.cache[self.activeYrWk]
 
     def show_details(self):
@@ -1611,7 +1625,7 @@ class DataView(object):
         if not edit and item_id in self.itemcache:
             logger.debug(f"item_id in cache: {item_id}; str: {self.itemcache[item_id]}")
             return item_id, self.itemcache[item_id]
-        item = ETMDB_QUERY.get(doc_id=item_id)
+        item = self.dbquery.get(doc_id=item_id)
         if item:
             self.itemcache[item_id] = item_details(item, edit)
             logger.debug(f"item_id not in cache: {item_id}; item: {item}")
@@ -1625,7 +1639,7 @@ class DataView(object):
         self.cache = {}
 
     def refreshCache(self):
-        self.cache = schedule(self.currentYrWk, self.current, self.now, 5, 20)
+        self.cache = schedule(self.db, self.currentYrWk, self.current, self.now, 5, 20)
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-2):
@@ -3559,10 +3573,10 @@ serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
 serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday 
 serialization.register_serializer(MaskSerializer(), 'M')             # Mask 
 
-DBNAME = 'db.json'
-ETMDB = TinyDB(DBNAME, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-ETMDB_QUERY = ETMDB.table('items', cache_size=None)
-DB_ARCH = ETMDB.table('archive', cache_size=None)
+# DBNAME = 'db.json'
+# ETMDB = TinyDB(DBNAME, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+# ETMDB_QUERY = ETMDB.table('items', cache_size=None)
+# DB_ARCH = ETMDB.table('archive', cache_size=None)
 
 
 ########################
@@ -3751,8 +3765,8 @@ def beg_ends(starting_dt, extent_duration, z=None):
     return pairs
 
 
-def print_json(edit=False):
-    for item in ETMDB:
+def print_json(etmdb, edit=False):
+    for item in etmdb:
         try:
             print(item.doc_id)
             print(item_details(item, edit))
@@ -3813,7 +3827,7 @@ def finish(id, dt):
     pass
 
 
-def relevant(now=pendulum.now('local')):
+def relevant(db, now=pendulum.now('local') ):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
     """
@@ -3830,7 +3844,7 @@ def relevant(now=pendulum.now('local')):
     alerts = []
     current = []
 
-    for item in ETMDB_QUERY:
+    for item in db:
         instance_interval = [] 
         possible_beginby = None
         possible_alerts = []
@@ -3918,7 +3932,7 @@ def relevant(now=pendulum.now('local')):
                         relevant = rset.after(today, inc=True)
                         if relevant:
                             item['s'] = pendulum.instance(relevant)
-                            update_db(item.doc_id, item)
+                            update_db(db, item.doc_id, item)
                         else:
                             relevant = dtstart
                     else: 
@@ -4046,8 +4060,8 @@ def relevant(now=pendulum.now('local')):
     return current, alerts 
 
 
-def update_db(id, hsh={}):
-    old = ETMDB.get(doc_id=id)
+def update_db(db, id, hsh={}):
+    old = db.get(doc_id=id)
     if not old:
         logger.error(f"Could not get document corresponding to id {id}")
         return
@@ -4056,12 +4070,12 @@ def update_db(id, hsh={}):
         return
     hsh['modified'] = pendulum.now()
     try:
-        ETMDB.update(hsh, doc_ids=[id])
+        db.update(hsh, doc_ids=[id])
     except Exception as e:
         logger.error(f"Error updating document corresponding to id {id}\nhsh {hsh}\nexception: {repr(e)}")
 
 
-def insert_db(hsh={}):
+def insert_db(db, hsh={}):
     """
     Assume hsh has been vetted. 
     """
@@ -4070,16 +4084,16 @@ def insert_db(hsh={}):
         return
     hsh['created'] = pendulum.now()
     try:
-        ETMDB.insert(hsh)
+        db.insert(hsh)
     except Exception as e:
         logger.error(f"Error updating database:\nid {id}\nold {old}\nhsh {hsh}\ne {repr(e)}")
 
 
-def show_history(reverse=True):
+def show_history(db, reverse=True):
     # from itertools import groupby
     width = shutil.get_terminal_size()[0] - 2 
     rows = []
-    for item in ETMDB:
+    for item in db:
         mt = item.get('modified', None)
         if mt is not None:
             dt, label = mt, 'm'
@@ -4119,14 +4133,14 @@ def show_history(reverse=True):
     return "\n".join(out_view), num2id
 
 
-def show_next():
+def show_next(db):
     """
     Unfinished, undated tasks and jobs
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     locations = set([])
-    for item in ETMDB:
+    for item in db:
         if item['itemtype'] not in ['-', '+'] or 's' in item or 'f' in item:
             continue
         location = item.get('l', '~')
@@ -4157,14 +4171,14 @@ def show_next():
             next_view.append(f"  {i['columns'][0]} {i['columns'][1][:width - 8].ljust(width - 8, ' ')}  {i['columns'][2]}")
     return "\n".join(next_view), row2id
 
-def show_journal():
+def show_journal(db):
     """
     Undated journals grouped by index entry
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     indices = set([])
-    for item in ETMDB:
+    for item in db:
         if item['itemtype'] != '%': #  or 's' in item:
             continue
         # if 'i' not in item:
@@ -4193,14 +4207,14 @@ def show_journal():
     return tree, row2id
 
 
-def show_index():
+def show_index(db):
     """
     All items grouped by index entry
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     indices = set([])
-    for item in ETMDB:
+    for item in db:
         # if 'i' not in item:
         #     continue
         index = item.get('i', '~')
@@ -4255,7 +4269,7 @@ def no_busy_periods(week, width):
     return busy_template.format(week=fmt_week(week).center(width, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
 
-def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_before=0, weeks_after=0):
+def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_before=0, weeks_after=0):
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 7 - 16
     # yw will be the active week, but now will be the current moment
@@ -4275,7 +4289,7 @@ def schedule(yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_befor
 
     rows = []
     busy = []
-    for item in ETMDB_QUERY:
+    for item in db:
         if item['itemtype'] in "!?":
             continue
 
@@ -4477,7 +4491,7 @@ def import_json(etmdir=None):
     with open(import_file, 'r') as fo:
         import_hsh = json.load(fo)
     items = import_hsh['items']
-    ETMDB.purge()
+    # ETMDB.purge()
 
     docs = []
     for id in items:
