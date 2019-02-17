@@ -69,7 +69,7 @@ style = Style.from_dict({
     'inbox':        '#ff00ff',
     'pastdue':      '#87ceeb',
     'begin':        '#ffff00',
-    'record':       '#daa520',
+    'journal':       '#daa520',
     'event':        '#90ee90',
     'available':    '#1e90ff',
     'waiting':      '#6495ed',
@@ -80,7 +80,7 @@ type2style = {
         '!': 'class:inbox',
         '<': 'class:pastdue',
         '>': 'class:begin',
-        '%': 'class:record',
+        '%': 'class:journal',
         '*': 'class:event',
         '-': 'class:available',
         '+': 'class:waiting',
@@ -108,7 +108,7 @@ for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
 type_keys = {
     "*": "event",
     "-": "task",
-    "%": "record",
+    "%": "journal",
     "!": "inbox",
 }
 
@@ -142,7 +142,7 @@ item_types = """item type characters:\n    """ + """\n    """.join([f"{k}: {v}" 
 #         'u': "used time: timeperiod, datetime",
 #         'x': "expansion key: string",
 #         'z': "timezone: string",
-#         'itemtype': "character from (*)event, (-)task, (%)record or (!)inbox",
+#         'itemtype': "character from (*)event, (-)task, (%)journal or (!)inbox",
 #         'summary': "string"
 # }
 
@@ -208,7 +208,7 @@ allowed['*'] = common_methods + datetime_methods + repeating_methods
 required['-'] = []
 allowed['-'] = common_methods + datetime_methods + task_methods + repeating_methods
 
-# record
+# journal
 required['%'] = []
 allowed['%'] = common_methods + datetime_methods
 
@@ -568,7 +568,7 @@ class Item(object):
         # Note: datetime(s) require timezone and at requires itemtype
         # all else do not need item_hsh
         self.keys = {
-                'itemtype': ["item type", "character from * (event), - (task), % (record) or ! (inbox)", self.do_itemtype],
+                'itemtype': ["item type", "character from * (event), - (task), % (journal) or ! (inbox)", self.do_itemtype],
                 'summary': ["summary", "brief item description", self.do_summary],
                 '+': ["include", "list of datetimes to include", self.do_datetimes],
                 '-': ["exclude", "list of datetimes to exclude", self.do_datetimes],
@@ -771,7 +771,7 @@ class Item(object):
                     cur_hsh = {}
                 self.item_hsh[k] = obj
         if cur_key:
-            # record the last if necessary 
+            # journal the last if necessary 
             self.item_hsh.setdefault(cur_key, []).append(cur_hsh)
             cur_key = None
             cur_hsh = {}
@@ -921,9 +921,9 @@ class Item(object):
         """
         >>> item = Item()
         >>> item.do_itemtype('')
-        (None, 'Choose a character from * (event), - (task), % (record) or ! (inbox)')
+        (None, 'Choose a character from * (event), - (task), % (journal) or ! (inbox)')
         >>> item.do_itemtype('+')
-        (None, "'+' is invalid. Choose a character from * (event), - (task), % (record) or ! (inbox)")
+        (None, "'+' is invalid. Choose a character from * (event), - (task), % (journal) or ! (inbox)")
         >>> item.do_itemtype('*')
         ('*', '* (event)')
         """
@@ -1506,12 +1506,13 @@ class DataView(object):
         self.history_view = ""
         self.cache = {}
         self.itemcache = {}
+        self.etmdir = ""
         self.views = {
                 'a': 'agenda',
                 'b': 'busy',
                 'h': 'history',
                 'i': 'index',
-                'j': 'jottings',
+                'j': 'journal',
                 'n': 'next',
                 'r': 'relevant',
                 't': 'tags',
@@ -1525,6 +1526,10 @@ class DataView(object):
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
         self.refreshAgenda()
+
+    def set_etmdir(self, etmdir):
+        logger.info(f"set etmdir: {etmdir}")
+        self.etmdir = etmdir
 
     def set_now(self):
         self.now = pendulum.now('local')  
@@ -1545,9 +1550,9 @@ class DataView(object):
         elif self.active_view == 'next':
             self.next_view, self.num2id = show_next()
             return self.next_view
-        elif self.active_view == 'jottings':
-            self.jottings_view, self.num2id = show_jottings()
-            return self.jottings_view
+        elif self.active_view == 'journal':
+            self.journal_view, self.num2id = show_journal()
+            return self.journal_view
         elif self.active_view == 'index':
             self.index_view, self.num2id = show_index()
             return self.index_view
@@ -2388,15 +2393,22 @@ def do_weekdays(arg):
     (None, 'incomplete or invalid weekdays: 5SU. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
     >>> do_weekdays('3FR, -1M')
     (None, 'incomplete or invalid weekdays: -1M. weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.')
+    >>> do_weekdays('FR(+3), MO(-1)')
+    ([FR(+3), MO(-1)], '+3FR, -1MO')
     """
     weekdaysstr = "weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month."
     if arg:
         args = [x.strip().upper() for x in arg.split(',')]
         bad = []
         good = []
+        rep = []
         for x in args:
             if x in WKDAYS_DECODE:
                 good.append(eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[x])))
+                rep.append(x)
+            elif x in WKDAYS_ENCODE:
+                good.append(eval(x))
+                rep.append( WKDAYS_ENCODE[x] )
             else:
                 bad.append(x)
         if bad:
@@ -2404,7 +2416,7 @@ def do_weekdays(arg):
             rep = f"incomplete or invalid weekdays: {', '.join(bad)}. {weekdaysstr}"
         else:
             obj = good
-            rep = f"{arg.upper()}"
+            rep = ", ".join(rep)
     else:
         obj = None
         rep = weekdaysstr
@@ -3796,7 +3808,7 @@ def get_item(id):
 
 def finish(id, dt):
     """
-    Record a completion at dt for the task corresponding to id.  
+    journal a completion at dt for the task corresponding to id.  
     """
     pass
 
@@ -4145,17 +4157,19 @@ def show_next():
             next_view.append(f"  {i['columns'][0]} {i['columns'][1][:width - 8].ljust(width - 8, ' ')}  {i['columns'][2]}")
     return "\n".join(next_view), row2id
 
-def show_jottings():
+def show_journal():
     """
-    Undated records grouped by index entry
+    Undated journals grouped by index entry
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     indices = set([])
     for item in ETMDB:
-        if item['itemtype'] != '%' or 's' in item:
+        if item['itemtype'] != '%': #  or 's' in item:
             continue
-        index = item.get('i', '~none')
+        # if 'i' not in item:
+        #     continue
+        index = item.get('i', '~')
         rows.append({
                     'sort': (index, item['summary']),
                     'index': index,
@@ -4181,14 +4195,14 @@ def show_jottings():
 
 def show_index():
     """
-    All records grouped by index entry
+    All items grouped by index entry
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     indices = set([])
     for item in ETMDB:
-        if 'i' not in item:
-            continue
+        # if 'i' not in item:
+        #     continue
         index = item.get('i', '~')
         rows.append({
                     'sort': (index, item['summary']),
@@ -4615,7 +4629,7 @@ Discussion: groups.google.com/group/eventandtaskmanager
 {copyright}\
 """
 
-    ret2 = f"""\
+    ret2 = f"""
 platform:         {system_platform}
 python:           {python_version}
 dateutil:         {dateutil_version}
@@ -4626,6 +4640,17 @@ jinja2:           {jinja2_version}
 current user:     {user_name}
 """
     return ret1, ret2
+
+
+def make_backup(backupdir=''):
+    timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
+    backupfile = os.path.join(backupdir, f"db{timestamp}.json")
+    # shutil.copy2(dbfilepath, backupfile)
+
+    pass
+
+def rotate_backups(backdir=''):
+    pass
 
 def main():
     pass

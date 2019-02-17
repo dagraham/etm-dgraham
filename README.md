@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Sat Feb 16, 2019 03:26PM EST*
+*Last modified: Sat Feb 16, 2019 06:58PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -12,7 +12,7 @@
 * [Item Types](#item-types)
     * [event](#event)
     * [task](#task)
-    * [record](#record)
+    * [Journal](#journal)
     * [inbox](#inbox)
 * [notices](#notices)
     * [beginning soon](#beginning-soon)
@@ -226,7 +226,7 @@ A task is something that requires action from the user and lasts, so to speak, u
 
 Corresponds to VTODO in the vcalendar specification.
 
-## [record](#toc)
+## [Journal](#toc)
 
 Type character: **%**
 

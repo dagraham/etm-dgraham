@@ -633,7 +633,7 @@ def next_view(*event):
     set_text(dataview.show_active_view())
 
 @bindings.add('j', filter=is_not_searching & not_showing_details & is_not_editing)
-def jottings_view(*event):
+def journal_view(*event):
     dataview.set_active_view('j')
     set_text(dataview.show_active_view())
 
@@ -641,6 +641,53 @@ def jottings_view(*event):
 def index_view(*event):
     dataview.set_active_view('i')
     set_text(dataview.show_active_view())
+
+@bindings.add('right', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
+def nextweek(*event):
+    dataview.nextYrWk()
+    set_text(dataview.show_active_view())
+
+
+@bindings.add('left', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
+def prevweek(*event):
+    dataview.prevYrWk()
+    set_text(dataview.show_active_view())
+
+@bindings.add('space', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
+def currweek(*event):
+    dataview.currYrWk()
+    set_text(dataview.show_active_view())
+
+@bindings.add('enter', filter=is_not_searching & is_not_busy_view & is_not_editing)
+def show_details(*event):
+    if dataview.is_showing_details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    else:
+        tmp = dataview.get_details(text_area.document.cursor_position_row)[1]
+        if tmp:
+            dataview.show_details()
+            details_area.text = tmp.rstrip()
+            application.layout.focus(details_area)
+
+
+@bindings.add('c-c', filter=is_editing, eager=True)
+def close_edit(event):
+    # TODO: warn if item.is_modified
+    dataview.is_editing = False
+    logger.info(f"is_modified: {item.is_modified}")
+    application.layout.focus(text_area)
+    set_text(dataview.show_active_view())
+
+@edit_bindings.add('c-s', filter=is_editing, eager=True)
+def save_changes(_):
+    # TODO: refresh views
+    logger.info(f"doc_id {item.doc_id} is_modified: {item.is_modified}")
+    if item.is_modified:
+        if item.doc_id is not None:
+            del dataview.itemcache[item.doc_id]
+        loop = get_event_loop()
+        loop.call_later(0, item_changed, loop)
 
 
 root_container = MenuContainer(body=body, menu_items=[
@@ -678,33 +725,33 @@ root_container = MenuContainer(body=body, menu_items=[
             MenuItem('a) agenda', handler=agenda_view),
             MenuItem('b) busy', handler=busy_view),
             MenuItem('movement', children=[
-                MenuItem('left) previous week'),
-                MenuItem('space) current week'),
-                MenuItem('right) next week'),
+                MenuItem('left) previous week', handler=prevweek),
+                MenuItem('space) current week', handler=currweek),
+                MenuItem('right) next week', handler=nextweek),
                 MenuItem('g) go to date', handler=do_go_to_date),
             ]),
         ]),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
-        MenuItem('j) jottings', handler=jottings_view),
+        MenuItem('j) journal', handler=journal_view),
         MenuItem('n) next', handler=next_view),
-        MenuItem('q) query'),
-        MenuItem('r) relevant'),
-        MenuItem('t) tags'),
+        MenuItem('q) query', disabled=True),
+        MenuItem('r) relevant', disabled=True),
+        MenuItem('t) tags', disabled=True),
         MenuItem('selection', children=[
-            MenuItem('Enter) toggle details'),
-            MenuItem('G) goto link'),
-            MenuItem('X) export ical to clipboard'),
+            MenuItem('Enter) toggle details', handler=show_details),
+            MenuItem('G) goto link', disabled=True),
+            MenuItem('X) export ical to clipboard', disabled=True),
         ]),
         MenuItem('-', disabled=True),
-        MenuItem('c) copy to clipboard'),
+        MenuItem('c) copy to clipboard', disabled=True),
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
     ]),
     MenuItem('tools', children=[
         MenuItem("F5) show today's alerts", handler=do_alerts),
-        MenuItem('F6) open date calculator'),
-        MenuItem('F7) show yearly calendar'),
+        MenuItem('F6) open date calculator', disabled=True),
+        MenuItem('F7) show yearly calendar', handler=do_show_calendar),
     ]),
 ], floats=[
     Float(xcursor=True,
@@ -714,53 +761,6 @@ root_container = MenuContainer(body=body, menu_items=[
               scroll_offset=1)),
 ])
 
-
-@bindings.add('right', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
-def nextweek(event):
-    dataview.nextYrWk()
-    set_text(dataview.show_active_view())
-
-
-@bindings.add('left', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
-def prevweek(event):
-    dataview.prevYrWk()
-    set_text(dataview.show_active_view())
-
-@bindings.add('space', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
-def currweek(event):
-    dataview.currYrWk()
-    set_text(dataview.show_active_view())
-
-@bindings.add('enter', filter=is_not_searching & is_not_busy_view & is_not_editing)
-def show_details(event):
-    if dataview.is_showing_details:
-        application.layout.focus(text_area)
-        dataview.hide_details()
-    else:
-        tmp = dataview.get_details(text_area.document.cursor_position_row)[1]
-        if tmp:
-            dataview.show_details()
-            details_area.text = tmp.rstrip()
-            application.layout.focus(details_area)
-
-
-@bindings.add('c-c', filter=is_editing, eager=True)
-def close_edit(event):
-    # TODO: warn if item.is_modified
-    dataview.is_editing = False
-    logger.info(f"is_modified: {item.is_modified}")
-    application.layout.focus(text_area)
-    set_text(dataview.show_active_view())
-
-@edit_bindings.add('c-s', filter=is_editing, eager=True)
-def save_changes(_):
-    # TODO: refresh views
-    logger.info(f"doc_id {item.doc_id} is_modified: {item.is_modified}")
-    if item.is_modified:
-        if item.doc_id is not None:
-            del dataview.itemcache[item.doc_id]
-        loop = get_event_loop()
-        loop.call_later(0, item_changed, loop)
 
 
 # This is slick - add a call to default_buffer_changed 
@@ -822,13 +822,10 @@ application = Application(
     full_screen=True)
 
 
-def run():
-    application.run()
-
-def main():
+def main(etmdir=""):
     # Tell prompt_toolkit to use asyncio.
+    dataview.set_etmdir(etmdir)
     use_asyncio_event_loop()
-
     # Run application async.
     loop = get_event_loop()
     loop.call_later(0, event_handler, loop)
