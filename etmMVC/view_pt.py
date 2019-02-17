@@ -381,6 +381,8 @@ def new_day(loop):
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
     get_app().invalidate()
+    dataview.make_backup()
+    dataview.rotate_backups()
 
 current_datetime = pendulum.now('local')
 
@@ -433,14 +435,10 @@ def event_handler(loop):
     wait = 60 - now.second
     loop.call_later(wait, event_handler, loop)
 
-# def get_statusbar_text():
-#     width=shutil.get_terminal_size()[0]
-#     space = ' ' * (width - 9 - len(current_datetime))
-#     return [
-#             ('class:status', f' {current_datetime}{space}F1:menu'),
-#     ]
+
 def get_statusbar_text():
     return [ ('class:status',  f' {current_datetime}'), ]
+
 
 def get_statusbar_right_text():
     return [ ('class:status',  f'{dataview.active_view} '), ]
@@ -591,6 +589,11 @@ def edit_copy(*event):
     default_buffer_changed(_)
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
+
+# @bindings.add('B', filter=is_not_editing)
+# def make_backup(*event):
+#     dataview.make_backup()
+#     dataview.rotate_backups()
 
 @bindings.add('c-p')
 def play_sound(*event):

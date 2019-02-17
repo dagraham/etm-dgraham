@@ -36,6 +36,10 @@ import textwrap
 import os
 import platform
 
+# for compressing backup files
+from zipfile import ZipFile, ZIP_DEFLATED
+
+
 system_platform = platform.platform(terse=1)
 python_version = platform.python_version()
 developer = "dnlgrhm@gmail.com"
@@ -1539,11 +1543,41 @@ class DataView(object):
 
     def set_etmdir(self, etmdir):
         self.etmdir = etmdir
+        self.backupdir = os.path.join(self.etmdir, 'backups')
         self.dbname = os.path.normpath(os.path.join(etmdir, 'db.json'))
+        self.lastmodified = os.path.getmtime(self.dbname)
         self.db = TinyDB(self.dbname, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
         logger.info(f"set etmdir in DataView: {etmdir}; dbname: {self.dbname}")
 
+    def make_backup(self):
+        lastmodified = os.path.getmtime(self.dbname)
+        logger.info(f"current: {lastmodified}; last: {self.lastmodified}")
+        if lastmodified <= self.lastmodified:
+            logger.info(f"{self.dbname} unchanged - skipping backup")
+            return
+        self.lastmodified = lastmodified
+        timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
+        backupfile = os.path.join(self.backupdir, f"{timestamp}.json")
+        zipfile = os.path.join(self.backupdir, f"{timestamp}.zip")
+        shutil.copy2(self.dbname, backupfile)
+        logger.info(f"backup to {backupfile}")
+        with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
+            zip.write(backupfile, os.path.basename(backupfile))
+        logger.info(f"zipped {backupfile} to {zipfile}")
+        os.remove(backupfile)
+        logger.info(f"removed {backupfile}")
+
+
+    def rotate_backups(self):
+        filelist = os.listdir(self.backupdir)
+        zipfiles = [x for x in filelist if x.endswith('zip')] 
+        zipfiles.sort(reverse=True)
+        removefiles = [os.path.join(self.backupdir, x) for x in zipfiles[10:]]
+        if removefiles:
+            logger.info(f"removing old zip files: {removefiles}")
+            for f in removefiles:
+                os.remove(f)
 
     def set_now(self):
         self.now = pendulum.now('local')  
@@ -4655,16 +4689,6 @@ current user:     {user_name}
 """
     return ret1, ret2
 
-
-def make_backup(backupdir=''):
-    timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
-    backupfile = os.path.join(backupdir, f"db{timestamp}.json")
-    # shutil.copy2(dbfilepath, backupfile)
-
-    pass
-
-def rotate_backups(backdir=''):
-    pass
 
 def main():
     pass
