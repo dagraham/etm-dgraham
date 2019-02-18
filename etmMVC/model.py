@@ -2094,7 +2094,7 @@ entry_tmpl = """\
 {%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
 {%- endfor %}
 {%- if 'a' in x %}\
-{%- for a in x['a'] %} &a {{ "&a {}: {}".format(inlst2str(a[0]), a[1]) }}{% endfor %}\
+{%- for a in x['a'] %} {{ "&a {}: {}".format(inlst2str(a[0]), a[1]) }}{% endfor %}\
 {%- endif %}\
 {%- endset %}
 @j {{ wrap(job) }} \
@@ -2183,6 +2183,28 @@ def do_usedtime(arg):
         return [obj_period, obj_datetime], f"used {rep_period} ending {rep_datetime}"
     else:
         return None, f"{rep_period}: {rep_datetime}"
+
+# def do_alertlist(args):
+#     logger.info(f"args: {args}")
+#     if not isinstance(args, list):
+#         args = [args]
+#     good = []
+#     bad = []
+#     rep = []
+
+#     ok = True
+#     for arg in args:
+#         logger.info(f"arg: {arg}")
+#         obj, ret = do_alert(arg)
+#         if obj is None:
+#             ok = False
+#             bad.append(rep)
+#         else:
+#             good.append(obj)
+#     if ok:
+#         return False, ", ".join(rep)
+#     else:
+#         return True, [good]
 
 
 def do_alert(arg):
@@ -3031,7 +3053,6 @@ undated_job_methods = dict(
 
 datetime_job_methods = dict(
     b=do_beginby,
-    a=do_alert,
 )
 datetime_job_methods.update(undated_job_methods)
 
@@ -3264,7 +3285,7 @@ def jobs(lofh, at_hsh={}):
      DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC')))
 
     Now add an 'r' entry for at_hsh.
-    >>> data = [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p', tz="US/Eastern")}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': parse('6/21/18 12p', tz="US/Eastern")}, {'j': 'Job Three', 'a': '6h: d', 'f': parse('6/22/18 12p', tz="US/Eastern")}]
+    >>> data = [{'j': 'Job One', 's': '1d', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p', tz="US/Eastern")}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': parse('6/21/18 12p', tz="US/Eastern")}, {'j': 'Job Three', 'a': '6h: d', 'f': parse('6/22/18 12p', tz="US/Eastern")}]
     >>> data
     [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Three', 'a': '6h: d', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}]
     >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a', tz="US/Eastern"), 'a': parse('6/22/18 7a', tz="US/Eastern"), 'j': data}))
@@ -3360,8 +3381,13 @@ def jobs(lofh, at_hsh={}):
         for key in hsh.keys():
             if key in ['req', 'status', 'summary']:
                 pass
+            elif key == 'a':
+                res.setdefault('a', []).append(hsh['a'])
+            elif key == 's':
+                res[key] = hsh[key]
             elif key in job_methods:
                 ok, out = job_methods[key](hsh[key])
+                logger.info(f"key: {key}; ok,: {ok}; out: {out}")
                 if ok:
                     res[key] = out
                 else:
@@ -4144,11 +4170,12 @@ def relevant(db, now=pendulum.now('local') ):
                     if today + DAY <= jobstart <= tomorrow + days:
                         beginbys.append([(jobstart.date() - today.date()).days, job['summary'], item.item_id, job_id])
                 if 'a' in job:
-                    logger.info(f"job {job['summary']} has alerts")
+                    logger.info(f"job {job['summary']} has alerts: {job['a']}")
                     for alert in job['a']:
+                        logger.info(f"dealing with alert: {alert}")
                         for td in alert[0]:
                             if today <= jobstart - td <= tomorrow:
-                                alerts.append([dtstart - td, td, alert[1],  job['summary'], item.doc_id, job_id])
+                                alerts.append([dtstart - td, dtstart, alert[1],  job['summary'], item.doc_id, job_id])
 
         id2relevant[item.doc_id] = relevant
 
