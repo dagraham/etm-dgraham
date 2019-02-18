@@ -637,6 +637,7 @@ class Item(object):
         self.dbname = os.path.normpath(os.path.join(etmdir, 'db.json'))
         self.db = TinyDB(self.dbname, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
+
         logger.info(f"set etmdir in Item: {etmdir}; dbname: {self.dbname}")
 
 
@@ -1547,8 +1548,11 @@ class DataView(object):
         self.dbname = os.path.normpath(os.path.join(etmdir, 'db.json'))
         self.lastmodified = os.path.getmtime(self.dbname)
         self.db = TinyDB(self.dbname, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        self.dbarch = self.db.table('archive', cache_size=None)
         self.dbquery = self.db.table('items', cache_size=None)
-        logger.info(f"set etmdir in DataView: {etmdir}; dbname: {self.dbname}")
+        self.item_num = len(self.db)
+        self.arch_num = len(self.dbarch)
+        logger.info(f"set etmdir in DataView: {etmdir}; dbname: {self.dbname}; items: {self.item_num}; archive: {self.arch_num}")
 
     def make_backup(self):
         lastmodified = os.path.getmtime(self.dbname)
@@ -1674,6 +1678,82 @@ class DataView(object):
 
     def refreshCache(self):
         self.cache = schedule(self.db, self.currentYrWk, self.current, self.now, 5, 20)
+
+    def possible_archive(self, old=pendulum.now('local')-pendulum.duration(years=2)):
+        """
+        Collect old finished tasks, (repeating or not), old non-repeating events,
+        and repeating events with old @u entries. Do not collect records.
+        """
+
+        rows = []
+        logger.info(f"checking for items older than {old}")
+        for item in self.db:
+            if item['itemtype'] == '%':
+                # keep records
+                continue
+            elif 'f' in item:
+                if isinstance(item['f'], pendulum.DateTime):
+                    if item['f'] < old:
+                        # toss old finished tasks including repeating ones
+                        # logger.info(f"{item.doc_id} {item['f']} < {old}")
+                        rows.append(item)
+                        continue
+                elif isinstance(item['f'], pendulum.Date):
+                    if item['f'] < old.date():
+                        # logger.info(f"{item.doc_id} {item['f']} < {old.date()}")
+                        # toss old finished tasks including repeating ones
+                        rows.append(item)
+                        continue
+            elif 'r' in item:
+                toss = True
+                for rr in item['r']:
+                    if 'u' not in rr or rr['u'] >= old:
+                        toss = False
+                        break
+                    else:
+                        prov = rr['u']
+                    # FIXME: complicated whether or not to archive other repeating items with 't' so keep them
+                # got here so 'u' item with u < datetime
+                if toss:
+                    # logger.info(f"{item.doc_id} {prov} < {old}")
+                    rows.append(item)
+                    continue
+            elif item['itemtype'] == '*':
+                if isinstance(item['s'], pendulum.DateTime):
+                    if item['s'] < old:
+                        # logger.info(f"{item.doc_id} {item['s']} < {old}")
+                        # toss old, non-repeating events
+                        rows.append(item)
+                        continue
+                elif isinstance(item['s'], pendulum.Date):
+                    if item['s'] < old.date():
+                        # logger.info(f"{item.doc_id} {item['s']} < {old.date()}")
+                        # toss old, non-repeating events
+                        rows.append(item)
+                        continue
+            else:
+                continue
+        logger.info(f"maybe archive {len(rows)}: {[item.doc_id for item in rows]}")
+        add_items = []
+        rem_ids = []
+        for item in rows:
+            rem_ids.append(item.doc_id)
+            item['doc_id'] = item.doc_id
+            add_items.append(item)
+
+        try: 
+            self.dbarch.insert_multiple(add_items)
+        except:
+            logger.info(f"archive failed for doc_ids: {rem_ids}")
+        else:
+            self.db.remove(doc_ids=rem_ids)
+
+
+
+
+
+
+        return rows
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-2):

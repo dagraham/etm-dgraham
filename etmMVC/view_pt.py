@@ -374,6 +374,7 @@ def data_changed(loop):
     get_app().invalidate()
 
 def new_day(loop):
+    dataview.possible_archive()
     dataview.set_active_view('a')
     # dataview.now = pendulum.now()
     dataview.refreshRelevant()
@@ -590,10 +591,9 @@ def edit_copy(*event):
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
-# @bindings.add('B', filter=is_not_editing)
-# def make_backup(*event):
-#     dataview.make_backup()
-#     dataview.rotate_backups()
+@bindings.add('B', filter=is_not_editing)
+def whatever(*event):
+    dataview.possible_archive()
 
 @bindings.add('c-p')
 def play_sound(*event):
