@@ -2083,7 +2083,7 @@ entry_tmpl = """\
 {%- endif %}\
 {%- endfor %}\
 {% if 'd' in h %}
-@d {{ h['d'] }} \
+@d {{ wrap(h['d'], 0) }} \
 {% endif -%}
 {%- if 'j' in h %}\
 {%- for x in h['j'] %}\
