@@ -4770,8 +4770,18 @@ current user:     {user_name}
     return ret1, ret2
 
 
-def main():
-    pass
+# commands = {
+#         'r': pprint(relevant(db)) 
+#         }
+
+dataview = None
+item = None
+def main(etmdir=""):
+    global dataview, item, db
+    dataview = DataView(etmdir)
+    db = dataview.db
+    item = Item(etmdir)
+    dataview.refreshCache()
 
 if __name__ == '__main__':
     import doctest

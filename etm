@@ -1,19 +1,18 @@
-#! /usr/bin/env python3
-import sys
-MIN_PYTHON = (3, 6)
-if sys.version_info < MIN_PYTHON:
-    sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
-
-import os
-lib_path = os.path.relpath('etmMVC/')
-sys.path.append(lib_path)
-
-from etmMVC.model import setup_logging, logger, about
-from etmMVC.view_pt import main
-log_levels = [str(x) for x in range(1, 6)]
-
+#! ./env/bin/python
 
 if __name__ == "__main__":
+    import sys
+    MIN_PYTHON = (3, 6)
+    if sys.version_info < MIN_PYTHON:
+        sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
+
+    import os
+    lib_path = os.path.relpath('etmMVC/')
+    sys.path.append(lib_path)
+
+    from etmMVC.model import setup_logging, logger, about
+    log_levels = [str(x) for x in range(1, 6)]
+
     loglevel = 2 # info
     homedir = os.path.expanduser("~")
     etmdir = os.path.normpath(os.path.join(homedir, ".etm-mv"))
@@ -36,5 +35,16 @@ if __name__ == "__main__":
     setup_logging(loglevel, logdir)
     logger.info(about()[1])
 
-    main(etmdir)
+    # main(etmdir)
+
+    if len(sys.argv) > 1:
+        logger.debug(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
+        from etmMVC.model import main
+        main(etmdir, sys.argv)
+        sys.exit()
+
+    else:
+        logger.debug(f"calling view.main with etmdir: {etmdir}")
+        from etmMVC import view
+        view.main(etmdir)
 
