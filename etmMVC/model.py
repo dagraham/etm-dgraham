@@ -2024,6 +2024,7 @@ entry_tmpl = """\
 {{ h.itemtype }} {{ h.summary }}\
 {% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %}\
 {%- if 'e' in h %}{{ " @e {}".format(in2str(h['e'])) }}{% endif %}\
+{%- if 'b' in h %}{{ " @b {}".format(h['b']) }}{% endif %}\
 {%- if 'z' in h %}{{ " @z {}".format(h['z']) }}{% endif %}\
 {%- endset %}\
 {{ wrap(title) }} \
@@ -2093,7 +2094,7 @@ entry_tmpl = """\
 {%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
 {%- endfor %}
 {%- if 'a' in x %}\
-{%- for a in x['a'] %} &a {{ "&a {}: {}".format(inlst2str(a[0]), ", ".join(a[1:])) }}{% endfor %}\
+{%- for a in x['a'] %} &a {{ "&a {}: {}".format(inlst2str(a[0]), a[1]) }}{% endfor %}\
 {%- endif %}\
 {%- endset %}
 @j {{ wrap(job) }} \
@@ -2138,10 +2139,10 @@ def do_beginby(arg):
     beginby_str = "an integer number of days"
     if not arg:
         return None, beginby_str
-    ok, res = integer(arg, 1, None, False, 'beg')
+    ok, res = integer(arg, 1, None, False)
     if ok:
         obj = res
-        rep = f"beginby: {arg} day(s)"
+        rep = arg
     else:
         obj = None
         rep = f"'{arg}' is invalid. Beginby requires {beginby_str}."
@@ -2200,6 +2201,7 @@ def do_alert(arg):
     """
     obj = None
     rep = arg
+    logger.info(f"arg: {arg}")
     parts = arg.split(':')
     periods = parts.pop(0)
     command = parts[0].strip() if parts else None
@@ -3029,6 +3031,7 @@ undated_job_methods = dict(
 
 datetime_job_methods = dict(
     b=do_beginby,
+    a=do_alert,
 )
 datetime_job_methods.update(undated_job_methods)
 
@@ -3168,7 +3171,7 @@ def jobs(lofh, at_hsh={}):
        'status': '+',
        'summary': ' 1/2/0: Assemble'}],
      None)
-    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
+    >>> data = [{'j': 'Job One', 'a': '2d: d', 'b': 2}, {'j': 'Job Two', 'a': '1d: d', 'b': 1}, {'j': 'Job Three', 'a': '6h: d'}]
     >>> pprint(jobs(data))
     (True,
      [{'i': '1',
@@ -3190,7 +3193,7 @@ def jobs(lofh, at_hsh={}):
        'status': '+',
        'summary': ' 1/2/0: Job Three'}],
      None)
-    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1}, {'j': 'Job Three', 'a': '6h: m'}]
+    >>> data = [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: d', 'b': 1}, {'j': 'Job Three', 'a': '6h: d'}]
     >>> pprint(jobs(data))
     (True,
      [{'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
@@ -3213,7 +3216,7 @@ def jobs(lofh, at_hsh={}):
        'status': '+',
        'summary': ' 1/1/1: Job Three'}],
      None)
-    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m'}]
+    >>> data = [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: d'}]
     >>> pprint(jobs(data))
     (True,
      [{'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
@@ -3237,7 +3240,7 @@ def jobs(lofh, at_hsh={}):
        'status': '-',
        'summary': ' 1/0/2: Job Three'}],
      None)
-    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p')}]
+    >>> data = [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: d', 'f': parse('6/22/18 12p')}]
     >>> pprint(jobs(data))
     (True,
      [{'i': '1',
@@ -3261,26 +3264,29 @@ def jobs(lofh, at_hsh={}):
      DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC')))
 
     Now add an 'r' entry for at_hsh.
-    >>> data = [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': parse('6/20/18 12p', tz="US/Eastern")}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': parse('6/21/18 12p', tz="US/Eastern")}, {'j': 'Job Three', 'a': '6h: m', 'f': parse('6/22/18 12p', tz="US/Eastern")}]
+    >>> data = [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p', tz="US/Eastern")}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': parse('6/21/18 12p', tz="US/Eastern")}, {'j': 'Job Three', 'a': '6h: d', 'f': parse('6/22/18 12p', tz="US/Eastern")}]
     >>> data
-    [{'j': 'Job One', 'a': '2d: m', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Two', 'a': '1d: m', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Three', 'a': '6h: m', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}]
-    >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a', tz="US/Eastern"), 'j': data}))
+    [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Three', 'a': '6h: d', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}]
+    >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a', tz="US/Eastern"), 'a': parse('6/22/18 7a', tz="US/Eastern"), 'j': data}))
     (True,
-     [{'b': 'beginby: 2 day(s)',
+     [{'a': 'alert: 2d -> d',
+       'b': 2,
        'i': '1',
        'j': 'Job One',
        'p': [],
        'req': [],
        'status': '-',
        'summary': ' 1/2/0: Job One'},
-      {'b': 'beginby: 1 day(s)',
+      {'a': 'alert: 1d -> d',
+       'b': 1,
        'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
        'status': '+',
        'summary': ' 1/2/0: Job Two'},
-      {'i': '3',
+      {'a': 'alert: 6h -> d',
+       'i': '3',
        'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
@@ -4134,14 +4140,15 @@ def relevant(db, now=pendulum.now('local') ):
                     pastdue_jobs = True
                     pastdue.append([(jobstart.date() - today.date()).days, job['summary'], item.doc_id, job_id])
                 if 'b' in job:
-                    days = int(job['b'] * DAY)
+                    days = int(job['b']) * DAY
                     if today + DAY <= jobstart <= tomorrow + days:
                         beginbys.append([(jobstart.date() - today.date()).days, job['summary'], item.item_id, job_id])
                 if 'a' in job:
+                    logger.info(f"job {job['summary']} has alerts")
                     for alert in job['a']:
                         for td in alert[0]:
                             if today <= jobstart - td <= tomorrow:
-                                alerts.append([dtstart - td, td, alert[1], alert[2], job['summary'], item.doc_id, job_id])
+                                alerts.append([dtstart - td, td, alert[1],  job['summary'], item.doc_id, job_id])
 
         id2relevant[item.doc_id] = relevant
 

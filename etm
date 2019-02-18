@@ -45,6 +45,6 @@ if __name__ == "__main__":
 
     else:
         logger.debug(f"calling view.main with etmdir: {etmdir}")
-        from etmMVC import view
-        view.main(etmdir)
+        from etmMVC.view import main
+        main(etmdir)
 
