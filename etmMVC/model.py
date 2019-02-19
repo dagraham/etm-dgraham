@@ -91,6 +91,8 @@ type2style = {
         '✓': 'class:finished',
         }
 
+FINISHED_CHAR = '✓'
+
 etmdir = None
 
 ampm = SETTINGS.ampm
@@ -2090,12 +2092,16 @@ entry_tmpl = """\
 {%- for x in h['j'] %}\
 {%- set job -%}\
 {{ x['j'] }}\
-{%- for k in ['s', 'b', 'd', 'e', 'f', 'l', 'i', 'p'] -%}
+{%- for k in ['s', 'e'] -%}
+{%- if k in x and x[k] %} {{ "&{} {}".format(k, in2str(x[k])) }}{% endif %}\
+{%- endfor %}
+{%- for k in ['b', 'd', 'l', 'i', 'p'] -%}
 {%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
 {%- endfor %}
 {%- if 'a' in x %}\
 {%- for a in x['a'] %} {{ "&a {}: {}".format(inlst2str(a[0]), a[1]) }}{% endfor %}\
 {%- endif %}\
+{% if 'f' in x %}{{ " &f {}".format(dt2str(x['f'])[1]) }}{% endif %}\
 {%- endset %}
 @j {{ wrap(job) }} \
 {%- endfor %}\
@@ -2183,28 +2189,6 @@ def do_usedtime(arg):
         return [obj_period, obj_datetime], f"used {rep_period} ending {rep_datetime}"
     else:
         return None, f"{rep_period}: {rep_datetime}"
-
-# def do_alertlist(args):
-#     logger.info(f"args: {args}")
-#     if not isinstance(args, list):
-#         args = [args]
-#     good = []
-#     bad = []
-#     rep = []
-
-#     ok = True
-#     for arg in args:
-#         logger.info(f"arg: {arg}")
-#         obj, ret = do_alert(arg)
-#         if obj is None:
-#             ok = False
-#             bad.append(rep)
-#         else:
-#             good.append(obj)
-#     if ok:
-#         return False, ", ".join(rep)
-#     else:
-#         return True, [good]
 
 
 def do_alert(arg):
@@ -3067,7 +3051,7 @@ def task(at_hsh):
             'j': 'Job 1',
             'p': [],
             'req': [],
-            'status': 'x',
+            'status': '✓',
             'summary': 'Task Group 1/0/1: Job 1'},
            {'i': '2',
             'j': 'Job 2',
@@ -3195,19 +3179,22 @@ def jobs(lofh, at_hsh={}):
     >>> data = [{'j': 'Job One', 'a': '2d: d', 'b': 2}, {'j': 'Job Two', 'a': '1d: d', 'b': 1}, {'j': 'Job Three', 'a': '6h: d'}]
     >>> pprint(jobs(data))
     (True,
-     [{'i': '1',
+     [{'a': ['2d: d'],
+       'i': '1',
        'j': 'Job One',
        'p': [],
        'req': [],
        'status': '-',
        'summary': ' 1/2/0: Job One'},
-      {'i': '2',
+      {'a': ['1d: d'],
+       'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
        'status': '+',
        'summary': ' 1/2/0: Job Two'},
-      {'i': '3',
+      {'a': ['6h: d'],
+       'i': '3',
        'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
@@ -3217,44 +3204,51 @@ def jobs(lofh, at_hsh={}):
     >>> data = [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: d', 'b': 1}, {'j': 'Job Three', 'a': '6h: d'}]
     >>> pprint(jobs(data))
     (True,
-     [{'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
+     [{'a': ['2d: d'],
+       'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
        'i': '1',
        'j': 'Job One',
        'p': [],
        'req': [],
-       'status': 'x',
+       'status': '✓',
        'summary': ' 1/1/1: Job One'},
-      {'i': '2',
+      {'a': ['1d: d'],
+       'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': [],
        'status': '-',
        'summary': ' 1/1/1: Job Two'},
-      {'i': '3',
+      {'a': ['6h: d'],
+       'i': '3',
        'j': 'Job Three',
        'p': ['2'],
        'req': ['2'],
        'status': '+',
        'summary': ' 1/1/1: Job Three'}],
      None)
+
     >>> data = [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: d'}]
     >>> pprint(jobs(data))
     (True,
-     [{'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
+     [{'a': ['2d: d'],
+       'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
        'i': '1',
        'j': 'Job One',
        'p': [],
        'req': [],
-       'status': 'x',
+       'status': '✓',
        'summary': ' 1/0/2: Job One'},
-      {'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('UTC')),
+      {'a': ['1d: d'],
+       'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('UTC')),
        'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': [],
-       'status': 'x',
+       'status': '✓',
        'summary': ' 1/0/2: Job Two'},
-      {'i': '3',
+      {'a': ['6h: d'],
+       'i': '3',
        'j': 'Job Three',
        'p': ['2'],
        'req': [],
@@ -3264,19 +3258,22 @@ def jobs(lofh, at_hsh={}):
     >>> data = [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p')}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': parse('6/21/18 12p')}, {'j': 'Job Three', 'a': '6h: d', 'f': parse('6/22/18 12p')}]
     >>> pprint(jobs(data))
     (True,
-     [{'i': '1',
+     [{'a': ['2d: d'],
+       'i': '1',
        'j': 'Job One',
        'p': [],
        'req': [],
        'status': '-',
        'summary': ' 1/2/0: Job One'},
-      {'i': '2',
+      {'a': ['1d: d'],
+       'i': '2',
        'j': 'Job Two',
        'p': ['1'],
        'req': ['1'],
        'status': '+',
        'summary': ' 1/2/0: Job Two'},
-      {'i': '3',
+      {'a': ['6h: d'],
+       'i': '3',
        'j': 'Job Three',
        'p': ['2'],
        'req': ['2', '1'],
@@ -3287,18 +3284,19 @@ def jobs(lofh, at_hsh={}):
     Now add an 'r' entry for at_hsh.
     >>> data = [{'j': 'Job One', 's': '1d', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p', tz="US/Eastern")}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': parse('6/21/18 12p', tz="US/Eastern")}, {'j': 'Job Three', 'a': '6h: d', 'f': parse('6/22/18 12p', tz="US/Eastern")}]
     >>> data
-    [{'j': 'Job One', 'a': '2d: d', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Three', 'a': '6h: d', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}]
+    [{'j': 'Job One', 's': '1d', 'a': '2d: d', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Three', 'a': '6h: d', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}]
     >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a', tz="US/Eastern"), 'a': parse('6/22/18 7a', tz="US/Eastern"), 'j': data}))
     (True,
-     [{'a': 'alert: 2d -> d',
+     [{'a': ['2d: d'],
        'b': 2,
        'i': '1',
        'j': 'Job One',
        'p': [],
        'req': [],
+       's': '1d',
        'status': '-',
        'summary': ' 1/2/0: Job One'},
-      {'a': 'alert: 1d -> d',
+      {'a': ['1d: d'],
        'b': 1,
        'i': '2',
        'j': 'Job Two',
@@ -3306,7 +3304,7 @@ def jobs(lofh, at_hsh={}):
        'req': ['1'],
        'status': '+',
        'summary': ' 1/2/0: Job Two'},
-      {'a': 'alert: 6h -> d',
+      {'a': ['6h: d'],
        'i': '3',
        'j': 'Job Three',
        'p': ['2'],
@@ -3323,7 +3321,6 @@ def jobs(lofh, at_hsh={}):
 
     msg = []
     rmd = []
-    ret = []
     req = {}
     id2hsh = {}
     first = True
@@ -3479,7 +3476,7 @@ def jobs(lofh, at_hsh={}):
     # set the job status for each job - f) finished, a) available or w) waiting
     for i in ids:
         if id2hsh[i].get('f', None): # i is finished
-            id2hsh[i]['status'] = 'x'
+            id2hsh[i]['status'] = FINISHED_CHAR
             awf[2] += 1
         elif req[i]: # there are unfinished requirements for i
             id2hsh[i]['status'] = '+'
@@ -4448,12 +4445,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
             if 'h' in item:
                 for dt in item['h']:
                     done.append([dt, item['summary'], item.doc_id, 0])
-            if 'j' in item:
-                j = 0
-                for job in item['j']:
-                    j += 1
-                    if 'f' in job:
-                        done.append([job['f'], job['summary'], item.doc_id, j])
+            # if 'j' in item:
+            #     j = 0
+            #     for job in item['j']:
+            #         j += 1
+            #         if 'f' in job:
+            #             logger.info(f"done job: {item.doc_id}, {j}")
+            #             done.append([job['f'], job['summary'], item.doc_id, j])
             if done:
                 # FIXME: h and f timestamps in datastore may not be UTC times
                 for row in done:
@@ -4509,6 +4507,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                                 ]
                         }
                     )
+                    logger.info(f"appended job: {rows[-1]}")
 
             else:
                 rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
