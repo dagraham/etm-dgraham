@@ -4445,13 +4445,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
             if 'h' in item:
                 for dt in item['h']:
                     done.append([dt, item['summary'], item.doc_id, 0])
-            # if 'j' in item:
-            #     j = 0
-            #     for job in item['j']:
-            #         j += 1
-            #         if 'f' in job:
-            #             logger.info(f"done job: {item.doc_id}, {j}")
-            #             done.append([job['f'], job['summary'], item.doc_id, j])
+            if 'j' in item:
+                j = 0
+                for job in item['j']:
+                    j += 1
+                    if 'f' in job:
+                        logger.info(f"done job: {item.doc_id}, {j}")
+                        done.append([job['f'], job['summary'], item.doc_id, j])
             if done:
                 # FIXME: h and f timestamps in datastore may not be UTC times
                 for row in done:
@@ -4489,6 +4489,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
         for dt, et in item_instances(item, aft_dt, bef_dt):
             if 'j' in item:
                 for job in item['j']:
+                    if 'f' in job:
+                        continue
                     jobstart = dt - job.get('s', ZERO)
                     rhc = fmt_extent(jobstart, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
                     rows.append(

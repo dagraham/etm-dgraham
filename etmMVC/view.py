@@ -291,7 +291,7 @@ etmstyle = {
     'record':       'BurlyWood',
     'event':        'LimeGreen',
     'available':    'DodgerBlue',
-    'waiting':      'DarkGrey',
+    'waiting':      'SlateGrey',
     'finished':     'DarkGrey',
     'today':        f"{NAMED_COLORS['Ivory']} bold",
     # 'today':        f"{NAMED_COLORS['Ivory']} bg:{NAMED_COLORS['DimGrey']}",
