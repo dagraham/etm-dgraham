@@ -122,82 +122,6 @@ type_prompt = u"item type character:"
 
 item_types = """item type characters:\n    """ + """\n    """.join([f"{k}: {v}" for k, v in type_keys.items()])
 
-
-# at_keys = {
-#         '+': "include: list of date-times",
-#         '-': "exclude: list of date-times",
-#         'a': "alert: list of periods followd by a colon and a command and, optionally, by a list of cmd arguments",
-#         'b': "beginby: integer number of days",
-#         'c': "calendar: string",
-#         'd': "description: string",
-#         'e': "extent: timeperiod",
-#         'f': "finish: datetime",
-#         'g': "goto url or filepath: string",
-#         'h': "completions history: list of datetimes",
-#         'i': "index: colon delimited string",
-#         'j': "job summary: string",
-#         'l': "location: string",
-#         'm': "memo: string",  # maybe masked / crypted?
-#         'n': "attendees: list of 'name <email address>'",
-#         'o': "overdue: character from (r)estart, (s)kip or (k)eep",
-#         'p': "priority: integer",
-#         'r': "repetition frequency: character from (y)ear, (m)onth, (w)eek,"
-#             " (d)ay, (h)our, mi(n)ute",
-#         's': "start: date or datetime",
-#         't': "tags: list of strings",
-#         'u': "used time: timeperiod, datetime",
-#         'x': "expansion key: string",
-#         'z': "timezone: string",
-#         'itemtype': "character from (*)event, (-)task, (%)journal or (!)inbox",
-#         'summary': "string"
-# }
-
-# amp_keys = {
-#     'r': {
-#         'c': "count: integer number of repetitions",
-#         'm': "monthday: list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", 
-#         'E': "easter: number of days before (-), on (0) or after (+) Easter",
-#         'h': "hour: list of integers in 0 ... 23",
-#         'r': "frequency: character in y, m, w, d, h, n",
-#         'i': "interval: positive integer",
-#         'M': "month: list of integers in 1 ... 12", 
-#         'n': "minute: list of integers in 0 ... 59", 
-#         's': "set position: integer",
-#         'u': "until: datetime",
-#         'w': "weekday: list from SU, MO, ..., SA, possibly prepended with a positive or negative integer",
-#         'W': "week number: list of integers in 1, ... 53"
-#     },
-#     'j': {
-#         'a': "alert: timeperiod: command, args*",
-#         'b': "beginby: integer number of days",
-#         'd': "description: string",
-#         'e': "extent: timeperiod",
-#         'f': "finish: datetime",
-#         'i': "unique id: integer or string",
-#         'j': "job summary (string)",
-#         'l': "location: string",
-#         'm': "memo (list of 'datetime, timeperiod, datetime')",
-#         'p': "prerequisites: comma separated list of ids of immediate prereqs",
-#         's': "start/due: timeperiod before task start",
-#     },
-# }
-
-# at_regex = re.compile(r'\s@', re.MULTILINE)
-# amp_regex = re.compile(r'\s&', re.MULTILINE)
-# week_regex = re.compile(r'[+-]?(\d+)w', flags=re.I)
-# day_regex = re.compile(r'[+-]?(\d+)d', flags=re.I)
-# hour_regex = re.compile(r'[+-]?(\d+)h', flags=re.I)
-# minute_regex = re.compile(r'[+-]?(\d+)m', flags=re.I)
-# sign_regex = re.compile(r'(^\s*([+-])?)')
-# int_regex = re.compile(r'^\s*([+-]?\d+)\s*$')
-# period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
-# period_parts = re.compile(r'([wWdDhHmM])')
-# comma_regex = re.compile(r',\s*')
-# colon_regex = re.compile(r'\:\s+')
-# semicolon_regex = re.compile(r'\;\s*')
-
-# item_hsh = {} # preserve state
-
 allowed = {}
 required = {}
 common_methods = [x for x in 'cdegilmnstux']
@@ -592,7 +516,7 @@ class Item(object):
                 'm': ["mask", "string to be masked", do_mask],
                 'n': ["attendees", "list of 'name <email address>'", do_stringlist],
                 'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", do_overdue],
-                'p': ["priority", "priority from 1 (highest) to 9 (lowest)", do_priority],
+                'p': ["priority", "priority from 0 (none) to 4 (urgent)", do_priority],
                 's': ["start", "starting date or datetime", self.do_datetime],
                 't': ["tags", "list of tags", do_stringlist],
                 'u': ["used time", "timeperiod: datetime", do_usedtime],
@@ -799,6 +723,8 @@ class Item(object):
             if ok:
                 logger.info(f"jobs: {res}")
                 self.item_hsh['j'] = res
+                if last:
+                    self.item_hsh['f'] = last
         now = pendulum.now('local')
         if self.is_new:
             # creating a new item or editing a copy of an existing item
@@ -2277,8 +2203,8 @@ def location(arg):
     return string(arg, 'location')
 
 
-def uid(arg):
-    return string(arg, 'uid')
+# def uid(arg):
+#     return string(arg, 'uid')
 
 
 def description(arg):
@@ -2330,16 +2256,16 @@ def until(arg):
 
 def do_priority(arg):
     """
-    >>> do_priority("0")
-    (None, 'invalid priority: 0 is less than the allowed minimum. An integer priority number from 1 (highest), to 9 (lowest) is required')
+    >>> do_priority(6)
+    (None, 'invalid priority: 6 is greater than the allowed maximum. An integer priority number from 0 (none), to 4 (urgent) is required')
     >>> do_priority("1")
-    (1, 'priority: 1')
+    ('1', 'priority: 1')
     """
-    prioritystr = "An integer priority number from 1 (highest), to 9 (lowest)"
+    prioritystr = "An integer priority number from 0 (none), to 4 (urgent)"
     if arg:
-        ok, res = integer(arg, 1, 9, False, "")
+        ok, res = integer(arg, 0, 4, True, "")
         if ok:
-            obj = res
+            obj = f"{res}"
             rep = f"priority: {arg}"
         else:
             obj = None
@@ -2348,22 +2274,6 @@ def do_priority(arg):
         obj = None
         rep = prioritystr
     return obj, rep
-
-
-def priority(arg):
-    """
-    >>> priority(0)
-    (False, 'priority: an integer priority numbers from 1 (highest), to 9 (lowest)')
-    """
-    prioritystr = "priority: an integer priority numbers from 1 (highest), to 9 (lowest)"
-    if arg:
-        ok, res = integer(arg, 1, 9, False, "priority")
-        if ok:
-            return True, res
-        else:
-            return False, "invalid priority: {}. Required for {}".format(res, prioritystr)
-    else:
-        return False, prioritystr
 
 
 #####################################
@@ -2398,28 +2308,28 @@ def do_easterdays(arg):
     return obj, rep
 
 
-def easter(arg):
-    """
-    byeaster; integer or sequence of integers numbers of days before, < 0,
-    or after, > 0, Easter.
-    >>> easter(0)
-    (True, [0])
-    >>> easter([-364, -30, 0, "45", 260])
-    (True, [-364, -30, 0, 45, 260])
-    """
-    easterstr = "easter: a comma separated list of integer numbers of days before, < 0, or after, > 0, Easter."
+# def easter(arg):
+#     """
+#     byeaster; integer or sequence of integers numbers of days before, < 0,
+#     or after, > 0, Easter.
+#     >>> easter(0)
+#     (True, [0])
+#     >>> easter([-364, -30, 0, "45", 260])
+#     (True, [-364, -30, 0, 45, 260])
+#     """
+#     easterstr = "easter: a comma separated list of integer numbers of days before, < 0, or after, > 0, Easter."
 
-    if arg == 0:
-        arg = [0]
+#     if arg == 0:
+#         arg = [0]
 
-    if arg:
-        ok, res = integer_list(arg, None, None, True, 'easter')
-        if ok:
-            return True, res
-        else:
-            return False, "invalid easter: {}. Required for {}".format(res, easterstr)
-    else:
-        return False, easterstr
+#     if arg:
+#         ok, res = integer_list(arg, None, None, True, 'easter')
+#         if ok:
+#             return True, res
+#         else:
+#             return False, "invalid easter: {}. Required for {}".format(res, easterstr)
+#     else:
+#         return False, easterstr
 
 
 def do_interval(arg):
@@ -2629,22 +2539,22 @@ def do_monthdays(arg):
     return obj, rep
 
 
-def monthdays(arg):
-    """
-    >>> monthdays([0, 1, 26, -1, -2])
-    (False, 'invalid monthdays: 0 is not allowed. Required for monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month.')
-    """
+# def monthdays(arg):
+#     """
+#     >>> monthdays([0, 1, 26, -1, -2])
+#     (False, 'invalid monthdays: 0 is not allowed. Required for monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month.')
+#     """
 
-    monthdaysstr = "monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month."
+#     monthdaysstr = "monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month."
 
-    if arg:
-        ok, res = integer_list(arg, -31, 31, False, "")
-        if ok:
-            return True, res
-        else:
-            return False, "invalid monthdays: {}. Required for {}".format(res, monthdaysstr)
-    else:
-        return False, monthdaysstr
+#     if arg:
+#         ok, res = integer_list(arg, -31, 31, False, "")
+#         if ok:
+#             return True, res
+#         else:
+#             return False, "invalid monthdays: {}. Required for {}".format(res, monthdaysstr)
+#     else:
+#         return False, monthdaysstr
 
 
 def do_hours(arg):
@@ -3021,6 +2931,7 @@ def prereqs(arg):
         return True, []
 
 
+# NOTE: job_methods, datetime or undated, are dispatched in jobs() according to whether or not the task has an 's' entry
 
 undated_job_methods = dict(
     d=description,
@@ -3030,8 +2941,7 @@ undated_job_methods = dict(
     j=title,
     l=location,
     q=timestamp,
-    # The last two require consideration of the whole list of jobs
-    # i=id,
+    # The last requires consideration of the whole list of jobs
     p=prereqs,
 )
 
@@ -3039,116 +2949,6 @@ datetime_job_methods = dict(
     b=do_beginby,
 )
 datetime_job_methods.update(undated_job_methods)
-
-def task(at_hsh):
-    """
-    Evaluate task/job completions and update the f and s entries if appropriate 
-    >>> item_eg = {"summary": "Task Group",  "s": parse('2018-03-07 8am'), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "-", 'j': [ {'j': 'Job 1', 'f': parse('2018-03-06 10am')}, {'j': 'Job 2'} ] }
-    >>> pprint(task(item_eg))
-    {'itemtype': '-',
-     'j': [{'f': DateTime(2018, 3, 6, 10, 0, 0, tzinfo=Timezone('UTC')),
-            'i': '1',
-            'j': 'Job 1',
-            'p': [],
-            'req': [],
-            'status': '✓',
-            'summary': 'Task Group 1/0/1: Job 1'},
-           {'i': '2',
-            'j': 'Job 2',
-            'p': ['1'],
-            'req': [],
-            'status': '-',
-            'summary': 'Task Group 1/0/1: Job 2'}],
-     'r': [{'i': 2,
-            'r': 'w',
-            'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}],
-     's': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')),
-     'summary': 'Task Group',
-     'z': 'US/Eastern'}
-
-    Now finish the last job and note the update for h and s
-    >>> item_eg = {"summary": "Task Group",  "s": parse('2018-03-07 8am'), "z": "US/Eastern",  "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am')}], "z": "US/Eastern", "itemtype": "-", 'j': [ {'j': 'Job 1', 'f': parse('2018-03-06 10am')}, {'j': 'Job 2', 'f': parse('2018-03-07 1pm') } ] }
-    >>> item_eg
-    {'summary': 'Task Group', 's': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), 'z': 'US/Eastern', 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}], 'itemtype': '-', 'j': [{'j': 'Job 1', 'f': DateTime(2018, 3, 6, 10, 0, 0, tzinfo=Timezone('UTC'))}, {'j': 'Job 2', 'f': DateTime(2018, 3, 7, 13, 0, 0, tzinfo=Timezone('UTC'))}]}
-    >>> pprint(task(item_eg))
-    {'h': [DateTime(2018, 3, 7, 13, 0, 0, tzinfo=Timezone('UTC'))],
-     'itemtype': '-',
-     'j': [{'i': '1',
-            'j': 'Job 1',
-            'p': [],
-            'req': [],
-            'status': '-',
-            'summary': 'Task Group 1/1/0: Job 1'},
-           {'i': '2',
-            'j': 'Job 2',
-            'p': ['1'],
-            'req': ['1'],
-            'status': '+',
-            'summary': 'Task Group 1/1/0: Job 2'}],
-     'r': [{'i': 2,
-            'r': 'w',
-            'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC'))}],
-     's': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')),
-     'summary': 'Task Group',
-     'z': 'US/Eastern'}
-
-    Simple repetition:
-    default overdue = k
-    >>> item_eg = { "itemtype": "-", "s": parse('2018-11-15 8a', tz="US/Eastern"),  "+": [parse('2018-11-16 10a', tz="US/Eastern"), parse('2018-11-18 3p', tz="US/Eastern"), parse('2018-11-27 8p', tz="US/Eastern")], 'f': parse('2018-11-17 9a', tz='US/Eastern') }
-    >>> pprint(task(item_eg))
-    {'+': [DateTime(2018, 11, 18, 15, 0, 0, tzinfo=Timezone('US/Eastern')),
-           DateTime(2018, 11, 27, 20, 0, 0, tzinfo=Timezone('US/Eastern'))],
-     'h': [DateTime(2018, 11, 17, 9, 0, 0, tzinfo=Timezone('US/Eastern'))],
-     'itemtype': '-',
-     's': DateTime(2018, 11, 16, 10, 0, 0, tzinfo=Timezone('US/Eastern'))}
-
-    overdue = r
-    >>> item_eg = { "itemtype": "-", "s": parse('2018-11-15 8a', tz="US/Eastern"),  "+": [parse('2018-11-16 10a', tz="US/Eastern"), parse('2018-11-18 3p', tz="US/Eastern"), parse('2018-11-27 8p', tz="US/Eastern")], 'f': parse('2018-11-17 9a', tz='US/Eastern'), 'o': 'r' }
-    >>> pprint(task(item_eg))
-    {'+': [DateTime(2018, 11, 27, 20, 0, 0, tzinfo=Timezone('US/Eastern'))],
-     'h': [DateTime(2018, 11, 17, 9, 0, 0, tzinfo=Timezone('US/Eastern'))],
-     'itemtype': '-',
-     'o': 'r',
-     's': DateTime(2018, 11, 18, 15, 0, 0, tzinfo=Timezone('US/Eastern'))}
-    """
-    if not at_hsh or at_hsh.get('itemtype', None) != '-':
-        return at_hsh
-    if 'j' in at_hsh:
-        ok, jbs, finished = jobs(at_hsh['j'], at_hsh)
-        if ok: 
-            at_hsh['j'] = jbs
-            if finished is not None:
-                # all jobs were completed
-                at_hsh['f'] = finished
-
-    if 's' not in at_hsh:
-        return at_hsh
-
-    finished = at_hsh.get('f', None)
-
-    if finished:
-        overdue = at_hsh.get('o', 'k') 
-        if overdue == 'k':
-            # keep
-            aft = at_hsh['s']
-        elif overdue == 'r':
-            # restart
-            aft = at_hsh['f']
-        elif overdue == 's':
-            # skip
-            # FIXME: is this the right tz setting?
-            aft = pendulum.now(tz=at_hsh.get('z', None))
-        due = item_instances(at_hsh, aft)
-        if due:
-            # we have another instance
-            at_hsh['s'] = due[0][0]
-            if '+' in at_hsh and 'r' not in at_hsh:
-                # simple repetition
-                at_hsh['+'] = [x for x in at_hsh['+'] if x > at_hsh['s']]
-            at_hsh.setdefault('h', []).append(at_hsh['f'])
-            del at_hsh['f']
-    return(at_hsh)
-
 
 def jobs(lofh, at_hsh={}):
     """
@@ -3315,7 +3115,6 @@ def jobs(lofh, at_hsh={}):
     """
     if 's' in at_hsh:
         job_methods = datetime_job_methods
-        # TODO: deal with &s entries
     else:
         job_methods = undated_job_methods
 
@@ -3655,6 +3454,9 @@ class PendulumWeekdaySerializer(Serializer):
         # print('deseralizing', s, type(s))
         return eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[s]))
 
+########################################
+###### Begin Mask ######################
+########################################
 
 def encode(key, clear):
     enc = []
@@ -3673,7 +3475,7 @@ def decode(key, enc):
         dec.append(dec_c)
     return "".join(dec)
 
-# CHANGING THIS WILL MAKE ALL PREVIOUSLY MASKED ENTRIES UNREADABLE
+# NOTE: DON'T CHANGE THIS!!! ELSE ALL PREVIOUSLY MASKED ENTRIES WILL BE UNREADABLE
 secret = "etm is great!"
 
 class Mask():
@@ -3708,6 +3510,10 @@ class MaskSerializer(Serializer):
         """
         return decode(secret, s)
 
+########################################
+###### End Mask ########################
+########################################
+
 
 serialization = SerializationMiddleware()
 serialization.register_serializer(PendulumDateTimeSerializer(), 'T') # Time
@@ -3715,11 +3521,6 @@ serialization.register_serializer(PendulumDateSerializer(), 'D')     # Date
 serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
 serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday 
 serialization.register_serializer(MaskSerializer(), 'M')             # Mask 
-
-# DBNAME = 'db.json'
-# ETMDB = TinyDB(DBNAME, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-# ETMDB_QUERY = ETMDB.table('items', cache_size=None)
-# DB_ARCH = ETMDB.table('archive', cache_size=None)
 
 
 ########################
@@ -3731,7 +3532,6 @@ serialization.register_serializer(MaskSerializer(), 'M')             # Mask
 ### start week/month ###
 ########################
 
-# FIXME: Process only one week at a time on demand => no need to store and update extended periods or to limit the weeks that can be displayed.
 
 def get_period(dt=pendulum.now(), weeks_before=3, weeks_after=9):
     """
@@ -4286,21 +4086,40 @@ def show_next(db):
     rows = []
     locations = set([])
     for item in db:
-        if item['itemtype'] not in ['-', '+'] or 's' in item or 'f' in item:
+        if item['itemtype'] not in ['-'] or 's' in item or 'f' in item:
             continue
-        location = item.get('l', '~')
-        priority = item.get('p', '~')
-        rows.append(
-                {
-                    'id': item.doc_id,
-                    'sort': (location, priority, item['summary']),
-                    'location': location,
-                    'columns': [item['itemtype'],
-                        item['summary'], 
-                        priority,
-                        ]
-                }
+        if 'j' in item:
+            task_location = item.get('l', '~')
+            priority = item.get('p', '0')
+            sort_priority = 4 - int(priority)
+            for job in item['j']:
+                location = job.get('l', task_location)
+                rows.append(
+                    {
+                        'id': item.doc_id,
+                        'sort': (location, sort_priority, job['summary']),
+                        'location': location,
+                        'columns': [job['status'],
+                            job['summary'], 
+                            priority,
+                            ]
+                    }
                 )
+        else:
+            location = item.get('l', '~')
+            priority = item.get('p', '0')
+            sort_priority = 4 - int(priority)
+            rows.append(
+                    {
+                        'id': item.doc_id,
+                        'sort': (location, sort_priority, item['summary']),
+                        'location': location,
+                        'columns': [item['itemtype'],
+                            item['summary'], 
+                            priority,
+                            ]
+                    }
+                    )
     rows.sort(key=itemgetter('sort'))
 
     row2id = {}

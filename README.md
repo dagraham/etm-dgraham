@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Sat Feb 16, 2019 06:58PM EST*
+*Last modified: Tue Feb 19, 2019 09:41AM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -297,11 +297,12 @@ would specify the the starting datetime for the item is 9am on the Monday follow
     l: location/context: string,
     m: mask: string stored in obfuscated form,
     n: attendees: list of 'name <emailaddress>' strings 
-    o: overdue: character from (r)estart, (s)kip or (k)eep),
-    p: priority: integer,
+    o: overdue: character from (r) restart, (s) skip or (k) keep,
+    p: priority: integer from 0 (none), 1 (low), 2 (normal), 3 (high), 
+       4 (urgent)
     r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
        (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition
-       &key entries
+       &-key entries
     s: starting: date or datetime,
     t: tags: list of strings,
     x: expansion key: string,
@@ -367,7 +368,7 @@ Note that changing the entry for `expansions` in your configuration settings wil
 
 # [amp keys](#toc)
 
-These keys are only used with `@j` (job) and `@r` (repetition) entries.
+`&` followed by a key from one of the lists below. These keys are only used with `@j` (job) and `@r` (repetition) entries.
 
 ## [for use with @ j](#toc)
       a: alert: (list of + (before) or - (after) periods relative to &s: cmd [args])
