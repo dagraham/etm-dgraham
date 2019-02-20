@@ -1482,6 +1482,8 @@ class DataView(object):
         self.dbarch = self.db.table('archive', cache_size=None)
         # self.dbopts = self.db.table('options', cache_size=None)
         self.settings = options.Settings(etmdir)
+        if self.settings.locale:
+            pendulum.set_locale(self.settings.locale)
         # if len(self.dbopts) < 1: 
         #     self.dbopts.insert(settings.settings())
         # self.options = self.dbopts.get(doc_id=1)
