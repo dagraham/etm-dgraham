@@ -39,7 +39,6 @@ import platform
 # for compressing backup files
 from zipfile import ZipFile, ZIP_DEFLATED
 
-
 system_platform = platform.platform(terse=1)
 python_version = platform.python_version()
 developer = "dnlgrhm@gmail.com"
@@ -60,11 +59,14 @@ from prompt_toolkit import __version__ as prompt_toolkit_version
 
 from v import version as etm_version
 from version import version as etm_fullversion
-from options import Settings
-SETTINGS = Settings()
 
-import pwd
-user_name = pwd.getpwuid(os.getuid()).pw_name
+import options
+
+ampm = True  # FIXME
+
+
+# import pwd
+# user_name = pwd.getpwuid(os.getuid()).pw_name
 
 # The style sheet for terminal output
 style = Style.from_dict({
@@ -95,7 +97,7 @@ FINISHED_CHAR = '✓'
 
 etmdir = None
 
-ampm = SETTINGS.ampm
+# ampm = SETTINGS.ampm
 
 # testing = True
 # testing = False
@@ -1474,10 +1476,16 @@ class DataView(object):
         self.etmdir = etmdir
         self.backupdir = os.path.join(self.etmdir, 'backups')
         self.dbname = os.path.normpath(os.path.join(etmdir, 'db.json'))
-        self.lastmodified = os.path.getmtime(self.dbname)
+        self.lastmodified = os.path.getmtime(self.dbname) if os.path.isfile(self.dbname) else pendulum.now('local').timestamp()
         self.db = TinyDB(self.dbname, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-        self.dbarch = self.db.table('archive', cache_size=None)
         self.dbquery = self.db.table('items', cache_size=None)
+        self.dbarch = self.db.table('archive', cache_size=None)
+        # self.dbopts = self.db.table('options', cache_size=None)
+        self.settings = options.Settings(etmdir)
+        # if len(self.dbopts) < 1: 
+        #     self.dbopts.insert(settings.settings())
+        # self.options = self.dbopts.get(doc_id=1)
+        logger.info(f"settings: {self.settings.settings()}")
         self.item_num = len(self.db)
         self.arch_num = len(self.dbarch)
         logger.info(f"set etmdir in DataView: {etmdir}; dbname: {self.dbname}; items: {self.item_num}; archive: {self.arch_num}")
@@ -1961,7 +1969,7 @@ entry_tmpl = """\
 {% endif -%}\
 {% if 'a' in h %}\
 {%- set alerts %}\
-{% for x in h['a'] %}{{ "@a {}: {} ".format(inlst2str(x[0]), ", ".join(x[1:])) }}{% endfor %}\
+{% for x in h['a'] %}{{ "@a {}: {} ".format(inlst2str(x[0]), ", ".join(x[1])) }}{% endfor %}\
 {% endset %}\
 {{ wrap(alerts) }} \
 {% endif %}\
@@ -2126,17 +2134,24 @@ def do_alert(arg):
     alert: 1h30m, 45m -> None
     commmand is required but missing
     >>> print(do_alert('90m, 45m, 10: d')[1])
-    alert: 1h30m, 45m -> d
+    alert: 1h30m, 45m ->  d
     incomplete or invalid periods: 10
     >>> do_alert('90m, 45m, 10m: d')
-    ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], 'd'], 'alert: 1h30m, 45m, 10m -> d')
+    ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], ['d']], 'alert: 1h30m, 45m, 10m ->  d')
+    >>> do_alert('90m, 45m, 10m: d, v')
+    ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], ['d', 'v']], 'alert: 1h30m, 45m, 10m ->  d, v')
+
     """
     obj = None
     rep = arg
     logger.info(f"arg: {arg}")
     parts = arg.split(':')
     periods = parts.pop(0)
-    command = parts[0].strip() if parts else None
+    command = parts[0] if parts else None
+    if command:
+        commands = [x.strip() for x in command.split(',')]
+    else:
+        commands = []
     if periods:
         periods = [x.strip() for x in periods.split(',')]
         obj_periods = []
@@ -2157,11 +2172,7 @@ def do_alert(arg):
             obj = None
             rep += f"\ncommmand is required but missing"
         else:
-            if command in SETTINGS.alerts:
-                obj = [obj_periods, command]
-            else:
-                obj = None
-                rep += f"\n{command} is not in {[x for x in SETTINGS.alerts]}"
+            obj = [obj_periods, commands]
 
     return obj, rep
 
@@ -4619,7 +4630,6 @@ pendulum:         {pendulum_version}
 prompt_toolkit:   {prompt_toolkit_version}
 tinydb:           {tinydb_version}
 jinja2:           {jinja2_version}
-current user:     {user_name}
 """
     return ret1, ret2
 
@@ -4630,9 +4640,11 @@ current user:     {user_name}
 
 dataview = None
 item = None
+settings = {}
 def main(etmdir=""):
-    global dataview, item, db
+    global dataview, item, db, settings
     dataview = DataView(etmdir)
+    settings = dataview.settings
     db = dataview.db
     item = Item(etmdir)
     dataview.refreshCache()

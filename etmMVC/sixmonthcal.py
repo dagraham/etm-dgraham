@@ -1,10 +1,8 @@
 #! /usr/bin/env python3
 import calendar
-import locale
 import pendulum
-from options import Settings
-settings = Settings()
-lcl = settings.locale
+# from options import Settings
+# settings = Settings()
 
 def sixmonthcal(advance=0):
     """

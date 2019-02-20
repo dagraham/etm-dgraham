@@ -34,27 +34,21 @@ import shutil
 from prompt_toolkit.layout import FloatContainer, Float
 from prompt_toolkit.widgets import Dialog, Label, Button
 
-# def button_handler():
-#     pass
-
-# dialog = Dialog(
-#         title=title,
-#         body=Label(text="YOUR_TEXT", dont_extend_height=True),
-#         buttons=[
-#             Button(text="BUTTON_TEXT", handler=button_handler),
-# ])
 
 import pendulum
 import re
-from model import wrap, format_time, format_datetime 
-from options import Settings
+from model import wrap, format_time, format_datetime
+
 import logging
 import logging.config
 logger = logging.getLogger()
+
+import mytest
+logger.info(f"mytest.x: {mytest.x}")
+
 from sixmonthcal import sixmonthcal
 
 from model import about
-
 
 import subprocess # for check_output
 
@@ -215,14 +209,7 @@ def check_output(cmd):
     except subprocess.CalledProcessError as exc:
         logger.error("command: {0}\n    output: {1}".format(cmd, exc.output))
 
-# soundcmd = "/usr/bin/afplay -v 1 -q 1 /Users/dag/.etm/sounds/etm_ding.m4a"
-settings = Settings()
-# options = settings.options
-soundcmd = settings.alerts['s']
-
-ampm = True
 editing = False
-# item = Item()
 
 @bindings.add('f1')
 def menu(event):
@@ -349,6 +336,7 @@ def status_time(dt):
     >>> status_time(parse('2018-03-07 2:45pm'))
     '2:45'
     """
+    ampm = settings.ampm
     d_fmt = dt.format("ddd MMM D")
     suffix = dt.format("A").lower() if ampm else ""
     if dt.minute == 0:
@@ -399,19 +387,20 @@ def alerts():
             start = format_datetime(start_time, short=True)[1]
         # period = (start_time - trigger_time).in_words()
         trigger = format_time(trigger_time)[1]
-        command = alert[2]
+        command = ", ".join(alert[2])
         summary = alert[3]
         prefix = '<' if trigger_time < now else '>'
         alerts.append(f"{prefix} {trigger} ({command}) {summary} {start}")
     if alerts:
         return "\n".join(alerts)
     else:
-        return "There are no remaining alerts for today."
+        return "There are no alerts for today."
 
 
 def maybe_alerts(now):
     global current_datetime
     for alert in dataview.alerts:
+        logger.info(f"settings.alerts: {settings.alerts}")
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
             logger.info(f"{alert}")
             startdt = alert[1]
@@ -419,9 +408,14 @@ def maybe_alerts(now):
             start = format_datetime(startdt)[1]
             summary = alert[3]
             doc_id = alert[4]
-            command = settings.alerts.get(alert[2], "").format(start=start, when=when, summary=summary)
-            logger.info(f"alert now: {now.microsecond}, startdt: {startdt.microsecond}, when: {when}, command: {command}, summary: {summary}, doc_id: {doc_id}")
-            check_output(command)
+            command_list = alert[2]
+            # settings.alerts.get(alert[2], [])
+            commands = [settings.alerts.get(x, "").format(start=start, when=when, summary=summary) for x in command_list]
+            # command = settings.alerts.get(alert[2], "").format(start=start, when=when, summary=summary)
+            logger.info(f"alert now: {now.microsecond}, startdt: {startdt.microsecond}, when: {when}, commands: {commands}, summary: {summary}, doc_id: {doc_id}")
+            for command in commands:
+                if command:
+                    check_output(command)
 
 def event_handler(loop):
     global current_datetime
@@ -822,10 +816,14 @@ application = Application(
 
 dataview = None
 item = None
+settings = None
 def main(etmdir=""):
-    global dataview, item
+    global dataview, item, settings
+    import options
+    options.etmdir = etmdir
     from model import DataView
     dataview = DataView(etmdir)
+    settings = dataview.settings
     from model import Item
     item = Item(etmdir)
     dataview.refreshCache()

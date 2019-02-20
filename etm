@@ -18,7 +18,6 @@ if __name__ == "__main__":
     etmdir = os.path.normpath(os.path.join(homedir, ".etm-mv"))
 
 
-
     if len(sys.argv) > 1 and sys.argv[1] in log_levels:
         loglevel = sys.argv.pop(1)
     if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
@@ -34,6 +33,12 @@ if __name__ == "__main__":
 
     setup_logging(loglevel, logdir)
     logger.info(about()[1])
+
+    from etmMVC import options
+    options.etmdir = etmdir
+
+    from etmMVC import mytest
+    mytest.x += 1
 
     # main(etmdir)
 
