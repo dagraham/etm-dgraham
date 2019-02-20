@@ -37,9 +37,6 @@ if __name__ == "__main__":
     from etmMVC import options
     options.etmdir = etmdir
 
-    from etmMVC import mytest
-    mytest.x += 1
-
     # main(etmdir)
 
     if len(sys.argv) > 1:

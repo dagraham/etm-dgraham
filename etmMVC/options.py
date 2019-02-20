@@ -24,9 +24,27 @@ class Settings():
             ],
             ],
         "alerts": [
-            "A dictionary with 'alert name' keys and corresponding 'system command' values. If 'wakeup' is among the keys, the corresponding system command will be run before any other alerts are triggered. The 'system command' string should be a comand with any applicable arguments that could be run in a terminal. Properties of the item triggering the alert can be included in the command arguments using the syntax '{property}', e.g., {summary} in the command string would be replaced byt the summary of the item. Similarly {start} by the starting time, {when} by the time remaining until the the starting time and {location} by the @l entry. E.g., If the event '* sales meeting @s 2019-02-12 3p' triggered an alert 30 minutes before the starting time the string '{summary} {when}' would expand to 'sales meeting in 30 minutes'.",
+            "A dictionary with single-character, 'alert' keys and corresponding 'system command' values. Note that characters 't' (text message) and 'e' (email) are already used.  The 'system command' string should be a comand with any applicable arguments that could be run in a terminal. Properties of the item triggering the alert can be included in the command arguments using the syntax '{property}', e.g., {summary} in the command string would be replaced byt the summary of the item. Similarly {start} by the starting time, {when} by the time remaining until the the starting time and {location} by the @l entry. E.g., If the event '* sales meeting @s 2019-02-12 3p' triggered an alert 30 minutes before the starting time the string '{summary} {when}' would expand to 'sales meeting in 30 minutes'. ",
             {
                 }
+            ],
+        "sms": [
+            "Settings to send 't' (sms text message) alerts to yourself",
+            {
+            "sms_from": '',
+            "sms_phone": '',
+            "sms_pw": '',
+            "sms_server": ''
+            }
+            ],
+        "smtp": [
+            "Settings to send 'e' (email message) alerts using your account. Messages will be sent to the 'name <email>' entries in the item's @n (attendees) entry using the item's summary as the subject and the @d (disscussion) entry as the message body.",
+            {
+            "smtp_from": '',
+            "smtp_id": '',
+            "smtp_pw": '',
+            "smtp_server": ''
+            }
             ],
         "expansions": [
             "A dictionary with 'expansion name' keys and corresponding 'replacement string' values. E.g. with 'tennis' -> '@e 1h30m @a 30m @l Fitness Center @i personal:tennis', then when an item containing '@x tennis' is saved the '@x tennis' would be replaced by the corresponding value.",
@@ -115,10 +133,5 @@ if __name__ == "__main__":
         print(settings.show_description('alerts'))
 
         print(settings.show_description('whatever'))
-
-
-
-
-
 
 

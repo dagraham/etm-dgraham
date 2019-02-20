@@ -43,9 +43,6 @@ import logging
 import logging.config
 logger = logging.getLogger()
 
-import mytest
-logger.info(f"mytest.x: {mytest.x}")
-
 from sixmonthcal import sixmonthcal
 
 from model import about
@@ -409,8 +406,12 @@ def maybe_alerts(now):
             summary = alert[3]
             doc_id = alert[4]
             command_list = alert[2]
+            item = dataview.dbquery.get(doc_id=doc_id)
+            location = item.get('l', '')
+            discussion = item.get('d', '')
+            logger.info(f"id: {doc_id}; item: {item}")
             # settings.alerts.get(alert[2], [])
-            commands = [settings.alerts.get(x, "").format(start=start, when=when, summary=summary) for x in command_list]
+            commands = [settings.alerts.get(x, "").format(start=start, when=when, summary=summary, location=location, discussion=discussion) for x in command_list]
             # command = settings.alerts.get(alert[2], "").format(start=start, when=when, summary=summary)
             logger.info(f"alert now: {now.microsecond}, startdt: {startdt.microsecond}, when: {when}, commands: {commands}, summary: {summary}, doc_id: {doc_id}")
             for command in commands:
