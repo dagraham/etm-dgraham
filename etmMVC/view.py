@@ -411,8 +411,15 @@ def maybe_alerts(now):
             description = item.get('d', '')
             logger.info(f"id: {doc_id}; item: {item}")
             # settings.alerts.get(alert[2], [])
+            if 'e' in command_list:
+                command_list.remove('e')
+                dataview.send_mail(doc_id)
+            if 't' in command_list:
+                command_list.remove('t')
+                dataview.send_text(doc_id)
             commands = [settings.alerts.get(x, "").format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list]
             # command = settings.alerts.get(alert[2], "").format(start=start, when=when, summary=summary)
+
             logger.info(f"alert now: {now.microsecond}, startdt: {startdt.microsecond}, when: {when}, commands: {commands}, summary: {summary}, doc_id: {doc_id}")
             for command in commands:
                 if command:

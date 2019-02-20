@@ -139,4 +139,6 @@ if __name__ == "__main__":
 
         print(settings.show_description('whatever'))
 
+        print(settings.smtp)
+
 

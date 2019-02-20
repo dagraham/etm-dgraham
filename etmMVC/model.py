@@ -1686,12 +1686,86 @@ class DataView(object):
         else:
             self.db.remove(doc_ids=rem_ids)
 
-
-
-
-
-
         return rows
+
+
+    def send_mail(self, doc_id):
+        item = self.dbquery.get(doc_id=doc_id)
+        attendees = item.get('n', None)
+        if not attendees:
+            raise ValueError(f"@n (attendees) are not specified in {item}")
+        smtp = self.settings.smtp
+        smtp_from = smtp.get('smtp_from', None)
+        smtp_id = smtp.get('smtp_id', None)
+        smtp_pw = smtp.get('smtp_pw', None)
+        smtp_server = smtp.get('smtp_server', None)
+        smtp_body = smtp.get('smtp_body', None)
+        if not (smtp_from and smtp_id and smtp_pw and smtp_server and smtp_body):
+            raise ValueError(f"Bad or missing stmp settings in the cfg.json smtp entry: {smtp}")
+        startdt = item.get('s', "")
+        when = startdt.diff_for_humans() if startdt else ""
+        start = format_datetime(startdt)[1] if startdt else ""
+        summary = item.get('summary', "")
+        location = item.get('l', "")
+        description = item.get('d', "")
+        message = smtp_body.format(start=start, when=when, summary=summary, location=location, description=description)
+
+        # All the necessary ingredients are in place
+        import smtplib
+        from email.mime.multipart import MIMEMultipart
+        # from email.mime.base import MIMEBase
+        from email.mime.text import MIMEText
+        from email.utils import COMMASPACE, formatdate
+        # from email import encoders as Encoders
+        assert type(attendees) == list
+        msg = MIMEMultipart()
+        msg['From'] = smtp_from
+        msg['To'] = COMMASPACE.join(attendees)
+        msg['Date'] = formatdate(localtime=True)
+        msg['Subject'] = item['summary']
+        msg.attach(MIMEText(message))
+        smtp = smtplib.SMTP_SSL(smtp_server)
+        smtp.login(smtp_id, smtp_pw)
+        smtp.sendmail(smtp_from, attendees, msg.as_string())
+        smtp.close()
+        logger.info(f"sent email {message}")
+
+
+    def send_text(self, doc_id):
+        item = self.dbquery.get(doc_id=doc_id)
+        sms = self.settings.sms
+        sms_from = sms.get('sms_from', None)
+        sms_phone = sms.get('sms_phone', None)
+        sms_pw = sms.get('sms_pw', None)
+        sms_server = sms.get('sms_server', None)
+        sms_body = sms.get('sms_body', None)
+        if not (sms_from and sms_phone and sms_pw and sms_server and sms_body):
+            raise ValueError(f"Bad or missing smx settings in the cfg.json sms entry: {sms}")
+        startdt = item.get('s', "")
+        when = startdt.diff_for_humans() if startdt else ""
+        start = format_datetime(startdt)[1] if startdt else ""
+        summary = item.get('summary', "")
+        location = item.get('l', "")
+        description = item.get('d', "")
+        message = sms_body.format(start=start, when=when, summary=summary, location=location, description=description)
+
+        # All the necessary ingredients are in place
+        import smtplib
+        from email.mime.text import MIMEText
+        sms = smtplib.SMTP(sms_server)
+        sms.starttls()
+        sms.login(sms_from, sms_pw)
+        for num in sms_phone.split(','):
+            msg = MIMEText(message)
+            msg["From"] = sms_from
+            msg["Subject"] = summary
+            msg['To'] = num
+            sms.sendmail(sms_from, sms_phone, msg.as_string())
+        sms.quit()
+        logger.info(f"sent text {message}")
+
+
+
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-2):
@@ -1795,8 +1869,10 @@ def do_stringlist(args):
     (None, '')
     >>> do_stringlist('red')
     (['red'], 'red')
-    >>> do_stringlist('red,  green,blue')
+    >>> do_stringlist('red,  green, blue')
     (['red', 'green', 'blue'], 'red, green, blue')
+    >>> do_stringlist('Joe Smith <js2@whatever.com>')
+    (['Joe Smith <js2@whatever.com>'], 'Joe Smith <js2@whatever.com>')
     """
     obj = None
     rep = args
@@ -1991,9 +2067,10 @@ entry_tmpl = """\
 {{ wrap(index) }} \
 {% endif %}\
 {%- if 't' in h %}@t {{ "{}".format(", ".join(h['t'])) }} {% endif %}\
+{%- if 'n' in h %}@n {{ "{}".format(", ".join(h['n'])) }} {% endif %}\
 {%- set ls = namespace(found=false) -%}\
 {%- set location -%}\
-{%- for k in ['l', 'm', 'n', 'g', 'x', 'p'] -%}\
+{%- for k in ['l', 'm', 'g', 'x', 'p'] -%}\
 {%- if k in h %}@{{ k }} {{ h[k] }}{% set ls.found = true %} {% endif -%}\
 {%- endfor -%}\
 {%- endset -%}\
