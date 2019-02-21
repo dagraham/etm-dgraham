@@ -62,8 +62,8 @@ from v import version as etm_fullversion
 
 import options
 
-
-ampm = True  # FIXME
+# NOTE: view.main() will override ampm using the configuration setting
+ampm = False
 
 
 # import pwd
@@ -573,11 +573,11 @@ class Item(object):
     def edit_item(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
-        logger.info(f"edit doc_id: {doc_id}; entry: {entry}")
+        logger.debug(f"edit doc_id: {doc_id}; entry: {entry}")
         item_hsh = self.dbquery.get(doc_id=doc_id)
         if item_hsh:
-            logger.info(f"found doc_id: {doc_id} in database")
-            logger.info(f"item_hsh: {item_hsh}")
+            logger.debug(f"found doc_id: {doc_id} in database")
+            logger.debug(f"item_hsh: {item_hsh}")
             self.doc_id = doc_id
             self.is_new = False
             self.item_hsh = item_hsh # created and modified entries
@@ -589,10 +589,10 @@ class Item(object):
     def edit_copy(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
-        logger.info(f"copy doc_id: {doc_id}; entry: {entry}")
+        logger.debug(f"copy doc_id: {doc_id}; entry: {entry}")
         item_hsh = self.db.get(doc_id=doc_id)
         if item_hsh:
-            logger.info(f"found doc_id: {doc_id} in database")
+            logger.debug(f"found doc_id: {doc_id} in database")
             self.doc_id = None
             self.is_new = True
             self.item_hsh = item_hsh # created and modified entries
@@ -601,7 +601,7 @@ class Item(object):
             self.text_changed(entry, 0, False)
 
     def new_item(self):
-        logger.info("new item")
+        logger.debug("new item")
         self.doc_id = None
         self.is_new = True
         self.item_hsh = {}
@@ -611,9 +611,9 @@ class Item(object):
     def delete_item(self, doc_id=None):
         if not (doc_id):
             return None
-        logger.info(f"delete doc_id: {doc_id}")
+        logger.debug(f"delete doc_id: {doc_id}")
         if self.db.contains(doc_ids=[doc_id]):
-            logger.info(f"found doc_id: {doc_id} in database")
+            logger.debug(f"found doc_id: {doc_id} in database")
             self.db.remove(doc_ids=[doc_id])
 
 
@@ -721,10 +721,10 @@ class Item(object):
             cur_hsh = {}
 
         if 'j' in self.item_hsh:
-            logger.info(f"jobs: {self.item_hsh['j']}")
+            logger.debug(f"jobs: {self.item_hsh['j']}")
             ok, res, last = jobs(self.item_hsh['j'], self.item_hsh)
             if ok:
-                logger.info(f"jobs: {res}")
+                logger.debug(f"jobs: {res}")
                 self.item_hsh['j'] = res
                 if last:
                     self.item_hsh['f'] = last
@@ -739,12 +739,12 @@ class Item(object):
             else:
                 self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
                 log_action = 'updated'
-            logger.info(f"{log_action} doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
+            logger.debug(f"{log_action} doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
         else:
             # editing an existing item
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = now
-            logger.info(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
+            logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
 
@@ -760,7 +760,7 @@ class Item(object):
             missing = [f"@{k[0]}" for k in requires[key] if k not in cur_keys]
 
         if missing:
-            logger.info(f"key: {key}; cur_keys: {cur_keys}; requires: {requires[key]}; missing: {missing}")
+            logger.debug(f"key: {key}; cur_keys: {cur_keys}; requires: {requires[key]}; missing: {missing}")
             display_key = f"@{key[0]}" if len(key) == 1 or key in ['rr', 'jj'] else f"&{key[-1]}"
             return f"Required for {display_key} but missing: {', '.join(missing)}"
         else:
@@ -808,10 +808,10 @@ class Item(object):
         if itemtype:
             # only @-keys; allow a, rr and jj more than once
             already_entered = [k for (k, v) in self.keyvals if len(k) == 1 and k not in ['a']]
-            logger.info(f"already_entered: {already_entered}")
+            logger.debug(f"already_entered: {already_entered}")
             # req = [k for k, v in self.keys.items() if (k in required[itemtype] and k not in already_entered)]
             require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in required[itemtype] and k != '?' and k not in already_entered)] 
-            logger.info(f"require: {require}; required: {required[itemtype]}")
+            logger.debug(f"require: {require}; required: {required[itemtype]}")
             # allow rr to be entered as r and jj as j
             avail = [x[0] for x in allowed[itemtype] if len(x) == 1 or x in ['rr', 'jj'] ]
             allow = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in avail and k != '?' and k not in already_entered)] 
@@ -913,9 +913,9 @@ class Item(object):
         """
         obj = None
         tz = self.item_hsh.get('z', None)
-        logger.info(f"got tz = {tz}")
+        logger.debug(f"got tz = {tz}")
         ok, res, z = parse_datetime(arg, tz)
-        logger.info(f"tz: {tz}; ok: {ok}; res: {res}; z={z}")
+        logger.debug(f"tz: {tz}; ok: {ok}; res: {res}; z={z}")
         if ok:
             obj = res 
             rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
@@ -972,7 +972,7 @@ class Item(object):
         >>> item.do_timezone('US/Pacifc')
         (None, "incomplete or invalid timezone: 'US/Pacifc'")
         """
-        logger.info(f"do_timezone arg: {arg}")
+        logger.debug(f"do_timezone arg: {arg}")
         if arg is None:
             obj = rep = 'local'
             if 'z' in self.item_hsh:
@@ -988,8 +988,8 @@ class Item(object):
                 Timezone(arg)
                 obj = rep = arg
                 self.item_hsh['z'] = obj 
-                logger.info(f"{obj}")
-                logger.info(f"item_hsh: {self.item_hsh}")
+                logger.debug(f"{obj}")
+                logger.debug(f"item_hsh: {self.item_hsh}")
                 rep = f"timezone: {obj}"
             except:
                 obj = None
@@ -1187,7 +1187,7 @@ def format_datetime(obj, short=False):
     if ampm:
         res = res.replace('AM', 'am')
         res = res.replace('PM', 'pm')
-    logger.info(f"res: {res}")
+    logger.debug(f"res: {res}")
     return True, res
 
 def format_datetime_list(obj_lst):
@@ -1367,7 +1367,7 @@ class TimeIt(object):
         if self.loglevel == 1:
             logger.debug(msg)
         elif self.loglevel == 2:
-            logger.info(msg)
+            logger.debug(msg)
         elif self.loglevel == 3:
             logger.warn(msg)
         self.start = timer()
@@ -1380,7 +1380,7 @@ class TimeIt(object):
         if self.loglevel == 1:
             logger.debug(msg)
         elif self.loglevel == 2:
-            logger.info(msg)
+            logger.debug(msg)
         elif self.loglevel == 3:
             logger.warn(msg)
 
@@ -1483,34 +1483,56 @@ class DataView(object):
         self.dbarch = self.db.table('archive', cache_size=None)
         # self.dbopts = self.db.table('options', cache_size=None)
         self.settings = options.Settings(etmdir)
+        self.configfile = self.settings.settings()['config_file']
+        self.lastchanged = os.path.getmtime(self.configfile) if os.path.isfile(self.configfile) else pendulum.now('local').timestamp()
         if self.settings.locale:
             pendulum.set_locale(self.settings.locale)
         # if len(self.dbopts) < 1: 
         #     self.dbopts.insert(settings.settings())
         # self.options = self.dbopts.get(doc_id=1)
-        logger.info(f"settings: {self.settings.settings()}")
+        logger.debug(f"settings: {self.settings.settings()}")
         self.item_num = len(self.db)
         self.arch_num = len(self.dbarch)
-        logger.info(f"set etmdir in DataView: {etmdir}; dbname: {self.dbname}; items: {self.item_num}; archive: {self.arch_num}")
+        logger.debug(f"set etmdir in DataView: {etmdir}; dbname: {self.dbname}; items: {self.item_num}; archive: {self.arch_num}")
+        # self.make_backup()
+        # self.backup_config()
+        # self.rotate_backups()
 
     def make_backup(self):
+        """
+        This will backup if changes have been made since etm was started.
+        """
         lastmodified = os.path.getmtime(self.dbname)
-        logger.info(f"current: {lastmodified}; last: {self.lastmodified}")
+        logger.debug(f"current: {lastmodified}; last: {self.lastmodified}")
         if lastmodified <= self.lastmodified:
-            logger.info(f"{self.dbname} unchanged - skipping backup")
+            logger.debug(f"{self.dbname} unchanged - skipping backup")
             return
         self.lastmodified = lastmodified
         timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
         backupfile = os.path.join(self.backupdir, f"{timestamp}.json")
         zipfile = os.path.join(self.backupdir, f"{timestamp}.zip")
         shutil.copy2(self.dbname, backupfile)
-        logger.info(f"backup to {backupfile}")
+        logger.debug(f"copied {self.dbname} to {backupfile}")
         with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
             zip.write(backupfile, os.path.basename(backupfile))
-        logger.info(f"zipped {backupfile} to {zipfile}")
+        logger.debug(f"zipped {backupfile} to {zipfile}")
         os.remove(backupfile)
-        logger.info(f"removed {backupfile}")
+        logger.debug(f"removed {backupfile}")
 
+    def backup_config(self):
+        """
+        This will backup if changes have been made since etm was started.
+        """
+        lastchanged = os.path.getmtime(self.configfile)
+        logger.debug(f"current: {lastchanged}; last: {self.lastchanged}")
+        if lastchanged <= self.lastchanged:
+            logger.debug(f"{self.configfile} unchanged - skipping backup")
+            return
+        self.lastchanged = lastchanged
+        timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
+        backupfile = os.path.join(self.backupdir, f"{timestamp}-cfg.json")
+        shutil.copy2(self.configfile, backupfile)
+        logger.debug(f"copied {self.config} to {backupfile}")
 
     def rotate_backups(self):
         filelist = os.listdir(self.backupdir)
@@ -1518,7 +1540,15 @@ class DataView(object):
         zipfiles.sort(reverse=True)
         removefiles = [os.path.join(self.backupdir, x) for x in zipfiles[5:]]
         if removefiles:
-            logger.info(f"removing old zip files: {removefiles}")
+            logger.debug(f"removing old zip files: {removefiles}")
+            for f in removefiles:
+                os.remove(f)
+        filelist = os.listdir(self.backupdir)
+        cfgfiles = [x for x in filelist if x.endswith('cfg.json')] 
+        cfgfiles.sort(reverse=True)
+        removefiles = [os.path.join(self.backupdir, x) for x in cfgfiles[5:]]
+        if removefiles:
+            logger.debug(f"removing old cfg files: {removefiles}")
             for f in removefiles:
                 os.remove(f)
 
@@ -1565,7 +1595,7 @@ class DataView(object):
     def dtYrWk(self, dtstr):
         dt = pendulum.parse(dtstr, strict=False)
         self.activeYrWk = getWeekNum(dt)
-        logger.info(f"activeYrWk: {self.activeYrWk}")
+        logger.debug(f"activeYrWk: {self.activeYrWk}")
         self.refreshAgenda()
 
     def refreshRelevant(self):
@@ -1625,7 +1655,7 @@ class DataView(object):
         """
 
         rows = []
-        logger.info(f"checking for items older than {old}")
+        logger.debug(f"checking for items older than {old}")
         for item in self.db:
             if item['itemtype'] == '%':
                 # keep records
@@ -1634,12 +1664,12 @@ class DataView(object):
                 if isinstance(item['f'], pendulum.DateTime):
                     if item['f'] < old:
                         # toss old finished tasks including repeating ones
-                        # logger.info(f"{item.doc_id} {item['f']} < {old}")
+                        # logger.debug(f"{item.doc_id} {item['f']} < {old}")
                         rows.append(item)
                         continue
                 elif isinstance(item['f'], pendulum.Date):
                     if item['f'] < old.date():
-                        # logger.info(f"{item.doc_id} {item['f']} < {old.date()}")
+                        # logger.debug(f"{item.doc_id} {item['f']} < {old.date()}")
                         # toss old finished tasks including repeating ones
                         rows.append(item)
                         continue
@@ -1654,25 +1684,25 @@ class DataView(object):
                     # FIXME: complicated whether or not to archive other repeating items with 't' so keep them
                 # got here so 'u' item with u < datetime
                 if toss:
-                    # logger.info(f"{item.doc_id} {prov} < {old}")
+                    # logger.debug(f"{item.doc_id} {prov} < {old}")
                     rows.append(item)
                     continue
             elif item['itemtype'] == '*':
                 if isinstance(item['s'], pendulum.DateTime):
                     if item['s'] < old:
-                        # logger.info(f"{item.doc_id} {item['s']} < {old}")
+                        # logger.debug(f"{item.doc_id} {item['s']} < {old}")
                         # toss old, non-repeating events
                         rows.append(item)
                         continue
                 elif isinstance(item['s'], pendulum.Date):
                     if item['s'] < old.date():
-                        # logger.info(f"{item.doc_id} {item['s']} < {old.date()}")
+                        # logger.debug(f"{item.doc_id} {item['s']} < {old.date()}")
                         # toss old, non-repeating events
                         rows.append(item)
                         continue
             else:
                 continue
-        logger.info(f"maybe archive {len(rows)}: {[item.doc_id for item in rows]}")
+        logger.debug(f"maybe archive {len(rows)}: {[item.doc_id for item in rows]}")
         add_items = []
         rem_ids = []
         for item in rows:
@@ -1683,7 +1713,7 @@ class DataView(object):
         try: 
             self.dbarch.insert_multiple(add_items)
         except:
-            logger.info(f"archive failed for doc_ids: {rem_ids}")
+            logger.debug(f"archive failed for doc_ids: {rem_ids}")
         else:
             self.db.remove(doc_ids=rem_ids)
 
@@ -1694,7 +1724,9 @@ class DataView(object):
         item = self.dbquery.get(doc_id=doc_id)
         attendees = item.get('n', None)
         if not attendees:
-            raise ValueError(f"@n (attendees) are not specified in {item}")
+            logger.error(f"@n (attendees) are not specified in {item}. send_mail aborted.")
+            return
+
         smtp = self.settings.smtp
         smtp_from = smtp.get('smtp_from', None)
         smtp_id = smtp.get('smtp_id', None)
@@ -1702,7 +1734,8 @@ class DataView(object):
         smtp_server = smtp.get('smtp_server', None)
         smtp_body = smtp.get('smtp_body', None)
         if not (smtp_from and smtp_id and smtp_pw and smtp_server and smtp_body):
-            raise ValueError(f"Bad or missing stmp settings in the cfg.json smtp entry: {smtp}")
+            logger.error(f"Bad or missing stmp settings in the cfg.json smtp entry: {smtp}. send_mail aborted")
+            return
         startdt = item.get('s', "")
         when = startdt.diff_for_humans() if startdt else ""
         start = format_datetime(startdt)[1] if startdt else ""
@@ -1729,7 +1762,7 @@ class DataView(object):
         smtp.login(smtp_id, smtp_pw)
         smtp.sendmail(smtp_from, attendees, msg.as_string())
         smtp.close()
-        logger.info(f"sent email {message}")
+        logger.debug(f"sent email {message}")
 
 
     def send_text(self, doc_id):
@@ -1741,7 +1774,8 @@ class DataView(object):
         sms_server = sms.get('sms_server', None)
         sms_body = sms.get('sms_body', None)
         if not (sms_from and sms_phone and sms_pw and sms_server and sms_body):
-            raise ValueError(f"Bad or missing smx settings in the cfg.json sms entry: {sms}")
+            logger.error(f"Bad or missing smx settings in the cfg.json sms entry: {sms}. send_text aborted.")
+            return
         startdt = item.get('s', "")
         when = startdt.diff_for_humans() if startdt else ""
         start = format_datetime(startdt)[1] if startdt else ""
@@ -1763,7 +1797,7 @@ class DataView(object):
             msg['To'] = num
             sms.sendmail(sms_from, sms_phone, msg.as_string())
         sms.quit()
-        logger.info(f"sent text {message}")
+        logger.debug(f"sent text {message}")
 
 
 
@@ -2224,7 +2258,7 @@ def do_alert(arg):
     """
     obj = None
     rep = arg
-    logger.info(f"arg: {arg}")
+    logger.debug(f"arg: {arg}")
     parts = arg.split(':')
     periods = parts.pop(0)
     command = parts[0] if parts else None
@@ -3274,7 +3308,7 @@ def jobs(lofh, at_hsh={}):
                 res[key] = hsh[key]
             elif key in job_methods:
                 ok, out = job_methods[key](hsh[key])
-                logger.info(f"key: {key}; ok,: {ok}; out: {out}")
+                logger.debug(f"key: {key}; ok,: {ok}; out: {out}")
                 if ok:
                     res[key] = out
                 else:
@@ -4058,9 +4092,9 @@ def relevant(db, now=pendulum.now('local') ):
                     if today + DAY <= jobstart <= tomorrow + days:
                         beginbys.append([(jobstart.date() - today.date()).days, job['summary'], item.item_id, job_id])
                 if 'a' in job:
-                    logger.info(f"job {job['summary']} has alerts: {job['a']}")
+                    logger.debug(f"job {job['summary']} has alerts: {job['a']}")
                     for alert in job['a']:
-                        logger.info(f"dealing with alert: {alert}")
+                        logger.debug(f"dealing with alert: {alert}")
                         for td in alert[0]:
                             if today <= jobstart - td <= tomorrow:
                                 alerts.append([dtstart - td, dtstart, alert[1],  job['summary'], item.doc_id, job_id])
@@ -4161,6 +4195,7 @@ def show_history(db, reverse=True):
     summary_width = width - 21 
     num = 0
     for i in rows:
+        logger.debug(f"{num} -> {i['id']}; i: {i}")
         num2id[num] = i['id']
         num += 1
         view_summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
@@ -4360,7 +4395,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                 for job in item['j']:
                     j += 1
                     if 'f' in job:
-                        logger.info(f"done job: {item.doc_id}, {j}")
+                        logger.debug(f"done job: {item.doc_id}, {j}")
                         done.append([job['f'], job['summary'], item.doc_id, j])
             if done:
                 # FIXME: h and f timestamps in datastore may not be UTC times
@@ -4419,7 +4454,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                                 ]
                         }
                     )
-                    logger.info(f"appended job: {rows[-1]}")
+                    logger.debug(f"appended job: {rows[-1]}")
 
             else:
                 rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
@@ -4497,7 +4532,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
 
     row2id = {}
     row_num = -1
-    # FIXME: deal with weeks without scheduled items
     cache = {}
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
@@ -4517,6 +4551,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                     agenda.append(f"    {i['columns'][0]} {summary}{rhc}") 
                     row_num += 1
                     row2id[row_num] = i['id']
+                    logger.debug(f"{row_num} -> {i['id']}; i: {i}")
         agenda_hsh[week] = "\n".join(agenda)
         row2id_hsh[week] = row2id
 
@@ -4720,14 +4755,15 @@ platform:         {system_platform}
 
 dataview = None
 item = None
-settings = {}
 def main(etmdir=""):
-    global dataview, item, db, settings
+    global dataview, item, db, ampm, settings
     dataview = DataView(etmdir)
-    settings = dataview.settings
+    settings = dataview.settings.settings()
+    ampm = settings['ampm'] 
     db = dataview.db
     item = Item(etmdir)
     dataview.refreshCache()
+    logger.info(f"settings: {settings}")
 
 if __name__ == '__main__':
     import doctest

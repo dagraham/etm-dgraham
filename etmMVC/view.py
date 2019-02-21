@@ -368,6 +368,7 @@ def new_day(loop):
     set_text(dataview.show_active_view())
     get_app().invalidate()
     dataview.make_backup()
+    dataview.backup_config()
     dataview.rotate_backups()
 
 current_datetime = pendulum.now('local')
@@ -397,7 +398,7 @@ def alerts():
 def maybe_alerts(now):
     global current_datetime
     for alert in dataview.alerts:
-        logger.info(f"settings.alerts: {settings.alerts}")
+        logger.debug(f"settings.alerts: {settings.alerts}")
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
             logger.info(f"{alert}")
             startdt = alert[1]
@@ -409,8 +410,6 @@ def maybe_alerts(now):
             item = dataview.dbquery.get(doc_id=doc_id)
             location = item.get('l', '')
             description = item.get('d', '')
-            logger.info(f"id: {doc_id}; item: {item}")
-            # settings.alerts.get(alert[2], [])
             if 'e' in command_list:
                 command_list.remove('e')
                 dataview.send_mail(doc_id)
@@ -418,7 +417,6 @@ def maybe_alerts(now):
                 command_list.remove('t')
                 dataview.send_text(doc_id)
             commands = [settings.alerts.get(x, "").format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list]
-            # command = settings.alerts.get(alert[2], "").format(start=start, when=when, summary=summary)
 
             logger.info(f"alert now: {now.microsecond}, startdt: {startdt.microsecond}, when: {when}, commands: {commands}, summary: {summary}, doc_id: {doc_id}")
             for command in commands:
@@ -829,18 +827,18 @@ def main(etmdir=""):
     global dataview, item, settings
     import options
     options.etmdir = etmdir
+    import model
     from model import DataView
     dataview = DataView(etmdir)
     settings = dataview.settings
+    # NOTE: we're setting ampm in model here. How cool is this!!!
+    model.ampm = settings.ampm
     from model import Item
     item = Item(etmdir)
     dataview.refreshCache()
-    # content = dataview.agenda_view
-    # set_askreply('_')
     agenda_view()
 
     # Tell prompt_toolkit to use asyncio.
-
     use_asyncio_event_loop()
     # Run application async.
     loop = get_event_loop()
@@ -850,8 +848,4 @@ def main(etmdir=""):
 
 
 if __name__ == '__main__':
-    etmdir = ''
-    if len(sys.argv) > 1:
-        loglevel = sys.argv.pop(1)
-    setup_logging(loglevel, etmdir, 'view_pt.py')
-    main()
+    sys.exit('view.pt should only be imported')

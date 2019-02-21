@@ -1,6 +1,7 @@
 import json
 import os
 import pwd
+from ruamel.yaml import YAML
 import logging
 import logging.config
 logger = logging.getLogger()
@@ -38,8 +39,9 @@ class Settings():
             "sms_from": '',
             "sms_phone": '',
             "sms_pw": '',
-            "sms_server": ''
-            }
+            "sms_server": '',
+            "sms_body": "{summary} {when}\n{description}"
+             }
             ],
         "smtp": [
             "Settings to send 'e' (email message) alerts using your account. Messages will be sent to the 'name <email>' entries in the item's @n (attendees) entry using the item's summary as the subject and the @d (disscussion) entry as the message body.",
@@ -64,6 +66,9 @@ class Settings():
             self.user_name = Settings.user_name
             if os.path.exists(self.config_file):
                 self.__dict__ = json.load(open(self.config_file))
+                for opt in Settings.options:
+                    if opt not in self.__dict__:
+                        self.__dict__[opt] = Settings.options[opt]
             else:
                 for opt in Settings.options:
                     self.__dict__.setdefault(opt, Settings.options[opt][1]) 
@@ -129,16 +134,20 @@ if __name__ == "__main__":
                 "v": "/usr/bin/say -v 'Alex' '{summary}, {when}'",
                 })
 
-        print(settings.settings())
+        # print(settings.settings())
 
-        print(settings.show_options())
+        # print(settings.show_options())
 
-        print(settings.show_names())
+        # print(settings.show_names())
 
-        print(settings.show_description('alerts'))
+        # print(settings.show_description('alerts'))
 
-        print(settings.show_description('whatever'))
+        # print(settings.show_description('whatever'))
 
-        print(settings.smtp)
+        # print(settings.smtp)
+
+        yaml=YAML(typ='safe')
+        yaml.default_flow_style = False
+        yaml.dump(settings.options, sys.stdout)
 
 

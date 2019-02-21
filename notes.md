@@ -1,10 +1,11 @@
 # Notes for etm
-**Last modified: Tue Feb 12, 2019 08:54PM EST**
+**Last modified: Thu Feb 21, 2019 09:33AM EST**
 
 # TOC
 <!-- vim-markdown-toc GFM -->
 
 * [ToDo](#todo)
+    * [Thinking](#thinking)
     * [Coding](#coding)
     * [Writing](#writing)
     * [States and Transitions](#states-and-transitions)
@@ -24,11 +25,24 @@
 # ToDo
 
 Churchill:
-1) words
-2) sounds
-3) steady accumulation of argument
-4) analogy
-5) exaggerated, extreme, hyperbole expression
+1) choose precisely the right word
+2) pay attention to how words sound in combination
+3) provide a steady accumulation of arguments
+4) use analogies
+5) use exaggerated, extreme, hyperbolic expressions
+
+## Thinking
+
+* Instances?
+    * Delete
+    * Reschedule
+    * Finish - you can only finish the instance that is due
+
+* Only available from row num in agenda view
+    * add row2instance: num -> [datetime, repeating true/false]
+
+* What about a unversal dialog
+
 
 ## Coding
 
