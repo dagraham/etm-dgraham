@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Tue Feb 19, 2019 09:41AM EST*
+*Last modified: Wed Feb 20, 2019 11:19PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -64,24 +64,25 @@ Here are some examples:
 * A sales meeting (an event) [s]tarting next Monday at 9:00am and [e]xtending for one hour.
 
         * sales meeting @s mon 9a @e 1h 
-* The sales meeting with a default [a]lert 5 minutes before start of the meeting:
+* The sales meeting with an [a]lert 5 minutes early to trigger the `d` command:
 
-        * sales meeting @s mon 9a @e 1h @a 5
+        * sales meeting @s mon 9a @e 1h @a 5m: d
 * Prepare a report (a task) for the sales meeting with a [b]eginning soon notice starting 3 days before the meeting:
 
         - prepare report @s mon 9a @b 3
-* A record of 35 minutes spent yesterday working on the report:
+* A record of 35 minutes of *used time* spent yesterday working on the report:
 
-        % report preparation @s -1 @e 35
+        % report preparation @s -1 @u 35m
+* In accounting reports attribute this time to the *ABC Company's Design Project*
+
+        % report preparation @s -1 @u 35m @i ABC:Design
 * An inbox reminder that the time and location for the lunch meeting have not been confirmed:
 
 		! lunch with Burk @s tue ? @e 90m @l ? 
-
 * Build a dog house (a task) by breaking the task down into component [j]obs:
 
 		- Build dog house @j pick up materials @j cut pieces @j assemble
 		  @j sand @j paint
-
 * Join the etm discussion group (a task) [s]tarting on the first day of the next month. Because of the @g goto link, pressing *g* when the item is selected in the gui would open the link using the system default application which, in this case, would be the default browser:
 
         - join the etm discussion group @s +1/1
@@ -89,27 +90,33 @@ Here are some examples:
 
 ## [Reminders that repeat](#toc)
 
+* Take out trash (a task) next Monday and then [r]epeat (w)eekly.
+
+        - Take out trash @s mon @r w 
+* Or, same thing, every 7 days
+
+        - Take out trash @s mon @r d &i 7 
+* If you forget to take out the trask, when [o]n pastdue, (s)kip the reminders.
+
+        - Take out trash @s mon @r w @o s
 * Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the completion date:
 
         - get haircut @s 24 @r d &i 14 @o r
+    If you're 10 days late getting a haircut, you want to be reminded 14 days after you got the hair cut, not 4 days.
 
 * Payday (an event) on the last week day of each month. The `&s -1` part of the entry extracts the last (-1) set position which is both a weekday and falls within the last three days of the month):
 
         * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
+* Take a prescribed medication daily [s]tarting at 12am Monday and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil 12am on Friday. Trigger the `d` [a]lert zero minutes before each reminder:
 
-* Take a prescribed medication daily (a reminder) [s]tarting at 12am Monday and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil 12am on Friday. Trigger the `d` [a]lert zero minutes before each reminder:
+        * take Rx @s mon @r d &h 10, 14, 18, 22 &u fri @a 0m: d
+* Move the water sprinkler every thirty mi[n]utes on Sunday afternoons using the 'd' alert zero minutes before each reminder:
 
-        * take Rx @s mon @r d &h 10, 14, 18, 22 &u fri @a 0: d
-
-* Move the water sprinkler (a reminder) every thirty mi[n]utes on Sunday afternoons using the default alert zero minutes before each reminder:
-
-        * Move sprinkler @s 1 @r n &i 30 &w SU &h 14, 15, 16, 17 @a 0
-
+        * Move sprinkler @s sun @r n &i 30 &w SU &h 14, 15, 16, 17 @a 0m: d
     To limit the sprinkler movement reminders to the [M]onths of April through September each year, append `&M 4, 5, 6, 7, 8, 9` to the @r entry.
+* Presidential election day every four years on the first Tuesday after a Monday in November:
 
-* Presidential election day (an occasion) every four years on the first Tuesday after a Monday in November:
-
-        ^ Presidential Election Day @s 2012-11-06
+        * Presidential Election Day @s 2012-11-06
           @r y &i 4 &M 11 &m 2, 3, 4, 5, 6, 7, 8 &w TU
 
 See [item Types](#item-types) for details about the four item types and [`@`keys](#keys) for details about possible attributes.
@@ -147,11 +154,14 @@ Python >= 3.6.0 is required.
 	and later update to the latest version with
 
 		(env) $ pip install -U etm_mv
+1) Create a home directory for etm
+
+        (env) $ mkdir ~/.etm-mv
 1) etm can now be started with the command
 
-		(env) $ ./etm 
+		(env) $ ./etm ~/.etm-mv
 
-Installing etm in this virtual environment makes it possible to remove etm and all its dependencies by simply deleting this directory. 
+Installing etm in this virtual environment makes it possible to remove etm and all its dependencies by simply deleting  directory. 
 
 
 # [Item Types](#toc)

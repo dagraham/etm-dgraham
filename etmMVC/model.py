@@ -58,9 +58,10 @@ from prompt_toolkit.output import ColorDepth
 from prompt_toolkit import __version__ as prompt_toolkit_version
 
 from v import version as etm_version
-from version import version as etm_fullversion
+from v import version as etm_fullversion
 
 import options
+
 
 ampm = True  # FIXME
 
@@ -1515,7 +1516,7 @@ class DataView(object):
         filelist = os.listdir(self.backupdir)
         zipfiles = [x for x in filelist if x.endswith('zip')] 
         zipfiles.sort(reverse=True)
-        removefiles = [os.path.join(self.backupdir, x) for x in zipfiles[10:]]
+        removefiles = [os.path.join(self.backupdir, x) for x in zipfiles[5:]]
         if removefiles:
             logger.info(f"removing old zip files: {removefiles}")
             for f in removefiles:
@@ -4693,22 +4694,22 @@ def about(padding=0):
 {logo}
 {summary}
 
-etm-mvc: {etm_fullversion}
-Developer: dnlgrhm@gmail.com
-GitHub: github.com/dagraham/etm-mvc
+etm-mv:     {etm_fullversion}
+Developer:  dnlgrhm@gmail.com
+GitHub:     github.com/dagraham/etm-mvc
 Discussion: groups.google.com/group/eventandtaskmanager
 
 {copyright}\
 """
 
     ret2 = f"""
-platform:         {system_platform}
 python:           {python_version}
 dateutil:         {dateutil_version}
 pendulum:         {pendulum_version}
 prompt_toolkit:   {prompt_toolkit_version}
 tinydb:           {tinydb_version}
 jinja2:           {jinja2_version}
+platform:         {system_platform}
 """
     return ret1, ret2
 
