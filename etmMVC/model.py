@@ -68,7 +68,7 @@ from v import version as etm_fullversion
 import options
 
 # NOTE: view.main() will override ampm using the configuration setting
-ampm = False
+ampm = True
 
 
 # import pwd
@@ -372,6 +372,8 @@ def process_entry(s):
     ({(0, 1): ('itemtype', '-'), (1, 8): ('summary', 'todo'), (8, 18): ('s', 'mon 9a'), (18, 33): ('a', '15m, 10m: d'), (33, 48): ('a', '15m, 10m: v')}, [('itemtype', '-'), ('summary', 'todo'), ('s', 'mon 9a'), ('a', '15m, 10m: d'), ('a', '15m, 10m: v')])
     >>> process_entry('+ bad type character')
     ({(0, 21): ('itemtype', '+')}, [('itemtype', '+')])
+    >>> process_entry('- has expansion key @x tennis')
+    ({(0, 1): ('itemtype', '-'), (1, 20): ('summary', 'has expansion key'), (20, 30): ('x', 'tennis')}, [('itemtype', '-'), ('summary', 'has expansion key'), ('x', 'tennis')])
     """
     tups = []
     keyvals = []
@@ -528,7 +530,7 @@ class Item(object):
                 's': ["start", "starting date or datetime", self.do_datetime],
                 't': ["tags", "list of tags", do_stringlist],
                 'u': ["used time", "timeperiod: datetime", do_usedtime],
-                'x': ["expansion", "expansion key", do_string],
+                'x': ["expansion", "expansion key", self.do_expansion],
                 'z': ["timezone", "", self.do_timezone],
                 '?': ["@-key", "", self.do_at],
 
@@ -571,6 +573,8 @@ class Item(object):
         self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
         self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
+        settings = options.Settings(etmdir)
+        self.settings = settings.settings
 
         logger.info(f"set etmdir in Item: {etmdir}; dbname: {self.dbfile}")
 
@@ -713,6 +717,9 @@ class Item(object):
                 else:
                     # shouldn't happen
                     pass
+            elif k[0] == 'x':
+                logger.info(f"@x {obj}")
+                pass
             else:
                 if cur_key:
                     self.item_hsh.setdefault(cur_key, []).append(cur_hsh)
@@ -902,6 +909,27 @@ class Item(object):
             rep = arg
         elif 'summary' in self.item_hsh:
             del self.item_hsh['summary']
+
+        return obj, rep
+
+    def do_expansion(self, arg):
+        """
+
+        """
+        expansions = self.settings['expansions']
+        logger.info(f"got expansions {expansions}, tennis: {expansions.get('tennis', '?')}")
+        key = arg.strip()
+        if key in expansions:
+            obj = expansions[key]
+            rep = expansions[key]
+        else:
+            possible = [x for x in expansions if x.startswith(key)]
+            if key and len(possible) == 1:
+                obj = expansions[possible[0]]
+                rep = possible[0]
+            else:
+                obj = None
+                rep = f"possible expansion keys: {possible}"
 
         return obj, rep
 
@@ -4759,12 +4787,15 @@ dataview = None
 item = None
 def main(etmdir="", *args):
     global dataview, item, db, ampm, settings
+    logdir = os.path.join(etmdir, "logs")
+    setup_logging(2, logdir)
     dataview = DataView(etmdir)
     settings = dataview.settings
     ampm = settings['ampm'] 
     print('ampm', ampm)
     db = dataview.db
     item = Item(etmdir)
+    item.do_expansion("tennis")
     dataview.refreshCache()
     logger.info(f"settings: {settings}")
 
