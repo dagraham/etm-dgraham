@@ -9,6 +9,8 @@ from pendulum import __version__ as pendulum_version
 from ruamel.yaml import YAML
 yaml = YAML(typ='safe', pure=True) 
 
+from ruamel.yaml import __version__ as ruamel_version
+
 import base64  # for do_mask
 
 def parse(s, **kwd):
@@ -1481,72 +1483,18 @@ class DataView(object):
         self.backupdir = os.path.join(self.etmdir, 'backups')
         self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
         self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
-        self.lastmodified = os.path.getmtime(self.dbfile) if os.path.isfile(self.dbfile) else pendulum.now('local').timestamp()
         self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
         self.dbarch = self.db.table('archive', cache_size=None)
         with open(self.cfgfile, 'r') as fn:
             self.settings = yaml.load(fn)
-        logger.info(f"yaml settings: {self.settings} from {self.cfgfile}")
+        logger.info(f"settings: {self.settings} from yaml file {self.cfgfile}")
         if 'locale' in self.settings:
             pendulum.set_locale(self.settings['locale'])
         self.item_num = len(self.db)
         self.arch_num = len(self.dbarch)
         logger.debug(f"set etmdir in DataView: {etmdir}; dbname: {self.dbfile}; items: {self.item_num}; archive: {self.arch_num}")
 
-    # def make_backup(self):
-    #     """
-    #     This will backup if changes have been made since etm was started.
-    #     """
-    #     lastmodified = os.path.getmtime(self.dbfile)
-    #     logger.debug(f"current: {lastmodified}; last: {self.lastmodified}")
-    #     if lastmodified <= self.lastmodified:
-    #         logger.debug(f"{self.dbfile} unchanged - skipping backup")
-    #         return
-    #     self.lastmodified = lastmodified
-    #     timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
-    #     backupfile = os.path.join(self.backupdir, f"{timestamp}.json")
-    #     zipfile = os.path.join(self.backupdir, f"{timestamp}.zip")
-    #     shutil.copy2(self.dbfile, backupfile)
-    #     logger.debug(f"copied {self.dbfile} to {backupfile}")
-    #     with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
-    #         zip.write(backupfile, os.path.basename(backupfile))
-    #     logger.debug(f"zipped {backupfile} to {zipfile}")
-    #     os.remove(backupfile)
-    #     logger.debug(f"removed {backupfile}")
-
-    # def backup_config(self):
-    #     """
-    #     This will backup if changes have been made since etm was started.
-    #     """
-    #     lastchanged = os.path.getmtime(self.configfile)
-    #     logger.debug(f"current: {lastchanged}; last: {self.lastchanged}")
-    #     if lastchanged <= self.lastchanged:
-    #         logger.debug(f"{self.configfile} unchanged - skipping backup")
-    #         return
-    #     self.lastchanged = lastchanged
-    #     timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
-    #     backupfile = os.path.join(self.backupdir, f"{timestamp}-cfg.json")
-    #     shutil.copy2(self.configfile, backupfile)
-    #     logger.debug(f"copied {self.config} to {backupfile}")
-
-    # def rotate_backups(self):
-    #     filelist = os.listdir(self.backupdir)
-    #     zipfiles = [x for x in filelist if x.endswith('zip')] 
-    #     zipfiles.sort(reverse=True)
-    #     removefiles = [os.path.join(self.backupdir, x) for x in zipfiles[5:]]
-    #     if removefiles:
-    #         logger.debug(f"removing old zip files: {removefiles}")
-    #         for f in removefiles:
-    #             os.remove(f)
-    #     filelist = os.listdir(self.backupdir)
-    #     cfgfiles = [x for x in filelist if x.endswith('cfg.json')] 
-    #     cfgfiles.sort(reverse=True)
-    #     removefiles = [os.path.join(self.backupdir, x) for x in cfgfiles[5:]]
-    #     if removefiles:
-    #         logger.debug(f"removing old cfg files: {removefiles}")
-    #         for f in removefiles:
-    #             os.remove(f)
 
     def handle_backups(self):
         removefiles = []
@@ -4795,6 +4743,7 @@ pendulum:         {pendulum_version}
 prompt_toolkit:   {prompt_toolkit_version}
 tinydb:           {tinydb_version}
 jinja2:           {jinja2_version}
+ruamel.yaml:      {ruamel_version}
 platform:         {system_platform}
 """
     return ret1, ret2
