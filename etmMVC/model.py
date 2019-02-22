@@ -530,7 +530,7 @@ class Item(object):
                 's': ["start", "starting date or datetime", self.do_datetime],
                 't': ["tags", "list of tags", do_stringlist],
                 'u': ["used time", "timeperiod: datetime", do_usedtime],
-                'x': ["expansion", "expansion key", self.do_expansion],
+                'x': ["expansion", "expansion key", do_string],
                 'z': ["timezone", "", self.do_timezone],
                 '?': ["@-key", "", self.do_at],
 
@@ -912,26 +912,26 @@ class Item(object):
 
         return obj, rep
 
-    def do_expansion(self, arg):
-        """
+    # def do_expansion(self, arg):
+    #     """
 
-        """
-        expansions = self.settings['expansions']
-        logger.info(f"got expansions {expansions}, tennis: {expansions.get('tennis', '?')}")
-        key = arg.strip()
-        if key in expansions:
-            obj = expansions[key]
-            rep = expansions[key]
-        else:
-            possible = [x for x in expansions if x.startswith(key)]
-            if key and len(possible) == 1:
-                obj = expansions[possible[0]]
-                rep = possible[0]
-            else:
-                obj = None
-                rep = f"possible expansion keys: {possible}"
+    #     """
+    #     expansions = self.settings['expansions']
+    #     logger.info(f"got expansions {expansions}, tennis: {expansions.get('tennis', '?')}")
+    #     key = arg.strip()
+    #     if key in expansions:
+    #         obj = expansions[key]
+    #         rep = expansions[key]
+    #     else:
+    #         possible = [x for x in expansions if x.startswith(key)]
+    #         if key and len(possible) == 1:
+    #             obj = expansions[possible[0]]
+    #             rep = possible[0]
+    #         else:
+    #             obj = None
+    #             rep = f"possible expansion keys: {possible}"
 
-        return obj, rep
+    #     return obj, rep
 
 
     def do_datetime(self, arg):
@@ -1485,7 +1485,7 @@ class DataView(object):
         self.history_view = ""
         self.cache = {}
         self.itemcache = {}
-        self.completions = set([])
+        self.completions = []
         self.set_etmdir(etmdir)
         self.views = {
                 'a': 'agenda',
@@ -1503,6 +1503,7 @@ class DataView(object):
         self.is_showing_help = False
         self.is_editing = False
         self.is_showing_items = True
+        self.get_completions()
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
         self.refreshAgenda()
@@ -1530,7 +1531,20 @@ class DataView(object):
         """
         Get completions from db items
         """
-        completion_keys = ['l', 't', 'i', 'z', ]
+        completion_keys = ['c', 'g', 'l', 'n',  't', 'i', 'z']
+        completions = set([])
+        for item in self.db:
+            found = {x: v for x, v in item.items() if x in completion_keys}
+            for x, v in found.items():
+                if isinstance(v, list):
+                    for p in v:
+                        completions.add(f"@{x} {p}")
+                else:
+                    completions.add(f"@{x} {v}")
+        self.completions = list(completions)
+        self.completions.sort()
+        logger.info(f"got completions: {self.completions}")
+
 
 
     def handle_backups(self):
@@ -4802,7 +4816,6 @@ def main(etmdir="", *args):
     print('ampm', ampm)
     db = dataview.db
     item = Item(etmdir)
-    item.do_expansion("tennis")
     dataview.refreshCache()
     logger.info(f"settings: {settings}")
 
