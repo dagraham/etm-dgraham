@@ -1485,6 +1485,7 @@ class DataView(object):
         self.history_view = ""
         self.cache = {}
         self.itemcache = {}
+        self.completions = set([])
         self.set_etmdir(etmdir)
         self.views = {
                 'a': 'agenda',
@@ -1524,6 +1525,12 @@ class DataView(object):
         self.item_num = len(self.db)
         self.arch_num = len(self.dbarch)
         logger.debug(f"set etmdir in DataView: {etmdir}; dbname: {self.dbfile}; items: {self.item_num}; archive: {self.arch_num}")
+
+    def get_completions(self):
+        """
+        Get completions from db items
+        """
+        completion_keys = ['l', 't', 'i', 'z', ]
 
 
     def handle_backups(self):

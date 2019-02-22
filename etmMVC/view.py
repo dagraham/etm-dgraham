@@ -135,8 +135,6 @@ def show_dialog_as_float(dialog):
 
 # Key bindings.
 bindings = KeyBindings()
-bindings.add('tab')(focus_next)
-bindings.add('s-tab')(focus_previous)
 
 @bindings.add('f2')
 def do_about(*event):
@@ -240,6 +238,9 @@ def not_showing_details():
 @Condition
 def is_showing_details():
     return dataview.is_showing_details
+
+bindings.add('tab', filter=is_not_editing)(focus_next)
+bindings.add('s-tab', filter=is_not_editing)(focus_previous)
 
 @bindings.add('g', filter=is_agenda_view & is_not_editing)
 def do_go_to_date(*event):
@@ -469,17 +470,34 @@ details_area = TextArea(
     search_field=search_field,
     )
 
+animal_completer = WordCompleter([
+    'alligator', 'ant', 'ape', 'bat', 'bear', 'beaver', 'bee', 'bison',
+    'butterfly', 'cat', 'chicken', 'crocodile', 'dinosaur', 'dog', 'dolphin',
+    'dove', 'duck', 'eagle', 'elephant', 'fish', 'goat', 'gorilla', 'kangaroo',
+    'leopard', 'lion', 'mouse', 'rabbit', 'rat', 'snake', 'spider', 'turkey',
+    'turtle', '@i personal:exercise:tennis', '_tennis',
+], ignore_case=True)
+
+result = ""
+def process_input(buf):
+    global result
+    result = buf.document.text
+    return True
+
 edit_bindings = KeyBindings()
 ask_buffer = Buffer()
-entry_buffer = Buffer(multiline=True)
+entry_buffer = Buffer(multiline=True, completer=animal_completer, complete_while_typing=True, accept_handler=process_input)
 reply_buffer = Buffer(multiline=True)
 
 reply_dimension = Dimension(min=2, weight=2)
 entry_dimension = Dimension(min=3, weight=2)
 
+# buff = Buffer(completer=animal_completer, complete_while_typing=True, accept_handler=process_input)
+
 entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
 ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
 reply_window = Window(BufferControl(buffer=reply_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:reply')
+
 
 edit_area = HSplit([
     ask_window,
@@ -490,7 +508,7 @@ edit_area = HSplit([
 
 edit_container = HSplit([
     edit_area,
-])
+    ])
 
 def default_buffer_changed(_):
     """
