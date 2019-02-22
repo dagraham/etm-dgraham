@@ -403,6 +403,9 @@ def maybe_alerts(now):
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
             logger.debug(f"{alert}")
             startdt = alert[1]
+            if not isinstance(startdt, pendulum.DateTime):
+                # rrule produces datetime.datetime objects
+                startdt = pendulum.instance(startdt)
             when = startdt.diff_for_humans()
             start = format_datetime(startdt)[1]
             summary = alert[3]
@@ -825,7 +828,7 @@ dataview = None
 item = None
 settings = None
 def main(etmdir=""):
-    global dataview, item, settings
+    global dataview, item, settings, ampm
     import options
     options.etmdir = etmdir
     import model

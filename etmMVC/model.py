@@ -1486,8 +1486,10 @@ class DataView(object):
         self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
         self.dbarch = self.db.table('archive', cache_size=None)
-        with open(self.cfgfile, 'r') as fn:
-            self.settings = yaml.load(fn)
+        settings = options.Settings(etmdir)
+        self.settings = settings.settings
+        # with open(self.cfgfile, 'r') as fn:
+        #     self.settings = yaml.load(fn)
         logger.info(f"settings: {self.settings} from yaml file {self.cfgfile}")
         if 'locale' in self.settings:
             pendulum.set_locale(self.settings['locale'])
@@ -1498,11 +1500,11 @@ class DataView(object):
 
     def handle_backups(self):
         removefiles = []
-        timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
+        timestamp = pendulum.now('UTC').format("YYYY-MM-DD")
         filelist = os.listdir(self.backupdir)
         # deal with db.json
         dbmtime = os.path.getmtime(self.dbfile)
-        zipfiles = [x for x in filelist if x.endswith('zip')] 
+        zipfiles = [x for x in filelist if x.endswith('db.zip')] 
         zipfiles.sort(reverse=True)
         if zipfiles:
             lastdbtime = os.path.getmtime(os.path.join(self.backupdir, zipfiles[0]))
@@ -1510,16 +1512,16 @@ class DataView(object):
             lastdbtime = None
 
         if lastdbtime is None or dbmtime > lastdbtime:
-            backupfile = os.path.join(self.backupdir, f"{timestamp}.json")
-            zipfile = os.path.join(self.backupdir, f"{timestamp}.zip")
+            backupfile = os.path.join(self.backupdir, f"{timestamp}-db.json")
+            zipfile = os.path.join(self.backupdir, f"{timestamp}-db.zip")
             shutil.copy2(self.dbfile, backupfile)
-            logger.debug(f"copied {self.dbfile} to {backupfile}")
+            logger.info(f"copied {self.dbfile} to {backupfile}")
             with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
                 zip.write(backupfile, os.path.basename(backupfile))
-            logger.debug(f"zipped {backupfile} to {zipfile}")
+            logger.info(f"zipped {backupfile} to {zipfile}")
             os.remove(backupfile)
-            logger.debug(f"removed {backupfile}")
-            zipfiles.insert(0, f"{timestamp}.zip")
+            logger.info(f"backed up {self.dbfile} to {zipfile}")
+            zipfiles.insert(0, f"{timestamp}-db.zip")
             zipfiles.sort(reverse=True)
             removefiles.extend([os.path.join(self.backupdir, x) for x in zipfiles[5:]])
         else:
@@ -1536,7 +1538,7 @@ class DataView(object):
         if lastcfgtime is None or cfgmtime > lastcfgtime:
             backupfile = os.path.join(self.backupdir, f"{timestamp}-cfg.yaml")
             shutil.copy2(self.cfgfile, backupfile)
-            logger.debug(f"copied {self.cfgfile} to {backupfile}")
+            logger.info(f"backed up {self.cfgfile} to {backupfile}")
             cfgfiles.insert(0, f"{timestamp}-cfg.yaml")
             cfgfiles.sort(reverse=True)
             removefiles.extend([os.path.join(self.backupdir, x) for x in 
@@ -1546,7 +1548,7 @@ class DataView(object):
 
         # maybe delete older backups
         if removefiles:
-            logger.debug(f"removing old cfg files: {removefiles}")
+            logger.info(f"removing old files: {removefiles}")
             for f in removefiles:
                 os.remove(f)
 
@@ -4755,11 +4757,12 @@ platform:         {system_platform}
 
 dataview = None
 item = None
-def main(etmdir=""):
+def main(etmdir="", *args):
     global dataview, item, db, ampm, settings
     dataview = DataView(etmdir)
-    settings = dataview.settings.settings()
+    settings = dataview.settings
     ampm = settings['ampm'] 
+    print('ampm', ampm)
     db = dataview.db
     item = Item(etmdir)
     dataview.refreshCache()
