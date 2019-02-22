@@ -6,6 +6,9 @@ from pendulum.datetime import Timezone
 from pendulum import __version__ as pendulum_version
 # from bisect import insort
 
+from ruamel.yaml import YAML
+yaml = YAML(typ='safe', pure=True) 
+
 import base64  # for do_mask
 
 def parse(s, **kwd):
@@ -563,11 +566,11 @@ class Item(object):
         if not etmdir:
             return
         self.etmdir = etmdir
-        self.dbname = os.path.normpath(os.path.join(etmdir, 'db.json'))
-        self.db = TinyDB(self.dbname, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+        self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
 
-        logger.info(f"set etmdir in Item: {etmdir}; dbname: {self.dbname}")
+        logger.info(f"set etmdir in Item: {etmdir}; dbname: {self.dbfile}")
 
 
     def edit_item(self, doc_id=None, entry=""):
@@ -1476,81 +1479,129 @@ class DataView(object):
     def set_etmdir(self, etmdir):
         self.etmdir = etmdir
         self.backupdir = os.path.join(self.etmdir, 'backups')
-        self.dbname = os.path.normpath(os.path.join(etmdir, 'db.json'))
-        self.lastmodified = os.path.getmtime(self.dbname) if os.path.isfile(self.dbname) else pendulum.now('local').timestamp()
-        self.db = TinyDB(self.dbname, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+        self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
+        self.lastmodified = os.path.getmtime(self.dbfile) if os.path.isfile(self.dbfile) else pendulum.now('local').timestamp()
+        self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
         self.dbarch = self.db.table('archive', cache_size=None)
-        # self.dbopts = self.db.table('options', cache_size=None)
-        self.settings = options.Settings(etmdir)
-        self.configfile = self.settings.settings()['config_file']
-        self.lastchanged = os.path.getmtime(self.configfile) if os.path.isfile(self.configfile) else pendulum.now('local').timestamp()
-        if self.settings.locale:
-            pendulum.set_locale(self.settings.locale)
-        # if len(self.dbopts) < 1: 
-        #     self.dbopts.insert(settings.settings())
-        # self.options = self.dbopts.get(doc_id=1)
-        logger.debug(f"settings: {self.settings.settings()}")
+        with open(self.cfgfile, 'r') as fn:
+            self.settings = yaml.load(fn)
+        logger.info(f"yaml settings: {self.settings} from {self.cfgfile}")
+        if 'locale' in self.settings:
+            pendulum.set_locale(self.settings['locale'])
         self.item_num = len(self.db)
         self.arch_num = len(self.dbarch)
-        logger.debug(f"set etmdir in DataView: {etmdir}; dbname: {self.dbname}; items: {self.item_num}; archive: {self.arch_num}")
-        # self.make_backup()
-        # self.backup_config()
-        # self.rotate_backups()
+        logger.debug(f"set etmdir in DataView: {etmdir}; dbname: {self.dbfile}; items: {self.item_num}; archive: {self.arch_num}")
 
-    def make_backup(self):
-        """
-        This will backup if changes have been made since etm was started.
-        """
-        lastmodified = os.path.getmtime(self.dbname)
-        logger.debug(f"current: {lastmodified}; last: {self.lastmodified}")
-        if lastmodified <= self.lastmodified:
-            logger.debug(f"{self.dbname} unchanged - skipping backup")
-            return
-        self.lastmodified = lastmodified
+    # def make_backup(self):
+    #     """
+    #     This will backup if changes have been made since etm was started.
+    #     """
+    #     lastmodified = os.path.getmtime(self.dbfile)
+    #     logger.debug(f"current: {lastmodified}; last: {self.lastmodified}")
+    #     if lastmodified <= self.lastmodified:
+    #         logger.debug(f"{self.dbfile} unchanged - skipping backup")
+    #         return
+    #     self.lastmodified = lastmodified
+    #     timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
+    #     backupfile = os.path.join(self.backupdir, f"{timestamp}.json")
+    #     zipfile = os.path.join(self.backupdir, f"{timestamp}.zip")
+    #     shutil.copy2(self.dbfile, backupfile)
+    #     logger.debug(f"copied {self.dbfile} to {backupfile}")
+    #     with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
+    #         zip.write(backupfile, os.path.basename(backupfile))
+    #     logger.debug(f"zipped {backupfile} to {zipfile}")
+    #     os.remove(backupfile)
+    #     logger.debug(f"removed {backupfile}")
+
+    # def backup_config(self):
+    #     """
+    #     This will backup if changes have been made since etm was started.
+    #     """
+    #     lastchanged = os.path.getmtime(self.configfile)
+    #     logger.debug(f"current: {lastchanged}; last: {self.lastchanged}")
+    #     if lastchanged <= self.lastchanged:
+    #         logger.debug(f"{self.configfile} unchanged - skipping backup")
+    #         return
+    #     self.lastchanged = lastchanged
+    #     timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
+    #     backupfile = os.path.join(self.backupdir, f"{timestamp}-cfg.json")
+    #     shutil.copy2(self.configfile, backupfile)
+    #     logger.debug(f"copied {self.config} to {backupfile}")
+
+    # def rotate_backups(self):
+    #     filelist = os.listdir(self.backupdir)
+    #     zipfiles = [x for x in filelist if x.endswith('zip')] 
+    #     zipfiles.sort(reverse=True)
+    #     removefiles = [os.path.join(self.backupdir, x) for x in zipfiles[5:]]
+    #     if removefiles:
+    #         logger.debug(f"removing old zip files: {removefiles}")
+    #         for f in removefiles:
+    #             os.remove(f)
+    #     filelist = os.listdir(self.backupdir)
+    #     cfgfiles = [x for x in filelist if x.endswith('cfg.json')] 
+    #     cfgfiles.sort(reverse=True)
+    #     removefiles = [os.path.join(self.backupdir, x) for x in cfgfiles[5:]]
+    #     if removefiles:
+    #         logger.debug(f"removing old cfg files: {removefiles}")
+    #         for f in removefiles:
+    #             os.remove(f)
+
+    def handle_backups(self):
+        removefiles = []
         timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
-        backupfile = os.path.join(self.backupdir, f"{timestamp}.json")
-        zipfile = os.path.join(self.backupdir, f"{timestamp}.zip")
-        shutil.copy2(self.dbname, backupfile)
-        logger.debug(f"copied {self.dbname} to {backupfile}")
-        with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
-            zip.write(backupfile, os.path.basename(backupfile))
-        logger.debug(f"zipped {backupfile} to {zipfile}")
-        os.remove(backupfile)
-        logger.debug(f"removed {backupfile}")
-
-    def backup_config(self):
-        """
-        This will backup if changes have been made since etm was started.
-        """
-        lastchanged = os.path.getmtime(self.configfile)
-        logger.debug(f"current: {lastchanged}; last: {self.lastchanged}")
-        if lastchanged <= self.lastchanged:
-            logger.debug(f"{self.configfile} unchanged - skipping backup")
-            return
-        self.lastchanged = lastchanged
-        timestamp = pendulum.now('UTC').format("YYYYMMDDTHHmm")
-        backupfile = os.path.join(self.backupdir, f"{timestamp}-cfg.json")
-        shutil.copy2(self.configfile, backupfile)
-        logger.debug(f"copied {self.config} to {backupfile}")
-
-    def rotate_backups(self):
         filelist = os.listdir(self.backupdir)
+        # deal with db.json
+        dbmtime = os.path.getmtime(self.dbfile)
         zipfiles = [x for x in filelist if x.endswith('zip')] 
         zipfiles.sort(reverse=True)
-        removefiles = [os.path.join(self.backupdir, x) for x in zipfiles[5:]]
-        if removefiles:
-            logger.debug(f"removing old zip files: {removefiles}")
-            for f in removefiles:
-                os.remove(f)
-        filelist = os.listdir(self.backupdir)
-        cfgfiles = [x for x in filelist if x.endswith('cfg.json')] 
+        if zipfiles:
+            lastdbtime = os.path.getmtime(os.path.join(self.backupdir, zipfiles[0]))
+        else:
+            lastdbtime = None
+
+        if lastdbtime is None or dbmtime > lastdbtime:
+            backupfile = os.path.join(self.backupdir, f"{timestamp}.json")
+            zipfile = os.path.join(self.backupdir, f"{timestamp}.zip")
+            shutil.copy2(self.dbfile, backupfile)
+            logger.debug(f"copied {self.dbfile} to {backupfile}")
+            with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
+                zip.write(backupfile, os.path.basename(backupfile))
+            logger.debug(f"zipped {backupfile} to {zipfile}")
+            os.remove(backupfile)
+            logger.debug(f"removed {backupfile}")
+            zipfiles.insert(0, f"{timestamp}.zip")
+            zipfiles.sort(reverse=True)
+            removefiles.extend([os.path.join(self.backupdir, x) for x in zipfiles[5:]])
+        else:
+            logger.debug(f"{self.dbfile} unchanged - skipping backup")
+
+        # deal with cfg.yaml
+        cfgmtime = os.path.getmtime(self.cfgfile)
+        cfgfiles = [x for x in filelist if x.endswith('cfg.yaml')] 
         cfgfiles.sort(reverse=True)
-        removefiles = [os.path.join(self.backupdir, x) for x in cfgfiles[5:]]
+        if cfgfiles:
+            lastcfgtime = os.path.getmtime(os.path.join(self.backupdir, cfgfiles[0]))
+        else:
+            lastcfgtime = None
+        if lastcfgtime is None or cfgmtime > lastcfgtime:
+            backupfile = os.path.join(self.backupdir, f"{timestamp}-cfg.yaml")
+            shutil.copy2(self.cfgfile, backupfile)
+            logger.debug(f"copied {self.cfgfile} to {backupfile}")
+            cfgfiles.insert(0, f"{timestamp}-cfg.yaml")
+            cfgfiles.sort(reverse=True)
+            removefiles.extend([os.path.join(self.backupdir, x) for x in 
+                cfgfiles[5:]])
+        else:
+            logger.debug(f"{self.cfgfile} unchanged - skipping backup")
+
+        # maybe delete older backups
         if removefiles:
             logger.debug(f"removing old cfg files: {removefiles}")
             for f in removefiles:
                 os.remove(f)
+
 
     def set_now(self):
         self.now = pendulum.now('local')  
@@ -1727,12 +1778,12 @@ class DataView(object):
             logger.error(f"@n (attendees) are not specified in {item}. send_mail aborted.")
             return
 
-        smtp = self.settings.smtp
-        smtp_from = smtp.get('smtp_from', None)
-        smtp_id = smtp.get('smtp_id', None)
-        smtp_pw = smtp.get('smtp_pw', None)
-        smtp_server = smtp.get('smtp_server', None)
-        smtp_body = smtp.get('smtp_body', None)
+        smtp = self.settings['smtp']
+        smtp_from = smtp.get('from', None)
+        smtp_id = smtp.get('id', None)
+        smtp_pw = smtp.get('pw', None)
+        smtp_server = smtp.get('server', None)
+        smtp_body = smtp.get('body', None)
         if not (smtp_from and smtp_id and smtp_pw and smtp_server and smtp_body):
             logger.error(f"Bad or missing stmp settings in the cfg.json smtp entry: {smtp}. send_mail aborted")
             return
@@ -1767,12 +1818,12 @@ class DataView(object):
 
     def send_text(self, doc_id):
         item = self.dbquery.get(doc_id=doc_id)
-        sms = self.settings.sms
-        sms_from = sms.get('sms_from', None)
-        sms_phone = sms.get('sms_phone', None)
-        sms_pw = sms.get('sms_pw', None)
-        sms_server = sms.get('sms_server', None)
-        sms_body = sms.get('sms_body', None)
+        sms = self.settings['sms']
+        sms_from = sms.get('from', None)
+        sms_phone = sms.get('phone', None)
+        sms_pw = sms.get('pw', None)
+        sms_server = sms.get('server', None)
+        sms_body = sms.get('body', None)
         if not (sms_from and sms_phone and sms_pw and sms_server and sms_body):
             logger.error(f"Bad or missing smx settings in the cfg.json sms entry: {sms}. send_text aborted.")
             return

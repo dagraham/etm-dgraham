@@ -333,7 +333,7 @@ def status_time(dt):
     >>> status_time(parse('2018-03-07 2:45pm'))
     '2:45'
     """
-    ampm = settings.ampm
+    ampm = settings['ampm']
     d_fmt = dt.format("ddd MMM D")
     suffix = dt.format("A").lower() if ampm else ""
     if dt.minute == 0:
@@ -367,9 +367,10 @@ def new_day(loop):
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
     get_app().invalidate()
-    dataview.make_backup()
-    dataview.backup_config()
-    dataview.rotate_backups()
+    dataview.handle_backups()
+    # dataview.make_backup()
+    # dataview.backup_config()
+    # dataview.rotate_backups()
 
 current_datetime = pendulum.now('local')
 
@@ -398,9 +399,9 @@ def alerts():
 def maybe_alerts(now):
     global current_datetime
     for alert in dataview.alerts:
-        logger.debug(f"settings.alerts: {settings.alerts}")
+        logger.debug(f"settings alerts: {settings['alerts']}")
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
-            logger.info(f"{alert}")
+            logger.debug(f"{alert}")
             startdt = alert[1]
             when = startdt.diff_for_humans()
             start = format_datetime(startdt)[1]
@@ -416,7 +417,7 @@ def maybe_alerts(now):
             if 't' in command_list:
                 command_list.remove('t')
                 dataview.send_text(doc_id)
-            commands = [settings.alerts.get(x, "").format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list]
+            commands = [settings['alerts'].get(x, "").format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list]
 
             logger.info(f"alert now: {now.microsecond}, startdt: {startdt.microsecond}, when: {when}, commands: {commands}, summary: {summary}, doc_id: {doc_id}")
             for command in commands:
@@ -593,7 +594,7 @@ def edit_copy(*event):
 
 @bindings.add('B', filter=is_not_editing)
 def whatever(*event):
-    dataview.possible_archive()
+    dataview.handle_backups()
 
 @bindings.add('c-p')
 def play_sound(*event):
@@ -674,14 +675,14 @@ def show_details(*event):
 def close_edit(event):
     # TODO: warn if item.is_modified
     dataview.is_editing = False
-    logger.info(f"is_modified: {item.is_modified}")
+    logger.debug(f"is_modified: {item.is_modified}")
     application.layout.focus(text_area)
     set_text(dataview.show_active_view())
 
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(_):
     # TODO: refresh views
-    logger.info(f"doc_id {item.doc_id} is_modified: {item.is_modified}")
+    logger.debug(f"doc_id {item.doc_id} is_modified: {item.is_modified}")
     if item.is_modified:
         if item.doc_id is not None:
             del dataview.itemcache[item.doc_id]
@@ -767,7 +768,7 @@ entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
 def set_askreply(_):
-    logger.info(f'item.active: {item.active}')
+    logger.debug(f'item.active: {item.active}')
     if item.active:
         ask, reply = item.askreply[item.active]
     else:
@@ -832,7 +833,7 @@ def main(etmdir=""):
     dataview = DataView(etmdir)
     settings = dataview.settings
     # NOTE: we're setting ampm in model here. How cool is this!!!
-    model.ampm = settings.ampm
+    model.ampm = settings['ampm']
     from model import Item
     item = Item(etmdir)
     dataview.refreshCache()
