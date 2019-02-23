@@ -717,9 +717,9 @@ class Item(object):
                 else:
                     # shouldn't happen
                     pass
-            elif k[0] == 'x':
-                logger.info(f"@x {obj}")
-                pass
+            # elif k[0] == 'x':
+            #     logger.info(f"@x {obj}")
+            #     pass
             else:
                 if cur_key:
                     self.item_hsh.setdefault(cur_key, []).append(cur_hsh)

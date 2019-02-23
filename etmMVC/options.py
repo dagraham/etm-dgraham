@@ -99,75 +99,74 @@ smtp:
 
     def __init__(self, etmdir, refresh=False):
         if os.path.isdir(etmdir):
-            defaults = yaml.load(Settings.inp)
+            self.settings = yaml.load(Settings.inp)
             self.cfgfile = os.path.normpath(
                     os.path.join(etmdir, 'cfg.yaml'))
             if os.path.exists(self.cfgfile):
                 with open(self.cfgfile, 'r') as fn:
-                    user = yaml.load(fn)
-                self.changes, self.settings = self.check_options(defaults, user)
-                if self.changes:
-                    logger.info(f"using corrected settings from {self.cfgfile}; ")
-                    logger.debug(f"user: {user}; corrected: {self.settings}")
+                    self.user = yaml.load(fn)
+                if self.user and isinstance(self.user, dict):
+                    self.changes = self.check_options()
                 else:
-                    logger.info(f"using settings from {self.cfgfile}")
+                    self.changes = [f'invalid settings from {self.cfgfile} - using defaults']
             else:
-                self.changes = [f'missing {self.cfgfile} - creating from defaults']
-                self.settings = defaults
+                self.changes = [f'missing {self.cfgfile} - using defaults']
 
             if self.changes:
                 with open(self.cfgfile, 'w') as fn:
                     yaml.dump(self.settings, fn)
-                logger.info(f"saved settings to {self.cfgfile}")
-                logger.debug(f"changes: {self.changes}")
+                logger.info(f"updated {self.cfgfile}: {', '.join(self.changes)}")
+            else:
+                logger.info(f"using settings from {self.cfgfile}")
+
         else:
             raise ValueError(f"{etmdir} is not a valid directory")
 
-    def check_options(self, defaults, user):
-        # remove bad user keys
+    def check_options(self):
         changed = []
-        new = deepcopy(user)
-        for key, value in user.items():
-            if key not in defaults:
-                # bad user key
-                del new[key]
-                changed.append(f"removed {key}: {user[key]}")
-            elif isinstance(defaults[key], dict):
-                if not isinstance(user[key], dict):
-                    new[key] = {}
-                    changed.append(f"replaced {key}: {user[key]} with an empty dictionary")
+        new = deepcopy(self.user)
+        # add missing default keys
+        for key, value in self.settings.items():
+            if isinstance(self.settings[key], dict):
+                if key not in new or not isinstance(new[key], dict):
+                    new[key] = self.settings[key]
+                    changed.append(f"added {key}: self.settings[key]")
                 else:
-                    for k, v in user[key].items():
-                        if k not in defaults[key]:
-                            changed.append(f"removed {key}.{k}: {new[key][k]}")
-                            del new[key][k]
-        # add missing defaults
-        for key, value in defaults.items():
-            if key not in new:
-                new[key] = defaults[key]
-                changed.append(f"added missing default {key}: {defaults[key]}")
-            elif isinstance(defaults[key], dict):
-                if not isinstance(new[key], dict):
-                    new[key] = {}
-                    changed.append(f"replaced {key}: {user[key]} with an empty dictionary")
-                for k, v in defaults[key].items():
-                    if k not in new[key]:
-                        new[key][k] = defaults[key][k]
-                        changed.append(f"added missing default {key}.{k}: {defaults[key][k]}")
-        return changed, new
+                    for k, v in self.settings[key].items():
+                        if k not in new[key]:
+                            new[key][k] = self.settings[key][k] 
+                            changed.append(f"added {key}.{k}: {self.settings[key][k]}")
+            elif key not in new:
+                new[key] = self.settings[key]
+                changed.append(f"added {key}: {self.settings[key]}")
+        # remove invalid user keys
+        for key, value in self.user.items():
+            if key not in self.settings:
+                # not a valid option
+                del new[key]
+                changed.append(f"removed {key}: {self.user[key]}")
+            elif key in ['sms', 'smtp']:
+                # only allow the specified subfields for these keys
+                for k, v in self.user[key].items():
+                    if k not in self.settings[key]:
+                        changed.append(f"removed {key}.{k}: {new[key][k]}")
+                        del new[key][k]
+
+        for key, value in new.items():
+            self.settings[key] = new[key]
+        return changed
 
 
 
 
 if __name__ == "__main__":
-    import sys
     if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
         etmdir = sys.argv.pop(1)
     else:
         sys.exit("The etm path must be provided.")
 
     settings = Settings(etmdir)
-    print(settings.settings)
-    print(settings.changes)
+    print(settings.settings, "\n")
+    print(settings.changes, "\n")
     yaml.dump(settings.settings, sys.stdout)
 
