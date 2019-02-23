@@ -23,6 +23,7 @@ from prompt_toolkit.eventloop import Future, ensure_future, Return, From
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.completion import Completion, Completer
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.layout import Dimension
@@ -261,12 +262,6 @@ def do_go_to_date(*event):
 
     ensure_future(coroutine())
 
-# at_completions = [f"@{k}" for k in at_keys]
-# r_completions = [f"&{k}" for k in amp_keys['r']] 
-# j_completions = [f"&{k}" for k in amp_keys['j']] 
-
-
-# item_completer = WordCompleter(at_completions + r_completions + j_completions, ignore_case=False)
 
 etmstyle = {
     'plain':        'Ivory',
@@ -470,13 +465,48 @@ details_area = TextArea(
     search_field=search_field,
     )
 
+
 animal_completer = WordCompleter([
     'alligator', 'ant', 'ape', 'bat', 'bear', 'beaver', 'bee', 'bison',
     'butterfly', 'cat', 'chicken', 'crocodile', 'dinosaur', 'dog', 'dolphin',
     'dove', 'duck', 'eagle', 'elephant', 'fish', 'goat', 'gorilla', 'kangaroo',
     'leopard', 'lion', 'mouse', 'rabbit', 'rat', 'snake', 'spider', 'turkey',
-    'turtle', '@i personal:exercise:tennis', '_tennis',
-], ignore_case=True)
+    'turtle', '@i personal:exercise:tennis', '_tennis'
+    ], ignore_case=True)
+
+completions = [
+        '@i personal:exercise:tennis',
+        '@i personal:travel:france',
+        '@z US/Eastern',
+        '@z US/Pacific',
+        '@z Europe/Paris'
+        ]
+
+class AtCompleter(Completer):
+    pat = re.compile(r'@[cgilntz]\s?\S*')
+
+    def get_completions(self, document, complete_event):
+        cur_line = document.current_line_before_cursor
+        logger.info(f"{cur_line}")
+        matches = re.findall(AtCompleter.pat, cur_line)
+        word = matches[-1] if matches else ""
+        logger.info(f"word: {word}")
+        if word:
+            for completion in completions:
+                if completion.startswith(word) and completion != word:
+                    yield Completion(
+                        completion,
+                        start_position=-len(word))
+
+
+at_completer = AtCompleter()
+
+# def get_completer_buffer():
+#     completions = dataview.completions
+#     at_completer = AtCompleter()
+
+#     return Buffer(multiline=True, completer=at_completer, complete_while_typing=True, accept_handler=process_input)
+
 
 result = ""
 def process_input(buf):
@@ -486,13 +516,12 @@ def process_input(buf):
 
 edit_bindings = KeyBindings()
 ask_buffer = Buffer()
-entry_buffer = Buffer(multiline=True, completer=animal_completer, complete_while_typing=True, accept_handler=process_input)
+entry_buffer = Buffer(multiline=True, completer=at_completer, complete_while_typing=True, accept_handler=process_input)
+
 reply_buffer = Buffer(multiline=True)
 
 reply_dimension = Dimension(min=2, weight=2)
 entry_dimension = Dimension(min=3, weight=2)
-
-# buff = Buffer(completer=animal_completer, complete_while_typing=True, accept_handler=process_input)
 
 entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
 ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
@@ -853,6 +882,7 @@ def main(etmdir=""):
     from model import DataView
     dataview = DataView(etmdir)
     settings = dataview.settings
+    completions = dataview.completions
     # NOTE: we're setting ampm in model here. How cool is this!!!
     model.ampm = settings['ampm']
     from model import Item
