@@ -21,6 +21,11 @@ ampm: true
 # for French.
 locale: en
 
+# style: dark or light. The dark style is designed for
+# dark terminal backgounds and the light style for light
+# terminal backgrounds.
+style: dark
+
 # alerts: A dictionary with single-character, "alert" keys and 
 # corresponding "system command" values. Note that characters 
 # "t" (text message) and "e" (email) are already used.  The 

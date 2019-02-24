@@ -197,7 +197,6 @@ def do_show_calendar(*event):
     # focus_next()
 
 
-
 def check_output(cmd):
     if not cmd:
         return
@@ -263,23 +262,25 @@ def do_go_to_date(*event):
 
     ensure_future(coroutine())
 
+terminal_style = None
+
 dark_style = Style.from_dict({
     'dialog':             f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'dialog frame-label': 'bg:#ffffff #000000',
     'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'dialog shadow':      'bg:#444444',
 
-    'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'details': f"{NAMED_COLORS['Ivory']}",
+    'status':     f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'details':    f"{NAMED_COLORS['Ivory']}",
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
     'not-searching': '#888888',
-    'entry': f"{NAMED_COLORS['LightGoldenRodYellow']}",
-    'ask':   f"{NAMED_COLORS['Lime']} bold",
-    'reply': f"{NAMED_COLORS['DeepSkyBlue']}",
+    'entry':      f"{NAMED_COLORS['LightGoldenRodYellow']}",
+    'ask':        f"{NAMED_COLORS['Lime']} bold",
+    'reply':      f"{NAMED_COLORS['DeepSkyBlue']}",
 
     'window.border': '#888888',
-    'shadow': 'bg:#222222',
+    'shadow':        'bg:#222222',
 
     'menu-bar': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'menu-bar.selected-item': 'bg:#ffffff #000000',
@@ -317,10 +318,8 @@ light_style = Style.from_dict({
     'focused  button': 'bg:#880000 #ffffff noinherit',
     })
 
-style = dark_style
 
-
-etmstyle = {
+dark_etmstyle = {
     'plain':        'Ivory',
     'inbox':        'LightCoral',
     'pastdue':      'DeepSkyBlue',
@@ -331,9 +330,22 @@ etmstyle = {
     'waiting':      'SlateGrey',
     'finished':     'DarkGrey',
     'today':        f"{NAMED_COLORS['Ivory']} bold",
-    # 'today':        f"{NAMED_COLORS['Ivory']} bg:{NAMED_COLORS['DimGrey']}",
-    # 'today':        f"{NAMED_COLORS['DodgerBlue']} bg:{NAMED_COLORS['DarkGrey']}",
 }
+
+
+light_etmstyle = {
+    'plain':        'Black',
+    'inbox':        'Crimson',
+    'pastdue':      'FireBrick',
+    'begin':        'IndianRed',
+    'record':       'DarkGoldenRod',
+    'event':        'Green',
+    'available':    'Blue',
+    'waiting':      'DarkSlateBlue',
+    'finished':     'LightSlateGrey',
+    'today':        f"{NAMED_COLORS['Black']} bold",
+}
+
 
 type2style = {
         '!': 'inbox',
@@ -871,35 +883,59 @@ def set_askreply(_):
 
 
 # create application.
-application = Application(
-    layout=Layout(
-        root_container,
-        focused_element=text_area,
-    ),
-    key_bindings=bindings,
-    enable_page_navigation_bindings=True,
-    mouse_support=True,
-    style=style,
-    full_screen=True)
+# application = Application(
+#     layout=Layout(
+#         root_container,
+#         focused_element=text_area,
+#     ),
+#     key_bindings=bindings,
+#     enable_page_navigation_bindings=True,
+#     mouse_support=True,
+#     style=style,
+#     full_screen=True)
 
 dataview = None
 item = None
 settings = None
+style = None
+etmstyle = None
+application = None
 def main(etmdir=""):
-    global dataview, item, settings, ampm
+    global dataview, item, settings, ampm, style, etmstyle, application
     import options
     options.etmdir = etmdir
     import model
     from model import DataView
     dataview = DataView(etmdir)
     settings = dataview.settings
-    completions = dataview.completions
+    terminal_style = dataview.settings['style']
+    logger.info(f"terminal_style: {terminal_style}")
+    if terminal_style == "dark": 
+        style = dark_style
+        etmstyle = dark_etmstyle
+    else:
+        style = light_style
+        etmstyle = light_etmstyle
+
+    # completions = dataview.completions
+
     # NOTE: we're setting ampm in model here. How cool is this!!!
     model.ampm = settings['ampm']
     from model import Item
     item = Item(etmdir)
     dataview.refreshCache()
     agenda_view()
+
+    application = Application(
+        layout=Layout(
+            root_container,
+            focused_element=text_area,
+        ),
+        key_bindings=bindings,
+        enable_page_navigation_bindings=True,
+        mouse_support=True,
+        style=style,
+        full_screen=True)
 
     # Tell prompt_toolkit to use asyncio.
     use_asyncio_event_loop()

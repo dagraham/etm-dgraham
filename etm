@@ -40,10 +40,14 @@ if __name__ == "__main__":
     expansions = dataview.settings["expansions"]
     for x in expansions:
         completions.append(f"@x {x}")
+    style = dataview.settings["style"]
 
     from etmMVC import view
     view.completions = completions
     view.expansions = expansions
+    view.terminal_style = style
+    logger.info(f"setting terminal_style: {style}")
+
 
     from etmMVC import options
     options.etmdir = etmdir
