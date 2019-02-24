@@ -4238,7 +4238,7 @@ def show_history(db, reverse=True):
         else:
             dt, label = item.get('created', None), 'c'
         if dt is not None:
-            dtfmt = dt.in_timezone('local').format("YY-MM-DD HH:mm")
+            dtfmt = dt.in_timezone('local').format("YYYYMMDD HH:mm")
             itemtype = finished_char if 'f' in item else item['itemtype']
             rows.append(
                     {
