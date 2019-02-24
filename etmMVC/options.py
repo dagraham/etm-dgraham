@@ -35,23 +35,27 @@ locale: en
 # entry. E.g., If the event "* sales meeting @s 2019-02-12 3p" 
 # triggered an alert 30 minutes before the starting time the 
 # string "{summary} {when}" would expand to "sales meeting in 
-# 30 minutes". E.g. on my macbook, the command
-#    v: /usr/bin/say -v "Alex" "{summary}, {when}"
-# would use the builtin text to speech sytem to speak the 
-# item's summary followed by a slight pause (the comma) and 
-# then the time remaining until the starting time, e.g., 
-# "sales meeting in 20 minutes".
+# 30 minutes". E.g. on my macbook
+# 
+#   alerts:
+#      v: /usr/bin/say -v "Alex" "{summary}, {when}"
+#
+# would make the alert 'v' use the builtin text to speech sytem 
+# to speak the item's summary followed by a slight pause 
+# (the comma) and then the time remaining until the starting 
+# time, e.g., "sales meeting in 20 minutes".
 alerts:
-    v: /usr/bin/say -v "Alex" "{summary}, {when}"
 
 # expansions: A dictionary with 'expansion name' keys and 
-# corresponding 'replacement string' values. E.g. with 
-#    tennis: @e 1h30m @a 30m: d @i personal:exercise 
+# corresponding 'replacement string' values. E.g. with
+#
+#    expansions:
+#       tennis: @e 1h30m @a 30m: d @i personal:exercise 
+#
 # then when an item containing '@x tennis' is saved the 
 # '@x tennis' would be replaced by the corresponding 
 # value.
 expansions:
-    tennis: "@e 1h30m @a 30m: d @i personal:exercise"  
 
 # sms: Settings to send "t" (sms text message) alerts to the 
 # phone numbers listed in sms_phone. E.g., if you have a 

@@ -34,6 +34,17 @@ if __name__ == "__main__":
     setup_logging(loglevel, logdir)
     logger.info(about()[1])
 
+    from etmMVC import model
+    dataview = model.DataView(etmdir)
+    completions = dataview.completions
+    expansions = dataview.settings["expansions"]
+    for x in expansions:
+        completions.append(f"@x {x}")
+
+    from etmMVC import view
+    view.completions = completions
+    view.expansions = expansions
+
     from etmMVC import options
     options.etmdir = etmdir
 

@@ -157,14 +157,14 @@ def do_go_to(*event):
             label_text='Line number:')
 
         line_number = yield From(show_dialog_as_float(dialog))
-
-        try:
-            line_number = int(line_number)
-        except ValueError:
-            show_message('go to line', 'Invalid line number')
-        else:
-            text_area.buffer.cursor_position = \
-                text_area.buffer.document.translate_row_col_to_index(line_number - 1, 0)
+        if line_number:
+            try:
+                line_number = int(line_number)
+            except ValueError:
+                show_message('go to line', 'Invalid line number')
+            else:
+                text_area.buffer.cursor_position = \
+                    text_area.buffer.document.translate_row_col_to_index(line_number - 1, 0)
 
     ensure_future(coroutine())
 
@@ -174,6 +174,7 @@ calmonth = today.month
 
 @bindings.add('f7')
 def do_show_calendar(*event):
+    # FIXME
     show_message("Six Month Calendar", sixmonthcal(0), 9)
     # def coroutine():
     #     global calyear, calmonth
@@ -201,7 +202,7 @@ def check_output(cmd):
     if not cmd:
         return
     try:
-        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError as exc:
         logger.error("command: {0}\n    output: {1}".format(cmd, exc.output))
 
@@ -262,6 +263,62 @@ def do_go_to_date(*event):
 
     ensure_future(coroutine())
 
+dark_style = Style.from_dict({
+    'dialog':             f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'dialog frame-label': 'bg:#ffffff #000000',
+    'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'dialog shadow':      'bg:#444444',
+
+    'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'details': f"{NAMED_COLORS['Ivory']}",
+    'status.position': '#aaaa00',
+    'status.key': '#ffaa00',
+    'not-searching': '#888888',
+    'entry': f"{NAMED_COLORS['LightGoldenRodYellow']}",
+    'ask':   f"{NAMED_COLORS['Lime']} bold",
+    'reply': f"{NAMED_COLORS['DeepSkyBlue']}",
+
+    'window.border': '#888888',
+    'shadow': 'bg:#222222',
+
+    'menu-bar': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'menu-bar.selected-item': 'bg:#ffffff #000000',
+    'menu': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'menu.border': '#aaaaaa',
+    'window.border shadow': '#444444',
+
+    'focused  button': 'bg:#880000 #ffffff noinherit',
+    })
+
+light_style = Style.from_dict({
+    'dialog':             f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'dialog frame-label': 'bg:#ffffff #000000',
+    'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'dialog shadow':      'bg:#444444',
+
+    'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'details': f"{NAMED_COLORS['Black']}",
+    'status.position': '#aaaa00',
+    'status.key': '#ffaa00',
+    'not-searching': '#888888',
+    'entry': f"{NAMED_COLORS['Black']}",
+    'ask':   f"{NAMED_COLORS['DarkGreen']} bold",
+    'reply': f"{NAMED_COLORS['Blue']}",
+
+    'window.border': '#888888',
+    'shadow': 'bg:#222222',
+
+    'menu-bar': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'menu-bar.selected-item': 'bg:#ffffff #000000',
+    'menu': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'menu.border': '#aaaaaa',
+    'window.border shadow': '#444444',
+
+    'focused  button': 'bg:#880000 #ffffff noinherit',
+    })
+
+style = dark_style
+
 
 etmstyle = {
     'plain':        'Ivory',
@@ -318,10 +375,6 @@ class ETMLexer(Lexer):
 
         return get_line
 
-# dataview = DataView()
-# dataview.refreshCache()
-# content = dataview.agenda_view
-
 def status_time(dt):
     """
     >>> status_time(parse('2018-03-07 10am'))
@@ -357,16 +410,12 @@ def data_changed(loop):
 def new_day(loop):
     dataview.possible_archive()
     dataview.set_active_view('a')
-    # dataview.now = pendulum.now()
     dataview.refreshRelevant()
     dataview.activeYrWk = dataview.currentYrWk
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
     get_app().invalidate()
     dataview.handle_backups()
-    # dataview.make_backup()
-    # dataview.backup_config()
-    # dataview.rotate_backups()
 
 current_datetime = pendulum.now('local')
 
@@ -380,7 +429,6 @@ def alerts():
             start = format_time(start_time)[1]
         else:
             start = format_datetime(start_time, short=True)[1]
-        # period = (start_time - trigger_time).in_words()
         trigger = format_time(trigger_time)[1]
         command = ", ".join(alert[2])
         summary = alert[3]
@@ -474,39 +522,49 @@ animal_completer = WordCompleter([
     'turtle', '@i personal:exercise:tennis', '_tennis'
     ], ignore_case=True)
 
+# completions will actually come from prior database entries 
 completions = [
-        '@i personal:exercise:tennis',
-        '@i personal:travel:france',
-        '@z US/Eastern',
-        '@z US/Pacific',
-        '@z Europe/Paris'
         ]
 
+# expansions will actually come from cfg.yaml
+expansions = {
+        }
+
 class AtCompleter(Completer):
-    pat = re.compile(r'@[cgilntz]\s?\S*')
+    # pat = re.compile(r'@[cgilntxz]\s?\S*')
+    pat = re.compile(r'@[cgilntxz]\s?[^@&]*')
 
     def get_completions(self, document, complete_event):
         cur_line = document.current_line_before_cursor
-        logger.info(f"{cur_line}")
+        logger.info(f"cur_line: {cur_line}")
         matches = re.findall(AtCompleter.pat, cur_line)
         word = matches[-1] if matches else ""
-        logger.info(f"word: {word}")
         if word:
+            word_len = len(word)
+            word = word.rstrip()
+            logger.info(f"word: '{word}'")
             for completion in completions:
-                if completion.startswith(word) and completion != word:
+                if word.startswith('@x') and completion.startswith(word):
+                    if completion == word:
+                        replacement = expansions.get(word[3:], completion)
+                        logger.info(f"== word completion: '{completion}'; replacement: '{replacement}'")
+                        yield Completion(
+                            replacement,
+                            start_position=-word_len)
+                    else:
+                        logger.info(f"!= word completion: '{completion}'")
+                        yield Completion(
+                            completion,
+                            start_position=-word_len)
+
+                elif completion.startswith(word) and completion != word:
+                    logger.info(f"!= word completion: '{completion}'")
                     yield Completion(
                         completion,
-                        start_position=-len(word))
+                        start_position=-word_len)
 
 
 at_completer = AtCompleter()
-
-# def get_completer_buffer():
-#     completions = dataview.completions
-#     at_completer = AtCompleter()
-
-#     return Buffer(multiline=True, completer=at_completer, complete_while_typing=True, accept_handler=process_input)
-
 
 result = ""
 def process_input(buf):
@@ -541,14 +599,11 @@ edit_container = HSplit([
 
 def default_buffer_changed(_):
     """
-    When the buffer on the left changes, update the buffer on
-    the right. We just reverse the text.
     """
     item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
 
 def default_cursor_position_changed(_):
     """
-    When the cursor position in the top changes, update the cursor position in the bottom.
     """
     item.cursor_changed(entry_buffer.cursor_position)
     set_askreply('_')
@@ -556,12 +611,6 @@ def default_cursor_position_changed(_):
 entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
-# help_area = TextArea(
-#     text=about()[1],
-#     style='class:details', 
-#     read_only=True,
-#     search_field=search_field,
-#     )
 
 status_area = VSplit([
             Window(FormattedTextControl(get_statusbar_text), style='class:status'),
@@ -576,9 +625,6 @@ body = HSplit([
     ConditionalContainer(
         content=details_area,
         filter=is_showing_details & is_not_busy_view),
-    # ConditionalContainer(
-    #     content=help_area,
-    #     filter=not_showing_details),
     ConditionalContainer(
         content=edit_container,
         filter=is_editing),
@@ -697,7 +743,6 @@ def nextweek(*event):
     dataview.nextYrWk()
     set_text(dataview.show_active_view())
 
-
 @bindings.add('left', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 def prevweek(*event):
     dataview.prevYrWk()
@@ -731,7 +776,6 @@ def close_edit(event):
 
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(_):
-    # TODO: refresh views
     logger.debug(f"doc_id {item.doc_id} is_modified: {item.is_modified}")
     if item.is_modified:
         if item.doc_id is not None:
@@ -812,7 +856,6 @@ root_container = MenuContainer(body=body, menu_items=[
 ])
 
 
-
 # This is slick - add a call to default_buffer_changed 
 entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
@@ -825,38 +868,6 @@ def set_askreply(_):
         ask, reply = item.askreply[('itemtype', '')]
     ask_buffer.text = ask
     reply_buffer.text = wrap(reply, 0) 
-    # reply_buffer.text = ('class:status', reply)
-
-# set this first for an empty entry
-# set_askreply('_')
-
-
-style = Style.from_dict({
-    'dialog':             f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'dialog frame-label': 'bg:#ffffff #000000',
-    'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'dialog shadow':      'bg:#444444',
-
-    'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'details': '{}'.format(NAMED_COLORS['Ivory']),
-    'status.position': '#aaaa00',
-    'status.key': '#ffaa00',
-    'not-searching': '#888888',
-    'entry': f"{NAMED_COLORS['LightGoldenRodYellow']}",
-    'ask':   f"{NAMED_COLORS['Lime']} bold",
-    'reply': f"{NAMED_COLORS['DeepSkyBlue']}",
-
-    'window.border': '#888888',
-    'shadow': 'bg:#222222',
-
-    'menu-bar': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'menu-bar.selected-item': 'bg:#ffffff #000000',
-    'menu': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'menu.border': '#aaaaaa',
-    'window.border shadow': '#444444',
-
-    'focused  button': 'bg:#880000 #ffffff noinherit',
-    })
 
 
 # create application.
@@ -900,4 +911,4 @@ def main(etmdir=""):
 
 
 if __name__ == '__main__':
-    sys.exit('view.pt should only be imported')
+    sys.exit('view.py should only be imported')

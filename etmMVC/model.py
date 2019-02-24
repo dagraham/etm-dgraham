@@ -348,7 +348,7 @@ All times: {}""".format(dtstart, countstr,  outstr, zone)
     return True, res
 
 
-def process_entry(s):
+def process_entry(s, settings=None):
     """
     Return tuples containing key, value and postion tuples for the string s. 
     0         1         2         3         4         5         6 
@@ -374,6 +374,7 @@ def process_entry(s):
     ({(0, 21): ('itemtype', '+')}, [('itemtype', '+')])
     >>> process_entry('- has expansion key @x tennis')
     ({(0, 1): ('itemtype', '-'), (1, 20): ('summary', 'has expansion key'), (20, 30): ('x', 'tennis')}, [('itemtype', '-'), ('summary', 'has expansion key'), ('x', 'tennis')])
+    >>> process_entry('@e 90m @a 30m, 15m: d @i personal:tennis')
     """
     tups = []
     keyvals = []
@@ -382,9 +383,23 @@ def process_entry(s):
         return {(0, 1): ('itemtype', '')}, [('itemtype', '')]
     elif s[0] not in type_keys:
         return {(0, len(s) + 1): ('itemtype', s[0])}, [('itemtype', s[0])]
-    pattern = "\s[@&][a-zA-Z+-]"
+    # look for expansions
+    xpat = re.compile("\s_[a-zA-Z]+\s")
+    logger.info(f"settings: {settings['expansions']}")
+    matches = xpat.findall(s)
+    logger.info(f"matches: {matches}")
+    if settings:
+        for x in matches:
+            x = x.strip()
+            if x in settings['expansions']:
+                replacement = settings['expansions'][x]
+                logger.info(f"replacement: {replacement}")
+                s = s.replace(x, replacement)
+                logger.info(f"new s: {s}")
+
+    pattern = re.compile("\s[@&][a-zA-Z+-]")
     parts = []
-    for match in finditer(pattern, s):
+    for match in pattern.finditer(s):
         parts.append([match.span()[0]+1, match.span()[1], match.group().strip()])
     if not parts:
         tups.append((s[0], s[1:].strip(), 0, len(s)+1))
@@ -569,12 +584,14 @@ class Item(object):
     def set_etmdir(self, etmdir):
         if not etmdir:
             return
+        logger.info(f"got etmdir in Item: {etmdir}")
         self.etmdir = etmdir
         self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
         self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
         settings = options.Settings(etmdir)
         self.settings = settings.settings
+        logger.info(f"got settings in Item: {self.settings} from etmdir: {etmdir}")
 
         logger.info(f"set etmdir in Item: {etmdir}; dbname: {self.dbfile}")
 
@@ -639,7 +656,7 @@ class Item(object):
         self.is_modified = modified
         logger.debug(f"s: {s}; pos: {pos}")
         self.entry = s
-        self.pos_hsh, keyvals = process_entry(s)
+        self.pos_hsh, keyvals = process_entry(s, self.settings)
         removed, changed = listdiff(self.keyvals, keyvals)
         logger.debug(f"self.keyvals: {self.keyvals};  removed: {removed}; changed: {changed}")
         # only process changes for kv entries
@@ -680,6 +697,7 @@ class Item(object):
                     obj = None
                     reply = msg
                 else:
+                    # call the appropriate do for the key 
                     obj, rep = do(val)
                     reply = rep if rep else r
                     if obj:
@@ -1520,7 +1538,7 @@ class DataView(object):
         self.settings = settings.settings
         # with open(self.cfgfile, 'r') as fn:
         #     self.settings = yaml.load(fn)
-        logger.info(f"settings: {self.settings} from yaml file {self.cfgfile}")
+        logger.info(f"got settings in DataView: {self.settings} from yaml file {self.cfgfile}")
         if 'locale' in self.settings:
             pendulum.set_locale(self.settings['locale'])
         self.item_num = len(self.db)
