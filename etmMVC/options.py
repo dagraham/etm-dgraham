@@ -11,7 +11,6 @@ yaml = YAML()
 
 class Settings():
 
-
     inp = """\
 # ampm: true or false. Use AM/PM format for datetimes if 
 # true else use 24 hour format. 
@@ -106,8 +105,7 @@ smtp:
     server: 
 """
 
-
-    def __init__(self, etmdir, refresh=False):
+    def __init__(self, etmdir):
         if os.path.isdir(etmdir):
             self.settings = yaml.load(Settings.inp)
             self.cfgfile = os.path.normpath(
@@ -128,9 +126,9 @@ smtp:
                 logger.info(f"updated {self.cfgfile}: {', '.join(self.changes)}")
             else:
                 logger.info(f"using settings from {self.cfgfile}")
-
         else:
             raise ValueError(f"{etmdir} is not a valid directory")
+
 
     def check_options(self):
         changed = []
@@ -165,8 +163,6 @@ smtp:
         for key, value in new.items():
             self.settings[key] = new[key]
         return changed
-
-
 
 
 if __name__ == "__main__":

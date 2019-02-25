@@ -1,5 +1,10 @@
 #! ./env/bin/python
 
+from tinydb import TinyDB, Query
+from tinydb import __version__ as tinydb_version
+from tinydb_serialization import Serializer
+from tinydb_serialization import SerializationMiddleware
+
 if __name__ == "__main__":
     import sys
     MIN_PYTHON = (3, 6)
@@ -34,34 +39,59 @@ if __name__ == "__main__":
     setup_logging(loglevel, logdir)
     logger.debug(about()[1])
 
+    from etmMVC import options
+    settings = options.Settings(etmdir).settings
+    settings['mytestval'] = 'whatever'
+
+    from etmMVC import data
+    dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+    ETMDB = data.initialize_tinydb(dbfile)
+    DBITEM = ETMDB.table('items', cache_size=None)
+    DBARCH = ETMDB.table('archive', cache_size=None)
+    logger.info(f"initialized TinyDB using {dbfile}")
+
     from etmMVC import model
+    model.ETMDB = ETMDB
+    model.DBITEM = DBITEM
+    model.DBARCH = DBARCH
+    model.settings = settings
+    # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
+    item = model.Item(etmdir)
+    format_time = model.format_time
+    format_datetime = model.format_datetime
+    # since dataview calls schedule it will also have settings
     completions = dataview.completions
-    expansions = dataview.settings["expansions"]
+    expansions = settings["expansions"]
     for x in expansions:
         completions.append(f"@x {x}")
     style = dataview.settings["style"]
-
     from etmMVC import view
+    view.model = model
+    view.about = model.about
+    view.wrap = model.wrap
+    view.settings = settings
+    view.format_time = format_time
+    view.format_datetime = format_datetime
+
+    # view.ampm = settings['ampm']
+    view.dataview = dataview
+    view.item = item
     view.completions = completions
     view.expansions = expansions
     view.terminal_style = style
     logger.debug(f"setting terminal_style: {style}")
 
-
-    from etmMVC import options
-    options.etmdir = etmdir
-
     # main(etmdir)
 
     if len(sys.argv) > 1:
-        logger.debug(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
+        logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
         from etmMVC.model import main
         main(etmdir, sys.argv)
         sys.exit()
 
     else:
-        logger.debug(f"calling view.main with etmdir: {etmdir}")
+        logger.info(f"calling view.main with etmdir: {etmdir}")
         from etmMVC.view import main
         main(etmdir)
 

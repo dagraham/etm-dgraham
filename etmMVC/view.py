@@ -38,7 +38,8 @@ from prompt_toolkit.widgets import Dialog, Label, Button
 
 import pendulum
 import re
-from model import wrap, format_time, format_datetime
+# from model import wrap, format_time, format_datetime
+# from model import wrap
 
 import logging
 import logging.config
@@ -46,9 +47,70 @@ logger = logging.getLogger()
 
 from sixmonthcal import sixmonthcal
 
-from model import about
+# from model import about
 
 import subprocess # for check_output
+
+# def format_time(obj):
+#     logger.info(f"in view format_time with settings: {settings}")
+#     if type(obj) != pendulum.DateTime:
+#         obj = pendulum.instance(obj)
+#     ampm = settings['ampm']
+#     time_fmt = "h:mmA" if ampm else "H:mm"
+#     res = obj.format(time_fmt)
+#     if ampm:
+#         res = res.replace('AM', 'am')
+#         res = res.replace('PM', 'pm')
+#     return True, res
+
+# def format_datetime(obj, short=False):
+#     """
+#     >>> format_datetime(parse_datetime("20160710T1730")[1])
+#     (True, 'Sun Jul 10 2016 5:30pm EDT')
+#     >>> format_datetime(parse_datetime("2015-07-10 5:30p", "float")[1])
+#     (True, 'Fri Jul 10 2015 5:30pm')
+#     >>> format_datetime(parse_datetime("20160710")[1])
+#     (True, 'Sun Jul 10 2016')
+#     >>> format_datetime(parse_datetime("2015-07-10", "float")[1])
+#     (True, 'Fri Jul 10 2015')
+#     >>> format_datetime("20160710T1730")
+#     (False, 'The argument must be a pendulum date or datetime.')
+#     >>> format_datetime(parse_datetime("2019-02-01 12:30a", "Europe/Paris")[1])
+#     (True, 'Thu Jan 31 2019 6:30pm EST')
+#     >>> format_datetime(parse_datetime("2019-01-31 11:30p", "Europe/Paris")[1])
+#     (True, 'Thu Jan 31 2019 5:30pm EST')
+#     """
+#     logger.info(f"in view format_datetime with settings: {settings}")
+#     ampm = settings['ampm']
+#     date_fmt = "YYYY-MM-DD" if short else "ddd MMM D YYYY"
+#     time_fmt = "h:mmA" if ampm else "H:mm"
+
+#     if type(obj) == pendulum.Date:
+#         return True, obj.format(date_fmt)
+
+#     if type(obj) != pendulum.DateTime:
+#         try:
+#             obj = pendulum.instance(obj)
+#         except:
+#             return False, "The argument must be a pendulum date or datetime."
+
+#     if obj.format('Z') == '':
+#         # naive datetime
+#         if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
+#             # treat as date
+#             return True, obj.format(date_fmt)
+#         res = obj.format(f"{date_fmt} {time_fmt}")
+#     else:
+#         # aware datetime
+#         obj = obj.in_timezone('local')
+#         if not short: time_fmt += " zz"
+#         res = obj.format(f"{date_fmt} {time_fmt}")
+
+#     if ampm:
+#         res = res.replace('AM', 'am')
+#         res = res.replace('PM', 'pm')
+#     logger.debug(f"res: {res}")
+#     return True, res
 
 class TextInputDialog(object):
     def __init__(self, title='', label_text='', padding=10, completer=None):
@@ -395,6 +457,7 @@ def status_time(dt):
     '2:45'
     """
     ampm = settings['ampm']
+    logger.info(f"in status_time ampm: {ampm}")
     d_fmt = dt.format("ddd MMM D")
     suffix = dt.format("A").lower() if ampm else ""
     if dt.minute == 0:
@@ -896,21 +959,24 @@ def set_askreply(_):
 
 dataview = None
 item = None
-settings = None
 style = None
 etmstyle = None
 application = None
 def main(etmdir=""):
-    global dataview, item, settings, ampm, style, etmstyle, application
-    import options
-    options.etmdir = etmdir
-    import model
-    from model import DataView
-    # NOTE: DataView called in View.main
-    dataview = DataView(etmdir)
-    settings = dataview.settings
-    terminal_style = dataview.settings['style']
-    logger.debug(f"terminal_style: {terminal_style}")
+    global item, settings, ampm, style, etmstyle, application
+    logger.info(f"settings: {settings}")
+
+    # import options
+    # options.etmdir = etmdir
+    # import model
+    # from model import DataView
+    # # NOTE: DataView called in View.main
+    # dataview = DataView(etmdir)
+    # settings = dataview.settings
+    ampm = settings['ampm']
+    logger.info(f"ampm: {ampm}")
+    terminal_style = settings['style']
+    logger.info(f"terminal_style: {terminal_style}")
     if terminal_style == "dark": 
         style = dark_style
         etmstyle = dark_etmstyle
@@ -921,9 +987,9 @@ def main(etmdir=""):
     # completions = dataview.completions
 
     # NOTE: we're setting ampm in model here. How cool is this!!!
-    model.ampm = settings['ampm']
-    from model import Item
-    item = Item(etmdir)
+    # model.ampm = settings['ampm']
+    # from model import Item
+    # item = Item(etmdir)
     dataview.refreshCache()
     agenda_view()
 

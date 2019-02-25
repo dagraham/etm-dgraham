@@ -65,8 +65,11 @@ from prompt_toolkit import __version__ as prompt_toolkit_version
 from v import version as etm_version
 from v import version as etm_fullversion
 
-import options
+# import options
 
+settings = {'ampm': True}
+DBITEM = None
+DBARCH = None
 # NOTE: view.main() will override ampm using the configuration setting
 ampm = True
 
@@ -103,10 +106,6 @@ FINISHED_CHAR = '✓'
 
 etmdir = None
 
-# ampm = SETTINGS.ampm
-
-# testing = True
-# testing = False
 
 ETMFMT = "%Y%m%dT%H%M"
 ZERO = pendulum.duration(minutes=0)
@@ -174,24 +173,6 @@ day = today.end_of('week')  # Sunday
 for i in range(1, 8):
     # 1 -> Mo, ...,  7 -> Su
     WA[i] = day.add(days=i).format('ddd')[:2]
-
-AMPM = True
-LL = {}
-for hour in range(24):
-    if hour % 6 == 0:
-        if AMPM:
-            suffix = 'am' if hour < 12 else 'pm'
-            if hour == 0:
-                hr = 12
-            elif hour <= 12:
-                hr = hour
-            elif hour > 12:
-                hr = hour - 12
-            LL[hour] = f"{hr}{suffix}".rjust(6, ' ')
-        else:
-            LL[hour] = f"{hour}h".rjust(6, ' ')
-    else:
-        LL[hour] = ' '.rjust(6, ' ')
 
 
 busy_template = """\
@@ -585,17 +566,20 @@ class Item(object):
         if not etmdir:
             return
         logger.debug(f"got etmdir in Item: {etmdir}")
-        self.etmdir = etmdir
-        self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
-        self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-        self.dbquery = self.db.table('items', cache_size=None)
+        self.settings = settings
+        self.db = DBITEM
+        self.dbarch = DBARCH
+        # self.etmdir = etmdir
+        # self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+        # self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        self.dbquery = DBITEM 
 
         # NOTE: options.Settings called in Item
-        settings = options.Settings(etmdir)
-        self.settings = settings.settings
-        logger.debug(f"got settings in Item: {self.settings} from etmdir: {etmdir}")
+        # settings = options.Settings(etmdir)
+        self.settings = settings
+        # logger.debug(f"got settings in Item: {self.settings} from etmdir: {etmdir}")
 
-        logger.debug(f"set etmdir in Item: {etmdir}; dbname: {self.dbfile}")
+        # logger.debug(f"set etmdir in Item: {etmdir}; dbname: {self.dbfile}")
 
 
     def edit_item(self, doc_id=None, entry=""):
@@ -1182,12 +1166,14 @@ def timestamp_list(arg, typ=None):
         return True, tmp
 
 def plain_datetime(obj):
+    logger.info(f"in model plain_datetime with settings: {settings}")
     return format_datetime(obj, short=True)
 
 def format_time(obj):
+    logger.info(f"in model format_time with settings: {settings}")
     if type(obj) != pendulum.DateTime:
         obj = pendulum.instance(obj)
-
+    ampm = settings.get('ampm', True)
     time_fmt = "h:mmA" if ampm else "H:mm"
     res = obj.format(time_fmt)
     if ampm:
@@ -1212,7 +1198,8 @@ def format_datetime(obj, short=False):
     >>> format_datetime(parse_datetime("2019-01-31 11:30p", "Europe/Paris")[1])
     (True, 'Thu Jan 31 2019 5:30pm EST')
     """
-
+    logger.info(f"in model format_datetime with settings: {settings}")
+    ampm = settings.get('ampm', True)
     date_fmt = "YYYY-MM-DD" if short else "ddd MMM D YYYY"
     time_fmt = "h:mmA" if ampm else "H:mm"
 
@@ -1531,23 +1518,23 @@ class DataView(object):
     def set_etmdir(self, etmdir):
         self.etmdir = etmdir
         self.backupdir = os.path.join(self.etmdir, 'backups')
-        self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
-        self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
-        self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-        self.dbquery = self.db.table('items', cache_size=None)
-        self.dbarch = self.db.table('archive', cache_size=None)
-        # NOTE: options.Settings called in DataView
-        settings = options.Settings(etmdir)
-        self.settings = settings.settings
+        # self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+        # self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
+        # self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+        # self.dbquery = self.db.table('items', cache_size=None)
+        # self.dbarch = self.db.table('archive', cache_size=None)
+        # # NOTE: options.Settings called in DataView
+        # settings = options.Settings(etmdir)
+        self.settings = settings
+        self.db = DBITEM
+        self.dbarch = DBARCH
         # with open(self.cfgfile, 'r') as fn:
         #     self.settings = yaml.load(fn)
-        logger.info(f"using etmdir: {etmdir}; loaded settings from {self.cfgfile}")
-        logger.debug(f"settings: {self.settings}")
+        logger.info(f"imported settings: {self.settings}")
         if 'locale' in self.settings:
             pendulum.set_locale(self.settings['locale'])
         self.item_num = len(self.db)
         self.arch_num = len(self.dbarch)
-        logger.debug(f"set etmdir in DataView: {etmdir}; dbname: {self.dbfile}; items: {self.item_num}; archive: {self.arch_num}")
 
     def get_completions(self):
         """
@@ -1703,7 +1690,7 @@ class DataView(object):
         if not edit and item_id in self.itemcache:
             logger.debug(f"item_id in cache: {item_id}; str: {self.itemcache[item_id]}")
             return item_id, self.itemcache[item_id]
-        item = self.dbquery.get(doc_id=item_id)
+        item = DBITEM.get(doc_id=item_id)
         if item:
             self.itemcache[item_id] = item_details(item, edit)
             logger.debug(f"item_id not in cache: {item_id}; item: {item}")
@@ -1717,7 +1704,7 @@ class DataView(object):
         self.cache = {}
 
     def refreshCache(self):
-        self.cache = schedule(self.db, self.currentYrWk, self.current, self.now, 5, 20)
+        self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20)
 
     def possible_archive(self, old=pendulum.now('local')-pendulum.duration(years=2)):
         """
@@ -3719,6 +3706,11 @@ serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday
 serialization.register_serializer(MaskSerializer(), 'M')             # Mask 
 
 
+def initialize_tinydb(dbfile):
+    return TinyDB(dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+
+
+
 ########################
 ### end TinyDB setup ###
 ########################
@@ -3841,6 +3833,7 @@ def drop_zero_minutes(dt):
     >>> drop_zero_minutes(parse('2018-03-07 2:45pm'))
     '2:45'
     """
+    ampm = settings['ampm']
     if dt.minute == 0:
         if ampm:
             return dt.format("h")
@@ -3863,6 +3856,7 @@ def fmt_extent(beg_dt, end_dt):
     '10am-2pm'
     """
     beg_suffix = end_suffix = ""
+    ampm = settings['ampm']
 
     if ampm:
         diff = beg_dt.hour < 12 and end_dt.hour >= 12
@@ -3877,6 +3871,7 @@ def fmt_extent(beg_dt, end_dt):
 
 
 def fmt_time(dt, ignore_midnight=True):
+    ampm = settings['ampm']
     if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0: 
         return ""
     suffix = dt.format("A").lower() if ampm else ""
@@ -4416,6 +4411,24 @@ def fmt_class(txt, cls=None, plain=False):
 
 
 def no_busy_periods(week, width):
+    ampm = settings['ampm']
+    LL = {}
+    for hour in range(24):
+        if hour % 6 == 0:
+            if ampm:
+                suffix = 'am' if hour < 12 else 'pm'
+                if hour == 0:
+                    hr = 12
+                elif hour <= 12:
+                    hr = hour
+                elif hour > 12:
+                    hr = hour - 12
+                LL[hour] = f"{hr}{suffix}".rjust(6, ' ')
+            else:
+                LL[hour] = f"{hour}h".rjust(6, ' ')
+        else:
+            LL[hour] = ' '.rjust(6, ' ')
+
     monday = parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
     DD = {}
     h = {}
@@ -4434,6 +4447,25 @@ def no_busy_periods(week, width):
 
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_before=0, weeks_after=0):
+    ampm = settings['ampm']
+    logger.info(f"in schedule with ampm: {ampm}")
+    LL = {}
+    for hour in range(24):
+        if hour % 6 == 0:
+            if ampm:
+                suffix = 'am' if hour < 12 else 'pm'
+                if hour == 0:
+                    hr = 12
+                elif hour <= 12:
+                    hr = hour
+                elif hour > 12:
+                    hr = hour - 12
+                LL[hour] = f"{hr}{suffix}".rjust(6, ' ')
+            else:
+                LL[hour] = f"{hour}h".rjust(6, ' ')
+        else:
+            LL[hour] = ' '.rjust(6, ' ')
+
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 7 - 16
     # yw will be the active week, but now will be the current moment
@@ -4841,8 +4873,8 @@ def main(etmdir="", *args):
     # NOTE: DataView called in model.main
     dataview = DataView(etmdir)
     settings = dataview.settings
-    ampm = settings['ampm'] 
-    print('ampm', ampm)
+    # ampm = settings['ampm'] 
+    # print('ampm', ampm)
     db = dataview.db
     item = Item(etmdir)
     dataview.refreshCache()
@@ -4851,11 +4883,12 @@ def main(etmdir="", *args):
 if __name__ == '__main__':
     import doctest
     import sys
+    main()
 
     etmdir = ''
     if len(sys.argv) > 1:
         etmdir = sys.argv.pop(1)
-    setup_logging(2, etmdir, 'main.py')
+    setup_logging(2, etmdir)
 
     if len(sys.argv) > 1:
         if 'a' in sys.argv[1]:
