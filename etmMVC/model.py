@@ -3089,7 +3089,7 @@ def item_instances(item, aft_dt, bef_dt=None):
             instances = [dtstart] if aft_dt <= dtstart <= bef_dt else []
 
     pairs = []
-    for instance in instances:
+    for instance in instances: # FIXME: task don't get item['e']
         # multidays only for events
         if item['itemtype'] == "*" and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
@@ -4511,7 +4511,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                     if 'f' in job:
                         continue
                     jobstart = dt - job.get('s', ZERO)
-                    rhc = fmt_extent(jobstart, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
+                    # rhc = fmt_extent(jobstart, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
+                    rhc = fmt_time(dt).center(16, ' ')
                     rows.append(
                         {
                             'id': item.doc_id,
@@ -4531,7 +4532,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                     logger.debug(f"appended job: {rows[-1]}")
 
             else:
-                rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
+                if 'e' not in item or item['itemtype'] == '-': 
+                    rhc = fmt_time(dt).center(16, ' ')
+                else:
+                    rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item  else fmt_time(dt).center(16, ' ') 
                 rows.append(
                         {
                             'id': item.doc_id,
