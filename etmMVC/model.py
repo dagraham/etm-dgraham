@@ -589,6 +589,8 @@ class Item(object):
         self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
         self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
+
+        # NOTE: options.Settings called in Item
         settings = options.Settings(etmdir)
         self.settings = settings.settings
         logger.debug(f"got settings in Item: {self.settings} from etmdir: {etmdir}")
@@ -1534,6 +1536,7 @@ class DataView(object):
         self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
         self.dbarch = self.db.table('archive', cache_size=None)
+        # NOTE: options.Settings called in DataView
         settings = options.Settings(etmdir)
         self.settings = settings.settings
         # with open(self.cfgfile, 'r') as fn:
@@ -4831,6 +4834,7 @@ def main(etmdir="", *args):
     global dataview, item, db, ampm, settings
     logdir = os.path.join(etmdir, "logs")
     setup_logging(2, logdir)
+    # NOTE: DataView called in model.main
     dataview = DataView(etmdir)
     settings = dataview.settings
     ampm = settings['ampm'] 

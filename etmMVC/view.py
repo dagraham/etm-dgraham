@@ -906,6 +906,7 @@ def main(etmdir=""):
     options.etmdir = etmdir
     import model
     from model import DataView
+    # NOTE: DataView called in View.main
     dataview = DataView(etmdir)
     settings = dataview.settings
     terminal_style = dataview.settings['style']

@@ -32,7 +32,7 @@ if __name__ == "__main__":
         os.makedirs(backdir)
 
     setup_logging(loglevel, logdir)
-    logger.info(about()[1])
+    logger.debug(about()[1])
 
     from etmMVC import model
     dataview = model.DataView(etmdir)
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     view.completions = completions
     view.expansions = expansions
     view.terminal_style = style
-    logger.info(f"setting terminal_style: {style}")
+    logger.debug(f"setting terminal_style: {style}")
 
 
     from etmMVC import options
