@@ -21,9 +21,8 @@ ampm: true
 # for French.
 locale: en
 
-# style: dark or light. The dark style is designed for
-# dark terminal backgounds and the light style for light
-# terminal backgrounds.
+# style: dark or light. Designed for, respectively, dark or 
+# light terminal backgounds.
 style: dark
 
 # alerts: A dictionary with single-character, "alert" keys and 
@@ -42,8 +41,9 @@ style: dark
 # string "{summary} {when}" would expand to "sales meeting in 
 # 30 minutes". E.g. on my macbook
 # 
-#   alerts:
-#      v: /usr/bin/say -v "Alex" "{summary}, {when}"
+#    alerts:
+#       v: /usr/bin/say -v "Alex" "{summary}, {when}"
+#       ...
 #
 # would make the alert 'v' use the builtin text to speech sytem 
 # to speak the item's summary followed by a slight pause 
@@ -56,10 +56,11 @@ alerts:
 #
 #    expansions:
 #       tennis: @e 1h30m @a 30m: d @i personal:exercise 
+#       ...
 #
-# then when an item containing '@x tennis' is saved the 
-# '@x tennis' would be replaced by the corresponding 
-# value.
+# then when '@x tennis' is entered the popup completions for 
+# '@x tennis' would offer eplacement by the corresponding 
+# '@e 1h30m @a 30m: d @i personal:exercise'.
 expansions:
 
 # sms: Settings to send "t" (sms text message) alerts to the 

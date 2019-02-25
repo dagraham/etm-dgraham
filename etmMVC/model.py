@@ -1541,7 +1541,8 @@ class DataView(object):
         self.settings = settings.settings
         # with open(self.cfgfile, 'r') as fn:
         #     self.settings = yaml.load(fn)
-        logger.debug(f"got settings in DataView: {self.settings} from yaml file {self.cfgfile}")
+        logger.info(f"using etmdir: {etmdir}; loaded settings from {self.cfgfile}")
+        logger.debug(f"settings: {self.settings}")
         if 'locale' in self.settings:
             pendulum.set_locale(self.settings['locale'])
         self.item_num = len(self.db)
@@ -1567,7 +1568,6 @@ class DataView(object):
         logger.debug(f"got completions: {self.completions}")
 
 
-
     def handle_backups(self):
         removefiles = []
         timestamp = pendulum.now('UTC').format("YYYY-MM-DD")
@@ -1585,7 +1585,7 @@ class DataView(object):
             backupfile = os.path.join(self.backupdir, f"{timestamp}-db.json")
             zipfile = os.path.join(self.backupdir, f"{timestamp}-db.zip")
             shutil.copy2(self.dbfile, backupfile)
-            logger.info(f"copied {self.dbfile} to {backupfile}")
+            logger.debug(f"copied {self.dbfile} to {backupfile}")
             with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
                 zip.write(backupfile, os.path.basename(backupfile))
             logger.debug(f"zipped {backupfile} to {zipfile}")

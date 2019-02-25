@@ -444,7 +444,7 @@ def alerts():
         trigger = format_time(trigger_time)[1]
         command = ", ".join(alert[2])
         summary = alert[3]
-        prefix = '<' if trigger_time < now else '>'
+        prefix = '#' if trigger_time < now else ' '
         alerts.append(f"{prefix} {trigger} ({command}) {summary} {start}")
     if alerts:
         return "\n".join(alerts)
