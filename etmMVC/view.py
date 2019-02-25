@@ -478,7 +478,7 @@ def maybe_alerts(now):
                 dataview.send_text(doc_id)
             commands = [settings['alerts'].get(x, "").format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list]
 
-            logger.info(f"alert now: {now.microsecond}, startdt: {startdt.microsecond}, when: {when}, commands: {commands}, summary: {summary}, doc_id: {doc_id}")
+            logger.debug(f"alert now: {now.microsecond}, startdt: {startdt.microsecond}, when: {when}, commands: {commands}, summary: {summary}, doc_id: {doc_id}")
             for command in commands:
                 if command:
                     check_output(command)
@@ -548,29 +548,29 @@ class AtCompleter(Completer):
 
     def get_completions(self, document, complete_event):
         cur_line = document.current_line_before_cursor
-        logger.info(f"cur_line: {cur_line}")
+        logger.debug(f"cur_line: {cur_line}")
         matches = re.findall(AtCompleter.pat, cur_line)
         word = matches[-1] if matches else ""
         if word:
             word_len = len(word)
             word = word.rstrip()
-            logger.info(f"word: '{word}'")
+            logger.debug(f"word: '{word}'")
             for completion in completions:
                 if word.startswith('@x') and completion.startswith(word):
                     if completion == word:
                         replacement = expansions.get(word[3:], completion)
-                        logger.info(f"== word completion: '{completion}'; replacement: '{replacement}'")
+                        logger.debug(f"== word completion: '{completion}'; replacement: '{replacement}'")
                         yield Completion(
                             replacement,
                             start_position=-word_len)
                     else:
-                        logger.info(f"!= word completion: '{completion}'")
+                        logger.debug(f"!= word completion: '{completion}'")
                         yield Completion(
                             completion,
                             start_position=-word_len)
 
                 elif completion.startswith(word) and completion != word:
-                    logger.info(f"!= word completion: '{completion}'")
+                    logger.debug(f"!= word completion: '{completion}'")
                     yield Completion(
                         completion,
                         start_position=-word_len)
@@ -909,7 +909,7 @@ def main(etmdir=""):
     dataview = DataView(etmdir)
     settings = dataview.settings
     terminal_style = dataview.settings['style']
-    logger.info(f"terminal_style: {terminal_style}")
+    logger.debug(f"terminal_style: {terminal_style}")
     if terminal_style == "dark": 
         style = dark_style
         etmstyle = dark_etmstyle

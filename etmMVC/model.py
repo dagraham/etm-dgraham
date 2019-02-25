@@ -385,17 +385,17 @@ def process_entry(s, settings=None):
         return {(0, len(s) + 1): ('itemtype', s[0])}, [('itemtype', s[0])]
     # look for expansions
     xpat = re.compile("\s_[a-zA-Z]+\s")
-    logger.info(f"settings: {settings['expansions']}")
+    logger.debug(f"settings: {settings['expansions']}")
     matches = xpat.findall(s)
-    logger.info(f"matches: {matches}")
+    logger.debug(f"matches: {matches}")
     if settings:
         for x in matches:
             x = x.strip()
             if x in settings['expansions']:
                 replacement = settings['expansions'][x]
-                logger.info(f"replacement: {replacement}")
+                logger.debug(f"replacement: {replacement}")
                 s = s.replace(x, replacement)
-                logger.info(f"new s: {s}")
+                logger.debug(f"new s: {s}")
 
     pattern = re.compile("\s[@&][a-zA-Z+-]")
     parts = []
@@ -584,16 +584,16 @@ class Item(object):
     def set_etmdir(self, etmdir):
         if not etmdir:
             return
-        logger.info(f"got etmdir in Item: {etmdir}")
+        logger.debug(f"got etmdir in Item: {etmdir}")
         self.etmdir = etmdir
         self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
         self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = self.db.table('items', cache_size=None)
         settings = options.Settings(etmdir)
         self.settings = settings.settings
-        logger.info(f"got settings in Item: {self.settings} from etmdir: {etmdir}")
+        logger.debug(f"got settings in Item: {self.settings} from etmdir: {etmdir}")
 
-        logger.info(f"set etmdir in Item: {etmdir}; dbname: {self.dbfile}")
+        logger.debug(f"set etmdir in Item: {etmdir}; dbname: {self.dbfile}")
 
 
     def edit_item(self, doc_id=None, entry=""):
@@ -736,7 +736,7 @@ class Item(object):
                     # shouldn't happen
                     pass
             # elif k[0] == 'x':
-            #     logger.info(f"@x {obj}")
+            #     logger.debug(f"@x {obj}")
             #     pass
             else:
                 if cur_key:
@@ -935,7 +935,7 @@ class Item(object):
 
     #     """
     #     expansions = self.settings['expansions']
-    #     logger.info(f"got expansions {expansions}, tennis: {expansions.get('tennis', '?')}")
+    #     logger.debug(f"got expansions {expansions}, tennis: {expansions.get('tennis', '?')}")
     #     key = arg.strip()
     #     if key in expansions:
     #         obj = expansions[key]
@@ -1538,7 +1538,7 @@ class DataView(object):
         self.settings = settings.settings
         # with open(self.cfgfile, 'r') as fn:
         #     self.settings = yaml.load(fn)
-        logger.info(f"got settings in DataView: {self.settings} from yaml file {self.cfgfile}")
+        logger.debug(f"got settings in DataView: {self.settings} from yaml file {self.cfgfile}")
         if 'locale' in self.settings:
             pendulum.set_locale(self.settings['locale'])
         self.item_num = len(self.db)
@@ -1561,7 +1561,7 @@ class DataView(object):
                     completions.add(f"@{x} {v}")
         self.completions = list(completions)
         self.completions.sort()
-        logger.info(f"got completions: {self.completions}")
+        logger.debug(f"got completions: {self.completions}")
 
 
 
@@ -1585,7 +1585,7 @@ class DataView(object):
             logger.info(f"copied {self.dbfile} to {backupfile}")
             with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
                 zip.write(backupfile, os.path.basename(backupfile))
-            logger.info(f"zipped {backupfile} to {zipfile}")
+            logger.debug(f"zipped {backupfile} to {zipfile}")
             os.remove(backupfile)
             logger.info(f"backed up {self.dbfile} to {zipfile}")
             zipfiles.insert(0, f"{timestamp}-db.zip")
@@ -4284,33 +4284,36 @@ def show_next(db):
             continue
         if 'j' in item:
             task_location = item.get('l', '~')
-            priority = item.get('p', '0')
+            priority = int(item.get('p', 0))
             sort_priority = 4 - int(priority)
+            show_priority = str(priority) if priority > 0 else ""
             for job in item['j']:
                 location = job.get('l', task_location)
+                status = 0 if job.get('status') == '-' else 1
                 rows.append(
                     {
                         'id': item.doc_id,
-                        'sort': (location, sort_priority, job['summary']),
+                        'sort': (location, sort_priority, status, job['summary']),
                         'location': location,
                         'columns': [job['status'],
                             job['summary'], 
-                            priority,
+                            show_priority,
                             ]
                     }
                 )
         else:
             location = item.get('l', '~')
-            priority = item.get('p', '0')
+            priority = int(item.get('p', 0))
             sort_priority = 4 - int(priority)
+            show_priority = str(priority) if priority > 0 else ""
             rows.append(
                     {
                         'id': item.doc_id,
-                        'sort': (location, sort_priority, item['summary']),
+                        'sort': (location, sort_priority, 0, item['summary']),
                         'location': location,
                         'columns': [item['itemtype'],
                             item['summary'], 
-                            priority,
+                            show_priority,
                             ]
                     }
                     )
@@ -4835,7 +4838,7 @@ def main(etmdir="", *args):
     db = dataview.db
     item = Item(etmdir)
     dataview.refreshCache()
-    logger.info(f"settings: {settings}")
+    logger.debug(f"settings: {settings}")
 
 if __name__ == '__main__':
     import doctest
