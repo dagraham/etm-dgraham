@@ -1166,11 +1166,11 @@ def timestamp_list(arg, typ=None):
         return True, tmp
 
 def plain_datetime(obj):
-    logger.info(f"in model plain_datetime with settings: {settings}")
+    logger.debug(f"in model plain_datetime with settings: {settings}")
     return format_datetime(obj, short=True)
 
 def format_time(obj):
-    logger.info(f"in model format_time with settings: {settings}")
+    logger.debug(f"in model format_time with settings: {settings}")
     if type(obj) != pendulum.DateTime:
         obj = pendulum.instance(obj)
     ampm = settings.get('ampm', True)
@@ -1198,7 +1198,7 @@ def format_datetime(obj, short=False):
     >>> format_datetime(parse_datetime("2019-01-31 11:30p", "Europe/Paris")[1])
     (True, 'Thu Jan 31 2019 5:30pm EST')
     """
-    logger.info(f"in model format_datetime with settings: {settings}")
+    logger.debug(f"in model format_datetime with settings: {settings}")
     ampm = settings.get('ampm', True)
     date_fmt = "YYYY-MM-DD" if short else "ddd MMM D YYYY"
     time_fmt = "h:mmA" if ampm else "H:mm"
@@ -1383,6 +1383,7 @@ def setup_logging(level, dir=None, file=None):
                   'level': loglevel},
               'version': 1}
     logging.config.dictConfig(config)
+    logger.info("\n######## Initializing logging #########")
     if file:
         logger.info(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
     else:
@@ -4448,7 +4449,7 @@ def no_busy_periods(week, width):
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_before=0, weeks_after=0):
     ampm = settings['ampm']
-    logger.info(f"in schedule with ampm: {ampm}")
+    logger.debug(f"in schedule with ampm: {ampm}")
     LL = {}
     for hour in range(24):
         if hour % 6 == 0:

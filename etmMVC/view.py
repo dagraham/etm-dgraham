@@ -457,7 +457,7 @@ def status_time(dt):
     '2:45'
     """
     ampm = settings['ampm']
-    logger.info(f"in status_time ampm: {ampm}")
+    logger.debug(f"in status_time ampm: {ampm}")
     d_fmt = dt.format("ddd MMM D")
     suffix = dt.format("A").lower() if ampm else ""
     if dt.minute == 0:
@@ -964,19 +964,12 @@ etmstyle = None
 application = None
 def main(etmdir=""):
     global item, settings, ampm, style, etmstyle, application
-    logger.info(f"settings: {settings}")
+    logger.debug(f"settings: {settings}")
 
-    # import options
-    # options.etmdir = etmdir
-    # import model
-    # from model import DataView
-    # # NOTE: DataView called in View.main
-    # dataview = DataView(etmdir)
-    # settings = dataview.settings
     ampm = settings['ampm']
-    logger.info(f"ampm: {ampm}")
+    logger.debug(f"ampm: {ampm}")
     terminal_style = settings['style']
-    logger.info(f"terminal_style: {terminal_style}")
+    logger.debug(f"terminal_style: {terminal_style}")
     if terminal_style == "dark": 
         style = dark_style
         etmstyle = dark_etmstyle
