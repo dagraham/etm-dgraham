@@ -798,6 +798,11 @@ def history_view(*event):
     dataview.set_active_view('h')
     set_text(dataview.show_active_view())
 
+@bindings.add('r', filter=is_not_searching & not_showing_details & is_not_editing)
+def relevant_view(*event):
+    dataview.set_active_view('r')
+    set_text(dataview.show_active_view())
+
 @bindings.add('n', filter=is_not_searching & not_showing_details & is_not_editing)
 def next_view(*event):
     dataview.set_active_view('n')
@@ -905,7 +910,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('j) journal', handler=journal_view),
         MenuItem('n) next', handler=next_view),
         MenuItem('q) query', disabled=True),
-        MenuItem('r) relevant', disabled=True),
+        MenuItem('r) relevant', handler=relevant_view),
         MenuItem('t) tags', disabled=True),
         MenuItem('selection', children=[
             MenuItem('Enter) toggle details', handler=show_details),

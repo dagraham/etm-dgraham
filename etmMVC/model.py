@@ -1487,6 +1487,7 @@ class DataView(object):
         self.current = []
         self.alerts = []
         self.num2id = []
+        self.id2relevant = {}
         self.current_row = 0
         self.agenda_view = ""
         self.busy_view = ""
@@ -1622,6 +1623,9 @@ class DataView(object):
         elif self.active_view == 'history':
             self.history_view, self.num2id = show_history(self.db)
             return self.history_view
+        elif self.active_view == 'relevant':
+            self.relevant_view, self.num2id = show_relevant(self.db, self.id2relevant)
+            return self.relevant_view
         elif self.active_view == 'next':
             self.next_view, self.num2id = show_next(self.db)
             return self.next_view
@@ -1658,7 +1662,7 @@ class DataView(object):
         """
         self.set_now()
         self.currentYrWk = getWeekNum(self.now)
-        self.current, self.alerts = relevant(self.db, self.now)
+        self.current, self.alerts, self.id2relevant = relevant(self.db, self.now)
         self.refreshCache()
 
     def refreshAgenda(self):
@@ -3982,13 +3986,18 @@ def relevant(db, now=pendulum.now('local') ):
         if item['itemtype'] == '!':
             inbox.append([0, item['summary'], item.doc_id])
             id2relevant[item.doc_id] = today
-            # no pastdues, beginbys or alerts]
-            continue
-        if item['itemtype'] == '-' and 'f' in item:
-            # no pastdues, beginbys or alerts for finished tasks
-            continue
+        # if item['itemtype'] == '-' and 'f' in item:
+        #     # no pastdues, beginbys or alerts for finished tasks
+        #     continue
 
-        if 's' in item:
+        elif 'f' in item:
+            relevant = item['f']
+            if isinstance(relevant, pendulum.Date) and not isinstance(relevant, pendulum.DateTime):
+                relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0)
+            # logger.info(f"relevant {item.doc_id} {relevant} {type(relevant)} {item['summary']}")
+
+
+        elif 's' in item:
             dtstart = item['s'] 
             has_a = 'a' in item
             has_b = 'b' in item
@@ -4063,6 +4072,7 @@ def relevant(db, now=pendulum.now('local') ):
                         if relevant:
                             item['s'] = pendulum.instance(relevant)
                             update_db(db, item.doc_id, item)
+                            logger.info(f"updated {item.doc_id}")
                         else:
                             relevant = dtstart
                     else: 
@@ -4122,7 +4132,7 @@ def relevant(db, now=pendulum.now('local') ):
                         if today <= dtstart - possible_alert[0] <= tomorrow:
                             alerts.append([dtstart - possible_alert[0], dtstart, possible_alert[1], item['summary'], item.doc_id])
         else:
-            # no 's'
+            # no 's', no 'f'
             relevant = None
 
 
@@ -4189,7 +4199,7 @@ def relevant(db, now=pendulum.now('local') ):
         # rhc = str(item[0]) if item[0] in item else ""
         current.append({'id': item[2], 'sort': (today_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], rhc]})
 
-    return current, alerts 
+    return current, alerts, id2relevant
 
 
 def update_db(db, id, hsh={}):
@@ -4221,8 +4231,51 @@ def insert_db(db, hsh={}):
         logger.error(f"Error updating database:\nid {id}\nold {old}\nhsh {hsh}\ne {repr(e)}")
 
 
+def show_relevant(db, id2relevant):
+    width = shutil.get_terminal_size()[0] - 2 
+    summary_width = width - 23 
+    rows = []
+    for item in db:
+        if item.doc_id not in id2relevant:
+            continue
+        id = item.doc_id
+        relevant = id2relevant[item.doc_id]
+        dtfmt = format_datetime(relevant, short=True)[1]
+        itemtype = finished_char if 'f' in item else item['itemtype']
+        rows.append(
+                {
+                    'id': id,
+                    'sort': relevant,
+                    # 'week': (
+                    #     relevant.isocalendar()[:2]
+                    #     ),
+                    # 'day': (
+                    #     relevant.format("ddd MMM D"),
+                    #     ),
+                    'columns': [itemtype,
+                        item['summary'], 
+                        dtfmt
+                        ]
+                }
+                )
+
+    rows.sort(key=itemgetter('sort'))
+    out_view = []
+    num2id = {}
+    num = 0
+    for i in rows:
+        # logger.debug(f"{num} -> {i['id']}; i: {i}")
+        num2id[num] = i['id']
+        num += 1
+        view_summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
+        tmp = f" {i['columns'][0]} {view_summary}  {i['columns'][2]}" 
+        out_view.append(tmp)
+    return "\n".join(out_view), num2id
+
+
 def show_history(db, reverse=True):
     # from itertools import groupby
+    # * summary yyyy-mm-dd hh:mmam
     width = shutil.get_terminal_size()[0] - 2 
     rows = []
     for item in db:
@@ -4922,7 +4975,7 @@ if __name__ == '__main__':
             print()
             print(dataview.num2id)
         if 'r' in sys.argv[1]:
-            current, alerts = relevant()
+            current, alerts, id2relevant = relevant()
             pprint(current)
             pprint(alerts)
         if 'h' in sys.argv[1]:
