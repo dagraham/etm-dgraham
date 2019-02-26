@@ -41,6 +41,7 @@ if __name__ == "__main__":
 
     from etmMVC import options
     settings = options.Settings(etmdir).settings
+    # FIXME: this is for testing, remove for production
     settings['mytestval'] = 'whatever'
 
     from etmMVC import data

@@ -1519,19 +1519,14 @@ class DataView(object):
     def set_etmdir(self, etmdir):
         self.etmdir = etmdir
         self.backupdir = os.path.join(self.etmdir, 'backups')
-        # self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
-        # self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
-        # self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-        # self.dbquery = self.db.table('items', cache_size=None)
-        # self.dbarch = self.db.table('archive', cache_size=None)
-        # # NOTE: options.Settings called in DataView
-        # settings = options.Settings(etmdir)
+        # need these files for backups
+        self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+        self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
         self.settings = settings
         self.db = DBITEM
         self.dbarch = DBARCH
-        # with open(self.cfgfile, 'r') as fn:
-        #     self.settings = yaml.load(fn)
-        logger.info(f"imported settings: {self.settings}")
+        logger.info(f"items: {len(DBITEM)}; archive: {len(DBARCH)}")
+        logger.debug(f"imported settings: {self.settings}")
         if 'locale' in self.settings:
             pendulum.set_locale(self.settings['locale'])
         self.item_num = len(self.db)

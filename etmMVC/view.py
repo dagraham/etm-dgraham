@@ -976,13 +976,6 @@ def main(etmdir=""):
     else:
         style = light_style
         etmstyle = light_etmstyle
-
-    # completions = dataview.completions
-
-    # NOTE: we're setting ampm in model here. How cool is this!!!
-    # model.ampm = settings['ampm']
-    # from model import Item
-    # item = Item(etmdir)
     dataview.refreshCache()
     agenda_view()
 
