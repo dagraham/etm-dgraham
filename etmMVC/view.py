@@ -481,6 +481,7 @@ def data_changed(loop):
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
     get_app().invalidate()
+    dataview.refreshCurrent()
 
 def new_day(loop):
     dataview.possible_archive()
@@ -530,7 +531,7 @@ def maybe_alerts(now):
             summary = alert[3]
             doc_id = alert[4]
             command_list = alert[2]
-            item = dataview.dbquery.get(doc_id=doc_id)
+            item = dataview.db.get(doc_id=doc_id)
             location = item.get('l', '')
             description = item.get('d', '')
             if 'e' in command_list:
@@ -765,7 +766,7 @@ def edit_copy(*event):
 
 @bindings.add('B', filter=is_not_editing)
 def whatever(*event):
-    dataview.handle_backups()
+    dataview.refreshCurrent()
 
 @bindings.add('c-p')
 def play_sound(*event):
@@ -911,7 +912,6 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('n) next', handler=next_view),
         MenuItem('q) query', disabled=True),
         MenuItem('r) relevant', handler=relevant_view),
-        MenuItem('t) tags', disabled=True),
         MenuItem('selection', children=[
             MenuItem('Enter) toggle details', handler=show_details),
             MenuItem('G) goto link', disabled=True),

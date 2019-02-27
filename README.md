@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Tue Feb 26, 2019 07:23PM EST*
+*Last modified: Tue Feb 26, 2019 11:06PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -29,12 +29,12 @@
     * [Agenda](#agenda)
         * [Schedule](#schedule)
         * [Busy](#busy)
+    * [Month](#month)
     * [Relevant](#relevant)
     * [Next](#next)
-    * [Jottings](#jottings)
+    * [Journal](#journal-1)
     * [Index](#index)
     * [History](#history)
-    * [Tags](#tags)
     * [Query](#query)
 * [Work Flow](#work-flow)
     * [Editing an existing item](#editing-an-existing-item)
@@ -548,7 +548,7 @@ The weekly *Agenda - Schedule* and *Agenda - Busy* views are synchronized so tha
 - Hours in which a conflict occurs are filled with the charaters `###`.
 
 
-                           2018 Week 50: Dec 10 - 16
+                             2018 Week 50: Dec 10 - 16 
                    Mo 10  Tu 11  We 12  Th 13  Fr 14  Sa 15  Su 16
                    -----------------------------------------------
             12am     .      .      .      .      .      .      .
@@ -579,18 +579,49 @@ The weekly *Agenda - Schedule* and *Agenda - Busy* views are synchronized so tha
            total     0     180    180    300    210    120    180
 
 
+## Month
+                                  September 2019 
+               +------+------+------+------+------+------+------+  
+               |  Mon |  Tue |  Wed |  Thu |  Fri |  Sat |  Sun |  
+               +------+------+------+------+------+------+------+  
+               |   26 |   27 |   28 |   29 |   30 |   31 |    1 |  
+           35  |      |      |      |      |      |      |      |  
+               |      |      |      |      |      |      |      |  
+               +------+------+------+------+------+------+------+  
+               |    2 |    3 |    4 |    5 |    6 |    7 |    8 |  
+           36  |      |      |      |      |      |      |      |  
+               |      |      |      |      |      |      |      |  
+               +------+------+------+------+------+------+------+  
+               |    9 |   10 |   11 |   12 |   13 |   14 |   15 |  
+           37  |      |      |      |      |      |      |      |  
+               |      |      |      |      |      |      |      |  
+               +------+------+------+------+------+------+------+  
+               |   16 |   17 |   18 |   19 |   20 |   21 |   22 |  
+           38  |      |      |      |      |      |      |      |  
+               |      |      |  # # |      |      |      |      |  
+               +------+------+------+------+------+------+------+  
+               |   23 |   24 |   25 |   26 |   27 |   28 |   29 |  
+           39  |      |      |      |      |      |      |      |  
+               |      |  ### |      |      |      |      |      |  
+               +------+------+------+------+------+------+------+  
+               |   30 |    1 |    2 |    3 |    4 |    5 |    6 |  
+           40  |      |      |      |      |      |      |      |  
+               |      |      |      |      |      |      |      |  
+               +------+------+------+------+------+------+------+  
+
+
 ## [Relevant](#toc)
 
-All items with datetimes ordered by relevant datetime and grouped by year, week and week day. Displays item type, summary and relevant datetime. 
+All items with relevant datetimes ordered by relevant datetime. Displays item type, summary and relevant datetime. 
 
 ## [Next](#toc)
 
-- Unfinished tasks and jobs that are undated (without `@s` entries) grouped and sorted by *location* and then *priority*. 
-- As tasks and jobs are finished, they are removed from this view and added to *Done* using the completion datetime.
+- Unfinished tasks and jobs that are undated (without @f or @s entries) grouped and sorted by *location* and then *priority*. 
+- As tasks and jobs are finished, they are removed from this view and added to *agenda* using the completion datetime.
 
-## [Jottings](#toc)
+## [Journal](#toc)
 
-- Undated records (without `@s` entries) grouped and sorted by *index*.
+- Records grouped and sorted by *index*.
 
 ## [Index](#toc)
 
@@ -611,10 +642,6 @@ All items with datetimes ordered by relevant datetime and grouped by year, week 
 		 * Jamie & YuLing UA2333                     2018-12-22 c
 		 * Service Experts                           2018-12-21 c
 		 * Jamie and Kelley with Ellen               2018-12-18 c
-
-## [Tags](#toc)
-
-Tagged items grouped and sorted by tag.
 
 ## [Query](#toc)
 

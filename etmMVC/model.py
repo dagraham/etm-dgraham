@@ -569,17 +569,13 @@ class Item(object):
         self.settings = settings
         self.db = DBITEM
         self.dbarch = DBARCH
-        # self.etmdir = etmdir
-        # self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
-        # self.db = TinyDB(self.dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
         self.dbquery = DBITEM 
 
-        # NOTE: options.Settings called in Item
-        # settings = options.Settings(etmdir)
         self.settings = settings
-        # logger.debug(f"got settings in Item: {self.settings} from etmdir: {etmdir}")
-
-        # logger.debug(f"set etmdir in Item: {etmdir}; dbname: {self.dbfile}")
+        if 'keep_current' in self.settings and self.settings['keep_current']:
+            self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
+        else:
+            self.currfile = None
 
 
     def edit_item(self, doc_id=None, entry=""):
@@ -1516,6 +1512,7 @@ class DataView(object):
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
         self.refreshAgenda()
+        self.refreshCurrent()
 
     def set_etmdir(self, etmdir):
         self.etmdir = etmdir
@@ -1524,6 +1521,11 @@ class DataView(object):
         self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
         self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
         self.settings = settings
+        if 'keep_current' in self.settings and self.settings['keep_current']:
+            self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
+        else:
+            self.currfile = None
+
         self.db = DBITEM
         self.dbarch = DBARCH
         logger.info(f"items: {len(DBITEM)}; archive: {len(DBARCH)}")
@@ -1669,6 +1671,25 @@ class DataView(object):
         if self.activeYrWk not in self.cache:
             self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now))
         self.agenda_view, self.busy_view, self.num2id = self.cache[self.activeYrWk]
+
+    def refreshCurrent(self):
+        """
+        Agenda for the current and following week
+        """
+        if self.currfile is None:
+            return
+
+        thisYrWk = getWeekNum(self.now)
+        nextYrWk = nextWeek(thisYrWk)
+        current = []
+        for week in [thisYrWk, nextYrWk]:
+            if week not in self.cache:
+                self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now))
+            agenda, busy, num2id = self.cache[week]
+            current.append(agenda)
+        with open(self.currfile, 'w') as fo:
+            fo.write("\n\n".join(current))
+        logger.info(f"saved current schedule to {self.currfile}")
 
     def show_details(self):
         self.is_showing_details = True 

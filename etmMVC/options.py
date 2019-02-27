@@ -12,17 +12,25 @@ yaml = YAML()
 class Settings():
 
     inp = """\
-# ampm: true or false. Use AM/PM format for datetimes if 
-# true else use 24 hour format. 
+# ampm: true or false. Use AM/PM format for datetimes if true 
+# else use 24 hour format. 
 ampm: true
 
-# locale: A two character locale abbreviation. E.g., "fr" 
-# for French.
+# locale: A two character locale abbreviation. E.g., "fr" for 
+# French.
 locale: en
 
 # style: dark or light. Designed for, respectively, dark or 
 # light terminal backgounds.
 style: dark
+
+# keep_current: true or false. If true, the agenda for the  
+# current and following week will be written to "current.txt" 
+# in the etm home directory and updated when necessary. You 
+# could, for example, create a link to this file in a pCloud or 
+# DropBox folder and have access to your current schecule on 
+# your mobile device.
+keep_current: false
 
 # alerts: A dictionary with single-character, "alert" keys and 
 # corresponding "system command" values. Note that characters 
@@ -30,12 +38,12 @@ style: dark
 # "system command" string should be a comand with any 
 # applicable arguments that could be run in a terminal. 
 # Properties of the item triggering the alert can be included 
-# in the command arguments using the syntax '{property}', 
-# e.g., {summary} in the command string would be replaced by 
-# the summary of the item. Similarly {start} by the starting 
-# time, {when} by the time remaining until the starting 
-# time, {location} by the @l entry and {description} by the @d 
-# entry. E.g., If the event "* sales meeting @s 2019-02-12 3p" 
+# in the command arguments using the syntax '{property}', e.g., 
+# {summary} in the command string would be replaced by the 
+# summary of the item. Similarly {start} by the starting time, 
+# {when} by the time remaining until the starting time, 
+# {location} by the @l entry and {description} by the @d entry. 
+# E.g., If the event "* sales meeting @s 2019-02-12 3p" 
 # triggered an alert 30 minutes before the starting time the 
 # string "{summary} {when}" would expand to "sales meeting in 
 # 30 minutes". E.g. on my macbook
