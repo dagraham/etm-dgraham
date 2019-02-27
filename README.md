@@ -1,12 +1,13 @@
 # etm: event and task manager
-*Last modified: Wed Feb 20, 2019 11:19PM EST*
+*Last modified: Tue Feb 26, 2019 07:23PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
 
 * [Getting started](#getting-started)
     * [Simple reminders](#simple-reminders)
-    * [Reminders that repeat](#reminders-that-repeat)
+    * [Repetition](#repetition)
+    * [More complex repetition](#more-complex-repetition)
     * [Editing](#editing)
     * [Installation](#installation)
 * [Item Types](#item-types)
@@ -14,18 +15,13 @@
     * [task](#task)
     * [Journal](#journal)
     * [inbox](#inbox)
-* [notices](#notices)
-    * [beginning soon](#beginning-soon)
-    * [past due](#past-due)
-    * [waiting](#waiting)
-    * [finished](#finished)
-* [at keys](#at-keys)
-    * [`@a` and `@b` notices](#a-and-b-notices)
-    * [`@+` repetition](#-repetition)
-    * [`@x` expansions](#x-expansions)
-* [amp keys](#amp-keys)
-    * [for use with @ j](#for-use-with--j)
-    * [for use with @ r](#for-use-with--r)
+    * [Internal types](#internal-types)
+        * [beginning soon](#beginning-soon)
+        * [past due](#past-due)
+        * [waiting](#waiting)
+        * [finished](#finished)
+* [Options for items](#options-for-items)
+    * [Option notes](#option-notes)
 * [The TinyDB Data Store](#the-tinydb-data-store)
     * [Dates, Times and Intervals](#dates-times-and-intervals)
     * [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
@@ -49,77 +45,106 @@
 
 # [Getting started](#toc) 
 
-*etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used in which an item begins with a *type character* followed by a brief summary of the item and then, perhaps, by one or more `@key value` pairs to specify other attributes of the reminder.
+*etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used.
 
-Here are some examples:
+There are 4 types of reminders and associated **type characters**:
+
+* task: **-**
+* event: **\***
+* record: **%**
+* inbox: **!**
+
+Each reminder in *etm* begins with a **type character** followed by a brief **summary** of the item and then, perhaps, by one or more **@key value** pairs to specify other attributes of the reminder. Mnemonics are used to make the keys easy to remember, e.g, @s for starting time, @l for location, @d for description and so forth.
+
+See [Item Types](#item-types) for details about the four item types and [Options](#options) for details about possible attributes.
+
 
 ## [Simple reminders](#toc)
 
-* A reminder (task) to pick up milk. 
+Here are some simple examples of reminders in *etm*:
+
+* A reminder (**-** task) to pick up milk. 
 
 		- pick up milk
-* Append the [l]ocation "errands" to the milk task. (Undated tasks are displayed grouped by their locations.) 
+* A reminder (**\*** event) to have lunch with Burk [s]tarting next Tuesday at 12pm
 
-		- pick up milk @l errands
-* A sales meeting (an event) [s]tarting next Monday at 9:00am and [e]xtending for one hour.
+        * Lunch with Burk @s tue 12p
 
-        * sales meeting @s mon 9a @e 1h 
-* The sales meeting with an [a]lert 5 minutes early to trigger the `d` command:
+* Show the lunch event [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm 
 
-        * sales meeting @s mon 9a @e 1h @a 5m: d
-* Prepare a report (a task) for the sales meeting with a [b]eginning soon notice starting 3 days before the meeting:
+        * Lunch with Burk @s tue 12p @e 90m
 
-        - prepare report @s mon 9a @b 3
-* A record of 35 minutes of *used time* spent yesterday working on the report:
+* Add an [a]lert 30 minutes before the lunch to trigger a 'd' command and set 'Glass Half Full' as the [l]ocation for the event
 
-        % report preparation @s -1 @u 35m
-* In accounting reports attribute this time to the *ABC Company's Design Project*
+        * Lunch with Burk @s tue 12p @e 90m @a 30m: d @l Glass Half Full
+* A reminder (**%** record) of a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
 
-        % report preparation @s -1 @u 35m @i ABC:Design
-* An inbox reminder that the time and location for the lunch meeting have not been confirmed:
+        % Give me a pig - Churchill @s 2p @d Dogs look up at you. Cats look 
+          down at you. Give me a pig - they look you in the eye and treat you
+          as an equal.
 
-		! lunch with Burk @s tue ? @e 90m @l ? 
-* Build a dog house (a task) by breaking the task down into component [j]obs:
+* A reminder to build a dog house - a task with component [j]obs:
 
 		- Build dog house @j pick up materials @j cut pieces @j assemble
 		  @j sand @j paint
-* Join the etm discussion group (a task) [s]tarting on the first day of the next month. Because of the @g goto link, pressing *g* when the item is selected in the gui would open the link using the system default application which, in this case, would be the default browser:
 
-        - join the etm discussion group @s +1/1
-          @g http://groups.google.com/group/eventandtaskmanager/topics
+## [Repetition](#toc)
 
-## [Reminders that repeat](#toc)
+* An appointment (event) for a dental exam and cleaning on Feb 5, 2019 at 2pm.
+
+        * Dentist @s 2p feb 5 2019 @e 45m @l location... @d contact info...
+* Leaving the Dentist's office with the next appointment scheduled, use `@+` to add it to the existing reminder.
+
+        * Dentist @s 2p feb 5 2019 @e 45m @l location... @d contact info...
+          @+ 9am Sep 3 2019
+  This avoids having to repeat the extent, location and contact information in a new reminder. This process can be repeated since `@+` accepts as many comma separated dates and times as you like. 
 
 * Take out trash (a task) next Monday and then [r]epeat (w)eekly.
 
         - Take out trash @s mon @r w 
-* Or, same thing, every 7 days
 
-        - Take out trash @s mon @r d &i 7 
-* If you forget to take out the trask, when [o]n pastdue, (s)kip the reminders.
+* Christmas (an all day event) [r]epating (y)early on Dec 25.
 
-        - Take out trash @s mon @r w @o s
+        * Christmas @s 2015/12/25 @r y
+
+* Will's birthday (an all day event) [r]epeating (y)early on Aug 23.
+
+        * Will's !1985! birthday @s 8/23/2015 @r y
+  Because of the `!1985!` in the summary, it would be displayed on Aug 23, 2019 as *Will's 34th birthday*.
+
 * Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the completion date:
 
         - get haircut @s 24 @r d &i 14 @o r
-    If you're 10 days late getting a haircut, you want to be reminded 14 days after you got the hair cut, not 4 days.
+  If you're 10 days late getting a haircut, you want to be reminded 14 days after you got the hair cut, not 4 days.
 
-* Payday (an event) on the last week day of each month. The `&s -1` part of the entry extracts the last (-1) set position which is both a weekday and falls within the last three days of the month):
+* In the take out trash task reminder, when the task is [o]verdue (s)kip the pastdue reminders.
+
+        - Take out trash @s mon @r w @o s
+  If you forget to take out the trash, there is no point in being reminded until the next trash day.
+
+## [More complex repetition](#toc)
+
+Repetition in *etm* uses the **dateutil** libary which supports amazingly complex patterns.
+
+* Payday on the last week day of each month. The `&s -1` part of the entry extracts the last (-1) set position which is both a weekday and falls within the last three days of the month):
 
         * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
-* Take a prescribed medication daily [s]tarting at 12am Monday and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil 12am on Friday. Trigger the `d` [a]lert zero minutes before each reminder:
+* Take a prescribed medication daily [s]tarting at 12am Monday and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil 12am on Friday. 
 
-        * take Rx @s mon @r d &h 10, 14, 18, 22 &u fri @a 0m: d
-* Move the water sprinkler every thirty mi[n]utes on Sunday afternoons using the 'd' alert zero minutes before each reminder:
+        * take Rx @s mon @r d &h 10, 14, 18, 22 &u fri
+* Move the water sprinkler every thirty mi[n]utes between 2pm and 5:30pm on Sunday afternoons.
 
-        * Move sprinkler @s sun @r n &i 30 &w SU &h 14, 15, 16, 17 @a 0m: d
+        * Move sprinkler @s sun @r n &i 30 &w SU &h 14, 15, 16, 17
     To limit the sprinkler movement reminders to the [M]onths of April through September each year, append `&M 4, 5, 6, 7, 8, 9` to the @r entry.
 * Presidential election day every four years on the first Tuesday after a Monday in November:
 
         * Presidential Election Day @s 2012-11-06
           @r y &i 4 &M 11 &m 2, 3, 4, 5, 6, 7, 8 &w TU
 
-See [item Types](#item-types) for details about the four item types and [`@`keys](#keys) for details about possible attributes.
+* Good Friday every year 2 days before [E]aster Sunday.
+
+        * Good Friday @s 1/1/2015 @r y @E -2
+    For Easter Sunday itself, the entry would be *@E 0*.
 
 ## [Editing](#toc) ##
 
@@ -256,159 +281,125 @@ An inbox item can be regarded as a task that is always due on the current date. 
 
 Corresponds to VTODO in the vcalendar specification.
 
-# [notices](#toc)
+## [Internal types](#toc)
 
 These are generated automatically by *etm*.
 
-## [beginning soon](#toc)
+### [beginning soon](#toc)
 
 Type character: **>**
 
 For unfinished tasks and other items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining.
 
-## [past due](#toc)
+### [past due](#toc)
 
 Type character: **<**
 
 When a task is past due, a warning that the task is past due appears on the current date together with the item summary and the number of days past due. 
 
-## [waiting](#toc)
+### [waiting](#toc)
 
 Type character: **+**
 
 When a task job has one or more unfinished prerequisites, it is displayed using **+** rather than **-**.
 
-## [finished](#toc)
+### [finished](#toc)
 
 Type character: **✓**
 
 When a task or job is finished, it is displayed on the finished date using **✓** rather than **-**. 
 
-# [at keys](#toc)
+# [Options for items](#toc)
 
-`@` followed by a key from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
+* @ keys: @ followed by a character from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
 
-	@s mon 9a
+            @s mon 9a
+    would specify the the starting datetime for the item is 9am on the Monday following the current date.
 
-would specify the the starting datetime for the item is 9am on the Monday following the current date.
+        +: include: list of datetimes to include
+        -: exclude: list of datetimes to exclude from rrule
+        a: alert (list of + (before) or - (after) periods: list of commands)
+        b: beginby: integer (number of days before)
+        c: calendar: string
+        d: description: string
+        e: extent: period
+        f: finished: datetime
+        g: goto: string (url or filepath)
+        h: history: (for repeating tasks, a list of the most recent completion datetimes)
+        i: index: colon delimited string
+        j: job summary: string, optionally followed by job &key entries
+        l: location/context: string
+        m: mask: string stored in obfuscated form
+        n: attendees: list of 'name <emailaddress>' strings 
+        o: overdue: character from (r) restart, (s) skip or (k) keep
+        p: priority: integer from 0 (none), 1 (low), 2 (normal), 3 (high), 
+        4 (urgent)
+        r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
+        (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition
+        &-key entries
+        s: starting: date or datetime
+        t: tags: list of strings
+        x: expansion key: string
+        z: timezone: string
 
-    +: include: list of datetimes to include,
-    -: exclude: list of datetimes to exclude from rrule,
-    a: alert (list of + or - periods: list of commands),
-    b: beginby: integer (number of days),
-    c: calendar: string,
-    d: description: string,
-    e: extent: period,
-    f: finished: datetime,
-    g: goto: string (url or filepath),
-    h: history: (for repeating tasks, a list of the most recent completion datetimes)
-    i: index: colon delimited string,
-    j: job summary: string, optionally followed by job &key entries
-    l: location/context: string,
-    m: mask: string stored in obfuscated form,
-    n: attendees: list of 'name <emailaddress>' strings 
-    o: overdue: character from (r) restart, (s) skip or (k) keep,
-    p: priority: integer from 0 (none), 1 (low), 2 (normal), 3 (high), 
-       4 (urgent)
-    r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
-       (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition
-       &-key entries
-    s: starting: date or datetime,
-    t: tags: list of strings,
-    x: expansion key: string,
-    z: timezone: string,
+* & keys: & followed by a character from one of the lists below. These keys are only used with @j (job) and @r (repetition) entries.
 
-## [`@a` and `@b` notices](#toc) 
+    * for use with @j
 
-* Alerts
-    - a: alert: (list of + (before) or - (after) periods relative to @s: cmd)
-    - positive: triggered before dtstart, relevant for dtstart on or after the current time
-    - negative: triggered after dtstart, relevant for dtstart on or before the current time
-    - each command is a key from options['alerts']
+            a: alert: list of + (before) or - (after) periods relative to 
+               &s: list of cmd names from the users configuration file
+            b: beginby: integer number of days before &s
+            d: description: string
+            e: extent: period
+            f: finish: datetime
+            l: location/context: string
+            m: mask: string
+            i: job unique id (string)
+            p: prerequisites (comma separated list of ids of immediate
+                prereqs)
+            s: start/due: period relative to @s entry (default 0m)
 
-* Beginbys: relevant for dtstart after today
+    * for use with @r
 
-For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance. 
+            c: count: integer number of repetitions 
+            E: easter: number of days before (-), on (0) or after (+) Easter
+            h: hour: list of integers in 0 ... 23
+            i: interval: positive integer to apply to frequency, e.g., with
+                @r m &i 3, repetition would occur every 3 months
+            m: monthday: list of integers 1 ... 31
+            M: month number: list of integers in 1 ... 12
+            n: minute: list of integers in 0 ... 59
+            s: set position: integer
+            u: until: datetime 
+            w: weekday: list from SU, MO, ..., SA possibly prepended with 
+                a positive or negative integer
+            W: week number: list of integers in (1, ..., 53)
 
-An entry without `@r` but with `@s` and `@+` entries will generate instances corresponding to the entered `@s` and to each of the entries in `@+`. 
 
-With an email alert, the item summary is used as the subject and the description as the body of the email. 
+## [Option notes](#toc)
 
-## [`@+` repetition](#toc)
+* @a alerts and @b beginbys
+    * With an email alert, the item summary is used as the subject and emails are sent to attendees listed in @n. The content of the body of the emails is a option that can be set in the user's configuration file. 
+    * For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance.
+* Repetition
+    * Using @s, @r and, optionally, @+. Datetimes from @+, if any, are added to the datetimes generated from the @r entry which fall on or after the @s datetime. Note that the datetime from @s will only be included if it matches one generated by the @r entry.  
 
-*Simple repetition* is supported using a combination of `@s` and `@+` entries. E.g., 
+            * my event @s 2018-02-15 3p @r d &h 18 @+ 2018-03-02 4p
+        would repeat daily at 6pm starting Feb 15 and at 4pm on Mar 2, *but not* at 3pm on Feb 15. 
+    * Using @s and, optionally, @+ (but without @r). Datetimes from @+, if any, are added to @s. E.g., 
 
-			* my event @s 2018-02-15 3p @+ 2018-03-02 4p, 2018-03-12 9a
+            * my event @s 2018-02-15 3p @+ 2018-03-02 4p
+        would repeat at 4pm on Mar 2 *and* 3pm on Feb 15.
+    * Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would at best be redundant. A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
+* @x expansions. The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
-would repeat at 3pm on Feb 15, 4pm on Mar 2 and 9am on Mar 12. Note that there is no `@r` entry and that the datetimes from `@s` and from `@+` are combined. With an `@r` entry, on the other hand, only datetimes from the recurrence rule that fall on or after the `@s` entry are used. This replaces and simplifies the old `@r l`, list only, repetition frequency.
+            expansions:
+                tennis: @e 1h30m @a 30m, 15m: d @i personal:tennis
+                ...
+    Then when entering `@x tennis` in the following item
 
-## [`@x` expansions](#toc)
-
-The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
-
-        expansions = {
-          'class': {
-            'e': '1h15m',
-            'a': '10m, 3m: d',
-            'l': 'Social Sciences Bldg',
-            'i': 'Work:Teaching'
-           },
-          'tennis': {
-            'e': '1h30m',
-            'a': '30m, 15m: d',
-            'l': 'Fitness Center',
-            'i': 'Personal:Tennis'
-           },
-          ...
-        }
-
-Then entering the item
-
-      * Conflict and Cooperation @s 1/25/2018 9:35am @x class 
-        @l Math-Physics Bldg 
-
-would expand to the following when saved
-
-      * Conflict and Cooperation @s 1/25/2018 9:35am @e 1h15m @a 10m, 3m: d 
-        @l Math-Physics Bldg @i Work:Teaching
-
-The `@e`, `@a`, `@l` and `@i` entries from `class` have become the defaults for the event but the default for `@l` has been overridden by the explicit entry.
-
-Note that changing the entry for `expansions` in your configuration settings will only affect items created/modified after the change. When an item is saved, the `@x` entry is replaced by its expansion. 
-
-# [amp keys](#toc)
-
-`&` followed by a key from one of the lists below. These keys are only used with `@j` (job) and `@r` (repetition) entries.
-
-## [for use with @ j](#toc)
-      a: alert: (list of + (before) or - (after) periods relative to &s: cmd [args])
-      b: beginby: integer number of days before &s
-      d: description: string
-      e: extent: period
-      f: finish: datetime
-      l: location/context: string
-      m: mask: string
-      i: job unique id (string)
-      p: prerequisites (comma separated list of ids of immediate
-         prereqs)
-      s: start/due: period relative to @s entry (default 0m)
-
-## [for use with @ r](#toc)
-      c: count: integer number of repetitions 
-      e: easter: number of days before (-), on (0) or after (+) Easter
-      h: hour: list of integers in 0 ... 23
-      i: interval: positive integer to apply to frequency, e.g., with
-         @r m &i 3, repetition would occur every 3 months
-      m: monthday: list of integers 1 ... 31
-      M: month number: list of integers in 1 ... 12
-      n: minute: list of integers in 0 ... 59
-      s: set position: integer
-      u: until: datetime 
-      w: weekday: list from SU, MO, ..., SA possibly prepended with 
-         a positive or negative integer
-      W: week number: list of integers in (1, ..., 53)
-
-It is an error in dateutil to specify both `&c` and `&u` since providing both would at best be redundant. A distinction between using `@c` and `@u` is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, `&c 5`, or until, `&u fri 10a`.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
+            * Conflict and Cooperation @s 1/25/2018 9:35am @x class 
+    completions will offer to replace *@x class* with the corresponding entry from expansions, *@e 1h30m @a 30m, 15m: d @i personal:tennis*.
 
 
 # [The TinyDB Data Store](#toc)
@@ -492,7 +483,7 @@ Why provide for both aware and naive objects? Since naive objects have no timezo
 
 ## [The relevant datetime of an item](#toc)
 
-Used in search and index views.
+Used in relevant and index views.
 
 - Finished tasks: the datetime given in `@f`.
 - Finished jobs in unfinished tasks: the datetime given in `&f`.
