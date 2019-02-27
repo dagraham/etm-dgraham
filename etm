@@ -64,8 +64,9 @@ if __name__ == "__main__":
     # since dataview calls schedule it will also have settings
     completions = dataview.completions
     expansions = settings["expansions"]
-    for x in expansions:
-        completions.append(f"@x {x}")
+    if expansions:
+        for x in expansions:
+            completions.append(f"@x {x}")
     style = dataview.settings["style"]
     from etmMVC import view
     view.model = model
