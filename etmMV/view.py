@@ -45,72 +45,12 @@ import logging
 import logging.config
 logger = logging.getLogger()
 
-from sixmonthcal import SixMonthCal
+# from sixmonthcal import SixMonthCal
 
 # from model import about
 
 import subprocess # for check_output
 
-# def format_time(obj):
-#     logger.info(f"in view format_time with settings: {settings}")
-#     if type(obj) != pendulum.DateTime:
-#         obj = pendulum.instance(obj)
-#     ampm = settings['ampm']
-#     time_fmt = "h:mmA" if ampm else "H:mm"
-#     res = obj.format(time_fmt)
-#     if ampm:
-#         res = res.replace('AM', 'am')
-#         res = res.replace('PM', 'pm')
-#     return True, res
-
-# def format_datetime(obj, short=False):
-#     """
-#     >>> format_datetime(parse_datetime("20160710T1730")[1])
-#     (True, 'Sun Jul 10 2016 5:30pm EDT')
-#     >>> format_datetime(parse_datetime("2015-07-10 5:30p", "float")[1])
-#     (True, 'Fri Jul 10 2015 5:30pm')
-#     >>> format_datetime(parse_datetime("20160710")[1])
-#     (True, 'Sun Jul 10 2016')
-#     >>> format_datetime(parse_datetime("2015-07-10", "float")[1])
-#     (True, 'Fri Jul 10 2015')
-#     >>> format_datetime("20160710T1730")
-#     (False, 'The argument must be a pendulum date or datetime.')
-#     >>> format_datetime(parse_datetime("2019-02-01 12:30a", "Europe/Paris")[1])
-#     (True, 'Thu Jan 31 2019 6:30pm EST')
-#     >>> format_datetime(parse_datetime("2019-01-31 11:30p", "Europe/Paris")[1])
-#     (True, 'Thu Jan 31 2019 5:30pm EST')
-#     """
-#     logger.info(f"in view format_datetime with settings: {settings}")
-#     ampm = settings['ampm']
-#     date_fmt = "YYYY-MM-DD" if short else "ddd MMM D YYYY"
-#     time_fmt = "h:mmA" if ampm else "H:mm"
-
-#     if type(obj) == pendulum.Date:
-#         return True, obj.format(date_fmt)
-
-#     if type(obj) != pendulum.DateTime:
-#         try:
-#             obj = pendulum.instance(obj)
-#         except:
-#             return False, "The argument must be a pendulum date or datetime."
-
-#     if obj.format('Z') == '':
-#         # naive datetime
-#         if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
-#             # treat as date
-#             return True, obj.format(date_fmt)
-#         res = obj.format(f"{date_fmt} {time_fmt}")
-#     else:
-#         # aware datetime
-#         obj = obj.in_timezone('local')
-#         if not short: time_fmt += " zz"
-#         res = obj.format(f"{date_fmt} {time_fmt}")
-
-#     if ampm:
-#         res = res.replace('AM', 'am')
-#         res = res.replace('PM', 'pm')
-#     logger.debug(f"res: {res}")
-#     return True, res
 
 class TextInputDialog(object):
     def __init__(self, title='', label_text='', padding=10, completer=None):
@@ -124,8 +64,8 @@ class TextInputDialog(object):
         def accept():
             self.future.set_result(self.text_area.text)
 
-        def cancel():
-            self.future.set_result(None)
+        # def cancel():
+        #     self.future.set_result(None)
 
         self.text_area = TextArea(
             completer=completer,
@@ -134,7 +74,7 @@ class TextInputDialog(object):
             accept_handler=accept_text)
 
         ok_button = Button(text='OK', handler=accept)
-        cancel_button = Button(text='Cancel', handler=cancel)
+        # cancel_button = Button(text='Cancel', handler=cancel)
 
         self.dialog = Dialog(
             title=title,
@@ -142,7 +82,8 @@ class TextInputDialog(object):
                 Label(text=label_text),
                 self.text_area
             ]),
-            buttons=[ok_button, cancel_button],
+            # buttons=[ok_button, cancel_button],
+            buttons=[ok_button],
             width=D(preferred=shutil.get_terminal_size()[0]-10),
             modal=True)
 
@@ -234,12 +175,12 @@ today = pendulum.today()
 calyear = today.year
 calmonth = today.month
 
-sixmonthcal = SixMonthCal()
+# sixmonthcal = SixMonthCal()
 
-@bindings.add('f7')
-def do_show_calendar(*event):
-    # FIXME
-    show_message("Six Month Calendar", sixmonthcal.showCalendar(), 9)
+# @bindings.add('f7')
+# def do_show_calendar(*event):
+#     # FIXME
+#     show_message("Six Month Calendar", sixmonthcal.showCalendar(), 9)
     # def coroutine():
     #     global calyear, calmonth
     #     dialog = TextInputDialog(
@@ -295,6 +236,10 @@ def is_not_busy_view():
 @Condition
 def is_agenda_view():
     return dataview.active_view in ['agenda', 'busy']
+
+@Condition
+def is_calendar_view():
+    return dataview.active_view in ['calendar']
 
 @Condition
 def not_showing_details():
@@ -426,8 +371,12 @@ def first_char(s):
     """
     Return the first non-whitespace character in s.
     """
+    if not s.strip():
+        # nothing but whitespace
+        return None
     m = re.match('(\s+)', s)
     if m:
+        # logger.info(f"s: '{s}', m.group(0): '{m.group(0)}'")
         return s[len(m.group(0))]
     elif len(s):
         # no leading spaces
@@ -592,15 +541,7 @@ details_area = TextArea(
     )
 
 
-animal_completer = WordCompleter([
-    'alligator', 'ant', 'ape', 'bat', 'bear', 'beaver', 'bee', 'bison',
-    'butterfly', 'cat', 'chicken', 'crocodile', 'dinosaur', 'dog', 'dolphin',
-    'dove', 'duck', 'eagle', 'elephant', 'fish', 'goat', 'gorilla', 'kangaroo',
-    'leopard', 'lion', 'mouse', 'rabbit', 'rat', 'snake', 'spider', 'turkey',
-    'turtle', '@i personal:exercise:tennis', '_tennis'
-    ], ignore_case=True)
-
-# completions will actually come from prior database entries 
+# completions will come from prior database entries 
 completions = [
         ]
 
@@ -796,6 +737,11 @@ def busy_view(*event):
     dataview.set_active_view('b')
     set_text(dataview.show_active_view())
 
+@bindings.add('c', filter=is_not_searching & not_showing_details & is_not_editing)
+def busy_view(*event):
+    dataview.set_active_view('c')
+    set_text(dataview.show_active_view())
+
 @bindings.add('h', filter=is_not_searching & not_showing_details & is_not_editing)
 def history_view(*event):
     dataview.set_active_view('h')
@@ -834,6 +780,21 @@ def prevweek(*event):
 @bindings.add('space', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
 def currweek(*event):
     dataview.currYrWk()
+    set_text(dataview.show_active_view())
+
+@bindings.add('right', filter=is_calendar_view & is_not_searching & not_showing_details & is_not_editing)
+def nextcal(*event):
+    dataview.nextcal()
+    set_text(dataview.show_active_view())
+
+@bindings.add('left', filter=is_calendar_view & is_not_searching & not_showing_details & is_not_editing)
+def prevcal(*event):
+    dataview.prevcal()
+    set_text(dataview.show_active_view())
+
+@bindings.add('space', filter=is_calendar_view & is_not_searching & not_showing_details & is_not_editing)
+def currcal(*event):
+    dataview.currcal()
     set_text(dataview.show_active_view())
 
 @bindings.add('enter', filter=is_not_searching & is_not_busy_view & is_not_editing)
@@ -927,7 +888,6 @@ root_container = MenuContainer(body=body, menu_items=[
     MenuItem('tools', children=[
         MenuItem("F5) show today's alerts", handler=do_alerts),
         MenuItem('F6) open date calculator', disabled=True),
-        MenuItem('F7) show yearly calendar', handler=do_show_calendar),
     ]),
 ], floats=[
     Float(xcursor=True,

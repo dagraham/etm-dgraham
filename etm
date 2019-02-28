@@ -2,6 +2,7 @@
 
 if __name__ == "__main__":
     import sys
+    # import locale
     MIN_PYTHON = (3, 6)
     if sys.version_info < MIN_PYTHON:
         sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
@@ -38,6 +39,10 @@ if __name__ == "__main__":
     settings = options.Settings(etmdir).settings
     # FIXME: this is for testing, remove for production
     settings['mytestval'] = 'whatever'
+
+    # locale_str = settings['locale']
+    # locale_tuple = [f"{locale_str}_{locale_str.upper()}", "UTF-8"]
+    # logger.info(f"initialized sixmonthcal using {locale_tuple}")
 
     from etmMV import data
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))

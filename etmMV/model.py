@@ -5,6 +5,7 @@ from pendulum import parse as pendulum_parse
 from pendulum.datetime import Timezone
 from pendulum import __version__ as pendulum_version
 # from bisect import insort
+import calendar
 
 from ruamel.yaml import YAML
 yaml = YAML(typ='safe', pure=True) 
@@ -1487,6 +1488,7 @@ class DataView(object):
         self.current_row = 0
         self.agenda_view = ""
         self.busy_view = ""
+        self.calendar_view = ""
         self.history_view = ""
         self.cache = {}
         self.itemcache = {}
@@ -1495,6 +1497,7 @@ class DataView(object):
         self.views = {
                 'a': 'agenda',
                 'b': 'busy',
+                'c': 'calendar',
                 'h': 'history',
                 'i': 'index',
                 'j': 'journal',
@@ -1511,6 +1514,8 @@ class DataView(object):
         self.get_completions()
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
+        self.calAdv = pendulum.today().month // 7
+
         self.refreshAgenda()
         self.refreshCurrent()
 
@@ -1525,6 +1530,10 @@ class DataView(object):
             self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
         else:
             self.currfile = None
+        locale_str = settings.get('locale')
+        if locale_str:
+            self.cal_locale = [f"{locale_str}_{locale_str.upper()}", "UTF-8"]
+            logger.info(f"using cal_locale {self.cal_locale}")
 
         self.db = DBITEM
         self.dbarch = DBARCH
@@ -1622,6 +1631,9 @@ class DataView(object):
         elif self.active_view == 'busy':
             self.refreshAgenda()
             return self.busy_view
+        elif self.active_view == 'calendar':
+            self.refreshCalendar()
+            return self.calendar_view
         elif self.active_view == 'history':
             self.history_view, self.num2id = show_history(self.db)
             return self.history_view
@@ -1879,6 +1891,58 @@ class DataView(object):
         logger.debug(f"sent text {message}")
 
 
+    def refreshCalendar(self):
+        """
+        Advance = 0 shows the half year containing the current month. Advance 
+        = n shows the half year containing the month that is 6 x n months in 
+        the future if n > 0 or the past if n < 0.  
+        """
+        width = shutil.get_terminal_size()[0]
+        indent = int((width - 45)/2) * " "
+        today = pendulum.today()
+        try:
+            c = calendar.LocaleTextCalendar(0)
+            # c = calendar.LocaleTextCalendar(0, locale=self.cal_locale)
+        except:
+            logger.info(f"error using locale {self.cal_locale}")
+            c = calendar.LocaleTextCalendar(0)
+        cal = []
+        # make advance = 0 show the half year containing the current month
+        y = today.year
+        adv = self.calAdv 
+        m = 1
+        m += 6 * adv
+        y += m // 12
+        m = m % 12
+        for i in range(6): # months in the half year
+            cal.append(c.formatmonth(y, m+i, w=2).split('\n'))
+        ret = ['']
+        for r in range(0, 6, 2):  # 6 months in columns of 2 months
+            l = max(len(cal[r]), len(cal[r + 1]))
+            for i in range(2):
+                if len(cal[r + i]) < l:
+                    for j in range(len(cal[r + i]), l + 1):
+                        cal[r + i].append('')
+            for j in range(l):  # rows from each of the 2 months
+                ret.append((u'%-20s     %-20s ' % (cal[r][j], cal[r + 
+                    1][j])))
+
+        ret_lines = [f"{indent}{line}" for line in ret]
+        ret_str = "\n".join(ret_lines)
+        # logger.info(f"calendar_view:\n{ret_str}")
+        self.calendar_view = ret_str
+
+    def nextcal(self):
+        self.calAdv += 1
+        self.refreshCalendar()
+
+    def prevcal(self):
+        self.calAdv -= 1
+        self.refreshCalendar()
+
+    def currcal(self):
+        self.calAdv = 0
+        self.refreshCalendar()
 
 
 
