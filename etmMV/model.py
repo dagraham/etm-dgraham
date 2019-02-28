@@ -166,8 +166,6 @@ requires = {
         'jb': ['s'],
         }
 
-# set up 2 character weekday name abbreviations for busy view
-# pendulum.set_locale('fr')
 WA = {}
 today = pendulum.today()
 day = today.end_of('week')  # Sunday
@@ -1489,6 +1487,7 @@ class DataView(object):
         self.agenda_view = ""
         self.busy_view = ""
         self.calendar_view = ""
+        self.cal_locale = None
         self.history_view = ""
         self.cache = {}
         self.itemcache = {}
@@ -1532,7 +1531,10 @@ class DataView(object):
             self.currfile = None
         locale_str = settings.get('locale')
         if locale_str:
-            self.cal_locale = [f"{locale_str}_{locale_str.upper()}", "UTF-8"]
+            if locale_str == "en":
+                self.cal_locale = ["en_US", "UTF-8"]
+            else:
+                self.cal_locale = [f"{locale_str}_{locale_str.upper()}", "UTF-8"]
             logger.info(f"using cal_locale {self.cal_locale}")
 
         self.db = DBITEM
@@ -1901,7 +1903,9 @@ class DataView(object):
         indent = int((width - 45)/2) * " "
         today = pendulum.today()
         try:
-            c = calendar.LocaleTextCalendar(0)
+
+            c = calendar.LocaleTextCalendar(0, self.cal_locale)
+            logger.info(f"set calendar using {self.cal_locale}")
             # c = calendar.LocaleTextCalendar(0, locale=self.cal_locale)
         except:
             logger.info(f"error using locale {self.cal_locale}")
