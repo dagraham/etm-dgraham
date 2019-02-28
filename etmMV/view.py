@@ -45,7 +45,7 @@ import logging
 import logging.config
 logger = logging.getLogger()
 
-from sixmonthcal import sixmonthcal
+from sixmonthcal import SixMonthCal
 
 # from model import about
 
@@ -234,10 +234,12 @@ today = pendulum.today()
 calyear = today.year
 calmonth = today.month
 
+sixmonthcal = SixMonthCal()
+
 @bindings.add('f7')
 def do_show_calendar(*event):
     # FIXME
-    show_message("Six Month Calendar", sixmonthcal(0), 9)
+    show_message("Six Month Calendar", sixmonthcal.showCalendar(), 9)
     # def coroutine():
     #     global calyear, calmonth
     #     dialog = TextInputDialog(
@@ -804,7 +806,7 @@ def relevant_view(*event):
     dataview.set_active_view('r')
     set_text(dataview.show_active_view())
 
-@bindings.add('n', filter=is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('n', filter=is_not_searching & is_not_editing)
 def next_view(*event):
     dataview.set_active_view('n')
     set_text(dataview.show_active_view())
