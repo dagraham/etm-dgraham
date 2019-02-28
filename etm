@@ -1,10 +1,5 @@
 #! ./env/bin/python
 
-from tinydb import TinyDB, Query
-from tinydb import __version__ as tinydb_version
-from tinydb_serialization import Serializer
-from tinydb_serialization import SerializationMiddleware
-
 if __name__ == "__main__":
     import sys
     MIN_PYTHON = (3, 6)
@@ -12,10 +7,10 @@ if __name__ == "__main__":
         sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
 
     import os
-    lib_path = os.path.relpath('etmMVC/')
+    lib_path = os.path.relpath('etmMV/')
     sys.path.append(lib_path)
 
-    from etmMVC.model import setup_logging, logger, about
+    from etmMV.model import setup_logging, logger, about
     log_levels = [str(x) for x in range(1, 6)]
 
     loglevel = 2 # info
@@ -39,19 +34,19 @@ if __name__ == "__main__":
     setup_logging(loglevel, logdir)
     logger.debug(about()[1])
 
-    from etmMVC import options
+    from etmMV import options
     settings = options.Settings(etmdir).settings
     # FIXME: this is for testing, remove for production
     settings['mytestval'] = 'whatever'
 
-    from etmMVC import data
+    from etmMV import data
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
     ETMDB = data.initialize_tinydb(dbfile)
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
     logger.info(f"initialized TinyDB using {dbfile}")
 
-    from etmMVC import model
+    from etmMV import model
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
@@ -68,7 +63,7 @@ if __name__ == "__main__":
         for x in expansions:
             completions.append(f"@x {x}")
     style = dataview.settings["style"]
-    from etmMVC import view
+    from etmMV import view
     view.model = model
     view.about = model.about
     view.wrap = model.wrap
@@ -88,12 +83,12 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1:
         logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
-        from etmMVC.model import main
+        from etmMV.model import main
         main(etmdir, sys.argv)
         sys.exit()
 
     else:
         logger.info(f"calling view.main with etmdir: {etmdir}")
-        from etmMVC.view import main
+        from etmMV.view import main
         main(etmdir)
 

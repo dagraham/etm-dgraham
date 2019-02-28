@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Tue Feb 26, 2019 11:06PM EST*
+*Last modified: Wed Feb 27, 2019 11:36PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -21,7 +21,7 @@
         * [waiting](#waiting)
         * [finished](#finished)
 * [Options for items](#options-for-items)
-    * [Option notes](#option-notes)
+    * [Notes](#notes)
 * [The TinyDB Data Store](#the-tinydb-data-store)
     * [Dates, Times and Intervals](#dates-times-and-intervals)
     * [The relevant datetime of an item](#the-relevant-datetime-of-an-item)
@@ -376,7 +376,7 @@ When a task or job is finished, it is displayed on the finished date using **✓
             W: week number: list of integers in (1, ..., 53)
 
 
-## [Option notes](#toc)
+## [Notes](#toc)
 
 * @a alerts and @b beginbys
     * With an email alert, the item summary is used as the subject and emails are sent to attendees listed in @n. The content of the body of the emails is a option that can be set in the user's configuration file. 
@@ -394,12 +394,12 @@ When a task or job is finished, it is displayed on the finished date using **✓
 * @x expansions. The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
             expansions:
-                tennis: @e 1h30m @a 30m, 15m: d @i personal:tennis
+                tennis: '@e 1h30m @a 30m, 15m: d @i personal:tennis'
                 ...
-    Then when entering `@x tennis` in the following item
+    Then entering `@x tennis` in the following item
 
             * Conflict and Cooperation @s 1/25/2018 9:35am @x class 
-    completions will offer to replace *@x class* with the corresponding entry from expansions, *@e 1h30m @a 30m, 15m: d @i personal:tennis*.
+    etm would offer to replace *@x class* with the corresponding entry from expansions, *@e 1h30m @a 30m, 15m: d @i personal:tennis*.
 
 
 # [The TinyDB Data Store](#toc)
@@ -580,34 +580,38 @@ The weekly *Agenda - Schedule* and *Agenda - Busy* views are synchronized so tha
 
 
 ## Month
-                                  September 2019 
-               +------+------+------+------+------+------+------+  
-               |  Mon |  Tue |  Wed |  Thu |  Fri |  Sat |  Sun |  
-               +------+------+------+------+------+------+------+  
-               |   26 |   27 |   28 |   29 |   30 |   31 |    1 |  
-           35  |      |      |      |      |      |      |      |  
-               |      |      |      |      |      |      |      |  
-               +------+------+------+------+------+------+------+  
-               |    2 |    3 |    4 |    5 |    6 |    7 |    8 |  
-           36  |      |      |      |      |      |      |      |  
-               |      |      |      |      |      |      |      |  
-               +------+------+------+------+------+------+------+  
-               |    9 |   10 |   11 |   12 |   13 |   14 |   15 |  
-           37  |      |      |      |      |      |      |      |  
-               |      |      |      |      |      |      |      |  
-               +------+------+------+------+------+------+------+  
-               |   16 |   17 |   18 |   19 |   20 |   21 |   22 |  
-           38  |      |      |      |      |      |      |      |  
-               |      |      |  # # |      |      |      |      |  
-               +------+------+------+------+------+------+------+  
-               |   23 |   24 |   25 |   26 |   27 |   28 |   29 |  
-           39  |      |      |      |      |      |      |      |  
-               |      |  ### |      |      |      |      |      |  
-               +------+------+------+------+------+------+------+  
-               |   30 |    1 |    2 |    3 |    4 |    5 |    6 |  
-           40  |      |      |      |      |      |      |      |  
-               |      |      |      |      |      |      |      |  
-               +------+------+------+------+------+------+------+  
+                               September 2019 
+                +------+------+------+------+------+------+------+  
+            WK  |  Mon |  Tue |  Wed |  Thu |  Fri |  Sat |  Sun |  
+                +------+------+------+------+------+------+------+  
+                |   26 |   27 |   28 |   29 |   30 |   31 |    1 |  
+            35  |      |      |      |      |      |      |      |  
+                |      |      |      |      |      |      |      |  
+                +------+------+------+------+------+------+------+  
+                |    2 |    3 |    4 |    5 |    6 |    7 |    8 |  
+            36  |      |      |      |      |      |      |      |  
+                |      |      |      |      |      |      |      |  
+                +------+------+------+------+------+------+------+  
+                |    9 |   10 |   11 |   12 |   13 |   14 |   15 |  
+            37  |      |      |      |      |      |      |      |  
+                |      |      |      |      |      |      |      |  
+                +------+------+------+------+------+------+------+  
+                |   16 |   17 |   18 |   19 |   20 |   21 |   22 |  
+            38  |      |      |      |      |      |      |      |  
+                |      |      |  # # |      |      |      |      |  
+                +------+------+------+------+------+------+------+  
+                |   23 |   24 |   25 |   26 |   27 |   28 |   29 |  
+            39  |      |      |      |      |      |      |      |  
+                |      |  ### |      |      |      |      |      |  
+                +------+------+------+------+------+------+------+  
+                |   30 |    1 |    2 |    3 |    4 |    5 |    6 |  
+            40  |      |      |      |      |      |      |      |  
+                |      |      |      |      |      |      |      |  
+                +------+------+------+------+------+------+------+  
+
+Week numbers to months? I.e., 35 in Sep or Aug? 40 in Sep or Oct?
+put 35 in Aug since Mon of 35 falls in Aug
+put 40 in Sep since Mon of 40 falls in Aug
 
 
 ## [Relevant](#toc)

@@ -3965,7 +3965,8 @@ def fmt_week(yrwk):
         week_end = wkend.format("D")
     else:
         week_end = wkend.format("MMM D")
-    return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
+    # return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
+    return f"{week_begin} - {week_end}: {dt_year} Week {dt_week}"
 
 
 def get_item(id):
@@ -4513,7 +4514,7 @@ def no_busy_periods(week, width):
         h.setdefault(hour, {})
         for weekday in range(1, 8):
             h[hour][weekday] = '  .  '
-    return busy_template.format(week=fmt_week(week).center(width, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
+    return busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_before=0, weeks_after=0):
@@ -4708,7 +4709,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                     h[hour][weekday] = hours[hour]
 
 
-        busy_hsh[week] = busy_template.format(week=fmt_week(week).center(width, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
+        busy_hsh[week] = busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
     row2id = {}
     row_num = -1
