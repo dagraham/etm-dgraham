@@ -17,8 +17,6 @@ import re
 
 TinyDB.DEFAULT_TABLE = 'items'
 
-# Item = Query()
-
 class PendulumDateTimeSerializer(Serializer):
     """
     This class handles both aware and 'factory' pendulum objects.

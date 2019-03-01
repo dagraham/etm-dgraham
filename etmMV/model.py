@@ -4,15 +4,13 @@ import pendulum
 from pendulum import parse as pendulum_parse
 from pendulum.datetime import Timezone
 from pendulum import __version__ as pendulum_version
-# from bisect import insort
+from bisect import insort
 import calendar
 
 from ruamel.yaml import YAML
 yaml = YAML(typ='safe', pure=True) 
 
 from ruamel.yaml import __version__ as ruamel_version
-
-import base64  # for do_mask
 
 def parse(s, **kwd):
     return pendulum_parse(s, strict=False, **kwd)
@@ -21,17 +19,11 @@ import sys
 import re
 from re import finditer
 
-from tinydb import TinyDB, Query
 from tinydb import __version__ as tinydb_version
-from tinydb_serialization import Serializer
-from tinydb_serialization import SerializationMiddleware
-
-# import calendar as clndr
 
 import dateutil
 import dateutil.rrule
 from dateutil.rrule import *
-# from dateutil.easter import easter
 from dateutil import __version__ as dateutil_version
 
 from jinja2 import Template
@@ -166,18 +158,15 @@ requires = {
         'jb': ['s'],
         }
 
-WA = {}
-today = pendulum.today()
-day = today.end_of('week')  # Sunday
-for i in range(1, 8):
-    # 1 -> Mo, ...,  7 -> Su
-    WA[i] = day.add(days=i).format('ddd')[:2]
+# today = pendulum.today()
+# day = today.end_of('week')  # Sunday
+# WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
 
+busy_template  = 'whatever'
 
-busy_template = """\
-{week}
+busy_template = """{week}
          {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[7]} {DD[7]} 
-         -----------------------------------------------  
+         _____  _____  _____  _____  _____  _____  _____
 {l[0]}   {h[0][1]}  {h[0][2]}  {h[0][3]}  {h[0][4]}  {h[0][5]}  {h[0][6]}  {h[0][7]}
 {l[1]}   {h[1][1]}  {h[1][2]}  {h[1][3]}  {h[1][4]}  {h[1][5]}  {h[1][6]}  {h[1][7]}
 {l[2]}   {h[2][1]}  {h[2][2]}  {h[2][3]}  {h[2][4]}  {h[2][5]}  {h[2][6]}  {h[2][7]}
@@ -202,7 +191,7 @@ busy_template = """\
 {l[21]}   {h[21][1]}  {h[21][2]}  {h[21][3]}  {h[21][4]}  {h[21][5]}  {h[21][6]}  {h[21][7]}
 {l[22]}   {h[22][1]}  {h[22][2]}  {h[22][3]}  {h[22][4]}  {h[22][5]}  {h[22][6]}  {h[22][7]}
 {l[23]}   {h[23][1]}  {h[23][2]}  {h[23][3]}  {h[23][4]}  {h[23][5]}  {h[23][6]}  {h[23][7]}
-         -----------------------------------------------  
+         _____  _____  _____  _____  _____  _____  _____
 {t[0]}   {t[1]}  {t[2]}  {t[3]}  {t[4]}  {t[5]}  {t[6]}  {t[7]}
 """
 
@@ -1525,24 +1514,25 @@ class DataView(object):
         self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
         self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
         self.settings = settings
+        logger.debug(f"imported settings: {self.settings}")
         if 'keep_current' in self.settings and self.settings['keep_current']:
             self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
         else:
             self.currfile = None
-        locale_str = settings.get('locale')
-        if locale_str:
-            if locale_str == "en":
-                self.cal_locale = ["en_US", "UTF-8"]
-            else:
-                self.cal_locale = [f"{locale_str}_{locale_str.upper()}", "UTF-8"]
-            logger.info(f"using cal_locale {self.cal_locale}")
+        if 'locale' in self.settings:
+            locale_str = settings['locale']
+            logger.info(f"got locale from settings: {locale_str}")
+            if locale_str:
+                pendulum.set_locale(locale_str)
+                if locale_str == "en":
+                    self.cal_locale = ["en_US", "UTF-8"]
+                else:
+                    self.cal_locale = [f"{locale_str}_{locale_str.upper()}", "UTF-8"]
+                logger.info(f"using cal_locale {self.cal_locale}")
 
         self.db = DBITEM
         self.dbarch = DBARCH
         logger.info(f"items: {len(DBITEM)}; archive: {len(DBARCH)}")
-        logger.debug(f"imported settings: {self.settings}")
-        if 'locale' in self.settings:
-            pendulum.set_locale(self.settings['locale'])
         self.item_num = len(self.db)
         self.arch_num = len(self.dbarch)
 
@@ -1893,6 +1883,7 @@ class DataView(object):
         logger.debug(f"sent text {message}")
 
 
+
     def refreshCalendar(self):
         """
         Advance = 0 shows the half year containing the current month. Advance 
@@ -1905,10 +1896,9 @@ class DataView(object):
         try:
 
             c = calendar.LocaleTextCalendar(0, self.cal_locale)
-            logger.info(f"set calendar using {self.cal_locale}")
             # c = calendar.LocaleTextCalendar(0, locale=self.cal_locale)
         except:
-            logger.info(f"error using locale {self.cal_locale}")
+            logger.warn(f"error using locale {self.cal_locale}")
             c = calendar.LocaleTextCalendar(0)
         cal = []
         # make advance = 0 show the half year containing the current month
@@ -3568,247 +3558,14 @@ def jobs(lofh, at_hsh={}):
         # print('id2hsh', id2hsh)
         return True, [id2hsh[i] for i in ids], last_completion
 
-
-
 #######################
 ### end jobs setup ####
 #######################
-
-##########################
-### begin TinyDB setup ###
-##########################
-
-# class DatetimeCacheTable(SmartCacheTable):
-#     def _get_next_id(self):
-#         """
-#         Use a readable, integer timestamp as the id - unique and stores
-#         the creation datetime - instead of consecutive integers. E.g.,
-#         the the id for an item created 2016-06-24 08:14:11:601637 would
-#         be 20160624081411601637.
-#         """
-#         # This must be an int even though it will be stored as a str
-#         current_id = int(pendulum.now('UTC').format("%Y%m%d%H%M%S%f"))
-#         self._last_id = current_id
-#         return current_id
-# TinyDB.table_class = DatetimeCacheTable
-
-# FIXME SmartCacheTable doesn't seem to work with tinydb 3.12
-# TinyDB.table_class = SmartCacheTable
-TinyDB.DEFAULT_TABLE = 'items'
-
-# Item = Query()
-
-class PendulumDateTimeSerializer(Serializer):
-    """
-    This class handles both aware and 'factory' pendulum objects.
-
-    Encoding: If obj.tzinfo.abbrev is '-00' (tz=Factory), it is interpreted as naive, serialized without conversion and an 'N' is appended. Otherwise it is interpreted as aware, converted to UTC and an 'A' is appended.
-    Decoding: If the serialization ends with 'A', the pendulum object is treated as 'UTC' and converted to localtime. Otherwise, the object is treated as 'Factory' and no conversion is performed.
-
-    This serialization discards both seconds and microseconds but preserves hours and minutes.
-
-    """
-
-    OBJ_CLASS = pendulum.DateTime
-
-    def encode(self, obj):
-        """
-        Serialize naive objects (Z == '') without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
-        >>> dts = PendulumDateTimeSerializer()
-        >>> dts.encode(pendulum.datetime(2018,7,25,10, 27).naive())
-        '20180725T1027N'
-        >>> dts.encode(pendulum.datetime(2018,7,25,10, 27, tz='US/Eastern'))
-        '20180725T1427A'
-        """
-        if obj.format('Z') == '':
-            return obj.format('YYYYMMDDTHHmm[N]')
-        else:
-            return obj.in_tz('UTC').format('YYYYMMDDTHHmm[A]')
-
-    def decode(self, s):
-        """
-        Return the serialization as a datetime object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object in the local timezone. If the serialization ends with 'N', returning without conversion as an aware datetime object in the local timezone.
-        >>> dts = PendulumDateTimeSerializer()
-        >>> dts.decode('20180725T1027N')
-        DateTime(2018, 7, 25, 10, 27, 0, tzinfo=Timezone('America/New_York'))
-        >>> dts.decode('20180725T1427A')
-        DateTime(2018, 7, 25, 10, 27, 0, tzinfo=Timezone('America/New_York'))
-        """
-        if s[-1] == 'A':
-            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'UTC').in_timezone('local')
-        else:
-            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm').naive().in_timezone('local')
-
-
-class PendulumDateSerializer(Serializer):
-    """
-    This class handles pendulum date objects. Encode as date string and decode as a midnight datetime without conversion in the local timezone.
-    >>> ds = PendulumDateSerializer()
-    >>> ds.encode(pendulum.date(2018, 7, 25))
-    '20180725'
-    >>> ds.decode('20180725')
-    Date(2018, 7, 25)
-    """
-    OBJ_CLASS = pendulum.Date
-
-    def encode(self, obj):
-        """
-        Serialize the naive date object without conversion.
-        """
-        return obj.format('YYYYMMDD')
-
-    def decode(self, s):
-        """
-        Return the serialization as a date object.
-        """
-        # return pendulum.from_format(s, 'YYYYMMDD').naive().in_timezone('local')
-        return pendulum.from_format(s, 'YYYYMMDD').date()
-
-
-class PendulumDurationSerializer(Serializer):
-    """
-    This class handles pendulum.duration (timedelta) objects.
-    >>> dus = PendulumDurationSerializer()
-    >>> dus.encode(pendulum.duration(days=3, hours=5, minutes=15))
-    '3d5h15m'
-    >>> dus.decode('3d5h15m')
-    Duration(days=3, hours=5, minutes=15)
-    """
-    OBJ_CLASS = pendulum.Duration
-
-    def encode(self, obj):
-        """
-        Serialize the timedelta object as days.seconds.
-        """
-        return format_duration(obj)
-
-    def decode(self, s):
-        """
-        Return the serialization as a timedelta object.
-        """
-        return parse_duration(s)[1]
-
-class PendulumWeekdaySerializer(Serializer):
-    """
-    This class handles dateutil.rrule.weeday objects. Note in the following examples that unquoted weekdays, eg. MO(-3), are dateutil.rrule.weekday objects.
-    >>> wds = PendulumWeekdaySerializer()
-    >>> wds.encode(MO(-3))
-    '-3MO'
-    >>> wds.encode(SA(+3))
-    '3SA'
-    >>> wds.encode(WE)
-    'WE'
-    >>> wds.decode('-3MO')
-    MO(-3)
-    >>> wds.decode('3SA')
-    SA(+3)
-    >>> wds.decode('WE')
-    WE
-    """
-
-    OBJ_CLASS = dateutil.rrule.weekday
-
-    def encode(self, obj):
-        """
-        Serialize the weekday object.
-        """
-        s = WKDAYS_ENCODE[obj.__repr__()]
-        if s.startswith('+'): 
-            # drop the leading + sign
-            s = s[1:]
-        # print('serializing', obj.__repr__(), type(obj), 'as', s)
-        return s
-
-    def decode(self, s):
-        """
-        Return the serialization as a weekday object.
-        """
-        # print('deseralizing', s, type(s))
-        return eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[s]))
-
-########################################
-###### Begin Mask ######################
-########################################
-
-def encode(key, clear):
-    enc = []
-    for i in range(len(clear)):
-        key_c = key[i % len(key)]
-        enc_c = chr((ord(clear[i]) + ord(key_c)) % 256)
-        enc.append(enc_c)
-    return base64.urlsafe_b64encode("".join(enc).encode()).decode()
-
-def decode(key, enc):
-    dec = []
-    enc = base64.urlsafe_b64decode(enc).decode()
-    for i in range(len(enc)):
-        key_c = key[i % len(key)]
-        dec_c = chr((256 + ord(enc[i]) - ord(key_c)) % 256)
-        dec.append(dec_c)
-    return "".join(dec)
-
-# NOTE: DON'T CHANGE THIS!!! ELSE ALL PREVIOUSLY MASKED ENTRIES WILL BE UNREADABLE
-secret = "etm is great!"
-
-class Mask():
-    """
-    Provide an encoded value with an "isinstance" test for serializaton
-    """
-
-    def __init__(self, message=""):
-        self.encoded = encode(secret, message)
-
-
-class MaskSerializer(Serializer):
-    """
-    This class handles pendulum.duration (timedelta) objects.
-    >>> mask = MaskSerializer()
-    >>> mask.encode(Mask("when to the sessions")) # doctest: +NORMALIZE_WHITESPACE
-    'w5zDnMOSwo7CicOnwo_Ch8Omw43DhsKUwpTDisOnw6DCicOYw6HCkw=='
-    >>> mask.decode('    w5zDnMOSwo7CicOnwo_Ch8Omw43DhsKUwpTDisOnw6DCicOYw6HCkw==') # doctest: +NORMALIZE_WHITESPACE
-    'when to the sessions' 
-    """
-    OBJ_CLASS = Mask
-
-    def encode(self, obj):
-        """
-        Serialize the timedelta object as days.seconds.
-        """
-        return obj.encoded
-
-    def decode(self, s):
-        """
-        Return the serialization as a timedelta object.
-        """
-        return decode(secret, s)
-
-########################################
-###### End Mask ########################
-########################################
-
-
-serialization = SerializationMiddleware()
-serialization.register_serializer(PendulumDateTimeSerializer(), 'T') # Time
-serialization.register_serializer(PendulumDateSerializer(), 'D')     # Date
-serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
-serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday 
-serialization.register_serializer(MaskSerializer(), 'M')             # Mask 
-
-
-def initialize_tinydb(dbfile):
-    return TinyDB(dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
-
-
-
-########################
-### end TinyDB setup ###
-########################
 
 
 ########################
 ### start week/month ###
 ########################
-
 
 def get_period(dt=pendulum.now(), weeks_before=3, weeks_after=9):
     """
@@ -4034,7 +3791,7 @@ def fmt_week(yrwk):
     else:
         week_end = wkend.format("MMM D")
     # return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
-    return f"{week_begin} - {week_end}: {dt_year} Week {dt_week}"
+    return f"{week_begin} - {week_end}, {dt_year} #{dt_week}"
 
 
 def get_item(id):

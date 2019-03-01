@@ -45,10 +45,6 @@ import logging
 import logging.config
 logger = logging.getLogger()
 
-# from sixmonthcal import SixMonthCal
-
-# from model import about
-
 import subprocess # for check_output
 
 
@@ -174,33 +170,6 @@ def do_go_to(*event):
 today = pendulum.today()
 calyear = today.year
 calmonth = today.month
-
-# sixmonthcal = SixMonthCal()
-
-# @bindings.add('f7')
-# def do_show_calendar(*event):
-#     # FIXME
-#     show_message("Six Month Calendar", sixmonthcal.showCalendar(), 9)
-    # def coroutine():
-    #     global calyear, calmonth
-    #     dialog = TextInputDialog(
-    #         title='Show six month calendar',
-    #         label_text='year, month:')
-
-    #     yearmonth = yield From(show_dialog_as_float(dialog))
-
-    #     if yearmonth:
-    #         try:
-    #             y, m = [int(x) for x in yearmonth.split(',')]
-    #         except ValueError:
-    #             show_message('invalid year, month', 'using current')
-    #         else:
-    #             calyear = y
-    #             calmonth = m
-
-    # ensure_future(coroutine())
-    # focus_next()
-
 
 def check_output(cmd):
     if not cmd:
@@ -738,7 +707,7 @@ def busy_view(*event):
     set_text(dataview.show_active_view())
 
 @bindings.add('c', filter=is_not_searching & not_showing_details & is_not_editing)
-def busy_view(*event):
+def calendar_view(*event):
     dataview.set_active_view('c')
     set_text(dataview.show_active_view())
 
@@ -869,6 +838,7 @@ root_container = MenuContainer(body=body, menu_items=[
                 MenuItem('g) go to date', handler=do_go_to_date),
             ]),
         ]),
+        MenuItem('c) calendar', handler=calendar_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
         MenuItem('j) journal', handler=journal_view),

@@ -39,6 +39,13 @@ if __name__ == "__main__":
     # FIXME: this is for testing, remove for production
     settings['mytestval'] = 'whatever'
 
+    import pendulum
+    locale = settings.get('locale', None)
+    if locale:
+        pendulum.set_locale(locale)
+    today = pendulum.today()
+    day = today.end_of('week')  # Sunday
+    WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
 
     from etmMV import data
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
@@ -48,6 +55,7 @@ if __name__ == "__main__":
     logger.info(f"initialized TinyDB using {dbfile}")
 
     from etmMV import model
+    model.WA = WA
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
