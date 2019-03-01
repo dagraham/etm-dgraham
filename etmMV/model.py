@@ -1747,7 +1747,31 @@ class DataView(object):
             showing = f"The first {num} instances"
         else:
             showing = f"All instances"
-        return  showing, "\n".join(pairs)
+        return  showing, f"{item['itemtype']} {item['summary']}\n  " + "\n  ".join(pairs)
+
+    def maybe_finish(self, row, dt):
+        """
+        For tasks, '-', not already finished.
+        No reps and no jobs add @f
+        Jobs and no reps
+            Which job? add &f
+        Reps and no jobs
+            Add dt to @h
+            Update @s to next instance
+
+        Jobs? Which job?
+        Reps? Which instance?
+
+        """ 
+        if row is None:
+            return ''
+        self.current_row = row
+        item_id = self.num2id.get(row, None)
+        item = DBITEM.get(doc_id=item_id)
+        if item['itemtype'] != '-' or 'f' in item:
+            return ''
+
+
 
 
     def clearCache(self):
