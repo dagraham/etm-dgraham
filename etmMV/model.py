@@ -282,39 +282,39 @@ def busy_conf_day(lofp):
     return h
 
 
-def get_reps(n=3, at_hsh={}):
-    """
-    Return the first n instances of the repetition rule.
-    """
-    if not at_hsh or 's' not in at_hsh or 'rrulestr' not in at_hsh:
-        return False, "Both @s and @r are required for repetitions"
+# def get_reps(n=3, at_hsh={}):
+#     """
+#     Return the first n instances of the repetition rule.
+#     """
+#     if not at_hsh or 's' not in at_hsh or 'rrulestr' not in at_hsh:
+#         return False, "Both @s and @r are required for repetitions"
 
-    tz = at_hsh['s'].tzinfo
-    naive = tz.abbrev == '-00'
-    if naive:
-        start = at_hsh['s']
-        zone = 'floating'
-    else:
-        local = at_hsh['s'].in_timezone('local')
-        start = local.replace(tzinfo='Factory')
-        zone =  local.format("zz")
-    rrs = rrulestr(at_hsh['rrulestr'], dtstart=start)
-    out = rrs.xafter(start, n+1, inc=True)
-    dtstart = format_datetime(at_hsh['s'])[1]
-    lst = []
-    for x in out:
-        lst.append(format_datetime(x)[1])
-    outstr = "\n    ".join(lst[:n])
-    if len(lst) <= n:
-        countstr = "Repetitions on or after DTSTART"
-    else:
-        countstr = "The first {} repetitions on or after DTSTART".format(n)
-    res = """\
-    DTSTART:{}
-{}:
-    {}
-All times: {}""".format(dtstart, countstr,  outstr, zone)
-    return True, res
+#     tz = at_hsh['s'].tzinfo
+#     naive = tz.abbrev == '-00'
+#     if naive:
+#         start = at_hsh['s']
+#         zone = 'floating'
+#     else:
+#         local = at_hsh['s'].in_timezone('local')
+#         start = local.replace(tzinfo='Factory')
+#         zone =  local.format("zz")
+#     rrs = rrulestr(at_hsh['rrulestr'], dtstart=start)
+#     out = rrs.xafter(start, n+1, inc=True)
+#     dtstart = format_datetime(at_hsh['s'])[1]
+#     lst = []
+#     for x in out:
+#         lst.append(format_datetime(x)[1])
+#     outstr = "\n    ".join(lst[:n])
+#     if len(lst) <= n:
+#         countstr = "Repetitions on or after DTSTART"
+#     else:
+#         countstr = "The first {} repetitions on or after DTSTART".format(n)
+#     res = """\
+#     DTSTART:{}
+# {}:
+#     {}
+# All times: {}""".format(dtstart, countstr,  outstr, zone)
+#     return True, res
 
 
 def process_entry(s, settings={}):
@@ -1727,6 +1727,29 @@ class DataView(object):
 
         return None, ''
 
+    def get_repetitions(self, row=None, num=5):
+        if row is None:
+            return ''
+        self.current_row = row
+        item_id = self.num2id.get(row, None)
+        logger.info(f"item_id: {item_id} for row {row}")
+        if item_id is None:
+            return ''
+        item = DBITEM.get(doc_id=item_id)
+        logger.info(f"got item: {item}")
+        aft_dt = item.get('s')
+        logger.info(f"got aft_dt: {aft_dt}")
+        if aft_dt is None:
+            return ''
+        pairs = [format_datetime(x[0])[1] for x in item_instances(item, aft_dt, num+1)]
+        logger.info(f"pairs: {pairs}")
+        if len(pairs) > num:
+            showing = f"The first {num} instances"
+        else:
+            showing = f"All instances"
+        return  showing, "\n".join(pairs)
+
+
     def clearCache(self):
         self.cache = {}
 
@@ -3098,7 +3121,9 @@ def item_instances(item, aft_dt, bef_dt=1):
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
         startdst = None
+        using_dates = True
     else:
+        using_dates = False
         # for discarding daylight saving time differences in repetitions
         try:
             startdst = dtstart.dst()
@@ -3106,6 +3131,13 @@ def item_instances(item, aft_dt, bef_dt=1):
             print('dtstart:', dtstart)
             dtstart = dtstart[0]
             startdst = dtstart.dst()
+    logger.info(f"using_dates: {using_dates}")
+
+    if isinstance(aft_dt, pendulum.Date) and not isinstance(aft_dt, pendulum.DateTime):
+        aft_dt = pendulum.datetime(year=aft_dt.year, month=aft_dt.month, day=aft_dt.day, hour=0, minute=0)
+    if isinstance(bef_dt, pendulum.Date) and not isinstance(bef_dt, pendulum.DateTime):
+        bef_dt = pendulum.datetime(year=bef_dt.year, month=bef_dt.month, day=bef_dt.day, hour=0, minute=0)
+    logger.info(f"dtstart: {dtstart}, aft_dt: {aft_dt}, bef_dt: {bef_dt}")
 
     if 'r' in item:
         lofh = item['r']
@@ -3134,12 +3166,17 @@ def item_instances(item, aft_dt, bef_dt=1):
                 rset.rdate(dt)
         if isinstance(bef_dt, int):
             tmp = []
+            inc = True
             for i in range(bef_dt):
-                aft_dt = rset.after(aft_dt, inc=True)
+                logger.info(f"{i}_ aft_dt: {type(aft_dt)}")
+                aft_dt = rset.after(aft_dt, inc=inc)
+                logger.info(f"{i}+ aft_dt: {type(aft_dt)}")
                 tmp.append(aft_dt)
-
-            nxt = rset.after(aft_dt, inc=True)
-            instances = [pendulum.instance(x) for x in tmp] if tmp else []
+                inc = False # to get the next one
+            if using_dates:
+                instances = [pendulum.instance(x).date() for x in tmp] if tmp else []
+            else:
+                instances = [pendulum.instance(x) for x in tmp] if tmp else []
         else:
             instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
 
@@ -3156,7 +3193,7 @@ def item_instances(item, aft_dt, bef_dt=1):
     else:
         # dtstart >= aft_dt
         if isinstance(bef_dt, int):
-            instances = [dtstart] if dtstart > aft_dt else []
+            instances = [dtstart] if dtstart >= aft_dt else []
         else:
             instances = [dtstart] if aft_dt <= dtstart <= bef_dt else []
 

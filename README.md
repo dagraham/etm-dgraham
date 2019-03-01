@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Thu Feb 28, 2019 04:28PM EST*
+*Last modified: Fri Mar 01, 2019 02:15PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -145,6 +145,12 @@ Repetition in *etm* uses the **dateutil** libary which supports amazingly comple
 
         * Good Friday @s 1/1/2015 @r y @E -2
     For Easter Sunday itself, the entry would be *@E 0*.
+* Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
+
+        * Friday tennis @s 2019-01-01 6a @e 90m
+          @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
+          @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
+    Note that more than one @r entry can be used.
 
 ## [Editing](#toc) ##
 

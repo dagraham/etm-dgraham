@@ -676,9 +676,11 @@ def edit_copy(*event):
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
-@bindings.add('B', filter=is_not_editing)
-def whatever(*event):
-    dataview.refreshCurrent()
+@bindings.add('c-r')
+def show_repetitions(*event):
+    row = text_area.document.cursor_position_row
+    showing, reps = dataview.get_repetitions(row, 5)
+    show_message(showing, reps, 24)
 
 @bindings.add('c-p')
 def play_sound(*event):
