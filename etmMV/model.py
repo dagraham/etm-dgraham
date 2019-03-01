@@ -1530,7 +1530,7 @@ class DataView(object):
                     self.cal_locale = ["en_US", "UTF-8"]
                 else:
                     self.cal_locale = [f"{locale_str}_{locale_str.upper()}", "UTF-8"]
-                logger.info(f"using cal_locale {self.cal_locale}")
+                logger.debug(f"using cal_locale {self.cal_locale}")
 
         self.db = DBITEM
         self.dbarch = DBARCH
@@ -1732,22 +1732,27 @@ class DataView(object):
             return ''
         self.current_row = row
         item_id = self.num2id.get(row, None)
-        logger.info(f"item_id: {item_id} for row {row}")
+        logger.debug(f"item_id: {item_id} for row {row}")
         if item_id is None:
             return ''
         item = DBITEM.get(doc_id=item_id)
-        logger.info(f"got item: {item}")
-        aft_dt = item.get('s')
-        logger.info(f"got aft_dt: {aft_dt}")
+        logger.debug(f"got item: {item}")
+        if 's' in item:
+            aft_dt = item['s']
+        elif 'f' in item:
+            aft_dt = item['f']
+        else:
+            aft_dt = None
+        logger.debug(f"got aft_dt: {aft_dt}")
         if aft_dt is None:
             return ''
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, aft_dt, num+1)]
-        logger.info(f"pairs: {pairs}")
+        logger.debug(f"pairs: {pairs}")
         if len(pairs) > num:
             showing = f"The first {num} instances"
         else:
             showing = f"All instances"
-        return  showing, f"{item['itemtype']} {item['summary']}\n  " + "\n  ".join(pairs)
+        return  showing, f"{item['itemtype']} {item['summary']}:\n  " + "\n  ".join(pairs)
 
     def maybe_finish(self, row, dt):
         """
@@ -1972,7 +1977,7 @@ class DataView(object):
 
         ret_lines = [f"{indent}{line}" for line in ret]
         ret_str = "\n".join(ret_lines)
-        # logger.info(f"calendar_view:\n{ret_str}")
+        # logger.debug(f"calendar_view:\n{ret_str}")
         self.calendar_view = ret_str
 
     def nextcal(self):
@@ -3137,7 +3142,10 @@ def item_instances(item, aft_dt, bef_dt=1):
     #    @+ given: @s and each date in @+ added as rdates
 
     if 's' not in item:
-        return []
+        if 'f' in item:
+            return [(item['f'], None)]
+        else:
+            return []
     instances = []
     dtstart = item['s']
     # print('starting dts:', dtstart)
@@ -3155,13 +3163,13 @@ def item_instances(item, aft_dt, bef_dt=1):
             print('dtstart:', dtstart)
             dtstart = dtstart[0]
             startdst = dtstart.dst()
-    logger.info(f"using_dates: {using_dates}")
+    logger.debug(f"using_dates: {using_dates}")
 
     if isinstance(aft_dt, pendulum.Date) and not isinstance(aft_dt, pendulum.DateTime):
         aft_dt = pendulum.datetime(year=aft_dt.year, month=aft_dt.month, day=aft_dt.day, hour=0, minute=0)
     if isinstance(bef_dt, pendulum.Date) and not isinstance(bef_dt, pendulum.DateTime):
         bef_dt = pendulum.datetime(year=bef_dt.year, month=bef_dt.month, day=bef_dt.day, hour=0, minute=0)
-    logger.info(f"dtstart: {dtstart}, aft_dt: {aft_dt}, bef_dt: {bef_dt}")
+    logger.debug(f"dtstart: {dtstart}, aft_dt: {aft_dt}, bef_dt: {bef_dt}")
 
     if 'r' in item:
         lofh = item['r']
@@ -3192,9 +3200,9 @@ def item_instances(item, aft_dt, bef_dt=1):
             tmp = []
             inc = True
             for i in range(bef_dt):
-                logger.info(f"{i}_ aft_dt: {type(aft_dt)}")
+                logger.debug(f"{i}_ aft_dt: {type(aft_dt)}")
                 aft_dt = rset.after(aft_dt, inc=inc)
-                logger.info(f"{i}+ aft_dt: {type(aft_dt)}")
+                logger.debug(f"{i}+ aft_dt: {type(aft_dt)}")
                 tmp.append(aft_dt)
                 inc = False # to get the next one
             if using_dates:
@@ -3908,7 +3916,7 @@ def relevant(db, now=pendulum.now('local') ):
             relevant = item['f']
             if isinstance(relevant, pendulum.Date) and not isinstance(relevant, pendulum.DateTime):
                 relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0)
-            # logger.info(f"relevant {item.doc_id} {relevant} {type(relevant)} {item['summary']}")
+            # logger.debug(f"relevant {item.doc_id} {relevant} {type(relevant)} {item['summary']}")
 
 
         elif 's' in item:
