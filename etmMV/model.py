@@ -317,7 +317,7 @@ All times: {}""".format(dtstart, countstr,  outstr, zone)
     return True, res
 
 
-def process_entry(s, settings=None):
+def process_entry(s, settings={}):
     """
     Return tuples containing key, value and postion tuples for the string s. 
     0         1         2         3         4         5         6 
@@ -344,6 +344,7 @@ def process_entry(s, settings=None):
     >>> process_entry('- has expansion key @x tennis')
     ({(0, 1): ('itemtype', '-'), (1, 20): ('summary', 'has expansion key'), (20, 30): ('x', 'tennis')}, [('itemtype', '-'), ('summary', 'has expansion key'), ('x', 'tennis')])
     >>> process_entry('@e 90m @a 30m, 15m: d @i personal:tennis')
+    ({(0, 41): ('itemtype', '@')}, [('itemtype', '@')])
     """
     tups = []
     keyvals = []
@@ -354,7 +355,7 @@ def process_entry(s, settings=None):
         return {(0, len(s) + 1): ('itemtype', s[0])}, [('itemtype', s[0])]
     # look for expansions
     xpat = re.compile("\s_[a-zA-Z]+\s")
-    logger.debug(f"settings: {settings['expansions']}")
+    logger.debug(f"settings: {settings.get('expansions')}")
     matches = xpat.findall(s)
     logger.debug(f"matches: {matches}")
     if settings:
@@ -552,14 +553,15 @@ class Item(object):
 
     def set_etmdir(self, etmdir):
         if not etmdir:
+            self.settings = {}
             return
         logger.debug(f"got etmdir in Item: {etmdir}")
-        self.settings = settings
+        self.settings = settings if settings else {}
         self.db = DBITEM
         self.dbarch = DBARCH
         self.dbquery = DBITEM 
 
-        self.settings = settings
+        # self.settings = settings
         if 'keep_current' in self.settings and self.settings['keep_current']:
             self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
         else:
@@ -3043,13 +3045,13 @@ def rrule_args(r_hsh):
     kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
 
-def item_instances(item, aft_dt, bef_dt=None):
+def item_instances(item, aft_dt, bef_dt=1):
     """
     Dates and datetimes decoded from the data store will all be aware and in the local timezone. aft_dt and bef_dt must therefore also be aware and in the local timezone.
     In dateutil, the starting datetime (dtstart) is not the first recurrence instance, unless it does fit in the specified rules.  Notice that you can easily get the original behavior by using a rruleset and adding the dtstart as an rdate recurrence.
     Each instance is a tuple (beginning datetime, ending datetime) where ending datetime is None unless the item is an event.
 
-    Get instances from item falling on or after aft_dt and on or before bef_dt or, if bef_dt is None, the first instance after aft_dt. All datetimes will be returned with zero offsets.
+    Get instances from item falling on or after aft_dt and on or before bef_dt or, if bef_dt is an integer, n, get the first n instances after aft_dt. All datetimes will be returned with zero offsets.
     >>> item_eg = { "s": parse('2018-03-07 8am', tz="US/Eastern"), "e": pendulum.duration(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am', tz="US/Eastern")}], "z": "US/Eastern", "itemtype": "*" }
     >>> item_eg
     {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), 'e': Duration(days=1, hours=5), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*'}
@@ -3078,7 +3080,7 @@ def item_instances(item, aft_dt, bef_dt=None):
 
     Simple repetition:
     >>> item_eg = { "itemtype": "*", "s": parse('2018-11-15 8a', tz="US/Eastern"), "+": [parse('2018-11-16 10a', tz="US/Eastern"), parse('2018-11-18 3p', tz="US/Eastern"), parse('2018-11-27 8p', tz="US/Eastern")] }
-    >>> item_instances(item_eg, parse('2018-11-17 9am', tz="US/Eastern"))
+    >>> item_instances(item_eg, parse('2018-11-17 9am', tz="US/Eastern"), 3)
     [(DateTime(2018, 11, 18, 15, 0, 0, tzinfo=Timezone('US/Eastern')), None), (DateTime(2018, 11, 27, 20, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
     """
     # FIXME 
@@ -3130,10 +3132,14 @@ def item_instances(item, aft_dt, bef_dt=None):
         if '+' in item:
             for dt in item['+']:
                 rset.rdate(dt)
-        if bef_dt is None:
-            # get the first instance after aft_dt
+        if isinstance(bef_dt, int):
+            tmp = []
+            for i in range(bef_dt):
+                aft_dt = rset.after(aft_dt, inc=True)
+                tmp.append(aft_dt)
+
             nxt = rset.after(aft_dt, inc=True)
-            instances = [pendulum.instance(nxt)] if nxt else []
+            instances = [pendulum.instance(x) for x in tmp] if tmp else []
         else:
             instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
 
@@ -3142,14 +3148,14 @@ def item_instances(item, aft_dt, bef_dt=None):
         tmp = [dtstart]
         tmp.extend(item['+'])
         tmp.sort()
-        if bef_dt is None:
-            instances = [x for x in tmp if (x > aft_dt)]#[:1]
+        if isinstance(bef_dt, int):
+            instances = [x for x in tmp if (x > aft_dt)][:bef_dt]
         else:
             instances = [x for x in tmp if (x > aft_dt and x <= bef_dt)]
 
     else:
         # dtstart >= aft_dt
-        if bef_dt is None:
+        if isinstance(bef_dt, int):
             instances = [dtstart] if dtstart > aft_dt else []
         else:
             instances = [dtstart] if aft_dt <= dtstart <= bef_dt else []
@@ -3517,7 +3523,7 @@ def jobs(lofh, at_hsh={}):
                     dt = at_hsh['s']
                 else: # 'r'
                     dt = last_completion
-                n = item_instances(at_hsh, dt, None)
+                n = item_instances(at_hsh, dt, 1)
                 if n:
                     # n will be a list of beg, end tuples - get the first beg
                     at_hsh['s'] = n[0][0]
@@ -3776,9 +3782,9 @@ def item_details(item, edit=False):
 def fmt_week(yrwk):
     """
     >>> fmt_week((2018, 10))
-    '2018 Week 10: Mar 5 - 11'
+    'Mar 5 - 11, 2018 #10'
     >>> fmt_week((2019, 1))
-    '2019 Week 1: Dec 31 - Jan 6'
+    'Dec 31 - Jan 6, 2019 #1'
     """
     dt_year, dt_week = yrwk
     # dt_week = dt_obj.week_of_year
@@ -3916,10 +3922,13 @@ def relevant(db, now=pendulum.now('local') ):
                 if item['itemtype'] == '-': 
                     if item.get('o', 'k') == 's':
                         relevant = rset.after(today, inc=True)
-                        if relevant:
-                            item['s'] = pendulum.instance(relevant)
-                            update_db(db, item.doc_id, item)
-                            logger.info(f"updated {item.doc_id}")
+                        if relevant: 
+                            if item['s'] != pendulum.instance(relevant):
+                                item['s'] = pendulum.instance(relevant)
+                                update_db(db, item.doc_id, item)
+                                logger.debug(f"updated @s {item['s']} in {item.doc_id}")
+                            else:
+                                logger.debug(f"@s {item['s']} unchanged in {item.doc_id}")
                         else:
                             relevant = dtstart
                     else: 
@@ -4777,56 +4786,85 @@ def main(etmdir="", *args):
     logger.debug(f"settings: {settings}")
 
 if __name__ == '__main__':
-    import doctest
     import sys
-    main()
-
-    etmdir = ''
-    if len(sys.argv) > 1:
+    import pendulum
+    import doctest
+    import os
+    lines = 5 * '\n'
+    now = pendulum.now('local')
+    print(f"{lines}now: {now}")
+    log_levels = [str(x) for x in range(1, 6)]
+    loglevel = 2
+    if len(sys.argv) > 1 and sys.argv[1] in log_levels:
+        loglevel = sys.argv.pop(1)
+    if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
         etmdir = sys.argv.pop(1)
-    setup_logging(2, etmdir)
-
-    if len(sys.argv) > 1:
-        if 'a' in sys.argv[1]:
-            print(about())
-        if 'i' in sys.argv[1]:
-            import_json(etmdir)
-        if 'j' in sys.argv[1]:
-            print_json()
-        if 'c' in sys.argv[1]:
-            dataview = DataView()
-            dataview.refreshCache()
-            print([wk for wk in dataview.cache])
-            schedule, busy, row2id = dataview.cache[dataview.activeYrWk] 
-            print(schedule)
-            print(busy)
-            pprint(row2id)
-            print([wk for wk in dataview.cache])
-        if 'p' in sys.argv[1]:
-            dataview = DataView(weeks=2, plain=True)
-            print(dataview.agenda_view)
-            # print(dataview.busy_view)
-            # pprint(dataview.num2id)
-        if 'P' in sys.argv[1]:
-            dataview = DataView(weeks=4, plain=True)
-            print(dataview.agenda_view)
-            dataview.nextYrWk()
-            print(dataview.agenda_view)
-        if 's' in sys.argv[1]:
-            dataview = DataView(weeks=1)
-            dataview.dtYrWk('2018/12/31')
-            print_formatted_text(dataview.agenda_view, style=style)
-        if 'S' in sys.argv[1]:
-            dataview = DataView()
-            print_formatted_text(dataview.agenda_select, style=style)
-            print()
-            print(dataview.num2id)
-        if 'r' in sys.argv[1]:
-            current, alerts, id2relevant = relevant()
-            pprint(current)
-            pprint(alerts)
-        if 'h' in sys.argv[1]:
-            history_view, num2id = show_history()
-            print(history_view)
-
+    setup_logging(loglevel, etmdir)
+    import options, data
+    from data import Mask
+    settings = options.Settings(etmdir).settings
+    locale = settings.get('locale', None)
+    if locale:
+        pendulum.set_locale(locale)
+    today = pendulum.today()
+    day = today.end_of('week')  # Sunday
+    WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
+    dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+    ETMDB = data.initialize_tinydb(dbfile)
+    DBITEM = ETMDB.table('items', cache_size=None)
+    DBARCH = ETMDB.table('archive', cache_size=None)
     doctest.testmod()
+
+    # sys.exit('model.py should only be imported')
+
+    # import doctest
+    # doctest.testmod()
+
+    # etmdir = ''
+    # if len(sys.argv) > 1:
+    #     etmdir = sys.argv.pop(1)
+    # setup_logging(2, etmdir)
+
+    # if len(sys.argv) > 1:
+    #     if 'a' in sys.argv[1]:
+    #         print(about())
+    #     if 'i' in sys.argv[1]:
+    #         import_json(etmdir)
+    #     if 'j' in sys.argv[1]:
+    #         print_json()
+    #     if 'c' in sys.argv[1]:
+    #         dataview = DataView()
+    #         dataview.refreshCache()
+    #         print([wk for wk in dataview.cache])
+    #         schedule, busy, row2id = dataview.cache[dataview.activeYrWk] 
+    #         print(schedule)
+    #         print(busy)
+    #         pprint(row2id)
+    #         print([wk for wk in dataview.cache])
+    #     if 'p' in sys.argv[1]:
+    #         dataview = DataView(weeks=2, plain=True)
+    #         print(dataview.agenda_view)
+    #         # print(dataview.busy_view)
+    #         # pprint(dataview.num2id)
+    #     if 'P' in sys.argv[1]:
+    #         dataview = DataView(weeks=4, plain=True)
+    #         print(dataview.agenda_view)
+    #         dataview.nextYrWk()
+    #         print(dataview.agenda_view)
+    #     if 's' in sys.argv[1]:
+    #         dataview = DataView(weeks=1)
+    #         dataview.dtYrWk('2018/12/31')
+    #         print_formatted_text(dataview.agenda_view, style=style)
+    #     if 'S' in sys.argv[1]:
+    #         dataview = DataView()
+    #         print_formatted_text(dataview.agenda_select, style=style)
+    #         print()
+    #         print(dataview.num2id)
+    #     if 'r' in sys.argv[1]:
+    #         current, alerts, id2relevant = relevant()
+    #         pprint(current)
+    #         pprint(alerts)
+    #     if 'h' in sys.argv[1]:
+    #         history_view, num2id = show_history()
+    #         print(history_view)
+

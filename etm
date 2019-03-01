@@ -91,10 +91,15 @@ if __name__ == "__main__":
     # main(etmdir)
 
     if len(sys.argv) > 1:
-        logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
-        from etmMV.model import main
-        main(etmdir, sys.argv)
-        sys.exit()
+        if sys.argv[1] == 'doctest':
+            logger.info(f"calling data.do_doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            from etmMV.model import do_doctest
+            do_doctest()
+        else:
+            logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
+            from etmMV.model import main
+            main(etmdir, sys.argv)
+            # sys.exit()
 
     else:
         logger.info(f"calling view.main with etmdir: {etmdir}")
