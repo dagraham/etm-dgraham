@@ -677,7 +677,7 @@ def edit_copy(*event):
     application.layout.focus(entry_buffer)
 
 @bindings.add('c-r', filter=is_not_editing)
-def show_repetitions(*event):
+def not_editing_reps(*event):
     row = text_area.document.cursor_position_row
     res = dataview.get_repetitions(row, 5)
     if not res:
@@ -686,7 +686,7 @@ def show_repetitions(*event):
     show_message(showing, reps, 24)
 
 @bindings.add('c-r', filter=is_editing)
-def show_repetitions(*event):
+def is_editing_reps(*event):
     res = item.get_repetitions(5)
     if not res:
         return
@@ -837,6 +837,7 @@ root_container = MenuContainer(body=body, menu_items=[
         ]),
         MenuItem('editor', children=[
             MenuItem('^S) save changes'),
+            MenuItem('^R) show repetitions', handler=is_editing_reps),
             MenuItem('^C) close'),
         ]),
     ]),
@@ -860,6 +861,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('r) relevant', handler=relevant_view),
         MenuItem('selection', children=[
             MenuItem('Enter) toggle details', handler=show_details),
+            MenuItem('^R) show repetitions', handler=not_editing_reps),
             MenuItem('G) goto link', disabled=True),
             MenuItem('X) export ical to clipboard', disabled=True),
         ]),
