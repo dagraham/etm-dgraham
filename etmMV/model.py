@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pprint import pprint
+import datetime # for type testing in rrule
 import pendulum
 from pendulum import parse as pendulum_parse
 from pendulum.datetime import Timezone
@@ -530,6 +531,32 @@ class Item(object):
             self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
         else:
             self.currfile = None
+
+    def get_repetitions(self, num=5):
+        """
+        Called with a row, we should have an doc_id and can use relevant
+        as aft_dt.
+        Called while editing, we won't have a row or doc_id and can use '@s'
+        as aft_dt
+        """
+        item = self.item_hsh
+        showing =  "Repetitions"
+        if not ('s' in item and ('r' in item or '+' in item)):
+            logger.info(f"bailing - not repeating")
+            return showing, "not a repeating item"
+        relevant = item['s'] 
+        starting = format_datetime(relevant)
+        pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
+        logger.debug(f"pairs: {pairs}")
+        starting = format_datetime(relevant.date())[1]
+        if len(pairs) > num:
+            showing = f"First {num} repetitions"
+            pairs = pairs[:num]
+        elif pairs:
+            showing = "All repetitions"
+        else:
+            showing = "No repetitions"
+        return  showing, f"from {starting}:\n  " + "\n  ".join(pairs)
 
 
     def edit_item(self, doc_id=None, entry=""):
@@ -1692,31 +1719,39 @@ class DataView(object):
         return None, ''
 
     def get_repetitions(self, row=None, num=5):
+        """
+        Called with a row, we should have an doc_id and can use relevant
+        as aft_dt.
+        Called while editing, we won't have a row or doc_id and can use '@s'
+        as aft_dt
+        """
         if row is None:
             return ''
         self.current_row = row
         item_id = self.num2id.get(row, None)
         logger.debug(f"item_id: {item_id} for row {row}")
-        if item_id is None:
+        if not (item_id and item_id in self.id2relevant):
             return ''
+        showing = "Repetitions"
         item = DBITEM.get(doc_id=item_id)
-        logger.debug(f"got item: {item}")
-        if 's' in item:
-            aft_dt = item['s']
-        elif 'f' in item:
-            aft_dt = item['f']
-        else:
-            aft_dt = None
-        logger.debug(f"got aft_dt: {aft_dt}")
-        if aft_dt is None:
-            return ''
-        pairs = [format_datetime(x[0])[1] for x in item_instances(item, aft_dt, num+1)]
+        if not ('s' in item and ('r' in item or '+' in item)):
+            logger.info(f"bailing - not repeating")
+            return showing, "not a repeating item"
+        relevant = self.id2relevant.get(item_id)
+        showing =  "Repetitions"
+        details = f"{item['itemtype']} {item['summary']}"
+        logger.debug(f"got item: {details}")
+        if not relevant:
+            return "Repetitons", details + "none" 
+        pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
+        starting = format_datetime(relevant.date())[1]
         logger.debug(f"pairs: {pairs}")
         if len(pairs) > num:
-            showing = f"The first {num} instances"
+            showing = f"First {num} repetitions"
+            pairs = pairs[:num]
         else:
-            showing = f"All instances"
-        return  showing, f"{item['itemtype']} {item['summary']}:\n  " + "\n  ".join(pairs)
+            showing = f"All repetitions"
+        return  showing, f"from {starting} for\n{details}:\n  " + "\n  ".join(pairs)
 
     def maybe_finish(self, row, dt):
         """
@@ -3126,7 +3161,6 @@ def item_instances(item, aft_dt, bef_dt=1):
         except:
             print('dtstart:', dtstart)
             dtstart = dtstart[0]
-            startdst = dtstart.dst()
     logger.debug(f"using_dates: {using_dates}")
 
     if isinstance(aft_dt, pendulum.Date) and not isinstance(aft_dt, pendulum.DateTime):
@@ -3164,15 +3198,19 @@ def item_instances(item, aft_dt, bef_dt=1):
             tmp = []
             inc = True
             for i in range(bef_dt):
-                logger.debug(f"{i}_ aft_dt: {type(aft_dt)}")
+                logger.debug(f"{i}_ aft_dt: {type(aft_dt)}; using_dates: {using_dates}")
                 aft_dt = rset.after(aft_dt, inc=inc)
-                logger.debug(f"{i}+ aft_dt: {type(aft_dt)}")
-                tmp.append(aft_dt)
-                inc = False # to get the next one
+                logger.debug(f"{i}+ aft_dt: {type(aft_dt)}; datetime: {isinstance(aft_dt, datetime.datetime)}")
+                if aft_dt:
+                    tmp.append(aft_dt)
+                    inc = False # to get the next one
+                else:
+                    break
+            logger.debug(f"using_dates: {using_dates}; tmp[0]: {tmp[0]}; type: {type(tmp[0])}")
             if using_dates:
-                instances = [pendulum.instance(x).date() for x in tmp] if tmp else []
+                instances = [pendulum.instance(x).date() for x in tmp if x] if tmp else []
             else:
-                instances = [pendulum.instance(x) for x in tmp] if tmp else []
+                instances = [pendulum.instance(x) for x in tmp if x] if tmp else []
         else:
             instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
 

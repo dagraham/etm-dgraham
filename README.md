@@ -1,5 +1,5 @@
 # etm: event and task manager
-*Last modified: Fri Mar 01, 2019 02:15PM EST*
+*Last modified: Fri Mar 01, 2019 11:51PM EST*
 
 #### TOC
 <!-- vim-markdown-toc GFM -->
@@ -274,7 +274,7 @@ Type character: **%**
 A record of something that the user wants to remember. The userid and password for a website would be an example. A journal entry for vacation day is another example. 
 
 - The `@s` is optional and, if given, is interpreted as the datetime to which the record applies. 
-- Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime. They are displayed in the *Jottings* view
+- Records without `@s` entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime. They are displayed in the *Journal* view
 - Records with `@s` entries associate the record with the datetime given by `@s`. A vacation log entry, for example, might record the highlights of the day given by `@s`. They are displayed in the *Agenda* view.
 
 Corresponds to VJOURNAL in the vcalendar specification.

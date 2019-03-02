@@ -676,10 +676,21 @@ def edit_copy(*event):
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
-@bindings.add('c-r')
+@bindings.add('c-r', filter=is_not_editing)
 def show_repetitions(*event):
     row = text_area.document.cursor_position_row
-    showing, reps = dataview.get_repetitions(row, 5)
+    res = dataview.get_repetitions(row, 5)
+    if not res:
+        return
+    showing, reps = res 
+    show_message(showing, reps, 24)
+
+@bindings.add('c-r', filter=is_editing)
+def show_repetitions(*event):
+    res = item.get_repetitions(5)
+    if not res:
+        return
+    showing, reps = res 
     show_message(showing, reps, 24)
 
 @bindings.add('c-p')
