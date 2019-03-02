@@ -281,42 +281,6 @@ def busy_conf_day(lofp):
         h['total'] = total
     return h
 
-
-# def get_reps(n=3, at_hsh={}):
-#     """
-#     Return the first n instances of the repetition rule.
-#     """
-#     if not at_hsh or 's' not in at_hsh or 'rrulestr' not in at_hsh:
-#         return False, "Both @s and @r are required for repetitions"
-
-#     tz = at_hsh['s'].tzinfo
-#     naive = tz.abbrev == '-00'
-#     if naive:
-#         start = at_hsh['s']
-#         zone = 'floating'
-#     else:
-#         local = at_hsh['s'].in_timezone('local')
-#         start = local.replace(tzinfo='Factory')
-#         zone =  local.format("zz")
-#     rrs = rrulestr(at_hsh['rrulestr'], dtstart=start)
-#     out = rrs.xafter(start, n+1, inc=True)
-#     dtstart = format_datetime(at_hsh['s'])[1]
-#     lst = []
-#     for x in out:
-#         lst.append(format_datetime(x)[1])
-#     outstr = "\n    ".join(lst[:n])
-#     if len(lst) <= n:
-#         countstr = "Repetitions on or after DTSTART"
-#     else:
-#         countstr = "The first {} repetitions on or after DTSTART".format(n)
-#     res = """\
-#     DTSTART:{}
-# {}:
-#     {}
-# All times: {}""".format(dtstart, countstr,  outstr, zone)
-#     return True, res
-
-
 def process_entry(s, settings={}):
     """
     Return tuples containing key, value and postion tuples for the string s. 
@@ -1994,7 +1958,7 @@ class DataView(object):
 
 
 
-def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-2):
+def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
     """
     Wrap text to terminal width using indent spaces before each line.
     >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
@@ -2308,11 +2272,11 @@ entry_tmpl = """\
 {%- if 'r' in x and x['r'] -%}\
 {%- set rrule %}\
 {{ x['r'] }}\
-{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'h', 'E', 'c'] -%}\
+{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'h', 'E', 'c'] -%}
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
-{%- endfor -%}\
+{%- endfor %}
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
-{%- endset -%}
+{%- endset %}
 @r {{ wrap(rrule) }} \
 {% endif -%}\
 {%- endfor %}\
