@@ -819,13 +819,14 @@ def save_changes(*event):
     if item.is_modified:
         if item.doc_id is not None:
             del dataview.itemcache[item.doc_id]
+        show_message("Changes saved", "Press Ctrl-C to close editor when finished.", 6)
         loop = get_event_loop()
         loop.call_later(0, item_changed, loop)
 
 
 root_container = MenuContainer(body=body, menu_items=[
     MenuItem('etm', children=[
-        MenuItem('F1) activate/close menu', disabled=True),
+        MenuItem('F1) activate/close menu', handler=menu),
         MenuItem('F2) about etm', handler=do_about),
         MenuItem('F3) system info', handler=do_system),
         MenuItem('F4) ___preferences', disabled=True),
