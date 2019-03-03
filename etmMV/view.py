@@ -806,7 +806,7 @@ def show_details(*event):
 
 
 @bindings.add('c-c', filter=is_editing, eager=True)
-def close_edit(event):
+def close_edit(*event):
     # TODO: warn if item.is_modified
     dataview.is_editing = False
     logger.debug(f"is_modified: {item.is_modified}")
@@ -814,7 +814,7 @@ def close_edit(event):
     set_text(dataview.show_active_view())
 
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
-def save_changes(_):
+def save_changes(*event):
     logger.debug(f"doc_id {item.doc_id} is_modified: {item.is_modified}")
     if item.is_modified:
         if item.doc_id is not None:
@@ -828,7 +828,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F1) activate/close menu', disabled=True),
         MenuItem('F2) about etm', handler=do_about),
         MenuItem('F3) system info', handler=do_system),
-        # MenuItem('F4) preferences', disabled=True),
+        MenuItem('F4) ___preferences', disabled=True),
         # MenuItem('F5) check for new version', disabled=True),
         MenuItem('-', disabled=True),
         MenuItem('^Q) quit', handler=exit),
@@ -839,19 +839,19 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('selection', children=[
                 MenuItem('E) edit', handler=edit_existing),
                 MenuItem('C) edit copy', handler=edit_copy),
-                MenuItem('F) finish'),
-                MenuItem('R) reschedule'),
-                MenuItem('S) schedule new'),
+                MenuItem('F) ___finish',  disabled=True),
+                MenuItem('R) ___reschedule,  disabled=True'),
+                MenuItem('S) ___schedule new,  disabled=True'),
                 MenuItem('D) delete', handler=delete_item),
                 MenuItem('timer', children=[
-                    MenuItem('T) start, pause or restart'),
-                    MenuItem("^T) stop & add time to @u"),
+                    MenuItem('T) ___start, pause or restart', disabled=True),
+                    MenuItem("^T) ___stop & add time to @u", disabled=True),
             ]),
         ]),
         MenuItem('editor', children=[
-            MenuItem('^S) save changes'),
+            MenuItem('^S) save changes', handler=save_changes),
             MenuItem('^R) show repetitions', handler=is_editing_reps),
-            MenuItem('^C) close'),
+            MenuItem('^C) close', handler=close_edit),
         ]),
     ]),
     MenuItem('view', children=[
@@ -875,17 +875,17 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('selection', children=[
             MenuItem('Enter) toggle details', handler=show_details),
             MenuItem('^R) show repetitions', handler=not_editing_reps),
-            MenuItem('G) goto link', disabled=True),
+            MenuItem('G) ___goto link', disabled=True),
             MenuItem('X) export ical to clipboard', disabled=True),
         ]),
         MenuItem('-', disabled=True),
-        MenuItem('c) copy to clipboard', disabled=True),
+        MenuItem('c) ___copy to clipboard', disabled=True),
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
     ]),
     MenuItem('tools', children=[
         MenuItem("F5) show today's alerts", handler=do_alerts),
-        MenuItem('F6) open date calculator', disabled=True),
+        MenuItem('F6) ___open date calculator', disabled=True),
     ]),
 ], floats=[
     Float(xcursor=True,
