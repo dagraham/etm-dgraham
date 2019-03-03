@@ -181,10 +181,23 @@ def check_output(cmd):
 
 editing = False
 
+@Condition
+def menu_is_open():
+    return app.layout.has_focus(root_container.window) 
+
+@Condition
+def menu_is_not_open():
+    return not app.layout.has_focus(root_container.window) 
+
+
 @bindings.add('f1')
 def menu(event):
     " Focus menu. "
-    event.app.layout.focus(root_container.window)
+    if not event.app.layout.has_focus(root_container.window):
+        event.app.layout.focus(root_container.window)
+    else:
+        focus_previous(event)
+    logger.info(f"root container focus: {event.app.layout.has_focus(root_container.window)}")
 
 @Condition
 def is_editing():
@@ -812,11 +825,11 @@ def save_changes(_):
 
 root_container = MenuContainer(body=body, menu_items=[
     MenuItem('etm', children=[
-        MenuItem('F1) activate menu', disabled=True),
+        MenuItem('F1) activate/close menu', disabled=True),
         MenuItem('F2) about etm', handler=do_about),
         MenuItem('F3) system info', handler=do_system),
-        MenuItem('F4) preferences', disabled=True),
-        MenuItem('F5) check for new version', disabled=True),
+        # MenuItem('F4) preferences', disabled=True),
+        # MenuItem('F5) check for new version', disabled=True),
         MenuItem('-', disabled=True),
         MenuItem('^Q) quit', handler=exit),
     ]),

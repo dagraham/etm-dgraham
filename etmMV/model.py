@@ -1575,7 +1575,7 @@ class DataView(object):
             zipfiles.sort(reverse=True)
             removefiles.extend([os.path.join(self.backupdir, x) for x in zipfiles[5:]])
         else:
-            logger.debug(f"{self.dbfile} unchanged - skipping backup")
+            logger.info(f"{self.dbfile} unchanged - skipping backup")
 
         # deal with cfg.yaml
         cfgmtime = os.path.getmtime(self.cfgfile)
@@ -1594,7 +1594,7 @@ class DataView(object):
             removefiles.extend([os.path.join(self.backupdir, x) for x in 
                 cfgfiles[5:]])
         else:
-            logger.debug(f"{self.cfgfile} unchanged - skipping backup")
+            logger.info(f"{self.cfgfile} unchanged - skipping backup")
 
         # maybe delete older backups
         if removefiles:
@@ -1838,7 +1838,7 @@ class DataView(object):
                         continue
             else:
                 continue
-        logger.debug(f"maybe archive {len(rows)}: {[item.doc_id for item in rows]}")
+        logger.info(f"items to archive {len(rows)}: {[item.doc_id for item in rows]}")
         add_items = []
         rem_ids = []
         for item in rows:
@@ -1849,7 +1849,7 @@ class DataView(object):
         try: 
             self.dbarch.insert_multiple(add_items)
         except:
-            logger.debug(f"archive failed for doc_ids: {rem_ids}")
+            logger.error(f"archive failed for doc_ids: {rem_ids}")
         else:
             self.db.remove(doc_ids=rem_ids)
 
@@ -4186,7 +4186,7 @@ def show_relevant(db, id2relevant):
                 }
                 )
 
-    rows.sort(key=itemgetter('sort'))
+    rows.sort(key=itemgetter('sort'), reverse=True)
     out_view = []
     num2id = {}
     num = 0
