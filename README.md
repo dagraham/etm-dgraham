@@ -1,7 +1,8 @@
 # etm: event and task manager
 ![](./etmlogo_medium.png)
 
-*Last modified: Sun Mar 03, 2019 08:41AM EST*
+*Last modified: Sun Mar 03, 2019 08:47AM EST*
+
 #### TOC
 <!-- vim-markdown-toc GFM -->
 
