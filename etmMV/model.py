@@ -5,7 +5,6 @@ import pendulum
 from pendulum import parse as pendulum_parse
 from pendulum.datetime import Timezone
 from pendulum import __version__ as pendulum_version
-from bisect import insort
 import calendar
 from copy import deepcopy
 
@@ -554,12 +553,12 @@ class Item(object):
         item = self.item_hsh
         showing =  "Repetitions"
         if not ('s' in item and ('r' in item or '+' in item)):
-            logger.info(f"bailing - not repeating")
+            logger.debug(f"bailing - not repeating")
             return showing, "not a repeating item"
         relevant = item['s'] 
         starting = format_datetime(relevant)
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
-        logger.info(f"pairs: {pairs}")
+        logger.debug(f"pairs: {pairs}")
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
             showing = f"First {num} repetitions"
@@ -585,7 +584,7 @@ class Item(object):
             self.item_hsh = deepcopy(item_hsh) # created and modified entries
             # self.entry = entry
             self.keyvals = []
-            logger.info(f"calling text_changed with entry: {entry}")
+            logger.debug(f"calling text_changed with entry: {entry}")
             self.text_changed(entry, 0, False)
 
 
@@ -630,7 +629,7 @@ class Item(object):
         """
 
         """
-        logger.info(f"modified: {modified}")
+        logger.debug(f"modified: {modified}")
         # self.is_modified = modified
         logger.debug(f"s: {s}; pos: {pos}")
         self.entry = s
@@ -641,7 +640,7 @@ class Item(object):
         # if removed + changed != []:
         if self.init_entry != self.entry:
             self.is_modified = True
-        logger.info(f"is_modified: {self.is_modified}")
+        logger.debug(f"is_modified: {self.is_modified}")
         # only process changes for kv entries
         update_timezone = False
         for kv in removed + changed:
@@ -1755,7 +1754,7 @@ class DataView(object):
         showing = "Repetitions"
         item = DBITEM.get(doc_id=item_id)
         if not ('s' in item and ('r' in item or '+' in item)):
-            logger.info(f"bailing - not repeating")
+            logger.debug(f"bailing - not repeating")
             return showing, "not a repeating item"
         relevant = self.id2relevant.get(item_id)
         showing =  "Repetitions"
@@ -4051,10 +4050,6 @@ def relevant(db, now=pendulum.now('local') ):
                 tmp = [dtstart]
                 tmp.extend(item['+'])
                 tmp.sort()
-                # for x in item['+']:
-                #     # tmp.insort(x)
-                #     # tmp.append(x)
-                #     insort(tmp, x)
                 aft = [x for x in tmp if x >= today]
                 bef = [x for x in tmp if x < today]
                 if aft:

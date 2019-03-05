@@ -218,7 +218,7 @@ def save_before_quit(*event):
 
         save_changes = yield From(show_dialog_as_float(dialog))
         if save_changes:
-            logger.info('saving changes')
+            logger.debug('saving changes')
             if item.doc_id is not None:
                 # del dataview.itemcache[item.doc_id]
                 dataview.itemcache[item.doc_id] = {}
@@ -228,7 +228,7 @@ def save_before_quit(*event):
             loop = get_event_loop()
             loop.call_later(0, item_changed, loop)
         else:
-            logger.info('losing changes')
+            logger.debug('losing changes')
 
     ensure_future(coroutine())
 
@@ -262,7 +262,7 @@ def menu(event):
         event.app.layout.focus(root_container.window)
     else:
         focus_previous(event)
-    logger.info(f"root container focus: {event.app.layout.has_focus(root_container.window)}")
+    logger.debug(f"root container focus: {event.app.layout.has_focus(root_container.window)}")
 
 @Condition
 def is_editing():
@@ -423,7 +423,7 @@ def first_char(s):
         return None
     m = re.match('(\s+)', s)
     if m:
-        # logger.info(f"s: '{s}', m.group(0): '{m.group(0)}'")
+        # logger.debug(f"s: '{s}', m.group(0): '{m.group(0)}'")
         return s[len(m.group(0))]
     elif len(s):
         # no leading spaces
@@ -872,12 +872,9 @@ def show_details(*event):
 
 @bindings.add('c-c', filter=is_editing, eager=True)
 def close_edit(*event):
-    # TODO: warn if item.is_modified
     logger.debug(f"is_modified: {item.is_modified}")
     if item.is_modified:
-        logger.info('showing warning')
         save_before_quit()
-        logger.info('back from warning')
     item.is_modified = False
     dataview.is_editing = False
     application.layout.focus(text_area)
