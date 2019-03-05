@@ -108,12 +108,38 @@ class MessageDialog(object):
     def __pt_container__(self):
         return self.dialog
 
+
+class ConfirmDialog(object):
+    def __init__(self, title="", text="", padding=10):
+        self.future = Future()
+
+        def set_yes():
+            self.future.set_result(True)
+        def set_no():
+            self.future.set_result(False)
+
+        yes_button = Button(text='Yes', handler=(lambda: set_yes()))
+        no_button = Button(text='No', handler=(lambda: set_no()))
+
+        self.dialog = Dialog(
+            title=title,
+            body=HSplit([
+                Label(text=text),
+            ]),
+            buttons=[yes_button, no_button],
+            width=D(preferred=shutil.get_terminal_size()[0]-padding),
+            modal=True)
+
+    def __pt_container__(self):
+        return self.dialog
+
 def show_message(title, text, padding):
     def coroutine():
         dialog = MessageDialog(title, text, padding)
         yield From(show_dialog_as_float(dialog))
 
     ensure_future(coroutine())
+
 
 
 def show_dialog_as_float(dialog):
@@ -132,6 +158,25 @@ def show_dialog_as_float(dialog):
         root_container.floats.remove(float_)
 
     raise Return(result)
+
+
+def show_confirm_as_float(dialog):
+    " Coroutine. "
+    float_ = Float(content=dialog)
+    root_container.floats.insert(0, float_)
+
+    app = get_app()
+
+    focused_before = app.layout.current_window
+    app.layout.focus(dialog)
+    result = yield dialog.future
+    app.layout.focus(focused_before)
+
+    if float_ in root_container.floats:
+        root_container.floats.remove(float_)
+
+    raise Return(result)
+
 
 # Key bindings.
 bindings = KeyBindings()
@@ -164,6 +209,26 @@ def do_go_to(*event):
             else:
                 text_area.buffer.cursor_position = \
                     text_area.buffer.document.translate_row_col_to_index(line_number - 1, 0)
+
+    ensure_future(coroutine())
+
+def save_before_quit(*event):
+    def coroutine():
+        dialog = ConfirmDialog("Unsaved Changes", "Save them before closing?")
+
+        save_changes = yield From(show_dialog_as_float(dialog))
+        if save_changes:
+            logger.info('saving changes')
+            if item.doc_id is not None:
+                # del dataview.itemcache[item.doc_id]
+                dataview.itemcache[item.doc_id] = {}
+            dataview.is_editing = False
+            application.layout.focus(text_area)
+            set_text(dataview.show_active_view())
+            loop = get_event_loop()
+            loop.call_later(0, item_changed, loop)
+        else:
+            logger.info('losing changes')
 
     ensure_future(coroutine())
 
@@ -808,8 +873,13 @@ def show_details(*event):
 @bindings.add('c-c', filter=is_editing, eager=True)
 def close_edit(*event):
     # TODO: warn if item.is_modified
-    dataview.is_editing = False
     logger.debug(f"is_modified: {item.is_modified}")
+    if item.is_modified:
+        logger.info('showing warning')
+        save_before_quit()
+        logger.info('back from warning')
+    item.is_modified = False
+    dataview.is_editing = False
     application.layout.focus(text_area)
     set_text(dataview.show_active_view())
 
@@ -819,9 +889,16 @@ def save_changes(*event):
     if item.is_modified:
         if item.doc_id is not None:
             del dataview.itemcache[item.doc_id]
-        show_message("Changes saved", "Press Ctrl-C to close editor when finished.", 6)
+            # dataview.itemcache[item.doc_id] = {}
+            logger.debug(f"saving changes")
+        dataview.is_editing = False
+        application.layout.focus(text_area)
+        set_text(dataview.show_active_view())
         loop = get_event_loop()
         loop.call_later(0, item_changed, loop)
+    else:
+        application.layout.focus(text_area)
+        set_text(dataview.show_active_view())
 
 
 root_container = MenuContainer(body=body, menu_items=[

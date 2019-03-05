@@ -7,6 +7,7 @@ from pendulum.datetime import Timezone
 from pendulum import __version__ as pendulum_version
 from bisect import insort
 import calendar
+from copy import deepcopy
 
 from ruamel.yaml import YAML
 yaml = YAML(typ='safe', pure=True) 
@@ -111,6 +112,16 @@ WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for 
 for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
     WKDAYS_ENCODE[wkd] = wkd
 
+
+LONG_2_SHORT_WEEKDAYS = {
+    'MON': 'MO', 
+    'TUE': 'TU', 
+    'WED': 'WE',
+    'THU': 'TH',
+    'FRI': 'FR',
+    'SAT': 'SA',
+    'SUN': 'SU'
+        }
 
 type_keys = {
     "*": "event",
@@ -442,6 +453,7 @@ class Item(object):
 
         self.doc_id = None
         self.entry = ""
+        self.init_entry = ""
         self.is_new = True
         self.is_modified = False
         self.created = None
@@ -547,7 +559,7 @@ class Item(object):
         relevant = item['s'] 
         starting = format_datetime(relevant)
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
-        logger.debug(f"pairs: {pairs}")
+        logger.info(f"pairs: {pairs}")
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
             showing = f"First {num} repetitions"
@@ -564,14 +576,16 @@ class Item(object):
             return None
         logger.debug(f"edit doc_id: {doc_id}; entry: {entry}")
         item_hsh = self.dbquery.get(doc_id=doc_id)
+        self.init_entry = entry
         if item_hsh:
             logger.debug(f"found doc_id: {doc_id} in database")
             logger.debug(f"item_hsh: {item_hsh}")
             self.doc_id = doc_id
             self.is_new = False
-            self.item_hsh = item_hsh # created and modified entries
+            self.item_hsh = deepcopy(item_hsh) # created and modified entries
             # self.entry = entry
             self.keyvals = []
+            logger.info(f"calling text_changed with entry: {entry}")
             self.text_changed(entry, 0, False)
 
 
@@ -616,12 +630,18 @@ class Item(object):
         """
 
         """
-        self.is_modified = modified
+        logger.info(f"modified: {modified}")
+        # self.is_modified = modified
         logger.debug(f"s: {s}; pos: {pos}")
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s, self.settings)
         removed, changed = listdiff(self.keyvals, keyvals)
         logger.debug(f"self.keyvals: {self.keyvals};  removed: {removed}; changed: {changed}")
+
+        # if removed + changed != []:
+        if self.init_entry != self.entry:
+            self.is_modified = True
+        logger.info(f"is_modified: {self.is_modified}")
         # only process changes for kv entries
         update_timezone = False
         for kv in removed + changed:
@@ -3220,9 +3240,9 @@ def item_instances(item, aft_dt, bef_dt=1):
         tmp.extend(item['+'])
         tmp.sort()
         if isinstance(bef_dt, int):
-            instances = [x for x in tmp if (x > aft_dt)][:bef_dt]
+            instances = [x for x in tmp if (x >= aft_dt)][:bef_dt]
         else:
-            instances = [x for x in tmp if (x > aft_dt and x <= bef_dt)]
+            instances = [x for x in tmp if (x >= aft_dt and x <= bef_dt)]
 
     else:
         # dtstart >= aft_dt
@@ -4029,13 +4049,17 @@ def relevant(db, now=pendulum.now('local') ):
             elif '+' in item:
                 # no @r but @+ => simple repetition
                 tmp = [dtstart]
-                for x in item['+']:
-                    tmp.insort(x)
+                tmp.extend(item['+'])
+                tmp.sort()
+                # for x in item['+']:
+                #     # tmp.insort(x)
+                #     # tmp.append(x)
+                #     insort(tmp, x)
                 aft = [x for x in tmp if x >= today]
+                bef = [x for x in tmp if x < today]
                 if aft:
                     relevant = aft[0]
                 else:
-                    bef = [x for x in tmp if x < today]
                     relevant = bef[-1]
 
                 if possible_beginby:
@@ -4046,7 +4070,7 @@ def relevant(db, now=pendulum.now('local') ):
                     for instance in aft + bef:
                         for possible_alert in possible_alerts:
                             if today <= instance - possible_alert[0] <= tomorrow:
-                                alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['summary]'], item.doc_id])
+                                alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['summary'], item.doc_id])
 
             else:
                 # 's' but not 'r' or '+'

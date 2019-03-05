@@ -3,98 +3,76 @@
 
 *etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used.
 
-Each reminder in *etm* begins with a **type character** followed by a brief **summary** of the item and then, perhaps, by one or more **@key value** pairs to specify other attributes of the reminder. Mnemonics are used to make the keys easy to remember, e.g, @s for starting time, @l for location, @d for description and so forth.
+Each reminder in *etm* begins with a *type character* followed by a brief *summary* of the item and then, perhaps, by one or more *@key value* pairs to specify other attributes of the reminder. Mnemonics are used to make the keys easy to remember, e.g, @s for starting time, @l for location, @d for description and so forth.
 
-There are 4 types of reminders and associated **type characters**: task (**-**),event (**\***), record (**%**) and inbox (**!**). See [Item Types](#item-types) for details about the four item types and [Options](#options) for details about possible attributes. Here are some examples.
+There are 4 types of reminders and associated *type characters*: task (**-**),event (**\***), record (**%**) and inbox (**!**). See [Item Types](#item-types) for details about the four item types and [Options](#options) for details about possible attributes. Here are some examples.
 
 
 ## [Simple reminders](#toc)
 
-* A task (**-**) to pick up milk. 
+* A task (**-**): pick up milk. 
 
 		- pick up milk
-* An event (**\***) of having lunch with Burk [s]tarting next Tuesday at 12pm
-
-        * Lunch with Burk @s tue 12p
-
-* Show the lunch event [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm 
+* An event (**\***): have lunch with Burk [s]tarting next Tuesday at 12pm and [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm.
 
         * Lunch with Burk @s tue 12p @e 90m
 
-* Add an [a]lert 30 minutes before the lunch to trigger a 'd' command and set 'Glass Half Full' as the [l]ocation for the event
-
-        * Lunch with Burk @s tue 12p @e 90m @a 30m: d @l Glass Half Full
-* A record (**%**) of a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
+* A record (**%**): a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
 
         % Give me a pig - Churchill @s 2p @d Dogs look up at you. Cats look 
           down at you. Give me a pig - they look you in the eye and treat you
           as an equal.
-
-* A task (**-**) to build a dog house, with component [j]obs:
+* A task (**-**): build a dog house, with component [j]obs.
 
 		- Build dog house @j pick up materials @j cut pieces @j assemble
 		  @j sand @j paint
+* Inbox (**!**): meet Alex for coffee Friday. This can be changed to an event when the time is confirmed by replacing the **!** with an **\***.
+
+        ! Coffee with Alex @s fri ? @e 1h
 
 ## [Repetition](#toc)
 
-* An appointment (event) for a dental exam and cleaning on Feb 5, 2019 at 2pm.
+* An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
-        * Dentist @s 2p feb 5 2019 @e 45m @l location... @d contact info...
-* Leaving the Dentist's office with the next appointment scheduled, use `@+` to add it to the existing reminder.
-
-        * Dentist @s 2p feb 5 2019 @e 45m @l location... @d contact info...
-          @+ 9am Sep 3 2019
-  This avoids having to repeat the extent, location and contact information in a new reminder. This process can be repeated since `@+` accepts as many comma separated dates and times as you like. 
-
-* Take out trash (a task) next Monday and then [r]epeat (w)eekly.
-
-        - Take out trash @s mon @r w 
-
+        * dental exam and cleaning @s 2p feb 5 2019 @e 45m @+ 9am Sep 3 2019
 * Christmas (an all day event) [r]epating (y)early on Dec 25.
 
         * Christmas @s 2015/12/25 @r y
+* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the last completion date:
 
-* Will's birthday (an all day event) [r]epeating (y)early on Aug 23.
-
-        * Will's !1985! birthday @s 8/23/2015 @r y
-  Because of the `!1985!` in the summary, it would be displayed on Aug 23, 2019 as *Will's 34th birthday*.
-
-* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the completion date:
-
-        - get haircut @s 24 @r d &i 14 @o r
-  If you're 10 days late getting a haircut, you want to be reminded 14 days after you got the hair cut, not 4 days.
-
-* In the take out trash task reminder, when the task is [o]verdue (s)kip the pastdue reminders.
+        - haircut @s 24 @r d &i 14 @o r
+* Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the pastdue reminders.
 
         - Take out trash @s mon @r w @o s
-  If you forget to take out the trash, there is no point in being reminded until the next trash day.
+
+* A sales meeting (an event) [r]epeating m)onthly on [w]eekdays that are either the first or third Tuesdays in the month.
+
+        * sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
 
 ## [More complex repetition](#toc)
 
-* Payday on the last week day of each month. The `&s -1` part of the entry extracts the last (-1) set position which is both a weekday and falls within the last three days of the month):
-
-        * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
 * Take a prescribed medication daily [s]tarting at 12am Monday and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil 12am on Friday. 
 
         * take Rx @s mon @r d &h 10, 14, 18, 22 &u fri
-* Move the water sprinkler every thirty mi[n]utes between 2pm and 5:30pm on Sunday afternoons.
+* Move the water sprinkler every thirty minutes (@r n &i 30) between 2pm and 4:30pm (&h 14, 15, 16) on Sundays (&w SU) from April through September (&M 4, 5, 6, 7, 8, 9).
 
-        * Move sprinkler @s sun @r n &i 30 &w SU &h 14, 15, 16, 17
-    To limit the sprinkler movement reminders to the [M]onths of April through September each year, append `&M 4, 5, 6, 7, 8, 9` to the @r entry.
-* Presidential election day every four years on the first Tuesday after a Monday in November:
+        * Move sprinkler @s sun @r n &i 30 &w SU &h 14, 15, 16, 17 &M 4, 5, 6, 7, 8, 9
+* Presidential election day every four years on the first Tuesday after a Monday in November (a Tuesday whose month day falls between 2 and 8).
 
         * Presidential Election Day @s 2012-11-06
           @r y &i 4 &M 11 &m 2, 3, 4, 5, 6, 7, 8 &w TU
-* Good Friday every year 2 days before [E]aster Sunday.
+* Good Friday each year 2 days before [E]aster Sunday.
 
         * Good Friday @s 1/1/2015 @r y @E -2
-    For Easter Sunday itself, the entry would be *@E 0*.
 * Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
 
         * Friday tennis @s 2019-01-01 6a @e 90m
           @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
           @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
-    Note that more than one @r entry can be used.
+
+* Payday on the last week day of each month. The &s -1 part of the entry extracts the last (-1) date which is both a weekday and falls within the last three days of the month):
+
+        * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
 
 ## [Editing](#toc) ##
 
@@ -102,9 +80,10 @@ Etm offers several conveniences when creating or modifying an item.
 
 * Fuzzy parsing of dates and date times. Supposing it is currently Wed, Feb 13 2019:
     * `@s 2` would be interpreted as the date Feb 2, 2019.
-    * `@s 2p` would be interpreted as the datetime 2pm on Feb 13, 2019 in the local timezone.
-    * `@s 2p fri` would be interpreted as the datetime 2pm Fri, Feb 15 2019 in the local timezone.
-    * `@s 2p fri @z US/Pacific` would be interpreted as the datetime 2pm Fri, Feb 15 2019 in the Pacific timezone.
+    * `@s 2p` would be interpreted as the datetime 2pm on Wed Feb 13 in the local timezone.
+    * `@s 2p fri` would be interpreted as the datetime 2pm Fri, Feb 15 in the local timezone.
+    * `@s 2p fri @z US/Pacific` would be interpreted as the datetime 2pm Fri, Feb 15 in the Pacific timezone but would be displayed as the corresponding time in the local timezone.
+    * `@s 2p fri @z float` would be interpreted as the naive datetime 2pm Fri, Feb 15 and would be displayed as such in whatever happens to be the local timezone.
 * Automatic completion for elements you have used before including @z (timezone), @c (calendar), @t (tags), @i (index), @l (location), @n (attendees) and @x (expansion). E.g. when entering @z, you can choose from any timezone you have previously used. 
 
 # [Item Types](#toc)
