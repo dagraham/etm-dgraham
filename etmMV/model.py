@@ -636,11 +636,11 @@ class Item(object):
                     j += 1
                     continue
             ok, jbs, last = jobs(self.item_hsh['j'], self.item_hsh)
-            logger.info(f"ok: {ok}; jbs: {jobs}; last: {last}")
+            logger.info(f"ok: {ok}; jbs: {jbs}; last: {last}")
             if ok:
                 self.item_hsh['j'] = jbs
                 if last:
-                    nxt = get_next_due(self.item_hsh, completed_datetime, due_datetime)
+                    nxt = get_next_due(self.item_hsh, last, due_datetime)
                     if nxt:
                         self.item_hsh['s'] = nxt
                         self.item_hsh.setdefault('h', []).append(completed_datetime)
@@ -3233,12 +3233,12 @@ def rrule_args(r_hsh):
 
 def get_next_due(item, done, due):
     """
-    return the next due datetime
+    return the next due datetime for an @r repetition 
     """
-
     lofh = item.get('r')
     if not lofh:
         return ''
+    logger.info(f"done: {done}; type(done); {type(done)}; due: {due}; type(due): {type(due)}")
     rset = rruleset()
     overdue = item.get('o', 'k')
     if overdue == 'k':
@@ -3256,9 +3256,15 @@ def get_next_due(item, done, due):
             aft = due
             inc = False
 
+    using_dates = False
+    dtstart = item['s']
+    if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
+        using_dates = True
+        dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
+    logger.info(f"dtstart: {dtstart}; type: {type(dtstart)}")
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
-        kwd['dtstart'] = item['s']
+        kwd['dtstart'] = dtstart
         try:
             rset.rrule(rrule(freq, **kwd))
         except Exception as e:
@@ -3274,8 +3280,13 @@ def get_next_due(item, done, due):
         for dt in item['+']:
             rset.rdate(dt)
             logger.debug(f"adding dt: {dt} in {item.get('summary', '?')}")
-    nxt = pendulum.instance(rset.after(aft, inc))
-    logger.info(f"aft: {aft}; inc: {inc}; next: {nxt}")
+    logger.info(f"aft: {aft}; type(aft): {type(aft)}; inc: {inc}")
+    nxt_rset = rset.after(aft, inc)
+    logger.info(f" nxt_rset: {nxt_rset}; type(nxt_rset): {type(nxt_rset)}")
+    nxt = pendulum.instance(nxt_rset)
+    if using_dates:
+        nxt = nxt.date()
+    logger.info(f" nxt: {nxt}; type(nxt): {type(nxt)}")
     return nxt
 
 def item_instances(item, aft_dt, bef_dt=1):
@@ -3767,21 +3778,6 @@ def jobs(lofh, at_hsh={}):
             # remove all completions if repeating
             # last_completion will be returned to set @s for the next instance or @f if there are none
             del id2hsh[i]['f']
-            if at_hsh.get('s', None) and ('r' in at_hsh or '+' in at_hsh):
-                # repeating
-                overdue = at_hsh.get('o', 'k')
-                if overdue == 's':
-                    dt = pendulum.now(tz=at_hsh.get('z', None))
-                elif overdue == 'k':
-                    dt = at_hsh['s']
-                else: # 'r'
-                    dt = last_completion
-                n = item_instances(at_hsh, dt, 1)
-                if n:
-                    # n will be a list of beg, end tuples - get the first beg
-                    at_hsh['s'] = n[0][0]
-                else:
-                    at_hsh['f'] = last_completion
         else:
             # remove finished jobs from the requirements
             if id2hsh[i].get('f', None):
