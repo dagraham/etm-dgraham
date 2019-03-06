@@ -72,6 +72,7 @@ if __name__ == "__main__":
         for x in expansions:
             completions.append(f"@x {x}")
     style = dataview.settings["style"]
+    parse_datetime = model.parse_datetime
     from etmMV import view
     view.model = model
     view.about = model.about
@@ -79,6 +80,7 @@ if __name__ == "__main__":
     view.settings = settings
     view.format_time = format_time
     view.format_datetime = format_datetime
+    view.parse_datetime = parse_datetime
 
     # view.ampm = settings['ampm']
     view.dataview = dataview

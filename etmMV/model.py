@@ -618,6 +618,80 @@ class Item(object):
             logger.debug(f"found doc_id: {doc_id} in database")
             self.db.remove(doc_ids=[doc_id])
 
+    def finish_item(self, item_id, job_id, completed_datetime, due_datetime):
+        # item_id and job_id should have come from dataview.maybe_finish and thus be valid
+        logger.info(f"item_id: {item_id}; job_id: {job_id}, done: {completed_datetime}; due: {due_datetime}")
+        save_item = False
+        self.item_hsh = self.db.get(doc_id=item_id)
+        self.doc_id = item_id
+        self.created = self.item_hsh['created']
+        if job_id:
+            j = 0
+            for job in self.item_hsh['j']:
+                if job['i'] == job_id:
+                    self.item_hsh['j'][j]['f'] = completed_datetime
+                    save_item = True
+                    break
+                else:
+                    j += 1
+                    continue
+            ok, jbs, last = jobs(self.item_hsh['j'], self.item_hsh)
+            logger.info(f"ok: {ok}; jbs: {jobs}; last: {last}")
+            if ok:
+                self.item_hsh['j'] = jbs
+                if last:
+                    nxt = get_next_due(self.item_hsh, completed_datetime, due_datetime)
+                    if nxt:
+                        self.item_hsh['s'] = nxt
+                        self.item_hsh.setdefault('h', []).append(completed_datetime)
+                        save_item = True
+                    else:  # finished last instance
+                        self.item_hsh['f'] = completed_datetime
+                        save_item = True
+
+        else:
+            # no jobs
+            if 's' in self.item_hsh:
+                if 'r' in self.item_hsh:
+                    nxt = get_next_due(self.item_hsh, completed_datetime, due_datetime)
+                    if nxt:
+                        self.item_hsh['s'] = nxt
+                        self.item_hsh.setdefault('h', []).append(completed_datetime)
+                        save_item = True
+                    else:  # finished last instance
+                        self.item_hsh['f'] = completed_datetime
+                        save_item = True
+
+                elif '+' in self.item_hsh:
+                    # simple repetition
+                    tmp = [self.item_hsh['s']] + self.item_hsh['+']
+                    tmp.sort()
+                    due = tmp.pop(0)
+                    if tmp:
+                        self.item_hsh['s'] = tmp.pop(0)
+                    if tmp:
+                        self.item_hsh['+'] = tmp
+                        self.item_hsh.setdefault('h', []).append(completed_datetime)
+                        save_item = True
+                    else:
+                        del self.item_hsh['+']
+                        self.item_hsh['f'] = completed_datetime
+                        save_item = True
+                else:
+                    self.item_hsh['f'] = completed_datetime
+                    save_item = True
+            else:
+                self.item_hsh['f'] = completed_datetime
+                save_item = True
+
+        if save_item:
+            self.item_hsh['created'] = self.created
+            self.item_hsh['modified'] = pendulum.now('local')
+            logger.info(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
+            self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+
+
+
 
     def cursor_changed(self, pos):
         # ((17, 24), ('e', '90m'))
@@ -1482,7 +1556,7 @@ class DataView(object):
         self.active_view = 'agenda'  
         self.current = []
         self.alerts = []
-        self.num2id = []
+        self.row2id = []
         self.id2relevant = {}
         self.current_row = 0
         self.agenda_view = ""
@@ -1493,6 +1567,9 @@ class DataView(object):
         self.cache = {}
         self.itemcache = {}
         self.completions = []
+        self.timer_status = 0  # 0: stopped, 1: paused, 2: running
+        self.timer_time = ZERO
+        self.timer_start = None
         self.set_etmdir(etmdir)
         self.views = {
                 'a': 'agenda',
@@ -1621,6 +1698,13 @@ class DataView(object):
             for f in removefiles:
                 os.remove(f)
 
+    def timer_toggle_active(self):
+        if self.timer_status == 0: # stopped
+            self.timer_status = 2  # running
+            self.timer_start = pendulum.now('local')
+
+        elif self.timer_status in [1, 2]: # paused or running
+            self.timer_status = 0
 
     def set_now(self):
         self.now = pendulum.now('local')  
@@ -1639,19 +1723,19 @@ class DataView(object):
             self.refreshCalendar()
             return self.calendar_view
         elif self.active_view == 'history':
-            self.history_view, self.num2id = show_history(self.db)
+            self.history_view, self.row2id = show_history(self.db)
             return self.history_view
         elif self.active_view == 'relevant':
-            self.relevant_view, self.num2id = show_relevant(self.db, self.id2relevant)
+            self.relevant_view, self.row2id = show_relevant(self.db, self.id2relevant)
             return self.relevant_view
         elif self.active_view == 'next':
-            self.next_view, self.num2id = show_next(self.db)
+            self.next_view, self.row2id = show_next(self.db)
             return self.next_view
         elif self.active_view == 'journal':
-            self.journal_view, self.num2id = show_journal(self.db)
+            self.journal_view, self.row2id = show_journal(self.db)
             return self.journal_view
         elif self.active_view == 'index':
-            self.index_view, self.num2id = show_index(self.db)
+            self.index_view, self.row2id = show_index(self.db)
             return self.index_view
 
     def nextYrWk(self):
@@ -1686,7 +1770,7 @@ class DataView(object):
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
             self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now))
-        self.agenda_view, self.busy_view, self.num2id = self.cache[self.activeYrWk]
+        self.agenda_view, self.busy_view, self.row2id = self.cache[self.activeYrWk]
 
     def refreshCurrent(self):
         """
@@ -1713,16 +1797,27 @@ class DataView(object):
     def hide_details(self):
         self.is_showing_details = False 
 
-    def get_details(self, num=None, edit=False):
-        logger.debug(f"num: {num}")
-        if num is None:
-            return None, ''
+    def get_row_details(self, row=None):
+        logger.debug(f"row: {row}")
+        if row is None:
+            return ()
+        self.current_row = row
+        id_tup = self.row2id.get(row, None)
+        logger.debug(f"id_tup: {id_tup}")
+        if isinstance(id_tup, tuple):
+            item_id, instance, job = id_tup
+        else:
+            item_id = id_tup
+            instance = None
+            job = None
+        logger.info(f"details for row: {row}; item_id: {item_id}; instance: {instance}; job: {job}")
+        return (item_id, instance, job)
 
-        self.current_row = num
-        item_id = self.num2id.get(num, None)
-        logger.debug(f"item_id: {item_id}")
-        if item_id is None:
+    def get_details(self, row=None, edit=False):
+        res = self.get_row_details(row)
+        if not res:
             return None, ''
+        item_id = res[0]
 
         if not edit and item_id in self.itemcache:
             logger.debug(f"item_id in cache: {item_id}; str: {self.itemcache[item_id]}")
@@ -1744,17 +1839,17 @@ class DataView(object):
         Called while editing, we won't have a row or doc_id and can use '@s'
         as aft_dt
         """
-        if row is None:
-            return ''
-        self.current_row = row
-        item_id = self.num2id.get(row, None)
-        logger.debug(f"item_id: {item_id} for row {row}")
+        res = self.get_row_details(row)
+        if not res:
+            return None, ''
+        item_id = res[0]
+
         if not (item_id and item_id in self.id2relevant):
             return ''
         showing = "Repetitions"
         item = DBITEM.get(doc_id=item_id)
         if not ('s' in item and ('r' in item or '+' in item)):
-            logger.debug(f"bailing - not repeating")
+            logger.debug(f"bailing - not repeating: {item}")
             return showing, "not a repeating item"
         relevant = self.id2relevant.get(item_id)
         showing =  "Repetitions"
@@ -1772,7 +1867,7 @@ class DataView(object):
             showing = f"All repetitions"
         return  showing, f"from {starting} for\n{details}:\n  " + "\n  ".join(pairs)
 
-    def maybe_finish(self, row, dt):
+    def maybe_finish(self, row):
         """
         For tasks, '-', not already finished.
         No reps and no jobs add @f
@@ -1786,16 +1881,37 @@ class DataView(object):
         Reps? Which instance?
 
         """ 
-        if row is None:
-            return ''
-        self.current_row = row
-        item_id = self.num2id.get(row, None)
+        res = self.get_row_details(row)
+        if not res:
+            return None, ''
+        item_id, instance, job_id = res
+
         item = DBITEM.get(doc_id=item_id)
-        if item['itemtype'] != '-' or 'f' in item:
-            return ''
+        if item['itemtype'] != '-':
+            return False, 'only tasks can be finished', None, None, None
+        if 'f' in item:
+            return False, 'task is already finished', None, None, None
 
+        due = self.id2relevant.get(item_id)
+        due_str = f"due: {format_datetime(due, short=True)[1]}" if due else ""
 
+        if job_id: 
+            for job in item.get('j', []):
+                if job['i'] != job_id:
+                    continue
+                elif job['status'] != '-': 
+                    # the requisite job_id is already finished or waiting
+                    return False, 'this job is either finished or waiting', None, None, None
+                else: 
+                    # the requisite job_id and available
+                    logger.info(f"returning: {job['status']} {job['summary']}")
+                    return True, f"{job['status']} {job['summary']}\n{due_str}", item_id, job_id, due
+            # couldn't find job_id
+            logger.info(f"job_id: {job_id} not found in item: {item}")
+            return False, f"bad job_id: {job_id}", None, None, None
 
+        # we have an unfinished task without jobs
+        return True, f"{item['itemtype']} {item['summary']}\n{due_str}", item_id, job_id, due
 
     def clearCache(self):
         self.cache = {}
@@ -3115,6 +3231,53 @@ def rrule_args(r_hsh):
     kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
 
+def get_next_due(item, done, due):
+    """
+    return the next due datetime
+    """
+
+    lofh = item.get('r')
+    if not lofh:
+        return ''
+    rset = rruleset()
+    overdue = item.get('o', 'k')
+    if overdue == 'k':
+        aft = due
+        inc = False
+    elif overdue == 'r':
+        aft = done
+        inc = False
+    else:  # 's'
+        today = pendulum.today()
+        if due < today:
+            aft = today
+            inc = True
+        else:
+            aft = due
+            inc = False
+
+    for hsh in lofh:
+        freq, kwd = rrule_args(hsh)
+        kwd['dtstart'] = item['s']
+        try:
+            rset.rrule(rrule(freq, **kwd))
+        except Exception as e:
+            logger.error(f"error processing {hsh}: {e}")
+            return []
+
+    if '-' in item:
+        for dt in item['-']:
+            rset.exdate(dt)
+            logger.debug(f"excluding dt: {dt} in {item.get('summary', '?')}")
+
+    if '+' in item:
+        for dt in item['+']:
+            rset.rdate(dt)
+            logger.debug(f"adding dt: {dt} in {item.get('summary', '?')}")
+    nxt = pendulum.instance(rset.after(aft, inc))
+    logger.info(f"aft: {aft}; inc: {inc}; next: {nxt}")
+    return nxt
+
 def item_instances(item, aft_dt, bef_dt=1):
     """
     Dates and datetimes decoded from the data store will all be aware and in the local timezone. aft_dt and bef_dt must therefore also be aware and in the local timezone.
@@ -3897,11 +4060,11 @@ def get_item(id):
     pass
 
 
-def finish(id, dt):
-    """
-    journal a completion at dt for the task corresponding to id.  
-    """
-    pass
+# def finish(id, dt):
+#     """
+#     journal a completion at dt for the task corresponding to id.  
+#     """
+#     pass
 
 
 def relevant(db, now=pendulum.now('local') ):
@@ -3927,7 +4090,7 @@ def relevant(db, now=pendulum.now('local') ):
         possible_alerts = []
         all_tds = []
         if item['itemtype'] == '!':
-            inbox.append([0, item['summary'], item.doc_id])
+            inbox.append([0, item['summary'], item.doc_id, None, None])
             id2relevant[item.doc_id] = today
         # if item['itemtype'] == '-' and 'f' in item:
         #     # no pastdues, beginbys or alerts for finished tasks
@@ -3953,7 +4116,6 @@ def relevant(db, now=pendulum.now('local') ):
                 try:
                     startdst = dtstart.dst()
                 except:
-                    print('dtstart:', dtstart)
                     dtstart = dtstart[0]
                     startdst = dtstart.dst()
 
@@ -4037,7 +4199,7 @@ def relevant(db, now=pendulum.now('local') ):
                     if possible_beginby:
                         for instance in instances:
                             if today + DAY <= instance <= tomorrow + possible_beginby:
-                                beginbys.append([(instance.date() - today.date()).days, item['summary'], item.doc_id])
+                                beginbys.append([(instance.date() - today.date()).days, item['summary'], item.doc_id, None, instance])
                     if possible_alerts:
                         for instance in instances:
                             for possible_alert in possible_alerts:
@@ -4060,7 +4222,7 @@ def relevant(db, now=pendulum.now('local') ):
                 if possible_beginby:
                     for instance in aft:
                         if today + DAY <= instance <= tomorrow + possible_beginby:
-                            beginbys.append([(instance.date() - today.date()).days, item['summary'], item.doc_id])
+                            beginbys.append([(instance.date() - today.date()).days, item['summary'], item.doc_id, None, instance])
                 if possible_alerts:
                     for instance in aft + bef:
                         for possible_alert in possible_alerts:
@@ -4072,7 +4234,7 @@ def relevant(db, now=pendulum.now('local') ):
                 relevant = dtstart
                 if possible_beginby:
                     if today + DAY <= dtstart <= tomorrow + possible_beginby:
-                        beginbys.append([(relevant.date() - today.date()).days, item['summary'],  item.doc_id])
+                        beginbys.append([(relevant.date() - today.date()).days, item['summary'],  item.doc_id, None, None])
                 if possible_alerts:
                     for possible_alert in possible_alerts:
                         if today <= dtstart - possible_alert[0] <= tomorrow:
@@ -4095,32 +4257,31 @@ def relevant(db, now=pendulum.now('local') ):
         pastdue_jobs = False
         if 'j' in item and 'f' not in item:
             # jobs only for the relevant instance of unfinished tasks
-            job_id = 0
             for job in item['j']:
-                job_id += 1
+                job_id = job.get('i') 
                 if 'f' in job:
                     continue
                 # adjust job starting time if 's' in job
                 jobstart = relevant - job.get('s', ZERO)
                 if jobstart < today:
                     pastdue_jobs = True
-                    pastdue.append([(jobstart.date() - today.date()).days, job['summary'], item.doc_id, job_id])
+                    pastdue.append([(jobstart.date() - today.date()).days, job['summary'], item.doc_id, job_id, None])
                 if 'b' in job:
                     days = int(job['b']) * DAY
                     if today + DAY <= jobstart <= tomorrow + days:
-                        beginbys.append([(jobstart.date() - today.date()).days, job['summary'], item.item_id, job_id])
+                        beginbys.append([(jobstart.date() - today.date()).days, job['summary'], item.item_id, job_id, None])
                 if 'a' in job:
                     logger.debug(f"job {job['summary']} has alerts: {job['a']}")
                     for alert in job['a']:
                         logger.debug(f"dealing with alert: {alert}")
                         for td in alert[0]:
                             if today <= jobstart - td <= tomorrow:
-                                alerts.append([dtstart - td, dtstart, alert[1],  job['summary'], item.doc_id, job_id])
+                                alerts.append([dtstart - td, dtstart, alert[1],  job['summary'], item.doc_id, job_id, None])
 
         id2relevant[item.doc_id] = relevant
 
         if item['itemtype'] == '-' and 'f' not in item and not pastdue_jobs and relevant < today:
-            pastdue.append([(relevant.date() - today.date()).days, item['summary'], item.doc_id])
+            pastdue.append([(relevant.date() - today.date()).days, item['summary'], item.doc_id, None, None])
 
 
     # print(id2relevant) 
@@ -4132,18 +4293,21 @@ def relevant(db, now=pendulum.now('local') ):
     week = today.isocalendar()[:2]
     day = (today.format("ddd MMM D"), )
     for item in inbox:
-        current.append({'id': item[2], 'sort': (today_fmt, 0), 'week': week, 'day': day, 'columns': ['!', item[1], '']})
+        current.append({'id': item[2], 'job': None, 'instance': None, 'sort': (today_fmt, 0), 'week': week, 'day': day, 'columns': ['!', item[1], '']})
 
     for item in pastdue:
         # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
         rhc = str(item[0]) + " "*7 if item[0] in item else ""
-        current.append({'id': item[2], 'sort': (today_fmt, 1, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], rhc]})
+        try:
+            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (today_fmt, 1, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], rhc]})
+        except Exception as e:
+            logger.warn(f"could not append item: {item}; e: {e}")
 
     for item in beginbys:
         # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
         rhc = str(item[0]) + " "*7 if item[0] in item else ""
         # rhc = str(item[0]) if item[0] in item else ""
-        current.append({'id': item[2], 'sort': (today_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], rhc]})
+        current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (today_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], rhc]})
 
     return current, alerts, id2relevant
 
@@ -4286,6 +4450,8 @@ def show_next(db):
                 rows.append(
                     {
                         'id': item.doc_id,
+                        'job': job['i'],
+                        'instance': None,
                         'sort': (location, sort_priority, status, job['summary']),
                         'location': location,
                         'columns': [job['status'],
@@ -4302,6 +4468,8 @@ def show_next(db):
             rows.append(
                     {
                         'id': item.doc_id,
+                        'job': None,
+                        'instance': None,
                         'sort': (location, sort_priority, 0, item['summary']),
                         'location': location,
                         'columns': [item['itemtype'],
@@ -4320,7 +4488,7 @@ def show_next(db):
         num += 1
         next_view.append(f"{location}")
         for i in items:
-            row2id[num] = i['id']
+            row2id[num] = (i['id'], i['instance'], i['job'])
             num += 1
             next_view.append(f"  {i['columns'][0]} {i['columns'][1][:width - 8].ljust(width - 8, ' ')}  {i['columns'][2]}")
     return "\n".join(next_view), row2id
@@ -4484,20 +4652,23 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
         if item['itemtype'] in "!?":
             continue
 
+        ### For debugging 
+        # has_jobs = 'j' in item
+        # has_instances = 's' in item and ('r' in item or '+' in item)
+        ###
+
         if item['itemtype'] == '-':
             done = []
             if 'f' in item:
-                done.append([item['f'], item['summary'], item.doc_id, 0])
+                done.append([item['f'], item['summary'], item.doc_id, None])
             if 'h' in item:
                 for dt in item['h']:
-                    done.append([dt, item['summary'], item.doc_id, 0])
+                    done.append([dt, item['summary'], item.doc_id, None])
             if 'j' in item:
-                j = 0
                 for job in item['j']:
-                    j += 1
                     if 'f' in job:
-                        logger.debug(f"done job: {item.doc_id}, {j}")
-                        done.append([job['f'], job['summary'], item.doc_id, j])
+                        logger.debug(f"done job: {item.doc_id}, {job['i']}")
+                        done.append([job['f'], job['summary'], item.doc_id, job['i']])
             if done:
                 # FIXME: h and f timestamps in datastore may not be UTC times
                 for row in done:
@@ -4515,6 +4686,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                     rows.append(
                             {
                                 'id': row[2],
+                                'job': row[3],
+                                'instance': None,
                                 'sort': (dt.format("YYYYMMDDHHmm"), 1),
                                 'week': (
                                     dt.isocalendar()[:2]
@@ -4532,17 +4705,22 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
         if 's' not in item or 'f' in item:
             continue
 
+        # get the instances
         for dt, et in item_instances(item, aft_dt, bef_dt):
+            instance = dt if 'r' in item or '+' in item else None
             if 'j' in item:
                 for job in item['j']:
                     if 'f' in job:
                         continue
                     jobstart = dt - job.get('s', ZERO)
+                    job_id = job.get('i', None)
                     # rhc = fmt_extent(jobstart, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
                     rhc = fmt_time(dt).center(16, ' ')
                     rows.append(
                         {
                             'id': item.doc_id,
+                            'job': job_id,
+                            'instance': instance, 
                             'sort': (jobstart.format("YYYYMMDDHHmm"), 0),
                             'week': (
                                 jobstart.isocalendar()[:2]
@@ -4566,6 +4744,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                 rows.append(
                         {
                             'id': item.doc_id,
+                            'job': None,
+                            'instance': instance,
                             'sort': (dt.format("YYYYMMDDHHmm"), 0),
                             'week': (
                                 dt.isocalendar()[:2]
@@ -4655,8 +4835,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                     rhc = i['columns'][2].rjust(16, ' ')
                     agenda.append(f"    {i['columns'][0]} {summary}{rhc}") 
                     row_num += 1
-                    row2id[row_num] = i['id']
-                    logger.debug(f"{row_num} -> {i['id']}; i: {i}")
+                    row2id[row_num] = (i['id'], i['instance'], i['job'])
+                    logger.debug(f"{row_num} -> {(i['id'], i['instance'], i['job'])}")
         agenda_hsh[week] = "\n".join(agenda)
         row2id_hsh[week] = row2id
 

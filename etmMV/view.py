@@ -194,7 +194,7 @@ def do_alerts(*event):
     show_message("Today's Alerts", alerts(), 2)
 
 @bindings.add('f6')
-def do_go_to(*event):
+def do_go_to_line(*event):
     def coroutine():
         dialog = TextInputDialog(
             title='Go to line',
@@ -739,6 +739,39 @@ def edit_existing(*event):
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
+@bindings.add('F', filter=is_not_editing)
+def do_finish(*event):
+
+    ok, show, item_id, job_id, due = dataview.maybe_finish(text_area.document.cursor_position_row)
+
+    if not ok:
+        return
+
+    def coroutine():
+
+        dialog = TextInputDialog(
+            title='Finish task/job?',
+            label_text=f"{show}\ncompleted:")
+
+        done_str = yield From(show_dialog_as_float(dialog))
+        if done_str:
+            logger.info(f"done string: {done_str}")
+            try:
+                done = parse_datetime(done_str)[1]
+            except ValueError:
+                show_message('Finish task/job?', 'Invalid finished datetime')
+            else:
+                # valid done
+                logger.info(f"done parsed: {done}")
+                item.finish_item(item_id, job_id, done, due)
+                # dataview.itemcache[item.doc_id] = {}
+                if item_id in dataview.itemcache:
+                    del dataview.itemcache[item_id]
+                loop = get_event_loop()
+                loop.call_later(0, data_changed, loop)
+
+    ensure_future(coroutine())
+
 @bindings.add('C', filter=is_not_editing)
 def edit_copy(*event):
     global item
@@ -773,7 +806,8 @@ def is_editing_reps(*event):
 
 @bindings.add('c-p')
 def play_sound(*event):
-    check_output(soundcmd)
+    row = text_area.document.cursor_position_row
+    dataview.get_row_details(row)
 
 @bindings.add('c-q')
 def exit(*event):
@@ -951,7 +985,7 @@ root_container = MenuContainer(body=body, menu_items=[
             MenuItem('Enter) toggle details', handler=show_details),
             MenuItem('^R) show repetitions', handler=not_editing_reps),
             MenuItem('G) ___goto link', disabled=True),
-            MenuItem('X) export ical to clipboard', disabled=True),
+            MenuItem('X) ___export ical to clipboard', disabled=True),
         ]),
         MenuItem('-', disabled=True),
         MenuItem('c) ___copy to clipboard', disabled=True),
@@ -960,7 +994,7 @@ root_container = MenuContainer(body=body, menu_items=[
     ]),
     MenuItem('tools', children=[
         MenuItem("F5) show today's alerts", handler=do_alerts),
-        MenuItem('F6) ___open date calculator', disabled=True),
+        MenuItem('F6) go to line number', handler=do_go_to_line),
     ]),
 ], floats=[
     Float(xcursor=True,
