@@ -56,8 +56,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.output import ColorDepth
 from prompt_toolkit import __version__ as prompt_toolkit_version
 
-from v import version as etm_version
-from v import version as etm_fullversion
+from __version__ import version as etm_version
 
 # import options
 
@@ -5010,7 +5009,7 @@ def about(padding=0):
 {logo}
 {summary}
 
-etm-mv:     {etm_fullversion}
+etm-mv:     {etm_version}
 Developer:  dnlgrhm@gmail.com
 GitHub:     github.com/dagraham/etm-mvc
 Discussion: groups.google.com/group/eventandtaskmanager

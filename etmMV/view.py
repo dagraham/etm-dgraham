@@ -247,12 +247,12 @@ def check_output(cmd):
 editing = False
 
 @Condition
-def menu_is_open():
-    return app.layout.has_focus(root_container.window) 
+def is_viewing():
+    return get_app().layout.has_focus(text_area) 
 
 @Condition
-def menu_is_not_open():
-    return not app.layout.has_focus(root_container.window) 
+def is_viewing_or_details():
+    return get_app().layout.has_focus(text_area) or get_app().layout.has_focus(details_area) 
 
 
 @bindings.add('f1')
@@ -263,6 +263,10 @@ def menu(event):
     else:
         focus_previous(event)
     logger.debug(f"root container focus: {event.app.layout.has_focus(root_container.window)}")
+
+@Condition
+def is_item_view():
+    return dataview.active_view in ['agenda', 'history', 'index', 'journal', 'next', 'relevant']
 
 @Condition
 def is_editing():
@@ -287,6 +291,10 @@ def is_agenda_view():
 @Condition
 def is_calendar_view():
     return dataview.active_view in ['calendar']
+
+@Condition
+def is_not_calendar_view():
+    return not dataview.active_view in ['calendar']
 
 @Condition
 def not_showing_details():
@@ -711,7 +719,7 @@ def delete_item(*event):
     loop = get_event_loop()
     loop.call_later(0, data_changed, loop)
 
-@bindings.add('N', filter=is_not_editing)
+@bindings.add('N', filter=is_viewing)
 def edit_new(*event):
     global item
     if dataview.is_showing_details:
@@ -724,7 +732,8 @@ def edit_new(*event):
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
-@bindings.add('E', filter=is_not_editing)
+# @bindings.add('E', filter=is_not_editing)
+@bindings.add('E', filter=is_viewing_or_details & is_item_view)
 def edit_existing(*event):
     global item
     if dataview.is_showing_details:
@@ -739,7 +748,7 @@ def edit_existing(*event):
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
-@bindings.add('F', filter=is_not_editing)
+@bindings.add('F', filter=is_viewing_or_details & is_item_view)
 def do_finish(*event):
 
     ok, show, item_id, job_id, due = dataview.maybe_finish(text_area.document.cursor_position_row)
@@ -772,7 +781,7 @@ def do_finish(*event):
 
     ensure_future(coroutine())
 
-@bindings.add('C', filter=is_not_editing)
+@bindings.add('C', filter=is_viewing_or_details & is_item_view)
 def edit_copy(*event):
     global item
     if dataview.is_showing_details:
@@ -787,7 +796,7 @@ def edit_copy(*event):
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
-@bindings.add('c-r', filter=is_not_editing)
+@bindings.add('c-r', filter=is_viewing_or_details & is_item_view)
 def not_editing_reps(*event):
     row = text_area.document.cursor_position_row
     res = dataview.get_repetitions(row, 5)
@@ -821,77 +830,77 @@ def _(event):
 def set_text(txt, row=0):
     text_area.text = txt
 
-@bindings.add('a', filter=is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('a', filter=is_viewing)
 def agenda_view(*event):
     dataview.set_active_view('a')
     set_text(dataview.show_active_view())
 
-@bindings.add('b', filter=is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('b', filter=is_viewing)
 def busy_view(*event):
     dataview.set_active_view('b')
     set_text(dataview.show_active_view())
 
-@bindings.add('c', filter=is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('c', filter=is_viewing)
 def calendar_view(*event):
     dataview.set_active_view('c')
     set_text(dataview.show_active_view())
 
-@bindings.add('h', filter=is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('h', filter=is_viewing)
 def history_view(*event):
     dataview.set_active_view('h')
     set_text(dataview.show_active_view())
 
-@bindings.add('r', filter=is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('r', filter=is_viewing)
 def relevant_view(*event):
     dataview.set_active_view('r')
     set_text(dataview.show_active_view())
 
-@bindings.add('n', filter=is_not_searching & is_not_editing)
+@bindings.add('n', filter=is_viewing)
 def next_view(*event):
     dataview.set_active_view('n')
     set_text(dataview.show_active_view())
 
-@bindings.add('j', filter=is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('j', filter=is_viewing)
 def journal_view(*event):
     dataview.set_active_view('j')
     set_text(dataview.show_active_view())
 
-@bindings.add('i', filter=is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('i', filter=is_viewing)
 def index_view(*event):
     dataview.set_active_view('i')
     set_text(dataview.show_active_view())
 
-@bindings.add('right', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('right', filter=is_agenda_view & is_viewing)
 def nextweek(*event):
     dataview.nextYrWk()
     set_text(dataview.show_active_view())
 
-@bindings.add('left', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('left', filter=is_agenda_view & is_viewing)
 def prevweek(*event):
     dataview.prevYrWk()
     set_text(dataview.show_active_view())
 
-@bindings.add('space', filter=is_agenda_view & is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('space', filter=is_agenda_view & is_viewing)
 def currweek(*event):
     dataview.currYrWk()
     set_text(dataview.show_active_view())
 
-@bindings.add('right', filter=is_calendar_view & is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('right', filter=is_calendar_view & is_viewing)
 def nextcal(*event):
     dataview.nextcal()
     set_text(dataview.show_active_view())
 
-@bindings.add('left', filter=is_calendar_view & is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('left', filter=is_calendar_view & is_viewing)
 def prevcal(*event):
     dataview.prevcal()
     set_text(dataview.show_active_view())
 
-@bindings.add('space', filter=is_calendar_view & is_not_searching & not_showing_details & is_not_editing)
+@bindings.add('space', filter=is_calendar_view & is_viewing)
 def currcal(*event):
     dataview.currcal()
     set_text(dataview.show_active_view())
 
-@bindings.add('enter', filter=is_not_searching & is_not_busy_view & is_not_editing)
+@bindings.add('enter', filter=is_viewing_or_details & is_not_calendar_view & is_not_busy_view)
 def show_details(*event):
     if dataview.is_showing_details:
         application.layout.focus(text_area)

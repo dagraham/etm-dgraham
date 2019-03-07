@@ -5,18 +5,12 @@ home=`pwd`
 plat=`uname`
 #echo "home: $home; plat: $plat"
 # etm's version numbering now uses the `major.minor.patch` format where each of the three components is an integer:
-
 # - Major version numbers change whenever there is something significant, a large or potentially backward-incompatible change.
-
 # - Minor version numbers change when a new, minor feature is introduced, when a set of smaller features is rolled out or, when the change is from zero to one, when the status of the version has changed from beta to stable.
-
 # - Patch numbers change when a new build is released. This is normally for small bugfixes or the like.
-
 # When the major version number is incremented, both the minor version number and patch number will be reset to zero. Similarly, when the minor version number is incremented, the patch number will be reset to zero. All increments are by one.
-
 # The patch number is incremented by one whenever this script is run to completion. Changes in the major and minor numbers require editing etmQt/v.py.
 
-#cxfreeze3 -OO etmTk/etmtk.py --target-dir ~/etm-tk/dist
 
 asksure() {
 echo -n " (Y/N)? "
@@ -34,16 +28,11 @@ echo # just a final linefeed, optics...
 return $retval
 }
 
-#echo Tk/Tcl version information:
-#otool -L $(arch -i386 python3 -c 'import _tkinter;\
-#               print(_tkinter.__file__)')
-#otool -L $(arch -x86_64 python3 -c 'import _tkinter;\
-#               print(_tkinter.__file__)')
 
-logfile="prep_dist.txt"
+logfile="prep_dist.log"
 # get the current major.minor.patch tag without trailing p*
-#vinfo=`cat etmTk/v.py | head -1 | sed 's/\"//g' | sed 's/^.*= *//g' | sed 's/p.*$//g'`
-vinfo=`cat etmTk/v.py | head -1 | sed 's/\"//g' | sed 's/^.*= *//g' `
+versionfile="etmMV/__version__.py"
+vinfo=`cat $versionfile | head -1 | sed 's/\"//g' | sed 's/^.*= *//g' `
 pre=${vinfo%p*}
 post=${vinfo##*p}
 if [ "$pre" = "$post" ]; then
@@ -65,25 +54,16 @@ now=`date`
 #echo "'$head'"
 
 # ignore version changes
-git update-index --assume-unchanged etmTk/v.py etmTk/version.py
 status=`git status -s`
 # we want the new version files in the next commit
-git update-index --no-assume-unchanged etmTk/v.py etmTk/version.py
 if [ "$status" != "" ]; then
     echo "Uncommitted changes:"
     echo "$status"
-#    echo "must be committed before running this script."
-#    exit
 fi
 
-#version=`hg tip --template '{rev}'`
-#versioninfo=`hg tip --template '{rev}: {date|isodate}'`
 versioninfo=`git log --pretty=format:"%ai" -n 1`
 echo "Started: $now" >> $logfile
-#echo "Current version: $vinfo ($versioninfo)" >> $logfile
 
-#otag=`git describe --tags --long | sed 's/-[^-]*$//g'`
-# return 3.1.38p6 instead of 3.1.38-6-g203afbb
 otag=`git describe  | sed 's/-[^-]*$//g' | sed 's/-/p/g'`
 omsg=`git log --pretty="%s" -1`
 
@@ -91,11 +71,6 @@ echo "The current version number is $vinfo ($pre post $post $versioninfo)."
 echo "The last commit message was:"
 echo "    $omsg"
 echo -n "Do you want to increment the patch number?"
-
-# ignore changes in v.py and version.py as of 2015-07-26 using
-# git update-index --assume-unchanged <file>
-# don't ignore
-# git update-index --no-assume-unchanged <file>
 
 if asksure; then
     newpatch=$(($patch +1))
@@ -107,12 +82,9 @@ else
     change="retained patch level $patch - incremented post level to $newpost."
 fi
 echo "    $tag [$versioninfo]: $change" >> $logfile
-echo "version = \"$tag\"" > /Users/dag/etm-tk/etmTk/v.py
-echo "version = \"$tag [$versioninfo]\"" > etmTk/version.py
-echo "$tag [$versioninfo]" > version.txt
+echo "version = \"$tag\"" > $versionfile
 tmsg="Tagged version $tag [$versioninfo]."
 echo "tmsg: $tmsg; omsg: $omsg"
-git add etmTk/v.py etmTk/version.py
 # commit and append the tag message to the last commit message
 git commit -a --amend -m "$omsg $tmsg"
 # This will be an annotated tag
