@@ -617,6 +617,7 @@ class Item(object):
             logger.debug(f"found doc_id: {doc_id} in database")
             self.db.remove(doc_ids=[doc_id])
 
+
     def finish_item(self, item_id, job_id, completed_datetime, due_datetime):
         # item_id and job_id should have come from dataview.maybe_finish and thus be valid
         logger.info(f"item_id: {item_id}; job_id: {job_id}, done: {completed_datetime}; due: {due_datetime}")
@@ -690,6 +691,31 @@ class Item(object):
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
 
+    def record_timer(self, item_id, job_id=None, completed_datetime=None, elapsed_time=None):
+        if not (item_id and completed_datetime and elapsed_time):
+            return 
+        save_item = False
+        self.item_hsh = self.db.get(doc_id=item_id)
+        self.doc_id = item_id
+        self.created = self.item_hsh['created']
+        if job_id:
+            j = 0
+            for job in self.item_hsh['j']:
+                if job['i'] == job_id:
+                    self.item_hsh['j'][j].setdefault('u', []).append([elapsed_time, completed_datetime])
+                    save_item = True
+                    break
+                else:
+                    j += 1
+                    continue
+        else:
+            self.item_hsh.setdefault('u', []).append([elapsed_time, completed_datetime]) 
+            save_item = True
+        if save_item:
+            self.item_hsh['created'] = self.created
+            self.item_hsh['modified'] = pendulum.now('local')
+            logger.info(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
+            self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
 
     def cursor_changed(self, pos):
@@ -1566,9 +1592,11 @@ class DataView(object):
         self.cache = {}
         self.itemcache = {}
         self.completions = []
-        self.timer_status = 0  # 0: stopped, 1: paused, 2: running
+        self.timer_status = 0  # 0: stopped, 1: running, 2: paused
         self.timer_time = ZERO
         self.timer_start = None
+        self.timer_id = None
+        self.timer_job = None
         self.set_etmdir(etmdir)
         self.views = {
                 'a': 'agenda',
@@ -1697,13 +1725,42 @@ class DataView(object):
             for f in removefiles:
                 os.remove(f)
 
-    def timer_toggle_active(self):
+    def timer_toggle(self, row=None):
         if self.timer_status == 0: # stopped
-            self.timer_status = 2  # running
+            res = self.get_row_details(row)
+            if not res:
+                return None, ''
+            self.timer_id = res[0]
+            self.timer_job = res[2]
+            self.timer_status = 1  # running
             self.timer_start = pendulum.now('local')
+        elif self.timer_status == 1: # running
+            self.timer_status = 2  # paused
+            self.timer_time += pendulum.now() - self.timer_start
+        elif self.timer_status == 2: # paused
+            self.timer_status = 1 # running
+            self.timer_start = pendulum.now()
 
-        elif self.timer_status in [1, 2]: # paused or running
-            self.timer_status = 0
+    def timer_report(self):
+        if not self.timer_id or self.timer_status == 0:
+            return ''
+        status = ['#', '*', '!'][self.timer_status]
+        if self.timer_status == 1: # running
+            elapsed = self.timer_time + (pendulum.now() - self.timer_start)
+        if self.timer_status == 2:  # paused
+            elapsed = self.timer_time
+        return f"{format_duration(elapsed)}{status}  "
+
+
+
+    def timer_clear(self):
+        if not self.timer_id:
+            return None, ''
+        self.timer_status = 0  # 0: stopped, 1: running, 2: paused
+        self.timer_time = ZERO
+        self.timer_start = None
+        self.timer_id = None
+        self.timer_job = None
 
     def set_now(self):
         self.now = pendulum.now('local')  
@@ -2413,7 +2470,7 @@ entry_tmpl = """\
 {% if 'u' in h %}\
 {%- set used %}\
 {% for x in h['u'] %}{{ "@u {}: {} ".format(in2str(x[0]), dt2str(x[1])[1]) }}{% endfor %}\
-{% endset %}\
+{% endset %}
 {{ wrap(used) }} \
 {% endif %}\
 {%- set is = namespace(found=false) -%}\
@@ -2467,12 +2524,18 @@ entry_tmpl = """\
 {%- for k in ['s', 'e'] -%}
 {%- if k in x and x[k] %} {{ "&{} {}".format(k, in2str(x[k])) }}{% endif %}\
 {%- endfor %}
-{%- for k in ['b', 'd', 'l', 'i', 'p'] -%}
+{%- for k in ['b', 'd', 'l', 'i', 'p'] %}
 {%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
 {%- endfor %}
 {%- if 'a' in x %}\
 {%- for a in x['a'] %} {{ "&a {}: {}".format(inlst2str(a[0]), a[1]) }}{% endfor %}\
 {%- endif %}\
+{% if 'u' in x %}\
+{%- set used %}
+{% for u in x['u'] %}{{ "&u {}: {} ".format(in2str(u[0]), dt2str(u[1])[1]) }}{% endfor %}\
+{% endset %}
+{{ wrap(used) }} \
+{% endif %}\
 {% if 'f' in x %}{{ " &f {}".format(dt2str(x['f'])[1]) }}{% endif %}\
 {%- endset %}
 @j {{ wrap(job) }} \

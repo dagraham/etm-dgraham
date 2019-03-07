@@ -572,7 +572,7 @@ def get_statusbar_text():
 
 
 def get_statusbar_right_text():
-    return [ ('class:status',  f'{dataview.active_view} '), ]
+    return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} "), ]
 
 
 search_field = SearchToolbar(text_if_not_searching=[
@@ -747,6 +747,48 @@ def edit_existing(*event):
     default_buffer_changed(_)
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
+
+@bindings.add('T', filter=is_viewing_or_details & is_item_view)
+def do_timer_toggle(*event):
+    logger.debug(f"before toggle timer_status: {dataview.timer_status}, timer_start: {dataview.timer_start}; timer_time: {dataview.timer_time}")
+    dataview.timer_toggle(text_area.document.cursor_position_row)
+    logger.debug(f"after toggle timer_status: {dataview.timer_status}, timer_start: {dataview.timer_start}; timer_time: {dataview.timer_time}")
+
+
+@bindings.add('c-t', filter=is_viewing_or_details)
+def do_maybe_record_timer(*event):
+    if not dataview.timer_id:
+        return
+    item_id = dataview.timer_id
+    job_id = dataview.timer_job
+    stopped_timer = False
+    now = pendulum.now()
+    if dataview.timer_status == 1: #running
+        time = dataview.timer_time + (now - dataview.timer_start)
+    else:
+        time = dataview.timer_time
+    completed = pendulum.now()
+    completed_str = format_datetime(completed)
+    time_str = format_duration(time)
+
+    def coroutine():
+        dialog = ConfirmDialog("Active Timer", f"Record {time_str} and clear timer?")
+
+        record_close = yield From(show_dialog_as_float(dialog))
+        if record_close:
+            logger.debug(f"closing and recording time: {time_str}; completed {completed_str}")
+            item.record_timer(item_id, job_id, completed, time)
+            set_text(dataview.show_active_view())
+            dataview.timer_clear()
+            if item_id in dataview.itemcache:
+                del dataview.itemcache[item_id]
+            loop = get_event_loop()
+            loop.call_later(0, data_changed, loop)
+        else:
+            logger.debug('record and close cancelled')
+
+    ensure_future(coroutine())
+
 
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
 def do_finish(*event):
@@ -989,9 +1031,8 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('S) __schedule new',  disabled=True),
         MenuItem('^R) show repetitions', handler=not_editing_reps),
         MenuItem('-', disabled=True),
-        MenuItem('T) __start timer if stopped', disabled=True),
-        MenuItem('T) __toggle paused/running if started', disabled=True),
-        MenuItem("^T) __stop timer & record", disabled=True),
+        MenuItem('T) start timer or toggle paused', handler=do_timer_toggle),
+        MenuItem("^T) maybe stop timer & record", handler=do_maybe_record_timer),
     ]),
 ], floats=[
     Float(xcursor=True,

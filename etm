@@ -65,6 +65,7 @@ if __name__ == "__main__":
     item = model.Item(etmdir)
     format_time = model.format_time
     format_datetime = model.format_datetime
+    format_duration = model.format_duration
     # since dataview calls schedule it will also have settings
     completions = dataview.completions
     expansions = settings["expansions"]
@@ -80,6 +81,7 @@ if __name__ == "__main__":
     view.settings = settings
     view.format_time = format_time
     view.format_datetime = format_datetime
+    view.format_duration = format_duration
     view.parse_datetime = parse_datetime
 
     # view.ampm = settings['ampm']
