@@ -193,25 +193,6 @@ def do_system(*event):
 def do_alerts(*event):
     show_message("Today's Alerts", alerts(), 2)
 
-@bindings.add('f6')
-def do_go_to_line(*event):
-    def coroutine():
-        dialog = TextInputDialog(
-            title='Go to line',
-            label_text='Line number:')
-
-        line_number = yield From(show_dialog_as_float(dialog))
-        if line_number:
-            try:
-                line_number = int(line_number)
-            except ValueError:
-                show_message('go to line', 'Invalid line number')
-            else:
-                text_area.buffer.cursor_position = \
-                    text_area.buffer.document.translate_row_col_to_index(line_number - 1, 0)
-
-    ensure_future(coroutine())
-
 def save_before_quit(*event):
     def coroutine():
         dialog = ConfirmDialog("Unsaved Changes", "Save them before closing?")
@@ -307,7 +288,26 @@ def is_showing_details():
 bindings.add('tab', filter=is_not_editing)(focus_next)
 bindings.add('s-tab', filter=is_not_editing)(focus_previous)
 
-@bindings.add('g', filter=is_agenda_view & is_not_editing)
+@bindings.add('l', filter=is_viewing)
+def do_go_to_line(*event):
+    def coroutine():
+        dialog = TextInputDialog(
+            title='Go to line',
+            label_text='Line number:')
+
+        line_number = yield From(show_dialog_as_float(dialog))
+        if line_number:
+            try:
+                line_number = int(line_number)
+            except ValueError:
+                show_message('go to line', 'Invalid line number')
+            else:
+                text_area.buffer.cursor_position = \
+                    text_area.buffer.document.translate_row_col_to_index(line_number - 1, 0)
+
+    ensure_future(coroutine())
+
+@bindings.add('g', filter=is_viewing_or_details)
 def do_go_to_date(*event):
     def coroutine():
         dialog = TextInputDialog(
@@ -937,6 +937,7 @@ def save_changes(*event):
         loop = get_event_loop()
         loop.call_later(0, item_changed, loop)
     else:
+        dataview.is_editing = False
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
 
@@ -946,43 +947,15 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F1) activate/close menu', handler=menu),
         MenuItem('F2) about etm', handler=do_about),
         MenuItem('F3) system info', handler=do_system),
-        MenuItem('F4) ___preferences', disabled=True),
-        # MenuItem('F5) check for new version', disabled=True),
+        MenuItem("F4) show today's alerts", handler=do_alerts),
+        MenuItem('F5) __preferences', disabled=True),
+        MenuItem('F6) __check for new version', disabled=True),
         MenuItem('-', disabled=True),
         MenuItem('^Q) quit', handler=exit),
     ]),
-    MenuItem('edit', children=[
-        MenuItem('N) new item', handler=edit_new),
-        MenuItem('-', disabled=True),
-        MenuItem('selection', children=[
-                MenuItem('E) edit', handler=edit_existing),
-                MenuItem('C) edit copy', handler=edit_copy),
-                MenuItem('F) ___finish',  disabled=True),
-                MenuItem('R) ___reschedule,  disabled=True'),
-                MenuItem('S) ___schedule new,  disabled=True'),
-                MenuItem('D) delete', handler=delete_item),
-                MenuItem('timer', children=[
-                    MenuItem('T) ___start, pause or restart', disabled=True),
-                    MenuItem("^T) ___stop & add time to @u", disabled=True),
-            ]),
-        ]),
-        MenuItem('editor', children=[
-            MenuItem('^S) save changes', handler=save_changes),
-            MenuItem('^R) show repetitions', handler=is_editing_reps),
-            MenuItem('^C) close', handler=close_edit),
-        ]),
-    ]),
     MenuItem('view', children=[
-        MenuItem('weekly', children=[
-            MenuItem('a) agenda', handler=agenda_view),
-            MenuItem('b) busy', handler=busy_view),
-            MenuItem('movement', children=[
-                MenuItem('left) previous week', handler=prevweek),
-                MenuItem('space) current week', handler=currweek),
-                MenuItem('right) next week', handler=nextweek),
-                MenuItem('g) go to date', handler=do_go_to_date),
-            ]),
-        ]),
+        MenuItem('a) agenda', handler=agenda_view),
+        MenuItem('b) busy', handler=busy_view),
         MenuItem('c) calendar', handler=calendar_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
@@ -990,20 +963,35 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('n) next', handler=next_view),
         MenuItem('q) query', disabled=True),
         MenuItem('r) relevant', handler=relevant_view),
-        MenuItem('selection', children=[
-            MenuItem('Enter) toggle details', handler=show_details),
-            MenuItem('^R) show repetitions', handler=not_editing_reps),
-            MenuItem('G) ___goto link', disabled=True),
-            MenuItem('X) ___export ical to clipboard', disabled=True),
-        ]),
         MenuItem('-', disabled=True),
-        MenuItem('c) ___copy to clipboard', disabled=True),
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
+        MenuItem('l) go to line number', handler=do_go_to_line),
+        MenuItem('-', disabled=True),
+        MenuItem('right) next in a), b) and c)'),
+        MenuItem('left) previous in a), b) and c)'),
+        MenuItem('space) current in a), b) and c)'),
     ]),
-    MenuItem('tools', children=[
-        MenuItem("F5) show today's alerts", handler=do_alerts),
-        MenuItem('F6) go to line number', handler=do_go_to_line),
+    MenuItem('editor', children=[
+        MenuItem('N) create new item', handler=edit_new),
+        MenuItem('-', disabled=True),
+        MenuItem('^S) save changes & close', handler=save_changes),
+        MenuItem('^R) show repetitions', handler=is_editing_reps),
+        MenuItem('^C) close editor', handler=close_edit),
+    ]),
+    MenuItem('selected', children=[
+        MenuItem('Enter) toggle showing details', handler=show_details),
+        MenuItem('E) edit', handler=edit_existing),
+        MenuItem('C) edit copy', handler=edit_copy),
+        MenuItem('D) delete', handler=delete_item),
+        MenuItem('F) finish', handler=do_finish),
+        MenuItem('R) __reschedule',  disabled=True),
+        MenuItem('S) __schedule new',  disabled=True),
+        MenuItem('^R) show repetitions', handler=not_editing_reps),
+        MenuItem('-', disabled=True),
+        MenuItem('T) __start timer if stopped', disabled=True),
+        MenuItem('T) __toggle paused/running if started', disabled=True),
+        MenuItem("^T) __stop timer & record", disabled=True),
     ]),
 ], floats=[
     Float(xcursor=True,
