@@ -3289,6 +3289,7 @@ def get_next_due(item, done, due):
     logger.info(f" nxt: {nxt}; type(nxt): {type(nxt)}")
     return nxt
 
+
 def item_instances(item, aft_dt, bef_dt=1):
     """
     Dates and datetimes decoded from the data store will all be aware and in the local timezone. aft_dt and bef_dt must therefore also be aware and in the local timezone.
@@ -3461,7 +3462,6 @@ def prereqs(arg):
         return string_list(arg, 'prereqs')
     else:
         return True, []
-
 
 # NOTE: job_methods, datetime or undated, are dispatched in jobs() according to whether or not the task has an 's' entry
 
