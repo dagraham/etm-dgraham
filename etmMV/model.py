@@ -411,6 +411,7 @@ def process_entry(s, settings={}):
         keyvals.insert(0, ('summary', v))
         keyvals.insert(0, ('itemtype', k))
 
+    logger.info(f"keyvals: {keyvals}; pos_hsh.items(): {pos_hsh.items()}")
     return pos_hsh, keyvals
 
 def active_from_pos(pos_hsh, pos):
@@ -736,9 +737,11 @@ class Item(object):
         # self.is_modified = modified
         logger.debug(f"s: {s}; pos: {pos}")
         self.entry = s
+        # logger.info(f"starting keyvals: {self.keyvals}")
         self.pos_hsh, keyvals = process_entry(s, self.settings)
+        # logger.info(f"ending keyvals: {keyvals}")
         removed, changed = listdiff(self.keyvals, keyvals)
-        logger.debug(f"self.keyvals: {self.keyvals};  removed: {removed}; changed: {changed}")
+        logger.info(f"self.keyvals: {self.keyvals};  removed: {removed}; changed: {changed}")
 
         # if removed + changed != []:
         if self.init_entry != self.entry:
@@ -760,6 +763,7 @@ class Item(object):
                 del self.askreply[kv]
         self.keyvals = [kv for kv in keyvals]
         for kv in changed:
+            logger.info(f"updating keyval: {kv}")
             self.update_keyval(kv)
 
 
@@ -789,6 +793,7 @@ class Item(object):
                     reply = rep if rep else r
                     if obj:
                         self.object_hsh[kv] = obj
+                        logger.info(f"object_hsh[{kv}]: {self.object_hsh[kv]}")
                     else:
                         if kv in self.object_hsh:
                             del self.object_hsh[kv]
@@ -821,13 +826,11 @@ class Item(object):
                 cur_hsh = {k[0]: obj}
             elif k[0] in ['r', 'j']:
                 if cur_hsh:
+                    logger.info(f"cur_hsh[{k[1]}]: {obj}")
                     cur_hsh[k[1]] = obj
                 else:
                     # shouldn't happen
                     pass
-            # elif k[0] == 'x':
-            #     logger.debug(f"@x {obj}")
-            #     pass
             else:
                 if cur_key:
                     self.item_hsh.setdefault(cur_key, []).append(cur_hsh)
@@ -844,7 +847,8 @@ class Item(object):
             logger.debug(f"jobs: {self.item_hsh['j']}")
             ok, res, last = jobs(self.item_hsh['j'], self.item_hsh)
             if ok:
-                logger.debug(f"jobs: {res}")
+                logger.info(f"item_hsh['j']: {self.item_hsh['j']}")
+                logger.info(f"res: {res}")
                 self.item_hsh['j'] = res
                 if last:
                     self.item_hsh['f'] = last
@@ -2621,7 +2625,7 @@ def do_usedtime(arg):
             rep_period = res
     if parts:
         dt = parts.pop(0)
-        ok, res, z = parse_datetime(dt, 'local')
+        ok, res, z = parse_datetime(dt)
         if ok:
             obj_datetime = res
             rep_datetime = format_datetime(res, short=True)[1]
@@ -3785,6 +3789,8 @@ def jobs(lofh, at_hsh={}):
                 pass
             elif key == 'a':
                 res.setdefault('a', []).append(hsh['a'])
+            elif key == 'u':
+                res.setdefault('u', []).append(hsh['u'])
             elif key == 's':
                 res[key] = hsh[key]
             elif key in job_methods:
@@ -4159,6 +4165,9 @@ def relevant(db, now=pendulum.now('local') ):
         possible_beginby = None
         possible_alerts = []
         all_tds = []
+        if 'itemtype' not in item:
+            logger.info(f"no itemtype: {item}")
+            continue
         if item['itemtype'] == '!':
             inbox.append([0, item['summary'], item.doc_id, None, None])
             id2relevant[item.doc_id] = today
