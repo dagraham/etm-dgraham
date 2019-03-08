@@ -1650,7 +1650,7 @@ class DataView(object):
             self.currfile = None
         if 'locale' in self.settings:
             locale_str = settings['locale']
-            logger.info(f"got locale from settings: {locale_str}")
+            logger.debug(f"got locale from settings: {locale_str}")
             if locale_str:
                 pendulum.set_locale(locale_str)
                 if locale_str == "en":

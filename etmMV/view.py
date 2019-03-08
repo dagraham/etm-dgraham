@@ -528,11 +528,19 @@ def maybe_alerts(now):
         logger.debug(f"settings alerts: {settings['alerts']}")
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
             logger.debug(f"{alert}")
+            alertdt = alert[0] 
+            if not isinstance(alertdt, pendulum.DateTime):
+                # rrule produces datetime.datetime objects
+                alertdt = pendulum.instance(alertdt)
             startdt = alert[1]
             if not isinstance(startdt, pendulum.DateTime):
                 # rrule produces datetime.datetime objects
                 startdt = pendulum.instance(startdt)
-            when = startdt.diff_for_humans()
+            # when = startdt.diff_for_humans()
+            if startdt >= alertdt:
+                when = f"in {(startdt-alertdt).in_words()}"
+            else:
+                when = f"{(alertdt-startdt).in_words()} ago"
             start = format_datetime(startdt)[1]
             summary = alert[3]
             doc_id = alert[4]
