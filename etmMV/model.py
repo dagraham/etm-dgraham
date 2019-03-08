@@ -624,7 +624,47 @@ class Item(object):
             return False
 
 
-    # this should be in model.item
+    def schedule_new(self, doc_id, new_dt):
+        self.item_hsh = self.db.get(doc_id=doc_id)
+        self.doc_id = doc_id
+        self.created = self.item_hsh['created']
+        logger.info(f"doc_id: {doc_id}; new_dt: {new_dt}")
+        changed = False
+        if 's' not in self.item_hsh:
+            self.item_hsh['s'] = new_dt
+            changed = True
+        elif 'r' in self.item_hsh and '-' in self.item_hsh and new_dt in self.item_hsh['-']:
+            self.item_hsh['-'].remove(new_dt)
+            changed = True
+        else:
+            # works both with and without r
+            self.item_hsh.setdefault('+', []).append(new_dt)
+            changed = True
+        if changed:
+            self.item_hsh['created'] = self.created
+            self.item_hsh['modified'] = pendulum.now('local')
+            logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
+            self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+        return changed
+
+
+    def reschedule(self, doc_id, old_dt, new_dt):
+        if old_dt == new_dt:
+            return
+
+        self.item_hsh = self.db.get(doc_id=doc_id)
+        self.doc_id = doc_id
+        self.created = self.item_hsh['created']
+        logger.info(f"doc_id: {doc_id}; old_dt: {old_dt}; new_dt: {new_dt}")
+        removed_old = False
+        added_new = self.schedule_new(doc_id, new_dt)
+        if added_new:
+            removed_old = self.delete_instances(doc_id, old_dt, 0)
+        else:
+            logger.warn(f"doc_id: {doc_id}; error adding {new_dt}")
+        return added_new and removed_old
+
+
     def delete_instances(self, doc_id, instance, which):
         """
         which:
@@ -662,11 +702,12 @@ class Item(object):
                 self.item_hsh['modified'] = pendulum.now('local')
                 logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
                 self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+            return changed
 
         else: # 1
             # all instance - delete item
             changed = self.delete_item(doc_id)
-        return changed
+            return changed
 
 
     def finish_item(self, item_id, job_id, completed_datetime, due_datetime):

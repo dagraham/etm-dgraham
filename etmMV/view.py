@@ -171,7 +171,7 @@ class ConfirmDialog(object):
     def __pt_container__(self):
         return self.dialog
 
-def show_message(title, text, padding):
+def show_message(title, text, padding=6):
     def coroutine():
         dialog = MessageDialog(title, text, padding)
         yield From(show_dialog_as_float(dialog))
@@ -360,8 +360,6 @@ def do_go_to_date(*event):
             show_message('go to date', 'Invalid date')
         else:
             set_text(dataview.show_active_view())
-
-
     ensure_future(coroutine())
 
 terminal_style = None
@@ -752,6 +750,81 @@ body = HSplit([
     ])
 
 item_not_selected = False
+
+@bindings.add('S', filter=is_viewing_or_details)
+def do_schedule_new(*event):
+    doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+
+    if not doc_id:
+        return
+
+    hsh = DBITEM.get(doc_id=doc_id)
+
+    def coroutine():
+        dialog = TextInputDialog(
+            title='schedule new instance',
+            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\nnew datetime or nothing to cancel:")
+
+        new_datetime = yield From(show_dialog_as_float(dialog))
+
+        if not new_datetime:
+            return 
+        changed = False
+        ok, dt, z = parse_datetime(new_datetime)
+
+        if ok:
+            changed = item.schedule_new(doc_id, dt)
+        else:
+            show_message('new instance', f"'{new_datetime}' is invalid")
+
+        if changed:
+            if doc_id in dataview.itemcache:
+                del dataview.itemcache[doc_id]
+            application.layout.focus(text_area)
+            set_text(dataview.show_active_view())
+            loop = get_event_loop()
+            loop.call_later(0, data_changed, loop)
+
+
+    ensure_future(coroutine())
+
+
+@bindings.add('R', filter=is_viewing_or_details)
+def do_reschedule(*event):
+    doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+
+    if not (doc_id and instance):
+        return
+
+    hsh = DBITEM.get(doc_id=doc_id)
+
+    def coroutine():
+        dialog = TextInputDialog(
+            title='reschedule instance',
+            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\ninstance: {format_datetime(instance)[1]}\n\nNew datetime or nothing to cancel:")
+
+        new_datetime = yield From(show_dialog_as_float(dialog))
+
+        if not new_datetime:
+            return 
+        changed = False
+        ok, dt, z = parse_datetime(new_datetime)
+
+        if ok:
+            changed = item.reschedule(doc_id, instance, dt)
+        else:
+            show_message('new instance', f"'{new_datetime}' is invalid")
+
+        if changed:
+            if doc_id in dataview.itemcache:
+                del dataview.itemcache[doc_id]
+            application.layout.focus(text_area)
+            set_text(dataview.show_active_view())
+            loop = get_event_loop()
+            loop.call_later(0, data_changed, loop)
+
+
+    ensure_future(coroutine())
 
 
 @bindings.add('D', filter=is_viewing_or_details & is_item_view)
