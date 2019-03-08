@@ -389,10 +389,12 @@ def process_entry(s, settings={}):
             pos_hsh[tuple([beg, end])] = (f"{key[-1]}{key[-1]}", value)
             adding = key[-1]
         elif key in ['@a', '@u']:
+            # pos_hsh[tuple((beg, end))] = (key[-1], value)
             pos_hsh[tuple((beg, end))] = (key[-1], value)
             adding = None
         elif key.startswith('&'):
             if adding:
+                logger.info(f"adding: ({adding}{key[-1]}, {value})")
                 pos_hsh[tuple((beg, end))] = (f"{adding}{key[-1]}", value)
             else:
                 pass
@@ -509,7 +511,7 @@ class Item(object):
                 'r?': ["repetition &-key", "enter &-key", self.do_ampr],
 
                 'jj': ["summary", "job summary", do_string],
-                'ja': ["alert", "list of timeperiod before task start followed by a colon and a command and, optionally, command arguments", do_alert],
+                'ja': ["alert", "list of timeperiod before task start followed by a colon and a list of command", do_alert],
                 'jb': ["beginby", " integer number of days", do_beginby],
                 'jd': ["description", " string", do_string],
                 'je': ["extent", " timeperiod", do_period],
@@ -620,7 +622,7 @@ class Item(object):
 
     def finish_item(self, item_id, job_id, completed_datetime, due_datetime):
         # item_id and job_id should have come from dataview.maybe_finish and thus be valid
-        logger.info(f"item_id: {item_id}; job_id: {job_id}, done: {completed_datetime}; due: {due_datetime}")
+        logger.debug(f"item_id: {item_id}; job_id: {job_id}, done: {completed_datetime}; due: {due_datetime}")
         save_item = False
         self.item_hsh = self.db.get(doc_id=item_id)
         self.doc_id = item_id
@@ -636,7 +638,7 @@ class Item(object):
                     j += 1
                     continue
             ok, jbs, last = jobs(self.item_hsh['j'], self.item_hsh)
-            logger.info(f"ok: {ok}; jbs: {jbs}; last: {last}")
+            logger.debug(f"ok: {ok}; jbs: {jbs}; last: {last}")
             if ok:
                 self.item_hsh['j'] = jbs
                 if last:
@@ -687,7 +689,7 @@ class Item(object):
         if save_item:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            logger.info(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
+            logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
 
@@ -703,6 +705,7 @@ class Item(object):
             for job in self.item_hsh['j']:
                 if job['i'] == job_id:
                     self.item_hsh['j'][j].setdefault('u', []).append([elapsed_time, completed_datetime])
+                    logger.info(f"added job used time {self.item_hsh['j'][j]}")
                     save_item = True
                     break
                 else:
@@ -711,10 +714,11 @@ class Item(object):
         else:
             self.item_hsh.setdefault('u', []).append([elapsed_time, completed_datetime]) 
             save_item = True
+            logger.info(f"added item used time {self.item_hsh['u']}")
         if save_item:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            logger.info(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
+            logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
 
@@ -779,7 +783,9 @@ class Item(object):
                     reply = msg
                 else:
                     # call the appropriate do for the key 
+                    logger.info(f"calling {do} for {val}")
                     obj, rep = do(val)
+                    logger.info(f"got {obj}, {rep}")
                     reply = rep if rep else r
                     if obj:
                         self.object_hsh[kv] = obj
@@ -801,7 +807,10 @@ class Item(object):
         cur_key = None
         logger.debug(f"updating doc_id: {self.doc_id}; is_new: {self.is_new}")
         for pos, (k, v) in self.pos_hsh.items():
-            obj = self.object_hsh[(k, v)]
+            obj = self.object_hsh.get((k, v))
+            if not obj:
+                logger.info(f"(k, v): {(k, v)};  object_hsh: {self.object_hsh}")
+                continue
             if k in ['a', 'u']:
                 self.item_hsh.setdefault(k, []).append(obj)
             elif k in ['rr', 'jj']:
@@ -1353,7 +1362,6 @@ def format_duration(obj):
             until.append(f"{obj.minutes}m")
         if not until:
             until.append("0m")
-        ret = "".join(until)
         return "".join(until)
     except Exception as e:
         print('format_duration', e)
@@ -1363,6 +1371,7 @@ def format_duration(obj):
 def format_duration_list(obj_lst):
     try:
         ret = ", ".join([format_duration(x) for x in obj_lst])
+        logger.info(f"obj_lst: {obj_lst}; ret: {ret}")
         return ret
     except Exception as e:
         print('format_duration_list', e)
@@ -1866,7 +1875,7 @@ class DataView(object):
             item_id = id_tup
             instance = None
             job = None
-        logger.info(f"details for row: {row}; item_id: {item_id}; instance: {instance}; job: {job}")
+        logger.debug(f"details for row: {row}; item_id: {item_id}; instance: {instance}; job: {job}")
         return (item_id, instance, job)
 
     def get_details(self, row=None, edit=False):
@@ -1960,10 +1969,10 @@ class DataView(object):
                     return False, 'this job is either finished or waiting', None, None, None
                 else: 
                     # the requisite job_id and available
-                    logger.info(f"returning: {job['status']} {job['summary']}")
+                    logger.debug(f"returning: {job['status']} {job['summary']}")
                     return True, f"{job['status']} {job['summary']}\n{due_str}", item_id, job_id, due
             # couldn't find job_id
-            logger.info(f"job_id: {job_id} not found in item: {item}")
+            logger.debug(f"job_id: {job_id} not found in item: {item}")
             return False, f"bad job_id: {job_id}", None, None, None
 
         # we have an unfinished task without jobs
@@ -2528,7 +2537,7 @@ entry_tmpl = """\
 {%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
 {%- endfor %}
 {%- if 'a' in x %}\
-{%- for a in x['a'] %} {{ "&a {}: {}".format(inlst2str(a[0]), a[1]) }}{% endfor %}\
+{%- for a in x['a'] %} {{ "&a {}: {}".format( inlst2str(a[0]), one_or_more(a[1]) ) }}{% endfor %}\
 {%- endif %}\
 {% if 'u' in x %}\
 {%- set used %}
@@ -2600,7 +2609,7 @@ def do_usedtime(arg):
     got_period = got_datetime = False
     rep_period = 'period' 
     rep_datetime = 'datetime'
-    parts = re.split(':\s+', arg)
+    parts = arg.split(':')
     period = parts.pop(0)
     if period:
         ok, res = parse_duration(period)
@@ -2615,13 +2624,15 @@ def do_usedtime(arg):
         ok, res, z = parse_datetime(dt, 'local')
         if ok:
             obj_datetime = res
-            rep_datetime = format_datetime(res)[1]
+            rep_datetime = format_datetime(res, short=True)[1]
             got_datetime = True
         else:
             rep_datetime = res
 
     if got_period and got_datetime:
-        return [obj_period, obj_datetime], f"used {rep_period} ending {rep_datetime}"
+        obj = [obj_period, obj_datetime]
+        logger.info(f"returning {obj}")
+        return obj, f"{rep_period}: {rep_datetime}"
     else:
         return None, f"{rep_period}: {rep_datetime}"
 
@@ -2665,7 +2676,8 @@ def do_alert(arg):
                 good_periods.append(format_duration(res))
             else:
                 bad_periods.append(period)
-        rep = f"alert: {', '.join(good_periods)} -> {command}"
+        rep = f"{', '.join(good_periods)}: {', '.join(commands)}"
+        logger.info(f"rep: {rep}; good_periods: {good_periods}; commands: {commands}")
         if bad_periods:
             obj = None
             rep += f"\nincomplete or invalid periods: {', '.join(bad_periods)}"
@@ -3300,7 +3312,7 @@ def get_next_due(item, done, due):
     lofh = item.get('r')
     if not lofh:
         return ''
-    logger.info(f"done: {done}; type(done); {type(done)}; due: {due}; type(due): {type(due)}")
+    logger.debug(f"done: {done}; type(done); {type(done)}; due: {due}; type(due): {type(due)}")
     rset = rruleset()
     overdue = item.get('o', 'k')
     if overdue == 'k':
@@ -3323,7 +3335,7 @@ def get_next_due(item, done, due):
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
         using_dates = True
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
-    logger.info(f"dtstart: {dtstart}; type: {type(dtstart)}")
+    logger.debug(f"dtstart: {dtstart}; type: {type(dtstart)}")
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
         kwd['dtstart'] = dtstart
@@ -3342,13 +3354,13 @@ def get_next_due(item, done, due):
         for dt in item['+']:
             rset.rdate(dt)
             logger.debug(f"adding dt: {dt} in {item.get('summary', '?')}")
-    logger.info(f"aft: {aft}; type(aft): {type(aft)}; inc: {inc}")
+    logger.debug(f"aft: {aft}; type(aft): {type(aft)}; inc: {inc}")
     nxt_rset = rset.after(aft, inc)
-    logger.info(f" nxt_rset: {nxt_rset}; type(nxt_rset): {type(nxt_rset)}")
+    logger.debug(f" nxt_rset: {nxt_rset}; type(nxt_rset): {type(nxt_rset)}")
     nxt = pendulum.instance(nxt_rset)
     if using_dates:
         nxt = nxt.date()
-    logger.info(f" nxt: {nxt}; type(nxt): {type(nxt)}")
+    logger.debug(f" nxt: {nxt}; type(nxt): {type(nxt)}")
     return nxt
 
 
