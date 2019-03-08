@@ -90,106 +90,105 @@ git commit -a --amend -m "$omsg $tmsg"
 # This will be an annotated tag
 git tag -a -f $tag -m "$versioninfo"
 
-echo $tag > etmTk/v.txt
+echo $tag > etmMV/__version__.txt
 
 ./mk_docs.sh
 
 count=100
 echo "# Recent changes as of $now:" > CHANGES.txt
-     #Changes in the 4 weeks :
-#git log --pretty=format:'- %ai %h%d: %an%n%w(70,4,4)%s' --since="$weeks weeks ago" >> "$home/CHANGES.txt"
 git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count=$count >> "$home/CHANGES.txt"
 echo "" >> $home/CHANGES.txt
-cp CHANGES.txt etmTk/CHANGES
+cp CHANGES.txt etmMV/CHANGES
 
 echo "Creating $tag: $change"
-echo "Edit etmTk/v.py to change the major and minor numbers."
+echo "Edit etmMV/__version__.py to change the major and minor numbers."
 echo
 
-cd "$home"
-pwd
+############################################################
+#cd "$home"
+#pwd
 
-echo "### processing $tag ###"
+#echo "### processing $tag ###"
 
-echo "Cleaning up build/ and dist/"
-sudo rm -fR build/*
-sudo rm -fR dist/*
+#echo "Cleaning up build/ and dist/"
+#sudo rm -fR build/*
+#sudo rm -fR dist/*
 
-ls build
-ls dist
+#ls build
+#ls dist
 
-echo "Creating python sdist for $tag"
-if [ "$plat" = 'Darwin' ]; then
-    python3 -O setup.py sdist --formats=gztar,zip
-else
-    python -O setup.py sdist --formats=gztar,zip
-fi
+#echo "Creating python sdist for $tag"
+#if [ "$plat" = 'Darwin' ]; then
+#    python3 -O setup.py sdist --formats=gztar,zip
+#else
+#    python -O setup.py sdist --formats=gztar,zip
+#fi
 
-echo "Finished making sdist for $tag"
+#echo "Finished making sdist for $tag"
 
-cd "$home/dist"
-echo
-echo "unpacking etmtk-${tag}.tar.gz"
-tar -xzf "etmtk-${tag}.tar.gz"
-echo
+#cd "$home/dist"
+#echo
+#echo "unpacking etmtk-${tag}.tar.gz"
+#tar -xzf "etmtk-${tag}.tar.gz"
+#echo
 
-cd "$home"
-
-echo
-echo -n "Do system installation?"
-if asksure; then
-    echo "Building for $plat"
-    echo
-    echo "changing to etmtk-${tag} and running setup.py"
-    cd "$home/dist/etmtk-${tag}"
-    pwd
-    if [ "$plat" = 'Darwin' ]; then
-        echo
-        echo "Installing etmtk for python 2" && sudo python2.7 setup.py install
-        echo
-        echo "Installing etmtk for python 3" && sudo python3 setup.py install
-        echo "    Doing system installation" >> $logfile
-    else
-        echo "installing etmtk for python 2" && sudo python setup.py install
-    fi
-    echo "Finished system install of etmtk-${tag}"
-    cd "$home"
-else
-    echo "Skipping system wide installaton"
-fi
-
-pwd
+#cd "$home"
 
 #echo
-#echo Removing etm-tk/dist/etmtk-$tag
-## cd /Users/dag/etm-qt/dist && sudo rm -fdR etm_qt-${tag}
-#cd "$home"/dist
-#rm -fdR etmtk-${tag}
+#echo -n "Do system installation?"
+#if asksure; then
+#    echo "Building for $plat"
+#    echo
+#    echo "changing to etmtk-${tag} and running setup.py"
+#    cd "$home/dist/etmtk-${tag}"
+#    pwd
+#    if [ "$plat" = 'Darwin' ]; then
+#        echo
+#        echo "Installing etmtk for python 2" && sudo python2.7 setup.py install
+#        echo
+#        echo "Installing etmtk for python 3" && sudo python3 setup.py install
+#        echo "    Doing system installation" >> $logfile
+#    else
+#        echo "installing etmtk for python 2" && sudo python setup.py install
+#    fi
+#    echo "Finished system install of etmtk-${tag}"
+#    cd "$home"
+#else
+#    echo "Skipping system wide installaton"
+#fi
 
-cd "$home"
+#pwd
 
-# # for new pyinstaller???
-# pyinstaller  --runtime-hook rthook_pyqt4.py --clean -w --noupx etm_qt
+##echo
+##echo Removing etm-tk/dist/etmtk-$tag
+### cd /Users/dag/etm-qt/dist && sudo rm -fdR etm_qt-${tag}
+##cd "$home"/dist
+##rm -fdR etmtk-${tag}
 
-echo
-echo -n "Create $plat package?"
-if asksure; then
-    echo "Building for $plat"
-    echo
-    sudo rm -fR dist-$plat/*
-    if [ "$plat" = 'Darwin' ]; then
-        cxfreeze3 -s -c -OO etm --icon=etmTk/etmlogo.icns --target-dir dist-$plat/etmtk-${tag}-freeze-$plat
-    else
-        cxfreeze -OO etm --target-dir dist-$plat/etmtk-${tag}-freeze-$plat
-    fi
-    cd dist-$plat
-    tar czf etmtk-${tag}-freeze-$plat.tar.gz etmtk-${tag}-freeze-$plat
-#    zip -r etmtk-${tag}-freeze-UBUNTU.zip etmtk-${tag}-freeze-UBUNTU
-    cd "$home"
-    echo "Creating package" >> $logfile
-else
-    echo "Skipping etm.app creation."
-fi
-now=`date`
-echo "Finished: $now"
-echo "    Finished: $now" >> $logfile
+#cd "$home"
+
+## # for new pyinstaller???
+## pyinstaller  --runtime-hook rthook_pyqt4.py --clean -w --noupx etm_qt
+
+#echo
+#echo -n "Create $plat package?"
+#if asksure; then
+#    echo "Building for $plat"
+#    echo
+#    sudo rm -fR dist-$plat/*
+#    if [ "$plat" = 'Darwin' ]; then
+#        cxfreeze3 -s -c -OO etm --icon=etmTk/etmlogo.icns --target-dir dist-$plat/etmtk-${tag}-freeze-$plat
+#    else
+#        cxfreeze -OO etm --target-dir dist-$plat/etmtk-${tag}-freeze-$plat
+#    fi
+#    cd dist-$plat
+#    tar czf etmtk-${tag}-freeze-$plat.tar.gz etmtk-${tag}-freeze-$plat
+##    zip -r etmtk-${tag}-freeze-UBUNTU.zip etmtk-${tag}-freeze-UBUNTU
+#    cd "$home"
+#    echo "Creating package" >> $logfile
+#else
+#    echo "Skipping etm.app creation."
+#fi
+#now=`date`
+#echo "Finished: $now"
+#echo "    Finished: $now" >> $logfile
