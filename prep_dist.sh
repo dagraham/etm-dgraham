@@ -92,7 +92,7 @@ git tag -a -f $tag -m "$versioninfo"
 
 echo $tag > etmMV/__version__.txt
 
-./mk_docs.sh
+# ./mk_docs.sh
 
 count=100
 echo "# Recent changes as of $now:" > CHANGES.txt
