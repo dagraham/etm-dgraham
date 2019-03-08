@@ -394,7 +394,7 @@ def process_entry(s, settings={}):
             adding = None
         elif key.startswith('&'):
             if adding:
-                logger.info(f"adding: ({adding}{key[-1]}, {value})")
+                logger.debug(f"adding: ({adding}{key[-1]}, {value})")
                 pos_hsh[tuple((beg, end))] = (f"{adding}{key[-1]}", value)
             else:
                 pass
@@ -411,7 +411,7 @@ def process_entry(s, settings={}):
         keyvals.insert(0, ('summary', v))
         keyvals.insert(0, ('itemtype', k))
 
-    logger.info(f"keyvals: {keyvals}; pos_hsh.items(): {pos_hsh.items()}")
+    logger.debug(f"keyvals: {keyvals}; pos_hsh.items(): {pos_hsh.items()}")
     return pos_hsh, keyvals
 
 def active_from_pos(pos_hsh, pos):
@@ -706,7 +706,7 @@ class Item(object):
             for job in self.item_hsh['j']:
                 if job['i'] == job_id:
                     self.item_hsh['j'][j].setdefault('u', []).append([elapsed_time, completed_datetime])
-                    logger.info(f"added job used time {self.item_hsh['j'][j]}")
+                    logger.debug(f"added job used time {self.item_hsh['j'][j]}")
                     save_item = True
                     break
                 else:
@@ -715,7 +715,7 @@ class Item(object):
         else:
             self.item_hsh.setdefault('u', []).append([elapsed_time, completed_datetime]) 
             save_item = True
-            logger.info(f"added item used time {self.item_hsh['u']}")
+            logger.debug(f"added item used time {self.item_hsh['u']}")
         if save_item:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
@@ -737,11 +737,11 @@ class Item(object):
         # self.is_modified = modified
         logger.debug(f"s: {s}; pos: {pos}")
         self.entry = s
-        # logger.info(f"starting keyvals: {self.keyvals}")
+        # logger.debug(f"starting keyvals: {self.keyvals}")
         self.pos_hsh, keyvals = process_entry(s, self.settings)
-        # logger.info(f"ending keyvals: {keyvals}")
+        # logger.debug(f"ending keyvals: {keyvals}")
         removed, changed = listdiff(self.keyvals, keyvals)
-        logger.info(f"self.keyvals: {self.keyvals};  removed: {removed}; changed: {changed}")
+        logger.debug(f"self.keyvals: {self.keyvals};  removed: {removed}; changed: {changed}")
 
         # if removed + changed != []:
         if self.init_entry != self.entry:
@@ -763,7 +763,7 @@ class Item(object):
                 del self.askreply[kv]
         self.keyvals = [kv for kv in keyvals]
         for kv in changed:
-            logger.info(f"updating keyval: {kv}")
+            logger.debug(f"updating keyval: {kv}")
             self.update_keyval(kv)
 
 
@@ -787,13 +787,13 @@ class Item(object):
                     reply = msg
                 else:
                     # call the appropriate do for the key 
-                    logger.info(f"calling {do} for {val}")
+                    logger.debug(f"calling {do} for {val}")
                     obj, rep = do(val)
-                    logger.info(f"got {obj}, {rep}")
+                    logger.debug(f"got {obj}, {rep}")
                     reply = rep if rep else r
                     if obj:
                         self.object_hsh[kv] = obj
-                        logger.info(f"object_hsh[{kv}]: {self.object_hsh[kv]}")
+                        logger.debug(f"object_hsh[{kv}]: {self.object_hsh[kv]}")
                     else:
                         if kv in self.object_hsh:
                             del self.object_hsh[kv]
@@ -814,7 +814,7 @@ class Item(object):
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if not obj:
-                logger.info(f"(k, v): {(k, v)};  object_hsh: {self.object_hsh}")
+                logger.debug(f"(k, v): {(k, v)};  object_hsh: {self.object_hsh}")
                 continue
             if k in ['a', 'u']:
                 self.item_hsh.setdefault(k, []).append(obj)
@@ -826,7 +826,7 @@ class Item(object):
                 cur_hsh = {k[0]: obj}
             elif k[0] in ['r', 'j']:
                 if cur_hsh:
-                    logger.info(f"cur_hsh[{k[1]}]: {obj}")
+                    logger.debug(f"cur_hsh[{k[1]}]: {obj}")
                     cur_hsh[k[1]] = obj
                 else:
                     # shouldn't happen
@@ -847,8 +847,8 @@ class Item(object):
             logger.debug(f"jobs: {self.item_hsh['j']}")
             ok, res, last = jobs(self.item_hsh['j'], self.item_hsh)
             if ok:
-                logger.info(f"item_hsh['j']: {self.item_hsh['j']}")
-                logger.info(f"res: {res}")
+                logger.debug(f"item_hsh['j']: {self.item_hsh['j']}")
+                logger.debug(f"res: {res}")
                 self.item_hsh['j'] = res
                 if last:
                     self.item_hsh['f'] = last
@@ -1375,7 +1375,7 @@ def format_duration(obj):
 def format_duration_list(obj_lst):
     try:
         ret = ", ".join([format_duration(x) for x in obj_lst])
-        logger.info(f"obj_lst: {obj_lst}; ret: {ret}")
+        logger.debug(f"obj_lst: {obj_lst}; ret: {ret}")
         return ret
     except Exception as e:
         print('format_duration_list', e)
@@ -2635,7 +2635,7 @@ def do_usedtime(arg):
 
     if got_period and got_datetime:
         obj = [obj_period, obj_datetime]
-        logger.info(f"returning {obj}")
+        logger.debug(f"returning {obj}")
         return obj, f"{rep_period}: {rep_datetime}"
     else:
         return None, f"{rep_period}: {rep_datetime}"
@@ -2681,7 +2681,7 @@ def do_alert(arg):
             else:
                 bad_periods.append(period)
         rep = f"{', '.join(good_periods)}: {', '.join(commands)}"
-        logger.info(f"rep: {rep}; good_periods: {good_periods}; commands: {commands}")
+        logger.debug(f"rep: {rep}; good_periods: {good_periods}; commands: {commands}")
         if bad_periods:
             obj = None
             rep += f"\nincomplete or invalid periods: {', '.join(bad_periods)}"
@@ -4166,7 +4166,7 @@ def relevant(db, now=pendulum.now('local') ):
         possible_alerts = []
         all_tds = []
         if 'itemtype' not in item:
-            logger.info(f"no itemtype: {item}")
+            logger.debug(f"no itemtype: {item}")
             continue
         if item['itemtype'] == '!':
             inbox.append([0, item['summary'], item.doc_id, None, None])
