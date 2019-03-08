@@ -83,6 +83,9 @@ if __name__ == "__main__":
     view.format_datetime = format_datetime
     view.format_duration = format_duration
     view.parse_datetime = parse_datetime
+    view.ETMDB = ETMDB
+    view.DBITEM = DBITEM
+    view.DBARCH = DBARCH
 
     # view.ampm = settings['ampm']
     view.dataview = dataview

@@ -619,6 +619,54 @@ class Item(object):
         if self.db.contains(doc_ids=[doc_id]):
             logger.debug(f"found doc_id: {doc_id} in database")
             self.db.remove(doc_ids=[doc_id])
+            return True
+        else:
+            return False
+
+
+    # this should be in model.item
+    def delete_instances(self, doc_id, instance, which):
+        """
+        which:
+        (0, 'this instance'),
+        (1, 'all instances - delete the item itself'),
+        """
+        self.item_hsh = self.db.get(doc_id=doc_id)
+        self.doc_id = doc_id
+        self.created = self.item_hsh['created']
+        logger.info(f"doc_id: {doc_id}; instance: {instance}; which: {which}")
+        changed = False
+        if which == 0:
+            # this instance
+            logger.info(f"deleting instance {instance}")
+            if '+' in self.item_hsh and instance in self.item_hsh['+']:
+                logger.info(f"{instance} in {self.item_hsh['+']}")
+                self.item_hsh['+'].remove(instance)
+                changed = True
+            elif 'r' in self.item_hsh:
+                logger.info(f"r in hsh, adding {instance} to @-")
+                # instances don't include @s
+                self.item_hsh.setdefault('-', []).append(instance)
+                changed = True
+            else:
+                # instance should be @s
+                if self.item_hsh['s'] == instance:
+                    logger.info(f"instance {instance} must be {self.item_hsh['s']}")
+                    self.item_hsh['s'] = self.item_hsh['+'].pop(0)
+                    changed = True
+                else:
+                    # should not happen
+                    logger.warn(f"could not remove {instance} from {self.item_hsh}")
+            if changed:
+                self.item_hsh['created'] = self.created
+                self.item_hsh['modified'] = pendulum.now('local')
+                logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
+                self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+
+        else: # 1
+            # all instance - delete item
+            changed = self.delete_item(doc_id)
+        return changed
 
 
     def finish_item(self, item_id, job_id, completed_datetime, due_datetime):

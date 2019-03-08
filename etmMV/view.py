@@ -13,7 +13,7 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.dimension import D
 # from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import TextArea, SearchToolbar, MenuContainer, MenuItem
+from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
 from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from asyncio import get_event_loop
@@ -80,6 +80,44 @@ class TextInputDialog(object):
             ]),
             # buttons=[ok_button, cancel_button],
             buttons=[ok_button],
+            width=D(preferred=shutil.get_terminal_size()[0]-10),
+            modal=True)
+
+    def __pt_container__(self):
+        return self.dialog
+
+class RadioListDialog(object):
+    def __init__(self, title='', text='', label='', values=[], padding=4, completer=None):
+        self.future = Future()
+
+        self.radios = RadioList(values=values)
+        # radios.current_value will contain the first component of the selected tuple 
+        # title = "Delete"
+        # values =[
+        #     (0, 'this instance'),
+        #     (1, 'this and all subsequent instances'),
+        #     (2, 'this and all previous instances'),
+        #     (3, 'all instances - the item itself'),
+        # ]
+
+        def accept():
+            self.future.set_result(self.radios.current_value)
+
+        def cancel():
+            self.future.set_result(None)
+
+
+        ok_button = Button(text='OK', handler=accept)
+        cancel_button = Button(text='Cancel', handler=cancel)
+
+        self.dialog = Dialog(
+            title=title,
+            body=HSplit([
+                Label(text=text),
+                Frame(title=label, body=self.radios)
+            ]),
+            # body= Frame(title=label, body=self.radios),
+            buttons=[ok_button, cancel_button],
             width=D(preferred=shutil.get_terminal_size()[0]-10),
             modal=True)
 
@@ -715,17 +753,73 @@ body = HSplit([
 
 item_not_selected = False
 
-@bindings.add('D', filter=is_not_editing)
-def delete_item(*event):
-    global item
-    if dataview.is_showing_details:
-        application.layout.focus(text_area)
-        dataview.hide_details()
-    doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
-    logger.info(f"deleting doc_id: {doc_id}")
-    item.delete_item(doc_id)
-    loop = get_event_loop()
-    loop.call_later(0, data_changed, loop)
+
+@bindings.add('D', filter=is_viewing_or_details & is_item_view)
+def do_maybe_delete(*event):
+
+    doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+
+    if not doc_id:
+        return
+
+    hsh = DBITEM.get(doc_id=doc_id)
+
+    logger.info(f"doc_id: {doc_id}; instance: {instance}; hsh: {hsh}")
+    if not instance:
+        # not repeating
+        def coroutine():
+            dialog = ConfirmDialog("Delete", 
+                    f"Selected: {hsh['itemtype']} {hsh['summary']}\n\nAre you sure you want to delete this item?\nThis would remove the item from the database\nand cannot be undone.")
+
+            delete = yield From(show_dialog_as_float(dialog))
+            if delete:
+                logger.info(f"deleting doc_id: {doc_id}")
+                item.delete_item(doc_id)
+                if doc_id in dataview.itemcache:
+                    del dataview.itemcache[doc_id]
+                application.layout.focus(text_area)
+                set_text(dataview.show_active_view())
+                loop = get_event_loop()
+                loop.call_later(0, data_changed, loop)
+            else:
+                logger.info('canceled deleting doc_id: {doc_id}')
+
+        ensure_future(coroutine())
+
+    if instance:
+        # repeating
+
+        def coroutine():
+
+            # radios.current_value will contain the first component of the selected tuple 
+            title = "Delete"
+            text = f"Selected: {hsh['itemtype']} {hsh['summary']}\nInstance: {format_datetime(instance)[1]}\n\nDelete what?"
+            values =[
+                (0, 'just this instance'),
+                (1, 'the item itself'),
+            ]
+
+            dialog = RadioListDialog(
+                title=title,
+                text=text,
+                values=values)
+
+            which = yield From(show_dialog_as_float(dialog))
+            if which is None:
+                logger.info('canceled deleting doc_id: {doc_id}')
+            else:
+                logger.info(f"which: {which}")
+                changed = item.delete_instances(doc_id, instance, which)
+                if changed:
+                    if doc_id in dataview.itemcache:
+                        del dataview.itemcache[doc_id]
+                    application.layout.focus(text_area)
+                    set_text(dataview.show_active_view())
+                    loop = get_event_loop()
+                    loop.call_later(0, data_changed, loop)
+
+        ensure_future(coroutine())
+
 
 @bindings.add('N', filter=is_viewing)
 def edit_new(*event):
@@ -1033,7 +1127,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('Enter) toggle showing details', handler=show_details),
         MenuItem('E) edit', handler=edit_existing),
         MenuItem('C) edit copy', handler=edit_copy),
-        MenuItem('D) delete', handler=delete_item),
+        MenuItem('D) delete', handler=do_maybe_delete),
         MenuItem('F) finish', handler=do_finish),
         MenuItem('R) __reschedule',  disabled=True),
         MenuItem('S) __schedule new',  disabled=True),
@@ -1064,18 +1158,6 @@ def set_askreply(_):
     ask_buffer.text = ask
     reply_buffer.text = wrap(reply, 0) 
 
-
-# create application.
-# application = Application(
-#     layout=Layout(
-#         root_container,
-#         focused_element=text_area,
-#     ),
-#     key_bindings=bindings,
-#     enable_page_navigation_bindings=True,
-#     mouse_support=True,
-#     style=style,
-#     full_screen=True)
 
 dataview = None
 item = None
