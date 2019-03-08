@@ -628,7 +628,7 @@ class Item(object):
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
-        logger.info(f"doc_id: {doc_id}; new_dt: {new_dt}")
+        logger.debug(f"doc_id: {doc_id}; new_dt: {new_dt}")
         changed = False
         if 's' not in self.item_hsh:
             self.item_hsh['s'] = new_dt
@@ -655,7 +655,7 @@ class Item(object):
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
-        logger.info(f"doc_id: {doc_id}; old_dt: {old_dt}; new_dt: {new_dt}")
+        logger.debug(f"doc_id: {doc_id}; old_dt: {old_dt}; new_dt: {new_dt}")
         removed_old = False
         added_new = self.schedule_new(doc_id, new_dt)
         if added_new:
@@ -674,24 +674,24 @@ class Item(object):
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
-        logger.info(f"doc_id: {doc_id}; instance: {instance}; which: {which}")
+        logger.debug(f"doc_id: {doc_id}; instance: {instance}; which: {which}")
         changed = False
         if which == 0:
             # this instance
-            logger.info(f"deleting instance {instance}")
+            logger.debug(f"deleting instance {instance}")
             if '+' in self.item_hsh and instance in self.item_hsh['+']:
-                logger.info(f"{instance} in {self.item_hsh['+']}")
+                logger.debug(f"{instance} in {self.item_hsh['+']}")
                 self.item_hsh['+'].remove(instance)
                 changed = True
             elif 'r' in self.item_hsh:
-                logger.info(f"r in hsh, adding {instance} to @-")
+                logger.debug(f"r in hsh, adding {instance} to @-")
                 # instances don't include @s
                 self.item_hsh.setdefault('-', []).append(instance)
                 changed = True
             else:
                 # instance should be @s
                 if self.item_hsh['s'] == instance:
-                    logger.info(f"instance {instance} must be {self.item_hsh['s']}")
+                    logger.debug(f"instance {instance} must be {self.item_hsh['s']}")
                     self.item_hsh['s'] = self.item_hsh['+'].pop(0)
                     changed = True
                 else:

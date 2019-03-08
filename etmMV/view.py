@@ -837,7 +837,7 @@ def do_maybe_delete(*event):
 
     hsh = DBITEM.get(doc_id=doc_id)
 
-    logger.info(f"doc_id: {doc_id}; instance: {instance}; hsh: {hsh}")
+    logger.debug(f"doc_id: {doc_id}; instance: {instance}; hsh: {hsh}")
     if not instance:
         # not repeating
         def coroutine():
@@ -846,7 +846,7 @@ def do_maybe_delete(*event):
 
             delete = yield From(show_dialog_as_float(dialog))
             if delete:
-                logger.info(f"deleting doc_id: {doc_id}")
+                logger.debug(f"deleting doc_id: {doc_id}")
                 item.delete_item(doc_id)
                 if doc_id in dataview.itemcache:
                     del dataview.itemcache[doc_id]
@@ -855,7 +855,7 @@ def do_maybe_delete(*event):
                 loop = get_event_loop()
                 loop.call_later(0, data_changed, loop)
             else:
-                logger.info('canceled deleting doc_id: {doc_id}')
+                logger.debug('canceled deleting doc_id: {doc_id}')
 
         ensure_future(coroutine())
 
@@ -879,9 +879,9 @@ def do_maybe_delete(*event):
 
             which = yield From(show_dialog_as_float(dialog))
             if which is None:
-                logger.info('canceled deleting doc_id: {doc_id}')
+                logger.debug('canceled deleting doc_id: {doc_id}')
             else:
-                logger.info(f"which: {which}")
+                logger.debug(f"which: {which}")
                 changed = item.delete_instances(doc_id, instance, which)
                 if changed:
                     if doc_id in dataview.itemcache:
@@ -981,14 +981,14 @@ def do_finish(*event):
 
         done_str = yield From(show_dialog_as_float(dialog))
         if done_str:
-            logger.info(f"done string: {done_str}")
+            logger.debug(f"done string: {done_str}")
             try:
                 done = parse_datetime(done_str)[1]
             except ValueError:
                 show_message('Finish task/job?', 'Invalid finished datetime')
             else:
                 # valid done
-                logger.info(f"done parsed: {done}")
+                logger.debug(f"done parsed: {done}")
                 item.finish_item(item_id, job_id, done, due)
                 # dataview.itemcache[item.doc_id] = {}
                 if item_id in dataview.itemcache:
@@ -1202,8 +1202,8 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('C) edit copy', handler=edit_copy),
         MenuItem('D) delete', handler=do_maybe_delete),
         MenuItem('F) finish', handler=do_finish),
-        MenuItem('R) __reschedule',  disabled=True),
-        MenuItem('S) __schedule new',  disabled=True),
+        MenuItem('R) reschedule',  handler=do_reschedule),
+        MenuItem('S) schedule new', handler=do_schedule_new),
         MenuItem('^R) show repetitions', handler=not_editing_reps),
         MenuItem('-', disabled=True),
         MenuItem('T) start timer or toggle paused', handler=do_timer_toggle),
