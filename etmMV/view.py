@@ -937,7 +937,9 @@ def do_maybe_record_timer(*event):
         return
     item_id = dataview.timer_id
     job_id = dataview.timer_job
-    stopped_timer = False
+    hsh = DBITEM.get(doc_id=item_id)
+    item_info = f"{hsh['itemtype']} {hsh['summary']}"
+
     now = pendulum.now()
     if dataview.timer_status == 1: #running
         time = dataview.timer_time + (now - dataview.timer_start)
@@ -948,7 +950,7 @@ def do_maybe_record_timer(*event):
     time_str = format_duration(time)
 
     def coroutine():
-        dialog = ConfirmDialog("active timer: {time_str}", f"Record time and close timer?")
+        dialog = ConfirmDialog(f"record time", f"elapsed time: {time_str}\nitem: {item_info}\n\nRecord time and close timer?")
 
         record_close = yield From(show_dialog_as_float(dialog))
         if record_close:
@@ -982,7 +984,7 @@ def do_maybe_cancel_timer(*event):
     time_str = format_duration(time)
 
     def coroutine():
-        dialog = ConfirmDialog("cancel timer", f"active timer: {time_str}\nClose timer without recording?")
+        dialog = ConfirmDialog("cancel timer", f"elapsed time: {time_str}\nClose timer without recording?")
 
         record_cancel = yield From(show_dialog_as_float(dialog))
         if record_cancel:
@@ -1198,7 +1200,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F5) __preferences', disabled=True),
         MenuItem('F6) __check for new version', disabled=True),
         MenuItem('-', disabled=True),
-        MenuItem('^Q) quit', handler=exit),
+        MenuItem('^q) quit', handler=exit),
     ]),
     MenuItem('view', children=[
         MenuItem('a) agenda', handler=agenda_view),
@@ -1222,9 +1224,9 @@ root_container = MenuContainer(body=body, menu_items=[
     MenuItem('editor', children=[
         MenuItem('N) create new item', handler=edit_new),
         MenuItem('-', disabled=True),
-        MenuItem('^S) save changes & close', handler=save_changes),
-        MenuItem('^R) show repetitions', handler=is_editing_reps),
-        MenuItem('^C) close editor', handler=close_edit),
+        MenuItem('^s) save changes & close', handler=save_changes),
+        MenuItem('^r) show repetitions', handler=is_editing_reps),
+        MenuItem('^c) close editor', handler=close_edit),
     ]),
     MenuItem('selected', children=[
         MenuItem('Enter) toggle showing details', handler=show_details),
@@ -1234,11 +1236,11 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F) finish', handler=do_finish),
         MenuItem('R) reschedule',  handler=do_reschedule),
         MenuItem('S) schedule new', handler=do_schedule_new),
-        MenuItem('^R) show repetitions', handler=not_editing_reps),
+        MenuItem('^r) show repetitions', handler=not_editing_reps),
         MenuItem('-', disabled=True),
-        MenuItem('t) timer start or toggle running/paused', handler=do_timer_toggle),
+        MenuItem('t) timer start, then toggle running/paused', handler=do_timer_toggle),
+        MenuItem("^t) cancel timer", handler=do_maybe_cancel_timer),
         MenuItem("T) record time and close timer", handler=do_maybe_record_timer),
-        MenuItem("^T) cancel timer", handler=do_maybe_cancel_timer),
     ]),
 ], floats=[
     Float(xcursor=True,

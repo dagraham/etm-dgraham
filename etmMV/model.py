@@ -1839,8 +1839,10 @@ class DataView(object):
 
     def timer_toggle(self, row=None):
         if self.timer_status == 0: # stopped
+            # we better have a row corresponding to an item
             res = self.get_row_details(row)
-            if not res:
+            logger.debug(f"status 0; row: {row}; res: {res}")
+            if not res[0]:
                 return None, ''
             self.timer_id = res[0]
             self.timer_job = res[2]
@@ -1861,7 +1863,7 @@ class DataView(object):
             elapsed = self.timer_time + (pendulum.now() - self.timer_start)
         if self.timer_status == 2:  # paused
             elapsed = self.timer_time
-        return f"{format_duration(elapsed)}{status}  "
+        return f"{format_duration(elapsed)} {status}   "
 
 
 
