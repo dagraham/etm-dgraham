@@ -950,8 +950,7 @@ def do_maybe_record_timer(*event):
     time_str = format_duration(time)
 
     def coroutine():
-        dialog = ConfirmDialog(f"record time", f"elapsed time: {time_str}\nitem: {item_info}\n\nRecord time and close timer?")
-
+        dialog = ConfirmDialog("active timer: {time_str}", f"Record time and close timer?")
         record_close = yield From(show_dialog_as_float(dialog))
         if record_close:
             logger.debug(f"closing and recording time: {time_str}; completed {completed_str}")
@@ -984,7 +983,11 @@ def do_maybe_cancel_timer(*event):
     time_str = format_duration(time)
 
     def coroutine():
+<<<<<<< HEAD
         dialog = ConfirmDialog("cancel timer", f"elapsed time: {time_str}\nClose timer without recording?")
+=======
+        dialog = ConfirmDialog("cancel timer", f"active timer: {time_str}\nClose timer without recording?")
+>>>>>>> 5636ae65d6111582783f98233390e29eb223b033
 
         record_cancel = yield From(show_dialog_as_float(dialog))
         if record_cancel:
@@ -1238,9 +1241,15 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('S) schedule new', handler=do_schedule_new),
         MenuItem('^r) show repetitions', handler=not_editing_reps),
         MenuItem('-', disabled=True),
+<<<<<<< HEAD
         MenuItem('t) timer start, then toggle running/paused', handler=do_timer_toggle),
         MenuItem("^t) cancel timer", handler=do_maybe_cancel_timer),
         MenuItem("T) record time and close timer", handler=do_maybe_record_timer),
+=======
+        MenuItem('t) timer start or toggle running/paused', handler=do_timer_toggle),
+        MenuItem("T) record time and close timer", handler=do_maybe_record_timer),
+        MenuItem("^T) cancel timer", handler=do_maybe_cancel_timer),
+>>>>>>> 5636ae65d6111582783f98233390e29eb223b033
     ]),
 ], floats=[
     Float(xcursor=True,
