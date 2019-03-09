@@ -652,17 +652,27 @@ class Item(object):
         if old_dt == new_dt:
             return
 
-        self.item_hsh = self.db.get(doc_id=doc_id)
+        changed = False
         self.doc_id = doc_id
-        self.created = self.item_hsh['created']
+        self.item_hsh = self.db.get(doc_id=doc_id)
         logger.debug(f"doc_id: {doc_id}; old_dt: {old_dt}; new_dt: {new_dt}")
-        removed_old = False
-        added_new = self.schedule_new(doc_id, new_dt)
-        if added_new:
-            removed_old = self.delete_instances(doc_id, old_dt, 0)
+        if not ('r' in self.item_hsh or '+' in self.item_hsh):
+            # not repeating
+            self.item_hsh['s'] = new_dt
+            self.item_hsh['modified'] = pendulum.now('local')
+            logger.debug(f"not repeating item_hsh: {self.item_hsh}")
+            self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+            changed = True
         else:
-            logger.warn(f"doc_id: {doc_id}; error adding {new_dt}")
-        return added_new and removed_old
+            # repeating
+            removed_old = False
+            added_new = self.schedule_new(doc_id, new_dt)
+            if added_new:
+                removed_old = self.delete_instances(doc_id, old_dt, 0)
+            else:
+                logger.warn(f"doc_id: {doc_id}; error adding {new_dt}")
+            changed = added_new and removed_old
+        return changed
 
 
     def delete_instances(self, doc_id, instance, which):
@@ -1961,7 +1971,7 @@ class DataView(object):
             return ()
         self.current_row = row
         id_tup = self.row2id.get(row, None)
-        logger.debug(f"id_tup: {id_tup}")
+        logger.info(f"id_tup: {id_tup}")
         if isinstance(id_tup, tuple):
             item_id, instance, job = id_tup
         else:
@@ -2648,14 +2658,13 @@ entry_tmpl = """\
 display_tmpl = entry_tmpl + """\
 
 {% if h.doc_id %}\
-{{ h.doc_id }} \
+{{ h.doc_id }}: \
 {% endif %}\
-{% if 'modified' in h %}\
-modified {{ dt2str(h.modified)[1] }}\
-{%- else %}\
 {% if 'created' in h %}\
-created {{ dt2str(h.created)[1] }}\
+{{ dt2str(h.created)[1] }}\
 {%- endif %}\
+{% if 'modified' in h %}\
+; {{ dt2str(h.modified)[1] }}\
 {%- endif %}\
 """
 

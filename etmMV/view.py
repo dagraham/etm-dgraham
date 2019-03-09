@@ -794,7 +794,7 @@ def do_schedule_new(*event):
 def do_reschedule(*event):
     doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
 
-    if not (doc_id and instance):
+    if not doc_id:
         return
 
     hsh = DBITEM.get(doc_id=doc_id)
