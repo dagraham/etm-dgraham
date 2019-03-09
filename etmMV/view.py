@@ -60,8 +60,8 @@ class TextInputDialog(object):
         def accept():
             self.future.set_result(self.text_area.text)
 
-        # def cancel():
-        #     self.future.set_result(None)
+        def cancel():
+            self.future.set_result(None)
 
         self.text_area = TextArea(
             completer=completer,
@@ -70,7 +70,7 @@ class TextInputDialog(object):
             accept_handler=accept_text)
 
         ok_button = Button(text='OK', handler=accept)
-        # cancel_button = Button(text='Cancel', handler=cancel)
+        cancel_button = Button(text='Cancel', handler=cancel)
 
         self.dialog = Dialog(
             title=title,
@@ -78,8 +78,8 @@ class TextInputDialog(object):
                 Label(text=label_text),
                 self.text_area
             ]),
-            # buttons=[ok_button, cancel_button],
-            buttons=[ok_button],
+            buttons=[ok_button, cancel_button],
+            # buttons=[ok_button],
             width=D(preferred=shutil.get_terminal_size()[0]-10),
             modal=True)
 
@@ -764,7 +764,7 @@ def do_schedule_new(*event):
     def coroutine():
         dialog = TextInputDialog(
             title='schedule new instance',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\nenter new datetime or nothing to cancel:")
+            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\nnew datetime:")
 
         new_datetime = yield From(show_dialog_as_float(dialog))
 
@@ -802,7 +802,7 @@ def do_reschedule(*event):
     def coroutine():
         dialog = TextInputDialog(
             title='reschedule instance',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\ninstance: {format_datetime(instance)[1]}\n\nenter new datetime or nothing to cancel:")
+            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\ninstance: {format_datetime(instance)[1]}\n\nnew datetime:")
 
         new_datetime = yield From(show_dialog_as_float(dialog))
 
@@ -924,14 +924,14 @@ def edit_existing(*event):
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
-@bindings.add('T', filter=is_viewing_or_details & is_item_view)
+@bindings.add('t', filter=is_viewing_or_details & is_item_view)
 def do_timer_toggle(*event):
     logger.debug(f"before toggle timer_status: {dataview.timer_status}, timer_start: {dataview.timer_start}; timer_time: {dataview.timer_time}")
     dataview.timer_toggle(text_area.document.cursor_position_row)
     logger.debug(f"after toggle timer_status: {dataview.timer_status}, timer_start: {dataview.timer_start}; timer_time: {dataview.timer_time}")
 
 
-@bindings.add('c-t', filter=is_viewing_or_details)
+@bindings.add('T', filter=is_viewing_or_details)
 def do_maybe_record_timer(*event):
     if not dataview.timer_id:
         return
@@ -948,7 +948,7 @@ def do_maybe_record_timer(*event):
     time_str = format_duration(time)
 
     def coroutine():
-        dialog = ConfirmDialog("Active Timer", f"Record {time_str} and clear timer?")
+        dialog = ConfirmDialog("active timer: {time_str}", f"Record time and close timer?")
 
         record_close = yield From(show_dialog_as_float(dialog))
         if record_close:
@@ -965,6 +965,35 @@ def do_maybe_record_timer(*event):
 
     ensure_future(coroutine())
 
+@bindings.add('c-t', filter=is_viewing_or_details)
+def do_maybe_cancel_timer(*event):
+    if not dataview.timer_id:
+        return
+    item_id = dataview.timer_id
+    job_id = dataview.timer_job
+    stopped_timer = False
+    now = pendulum.now()
+    if dataview.timer_status == 1: #running
+        time = dataview.timer_time + (now - dataview.timer_start)
+    else:
+        time = dataview.timer_time
+    completed = pendulum.now()
+    completed_str = format_datetime(completed)
+    time_str = format_duration(time)
+
+    def coroutine():
+        dialog = ConfirmDialog("cancel timer", f"active timer: {time_str}\nClose timer without recording?")
+
+        record_cancel = yield From(show_dialog_as_float(dialog))
+        if record_cancel:
+            logger.debug(f"closing timer: {time_str}")
+            dataview.timer_clear()
+            set_text(dataview.show_active_view())
+        else:
+            logger.debug('cancelled close timer')
+
+    ensure_future(coroutine())
+
 
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
 def do_finish(*event):
@@ -977,8 +1006,8 @@ def do_finish(*event):
     def coroutine():
 
         dialog = TextInputDialog(
-            title='Finish task/job?',
-            label_text=f"{show}\ncompleted:")
+            title='finish task/job',
+            label_text=f"selected: {show}\ndatetime completed:")
 
         done_str = yield From(show_dialog_as_float(dialog))
         if done_str:
@@ -1207,8 +1236,9 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('S) schedule new', handler=do_schedule_new),
         MenuItem('^R) show repetitions', handler=not_editing_reps),
         MenuItem('-', disabled=True),
-        MenuItem('T) start timer or toggle paused', handler=do_timer_toggle),
-        MenuItem("^T) maybe stop timer & record", handler=do_maybe_record_timer),
+        MenuItem('t) timer start or toggle running/paused', handler=do_timer_toggle),
+        MenuItem("T) record time and close timer", handler=do_maybe_record_timer),
+        MenuItem("^T) cancel timer", handler=do_maybe_cancel_timer),
     ]),
 ], floats=[
     Float(xcursor=True,
