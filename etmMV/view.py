@@ -221,19 +221,19 @@ bindings = KeyBindings()
 
 @bindings.add('f2')
 def do_about(*event):
-    show_message('ETM Information', about(2)[0], 0)
+    show_message('etm information', about(2)[0], 0)
 
 @bindings.add('f3')
 def do_system(*event):
-    show_message('System Information', about(22)[1], 20)
+    show_message('system information', about(22)[1], 20)
 
 @bindings.add('f5')
 def do_alerts(*event):
-    show_message("Today's Alerts", alerts(), 2)
+    show_message("today's alerts", alerts(), 2)
 
 def save_before_quit(*event):
     def coroutine():
-        dialog = ConfirmDialog("Unsaved Changes", "Save them before closing?")
+        dialog = ConfirmDialog("unsaved changes", "Save them before closing?")
 
         save_changes = yield From(show_dialog_as_float(dialog))
         if save_changes:
@@ -282,6 +282,7 @@ def menu(event):
     else:
         focus_previous(event)
     logger.debug(f"root container focus: {event.app.layout.has_focus(root_container.window)}")
+
 
 @Condition
 def is_item_view():
