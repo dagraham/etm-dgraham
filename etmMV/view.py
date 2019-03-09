@@ -950,7 +950,7 @@ def do_maybe_record_timer(*event):
     time_str = format_duration(time)
 
     def coroutine():
-        dialog = ConfirmDialog("active timer: {time_str}", f"Record time and close timer?")
+        dialog = ConfirmDialog("record time", f"item: {item_info}\nelapsed time: {time_str}\n\nrecord time and close timer?")
         record_close = yield From(show_dialog_as_float(dialog))
         if record_close:
             logger.debug(f"closing and recording time: {time_str}; completed {completed_str}")
@@ -972,6 +972,9 @@ def do_maybe_cancel_timer(*event):
         return
     item_id = dataview.timer_id
     job_id = dataview.timer_job
+    hsh = DBITEM.get(doc_id=item_id)
+    item_info = f"{hsh['itemtype']} {hsh['summary']}"
+
     stopped_timer = False
     now = pendulum.now()
     if dataview.timer_status == 1: #running
@@ -983,17 +986,13 @@ def do_maybe_cancel_timer(*event):
     time_str = format_duration(time)
 
     def coroutine():
-<<<<<<< HEAD
-        dialog = ConfirmDialog("cancel timer", f"elapsed time: {time_str}\nClose timer without recording?")
-=======
-        dialog = ConfirmDialog("cancel timer", f"active timer: {time_str}\nClose timer without recording?")
->>>>>>> 5636ae65d6111582783f98233390e29eb223b033
-
+        dialog = ConfirmDialog("cancel timer", f"item: {item_info}\nelapsed time: {time_str}\n\nclose timer without recording?")
         record_cancel = yield From(show_dialog_as_float(dialog))
         if record_cancel:
             logger.debug(f"closing timer: {time_str}")
             dataview.timer_clear()
             set_text(dataview.show_active_view())
+            get_app().invalidate()
         else:
             logger.debug('cancelled close timer')
 
@@ -1241,15 +1240,9 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('S) schedule new', handler=do_schedule_new),
         MenuItem('^r) show repetitions', handler=not_editing_reps),
         MenuItem('-', disabled=True),
-<<<<<<< HEAD
         MenuItem('t) timer start, then toggle running/paused', handler=do_timer_toggle),
         MenuItem("^t) cancel timer", handler=do_maybe_cancel_timer),
         MenuItem("T) record time and close timer", handler=do_maybe_record_timer),
-=======
-        MenuItem('t) timer start or toggle running/paused', handler=do_timer_toggle),
-        MenuItem("T) record time and close timer", handler=do_maybe_record_timer),
-        MenuItem("^T) cancel timer", handler=do_maybe_cancel_timer),
->>>>>>> 5636ae65d6111582783f98233390e29eb223b033
     ]),
 ], floats=[
     Float(xcursor=True,
