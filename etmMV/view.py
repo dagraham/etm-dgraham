@@ -764,7 +764,7 @@ def do_schedule_new(*event):
     def coroutine():
         dialog = TextInputDialog(
             title='schedule new instance',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\nnew datetime or nothing to cancel:")
+            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\nenter new datetime or nothing to cancel:")
 
         new_datetime = yield From(show_dialog_as_float(dialog))
 
@@ -802,7 +802,7 @@ def do_reschedule(*event):
     def coroutine():
         dialog = TextInputDialog(
             title='reschedule instance',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\ninstance: {format_datetime(instance)[1]}\n\nNew datetime or nothing to cancel:")
+            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\ninstance: {format_datetime(instance)[1]}\n\nenter new datetime or nothing to cancel:")
 
         new_datetime = yield From(show_dialog_as_float(dialog))
 

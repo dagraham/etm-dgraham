@@ -1971,7 +1971,7 @@ class DataView(object):
             return ()
         self.current_row = row
         id_tup = self.row2id.get(row, None)
-        logger.info(f"id_tup: {id_tup}")
+        logger.debug(f"id_tup: {id_tup}")
         if isinstance(id_tup, tuple):
             item_id, instance, job = id_tup
         else:
@@ -4884,7 +4884,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
 
         # get the instances
         for dt, et in item_instances(item, aft_dt, bef_dt):
-            instance = dt if 'r' in item or '+' in item else None
+            # instance = dt if 'r' in item or '+' in item else None
+            instance = dt
             if 'j' in item:
                 for job in item['j']:
                     if 'f' in job:
