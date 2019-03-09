@@ -86,7 +86,7 @@ echo "version = \"$tag\"" > $versionfile
 tmsg="Tagged version $tag [$versioninfo]."
 echo "tmsg: $tmsg; omsg: $omsg"
 # commit and append the tag message to the last commit message
-git commit -a --amend -m "$omsg\\n$tmsg"
+git commit -a --amend -m "$omsg $tmsg"
 # This will be an annotated tag
 git tag -a -f $tag -m "$versioninfo"
 
