@@ -18,7 +18,7 @@ DESCRIPTION = 'event and task manager'
 URL = 'https://github.com/dagraham/etm-mv'
 EMAIL = 'dnlgrhm@gmail.com'
 AUTHOR = 'Daniel A Graham'
-REQUIRES_PYTHON = '>=3.6.0'
+REQUIRES_PYTHON = '>= 3.6.0'
 VERSION = version
 
 # What packages are required for this module to be executed?
@@ -68,9 +68,29 @@ if not VERSION:
     project_slug = NAME.lower().replace("-", "_").replace(" ", "_")
     with open(os.path.join(here, project_slug, '__version__.py')) as f:
         exec(f.read(), about)
+    CLASSIFIERS = ["Development Status :: 2 - Pre-Alpha", ]
 else:
     about['__version__'] = VERSION
+    if 'a' in VERSION:
+        CLASSIFIERS = ["Development Status :: 3 - Alpha", ]
+    elif 'b' in VERSION:
+        CLASSIFIERS = ["Development Status :: 4 - Beta", ]
+    else:
+        CLASSIFIERS = ["Development Status :: 5 - Production/Stable", ]
 
+    CLASSIFIERS.extend([
+        'Environment :: Console',
+        'Intended Audience :: End Users/Desktop', 
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Topic :: Office/Business',
+        'Topic :: Office/Business :: News/Diary',
+        'Topic :: Office/Business :: Scheduling'])
 
 class UploadCommand(Command):
     """Support setup.py upload."""
@@ -131,24 +151,11 @@ setup(
     extras_require=EXTRAS,
     include_package_data=True,
     license='GPL',
-    classifiers=[
-        # Trove classifiers
-        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'Development Status :: 3 - Alpha',
-        'Environment :: Console',
-        'Intended Audience :: End Users/Desktop', 
-        'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Topic :: Office/Business',
-        'Topic :: Office/Business :: News/Diary',
-        'Topic :: Office/Business :: Scheduling'],
+    classifiers=CLASSIFIERS,
     # $ setup.py publish support.
     cmdclass={
         'upload': UploadCommand,
     },
 )
+print(CLASSIFIERS)
+
