@@ -1,73 +1,81 @@
-# Recent changes as of 2019-03-10T19:26:37.413723-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a22) Dan Graham
+# Recent changes as of 2019-03-10T19:29:44.155345-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a23) Dan Graham
+    b2dced3 2019-03-10 19:29:44 -0400
+    Tagged version 4.0.0a23.
+
+- 11 seconds ago Dan Graham
+    317100a 2019-03-10 19:29:33 -0400
+    more bump tweaks
+
+- 3 minutes ago (tag: 4.0.0a22) Dan Graham
     ab8fb71 2019-03-10 19:26:37 -0400
     Tagged version 4.0.0a22..
 
-- 13 seconds ago Dan Graham
+- 3 minutes ago Dan Graham
     ed3609a 2019-03-10 19:26:24 -0400
     more bump tweaks
 
-- 4 minutes ago Dan Graham
+- 7 minutes ago Dan Graham
     6758bf6 2019-03-10 19:22:37 -0400
     Tagged version 4.0.0a21. updated CHANGES.txt
 
-- 4 minutes ago Dan Graham
+- 7 minutes ago Dan Graham
     9dff68c 2019-03-10 19:22:31 -0400
     more bump tweaks
 
-- 7 minutes ago Dan Graham
+- 10 minutes ago Dan Graham
     12c364f 2019-03-10 19:19:34 -0400
     Tagged version 4.0.0a20. updated CHANGES.txt
 
-- 7 minutes ago Dan Graham
+- 10 minutes ago Dan Graham
     fdddc66 2019-03-10 19:19:25 -0400
     more bump tweaks
 
-- 9 minutes ago Dan Graham
+- 12 minutes ago Dan Graham
     36d0b9a 2019-03-10 19:18:01 -0400
     Tagged version 4.0.0a19. updated CHANGES.txt
 
-- 9 minutes ago Dan Graham
+- 12 minutes ago Dan Graham
     5d198b0 2019-03-10 19:17:50 -0400
     more bump tweaks
 
-- 15 minutes ago Dan Graham
+- 18 minutes ago Dan Graham
     33c9406 2019-03-10 19:11:59 -0400
     message
 
-- 15 minutes ago Dan Graham
+- 18 minutes ago Dan Graham
     a87d10b 2019-03-10 19:11:47 -0400
     bump tweaks
 
-- 27 minutes ago (tag: 4.0.0a17, origin/working) Dan Graham
+- 31 minutes ago (tag: 4.0.0a17, origin/working) Dan Graham
     12d13d4 2019-03-10 18:59:11 -0400
     Tagged version 4.0.0a17.
 
-- 31 minutes ago Dan Graham
+- 34 minutes ago Dan Graham
     12c1511 2019-03-10 18:55:49 -0400
     Added CHANGES
 
-- 36 minutes ago (tag: 4.0.0a16) Dan Graham
+- 40 minutes ago (tag: 4.0.0a16) Dan Graham
     30de05b 2019-03-10 18:50:14 -0400
     Tagged version 4.0.0a16.
 
-- 36 minutes ago Dan Graham
+- 40 minutes ago Dan Graham
     0ab376f 2019-03-10 18:50:09 -0400
     setup related tweaks
 
-- 40 minutes ago (tag: 4.0.0a15) Dan Graham
+- 44 minutes ago (tag: 4.0.0a15) Dan Graham
     7ca9861 2019-03-10 18:46:14 -0400
     Tagged version 4.0.0a15.
 
-- 41 minutes ago Dan Graham
+- 44 minutes ago Dan Graham
     3249417 2019-03-10 18:46:05 -0400
     setup related tweaks
 
-- 43 minutes ago (tag: 4.0.0a14) Dan Graham
+- 46 minutes ago (tag: 4.0.0a14) Dan Graham
     52a458d 2019-03-10 18:44:05 -0400
     Tagged version 4.0.0a14.
 
-- 43 minutes ago Dan Graham
+- 46 minutes ago Dan Graham
     b1709d8 2019-03-10 18:43:50 -0400
     setup related tweaks
 
@@ -247,7 +255,7 @@
     changed key bindings: t starts and toggles running/paused, T stops
     and records, ^t cancels.
 
-- 32 hours ago Dan Graham
+- 33 hours ago Dan Graham
     f156d7d 2019-03-09 09:58:57 -0500
     Make instance the dt of the item even if not repeating to allow
     its display in reschedule.
@@ -420,13 +428,3 @@
     82a7487 2019-02-28 13:40:04 -0500
     Implemented half/yearly calendar in model and added 'y' yearly
     view with cursor/space movement keys.
-
-- 10 days ago Dan Graham
-    5242276 2019-02-28 10:28:39 -0500
-    Made sixmonthcal a class with next, prev and curr methods. Allow
-    'N' (new item) in busy view.
-
-- 10 days ago Dan Graham
-    5f6b35d 2019-02-28 09:54:43 -0500
-    README tweaks. Reformatted week header in agenda and busy.
-    Replaced etmMVC entries with etmMV.
