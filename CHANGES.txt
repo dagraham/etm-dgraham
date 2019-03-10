@@ -1,0 +1,440 @@
+# Recent changes as of 2019-03-10T18:50:14.629096-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a16) Dan Graham
+    30de05b 2019-03-10 18:50:14 -0400
+    Tagged version 4.0.0a16.
+
+- 5 seconds ago Dan Graham
+    0ab376f 2019-03-10 18:50:09 -0400
+    setup related tweaks
+
+- 4 minutes ago (tag: 4.0.0a15) Dan Graham
+    7ca9861 2019-03-10 18:46:14 -0400
+    Tagged version 4.0.0a15.
+
+- 4 minutes ago Dan Graham
+    3249417 2019-03-10 18:46:05 -0400
+    setup related tweaks
+
+- 6 minutes ago (tag: 4.0.0a14) Dan Graham
+    52a458d 2019-03-10 18:44:05 -0400
+    Tagged version 4.0.0a14.
+
+- 6 minutes ago Dan Graham
+    b1709d8 2019-03-10 18:43:50 -0400
+    setup related tweaks
+
+- 65 minutes ago (tag: 4.0.0a13) Dan Graham
+    5e73687 2019-03-10 17:44:49 -0400
+    Tagged version 4.0.0a13.
+
+- 66 minutes ago Dan Graham
+    54d47d2 2019-03-10 17:44:39 -0400
+    name back to etm-dgraham in setup.py
+
+- 2 hours ago (tag: 4.0.0a12) Dan Graham
+    b19e857 2019-03-10 17:12:59 -0400
+    Tagged version 4.0.0a12.
+
+- 2 hours ago Dan Graham
+    7882336 2019-03-10 17:12:48 -0400
+    switched repo from test to upload
+
+- 2 hours ago (tag: v4.0.0a11, tag: 4.0.0a11) Dan Graham
+    627315c 2019-03-10 17:03:44 -0400
+    Tagged version 4.0.0a11.
+
+- 2 hours ago Dan Graham
+    513f86d 2019-03-10 17:03:35 -0400
+    manually reset version to a10
+
+- 2 hours ago (tag: 4.0.0a1) Dan Graham
+    bd3aad1 2019-03-10 16:50:41 -0400
+    Tagged version 4.0.0a1.
+
+- 2 hours ago Dan Graham
+    71078c7 2019-03-10 16:50:32 -0400
+    added --verbose.
+
+- 2 hours ago (tag: v4.0.0a0) Dan Graham
+    fd7f7aa 2019-03-10 16:42:16 -0400
+    reset version to a0.
+
+- 2 hours ago (tag: v4.0.0a1) Dan Graham
+    edf301d 2019-03-10 16:31:07 -0400
+    Tagged version 4.0.0a1.
+
+- 2 hours ago Dan Graham
+    09cc481 2019-03-10 16:30:43 -0400
+    reset version to a0.
+
+- 2 hours ago Dan Graham
+    f7b7e92 2019-03-10 16:29:21 -0400
+    more setup tweaks, uncommented the upload part.
+
+- 2 hours ago (tag: 4.0.0a7) Dan Graham
+    35f4849 2019-03-10 16:27:49 -0400
+    Tagged version 4.0.0a7.
+
+- 2 hours ago Dan Graham
+    979efa5 2019-03-10 16:27:39 -0400
+    more setup tweaks, NAME: 'etm'.
+
+- 2 hours ago (tag: 4.0.0a6) Dan Graham
+    72bc626 2019-03-10 16:26:36 -0400
+    Tagged version 4.0.0a6.
+
+- 2 hours ago Dan Graham
+    be4b0ff 2019-03-10 16:26:24 -0400
+    more setup tweaks, NAME: 'etm-dgraham'.
+
+- 3 hours ago (tag: 4.0.0a5, origin/working, origin/master, master) Dan Graham
+    eabe706 2019-03-10 16:09:52 -0400
+    Tagged version 4.0.0a5.
+
+- 3 hours ago Dan Graham
+    97ed715 2019-03-10 16:09:25 -0400
+    updated setup.py 3 :: Only and 3.8.
+
+- 3 hours ago Dan Graham
+    ca06e65 2019-03-10 15:43:41 -0400
+    More setup.py tweaks. Added MANIFEST.in.
+
+- 4 hours ago Dan Graham
+    70d614b 2019-03-10 14:52:16 -0400
+    added MANIFEST.in
+
+- 5 hours ago (tag: 4.0.0a4) Dan Graham
+    5bf496e 2019-03-10 13:47:31 -0400
+    Tagged version 4.0.0a4.
+
+- 5 hours ago Dan Graham
+    705ce3a 2019-03-10 13:47:24 -0400
+    more bump.py tweaks
+
+- 5 hours ago Dan Graham
+    7935f3c 2019-03-10 13:46:44 -0400
+    Tagged version 4.0.0a3.
+
+- 5 hours ago Dan Graham
+    3749877 2019-03-10 13:46:23 -0400
+    more bump.py tweaks
+
+- 5 hours ago Dan Graham
+    88bca01 2019-03-10 13:44:13 -0400
+    Tagged version 4.0.0a2.
+
+- 5 hours ago Dan Graham
+    76bfa2d 2019-03-10 13:43:09 -0400
+    bump.py tweaks
+
+- 6 hours ago Dan Graham
+    88b6619 2019-03-10 13:11:21 -0400
+    Added bump.py as possible compliment/replacement for prep_dist.sh.
+    Modified check_output to return the result.
+
+- 29 hours ago (tag: 4.0.1p5) Dan Graham
+    fe18f98 2019-03-09 13:09:26 -0500
+    Tagged version 4.0.1p5 [2019-03-09 13:06:35 -0500].
+
+- 29 hours ago Dan Graham
+    519d409 2019-03-09 13:06:35 -0500
+    conflict resolution from prep_dist __version__.
+
+- 29 hours ago (tag: 4.0.1p3) Dan Graham
+    c85d748 2019-03-09 13:04:07 -0500
+    Tagged version 4.0.1p3 [2019-03-09 13:03:55 -0500].
+
+- 29 hours ago Dan Graham
+    49e8e63 2019-03-09 13:03:55 -0500
+    yet more prep_dist tweaks
+
+- 29 hours ago Dan Graham
+    b9b9342 2019-03-09 13:00:19 -0500
+    Merged __version__ from working
+
+- 29 hours ago (tag: 4.0.1p4) Dan Graham
+    1bc6cad 2019-03-09 12:55:44 -0500
+    more prep_dist tweaks Tagged version 4.0.1p4 [2019-03-09 12:55:44
+    -0500].
+
+- 29 hours ago Dan Graham
+    3701728 2019-03-09 12:52:11 -0500
+    prep_dist tweaks\nTagged version 4.0.1p2 [2019-03-09 12:52:11
+    -0500].\nTagged version 4.0.1p3 [2019-03-09 12:52:11 -0500].
+
+- 29 hours ago Dan Graham
+    128ebcc 2019-03-09 12:44:39 -0500
+    Merge branch 'working' of https://github.com/dagraham/etm-mv into
+    working
+
+- 29 hours ago Dan Graham
+    50e1a14 2019-03-09 12:41:36 -0500
+    Fixed merge errors and tweaked timer displays Tagged version
+    4.0.1p2 [2019-03-09 12:41:36 -0500].
+
+- 29 hours ago Dan Graham
+    922916c 2019-03-09 12:41:36 -0500
+    Fixed merge errors and tweaked timer displays
+
+- 29 hours ago Dan Graham
+    5b9fe2c 2019-03-09 12:27:51 -0500
+    Merged pull
+
+- 29 hours ago Dan Graham
+    eb529fe 2019-03-09 12:26:07 -0500
+    Timer bug fixes and display tweaks.
+
+- 31 hours ago (tag: 4.0.1p1) Dan Graham
+    71a0cca 2019-03-09 10:52:40 -0500
+    Added cancel button to TextInputDialog. Returing None still
+    cancels but this is more obvious to users. Added cancel_timer and
+    changed key bindings: t starts and toggles running/paused, T stops
+    and records, ^t cancels. Tagged version 4.0.1p1 [2019-03-09
+    10:52:40 -0500].
+
+- 31 hours ago Dan Graham
+    5636ae6 2019-03-09 10:52:40 -0500
+    Added cancel button to TextInputDialog. Returing None still
+    cancels but this is more obvious to users. Added cancel_timer and
+    changed key bindings: t starts and toggles running/paused, T stops
+    and records, ^t cancels.
+
+- 32 hours ago Dan Graham
+    f156d7d 2019-03-09 09:58:57 -0500
+    Make instance the dt of the item even if not repeating to allow
+    its display in reschedule.
+
+- 32 hours ago Dan Graham
+    66d8eb1 2019-03-09 09:39:08 -0500
+    Fixed bug in reschedule for a non-repeating item
+
+- 2 days ago Dan Graham
+    e32bae8 2019-03-08 21:49:20 -0500
+    image tweaks
+
+- 2 days ago Dan Graham
+    832872a 2019-03-08 18:47:57 -0500
+    Resized etm png
+
+- 2 days ago Dan Graham
+    f849846 2019-03-08 18:27:28 -0500
+    Merge branch 'working' of https://github.com/dagraham/etm-mv into
+    working
+
+- 2 days ago Dan Graham
+    80d467b 2019-03-08 18:27:02 -0500
+    Work on prep_dist.sh
+
+- 2 days ago (tag: 4.0.1) Dan Graham
+    13fa593 2019-03-08 16:29:31 -0500
+    Fixed menus and cleaned up logging Tagged version 4.0.1
+    [2019-03-08 16:29:31 -0500].
+
+- 2 days ago Dan Graham
+    74517d7 2019-03-08 16:29:31 -0500
+    Fixed menus and cleaned up logging
+
+- 2 days ago Dan Graham
+    352cfd6 2019-03-08 16:23:27 -0500
+    Implemented schedule_new and reschedule
+
+- 2 days ago Dan Graham
+    e52cec9 2019-03-08 14:01:38 -0500
+    Implemented do_maybe_delete to handle either the selected instance
+    or the item itself.
+
+- 2 days ago Dan Graham
+    90b1cd2 2019-03-08 08:44:09 -0500
+    Alerts 'when' now based on the difference between the starting
+    time and the alert time 'in_words'.
+
+- 2 days ago Dan Graham
+    d9768d7 2019-03-08 07:28:46 -0500
+    cleaned up logger
+
+- 3 days ago Dan Graham
+    d7a091f 2019-03-07 23:06:53 -0500
+    Maybe fixed bug in processing &u in jobs
+
+- 3 days ago Dan Graham
+    8aa416c 2019-03-07 21:29:11 -0500
+    Fixed bug in the jinja template for the alert command list.
+
+- 3 days ago Dan Graham
+    d99561d 2019-03-07 13:57:37 -0500
+    Implemented timer and fixed bug in jinja template for @u and &u
+    used time.
+
+- 3 days ago Dan Graham
+    8cae3c4 2019-03-07 10:37:23 -0500
+    Refactored menus. Fixed bug in save_changes when item is not
+    modified.
+
+- 3 days ago Dan Graham
+    b2e90d1 2019-03-07 08:30:37 -0500
+    Moved v.py to __version__.py and removed version.py. Added
+    conditions is_viewing and is_viewing_or_details to remove bindings
+    from dialogs. Some work on setup.py.
+
+- 4 days ago Dan Graham
+    e18347c 2019-03-06 22:26:50 -0500
+    Clean up
+
+- 4 days ago Dan Graham
+    1d0e192 2019-03-06 17:56:54 -0500
+    Bug fixes in get_next_done and jobs. Avoid date/datetime
+    comparisons. Restore the date or datetime characteristic of @s
+    when setting the next due date/datetime.
+
+- 4 days ago Dan Graham
+    4c7a538 2019-03-06 16:30:32 -0500
+    First pass at id tuples and both task and job completion.
+
+- 5 days ago Dan Graham
+    716e6f4 2019-03-05 11:41:25 -0500
+    Cleaned up logging
+
+- 5 days ago Dan Graham
+    a25565f 2019-03-05 11:22:16 -0500
+    README tweaks. Test for modified based on buffer content
+    comparison. Include instances = as well as > aft_dt. Added
+    save_befor_quit confirmation. Changed editor bindings ^S saves and
+    closes, ^C closes with confirmation if modified.
+
+- 7 days ago Dan Graham
+    7afb75d 2019-03-04 01:07:38 -0500
+    README refactor
+
+- 7 days ago Dan Graham
+    412b9b0 2019-03-03 18:09:58 -0500
+    Show confirmation when edit changes saved
+
+- 7 days ago Dan Graham
+    422afc6 2019-03-03 17:31:38 -0500
+    Menu tweaks
+
+- 7 days ago Dan Graham
+    182f5bb 2019-03-03 17:21:16 -0500
+    Reverse sort relevant. Make F1 toggle menu
+
+- 7 days ago Dan Graham
+    6b84d9e 2019-03-03 08:48:08 -0500
+    README tweaks  - added logo
+
+- 7 days ago Dan Graham
+    9b22a3b 2019-03-03 08:45:53 -0500
+    More on setup, start on prep_dist.
+
+- 8 days ago (tag: 4.0.0) Dan Graham
+    2537b60 2019-03-02 13:03:28 -0500
+    Added first pass at setup.py
+
+- 8 days ago Dan Graham
+    d0895c0 2019-03-02 12:06:54 -0500
+    Added show reps handlers to view and edit menus
+
+- 8 days ago Dan Graham
+    aefc48b 2019-03-02 11:53:00 -0500
+    Provided different implementations of get_repetitions for
+    is_editing and is_not_editing.
+
+- 9 days ago Dan Graham
+    cc3994e 2019-03-01 19:11:57 -0500
+    Jinja template tweaks
+
+- 9 days ago Dan Graham
+    83c0794 2019-03-01 18:17:49 -0500
+    Show repetition tweaks and logger cleanup
+
+- 9 days ago Dan Graham
+    6aa3295 2019-03-01 16:41:53 -0500
+    Added item type and summary to header for show_repetitions
+
+- 9 days ago Dan Graham
+    ab80f45 2019-03-01 14:23:01 -0500
+    Implemented show_repetitions
+
+- 9 days ago Dan Graham
+    e8937e3 2019-03-01 11:16:24 -0500
+    Restored ability to run doctest in model.py. Modified
+    item_instances to take an integer arg for bef_dt to return that
+    number of instances.
+
+- 10 days ago Dan Graham
+    dea4c3b 2019-02-28 22:00:01 -0500
+    Implemented locale in calendar and in busy weekdays. Cleanup.
+
+- 10 days ago Dan Graham
+    39c81d9 2019-02-28 14:42:33 -0500
+    Fixed locale bug in calendar_view.
+
+- 10 days ago Dan Graham
+    82a7487 2019-02-28 13:40:04 -0500
+    Implemented half/yearly calendar in model and added 'y' yearly
+    view with cursor/space movement keys.
+
+- 10 days ago Dan Graham
+    5242276 2019-02-28 10:28:39 -0500
+    Made sixmonthcal a class with next, prev and curr methods. Allow
+    'N' (new item) in busy view.
+
+- 10 days ago Dan Graham
+    5f6b35d 2019-02-28 09:54:43 -0500
+    README tweaks. Reformatted week header in agenda and busy.
+    Replaced etmMVC entries with etmMV.
+
+- 11 days ago Dan Graham
+    8a509d9 2019-02-27 19:46:52 -0500
+    Renamed etmMVC to etmMV
+
+- 11 days ago Dan Graham
+    c9a2271 2019-02-27 18:39:58 -0500
+    Merge branch 'working' of https://github.com/dagraham/etm-mvc into
+    working
+
+- 11 days ago Dan Graham
+    9ceeeed 2019-02-27 18:34:12 -0500
+    Added missing ruamel.yaml to requirements. Handle missing (None)
+    expansions in etm properly and added missing 'quotes' to the
+    tennis example in options
+
+- 11 days ago Dan Graham
+    bef3618 2019-02-27 18:34:12 -0500
+    Added missing ruamel.yaml to requirements. Handle missing (None)
+    expansions in etm properly and added missing 'quotes' to the
+    tennis example in options.py
+
+- 11 days ago Dan Graham
+    49e0c9f 2019-02-27 14:25:21 -0500
+    Added keep_current setting to Settings and refreshCurrent() to
+    DataView
+
+- 12 days ago Dan Graham
+    0c99379 2019-02-26 19:27:34 -0500
+    README updates
+
+- 12 days ago Dan Graham
+    e5fd4a1 2019-02-26 14:39:40 -0500
+    Implemented relevant view.
+
+- 12 days ago Dan Graham
+    736828b 2019-02-26 08:14:40 -0500
+    Fixed bug in backups. Cleaned up logging.
+
+- 13 days ago Dan Graham
+    65dc313 2019-02-25 21:38:31 -0500
+    Cleaned up logging. Settings including ampm now seem to propagate
+    correctly.
+
+- 13 days ago Dan Graham
+    a4db126 2019-02-25 18:52:53 -0500
+    First pass at sharing single instances of TinyDB, DataView and
+    Item
+
+- 13 days ago Dan Graham
+    ca32234 2019-02-25 11:53:13 -0500
+    Logging and options tweaks
+
+- 2 weeks ago Dan Graham
+    d8953d0 2019-02-24 21:13:45 -0500
+    Maybe fixed bug in tasks with s and e - don't show time as busy.
