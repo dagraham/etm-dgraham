@@ -67,8 +67,8 @@ if new_version:
     check_output(f"git tag -a -f '{new_version}' -m '{version_info}'")
 
     count = 100
-    check_output(f"echo '# Recent changes as of pendulum.now():' > CHANGES.txt")
-    check_output("git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count=$count >> CHANGES.txt")
+    check_output(f"echo '# Recent changes as of {pendulum.now()}:' > CHANGES.txt")
+    check_output("git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} >> CHANGES.txt")
 
 else:
     print(f"retained version: {version}")
