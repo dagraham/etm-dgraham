@@ -5194,10 +5194,10 @@ def about(padding=0):
 {logo}
 {summary}
 
-etm-mv:     {etm_version}
-Developer:  dnlgrhm@gmail.com
-GitHub:     github.com/dagraham/etm-mv
-Discussion: groups.google.com/group/eventandtaskmanager
+etm-dgraham: {etm_version}
+Developer:   dnlgrhm@gmail.com
+GitHub:      github.com/dagraham/etm-mv
+Discussion:  groups.google.com/group/eventandtaskmanager
 
 {copyright}\
 """

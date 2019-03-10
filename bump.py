@@ -2,6 +2,7 @@
 
 from etmMV.__version__ import version
 from etmMV.view import check_output
+import pendulum
 import sys
 
 def byte2str(b):
@@ -11,15 +12,13 @@ gb = byte2str(check_output("git branch"))
 print('branch:')
 print(gb)
 gs = byte2str(check_output("git status -s"))
-print('status:')
-print(gs)
 if gs:
+    print('status:')
+    print(gs)
     print("There are uncommitted changes.")
     ans = input("Cancel? [Yn] ")
     if not (ans and ans.lower() == "n"):
         sys.exit()
-
-
 
 possible_extensions = ['a', 'b', 'rc', 'post', 'dev']
 pre = post = version
@@ -66,6 +65,10 @@ if new_version:
     check_output(f"git commit -a -m 'Tagged version {new_version}.'")
     version_info = byte2str(check_output("git log --pretty=format:'%ai' -n 1"))
     check_output(f"git tag -a -f '{new_version}' -m '{version_info}'")
+
+    count = 100
+    check_output(f"echo '# Recent changes as of pendulum.now():' > CHANGES.txt")
+    check_output("git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count=$count >> CHANGES.txt")
 
 else:
     print(f"retained version: {version}")
