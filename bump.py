@@ -65,7 +65,7 @@ if new_version:
     tmsg = f"Tagged version {new_version}."
     check_output(f"git commit -a -m 'Tagged version {new_version}.'")
     version_info = byte2str(check_output("git log --pretty=format:'%ai' -n 1"))
-    check_output(f"git tag -a -f $tag -m {version_info}")
+    check_output(f"git tag -a -f {new_version} -m {version_info}")
 
 else:
     print(f"retained version: {version}")
