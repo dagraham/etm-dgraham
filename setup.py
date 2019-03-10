@@ -18,7 +18,7 @@ DESCRIPTION = 'event and task manager'
 URL = 'https://github.com/dagraham/etm-mv'
 EMAIL = 'dnlgrhm@gmail.com'
 AUTHOR = 'Daniel A Graham'
-REQUIRES_PYTHON = '>= 3.6.0'
+REQUIRES_PYTHON = '>=3.6.0'
 VERSION = version
 
 # What packages are required for this module to be executed?
@@ -83,9 +83,10 @@ else:
         'Intended Audience :: End Users/Desktop', 
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Office/Business',
