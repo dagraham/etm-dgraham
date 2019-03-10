@@ -1,65 +1,73 @@
-# Recent changes as of 2019-03-10T19:22:37.803910-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a21) Dan Graham
-    93cf1b9 2019-03-10 19:22:37 -0400
-    Tagged version 4.0.0a21.
+# Recent changes as of 2019-03-10T19:26:37.413723-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a22) Dan Graham
+    ab8fb71 2019-03-10 19:26:37 -0400
+    Tagged version 4.0.0a22..
 
-- 6 seconds ago Dan Graham
+- 13 seconds ago Dan Graham
+    ed3609a 2019-03-10 19:26:24 -0400
+    more bump tweaks
+
+- 4 minutes ago Dan Graham
+    6758bf6 2019-03-10 19:22:37 -0400
+    Tagged version 4.0.0a21. updated CHANGES.txt
+
+- 4 minutes ago Dan Graham
     9dff68c 2019-03-10 19:22:31 -0400
     more bump tweaks
 
-- 3 minutes ago Dan Graham
+- 7 minutes ago Dan Graham
     12c364f 2019-03-10 19:19:34 -0400
     Tagged version 4.0.0a20. updated CHANGES.txt
 
-- 3 minutes ago Dan Graham
+- 7 minutes ago Dan Graham
     fdddc66 2019-03-10 19:19:25 -0400
     more bump tweaks
 
-- 5 minutes ago Dan Graham
+- 9 minutes ago Dan Graham
     36d0b9a 2019-03-10 19:18:01 -0400
     Tagged version 4.0.0a19. updated CHANGES.txt
 
-- 5 minutes ago Dan Graham
+- 9 minutes ago Dan Graham
     5d198b0 2019-03-10 19:17:50 -0400
     more bump tweaks
 
-- 11 minutes ago Dan Graham
+- 15 minutes ago Dan Graham
     33c9406 2019-03-10 19:11:59 -0400
     message
 
-- 11 minutes ago Dan Graham
+- 15 minutes ago Dan Graham
     a87d10b 2019-03-10 19:11:47 -0400
     bump tweaks
 
-- 23 minutes ago (tag: 4.0.0a17, origin/working) Dan Graham
+- 27 minutes ago (tag: 4.0.0a17, origin/working) Dan Graham
     12d13d4 2019-03-10 18:59:11 -0400
     Tagged version 4.0.0a17.
 
-- 27 minutes ago Dan Graham
+- 31 minutes ago Dan Graham
     12c1511 2019-03-10 18:55:49 -0400
     Added CHANGES
 
-- 32 minutes ago (tag: 4.0.0a16) Dan Graham
+- 36 minutes ago (tag: 4.0.0a16) Dan Graham
     30de05b 2019-03-10 18:50:14 -0400
     Tagged version 4.0.0a16.
 
-- 32 minutes ago Dan Graham
+- 36 minutes ago Dan Graham
     0ab376f 2019-03-10 18:50:09 -0400
     setup related tweaks
 
-- 36 minutes ago (tag: 4.0.0a15) Dan Graham
+- 40 minutes ago (tag: 4.0.0a15) Dan Graham
     7ca9861 2019-03-10 18:46:14 -0400
     Tagged version 4.0.0a15.
 
-- 37 minutes ago Dan Graham
+- 41 minutes ago Dan Graham
     3249417 2019-03-10 18:46:05 -0400
     setup related tweaks
 
-- 39 minutes ago (tag: 4.0.0a14) Dan Graham
+- 43 minutes ago (tag: 4.0.0a14) Dan Graham
     52a458d 2019-03-10 18:44:05 -0400
     Tagged version 4.0.0a14.
 
-- 39 minutes ago Dan Graham
+- 43 minutes ago Dan Graham
     b1709d8 2019-03-10 18:43:50 -0400
     setup related tweaks
 
@@ -192,7 +200,7 @@
     b9b9342 2019-03-09 13:00:19 -0500
     Merged __version__ from working
 
-- 29 hours ago (tag: 4.0.1p4) Dan Graham
+- 30 hours ago (tag: 4.0.1p4) Dan Graham
     1bc6cad 2019-03-09 12:55:44 -0500
     more prep_dist tweaks Tagged version 4.0.1p4 [2019-03-09 12:55:44
     -0500].
@@ -422,12 +430,3 @@
     5f6b35d 2019-02-28 09:54:43 -0500
     README tweaks. Reformatted week header in agenda and busy.
     Replaced etmMVC entries with etmMV.
-
-- 11 days ago Dan Graham
-    8a509d9 2019-02-27 19:46:52 -0500
-    Renamed etmMVC to etmMV
-
-- 11 days ago Dan Graham
-    c9a2271 2019-02-27 18:39:58 -0500
-    Merge branch 'working' of https://github.com/dagraham/etm-mvc into
-    working
