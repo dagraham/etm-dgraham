@@ -2,13 +2,24 @@
 
 from etmMV.__version__ import version
 from etmMV.view import check_output
+import sys
 
-gb = "".join( chr(x) for x in check_output("git branch"))
+def byte2str(b):
+    return "".join( chr(x) for x in b )
+
+gb = byte2str(check_output("git branch"))
 print('branch:')
 print(gb)
-gs = "".join( chr(x) for x in check_output("git status -s"))
+gs = byte2str(check_output("git status -s"))
 print('status:')
 print(gs)
+if gs:
+    print("There are uncommitted changes.")
+    ans = input("Cancel? [Yn] ")
+    if not (ans and ans.lower() == "n"):
+        sys.exit()
+
+
 
 possible_extensions = ['a', 'b', 'rc', 'post', 'dev']
 pre = post = version
@@ -51,6 +62,11 @@ if new_version:
     with open(version_file, 'w') as fo:
         fo.write(f"version = '{new_version}'")
     print(f"new version: {new_version}")
+    tmsg = f"Tagged version {new_version}."
+    check_output(f"git commit -a -m 'Tagged version {new_version}.'")
+    version_info = byte2str(check_output("git log --pretty=format:'%ai' -n 1"))
+    check_output(f"git tag -a -f $tag -m {version_info}")
+
 else:
     print(f"retained version: {version}")
 
