@@ -13,7 +13,7 @@ from etmMV.__version__ import version
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'etmmv'
+NAME = 'etm-dgraham'
 DESCRIPTION = 'event and task manager'
 URL = 'https://github.com/dagraham/etm-mv'
 EMAIL = 'dnlgrhm@gmail.com'
@@ -158,5 +158,4 @@ setup(
         'upload': UploadCommand,
     },
 )
-print(CLASSIFIERS)
 
