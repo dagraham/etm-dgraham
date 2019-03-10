@@ -1,49 +1,57 @@
-# Recent changes as of 2019-03-10T19:18:01.466184-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a19) Dan Graham
-    5c018f5 2019-03-10 19:18:01 -0400
-    Tagged version 4.0.0a19.
+# Recent changes as of 2019-03-10T19:19:34.643320-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a20) Dan Graham
+    fda799c 2019-03-10 19:19:34 -0400
+    Tagged version 4.0.0a20.
 
-- 11 seconds ago Dan Graham
+- 9 seconds ago Dan Graham
+    fdddc66 2019-03-10 19:19:25 -0400
+    more bump tweaks
+
+- 2 minutes ago Dan Graham
+    36d0b9a 2019-03-10 19:18:01 -0400
+    Tagged version 4.0.0a19. updated CHANGES.txt
+
+- 2 minutes ago Dan Graham
     5d198b0 2019-03-10 19:17:50 -0400
     more bump tweaks
 
-- 6 minutes ago Dan Graham
+- 8 minutes ago Dan Graham
     33c9406 2019-03-10 19:11:59 -0400
     message
 
-- 6 minutes ago Dan Graham
+- 8 minutes ago Dan Graham
     a87d10b 2019-03-10 19:11:47 -0400
     bump tweaks
 
-- 19 minutes ago (tag: 4.0.0a17, origin/working) Dan Graham
+- 20 minutes ago (tag: 4.0.0a17, origin/working) Dan Graham
     12d13d4 2019-03-10 18:59:11 -0400
     Tagged version 4.0.0a17.
 
-- 22 minutes ago Dan Graham
+- 24 minutes ago Dan Graham
     12c1511 2019-03-10 18:55:49 -0400
     Added CHANGES
 
-- 28 minutes ago (tag: 4.0.0a16) Dan Graham
+- 29 minutes ago (tag: 4.0.0a16) Dan Graham
     30de05b 2019-03-10 18:50:14 -0400
     Tagged version 4.0.0a16.
 
-- 28 minutes ago Dan Graham
+- 29 minutes ago Dan Graham
     0ab376f 2019-03-10 18:50:09 -0400
     setup related tweaks
 
-- 32 minutes ago (tag: 4.0.0a15) Dan Graham
+- 33 minutes ago (tag: 4.0.0a15) Dan Graham
     7ca9861 2019-03-10 18:46:14 -0400
     Tagged version 4.0.0a15.
 
-- 32 minutes ago Dan Graham
+- 33 minutes ago Dan Graham
     3249417 2019-03-10 18:46:05 -0400
     setup related tweaks
 
-- 34 minutes ago (tag: 4.0.0a14) Dan Graham
+- 35 minutes ago (tag: 4.0.0a14) Dan Graham
     52a458d 2019-03-10 18:44:05 -0400
     Tagged version 4.0.0a14.
 
-- 34 minutes ago Dan Graham
+- 36 minutes ago Dan Graham
     b1709d8 2019-03-10 18:43:50 -0400
     setup related tweaks
 
@@ -427,12 +435,3 @@
     Added missing ruamel.yaml to requirements. Handle missing (None)
     expansions in etm properly and added missing 'quotes' to the
     tennis example in options.py
-
-- 11 days ago Dan Graham
-    49e0c9f 2019-02-27 14:25:21 -0500
-    Added keep_current setting to Settings and refreshCurrent() to
-    DataView
-
-- 12 days ago Dan Graham
-    0c99379 2019-02-26 19:27:34 -0500
-    README updates
