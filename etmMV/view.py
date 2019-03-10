@@ -259,7 +259,7 @@ def check_output(cmd):
     if not cmd:
         return
     try:
-        subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+        return subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError as exc:
         logger.error("command: {0}\n    output: {1}".format(cmd, exc.output))
 

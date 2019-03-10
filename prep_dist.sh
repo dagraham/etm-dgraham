@@ -20,7 +20,7 @@ while read -r -n 1 -s answer; do
     [[ $answer = [Yy] ]] && retval=0
     [[ $answer = [Nn] ]] && retval=1
     break
-  fi
+  pi
 done
 
 echo # just a final linefeed, optics...
@@ -33,13 +33,30 @@ logfile="prep_dist.log"
 # get the current major.minor.patch tag without trailing p*
 versionfile="etmMV/__version__.py"
 vinfo=`cat $versionfile | head -1 | sed 's/\"//g' | sed 's/^.*= *//g' `
-pre=${vinfo%p*}
-post=${vinfo##*p}
+# pre=${vinfo%p*}
+# post=${vinfo##*p}
+pre=${vinfo%[abc]*}
+post=${vinfo##*[abc]}
+
+if [[ $vinfo =~ .*a.*  ]]; then prerel=a;
+elif [[ $vinfo =~ .*b.* ]]; then prerel=b;
+elif [[ $vinfo =~ .*c.* ]]; then prerel=c;
+elif [[ $vinfo =~ .*p.* ]]; then prerel=p;
+else prerel=a
+fi
+
+echo $vinfo $pre $post $prerel
+
+exit
+
+# with 4.0.1a12: pre = 4.0.1, post = 12, prerel = a
+# allowed values for prerel: a (alpha), b (beta), rc (release candidate)
+
 if [ "$pre" = "$post" ]; then
     post=0
 fi
 
-echo $vinfo $pre $post
+echo $vinfo $pre $post $prerel
 patch=${pre#*.*.}
 major=${pre%%.*.*}
 mm=${pre#*.}
@@ -78,13 +95,16 @@ if asksure; then
     change="incremented patch level to $newpatch."
 else
     newpost=$(($post +1))
-    tag=${major}.${minor}.${patch}p${newpost}
-    change="retained patch level $patch - incremented post level to $newpost."
+    tag=${major}.${minor}.${patch}${prerel}${newpost}
+    change="retained patch level $patch - incremented $prerel level to $newpost."
 fi
 echo "    $tag [$versioninfo]: $change" >> $logfile
 echo "version = \"$tag\"" > $versionfile
 tmsg="Tagged version $tag [$versioninfo]."
 echo "tmsg: $tmsg; omsg: $omsg"
+
+exit
+
 # commit and append the tag message to the last commit message
 # git commit -a --amend -m "$omsg $tmsg"
 git commit -a -m "$tmsg"
