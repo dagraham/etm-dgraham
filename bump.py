@@ -8,6 +8,7 @@ import sys
 def byte2str(b):
     return "".join( chr(x) for x in b )
 
+
 gb = byte2str(check_output("git branch"))
 print('branch:')
 print(gb)
@@ -62,14 +63,14 @@ if new_version:
         fo.write(f"version = '{new_version}'")
     print(f"new version: {new_version}")
     tmsg = f"Tagged version {new_version}."
-    check_output(f"git commit -a -m 'Tagged version {new_version}.'")
+    check_output(f"git commit -a -m '{tmsg}.'")
     version_info = byte2str(check_output("git log --pretty=format:'%ai' -n 1"))
     check_output(f"git tag -a -f '{new_version}' -m '{version_info}'")
 
     count = 100
     check_output(f"echo '# Recent changes as of {pendulum.now()}:' > CHANGES.txt")
     check_output(f"git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} >> CHANGES.txt")
-    check_output(f"git commit --amend -m '{tmsg} updated CHANGES.txt'")
+    check_output(f"git commit --amend -m '{tmsg}.'")
 
 else:
     print(f"retained version: {version}")
