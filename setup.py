@@ -8,7 +8,7 @@ import io
 import os
 import sys
 from shutil import rmtree
-from etmMV.__version__ import version
+from etm.__version__ import version
 
 from setuptools import find_packages, setup, Command
 
