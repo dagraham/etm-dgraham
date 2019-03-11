@@ -7,10 +7,10 @@ if __name__ == "__main__":
         sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
 
     import os
-    lib_path = os.path.relpath('etmMV/')
-    sys.path.append(lib_path)
+    # lib_path = os.path.relpath('')
+    # sys.path.append(lib_path)
 
-    from etmMV.model import setup_logging, logger, about
+    from model import setup_logging, logger, about
     log_levels = [str(x) for x in range(1, 6)]
 
     loglevel = 2 # info
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     setup_logging(loglevel, logdir)
     logger.debug(about()[1])
 
-    from etmMV import options
+    import options
     settings = options.Settings(etmdir).settings
     # FIXME: this is for testing, remove for production
     settings['mytestval'] = 'whatever'
@@ -47,14 +47,14 @@ if __name__ == "__main__":
     day = today.end_of('week')  # Sunday
     WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
 
-    from etmMV import data
+    import data
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
     ETMDB = data.initialize_tinydb(dbfile)
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
     logger.info(f"initialized TinyDB using {dbfile}")
 
-    from etmMV import model
+    import model
     model.WA = WA
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
@@ -74,7 +74,7 @@ if __name__ == "__main__":
             completions.append(f"@x {x}")
     style = dataview.settings["style"]
     parse_datetime = model.parse_datetime
-    from etmMV import view
+    import view
     view.model = model
     view.about = model.about
     view.wrap = model.wrap
@@ -100,16 +100,16 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == 'doctest':
             logger.info(f"calling data.do_doctest with etmdir: {etmdir}, argv: {sys.argv}")
-            from etmMV.model import do_doctest
+            from model import do_doctest
             do_doctest()
         else:
             logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
-            from etmMV.model import main
+            from model import main
             main(etmdir, sys.argv)
             # sys.exit()
 
     else:
         logger.info(f"calling view.main with etmdir: {etmdir}")
-        from etmMV.view import main
+        from view import main
         main(etmdir)
 
