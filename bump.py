@@ -1,7 +1,7 @@
 #! ./env/bin/python
 
-from etmMV.__version__ import version
-from etmMV.view import check_output
+from etm.__version__ import version
+from etm.view import check_output
 import pendulum
 import sys
 
