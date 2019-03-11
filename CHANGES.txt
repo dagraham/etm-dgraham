@@ -1,30 +1,47 @@
-Recent changes as of 2019-03-11T15:59:35.408167-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a27) Dan Graham
-    5922fcc 2019-03-11 15:59:35 -0400
+Recent changes as of 2019-03-11T16:31:18.783023-04:00:
+- 0 seconds ago (HEAD -> refactor, tag: 4.0.0a28) Dan Graham
+    cb87ff0 2019-03-11 16:31:18 -0400
+    Tagged version 4.0.0a28.
+
+- 21 seconds ago Dan Graham
+    e22560c 2019-03-11 16:30:57 -0400
+    fixed bump
+
+- 62 seconds ago Dan Graham
+    f34d57b 2019-03-11 16:30:16 -0400
+    Fixed bump
+
+- 3 minutes ago Dan Graham
+    47d9cf2 2019-03-11 16:28:35 -0400
+    Moved etm -> etmMV/etm.py and renamed etmMV as etm. Added
+    etm:__main__ as an entry point.
+
+- 32 minutes ago (origin/working, working) Dan Graham
+    d07b6ad 2019-03-11 15:59:35 -0400
     Tagged version 4.0.0a27.
 
-- 28 seconds ago Dan Graham
+- 32 minutes ago Dan Graham
     924f68c 2019-03-11 15:59:07 -0400
     added entry_points to setup.py
 
-- 31 minutes ago Dan Graham
+- 62 minutes ago Dan Graham
     466a60a 2019-03-11 15:29:02 -0400
     Tagged version 4.0.0a26.
 
-- 32 minutes ago Dan Graham
+- 64 minutes ago Dan Graham
     f4f56e3 2019-03-11 15:27:09 -0400
     added scripts to setup.py
 
-- 50 minutes ago Dan Graham
+- 82 minutes ago Dan Graham
     20d0d7d 2019-03-11 15:09:32 -0400
     Tagged version 4.0.0a25.
 
-- 50 minutes ago Dan Graham
+- 82 minutes ago Dan Graham
     22d63c4 2019-03-11 15:09:11 -0400
     added goto_line default. README fixes. Current week fixes. Cleanup
     comments.
 
-- 9 hours ago (origin/working, origin/master, master) Dan Graham
+- 9 hours ago (origin/master, master) Dan Graham
     b18db97 2019-03-11 07:19:58 -0400
     removed notes.md
 
@@ -36,7 +53,7 @@ Recent changes as of 2019-03-11T15:59:35.408167-04:00:
     4a2788a 2019-03-11 07:04:10 -0400
     fixed f4 key binding for alerts. removed prep_dist.sh.
 
-- 20 hours ago Dan Graham
+- 21 hours ago Dan Graham
     fb8fd6a 2019-03-10 19:40:45 -0400
     Removed prep_dist.sh - the need functionality now provided by
     bump.py without the pattern, sed and grep nonsense.
@@ -89,43 +106,43 @@ Recent changes as of 2019-03-11T15:59:35.408167-04:00:
     a87d10b 2019-03-10 19:11:47 -0400
     bump tweaks
 
-- 21 hours ago (tag: 4.0.0a17) Dan Graham
+- 22 hours ago (tag: 4.0.0a17) Dan Graham
     12d13d4 2019-03-10 18:59:11 -0400
     Tagged version 4.0.0a17.
 
-- 21 hours ago Dan Graham
+- 22 hours ago Dan Graham
     12c1511 2019-03-10 18:55:49 -0400
     Added CHANGES
 
-- 21 hours ago (tag: 4.0.0a16) Dan Graham
+- 22 hours ago (tag: 4.0.0a16) Dan Graham
     30de05b 2019-03-10 18:50:14 -0400
     Tagged version 4.0.0a16.
 
-- 21 hours ago Dan Graham
+- 22 hours ago Dan Graham
     0ab376f 2019-03-10 18:50:09 -0400
     setup related tweaks
 
-- 21 hours ago (tag: 4.0.0a15) Dan Graham
+- 22 hours ago (tag: 4.0.0a15) Dan Graham
     7ca9861 2019-03-10 18:46:14 -0400
     Tagged version 4.0.0a15.
 
-- 21 hours ago Dan Graham
+- 22 hours ago Dan Graham
     3249417 2019-03-10 18:46:05 -0400
     setup related tweaks
 
-- 21 hours ago (tag: 4.0.0a14) Dan Graham
+- 22 hours ago (tag: 4.0.0a14) Dan Graham
     52a458d 2019-03-10 18:44:05 -0400
     Tagged version 4.0.0a14.
 
-- 21 hours ago Dan Graham
+- 22 hours ago Dan Graham
     b1709d8 2019-03-10 18:43:50 -0400
     setup related tweaks
 
-- 22 hours ago (tag: 4.0.0a13) Dan Graham
+- 23 hours ago (tag: 4.0.0a13) Dan Graham
     5e73687 2019-03-10 17:44:49 -0400
     Tagged version 4.0.0a13.
 
-- 22 hours ago Dan Graham
+- 23 hours ago Dan Graham
     54d47d2 2019-03-10 17:44:39 -0400
     name back to etm-dgraham in setup.py
 
@@ -145,23 +162,23 @@ Recent changes as of 2019-03-11T15:59:35.408167-04:00:
     513f86d 2019-03-10 17:03:35 -0400
     manually reset version to a10
 
-- 23 hours ago (tag: 4.0.0a1) Dan Graham
+- 24 hours ago (tag: 4.0.0a1) Dan Graham
     bd3aad1 2019-03-10 16:50:41 -0400
     Tagged version 4.0.0a1.
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     71078c7 2019-03-10 16:50:32 -0400
     added --verbose.
 
-- 23 hours ago (tag: v4.0.0a0) Dan Graham
+- 24 hours ago (tag: v4.0.0a0) Dan Graham
     fd7f7aa 2019-03-10 16:42:16 -0400
     reset version to a0.
 
-- 23 hours ago (tag: v4.0.0a1) Dan Graham
+- 24 hours ago (tag: v4.0.0a1) Dan Graham
     edf301d 2019-03-10 16:31:07 -0400
     Tagged version 4.0.0a1.
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     09cc481 2019-03-10 16:30:43 -0400
     reset version to a0.
 
@@ -193,35 +210,35 @@ Recent changes as of 2019-03-11T15:59:35.408167-04:00:
     97ed715 2019-03-10 16:09:25 -0400
     updated setup.py 3 :: Only and 3.8.
 
-- 24 hours ago Dan Graham
+- 25 hours ago Dan Graham
     ca06e65 2019-03-10 15:43:41 -0400
     More setup.py tweaks. Added MANIFEST.in.
 
-- 25 hours ago Dan Graham
+- 26 hours ago Dan Graham
     70d614b 2019-03-10 14:52:16 -0400
     added MANIFEST.in
 
-- 26 hours ago (tag: 4.0.0a4) Dan Graham
+- 27 hours ago (tag: 4.0.0a4) Dan Graham
     5bf496e 2019-03-10 13:47:31 -0400
     Tagged version 4.0.0a4.
 
-- 26 hours ago Dan Graham
+- 27 hours ago Dan Graham
     705ce3a 2019-03-10 13:47:24 -0400
     more bump.py tweaks
 
-- 26 hours ago Dan Graham
+- 27 hours ago Dan Graham
     7935f3c 2019-03-10 13:46:44 -0400
     Tagged version 4.0.0a3.
 
-- 26 hours ago Dan Graham
+- 27 hours ago Dan Graham
     3749877 2019-03-10 13:46:23 -0400
     more bump.py tweaks
 
-- 26 hours ago Dan Graham
+- 27 hours ago Dan Graham
     88bca01 2019-03-10 13:44:13 -0400
     Tagged version 4.0.0a2.
 
-- 26 hours ago Dan Graham
+- 27 hours ago Dan Graham
     76bfa2d 2019-03-10 13:43:09 -0400
     bump.py tweaks
 
@@ -410,19 +427,3 @@ Recent changes as of 2019-03-11T15:59:35.408167-04:00:
 - 8 days ago Dan Graham
     422afc6 2019-03-03 17:31:38 -0500
     Menu tweaks
-
-- 8 days ago Dan Graham
-    182f5bb 2019-03-03 17:21:16 -0500
-    Reverse sort relevant. Make F1 toggle menu
-
-- 8 days ago Dan Graham
-    6b84d9e 2019-03-03 08:48:08 -0500
-    README tweaks  - added logo
-
-- 8 days ago Dan Graham
-    9b22a3b 2019-03-03 08:45:53 -0500
-    More on setup, start on prep_dist.
-
-- 9 days ago (tag: 4.0.0) Dan Graham
-    2537b60 2019-03-02 13:03:28 -0500
-    Added first pass at setup.py
