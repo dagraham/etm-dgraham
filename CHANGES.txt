@@ -1,17 +1,25 @@
-Recent changes as of 2019-03-11T18:41:25.862840-04:00:
-- 0 seconds ago (HEAD -> refactor, tag: 4.0.0a32) Dan Graham
-    86611f3 2019-03-11 18:41:25 -0400
+Recent changes as of 2019-03-11T18:56:15.560537-04:00:
+- 0 seconds ago (HEAD -> refactor, tag: 4.0.0a33) Dan Graham
+    5df6b6d 2019-03-11 18:56:15 -0400
+    Tagged version 4.0.0a33.
+
+- 15 seconds ago Dan Graham
+    677197a 2019-03-11 18:56:00 -0400
+    setup fixes ...
+
+- 15 minutes ago Dan Graham
+    887128a 2019-03-11 18:41:25 -0400
     Tagged version 4.0.0a32.
 
-- 23 seconds ago (origin/refactor) Dan Graham
+- 15 minutes ago (origin/refactor) Dan Graham
     a268b0a 2019-03-11 18:41:02 -0400
     setup fixes ...
 
-- 81 minutes ago Dan Graham
+- 2 hours ago Dan Graham
     5fa1ec3 2019-03-11 17:20:10 -0400
     Tagged version 4.0.0a31.
 
-- 81 minutes ago Dan Graham
+- 2 hours ago Dan Graham
     e40fafc 2019-03-11 17:19:56 -0400
     still another attempt to get the entry point right
 
@@ -73,7 +81,7 @@ Recent changes as of 2019-03-11T18:41:25.862840-04:00:
     added goto_line default. README fixes. Current week fixes. Cleanup
     comments.
 
-- 11 hours ago (origin/master, master) Dan Graham
+- 12 hours ago (origin/master, master) Dan Graham
     b18db97 2019-03-11 07:19:58 -0400
     removed notes.md
 
@@ -98,39 +106,39 @@ Recent changes as of 2019-03-11T18:41:25.862840-04:00:
     317100a 2019-03-10 19:29:33 -0400
     more bump tweaks
 
-- 23 hours ago (tag: 4.0.0a22) Dan Graham
+- 24 hours ago (tag: 4.0.0a22) Dan Graham
     ab8fb71 2019-03-10 19:26:37 -0400
     Tagged version 4.0.0a22..
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     ed3609a 2019-03-10 19:26:24 -0400
     more bump tweaks
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     6758bf6 2019-03-10 19:22:37 -0400
     Tagged version 4.0.0a21. updated CHANGES.txt
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     9dff68c 2019-03-10 19:22:31 -0400
     more bump tweaks
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     12c364f 2019-03-10 19:19:34 -0400
     Tagged version 4.0.0a20. updated CHANGES.txt
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     fdddc66 2019-03-10 19:19:25 -0400
     more bump tweaks
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     36d0b9a 2019-03-10 19:18:01 -0400
     Tagged version 4.0.0a19. updated CHANGES.txt
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     5d198b0 2019-03-10 19:17:50 -0400
     more bump tweaks
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     33c9406 2019-03-10 19:11:59 -0400
     message
 
@@ -178,11 +186,11 @@ Recent changes as of 2019-03-11T18:41:25.862840-04:00:
     54d47d2 2019-03-10 17:44:39 -0400
     name back to etm-dgraham in setup.py
 
-- 25 hours ago (tag: 4.0.0a12) Dan Graham
+- 26 hours ago (tag: 4.0.0a12) Dan Graham
     b19e857 2019-03-10 17:12:59 -0400
     Tagged version 4.0.0a12.
 
-- 25 hours ago Dan Graham
+- 26 hours ago Dan Graham
     7882336 2019-03-10 17:12:48 -0400
     switched repo from test to upload
 
@@ -226,11 +234,11 @@ Recent changes as of 2019-03-11T18:41:25.862840-04:00:
     979efa5 2019-03-10 16:27:39 -0400
     more setup tweaks, NAME: 'etm'.
 
-- 26 hours ago (tag: 4.0.0a6) Dan Graham
+- 27 hours ago (tag: 4.0.0a6) Dan Graham
     72bc626 2019-03-10 16:26:36 -0400
     Tagged version 4.0.0a6.
 
-- 26 hours ago Dan Graham
+- 27 hours ago Dan Graham
     be4b0ff 2019-03-10 16:26:24 -0400
     more setup tweaks, NAME: 'etm-dgraham'.
 
@@ -411,14 +419,3 @@ Recent changes as of 2019-03-11T18:41:25.862840-04:00:
     d99561d 2019-03-07 13:57:37 -0500
     Implemented timer and fixed bug in jinja template for @u and &u
     used time.
-
-- 4 days ago Dan Graham
-    8cae3c4 2019-03-07 10:37:23 -0500
-    Refactored menus. Fixed bug in save_changes when item is not
-    modified.
-
-- 4 days ago Dan Graham
-    b2e90d1 2019-03-07 08:30:37 -0500
-    Moved v.py to __version__.py and removed version.py. Added
-    conditions is_viewing and is_viewing_or_details to remove bindings
-    from dialogs. Some work on setup.py.
