@@ -1,11 +1,9 @@
 #! ./env/bin/python
-
-if __name__ == "__main__":
+def main():
     import sys
     MIN_PYTHON = (3, 6)
     if sys.version_info < MIN_PYTHON:
         sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
-
     import os
     # lib_path = os.path.relpath('')
     # sys.path.append(lib_path)
@@ -112,4 +110,8 @@ if __name__ == "__main__":
         logger.info(f"calling view.main with etmdir: {etmdir}")
         from view import main
         main(etmdir)
+
+
+if __name__ == "__main__":
+    main()
 

@@ -147,7 +147,7 @@ setup(
     # py_modules=['mypackage'],
     entry_points={
         'console_scripts': [
-            'etm=etm:__main__',
+            'etm=cli:main',
         ],
     },
     # entry_points={
