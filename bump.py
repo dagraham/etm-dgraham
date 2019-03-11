@@ -42,7 +42,7 @@ parts[-1] = str(int(parts[-1]) + 1)
 new_patch = ".".join(parts)
 
 import os
-version_file = os.path.join(os.getcwd(), 'etmMV', '__version__.py')
+version_file = os.path.join(os.getcwd(), 'etm', '__version__.py')
 # print('version_file', version_file)
 
 print(f"""\
