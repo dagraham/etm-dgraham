@@ -1,50 +1,58 @@
-Recent changes as of 2019-03-11T16:32:42.805516-04:00:
-- 0 seconds ago (HEAD -> refactor, tag: 4.0.0a29) Dan Graham
-    5e5699b 2019-03-11 16:32:42 -0400
+Recent changes as of 2019-03-11T16:47:22.140453-04:00:
+- 0 seconds ago (HEAD -> refactor, tag: 4.0.0a30) Dan Graham
+    4235c1a 2019-03-11 16:47:22 -0400
+    Tagged version 4.0.0a30.
+
+- 23 seconds ago Dan Graham
+    cb4dad4 2019-03-11 16:46:59 -0400
+    yet another attempt to get the entry point right
+
+- 15 minutes ago Dan Graham
+    211c02e 2019-03-11 16:32:42 -0400
     Tagged version 4.0.0a29.
 
-- 15 seconds ago Dan Graham
+- 15 minutes ago Dan Graham
     0ce9045 2019-03-11 16:32:27 -0400
     fixed setup.py
 
-- 84 seconds ago Dan Graham
+- 16 minutes ago Dan Graham
     143851a 2019-03-11 16:31:18 -0400
     Tagged version 4.0.0a28.
 
-- 2 minutes ago Dan Graham
+- 16 minutes ago Dan Graham
     e22560c 2019-03-11 16:30:57 -0400
     fixed bump
 
-- 2 minutes ago Dan Graham
+- 17 minutes ago Dan Graham
     f34d57b 2019-03-11 16:30:16 -0400
     Fixed bump
 
-- 4 minutes ago Dan Graham
+- 19 minutes ago Dan Graham
     47d9cf2 2019-03-11 16:28:35 -0400
     Moved etm -> etmMV/etm.py and renamed etmMV as etm. Added
     etm:__main__ as an entry point.
 
-- 33 minutes ago (origin/working, working) Dan Graham
+- 48 minutes ago (origin/working, working) Dan Graham
     d07b6ad 2019-03-11 15:59:35 -0400
     Tagged version 4.0.0a27.
 
-- 34 minutes ago Dan Graham
+- 48 minutes ago Dan Graham
     924f68c 2019-03-11 15:59:07 -0400
     added entry_points to setup.py
 
-- 64 minutes ago Dan Graham
+- 78 minutes ago Dan Graham
     466a60a 2019-03-11 15:29:02 -0400
     Tagged version 4.0.0a26.
 
-- 66 minutes ago Dan Graham
+- 80 minutes ago Dan Graham
     f4f56e3 2019-03-11 15:27:09 -0400
     added scripts to setup.py
 
-- 83 minutes ago Dan Graham
+- 2 hours ago Dan Graham
     20d0d7d 2019-03-11 15:09:32 -0400
     Tagged version 4.0.0a25.
 
-- 84 minutes ago Dan Graham
+- 2 hours ago Dan Graham
     22d63c4 2019-03-11 15:09:11 -0400
     added goto_line default. README fixes. Current week fixes. Cleanup
     comments.
@@ -53,11 +61,11 @@ Recent changes as of 2019-03-11T16:32:42.805516-04:00:
     b18db97 2019-03-11 07:19:58 -0400
     removed notes.md
 
-- 9 hours ago Dan Graham
+- 10 hours ago Dan Graham
     5bf0057 2019-03-11 07:04:28 -0400
     Tagged version 4.0.0a24.
 
-- 9 hours ago Dan Graham
+- 10 hours ago Dan Graham
     4a2788a 2019-03-11 07:04:10 -0400
     fixed f4 key binding for alerts. removed prep_dist.sh.
 
@@ -102,15 +110,15 @@ Recent changes as of 2019-03-11T16:32:42.805516-04:00:
     36d0b9a 2019-03-10 19:18:01 -0400
     Tagged version 4.0.0a19. updated CHANGES.txt
 
-- 21 hours ago Dan Graham
+- 22 hours ago Dan Graham
     5d198b0 2019-03-10 19:17:50 -0400
     more bump tweaks
 
-- 21 hours ago Dan Graham
+- 22 hours ago Dan Graham
     33c9406 2019-03-10 19:11:59 -0400
     message
 
-- 21 hours ago Dan Graham
+- 22 hours ago Dan Graham
     a87d10b 2019-03-10 19:11:47 -0400
     bump tweaks
 
@@ -154,19 +162,19 @@ Recent changes as of 2019-03-11T16:32:42.805516-04:00:
     54d47d2 2019-03-10 17:44:39 -0400
     name back to etm-dgraham in setup.py
 
-- 23 hours ago (tag: 4.0.0a12) Dan Graham
+- 24 hours ago (tag: 4.0.0a12) Dan Graham
     b19e857 2019-03-10 17:12:59 -0400
     Tagged version 4.0.0a12.
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     7882336 2019-03-10 17:12:48 -0400
     switched repo from test to upload
 
-- 23 hours ago (tag: v4.0.0a11, tag: 4.0.0a11) Dan Graham
+- 24 hours ago (tag: v4.0.0a11, tag: 4.0.0a11) Dan Graham
     627315c 2019-03-10 17:03:44 -0400
     Tagged version 4.0.0a11.
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     513f86d 2019-03-10 17:03:35 -0400
     manually reset version to a10
 
@@ -210,11 +218,11 @@ Recent changes as of 2019-03-11T16:32:42.805516-04:00:
     be4b0ff 2019-03-10 16:26:24 -0400
     more setup tweaks, NAME: 'etm-dgraham'.
 
-- 24 hours ago (tag: 4.0.0a5) Dan Graham
+- 25 hours ago (tag: 4.0.0a5) Dan Graham
     eabe706 2019-03-10 16:09:52 -0400
     Tagged version 4.0.0a5.
 
-- 24 hours ago Dan Graham
+- 25 hours ago Dan Graham
     97ed715 2019-03-10 16:09:25 -0400
     updated setup.py 3 :: Only and 3.8.
 
@@ -250,7 +258,7 @@ Recent changes as of 2019-03-11T16:32:42.805516-04:00:
     76bfa2d 2019-03-10 13:43:09 -0400
     bump.py tweaks
 
-- 27 hours ago Dan Graham
+- 28 hours ago Dan Graham
     88b6619 2019-03-10 13:11:21 -0400
     Added bump.py as possible compliment/replacement for prep_dist.sh.
     Modified check_output to return the result.
@@ -416,14 +424,3 @@ Recent changes as of 2019-03-11T16:32:42.805516-04:00:
 - 6 days ago Dan Graham
     716e6f4 2019-03-05 11:41:25 -0500
     Cleaned up logging
-
-- 6 days ago Dan Graham
-    a25565f 2019-03-05 11:22:16 -0500
-    README tweaks. Test for modified based on buffer content
-    comparison. Include instances = as well as > aft_dt. Added
-    save_befor_quit confirmation. Changed editor bindings ^S saves and
-    closes, ^C closes with confirmation if modified.
-
-- 8 days ago Dan Graham
-    7afb75d 2019-03-04 01:07:38 -0500
-    README refactor
