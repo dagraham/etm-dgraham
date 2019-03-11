@@ -227,7 +227,7 @@ def do_about(*event):
 def do_system(*event):
     show_message('system information', about(22)[1], 20)
 
-@bindings.add('f5')
+@bindings.add('f4')
 def do_alerts(*event):
     show_message("today's alerts", alerts(), 2)
 
