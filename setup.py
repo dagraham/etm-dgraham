@@ -113,8 +113,8 @@ class UploadCommand(Command):
         try:
             self.status('Removing previous builds…')
             rmtree(os.path.join(here, 'dist'))
-        except OSError:
-            pass
+        except OSError as e:
+            print("error removing dist tree:", e)
 
         self.status('Building Source and Wheel (universal) distribution…')
         os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))

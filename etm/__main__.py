@@ -34,8 +34,6 @@ def main():
 
     import options
     settings = options.Settings(etmdir).settings
-    # FIXME: this is for testing, remove for production
-    settings['mytestval'] = 'whatever'
 
     import pendulum
     locale = settings.get('locale', None)
