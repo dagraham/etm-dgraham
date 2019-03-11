@@ -1,42 +1,50 @@
-Recent changes as of 2019-03-11T16:31:18.783023-04:00:
-- 0 seconds ago (HEAD -> refactor, tag: 4.0.0a28) Dan Graham
-    cb87ff0 2019-03-11 16:31:18 -0400
+Recent changes as of 2019-03-11T16:32:42.805516-04:00:
+- 0 seconds ago (HEAD -> refactor, tag: 4.0.0a29) Dan Graham
+    5e5699b 2019-03-11 16:32:42 -0400
+    Tagged version 4.0.0a29.
+
+- 15 seconds ago Dan Graham
+    0ce9045 2019-03-11 16:32:27 -0400
+    fixed setup.py
+
+- 84 seconds ago Dan Graham
+    143851a 2019-03-11 16:31:18 -0400
     Tagged version 4.0.0a28.
 
-- 21 seconds ago Dan Graham
+- 2 minutes ago Dan Graham
     e22560c 2019-03-11 16:30:57 -0400
     fixed bump
 
-- 62 seconds ago Dan Graham
+- 2 minutes ago Dan Graham
     f34d57b 2019-03-11 16:30:16 -0400
     Fixed bump
 
-- 3 minutes ago Dan Graham
+- 4 minutes ago Dan Graham
     47d9cf2 2019-03-11 16:28:35 -0400
     Moved etm -> etmMV/etm.py and renamed etmMV as etm. Added
     etm:__main__ as an entry point.
 
-- 32 minutes ago (origin/working, working) Dan Graham
+- 33 minutes ago (origin/working, working) Dan Graham
     d07b6ad 2019-03-11 15:59:35 -0400
     Tagged version 4.0.0a27.
 
-- 32 minutes ago Dan Graham
+- 34 minutes ago Dan Graham
     924f68c 2019-03-11 15:59:07 -0400
     added entry_points to setup.py
 
-- 62 minutes ago Dan Graham
+- 64 minutes ago Dan Graham
     466a60a 2019-03-11 15:29:02 -0400
     Tagged version 4.0.0a26.
 
-- 64 minutes ago Dan Graham
+- 66 minutes ago Dan Graham
     f4f56e3 2019-03-11 15:27:09 -0400
     added scripts to setup.py
 
-- 82 minutes ago Dan Graham
+- 83 minutes ago Dan Graham
     20d0d7d 2019-03-11 15:09:32 -0400
     Tagged version 4.0.0a25.
 
-- 82 minutes ago Dan Graham
+- 84 minutes ago Dan Graham
     22d63c4 2019-03-11 15:09:11 -0400
     added goto_line default. README fixes. Current week fixes. Cleanup
     comments.
@@ -419,11 +427,3 @@ Recent changes as of 2019-03-11T16:31:18.783023-04:00:
 - 8 days ago Dan Graham
     7afb75d 2019-03-04 01:07:38 -0500
     README refactor
-
-- 8 days ago Dan Graham
-    412b9b0 2019-03-03 18:09:58 -0500
-    Show confirmation when edit changes saved
-
-- 8 days ago Dan Graham
-    422afc6 2019-03-03 17:31:38 -0500
-    Menu tweaks
