@@ -49,7 +49,7 @@ import subprocess # for check_output
 
 
 class TextInputDialog(object):
-    def __init__(self, title='', label_text='', padding=10, completer=None):
+    def __init__(self, title='', label_text='', default='', padding=10, completer=None):
         self.future = Future()
 
         def accept_text(buf):
@@ -65,6 +65,7 @@ class TextInputDialog(object):
 
         self.text_area = TextArea(
             completer=completer,
+            text=default,
             multiline=False,
             width=D(preferred=shutil.get_terminal_size()[0]-padding),
             accept_handler=accept_text)
@@ -327,12 +328,17 @@ def is_showing_details():
 bindings.add('tab', filter=is_not_editing)(focus_next)
 bindings.add('s-tab', filter=is_not_editing)(focus_previous)
 
+
 @bindings.add('l', filter=is_viewing)
 def do_go_to_line(*event):
     def coroutine():
+        default = ''
+        if dataview.current_row:
+            default = dataview.current_row + 1 
         dialog = TextInputDialog(
             title='Go to line',
-            label_text='Line number:')
+            label_text='Line number:',
+            default=str(default))
 
         line_number = yield From(show_dialog_as_float(dialog))
         if line_number:
@@ -523,15 +529,19 @@ def data_changed(loop):
     dataview.refreshRelevant()
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
-    get_app().invalidate()
     dataview.refreshCurrent()
+    if dataview.current_row:
+        logger.info(f"trying to reset row: {dataview.current_row}")
+        text_area.buffer.cursor_position = text_area.buffer.document.translate_row_col_to_index(dataview.current_row, 0)
+    get_app().invalidate()
 
 def new_day(loop):
     dataview.possible_archive()
-    dataview.set_active_view('a')
     dataview.refreshRelevant()
     dataview.activeYrWk = dataview.currentYrWk
+    logger.info(f"new_day currentYrWk: {dataview.currentYrWk}")
     dataview.refreshAgenda()
+    dataview.set_active_view('a')
     set_text(dataview.show_active_view())
     get_app().invalidate()
     dataview.handle_backups()
@@ -606,6 +616,7 @@ def event_handler(loop):
     current_datetime = status_time(now)
     today = now.format("YYYYMMDD")
     if today != current_today:
+        logger.info(f"calling new_day. current_today: {current_today}; today: {today}")
         loop.call_later(0, new_day, loop)
     get_app().invalidate()
     wait = 60 - now.second
@@ -1286,7 +1297,6 @@ def main(etmdir=""):
     else:
         style = light_style
         etmstyle = light_etmstyle
-    dataview.refreshCache()
     agenda_view()
 
     application = Application(

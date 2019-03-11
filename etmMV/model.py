@@ -168,12 +168,6 @@ requires = {
         'jb': ['s'],
         }
 
-# today = pendulum.today()
-# day = today.end_of('week')  # Sunday
-# WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
-
-busy_template  = 'whatever'
-
 busy_template = """{week}
          {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[7]} {DD[7]} 
          _____  _____  _____  _____  _____  _____  _____
@@ -1880,6 +1874,7 @@ class DataView(object):
         self.now = pendulum.now('local')  
 
     def set_active_view(self, c):
+        self.current_row = None
         self.active_view = self.views.get(c, 'agenda')
 
     def show_active_view(self):
@@ -4243,7 +4238,7 @@ def get_item(id):
 #     pass
 
 
-def relevant(db, now=pendulum.now('local') ):
+def relevant(db, now=pendulum.now() ):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
     """
@@ -4788,9 +4783,10 @@ def no_busy_periods(week, width):
     return busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
 
-def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_before=0, weeks_after=0):
+def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0):
     ampm = settings['ampm']
-    logger.debug(f"in schedule with ampm: {ampm}")
+    # yw will be the active week, but now will be the current moment
+    logger.info(f"in schedule with yw: {yw}, now: {now}")
     LL = {}
     for hour in range(24):
         if hour % 6 == 0:
@@ -4810,7 +4806,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
 
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 7 - 16
-    # yw will be the active week, but now will be the current moment
 
     d = iso_to_gregorian((yw[0], yw[1], 1))
     dt = pendulum.datetime(d.year, d.month, d.day, 0, 0, 0, tz='local')
@@ -4821,8 +4816,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
     aft_dt, bef_dt = get_period(dt, weeks_before, weeks_after)
 
     current_day = ""
-    current_week = yw == getWeekNum() 
-    if current_week:
+    if yw == getWeekNum():
         current_day = now.format("ddd MMM D")
 
     rows = []
@@ -4830,11 +4824,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
     for item in db:
         if item['itemtype'] in "!?":
             continue
-
-        ### For debugging 
-        # has_jobs = 'j' in item
-        # has_instances = 's' in item and ('r' in item or '+' in item)
-        ###
 
         if item['itemtype'] == '-':
             done = []
@@ -4849,7 +4838,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                         logger.debug(f"done job: {item.doc_id}, {job['i']}")
                         done.append([job['f'], job['summary'], item.doc_id, job['i']])
             if done:
-                # FIXME: h and f timestamps in datastore may not be UTC times
                 for row in done:
                     dt = row[0] 
                     if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
@@ -4886,7 +4874,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
 
         # get the instances
         for dt, et in item_instances(item, aft_dt, bef_dt):
-            # instance = dt if 'r' in item or '+' in item else None
             instance = dt
             if 'j' in item:
                 for job in item['j']:
@@ -4894,7 +4881,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                         continue
                     jobstart = dt - job.get('s', ZERO)
                     job_id = job.get('i', None)
-                    # rhc = fmt_extent(jobstart, et).center(16, ' ') if 'e' in item else fmt_time(dt).center(16, ' ')
                     rhc = fmt_time(dt).center(16, ' ')
                     rows.append(
                         {
@@ -4944,15 +4930,15 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
                 end_min = et.hour * 60 + et.minute
                 y, w, d = dt.isocalendar()
                 #             x[0] x[1]  x[2]     x[3]
-                # busy.append([(y,w), d, beg_min, end_min])
                 busy.append({'sort': dt.format("YYYYMMDDHHmm"), 'week': (y, w), 'day': d, 'period': (beg_min, end_min)})
     if yw == getWeekNum(now):
+        logger.info(f"current week: {yw}; adding current: {current}")
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
     busy.sort(key=itemgetter('sort'))
 
     # for the individual weeks
-    agenda_hsh = {}       # yw -> agenda_view
+    agenda_hsh = {}     # yw -> agenda_view
     busy_hsh = {}       # yw -> busy_view
     row2id_hsh = {}     # yw -> row2id
     weeks = set([])
@@ -5006,8 +4992,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now('local'), weeks_b
         agenda.append("{}".format(fmt_week(week).center(width, ' '))) 
         for day, columns in groupby(items, key=itemgetter('day')):
             for d in day:
-                if current_week and d == current_day:
-                    d += " (Today)"
+                if week == yw:
+                    if d == current_day:
+                        logger.info(f"today. week: {week} day: {d}; today: {current_day} ")
+                        d += " (Today)"
+                    else:
+                        logger.info(f"not today. week: {week} day: {d}; today: {current_day} ")
                 agenda.append(f"  {d}")
                 row_num += 1
                 for i in columns:
@@ -5070,12 +5060,7 @@ def import_json(etmdir=None):
             del item_hsh['z']
         if 'f' in item_hsh:
             item_hsh['f'] = pen_from_fmt(item_hsh['f'], z)
-        # item_hsh['created'] = timestamp_from_id(id, 'UTC')
         item_hsh['created'] = pendulum.now('UTC')
-        # if 'f' in item_hsh and item_hsh['f'] < item_hsh['created']:
-        #     item_hsh['created'] = item_hsh['f']
-        # if 's' in item_hsh and item_hsh['s'] < item_hsh['created']:
-        #     item_hsh['created'] = item_hsh['s']
         if 'h' in item_hsh:
             item_hsh['h'] = [pen_from_fmt(x, z) for x in item_hsh['h']]
         if '+' in item_hsh:
@@ -5163,8 +5148,6 @@ def import_json(etmdir=None):
             else:
                 del item_hsh['r']
 
-        # pprint(item_hsh)
-        # db.insert(item_hsh)
         docs.append(item_hsh)
     ETMDB.insert_multiple(docs)
 
