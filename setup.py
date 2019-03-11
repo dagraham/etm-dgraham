@@ -141,11 +141,15 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    packages=find_packages(exclude=('tests', 'test', 'tmp')),
-    scripts=['etm'],
+    packages=['etmMV'],
+    # packages=find_packages(exclude=('tests', 'test', 'tmp')),
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],
-
+    entry_points={
+        'console_scripts': [
+            'etm = etm:__main__',
+        ],
+    },
     # entry_points={
     #     'console_scripts': ['mycli=mymodule:cli'],
     # },
