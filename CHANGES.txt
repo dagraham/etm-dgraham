@@ -1,116 +1,129 @@
-Recent changes as of 2019-03-12T08:37:49.014428-04:00:
-- 1 second ago (HEAD -> refactor, tag: 4.0.0a35) Dan Graham
-    34f2def 2019-03-12 08:37:48 -0400
+Recent changes as of 2019-03-12T14:05:53.941252-04:00:
+- 0 seconds ago (HEAD -> refactor, tag: 4.0.0a36) Dan Graham
+    a5124cc 2019-03-12 14:05:53 -0400
+    Tagged version 4.0.0a36.
+
+- 23 seconds ago Dan Graham
+    ee4c80c 2019-03-12 14:05:31 -0400
+    Improved bump to handle transions from a -> b, b -> rc, rc ->
+    patch and so forth.
+
+- 17 minutes ago Dan Graham
+    c47f7dc 2019-03-12 13:48:55 -0400
+    Improved bump
+
+- 5 hours ago (origin/refactor) Dan Graham
+    dbd0f56 2019-03-12 08:37:48 -0400
     Tagged version 4.0.0a35.
 
-- 20 seconds ago Dan Graham
+- 5 hours ago Dan Graham
     632a432 2019-03-12 08:37:29 -0400
     __main__ may be working?
 
-- 9 hours ago Dan Graham
+- 15 hours ago Dan Graham
     f1c945f 2019-03-11 23:17:38 -0400
     trying ...
 
-- 10 hours ago (origin/refactor) Dan Graham
+- 16 hours ago Dan Graham
     0e04626 2019-03-11 22:36:16 -0400
     Tagged version 4.0.0a34.
 
-- 10 hours ago Dan Graham
+- 16 hours ago Dan Graham
     aa60f43 2019-03-11 22:35:50 -0400
     Refactored inputs in etm.__main__.py, e.g., import etm.view as
     view instead of import view.
 
-- 14 hours ago Dan Graham
+- 19 hours ago Dan Graham
     57c77a7 2019-03-11 18:56:15 -0400
     Tagged version 4.0.0a33.
 
-- 14 hours ago Dan Graham
+- 19 hours ago Dan Graham
     677197a 2019-03-11 18:56:00 -0400
     setup fixes ...
 
-- 14 hours ago Dan Graham
+- 19 hours ago Dan Graham
     887128a 2019-03-11 18:41:25 -0400
     Tagged version 4.0.0a32.
 
-- 14 hours ago Dan Graham
+- 19 hours ago Dan Graham
     a268b0a 2019-03-11 18:41:02 -0400
     setup fixes ...
 
-- 15 hours ago Dan Graham
+- 21 hours ago Dan Graham
     5fa1ec3 2019-03-11 17:20:10 -0400
     Tagged version 4.0.0a31.
 
-- 15 hours ago Dan Graham
+- 21 hours ago Dan Graham
     e40fafc 2019-03-11 17:19:56 -0400
     still another attempt to get the entry point right
 
-- 16 hours ago Dan Graham
+- 21 hours ago Dan Graham
     981307c 2019-03-11 16:47:22 -0400
     Tagged version 4.0.0a30.
 
-- 16 hours ago Dan Graham
+- 21 hours ago Dan Graham
     cb4dad4 2019-03-11 16:46:59 -0400
     yet another attempt to get the entry point right
 
-- 16 hours ago Dan Graham
+- 22 hours ago Dan Graham
     211c02e 2019-03-11 16:32:42 -0400
     Tagged version 4.0.0a29.
 
-- 16 hours ago Dan Graham
+- 22 hours ago Dan Graham
     0ce9045 2019-03-11 16:32:27 -0400
     fixed setup.py
 
-- 16 hours ago Dan Graham
+- 22 hours ago Dan Graham
     143851a 2019-03-11 16:31:18 -0400
     Tagged version 4.0.0a28.
 
-- 16 hours ago Dan Graham
+- 22 hours ago Dan Graham
     e22560c 2019-03-11 16:30:57 -0400
     fixed bump
 
-- 16 hours ago Dan Graham
+- 22 hours ago Dan Graham
     f34d57b 2019-03-11 16:30:16 -0400
     Fixed bump
 
-- 16 hours ago Dan Graham
+- 22 hours ago Dan Graham
     47d9cf2 2019-03-11 16:28:35 -0400
     Moved etm -> etmMV/etm.py and renamed etmMV as etm. Added
     etm:__main__ as an entry point.
 
-- 17 hours ago (origin/working, working) Dan Graham
+- 22 hours ago (origin/working, working) Dan Graham
     d07b6ad 2019-03-11 15:59:35 -0400
     Tagged version 4.0.0a27.
 
-- 17 hours ago Dan Graham
+- 22 hours ago Dan Graham
     924f68c 2019-03-11 15:59:07 -0400
     added entry_points to setup.py
 
-- 17 hours ago Dan Graham
+- 23 hours ago Dan Graham
     466a60a 2019-03-11 15:29:02 -0400
     Tagged version 4.0.0a26.
 
-- 17 hours ago Dan Graham
+- 23 hours ago Dan Graham
     f4f56e3 2019-03-11 15:27:09 -0400
     added scripts to setup.py
 
-- 17 hours ago Dan Graham
+- 23 hours ago Dan Graham
     20d0d7d 2019-03-11 15:09:32 -0400
     Tagged version 4.0.0a25.
 
-- 17 hours ago Dan Graham
+- 23 hours ago Dan Graham
     22d63c4 2019-03-11 15:09:11 -0400
     added goto_line default. README fixes. Current week fixes. Cleanup
     comments.
 
-- 25 hours ago (origin/master, master) Dan Graham
+- 31 hours ago (origin/master, master) Dan Graham
     b18db97 2019-03-11 07:19:58 -0400
     removed notes.md
 
-- 26 hours ago Dan Graham
+- 31 hours ago Dan Graham
     5bf0057 2019-03-11 07:04:28 -0400
     Tagged version 4.0.0a24.
 
-- 26 hours ago Dan Graham
+- 31 hours ago Dan Graham
     4a2788a 2019-03-11 07:04:10 -0400
     fixed f4 key binding for alerts. removed prep_dist.sh.
 
@@ -384,7 +397,7 @@ Recent changes as of 2019-03-12T08:37:49.014428-04:00:
     66d8eb1 2019-03-09 09:39:08 -0500
     Fixed bug in reschedule for a non-repeating item
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     e32bae8 2019-03-08 21:49:20 -0500
     image tweaks
 
@@ -405,16 +418,3 @@ Recent changes as of 2019-03-12T08:37:49.014428-04:00:
     13fa593 2019-03-08 16:29:31 -0500
     Fixed menus and cleaned up logging Tagged version 4.0.1
     [2019-03-08 16:29:31 -0500].
-
-- 4 days ago Dan Graham
-    74517d7 2019-03-08 16:29:31 -0500
-    Fixed menus and cleaned up logging
-
-- 4 days ago Dan Graham
-    352cfd6 2019-03-08 16:23:27 -0500
-    Implemented schedule_new and reschedule
-
-- 4 days ago Dan Graham
-    e52cec9 2019-03-08 14:01:38 -0500
-    Implemented do_maybe_delete to handle either the selected instance
-    or the item itself.
