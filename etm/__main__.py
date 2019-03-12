@@ -8,14 +8,14 @@ def main():
     # lib_path = os.path.relpath('')
     # sys.path.append(lib_path)
 
-    from model import setup_logging, logger, about
-    log_levels = [str(x) for x in range(1, 6)]
-
-    loglevel = 2 # info
+    import etm.__version__ as version
+    etm_version = version.version
     homedir = os.path.expanduser("~")
     etmdir = os.path.normpath(os.path.join(homedir, ".etm-mv"))
 
 
+    loglevel = 2 # info
+    log_levels = [str(x) for x in range(1, 6)]
     if len(sys.argv) > 1 and sys.argv[1] in log_levels:
         loglevel = sys.argv.pop(1)
     if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
@@ -29,10 +29,7 @@ def main():
     if not os.path.isdir(backdir):
         os.makedirs(backdir)
 
-    setup_logging(loglevel, logdir)
-    logger.debug(about()[1])
-
-    import options
+    import etm.options as options
     settings = options.Settings(etmdir).settings
 
     import pendulum
@@ -43,14 +40,14 @@ def main():
     day = today.end_of('week')  # Sunday
     WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
 
-    import data
+    import etm.data as data
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
     ETMDB = data.initialize_tinydb(dbfile)
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
-    logger.info(f"initialized TinyDB using {dbfile}")
 
-    import model
+    import etm.model as model
+    model.etm_version = etm_version
     model.WA = WA
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
@@ -70,9 +67,16 @@ def main():
             completions.append(f"@x {x}")
     style = dataview.settings["style"]
     parse_datetime = model.parse_datetime
-    import view
+
+    from etm.model import setup_logging, logger, about
+    setup_logging(loglevel, logdir)
+
+    logger.info(f"initialized TinyDB using {dbfile}")
+
+
+    import etm.view as view
     view.model = model
-    view.about = model.about
+    view.about = about
     view.wrap = model.wrap
     view.settings = settings
     view.format_time = format_time
@@ -100,16 +104,17 @@ def main():
             do_doctest()
         else:
             logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
-            from model import main
+            from etm.model import main
             main(etmdir, sys.argv)
             # sys.exit()
 
     else:
         logger.info(f"calling view.main with etmdir: {etmdir}")
-        from view import main
+        from etm.view import main
         main(etmdir)
 
 
 if __name__ == "__main__":
     main()
+
 
