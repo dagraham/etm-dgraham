@@ -21,7 +21,11 @@ if gs:
     if not (ans and ans.lower() == "n"):
         sys.exit()
 
-possible_extensions = ['a', 'b', 'rc', 'post', 'dev']
+# PEP 440 extensions
+# possible_extensions = ['a', 'b', 'rc', '.post', '.dev']
+# For etm only the following will be used 
+possible_extensions = ['a', 'b', 'rc']
+
 pre = post = version
 ext = 'a'
 ext_num = 1
@@ -32,6 +36,13 @@ for poss in possible_extensions:
         ext_num = int(post) + 1
         break
 
+extension_options = {
+        'a': {'a': f'a{ext_num}', 'b': 'b0', 'r': 'rc0'},
+        'b': {'b': f'b{ext_num}', 'r': 'rc0'},
+        'rc': {'r': f'rc{ext_num}'},
+        }
+
+
 # print(version, pre, post, ext)
 
 new_ext = f"{pre}{ext}{ext_num}"
@@ -41,22 +52,37 @@ parts = pre.split('.')
 parts[-1] = str(int(parts[-1]) + 1)
 new_patch = ".".join(parts)
 
+opts = [f'The current version is {version}']
+if ext and ext in extension_options:
+    i = 0
+    for k, v in extension_options[ext].items():
+        opts.append(f"  {k}: {pre}{v}")
+    opts.append(f"  p: {new_patch}")
+
 import os
 version_file = os.path.join(os.getcwd(), 'etm', '__version__.py')
 # print('version_file', version_file)
 
-print(f"""\
-The current version is {version}.
-  p: The patch level can be incremented to give version: {new_patch}
-  e: The {ext} extension level can be incrmented to give: {new_ext}\
-""")
-res = input(f"increment patch, p, or extension, e? [pe]: ")
+# print(f"""\
+# The current version is {version}.
+#   e: The {ext} extension level can be incrmented to give: {new_ext}\
+#   p: The patch level can be incremented to give version: {new_patch}
+# """)
+# res = input(f"increment patch, p, or extension, e? [pe]: ")
+
+print("\n".join(opts))
+res = input(f"Which new version? ")
 
 new_version = ''
-if res and res.lower() == 'e':
-    new_version = new_ext
-elif res and res.lower() == 'p':
+res = res.lower()
+if res in extension_options[ext]:
+    new_version = f"{pre}{extension_options[ext][res]}"
+elif res == 'p':
     new_version = new_patch
+
+print(f"new version: {new_version}")
+
+sys.exit()
 
 if new_version:
     with open(version_file, 'w') as fo:
