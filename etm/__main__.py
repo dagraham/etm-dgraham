@@ -10,8 +10,9 @@ def main():
 
     import etm.__version__ as version
     etm_version = version.version
-    homedir = os.path.expanduser("~")
-    etmdir = os.path.normpath(os.path.join(homedir, ".etm-mv"))
+    etmdir = os.getcwd()
+    # homedir = os.path.expanduser("~")
+    # etmdir = os.path.normpath(os.path.join(homedir, "etm"))
 
 
     loglevel = 2 # info

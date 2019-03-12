@@ -1,5 +1,5 @@
-# etm: event and task manager
-![](./etmlogo_medium.png)
+# etm
+![event and task manager](./etmlogo.png)
 
 *etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used.
 
@@ -8,7 +8,7 @@ Each reminder in *etm* begins with a *type character* followed by a brief *summa
 There are 4 types of reminders and associated *type characters*: task (**-**),event (**\***), record (**%**) and inbox (**!**). See [Item Types](#item-types) for details about the four item types and [Options](#options) for details about possible attributes. Here are some examples.
 
 
-## [Simple reminders](#toc)
+## [Simple reminders](#etm)
 
 * A task (**-**): pick up milk. 
 
@@ -30,7 +30,7 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
 
         ! Coffee with Alex @s fri ? @e 1h
 
-## [Repetition](#toc)
+## [Repetition](#etm)
 
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
@@ -49,7 +49,7 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
 
         * sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
 
-## [More complex repetition](#toc)
+## [More complex repetition](#etm)
 
 * Take a prescribed medication daily [s]tarting at 12am Monday and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil 12am on Friday. 
 
@@ -74,7 +74,7 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
 
         * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
 
-## [Editing](#toc) ##
+## [Editing](#etm) ##
 
 Etm offers several conveniences when creating or modifying an item.
 
@@ -86,9 +86,62 @@ Etm offers several conveniences when creating or modifying an item.
     * `@s 2p fri @z float` would be interpreted as the naive datetime 2pm Fri, Feb 15 and would be displayed as such in whatever happens to be the local timezone.
 * Automatic completion for elements you have used before including @z (timezone), @c (calendar), @t (tags), @i (index), @l (location), @n (attendees) and @x (expansion). E.g. when entering @z, you can choose from any timezone you have previously used. 
 
-# [Item Types](#toc)
+# [Details](#etm)
 
-## [event](#toc)
+## [Installation/Deinstallation](#etm)
+
+### [Installation](#etm)
+
+Setting up a virtual environment for etm is recommended. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
+
+Open a terminal and begin by creating a new directory/folder, say `etm-pypi` in your home directory, for the virtual environment:
+
+        $ mkdir ~/etm-pypi
+        $ cd ~/etm-pypi
+Now continue by creating the virtual environment (python3 is required):
+
+        $ python3 -m venv env
+After a few seconds you will have an `./env` directory. Now activate the virtual environment:
+
+        $ source env/bin/activate
+The prompt will now change to something containing `(env)` to indicate that the virtual environment is active. Updating pip is now recommended:
+
+        (env) $ pip install -U pip
+Note that this invokes `./env/bin/pip`. Once this is finished, use pip to install etm:
+
+        (env) $ pip install -U etm-dgraham
+This will install etm and all its requirements in `./env/lib/python3.x/sitepackages` and will also install an executable called `etm` in `./env/bin`.
+
+Before you start etm, think about where you would like to keep your personal data and configuration files. The default is to use `~/etm-pypi` or whatever directory you created for your virtual environment as your etm *home* directory. If this is not what you want, you can just give the path for whatever directory you would like to use when you start etm, e.g.,
+
+        (env) $ etm ~/Documents/etm
+Considerations:
+
+* If more than one person will be using etm on the same computer, you might want to have different *home* directories for each user.
+* If you want to use etm on  more than one computer and use Dropbox, you might want to use `~/Dropbox/etm` to have access on each of your computers.
+
+Whatever *home* directory you choose, running etm for the first time will add the following to that folder.
+
+        home/
+            backups/
+            logs/
+            cfg.yaml
+            db.json
+Here `cfg.yaml` is your user configuration file and `db.json` contains all your etm reminders. The folders `backups/` and `logs/` contain, respectively, the 5 most recent daily backups of your `db.json` and `cfg.yaml` files. The folder `logs` contains the current `etm.log` file and the 5 most recent daily backus.
+
+The file `cfg.yaml` can be edited and the options are documented in the file.
+
+### [Deinstallation](#etm)
+
+If you should ever want to deinstall etm, first deactivate the virtual environment, if necessary, by changing to the virtual environment directory and entering
+
+        (env) $ deactivate
+
+You can now simply delete the virtual environment directory and, if you have additional *home* directories, by deleting each of them. One of the many advantages of the virtual environment is that all installations are local to that environment and removing the directory, removes every trace.
+
+## [Item Types](#etm)
+
+### [event](#etm)
 
 Type character: **\***
 
@@ -101,7 +154,7 @@ An event is something that happens at a particular date or datetime without any 
 
 Corresponds to VEVENT in the vcalendar specification.
 
-## [task](#toc)
+### [task](#etm)
 
 Type character: **-**
 
@@ -158,7 +211,7 @@ A task is something that requires action from the user and lasts, so to speak, u
 
 Corresponds to VTODO in the vcalendar specification.
 
-## [Journal](#toc)
+### [Journal](#etm)
 
 Type character: **%**
 
@@ -170,7 +223,7 @@ A record of something that the user wants to remember. The userid and password f
 
 Corresponds to VJOURNAL in the vcalendar specification.
 
-## [inbox](#toc)
+### [inbox](#etm)
 
 Type character: **!**
 
@@ -178,37 +231,37 @@ An inbox item can be regarded as a task that is always due on the current date. 
 
 Corresponds to VTODO in the vcalendar specification.
 
-## [Internal types](#toc)
+### [Internal types](#etm)
 
 These are generated automatically by *etm*.
 
-### [beginning soon](#toc)
+#### [beginning soon](#etm)
 
 Type character: **>**
 
 For unfinished tasks and other items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining.
 
-### [past due](#toc)
+#### [past due](#etm)
 
 Type character: **<**
 
 When a task is past due, a warning that the task is past due appears on the current date together with the item summary and the number of days past due. 
 
-### [waiting](#toc)
+#### [waiting](#etm)
 
 Type character: **+**
 
 When a task job has one or more unfinished prerequisites, it is displayed using **+** rather than **-**.
 
-### [finished](#toc)
+#### [finished](#etm)
 
 Type character: **✓**
 
 When a task or job is finished, it is displayed on the finished date using **✓** rather than **-**. 
 
-# [Options for items](#toc)
+## [Item options](#etm)
 
-## @ keys: 
+### @ keys: 
 
 @ followed by a character from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
 
@@ -231,21 +284,19 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  m: mask: string stored in obfuscated form
 *  n: attendees: list of 'name <emailaddress>' strings 
 *  o: overdue: character from (r) restart, (s) skip or (k) keep
-*  p: priority: integer from 0 (none), 1 (low), 2 (normal), 3 (high), 
-*  4 (urgent)
+*  p: priority: integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
 *  r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
-  (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition
-*  &-key entries
+  (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &-key entries
 *  s: starting: date or datetime
 *  t: tags: list of strings
 *  x: expansion key: string
 *  z: timezone: string
 
-## & keys
+### & keys
 
 & followed by a character from one of the lists below. These keys are only used with @j (job) and @r (repetition) entries.
 
-### for use with @j
+#### for use with @j
 
 *  a: alert: list of + (before) or - (after) periods relative to &s: list of cmd names from the users configuration file
 *  b: beginby: integer number of days before &s
@@ -258,7 +309,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  p: prerequisites (comma separated list of ids of immediate prereqs)
 *  s: start/due: period relative to @s entry (default 0m)
 
-### for use with @r
+#### for use with @r
 
 *  c: count: integer number of repetitions 
 *  E: easter: number of days before (-), on (0) or after (+) Easter
@@ -273,7 +324,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  W: week number: list of integers in (1, ..., 53)
 
 
-## [Notes](#toc)
+### [Notes](#etm)
 
 * @a alerts and @b beginbys
     * With an email alert, the item summary is used as the subject and emails are sent to attendees listed in @n. The content of the body of the emails is a option that can be set in the user's configuration file. 
