@@ -17,8 +17,8 @@ if gs:
     print('status:')
     print(gs)
     print("There are uncommitted changes.")
-    ans = input("Cancel? [Yn] ")
-    if not (ans and ans.lower() == "n"):
+    ans = input("Continue anyway? [yN] ")
+    if not (ans and ans.lower() == "y"):
         sys.exit()
 
 # PEP 440 extensions
@@ -61,14 +61,6 @@ if ext and ext in extension_options:
 
 import os
 version_file = os.path.join(os.getcwd(), 'etm', '__version__.py')
-# print('version_file', version_file)
-
-# print(f"""\
-# The current version is {version}.
-#   e: The {ext} extension level can be incrmented to give: {new_ext}\
-#   p: The patch level can be incremented to give version: {new_patch}
-# """)
-# res = input(f"increment patch, p, or extension, e? [pe]: ")
 
 print("\n".join(opts))
 res = input(f"Which new version? ")
@@ -80,9 +72,10 @@ if res in extension_options[ext]:
 elif res == 'p':
     new_version = new_patch
 
-print(f"new version: {new_version}")
-
-sys.exit()
+ans = input(f"Commit and tag new version: {new_version}? [yN] ")
+if ans.lower() != 'y':
+    print('cancelled')
+    sys.exit()
 
 if new_version:
     with open(version_file, 'w') as fo:
