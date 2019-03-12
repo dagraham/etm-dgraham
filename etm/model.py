@@ -56,7 +56,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.output import ColorDepth
 from prompt_toolkit import __version__ as prompt_toolkit_version
 
-from __version__ import version as etm_version
+# from __version__ import version as etm_version
 
 # import options
 
