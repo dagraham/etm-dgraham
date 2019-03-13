@@ -44,6 +44,7 @@ def main():
 
     import etm.data as data
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+    cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
     ETMDB = data.initialize_tinydb(dbfile)
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
@@ -78,6 +79,7 @@ def main():
 
     import etm.view as view
     view.logger = logger
+    view.cfgfile = cfgfile
     view.model = model
     view.about = about
     view.wrap = model.wrap

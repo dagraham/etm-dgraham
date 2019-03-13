@@ -38,7 +38,8 @@ import platform
 # for compressing backup files
 from zipfile import ZipFile, ZIP_DEFLATED
 
-system_platform = platform.platform(terse=1)
+system_platform = platform.platform(terse=True)
+
 python_version = platform.python_version()
 developer = "dnlgrhm@gmail.com"
 import shutil
@@ -1891,6 +1892,18 @@ class DataView(object):
             return item_id, self.itemcache[item_id] 
 
         return None, ''
+
+    def get_goto(self, row=None):
+        res = self.get_row_details(row)
+        if not res:
+            return None, ''
+        item_id = res[0]
+        item = DBITEM.get(doc_id=item_id)
+        goto = item.get('g')
+        if goto:
+            return True, goto
+        else:
+            return False, f"{item['itemtype']} {item['summary']} not have an @g goto entry"
 
     def get_repetitions(self, row=None, num=5):
         """

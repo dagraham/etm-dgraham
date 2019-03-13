@@ -47,6 +47,11 @@ logger = logging.getLogger()
 
 import subprocess # for check_output
 
+# for openWithDefault
+import platform
+import os
+
+cfgfile = '' # override this
 
 class TextInputDialog(object):
     def __init__(self, title='', label_text='', default='', padding=10, completer=None):
@@ -225,18 +230,22 @@ def do_about(*event):
     show_message('etm information', about(2)[0], 0)
 
 @bindings.add('f3')
-def do_system(*event):
-    show_message('system information', about(22)[1], 20)
-
-@bindings.add('f4')
-def do_alerts(*event):
-    show_message("today's alerts", alerts(), 2)
-
-@bindings.add('f6')
-def do_check_latest(*event):
+def do_check_updates(*event):
     res = check_output("pip search etm-dgraham")
     info =  "".join( chr(x) for x in res)
     show_message("version information", info, 2)
+
+@bindings.add('f4')
+def do_system(*event):
+    show_message('system information', about(22)[1], 20)
+
+@bindings.add('f5')
+def do_alerts(*event):
+    show_message("today's alerts", alerts(), 2)
+
+# @bindings.add('f6')
+# def do_open_config(*event):
+#     openWithDefault(cfgfile)
 
 def save_before_quit(*event):
     def coroutine():
@@ -627,6 +636,22 @@ def get_statusbar_text():
 def get_statusbar_right_text():
     return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} "), ]
 
+def openWithDefault(path):
+    sys_platform = platform.system()
+    windoz = sys_platform in ('Windows', 'Microsoft')
+    mac =  sys_platform == 'Darwin'
+    if windoz:
+        os.startfile(path)
+        return()
+
+    if mac:
+        cmd = 'open' + f" {path}"
+    else:
+        cmd = 'xdg-open' + f" {path}"
+    logger.info(f"executing cmd: {cmd}")
+    res = check_output(cmd)
+    logger.info(f"back with res: {res}")
+    return
 
 search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
@@ -1031,6 +1056,15 @@ def edit_copy(*event):
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
 
+@bindings.add('c-g', filter=is_viewing_or_details & is_item_view)
+def do_goto(*event):
+    row = text_area.document.cursor_position_row
+    ok, res = dataview.get_goto(row)
+    if ok:
+        openWithDefault(res)
+    else:
+        show_message("goto", res, 8)
+
 @bindings.add('c-r', filter=is_viewing_or_details & is_item_view)
 def not_editing_reps(*event):
     row = text_area.document.cursor_position_row
@@ -1177,10 +1211,10 @@ root_container = MenuContainer(body=body, menu_items=[
     MenuItem('etm', children=[
         MenuItem('F1) activate/close menu', handler=menu),
         MenuItem('F2) about etm', handler=do_about),
-        MenuItem('F3) system info', handler=do_system),
-        MenuItem("F4) show today's alerts", handler=do_alerts),
-        MenuItem('F5) __preferences', disabled=True),
-        MenuItem('F6) check for latest version', handler=do_check_latest),
+        MenuItem('F3) check for updates', handler=do_check_updates),
+        MenuItem('F4) system info', handler=do_system),
+        MenuItem("F5) show today's alerts", handler=do_alerts),
+        # MenuItem('F6) preferences', handler=do_open_config),
         MenuItem('-', disabled=True),
         MenuItem('^q) quit', handler=exit),
     ]),
