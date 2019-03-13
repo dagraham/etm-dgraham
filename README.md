@@ -1,7 +1,7 @@
 # etm
 ![event and task manager](https://github.com/dagraham/etm-dgraham/blob/master/etmlogo.png?raw=true)
 
-*etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used.
+*etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used. This is the fourth generation of a project that began in 2009. 
 
 Each reminder in *etm* begins with a *type character* followed by a brief *summary* of the item and then, perhaps, by one or more *@key value* pairs to specify other attributes of the reminder. Mnemonics are used to make the keys easy to remember, e.g, @s for starting datetime, @l for location, @d for description and so forth.
 
