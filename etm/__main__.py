@@ -3,21 +3,15 @@ def main():
     import logging
     import logging.config
     logger = logging.getLogger()
-
     import sys
     MIN_PYTHON = (3, 6)
     if sys.version_info < MIN_PYTHON:
         sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
     import os
-    # lib_path = os.path.relpath('')
-    # sys.path.append(lib_path)
 
     import etm.__version__ as version
     etm_version = version.version
     etmdir = os.getcwd()
-    # homedir = os.path.expanduser("~")
-    # etmdir = os.path.normpath(os.path.join(homedir, "etm"))
-
 
     loglevel = 2 # info
     log_levels = [str(x) for x in range(1, 6)]

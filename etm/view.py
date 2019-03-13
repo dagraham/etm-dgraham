@@ -1247,7 +1247,7 @@ etmstyle = None
 application = None
 def main(etmdir=""):
     global item, settings, ampm, style, etmstyle, application
-
+    logger.info(f"in view main with etmdir: {etmdir}")
     ampm = settings['ampm']
     terminal_style = settings['style']
     if terminal_style == "dark": 
