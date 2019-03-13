@@ -323,17 +323,13 @@ def process_entry(s, settings={}):
         return {(0, len(s) + 1): ('itemtype', s[0])}, [('itemtype', s[0])]
     # look for expansions
     xpat = re.compile("\s_[a-zA-Z]+\s")
-    logger.debug(f"settings: {settings.get('expansions')}")
     matches = xpat.findall(s)
-    logger.debug(f"matches: {matches}")
     if settings:
         for x in matches:
             x = x.strip()
             if x in settings['expansions']:
                 replacement = settings['expansions'][x]
-                logger.debug(f"replacement: {replacement}")
                 s = s.replace(x, replacement)
-                logger.debug(f"new s: {s}")
 
     pattern = re.compile("\s[@&][a-zA-Z+-]")
     parts = []
@@ -388,7 +384,6 @@ def process_entry(s, settings={}):
             adding = None
         elif key.startswith('&'):
             if adding:
-                logger.debug(f"adding: ({adding}{key[-1]}, {value})")
                 pos_hsh[tuple((beg, end))] = (f"{adding}{key[-1]}", value)
             else:
                 pass
@@ -405,7 +400,6 @@ def process_entry(s, settings={}):
         keyvals.insert(0, ('summary', v))
         keyvals.insert(0, ('itemtype', k))
 
-    logger.debug(f"keyvals: {keyvals}; pos_hsh.items(): {pos_hsh.items()}")
     return pos_hsh, keyvals
 
 def active_from_pos(pos_hsh, pos):
@@ -527,7 +521,6 @@ class Item(object):
         if not etmdir:
             self.settings = {}
             return
-        logger.debug(f"got etmdir in Item: {etmdir}")
         self.settings = settings if settings else {}
         self.db = DBITEM
         self.dbarch = DBARCH
@@ -549,12 +542,10 @@ class Item(object):
         item = self.item_hsh
         showing =  "Repetitions"
         if not ('s' in item and ('r' in item or '+' in item)):
-            logger.debug(f"bailing - not repeating")
             return showing, "not a repeating item"
         relevant = item['s'] 
         starting = format_datetime(relevant)
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
-        logger.debug(f"pairs: {pairs}")
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
             showing = f"First {num} repetitions"
@@ -569,28 +560,22 @@ class Item(object):
     def edit_item(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
-        logger.debug(f"edit doc_id: {doc_id}; entry: {entry}")
         item_hsh = self.dbquery.get(doc_id=doc_id)
         self.init_entry = entry
         if item_hsh:
-            logger.debug(f"found doc_id: {doc_id} in database")
-            logger.debug(f"item_hsh: {item_hsh}")
             self.doc_id = doc_id
             self.is_new = False
             self.item_hsh = deepcopy(item_hsh) # created and modified entries
             # self.entry = entry
             self.keyvals = []
-            logger.debug(f"calling text_changed with entry: {entry}")
             self.text_changed(entry, 0, False)
 
 
     def edit_copy(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
-        logger.debug(f"copy doc_id: {doc_id}; entry: {entry}")
         item_hsh = self.db.get(doc_id=doc_id)
         if item_hsh:
-            logger.debug(f"found doc_id: {doc_id} in database")
             self.doc_id = None
             self.is_new = True
             self.item_hsh = item_hsh # created and modified entries
@@ -599,7 +584,6 @@ class Item(object):
             self.text_changed(entry, 0, False)
 
     def new_item(self):
-        logger.debug("new item")
         self.doc_id = None
         self.is_new = True
         self.item_hsh = {}
@@ -609,9 +593,7 @@ class Item(object):
     def delete_item(self, doc_id=None):
         if not (doc_id):
             return None
-        logger.debug(f"delete doc_id: {doc_id}")
         if self.db.contains(doc_ids=[doc_id]):
-            logger.debug(f"found doc_id: {doc_id} in database")
             self.db.remove(doc_ids=[doc_id])
             return True
         else:
@@ -622,7 +604,6 @@ class Item(object):
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
-        logger.debug(f"doc_id: {doc_id}; new_dt: {new_dt}")
         changed = False
         if 's' not in self.item_hsh:
             self.item_hsh['s'] = new_dt
@@ -637,7 +618,6 @@ class Item(object):
         if changed:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
         return changed
 
@@ -649,12 +629,10 @@ class Item(object):
         changed = False
         self.doc_id = doc_id
         self.item_hsh = self.db.get(doc_id=doc_id)
-        logger.debug(f"doc_id: {doc_id}; old_dt: {old_dt}; new_dt: {new_dt}")
         if not ('r' in self.item_hsh or '+' in self.item_hsh):
             # not repeating
             self.item_hsh['s'] = new_dt
             self.item_hsh['modified'] = pendulum.now('local')
-            logger.debug(f"not repeating item_hsh: {self.item_hsh}")
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
             changed = True
         else:
@@ -678,24 +656,19 @@ class Item(object):
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
-        logger.debug(f"doc_id: {doc_id}; instance: {instance}; which: {which}")
         changed = False
         if which == 0:
             # this instance
-            logger.debug(f"deleting instance {instance}")
             if '+' in self.item_hsh and instance in self.item_hsh['+']:
-                logger.debug(f"{instance} in {self.item_hsh['+']}")
                 self.item_hsh['+'].remove(instance)
                 changed = True
             elif 'r' in self.item_hsh:
-                logger.debug(f"r in hsh, adding {instance} to @-")
                 # instances don't include @s
                 self.item_hsh.setdefault('-', []).append(instance)
                 changed = True
             else:
                 # instance should be @s
                 if self.item_hsh['s'] == instance:
-                    logger.debug(f"instance {instance} must be {self.item_hsh['s']}")
                     self.item_hsh['s'] = self.item_hsh['+'].pop(0)
                     changed = True
                 else:
@@ -704,7 +677,6 @@ class Item(object):
             if changed:
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
-                logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
                 self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
             return changed
 
@@ -716,7 +688,6 @@ class Item(object):
 
     def finish_item(self, item_id, job_id, completed_datetime, due_datetime):
         # item_id and job_id should have come from dataview.maybe_finish and thus be valid
-        logger.debug(f"item_id: {item_id}; job_id: {job_id}, done: {completed_datetime}; due: {due_datetime}")
         save_item = False
         self.item_hsh = self.db.get(doc_id=item_id)
         self.doc_id = item_id
@@ -732,7 +703,6 @@ class Item(object):
                     j += 1
                     continue
             ok, jbs, last = jobs(self.item_hsh['j'], self.item_hsh)
-            logger.debug(f"ok: {ok}; jbs: {jbs}; last: {last}")
             if ok:
                 self.item_hsh['j'] = jbs
                 if last:
@@ -783,7 +753,6 @@ class Item(object):
         if save_item:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
 
@@ -799,7 +768,6 @@ class Item(object):
             for job in self.item_hsh['j']:
                 if job['i'] == job_id:
                     self.item_hsh['j'][j].setdefault('u', []).append([elapsed_time, completed_datetime])
-                    logger.debug(f"added job used time {self.item_hsh['j'][j]}")
                     save_item = True
                     break
                 else:
@@ -808,38 +776,29 @@ class Item(object):
         else:
             self.item_hsh.setdefault('u', []).append([elapsed_time, completed_datetime]) 
             save_item = True
-            logger.debug(f"added item used time {self.item_hsh['u']}")
         if save_item:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
 
     def cursor_changed(self, pos):
         # ((17, 24), ('e', '90m'))
         self.interval, self.active = active_from_pos(self.pos_hsh, pos)
-        logger.debug(f"interval: {self.interval}; active: {self.active}")
 
 
     def text_changed(self, s, pos, modified=True):
         """
 
         """
-        logger.debug(f"modified: {modified}")
         # self.is_modified = modified
-        logger.debug(f"s: {s}; pos: {pos}")
         self.entry = s
-        # logger.debug(f"starting keyvals: {self.keyvals}")
         self.pos_hsh, keyvals = process_entry(s, self.settings)
-        # logger.debug(f"ending keyvals: {keyvals}")
         removed, changed = listdiff(self.keyvals, keyvals)
-        logger.debug(f"self.keyvals: {self.keyvals};  removed: {removed}; changed: {changed}")
 
         # if removed + changed != []:
         if self.init_entry != self.entry:
             self.is_modified = True
-        logger.debug(f"is_modified: {self.is_modified}")
         # only process changes for kv entries
         update_timezone = False
         for kv in removed + changed:
@@ -856,14 +815,12 @@ class Item(object):
                 del self.askreply[kv]
         self.keyvals = [kv for kv in keyvals]
         for kv in changed:
-            logger.debug(f"updating keyval: {kv}")
             self.update_keyval(kv)
 
 
     def update_keyval(self, kv):
         """
         """
-        logger.debug(f"updating kv: {kv}")
         key, val = kv
 
         if key in self.keys:
@@ -880,19 +837,14 @@ class Item(object):
                     reply = msg
                 else:
                     # call the appropriate do for the key 
-                    logger.debug(f"calling {do} for {val}")
                     obj, rep = do(val)
-                    logger.debug(f"got {obj}, {rep}")
                     reply = rep if rep else r
                     if obj:
                         self.object_hsh[kv] = obj
-                        logger.debug(f"object_hsh[{kv}]: {self.object_hsh[kv]}")
                     else:
                         if kv in self.object_hsh:
                             del self.object_hsh[kv]
             self.askreply[kv] = (ask, reply)
-            if obj:
-                logger.debug(f"askreply: {self.askreply}")
         else:
             display_key = f"@{key}" if len(key) == 1 else f"&{key[-1]}"
             self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
@@ -903,11 +855,9 @@ class Item(object):
         self.item_hsh = {}
         cur_hsh = {}
         cur_key = None
-        logger.debug(f"updating doc_id: {self.doc_id}; is_new: {self.is_new}")
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if not obj:
-                logger.debug(f"(k, v): {(k, v)};  object_hsh: {self.object_hsh}")
                 continue
             if k in ['a', 'u']:
                 self.item_hsh.setdefault(k, []).append(obj)
@@ -919,7 +869,6 @@ class Item(object):
                 cur_hsh = {k[0]: obj}
             elif k[0] in ['r', 'j']:
                 if cur_hsh:
-                    logger.debug(f"cur_hsh[{k[1]}]: {obj}")
                     cur_hsh[k[1]] = obj
                 else:
                     # shouldn't happen
@@ -937,11 +886,8 @@ class Item(object):
             cur_hsh = {}
 
         if 'j' in self.item_hsh:
-            logger.debug(f"jobs: {self.item_hsh['j']}")
             ok, res, last = jobs(self.item_hsh['j'], self.item_hsh)
             if ok:
-                logger.debug(f"item_hsh['j']: {self.item_hsh['j']}")
-                logger.debug(f"res: {res}")
                 self.item_hsh['j'] = res
                 if last:
                     self.item_hsh['f'] = last
@@ -956,12 +902,10 @@ class Item(object):
             else:
                 self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
                 log_action = 'updated'
-            logger.debug(f"{log_action} doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
         else:
             # editing an existing item
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = now
-            logger.debug(f"changed doc_id: {self.doc_id}; item_hsh: {self.item_hsh}")
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
 
@@ -977,7 +921,6 @@ class Item(object):
             missing = [f"@{k[0]}" for k in requires[key] if k not in cur_keys]
 
         if missing:
-            logger.debug(f"key: {key}; cur_keys: {cur_keys}; requires: {requires[key]}; missing: {missing}")
             display_key = f"@{key[0]}" if len(key) == 1 or key in ['rr', 'jj'] else f"&{key[-1]}"
             return f"Required for {display_key} but missing: {', '.join(missing)}"
         else:
@@ -1025,10 +968,8 @@ class Item(object):
         if itemtype:
             # only @-keys; allow a, rr and jj more than once
             already_entered = [k for (k, v) in self.keyvals if len(k) == 1 and k not in ['a']]
-            logger.debug(f"already_entered: {already_entered}")
             # req = [k for k, v in self.keys.items() if (k in required[itemtype] and k not in already_entered)]
             require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in required[itemtype] and k != '?' and k not in already_entered)] 
-            logger.debug(f"require: {require}; required: {required[itemtype]}")
             # allow rr to be entered as r and jj as j
             avail = [x[0] for x in allowed[itemtype] if len(x) == 1 or x in ['rr', 'jj'] ]
             allow = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in avail and k != '?' and k not in already_entered)] 
@@ -1117,27 +1058,6 @@ class Item(object):
 
         return obj, rep
 
-    # def do_expansion(self, arg):
-    #     """
-
-    #     """
-    #     expansions = self.settings['expansions']
-    #     logger.debug(f"got expansions {expansions}, tennis: {expansions.get('tennis', '?')}")
-    #     key = arg.strip()
-    #     if key in expansions:
-    #         obj = expansions[key]
-    #         rep = expansions[key]
-    #     else:
-    #         possible = [x for x in expansions if x.startswith(key)]
-    #         if key and len(possible) == 1:
-    #             obj = expansions[possible[0]]
-    #             rep = possible[0]
-    #         else:
-    #             obj = None
-    #             rep = f"possible expansion keys: {possible}"
-
-    #     return obj, rep
-
 
     def do_datetime(self, arg):
         """
@@ -1151,9 +1071,7 @@ class Item(object):
         """
         obj = None
         tz = self.item_hsh.get('z', None)
-        logger.debug(f"got tz = {tz}")
         ok, res, z = parse_datetime(arg, tz)
-        logger.debug(f"tz: {tz}; ok: {ok}; res: {res}; z={z}")
         if ok:
             obj = res 
             rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
@@ -1210,7 +1128,6 @@ class Item(object):
         >>> item.do_timezone('US/Pacifc')
         (None, "incomplete or invalid timezone: 'US/Pacifc'")
         """
-        logger.debug(f"do_timezone arg: {arg}")
         if arg is None:
             obj = rep = 'local'
             if 'z' in self.item_hsh:
@@ -1226,8 +1143,6 @@ class Item(object):
                 Timezone(arg)
                 obj = rep = arg
                 self.item_hsh['z'] = obj 
-                logger.debug(f"{obj}")
-                logger.debug(f"item_hsh: {self.item_hsh}")
                 rep = f"timezone: {obj}"
             except:
                 obj = None
@@ -1367,11 +1282,9 @@ def timestamp_list(arg, typ=None):
         return True, tmp
 
 def plain_datetime(obj):
-    logger.debug(f"in model plain_datetime with settings: {settings}")
     return format_datetime(obj, short=True)
 
 def format_time(obj):
-    logger.debug(f"in model format_time with settings: {settings}")
     if type(obj) != pendulum.DateTime:
         obj = pendulum.instance(obj)
     ampm = settings.get('ampm', True)
@@ -1399,7 +1312,6 @@ def format_datetime(obj, short=False):
     >>> format_datetime(parse_datetime("2019-01-31 11:30p", "Europe/Paris")[1])
     (True, 'Thu Jan 31 2019 5:30pm EST')
     """
-    logger.debug(f"in model format_datetime with settings: {settings}")
     ampm = settings.get('ampm', True)
     date_fmt = "YYYY-MM-DD" if short else "ddd MMM D YYYY"
     time_fmt = "h:mmA" if ampm else "H:mm"
@@ -1428,7 +1340,6 @@ def format_datetime(obj, short=False):
     if ampm:
         res = res.replace('AM', 'am')
         res = res.replace('PM', 'pm')
-    logger.debug(f"res: {res}")
     return True, res
 
 def format_datetime_list(obj_lst):
@@ -1468,7 +1379,6 @@ def format_duration(obj):
 def format_duration_list(obj_lst):
     try:
         ret = ", ".join([format_duration(x) for x in obj_lst])
-        logger.debug(f"obj_lst: {obj_lst}; ret: {ret}")
         return ret
     except Exception as e:
         print('format_duration_list', e)
@@ -1525,70 +1435,70 @@ def parse_duration(s):
     return True, td
 
 
-def setup_logging(level, dir=None, file=None):
-    """
-    Setup logging configuration. Override root:level in
-    logging.yaml with default_level.
-    """
+# def setup_logging(level, dir=None, file=None):
+#     """
+#     Setup logging configuration. Override root:level in
+#     logging.yaml with default_level.
+#     """
 
-    global etmdir
-    etmdir = dir
-    if etmdir:
-        etmdir = os.path.normpath(etmdir)
-    else:
-        etmdir = os.path.normpath(os.path.join(os.path.expanduser("~/etm-mvc")))
+#     global etmdir
+#     etmdir = dir
+#     if etmdir:
+#         etmdir = os.path.normpath(etmdir)
+#     else:
+#         etmdir = os.path.normpath(os.path.join(os.path.expanduser("~/etm-mvc")))
 
 
-    if not os.path.isdir(etmdir):
-        return
+#     if not os.path.isdir(etmdir):
+#         return
 
-    log_levels = {
-        1: logging.DEBUG,
-        2: logging.INFO,
-        3: logging.WARN,
-        4: logging.ERROR,
-        5: logging.CRITICAL
-    }
+#     log_levels = {
+#         1: logging.DEBUG,
+#         2: logging.INFO,
+#         3: logging.WARN,
+#         4: logging.ERROR,
+#         5: logging.CRITICAL
+#     }
 
-    level = int(level)
-    if level in log_levels:
-        loglevel = log_levels[level]
-    else:
-        loglevel = log_levels[3]
+#     level = int(level)
+#     if level in log_levels:
+#         loglevel = log_levels[level]
+#     else:
+#         loglevel = log_levels[3]
 
-    # if we get here, we have an existing etmdir
-    logfile = os.path.normpath(os.path.abspath(os.path.join(etmdir, "etm.log")))
+#     # if we get here, we have an existing etmdir
+#     logfile = os.path.normpath(os.path.abspath(os.path.join(etmdir, "etm.log")))
 
-    config = {'disable_existing_loggers': False,
-              'formatters': {'simple': {
-                  'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
-              'handlers': {
-                    'file': {
-                        'backupCount': 5,
-                        'class': 'logging.handlers.TimedRotatingFileHandler',
-                        'encoding': 'utf8',
-                        'filename': logfile,
-                        'formatter': 'simple',
-                        'level': loglevel,
-                        'when': 'midnight',
-                        'interval': 1}
-              },
-              'loggers': {
-                  'etmmv': {
-                    'handlers': ['file'],
-                    'level': loglevel,
-                    'propagate': False}
-              },
-              'root': {
-                  'handlers': ['file'],
-                  'level': loglevel},
-              'version': 1}
-    logging.config.dictConfig(config)
-    logger.info("\n######## Initializing logging #########")
-    if file:
-        logger.info(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
-    else:
-        logger.info(f'logging at level: {loglevel}\n    logging to file: {logfile}')
+#     config = {'disable_existing_loggers': False,
+#               'formatters': {'simple': {
+#                   'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
+#               'handlers': {
+#                     'file': {
+#                         'backupCount': 5,
+#                         'class': 'logging.handlers.TimedRotatingFileHandler',
+#                         'encoding': 'utf8',
+#                         'filename': logfile,
+#                         'formatter': 'simple',
+#                         'level': loglevel,
+#                         'when': 'midnight',
+#                         'interval': 1}
+#               },
+#               'loggers': {
+#                   'etmmv': {
+#                     'handlers': ['file'],
+#                     'level': loglevel,
+#                     'propagate': False}
+#               },
+#               'root': {
+#                   'handlers': ['file'],
+#                   'level': loglevel},
+#               'version': 1}
+#     logging.config.dictConfig(config)
+#     logger.info("\n######## Initializing logging #########")
+#     if file:
+#         logger.info(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
+#     else:
+#         logger.info(f'logging at level: {loglevel}\n    logging to file: {logfile}')
 
 
 sys_platform = platform.system()
@@ -1736,21 +1646,18 @@ class DataView(object):
         self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
         self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
         self.settings = settings
-        logger.debug(f"imported settings: {self.settings}")
         if 'keep_current' in self.settings and self.settings['keep_current']:
             self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
         else:
             self.currfile = None
         if 'locale' in self.settings:
             locale_str = settings['locale']
-            logger.debug(f"got locale from settings: {locale_str}")
             if locale_str:
                 pendulum.set_locale(locale_str)
                 if locale_str == "en":
                     self.cal_locale = ["en_US", "UTF-8"]
                 else:
                     self.cal_locale = [f"{locale_str}_{locale_str.upper()}", "UTF-8"]
-                logger.debug(f"using cal_locale {self.cal_locale}")
 
         self.db = DBITEM
         self.dbarch = DBARCH
@@ -1774,7 +1681,6 @@ class DataView(object):
                     completions.add(f"@{x} {v}")
         self.completions = list(completions)
         self.completions.sort()
-        logger.debug(f"got completions: {self.completions}")
 
 
     def handle_backups(self):
@@ -1794,10 +1700,8 @@ class DataView(object):
             backupfile = os.path.join(self.backupdir, f"{timestamp}-db.json")
             zipfile = os.path.join(self.backupdir, f"{timestamp}-db.zip")
             shutil.copy2(self.dbfile, backupfile)
-            logger.debug(f"copied {self.dbfile} to {backupfile}")
             with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
                 zip.write(backupfile, os.path.basename(backupfile))
-            logger.debug(f"zipped {backupfile} to {zipfile}")
             os.remove(backupfile)
             logger.info(f"backed up {self.dbfile} to {zipfile}")
             zipfiles.insert(0, f"{timestamp}-db.zip")
@@ -1835,7 +1739,6 @@ class DataView(object):
         if self.timer_status == 0: # stopped
             # we better have a row corresponding to an item
             res = self.get_row_details(row)
-            logger.debug(f"status 0; row: {row}; res: {res}")
             if not res[0]:
                 return None, ''
             self.timer_id = res[0]
@@ -1920,7 +1823,6 @@ class DataView(object):
     def dtYrWk(self, dtstr):
         dt = pendulum.parse(dtstr, strict=False)
         self.activeYrWk = getWeekNum(dt)
-        logger.debug(f"activeYrWk: {self.activeYrWk}")
         self.refreshAgenda()
 
     def refreshRelevant(self):
@@ -1963,19 +1865,16 @@ class DataView(object):
         self.is_showing_details = False 
 
     def get_row_details(self, row=None):
-        logger.debug(f"row: {row}")
         if row is None:
             return ()
         self.current_row = row
         id_tup = self.row2id.get(row, None)
-        logger.debug(f"id_tup: {id_tup}")
         if isinstance(id_tup, tuple):
             item_id, instance, job = id_tup
         else:
             item_id = id_tup
             instance = None
             job = None
-        logger.debug(f"details for row: {row}; item_id: {item_id}; instance: {instance}; job: {job}")
         return (item_id, instance, job)
 
     def get_details(self, row=None, edit=False):
@@ -1985,15 +1884,11 @@ class DataView(object):
         item_id = res[0]
 
         if not edit and item_id in self.itemcache:
-            logger.debug(f"item_id in cache: {item_id}; str: {self.itemcache[item_id]}")
             return item_id, self.itemcache[item_id]
         item = DBITEM.get(doc_id=item_id)
         if item:
             self.itemcache[item_id] = item_details(item, edit)
-            logger.debug(f"item_id not in cache: {item_id}; item: {item}")
             return item_id, self.itemcache[item_id] 
-        else:
-            logger.debug(f"query failed for {item_id}; item: {item}")
 
         return None, ''
 
@@ -2014,17 +1909,14 @@ class DataView(object):
         showing = "Repetitions"
         item = DBITEM.get(doc_id=item_id)
         if not ('s' in item and ('r' in item or '+' in item)):
-            logger.debug(f"bailing - not repeating: {item}")
             return showing, "not a repeating item"
         relevant = self.id2relevant.get(item_id)
         showing =  "Repetitions"
         details = f"{item['itemtype']} {item['summary']}"
-        logger.debug(f"got item: {details}")
         if not relevant:
             return "Repetitons", details + "none" 
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
         starting = format_datetime(relevant.date())[1]
-        logger.debug(f"pairs: {pairs}")
         if len(pairs) > num:
             showing = f"First {num} repetitions"
             pairs = pairs[:num]
@@ -2069,10 +1961,8 @@ class DataView(object):
                     return False, 'this job is either finished or waiting', None, None, None
                 else: 
                     # the requisite job_id and available
-                    logger.debug(f"returning: {job['status']} {job['summary']}")
                     return True, f"{job['status']} {job['summary']}\n{due_str}", item_id, job_id, due
             # couldn't find job_id
-            logger.debug(f"job_id: {job_id} not found in item: {item}")
             return False, f"bad job_id: {job_id}", None, None, None
 
         # we have an unfinished task without jobs
@@ -2091,7 +1981,6 @@ class DataView(object):
         """
 
         rows = []
-        logger.debug(f"checking for items older than {old}")
         for item in self.db:
             if item['itemtype'] == '%':
                 # keep records
@@ -2100,12 +1989,10 @@ class DataView(object):
                 if isinstance(item['f'], pendulum.DateTime):
                     if item['f'] < old:
                         # toss old finished tasks including repeating ones
-                        # logger.debug(f"{item.doc_id} {item['f']} < {old}")
                         rows.append(item)
                         continue
                 elif isinstance(item['f'], pendulum.Date):
                     if item['f'] < old.date():
-                        # logger.debug(f"{item.doc_id} {item['f']} < {old.date()}")
                         # toss old finished tasks including repeating ones
                         rows.append(item)
                         continue
@@ -2120,19 +2007,16 @@ class DataView(object):
                     # FIXME: complicated whether or not to archive other repeating items with 't' so keep them
                 # got here so 'u' item with u < datetime
                 if toss:
-                    # logger.debug(f"{item.doc_id} {prov} < {old}")
                     rows.append(item)
                     continue
             elif item['itemtype'] == '*':
                 if isinstance(item['s'], pendulum.DateTime):
                     if item['s'] < old:
-                        # logger.debug(f"{item.doc_id} {item['s']} < {old}")
                         # toss old, non-repeating events
                         rows.append(item)
                         continue
                 elif isinstance(item['s'], pendulum.Date):
                     if item['s'] < old.date():
-                        # logger.debug(f"{item.doc_id} {item['s']} < {old.date()}")
                         # toss old, non-repeating events
                         rows.append(item)
                         continue
@@ -2198,7 +2082,6 @@ class DataView(object):
         smtp.login(smtp_id, smtp_pw)
         smtp.sendmail(smtp_from, attendees, msg.as_string())
         smtp.close()
-        logger.debug(f"sent email {message}")
 
 
     def send_text(self, doc_id):
@@ -2233,7 +2116,6 @@ class DataView(object):
             msg['To'] = num
             sms.sendmail(sms_from, sms_phone, msg.as_string())
         sms.quit()
-        logger.debug(f"sent text {message}")
 
 
 
@@ -2276,7 +2158,6 @@ class DataView(object):
 
         ret_lines = [f"{indent}{line}" for line in ret]
         ret_str = "\n".join(ret_lines)
-        # logger.debug(f"calendar_view:\n{ret_str}")
         self.calendar_view = ret_str
 
     def nextcal(self):
@@ -2730,7 +2611,6 @@ def do_usedtime(arg):
 
     if got_period and got_datetime:
         obj = [obj_period, obj_datetime]
-        logger.debug(f"returning {obj}")
         return obj, f"{rep_period}: {rep_datetime}"
     else:
         return None, f"{rep_period}: {rep_datetime}"
@@ -2755,7 +2635,6 @@ def do_alert(arg):
     """
     obj = None
     rep = arg
-    logger.debug(f"arg: {arg}")
     parts = arg.split(':')
     periods = parts.pop(0)
     command = parts[0] if parts else None
@@ -2776,7 +2655,6 @@ def do_alert(arg):
             else:
                 bad_periods.append(period)
         rep = f"{', '.join(good_periods)}: {', '.join(commands)}"
-        logger.debug(f"rep: {rep}; good_periods: {good_periods}; commands: {commands}")
         if bad_periods:
             obj = None
             rep += f"\nincomplete or invalid periods: {', '.join(bad_periods)}"
@@ -3411,7 +3289,6 @@ def get_next_due(item, done, due):
     lofh = item.get('r')
     if not lofh:
         return ''
-    logger.debug(f"done: {done}; type(done); {type(done)}; due: {due}; type(due): {type(due)}")
     rset = rruleset()
     overdue = item.get('o', 'k')
     if overdue == 'k':
@@ -3434,7 +3311,6 @@ def get_next_due(item, done, due):
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
         using_dates = True
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
-    logger.debug(f"dtstart: {dtstart}; type: {type(dtstart)}")
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
         kwd['dtstart'] = dtstart
@@ -3447,19 +3323,14 @@ def get_next_due(item, done, due):
     if '-' in item:
         for dt in item['-']:
             rset.exdate(dt)
-            logger.debug(f"excluding dt: {dt} in {item.get('summary', '?')}")
 
     if '+' in item:
         for dt in item['+']:
             rset.rdate(dt)
-            logger.debug(f"adding dt: {dt} in {item.get('summary', '?')}")
-    logger.debug(f"aft: {aft}; type(aft): {type(aft)}; inc: {inc}")
     nxt_rset = rset.after(aft, inc)
-    logger.debug(f" nxt_rset: {nxt_rset}; type(nxt_rset): {type(nxt_rset)}")
     nxt = pendulum.instance(nxt_rset)
     if using_dates:
         nxt = nxt.date()
-    logger.debug(f" nxt: {nxt}; type(nxt): {type(nxt)}")
     return nxt
 
 
@@ -3528,13 +3399,11 @@ def item_instances(item, aft_dt, bef_dt=1):
         except:
             print('dtstart:', dtstart)
             dtstart = dtstart[0]
-    logger.debug(f"using_dates: {using_dates}")
 
     if isinstance(aft_dt, pendulum.Date) and not isinstance(aft_dt, pendulum.DateTime):
         aft_dt = pendulum.datetime(year=aft_dt.year, month=aft_dt.month, day=aft_dt.day, hour=0, minute=0)
     if isinstance(bef_dt, pendulum.Date) and not isinstance(bef_dt, pendulum.DateTime):
         bef_dt = pendulum.datetime(year=bef_dt.year, month=bef_dt.month, day=bef_dt.day, hour=0, minute=0)
-    logger.debug(f"dtstart: {dtstart}, aft_dt: {aft_dt}, bef_dt: {bef_dt}")
 
     if 'r' in item:
         lofh = item['r']
@@ -3556,7 +3425,6 @@ def item_instances(item, aft_dt, bef_dt=1):
         if '-' in item:
             for dt in item['-']:
                 rset.exdate(dt)
-                logger.debug(f"excluding dt: {dt} in {item.get('summary', '?')}")
 
         if '+' in item:
             for dt in item['+']:
@@ -3565,15 +3433,12 @@ def item_instances(item, aft_dt, bef_dt=1):
             tmp = []
             inc = True
             for i in range(bef_dt):
-                logger.debug(f"{i}_ aft_dt: {type(aft_dt)}; using_dates: {using_dates}")
                 aft_dt = rset.after(aft_dt, inc=inc)
-                logger.debug(f"{i}+ aft_dt: {type(aft_dt)}; datetime: {isinstance(aft_dt, datetime.datetime)}")
                 if aft_dt:
                     tmp.append(aft_dt)
                     inc = False # to get the next one
                 else:
                     break
-            logger.debug(f"using_dates: {using_dates}; tmp[0]: {tmp[0]}; type: {type(tmp[0])}")
             if using_dates:
                 instances = [pendulum.instance(x).date() for x in tmp if x] if tmp else []
             else:
@@ -3890,7 +3755,6 @@ def jobs(lofh, at_hsh={}):
                 res[key] = hsh[key]
             elif key in job_methods:
                 ok, out = job_methods[key](hsh[key])
-                logger.debug(f"key: {key}; ok,: {ok}; out: {out}")
                 if ok:
                     res[key] = out
                 else:
@@ -4238,12 +4102,14 @@ def get_item(id):
 #     pass
 
 
-def relevant(db, now=pendulum.now() ):
+def relevant(db, now=pendulum.now()):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
     """
     # These need to be local times since all times from the datastore and rrule will be local times
-    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    # today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today = pendulum.today()
+    logger.info(f'in relevant: today: {today}')
     tomorrow = today + DAY
     today_fmt = today.format("YYYYMMDD")
 
@@ -4261,20 +4127,16 @@ def relevant(db, now=pendulum.now() ):
         possible_alerts = []
         all_tds = []
         if 'itemtype' not in item:
-            logger.debug(f"no itemtype: {item}")
+            logger.warn(f"no itemtype: {item}")
             continue
         if item['itemtype'] == '!':
             inbox.append([0, item['summary'], item.doc_id, None, None])
             id2relevant[item.doc_id] = today
-        # if item['itemtype'] == '-' and 'f' in item:
-        #     # no pastdues, beginbys or alerts for finished tasks
-        #     continue
 
         elif 'f' in item:
             relevant = item['f']
             if isinstance(relevant, pendulum.Date) and not isinstance(relevant, pendulum.DateTime):
                 relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0)
-            # logger.debug(f"relevant {item.doc_id} {relevant} {type(relevant)} {item['summary']}")
 
 
         elif 's' in item:
@@ -4352,9 +4214,6 @@ def relevant(db, now=pendulum.now() ):
                             if item['s'] != pendulum.instance(relevant):
                                 item['s'] = pendulum.instance(relevant)
                                 update_db(db, item.doc_id, item)
-                                logger.debug(f"updated @s {item['s']} in {item.doc_id}")
-                            else:
-                                logger.debug(f"@s {item['s']} unchanged in {item.doc_id}")
                         else:
                             relevant = dtstart
                     else: 
@@ -4437,7 +4296,7 @@ def relevant(db, now=pendulum.now() ):
                     continue
                 # adjust job starting time if 's' in job
                 jobstart = relevant - job.get('s', ZERO)
-                if jobstart < today:
+                if jobstart.date() < today.date():
                     pastdue_jobs = True
                     pastdue.append([(jobstart.date() - today.date()).days, job['summary'], item.doc_id, job_id, None])
                 if 'b' in job:
@@ -4445,9 +4304,7 @@ def relevant(db, now=pendulum.now() ):
                     if today + DAY <= jobstart <= tomorrow + days:
                         beginbys.append([(jobstart.date() - today.date()).days, job['summary'], item.item_id, job_id, None])
                 if 'a' in job:
-                    logger.debug(f"job {job['summary']} has alerts: {job['a']}")
                     for alert in job['a']:
-                        logger.debug(f"dealing with alert: {alert}")
                         for td in alert[0]:
                             if today <= jobstart - td <= tomorrow:
                                 alerts.append([dtstart - td, dtstart, alert[1],  job['summary'], item.doc_id, job_id, None])
@@ -4492,7 +4349,6 @@ def update_db(db, id, hsh={}):
         logger.error(f"Could not get document corresponding to id {id}")
         return
     if old == hsh:
-        logger.debug(f"Doument corresponding to id {id} unchanged")
         return
     hsh['modified'] = pendulum.now()
     try:
@@ -4548,7 +4404,6 @@ def show_relevant(db, id2relevant):
     num2id = {}
     num = 0
     for i in rows:
-        # logger.debug(f"{num} -> {i['id']}; i: {i}")
         num2id[num] = i['id']
         num += 1
         view_summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
@@ -4594,7 +4449,6 @@ def show_history(db, reverse=True):
     summary_width = width - 21 
     num = 0
     for i in rows:
-        logger.debug(f"{num} -> {i['id']}; i: {i}")
         num2id[num] = i['id']
         num += 1
         view_summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
@@ -4688,7 +4542,6 @@ def show_journal(db):
                         item.doc_id],
                     })
     rows.sort(key=itemgetter('sort'))
-    logger.debug(f"rows: {rows}")
     rdict = RDict()
     for row in rows:
         path = row['index']
@@ -4697,9 +4550,7 @@ def show_journal(db):
                 f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
                 ) 
         rdict.add(path, values)
-    logger.debug(f"rdict: {rdict}")
     tree, row2id = rdict.as_tree(rdict, level=0)
-    logger.debug(f"tree: {tree}, row2id: {row2id}")
     return tree, row2id
 
 
@@ -4722,7 +4573,6 @@ def show_index(db):
                         item.doc_id],
                     })
     rows.sort(key=itemgetter('sort'))
-    logger.debug(f"rows: {rows}")
     rdict = RDict()
     for row in rows:
         path = row['index']
@@ -4734,9 +4584,7 @@ def show_index(db):
             rdict.add(path, values)
         except:
             logger.error(f"error adding path: {path}, values: {values}")
-    logger.debug(f"rdict: {rdict}")
     tree, row2id = rdict.as_tree(rdict, level=0)
-    logger.debug(f"tree: {tree}, row2id: {row2id}")
     return tree, row2id
 
 
@@ -4835,7 +4683,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             if 'j' in item:
                 for job in item['j']:
                     if 'f' in job:
-                        logger.debug(f"done job: {item.doc_id}, {job['i']}")
                         done.append([job['f'], job['summary'], item.doc_id, job['i']])
             if done:
                 for row in done:
@@ -4900,7 +4747,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 ]
                         }
                     )
-                    logger.debug(f"appended job: {rows[-1]}")
 
             else:
                 if 'e' not in item or item['itemtype'] == '-': 
@@ -5006,7 +4852,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     agenda.append(f"    {i['columns'][0]} {summary}{rhc}") 
                     row_num += 1
                     row2id[row_num] = (i['id'], i['instance'], i['job'])
-                    logger.debug(f"{row_num} -> {(i['id'], i['instance'], i['job'])}")
         agenda_hsh[week] = "\n".join(agenda)
         row2id_hsh[week] = row2id
 
@@ -5216,7 +5061,6 @@ def main(etmdir="", *args):
     db = dataview.db
     item = Item(etmdir)
     dataview.refreshCache()
-    logger.debug(f"settings: {settings}")
 
 if __name__ == '__main__':
     import sys

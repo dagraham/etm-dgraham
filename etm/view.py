@@ -238,7 +238,6 @@ def save_before_quit(*event):
 
         save_changes = yield From(show_dialog_as_float(dialog))
         if save_changes:
-            logger.debug('saving changes')
             if item.doc_id is not None:
                 # del dataview.itemcache[item.doc_id]
                 dataview.itemcache[item.doc_id] = {}
@@ -247,8 +246,6 @@ def save_before_quit(*event):
             set_text(dataview.show_active_view())
             loop = get_event_loop()
             loop.call_later(0, item_changed, loop)
-        else:
-            logger.debug('losing changes')
 
     ensure_future(coroutine())
 
@@ -282,7 +279,6 @@ def menu(event):
         event.app.layout.focus(root_container.window)
     else:
         focus_previous(event)
-    logger.debug(f"root container focus: {event.app.layout.has_focus(root_container.window)}")
 
 
 @Condition
@@ -474,7 +470,6 @@ def first_char(s):
         return None
     m = re.match('(\s+)', s)
     if m:
-        # logger.debug(f"s: '{s}', m.group(0): '{m.group(0)}'")
         return s[len(m.group(0))]
     elif len(s):
         # no leading spaces
@@ -506,7 +501,6 @@ def status_time(dt):
     '2:45'
     """
     ampm = settings['ampm']
-    logger.debug(f"in status_time ampm: {ampm}")
     d_fmt = dt.format("ddd MMM D")
     suffix = dt.format("A").lower() if ampm else ""
     if dt.minute == 0:
@@ -572,9 +566,7 @@ def alerts():
 def maybe_alerts(now):
     global current_datetime
     for alert in dataview.alerts:
-        logger.debug(f"settings alerts: {settings['alerts']}")
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
-            logger.debug(f"{alert}")
             alertdt = alert[0] 
             if not isinstance(alertdt, pendulum.DateTime):
                 # rrule produces datetime.datetime objects
@@ -603,7 +595,6 @@ def maybe_alerts(now):
                 dataview.send_text(doc_id)
             commands = [settings['alerts'].get(x, "").format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list]
 
-            logger.debug(f"alert now: {now.microsecond}, startdt: {startdt.microsecond}, when: {when}, commands: {commands}, summary: {summary}, doc_id: {doc_id}")
             for command in commands:
                 if command:
                     check_output(command)
@@ -666,29 +657,24 @@ class AtCompleter(Completer):
 
     def get_completions(self, document, complete_event):
         cur_line = document.current_line_before_cursor
-        logger.debug(f"cur_line: {cur_line}")
         matches = re.findall(AtCompleter.pat, cur_line)
         word = matches[-1] if matches else ""
         if word:
             word_len = len(word)
             word = word.rstrip()
-            logger.debug(f"word: '{word}'")
             for completion in completions:
                 if word.startswith('@x') and completion.startswith(word):
                     if completion == word:
                         replacement = expansions.get(word[3:], completion)
-                        logger.debug(f"== word completion: '{completion}'; replacement: '{replacement}'")
                         yield Completion(
                             replacement,
                             start_position=-word_len)
                     else:
-                        logger.debug(f"!= word completion: '{completion}'")
                         yield Completion(
                             completion,
                             start_position=-word_len)
 
                 elif completion.startswith(word) and completion != word:
-                    logger.debug(f"!= word completion: '{completion}'")
                     yield Completion(
                         completion,
                         start_position=-word_len)
@@ -849,7 +835,6 @@ def do_maybe_delete(*event):
 
     hsh = DBITEM.get(doc_id=doc_id)
 
-    logger.debug(f"doc_id: {doc_id}; instance: {instance}; hsh: {hsh}")
     if not instance:
         # not repeating
         def coroutine():
@@ -858,7 +843,6 @@ def do_maybe_delete(*event):
 
             delete = yield From(show_dialog_as_float(dialog))
             if delete:
-                logger.debug(f"deleting doc_id: {doc_id}")
                 item.delete_item(doc_id)
                 if doc_id in dataview.itemcache:
                     del dataview.itemcache[doc_id]
@@ -866,8 +850,6 @@ def do_maybe_delete(*event):
                 set_text(dataview.show_active_view())
                 loop = get_event_loop()
                 loop.call_later(0, data_changed, loop)
-            else:
-                logger.debug('canceled deleting doc_id: {doc_id}')
 
         ensure_future(coroutine())
 
@@ -890,10 +872,7 @@ def do_maybe_delete(*event):
                 values=values)
 
             which = yield From(show_dialog_as_float(dialog))
-            if which is None:
-                logger.debug('canceled deleting doc_id: {doc_id}')
-            else:
-                logger.debug(f"which: {which}")
+            if which:
                 changed = item.delete_instances(doc_id, instance, which)
                 if changed:
                     if doc_id in dataview.itemcache:
@@ -928,7 +907,6 @@ def edit_existing(*event):
         dataview.hide_details()
     dataview.is_editing = True
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
-    logger.debug(f"editing doc_id: {doc_id}; entry: {entry}")
     item.edit_item(doc_id, entry)
     entry_buffer.text = item.entry
     default_buffer_changed(_)
@@ -937,9 +915,7 @@ def edit_existing(*event):
 
 @bindings.add('t', filter=is_viewing_or_details & is_item_view)
 def do_timer_toggle(*event):
-    logger.debug(f"before toggle timer_status: {dataview.timer_status}, timer_start: {dataview.timer_start}; timer_time: {dataview.timer_time}")
     dataview.timer_toggle(text_area.document.cursor_position_row)
-    logger.debug(f"after toggle timer_status: {dataview.timer_status}, timer_start: {dataview.timer_start}; timer_time: {dataview.timer_time}")
 
 
 @bindings.add('T', filter=is_viewing_or_details)
@@ -964,7 +940,6 @@ def do_maybe_record_timer(*event):
         dialog = ConfirmDialog("record time", f"item: {item_info}\nelapsed time: {time_str}\n\nrecord time and close timer?")
         record_close = yield From(show_dialog_as_float(dialog))
         if record_close:
-            logger.debug(f"closing and recording time: {time_str}; completed {completed_str}")
             item.record_timer(item_id, job_id, completed, time)
             set_text(dataview.show_active_view())
             dataview.timer_clear()
@@ -972,8 +947,6 @@ def do_maybe_record_timer(*event):
                 del dataview.itemcache[item_id]
             loop = get_event_loop()
             loop.call_later(0, data_changed, loop)
-        else:
-            logger.debug('record and close cancelled')
 
     ensure_future(coroutine())
 
@@ -1000,12 +973,9 @@ def do_maybe_cancel_timer(*event):
         dialog = ConfirmDialog("cancel timer", f"item: {item_info}\nelapsed time: {time_str}\n\nclose timer without recording?")
         record_cancel = yield From(show_dialog_as_float(dialog))
         if record_cancel:
-            logger.debug(f"closing timer: {time_str}")
             dataview.timer_clear()
             set_text(dataview.show_active_view())
             get_app().invalidate()
-        else:
-            logger.debug('cancelled close timer')
 
     ensure_future(coroutine())
 
@@ -1026,14 +996,12 @@ def do_finish(*event):
 
         done_str = yield From(show_dialog_as_float(dialog))
         if done_str:
-            logger.debug(f"done string: {done_str}")
             try:
                 done = parse_datetime(done_str)[1]
             except ValueError:
                 show_message('Finish task/job?', 'Invalid finished datetime')
             else:
                 # valid done
-                logger.debug(f"done parsed: {done}")
                 item.finish_item(item_id, job_id, done, due)
                 # dataview.itemcache[item.doc_id] = {}
                 if item_id in dataview.itemcache:
@@ -1051,7 +1019,6 @@ def edit_copy(*event):
         dataview.hide_details()
     dataview.is_editing = True
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
-    logger.debug(f"editing copy of doc_id: {doc_id}; entry: {entry}")
     item.edit_copy(doc_id, entry)
     entry_buffer.text = item.entry
     default_buffer_changed(_)
@@ -1177,7 +1144,6 @@ def show_details(*event):
 
 @bindings.add('c-c', filter=is_editing, eager=True)
 def close_edit(*event):
-    logger.debug(f"is_modified: {item.is_modified}")
     if item.is_modified:
         save_before_quit()
     item.is_modified = False
@@ -1187,12 +1153,9 @@ def close_edit(*event):
 
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):
-    logger.debug(f"doc_id {item.doc_id} is_modified: {item.is_modified}")
     if item.is_modified:
         if item.doc_id is not None:
             del dataview.itemcache[item.doc_id]
-            # dataview.itemcache[item.doc_id] = {}
-            logger.debug(f"saving changes")
         dataview.is_editing = False
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
@@ -1269,7 +1232,6 @@ entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
 def set_askreply(_):
-    logger.debug(f'item.active: {item.active}')
     if item.active:
         ask, reply = item.askreply[item.active]
     else:
@@ -1285,12 +1247,9 @@ etmstyle = None
 application = None
 def main(etmdir=""):
     global item, settings, ampm, style, etmstyle, application
-    logger.debug(f"settings: {settings}")
 
     ampm = settings['ampm']
-    logger.debug(f"ampm: {ampm}")
     terminal_style = settings['style']
-    logger.debug(f"terminal_style: {terminal_style}")
     if terminal_style == "dark": 
         style = dark_style
         etmstyle = dark_etmstyle

@@ -1,5 +1,9 @@
 #! ./env/bin/python
 def main():
+    import logging
+    import logging.config
+    logger = logging.getLogger()
+
     import sys
     MIN_PYTHON = (3, 6)
     if sys.version_info < MIN_PYTHON:
@@ -32,6 +36,9 @@ def main():
 
     import etm.options as options
     settings = options.Settings(etmdir).settings
+    setup_logging = options.setup_logging
+    setup_logging(loglevel, logdir)
+
 
     import pendulum
     locale = settings.get('locale', None)
@@ -47,8 +54,10 @@ def main():
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
 
+    from etm.model import about
     import etm.model as model
     model.etm_version = etm_version
+    model.logger = logger
     model.WA = WA
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
@@ -69,13 +78,12 @@ def main():
     style = dataview.settings["style"]
     parse_datetime = model.parse_datetime
 
-    from etm.model import setup_logging, logger, about
-    setup_logging(loglevel, logdir)
-
+    logger.info(f"model.logger: {model.logger}")
     logger.info(f"initialized TinyDB using {dbfile}")
 
 
     import etm.view as view
+    view.logger = logger
     view.model = model
     view.about = about
     view.wrap = model.wrap
@@ -94,7 +102,7 @@ def main():
     view.completions = completions
     view.expansions = expansions
     view.terminal_style = style
-    logger.debug(f"setting terminal_style: {style}")
+    logger.info(f"setting terminal_style: {style}")
 
     # main(etmdir)
 

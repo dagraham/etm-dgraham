@@ -173,6 +173,63 @@ smtp:
         return changed
 
 
+def setup_logging(level, etmdir, file=None):
+    """
+    Setup logging configuration. Override root:level in
+    logging.yaml with default_level.
+    """
+
+    if not os.path.isdir(etmdir):
+        return
+
+    log_levels = {
+        1: logging.DEBUG,
+        2: logging.INFO,
+        3: logging.WARN,
+        4: logging.ERROR,
+        5: logging.CRITICAL
+    }
+
+    level = int(level)
+    if level in log_levels:
+        loglevel = log_levels[level]
+    else:
+        loglevel = log_levels[3]
+
+    # if we get here, we have an existing etmdir
+    logfile = os.path.normpath(os.path.abspath(os.path.join(etmdir, "etm.log")))
+
+    config = {'disable_existing_loggers': False,
+              'formatters': {'simple': {
+                  'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
+              'handlers': {
+                    'file': {
+                        'backupCount': 5,
+                        'class': 'logging.handlers.TimedRotatingFileHandler',
+                        'encoding': 'utf8',
+                        'filename': logfile,
+                        'formatter': 'simple',
+                        'level': loglevel,
+                        'when': 'midnight',
+                        'interval': 1}
+              },
+              'loggers': {
+                  'etmmv': {
+                    'handlers': ['file'],
+                    'level': loglevel,
+                    'propagate': False}
+              },
+              'root': {
+                  'handlers': ['file'],
+                  'level': loglevel},
+              'version': 1}
+    logging.config.dictConfig(config)
+    logger.info("\n######## Initializing logging #########")
+    if file:
+        logger.info(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
+    else:
+        logger.info(f'logging at level: {loglevel}\n    logging to file: {logfile}')
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
         etmdir = sys.argv.pop(1)
