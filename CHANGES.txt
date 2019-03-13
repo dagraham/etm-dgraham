@@ -1,9 +1,18 @@
-Recent changes as of 2019-03-13T14:50:06.570948-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a44) Dan Graham
-    8b3c24d 2019-03-13 14:50:06 -0400
+Recent changes as of 2019-03-13T15:02:27.424825-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a45) Dan Graham
+    3207d75 2019-03-13 15:02:27 -0400
+    Tagged version 4.0.0a45.
+
+- 16 seconds ago Dan Graham
+    c7b0fae 2019-03-13 15:02:11 -0400
+    Tweaked the message returned when goto is called on an item
+    without an @g entry.
+
+- 12 minutes ago (origin/working) Dan Graham
+    9f2de40 2019-03-13 14:50:06 -0400
     Tagged version 4.0.0a44.
 
-- 15 seconds ago Dan Graham
+- 13 minutes ago Dan Graham
     2e72f32 2019-03-13 14:49:51 -0400
     Implemented open goto link using openWithDefault. Cleaned up and
     reorganized menu.
@@ -35,7 +44,7 @@ Recent changes as of 2019-03-13T14:50:06.570948-04:00:
     comparing dates instead of datetimes. Cleaned up logger.debug
     statments and commments.
 
-- 18 hours ago (origin/working, origin/master, master) Dan Graham
+- 18 hours ago (origin/master, master) Dan Graham
     ecc99af 2019-03-12 21:08:53 -0400
     Tagged version 4.0.0a40.
 
@@ -43,11 +52,11 @@ Recent changes as of 2019-03-13T14:50:06.570948-04:00:
     72b0705 2019-03-12 21:08:39 -0400
     Yet another logo attempt for README
 
-- 18 hours ago Dan Graham
+- 19 hours ago Dan Graham
     86b6972 2019-03-12 20:22:22 -0400
     Tagged version 4.0.0a39.
 
-- 18 hours ago Dan Graham
+- 19 hours ago Dan Graham
     ccf42e4 2019-03-12 20:22:12 -0400
     Maybe fixed logo path in README
 
@@ -403,11 +412,3 @@ Recent changes as of 2019-03-13T14:50:06.570948-04:00:
 - 4 days ago (tag: 4.0.1p3) Dan Graham
     c85d748 2019-03-09 13:04:07 -0500
     Tagged version 4.0.1p3 [2019-03-09 13:03:55 -0500].
-
-- 4 days ago Dan Graham
-    49e8e63 2019-03-09 13:03:55 -0500
-    yet more prep_dist tweaks
-
-- 4 days ago Dan Graham
-    b9b9342 2019-03-09 13:00:19 -0500
-    Merged __version__ from working
