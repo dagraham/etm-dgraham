@@ -1,36 +1,44 @@
-Recent changes as of 2019-03-12T20:22:22.355676-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a39) Dan Graham
-    dc21d27 2019-03-12 20:22:22 -0400
+Recent changes as of 2019-03-12T21:08:53.328758-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a40) Dan Graham
+    d200531 2019-03-12 21:08:53 -0400
+    Tagged version 4.0.0a40.
+
+- 14 seconds ago Dan Graham
+    72b0705 2019-03-12 21:08:39 -0400
+    Yet another logo attempt for README
+
+- 47 minutes ago (origin/working, origin/master, master) Dan Graham
+    86b6972 2019-03-12 20:22:22 -0400
     Tagged version 4.0.0a39.
 
-- 10 seconds ago Dan Graham
+- 47 minutes ago Dan Graham
     ccf42e4 2019-03-12 20:22:12 -0400
     Maybe fixed logo path in README
 
-- 7 minutes ago (origin/working, origin/master, master) Dan Graham
+- 54 minutes ago Dan Graham
     8184ce4 2019-03-12 20:15:14 -0400
     Tagged version 4.0.0a38.
 
-- 7 minutes ago Dan Graham
+- 54 minutes ago Dan Graham
     a0c3c74 2019-03-12 20:15:02 -0400
     Changed github url to etm-dgraham and made the corresponding
     change in setup.py
 
-- 46 minutes ago (origin/refactor, refactor) Dan Graham
+- 2 hours ago (origin/refactor, refactor) Dan Graham
     c1d1f06 2019-03-12 19:36:31 -0400
     Tagged version 4.0.0a37.
 
-- 46 minutes ago Dan Graham
+- 2 hours ago Dan Graham
     6e7d541 2019-03-12 19:36:13 -0400
     More README tweaks - added Installation/Deinstallation. Added logo
     to MANIFEST.in. Make the default etmdir be the etm installation
     directory
 
-- 6 hours ago Dan Graham
+- 7 hours ago Dan Graham
     b2440df 2019-03-12 14:05:53 -0400
     Tagged version 4.0.0a36.
 
-- 6 hours ago Dan Graham
+- 7 hours ago Dan Graham
     ee4c80c 2019-03-12 14:05:31 -0400
     Improved bump to handle transions from a -> b, b -> rc, rc ->
     patch and so forth.
@@ -39,32 +47,32 @@ Recent changes as of 2019-03-12T20:22:22.355676-04:00:
     c47f7dc 2019-03-12 13:48:55 -0400
     Improved bump
 
-- 12 hours ago Dan Graham
+- 13 hours ago Dan Graham
     dbd0f56 2019-03-12 08:37:48 -0400
     Tagged version 4.0.0a35.
 
-- 12 hours ago Dan Graham
+- 13 hours ago Dan Graham
     632a432 2019-03-12 08:37:29 -0400
     __main__ may be working?
 
-- 21 hours ago Dan Graham
+- 22 hours ago Dan Graham
     f1c945f 2019-03-11 23:17:38 -0400
     trying ...
 
-- 22 hours ago Dan Graham
+- 23 hours ago Dan Graham
     0e04626 2019-03-11 22:36:16 -0400
     Tagged version 4.0.0a34.
 
-- 22 hours ago Dan Graham
+- 23 hours ago Dan Graham
     aa60f43 2019-03-11 22:35:50 -0400
     Refactored inputs in etm.__main__.py, e.g., import etm.view as
     view instead of import view.
 
-- 25 hours ago Dan Graham
+- 26 hours ago Dan Graham
     57c77a7 2019-03-11 18:56:15 -0400
     Tagged version 4.0.0a33.
 
-- 25 hours ago Dan Graham
+- 26 hours ago Dan Graham
     677197a 2019-03-11 18:56:00 -0400
     setup fixes ...
 
@@ -76,11 +84,11 @@ Recent changes as of 2019-03-12T20:22:22.355676-04:00:
     a268b0a 2019-03-11 18:41:02 -0400
     setup fixes ...
 
-- 27 hours ago Dan Graham
+- 28 hours ago Dan Graham
     5fa1ec3 2019-03-11 17:20:10 -0400
     Tagged version 4.0.0a31.
 
-- 27 hours ago Dan Graham
+- 28 hours ago Dan Graham
     e40fafc 2019-03-11 17:19:56 -0400
     still another attempt to get the entry point right
 
@@ -92,52 +100,52 @@ Recent changes as of 2019-03-12T20:22:22.355676-04:00:
     cb4dad4 2019-03-11 16:46:59 -0400
     yet another attempt to get the entry point right
 
-- 28 hours ago Dan Graham
+- 29 hours ago Dan Graham
     211c02e 2019-03-11 16:32:42 -0400
     Tagged version 4.0.0a29.
 
-- 28 hours ago Dan Graham
+- 29 hours ago Dan Graham
     0ce9045 2019-03-11 16:32:27 -0400
     fixed setup.py
 
-- 28 hours ago Dan Graham
+- 29 hours ago Dan Graham
     143851a 2019-03-11 16:31:18 -0400
     Tagged version 4.0.0a28.
 
-- 28 hours ago Dan Graham
+- 29 hours ago Dan Graham
     e22560c 2019-03-11 16:30:57 -0400
     fixed bump
 
-- 28 hours ago Dan Graham
+- 29 hours ago Dan Graham
     f34d57b 2019-03-11 16:30:16 -0400
     Fixed bump
 
-- 28 hours ago Dan Graham
+- 29 hours ago Dan Graham
     47d9cf2 2019-03-11 16:28:35 -0400
     Moved etm -> etmMV/etm.py and renamed etmMV as etm. Added
     etm:__main__ as an entry point.
 
-- 28 hours ago Dan Graham
+- 29 hours ago Dan Graham
     d07b6ad 2019-03-11 15:59:35 -0400
     Tagged version 4.0.0a27.
 
-- 28 hours ago Dan Graham
+- 29 hours ago Dan Graham
     924f68c 2019-03-11 15:59:07 -0400
     added entry_points to setup.py
 
-- 29 hours ago Dan Graham
+- 30 hours ago Dan Graham
     466a60a 2019-03-11 15:29:02 -0400
     Tagged version 4.0.0a26.
 
-- 29 hours ago Dan Graham
+- 30 hours ago Dan Graham
     f4f56e3 2019-03-11 15:27:09 -0400
     added scripts to setup.py
 
-- 29 hours ago Dan Graham
+- 30 hours ago Dan Graham
     20d0d7d 2019-03-11 15:09:32 -0400
     Tagged version 4.0.0a25.
 
-- 29 hours ago Dan Graham
+- 30 hours ago Dan Graham
     22d63c4 2019-03-11 15:09:11 -0400
     added goto_line default. README fixes. Current week fixes. Cleanup
     comments.
@@ -407,15 +415,3 @@ Recent changes as of 2019-03-12T20:22:22.355676-04:00:
     changed key bindings: t starts and toggles running/paused, T stops
     and records, ^t cancels. Tagged version 4.0.1p1 [2019-03-09
     10:52:40 -0500].
-
-- 3 days ago Dan Graham
-    5636ae6 2019-03-09 10:52:40 -0500
-    Added cancel button to TextInputDialog. Returing None still
-    cancels but this is more obvious to users. Added cancel_timer and
-    changed key bindings: t starts and toggles running/paused, T stops
-    and records, ^t cancels.
-
-- 3 days ago Dan Graham
-    f156d7d 2019-03-09 09:58:57 -0500
-    Make instance the dt of the item even if not repeating to allow
-    its display in reschedule.
