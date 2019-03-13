@@ -1252,6 +1252,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F) finish', handler=do_finish),
         MenuItem('R) reschedule',  handler=do_reschedule),
         MenuItem('S) schedule new', handler=do_schedule_new),
+        MenuItem('^g) open goto', handler=do_goto),
         MenuItem('^r) show repetitions', handler=not_editing_reps),
         MenuItem('-', disabled=True),
         MenuItem('t) timer start, then toggle running/paused', handler=do_timer_toggle),

@@ -1903,7 +1903,7 @@ class DataView(object):
         if goto:
             return True, goto
         else:
-            return False, f"{item['itemtype']} {item['summary']} not have an @g goto entry"
+            return False, f"The item\n   {item['itemtype']} {item['summary']}\n does not have an @g goto entry."
 
     def get_repetitions(self, row=None, num=5):
         """
