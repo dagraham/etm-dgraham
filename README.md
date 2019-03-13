@@ -1,5 +1,5 @@
 # etm
-![event and task manager](./etmlogo.png)
+![event and task manager](etmlogo.png)
 
 *etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used.
 
