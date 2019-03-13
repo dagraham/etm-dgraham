@@ -1,18 +1,26 @@
-Recent changes as of 2019-03-12T20:15:14.226131-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a38) Dan Graham
-    7b36c35 2019-03-12 20:15:14 -0400
+Recent changes as of 2019-03-12T20:22:22.355676-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a39) Dan Graham
+    dc21d27 2019-03-12 20:22:22 -0400
+    Tagged version 4.0.0a39.
+
+- 10 seconds ago Dan Graham
+    ccf42e4 2019-03-12 20:22:12 -0400
+    Maybe fixed logo path in README
+
+- 7 minutes ago (origin/working, origin/master, master) Dan Graham
+    8184ce4 2019-03-12 20:15:14 -0400
     Tagged version 4.0.0a38.
 
-- 12 seconds ago Dan Graham
+- 7 minutes ago Dan Graham
     a0c3c74 2019-03-12 20:15:02 -0400
     Changed github url to etm-dgraham and made the corresponding
     change in setup.py
 
-- 39 minutes ago (origin/working, origin/refactor, origin/master, refactor, master) Dan Graham
+- 46 minutes ago (origin/refactor, refactor) Dan Graham
     c1d1f06 2019-03-12 19:36:31 -0400
     Tagged version 4.0.0a37.
 
-- 39 minutes ago Dan Graham
+- 46 minutes ago Dan Graham
     6e7d541 2019-03-12 19:36:13 -0400
     More README tweaks - added Installation/Deinstallation. Added logo
     to MANIFEST.in. Make the default etmdir be the etm installation
@@ -27,7 +35,7 @@ Recent changes as of 2019-03-12T20:15:14.226131-04:00:
     Improved bump to handle transions from a -> b, b -> rc, rc ->
     patch and so forth.
 
-- 6 hours ago Dan Graham
+- 7 hours ago Dan Graham
     c47f7dc 2019-03-12 13:48:55 -0400
     Improved bump
 
@@ -76,11 +84,11 @@ Recent changes as of 2019-03-12T20:15:14.226131-04:00:
     e40fafc 2019-03-11 17:19:56 -0400
     still another attempt to get the entry point right
 
-- 27 hours ago Dan Graham
+- 28 hours ago Dan Graham
     981307c 2019-03-11 16:47:22 -0400
     Tagged version 4.0.0a30.
 
-- 27 hours ago Dan Graham
+- 28 hours ago Dan Graham
     cb4dad4 2019-03-11 16:46:59 -0400
     yet another attempt to get the entry point right
 
@@ -411,11 +419,3 @@ Recent changes as of 2019-03-12T20:15:14.226131-04:00:
     f156d7d 2019-03-09 09:58:57 -0500
     Make instance the dt of the item even if not repeating to allow
     its display in reschedule.
-
-- 3 days ago Dan Graham
-    66d8eb1 2019-03-09 09:39:08 -0500
-    Fixed bug in reschedule for a non-repeating item
-
-- 4 days ago Dan Graham
-    e32bae8 2019-03-08 21:49:20 -0500
-    image tweaks
