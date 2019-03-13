@@ -1,76 +1,84 @@
-Recent changes as of 2019-03-13T12:15:33.633714-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a42) Dan Graham
-    f3524b9 2019-03-13 12:15:33 -0400
+Recent changes as of 2019-03-13T13:08:19.580426-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a43) Dan Graham
+    cad5e4b 2019-03-13 13:08:19 -0400
+    Tagged version 4.0.0a43.
+
+- 9 seconds ago Dan Graham
+    cdd7d0d 2019-03-13 13:08:10 -0400
+    Added do_check_latest to show the latest version information.
+
+- 53 minutes ago Dan Graham
+    fa99778 2019-03-13 12:15:33 -0400
     Tagged version 4.0.0a42.
 
-- 11 seconds ago Dan Graham
+- 53 minutes ago Dan Graham
     6d383b1 2019-03-13 12:15:22 -0400
     Another try at sorting logging.
 
-- 87 minutes ago Dan Graham
+- 2 hours ago Dan Graham
     588d394 2019-03-13 10:48:49 -0400
     Tagged version 4.0.0a41.
 
-- 87 minutes ago Dan Graham
+- 2 hours ago Dan Graham
     6e1f95a 2019-03-13 10:48:11 -0400
     Fixed logging bug by moving logging to options, importing in
     __main__ and 'exporting' to model. Fixed pastdue job bug by
     comparing dates instead of datetimes. Cleaned up logger.debug
     statments and commments.
 
-- 15 hours ago (origin/working, origin/master, master) Dan Graham
+- 16 hours ago (origin/working, origin/master, master) Dan Graham
     ecc99af 2019-03-12 21:08:53 -0400
     Tagged version 4.0.0a40.
 
-- 15 hours ago Dan Graham
+- 16 hours ago Dan Graham
     72b0705 2019-03-12 21:08:39 -0400
     Yet another logo attempt for README
 
-- 16 hours ago Dan Graham
+- 17 hours ago Dan Graham
     86b6972 2019-03-12 20:22:22 -0400
     Tagged version 4.0.0a39.
 
-- 16 hours ago Dan Graham
+- 17 hours ago Dan Graham
     ccf42e4 2019-03-12 20:22:12 -0400
     Maybe fixed logo path in README
 
-- 16 hours ago Dan Graham
+- 17 hours ago Dan Graham
     8184ce4 2019-03-12 20:15:14 -0400
     Tagged version 4.0.0a38.
 
-- 16 hours ago Dan Graham
+- 17 hours ago Dan Graham
     a0c3c74 2019-03-12 20:15:02 -0400
     Changed github url to etm-dgraham and made the corresponding
     change in setup.py
 
-- 17 hours ago (origin/refactor, refactor) Dan Graham
+- 18 hours ago (origin/refactor, refactor) Dan Graham
     c1d1f06 2019-03-12 19:36:31 -0400
     Tagged version 4.0.0a37.
 
-- 17 hours ago Dan Graham
+- 18 hours ago Dan Graham
     6e7d541 2019-03-12 19:36:13 -0400
     More README tweaks - added Installation/Deinstallation. Added logo
     to MANIFEST.in. Make the default etmdir be the etm installation
     directory
 
-- 22 hours ago Dan Graham
+- 23 hours ago Dan Graham
     b2440df 2019-03-12 14:05:53 -0400
     Tagged version 4.0.0a36.
 
-- 22 hours ago Dan Graham
+- 23 hours ago Dan Graham
     ee4c80c 2019-03-12 14:05:31 -0400
     Improved bump to handle transions from a -> b, b -> rc, rc ->
     patch and so forth.
 
-- 22 hours ago Dan Graham
+- 23 hours ago Dan Graham
     c47f7dc 2019-03-12 13:48:55 -0400
     Improved bump
 
-- 28 hours ago Dan Graham
+- 29 hours ago Dan Graham
     dbd0f56 2019-03-12 08:37:48 -0400
     Tagged version 4.0.0a35.
 
-- 28 hours ago Dan Graham
+- 29 hours ago Dan Graham
     632a432 2019-03-12 08:37:29 -0400
     __main__ may be working?
 
@@ -404,13 +412,3 @@ Recent changes as of 2019-03-13T12:15:33.633714-04:00:
     3701728 2019-03-09 12:52:11 -0500
     prep_dist tweaks\nTagged version 4.0.1p2 [2019-03-09 12:52:11
     -0500].\nTagged version 4.0.1p3 [2019-03-09 12:52:11 -0500].
-
-- 4 days ago Dan Graham
-    128ebcc 2019-03-09 12:44:39 -0500
-    Merge branch 'working' of https://github.com/dagraham/etm-mv into
-    working
-
-- 4 days ago Dan Graham
-    50e1a14 2019-03-09 12:41:36 -0500
-    Fixed merge errors and tweaked timer displays Tagged version
-    4.0.1p2 [2019-03-09 12:41:36 -0500].
