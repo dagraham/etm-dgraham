@@ -232,6 +232,12 @@ def do_system(*event):
 def do_alerts(*event):
     show_message("today's alerts", alerts(), 2)
 
+@bindings.add('f6')
+def do_check_latest(*event):
+    res = check_output("pip search etm-dgraham")
+    info =  "".join( chr(x) for x in res)
+    show_message("version information", info, 2)
+
 def save_before_quit(*event):
     def coroutine():
         dialog = ConfirmDialog("unsaved changes", "Save them before closing?")
@@ -1174,7 +1180,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F3) system info', handler=do_system),
         MenuItem("F4) show today's alerts", handler=do_alerts),
         MenuItem('F5) __preferences', disabled=True),
-        MenuItem('F6) __check for new version', disabled=True),
+        MenuItem('F6) check for latest version', handler=do_check_latest),
         MenuItem('-', disabled=True),
         MenuItem('^q) quit', handler=exit),
     ]),
