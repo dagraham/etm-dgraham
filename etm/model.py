@@ -540,9 +540,11 @@ class Item(object):
         Called while editing, we won't have a row or doc_id and can use '@s'
         as aft_dt
         """
+        self.update_item_hsh()
         item = self.item_hsh
         showing =  "Repetitions"
         if not ('s' in item and ('r' in item or '+' in item)):
+            logger.debug(f"item: {item}")
             return showing, "not a repeating item"
         relevant = item['s'] 
         starting = format_datetime(relevant)
@@ -967,21 +969,20 @@ class Item(object):
         """
         itemtype = self.item_hsh.get('itemtype', '')
         if itemtype:
-            # only @-keys; allow a, rr and jj more than once
-            already_entered = [k for (k, v) in self.keyvals if len(k) == 1 and k not in ['a']]
-            # req = [k for k, v in self.keys.items() if (k in required[itemtype] and k not in already_entered)]
+            # only @-keys; allow a, u, rr and jj more than once
+            already_entered = [k for (k, v) in self.keyvals if len(k) == 1 and k not in ['a', 'u']]
             require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in required[itemtype] and k != '?' and k not in already_entered)] 
             # allow rr to be entered as r and jj as j
-            avail = [x[0] for x in allowed[itemtype] if len(x) == 1 or x in ['rr', 'jj'] ]
-            allow = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in avail and k != '?' and k not in already_entered)] 
-            # prompt = f"{type_keys[itemtype]} @-keys:\n"
+            avail = [x for x in allowed[itemtype] if len(x) == 1 or x in ['rr', 'jj'] ]
+            logger.debug(f"avail: {avail}")
+            allow = [f"@{k[0]}_({v[0]})" for k, v in self.keys.items() if (k in avail and k not in already_entered)] 
+            allow.sort()
+            logger.debug(f"allow: {allow}")
             prompt = ""
             if require:
                 prompt += wrap(f"required: {', '.join(require)}", 2) + "\n"
-                # prompt += "required: " +  wrap(, 2, 56) + "\n"
             if allow:
                 prompt += wrap(f"available: {', '.join(allow)}", 2)
-                # prompt += "allowed: " + wrap(", ".join(allow), 2, 56)
             rep = prompt.replace('_', ' ')
         else:
             rep = "The type character must be entered before any @-keys"
@@ -1434,72 +1435,6 @@ def parse_duration(s):
             num = int(g[2])
         td += num * period_hsh[g[3]]
     return True, td
-
-
-# def setup_logging(level, dir=None, file=None):
-#     """
-#     Setup logging configuration. Override root:level in
-#     logging.yaml with default_level.
-#     """
-
-#     global etmdir
-#     etmdir = dir
-#     if etmdir:
-#         etmdir = os.path.normpath(etmdir)
-#     else:
-#         etmdir = os.path.normpath(os.path.join(os.path.expanduser("~/etm-mvc")))
-
-
-#     if not os.path.isdir(etmdir):
-#         return
-
-#     log_levels = {
-#         1: logging.DEBUG,
-#         2: logging.INFO,
-#         3: logging.WARN,
-#         4: logging.ERROR,
-#         5: logging.CRITICAL
-#     }
-
-#     level = int(level)
-#     if level in log_levels:
-#         loglevel = log_levels[level]
-#     else:
-#         loglevel = log_levels[3]
-
-#     # if we get here, we have an existing etmdir
-#     logfile = os.path.normpath(os.path.abspath(os.path.join(etmdir, "etm.log")))
-
-#     config = {'disable_existing_loggers': False,
-#               'formatters': {'simple': {
-#                   'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
-#               'handlers': {
-#                     'file': {
-#                         'backupCount': 5,
-#                         'class': 'logging.handlers.TimedRotatingFileHandler',
-#                         'encoding': 'utf8',
-#                         'filename': logfile,
-#                         'formatter': 'simple',
-#                         'level': loglevel,
-#                         'when': 'midnight',
-#                         'interval': 1}
-#               },
-#               'loggers': {
-#                   'etmmv': {
-#                     'handlers': ['file'],
-#                     'level': loglevel,
-#                     'propagate': False}
-#               },
-#               'root': {
-#                   'handlers': ['file'],
-#                   'level': loglevel},
-#               'version': 1}
-#     logging.config.dictConfig(config)
-#     logger.info("\n######## Initializing logging #########")
-#     if file:
-#         logger.info(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
-#     else:
-#         logger.info(f'logging at level: {loglevel}\n    logging to file: {logfile}')
 
 
 sys_platform = platform.system()
