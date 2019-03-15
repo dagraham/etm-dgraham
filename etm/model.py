@@ -476,11 +476,11 @@ class Item(object):
                 'i': ["index", "colon delimited string", do_string],
                 'l': ["location", "location or context", do_string],
                 'm': ["mask", "string to be masked", do_mask],
-                'n': ["attendees", "list of 'name <email address>'", do_stringlist],
+                'n': ["attendee", "name <email address>", do_string],
                 'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", do_overdue],
                 'p': ["priority", "priority from 0 (none) to 4 (urgent)", do_priority],
                 's': ["start", "starting date or datetime", self.do_datetime],
-                't': ["tags", "list of tags", do_stringlist],
+                't': ["tag", "tag", do_string],
                 'u': ["used time", "timeperiod: datetime", do_usedtime],
                 'x': ["expansion", "expansion key", do_string],
                 'z': ["timezone", "", self.do_timezone],
@@ -862,7 +862,7 @@ class Item(object):
             obj = self.object_hsh.get((k, v))
             if not obj:
                 continue
-            if k in ['a', 'u']:
+            if k in ['a', 'u', 'n', 't']:
                 self.item_hsh.setdefault(k, []).append(obj)
             elif k in ['rr', 'jj']:
                 if cur_hsh:
@@ -2420,8 +2420,12 @@ entry_tmpl = """\
 {% if is.found %}
 {{ wrap(index) }} \
 {% endif %}\
-{%- if 't' in h %}@t {{ "{}".format(", ".join(h['t'])) }} {% endif %}\
-{%- if 'n' in h %}@n {{ "{}".format(", ".join(h['n'])) }} {% endif %}\
+{%- if 't' in h %}
+{% for x in h['t'] %}{{ "@t {} ".format(x) }}{% endfor %}\
+{% endif %}\
+{%- if 'n' in h %}
+{% for x in h['n'] %}{{ "@n {} ".format(x) }}{% endfor %}\
+{% endif %}\
 {%- set ls = namespace(found=false) -%}\
 {%- set location -%}\
 {%- for k in ['l', 'm', 'g', 'x', 'p'] -%}\
@@ -2650,10 +2654,6 @@ def job_datetime(arg):
 
 def location(arg):
     return string(arg, 'location')
-
-
-# def uid(arg):
-#     return string(arg, 'uid')
 
 
 def description(arg):

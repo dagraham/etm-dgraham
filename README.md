@@ -284,13 +284,14 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  j: job summary: string, optionally followed by job &key entries
 *  l: location/context: string
 *  m: mask: string stored in obfuscated form
-*  n: attendees: list of 'name <emailaddress>' strings 
+*  n: attendee: 'name <emailaddress>' string 
 *  o: overdue: character from (r) restart, (s) skip or (k) keep
 *  p: priority: integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
 *  r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
   (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &-key entries
 *  s: starting: date or datetime
-*  t: tags: list of strings
+*  t: tag: string
+*  u: usedtime: period: datetime
 *  x: expansion key: string
 *  z: timezone: string
 
@@ -310,6 +311,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  i: job unique id (string)
 *  p: prerequisites (comma separated list of ids of immediate prereqs)
 *  s: start/due: period relative to @s entry (default 0m)
+*  u: usedtime: period: datetime
 
 #### for use with @r
 
