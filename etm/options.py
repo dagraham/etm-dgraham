@@ -32,6 +32,17 @@ style: dark
 # your mobile device.
 keep_current: false
 
+# archive_after: A non-negative integer. If zero, do not 
+# archive items. If positive, finished tasks and events with 
+# relevant datetimes falling more than this number of years 
+# before the current date will automatically be archived on a 
+# daily basis.  Archived items are moved from the "items" 
+# folder in the database to the "archive" folder and no 
+# longer appear in normal views. Note that unfinished tasks 
+# and records are not archived.
+
+archive_after: 0
+
 # alerts: A dictionary with single-character, "alert" keys and 
 # corresponding "system command" values. Note that characters 
 # "t" (text message) and "e" (email) are already used.  The 

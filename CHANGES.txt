@@ -1,59 +1,58 @@
-Recent changes as of 2019-03-15T16:20:01.238544-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a51) Dan Graham
-    631dc26 2019-03-15 16:20:01 -0400
+- 2 hours ago (HEAD -> working, origin/working) Dan Graham
+    7e66cea 2019-03-15 16:20:01 -0400
     Tagged version 4.0.0a51.
 
-- 43 seconds ago Dan Graham
+- 2 hours ago Dan Graham
     046410e 2019-03-15 16:19:18 -0400
     Tagged version 4.0.0a50.
 
-- 65 seconds ago Dan Graham
+- 2 hours ago Dan Graham
     a2af926 2019-03-15 16:18:56 -0400
     Added youtube links to README for editing and installation.
 
-- 23 minutes ago (origin/working) Dan Graham
+- 2 hours ago Dan Graham
     908ffc3 2019-03-15 15:57:29 -0400
     Updated icon link
 
-- 2 hours ago Dan Graham
+- 4 hours ago Dan Graham
     360b9e7 2019-03-15 13:50:51 -0400
     Added goto date to menu.
 
-- 3 hours ago Dan Graham
+- 4 hours ago Dan Graham
     e3c9124 2019-03-15 13:43:28 -0400
     Tagged version 4.0.0a49.
 
-- 4 hours ago Dan Graham
+- 5 hours ago Dan Graham
     b8333e5 2019-03-15 12:45:22 -0400
     Fixed items due today showing as pastdue.
 
-- 6 hours ago Dan Graham
+- 8 hours ago Dan Graham
     881de71 2019-03-15 09:52:21 -0400
     Tagged version 4.0.0a48.
 
-- 6 hours ago Dan Graham
+- 8 hours ago Dan Graham
     9932d18 2019-03-15 09:51:59 -0400
     fixed inadvertent deletion.
 
-- 7 hours ago Dan Graham
+- 8 hours ago Dan Graham
     ca7f24f 2019-03-15 09:44:22 -0400
     Fixed logging: logger = logging.getLogger() in the modules picks
     up the one setup in __main__. Fixed bug in deleting instance.
 
-- 8 hours ago Dan Graham
+- 9 hours ago Dan Graham
     7323baf 2019-03-15 08:48:31 -0400
     Handle 3 character weekday abbreviations.
 
-- 18 hours ago Dan Graham
+- 19 hours ago Dan Graham
     fa5bf04 2019-03-14 22:43:33 -0400
     Tagged version 4.0.0a47.
 
-- 18 hours ago Dan Graham
+- 19 hours ago Dan Graham
     58d82f8 2019-03-14 22:43:13 -0400
     Changed tags and attendees from lists to multiple entry for better
     use with completions.
 
-- 22 hours ago Dan Graham
+- 23 hours ago Dan Graham
     644c6b8 2019-03-14 18:38:43 -0400
     Fixed bug in do_at's listing of available @-keys
 
