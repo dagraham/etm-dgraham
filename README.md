@@ -75,6 +75,8 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
 
 ## [Editing](#etm) ##
 
+[![etm: creating a new item](http://img.youtube.com/vi/62cps01Rh50/0.jpg)](http://www.youtube.com/watch?v=62cps01Rh50 "creating a new item")
+
 Etm offers several conveniences when creating or modifying an item.
 
 * Fuzzy parsing of dates and date times. Supposing it is currently Wed, Feb 13 2019:
@@ -90,6 +92,8 @@ Etm offers several conveniences when creating or modifying an item.
 ## [Installation/Deinstallation](#etm)
 
 ### [Installation](#etm)
+
+[![etm: installing etm in a virtual environment](http://img.youtube.com/vi/fEPPG82AH7M/0.jpg)](http://www.youtube.com/watch?v=fEPPG82AH7M "installing etm in a virtual environment")
 
 Setting up a virtual environment for etm is recommended. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
 
