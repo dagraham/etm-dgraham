@@ -1,31 +1,39 @@
-Recent changes as of 2019-03-15T09:52:21.617058-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a48) Dan Graham
-    0703cf3 2019-03-15 09:52:21 -0400
+Recent changes as of 2019-03-15T13:43:28.194368-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a49) Dan Graham
+    ac5d5fa 2019-03-15 13:43:28 -0400
+    Tagged version 4.0.0a49.
+
+- 58 minutes ago (origin/working) Dan Graham
+    b8333e5 2019-03-15 12:45:22 -0400
+    Fixed items due today showing as pastdue.
+
+- 4 hours ago Dan Graham
+    881de71 2019-03-15 09:52:21 -0400
     Tagged version 4.0.0a48.
 
-- 22 seconds ago Dan Graham
+- 4 hours ago Dan Graham
     9932d18 2019-03-15 09:51:59 -0400
     fixed inadvertent deletion.
 
-- 8 minutes ago (origin/working) Dan Graham
+- 4 hours ago Dan Graham
     ca7f24f 2019-03-15 09:44:22 -0400
     Fixed logging: logger = logging.getLogger() in the modules picks
     up the one setup in __main__. Fixed bug in deleting instance.
 
-- 64 minutes ago Dan Graham
+- 5 hours ago Dan Graham
     7323baf 2019-03-15 08:48:31 -0400
     Handle 3 character weekday abbreviations.
 
-- 11 hours ago (origin/master, master) Dan Graham
+- 15 hours ago (origin/master, master) Dan Graham
     fa5bf04 2019-03-14 22:43:33 -0400
     Tagged version 4.0.0a47.
 
-- 11 hours ago Dan Graham
+- 15 hours ago Dan Graham
     58d82f8 2019-03-14 22:43:13 -0400
     Changed tags and attendees from lists to multiple entry for better
     use with completions.
 
-- 15 hours ago Dan Graham
+- 19 hours ago Dan Graham
     644c6b8 2019-03-14 18:38:43 -0400
     Fixed bug in do_at's listing of available @-keys
 
@@ -138,15 +146,15 @@ Recent changes as of 2019-03-15T09:52:21.617058-04:00:
     632a432 2019-03-12 08:37:29 -0400
     __main__ may be working?
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     f1c945f 2019-03-11 23:17:38 -0400
     trying ...
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     0e04626 2019-03-11 22:36:16 -0400
     Tagged version 4.0.0a34.
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     aa60f43 2019-03-11 22:35:50 -0400
     Refactored inputs in etm.__main__.py, e.g., import etm.view as
     view instead of import view.
@@ -405,11 +413,3 @@ Recent changes as of 2019-03-15T09:52:21.617058-04:00:
 - 5 days ago Dan Graham
     ca06e65 2019-03-10 15:43:41 -0400
     More setup.py tweaks. Added MANIFEST.in.
-
-- 5 days ago Dan Graham
-    70d614b 2019-03-10 14:52:16 -0400
-    added MANIFEST.in
-
-- 5 days ago (tag: 4.0.0a4) Dan Graham
-    5bf496e 2019-03-10 13:47:31 -0400
-    Tagged version 4.0.0a4.
