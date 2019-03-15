@@ -42,7 +42,7 @@ import re
 # from model import wrap
 
 import logging
-import logging.config
+# import logging.config
 logger = logging.getLogger()
 
 import subprocess # for check_output
@@ -540,7 +540,7 @@ def data_changed(loop):
     set_text(dataview.show_active_view())
     dataview.refreshCurrent()
     if dataview.current_row:
-        logger.info(f"trying to reset row: {dataview.current_row}")
+        logger.debug(f"trying to reset row: {dataview.current_row}")
         text_area.buffer.cursor_position = text_area.buffer.document.translate_row_col_to_index(dataview.current_row, 0)
     get_app().invalidate()
 
@@ -622,7 +622,6 @@ def event_handler(loop):
     current_datetime = status_time(now)
     today = now.format("YYYYMMDD")
     if today != current_today:
-        logger.info(f"calling new_day. current_today: {current_today}; today: {today}")
         loop.call_later(0, new_day, loop)
     get_app().invalidate()
     wait = 60 - now.second
@@ -648,9 +647,7 @@ def openWithDefault(path):
         cmd = 'open' + f" {path}"
     else:
         cmd = 'xdg-open' + f" {path}"
-    logger.info(f"executing cmd: {cmd}")
     res = check_output(cmd)
-    logger.info(f"back with res: {res}")
     return
 
 search_field = SearchToolbar(text_if_not_searching=[
@@ -858,7 +855,6 @@ def do_reschedule(*event):
 
 @bindings.add('D', filter=is_viewing_or_details & is_item_view)
 def do_maybe_delete(*event):
-
     doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
 
     if not doc_id:
@@ -887,8 +883,6 @@ def do_maybe_delete(*event):
     if instance:
         # repeating
 
-        def coroutine():
-
             # radios.current_value will contain the first component of the selected tuple 
             title = "Delete"
             text = f"Selected: {hsh['itemtype']} {hsh['summary']}\nInstance: {format_datetime(instance)[1]}\n\nDelete what?"
@@ -903,7 +897,7 @@ def do_maybe_delete(*event):
                 values=values)
 
             which = yield From(show_dialog_as_float(dialog))
-            if which:
+            if which is not None:
                 changed = item.delete_instances(doc_id, instance, which)
                 if changed:
                     if doc_id in dataview.itemcache:
@@ -1288,7 +1282,6 @@ etmstyle = None
 application = None
 def main(etmdir=""):
     global item, settings, ampm, style, etmstyle, application
-    logger.info(f"in view main with etmdir: {etmdir}")
     ampm = settings['ampm']
     terminal_style = settings['style']
     if terminal_style == "dark": 

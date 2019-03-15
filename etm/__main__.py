@@ -32,6 +32,9 @@ def main():
     settings = options.Settings(etmdir).settings
     setup_logging = options.setup_logging
     setup_logging(loglevel, logdir)
+    # in model, view, ...,
+    # logger = logging.getLogger()
+    # will acquire this logger!
 
 
     import pendulum
@@ -52,7 +55,6 @@ def main():
     from etm.model import about
     import etm.model as model
     model.etm_version = etm_version
-    model.logger = logger
     model.WA = WA
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
@@ -78,7 +80,6 @@ def main():
 
 
     import etm.view as view
-    view.logger = logger
     view.cfgfile = cfgfile
     view.model = model
     view.about = about
@@ -92,7 +93,6 @@ def main():
     view.DBITEM = DBITEM
     view.DBARCH = DBARCH
 
-    # view.ampm = settings['ampm']
     view.dataview = dataview
     view.item = item
     view.completions = completions
@@ -100,7 +100,6 @@ def main():
     view.terminal_style = style
     logger.info(f"setting terminal_style: {style}")
 
-    # main(etmdir)
 
     if len(sys.argv) > 1:
         if sys.argv[1] == 'doctest':
@@ -111,7 +110,6 @@ def main():
             logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
             from etm.model import main
             main(etmdir, sys.argv)
-            # sys.exit()
 
     else:
         logger.info(f"calling view.main with etmdir: {etmdir}")

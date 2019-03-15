@@ -45,7 +45,7 @@ developer = "dnlgrhm@gmail.com"
 import shutil
 
 import logging
-import logging.config
+# import logging.config
 logger = logging.getLogger()
 
 from operator import itemgetter
@@ -4050,7 +4050,6 @@ def relevant(db, now=pendulum.now()):
     # These need to be local times since all times from the datastore and rrule will be local times
     # today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     today = pendulum.today()
-    logger.info(f'in relevant: today: {today}')
     tomorrow = today + DAY
     today_fmt = today.format("YYYYMMDD")
 
@@ -4575,7 +4574,6 @@ def no_busy_periods(week, width):
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0):
     ampm = settings['ampm']
     # yw will be the active week, but now will be the current moment
-    logger.info(f"in schedule with yw: {yw}, now: {now}")
     LL = {}
     for hour in range(24):
         if hour % 6 == 0:
