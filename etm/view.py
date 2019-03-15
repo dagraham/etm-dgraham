@@ -540,7 +540,6 @@ def data_changed(loop):
     set_text(dataview.show_active_view())
     dataview.refreshCurrent()
     if dataview.current_row:
-        logger.debug(f"trying to reset row: {dataview.current_row}")
         text_area.buffer.cursor_position = text_area.buffer.document.translate_row_col_to_index(dataview.current_row, 0)
     get_app().invalidate()
 
@@ -622,6 +621,7 @@ def event_handler(loop):
     current_datetime = status_time(now)
     today = now.format("YYYYMMDD")
     if today != current_today:
+        logger.info(f"calling new_day. current_today: {current_today}; today: {today}")
         loop.call_later(0, new_day, loop)
     get_app().invalidate()
     wait = 60 - now.second
@@ -882,6 +882,7 @@ def do_maybe_delete(*event):
 
     if instance:
         # repeating
+        def coroutine():
 
             # radios.current_value will contain the first component of the selected tuple 
             title = "Delete"
