@@ -1228,6 +1228,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('?) search backward'),
         MenuItem('l) go to line number', handler=do_go_to_line),
         MenuItem('-', disabled=True),
+        MenuItem('g) goto date in a) and b)', handler=do_go_to_date),
         MenuItem('right) next in a), b) and c)'),
         MenuItem('left) previous in a), b) and c)'),
         MenuItem('space) current in a), b) and c)'),
