@@ -4251,7 +4251,7 @@ def relevant(db, now=pendulum.now()):
 
         id2relevant[item.doc_id] = relevant
 
-        if item['itemtype'] == '-' and 'f' not in item and not pastdue_jobs and relevant < today:
+        if item['itemtype'] == '-' and 'f' not in item and not pastdue_jobs and relevant.date() < today.date():
             pastdue.append([(relevant.date() - today.date()).days, item['summary'], item.doc_id, None, None])
 
 

@@ -75,7 +75,6 @@ def main():
     style = dataview.settings["style"]
     parse_datetime = model.parse_datetime
 
-    logger.info(f"model.logger: {model.logger}")
     logger.info(f"initialized TinyDB using {dbfile}")
 
 
