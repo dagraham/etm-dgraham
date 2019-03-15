@@ -1,39 +1,51 @@
-Recent changes as of 2019-03-15T13:43:28.194368-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a49) Dan Graham
-    ac5d5fa 2019-03-15 13:43:28 -0400
+Recent changes as of 2019-03-15T14:54:41.931361-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.0.0a50) Dan Graham
+    219cbcf 2019-03-15 14:54:41 -0400
+    Tagged version 4.0.0a50.
+
+- 3 minutes ago (origin/master) Dan Graham
+    a1e4206 2019-03-15 14:51:19 -0400
+    Added archive_after option.
+
+- 64 minutes ago (origin/working, working) Dan Graham
+    360b9e7 2019-03-15 13:50:51 -0400
+    Added goto date to menu.
+
+- 71 minutes ago Dan Graham
+    e3c9124 2019-03-15 13:43:28 -0400
     Tagged version 4.0.0a49.
 
-- 58 minutes ago (origin/working) Dan Graham
+- 2 hours ago Dan Graham
     b8333e5 2019-03-15 12:45:22 -0400
     Fixed items due today showing as pastdue.
 
-- 4 hours ago Dan Graham
+- 5 hours ago Dan Graham
     881de71 2019-03-15 09:52:21 -0400
     Tagged version 4.0.0a48.
 
-- 4 hours ago Dan Graham
+- 5 hours ago Dan Graham
     9932d18 2019-03-15 09:51:59 -0400
     fixed inadvertent deletion.
 
-- 4 hours ago Dan Graham
+- 5 hours ago Dan Graham
     ca7f24f 2019-03-15 09:44:22 -0400
     Fixed logging: logger = logging.getLogger() in the modules picks
     up the one setup in __main__. Fixed bug in deleting instance.
 
-- 5 hours ago Dan Graham
+- 6 hours ago Dan Graham
     7323baf 2019-03-15 08:48:31 -0400
     Handle 3 character weekday abbreviations.
 
-- 15 hours ago (origin/master, master) Dan Graham
+- 16 hours ago Dan Graham
     fa5bf04 2019-03-14 22:43:33 -0400
     Tagged version 4.0.0a47.
 
-- 15 hours ago Dan Graham
+- 16 hours ago Dan Graham
     58d82f8 2019-03-14 22:43:13 -0400
     Changed tags and attendees from lists to multiple entry for better
     use with completions.
 
-- 19 hours ago Dan Graham
+- 20 hours ago Dan Graham
     644c6b8 2019-03-14 18:38:43 -0400
     Fixed bug in do_at's listing of available @-keys
 
@@ -401,15 +413,3 @@ Recent changes as of 2019-03-15T13:43:28.194368-04:00:
 - 5 days ago Dan Graham
     be4b0ff 2019-03-10 16:26:24 -0400
     more setup tweaks, NAME: 'etm-dgraham'.
-
-- 5 days ago (tag: 4.0.0a5) Dan Graham
-    eabe706 2019-03-10 16:09:52 -0400
-    Tagged version 4.0.0a5.
-
-- 5 days ago Dan Graham
-    97ed715 2019-03-10 16:09:25 -0400
-    updated setup.py 3 :: Only and 3.8.
-
-- 5 days ago Dan Graham
-    ca06e65 2019-03-10 15:43:41 -0400
-    More setup.py tweaks. Added MANIFEST.in.
