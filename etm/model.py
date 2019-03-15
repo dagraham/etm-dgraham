@@ -111,17 +111,6 @@ WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for 
 for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
     WKDAYS_ENCODE[wkd] = wkd
 
-
-LONG_2_SHORT_WEEKDAYS = {
-    'MON': 'MO', 
-    'TUE': 'TU', 
-    'WED': 'WE',
-    'THU': 'TH',
-    'FRI': 'FR',
-    'SAT': 'SA',
-    'SUN': 'SU'
-        }
-
 type_keys = {
     "*": "event",
     "-": "task",
@@ -1388,7 +1377,7 @@ def format_duration_list(obj_lst):
 
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
-threeday_regex = re.compile(r'(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
+threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
 
 period_hsh = dict(
@@ -2898,6 +2887,10 @@ def do_weekdays(arg):
         good = []
         rep = []
         for x in args:
+            m = threeday_regex.match(x)
+            if m:
+                # fix 3 char weekdays, e.g., -2FRI -> -2FR
+                x = f"{m[1]}{m[2][:2]}"
             if x in WKDAYS_DECODE:
                 good.append(eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[x])))
                 rep.append(x)
