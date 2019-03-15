@@ -1,4 +1,13 @@
-- 2 hours ago (HEAD -> working, origin/working) Dan Graham
+Recent changes as of 2019-03-15T18:06:43.913932-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a52) Dan Graham
+    5a066f2 2019-03-15 18:06:43 -0400
+    Tagged version 4.0.0a52.
+
+- 2 minutes ago (origin/working, origin/master, master) Dan Graham
+    3ddc90a 2019-03-15 18:05:07 -0400
+    Corrected commit
+
+- 2 hours ago Dan Graham
     7e66cea 2019-03-15 16:20:01 -0400
     Tagged version 4.0.0a51.
 
@@ -11,8 +20,20 @@
     Added youtube links to README for editing and installation.
 
 - 2 hours ago Dan Graham
+    de05b5a 2019-03-15 15:57:54 -0400
+    Merge branch 'working'
+
+- 2 hours ago Dan Graham
     908ffc3 2019-03-15 15:57:29 -0400
     Updated icon link
+
+- 3 hours ago Dan Graham
+    b090d23 2019-03-15 14:54:41 -0400
+    Tagged version 4.0.0a50.
+
+- 3 hours ago Dan Graham
+    a1e4206 2019-03-15 14:51:19 -0400
+    Added archive_after option.
 
 - 4 hours ago Dan Graham
     360b9e7 2019-03-15 13:50:51 -0400
@@ -392,23 +413,3 @@
 - 5 days ago (tag: v4.0.0a0) Dan Graham
     fd7f7aa 2019-03-10 16:42:16 -0400
     reset version to a0.
-
-- 5 days ago (tag: v4.0.0a1) Dan Graham
-    edf301d 2019-03-10 16:31:07 -0400
-    Tagged version 4.0.0a1.
-
-- 5 days ago Dan Graham
-    09cc481 2019-03-10 16:30:43 -0400
-    reset version to a0.
-
-- 5 days ago Dan Graham
-    f7b7e92 2019-03-10 16:29:21 -0400
-    more setup tweaks, uncommented the upload part.
-
-- 5 days ago (tag: 4.0.0a7) Dan Graham
-    35f4849 2019-03-10 16:27:49 -0400
-    Tagged version 4.0.0a7.
-
-- 5 days ago Dan Graham
-    979efa5 2019-03-10 16:27:39 -0400
-    more setup tweaks, NAME: 'etm'.
