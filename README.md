@@ -1,5 +1,5 @@
 # etm
-![event and task manager](https://github.com/dagraham/etm-dgraham/blob/master/etmlogo.png?raw=true)
+![event and task manager](https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png)
 
 *etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used. This is the fourth generation of a project that began in 2009. 
 
