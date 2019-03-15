@@ -1556,6 +1556,7 @@ class DataView(object):
         self.is_showing_help = False
         self.is_editing = False
         self.is_showing_items = True
+        self.archive_after = 0
         self.get_completions()
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
@@ -1575,6 +1576,7 @@ class DataView(object):
             self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
         else:
             self.currfile = None
+
         if 'locale' in self.settings:
             locale_str = settings['locale']
             if locale_str:
@@ -1584,11 +1586,18 @@ class DataView(object):
                 else:
                     self.cal_locale = [f"{locale_str}_{locale_str.upper()}", "UTF-8"]
 
+        if 'archive_after' in self.settings:
+            try:
+                self.archive_after = int(self.settings['archive_after'])
+            except Exception as e:
+                logger.error(f"An integer is required for archive_after - got {self.settings['archive_after']}. {e}")
+
         self.db = DBITEM
         self.dbarch = DBARCH
         logger.info(f"items: {len(DBITEM)}; archive: {len(DBARCH)}")
-        self.item_num = len(self.db)
-        self.arch_num = len(self.dbarch)
+        self.possible_archive()
+        # self.item_num = len(self.db)
+        # self.arch_num = len(self.dbarch)
 
     def get_completions(self):
         """
@@ -1911,12 +1920,16 @@ class DataView(object):
     def refreshCache(self):
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20)
 
-    def possible_archive(self, old=pendulum.now('local')-pendulum.duration(years=2)):
+    def possible_archive(self):
         """
         Collect old finished tasks, (repeating or not), old non-repeating events,
         and repeating events with old @u entries. Do not collect records.
         """
-
+        if not self.archive_after:
+            logger.info(f"skipping archive. archive_after: {self.archive_after}")
+            return
+        logger.info(f"archiving. archive_after: {self.archive_after}")
+        old = pendulum.now() - pendulum.duration(years=self.archive_after)
         rows = []
         for item in self.db:
             if item['itemtype'] == '%':
