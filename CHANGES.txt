@@ -1,13 +1,17 @@
-Recent changes as of 2019-03-15T16:19:18.589707-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a50) Dan Graham
-    e18a474 2019-03-15 16:19:18 -0400
+Recent changes as of 2019-03-15T16:20:01.238544-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a51) Dan Graham
+    631dc26 2019-03-15 16:20:01 -0400
+    Tagged version 4.0.0a51.
+
+- 43 seconds ago Dan Graham
+    046410e 2019-03-15 16:19:18 -0400
     Tagged version 4.0.0a50.
 
-- 22 seconds ago Dan Graham
+- 65 seconds ago Dan Graham
     a2af926 2019-03-15 16:18:56 -0400
     Added youtube links to README for editing and installation.
 
-- 22 minutes ago (origin/working) Dan Graham
+- 23 minutes ago (origin/working) Dan Graham
     908ffc3 2019-03-15 15:57:29 -0400
     Updated icon link
 
@@ -409,7 +413,3 @@ Recent changes as of 2019-03-15T16:19:18.589707-04:00:
 - 5 days ago Dan Graham
     979efa5 2019-03-10 16:27:39 -0400
     more setup tweaks, NAME: 'etm'.
-
-- 5 days ago (tag: 4.0.0a6) Dan Graham
-    72bc626 2019-03-10 16:26:36 -0400
-    Tagged version 4.0.0a6.
