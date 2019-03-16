@@ -1,9 +1,17 @@
-Recent changes as of 2019-03-16T11:58:32.408073-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a53) Dan Graham
-    8acc5b7 2019-03-16 11:58:32 -0400
+Recent changes as of 2019-03-16T12:20:09.222264-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a54) Dan Graham
+    4547c30 2019-03-16 12:20:09 -0400
+    Tagged version 4.0.0a54.
+
+- 17 seconds ago Dan Graham
+    26015c4 2019-03-16 12:19:52 -0400
+    Changed image link in README to html format.
+
+- 22 minutes ago Dan Graham
+    612bfae 2019-03-16 11:58:32 -0400
     Tagged version 4.0.0a53.
 
-- 4 minutes ago Dan Graham
+- 26 minutes ago Dan Graham
     c951aa1 2019-03-16 11:54:05 -0400
     Added check_goto_link while editing. Check for settings.alerts and
     warn if missing and alerts are set. Convert bytes to str in
@@ -49,11 +57,11 @@ Recent changes as of 2019-03-16T11:58:32.408073-04:00:
     360b9e7 2019-03-15 13:50:51 -0400
     Added goto date to menu.
 
-- 22 hours ago Dan Graham
+- 23 hours ago Dan Graham
     e3c9124 2019-03-15 13:43:28 -0400
     Tagged version 4.0.0a49.
 
-- 23 hours ago Dan Graham
+- 24 hours ago Dan Graham
     b8333e5 2019-03-15 12:45:22 -0400
     Fixed items due today showing as pastdue.
 
@@ -65,12 +73,12 @@ Recent changes as of 2019-03-16T11:58:32.408073-04:00:
     9932d18 2019-03-15 09:51:59 -0400
     fixed inadvertent deletion.
 
-- 26 hours ago Dan Graham
+- 27 hours ago Dan Graham
     ca7f24f 2019-03-15 09:44:22 -0400
     Fixed logging: logger = logging.getLogger() in the modules picks
     up the one setup in __main__. Fixed bug in deleting instance.
 
-- 27 hours ago Dan Graham
+- 28 hours ago Dan Graham
     7323baf 2019-03-15 08:48:31 -0400
     Handle 3 character weekday abbreviations.
 
@@ -407,11 +415,3 @@ Recent changes as of 2019-03-16T11:58:32.408073-04:00:
 - 6 days ago (tag: v4.0.0a11, tag: 4.0.0a11) Dan Graham
     627315c 2019-03-10 17:03:44 -0400
     Tagged version 4.0.0a11.
-
-- 6 days ago Dan Graham
-    513f86d 2019-03-10 17:03:35 -0400
-    manually reset version to a10
-
-- 6 days ago (tag: 4.0.0a1) Dan Graham
-    bd3aad1 2019-03-10 16:50:41 -0400
-    Tagged version 4.0.0a1.
