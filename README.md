@@ -1,5 +1,6 @@
 # etm
-![event and task manager](https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png)
+<!-- ![event and task manager](https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png) -->
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" />
 
 *etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used. This is the fourth generation of a project that began in 2009. 
 
@@ -75,7 +76,7 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
 
 ## [Editing](#etm) ##
 
-[![etm: creating a new item](http://img.youtube.com/vi/62cps01Rh50/0.jpg)](http://www.youtube.com/watch?v=62cps01Rh50 "creating a new item")
+<!-- [![etm: creating a new item](http://img.youtube.com/vi/62cps01Rh50/0.jpg)](http://www.youtube.com/watch?v=62cps01Rh50 "creating a new item") -->
 
 Etm offers several conveniences when creating or modifying an item.
 
@@ -93,7 +94,7 @@ Etm offers several conveniences when creating or modifying an item.
 
 ### [Installation](#etm)
 
-[![etm: installing etm in a virtual environment](http://img.youtube.com/vi/fEPPG82AH7M/0.jpg)](http://www.youtube.com/watch?v=fEPPG82AH7M "installing etm in a virtual environment")
+<!--  [![etm: installing etm in a virtual environment](http://img.youtube.com/vi/fEPPG82AH7M/0.jpg)](http://www.youtube.com/watch?v=fEPPG82AH7M "installing etm in a virtual environment") -->
 
 Setting up a virtual environment for etm is recommended. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
 
