@@ -40,7 +40,6 @@ keep_current: false
 # folder in the database to the "archive" folder and no 
 # longer appear in normal views. Note that unfinished tasks 
 # and records are not archived.
-
 archive_after: 0
 
 # alerts: A dictionary with single-character, "alert" keys and 

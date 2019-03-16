@@ -522,6 +522,16 @@ class Item(object):
         else:
             self.currfile = None
 
+    def check_goto_link(self, num=5):
+        """
+        """
+        self.update_item_hsh()
+        goto = self.item_hsh.get('g')
+        if goto:
+            return True, goto
+        else:
+            return False, "does not have an @g goto entry"
+
     def get_repetitions(self, num=5):
         """
         Called with a row, we should have an doc_id and can use relevant

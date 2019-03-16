@@ -272,9 +272,12 @@ def check_output(cmd):
     if not cmd:
         return
     try:
-        return subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+        res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError as exc:
-        logger.error("command: {0}\n    output: {1}".format(cmd, exc.output))
+        res = "".join( chr(x) for x in exc.output)
+        logger.error("command: {0}\n    output: {1}".format(cmd, res))
+    finally:
+        return res
 
 editing = False
 
@@ -579,6 +582,9 @@ def alerts():
 
 def maybe_alerts(now):
     global current_datetime
+    if dataview.alerts and not ('alerts' in settings and settings['alerts']):
+        logger.warn("alerts have not been configured")
+        return
     for alert in dataview.alerts:
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
             alertdt = alert[0] 
@@ -607,7 +613,7 @@ def maybe_alerts(now):
             if 't' in command_list:
                 command_list.remove('t')
                 dataview.send_text(doc_id)
-            commands = [settings['alerts'].get(x, "").format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list]
+            commands = [settings['alerts'].get(x).format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list]
 
             for command in commands:
                 if command:
@@ -648,7 +654,7 @@ def openWithDefault(path):
     else:
         cmd = 'xdg-open' + f" {path}"
     res = check_output(cmd)
-    return
+    return res
 
 search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
@@ -1054,11 +1060,24 @@ def edit_copy(*event):
 @bindings.add('c-g', filter=is_viewing_or_details & is_item_view)
 def do_goto(*event):
     row = text_area.document.cursor_position_row
-    ok, res = dataview.get_goto(row)
+    ok, goto = dataview.get_goto(row)
     if ok:
-        openWithDefault(res)
+        res = openWithDefault(goto)
+        logger.info(f"res: {res}")
+        if res:
+            show_message("goto", res, 8)
     else:
-        show_message("goto", res, 8)
+        show_message("goto", goto, 8)
+
+@bindings.add('c-g', filter=is_editing)
+def check_goto(*event):
+    ok, goto = item.check_goto_link()
+    if ok:
+        res = openWithDefault(goto)
+        if res:
+            show_message("goto", res, 8)
+    else:
+        show_message('goto', goto, 8)
 
 @bindings.add('c-r', filter=is_viewing_or_details & is_item_view)
 def not_editing_reps(*event):
@@ -1189,7 +1208,7 @@ def close_edit(*event):
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):
     if item.is_modified:
-        if item.doc_id is not None:
+        if item.doc_id in dataview.itemcache:
             del dataview.itemcache[item.doc_id]
         dataview.is_editing = False
         application.layout.focus(text_area)
