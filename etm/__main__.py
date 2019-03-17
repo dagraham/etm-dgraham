@@ -45,6 +45,7 @@ def main():
     day = today.end_of('week')  # Sunday
     WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
 
+    from etm.data import Mask
     import etm.data as data
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
     cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
@@ -55,6 +56,7 @@ def main():
     from etm.model import about
     import etm.model as model
     model.etm_version = etm_version
+    model.Mask = Mask
     model.WA = WA
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
@@ -103,12 +105,11 @@ def main():
     if len(sys.argv) > 1:
         if sys.argv[1] == 'doctest':
             logger.info(f"calling data.do_doctest with etmdir: {etmdir}, argv: {sys.argv}")
-            from model import do_doctest
-            do_doctest()
+            import doctest
+            doctest.testmod(model)
         else:
             logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
-            from etm.model import main
-            main(etmdir, sys.argv)
+            model.main(etmdir, sys.argv)
 
     else:
         logger.info(f"calling view.main with etmdir: {etmdir}")

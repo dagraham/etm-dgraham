@@ -35,6 +35,8 @@ import textwrap
 import os
 import platform
 
+import base64  # for do_mask
+
 # for compressing backup files
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -900,10 +902,10 @@ class Item(object):
             self.item_hsh['created'] = now
             if self.doc_id is None:
                 self.doc_id = self.db.insert(self.item_hsh)
-                log_action = 'created'
+                logger.info(f"new item {self.doc_id} -> {self.item_hsh}")
             else:
+                logger.info("This shouldn't happen")
                 self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
-                log_action = 'updated'
         else:
             # editing an existing item
             self.item_hsh['created'] = self.created
@@ -961,9 +963,10 @@ class Item(object):
         >>> obj, rep = item.do_at()
         >>> print(rep) # doctest: +NORMALIZE_WHITESPACE
         required: @s (start)
-        available: @+ (include), @- (exclude), @a (alerts), @b (beginby), @c (calendar),
-          @d (description), @e (extent), @g (goto), @i (index), @l (location), @m (mask),
-          @n (attendees), @o (overdue), @s (start), @t (tags), @u (used time), @x (expansion),
+        available: @+ (include), @- (exclude), @a (alerts), @b (beginby),
+          @c (calendar), @d (description), @e (extent), @g (goto), @i (index),
+          @l (location), @m (mask), @n (attendee), @o (overdue), @r (repetition
+          frequency), @s (start), @t (tag), @u (used time), @x (expansion),
           @z (timezone)
         """
         itemtype = self.item_hsh.get('itemtype', '')
@@ -1181,6 +1184,65 @@ def listdiff(old_lst, new_lst):
 #             changed[k] = v
 #     return removed, changed
 
+def date_calculator(s):
+    """
+    s has the format:
+
+        x [+-] y
+
+    where x is a datetime and y is either a datetime or a timeperiod.
+    >>> date_calculator("2015-03-17 4p + 1d3h15m")
+    (True, 'Wed Mar 18 2015 7:15PM EDT')
+    >>> date_calculator("2015-03-17 4p - 1w")
+    (True, 'Tue Mar 10 2015 4:00PM EDT')
+    >>> date_calculator("2019-04-14 11:50am Europe/Paris + 9h3m US/Eastern")
+    (True, 'Sun Apr 14 2019 2:53PM EDT')
+    >>> date_calculator("2019-04-14 2:53pm US/Eastern - 2019-04-14 11:50am Europe/Paris")
+    (True, '9 hours 3 minutes')
+    >>> date_calculator("2019-04-07 7:45am Europe/Paris - 2019-04-06 5:30pm US/Eastern")
+    (True, '8 hours 15 minutes')
+    >>> date_calculator("2019-04-06 5:30pm US/Eastern + 8h15m Europe/Paris")
+    (True, 'Sun Apr 7 2019 7:45AM CEST')
+    """
+    date_calc_regex = re.compile(r'^\s*(.+)\s+([+-])\s+(.+)\s*$')
+    timezone_regex = re.compile(r'^(.+)\s+([A-Za-z]+/[A-Za-z]+)$')
+    period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
+
+    ampm = settings.get('ampm', True)
+    if ampm:
+        datetime_fmt = "ddd MMM D YYYY h:mmA zz"
+    else:
+        datetime_fmt = "ddd MMM D YYYY H:mm zz"
+
+    m = date_calc_regex.match(s)
+    if not m:
+        return False, f'Could not parse "{s}"'
+    x, pm, y = [z.strip() for z in m.groups()]
+    xz = 'local'
+    nx = timezone_regex.match(x)
+    if nx:
+        x, xz = nx.groups()
+    yz = 'local'
+    ny = timezone_regex.match(y)
+    if ny:
+        y, yz = ny.groups()
+    try:
+        ok, dt_x, z = parse_datetime(x, xz)
+        pmy = f"{pm}{y}"
+        if period_string_regex.match(pmy):
+            dur = parse_duration(pmy)[1]
+            dt = (dt_x + dur).in_timezone(yz)
+            return True, dt.format(datetime_fmt)
+        else:
+            ok, dt_y, z = parse_datetime(y, yz)
+            if pm == '-':
+                res = (dt_x - dt_y).in_words()
+                return True, res
+            else:
+                return False, 'error: datetimes cannot be added'
+    except ValueError:
+        return False, f'error parsing "{s}"'
+
 
 def parse_datetime(s, z=None):
     """
@@ -1316,6 +1378,7 @@ def format_datetime(obj, short=False):
     ampm = settings.get('ampm', True)
     date_fmt = "YYYY-MM-DD" if short else "ddd MMM D YYYY"
     time_fmt = "h:mmA" if ampm else "H:mm"
+
 
     if type(obj) == pendulum.Date:
         return True, obj.format(date_fmt)
@@ -2546,7 +2609,7 @@ def do_beginby(arg):
 def do_usedtime(arg):
     """
     >>> do_usedtime('75m: 9p 2019-02-01')
-    ([Duration(hours=1, minutes=15), DateTime(2019, 2, 2, 2, 0, 0, tzinfo=Timezone('UTC'))], 'used 1h15m ending Fri Feb 1 2019 9:00pm EST')
+    ([Duration(hours=1, minutes=15), DateTime(2019, 2, 1, 21, 0, 0, tzinfo=Timezone('America/New_York'))], '1h15m: 2019-02-01 9:00pm')
     """
     if not arg:
         return None, ''
@@ -2585,16 +2648,17 @@ def do_alert(arg):
     p1, p2, ...: cmd
     >>> do_alert('')
     (None, '')
-    >>> print(do_alert('90m, 45m')[1])
-    alert: 1h30m, 45m -> None
+    >>> print(do_alert('90m, 45m')[1])  # doctest: +NORMALIZE_WHITESPACE 
+    1h30m, 45m:
     commmand is required but missing
     >>> print(do_alert('90m, 45m, 10: d')[1])
-    alert: 1h30m, 45m ->  d
+    1h30m, 45m: d
     incomplete or invalid periods: 10
+
     >>> do_alert('90m, 45m, 10m: d')
-    ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], ['d']], 'alert: 1h30m, 45m, 10m ->  d')
+    ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], ['d']], '1h30m, 45m, 10m: d')
     >>> do_alert('90m, 45m, 10m: d, v')
-    ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], ['d', 'v']], 'alert: 1h30m, 45m, 10m ->  d, v')
+    ([[Duration(hours=1, minutes=30), Duration(minutes=45), Duration(minutes=10)], ['d', 'v']], '1h30m, 45m, 10m: d, v')
 
     """
     obj = None
@@ -5005,10 +5069,6 @@ platform:         {system_platform}
     return ret1, ret2
 
 
-# commands = {
-#         'r': pprint(relevant(db)) 
-#         }
-
 dataview = None
 item = None
 def main(etmdir="", *args):
@@ -5024,35 +5084,9 @@ def main(etmdir="", *args):
     item = Item(etmdir)
     dataview.refreshCache()
 
+
 if __name__ == '__main__':
-    import sys
-    import pendulum
-    import doctest
-    import os
-    lines = 5 * '\n'
-    now = pendulum.now('local')
-    print(f"{lines}now: {now}")
-    log_levels = [str(x) for x in range(1, 6)]
-    loglevel = 2
-    if len(sys.argv) > 1 and sys.argv[1] in log_levels:
-        loglevel = sys.argv.pop(1)
-    if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
-        etmdir = sys.argv.pop(1)
-    setup_logging(loglevel, etmdir)
-    import options, data
-    from data import Mask
-    settings = options.Settings(etmdir).settings
-    locale = settings.get('locale', None)
-    if locale:
-        pendulum.set_locale(locale)
-    today = pendulum.today()
-    day = today.end_of('week')  # Sunday
-    WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
-    dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
-    ETMDB = data.initialize_tinydb(dbfile)
-    DBITEM = ETMDB.table('items', cache_size=None)
-    DBARCH = ETMDB.table('archive', cache_size=None)
-    doctest.testmod()
+    pass
 
     # sys.exit('model.py should only be imported')
 

@@ -166,7 +166,7 @@ def decode(key, enc):
         dec.append(dec_c)
     return "".join(dec)
 
-# N#OTE: DON'T CHANGE THIS!!! ELSE ALL PREVIOUSLY MASKED ENTRIES WILL BE UNREADABLE
+# NOTE: DON'T CHANGE THIS!!! ELSE ALL PREVIOUSLY MASKED ENTRIES WILL BE UNREADABLE
 secret = "etm is great!"
 
 class Mask():
