@@ -35,8 +35,6 @@ import textwrap
 import os
 import platform
 
-import base64  # for do_mask
-
 # for compressing backup files
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -5086,9 +5084,7 @@ def main(etmdir="", *args):
 
 
 if __name__ == '__main__':
-    pass
-
-    # sys.exit('model.py should only be imported')
+    sys.exit('model.py should only be imported')
 
     # import doctest
     # doctest.testmod()
