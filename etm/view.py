@@ -22,7 +22,7 @@ from prompt_toolkit.eventloop import Future, ensure_future, Return, From
 
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import WordCompleter
+# from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.completion import Completion, Completer
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.layout.controls import BufferControl
@@ -32,7 +32,8 @@ from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous  
 import shutil
 
-from prompt_toolkit.layout import FloatContainer, Float
+# from prompt_toolkit.layout import FloatContainer
+from prompt_toolkit.layout import Float
 from prompt_toolkit.widgets import Dialog, Label, Button
 
 
@@ -59,7 +60,6 @@ cfgfile = '' # override this
 
 class InteractiveInputDialog(object):
     def __init__(self, title='', help_text='', evaluator=None, padding=10, completer=None):
-        logger.info(f"IIDialog. title: {title}; help_text: {help_text}; evalutator: {evaluator}")
         self.future = Future()
 
         def cancel():
@@ -704,7 +704,7 @@ def event_handler(loop):
     current_datetime = status_time(now)
     today = now.format("YYYYMMDD")
     if today != current_today:
-        logger.info(f"calling new_day. current_today: {current_today}; today: {today}")
+        logger.debug(f"calling new_day. current_today: {current_today}; today: {today}")
         loop.call_later(0, new_day, loop)
     get_app().invalidate()
     wait = 60 - now.second
@@ -1141,7 +1141,7 @@ def do_goto(*event):
     ok, goto = dataview.get_goto(row)
     if ok:
         res = openWithDefault(goto)
-        logger.info(f"res: {res}")
+        logger.debug(f"res: {res}")
         if res:
             show_message("goto", res, 8)
     else:

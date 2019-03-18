@@ -900,9 +900,9 @@ class Item(object):
             self.item_hsh['created'] = now
             if self.doc_id is None:
                 self.doc_id = self.db.insert(self.item_hsh)
-                logger.info(f"new item {self.doc_id} -> {self.item_hsh}")
+                logger.debug(f"new item {self.doc_id} -> {self.item_hsh}")
             else:
-                logger.info("This shouldn't happen")
+                logger.debug("This shouldn't happen")
                 self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
         else:
             # editing an existing item
