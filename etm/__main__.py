@@ -64,6 +64,7 @@ def main():
     model.settings = settings
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
+    datetime_calculator = model.datetime_calculator
     item = model.Item(etmdir)
     format_time = model.format_time
     format_datetime = model.format_datetime
@@ -83,6 +84,7 @@ def main():
     import etm.view as view
     view.cfgfile = cfgfile
     view.model = model
+    view.datetime_calculator = datetime_calculator
     view.about = about
     view.wrap = model.wrap
     view.settings = settings

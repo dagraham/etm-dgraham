@@ -1182,25 +1182,25 @@ def listdiff(old_lst, new_lst):
 #             changed[k] = v
 #     return removed, changed
 
-def date_calculator(s):
+def datetime_calculator(s):
     """
     s has the format:
 
         x [+-] y
 
     where x is a datetime and y is either a datetime or a timeperiod.
-    >>> date_calculator("2015-03-17 4p + 1d3h15m")
-    (True, 'Wed Mar 18 2015 7:15PM EDT')
-    >>> date_calculator("2015-03-17 4p - 1w")
-    (True, 'Tue Mar 10 2015 4:00PM EDT')
-    >>> date_calculator("2019-04-14 11:50am Europe/Paris + 9h3m US/Eastern")
-    (True, 'Sun Apr 14 2019 2:53PM EDT')
-    >>> date_calculator("2019-04-14 2:53pm US/Eastern - 2019-04-14 11:50am Europe/Paris")
-    (True, '9 hours 3 minutes')
-    >>> date_calculator("2019-04-07 7:45am Europe/Paris - 2019-04-06 5:30pm US/Eastern")
-    (True, '8 hours 15 minutes')
-    >>> date_calculator("2019-04-06 5:30pm US/Eastern + 8h15m Europe/Paris")
-    (True, 'Sun Apr 7 2019 7:45AM CEST')
+    >>> datetime_calculator("2015-03-17 4p + 1d3h15m")
+    'Wed Mar 18 2015 7:15PM EDT'
+    >>> datetime_calculator("2015-03-17 4p - 1w")
+    'Tue Mar 10 2015 4:00PM EDT'
+    >>> datetime_calculator("2019-04-14 11:50am Europe/Paris + 9h3m US/Eastern")
+    'Sun Apr 14 2019 2:53PM EDT'
+    >>> datetime_calculator("2019-04-14 2:53pm US/Eastern - 2019-04-14 11:50am Europe/Paris")
+    '9 hours 3 minutes'
+    >>> datetime_calculator("2019-04-07 7:45am Europe/Paris - 2019-04-06 5:30pm US/Eastern")
+    '8 hours 15 minutes'
+    >>> datetime_calculator("2019-04-06 5:30pm US/Eastern + 8h15m Europe/Paris")
+    'Sun Apr 7 2019 7:45AM CEST'
     """
     date_calc_regex = re.compile(r'^\s*(.+)\s+([+-])\s+(.+)\s*$')
     timezone_regex = re.compile(r'^(.+)\s+([A-Za-z]+/[A-Za-z]+)$')
@@ -1214,7 +1214,7 @@ def date_calculator(s):
 
     m = date_calc_regex.match(s)
     if not m:
-        return False, f'Could not parse "{s}"'
+        return f'Could not parse "{s}"'
     x, pm, y = [z.strip() for z in m.groups()]
     xz = 'local'
     nx = timezone_regex.match(x)
@@ -1230,16 +1230,16 @@ def date_calculator(s):
         if period_string_regex.match(pmy):
             dur = parse_duration(pmy)[1]
             dt = (dt_x + dur).in_timezone(yz)
-            return True, dt.format(datetime_fmt)
+            return dt.format(datetime_fmt)
         else:
             ok, dt_y, z = parse_datetime(y, yz)
             if pm == '-':
                 res = (dt_x - dt_y).in_words()
-                return True, res
+                return res
             else:
-                return False, 'error: datetimes cannot be added'
+                return 'error: datetimes cannot be added'
     except ValueError:
-        return False, f'error parsing "{s}"'
+        return f'error parsing "{s}"'
 
 
 def parse_datetime(s, z=None):

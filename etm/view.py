@@ -57,6 +57,56 @@ import os
 
 cfgfile = '' # override this
 
+class InteractiveInputDialog(object):
+    def __init__(self, title='', help_text='', evaluator=None, padding=10, completer=None):
+        logger.info(f"IIDialog. title: {title}; help_text: {help_text}; evalutator: {evaluator}")
+        self.future = Future()
+
+        def cancel():
+            self.future.set_result(None)
+
+        self.output_field = TextArea(
+                text='',
+                focusable=False,
+                )
+        self.input_field = TextArea(
+            height=1, prompt='>>> ', multiline=False,
+            focusable=True,
+            wrap_lines=False)
+
+        def accept(buff):
+            # Evaluate "calculator" expression.
+            try:
+                output = 'In:  {}\nOut: {}\n\n'.format(
+                    self.input_field.text,
+                    evaluator(self.input_field.text))  
+            except BaseException as e:
+                output = '\n\n{}'.format(e)
+            new_text = self.output_field.text + output
+
+            # Add text to output buffer.
+            self.output_field.buffer.text = new_text
+
+        self.input_field.accept_handler = accept
+
+        cancel_button = Button(text='Cancel', handler=cancel)
+
+        self.dialog = Dialog(
+            title=title,
+            body=HSplit([
+                Label(text=help_text),
+                self.output_field,
+                HorizontalLine(),
+                self.input_field,
+            ]),
+            buttons=[cancel_button],
+            width=D(preferred=shutil.get_terminal_size()[0]-padding),
+            modal=True)
+
+    def __pt_container__(self):
+        return self.dialog
+
+
 class TextInputDialog(object):
     def __init__(self, title='', label_text='', default='', padding=10, completer=None):
         self.future = Future()
@@ -246,6 +296,29 @@ def do_system(*event):
 @bindings.add('f5')
 def do_alerts(*event):
     show_message("today's alerts", alerts(), 2)
+
+
+@bindings.add('f6')
+def datetime_calculator(*event):
+    def coroutine():
+        prompt = """\
+Enter an expression of the form:
+    x [+-] y
+where x is a datetime and y is either
+    [+] a timeperiod
+    [-] a datetime or a timeperiod
+Be sure to surround [+-] with spaces.
+Timezones can be appended to x and y.
+        """
+        dialog = InteractiveInputDialog(
+            title='datetime calculator',
+            help_text=prompt,
+            evaluator=datetime_calculator,
+            padding=4,
+            )
+        yield From(show_dialog_as_float(dialog))
+
+    ensure_future(coroutine())
 
 # @bindings.add('f6')
 # def do_open_config(*event):
@@ -1233,7 +1306,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F3) check for updates', handler=do_check_updates),
         MenuItem('F4) system info', handler=do_system),
         MenuItem("F5) show today's alerts", handler=do_alerts),
-        # MenuItem('F6) preferences', handler=do_open_config),
+        MenuItem('F6) datetime calculator', handler=datetime_calculator),
         MenuItem('-', disabled=True),
         MenuItem('^q) quit', handler=exit),
     ]),
