@@ -37,6 +37,10 @@ from prompt_toolkit.widgets import Dialog, Label, Button
 
 
 import pendulum
+from pendulum import parse as pendulum_parse
+def parse(s, **kwd):
+    return pendulum_parse(s, strict=False, **kwd)
+
 import re
 # from model import wrap, format_time, format_datetime
 # from model import wrap
@@ -514,9 +518,9 @@ class ETMLexer(Lexer):
 def status_time(dt):
     """
     >>> status_time(parse('2018-03-07 10am'))
-    '10'
+    '10am Wed Mar 7'
     >>> status_time(parse('2018-03-07 2:45pm'))
-    '2:45'
+    '2:45pm Wed Mar 7'
     """
     ampm = settings['ampm']
     d_fmt = dt.format("ddd MMM D")
@@ -621,8 +625,8 @@ def maybe_alerts(now):
 
 def event_handler(loop):
     global current_datetime
-    current_today = dataview.now.format("YYYYMMDD")
     now = pendulum.now()
+    current_today = dataview.now.format("YYYYMMDD")
     maybe_alerts(now)
     current_datetime = status_time(now)
     today = now.format("YYYYMMDD")
@@ -929,6 +933,7 @@ def edit_new(*event):
     default_buffer_changed(_)
     default_cursor_position_changed(_)
     application.layout.focus(entry_buffer)
+
 
 # @bindings.add('E', filter=is_not_editing)
 @bindings.add('E', filter=is_viewing_or_details & is_item_view)

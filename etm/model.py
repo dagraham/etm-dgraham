@@ -4687,9 +4687,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         week_numbers.sort()
     aft_dt, bef_dt = get_period(dt, weeks_before, weeks_after)
 
-    current_day = ""
-    if yw == getWeekNum():
-        current_day = now.format("ddd MMM D")
 
     rows = []
     busy = []
@@ -4802,7 +4799,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 #             x[0] x[1]  x[2]     x[3]
                 busy.append({'sort': dt.format("YYYYMMDDHHmm"), 'week': (y, w), 'day': d, 'period': (beg_min, end_min)})
     if yw == getWeekNum(now):
-        logger.info(f"current week: {yw}; adding current: {current}")
+        logger.info(f"current week: {yw}. extending current rows")
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
     busy.sort(key=itemgetter('sort'))
@@ -4863,11 +4860,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         for day, columns in groupby(items, key=itemgetter('day')):
             for d in day:
                 if week == yw:
+                    current_day = now.format("ddd MMM D")
+                    logger.info(f"current week, {yw}. day/today: {d}/{current_day}. day == today: {d == current_day}")
                     if d == current_day:
-                        logger.info(f"today. week: {week} day: {d}; today: {current_day} ")
                         d += " (Today)"
-                    else:
-                        logger.info(f"not today. week: {week} day: {d}; today: {current_day} ")
                 agenda.append(f"  {d}")
                 row_num += 1
                 for i in columns:

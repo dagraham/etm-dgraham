@@ -103,10 +103,14 @@ def main():
 
 
     if len(sys.argv) > 1:
-        if sys.argv[1] == 'doctest':
-            logger.info(f"calling data.do_doctest with etmdir: {etmdir}, argv: {sys.argv}")
+        if sys.argv[1] == 'model':
+            logger.info(f"calling model doctest with etmdir: {etmdir}, argv: {sys.argv}")
             import doctest
             doctest.testmod(model)
+        elif sys.argv[1] == 'view':
+            logger.info(f"calling view doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            import doctest
+            doctest.testmod(view)
         else:
             logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
             model.main(etmdir, sys.argv)
