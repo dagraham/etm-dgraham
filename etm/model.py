@@ -4929,29 +4929,27 @@ def temp_to_items(etmdir=None):
     TEMPDB = data.initialize_tinydb(temp_dbfile)
 
 
-def import_text(etmdir=None):
-    if not etmdir or not os.path.isdir(etmdir):
-        logger.warn(f"{etmdir} is not a valid directory")
-        return False
-    import_file = os.path.join(etmdir, 'import.text')
-    if not os.path.exists(import_file):
+def import_text(text_file=None):
+    if not os.path.exists(text_file):
         logger.warn(f"{import_file} does not exist")
         return False
-    temp_dbfile = os.path.join(etmdir, 'temp.json')
-    TEMPDB = data.initialize_tinydb(temp_dbfile)
-    TEMPDB.purge()
+    import tempfile
     docs = []
-    with open(import_file, 'r') as fo:
-        for line in fo:
-            try:
-                s = line.strip()
-                item = Item(temp_dbfile)
-                item.new_item()
-                item.text_changed(s, 1)
-                item.update_item_hsh()
-                docs.append(item.item_hsh)
-            except Exception as e:
-                logger.error(f"error processing line: '{s}'; {repr(e)}")
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        temp_dbfile = os.path.join(tmpdirname, 'temp.json')
+        TEMPDB = data.initialize_tinydb(temp_dbfile)
+        TEMPDB.purge()
+        with open(text_file, 'r') as fo:
+            for line in fo:
+                try:
+                    s = line.strip()
+                    item = Item(temp_dbfile)
+                    item.new_item()
+                    item.text_changed(s, 1)
+                    item.update_item_hsh()
+                    docs.append(item.item_hsh)
+                except Exception as e:
+                    logger.error(f"error processing line: '{s}'; {repr(e)}")
 
     # TEMPDB.insert_multiple(docs)
     # temp_items = TEMPDB.table('items', cache_size=None)
@@ -4978,29 +4976,21 @@ def import_text(etmdir=None):
             x['created'] = created
             new.append(x)
 
+    ids = []
     if new:
-        ETMDB.insert_multiple(new)
-    logger.info(f"dups: {len(dups)}")
+        ids = ETMDB.insert_multiple(new)
+    logger.info(f"duplicates rejected: {len(dups)}; newly added: {len(new)}; ids: {ids}")
     return len(new) > 0
 
 
-def import_json(etmdir=None):
-    if not etmdir or not os.path.isdir(etmdir):
-        logger.warn(f"{etmdir} is not a valid directory")
-        return False
-    import_file = os.path.join(etmdir, 'import.json')
-    if not os.path.exists(import_file):
+def import_json(json_file=None):
+    if not os.path.exists(json_file):
         logger.warn(f"{import_file} does not exist")
         return False
     import json
-    with open(import_file, 'r') as fo:
+    with open(json_file, 'r') as fo:
         import_hsh = json.load(fo)
     items = import_hsh['items']
-    temp_dbfile = os.path.join(etmdir, 'temp.json')
-    TEMPDB = data.initialize_tinydb(temp_dbfile)
-    TEMPDB.purge()
-    Record = Query()
-
     docs = []
     dups = 0
     add = 0
@@ -5131,9 +5121,10 @@ def import_json(etmdir=None):
         else:
             new.append(x)
 
+    ids = []
     if new:
-        ETMDB.insert_multiple(new)
-    logger.info(f"importing duplicates rejected: {dups}; newly imported: {len(new)}")
+        ids = ETMDB.insert_multiple(new)
+    logger.info(f"duplicates rejected: {dups}; newly imported: {len(new)}; ids: {ids}")
     return len(new) > 0
 
 

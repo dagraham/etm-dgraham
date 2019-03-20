@@ -443,6 +443,7 @@ def do_go_to_line(*event):
 
     ensure_future(coroutine())
 
+
 @bindings.add('g', filter=is_viewing_or_details)
 def do_go_to_date(*event):
     def coroutine():
@@ -1174,21 +1175,52 @@ def is_editing_reps(*event):
     showing, reps = res 
     show_message(showing, reps, 24)
 
+
 @bindings.add('f7')
-def do_import_json(*event):
-    res = import_json(etmdir)
-    if res:
-        dataview.refreshRelevant()
-        dataview.refreshAgenda()
-        dataview.refreshCurrent()
+def do_import_text(*event):
+    # TODO: add dialog
+    def coroutine():
+        dialog = TextInputDialog(
+            title='import text',
+            label_text='Enter the path of the text file to import:')
+
+        text_file = yield From(show_dialog_as_float(dialog))
+        logger.info(f"got {text_file}")
+
+        if text_file and os.path.exists(text_file):
+            logger.info(f"importing from {text_file}")
+            res = import_text(text_file)
+            if res:
+                dataview.refreshRelevant()
+                dataview.refreshAgenda()
+                dataview.refreshCurrent()
+        else:
+            logger.info(f"{text_file} does not exist")
+
+    ensure_future(coroutine())
+
+
 
 @bindings.add('f8')
-def do_import_text(*event):
-    res = import_text(etmdir)
-    if res:
-        dataview.refreshRelevant()
-        dataview.refreshAgenda()
-        dataview.refreshCurrent()
+def do_import_json(*event):
+    # TODO: add dialog
+    def coroutine():
+        dialog = TextInputDialog(
+            title='import json',
+            label_text='Enter the path of the json file to import:')
+
+        json_file = yield From(show_dialog_as_float(dialog))
+
+        if json_file and os.path.exists(json_file):
+            logger.info(f"importing from {json_file}")
+            res = import_json(json_file)
+            if res:
+                dataview.refreshRelevant()
+                dataview.refreshAgenda()
+                dataview.refreshCurrent()
+
+    ensure_future(coroutine())
+
 
 @bindings.add('c-p')
 def play_sound(*event):
