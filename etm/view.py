@@ -1003,8 +1003,8 @@ def edit_new(*event):
     dataview.is_editing = True
     item.new_item()
     entry_buffer.text = item.entry
-    default_buffer_changed(_)
-    default_cursor_position_changed(_)
+    default_buffer_changed(event)
+    default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
 
 
@@ -1174,6 +1174,22 @@ def is_editing_reps(*event):
     showing, reps = res 
     show_message(showing, reps, 24)
 
+@bindings.add('f7')
+def do_import_json(*event):
+    res = import_json(etmdir)
+    if res:
+        dataview.refreshRelevant()
+        dataview.refreshAgenda()
+        dataview.refreshCurrent()
+
+@bindings.add('f8')
+def do_import_text(*event):
+    res = import_text(etmdir)
+    if res:
+        dataview.refreshRelevant()
+        dataview.refreshAgenda()
+        dataview.refreshCurrent()
+
 @bindings.add('c-p')
 def play_sound(*event):
     row = text_area.document.cursor_position_row
@@ -1183,10 +1199,10 @@ def play_sound(*event):
 def exit(*event):
     application.exit()
 
-@bindings.add('f8')
-def _(event):
-    " Quit. "
-    event.app.exit()
+# @bindings.add('f8')
+# def _(event):
+#     " Quit. "
+#     event.app.exit()
 
 def set_text(txt, row=0):
     text_area.text = txt

@@ -54,8 +54,11 @@ def main():
     DBARCH = ETMDB.table('archive', cache_size=None)
 
     from etm.model import about
+    from etm.model import import_json
+    from etm.model import import_text
     import etm.model as model
     model.etm_version = etm_version
+    model.data = data
     model.Mask = Mask
     model.WA = WA
     model.ETMDB = ETMDB
@@ -65,7 +68,8 @@ def main():
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
     datetime_calculator = model.datetime_calculator
-    item = model.Item(etmdir)
+    Item = model.Item
+    item = model.Item(dbfile)
     format_time = model.format_time
     format_datetime = model.format_datetime
     format_duration = model.format_duration
@@ -84,6 +88,10 @@ def main():
     import etm.view as view
     view.cfgfile = cfgfile
     view.model = model
+    view.item = item
+    view.import_json = import_json
+    view.import_text = import_text
+    view.etmdir = etmdir
     view.datetime_calculator = datetime_calculator
     view.about = about
     view.wrap = model.wrap
@@ -97,7 +105,6 @@ def main():
     view.DBARCH = DBARCH
 
     view.dataview = dataview
-    view.item = item
     view.completions = completions
     view.expansions = expansions
     view.terminal_style = style

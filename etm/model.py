@@ -21,6 +21,7 @@ import re
 from re import finditer
 
 from tinydb import __version__ as tinydb_version
+from tinydb import Query
 
 import dateutil
 import dateutil.rrule
@@ -426,7 +427,7 @@ class Item(object):
     """
 
     # def __init__(self, doc_id=None, s=""):
-    def __init__(self, etmdir):
+    def __init__(self, dbfile=None):
         """
         """
 
@@ -437,7 +438,7 @@ class Item(object):
         self.is_modified = False
         self.created = None
         self.modified = None
-        self.set_etmdir(etmdir)
+        self.set_dbfile(dbfile)
         self.object_hsh = {}    # key, val -> object version of raw string for tinydb 
         self.askreply= {}       # key, val -> display version raw string
         self.pos_hsh = {}       # (beg, end) -> (key, val)
@@ -507,20 +508,27 @@ class Item(object):
             self.text_changed('', 0, False)
 
 
-    def set_etmdir(self, etmdir):
-        if not etmdir:
-            self.settings = {}
-            return
+    def set_dbfile(self, dbfile=None):
+        # FIXME: this should be based on the etmdir or, better, the json file
         self.settings = settings if settings else {}
-        self.db = DBITEM
-        self.dbarch = DBARCH
-        self.dbquery = DBITEM 
+        if dbfile is None:
+            logger.info(f"dbfile is None")
+            self.db = ETMDB
+            self.dbarch = DBARCH
+            self.dbitem = DBITEM
+        else: 
+            if not os.path.exists(dbfile):
+                logger.error(f"{dbfile} does not exist")
+                return
+            self.db = data.initialize_tinydb(dbfile)
+            self.dbarch = self.db.table('archive', cache_size=None)
+            self.dbquery = self.db.table('items', cache_size=None) 
 
-        # self.settings = settings
-        if 'keep_current' in self.settings and self.settings['keep_current']:
-            self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
-        else:
-            self.currfile = None
+        # # self.settings = settings
+        # if 'keep_current' in self.settings and self.settings['keep_current']:
+        #     self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
+        # else:
+        #     self.currfile = None
 
     def check_goto_link(self, num=5):
         """
@@ -932,6 +940,8 @@ class Item(object):
         """
         Check that key is allowed for the given item type or @-key.
         """
+        if not self.item_hsh:
+            return
         if key in ['?', 'r?', 'j?', 'itemtype', 'summary']:
             return ""
         if key not in self.keys:
@@ -1164,6 +1174,24 @@ def listdiff(old_lst, new_lst):
     removed = [x for x in old_lst if x not in new_lst]
     changed = [x for x in new_lst if x not in old_lst]
     return removed, changed
+
+def is_duplicate(import_hsh, existing_hsh, ignore=[]):
+    """
+    >>> import_hsh = {'a': 1, 'b': 2}
+    >>> existing_hsh = {'b': 2, 'a': 5}
+    >>> is_duplicate(import_hsh, existing_hsh)
+    False
+    >>> is_duplicate(import_hsh, existing_hsh, ['a'])
+    True
+    """
+    mpr = deepcopy(import_hsh)
+    xst = deepcopy(existing_hsh)
+    for x in ignore:
+        if x in mpr:
+            del mpr[x]
+        if x in xst:
+            del xst[x]
+    return mpr == xst
 
 # def dictdiff(old_hsh, new_hsh):
 #     """
@@ -1667,8 +1695,7 @@ class DataView(object):
         self.dbarch = DBARCH
         logger.info(f"items: {len(DBITEM)}; archive: {len(DBARCH)}")
         self.possible_archive()
-        # self.item_num = len(self.db)
-        # self.arch_num = len(self.dbarch)
+
 
     def get_completions(self):
         """
@@ -1693,11 +1720,11 @@ class DataView(object):
         timestamp = pendulum.now('UTC').format("YYYY-MM-DD")
         filelist = os.listdir(self.backupdir)
         # deal with db.json
-        dbmtime = os.path.getmtime(self.dbfile)
+        dbmtime = os.path.getctime(self.dbfile)
         zipfiles = [x for x in filelist if x.endswith('db.zip')] 
         zipfiles.sort(reverse=True)
         if zipfiles:
-            lastdbtime = os.path.getmtime(os.path.join(self.backupdir, zipfiles[0]))
+            lastdbtime = os.path.getctime(os.path.join(self.backupdir, zipfiles[0]))
         else:
             lastdbtime = None
 
@@ -1716,14 +1743,15 @@ class DataView(object):
             logger.info(f"{self.dbfile} unchanged - skipping backup")
 
         # deal with cfg.yaml
-        cfgmtime = os.path.getmtime(self.cfgfile)
+        cfgmtime = os.path.getctime(self.cfgfile)
         cfgfiles = [x for x in filelist if x.endswith('cfg.yaml')] 
         cfgfiles.sort(reverse=True)
         if cfgfiles:
-            lastcfgtime = os.path.getmtime(os.path.join(self.backupdir, cfgfiles[0]))
+            lastcfgtime = os.path.getctime(os.path.join(self.backupdir, cfgfiles[0]))
         else:
             lastcfgtime = None
         if lastcfgtime is None or cfgmtime > lastcfgtime:
+            logger.info(f"lastcfgtime: {lastcfgtime}; cfgmtime: {cfgmtime}; last cfgfile: {cfgfiles[0]}")
             backupfile = os.path.join(self.backupdir, f"{timestamp}-cfg.yaml")
             shutil.copy2(self.cfgfile, backupfile)
             logger.info(f"backed up {self.cfgfile} to {backupfile}")
@@ -3984,8 +4012,12 @@ def getWeekNumbers(dt=pendulum.now(), bef=3, after=9):
 ######################
 
 def pen_from_fmt(s, z='local'):
+    """
+    >>> pen_from_fmt("20120622T0000")
+    Date(2012, 6, 22)
+    """
     dt = pendulum.from_format(s, "YYYYMMDDTHHmm", z)
-    if z == 'Factory' and dt.hour == dt.minute == 0:
+    if z in ['local', 'Factory'] and dt.hour == dt.minute == 0:
         dt = dt.date()
     return dt
 
@@ -4222,10 +4254,6 @@ def relevant(db, now=pendulum.now()):
                     for dt in item['-']:
                         if type(dt) == pendulum.Date:
                             pass
-                        elif dt.dst() and not startdst:
-                            dt = dt + dt.dst()
-                        elif startdst and not dt.dst():
-                            dt = dt - startdst
                         rset.exdate(dt)
 
                 if '+' in item:
@@ -4254,6 +4282,8 @@ def relevant(db, now=pendulum.now()):
                 # rset
                 if instance_interval:
                     instances = rset.between(instance_interval[0], instance_interval[1], inc=True)
+                    if instances:
+                        logger.info(f"instances for {item['summary']}: {instances}")
                     if possible_beginby:
                         for instance in instances:
                             if today + DAY <= instance <= tomorrow + possible_beginby:
@@ -4742,7 +4772,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         # get the instances
         for dt, et in item_instances(item, aft_dt, bef_dt):
-            instance = dt
+
+            instance = dt if '+' in item or 'r' in item else None
             if 'j' in item:
                 for job in item['j']:
                     if 'f' in job:
@@ -4893,36 +4924,101 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
     return cache
 
+def temp_to_items(etmdir=None):
+    temp_dbfile = os.path.join(etmdir, 'temp.json')
+    TEMPDB = data.initialize_tinydb(temp_dbfile)
+
+
+def import_text(etmdir=None):
+    if not etmdir or not os.path.isdir(etmdir):
+        logger.warn(f"{etmdir} is not a valid directory")
+        return False
+    import_file = os.path.join(etmdir, 'import.text')
+    if not os.path.exists(import_file):
+        logger.warn(f"{import_file} does not exist")
+        return False
+    temp_dbfile = os.path.join(etmdir, 'temp.json')
+    TEMPDB = data.initialize_tinydb(temp_dbfile)
+    TEMPDB.purge()
+    docs = []
+    with open(import_file, 'r') as fo:
+        for line in fo:
+            try:
+                s = line.strip()
+                item = Item(temp_dbfile)
+                item.new_item()
+                item.text_changed(s, 1)
+                item.update_item_hsh()
+                docs.append(item.item_hsh)
+            except Exception as e:
+                logger.error(f"error processing line: '{s}'; {repr(e)}")
+
+    # TEMPDB.insert_multiple(docs)
+    # temp_items = TEMPDB.table('items', cache_size=None)
+
+    exst = []
+    new = []
+    dups = []
+    for x in ETMDB:
+        if 'modified' in x:
+            del x['modified']
+        if 'created' in x:
+            del x['created']
+        exst.append(x)
+    for x in docs:
+        created = x.get('created')
+        if created:
+            del x['created']
+        if 'modified' in x:
+            del x['modified']
+        if x in exst:
+            x['created'] = created
+            dups.append(x)
+        else:
+            x['created'] = created
+            new.append(x)
+
+    if new:
+        ETMDB.insert_multiple(new)
+    logger.info(f"dups: {len(dups)}")
+    return len(new) > 0
+
 
 def import_json(etmdir=None):
-    print('Disabled for protection')
-    return ()
+    if not etmdir or not os.path.isdir(etmdir):
+        logger.warn(f"{etmdir} is not a valid directory")
+        return False
+    import_file = os.path.join(etmdir, 'import.json')
+    if not os.path.exists(import_file):
+        logger.warn(f"{import_file} does not exist")
+        return False
     import json
-    if etmdir:
-        import_file = os.path.join(etmdir, 'data', 'etm-db.json')
-    else:
-        import_file = '/Users/dag/.etm/data/etm-db.json'
     with open(import_file, 'r') as fo:
         import_hsh = json.load(fo)
     items = import_hsh['items']
-    # ETMDB.purge()
+    temp_dbfile = os.path.join(etmdir, 'temp.json')
+    TEMPDB = data.initialize_tinydb(temp_dbfile)
+    TEMPDB.purge()
+    Record = Query()
 
     docs = []
+    dups = 0
+    add = 0
     for id in items:
         item_hsh = items[id]
-        if item_hsh['itemtype'] not in type_keys:
+        itemtype = item_hsh.get('itemtype')
+        if not itemtype:
+            continue
+        summary = item_hsh.get('summary')
+        if not summary:
             continue
         z = item_hsh.get('z', 'Factory')
-        bad_keys = [x for x in item_hsh if x not in at_keys]
-        for key in bad_keys:
-            del item_hsh[key]
         bad_keys = [x for x in item_hsh if not item_hsh[x]]
         for key in bad_keys:
             del item_hsh[key]
+        # z = item_hsh.get('z')
         if 's' in item_hsh:
             item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
-        elif 'z' in item_hsh:
-            del item_hsh['z']
         if 'f' in item_hsh:
             item_hsh['f'] = pen_from_fmt(item_hsh['f'], z)
         item_hsh['created'] = pendulum.now('UTC')
@@ -5001,7 +5097,7 @@ def import_json(etmdir=None):
                         rul['w'] = "{0}:{1}".format("{W}", rul['w'].upper())
                 bad_keys = []
                 for key in rul:
-                    if key not in amp_keys['r'] or not rul[key]:
+                    if not rul[key]:
                         bad_keys.append(key)
                 if bad_keys:
                     for key in bad_keys:
@@ -5014,7 +5110,31 @@ def import_json(etmdir=None):
                 del item_hsh['r']
 
         docs.append(item_hsh)
-    ETMDB.insert_multiple(docs)
+    # now check for duplicates. If an item to be imported has the same type, summary and starting time as an existing item, regard it as a duplicate and do not import it.
+    exst = []
+    new = []
+    dups = 0
+    for x in ETMDB:
+        exst.append({
+                    'itemtype': x.get('itemtype'),
+                    'summary': x.get('summary'),
+                    's': x.get('s')
+                    })
+    for x in docs:
+        y = {
+                    'itemtype': x.get('itemtype'),
+                    'summary': x.get('summary'),
+                    's': x.get('s')
+                    }
+        if y in exst:
+            dups += 1
+        else:
+            new.append(x)
+
+    if new:
+        ETMDB.insert_multiple(new)
+    logger.info(f"importing duplicates rejected: {dups}; newly imported: {len(new)}")
+    return len(new) > 0
 
 
 def about(padding=0):
