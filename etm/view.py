@@ -1355,6 +1355,8 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F4) system info', handler=do_system),
         MenuItem("F5) show today's alerts", handler=do_alerts),
         MenuItem('F6) datetime calculator', handler=datetime_calculator),
+        MenuItem('F7) import from text file', handler=do_import_text),
+        MenuItem('F8) import from json file', handler=do_import_json),
         MenuItem('-', disabled=True),
         MenuItem('^q) quit', handler=exit),
     ]),
