@@ -313,7 +313,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  e: extent: period
 *  f: finish: datetime
 *  l: location/context: string
-*  m: mask: string
+*  m: mask: string stored in obfuscated form
 *  i: job unique id (string)
 *  p: prerequisites (comma separated list of ids of immediate prereqs)
 *  s: start/due: period relative to @s entry (default 0m)
@@ -349,6 +349,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
             * my event @s 2018-02-15 3p @+ 2018-03-02 4p
         would repeat at 4pm on Mar 2 *and* 3pm on Feb 15.
     * Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would at best be redundant. A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
+* @m masked entry. These entries are encoded in the database in an obfuscated or masket format but decoded when displayed in etm itself. A *secret key* specified in the user configuration file is used for the encoding/decoding.
 * @x expansions. The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
             expansions:
