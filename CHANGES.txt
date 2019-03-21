@@ -1,23 +1,40 @@
-Recent changes as of 2019-03-21T11:48:01.560835-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a56) Dan Graham
-    2ce5c28 2019-03-21 11:48:01 -0400
+Recent changes as of 2019-03-21T16:57:59.114485-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a57) Dan Graham
+    45236e4 2019-03-21 16:57:59 -0400
+    Tagged version 4.0.0a57.
+
+- 24 seconds ago Dan Graham
+    cdbe6a2 2019-03-21 16:57:35 -0400
+    README tweak.
+
+- 7 minutes ago Dan Graham
+    0eadfdb 2019-03-21 16:50:45 -0400
+    README tweak.
+
+- 2 hours ago (origin/working) Dan Graham
+    98b2473 2019-03-21 15:25:08 -0400
+    Added test for running in a virtual environment. Added secret
+    setting in options.
+
+- 5 hours ago (origin/master, master) Dan Graham
+    b0b75c4 2019-03-21 11:48:01 -0400
     Tagged version 4.0.0a56.
 
-- 5 minutes ago (origin/working) Dan Graham
+- 5 hours ago Dan Graham
     6310485 2019-03-21 11:43:28 -0400
     Added confirmation/result dialogs to import json and text. Expand
     user and normalized paths to import file. Call data_changed after
     import. Use temp file for text import tinydb.
 
-- 17 hours ago Dan Graham
+- 22 hours ago Dan Graham
     7738297 2019-03-20 19:18:12 -0400
     Added import text and json to menu.
 
-- 18 hours ago Dan Graham
+- 23 hours ago Dan Graham
     286bf92 2019-03-20 17:35:43 -0400
     Added file dialogs for import text and json.
 
-- 20 hours ago Dan Graham
+- 25 hours ago Dan Graham
     07e9315 2019-03-20 16:08:19 -0400
     Work on import_text and import_json. Much work on checking for
     duplicates in json file. Fixed bug in pen_from_fmt. Fixed bug by
@@ -25,7 +42,7 @@ Recent changes as of 2019-03-21T11:48:01.560835-04:00:
     adjusting dst in @- entries. Fixed bug in setting instance for
     non-repeating items in agenda view.
 
-- 3 days ago (origin/master, master) Dan Graham
+- 3 days ago Dan Graham
     2832445 2019-03-18 12:35:46 -0400
     cleanup
 
@@ -407,19 +424,3 @@ Recent changes as of 2019-03-21T11:48:01.560835-04:00:
 - 11 days ago Dan Graham
     5d198b0 2019-03-10 19:17:50 -0400
     more bump tweaks
-
-- 11 days ago Dan Graham
-    33c9406 2019-03-10 19:11:59 -0400
-    message
-
-- 11 days ago Dan Graham
-    a87d10b 2019-03-10 19:11:47 -0400
-    bump tweaks
-
-- 11 days ago (tag: 4.0.0a17) Dan Graham
-    12d13d4 2019-03-10 18:59:11 -0400
-    Tagged version 4.0.0a17.
-
-- 11 days ago Dan Graham
-    12c1511 2019-03-10 18:55:49 -0400
-    Added CHANGES
