@@ -1179,7 +1179,9 @@ def is_editing_reps(*event):
 @bindings.add('f7')
 def do_import_text(*event):
     # TODO: add dialog
+    msg = ""
     def coroutine():
+        global msg
         dialog = TextInputDialog(
             title='import text',
             label_text='Enter the path of the text file to import:')
@@ -1187,16 +1189,16 @@ def do_import_text(*event):
         text_file = yield From(show_dialog_as_float(dialog))
         logger.info(f"got {text_file}")
 
-        if text_file and os.path.exists(text_file):
+        if text_file:
             logger.info(f"importing from {text_file}")
-            res = import_text(text_file)
-            if res:
+            msg = import_text(text_file)
+            if msg:
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
-        else:
-            logger.info(f"{text_file} does not exist")
-
+                loop = get_event_loop()
+                loop.call_later(0, data_changed, loop)
+                show_message('import text', msg)
     ensure_future(coroutine())
 
 
@@ -1204,21 +1206,27 @@ def do_import_text(*event):
 @bindings.add('f8')
 def do_import_json(*event):
     # TODO: add dialog
+    msg = ""
     def coroutine():
+        global msg
         dialog = TextInputDialog(
             title='import json',
             label_text='Enter the path of the json file to import:')
 
         json_file = yield From(show_dialog_as_float(dialog))
 
-        if json_file and os.path.exists(json_file):
+        if json_file:
             logger.info(f"importing from {json_file}")
-            res = import_json(json_file)
-            if res:
+            msg = import_json(json_file)
+            if msg:
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
-
+                loop = get_event_loop()
+                loop.call_later(0, data_changed, loop)
+        else:
+            msg = f"could not open {json_file}"
+        show_message('import json', msg)
     ensure_future(coroutine())
 
 
@@ -1355,8 +1363,8 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F4) system info', handler=do_system),
         MenuItem("F5) show today's alerts", handler=do_alerts),
         MenuItem('F6) datetime calculator', handler=datetime_calculator),
-        MenuItem('F7) import from text file', handler=do_import_text),
-        MenuItem('F8) import from json file', handler=do_import_json),
+        MenuItem('F7) import text file', handler=do_import_text),
+        MenuItem('F8) import json file', handler=do_import_json),
         MenuItem('-', disabled=True),
         MenuItem('^q) quit', handler=exit),
     ]),

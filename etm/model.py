@@ -4929,17 +4929,19 @@ def temp_to_items(etmdir=None):
     TEMPDB = data.initialize_tinydb(temp_dbfile)
 
 
-def import_text(text_file=None):
-    if not os.path.exists(text_file):
-        logger.warn(f"{import_file} does not exist")
-        return False
+def import_text(import_file=None):
+    if not import_file:
+        return ""
+    import_file = os.path.normpath(os.path.expanduser(import_file))
+    if not os.path.exists(import_file):
+        return f"could not locate: {import_file}"
     import tempfile
     docs = []
     with tempfile.TemporaryDirectory() as tmpdirname:
         temp_dbfile = os.path.join(tmpdirname, 'temp.json')
         TEMPDB = data.initialize_tinydb(temp_dbfile)
         TEMPDB.purge()
-        with open(text_file, 'r') as fo:
+        with open(import_file, 'r') as fo:
             for line in fo:
                 try:
                     s = line.strip()
@@ -4979,16 +4981,23 @@ def import_text(text_file=None):
     ids = []
     if new:
         ids = ETMDB.insert_multiple(new)
-    logger.info(f"duplicates rejected: {len(dups)}; newly added: {len(new)}; ids: {ids}")
-    return len(new) > 0
+    msg = f"imported {len(new)} items"
+    if ids:
+        msg += f"\n  ids: {ids[0]}-{ids[-1]}."
+    if dups:
+        msg += f"\n  rejected {len(dups)} items as duplicates"
+    logger.info(msg)
+    return msg
 
 
-def import_json(json_file=None):
-    if not os.path.exists(json_file):
-        logger.warn(f"{import_file} does not exist")
-        return False
+def import_json(import_file=None):
+    if not import_file:
+        return ""
+    import_file = os.path.normpath(os.path.expanduser(import_file))
+    if not os.path.exists(import_file):
+        return f"could not locate: {import_file}"
     import json
-    with open(json_file, 'r') as fo:
+    with open(import_file, 'r') as fo:
         import_hsh = json.load(fo)
     items = import_hsh['items']
     docs = []
@@ -5124,8 +5133,13 @@ def import_json(json_file=None):
     ids = []
     if new:
         ids = ETMDB.insert_multiple(new)
-    logger.info(f"duplicates rejected: {dups}; newly imported: {len(new)}; ids: {ids}")
-    return len(new) > 0
+    msg = f"imported {len(new)} items"
+    if ids:
+        msg += f"\n  ids: {ids[0]}-{ids[-1]}."
+    if dups:
+        msg += f"\n  rejected {dups} items as duplicates"
+    logger.info(msg)
+    return msg
 
 
 def about(padding=0):
