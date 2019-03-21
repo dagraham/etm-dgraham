@@ -56,7 +56,8 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
         * take Rx @s mon @r d &h 10, 14, 18, 22 &u fri
 * Move the water sprinkler every thirty minutes (@r n &i 30) between 2pm and 4:30pm (&h 14, 15, 16) on Sundays (&w SU) from April through September (&M 4, 5, 6, 7, 8, 9).
 
-        * Move sprinkler @s sun @r n &i 30 &w SU &h 14, 15, 16, 17 &M 4, 5, 6, 7, 8, 9
+        * Move sprinkler @s sun @r n &i 30 &w SU &h 14, 15, 16, 17 
+		  &M 4, 5, 6, 7, 8, 9
 * Presidential election day every four years on the first Tuesday after a Monday in November (a Tuesday whose month day falls between 2 and 8).
 
         * Presidential Election Day @s 2012-11-06
