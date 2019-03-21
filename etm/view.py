@@ -625,15 +625,15 @@ def data_changed(loop):
     get_app().invalidate()
 
 def new_day(loop):
-    dataview.possible_archive()
+    logger.info(f"new_day currentYrWk: {dataview.currentYrWk}")
     dataview.refreshRelevant()
     dataview.activeYrWk = dataview.currentYrWk
-    logger.info(f"new_day currentYrWk: {dataview.currentYrWk}")
     dataview.refreshAgenda()
     dataview.set_active_view('a')
     set_text(dataview.show_active_view())
     get_app().invalidate()
     dataview.handle_backups()
+    dataview.possible_archive()
 
 current_datetime = pendulum.now('local')
 
@@ -1231,9 +1231,13 @@ def do_import_json(*event):
 
 
 @bindings.add('c-p')
-def play_sound(*event):
-    row = text_area.document.cursor_position_row
-    dataview.get_row_details(row)
+def do_whatever(*event):
+    """
+    For testing whatever
+    """
+    # row = text_area.document.cursor_position_row
+    # dataview.get_row_details(row)
+    dataview.possible_archive()
 
 @bindings.add('c-q')
 def exit(*event):
@@ -1439,6 +1443,7 @@ etmstyle = None
 application = None
 def main(etmdir=""):
     global item, settings, ampm, style, etmstyle, application
+    # logger.info(f"archive_after: {settings['archive_after']}")
     ampm = settings['ampm']
     terminal_style = settings['style']
     if terminal_style == "dark": 

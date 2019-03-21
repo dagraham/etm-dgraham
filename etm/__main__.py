@@ -1,13 +1,14 @@
 #! ./env/bin/python
 def main():
+    import sys
     import logging
     import logging.config
     logger = logging.getLogger()
-    import sys
     MIN_PYTHON = (3, 6)
     if sys.version_info < MIN_PYTHON:
         sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
     import os
+    IS_VENV = os.getenv('VIRTUAL_ENV') is not None
 
     import etm.__version__ as version
     etm_version = version.version
@@ -36,7 +37,9 @@ def main():
     # logger = logging.getLogger()
     # will acquire this logger!
 
+    logger.info(f"running in a virtual environment: {IS_VENV}")
 
+    secret = settings.get('secret')
     import pendulum
     locale = settings.get('locale', None)
     if locale:
@@ -45,8 +48,10 @@ def main():
     day = today.end_of('week')  # Sunday
     WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
 
-    from etm.data import Mask
+
     import etm.data as data
+    data.secret = secret
+    from etm.data import Mask
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
     cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
     ETMDB = data.initialize_tinydb(dbfile)
@@ -58,6 +63,7 @@ def main():
     from etm.model import import_text
     import etm.model as model
     model.etm_version = etm_version
+    model.secret = secret
     model.data = data
     model.Mask = Mask
     model.WA = WA
@@ -120,6 +126,10 @@ def main():
             logger.info(f"calling view doctest with etmdir: {etmdir}, argv: {sys.argv}")
             import doctest
             doctest.testmod(view)
+        elif sys.argv[1] == 'data':
+            logger.info(f"calling data doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            import doctest
+            doctest.testmod(data)
         else:
             logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
             model.main(etmdir, sys.argv)

@@ -2025,9 +2025,8 @@ class DataView(object):
         and repeating events with old @u entries. Do not collect records.
         """
         if not self.archive_after:
-            logger.info(f"skipping archive. archive_after: {self.archive_after}")
+            logger.info(f"archive_after: {self.archive_after} - skipping archive")
             return
-        logger.info(f"archiving. archive_after: {self.archive_after}")
         old = pendulum.now() - pendulum.duration(years=self.archive_after)
         rows = []
         for item in self.db:

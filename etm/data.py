@@ -166,8 +166,8 @@ def decode(key, enc):
         dec.append(dec_c)
     return "".join(dec)
 
-# NOTE: DON'T CHANGE THIS!!! ELSE ALL PREVIOUSLY MASKED ENTRIES WILL BE UNREADABLE
-secret = "etm is great!"
+# NOTE: The real secret is set in cfg.yaml/options
+secret = "whatever"
 
 class Mask():
     """
@@ -191,13 +191,13 @@ class MaskSerializer(Serializer):
 
     def encode(self, obj):
         """
-        Serialize the timedelta object as days.seconds.
+        Encode the string using base64
         """
         return obj.encoded
 
     def decode(self, s):
         """
-        Return the serialization as a timedelta object.
+        Decode the base
         """
         return decode(secret, s)
 

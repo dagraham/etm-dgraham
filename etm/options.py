@@ -20,6 +20,12 @@ ampm: true
 # French.
 locale: en
 
+# secret: A string to use as the secret_key for @m masked 
+# entries. WARNING: if you change this key, any @m entries 
+# that you made before the change will be unreadable after 
+# the change. 
+secret: etm is great! 
+
 # style: dark or light. Designed for, respectively, dark or 
 # light terminal backgounds.
 style: dark
