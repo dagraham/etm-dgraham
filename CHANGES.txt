@@ -1,419 +1,425 @@
-Recent changes as of 2019-03-18T12:19:27.881596-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a55) Dan Graham
-    2964776 2019-03-18 12:19:27 -0400
+Recent changes as of 2019-03-21T11:48:01.560835-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a56) Dan Graham
+    2ce5c28 2019-03-21 11:48:01 -0400
+    Tagged version 4.0.0a56.
+
+- 5 minutes ago (origin/working) Dan Graham
+    6310485 2019-03-21 11:43:28 -0400
+    Added confirmation/result dialogs to import json and text. Expand
+    user and normalized paths to import file. Call data_changed after
+    import. Use temp file for text import tinydb.
+
+- 17 hours ago Dan Graham
+    7738297 2019-03-20 19:18:12 -0400
+    Added import text and json to menu.
+
+- 18 hours ago Dan Graham
+    286bf92 2019-03-20 17:35:43 -0400
+    Added file dialogs for import text and json.
+
+- 20 hours ago Dan Graham
+    07e9315 2019-03-20 16:08:19 -0400
+    Work on import_text and import_json. Much work on checking for
+    duplicates in json file. Fixed bug in pen_from_fmt. Fixed bug by
+    replacing getmtime with of getctime. Fixed bug in erroneously
+    adjusting dst in @- entries. Fixed bug in setting instance for
+    non-repeating items in agenda view.
+
+- 3 days ago (origin/master, master) Dan Graham
+    2832445 2019-03-18 12:35:46 -0400
+    cleanup
+
+- 3 days ago Dan Graham
+    969a7bf 2019-03-18 12:19:27 -0400
     Tagged version 4.0.0a55.
 
-- 36 seconds ago Dan Graham
+- 3 days ago Dan Graham
     e4e1e4c 2019-03-18 12:18:51 -0400
     Added datetime_calculator to view bound to f6.
 
-- 3 hours ago (origin/working) Dan Graham
+- 3 days ago Dan Graham
     7c566bd 2019-03-18 09:04:46 -0400
     More work on current week/current day. Call doctest on model and
     view from __main__.
 
-- 17 hours ago Dan Graham
+- 4 days ago Dan Graham
     f0cbd23 2019-03-17 19:22:12 -0400
     cleanup
 
-- 17 hours ago Dan Graham
+- 4 days ago Dan Graham
     ec1a100 2019-03-17 19:03:35 -0400
     Call doctest from __main__. Updated doctest outputs. Added
     date_calculator.
 
-- 2 days ago (origin/master, master) Dan Graham
+- 5 days ago Dan Graham
     a2933da 2019-03-16 12:20:09 -0400
     Tagged version 4.0.0a54.
 
-- 2 days ago Dan Graham
+- 5 days ago Dan Graham
     26015c4 2019-03-16 12:19:52 -0400
     Changed image link in README to html format.
 
-- 2 days ago Dan Graham
+- 5 days ago Dan Graham
     612bfae 2019-03-16 11:58:32 -0400
     Tagged version 4.0.0a53.
 
-- 2 days ago Dan Graham
+- 5 days ago Dan Graham
     c951aa1 2019-03-16 11:54:05 -0400
     Added check_goto_link while editing. Check for settings.alerts and
     warn if missing and alerts are set. Convert bytes to str in
     check_output.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     5ffbc00 2019-03-15 18:06:43 -0400
     Tagged version 4.0.0a52.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     3ddc90a 2019-03-15 18:05:07 -0400
     Corrected commit
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     7e66cea 2019-03-15 16:20:01 -0400
     Tagged version 4.0.0a51.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     046410e 2019-03-15 16:19:18 -0400
     Tagged version 4.0.0a50.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     a2af926 2019-03-15 16:18:56 -0400
     Added youtube links to README for editing and installation.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     de05b5a 2019-03-15 15:57:54 -0400
     Merge branch 'working'
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     908ffc3 2019-03-15 15:57:29 -0400
     Updated icon link
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     b090d23 2019-03-15 14:54:41 -0400
     Tagged version 4.0.0a50.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     a1e4206 2019-03-15 14:51:19 -0400
     Added archive_after option.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     360b9e7 2019-03-15 13:50:51 -0400
     Added goto date to menu.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     e3c9124 2019-03-15 13:43:28 -0400
     Tagged version 4.0.0a49.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     b8333e5 2019-03-15 12:45:22 -0400
     Fixed items due today showing as pastdue.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     881de71 2019-03-15 09:52:21 -0400
     Tagged version 4.0.0a48.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     9932d18 2019-03-15 09:51:59 -0400
     fixed inadvertent deletion.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     ca7f24f 2019-03-15 09:44:22 -0400
     Fixed logging: logger = logging.getLogger() in the modules picks
     up the one setup in __main__. Fixed bug in deleting instance.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     7323baf 2019-03-15 08:48:31 -0400
     Handle 3 character weekday abbreviations.
 
-- 4 days ago Dan Graham
+- 7 days ago Dan Graham
     fa5bf04 2019-03-14 22:43:33 -0400
     Tagged version 4.0.0a47.
 
-- 4 days ago Dan Graham
+- 7 days ago Dan Graham
     58d82f8 2019-03-14 22:43:13 -0400
     Changed tags and attendees from lists to multiple entry for better
     use with completions.
 
-- 4 days ago Dan Graham
+- 7 days ago Dan Graham
     644c6b8 2019-03-14 18:38:43 -0400
     Fixed bug in do_at's listing of available @-keys
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     4b81e57 2019-03-13 16:51:38 -0400
     Tagged version 4.0.0a46.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     4e8a870 2019-03-13 16:51:06 -0400
     Updated README.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     6e88bf9 2019-03-13 15:02:27 -0400
     Tagged version 4.0.0a45.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     c7b0fae 2019-03-13 15:02:11 -0400
     Tweaked the message returned when goto is called on an item
     without an @g entry.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     9f2de40 2019-03-13 14:50:06 -0400
     Tagged version 4.0.0a44.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     2e72f32 2019-03-13 14:49:51 -0400
     Implemented open goto link using openWithDefault. Cleaned up and
     reorganized menu.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     07d3e30 2019-03-13 13:08:19 -0400
     Tagged version 4.0.0a43.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     cdd7d0d 2019-03-13 13:08:10 -0400
     Added do_check_latest to show the latest version information.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     fa99778 2019-03-13 12:15:33 -0400
     Tagged version 4.0.0a42.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     6d383b1 2019-03-13 12:15:22 -0400
     Another try at sorting logging.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     588d394 2019-03-13 10:48:49 -0400
     Tagged version 4.0.0a41.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     6e1f95a 2019-03-13 10:48:11 -0400
     Fixed logging bug by moving logging to options, importing in
     __main__ and 'exporting' to model. Fixed pastdue job bug by
     comparing dates instead of datetimes. Cleaned up logger.debug
     statments and commments.
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     ecc99af 2019-03-12 21:08:53 -0400
     Tagged version 4.0.0a40.
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     72b0705 2019-03-12 21:08:39 -0400
     Yet another logo attempt for README
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     86b6972 2019-03-12 20:22:22 -0400
     Tagged version 4.0.0a39.
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     ccf42e4 2019-03-12 20:22:12 -0400
     Maybe fixed logo path in README
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     8184ce4 2019-03-12 20:15:14 -0400
     Tagged version 4.0.0a38.
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     a0c3c74 2019-03-12 20:15:02 -0400
     Changed github url to etm-dgraham and made the corresponding
     change in setup.py
 
-- 6 days ago (origin/refactor) Dan Graham
+- 9 days ago (origin/refactor) Dan Graham
     c1d1f06 2019-03-12 19:36:31 -0400
     Tagged version 4.0.0a37.
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     6e7d541 2019-03-12 19:36:13 -0400
     More README tweaks - added Installation/Deinstallation. Added logo
     to MANIFEST.in. Make the default etmdir be the etm installation
     directory
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     b2440df 2019-03-12 14:05:53 -0400
     Tagged version 4.0.0a36.
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     ee4c80c 2019-03-12 14:05:31 -0400
     Improved bump to handle transions from a -> b, b -> rc, rc ->
     patch and so forth.
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     c47f7dc 2019-03-12 13:48:55 -0400
     Improved bump
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     dbd0f56 2019-03-12 08:37:48 -0400
     Tagged version 4.0.0a35.
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     632a432 2019-03-12 08:37:29 -0400
     __main__ may be working?
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     f1c945f 2019-03-11 23:17:38 -0400
     trying ...
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     0e04626 2019-03-11 22:36:16 -0400
     Tagged version 4.0.0a34.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     aa60f43 2019-03-11 22:35:50 -0400
     Refactored inputs in etm.__main__.py, e.g., import etm.view as
     view instead of import view.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     57c77a7 2019-03-11 18:56:15 -0400
     Tagged version 4.0.0a33.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     677197a 2019-03-11 18:56:00 -0400
     setup fixes ...
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     887128a 2019-03-11 18:41:25 -0400
     Tagged version 4.0.0a32.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     a268b0a 2019-03-11 18:41:02 -0400
     setup fixes ...
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     5fa1ec3 2019-03-11 17:20:10 -0400
     Tagged version 4.0.0a31.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     e40fafc 2019-03-11 17:19:56 -0400
     still another attempt to get the entry point right
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     981307c 2019-03-11 16:47:22 -0400
     Tagged version 4.0.0a30.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     cb4dad4 2019-03-11 16:46:59 -0400
     yet another attempt to get the entry point right
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     211c02e 2019-03-11 16:32:42 -0400
     Tagged version 4.0.0a29.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     0ce9045 2019-03-11 16:32:27 -0400
     fixed setup.py
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     143851a 2019-03-11 16:31:18 -0400
     Tagged version 4.0.0a28.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     e22560c 2019-03-11 16:30:57 -0400
     fixed bump
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     f34d57b 2019-03-11 16:30:16 -0400
     Fixed bump
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     47d9cf2 2019-03-11 16:28:35 -0400
     Moved etm -> etmMV/etm.py and renamed etmMV as etm. Added
     etm:__main__ as an entry point.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     d07b6ad 2019-03-11 15:59:35 -0400
     Tagged version 4.0.0a27.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     924f68c 2019-03-11 15:59:07 -0400
     added entry_points to setup.py
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     466a60a 2019-03-11 15:29:02 -0400
     Tagged version 4.0.0a26.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     f4f56e3 2019-03-11 15:27:09 -0400
     added scripts to setup.py
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     20d0d7d 2019-03-11 15:09:32 -0400
     Tagged version 4.0.0a25.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     22d63c4 2019-03-11 15:09:11 -0400
     added goto_line default. README fixes. Current week fixes. Cleanup
     comments.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     b18db97 2019-03-11 07:19:58 -0400
     removed notes.md
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     5bf0057 2019-03-11 07:04:28 -0400
     Tagged version 4.0.0a24.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     4a2788a 2019-03-11 07:04:10 -0400
     fixed f4 key binding for alerts. removed prep_dist.sh.
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     fb8fd6a 2019-03-10 19:40:45 -0400
     Removed prep_dist.sh - the need functionality now provided by
     bump.py without the pattern, sed and grep nonsense.
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     1d6538a 2019-03-10 19:29:44 -0400
     Tagged version 4.0.0a23.
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     317100a 2019-03-10 19:29:33 -0400
     more bump tweaks
 
-- 8 days ago (tag: 4.0.0a22) Dan Graham
+- 11 days ago (tag: 4.0.0a22) Dan Graham
     ab8fb71 2019-03-10 19:26:37 -0400
     Tagged version 4.0.0a22..
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     ed3609a 2019-03-10 19:26:24 -0400
     more bump tweaks
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     6758bf6 2019-03-10 19:22:37 -0400
     Tagged version 4.0.0a21. updated CHANGES.txt
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     9dff68c 2019-03-10 19:22:31 -0400
     more bump tweaks
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     12c364f 2019-03-10 19:19:34 -0400
     Tagged version 4.0.0a20. updated CHANGES.txt
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     fdddc66 2019-03-10 19:19:25 -0400
     more bump tweaks
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     36d0b9a 2019-03-10 19:18:01 -0400
     Tagged version 4.0.0a19. updated CHANGES.txt
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     5d198b0 2019-03-10 19:17:50 -0400
     more bump tweaks
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     33c9406 2019-03-10 19:11:59 -0400
     message
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     a87d10b 2019-03-10 19:11:47 -0400
     bump tweaks
 
-- 8 days ago (tag: 4.0.0a17) Dan Graham
+- 11 days ago (tag: 4.0.0a17) Dan Graham
     12d13d4 2019-03-10 18:59:11 -0400
     Tagged version 4.0.0a17.
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     12c1511 2019-03-10 18:55:49 -0400
     Added CHANGES
-
-- 8 days ago (tag: 4.0.0a16) Dan Graham
-    30de05b 2019-03-10 18:50:14 -0400
-    Tagged version 4.0.0a16.
-
-- 8 days ago Dan Graham
-    0ab376f 2019-03-10 18:50:09 -0400
-    setup related tweaks
-
-- 8 days ago (tag: 4.0.0a15) Dan Graham
-    7ca9861 2019-03-10 18:46:14 -0400
-    Tagged version 4.0.0a15.
-
-- 8 days ago Dan Graham
-    3249417 2019-03-10 18:46:05 -0400
-    setup related tweaks
-
-- 8 days ago (tag: 4.0.0a14) Dan Graham
-    52a458d 2019-03-10 18:44:05 -0400
-    Tagged version 4.0.0a14.
-
-- 8 days ago Dan Graham
-    b1709d8 2019-03-10 18:43:50 -0400
-    setup related tweaks
