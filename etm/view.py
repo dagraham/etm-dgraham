@@ -473,7 +473,8 @@ dark_style = Style.from_dict({
     'details':    f"{NAMED_COLORS['Ivory']}",
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
-    'not-searching': '#888888',
+    # 'not-searching': '#888888',
+    'not-searching': '#222222',
     'entry':      f"{NAMED_COLORS['LightGoldenRodYellow']}",
     'ask':        f"{NAMED_COLORS['Lime']} bold",
     'reply':      f"{NAMED_COLORS['DeepSkyBlue']}",
@@ -500,7 +501,7 @@ light_style = Style.from_dict({
     'details': f"{NAMED_COLORS['Black']}",
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
-    'not-searching': '#888888',
+    'not-searching': '#777777',
     'entry': f"{NAMED_COLORS['Black']}",
     'ask':   f"{NAMED_COLORS['DarkGreen']} bold",
     'reply': f"{NAMED_COLORS['Blue']}",
@@ -1224,9 +1225,7 @@ def do_import_json(*event):
                 dataview.refreshCurrent()
                 loop = get_event_loop()
                 loop.call_later(0, data_changed, loop)
-        else:
-            msg = f"could not open {json_file}"
-        show_message('import json', msg)
+                show_message('import json', msg)
     ensure_future(coroutine())
 
 
