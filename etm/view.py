@@ -378,7 +378,7 @@ def menu(event):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'history', 'index', 'journal', 'next', 'relevant']
+    return dataview.active_view in ['agenda', 'done', 'history', 'index', 'journal', 'next', 'relevant']
 
 @Condition
 def is_editing():
@@ -398,7 +398,7 @@ def is_not_busy_view():
 
 @Condition
 def is_agenda_view():
-    return dataview.active_view in ['agenda', 'busy']
+    return dataview.active_view in ['agenda', 'busy', 'done']
 
 @Condition
 def is_calendar_view():
@@ -473,7 +473,6 @@ dark_style = Style.from_dict({
     'details':    f"{NAMED_COLORS['Ivory']}",
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
-    # 'not-searching': '#888888',
     'not-searching': '#222222',
     'entry':      f"{NAMED_COLORS['LightGoldenRodYellow']}",
     'ask':        f"{NAMED_COLORS['Lime']} bold",
@@ -1253,6 +1252,11 @@ def set_text(txt, row=0):
 @bindings.add('a', filter=is_viewing)
 def agenda_view(*event):
     dataview.set_active_view('a')
+    set_text(dataview.show_active_view())
+
+@bindings.add('d', filter=is_viewing)
+def done_view(*event):
+    dataview.set_active_view('d')
     set_text(dataview.show_active_view())
 
 @bindings.add('b', filter=is_viewing)

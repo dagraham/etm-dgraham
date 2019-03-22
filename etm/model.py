@@ -1625,6 +1625,7 @@ class DataView(object):
         self.id2relevant = {}
         self.current_row = 0
         self.agenda_view = ""
+        self.done_view = ""
         self.busy_view = ""
         self.calendar_view = ""
         self.cal_locale = None
@@ -1641,6 +1642,7 @@ class DataView(object):
         self.views = {
                 'a': 'agenda',
                 'b': 'busy',
+                'd': 'done',
                 'c': 'calendar',
                 'h': 'history',
                 'i': 'index',
@@ -1817,6 +1819,9 @@ class DataView(object):
         if self.active_view == 'agenda':
             self.refreshAgenda()
             return self.agenda_view
+        if self.active_view == 'done':
+            self.refreshAgenda()
+            return self.done_view
         elif self.active_view == 'busy':
             self.refreshAgenda()
             return self.busy_view
@@ -1870,7 +1875,8 @@ class DataView(object):
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
             self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now))
-        self.agenda_view, self.busy_view, self.row2id = self.cache[self.activeYrWk]
+        # agenda, done, busy, row2id, done2id
+        self.agenda_view, self.done_view, self.busy_view, self.row2id, self.done2id = self.cache[self.activeYrWk]
 
     def refreshCurrent(self):
         """
@@ -1885,7 +1891,7 @@ class DataView(object):
         for week in [thisYrWk, nextYrWk]:
             if week not in self.cache:
                 self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now))
-            agenda, busy, num2id = self.cache[week]
+            agenda, done, busy, num2id, row2id = self.cache[week]
             current.append(agenda)
         with open(self.currfile, 'w') as fo:
             fo.write("\n\n".join(current))
@@ -4718,24 +4724,26 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
 
     rows = []
+    done = []
     busy = []
+
     for item in db:
         if item['itemtype'] in "!?":
             continue
 
         if item['itemtype'] == '-':
-            done = []
+            d = []
             if 'f' in item:
-                done.append([item['f'], item['summary'], item.doc_id, None])
+                d.append([item['f'], item['summary'], item.doc_id, None])
             if 'h' in item:
                 for dt in item['h']:
-                    done.append([dt, item['summary'], item.doc_id, None])
+                    d.append([dt, item['summary'], item.doc_id, None])
             if 'j' in item:
                 for job in item['j']:
                     if 'f' in job:
-                        done.append([job['f'], job['summary'], item.doc_id, job['i']])
-            if done:
-                for row in done:
+                        d.append([job['f'], job['summary'], item.doc_id, job['i']])
+            if d:
+                for row in d:
                     dt = row[0] 
                     if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
                         dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
@@ -4747,7 +4755,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     if dt < aft_dt or dt > bef_dt:
                         continue
 
-                    rows.append(
+                    done.append(
                             {
                                 'id': row[2],
                                 'job': row[3],
@@ -4832,12 +4840,15 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         logger.info(f"current week: {yw}. extending current rows")
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
+    done.sort(key=itemgetter('sort'))
     busy.sort(key=itemgetter('sort'))
 
     # for the individual weeks
     agenda_hsh = {}     # yw -> agenda_view
+    done_hsh = {}       # yw -> done_view
     busy_hsh = {}       # yw -> busy_view
     row2id_hsh = {}     # yw -> row2id
+    done2id_hsh = {}     # yw -> row2id
     weeks = set([])
 
     for week, items in groupby(busy, key=itemgetter('week')):
@@ -4879,6 +4890,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         busy_hsh[week] = busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
     row2id = {}
+    # done2id = {}
     row_num = -1
     cache = {}
     for week, items in groupby(rows, key=itemgetter('week')):
@@ -4905,20 +4917,58 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         agenda_hsh[week] = "\n".join(agenda)
         row2id_hsh[week] = row2id
 
+    for week, items in groupby(done, key=itemgetter('week')):
+        weeks.add(week)
+        done = []
+        done2id = {}
+        row_num = 0
+        done.append("{}".format(fmt_week(week).center(width, ' '))) 
+        for day, columns in groupby(items, key=itemgetter('day')):
+            for d in day:
+                if week == yw:
+                    current_day = now.format("ddd MMM D")
+                    logger.info(f"current week, {yw}. day/today: {d}/{current_day}. day == today: {d == current_day}")
+                    if d == current_day:
+                        d += " (Today)"
+                done.append(f"  {d}")
+                row_num += 1
+                for i in columns:
+                    summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
+                    rhc = i['columns'][2].rjust(16, ' ')
+                    done.append(f"    {i['columns'][0]} {summary}{rhc}") 
+                    row_num += 1
+                    done2id[row_num] = (i['id'], i['instance'], i['job'])
+        done_hsh[week] = "\n".join(done)
+        done2id_hsh[week] = done2id
+
     for week in week_numbers:
         tup = []
+        # agenda
         if week in agenda_hsh:
             tup.append(agenda_hsh[week])
         else:
             tup.append("{}\n   Nothing scheduled".format(fmt_week(week).center(width, ' ')))
+        # done
+        if week in done_hsh:
+            tup.append(done_hsh[week])
+        else:
+            tup.append("{}\n   Nothing completed".format(fmt_week(week).center(width, ' ')))
+        # busy
         if week in busy_hsh:
             tup.append(busy_hsh[week])
         else:
             tup.append(no_busy_periods(week, width))
+        # row2id
         if week in row2id_hsh:
             tup.append(row2id_hsh[week])
         else:
             tup.append({})
+        # done2id
+        if week in done2id_hsh:
+            tup.append(done2id_hsh[week])
+        else:
+            tup.append({})
+        # agenda, done, busy, row2id, done2id
         cache[week] = tup
 
     return cache
