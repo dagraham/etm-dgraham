@@ -1,33 +1,63 @@
-Recent changes as of 2019-03-23T08:00:38.214752-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a60) Dan Graham
-    f6e7cb3 2019-03-23 08:00:38 -0400
+Recent changes as of 2019-03-23T17:29:14.799323-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a61) Dan Graham
+    64d4b3b 2019-03-23 17:29:14 -0400
+    Tagged version 4.0.0a61.
+
+- 50 seconds ago (origin/working) Dan Graham
+    5aac825 2019-03-23 17:28:24 -0400
+    Fixed RDict to handle trees with leaves and nodes at the same
+    level
+
+- 4 hours ago Dan Graham
+    366f865 2019-03-23 13:30:43 -0400
+    monthly calendar -> yearly
+
+- 4 hours ago Dan Graham
+    8da4405 2019-03-23 13:13:04 -0400
+    added relevant to sort in index and journal.
+
+- 5 hours ago Dan Graham
+    fbdeff4 2019-03-23 12:26:43 -0400
+    README tweaks
+
+- 6 hours ago Dan Graham
+    31d6d85 2019-03-23 11:46:18 -0400
+    removed wiki from main repository and added to .gitignore. will
+    keep as a separate repo.
+
+- 6 hours ago Dan Graham
+    86cf5df 2019-03-23 11:34:45 -0400
+    menu tweaks. n (next) -> d (do next). Added etm-dgraham.wiki.
+
+- 9 hours ago Dan Graham
+    c10f668 2019-03-23 08:00:38 -0400
     Tagged version 4.0.0a60.
 
-- 16 seconds ago Dan Graham
+- 9 hours ago Dan Graham
     9bc8cca 2019-03-23 08:00:22 -0400
     Added completed to item views
 
-- 11 hours ago Dan Graham
+- 20 hours ago Dan Graham
     0fdedcc 2019-03-22 21:06:44 -0400
     Tagged version 4.0.0a59.
 
-- 11 hours ago Dan Graham
+- 20 hours ago Dan Graham
     1754bdb 2019-03-22 21:06:28 -0400
     Fixed bug in setting row ids for completed view
 
-- 11 hours ago Dan Graham
+- 21 hours ago Dan Graham
     d0a627f 2019-03-22 20:40:41 -0400
     Tagged version 4.0.0a58.
 
-- 12 hours ago Dan Graham
+- 21 hours ago Dan Graham
     19accb1 2019-03-22 20:27:36 -0400
     calendar view -> monthly view, added completed view
 
-- 13 hours ago Dan Graham
+- 23 hours ago Dan Graham
     876b398 2019-03-22 18:48:59 -0400
     moved done items to done view
 
-- 20 hours ago Dan Graham
+- 29 hours ago Dan Graham
     0965d58 2019-03-22 12:09:25 -0400
     search color tweaks
 
@@ -43,7 +73,7 @@ Recent changes as of 2019-03-23T08:00:38.214752-04:00:
     0eadfdb 2019-03-21 16:50:45 -0400
     README tweak.
 
-- 2 days ago (origin/working) Dan Graham
+- 2 days ago Dan Graham
     98b2473 2019-03-21 15:25:08 -0400
     Added test for running in a virtual environment. Added secret
     setting in options.
@@ -183,11 +213,11 @@ Recent changes as of 2019-03-23T08:00:38.214752-04:00:
     7323baf 2019-03-15 08:48:31 -0400
     Handle 3 character weekday abbreviations.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     fa5bf04 2019-03-14 22:43:33 -0400
     Tagged version 4.0.0a47.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     58d82f8 2019-03-14 22:43:13 -0400
     Changed tags and attendees from lists to multiple entry for better
     use with completions.
@@ -249,11 +279,11 @@ Recent changes as of 2019-03-23T08:00:38.214752-04:00:
     comparing dates instead of datetimes. Cleaned up logger.debug
     statments and commments.
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     ecc99af 2019-03-12 21:08:53 -0400
     Tagged version 4.0.0a40.
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     72b0705 2019-03-12 21:08:39 -0400
     Yet another logo attempt for README
 
@@ -305,15 +335,15 @@ Recent changes as of 2019-03-23T08:00:38.214752-04:00:
     632a432 2019-03-12 08:37:29 -0400
     __main__ may be working?
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     f1c945f 2019-03-11 23:17:38 -0400
     trying ...
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     0e04626 2019-03-11 22:36:16 -0400
     Tagged version 4.0.0a34.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     aa60f43 2019-03-11 22:35:50 -0400
     Refactored inputs in etm.__main__.py, e.g., import etm.view as
     view instead of import view.
@@ -394,33 +424,3 @@ Recent changes as of 2019-03-23T08:00:38.214752-04:00:
 - 12 days ago Dan Graham
     20d0d7d 2019-03-11 15:09:32 -0400
     Tagged version 4.0.0a25.
-
-- 12 days ago Dan Graham
-    22d63c4 2019-03-11 15:09:11 -0400
-    added goto_line default. README fixes. Current week fixes. Cleanup
-    comments.
-
-- 12 days ago Dan Graham
-    b18db97 2019-03-11 07:19:58 -0400
-    removed notes.md
-
-- 12 days ago Dan Graham
-    5bf0057 2019-03-11 07:04:28 -0400
-    Tagged version 4.0.0a24.
-
-- 12 days ago Dan Graham
-    4a2788a 2019-03-11 07:04:10 -0400
-    fixed f4 key binding for alerts. removed prep_dist.sh.
-
-- 13 days ago Dan Graham
-    fb8fd6a 2019-03-10 19:40:45 -0400
-    Removed prep_dist.sh - the need functionality now provided by
-    bump.py without the pattern, sed and grep nonsense.
-
-- 13 days ago Dan Graham
-    1d6538a 2019-03-10 19:29:44 -0400
-    Tagged version 4.0.0a23.
-
-- 13 days ago Dan Graham
-    317100a 2019-03-10 19:29:33 -0400
-    more bump tweaks
