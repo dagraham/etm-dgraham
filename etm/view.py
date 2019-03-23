@@ -378,7 +378,7 @@ def menu(event):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'done', 'history', 'index', 'journal', 'next', 'relevant']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'journal', 'next', 'relevant']
 
 @Condition
 def is_editing():
@@ -1018,10 +1018,11 @@ def edit_existing(*event):
         dataview.hide_details()
     dataview.is_editing = True
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
+    logger.info(f"doc_id: {doc_id}; entry: {entry}")
     item.edit_item(doc_id, entry)
     entry_buffer.text = item.entry
-    default_buffer_changed(_)
-    default_cursor_position_changed(_)
+    default_buffer_changed(event)
+    default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
 
 @bindings.add('t', filter=is_viewing_or_details & is_item_view)
@@ -1132,8 +1133,8 @@ def edit_copy(*event):
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
     item.edit_copy(doc_id, entry)
     entry_buffer.text = item.entry
-    default_buffer_changed(_)
-    default_cursor_position_changed(_)
+    default_buffer_changed(event)
+    default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
 
 @bindings.add('c-g', filter=is_viewing_or_details & is_item_view)
