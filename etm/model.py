@@ -1839,10 +1839,10 @@ class DataView(object):
             self.next_view, self.row2id = show_next(self.db)
             return self.next_view
         elif self.active_view == 'journal':
-            self.journal_view, self.row2id = show_journal(self.db)
+            self.journal_view, self.row2id = show_journal(self.db, self.id2relevant)
             return self.journal_view
         elif self.active_view == 'index':
-            self.index_view, self.row2id = show_index(self.db)
+            self.index_view, self.row2id = show_index(self.db, self.id2relevant)
             return self.index_view
 
     def nextYrWk(self):
@@ -4582,7 +4582,7 @@ def show_next(db):
             next_view.append(f"  {i['columns'][0]} {i['columns'][1][:width - 8].ljust(width - 8, ' ')}  {i['columns'][2]}")
     return "\n".join(next_view), row2id
 
-def show_journal(db):
+def show_journal(db, id2relevant):
     """
     Undated journals grouped by index entry
     """
@@ -4596,7 +4596,7 @@ def show_journal(db):
         #     continue
         index = item.get('i', '~')
         rows.append({
-                    'sort': (index, item['summary']),
+                    'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
                     'index': index,
                     'columns': [item['itemtype'],
                         item['summary'], 
@@ -4615,7 +4615,7 @@ def show_journal(db):
     return tree, row2id
 
 
-def show_index(db):
+def show_index(db, id2relevant):
     """
     All items grouped by index entry
     """
@@ -4627,7 +4627,7 @@ def show_index(db):
         #     continue
         index = item.get('i', '~')
         rows.append({
-                    'sort': (index, item['summary']),
+                    'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
                     'index': index,
                     'columns': [item['itemtype'][:width - 15],
                         item['summary'], 
