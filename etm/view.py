@@ -1393,9 +1393,9 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('l) go to line number', handler=do_go_to_line),
         MenuItem('-', disabled=True),
         MenuItem('g) goto date in a), b) and c)', handler=do_go_to_date),
-        MenuItem('right) next in a), b), c) and m)'),
-        MenuItem('left) previous in a), b), c) and m)'),
-        MenuItem('space) current in a), b), c) and m)'),
+        MenuItem('right) next in a), b), c) and y)'),
+        MenuItem('left) previous in a), b), c) and y)'),
+        MenuItem('space) current in a), b), c) and y)'),
     ]),
     MenuItem('editor', children=[
         MenuItem('N) create new item', handler=edit_new),
