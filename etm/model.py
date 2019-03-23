@@ -1642,11 +1642,11 @@ class DataView(object):
         self.views = {
                 'a': 'agenda',
                 'b': 'busy',
-                'd': 'done',
-                'c': 'calendar',
+                'c': 'completed',
                 'h': 'history',
                 'i': 'index',
                 'j': 'journal',
+                'm': 'monthly',
                 'n': 'next',
                 'r': 'relevant',
                 't': 'tags',
@@ -1819,13 +1819,13 @@ class DataView(object):
         if self.active_view == 'agenda':
             self.refreshAgenda()
             return self.agenda_view
-        if self.active_view == 'done':
+        if self.active_view == 'completed':
             self.refreshAgenda()
             return self.done_view
         elif self.active_view == 'busy':
             self.refreshAgenda()
             return self.busy_view
-        elif self.active_view == 'calendar':
+        elif self.active_view == 'monthly':
             self.refreshCalendar()
             return self.calendar_view
         elif self.active_view == 'history':

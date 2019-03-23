@@ -398,15 +398,15 @@ def is_not_busy_view():
 
 @Condition
 def is_agenda_view():
-    return dataview.active_view in ['agenda', 'busy', 'done']
+    return dataview.active_view in ['agenda', 'busy', 'completed']
 
 @Condition
-def is_calendar_view():
-    return dataview.active_view in ['calendar']
+def is_monthly_view():
+    return dataview.active_view in ['monthly']
 
 @Condition
-def is_not_calendar_view():
-    return not dataview.active_view in ['calendar']
+def is_not_monthly_view():
+    return not dataview.active_view in ['monthly']
 
 @Condition
 def not_showing_details():
@@ -1254,9 +1254,9 @@ def agenda_view(*event):
     dataview.set_active_view('a')
     set_text(dataview.show_active_view())
 
-@bindings.add('d', filter=is_viewing)
-def done_view(*event):
-    dataview.set_active_view('d')
+@bindings.add('c', filter=is_viewing)
+def completed_view(*event):
+    dataview.set_active_view('c')
     set_text(dataview.show_active_view())
 
 @bindings.add('b', filter=is_viewing)
@@ -1264,9 +1264,9 @@ def busy_view(*event):
     dataview.set_active_view('b')
     set_text(dataview.show_active_view())
 
-@bindings.add('c', filter=is_viewing)
-def calendar_view(*event):
-    dataview.set_active_view('c')
+@bindings.add('m', filter=is_viewing)
+def monthly_view(*event):
+    dataview.set_active_view('m')
     set_text(dataview.show_active_view())
 
 @bindings.add('h', filter=is_viewing)
@@ -1309,22 +1309,22 @@ def currweek(*event):
     dataview.currYrWk()
     set_text(dataview.show_active_view())
 
-@bindings.add('right', filter=is_calendar_view & is_viewing)
+@bindings.add('right', filter=is_monthly_view & is_viewing)
 def nextcal(*event):
     dataview.nextcal()
     set_text(dataview.show_active_view())
 
-@bindings.add('left', filter=is_calendar_view & is_viewing)
+@bindings.add('left', filter=is_monthly_view & is_viewing)
 def prevcal(*event):
     dataview.prevcal()
     set_text(dataview.show_active_view())
 
-@bindings.add('space', filter=is_calendar_view & is_viewing)
+@bindings.add('space', filter=is_monthly_view & is_viewing)
 def currcal(*event):
     dataview.currcal()
     set_text(dataview.show_active_view())
 
-@bindings.add('enter', filter=is_viewing_or_details & is_not_calendar_view & is_not_busy_view)
+@bindings.add('enter', filter=is_viewing_or_details & is_not_monthly_view & is_not_busy_view)
 def show_details(*event):
     if dataview.is_showing_details:
         application.layout.focus(text_area)
@@ -1378,22 +1378,23 @@ root_container = MenuContainer(body=body, menu_items=[
     MenuItem('view', children=[
         MenuItem('a) agenda', handler=agenda_view),
         MenuItem('b) busy', handler=busy_view),
-        MenuItem('c) calendar', handler=calendar_view),
+        MenuItem('c) completed', handler=completed_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
         MenuItem('j) journal', handler=journal_view),
+        MenuItem('m) monthly', handler=monthly_view),
         MenuItem('n) next', handler=next_view),
-        MenuItem('q) query', disabled=True),
+        # MenuItem('q) query', disabled=True),
         MenuItem('r) relevant', handler=relevant_view),
         MenuItem('-', disabled=True),
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
         MenuItem('l) go to line number', handler=do_go_to_line),
         MenuItem('-', disabled=True),
-        MenuItem('g) goto date in a) and b)', handler=do_go_to_date),
-        MenuItem('right) next in a), b) and c)'),
-        MenuItem('left) previous in a), b) and c)'),
-        MenuItem('space) current in a), b) and c)'),
+        MenuItem('g) goto date in a), b) and c)', handler=do_go_to_date),
+        MenuItem('right) next in a), b), c) and m)'),
+        MenuItem('left) previous in a), b), c) and m)'),
+        MenuItem('space) current in a), b), c) and m)'),
     ]),
     MenuItem('editor', children=[
         MenuItem('N) create new item', handler=edit_new),
