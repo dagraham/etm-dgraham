@@ -269,69 +269,69 @@ When a task or job is finished, it is displayed on the finished date using **✓
 
 ## [Item options](#etm)
 
-### @ keys: 
+### [@ keys](#etm) 
 
 @ followed by a character from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
 
             @s mon 9a
 would specify the the starting datetime for the item is 9am on the Monday following the current date.
 
-*  +: include: list of datetimes to include
-*  -: exclude: list of datetimes to exclude from rrule
-*  a: alert (list of + (before) or - (after) periods: list of commands)
-*  b: beginby: integer (number of days before)
-*  c: calendar: string
-*  d: description: string
-*  e: extent: period
-*  f: finished: datetime
-*  g: goto: string (url or filepath)
-*  h: history: (for repeating tasks, a list of the most recent completion datetimes)
-*  i: index: colon delimited string
-*  j: job summary: string, optionally followed by job &key entries
-*  l: location/context: string
-*  m: mask: string stored in obfuscated form
-*  n: attendee: 'name <emailaddress>' string 
-*  o: overdue: character from (r) restart, (s) skip or (k) keep
-*  p: priority: integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
-*  r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
+*  @+: include: list of datetimes to include
+*  @-: exclude: list of datetimes to exclude
+*  @a: alert (list of + (before) or - (after) periods: list of commands)
+*  @b: beginby: integer (number of days before)
+*  @c: calendar: string
+*  @d: description: string
+*  @e: extent: period
+*  @f: finished: datetime
+*  @g: goto: string (url or filepath)
+*  @h: history: (for repeating tasks, a list of the most recent completion datetimes)
+*  @i: index: colon delimited string
+*  @j: job summary: string, optionally followed by job &key entries
+*  @l: location/context: string
+*  @m: mask: string stored in obfuscated form
+*  @n: attendee: 'name <emailaddress>' string 
+*  @o: overdue: character from (r) restart, (s) skip or (k) keep
+*  @p: priority: integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
+*  @r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
   (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &-key entries
-*  s: starting: date or datetime
-*  t: tag: string
-*  u: usedtime: period: datetime
-*  x: expansion key: string
-*  z: timezone: string
+*  @s: starting: date or datetime
+*  @t: tag: string
+*  @u: usedtime: period: datetime
+*  @x: expansion key: string
+*  @z: timezone: string
 
-### & keys
+### [& keys](#etm)
 
 & followed by a character from one of the lists below. These keys are only used with @j (job) and @r (repetition) entries.
 
 #### for use with @j
 
-*  a: alert: list of + (before) or - (after) periods relative to &s: list of cmd names from the users configuration file
-*  b: beginby: integer number of days before &s
-*  d: description: string
-*  e: extent: period
-*  f: finish: datetime
-*  l: location/context: string
-*  m: mask: string stored in obfuscated form
-*  i: job unique id (string)
-*  p: prerequisites (comma separated list of ids of immediate prereqs)
-*  s: start/due: period relative to @s entry (default 0m)
-*  u: usedtime: period: datetime
+*  &s: start/due: period relative to @s entry (default 0m)
+*  &a: alert: list of + (before) or - (after) periods relative to &s: list of cmd names from the users configuration file
+*  &b: beginby: integer number of days before &s
+*  &d: description: string
+*  &e: extent: period
+*  &f: finish: datetime
+*  &l: location/context: string
+*  &m: mask: string stored in obfuscated form
+*  &i: job unique id (string)
+*  &p: prerequisites (comma separated list of ids of immediate prereqs)
+*  &u: usedtime: period: datetime
 
 #### for use with @r
 
-*  c: count: integer number of repetitions 
-*  E: easter: number of days before (-), on (0) or after (+) Easter
-*  h: hour: list of integers in 0 ... 23
-*  i: interval: positive integer to apply to frequency, e.g., with @r m &i 3, repetition would occur every 3 months
-*  m: monthday: list of integers 1 ... 31
-*  M: month number: list of integers in 1 ... 12
-*  n: minute: list of integers in 0 ... 59
-*  s: set position: integer
-*  u: until: datetime 
-*  w: weekday: list from SU, MO, ..., SA possibly prepended with a positive or negative integer
-*  W: week number: list of integers in (1, ..., 53)
+*  &c: count: integer number of repetitions 
+*  &E: easter: number of days before (-), on (0) or after (+) Easter
+*  &h: hour: list of integers in 0 ... 23
+*  &i: interval: positive integer to apply to frequency, e.g., with @r m &i 3, repetition would occur every 3 months
+*  &m: monthday: list of integers 1 ... 31
+*  &M: month number: list of integers in 1 ... 12
+*  &n: minute: list of integers in 0 ... 59
+*  &s: set position: integer
+*  &u: until: datetime 
+*  &w: weekday: list from SU, MO, ..., SA possibly prepended with a positive or negative integer
+*  &W: week number: list of integers in (1, ..., 53)
 
 
 ### [Option notes](#etm)
@@ -349,7 +349,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
             * my event @s 2018-02-15 3p @+ 2018-03-02 4p
         would repeat at 4pm on Mar 2 *and* 3pm on Feb 15.
     * Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would at best be redundant. A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
-* @m masked entry. These entries are encoded in the database in an obfuscated or masket format but decoded when displayed in etm itself. A *secret key* specified in the user configuration file is used for the encoding/decoding.
+* @m masked entry. These entries are encoded in the database in an obfuscated or masket format but decoded when displayed in etm itself. A key, *secret*, specified in the user configuration file is used for the encoding/decoding.
 * @x expansions. The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
             expansions:
