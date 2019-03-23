@@ -1,9 +1,17 @@
-Recent changes as of 2019-03-22T20:40:41.205568-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a58) Dan Graham
-    e6cc390 2019-03-22 20:40:41 -0400
+Recent changes as of 2019-03-22T21:06:44.250912-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a59) Dan Graham
+    990237d 2019-03-22 21:06:44 -0400
+    Tagged version 4.0.0a59.
+
+- 16 seconds ago Dan Graham
+    1754bdb 2019-03-22 21:06:28 -0400
+    Fixed bug in setting row ids for completed view
+
+- 26 minutes ago Dan Graham
+    d0a627f 2019-03-22 20:40:41 -0400
     Tagged version 4.0.0a58.
 
-- 13 minutes ago Dan Graham
+- 39 minutes ago Dan Graham
     19accb1 2019-03-22 20:27:36 -0400
     calendar view -> monthly view, added completed view
 
@@ -27,7 +35,7 @@ Recent changes as of 2019-03-22T20:40:41.205568-04:00:
     0eadfdb 2019-03-21 16:50:45 -0400
     README tweak.
 
-- 29 hours ago (origin/working) Dan Graham
+- 30 hours ago (origin/working) Dan Graham
     98b2473 2019-03-21 15:25:08 -0400
     Added test for running in a virtual environment. Added secret
     setting in options.
@@ -415,12 +423,4 @@ Recent changes as of 2019-03-22T20:40:41.205568-04:00:
 
 - 12 days ago Dan Graham
     ed3609a 2019-03-10 19:26:24 -0400
-    more bump tweaks
-
-- 12 days ago Dan Graham
-    6758bf6 2019-03-10 19:22:37 -0400
-    Tagged version 4.0.0a21. updated CHANGES.txt
-
-- 12 days ago Dan Graham
-    9dff68c 2019-03-10 19:22:31 -0400
     more bump tweaks
