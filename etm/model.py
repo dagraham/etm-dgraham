@@ -1647,9 +1647,9 @@ class DataView(object):
                 'h': 'history',
                 'i': 'index',
                 'j': 'journal',
-                'm': 'monthly',
                 'r': 'relevant',
                 't': 'tags',
+                'y': 'yearly',
                 }
 
         self.edit_item = None
@@ -1826,7 +1826,7 @@ class DataView(object):
         elif self.active_view == 'busy':
             self.refreshAgenda()
             return self.busy_view
-        elif self.active_view == 'monthly':
+        elif self.active_view == 'yearly':
             self.refreshCalendar()
             return self.calendar_view
         elif self.active_view == 'history':

@@ -401,12 +401,12 @@ def is_agenda_view():
     return dataview.active_view in ['agenda', 'busy', 'completed']
 
 @Condition
-def is_monthly_view():
-    return dataview.active_view in ['monthly']
+def is_yearly_view():
+    return dataview.active_view in ['yearly']
 
 @Condition
-def is_not_monthly_view():
-    return not dataview.active_view in ['monthly']
+def is_not_yearly_view():
+    return not dataview.active_view in ['yearly']
 
 @Condition
 def not_showing_details():
@@ -1265,9 +1265,9 @@ def busy_view(*event):
     dataview.set_active_view('b')
     set_text(dataview.show_active_view())
 
-@bindings.add('m', filter=is_viewing)
-def monthly_view(*event):
-    dataview.set_active_view('m')
+@bindings.add('y', filter=is_viewing)
+def yearly_view(*event):
+    dataview.set_active_view('y')
     set_text(dataview.show_active_view())
 
 @bindings.add('h', filter=is_viewing)
@@ -1310,22 +1310,22 @@ def currweek(*event):
     dataview.currYrWk()
     set_text(dataview.show_active_view())
 
-@bindings.add('right', filter=is_monthly_view & is_viewing)
+@bindings.add('right', filter=is_yearly_view & is_viewing)
 def nextcal(*event):
     dataview.nextcal()
     set_text(dataview.show_active_view())
 
-@bindings.add('left', filter=is_monthly_view & is_viewing)
+@bindings.add('left', filter=is_yearly_view & is_viewing)
 def prevcal(*event):
     dataview.prevcal()
     set_text(dataview.show_active_view())
 
-@bindings.add('space', filter=is_monthly_view & is_viewing)
+@bindings.add('space', filter=is_yearly_view & is_viewing)
 def currcal(*event):
     dataview.currcal()
     set_text(dataview.show_active_view())
 
-@bindings.add('enter', filter=is_viewing_or_details & is_not_monthly_view & is_not_busy_view)
+@bindings.add('enter', filter=is_viewing_or_details & is_not_yearly_view & is_not_busy_view)
 def show_details(*event):
     if dataview.is_showing_details:
         application.layout.focus(text_area)
@@ -1384,9 +1384,9 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
         MenuItem('j) journal', handler=journal_view),
-        MenuItem('m) monthly', handler=monthly_view),
         # MenuItem('q) query', disabled=True),
         MenuItem('r) relevant', handler=relevant_view),
+        MenuItem('y) yearly', handler=yearly_view),
         MenuItem('-', disabled=True),
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
