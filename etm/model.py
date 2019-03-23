@@ -1821,6 +1821,7 @@ class DataView(object):
             return self.agenda_view
         if self.active_view == 'completed':
             self.refreshAgenda()
+            self.row2id = self.done2id 
             return self.done_view
         elif self.active_view == 'busy':
             self.refreshAgenda()
