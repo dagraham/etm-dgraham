@@ -1582,16 +1582,20 @@ class RDict(dict):
 
 
     def add(self, tkeys, values=()):
-        i = 0
         keys = tkeys.split(self.split_char)
-        for key in keys:
-            i = i + 1
-            if i == len(keys):
+        for j in range(len(keys)):
+            key = keys[j]
+            keys_left = keys[j+1:]
+            if not keys_left:
                 try:
                     self.setdefault(key, []).append(values)
-                except:
-                    logger.warn(f"error adding key: {key}, values: {values}\n self: {self}")
-            self = self[key]
+                except Exception as e:
+                    logger.warn(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
+            if isinstance(self[key], dict):
+                self = self[key]
+            elif keys_left:
+                self.setdefault(":".join(keys[j:]), []).append(values)
+                break
 
     def as_tree(self, t={}, depth = 0, level=0):
         """ return an indented tree """
@@ -4597,6 +4601,7 @@ def show_journal(db, id2relevant):
         index = item.get('i', '~')
         rows.append({
                     'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
+                    # 'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
                         item['summary'], 
@@ -4628,6 +4633,7 @@ def show_index(db, id2relevant):
         index = item.get('i', '~')
         rows.append({
                     'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
+                    # 'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'][:width - 15],
                         item['summary'], 
