@@ -378,7 +378,7 @@ def menu(event):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'journal', 'next', 'relevant']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'journal', 'do next', 'relevant']
 
 @Condition
 def is_editing():
@@ -1280,9 +1280,9 @@ def relevant_view(*event):
     dataview.set_active_view('r')
     set_text(dataview.show_active_view())
 
-@bindings.add('n', filter=is_viewing)
+@bindings.add('d', filter=is_viewing)
 def next_view(*event):
-    dataview.set_active_view('n')
+    dataview.set_active_view('d')
     set_text(dataview.show_active_view())
 
 @bindings.add('j', filter=is_viewing)
@@ -1380,11 +1380,11 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('a) agenda', handler=agenda_view),
         MenuItem('b) busy', handler=busy_view),
         MenuItem('c) completed', handler=completed_view),
+        MenuItem('d) do next', handler=next_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
         MenuItem('j) journal', handler=journal_view),
         MenuItem('m) monthly', handler=monthly_view),
-        MenuItem('n) next', handler=next_view),
         # MenuItem('q) query', disabled=True),
         MenuItem('r) relevant', handler=relevant_view),
         MenuItem('-', disabled=True),

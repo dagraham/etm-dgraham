@@ -1643,11 +1643,11 @@ class DataView(object):
                 'a': 'agenda',
                 'b': 'busy',
                 'c': 'completed',
+                'd': 'do next',
                 'h': 'history',
                 'i': 'index',
                 'j': 'journal',
                 'm': 'monthly',
-                'n': 'next',
                 'r': 'relevant',
                 't': 'tags',
                 }
@@ -1835,7 +1835,7 @@ class DataView(object):
         elif self.active_view == 'relevant':
             self.relevant_view, self.row2id = show_relevant(self.db, self.id2relevant)
             return self.relevant_view
-        elif self.active_view == 'next':
+        elif self.active_view == 'do next':
             self.next_view, self.row2id = show_next(self.db)
             return self.next_view
         elif self.active_view == 'journal':
