@@ -401,6 +401,10 @@ def is_agenda_view():
     return dataview.active_view in ['agenda', 'busy', 'completed']
 
 @Condition
+def is_used_view():
+    return dataview.active_view in ['used']
+
+@Condition
 def is_yearly_view():
     return dataview.active_view in ['yearly']
 
@@ -1018,7 +1022,6 @@ def edit_existing(*event):
         dataview.hide_details()
     dataview.is_editing = True
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
-    logger.info(f"doc_id: {doc_id}; entry: {entry}")
     item.edit_item(doc_id, entry)
     entry_buffer.text = item.entry
     default_buffer_changed(event)
@@ -1188,10 +1191,8 @@ def do_import_text(*event):
             label_text='Enter the path of the text file to import:')
 
         text_file = yield From(show_dialog_as_float(dialog))
-        logger.info(f"got {text_file}")
 
         if text_file:
-            logger.info(f"importing from {text_file}")
             msg = import_text(text_file)
             if msg:
                 dataview.refreshRelevant()
@@ -1217,7 +1218,6 @@ def do_import_json(*event):
         json_file = yield From(show_dialog_as_float(dialog))
 
         if json_file:
-            logger.info(f"importing from {json_file}")
             msg = import_json(json_file)
             if msg:
                 dataview.refreshRelevant()
@@ -1263,6 +1263,11 @@ def completed_view(*event):
 @bindings.add('b', filter=is_viewing)
 def busy_view(*event):
     dataview.set_active_view('b')
+    set_text(dataview.show_active_view())
+
+@bindings.add('u', filter=is_viewing)
+def used_view(*event):
+    dataview.set_active_view('u')
     set_text(dataview.show_active_view())
 
 @bindings.add('y', filter=is_viewing)
@@ -1323,6 +1328,21 @@ def prevcal(*event):
 @bindings.add('space', filter=is_yearly_view & is_viewing)
 def currcal(*event):
     dataview.currcal()
+    set_text(dataview.show_active_view())
+
+@bindings.add('right', filter=is_used_view & is_viewing)
+def nextcal(*event):
+    dataview.nextMonth()
+    set_text(dataview.show_active_view())
+
+@bindings.add('left', filter=is_used_view & is_viewing)
+def prevcal(*event):
+    dataview.prevMonth()
+    set_text(dataview.show_active_view())
+
+@bindings.add('space', filter=is_used_view & is_viewing)
+def currcal(*event):
+    dataview.currMonth()
     set_text(dataview.show_active_view())
 
 @bindings.add('enter', filter=is_viewing_or_details & is_not_yearly_view & is_not_busy_view)
@@ -1386,6 +1406,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('j) journal', handler=journal_view),
         # MenuItem('q) query', disabled=True),
         MenuItem('r) relevant', handler=relevant_view),
+        MenuItem('u) used time', handler=used_view),
         MenuItem('y) yearly', handler=yearly_view),
         MenuItem('-', disabled=True),
         MenuItem('/) search forward'),
@@ -1448,7 +1469,6 @@ etmstyle = None
 application = None
 def main(etmdir=""):
     global item, settings, ampm, style, etmstyle, application
-    # logger.info(f"archive_after: {settings['archive_after']}")
     ampm = settings['ampm']
     terminal_style = settings['style']
     if terminal_style == "dark": 

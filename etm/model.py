@@ -150,6 +150,7 @@ allowed['!'] = common_methods + datetime_methods + task_methods + repeating_meth
 requires = {
         'a': ['s'],
         'b': ['s'],
+        # 'u': ['i'],
         '+': ['s'],
         '-': ['rr'],
         'o': ['rr'],
@@ -859,7 +860,6 @@ class Item(object):
             display_key = f"@{key}" if len(key) == 1 else f"&{key[-1]}"
             self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
 
-
     def update_item_hsh(self):
         self.created = self.item_hsh.get('created', None)
         self.item_hsh = {}
@@ -1300,6 +1300,9 @@ def parse_datetime(s, z=None):
     >>> dt = parse_datetime("2019-02-01 12:30a", "UTC")
     >>> dt
     ('aware', DateTime(2019, 2, 1, 0, 30, 0, tzinfo=Timezone('UTC')), 'UTC')
+    >>> dt = parse_datetime("2019-03-24 5:00PM")
+    >>> dt
+    ('local', DateTime(2019, 3, 24, 17, 0, 0, tzinfo=Timezone('America/New_York')), None)
     """
     if z is None:
         tzinfo = 'local'
@@ -1440,7 +1443,7 @@ def plain_datetime_list(obj_lst):
     ret = ", ".join([plain_datetime(x)[1] for x in obj_lst])
     return ret
 
-def format_duration(obj):
+def format_duration(obj, short=False):
     """
     >>> td = pendulum.duration(weeks=1, days=2, hours=3, minutes=27)
     >>> format_duration(td)
@@ -1450,15 +1453,15 @@ def format_duration(obj):
         return None
     try:
         until =[]
-        if obj.weeks:
+        if obj.weeks and not short:
             until.append(f"{obj.weeks}w")
-        if obj.remaining_days:
+        if obj.remaining_days and not short:
             until.append(f"{obj.remaining_days}d")
         if obj.hours:
             until.append(f"{obj.hours}h")
         if obj.minutes:
             until.append(f"{obj.minutes}m")
-        if not until:
+        if not until and not short:
             until.append("0m")
         return "".join(until)
     except Exception as e:
@@ -1636,6 +1639,8 @@ class DataView(object):
         self.history_view = ""
         self.cache = {}
         self.itemcache = {}
+        self.monthly_usedtime = {}
+        self.currMonth()
         self.completions = []
         self.timer_status = 0  # 0: stopped, 1: running, 2: paused
         self.timer_time = ZERO
@@ -1653,6 +1658,7 @@ class DataView(object):
                 'j': 'journal',
                 'r': 'relevant',
                 't': 'tags',
+                'u': 'used',
                 'y': 'yearly',
                 }
 
@@ -1848,6 +1854,8 @@ class DataView(object):
         elif self.active_view == 'index':
             self.index_view, self.row2id = show_index(self.db, self.id2relevant)
             return self.index_view
+        elif self.active_view == 'used':
+            return self.monthly_usedtime.get(self.active_month, f"No used time recorded for {self.active_month}")
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk) 
@@ -1867,6 +1875,17 @@ class DataView(object):
         dt = pendulum.parse(dtstr, strict=False)
         self.activeYrWk = getWeekNum(dt)
         self.refreshAgenda()
+
+    def currMonth(self):
+        self.active_month = pendulum.today().format("YYYY-MM")
+
+    def prevMonth(self):
+        dt = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD", 'local') - DAY
+        self.active_month = dt.format("YYYY-MM")
+
+    def nextMonth(self):
+        dt = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD", 'local') + 31 * DAY
+        self.active_month = dt.format("YYYY-MM")
 
     def refreshRelevant(self):
         """
@@ -2029,6 +2048,7 @@ class DataView(object):
 
     def refreshCache(self):
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20)
+        self.monthly_usedtime = get_usedtime(self.db)
 
     def possible_archive(self):
         """
@@ -2646,13 +2666,15 @@ def do_usedtime(arg):
     """
     >>> do_usedtime('75m: 9p 2019-02-01')
     ([Duration(hours=1, minutes=15), DateTime(2019, 2, 1, 21, 0, 0, tzinfo=Timezone('America/New_York'))], '1h15m: 2019-02-01 9:00pm')
+    >>> do_usedtime('75m: 2019-02-01 9:00AM')
+    ([Duration(hours=1, minutes=15), DateTime(2019, 2, 1, 9, 0, 0, tzinfo=Timezone('America/New_York'))], '1h15m: 2019-02-01 9:00am')
     """
     if not arg:
         return None, ''
     got_period = got_datetime = False
     rep_period = 'period' 
     rep_datetime = 'datetime'
-    parts = arg.split(':')
+    parts = arg.split(': ')
     period = parts.pop(0)
     if period:
         ok, res = parse_duration(period)
@@ -4293,7 +4315,7 @@ def relevant(db, now=pendulum.now()):
                 if instance_interval:
                     instances = rset.between(instance_interval[0], instance_interval[1], inc=True)
                     if instances:
-                        logger.info(f"instances for {item['summary']}: {instances}")
+                        logger.debug(f"instances for {item['summary']}: {instances}")
                     if possible_beginby:
                         for instance in instances:
                             if today + DAY <= instance <= tomorrow + possible_beginby:
@@ -4655,6 +4677,53 @@ def show_index(db, id2relevant):
     return tree, row2id
 
 
+def get_usedtime(db):
+    """
+    All items with used entries grouped by month, index entry and day
+
+    """
+    # width = shutil.get_terminal_size()[0] - 2
+    month_rows = {}
+    used_time = {}
+    for item in db:
+        used = item.get('u')
+        if not used:
+            continue
+        index = item.get('i', '~').split(':')
+        for period, dt in used:
+            month = dt.format("YYYY-MM")
+            day = dt.format("MMM D")
+            used_time.setdefault(tuple((month,)), ZERO)
+            used_time[tuple((month, ))] += period
+            for i in range(len(index)):
+                used_time.setdefault(tuple((month, *index[:i+1])), ZERO)
+                used_time[tuple((month, *index[:i+1]))] += period
+            used_time.setdefault(tuple((month, *index, day)), ZERO)
+            used_time[tuple((month, *index, day))] += period
+
+    keys = [x for x in used_time]
+    keys.sort()
+    for key in keys:
+        period = used_time[key]
+        month_rows.setdefault(key[0], [])
+        indent = (len(key) - 1) * 4 * " "
+        if len(key) == 1:
+            yrmnth = pendulum.from_format(key[0] + "-01", "YYYY-MM-DD").format("MMMM YYYY")
+            try:
+                month_rows[key[0]].append(f"{indent}{format_duration(period, True)}) {yrmnth}")
+            except Exception as e:
+                logger.error(f"e: {repr(e)}")
+
+        else:
+            month_rows[key[0]].append(f"{indent}{format_duration(period, True)}) {key[-1]}")
+
+    monthly_usedtime = {}
+    for key, val in month_rows.items():
+        monthly_usedtime[key] = "\n".join(val)
+
+    return monthly_usedtime 
+
+
 def fmt_class(txt, cls=None, plain=False):
     if not plain and cls is not None:
         return cls, txt
@@ -4733,6 +4802,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     rows = []
     done = []
     busy = []
+    used = []
 
     for item in db:
         if item['itemtype'] in "!?":
@@ -4844,7 +4914,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 #             x[0] x[1]  x[2]     x[3]
                 busy.append({'sort': dt.format("YYYYMMDDHHmm"), 'week': (y, w), 'day': d, 'period': (beg_min, end_min)})
     if yw == getWeekNum(now):
-        logger.info(f"current week: {yw}. extending current rows")
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
     done.sort(key=itemgetter('sort'))
@@ -4910,7 +4979,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             for d in day:
                 if week == yw:
                     current_day = now.format("ddd MMM D")
-                    logger.info(f"current week, {yw}. day/today: {d}/{current_day}. day == today: {d == current_day}")
                     if d == current_day:
                         d += " (Today)"
                 agenda.append(f"  {d}")
@@ -4934,7 +5002,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             for d in day:
                 if week == yw:
                     current_day = now.format("ddd MMM D")
-                    logger.info(f"current week, {yw}. day/today: {d}/{current_day}. day == today: {d == current_day}")
                     if d == current_day:
                         d += " (Today)"
                 done.append(f"  {d}")
@@ -5042,7 +5109,6 @@ def import_text(import_file=None):
         msg += f"\n  ids: {ids[0]}-{ids[-1]}."
     if dups:
         msg += f"\n  rejected {len(dups)} items as duplicates"
-    logger.info(msg)
     return msg
 
 
@@ -5194,7 +5260,6 @@ def import_json(import_file=None):
         msg += f"\n  ids: {ids[0]}-{ids[-1]}."
     if dups:
         msg += f"\n  rejected {dups} items as duplicates"
-    logger.info(msg)
     return msg
 
 
