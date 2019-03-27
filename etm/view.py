@@ -378,7 +378,7 @@ def menu(event):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'journal', 'do next', 'relevant']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'journal', 'do next', 'used', 'relevant']
 
 @Condition
 def is_editing():
@@ -402,7 +402,7 @@ def is_agenda_view():
 
 @Condition
 def is_used_view():
-    return dataview.active_view in ['used']
+    return dataview.active_view in ['used', 'used summary']
 
 @Condition
 def is_yearly_view():
@@ -1270,6 +1270,11 @@ def used_view(*event):
     dataview.set_active_view('u')
     set_text(dataview.show_active_view())
 
+@bindings.add('U', filter=is_viewing)
+def used_summary_view(*event):
+    dataview.set_active_view('U')
+    set_text(dataview.show_active_view())
+
 @bindings.add('y', filter=is_viewing)
 def yearly_view(*event):
     dataview.set_active_view('y')
@@ -1345,7 +1350,7 @@ def currcal(*event):
     dataview.currMonth()
     set_text(dataview.show_active_view())
 
-@bindings.add('enter', filter=is_viewing_or_details & is_not_yearly_view & is_not_busy_view)
+@bindings.add('enter', filter=is_viewing_or_details & is_item_view)
 def show_details(*event):
     if dataview.is_showing_details:
         application.layout.focus(text_area)
@@ -1407,6 +1412,7 @@ root_container = MenuContainer(body=body, menu_items=[
         # MenuItem('q) query', disabled=True),
         MenuItem('r) relevant', handler=relevant_view),
         MenuItem('u) used time', handler=used_view),
+        MenuItem('U) used time summary', handler=used_summary_view),
         MenuItem('y) yearly', handler=yearly_view),
         MenuItem('-', disabled=True),
         MenuItem('/) search forward'),
@@ -1414,9 +1420,9 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('l) go to line number', handler=do_go_to_line),
         MenuItem('-', disabled=True),
         MenuItem('g) goto date in a), b) and c)', handler=do_go_to_date),
-        MenuItem('right) next in a), b), c) and y)'),
-        MenuItem('left) previous in a), b), c) and y)'),
-        MenuItem('space) current in a), b), c) and y)'),
+        MenuItem('right) next in a), b), c), u), U) and y)'),
+        MenuItem('left) previous in a), b), c), u), U) and y)'),
+        MenuItem('space) current in a), b), c), u), U) and y)'),
     ]),
     MenuItem('editor', children=[
         MenuItem('N) create new item', handler=edit_new),

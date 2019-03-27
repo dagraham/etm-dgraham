@@ -1639,7 +1639,9 @@ class DataView(object):
         self.history_view = ""
         self.cache = {}
         self.itemcache = {}
-        self.monthly_usedtime = {}
+        self.used_summary = {}
+        self.used_details = {}
+        self.used_details2id = {}
         self.currMonth()
         self.completions = []
         self.timer_status = 0  # 0: stopped, 1: running, 2: paused
@@ -1659,6 +1661,7 @@ class DataView(object):
                 'r': 'relevant',
                 't': 'tags',
                 'u': 'used',
+                'U': 'used summary',
                 'y': 'yearly',
                 }
 
@@ -1855,7 +1858,15 @@ class DataView(object):
             self.index_view, self.row2id = show_index(self.db, self.id2relevant)
             return self.index_view
         elif self.active_view == 'used':
-            return self.monthly_usedtime.get(self.active_month, f"No used time recorded for {self.active_month}")
+            used_details = self.used_details.get(self.active_month)
+            if not used_details:
+                return f"No used time recorded for {self.active_month}"
+            self.used_view = used_details
+            self.row2id = self.used_details2id.get(self.active_month)
+            return self.used_view
+        elif self.active_view == 'used summary':
+            self.row2id = {}
+            return self.used_summary.get(self.active_month, f"No used time recorded for {self.active_month}")
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk) 
@@ -2048,7 +2059,7 @@ class DataView(object):
 
     def refreshCache(self):
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20)
-        self.monthly_usedtime = get_usedtime(self.db)
+        self.used_details, self.used_details2id, self.used_summary = get_usedtime(self.db)
 
     def possible_archive(self):
         """
@@ -4614,7 +4625,7 @@ def show_journal(db, id2relevant):
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
-    indices = set([])
+    # indices = set([])
     for item in db:
         if item['itemtype'] != '%': #  or 's' in item:
             continue
@@ -4648,14 +4659,11 @@ def show_index(db, id2relevant):
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
-    indices = set([])
+    # indices = set([])
     for item in db:
-        # if 'i' not in item:
-        #     continue
         index = item.get('i', '~')
         rows.append({
                     'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
-                    # 'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'][:width - 15],
                         item['summary'], 
@@ -4665,7 +4673,6 @@ def show_index(db, id2relevant):
     rdict = RDict()
     for row in rows:
         path = row['index']
-        # values = row['columns']
         values = (
                 f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
                 ) 
@@ -4682,15 +4689,35 @@ def get_usedtime(db):
     All items with used entries grouped by month, index entry and day
 
     """
-    # width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 2
+    summary_width = width - 12
+
+    used_hsh = {}
+    used2id_hsh = {}
+
+    used_details = {}
+    used_details2id = {}
+
     month_rows = {}
     used_time = {}
+    detail_rows = []
+    used_rows = []
+    months = set([])
     for item in db:
         used = item.get('u')
         if not used:
             continue
         index = item.get('i', '~').split(':')
+        doc_id = item.doc_id
+        id_used = {}
+        # details = f"{item['itemtype']} {item['summary']} {item.get('i', '~')}"
+        details = f"{item.get('i', '~')}"
         for period, dt in used:
+            # for id2used 
+            monthday = dt.date()
+            id_used.setdefault(monthday, ZERO)
+            id_used[monthday] += period
+            # for used_time
             month = dt.format("YYYY-MM")
             day = dt.format("MMM D")
             used_time.setdefault(tuple((month,)), ZERO)
@@ -4701,6 +4728,38 @@ def get_usedtime(db):
             used_time.setdefault(tuple((month, *index, day)), ZERO)
             used_time[tuple((month, *index, day))] += period
 
+        for monthday in id_used:
+            # logger.info(f"id_used: {monthday} -> {id_used[monthday]}")
+            detail_rows.append({
+                        'sort': (monthday, details),
+                        'month': monthday.format("YYYY-MM"),
+                        'path': f"{monthday.format('MMMM YYYY')}:{monthday.format('MMM D')}",
+                        'columns': [
+                            details,
+                            format_duration(id_used[monthday], True),
+                            doc_id],
+                        })
+
+    detail_rows.sort(key=itemgetter('sort'))
+    for month, items in groupby(detail_rows, key=itemgetter('month')):
+        months.add(month)
+        rdict = RDict()
+        for row in items:
+            summary = row['columns'][0][:summary_width - 6].ljust(summary_width -6, ' ')
+            rhc = row['columns'][1].rjust(12, ' ')
+            path = row['path']
+            values = (
+                    f"{summary}{rhc}", row['columns'][2]
+                    ) 
+            try:
+                rdict.add(path, values)
+            except:
+                logger.error(f"error adding path: {path}, values: {values}")
+        tree, row2id = rdict.as_tree(rdict, level=0)
+        used_details[month] = tree
+        used_details2id[month] = row2id
+
+
     keys = [x for x in used_time]
     keys.sort()
     for key in keys:
@@ -4710,18 +4769,22 @@ def get_usedtime(db):
         if len(key) == 1:
             yrmnth = pendulum.from_format(key[0] + "-01", "YYYY-MM-DD").format("MMMM YYYY")
             try:
-                month_rows[key[0]].append(f"{indent}{format_duration(period, True)}) {yrmnth}")
+                summary = f"{indent}{yrmnth}"[:summary_width].ljust(summary_width, ' ')
+                rhc = f"{format_duration(period, True)}".center(12, ' ')
+                month_rows[key[0]].append(f"{summary}{rhc}")
             except Exception as e:
                 logger.error(f"e: {repr(e)}")
 
         else:
-            month_rows[key[0]].append(f"{indent}{format_duration(period, True)}) {key[-1]}")
+            summary = f"{indent}{key[-1]}"[:summary_width].ljust(summary_width, ' ')
+            rhc = f"{format_duration(period, True)}".center(12, ' ')
+            month_rows[key[0]].append(f"{summary}{rhc}")
 
-    monthly_usedtime = {}
+    used_summary = {}
     for key, val in month_rows.items():
-        monthly_usedtime[key] = "\n".join(val)
+        used_summary[key] = "\n".join(val)
 
-    return monthly_usedtime 
+    return used_details, used_details2id, used_summary 
 
 
 def fmt_class(txt, cls=None, plain=False):
@@ -4802,7 +4865,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     rows = []
     done = []
     busy = []
-    used = []
 
     for item in db:
         if item['itemtype'] in "!?":
