@@ -1250,7 +1250,7 @@ def exit(*event):
 #     event.app.exit()
 
 @bindings.add('c-c', filter=is_viewing)
-def copy_text(*event):
+def copy_active_view(*event):
     pyperclip.copy(text_area.text)
 
 
@@ -1416,7 +1416,6 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
         MenuItem('j) journal', handler=journal_view),
-        # MenuItem('q) query', disabled=True),
         MenuItem('r) relevant', handler=relevant_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
@@ -1425,6 +1424,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
         MenuItem('l) go to line number', handler=do_go_to_line),
+        MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
         MenuItem('-', disabled=True),
         MenuItem('g) goto date in a), b) and c)', handler=do_go_to_date),
         MenuItem('right) next in a), b), c), u), U) and y)'),
