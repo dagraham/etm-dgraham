@@ -1,16 +1,24 @@
-Recent changes as of 2019-03-26T20:37:39.336528-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a62) Dan Graham
-    5b829a3 2019-03-26 20:37:39 -0400
+Recent changes as of 2019-03-26T21:47:07.913936-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a63) Dan Graham
+    2956cc1 2019-03-26 21:47:07 -0400
+    Tagged version 4.0.0a63.
+
+- 15 seconds ago Dan Graham
+    fa6b1d6 2019-03-26 21:46:53 -0400
+    Formatting tweaks for used time views.
+
+- 69 minutes ago Dan Graham
+    40329d8 2019-03-26 20:37:39 -0400
     Tagged version 4.0.0a62.
 
-- 64 seconds ago Dan Graham
+- 71 minutes ago Dan Graham
     9d1e718 2019-03-26 20:36:35 -0400
     Implemented used time (u) and used time summary (U). The first
     groups by month, day and index and is an item (details/editable)
     view. The groups by month and index and shows totals at each
     level.
 
-- 7 hours ago (origin/working) Dan Graham
+- 8 hours ago (origin/working) Dan Graham
     1afdee5 2019-03-26 13:29:33 -0400
     Fixed bug in used_time where splitting on ':' truncated minutes.
     First pass at used_time report.
@@ -216,15 +224,15 @@ Recent changes as of 2019-03-26T20:37:39.336528-04:00:
     b8333e5 2019-03-15 12:45:22 -0400
     Fixed items due today showing as pastdue.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     881de71 2019-03-15 09:52:21 -0400
     Tagged version 4.0.0a48.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     9932d18 2019-03-15 09:51:59 -0400
     fixed inadvertent deletion.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     ca7f24f 2019-03-15 09:44:22 -0400
     Fixed logging: logger = logging.getLogger() in the modules picks
     up the one setup in __main__. Fixed bug in deleting instance.
@@ -419,12 +427,3 @@ Recent changes as of 2019-03-26T20:37:39.336528-04:00:
 - 2 weeks ago Dan Graham
     f34d57b 2019-03-11 16:30:16 -0400
     Fixed bump
-
-- 2 weeks ago Dan Graham
-    47d9cf2 2019-03-11 16:28:35 -0400
-    Moved etm -> etmMV/etm.py and renamed etmMV as etm. Added
-    etm:__main__ as an entry point.
-
-- 2 weeks ago Dan Graham
-    d07b6ad 2019-03-11 15:59:35 -0400
-    Tagged version 4.0.0a27.
