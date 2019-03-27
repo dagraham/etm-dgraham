@@ -4717,8 +4717,8 @@ def get_usedtime(db):
         index = item.get('i', '~').split(':')
         doc_id = item.doc_id
         id_used = {}
-        # details = f"{item['itemtype']} {item['summary']} {item.get('i', '~')}"
-        details = f"{item.get('i', '~')}"
+        details = f"{item['itemtype']} {item['summary']} @i {item.get('i', '~')}"
+        # details = f"{item.get('i', '~')}"
         for period, dt in used:
             # for id2used 
             monthday = dt.date()

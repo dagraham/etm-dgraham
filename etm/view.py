@@ -56,6 +56,8 @@ import subprocess # for check_output
 import platform
 import os
 
+import pyperclip
+
 cfgfile = '' # override this
 
 class InteractiveInputDialog(object):
@@ -1246,6 +1248,11 @@ def exit(*event):
 # def _(event):
 #     " Quit. "
 #     event.app.exit()
+
+@bindings.add('c-c', filter=is_viewing)
+def copy_text(*event):
+    pyperclip.copy(text_area.text)
+
 
 def set_text(txt, row=0):
     text_area.text = txt
