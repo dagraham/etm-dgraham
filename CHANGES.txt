@@ -1,13 +1,21 @@
-Recent changes as of 2019-03-27T11:22:27.018157-04:00:
-- 1 second ago (HEAD -> working, tag: 4.0.0a64) Dan Graham
-    722ff8f 2019-03-27 11:22:26 -0400
-    Tagged version 4.0.0a64.
+Recent changes as of 2019-03-27T11:36:51.111417-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0a65) Dan Graham
+    363ac41 2019-03-27 11:36:51 -0400
+    Tagged version 4.0.0a65.
 
 - 21 seconds ago Dan Graham
+    b814695 2019-03-27 11:36:30 -0400
+    added pyperclip to setup.py requirements
+
+- 14 minutes ago Dan Graham
+    0347c44 2019-03-27 11:22:26 -0400
+    Tagged version 4.0.0a64.
+
+- 15 minutes ago Dan Graham
     527c718 2019-03-27 11:22:06 -0400
     Added copy active view to menu, ^c under views.
 
-- 9 minutes ago Dan Graham
+- 24 minutes ago Dan Graham
     236b292 2019-03-27 11:13:10 -0400
     Added copy active view to clipboard (^c) and the required
     pyperclip to requirements.txt. Tweaked formatting of used time
@@ -421,11 +429,3 @@ Recent changes as of 2019-03-27T11:22:27.018157-04:00:
 - 2 weeks ago Dan Graham
     cb4dad4 2019-03-11 16:46:59 -0400
     yet another attempt to get the entry point right
-
-- 2 weeks ago Dan Graham
-    211c02e 2019-03-11 16:32:42 -0400
-    Tagged version 4.0.0a29.
-
-- 2 weeks ago Dan Graham
-    0ce9045 2019-03-11 16:32:27 -0400
-    fixed setup.py
