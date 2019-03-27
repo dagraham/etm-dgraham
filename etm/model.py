@@ -1860,13 +1860,20 @@ class DataView(object):
         elif self.active_view == 'used':
             used_details = self.used_details.get(self.active_month)
             if not used_details:
-                return f"No used time recorded for {self.active_month}"
+                month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
+                return f"Nothing recorded for {month_format}"
             self.used_view = used_details
             self.row2id = self.used_details2id.get(self.active_month)
             return self.used_view
         elif self.active_view == 'used summary':
             self.row2id = {}
-            return self.used_summary.get(self.active_month, f"No used time recorded for {self.active_month}")
+            used_summary = self.used_summary.get(self.active_month)
+            if not used_summary:
+                month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
+                return f"Nothing recorded for {month_format}"
+            self.used_summary_view = used_summary
+            return self.used_summary_view
+
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk) 
@@ -4719,7 +4726,7 @@ def get_usedtime(db):
             id_used[monthday] += period
             # for used_time
             month = dt.format("YYYY-MM")
-            day = dt.format("MMM D")
+            day = dt.format("MMM DD")
             used_time.setdefault(tuple((month,)), ZERO)
             used_time[tuple((month, ))] += period
             for i in range(len(index)):
@@ -4745,8 +4752,8 @@ def get_usedtime(db):
         months.add(month)
         rdict = RDict()
         for row in items:
-            summary = row['columns'][0][:summary_width - 6].ljust(summary_width -6, ' ')
-            rhc = row['columns'][1].rjust(12, ' ')
+            summary = row['columns'][0][:summary_width - 4].ljust(summary_width -4, ' ')
+            rhc = row['columns'][1].center(12, ' ')
             path = row['path']
             values = (
                     f"{summary}{rhc}", row['columns'][2]
