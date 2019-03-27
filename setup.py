@@ -27,6 +27,7 @@ REQUIRED = [
         "MarkupSafe>=1.1.0",
         "pendulum>=2.0.4",
         "prompt-toolkit>=2.0.9",
+        "pyperclip>=1.7.0",
         "python-dateutil>=2.7.3",
         "pytz>=2018.9",
         "pytzdata>=2018.9",
