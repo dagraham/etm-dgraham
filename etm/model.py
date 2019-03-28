@@ -473,6 +473,7 @@ class Item(object):
                 's': ["start", "starting date or datetime", self.do_datetime],
                 't': ["tag", "tag", do_string],
                 'u': ["used time", "timeperiod: datetime", do_usedtime],
+                'w': ['who', 'who is responsible for this item', do_string],
                 'x': ["expansion", "expansion key", do_string],
                 'z': ["timezone", "", self.do_timezone],
                 '?': ["@-key", "", self.do_at],
