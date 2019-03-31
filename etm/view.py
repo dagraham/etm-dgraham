@@ -1183,52 +1183,58 @@ def is_editing_reps(*event):
 
 
 @bindings.add('f7')
-def do_import_text(*event):
+def do_import_file(*event):
     # TODO: add dialog
     msg = ""
     def coroutine():
         global msg
         dialog = TextInputDialog(
-            title='import text',
-            label_text='Enter the path of the text file to import:')
+            title='import file',
+            label_text="""\
+It is possible to import data from files with 
+one of the following extensions:
+  .json  a json file exported from etm 3.2.x 
+  .text  a text file with etm entries as lines 
+  .ics   an iCalendar file
+Enter the path of the file to import:""")
 
-        text_file = yield From(show_dialog_as_float(dialog))
+        file_path = yield From(show_dialog_as_float(dialog))
 
-        if text_file:
-            msg = import_text(text_file)
+        if file_path:
+            msg = import_file(file_path)
             if msg:
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
                 loop = get_event_loop()
                 loop.call_later(0, data_changed, loop)
-                show_message('import text', msg)
+                show_message('import file', msg)
     ensure_future(coroutine())
 
 
 
-@bindings.add('f8')
-def do_import_json(*event):
-    # TODO: add dialog
-    msg = ""
-    def coroutine():
-        global msg
-        dialog = TextInputDialog(
-            title='import json',
-            label_text='Enter the path of the json file to import:')
+# @bindings.add('f8')
+# def do_import_json(*event):
+#     # TODO: add dialog
+#     msg = ""
+#     def coroutine():
+#         global msg
+#         dialog = TextInputDialog(
+#             title='import json',
+#             label_text='Enter the path of the json file to import:')
 
-        json_file = yield From(show_dialog_as_float(dialog))
+#         json_file = yield From(show_dialog_as_float(dialog))
 
-        if json_file:
-            msg = import_json(json_file)
-            if msg:
-                dataview.refreshRelevant()
-                dataview.refreshAgenda()
-                dataview.refreshCurrent()
-                loop = get_event_loop()
-                loop.call_later(0, data_changed, loop)
-                show_message('import json', msg)
-    ensure_future(coroutine())
+#         if json_file:
+#             msg = import_json(json_file)
+#             if msg:
+#                 dataview.refreshRelevant()
+#                 dataview.refreshAgenda()
+#                 dataview.refreshCurrent()
+#                 loop = get_event_loop()
+#                 loop.call_later(0, data_changed, loop)
+#                 show_message('import json', msg)
+#     ensure_future(coroutine())
 
 
 @bindings.add('c-p')
@@ -1403,8 +1409,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F4) system info', handler=do_system),
         MenuItem("F5) show today's alerts", handler=do_alerts),
         MenuItem('F6) datetime calculator', handler=datetime_calculator),
-        MenuItem('F7) import text file', handler=do_import_text),
-        MenuItem('F8) import json file', handler=do_import_json),
+        MenuItem('F7) import file', handler=do_import_file),
         MenuItem('-', disabled=True),
         MenuItem('^q) quit', handler=exit),
     ]),

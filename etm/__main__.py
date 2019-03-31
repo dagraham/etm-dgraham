@@ -49,6 +49,7 @@ def main():
     WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
 
 
+    import etm.ical as ical
     import etm.data as data
     data.secret = secret
     from etm.data import Mask
@@ -59,12 +60,12 @@ def main():
     DBARCH = ETMDB.table('archive', cache_size=None)
 
     from etm.model import about
-    from etm.model import import_json
-    from etm.model import import_text
+    from etm.model import import_file
     import etm.model as model
     model.etm_version = etm_version
     model.secret = secret
     model.data = data
+    model.ical = ical
     model.Mask = Mask
     model.WA = WA
     model.ETMDB = ETMDB
@@ -95,8 +96,7 @@ def main():
     view.cfgfile = cfgfile
     view.model = model
     view.item = item
-    view.import_json = import_json
-    view.import_text = import_text
+    view.import_file = import_file
     view.etmdir = etmdir
     view.datetime_calculator = datetime_calculator
     view.about = about

@@ -514,7 +514,6 @@ class Item(object):
         # FIXME: this should be based on the etmdir or, better, the json file
         self.settings = settings if settings else {}
         if dbfile is None:
-            logger.info(f"dbfile is None")
             self.db = ETMDB
             self.dbarch = DBARCH
             self.dbitem = DBITEM
@@ -4304,11 +4303,13 @@ def relevant(db, now=pendulum.now()):
                 if '-' in item:
                     for dt in item['-']:
                         if type(dt) == pendulum.Date:
-                            pass
+                            dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0)
                         rset.exdate(dt)
 
                 if '+' in item:
                     for dt in item['+']:
+                        if type(dt) == pendulum.Date:
+                            dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0)
                         rset.rdate(dt)
 
                 if item['itemtype'] == '-': 
@@ -4325,7 +4326,10 @@ def relevant(db, now=pendulum.now()):
                         relevant = dtstart
                 else:
                     # get the first instance after today
-                    relevant = rset.after(today, inc=True)
+                    try:
+                        relevant = rset.after(today, inc=True)
+                    except Exception as e:
+                        logger.error(f"error processing {item}; {repr(e)}")
                     if not relevant:
                         relevant = rset.before(today, inc=True)
                     relevant = pendulum.instance(relevant)
@@ -4699,6 +4703,13 @@ def get_usedtime(db):
     """
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 12
+    key_len_char = {
+            0: "",  # should not happen
+            1: "",  # month
+            2: "*", # first element of path: client
+            3: "-", # second element of path: project
+            4: "+", # third element of path: day
+            }
 
     used_hsh = {}
     used2id_hsh = {}
@@ -4737,7 +4748,6 @@ def get_usedtime(db):
             used_time[tuple((month, *index, day))] += period
 
         for monthday in id_used:
-            # logger.info(f"id_used: {monthday} -> {id_used[monthday]}")
             detail_rows.append({
                         'sort': (monthday, details),
                         'month': monthday.format("YYYY-MM"),
@@ -4774,6 +4784,7 @@ def get_usedtime(db):
         period = used_time[key]
         month_rows.setdefault(key[0], [])
         indent = (len(key) - 1) * 4 * " "
+        char = key_len_char.get(len(key), "")
         if len(key) == 1:
             yrmnth = pendulum.from_format(key[0] + "-01", "YYYY-MM-DD").format("MMMM YYYY")
             try:
@@ -4784,7 +4795,7 @@ def get_usedtime(db):
                 logger.error(f"e: {repr(e)}")
 
         else:
-            summary = f"{indent}{key[-1]}"[:summary_width].ljust(summary_width, ' ')
+            summary = f"{indent}{char} {key[-1]}"[:summary_width].ljust(summary_width, ' ')
             rhc = f"{format_duration(period, True)}".center(12, ' ')
             month_rows[key[0]].append(f"{summary}{rhc}")
 
@@ -5117,9 +5128,68 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
     return cache
 
-def temp_to_items(etmdir=None):
-    temp_dbfile = os.path.join(etmdir, 'temp.json')
-    TEMPDB = data.initialize_tinydb(temp_dbfile)
+# def temp_to_items(etmdir=None):
+#     temp_dbfile = os.path.join(etmdir, 'temp.json')
+#     TEMPDB = data.initialize_tinydb(temp_dbfile)
+
+
+def import_file(import_file=None):
+    filename, extension = os.path.splitext(import_file)
+    if extension == '.json':
+        return import_json(import_file)
+    elif extension == '.text':
+        return import_text(import_file)
+    elif extension == '.ics':
+        return import_ics(import_file) 
+    else:
+        return f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized"
+
+def import_ics(import_file=None):
+    """
+    open ics file and convert it to text file in tempdir. Then import the text file using 
+    """
+    if not import_file:
+        return ""
+    import_file = os.path.normpath(os.path.expanduser(import_file))
+    if not os.path.exists(import_file):
+        return f"could not locate: {import_file}"
+    items = ical.ics_to_items(import_file)
+    if not items:
+        return
+    # check for dups
+    exst = []
+    new = []
+    dups = 0
+    for x in ETMDB:
+        exst.append({
+                    'itemtype': x.get('itemtype'),
+                    'summary': x.get('summary'),
+                    's': x.get('s'),
+                    # 'f': x.get('f')
+                    })
+    num_docs = len(items.keys())
+    for i, x  in items.items():
+        y = {
+                    'itemtype': x.get('itemtype'),
+                    'summary': x.get('summary'),
+                    's': x.get('s'),
+                    # 'f': x.get('f')
+                    }
+        if exst and y in exst:
+            dups += 1
+        else:
+            x['created'] = pendulum.now()
+            new.append(x)
+
+    ids = []
+    if new:
+        ids = ETMDB.insert_multiple(new)
+    msg = f"imported {len(new)} items"
+    if ids:
+        msg += f"\n  ids: {ids[0]}-{ids[-1]}."
+    if dups:
+        msg += f"\n  rejected {dups} items as duplicates"
+    return msg
 
 
 def import_text(import_file=None):
@@ -5134,8 +5204,10 @@ def import_text(import_file=None):
         temp_dbfile = os.path.join(tmpdirname, 'temp.json')
         TEMPDB = data.initialize_tinydb(temp_dbfile)
         TEMPDB.purge()
+        i = 0
         with open(import_file, 'r') as fo:
             for line in fo:
+                i += 1
                 try:
                     s = line.strip()
                     item = Item(temp_dbfile)
@@ -5146,31 +5218,30 @@ def import_text(import_file=None):
                 except Exception as e:
                     logger.error(f"error processing line: '{s}'; {repr(e)}")
 
-    # TEMPDB.insert_multiple(docs)
-    # temp_items = TEMPDB.table('items', cache_size=None)
-
     exst = []
     new = []
-    dups = []
+    dups = 0
     for x in ETMDB:
-        if 'modified' in x:
-            del x['modified']
-        if 'created' in x:
-            del x['created']
-        exst.append(x)
+        exst.append({
+                    'itemtype': x.get('itemtype'),
+                    'summary': x.get('summary'),
+                    's': x.get('s'),
+                    # 'f': x.get('f')
+                    })
+    i = 0
+    num_docs = len(docs)
     for x in docs:
-        created = x.get('created')
-        if created:
-            del x['created']
-        if 'modified' in x:
-            del x['modified']
-        if x in exst:
-            x['created'] = created
-            dups.append(x)
+        i += 1
+        y = {
+                    'itemtype': x.get('itemtype'),
+                    'summary': x.get('summary'),
+                    's': x.get('s'),
+                    # 'f': x.get('f')
+                    }
+        if y in exst:
+            dups += 1
         else:
-            x['created'] = created
             new.append(x)
-
     ids = []
     if new:
         ids = ETMDB.insert_multiple(new)
@@ -5180,7 +5251,6 @@ def import_text(import_file=None):
     if dups:
         msg += f"\n  rejected {len(dups)} items as duplicates"
     return msg
-
 
 def import_json(import_file=None):
     if not import_file:
@@ -5279,8 +5349,7 @@ def import_json(import_file=None):
                         try:
                             rul['u'] = parse(rul['u'], tz=z)
                         except Exception as e:
-                            print(e)
-                            print(rul['u'])
+                            logger.error(f"error parsing rul['u']: {rul['u']}. {e}")
                 if 'w' in rul:
                     if isinstance(rul['w'], list):
                         rul['w'] = ["{0}:{1}".format("{W}", x.upper()) for x in rul['w']]
@@ -5309,15 +5378,20 @@ def import_json(import_file=None):
         exst.append({
                     'itemtype': x.get('itemtype'),
                     'summary': x.get('summary'),
-                    's': x.get('s')
+                    's': x.get('s'),
+                    # 'f': x.get('f')
                     })
+    i = 0
+    num_docs = len(docs)
     for x in docs:
+        i += 1
         y = {
                     'itemtype': x.get('itemtype'),
                     'summary': x.get('summary'),
-                    's': x.get('s')
+                    's': x.get('s'),
+                    # 'f': x.get('f')
                     }
-        if y in exst:
+        if exst and y in exst:
             dups += 1
         else:
             new.append(x)

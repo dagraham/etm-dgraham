@@ -23,6 +23,7 @@ VERSION = version
 
 # What packages are required for this module to be executed?
 REQUIRED = [
+        "icalendar>=4.0.3",
         "Jinja2>=2.10",
         "MarkupSafe>=1.1.0",
         "pendulum>=2.0.4",
