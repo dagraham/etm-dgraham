@@ -1649,6 +1649,7 @@ class DataView(object):
         self.timer_start = None
         self.timer_id = None
         self.timer_job = None
+        self.archive_after = 0
         self.set_etmdir(etmdir)
         self.views = {
                 'a': 'agenda',
@@ -1670,7 +1671,6 @@ class DataView(object):
         self.is_showing_help = False
         self.is_editing = False
         self.is_showing_items = True
-        self.archive_after = 0
         self.get_completions()
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
