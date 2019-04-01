@@ -1,165 +1,177 @@
-Recent changes as of 2019-03-31T15:58:03.441051-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0a66) Dan Graham
-    1cff085 2019-03-31 15:58:03 -0400
+Recent changes as of 2019-04-01T10:31:12.048026-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0b0) Dan Graham
+    d459c72 2019-04-01 10:31:12 -0400
+    Tagged version 4.0.0b0.
+
+- 46 seconds ago (origin/working) Dan Graham
+    26d64d5 2019-04-01 10:30:26 -0400
+    Fixed bug in possible_archive.
+
+- 12 hours ago Dan Graham
+    38ce78d 2019-03-31 22:35:48 -0400
+    removed etm-vim.sh
+
+- 19 hours ago (origin/master, master) Dan Graham
+    c0431d3 2019-03-31 15:58:03 -0400
     Tagged version 4.0.0a66.
 
-- 2 minutes ago Dan Graham
+- 19 hours ago Dan Graham
     66b8b93 2019-03-31 15:55:54 -0400
     Added etm/ical.py. Import file now supports .json, .text and .ics
     files.
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     d4b0007 2019-03-28 12:35:45 -0400
     added @w who corresponding to ical organizer
 
-- 4 days ago (origin/working, origin/master, master) Dan Graham
+- 5 days ago Dan Graham
     8de6917 2019-03-27 11:36:51 -0400
     Tagged version 4.0.0a65.
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     b814695 2019-03-27 11:36:30 -0400
     added pyperclip to setup.py requirements
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     0347c44 2019-03-27 11:22:26 -0400
     Tagged version 4.0.0a64.
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     527c718 2019-03-27 11:22:06 -0400
     Added copy active view to menu, ^c under views.
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     236b292 2019-03-27 11:13:10 -0400
     Added copy active view to clipboard (^c) and the required
     pyperclip to requirements.txt. Tweaked formatting of used time
     reports.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     8a4d8cc 2019-03-26 21:47:07 -0400
     Tagged version 4.0.0a63.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     fa6b1d6 2019-03-26 21:46:53 -0400
     Formatting tweaks for used time views.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     40329d8 2019-03-26 20:37:39 -0400
     Tagged version 4.0.0a62.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     9d1e718 2019-03-26 20:36:35 -0400
     Implemented used time (u) and used time summary (U). The first
     groups by month, day and index and is an item (details/editable)
     view. The groups by month and index and shows totals at each
     level.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     1afdee5 2019-03-26 13:29:33 -0400
     Fixed bug in used_time where splitting on ':' truncated minutes.
     First pass at used_time report.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     954aef5 2019-03-23 17:35:59 -0400
     m -> y in view menus
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     152bb50 2019-03-23 17:29:14 -0400
     Tagged version 4.0.0a61.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     5aac825 2019-03-23 17:28:24 -0400
     Fixed RDict to handle trees with leaves and nodes at the same
     level
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     366f865 2019-03-23 13:30:43 -0400
     monthly calendar -> yearly
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     8da4405 2019-03-23 13:13:04 -0400
     added relevant to sort in index and journal.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     fbdeff4 2019-03-23 12:26:43 -0400
     README tweaks
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     31d6d85 2019-03-23 11:46:18 -0400
     removed wiki from main repository and added to .gitignore. will
     keep as a separate repo.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     86cf5df 2019-03-23 11:34:45 -0400
     menu tweaks. n (next) -> d (do next). Added etm-dgraham.wiki.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     c10f668 2019-03-23 08:00:38 -0400
     Tagged version 4.0.0a60.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     9bc8cca 2019-03-23 08:00:22 -0400
     Added completed to item views
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     0fdedcc 2019-03-22 21:06:44 -0400
     Tagged version 4.0.0a59.
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     1754bdb 2019-03-22 21:06:28 -0400
     Fixed bug in setting row ids for completed view
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     d0a627f 2019-03-22 20:40:41 -0400
     Tagged version 4.0.0a58.
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     19accb1 2019-03-22 20:27:36 -0400
     calendar view -> monthly view, added completed view
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     876b398 2019-03-22 18:48:59 -0400
     moved done items to done view
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     0965d58 2019-03-22 12:09:25 -0400
     search color tweaks
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     e420ab2 2019-03-21 16:57:59 -0400
     Tagged version 4.0.0a57.
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     cdbe6a2 2019-03-21 16:57:35 -0400
     README tweak.
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     0eadfdb 2019-03-21 16:50:45 -0400
     README tweak.
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     98b2473 2019-03-21 15:25:08 -0400
     Added test for running in a virtual environment. Added secret
     setting in options.
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     b0b75c4 2019-03-21 11:48:01 -0400
     Tagged version 4.0.0a56.
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     6310485 2019-03-21 11:43:28 -0400
     Added confirmation/result dialogs to import json and text. Expand
     user and normalized paths to import file. Call data_changed after
     import. Use temp file for text import tinydb.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     7738297 2019-03-20 19:18:12 -0400
     Added import text and json to menu.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     286bf92 2019-03-20 17:35:43 -0400
     Added file dialogs for import text and json.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     07e9315 2019-03-20 16:08:19 -0400
     Work on import_text and import_json. Much work on checking for
     duplicates in json file. Fixed bug in pen_from_fmt. Fixed bug by
@@ -167,19 +179,19 @@ Recent changes as of 2019-03-31T15:58:03.441051-04:00:
     adjusting dst in @- entries. Fixed bug in setting instance for
     non-repeating items in agenda view.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     2832445 2019-03-18 12:35:46 -0400
     cleanup
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     969a7bf 2019-03-18 12:19:27 -0400
     Tagged version 4.0.0a55.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     e4e1e4c 2019-03-18 12:18:51 -0400
     Added datetime_calculator to view bound to f6.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     7c566bd 2019-03-18 09:04:46 -0400
     More work on current week/current day. Call doctest on model and
     view from __main__.
@@ -276,16 +288,16 @@ Recent changes as of 2019-03-31T15:58:03.441051-04:00:
     7323baf 2019-03-15 08:48:31 -0400
     Handle 3 character weekday abbreviations.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     fa5bf04 2019-03-14 22:43:33 -0400
     Tagged version 4.0.0a47.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     58d82f8 2019-03-14 22:43:13 -0400
     Changed tags and attendees from lists to multiple entry for better
     use with completions.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     644c6b8 2019-03-14 18:38:43 -0400
     Fixed bug in do_at's listing of available @-keys
 
@@ -418,15 +430,3 @@ Recent changes as of 2019-03-31T15:58:03.441051-04:00:
 - 3 weeks ago Dan Graham
     677197a 2019-03-11 18:56:00 -0400
     setup fixes ...
-
-- 3 weeks ago Dan Graham
-    887128a 2019-03-11 18:41:25 -0400
-    Tagged version 4.0.0a32.
-
-- 3 weeks ago Dan Graham
-    a268b0a 2019-03-11 18:41:02 -0400
-    setup fixes ...
-
-- 3 weeks ago Dan Graham
-    5fa1ec3 2019-03-11 17:20:10 -0400
-    Tagged version 4.0.0a31.
