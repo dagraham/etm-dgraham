@@ -635,6 +635,7 @@ def new_day(loop):
     dataview.refreshRelevant()
     dataview.activeYrWk = dataview.currentYrWk
     dataview.refreshAgenda()
+    dataview.refreshCurrent()
     dataview.set_active_view('a')
     set_text(dataview.show_active_view())
     get_app().invalidate()
