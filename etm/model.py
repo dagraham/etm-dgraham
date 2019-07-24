@@ -4886,6 +4886,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     busy = []
 
     for item in db:
+        if item.get('itemtype', None) == None:
+            logger.error(f"itemtype missing from {item}")
+            continue
         if item['itemtype'] in "!?":
             continue
 
