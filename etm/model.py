@@ -3395,13 +3395,15 @@ def get_next_due(item, done, due):
         return ''
     rset = rruleset()
     overdue = item.get('o', 'k')
+    dtstart = item['s']
     if overdue == 'k':
         aft = due
         inc = False
     elif overdue == 'r':
         aft = done
+        dtstart = done
         inc = False
-    else:  # 's'
+    else:  # 's' skip
         today = pendulum.today()
         if due < today:
             aft = today
@@ -3409,9 +3411,8 @@ def get_next_due(item, done, due):
         else:
             aft = due
             inc = False
-
     using_dates = False
-    dtstart = item['s']
+    # logger.info(f'overdue: {overdue}; aft: {aft}; inc: {inc}; dtstart: {dtstart}')
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
         using_dates = True
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
@@ -3435,6 +3436,7 @@ def get_next_due(item, done, due):
     nxt = pendulum.instance(nxt_rset)
     if using_dates:
         nxt = nxt.date()
+    # logger.info(f"nxt: {nxt}")
     return nxt
 
 
