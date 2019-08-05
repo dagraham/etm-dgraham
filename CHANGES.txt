@@ -1,18 +1,26 @@
-Recent changes as of 2019-07-29T17:17:25.986369-04:00:
-- 1 second ago (HEAD -> master, tag: 4.0.0b3) Dan Graham
-    d41e7b6 2019-07-29 17:17:25 -0400
+Recent changes as of 2019-08-05T10:29:55.471883-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0b4) Dan Graham
+    ac8c669 2019-08-05 10:29:55 -0400
+    Tagged version 4.0.0b4.
+
+- 45 seconds ago Dan Graham
+    e6b1e30 2019-08-05 10:29:10 -0400
+    Fixed bug in showing reps for all-day items
+
+- 7 days ago (origin/master, master) Dan Graham
+    e99bca0 2019-07-29 17:17:25 -0400
     Tagged version 4.0.0b3.
 
-- 3 minutes ago (origin/working, working, restart) Dan Graham
+- 7 days ago (origin/working, restart) Dan Graham
     fbe4ca6 2019-07-29 17:14:03 -0400
     When finishing overdue r task, set dtstart to the completion
     datetime
 
-- 5 days ago (origin/master) Dan Graham
+- 12 days ago Dan Graham
     a7ca7cb 2019-07-24 12:20:56 -0400
     Tagged version 4.0.0b2.
 
-- 5 days ago Dan Graham
+- 12 days ago Dan Graham
     acebea1 2019-07-24 12:06:34 -0400
     Added check for missing itemtype in schedule
 
@@ -99,108 +107,108 @@ Recent changes as of 2019-07-29T17:17:25.986369-04:00:
     Fixed bug in used_time where splitting on ':' truncated minutes.
     First pass at used_time report.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     954aef5 2019-03-23 17:35:59 -0400
     m -> y in view menus
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     152bb50 2019-03-23 17:29:14 -0400
     Tagged version 4.0.0a61.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     5aac825 2019-03-23 17:28:24 -0400
     Fixed RDict to handle trees with leaves and nodes at the same
     level
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     366f865 2019-03-23 13:30:43 -0400
     monthly calendar -> yearly
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     8da4405 2019-03-23 13:13:04 -0400
     added relevant to sort in index and journal.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     fbdeff4 2019-03-23 12:26:43 -0400
     README tweaks
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     31d6d85 2019-03-23 11:46:18 -0400
     removed wiki from main repository and added to .gitignore. will
     keep as a separate repo.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     86cf5df 2019-03-23 11:34:45 -0400
     menu tweaks. n (next) -> d (do next). Added etm-dgraham.wiki.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     c10f668 2019-03-23 08:00:38 -0400
     Tagged version 4.0.0a60.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     9bc8cca 2019-03-23 08:00:22 -0400
     Added completed to item views
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     0fdedcc 2019-03-22 21:06:44 -0400
     Tagged version 4.0.0a59.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     1754bdb 2019-03-22 21:06:28 -0400
     Fixed bug in setting row ids for completed view
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     d0a627f 2019-03-22 20:40:41 -0400
     Tagged version 4.0.0a58.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     19accb1 2019-03-22 20:27:36 -0400
     calendar view -> monthly view, added completed view
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     876b398 2019-03-22 18:48:59 -0400
     moved done items to done view
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     0965d58 2019-03-22 12:09:25 -0400
     search color tweaks
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     e420ab2 2019-03-21 16:57:59 -0400
     Tagged version 4.0.0a57.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     cdbe6a2 2019-03-21 16:57:35 -0400
     README tweak.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     0eadfdb 2019-03-21 16:50:45 -0400
     README tweak.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     98b2473 2019-03-21 15:25:08 -0400
     Added test for running in a virtual environment. Added secret
     setting in options.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     b0b75c4 2019-03-21 11:48:01 -0400
     Tagged version 4.0.0a56.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     6310485 2019-03-21 11:43:28 -0400
     Added confirmation/result dialogs to import json and text. Expand
     user and normalized paths to import file. Call data_changed after
     import. Use temp file for text import tinydb.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     7738297 2019-03-20 19:18:12 -0400
     Added import text and json to menu.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     286bf92 2019-03-20 17:35:43 -0400
     Added file dialogs for import text and json.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     07e9315 2019-03-20 16:08:19 -0400
     Work on import_text and import_json. Much work on checking for
     duplicates in json file. Fixed bug in pen_from_fmt. Fixed bug by
@@ -208,28 +216,28 @@ Recent changes as of 2019-07-29T17:17:25.986369-04:00:
     adjusting dst in @- entries. Fixed bug in setting instance for
     non-repeating items in agenda view.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     2832445 2019-03-18 12:35:46 -0400
     cleanup
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     969a7bf 2019-03-18 12:19:27 -0400
     Tagged version 4.0.0a55.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     e4e1e4c 2019-03-18 12:18:51 -0400
     Added datetime_calculator to view bound to f6.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     7c566bd 2019-03-18 09:04:46 -0400
     More work on current week/current day. Call doctest on model and
     view from __main__.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     f0cbd23 2019-03-17 19:22:12 -0400
     cleanup
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     ec1a100 2019-03-17 19:03:35 -0400
     Call doctest from __main__. Updated doctest outputs. Added
     date_calculator.
@@ -421,12 +429,3 @@ Recent changes as of 2019-07-29T17:17:25.986369-04:00:
 - 5 months ago Dan Graham
     b2440df 2019-03-12 14:05:53 -0400
     Tagged version 4.0.0a36.
-
-- 5 months ago Dan Graham
-    ee4c80c 2019-03-12 14:05:31 -0400
-    Improved bump to handle transions from a -> b, b -> rc, rc ->
-    patch and so forth.
-
-- 5 months ago Dan Graham
-    c47f7dc 2019-03-12 13:48:55 -0400
-    Improved bump
