@@ -555,7 +555,11 @@ class Item(object):
             logger.debug(f"item: {item}")
             return showing, "not a repeating item"
         relevant = item['s'] 
-        starting = format_datetime(relevant)
+        using_dates = False
+        if isinstance(relevant, pendulum.Date) and not isinstance(relevant, pendulum.DateTime):
+            using_dates = True
+            relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0)
+
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
