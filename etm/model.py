@@ -453,7 +453,7 @@ class Item(object):
         # all else do not need item_hsh
         self.keys = {
                 'itemtype': ["item type", "character from * (event), - (task), % (journal) or ! (inbox)", self.do_itemtype],
-                'summary': ["summary", "brief item description", self.do_summary],
+                'summary': ["summary", "brief item description. Append an '@' to add an option.", self.do_summary],
                 '+': ["include", "list of datetimes to include", self.do_datetimes],
                 '-': ["exclude", "list of datetimes to exclude", self.do_datetimes],
                 'a': ["alerts", "list of alerts", do_alert],
@@ -555,9 +555,7 @@ class Item(object):
             logger.debug(f"item: {item}")
             return showing, "not a repeating item"
         relevant = item['s'] 
-        using_dates = False
         if isinstance(relevant, pendulum.Date) and not isinstance(relevant, pendulum.DateTime):
-            using_dates = True
             relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0)
 
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
