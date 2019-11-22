@@ -1,9 +1,17 @@
-Recent changes as of 2019-11-22T08:46:04.719000-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0b5) Dan Graham
-    a8e771a 2019-11-22 08:46:04 -0500
+Recent changes as of 2019-11-22T10:04:43.996657-05:00:
+- 1 second ago (HEAD -> working, tag: 4.0.0b6) Dan Graham
+    4f533b4 2019-11-22 10:04:43 -0500
+    Tagged version 4.0.0b6.
+
+- 30 seconds ago Dan Graham
+    b64ad3d 2019-11-22 10:04:14 -0500
+    Cleaned up debugging
+
+- 79 minutes ago (origin/working, origin/master, master) Dan Graham
+    c7966e6 2019-11-22 08:46:04 -0500
     Tagged version 4.0.0b5.
 
-- 2 minutes ago (origin/working, origin/master, master) Dan Graham
+- 81 minutes ago Dan Graham
     a6f3a90 2019-11-22 08:43:50 -0500
     Catch dateutil timezone warnings as errors in parse
 
@@ -418,12 +426,3 @@ Recent changes as of 2019-11-22T08:46:04.719000-05:00:
 - 9 months ago Dan Graham
     ccf42e4 2019-03-12 20:22:12 -0400
     Maybe fixed logo path in README
-
-- 9 months ago Dan Graham
-    8184ce4 2019-03-12 20:15:14 -0400
-    Tagged version 4.0.0a38.
-
-- 9 months ago Dan Graham
-    a0c3c74 2019-03-12 20:15:02 -0400
-    Changed github url to etm-dgraham and made the corresponding
-    change in setup.py
