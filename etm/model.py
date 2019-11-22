@@ -13,7 +13,14 @@ yaml = YAML(typ='safe', pure=True)
 
 from ruamel.yaml import __version__ as ruamel_version
 
+import dateutil
+from dateutil.rrule import *
+from dateutil import __version__ as dateutil_version
+
+from warnings import filterwarnings
+
 def parse(s, **kwd):
+    # logger.debug(f"parse: {s} {kwd}")
     return pendulum_parse(s, strict=False, **kwd)
 
 import sys
@@ -22,11 +29,6 @@ from re import finditer
 
 from tinydb import __version__ as tinydb_version
 from tinydb import Query
-
-import dateutil
-import dateutil.rrule
-from dateutil.rrule import *
-from dateutil import __version__ as dateutil_version
 
 from jinja2 import Template
 from jinja2 import __version__ as jinja2_version
@@ -1306,6 +1308,8 @@ def parse_datetime(s, z=None):
     >>> dt
     ('local', DateTime(2019, 3, 24, 17, 0, 0, tzinfo=Timezone('America/New_York')), None)
     """
+
+    filterwarnings("error")
     if z is None:
         tzinfo = 'local'
         ok = 'local'
@@ -1962,7 +1966,9 @@ class DataView(object):
 
     def get_details(self, row=None, edit=False):
         res = self.get_row_details(row)
-        if not res:
+        logger.info(f"res {res}")
+        print(f"got res {res}")
+        if not res or not res[0]:
             return None, ''
         item_id = res[0]
 
