@@ -1966,8 +1966,6 @@ class DataView(object):
 
     def get_details(self, row=None, edit=False):
         res = self.get_row_details(row)
-        logger.info(f"res {res}")
-        print(f"got res {res}")
         if not res or not res[0]:
             return None, ''
         item_id = res[0]
