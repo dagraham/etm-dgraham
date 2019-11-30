@@ -316,14 +316,16 @@ def process_entry(s, settings={}):
     elif s[0] not in type_keys:
         return {(0, len(s) + 1): ('itemtype', s[0])}, [('itemtype', s[0])]
     # look for expansions
-    xpat = re.compile("\s_[a-zA-Z]+\s")
-    matches = xpat.findall(s)
-    if settings:
-        for x in matches:
-            x = x.strip()
-            if x in settings['expansions']:
-                replacement = settings['expansions'][x]
-                s = s.replace(x, replacement)
+    xpat = re.compile("@x\s+[a-zA-Z]+\s")
+    match = xpat.findall(s)
+    if match and settings:
+        logger.debug(f"settings: {settings}; s: {s}; match: {match}")
+        xparts = match[0].split(' ')
+        logger.debug(f"xparts: {xparts}")
+        if xparts[1] in settings['expansions']:
+            replacement = settings['expansions'][xparts[1]] + xparts[2]
+            s = s.replace(match[0], replacement)
+            logger.debug(f"settings expansions replacement: {replacement}, s: {s}")
 
     pattern = re.compile("\s[@&][a-zA-Z+-]")
     parts = []

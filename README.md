@@ -2,18 +2,19 @@
 <!-- ![event and task manager](https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png) -->
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" />
 
-*etm* offers a simple way to manage your events, tasks and other reminders. Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used. This is the fourth generation of a project that began in 2009. 
 
-Each reminder in *etm* begins with a *type character* followed by a brief *summary* of the item and then, perhaps, by one or more *@key value* pairs to specify other attributes of the reminder. Mnemonics are used to make the keys easy to remember, e.g, @s for starting datetime, @l for location, @d for description and so forth.
+## [Reminders](#etm)
 
-There are 4 types of reminders and associated *type characters*: task (**-**),event (**\***), record (**%**) and inbox (**!**). See [Item Types](#item-types) for details about the four item types and [Options](#options) for details about possible attributes. Here are some examples.
+*etm* offers a simple way to manage your events, tasks and other reminders. 
 
-## [Simple reminders](#etm)
+Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used. Each reminder in *etm* begins with a *type character* followed by a brief *summary* of the item and then, perhaps, by one or more *@key value* pairs to specify other attributes of the reminder. Mnemonics are used to make the keys easy to remember, e.g, @s for starting datetime, @l for location, @d for description and so forth.
+
+There are 4 types of reminders and associated *type characters*: task (**-**),event (**\***), record (**%**) and inbox (**!**). Here are a few examples: 
 
 * A task (**-**): pick up milk. 
 
 		- pick up milk
-* An event (**\***): have lunch with Burk [s]tarting next Tuesday at 12pm and [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm.
+* An event (**\***): lunch with Burk [s]tarting next Tuesday at 12pm and [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm.
 
         * Lunch with Burk @s tue 12p @e 90m
 
@@ -30,7 +31,7 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
 
         ! Coffee with Alex @s fri ? @e 1h
 
-## [Repetition](#etm)
+Reminders that repeat:
 
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
@@ -44,20 +45,10 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
 * Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the pastdue reminders.
 
         - Take out trash @s mon @r w @o s
-
 * A sales meeting (an event) [r]epeating m)onthly on [w]eekdays that are either the first or third Tuesdays in the month.
 
         * sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
 
-## [More complex repetition](#etm)
-
-* Take a prescribed medication daily [s]tarting at 12am Monday and [r]epeating (d)aily at [h]ours 10am, 2pm, 6pm and 10pm [u]ntil 12am on Friday. 
-
-        * take Rx @s mon @r d &h 10, 14, 18, 22 &u fri
-* Move the water sprinkler every thirty minutes (@r n &i 30) between 2pm and 4:30pm (&h 14, 15, 16) on Sundays (&w SU) from April through September (&M 4, 5, 6, 7, 8, 9).
-
-        * Move sprinkler @s sun @r n &i 30 &w SU &h 14, 15, 16, 17 
-		  &M 4, 5, 6, 7, 8, 9
 * Presidential election day every four years on the first Tuesday after a Monday in November (a Tuesday whose month day falls between 2 and 8).
 
         * Presidential Election Day @s 2012-11-06
@@ -70,10 +61,54 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
         * Friday tennis @s 2019-01-01 6a @e 90m
           @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
           @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
-
 * Payday on the last week day of each month. The &s -1 part of the entry extracts the last (-1) date which is both a weekday and falls within the last three days of the month):
 
         * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
+
+See [Item Types](#item-types) for details about these item types and [Options](#options) for details about possible attributes.
+
+## [Viewing reminders](#etm)
+
+_etm_ has several ways of viewing entries. This are listed below by  the shortcut key used to activate the view. E.g., pressing “a” activates _Agenda_ view.
+
+a) Agenda
+b) Busy
+c) Completed
+d) Do Next
+h) History
+i) Index
+j) Journal
+r) Relevant
+u) Used Time 
+U) Used Time Summary
+
+While the views differ in many respects, they also share some common aspects:
+
+* Press “N” in any view to create a new item.
+* Select a reminder by clicking on it or by using the up and down cursor keys to move the cursor to the line displaying the reminder. 
+* With a reminder selected:
+    * Press “return” to toggle displaying the details. 
+    * Pressing “E” to edit.  Then press “Ctrl-S” to save your changes and end  editing or “Ctrl-C” to end editing without saving your changes.
+    * Press “C” to open a copy for editing.
+    * Press “D” to delete after a confirmation prompt .
+    * Press “R” to reschedule.
+    * Press “S” to schedule a new  instance.
+    * For an item with an @g  “goto” link, press “Ctrl-G” to open the link.
+    * For an item that repeats, press “Ctrl-R” to show repetitions.
+    * Timers
+        * Press “t” to start a timer for  the item.
+        * With a timer active, press “t” to toggle paused/running.
+        * Press “T” to record the time and close the timer.
+* Movement
+    * Press page up or page down to shift the display a page at a time. 
+    * Press “l”  (lower case L) and enter a number to move the cursor to a particular line  number. 
+    * In the weekly views a),  b) and c), press “g” and enter a date to display the week containing the date.
+    * In the dated views a), b), c), u), U) and y), press the right or left cursor keys to go  to the next or previous period, respectively, and the space bar to return to the current period.
+* Search.
+    * Press “/“ (forward slash) and enter an expression to search the view for an item whose summary contains (case insensitive) the expression. 
+    * After entering the search expression, press “n” to search  forward  (cyclically)  for other matches.
+
+
 
 ## [Editing](#etm) ##
 
@@ -172,7 +207,7 @@ A task is something that requires action from the user and lasts, so to speak, u
     - Tasks with an `@s` datetime entry are regarded as pastdue after the datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
     - Tasks with `@s` date entry are regarded as pastdue after the due date and are displayed in *Agenda View* on the due date before all items with datetimes.
     - Tasks that are pastdue are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
-- Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Next View* grouped by @l (location/context).
+- Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Do Next* view grouped by @l (location/context).
 - Jobs
     - Tasks, both with and without @s entries can have component jobs using @j entries.  
     - For tasks with an @s entry, jobs can have an &s entry to set the due date/datetime for the job. It is entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task. Zero minutes is the default when &s is not entered.
@@ -267,7 +302,7 @@ Type character: **✓**
 
 When a task or job is finished, it is displayed on the finished date using **✓** rather than **-**. 
 
-## [Item options](#etm)
+## [Options](#etm)
 
 ### [@ keys](#etm) 
 
@@ -305,7 +340,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 
 & followed by a character from one of the lists below. These keys are only used with @j (job) and @r (repetition) entries.
 
-#### for use with @j
+For use with @j:
 
 *  &s: start/due: period relative to @s entry (default 0m)
 *  &a: alert: list of + (before) or - (after) periods relative to &s: list of cmd names from the users configuration file
@@ -314,12 +349,12 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  &e: extent: period
 *  &f: finish: datetime
 *  &l: location/context: string
-*  &m: mask: string stored in obfuscated form
+*  &m: masked: string stored in obfuscated form
 *  &i: job unique id (string)
 *  &p: prerequisites (comma separated list of ids of immediate prereqs)
 *  &u: usedtime: period: datetime
 
-#### for use with @r
+For use with @r:
 
 *  &c: count: integer number of repetitions 
 *  &E: easter: number of days before (-), on (0) or after (+) Easter
@@ -334,30 +369,35 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  &W: week number: list of integers in (1, ..., 53)
 
 
-### [Option notes](#etm)
+### [Notes](#etm)
 
-* @a alerts and @b beginbys
-    * With an email alert, the item summary is used as the subject and emails are sent to each attendee listed in an @n entry. The content of the body of the emails is a option that can be set in the user's configuration file. 
-    * For repeating items, alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance.
-* Repetition
-    * Using @s, @r and, optionally, @+. Datetimes from @+, if any, are added to the datetimes generated from the @r entry which fall on or after the @s datetime. Note that the datetime from @s will only be included if it matches one generated by the @r entry or by one included in @+.  
+@a alerts and @b beginbys:
 
-            * my event @s 2018-02-15 3p @r d &h 18 @+ 2018-03-02 4p
-        would repeat daily at 6pm starting Feb 15 and at 4pm on Mar 2, *but not* at 3pm on Feb 15. 
-    * Using @s and, optionally, @+ (but without @r). Datetimes from @+, if any, are added to @s. E.g., 
+* With an email alert, the item summary is used as the subject and emails are sent to each attendee listed in an @n entry. The content of the body of the emails is a option that can be set in the user's configuration file. 
+* Alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance.
 
-            * my event @s 2018-02-15 3p @+ 2018-03-02 4p
-        would repeat at 4pm on Mar 2 *and* 3pm on Feb 15.
-    * Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would at best be redundant. A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
-* @m masked entry. These entries are encoded in the database in an obfuscated or masket format but decoded when displayed in etm itself. A key, *secret*, specified in the user configuration file is used for the encoding/decoding.
-* @x expansions. The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
+Repetition:
+
+* Using @s, @r and, optionally, @+. Datetimes from @+, if any, are added to the datetimes generated from the @r entry which fall on or after the @s datetime. Note that the datetime from @s will only be included if it matches one generated by the @r entry or by one included in @+.  
+
+        * my event @s 2018-02-15 3p @r d &h 18 @+ 2018-03-02 4p
+    would repeat daily at 6pm starting Feb 15 and at 4pm on Mar 2, *but not* at 3pm on Feb 15. 
+* Using @s and, optionally, @+ (but without @r). Datetimes from @+, if any, are added to @s. E.g., 
+
+        * my event @s 2018-02-15 3p @+ 2018-03-02 4p
+    would repeat at 4pm on Mar 2 *and* 3pm on Feb 15.
+* Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would at best be redundant. A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
+
+@m masked entry. These entries are encoded in the database in an obfuscated or masked format but decoded when displayed in etm itself. A key, *secret*, specified in the user configuration file is used for the encoding/decoding.
+
+@x expansions. The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
             expansions:
                 tennis: '@e 1h30m @a 30m, 15m: d @i personal:tennis'
                 ...
-    Then entering `@x tennis` in the following item
+Then the `@x tennis` entry in the following reminder
 
-            * Conflict and Cooperation @s 1/25/2018 9:35am @x class 
-    etm would offer to replace *@x class* with the corresponding entry from expansions, *@e 1h30m @a 30m, 15m: d @i personal:tennis*.
+        * Conflict and Cooperation @s 1/25/2018 9:35am @x tennis 
+would be replaced by *@e 1h30m @a 30m, 15m: d @i personal:tennis*.
 
 
