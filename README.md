@@ -71,16 +71,15 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
 _etm_ has several ways of viewing entries. This are listed below by  the shortcut key used to activate the view. E.g., pressing “a” activates _Agenda_ view.
 
-a) Agenda
-b) Busy
-c) Completed
-d) Do Next
-h) History
-i) Index
-j) Journal
-r) Relevant
-u) Used Time 
-U) Used Time Summary
+  * a) Agenda
+  * b) Busy
+  * c) Completed
+  * d) Do Next
+  * h) History
+  * i) Index
+  * j) Journal
+  * r) Relevant
+  * u) Used Time or U) Used Time Summary
 
 While the views differ in many respects, they also share some common aspects:
 
@@ -388,16 +387,30 @@ Repetition:
     would repeat at 4pm on Mar 2 *and* 3pm on Feb 15.
 * Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would at best be redundant. A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
-@m masked entry. These entries are encoded in the database in an obfuscated or masked format but decoded when displayed in etm itself. A key, *secret*, specified in the user configuration file is used for the encoding/decoding.
+@m masked entry. These entries are encoded in the database in an obfuscated or masked format but decoded when displayed in etm itself. A key, *secret*, specified in the user configuration file is used for the encoding/decoding. E.g., a reminder that appears as
+
+        % masked entry @s 2019-11-30 4pm @m obfuscated entry
+
+in *etm* could appear in the database as
+
+        "1685": {
+        "itemtype": "%",
+        "summary": "masked entry",
+        "s": "{T}:20191130T2100A",
+        "m": "{M}:w5TDlsOTwpXDnMOWwoHDm8OXw4nCgcOZwo_DmcOmw6Y=",
+        "created": "{T}:20191130T1642A",
+        "modified": "{T}:20191130T1643A"
+        }
+
 
 @x expansions. The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
             expansions:
-                tennis: '@e 1h30m @a 30m, 15m: d @i personal:tennis'
+                tennis: '@e 1h30m @a 30m, 15m: v @i personal:tennis'
                 ...
-Then the `@x tennis` entry in the following reminder
+Then when entering the following reminder
 
         * Conflict and Cooperation @s 1/25/2018 9:35am @x tennis 
-would be replaced by *@e 1h30m @a 30m, 15m: d @i personal:tennis*.
+tab completion would offer `'@e 1h30m @a 30m, 15m: v @i personal:tennis'` as a replacement for `'@x tennis'`.
 
 
