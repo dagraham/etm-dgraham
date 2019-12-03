@@ -67,7 +67,7 @@ Reminders that repeat:
 
 See [Item Types](#item-types) for details about these item types and [Options](#options) for details about possible attributes.
 
-## [Viewing reminders](#etm)
+## [Views](#etm)
 
 _etm_ has several ways of viewing entries. This are listed below by  the shortcut key used to activate the view. E.g., pressing “a” activates _Agenda_ view.
 
@@ -121,7 +121,7 @@ Etm offers several conveniences when creating or modifying an item.
     * `@s 2p fri` would be interpreted as the datetime 2pm Fri, Feb 15 in the local timezone.
     * `@s 2p fri @z US/Pacific` would be interpreted as the datetime 2pm Fri, Feb 15 in the Pacific timezone but would be displayed as the corresponding time in the local timezone.
     * `@s 2p fri @z float` would be interpreted as the naive datetime 2pm Fri, Feb 15 and would be displayed as such in whatever happens to be the local timezone.
-* Automatic completion for elements you have used before including @z (timezone), @c (calendar), @t (tags), @i (index), @l (location), @n (attendees) and @x (expansion). E.g. when entering @z, you can choose from any timezone you have previously used. 
+* Automatic tab completion for elements you have used before including @z (timezone), @c (calendar), @t (tags), @i (index), @l (location), @n (attendees) and @x (expansion). E.g. when entering @z, you can choose from any timezone you have previously used. 
 
 # [Details](#etm)
 
@@ -137,7 +137,7 @@ Open a terminal and begin by creating a new directory/folder, say `etm-pypi` in 
 
         $ mkdir ~/etm-pypi
         $ cd ~/etm-pypi
-Now continue by creating the virtual environment (python3 is required):
+Now continue by creating the virtual environment (python >= 3.6 is required):
 
         $ python3 -m venv env
 After a few seconds you will have an `./env` directory. Now activate the virtual environment:
@@ -153,7 +153,7 @@ This will install etm and all its requirements in `./env/lib/python3.x/sitepacka
 
 By the way, the suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set in `cfg.yaml`.
 
-Before you start etm, think about where you would like to keep your personal data and configuration files. The default is to use `~/etm-pypi` or whatever directory you created for your virtual environment as your etm *home* directory. If this is not what you want, you can just give the path for whatever directory you would like to use when you start etm, e.g.,
+Before you start etm, think about where you would like to keep your personal data and configuration files. The default is to use whatever directory you created for your virtual environment as your etm *home* directory. If this is not what you want, you can just give the path for whatever directory you would like to use when you start etm, e.g.,
 
         (env) $ etm ~/Documents/etm
 
@@ -164,7 +164,7 @@ Considerations:
 
 Whatever *home* directory you choose, running etm for the first time will add the following to that folder.
 
-        home/
+        etm home directory/
             backups/
             logs/
             cfg.yaml
@@ -253,7 +253,7 @@ A task is something that requires action from the user and lasts, so to speak, u
 
 Corresponds to VTODO in the vcalendar specification.
 
-### [Journal](#etm)
+### [record](#etm)
 
 Type character: **%**
 
@@ -273,9 +273,9 @@ An inbox item can be regarded as a task that is always due on the current date. 
 
 Corresponds to VTODO in the vcalendar specification.
 
-### [Internal types](#etm)
+### [status](#etm)
 
-These are generated automatically by *etm*.
+These type characters are generated automatically by *etm* to display the status of reminders.
 
 #### [beginning soon](#etm)
 
@@ -303,9 +303,11 @@ When a task or job is finished, it is displayed on the finished date using **✓
 
 ## [Options](#etm)
 
+Note: The term "list" in the following means a comma and space separated list of elements, e.g., `@+ 2p Thu, 9p Mon, 11a Wed`.
+
 ### [@ keys](#etm) 
 
-@ followed by a character from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
+`@` followed by a character from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
 
             @s mon 9a
 would specify the the starting datetime for the item is 9am on the Monday following the current date.
@@ -335,6 +337,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @x: expansion key: string
 *  @z: timezone: string
 
+
 ### [& keys](#etm)
 
 & followed by a character from one of the lists below. These keys are only used with @j (job) and @r (repetition) entries.
@@ -346,7 +349,7 @@ For use with @j:
 *  &b: beginby: integer number of days before &s
 *  &d: description: string
 *  &e: extent: period
-*  &f: finish: datetime
+*  &f: finished: datetime
 *  &l: location/context: string
 *  &m: masked: string stored in obfuscated form
 *  &i: job unique id (string)
@@ -380,11 +383,11 @@ Repetition:
 * Using @s, @r and, optionally, @+. Datetimes from @+, if any, are added to the datetimes generated from the @r entry which fall on or after the @s datetime. Note that the datetime from @s will only be included if it matches one generated by the @r entry or by one included in @+.  
 
         * my event @s 2018-02-15 3p @r d &h 18 @+ 2018-03-02 4p
-    would repeat daily at 6pm starting Feb 15 and at 4pm on Mar 2, *but not* at 3pm on Feb 15. 
+    would repeat daily at 6pm starting Feb 15 and at 4pm on Mar 2, *but not* at 3pm on Feb 15 which is specified in `@s`. 
 * Using @s and, optionally, @+ (but without @r). Datetimes from @+, if any, are added to @s. E.g., 
 
         * my event @s 2018-02-15 3p @+ 2018-03-02 4p
-    would repeat at 4pm on Mar 2 *and* 3pm on Feb 15.
+    would repeat at 4pm on Mar 2 *and* at 3pm on Feb 15 since `@r` is not specified.
 * Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would at best be redundant. A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
 @m masked entry. These entries are encoded in the database in an obfuscated or masked format but decoded when displayed in etm itself. A key, *secret*, specified in the user configuration file is used for the encoding/decoding. E.g., a reminder that appears as

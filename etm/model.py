@@ -59,6 +59,7 @@ from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.styles import Style
 from prompt_toolkit.output import ColorDepth
 from prompt_toolkit import __version__ as prompt_toolkit_version
+PTK3 = prompt_toolkit_version.startswith('3.')
 
 # from __version__ import version as etm_version
 
@@ -1329,7 +1330,7 @@ def parse_datetime(s, z=None):
     except:
         return False, f"'{s}' is incomplete or invalid", z
     else:
-        if (tzinfo is 'local' or tzinfo == 'float') and (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
+        if (tzinfo == 'local' or tzinfo == 'float') and (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
             return 'date', res.replace(tzinfo='Factory').date(), z
         elif ok == 'aware':
             return ok, res.in_timezone('UTC'), z
@@ -1774,7 +1775,7 @@ class DataView(object):
         else:
             lastcfgtime = None
         if lastcfgtime is None or cfgmtime > lastcfgtime:
-            logger.info(f"lastcfgtime: {lastcfgtime}; cfgmtime: {cfgmtime}; last cfgfile: {cfgfiles[0]}")
+            logger.info(f"lastcfgtime: {lastcfgtime}; cfgmtime: {cfgmtime}; cfgfiles: {cfgfiles}")
             backupfile = os.path.join(self.backupdir, f"{timestamp}-cfg.yaml")
             shutil.copy2(self.cfgfile, backupfile)
             logger.info(f"backed up {self.cfgfile} to {backupfile}")
@@ -1790,6 +1791,8 @@ class DataView(object):
             logger.info(f"removing old files: {removefiles}")
             for f in removefiles:
                 os.remove(f)
+        logger.debug(f"leaving handle_backups")
+        return True
 
     def timer_toggle(self, row=None):
         if self.timer_status == 0: # stopped

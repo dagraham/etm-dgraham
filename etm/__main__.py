@@ -137,8 +137,8 @@ def main():
     else:
         logger.info(f"calling view.main with etmdir: {etmdir}")
         from etm.view import main
-        main(etmdir)
-
+        import asyncio
+        asyncio.run(main(etmdir))
 
 if __name__ == "__main__":
     main()

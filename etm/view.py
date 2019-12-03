@@ -5,6 +5,9 @@ A user interface based on prompt_toolkit.
 from __future__ import unicode_literals
 
 import sys
+
+from prompt_toolkit import __version__ as prompt_toolkit_version
+
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import HSplit, VSplit, Window, WindowAlign, ConditionalContainer
@@ -16,10 +19,6 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
 from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
-from asyncio import get_event_loop
-from prompt_toolkit.eventloop import use_asyncio_event_loop
-from prompt_toolkit.eventloop import Future, ensure_future, Return, From
-
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.application.current import get_app
 # from prompt_toolkit.completion import WordCompleter
@@ -36,6 +35,10 @@ import shutil
 from prompt_toolkit.layout import Float
 from prompt_toolkit.widgets import Dialog, Label, Button
 
+# from asyncio import .get_event_loop
+# from prompt_toolkit.eventloop import use_asyncio_event_loop
+# from prompt_toolkit.eventloop import Future, ensure_future, Return, From
+import asyncio
 
 import pendulum
 from pendulum import parse as pendulum_parse
@@ -111,7 +114,7 @@ class InteractiveInputDialog(object):
 
 class TextInputDialog(object):
     def __init__(self, title='', label_text='', default='', padding=10, completer=None):
-        self.future = Future()
+        self.future = asyncio.Future()
 
         def accept_text(buf):
             get_app().layout.focus(ok_button)
@@ -150,7 +153,7 @@ class TextInputDialog(object):
 
 class RadioListDialog(object):
     def __init__(self, title='', text='', label='', values=[], padding=4, completer=None):
-        self.future = Future()
+        self.future = asyncio.Future()
 
         self.radios = RadioList(values=values)
         # radios.current_value will contain the first component of the selected tuple 
@@ -189,7 +192,7 @@ class RadioListDialog(object):
 
 class MessageDialog(object):
     def __init__(self, title="", text="", padding=10):
-        self.future = Future()
+        self.future = asyncio.Future()
 
         def set_done():
             self.future.set_result(None)
@@ -211,7 +214,7 @@ class MessageDialog(object):
 
 class ConfirmDialog(object):
     def __init__(self, title="", text="", padding=10):
-        self.future = Future()
+        self.future = asyncio.Future()
 
         def set_yes():
             self.future.set_result(True)
@@ -236,10 +239,9 @@ class ConfirmDialog(object):
 def show_message(title, text, padding=6):
     def coroutine():
         dialog = MessageDialog(title, text, padding)
-        yield From(show_dialog_as_float(dialog))
+        yield from(show_dialog_as_float(dialog))
 
-    ensure_future(coroutine())
-
+    asyncio.ensure_future(coroutine())
 
 
 def show_dialog_as_float(dialog):
@@ -251,13 +253,13 @@ def show_dialog_as_float(dialog):
 
     focused_before = app.layout.current_window
     app.layout.focus(dialog)
-    result = yield dialog.future
+    result = yield from(dialog.future)
     app.layout.focus(focused_before)
 
     if float_ in root_container.floats:
         root_container.floats.remove(float_)
 
-    raise Return(result)
+    return result
 
 
 def show_confirm_as_float(dialog):
@@ -275,7 +277,7 @@ def show_confirm_as_float(dialog):
     if float_ in root_container.floats:
         root_container.floats.remove(float_)
 
-    raise Return(result)
+    return result
 
 
 # Key bindings.
@@ -320,7 +322,7 @@ Timezones can be appended to x and y.
             )
         yield From(show_dialog_as_float(dialog))
 
-    ensure_future(coroutine())
+    asyncio.ensure_future(coroutine())
 
 # @bindings.add('f6')
 # def do_open_config(*event):
@@ -338,7 +340,7 @@ def save_before_quit(*event):
             dataview.is_editing = False
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
-            loop = get_event_loop()
+            loop = asyncio.get_event_loop()
             loop.call_later(0, item_changed, loop)
 
     ensure_future(coroutine())
@@ -447,7 +449,7 @@ def do_go_to_line(*event):
                 text_area.buffer.cursor_position = \
                     text_area.buffer.document.translate_row_col_to_index(line_number - 1, 0)
 
-    ensure_future(coroutine())
+    asyncio.ensure_future(coroutine())
 
 
 @bindings.add('g', filter=is_viewing_or_details)
@@ -632,8 +634,9 @@ def data_changed(loop):
         text_area.buffer.cursor_position = text_area.buffer.document.translate_row_col_to_index(dataview.current_row, 0)
     get_app().invalidate()
 
-def new_day(loop):
+async def new_day(loop):
     logger.info(f"new_day currentYrWk: {dataview.currentYrWk}")
+    asyncio.gather()
     dataview.refreshRelevant()
     dataview.activeYrWk = dataview.currentYrWk
     dataview.refreshAgenda()
@@ -643,6 +646,8 @@ def new_day(loop):
     get_app().invalidate()
     dataview.handle_backups()
     dataview.possible_archive()
+    logger.debug(f"leaving new_day")
+    return True 
 
 current_datetime = pendulum.now('local')
 
@@ -706,19 +711,27 @@ def maybe_alerts(now):
                 if command:
                     check_output(command)
 
-def event_handler(loop):
+async def event_handler():
     global current_datetime
-    now = pendulum.now()
-    current_today = dataview.now.format("YYYYMMDD")
-    maybe_alerts(now)
-    current_datetime = status_time(now)
-    today = now.format("YYYYMMDD")
-    if today != current_today:
-        logger.debug(f"calling new_day. current_today: {current_today}; today: {today}")
-        loop.call_later(0, new_day, loop)
-    get_app().invalidate()
-    wait = 60 - now.second
-    loop.call_later(wait, event_handler, loop)
+    try:
+        while True:
+            now = pendulum.now()
+            # logger.debug(f"event_hander now: {now}")
+            current_today = dataview.now.format("YYYYMMDD")
+            maybe_alerts(now)
+            current_datetime = status_time(now)
+            today = now.format("YYYYMMDD")
+            if today != current_today:
+                logger.debug(f"calling new_day. current_today: {current_today}; today: {today}")
+                loop = asyncio.get_event_loop()
+                # nd_task = asyncio.create_task(new_day(loop))
+                nd_task = asyncio.ensure_future(new_day(loop))
+                logger.debug(f"back from new_day")
+            get_app().invalidate()
+            wait = 60 - now.second
+            await asyncio.sleep(wait)
+    except asyncio.CancelledError:
+        print(f"Background task cancelled.")
 
 
 def get_statusbar_text():
@@ -901,11 +914,11 @@ def do_schedule_new(*event):
                 del dataview.itemcache[doc_id]
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
-            loop = get_event_loop()
+            loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
 
 
-    ensure_future(coroutine())
+    asyncio.ensure_future(coroutine())
 
 
 @bindings.add('R', filter=is_viewing_or_details)
@@ -939,11 +952,11 @@ def do_reschedule(*event):
                 del dataview.itemcache[doc_id]
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
-            loop = get_event_loop()
+            loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
 
 
-    ensure_future(coroutine())
+    asyncio.ensure_future(coroutine())
 
 
 @bindings.add('D', filter=is_viewing_or_details & is_item_view)
@@ -968,10 +981,10 @@ def do_maybe_delete(*event):
                     del dataview.itemcache[doc_id]
                 application.layout.focus(text_area)
                 set_text(dataview.show_active_view())
-                loop = get_event_loop()
+                loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
 
-        ensure_future(coroutine())
+        asyncio.ensure_future(coroutine())
 
     if instance:
         # repeating
@@ -998,10 +1011,10 @@ def do_maybe_delete(*event):
                         del dataview.itemcache[doc_id]
                     application.layout.focus(text_area)
                     set_text(dataview.show_active_view())
-                    loop = get_event_loop()
+                    loop = asyncio.get_event_loop()
                     loop.call_later(0, data_changed, loop)
 
-        ensure_future(coroutine())
+        asyncio.ensure_future(coroutine())
 
 
 @bindings.add('N', filter=is_viewing)
@@ -1065,10 +1078,10 @@ def do_maybe_record_timer(*event):
             dataview.timer_clear()
             if item_id in dataview.itemcache:
                 del dataview.itemcache[item_id]
-            loop = get_event_loop()
+            loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
 
-    ensure_future(coroutine())
+    asyncio.ensure_future(coroutine())
 
 @bindings.add('c-t', filter=is_viewing_or_details)
 def do_maybe_cancel_timer(*event):
@@ -1097,7 +1110,7 @@ def do_maybe_cancel_timer(*event):
             set_text(dataview.show_active_view())
             get_app().invalidate()
 
-    ensure_future(coroutine())
+    asyncio.ensure_future(coroutine())
 
 
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
@@ -1126,10 +1139,10 @@ def do_finish(*event):
                 # dataview.itemcache[item.doc_id] = {}
                 if item_id in dataview.itemcache:
                     del dataview.itemcache[item_id]
-                loop = get_event_loop()
+                loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
 
-    ensure_future(coroutine())
+    asyncio.ensure_future(coroutine())
 
 @bindings.add('C', filter=is_viewing_or_details & is_item_view)
 def edit_copy(*event):
@@ -1209,10 +1222,10 @@ Enter the path of the file to import:""")
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
-                loop = get_event_loop()
+                loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
                 show_message('import file', msg)
-    ensure_future(coroutine())
+    asyncio.ensure_future(coroutine())
 
 
 
@@ -1234,10 +1247,10 @@ Enter the path of the file to import:""")
 #                 dataview.refreshRelevant()
 #                 dataview.refreshAgenda()
 #                 dataview.refreshCurrent()
-#                 loop = get_event_loop()
+#                 loop = asyncio.get_event_loop()
 #                 loop.call_later(0, data_changed, loop)
 #                 show_message('import json', msg)
-#     ensure_future(coroutine())
+#     asyncio.ensure_future(coroutine())
 
 
 @bindings.add('c-p')
@@ -1396,7 +1409,7 @@ def save_changes(*event):
         dataview.is_editing = False
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
-        loop = get_event_loop()
+        loop = asyncio.get_event_loop()
         loop.call_later(0, item_changed, loop)
     else:
         dataview.is_editing = False
@@ -1488,7 +1501,7 @@ item = None
 style = None
 etmstyle = None
 application = None
-def main(etmdir=""):
+async def main(etmdir=""):
     global item, settings, ampm, style, etmstyle, application
     ampm = settings['ampm']
     terminal_style = settings['style']
@@ -1510,14 +1523,22 @@ def main(etmdir=""):
         mouse_support=True,
         style=style,
         full_screen=True)
+    background_task = asyncio.create_task(event_handler())
+    try:
+        await application.run_async()
+    finally:
+        background_task.cancel()
+        print("Quitting event loop. Bye.")
 
-    # Tell prompt_toolkit to use asyncio.
-    use_asyncio_event_loop()
-    # Run application async.
-    loop = get_event_loop()
-    loop.call_later(0, event_handler, loop)
-    loop.run_until_complete(
-        application.run_async().to_asyncio_future())
+
+
+# async def main(etmdir=""):
+#     background_task = asyncio.create_task(event_handler())
+#     try:
+#         await interactive_shell(etmdir)
+#     finally:
+#         background_task.cancel()
+#     print("Quitting event loop. Bye.")
 
 
 if __name__ == '__main__':
