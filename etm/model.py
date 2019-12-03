@@ -5474,7 +5474,7 @@ item = None
 def main(etmdir="", *args):
     global dataview, item, db, ampm, settings
     logdir = os.path.join(etmdir, "logs")
-    setup_logging(2, logdir)
+    # setup_logging(2, logdir)
     # NOTE: DataView called in model.main
     dataview = DataView(etmdir)
     settings = dataview.settings
@@ -5487,55 +5487,4 @@ def main(etmdir="", *args):
 
 if __name__ == '__main__':
     sys.exit('model.py should only be imported')
-
-    # import doctest
-    # doctest.testmod()
-
-    # etmdir = ''
-    # if len(sys.argv) > 1:
-    #     etmdir = sys.argv.pop(1)
-    # setup_logging(2, etmdir)
-
-    # if len(sys.argv) > 1:
-    #     if 'a' in sys.argv[1]:
-    #         print(about())
-    #     if 'i' in sys.argv[1]:
-    #         import_json(etmdir)
-    #     if 'j' in sys.argv[1]:
-    #         print_json()
-    #     if 'c' in sys.argv[1]:
-    #         dataview = DataView()
-    #         dataview.refreshCache()
-    #         print([wk for wk in dataview.cache])
-    #         schedule, busy, row2id = dataview.cache[dataview.activeYrWk] 
-    #         print(schedule)
-    #         print(busy)
-    #         pprint(row2id)
-    #         print([wk for wk in dataview.cache])
-    #     if 'p' in sys.argv[1]:
-    #         dataview = DataView(weeks=2, plain=True)
-    #         print(dataview.agenda_view)
-    #         # print(dataview.busy_view)
-    #         # pprint(dataview.num2id)
-    #     if 'P' in sys.argv[1]:
-    #         dataview = DataView(weeks=4, plain=True)
-    #         print(dataview.agenda_view)
-    #         dataview.nextYrWk()
-    #         print(dataview.agenda_view)
-    #     if 's' in sys.argv[1]:
-    #         dataview = DataView(weeks=1)
-    #         dataview.dtYrWk('2018/12/31')
-    #         print_formatted_text(dataview.agenda_view, style=style)
-    #     if 'S' in sys.argv[1]:
-    #         dataview = DataView()
-    #         print_formatted_text(dataview.agenda_select, style=style)
-    #         print()
-    #         print(dataview.num2id)
-    #     if 'r' in sys.argv[1]:
-    #         current, alerts, id2relevant = relevant()
-    #         pprint(current)
-    #         pprint(alerts)
-    #     if 'h' in sys.argv[1]:
-    #         history_view, num2id = show_history()
-    #         print(history_view)
 

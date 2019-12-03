@@ -736,7 +736,7 @@ async def event_handler():
             get_app().invalidate()
             await asyncio.sleep(wait)
     except asyncio.CancelledError:
-        print(f"Background task cancelled.")
+        logger.info(f"Background task cancelled.")
 
 
 def get_statusbar_text():
@@ -1533,7 +1533,7 @@ async def main(etmdir=""):
         await application.run_async()
     finally:
         background_task.cancel()
-        print("Quitting event loop.")
+        logger.info("Quitting event loop.")
 
 
 if __name__ == '__main__':
