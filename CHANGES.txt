@@ -1,29 +1,41 @@
-Recent changes as of 2019-11-30T11:01:57.325325-05:00:
-- 0 seconds ago (HEAD -> master, tag: 4.0.0b7) Dan Graham
-    07f5e89 2019-11-30 11:01:57 -0500
+Recent changes as of 2019-12-03T05:13:07.700440-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0b8) Dan Graham
+    54b987c 2019-12-03 05:13:07 -0500
+    Tagged version 4.0.0b8.
+
+- 3 minutes ago (origin/working, asyncio) Dan Graham
+    5465775 2019-12-03 05:10:14 -0500
+    Updated to prompt_toolkit 3 with necessary changes to asyncio.
+
+- 3 days ago (origin/master, master) Dan Graham
+    24483a7 2019-11-30 17:21:44 -0500
+    README tweaks
+
+- 3 days ago Dan Graham
+    2633be6 2019-11-30 11:01:57 -0500
     Tagged version 4.0.0b7.
 
-- 14 seconds ago Dan Graham
+- 3 days ago Dan Graham
     18c15e0 2019-11-30 11:01:43 -0500
     Fixed bug in processing expansions
 
-- 8 days ago (origin/working, origin/master, working) Dan Graham
+- 11 days ago Dan Graham
     3f34e0d 2019-11-22 10:04:43 -0500
     Tagged version 4.0.0b6.
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     b64ad3d 2019-11-22 10:04:14 -0500
     Cleaned up debugging
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     c7966e6 2019-11-22 08:46:04 -0500
     Tagged version 4.0.0b5.
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     a6f3a90 2019-11-22 08:43:50 -0500
     Catch dateutil timezone warnings as errors in parse
 
-- 8 weeks ago Dan Graham
+- 9 weeks ago Dan Graham
     d5567ce 2019-10-03 12:18:41 -0400
     changed prompt for summary
 
@@ -135,94 +147,94 @@ Recent changes as of 2019-11-30T11:01:57.325325-05:00:
     Fixed bug in used_time where splitting on ':' truncated minutes.
     First pass at used_time report.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     954aef5 2019-03-23 17:35:59 -0400
     m -> y in view menus
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     152bb50 2019-03-23 17:29:14 -0400
     Tagged version 4.0.0a61.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     5aac825 2019-03-23 17:28:24 -0400
     Fixed RDict to handle trees with leaves and nodes at the same
     level
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     366f865 2019-03-23 13:30:43 -0400
     monthly calendar -> yearly
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     8da4405 2019-03-23 13:13:04 -0400
     added relevant to sort in index and journal.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     fbdeff4 2019-03-23 12:26:43 -0400
     README tweaks
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     31d6d85 2019-03-23 11:46:18 -0400
     removed wiki from main repository and added to .gitignore. will
     keep as a separate repo.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     86cf5df 2019-03-23 11:34:45 -0400
     menu tweaks. n (next) -> d (do next). Added etm-dgraham.wiki.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     c10f668 2019-03-23 08:00:38 -0400
     Tagged version 4.0.0a60.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     9bc8cca 2019-03-23 08:00:22 -0400
     Added completed to item views
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     0fdedcc 2019-03-22 21:06:44 -0400
     Tagged version 4.0.0a59.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     1754bdb 2019-03-22 21:06:28 -0400
     Fixed bug in setting row ids for completed view
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     d0a627f 2019-03-22 20:40:41 -0400
     Tagged version 4.0.0a58.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     19accb1 2019-03-22 20:27:36 -0400
     calendar view -> monthly view, added completed view
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     876b398 2019-03-22 18:48:59 -0400
     moved done items to done view
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     0965d58 2019-03-22 12:09:25 -0400
     search color tweaks
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     e420ab2 2019-03-21 16:57:59 -0400
     Tagged version 4.0.0a57.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     cdbe6a2 2019-03-21 16:57:35 -0400
     README tweak.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     0eadfdb 2019-03-21 16:50:45 -0400
     README tweak.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     98b2473 2019-03-21 15:25:08 -0400
     Added test for running in a virtual environment. Added secret
     setting in options.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     b0b75c4 2019-03-21 11:48:01 -0400
     Tagged version 4.0.0a56.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     6310485 2019-03-21 11:43:28 -0400
     Added confirmation/result dialogs to import json and text. Expand
     user and normalized paths to import file. Call data_changed after
@@ -411,18 +423,3 @@ Recent changes as of 2019-11-30T11:01:57.325325-05:00:
 - 9 months ago Dan Graham
     588d394 2019-03-13 10:48:49 -0400
     Tagged version 4.0.0a41.
-
-- 9 months ago Dan Graham
-    6e1f95a 2019-03-13 10:48:11 -0400
-    Fixed logging bug by moving logging to options, importing in
-    __main__ and 'exporting' to model. Fixed pastdue job bug by
-    comparing dates instead of datetimes. Cleaned up logger.debug
-    statments and commments.
-
-- 9 months ago Dan Graham
-    ecc99af 2019-03-12 21:08:53 -0400
-    Tagged version 4.0.0a40.
-
-- 9 months ago Dan Graham
-    72b0705 2019-03-12 21:08:39 -0400
-    Yet another logo attempt for README
