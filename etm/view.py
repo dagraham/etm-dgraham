@@ -65,7 +65,7 @@ cfgfile = '' # override this
 
 class InteractiveInputDialog(object):
     def __init__(self, title='', help_text='', evaluator=None, padding=10, completer=None):
-        self.future = Future()
+        self.future = asyncio.Future()
 
         def cancel():
             self.future.set_result(None)
@@ -239,7 +239,7 @@ class ConfirmDialog(object):
 def show_message(title, text, padding=6):
     def coroutine():
         dialog = MessageDialog(title, text, padding)
-        yield from(show_dialog_as_float(dialog))
+        yield from show_dialog_as_float(dialog)
 
     asyncio.ensure_future(coroutine())
 
@@ -253,7 +253,7 @@ def show_dialog_as_float(dialog):
 
     focused_before = app.layout.current_window
     app.layout.focus(dialog)
-    result = yield from(dialog.future)
+    result = yield from dialog.future
     app.layout.focus(focused_before)
 
     if float_ in root_container.floats:
@@ -271,7 +271,7 @@ def show_confirm_as_float(dialog):
 
     focused_before = app.layout.current_window
     app.layout.focus(dialog)
-    result = yield dialog.future
+    result = yield from dialog.future
     app.layout.focus(focused_before)
 
     if float_ in root_container.floats:
@@ -320,7 +320,7 @@ Timezones can be appended to x and y.
             evaluator=datetime_calculator,
             padding=4,
             )
-        yield From(show_dialog_as_float(dialog))
+        yield from show_dialog_as_float(dialog)
 
     asyncio.ensure_future(coroutine())
 
@@ -332,7 +332,7 @@ def save_before_quit(*event):
     def coroutine():
         dialog = ConfirmDialog("unsaved changes", "Save them before closing?")
 
-        save_changes = yield From(show_dialog_as_float(dialog))
+        save_changes = yield from show_dialog_as_float(dialog)
         if save_changes:
             if item.doc_id is not None:
                 # del dataview.itemcache[item.doc_id]
@@ -343,7 +343,7 @@ def save_before_quit(*event):
             loop = asyncio.get_event_loop()
             loop.call_later(0, item_changed, loop)
 
-    ensure_future(coroutine())
+    asyncio.ensure_future(coroutine())
 
 today = pendulum.today()
 calyear = today.year
@@ -442,7 +442,7 @@ def do_go_to_line(*event):
             label_text='Line number:',
             default=str(default))
 
-        line_number = yield From(show_dialog_as_float(dialog))
+        line_number = yield from show_dialog_as_float(dialog)
         if line_number:
             try:
                 line_number = int(line_number)
@@ -462,7 +462,7 @@ def do_go_to_date(*event):
             title='Go to date',
             label_text='date:')
 
-        target_date = yield From(show_dialog_as_float(dialog))
+        target_date = yield from show_dialog_as_float(dialog)
 
         try:
             dataview.dtYrWk(target_date)
@@ -470,7 +470,7 @@ def do_go_to_date(*event):
             show_message('go to date', 'Invalid date')
         else:
             set_text(dataview.show_active_view())
-    ensure_future(coroutine())
+    asyncio.ensure_future(coroutine())
 
 terminal_style = None
 
@@ -805,16 +805,16 @@ class AtCompleter(Completer):
                 if word.startswith('@x') and completion.startswith(word):
                     if completion == word:
                         replacement = expansions.get(word[3:], completion)
-                        yield Completion(
+                        yield from Completion(
                             replacement,
                             start_position=-word_len)
                     else:
-                        yield Completion(
+                        yield from Completion(
                             completion,
                             start_position=-word_len)
 
                 elif completion.startswith(word) and completion != word:
-                    yield Completion(
+                    yield from Completion(
                         completion,
                         start_position=-word_len)
 
@@ -902,7 +902,7 @@ def do_schedule_new(*event):
             title='schedule new instance',
             label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\nnew datetime:")
 
-        new_datetime = yield From(show_dialog_as_float(dialog))
+        new_datetime = yield from show_dialog_as_float(dialog)
 
         if not new_datetime:
             return 
@@ -940,7 +940,7 @@ def do_reschedule(*event):
             title='reschedule instance',
             label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\ninstance: {format_datetime(instance)[1]}\n\nnew datetime:")
 
-        new_datetime = yield From(show_dialog_as_float(dialog))
+        new_datetime = yield from show_dialog_as_float(dialog)
 
         if not new_datetime:
             return 
@@ -979,7 +979,7 @@ def do_maybe_delete(*event):
             dialog = ConfirmDialog("Delete", 
                     f"Selected: {hsh['itemtype']} {hsh['summary']}\n\nAre you sure you want to delete this item?\nThis would remove the item from the database\nand cannot be undone.")
 
-            delete = yield From(show_dialog_as_float(dialog))
+            delete = yield from show_dialog_as_float(dialog)
             if delete:
                 item.delete_item(doc_id)
                 if doc_id in dataview.itemcache:
@@ -1008,7 +1008,7 @@ def do_maybe_delete(*event):
                 text=text,
                 values=values)
 
-            which = yield From(show_dialog_as_float(dialog))
+            which = yield from show_dialog_as_float(dialog)
             if which is not None:
                 changed = item.delete_instances(doc_id, instance, which)
                 if changed:
@@ -1076,7 +1076,7 @@ def do_maybe_record_timer(*event):
 
     def coroutine():
         dialog = ConfirmDialog("record time", f"item: {item_info}\nelapsed time: {time_str}\n\nrecord time and close timer?")
-        record_close = yield From(show_dialog_as_float(dialog))
+        record_close = yield from show_dialog_as_float(dialog)
         if record_close:
             item.record_timer(item_id, job_id, completed, time)
             set_text(dataview.show_active_view())
@@ -1109,7 +1109,7 @@ def do_maybe_cancel_timer(*event):
 
     def coroutine():
         dialog = ConfirmDialog("cancel timer", f"item: {item_info}\nelapsed time: {time_str}\n\nclose timer without recording?")
-        record_cancel = yield From(show_dialog_as_float(dialog))
+        record_cancel = yield from show_dialog_as_float(dialog)
         if record_cancel:
             dataview.timer_clear()
             set_text(dataview.show_active_view())
@@ -1132,7 +1132,7 @@ def do_finish(*event):
             title='finish task/job',
             label_text=f"selected: {show}\ndatetime completed:")
 
-        done_str = yield From(show_dialog_as_float(dialog))
+        done_str = yield from show_dialog_as_float(dialog)
         if done_str:
             try:
                 done = parse_datetime(done_str)[1]
@@ -1219,7 +1219,7 @@ one of the following extensions:
   .ics   an iCalendar file
 Enter the path of the file to import:""")
 
-        file_path = yield From(show_dialog_as_float(dialog))
+        file_path = yield from show_dialog_as_float(dialog)
 
         if file_path:
             msg = import_file(file_path)
@@ -1231,31 +1231,6 @@ Enter the path of the file to import:""")
                 loop.call_later(0, data_changed, loop)
                 show_message('import file', msg)
     asyncio.ensure_future(coroutine())
-
-
-
-# @bindings.add('f8')
-# def do_import_json(*event):
-#     # TODO: add dialog
-#     msg = ""
-#     def coroutine():
-#         global msg
-#         dialog = TextInputDialog(
-#             title='import json',
-#             label_text='Enter the path of the json file to import:')
-
-#         json_file = yield From(show_dialog_as_float(dialog))
-
-#         if json_file:
-#             msg = import_json(json_file)
-#             if msg:
-#                 dataview.refreshRelevant()
-#                 dataview.refreshAgenda()
-#                 dataview.refreshCurrent()
-#                 loop = asyncio.get_event_loop()
-#                 loop.call_later(0, data_changed, loop)
-#                 show_message('import json', msg)
-#     asyncio.ensure_future(coroutine())
 
 
 @bindings.add('c-p')
