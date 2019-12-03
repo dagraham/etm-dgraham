@@ -372,12 +372,15 @@ def is_viewing_or_details():
 
 
 @bindings.add('f1')
-def menu(event):
+def menu(event=None):
     " Focus menu. "
-    if not event.app.layout.has_focus(root_container.window):
-        event.app.layout.focus(root_container.window)
-    else:
-        focus_previous(event)
+    if event:
+        if event.app.layout.has_focus(root_container.window):
+            logger.debug(f"true event.app.layout.has_focus event: {event}")
+            focus_previous(event)
+        else:
+            logger.debug(f"false event.app.layout.has_focus event: {event}")
+            event.app.layout.focus(root_container.window)
 
 
 @Condition
@@ -636,7 +639,6 @@ def data_changed(loop):
 
 async def new_day(loop):
     logger.info(f"new_day currentYrWk: {dataview.currentYrWk}")
-    asyncio.gather()
     dataview.refreshRelevant()
     dataview.activeYrWk = dataview.currentYrWk
     dataview.refreshAgenda()
@@ -716,19 +718,22 @@ async def event_handler():
     try:
         while True:
             now = pendulum.now()
-            # logger.debug(f"event_hander now: {now}")
             current_today = dataview.now.format("YYYYMMDD")
             maybe_alerts(now)
             current_datetime = status_time(now)
             today = now.format("YYYYMMDD")
+            wait = 60 - now.second
+            logger.debug(f"current_datetime: {current_datetime}; wait: {wait}")
+
             if today != current_today:
                 logger.debug(f"calling new_day. current_today: {current_today}; today: {today}")
                 loop = asyncio.get_event_loop()
-                # nd_task = asyncio.create_task(new_day(loop))
-                nd_task = asyncio.ensure_future(new_day(loop))
+                # python >= 3.6:
+                asyncio.ensure_future(new_day(loop))
+                # python >= 3.7:
+                # asyncio.create_task(new_day(loop))
                 logger.debug(f"back from new_day")
             get_app().invalidate()
-            wait = 60 - now.second
             await asyncio.sleep(wait)
     except asyncio.CancelledError:
         print(f"Background task cancelled.")
@@ -1528,17 +1533,7 @@ async def main(etmdir=""):
         await application.run_async()
     finally:
         background_task.cancel()
-        print("Quitting event loop. Bye.")
-
-
-
-# async def main(etmdir=""):
-#     background_task = asyncio.create_task(event_handler())
-#     try:
-#         await interactive_shell(etmdir)
-#     finally:
-#         background_task.cancel()
-#     print("Quitting event loop. Bye.")
+        print("Quitting event loop.")
 
 
 if __name__ == '__main__':
