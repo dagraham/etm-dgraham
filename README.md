@@ -1,4 +1,4 @@
-# etm
+# etm: event and task manager
 <!-- ![event and task manager](https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png) -->
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" />
 
@@ -9,7 +9,9 @@
 
 Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used. Each reminder in *etm* begins with a *type character* followed by a brief *summary* of the item and then, perhaps, by one or more *@key value* pairs to specify other attributes of the reminder. Mnemonics are used to make the keys easy to remember, e.g, @s for starting datetime, @l for location, @d for description and so forth.
 
-There are 4 types of reminders and associated *type characters*: task (**-**),event (**\***), record (**%**) and inbox (**!**). Here are a few examples: 
+There are 4 types of reminders and associated *type characters*: task (**-**),event (**\***), record (**%**) and inbox (**!**). 
+
+### examples
 
 * A task (**-**): pick up milk. 
 
@@ -17,7 +19,6 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
 * An event (**\***): lunch with Burk [s]tarting next Tuesday at 12pm and [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm.
 
         * Lunch with Burk @s tue 12p @e 90m
-
 * A record (**%**): a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
 
         % Give me a pig - Churchill @s 2p @d Dogs look up at you. Cats look 
@@ -31,7 +32,7 @@ There are 4 types of reminders and associated *type characters*: task (**-**),ev
 
         ! Coffee with Alex @s fri ? @e 1h
 
-Reminders that repeat:
+### repetition
 
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
@@ -71,15 +72,76 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
 _etm_ has several ways of viewing entries. This are listed below by  the shortcut key used to activate the view. E.g., pressing “a” activates _Agenda_ view.
 
-  * a) Agenda
-  * b) Busy
-  * c) Completed
-  * d) Do Next
-  * h) History
-  * i) Index
-  * j) Journal
-  * r) Relevant
-  * u) Used Time or U) Used Time Summary
+  * a: Agenda
+  * b: Busy
+  * c: Completed
+  * d: Do Next
+  * h: History
+  * i: Index
+  * j: Journal
+  * r: Relevant
+  * u: Used Time or U: Used Time Summary
+
+### a] Agenda View
+                        Dec 2 - 8, 2019 #49 
+        Mon Dec 2
+            * Corolla 
+            * Tennis                                   8am 
+        Tue Dec 3 (Today)
+            < Subaru Outback license renewal            -2 
+            > Fri tennis                                13 
+            > Tue tennis                                13 
+        Wed Dec 4
+            * Tennis                                   8am 
+            * Candlelight dinner                   5:30-9:30pm 
+        Thu Dec 5
+            * cleaners                                1:30pm 
+        Sat Dec 7
+            * Breakfast buffet                    10:15am-1:15pm 
+        Sun Dec 8
+            - Hair cut                                 3pm 
+            * Cassells for dinner and tree            6-10pm 
+
+
+### b] Busy View
+
+                          Dec 2 - 8, 2019 #49 
+              Mo 2   Tu 3   We 4   Th 5   Fr 6   Sa 7   Su 8  
+              _____  _____  _____  _____  _____  _____  _____
+        12am    .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+        6am     .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+                .      .      .      .      .      #      .  
+                .      .      .      .      .      #      .  
+        12pm    .      .      .      .      .      #      .  
+                .      .      .      .      .      #      .  
+                .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+                .      .      #      .      .      .      .  
+        6pm     .      .      #      .      .      .      #  
+                .      .      #      .      .      .      #  
+                .      .      #      .      .      .      #  
+                .      .      #      .      .      .      #  
+                .      .      .      .      .      .      .  
+                .      .      .      .      .      .      .  
+              _____  _____  _____  _____  _____  _____  _____
+        total   0      0     240     0      0     180    240 
+
+
+### c] Completed View
+
+                        Dec 2 - 8, 2019 #49 
+        Tue Dec 3 (Today)
+            ✓ Tue tennis 1/1/1: request dates          1pm 
+            ✓ Fri tennis 1/1/1: request dates          1pm 
 
 While the views differ in many respects, they also share some common aspects:
 
@@ -88,16 +150,16 @@ While the views differ in many respects, they also share some common aspects:
 * With a reminder selected:
     * Press “return” to toggle displaying the details. 
     * Pressing “E” to edit.  Then press “Ctrl-S” to save your changes and end  editing or “Ctrl-C” to end editing without saving your changes.
-    * Press “C” to open a copy for editing.
-    * Press “D” to delete after a confirmation prompt .
-    * Press “R” to reschedule.
-    * Press “S” to schedule a new  instance.
-    * For an item with an @g  “goto” link, press “Ctrl-G” to open the link.
+    * Press “C” to open a copy as a new reminder for editing.
+    * Press “D” to delete.
+    * Press “R” to reschedule the starting datetime.
+    * Press “S” to schedule a new datetime instance.
+    * For an item with an @g “goto” link, press “Ctrl-G” to open the link.
     * For an item that repeats, press “Ctrl-R” to show repetitions.
     * Timers
-        * Press “t” to start a timer for  the item.
+        * Press “t” to start a timer for the reminder.
         * With a timer active, press “t” to toggle paused/running.
-        * Press “T” to record the time and close the timer.
+        * Press “T” to record an  `@u usedtime`  entry in the reminder and close the timer.
 * Movement
     * Press page up or page down to shift the display a page at a time. 
     * Press “l”  (lower case L) and enter a number to move the cursor to a particular line  number. 

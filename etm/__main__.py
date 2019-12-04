@@ -72,6 +72,7 @@ def main():
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
     model.settings = settings
+    model.logger = logger
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
     datetime_calculator = model.datetime_calculator

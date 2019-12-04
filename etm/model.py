@@ -47,33 +47,17 @@ python_version = platform.python_version()
 developer = "dnlgrhm@gmail.com"
 import shutil
 
-import logging
-# import logging.config
-logger = logging.getLogger()
-
 from operator import itemgetter
 from itertools import groupby
 
-from prompt_toolkit import print_formatted_text
-from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.styles import Style
-from prompt_toolkit.output import ColorDepth
 from prompt_toolkit import __version__ as prompt_toolkit_version
-PTK3 = prompt_toolkit_version.startswith('3.')
-
-# from __version__ import version as etm_version
-
-# import options
 
 settings = {'ampm': True}
 DBITEM = None
 DBARCH = None
 # NOTE: view.main() will override ampm using the configuration setting
 ampm = True
-
-
-# import pwd
-# user_name = pwd.getpwuid(os.getuid()).pw_name
 
 # The style sheet for terminal output
 style = Style.from_dict({
@@ -530,11 +514,6 @@ class Item(object):
             self.dbarch = self.db.table('archive', cache_size=None)
             self.dbquery = self.db.table('items', cache_size=None) 
 
-        # # self.settings = settings
-        # if 'keep_current' in self.settings and self.settings['keep_current']:
-        #     self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
-        # else:
-        #     self.currfile = None
 
     def check_goto_link(self, num=5):
         """
@@ -584,7 +563,6 @@ class Item(object):
             self.doc_id = doc_id
             self.is_new = False
             self.item_hsh = deepcopy(item_hsh) # created and modified entries
-            # self.entry = entry
             self.keyvals = []
             self.text_changed(entry, 0, False)
 
@@ -597,7 +575,6 @@ class Item(object):
             self.doc_id = None
             self.is_new = True
             self.item_hsh = item_hsh # created and modified entries
-            # self.entry = entry
             self.keyvals = []
             self.text_changed(entry, 0, False)
 
@@ -1068,7 +1045,6 @@ class Item(object):
         if not self.item_hsh['itemtype']:
             return None, "a valid itemtype must be provided"
         obj, rep = do_string(arg)
-        # rep = f"{type_keys[self.item_hsh['itemtype']]} sum: {rep}"
         if obj:
             self.item_hsh['summary'] = obj
             rep = arg
@@ -1200,22 +1176,6 @@ def is_duplicate(import_hsh, existing_hsh, ignore=[]):
             del xst[x]
     return mpr == xst
 
-# def dictdiff(old_hsh, new_hsh):
-#     """
-#     >>> old_hsh = {'a': 1, 'b': 2}
-#     >>> new_hsh = {'b': 3, 'c': 5}
-#     >>> dictdiff(old_hsh, new_hsh)
-#     ({'a': 1}, {'b': 3, 'c': 5})
-#     """
-#     removed = {}
-#     changed = {}
-#     for k, v in old_hsh.items():
-#         if k not in new_hsh:
-#             removed[k] = v
-#     for k, v in new_hsh.items():
-#         if k not in old_hsh or v != old_hsh[k]:
-#             changed[k] = v
-#     return removed, changed
 
 def datetime_calculator(s):
     """
@@ -1382,8 +1342,10 @@ def timestamp_list(arg, typ=None):
     else:
         return True, tmp
 
+
 def plain_datetime(obj):
     return format_datetime(obj, short=True)
+
 
 def format_time(obj):
     if type(obj) != pendulum.DateTime:
@@ -1395,6 +1357,7 @@ def format_time(obj):
         res = res.replace('AM', 'am')
         res = res.replace('PM', 'pm')
     return True, res
+
 
 def format_datetime(obj, short=False):
     """
@@ -1444,13 +1407,16 @@ def format_datetime(obj, short=False):
         res = res.replace('PM', 'pm')
     return True, res
 
+
 def format_datetime_list(obj_lst):
     ret = ", ".join([format_datetime(x)[1] for x in obj_lst])
     return ret
 
+
 def plain_datetime_list(obj_lst):
     ret = ", ".join([plain_datetime(x)[1] for x in obj_lst])
     return ret
+
 
 def format_duration(obj, short=False):
     """
@@ -1478,6 +1444,7 @@ def format_duration(obj, short=False):
         print(obj)
         return None
 
+
 def format_duration_list(obj_lst):
     try:
         ret = ", ".join([format_duration(x) for x in obj_lst])
@@ -1498,6 +1465,7 @@ period_hsh = dict(
     d=pendulum.duration(days=1),
     w=pendulum.duration(weeks=1),
         )
+
 
 def parse_duration(s):
     """\
@@ -1632,7 +1600,6 @@ class RDict(dict):
 
 class DataView(object):
 
-    # def __init__(self, loglevel=1, dtstr=None, weeks=1, plain=False):
     def __init__(self, etmdir):
         self.active_view = 'agenda'  
         self.current = []
@@ -1794,6 +1761,7 @@ class DataView(object):
         logger.debug(f"leaving handle_backups")
         return True
 
+
     def timer_toggle(self, row=None):
         if self.timer_status == 0: # stopped
             # we better have a row corresponding to an item
@@ -1811,6 +1779,7 @@ class DataView(object):
             self.timer_status = 1 # running
             self.timer_start = pendulum.now()
 
+
     def timer_report(self):
         if not self.timer_id or self.timer_status == 0:
             return ''
@@ -1822,7 +1791,6 @@ class DataView(object):
         return f"{format_duration(elapsed)} {status}   "
 
 
-
     def timer_clear(self):
         if not self.timer_id:
             return None, ''
@@ -1832,12 +1800,15 @@ class DataView(object):
         self.timer_id = None
         self.timer_job = None
 
+
     def set_now(self):
         self.now = pendulum.now('local')  
+
 
     def set_active_view(self, c):
         self.current_row = None
         self.active_view = self.views.get(c, 'agenda')
+
 
     def show_active_view(self):
         if self.active_view == 'agenda':
@@ -1890,9 +1861,11 @@ class DataView(object):
         self.activeYrWk = nextWeek(self.activeYrWk) 
         self.refreshAgenda()
 
+
     def prevYrWk(self):
         self.activeYrWk = prevWeek(self.activeYrWk) 
         self.refreshAgenda()
+
 
     def currYrWk(self):
         """Set the active week to one containing today."""
@@ -1900,21 +1873,26 @@ class DataView(object):
         self.currentYrWk = self.activeYrWk = getWeekNum(self.now)
         self.refreshAgenda()
 
+
     def dtYrWk(self, dtstr):
         dt = pendulum.parse(dtstr, strict=False)
         self.activeYrWk = getWeekNum(dt)
         self.refreshAgenda()
 
+
     def currMonth(self):
         self.active_month = pendulum.today().format("YYYY-MM")
+
 
     def prevMonth(self):
         dt = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD", 'local') - DAY
         self.active_month = dt.format("YYYY-MM")
 
+
     def nextMonth(self):
         dt = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD", 'local') + 31 * DAY
         self.active_month = dt.format("YYYY-MM")
+
 
     def refreshRelevant(self):
         """
@@ -1925,11 +1903,13 @@ class DataView(object):
         self.current, self.alerts, self.id2relevant = relevant(self.db, self.now)
         self.refreshCache()
 
+
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
             self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now))
         # agenda, done, busy, row2id, done2id
         self.agenda_view, self.done_view, self.busy_view, self.row2id, self.done2id = self.cache[self.activeYrWk]
+
 
     def refreshCurrent(self):
         """
@@ -1950,11 +1930,14 @@ class DataView(object):
             fo.write("\n\n".join(current))
         logger.info(f"saved current schedule to {self.currfile}")
 
+
     def show_details(self):
         self.is_showing_details = True 
 
+
     def hide_details(self):
         self.is_showing_details = False 
+
 
     def get_row_details(self, row=None):
         if row is None:
@@ -1968,6 +1951,7 @@ class DataView(object):
             instance = None
             job = None
         return (item_id, instance, job)
+
 
     def get_details(self, row=None, edit=False):
         res = self.get_row_details(row)
@@ -1984,6 +1968,7 @@ class DataView(object):
 
         return None, ''
 
+
     def get_goto(self, row=None):
         res = self.get_row_details(row)
         if not res:
@@ -1995,6 +1980,7 @@ class DataView(object):
             return True, goto
         else:
             return False, f"The item\n   {item['itemtype']} {item['summary']}\n does not have an @g goto entry."
+
 
     def get_repetitions(self, row=None, num=5):
         """
@@ -2027,6 +2013,7 @@ class DataView(object):
         else:
             showing = f"All repetitions"
         return  showing, f"from {starting} for\n{details}:\n  " + "\n  ".join(pairs)
+
 
     def maybe_finish(self, row):
         """
@@ -2072,12 +2059,15 @@ class DataView(object):
         # we have an unfinished task without jobs
         return True, f"{item['itemtype']} {item['summary']}\n{due_str}", item_id, job_id, due
 
+
     def clearCache(self):
         self.cache = {}
+
 
     def refreshCache(self):
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20)
         self.used_details, self.used_details2id, self.used_summary = get_usedtime(self.db)
+
 
     def possible_archive(self):
         """
@@ -2239,7 +2229,6 @@ class DataView(object):
         try:
 
             c = calendar.LocaleTextCalendar(0, self.cal_locale)
-            # c = calendar.LocaleTextCalendar(0, locale=self.cal_locale)
         except:
             logger.warn(f"error using locale {self.cal_locale}")
             c = calendar.LocaleTextCalendar(0)
@@ -2268,18 +2257,20 @@ class DataView(object):
         ret_str = "\n".join(ret_lines)
         self.calendar_view = ret_str
 
+
     def nextcal(self):
         self.calAdv += 1
         self.refreshCalendar()
+
 
     def prevcal(self):
         self.calAdv -= 1
         self.refreshCalendar()
 
+
     def currcal(self):
         self.calAdv = 0
         self.refreshCalendar()
-
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
@@ -2327,7 +2318,6 @@ def set_summary(s, dt=pendulum.now()):
         numyrs = anniversary_string(startyear, dt.year)
         retval = anniversary_regex.sub(numyrs, s)
     return retval
-
 
 
 def ordinal(num):
@@ -2436,7 +2426,6 @@ def string_list(arg, typ=None):
             return False, '{}: {}'.format(typ, arg)
     else:
         return False, '{}: {}'.format(typ, arg)
-    bad = []
     msg = []
     ret = []
     for arg in args:
@@ -2525,7 +2514,6 @@ def integer_list(arg, min, max, zero, typ=None):
                 return False, arg
     elif type(arg) == int:
         args = [arg]
-    bad = []
     msg = []
     ret = []
     for arg in args:
@@ -2920,30 +2908,6 @@ def do_easterdays(arg):
     return obj, rep
 
 
-# def easter(arg):
-#     """
-#     byeaster; integer or sequence of integers numbers of days before, < 0,
-#     or after, > 0, Easter.
-#     >>> easter(0)
-#     (True, [0])
-#     >>> easter([-364, -30, 0, "45", 260])
-#     (True, [-364, -30, 0, 45, 260])
-#     """
-#     easterstr = "easter: a comma separated list of integer numbers of days before, < 0, or after, > 0, Easter."
-
-#     if arg == 0:
-#         arg = [0]
-
-#     if arg:
-#         ok, res = integer_list(arg, None, None, True, 'easter')
-#         if ok:
-#             return True, res
-#         else:
-#             return False, "invalid easter: {}. Required for {}".format(res, easterstr)
-#     else:
-#         return False, easterstr
-
-
 def do_interval(arg):
     """
     interval (positive integer, default = 1) E.g, with frequency
@@ -3155,24 +3119,6 @@ def do_monthdays(arg):
     return obj, rep
 
 
-# def monthdays(arg):
-#     """
-#     >>> monthdays([0, 1, 26, -1, -2])
-#     (False, 'invalid monthdays: 0 is not allowed. Required for monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month.')
-#     """
-
-#     monthdaysstr = "monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month."
-
-#     if arg:
-#         ok, res = integer_list(arg, -31, 31, False, "")
-#         if ok:
-#             return True, res
-#         else:
-#             return False, "invalid monthdays: {}. Required for {}".format(res, monthdaysstr)
-#     else:
-#         return False, monthdaysstr
-
-
 def do_hours(arg):
     """
     >>> do_hours("0, 6, 12, 18, 24")
@@ -3294,26 +3240,6 @@ rrule_keys = [x for x in rrule_name]
 rrule_keys.sort()
 
 def check_rrule(lofh):
-    # """
-    # An check_rrule hash or a sequence of such hashes.
-    # >>> data = {'r': ''}
-    # >>> check_rrule(data)
-    # (False, 'repetition frequency: character from (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
-    # >>> good_data = {"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SU"}
-    # >>> pprint(check_rrule(good_data))
-    # (True, [{'M': [5], 'i': 1, 'm': [3], 'r': 'y', 'w': [SU(+2)]}])
-    # >>> good_data = {"M": [5, 12], "i": 1, "m": [3, 15], "r": "y", "w": "2SU"}
-    # >>> pprint(check_rrule(good_data))
-    # (True, [{'M': [5, 12], 'i': 1, 'm': [3, 15], 'r': 'y', 'w': [SU(+2)]}])
-    # >>> bad_data = [{"M": 5, "i": 1, "m": 3, "r": "y", "w": "2SE"}, {"M": [11, 12], "i": 4, "m": [2, 3, 4, 5, 6, 7, 8], "r": "z", "w": ["TU", "-1FR"]}]
-    # >>> print(check_rrule(bad_data))
-    # (False, 'invalid weekdays: 2SE; invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.')
-    # >>> data = [{"r": "w", "w": "TU", "h": 14}, {"r": "w", "w": "TH", "h": 16}]
-    # >>> pprint(check_rrule(data))
-    # (True,
-    #  [{'h': [14], 'i': 1, 'r': 'w', 'w': [TU]},
-    #   {'h': [16], 'i': 1, 'r': 'w', 'w': [TH]}])
-    # """
     msg = []
     ret = []
     if type(lofh) == dict:
@@ -3397,6 +3323,7 @@ def rrule_args(r_hsh):
     kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
 
+
 def get_next_due(item, done, due):
     """
     return the next due datetime for an @r repetition 
@@ -3423,7 +3350,7 @@ def get_next_due(item, done, due):
             aft = due
             inc = False
     using_dates = False
-    # logger.info(f'overdue: {overdue}; aft: {aft}; inc: {inc}; dtstart: {dtstart}')
+    logger.debug(f'overdue: {overdue}; aft: {aft}; inc: {inc}; dtstart: {dtstart}')
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
         using_dates = True
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
@@ -3447,7 +3374,7 @@ def get_next_due(item, done, due):
     nxt = pendulum.instance(nxt_rset)
     if using_dates:
         nxt = nxt.date()
-    # logger.info(f"nxt: {nxt}")
+    logger.debug(f"nxt: {nxt}")
     return nxt
 
 
@@ -3489,11 +3416,6 @@ def item_instances(item, aft_dt, bef_dt=1):
     >>> item_instances(item_eg, parse('2018-11-17 9am', tz="US/Eastern"), 3)
     [(DateTime(2018, 11, 18, 15, 0, 0, tzinfo=Timezone('US/Eastern')), None), (DateTime(2018, 11, 27, 20, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
     """
-    # FIXME 
-    # @r given: dateutil behavior @s included only if it fits the repetiton rule
-    # @r not given 
-    #    @s included
-    #    @+ given: @s and each date in @+ added as rdates
 
     if 's' not in item:
         if 'f' in item:
@@ -3502,7 +3424,6 @@ def item_instances(item, aft_dt, bef_dt=1):
             return []
     instances = []
     dtstart = item['s']
-    # print('starting dts:', dtstart)
     # This should not be necessary since the data store decodes dates as datetimes
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
@@ -3876,8 +3797,6 @@ def jobs(lofh, at_hsh={}):
                     res[key] = out
                 else:
                     msg.append(out)
-            # else:
-            #     not_allowed.append("'&{}'".format(key))
         if not_allowed:
             not_allowed.sort()
             msg.append("invalid: {}".format(", ".join(not_allowed)))
@@ -4056,6 +3975,7 @@ def getWeeksForMonth(ym):
 
     return wl
 
+
 def getWeekNumbers(dt=pendulum.now(), bef=3, after=9):
     """
     >>> dt = pendulum.date(2018, 12, 7)
@@ -4087,6 +4007,7 @@ def pen_from_fmt(s, z='local'):
 # def timestamp_from_id(doc_id, z='local'):
 #     return pendulum.from_format(str(doc_id)[:12], "YYYYMMDDHHmm").in_timezone(z)
 
+
 def drop_zero_minutes(dt):
     """
     >>> drop_zero_minutes(parse('2018-03-07 10am'))
@@ -4105,6 +4026,7 @@ def drop_zero_minutes(dt):
             return dt.format("h:mm")
         else:
             return dt.format("H:mm")
+
 
 def fmt_extent(beg_dt, end_dt):
     """
@@ -4216,19 +4138,11 @@ def get_item(id):
     pass
 
 
-# def finish(id, dt):
-#     """
-#     journal a completion at dt for the task corresponding to id.  
-#     """
-#     pass
-
-
 def relevant(db, now=pendulum.now()):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
     """
     # These need to be local times since all times from the datastore and rrule will be local times
-    # today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     today = pendulum.today()
     tomorrow = today + DAY
     today_fmt = today.format("YYYYMMDD")
@@ -4291,7 +4205,6 @@ def relevant(db, now=pendulum.now()):
                     for td in tds:
                         # td > 0m => earlier than startdt; dt < 0m => later than startdt
                         possible_alerts.append([td, cmd])
-
 
             # this catches all alerts and beginbys for the item
             if all_tds:
@@ -4362,7 +4275,6 @@ def relevant(db, now=pendulum.now()):
                                 if today <= instance - possible_alert[0] <= tomorrow:
                                     alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['summary'], item.doc_id])
 
-
             elif '+' in item:
                 # no @r but @+ => simple repetition
                 tmp = [dtstart]
@@ -4398,7 +4310,6 @@ def relevant(db, now=pendulum.now()):
         else:
             # no 's', no 'f'
             relevant = None
-
 
         if not relevant:
             continue
@@ -4437,9 +4348,6 @@ def relevant(db, now=pendulum.now()):
         if item['itemtype'] == '-' and 'f' not in item and not pastdue_jobs and relevant.date() < today.date():
             pastdue.append([(relevant.date() - today.date()).days, item['summary'], item.doc_id, None, None])
 
-
-    # print(id2relevant) 
-    # print('today:', today, "tomorrow:", tomorrow)
     inbox.sort()
     pastdue.sort()
     beginbys.sort()
@@ -4536,8 +4444,6 @@ def show_relevant(db, id2relevant):
 
 
 def show_history(db, reverse=True):
-    # from itertools import groupby
-    # * summary yyyy-mm-dd hh:mmam
     width = shutil.get_terminal_size()[0] - 2 
     rows = []
     for item in db:
@@ -4644,6 +4550,7 @@ def show_next(db):
             next_view.append(f"  {i['columns'][0]} {i['columns'][1][:width - 8].ljust(width - 8, ' ')}  {i['columns'][2]}")
     return "\n".join(next_view), row2id
 
+
 def show_journal(db, id2relevant):
     """
     Undated journals grouped by index entry
@@ -4724,16 +4631,12 @@ def get_usedtime(db):
             4: "+", # third element of path: day
             }
 
-    used_hsh = {}
-    used2id_hsh = {}
-
     used_details = {}
     used_details2id = {}
 
     month_rows = {}
     used_time = {}
     detail_rows = []
-    used_rows = []
     months = set([])
     for item in db:
         used = item.get('u')
@@ -4743,7 +4646,6 @@ def get_usedtime(db):
         doc_id = item.doc_id
         id_used = {}
         details = f"{item['itemtype']} {item['summary']} @i {item.get('i', '~')}"
-        # details = f"{item.get('i', '~')}"
         for period, dt in used:
             # for id2used 
             monthday = dt.date()
@@ -4789,7 +4691,6 @@ def get_usedtime(db):
         tree, row2id = rdict.as_tree(rdict, level=0)
         used_details[month] = tree
         used_details2id[month] = row2id
-
 
     keys = [x for x in used_time]
     keys.sort()
@@ -4892,7 +4793,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         week_numbers.append(yw)
         week_numbers.sort()
     aft_dt, bef_dt = get_period(dt, weeks_before, weeks_after)
-
 
     rows = []
     done = []
@@ -5059,7 +4959,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 if hour in hours:
                     h[hour][weekday] = hours[hour]
 
-
         busy_hsh[week] = busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
     row2id = {}
@@ -5144,10 +5043,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
     return cache
 
-# def temp_to_items(etmdir=None):
-#     temp_dbfile = os.path.join(etmdir, 'temp.json')
-#     TEMPDB = data.initialize_tinydb(temp_dbfile)
-
 
 def import_file(import_file=None):
     filename, extension = os.path.splitext(import_file)
@@ -5159,6 +5054,7 @@ def import_file(import_file=None):
         return import_ics(import_file) 
     else:
         return f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized"
+
 
 def import_ics(import_file=None):
     """
@@ -5267,6 +5163,7 @@ def import_text(import_file=None):
     if dups:
         msg += f"\n  rejected {len(dups)} items as duplicates"
     return msg
+
 
 def import_json(import_file=None):
     if not import_file:
@@ -5473,13 +5370,9 @@ dataview = None
 item = None
 def main(etmdir="", *args):
     global dataview, item, db, ampm, settings
-    logdir = os.path.join(etmdir, "logs")
-    # setup_logging(2, logdir)
     # NOTE: DataView called in model.main
     dataview = DataView(etmdir)
     settings = dataview.settings
-    # ampm = settings['ampm'] 
-    # print('ampm', ampm)
     db = dataview.db
     item = Item(etmdir)
     dataview.refreshCache()
