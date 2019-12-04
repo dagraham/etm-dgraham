@@ -2035,10 +2035,13 @@ class DataView(object):
         item_id, instance, job_id = res
 
         item = DBITEM.get(doc_id=item_id)
+        logger.debug(f"item type: {item['itemtype']}; item_id: {item_id}; instance: {instance}; job_id: {job_id}; item has jobs: {'j' in item}")
         if item['itemtype'] != '-':
             return False, 'only tasks can be finished', None, None, None
         if 'f' in item:
             return False, 'task is already finished', None, None, None
+        if 'j' in item and not job_id:
+            return False, 'no job_id but task has jobs', None, None, None
 
         due = self.id2relevant.get(item_id)
         due_str = f"due: {format_datetime(due, short=True)[1]}" if due else ""
