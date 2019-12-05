@@ -33,9 +33,6 @@ def main():
     settings = options.Settings(etmdir).settings
     setup_logging = options.setup_logging
     setup_logging(loglevel, logdir)
-    # in model, view, ...,
-    # logger = logging.getLogger()
-    # will acquire this logger!
 
     logger.info(f"running in a virtual environment: {IS_VENV}")
 
@@ -97,6 +94,7 @@ def main():
     view.cfgfile = cfgfile
     view.model = model
     view.item = item
+    view.logger = logger
     view.import_file = import_file
     view.etmdir = etmdir
     view.datetime_calculator = datetime_calculator

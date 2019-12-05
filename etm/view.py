@@ -49,10 +49,6 @@ import re
 # from model import wrap, format_time, format_datetime
 # from model import wrap
 
-import logging
-# import logging.config
-logger = logging.getLogger()
-
 import subprocess # for check_output
 
 # for openWithDefault
