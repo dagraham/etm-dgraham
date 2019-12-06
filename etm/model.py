@@ -3445,6 +3445,7 @@ def item_instances(item, aft_dt, bef_dt=1):
         aft_dt = pendulum.datetime(year=aft_dt.year, month=aft_dt.month, day=aft_dt.day, hour=0, minute=0)
     if isinstance(bef_dt, pendulum.Date) and not isinstance(bef_dt, pendulum.DateTime):
         bef_dt = pendulum.datetime(year=bef_dt.year, month=bef_dt.month, day=bef_dt.day, hour=0, minute=0)
+    logger.debug(f"aft_dt: {aft_dt}; bef_dt: {bef_dt}")
 
     if 'r' in item:
         lofh = item['r']

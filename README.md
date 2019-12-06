@@ -365,7 +365,15 @@ When a task or job is finished, it is displayed on the finished date using **✓
 
 ## [Options](#etm)
 
-Note: The term "list" in the following means a comma and space separated list of elements, e.g., `@+ 2p Thu, 9p Mon, 11a Wed`.
+Note: The term "list" in the following means a comma and space separated list of elements, e.g., 
+
+    @+ 2p Thu, 9p Mon, 11a Wed
+Options with an asterick can be used more than once, e.g., 
+
+    @n Joe Doaks <jdoaks@whatever.com @n John Smith <jsmith@wherever.org> 
+or
+
+    @a 1h, 30m: t, v @a 1d: e
 
 ### [@ keys](#etm) 
 
@@ -374,30 +382,30 @@ Note: The term "list" in the following means a comma and space separated list of
             @s mon 9a
 would specify the the starting datetime for the item is 9am on the Monday following the current date.
 
-*  @+: include: list of datetimes to include
-*  @-: exclude: list of datetimes to exclude
-*  @a: alert (list of + (before) or - (after) periods: list of commands)
-*  @b: beginby: integer (number of days before)
-*  @c: calendar: string
-*  @d: description: string
-*  @e: extent: period
-*  @f: finished: datetime
-*  @g: goto: string (url or filepath)
-*  @h: history: (for repeating tasks, a list of the most recent completion datetimes)
-*  @i: index: colon delimited string
-*  @j: job summary: string, optionally followed by job &key entries
-*  @l: location/context: string
-*  @m: mask: string stored in obfuscated form
-*  @n: attendee: 'name <emailaddress>' string 
-*  @o: overdue: character from (r) restart, (s) skip or (k) keep
-*  @p: priority: integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
-*  @r: repetition frequency: character from (y)early, (m)onthly, (w)eekly,  
-  (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &-key entries
-*  @s: starting: date or datetime
-*  @t: tag: string
-*  @u: usedtime: period: datetime
-*  @x: expansion key: string
-*  @z: timezone: string
+*  @+: include. list of datetimes to include
+*  @-: exclude. list of datetimes to exclude
+*  @a*: alert. list of + (before) or - (after) periods: list of commands
+*  @b: beginby. integer (number of days before)
+*  @c: calendar. string 
+*  @d: description. string
+*  @e: extent. timeperiod
+*  @f: finished. datetime
+*  @g: goto. string (url or filepath)
+*  @h: history. (for repeating tasks, a list of the most recent completion datetimes)
+*  @i: index. colon delimited string
+*  @j*: job summary. string, optionally followed by job &key entries
+*  @l: location/context. string
+*  @m: mask. string stored in obfuscated form
+*  @n*: attendee. string using "name <emailaddress>" format
+*  @o: overdue. character from (r) restart, (s) skip or (k) keep
+*  @p: priority. integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
+*  @r*: repetition frequency, a character from (y)early, (m)onthly, (w)eekly,  
+  (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &key entries
+*  @s: start/due. date or datetime
+*  @t*: tag. string
+*  @u*: usedtime. string using "timeperiod spent: ending datetime" format
+*  @x*: expansion. string
+*  @z: timezone. string
 
 
 ### [& keys](#etm)
@@ -408,29 +416,29 @@ For use with @j:
 
 *  &s: start/due: period relative to @s entry (default 0m)
 *  &a: alert: list of + (before) or - (after) periods relative to &s: list of cmd names from the users configuration file
-*  &b: beginby: integer number of days before &s
-*  &d: description: string
-*  &e: extent: period
-*  &f: finished: datetime
-*  &l: location/context: string
-*  &m: masked: string stored in obfuscated form
-*  &i: job unique id (string)
-*  &p: prerequisites (comma separated list of ids of immediate prereqs)
-*  &u: usedtime: period: datetime
+*  &b: beginby. integer number of days before &s
+*  &d: description. string
+*  &e: extent. period
+*  &f: finished. datetime
+*  &l: location/context. string
+*  &m: masked. string stored in obfuscated form
+*  &i: job unique id. string 
+*  &p: prerequisites. list of ids of immediate prereqs
+*  &u*: usedtime. string using "timeperiod spent: ending datetime" format
 
 For use with @r:
 
-*  &c: count: integer number of repetitions 
-*  &E: easter: number of days before (-), on (0) or after (+) Easter
-*  &h: hour: list of integers in 0 ... 23
-*  &i: interval: positive integer to apply to frequency, e.g., with @r m &i 3, repetition would occur every 3 months
-*  &m: monthday: list of integers 1 ... 31
-*  &M: month number: list of integers in 1 ... 12
-*  &n: minute: list of integers in 0 ... 59
+*  &c: count. integer number of repetitions 
+*  &E: easter. number of days before (-), on (0) or after (+) Easter
+*  &h: hour. list of integers in 0 ... 23
+*  &i: interval. positive integer to apply to frequency, e.g., with @r m &i 3, repetition would occur every 3 months
+*  &m: monthday. list of integers 1 ... 31
+*  &M: month number. list of integers in 1 ... 12
+*  &n: minute. list of integers in 0 ... 59
 *  &s: set position: integer
-*  &u: until: datetime 
-*  &w: weekday: list from SU, MO, ..., SA possibly prepended with a positive or negative integer
-*  &W: week number: list of integers in (1, ..., 53)
+*  &u: until. datetime 
+*  &w: weekday. list from SU, MO, ..., SA possibly prepended with a positive or negative integer
+*  &W: week number. list of integers in 1, ..., 53
 
 
 ### [Notes](#etm)

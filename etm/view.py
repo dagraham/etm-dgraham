@@ -794,6 +794,7 @@ class AtCompleter(Completer):
         cur_line = document.current_line_before_cursor
         matches = re.findall(AtCompleter.pat, cur_line)
         word = matches[-1] if matches else ""
+        logger.debug(f"get_completions word: {word}")
         if word:
             word_len = len(word)
             word = word.rstrip()
@@ -801,16 +802,16 @@ class AtCompleter(Completer):
                 if word.startswith('@x') and completion.startswith(word):
                     if completion == word:
                         replacement = expansions.get(word[3:], completion)
-                        yield from Completion(
+                        yield Completion(
                             replacement,
                             start_position=-word_len)
                     else:
-                        yield from Completion(
+                        yield Completion(
                             completion,
                             start_position=-word_len)
 
                 elif completion.startswith(word) and completion != word:
-                    yield from Completion(
+                    yield Completion(
                         completion,
                         start_position=-word_len)
 
