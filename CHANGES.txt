@@ -1,66 +1,78 @@
-Recent changes as of 2019-12-04T14:36:59.713207-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0b10) Dan Graham
-    eb07b9f 2019-12-04 14:36:59 -0500
+Recent changes as of 2019-12-05T22:07:08.060555-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0b11) Dan Graham
+    90837c5 2019-12-05 22:07:08 -0500
+    Tagged version 4.0.0b11.
+
+- 2 minutes ago (origin/working, origin/master, master) Dan Graham
+    397e72f 2019-12-05 22:05:28 -0500
+    Fixed bug in completions
+
+- 14 hours ago Dan Graham
+    8a334ed 2019-12-05 08:05:33 -0500
+    Added logger to view namespace and removed call to get_logger.
+
+- 32 hours ago Dan Graham
+    85f9699 2019-12-04 14:36:59 -0500
     Tagged version 4.0.0b10.
 
-- 24 seconds ago Dan Graham
+- 32 hours ago Dan Graham
     385d3be 2019-12-04 14:36:35 -0500
     Allow finishing a task with jobs only when a job is selected.
 
-- 3 hours ago (origin/working) Dan Graham
+- 35 hours ago Dan Graham
     2caa77e 2019-12-04 11:28:40 -0500
     Set logger in __main__ and insert into model namespace. Cleaned up
     comments.
 
-- 22 hours ago (origin/master, master, help) Dan Graham
+- 2 days ago (help) Dan Graham
     af1576a 2019-12-03 16:40:11 -0500
     Tagged version 4.0.0b9.
 
-- 22 hours ago Dan Graham
+- 2 days ago Dan Graham
     095e4f6 2019-12-03 16:39:09 -0500
     Fixed various 'yield from' and 'asyncio.ensure_future' bugs
 
-- 26 hours ago Dan Graham
+- 2 days ago Dan Graham
     7c4b26a 2019-12-03 12:49:55 -0500
     Removed erroneous call to setup_logging in model.py
 
-- 26 hours ago Dan Graham
+- 2 days ago Dan Graham
     23181a4 2019-12-03 12:19:04 -0500
     Fixed bug in activate/close menu
 
-- 33 hours ago Dan Graham
+- 3 days ago Dan Graham
     7060e70 2019-12-03 05:13:07 -0500
     Tagged version 4.0.0b8.
 
-- 33 hours ago (asyncio) Dan Graham
+- 3 days ago (asyncio) Dan Graham
     5465775 2019-12-03 05:10:14 -0500
     Updated to prompt_toolkit 3 with necessary changes to asyncio.
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     24483a7 2019-11-30 17:21:44 -0500
     README tweaks
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     2633be6 2019-11-30 11:01:57 -0500
     Tagged version 4.0.0b7.
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     18c15e0 2019-11-30 11:01:43 -0500
     Fixed bug in processing expansions
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     3f34e0d 2019-11-22 10:04:43 -0500
     Tagged version 4.0.0b6.
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     b64ad3d 2019-11-22 10:04:14 -0500
     Cleaned up debugging
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     c7966e6 2019-11-22 08:46:04 -0500
     Tagged version 4.0.0b5.
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     a6f3a90 2019-11-22 08:43:50 -0500
     Catch dateutil timezone warnings as errors in parse
 
@@ -410,16 +422,3 @@ Recent changes as of 2019-12-04T14:36:59.713207-05:00:
 - 9 months ago Dan Graham
     4b81e57 2019-03-13 16:51:38 -0400
     Tagged version 4.0.0a46.
-
-- 9 months ago Dan Graham
-    4e8a870 2019-03-13 16:51:06 -0400
-    Updated README.
-
-- 9 months ago Dan Graham
-    6e88bf9 2019-03-13 15:02:27 -0400
-    Tagged version 4.0.0a45.
-
-- 9 months ago Dan Graham
-    c7b0fae 2019-03-13 15:02:11 -0400
-    Tweaked the message returned when goto is called on an item
-    without an @g entry.
