@@ -4576,7 +4576,7 @@ def show_journal(db, id2relevant):
                     # 'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
-                        item['summary'], 
+                        item['summary'][:width - 15], 
                         item.doc_id],
                     })
     rows.sort(key=itemgetter('sort'))
@@ -4605,7 +4605,7 @@ def show_tags(db, id2relevant):
                         'sort': (tag, item['itemtype'], item['summary'], id2relevant.get(item.doc_id)),
                         'tag': tag,
                         'columns': [item['itemtype'],
-                            item['summary'], 
+                            item['summary'][:width - 15], 
                             item.doc_id],
                         })
     rows.sort(key=itemgetter('sort'))
@@ -4633,8 +4633,8 @@ def show_index(db, id2relevant):
         rows.append({
                     'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
                     'index': index,
-                    'columns': [item['itemtype'][:width - 15],
-                        item['summary'], 
+                    'columns': [item['itemtype'],
+                        item['summary'][:width - 15], 
                         item.doc_id],
                     })
     rows.sort(key=itemgetter('sort'))
