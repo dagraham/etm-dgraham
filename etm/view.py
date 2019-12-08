@@ -460,12 +460,13 @@ def do_go_to_date(*event):
 
         target_date = yield from show_dialog_as_float(dialog)
 
-        try:
-            dataview.dtYrWk(target_date)
-        except ValueError:
-            show_message('go to date', 'Invalid date')
-        else:
-            set_text(dataview.show_active_view())
+        if target_date:
+            try:
+                dataview.dtYrWk(target_date)
+            except ValueError:
+                show_message('go to date', 'Invalid date')
+            else:
+                set_text(dataview.show_active_view())
     asyncio.ensure_future(coroutine())
 
 terminal_style = None

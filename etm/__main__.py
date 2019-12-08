@@ -33,6 +33,8 @@ def main():
     settings = options.Settings(etmdir).settings
     setup_logging = options.setup_logging
     setup_logging(loglevel, logdir)
+    sys.stderr.write = logger.error
+    sys.stdout.write = logger.debug
 
     logger.info(f"running in a virtual environment: {IS_VENV}")
 
