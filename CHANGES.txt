@@ -1,62 +1,84 @@
-Recent changes as of 2019-12-05T22:07:08.060555-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0b11) Dan Graham
-    90837c5 2019-12-05 22:07:08 -0500
+Recent changes as of 2019-12-08T12:30:36.013457-05:00:
+- 1 second ago (HEAD -> working, tag: 4.0.0b12) Dan Graham
+    83613dc 2019-12-08 12:30:35 -0500
+    Tagged version 4.0.0b12.
+
+- 54 seconds ago (tags) Dan Graham
+    8d3d425 2019-12-08 12:29:42 -0500
+    Moved use of width to summary column.
+
+- 11 minutes ago Dan Graham
+    41209ee 2019-12-08 12:19:50 -0500
+    Fixed timer: T to begin then toggle paused, running and ^T to end
+    timer with choice of whether or not to record used time.
+
+- 87 minutes ago Dan Graham
+    4f0e785 2019-12-08 11:03:35 -0500
+    Added tags view. Remaining: fix timers
+
+- 3 hours ago Dan Graham
+    30251ce 2019-12-08 09:43:14 -0500
+    Redirect stderr and stdout to log file. Fixed bug in when
+    cancelling do_goto_date.
+
+- 3 days ago (origin/working, origin/master, master) Dan Graham
+    e852a08 2019-12-05 22:07:08 -0500
     Tagged version 4.0.0b11.
 
-- 2 minutes ago (origin/working, origin/master, master) Dan Graham
+- 3 days ago Dan Graham
     397e72f 2019-12-05 22:05:28 -0500
     Fixed bug in completions
 
-- 14 hours ago Dan Graham
+- 3 days ago Dan Graham
     8a334ed 2019-12-05 08:05:33 -0500
     Added logger to view namespace and removed call to get_logger.
 
-- 32 hours ago Dan Graham
+- 4 days ago Dan Graham
     85f9699 2019-12-04 14:36:59 -0500
     Tagged version 4.0.0b10.
 
-- 32 hours ago Dan Graham
+- 4 days ago Dan Graham
     385d3be 2019-12-04 14:36:35 -0500
     Allow finishing a task with jobs only when a job is selected.
 
-- 35 hours ago Dan Graham
+- 4 days ago Dan Graham
     2caa77e 2019-12-04 11:28:40 -0500
     Set logger in __main__ and insert into model namespace. Cleaned up
     comments.
 
-- 2 days ago (help) Dan Graham
+- 5 days ago Dan Graham
     af1576a 2019-12-03 16:40:11 -0500
     Tagged version 4.0.0b9.
 
-- 2 days ago Dan Graham
+- 5 days ago Dan Graham
     095e4f6 2019-12-03 16:39:09 -0500
     Fixed various 'yield from' and 'asyncio.ensure_future' bugs
 
-- 2 days ago Dan Graham
+- 5 days ago Dan Graham
     7c4b26a 2019-12-03 12:49:55 -0500
     Removed erroneous call to setup_logging in model.py
 
-- 2 days ago Dan Graham
+- 5 days ago Dan Graham
     23181a4 2019-12-03 12:19:04 -0500
     Fixed bug in activate/close menu
 
-- 3 days ago Dan Graham
+- 5 days ago Dan Graham
     7060e70 2019-12-03 05:13:07 -0500
     Tagged version 4.0.0b8.
 
-- 3 days ago (asyncio) Dan Graham
+- 5 days ago Dan Graham
     5465775 2019-12-03 05:10:14 -0500
     Updated to prompt_toolkit 3 with necessary changes to asyncio.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     24483a7 2019-11-30 17:21:44 -0500
     README tweaks
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     2633be6 2019-11-30 11:01:57 -0500
     Tagged version 4.0.0b7.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     18c15e0 2019-11-30 11:01:43 -0500
     Fixed bug in processing expansions
 
@@ -97,11 +119,11 @@ Recent changes as of 2019-12-05T22:07:08.060555-05:00:
     When finishing overdue r task, set dtstart to the completion
     datetime
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     a7ca7cb 2019-07-24 12:20:56 -0400
     Tagged version 4.0.0b2.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     acebea1 2019-07-24 12:06:34 -0400
     Added check for missing itemtype in schedule
 
@@ -138,52 +160,52 @@ Recent changes as of 2019-12-05T22:07:08.060555-05:00:
     Added etm/ical.py. Import file now supports .json, .text and .ics
     files.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     d4b0007 2019-03-28 12:35:45 -0400
     added @w who corresponding to ical organizer
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     8de6917 2019-03-27 11:36:51 -0400
     Tagged version 4.0.0a65.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     b814695 2019-03-27 11:36:30 -0400
     added pyperclip to setup.py requirements
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     0347c44 2019-03-27 11:22:26 -0400
     Tagged version 4.0.0a64.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     527c718 2019-03-27 11:22:06 -0400
     Added copy active view to menu, ^c under views.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     236b292 2019-03-27 11:13:10 -0400
     Added copy active view to clipboard (^c) and the required
     pyperclip to requirements.txt. Tweaked formatting of used time
     reports.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     8a4d8cc 2019-03-26 21:47:07 -0400
     Tagged version 4.0.0a63.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     fa6b1d6 2019-03-26 21:46:53 -0400
     Formatting tweaks for used time views.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     40329d8 2019-03-26 20:37:39 -0400
     Tagged version 4.0.0a62.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     9d1e718 2019-03-26 20:36:35 -0400
     Implemented used time (u) and used time summary (U). The first
     groups by month, day and index and is an item (details/editable)
     view. The groups by month and index and shows totals at each
     level.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     1afdee5 2019-03-26 13:29:33 -0400
     Fixed bug in used_time where splitting on ':' truncated minutes.
     First pass at used_time report.
@@ -401,24 +423,3 @@ Recent changes as of 2019-12-05T22:07:08.060555-05:00:
     ca7f24f 2019-03-15 09:44:22 -0400
     Fixed logging: logger = logging.getLogger() in the modules picks
     up the one setup in __main__. Fixed bug in deleting instance.
-
-- 9 months ago Dan Graham
-    7323baf 2019-03-15 08:48:31 -0400
-    Handle 3 character weekday abbreviations.
-
-- 9 months ago Dan Graham
-    fa5bf04 2019-03-14 22:43:33 -0400
-    Tagged version 4.0.0a47.
-
-- 9 months ago Dan Graham
-    58d82f8 2019-03-14 22:43:13 -0400
-    Changed tags and attendees from lists to multiple entry for better
-    use with completions.
-
-- 9 months ago Dan Graham
-    644c6b8 2019-03-14 18:38:43 -0400
-    Fixed bug in do_at's listing of available @-keys
-
-- 9 months ago Dan Graham
-    4b81e57 2019-03-13 16:51:38 -0400
-    Tagged version 4.0.0a46.
