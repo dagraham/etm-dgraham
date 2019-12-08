@@ -381,7 +381,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'journal', 'do next', 'used', 'relevant']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used', 'relevant']
 
 @Condition
 def is_editing():
@@ -1049,12 +1049,12 @@ def edit_existing(*event):
     default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
 
-@bindings.add('t', filter=is_viewing_or_details & is_item_view)
+@bindings.add('T', filter=is_viewing_or_details & is_item_view)
 def do_timer_toggle(*event):
     dataview.timer_toggle(text_area.document.cursor_position_row)
 
 
-@bindings.add('T', filter=is_viewing_or_details)
+# @bindings.add('T', filter=is_viewing_or_details)
 def do_maybe_record_timer(*event):
     if not dataview.timer_id:
         return
@@ -1086,7 +1086,7 @@ def do_maybe_record_timer(*event):
 
     asyncio.ensure_future(coroutine())
 
-@bindings.add('c-t', filter=is_viewing_or_details)
+# @bindings.add('c-t', filter=is_viewing_or_details)
 def do_maybe_cancel_timer(*event):
     if not dataview.timer_id:
         return
@@ -1305,6 +1305,11 @@ def next_view(*event):
 @bindings.add('j', filter=is_viewing)
 def journal_view(*event):
     dataview.set_active_view('j')
+    set_text(dataview.show_active_view())
+
+@bindings.add('t', filter=is_viewing)
+def tag_view(*event):
+    dataview.set_active_view('t')
     set_text(dataview.show_active_view())
 
 @bindings.add('i', filter=is_viewing)

@@ -1836,6 +1836,9 @@ class DataView(object):
         elif self.active_view == 'journal':
             self.journal_view, self.row2id = show_journal(self.db, self.id2relevant)
             return self.journal_view
+        elif self.active_view == 'tags':
+            self.tag_view, self.row2id = show_tags(self.db, self.id2relevant)
+            return self.tag_view
         elif self.active_view == 'index':
             self.index_view, self.row2id = show_index(self.db, self.id2relevant)
             return self.index_view
@@ -4586,6 +4589,35 @@ def show_journal(db, id2relevant):
                 ) 
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
+    return tree, row2id
+
+
+def show_tags(db, id2relevant):
+    """
+    tagged items grouped by tag
+    """
+    width = shutil.get_terminal_size()[0] - 2
+    rows = []
+    for item in db:
+        tags = item.get('t', [])
+        for tag in tags:
+            rows.append({
+                        'sort': (tag, item['itemtype'], item['summary'], id2relevant.get(item.doc_id)),
+                        'tag': tag,
+                        'columns': [item['itemtype'],
+                            item['summary'], 
+                            item.doc_id],
+                        })
+    rows.sort(key=itemgetter('sort'))
+    rdict = RDict()
+    for row in rows:
+        path = row['tag']
+        values = (
+                f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
+                ) 
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    logger.debug(f"tree: {tree}; row2id: {row2id}")
     return tree, row2id
 
 
