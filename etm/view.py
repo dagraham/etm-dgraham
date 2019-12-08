@@ -1054,7 +1054,7 @@ def do_timer_toggle(*event):
     dataview.timer_toggle(text_area.document.cursor_position_row)
 
 
-# @bindings.add('T', filter=is_viewing_or_details)
+@bindings.add('c-t', filter=is_viewing_or_details)
 def do_maybe_record_timer(*event):
     if not dataview.timer_id:
         return
@@ -1073,42 +1073,27 @@ def do_maybe_record_timer(*event):
     time_str = format_duration(time)
 
     def coroutine():
-        dialog = ConfirmDialog("record time", f"item: {item_info}\nelapsed time: {time_str}\n\nrecord time and close timer?")
-        record_close = yield from show_dialog_as_float(dialog)
-        if record_close:
-            item.record_timer(item_id, job_id, completed, time)
-            set_text(dataview.show_active_view())
-            dataview.timer_clear()
-            if item_id in dataview.itemcache:
-                del dataview.itemcache[item_id]
-            loop = asyncio.get_event_loop()
-            loop.call_later(0, data_changed, loop)
+        title = "Timer"
+        text = f"item: {item_info}\nelapsed time: {time_str}\n\nAction?"
+        values =[
+            (0, 'record time and close timer'),
+            (1, 'close timer without recording time'),
+        ]
 
-    asyncio.ensure_future(coroutine())
+        dialog = RadioListDialog(
+            title=title,
+            text=text,
+            values=values)
 
-# @bindings.add('c-t', filter=is_viewing_or_details)
-def do_maybe_cancel_timer(*event):
-    if not dataview.timer_id:
-        return
-    item_id = dataview.timer_id
-    job_id = dataview.timer_job
-    hsh = DBITEM.get(doc_id=item_id)
-    item_info = f"{hsh['itemtype']} {hsh['summary']}"
-
-    stopped_timer = False
-    now = pendulum.now()
-    if dataview.timer_status == 1: #running
-        time = dataview.timer_time + (now - dataview.timer_start)
-    else:
-        time = dataview.timer_time
-    completed = pendulum.now()
-    completed_str = format_datetime(completed)
-    time_str = format_duration(time)
-
-    def coroutine():
-        dialog = ConfirmDialog("cancel timer", f"item: {item_info}\nelapsed time: {time_str}\n\nclose timer without recording?")
-        record_cancel = yield from show_dialog_as_float(dialog)
-        if record_cancel:
+        which = yield from show_dialog_as_float(dialog)
+        # None: do nothing; 0: record and close; 1: close 
+        if which is not None:
+            if which == 0:
+                item.record_timer(item_id, job_id, completed, time)
+                if item_id in dataview.itemcache:
+                    del dataview.itemcache[item_id]
+                loop = asyncio.get_event_loop()
+                loop.call_later(0, data_changed, loop)
             dataview.timer_clear()
             set_text(dataview.show_active_view())
             get_app().invalidate()
@@ -1421,6 +1406,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('i) index', handler=index_view),
         MenuItem('j) journal', handler=journal_view),
         MenuItem('r) relevant', handler=relevant_view),
+        MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
         MenuItem('y) yearly', handler=yearly_view),
@@ -1428,7 +1414,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
         MenuItem('l) go to line number', handler=do_go_to_line),
-        MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
+        MenuItem('^C) copy active view to clipboard', handler=copy_active_view),
         MenuItem('-', disabled=True),
         MenuItem('g) goto date in a), b) and c)', handler=do_go_to_date),
         MenuItem('right) next in a), b), c), u), U) and y)'),
@@ -1438,9 +1424,9 @@ root_container = MenuContainer(body=body, menu_items=[
     MenuItem('editor', children=[
         MenuItem('N) create new item', handler=edit_new),
         MenuItem('-', disabled=True),
-        MenuItem('^s) save changes & close', handler=save_changes),
-        MenuItem('^r) show repetitions', handler=is_editing_reps),
-        MenuItem('^c) close editor', handler=close_edit),
+        MenuItem('^S) save changes & close', handler=save_changes),
+        MenuItem('^R) show repetitions', handler=is_editing_reps),
+        MenuItem('^C) close editor', handler=close_edit),
     ]),
     MenuItem('selected', children=[
         MenuItem('Enter) toggle showing details', handler=show_details),
@@ -1450,12 +1436,11 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F) finish', handler=do_finish),
         MenuItem('R) reschedule',  handler=do_reschedule),
         MenuItem('S) schedule new', handler=do_schedule_new),
-        MenuItem('^g) open goto', handler=do_goto),
-        MenuItem('^r) show repetitions', handler=not_editing_reps),
+        MenuItem('^G) open goto', handler=do_goto),
+        MenuItem('^R) show repetitions', handler=not_editing_reps),
         MenuItem('-', disabled=True),
-        MenuItem('t) timer start, then toggle running/paused', handler=do_timer_toggle),
-        MenuItem("^t) cancel timer", handler=do_maybe_cancel_timer),
-        MenuItem("T) record time and close timer", handler=do_maybe_record_timer),
+        MenuItem('T) begin timer, then toggle paused/running', handler=do_timer_toggle),
+        MenuItem("^T) end timer", handler=do_maybe_record_timer),
     ]),
 ], floats=[
     Float(xcursor=True,
