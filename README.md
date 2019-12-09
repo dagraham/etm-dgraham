@@ -76,10 +76,10 @@ _etm_ has several ways of viewing entries. This are listed below by  the shortcu
   * b: Busy
   * c: Completed
   * d: Do Next
+  * f: Forthcoming
   * h: History
   * i: Index
-  * j: Journal
-  * r: Relevant
+  * r: Records
   * t: Tags
   * u: Used Time or U: Used Time Summary
 
@@ -158,9 +158,9 @@ While the views differ in many respects, they also share some common aspects:
     * For an item with an @g “goto” link, press “Ctrl-G” to open the link.
     * For an item that repeats, press “Ctrl-R” to show repetitions.
     * Timers
-        * Press “t” to start a timer for the reminder.
-        * With a timer active, press “t” to toggle paused/running.
-        * Press “T” to record an  `@u usedtime`  entry in the reminder and close the timer.
+        * Press “T” to begin a timer for the reminder.
+        * With a timer active, press “T” to toggle paused/running.
+        * Press “^T” to end the timer and record an  `@u usedtime` entry in the reminder.
 * Movement
     * Press page up or page down to shift the display a page at a time. 
     * Press “l”  (lower case L) and enter a number to move the cursor to a particular line  number. 

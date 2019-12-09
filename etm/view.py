@@ -381,7 +381,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used', 'relevant']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used', 'relevant']
 
 @Condition
 def is_editing():
@@ -451,11 +451,11 @@ def do_go_to_line(*event):
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('g', filter=is_viewing_or_details)
-def do_go_to_date(*event):
+@bindings.add('j', filter=is_viewing_or_details)
+def do_jump_to_date(*event):
     def coroutine():
         dialog = TextInputDialog(
-            title='Go to date',
+            title='Jump to date',
             label_text='date:')
 
         target_date = yield from show_dialog_as_float(dialog)
@@ -464,7 +464,7 @@ def do_go_to_date(*event):
             try:
                 dataview.dtYrWk(target_date)
             except ValueError:
-                show_message('go to date', 'Invalid date')
+                show_message('jump to date', 'Invalid date')
             else:
                 set_text(dataview.show_active_view())
     asyncio.ensure_future(coroutine())
@@ -1287,9 +1287,9 @@ def next_view(*event):
     dataview.set_active_view('d')
     set_text(dataview.show_active_view())
 
-@bindings.add('j', filter=is_viewing)
-def journal_view(*event):
-    dataview.set_active_view('j')
+@bindings.add('r', filter=is_viewing)
+def records_view(*event):
+    dataview.set_active_view('r')
     set_text(dataview.show_active_view())
 
 @bindings.add('t', filter=is_viewing)
@@ -1405,7 +1405,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('f) forthcoming', handler=forthcoming_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
-        MenuItem('j) journal', handler=journal_view),
+        MenuItem('r) records', handler=records_view),
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
@@ -1416,7 +1416,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('l) go to line number', handler=do_go_to_line),
         MenuItem('^C) copy active view to clipboard', handler=copy_active_view),
         MenuItem('-', disabled=True),
-        MenuItem('g) goto date in a), b) and c)', handler=do_go_to_date),
+        MenuItem('j) jump to date in a), b) and c)', handler=do_jump_to_date),
         MenuItem('right) next in a), b), c), u), U) and y)'),
         MenuItem('left) previous in a), b), c), u), U) and y)'),
         MenuItem('space) current in a), b), c), u), U) and y)'),

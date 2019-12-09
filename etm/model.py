@@ -66,7 +66,7 @@ style = Style.from_dict({
     'inbox':        '#ff00ff',
     'pastdue':      '#87ceeb',
     'begin':        '#ffff00',
-    'journal':       '#daa520',
+    'records':      '#daa520',
     'event':        '#90ee90',
     'available':    '#1e90ff',
     'waiting':      '#6495ed',
@@ -77,7 +77,7 @@ type2style = {
         '!': 'class:inbox',
         '<': 'class:pastdue',
         '>': 'class:begin',
-        '%': 'class:journal',
+        '%': 'class:record',
         '*': 'class:event',
         '-': 'class:available',
         '+': 'class:waiting',
@@ -102,7 +102,7 @@ for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
 type_keys = {
     "*": "event",
     "-": "task",
-    "%": "journal",
+    "%": "record",
     "!": "inbox",
 }
 
@@ -126,7 +126,7 @@ allowed['*'] = common_methods + datetime_methods + repeating_methods
 required['-'] = []
 allowed['-'] = common_methods + datetime_methods + task_methods + repeating_methods
 
-# journal
+# record
 required['%'] = []
 allowed['%'] = common_methods + datetime_methods
 
@@ -441,7 +441,7 @@ class Item(object):
         # Note: datetime(s) require timezone and at requires itemtype
         # all else do not need item_hsh
         self.keys = {
-                'itemtype': ["item type", "character from * (event), - (task), % (journal) or ! (inbox)", self.do_itemtype],
+                'itemtype': ["item type", "character from * (event), - (task), % (record) or ! (inbox)", self.do_itemtype],
                 'summary': ["summary", "brief item description. Append an '@' to add an option.", self.do_summary],
                 '+': ["include", "list of datetimes to include", self.do_datetimes],
                 '-': ["exclude", "list of datetimes to exclude", self.do_datetimes],
@@ -874,7 +874,7 @@ class Item(object):
                     cur_hsh = {}
                 self.item_hsh[k] = obj
         if cur_key:
-            # journal the last if necessary 
+            # record the last if necessary 
             self.item_hsh.setdefault(cur_key, []).append(cur_hsh)
             cur_key = None
             cur_hsh = {}
@@ -1021,9 +1021,9 @@ class Item(object):
         """
         >>> item = Item("")
         >>> item.do_itemtype('')
-        (None, 'Choose a character from * (event), - (task), % (journal) or ! (inbox)')
+        (None, 'Choose a character from * (event), - (task), % (record) or ! (inbox)')
         >>> item.do_itemtype('+')
-        (None, "'+' is invalid. Choose a character from * (event), - (task), % (journal) or ! (inbox)")
+        (None, "'+' is invalid. Choose a character from * (event), - (task), % (record) or ! (inbox)")
         >>> item.do_itemtype('*')
         ('*', '* (event)')
         """
@@ -1640,7 +1640,7 @@ class DataView(object):
                 'f': 'forthcoming',
                 'h': 'history',
                 'i': 'index',
-                'j': 'journal',
+                'r': 'records',
                 't': 'tags',
                 'u': 'used',
                 'U': 'used summary',
@@ -1838,9 +1838,9 @@ class DataView(object):
         elif self.active_view == 'do next':
             self.next_view, self.row2id = show_next(self.db)
             return self.next_view
-        elif self.active_view == 'journal':
-            self.journal_view, self.row2id = show_journal(self.db, self.id2relevant)
-            return self.journal_view
+        elif self.active_view == 'records':
+            self.records_view, self.row2id = show_records(self.db, self.id2relevant)
+            return self.records_view
         elif self.active_view == 'tags':
             self.tag_view, self.row2id = show_tags(self.db, self.id2relevant)
             return self.tag_view
@@ -4563,9 +4563,9 @@ def show_next(db):
     return "\n".join(next_view), row2id
 
 
-def show_journal(db, id2relevant):
+def show_records(db, id2relevant):
     """
-    Undated journals grouped by index entry
+    Undated records grouped by index entry
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
