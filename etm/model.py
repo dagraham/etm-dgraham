@@ -4415,7 +4415,7 @@ def insert_db(db, hsh={}):
 
 def show_forthcoming(db, id2relevant):
     width = shutil.get_terminal_size()[0] - 2 
-    summary_width = width - 23 
+    summary_width = width - 19 
     rows = []
     today = pendulum.today()
     for item in db:
@@ -4460,6 +4460,7 @@ def show_forthcoming(db, id2relevant):
 def show_history(db, reverse=True):
     width = shutil.get_terminal_size()[0] - 2 
     rows = []
+    summary_width = width - 21 
     for item in db:
         mt = item.get('modified', None)
         if mt is not None:
@@ -4467,37 +4468,34 @@ def show_history(db, reverse=True):
         else:
             dt, label = item.get('created', None), 'c'
         if dt is not None:
-            dtfmt = dt.in_timezone('local').format("YYYYMMDD HH:mm")
+            id = item.doc_id
+            year = dt.format("YYYY")
+            monthday = dt.format("MMM D")
+            time = fmt_time(dt)
+            dtfmt = f"{monthday} {time}"
             itemtype = finished_char if 'f' in item else item['itemtype']
             rows.append(
                     {
-                        'id': item.doc_id,
-                        'sort': dtfmt,
-                        'week': (
-                            dt.isocalendar()[:2]
-                            ),
-                        'day': (
-                            dt.format("ddd MMM D"),
-                            ),
+                        'id': id,
+                        'sort': dt,
+                        'path': year,
                         'columns': [itemtype,
-                            item['summary'], 
-                            f"{dtfmt} {label}"
-                            ]
+                            item['summary'][:summary_width].ljust(summary_width, ' '), 
+                            f"{label} {dtfmt}",
+                            item.doc_id],
                     }
                     )
-    rows.sort(key=itemgetter('sort'), reverse=reverse)
-    out_view = []
-    num2id = {}
 
-    summary_width = width - 21 
-    num = 0
-    for i in rows:
-        num2id[num] = i['id']
-        num += 1
-        view_summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
-        tmp = f" {i['columns'][0]} {view_summary}  {i['columns'][2]}" 
-        out_view.append(tmp)
-    return "\n".join(out_view), num2id
+    rows.sort(key=itemgetter('sort'), reverse=reverse)
+    rdict = RDict()
+    for row in rows:
+        path = row['path']
+        values = (
+                f"{row['columns'][0]} {row['columns'][1]} {row['columns'][2]}", row['columns'][3]
+                ) 
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    return tree, row2id
 
 
 def show_next(db):
