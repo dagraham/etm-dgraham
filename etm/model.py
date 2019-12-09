@@ -4177,8 +4177,7 @@ def relevant(db, now=pendulum.now()):
         elif 'f' in item:
             relevant = item['f']
             if isinstance(relevant, pendulum.Date) and not isinstance(relevant, pendulum.DateTime):
-                relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0)
-
+                relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0, tz='local')
 
         elif 's' in item:
             dtstart = item['s'] 
@@ -4186,7 +4185,7 @@ def relevant(db, now=pendulum.now()):
             has_b = 'b' in item
             # for daylight savings time changes
             if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
-                dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
+                dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0, tz='local')
                 startdst = None
             else:
                 # for discarding daylight saving time differences in repetitions
@@ -4236,13 +4235,13 @@ def relevant(db, now=pendulum.now()):
                 if '-' in item:
                     for dt in item['-']:
                         if type(dt) == pendulum.Date:
-                            dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0)
+                            dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
                         rset.exdate(dt)
 
                 if '+' in item:
                     for dt in item['+']:
                         if type(dt) == pendulum.Date:
-                            dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0)
+                            dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
                         rset.rdate(dt)
 
                 if item['itemtype'] == '-': 

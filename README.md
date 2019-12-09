@@ -80,6 +80,7 @@ _etm_ has several ways of viewing entries. This are listed below by  the shortcu
   * i: Index
   * j: Journal
   * r: Relevant
+  * t: Tags
   * u: Used Time or U: Used Time Summary
 
 ### a] Agenda View
