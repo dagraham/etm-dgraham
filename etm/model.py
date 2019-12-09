@@ -1390,6 +1390,11 @@ def format_datetime(obj, short=False):
         except:
             return False, "The argument must be a pendulum date or datetime."
 
+    # we want all-day events to display as dates
+    if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
+        # treat as date
+        return True, obj.format(date_fmt)
+
     if obj.format('Z') == '':
         # naive datetime
         if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
@@ -1632,10 +1637,10 @@ class DataView(object):
                 'b': 'busy',
                 'c': 'completed',
                 'd': 'do next',
+                'f': 'forthcoming',
                 'h': 'history',
                 'i': 'index',
                 'j': 'journal',
-                'r': 'relevant',
                 't': 'tags',
                 'u': 'used',
                 'U': 'used summary',
@@ -1827,9 +1832,9 @@ class DataView(object):
         elif self.active_view == 'history':
             self.history_view, self.row2id = show_history(self.db)
             return self.history_view
-        elif self.active_view == 'relevant':
-            self.relevant_view, self.row2id = show_relevant(self.db, self.id2relevant)
-            return self.relevant_view
+        elif self.active_view == 'forthcoming':
+            self.forthcoming_view, self.row2id = show_forthcoming(self.db, self.id2relevant)
+            return self.forthcoming_view
         elif self.active_view == 'do next':
             self.next_view, self.row2id = show_next(self.db)
             return self.next_view
@@ -4408,45 +4413,48 @@ def insert_db(db, hsh={}):
         logger.error(f"Error updating database:\nid {id}\nold {old}\nhsh {hsh}\ne {repr(e)}")
 
 
-def show_relevant(db, id2relevant):
+def show_forthcoming(db, id2relevant):
     width = shutil.get_terminal_size()[0] - 2 
     summary_width = width - 23 
     rows = []
+    today = pendulum.today()
     for item in db:
         if item.doc_id not in id2relevant:
             continue
         id = item.doc_id
         relevant = id2relevant[item.doc_id]
-        dtfmt = format_datetime(relevant, short=True)[1]
+        if relevant < today:
+            continue
+        year = relevant.format("YYYY")
+        monthday = relevant.format("MMM D")
+        time = fmt_time(relevant)
+        dtfmt = f"{monthday} {time}"
+
+        # dtfmt = format_datetime(relevant, short=True)[1]
         itemtype = finished_char if 'f' in item else item['itemtype']
         rows.append(
                 {
                     'id': id,
                     'sort': relevant,
-                    # 'week': (
-                    #     relevant.isocalendar()[:2]
-                    #     ),
-                    # 'day': (
-                    #     relevant.format("ddd MMM D"),
-                    #     ),
+                    'path': year,
                     'columns': [itemtype,
-                        item['summary'], 
-                        dtfmt
-                        ]
+                        item['summary'][:summary_width].ljust(summary_width, ' '), 
+                        dtfmt,
+                        item.doc_id],
                 }
                 )
 
-    rows.sort(key=itemgetter('sort'), reverse=True)
-    out_view = []
-    num2id = {}
-    num = 0
-    for i in rows:
-        num2id[num] = i['id']
-        num += 1
-        view_summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
-        tmp = f" {i['columns'][0]} {view_summary}  {i['columns'][2]}" 
-        out_view.append(tmp)
-    return "\n".join(out_view), num2id
+    # rows.sort(key=itemgetter('sort'), reverse=True)
+    rows.sort(key=itemgetter('sort'))
+    rdict = RDict()
+    for row in rows:
+        path = row['path']
+        values = (
+                f"{row['columns'][0]} {row['columns'][1]} {row['columns'][2]}", row['columns'][3]
+                ) 
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    return tree, row2id
 
 
 def show_history(db, reverse=True):
@@ -4567,12 +4575,9 @@ def show_journal(db, id2relevant):
     for item in db:
         if item['itemtype'] != '%': #  or 's' in item:
             continue
-        # if 'i' not in item:
-        #     continue
         index = item.get('i', '~')
         rows.append({
                     'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
-                    # 'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
                         item['summary'][:width - 15], 
@@ -4582,7 +4587,6 @@ def show_journal(db, id2relevant):
     rdict = RDict()
     for row in rows:
         path = row['index']
-        # values = row['columns']
         values = (
                 f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
                 ) 

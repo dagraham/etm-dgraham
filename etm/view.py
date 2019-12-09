@@ -1277,9 +1277,9 @@ def history_view(*event):
     dataview.set_active_view('h')
     set_text(dataview.show_active_view())
 
-@bindings.add('r', filter=is_viewing)
-def relevant_view(*event):
-    dataview.set_active_view('r')
+@bindings.add('f', filter=is_viewing)
+def forthcoming_view(*event):
+    dataview.set_active_view('f')
     set_text(dataview.show_active_view())
 
 @bindings.add('d', filter=is_viewing)
@@ -1402,10 +1402,10 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('b) busy', handler=busy_view),
         MenuItem('c) completed', handler=completed_view),
         MenuItem('d) do next', handler=next_view),
+        MenuItem('f) forthcoming', handler=forthcoming_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
         MenuItem('j) journal', handler=journal_view),
-        MenuItem('r) relevant', handler=relevant_view),
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
