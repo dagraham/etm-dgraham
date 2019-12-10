@@ -1,124 +1,133 @@
-Recent changes as of 2019-12-09T13:41:49.683831-05:00:
-- 0 seconds ago (HEAD -> relevant, tag: 4.0.0rc0) Dan Graham
-    775764d 2019-12-09 13:41:49 -0500
+Recent changes as of 2019-12-10T18:07:00.863455-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0rc1) Dan Graham
+    cc43b80 2019-12-10 18:07:00 -0500
+    Tagged version 4.0.0rc1.
+
+- 2 minutes ago (origin/working, usedtime) Dan Graham
+    384b3ea 2019-12-10 18:04:45 -0500
+    Don't allow events to be saved without @s entries. Added option to
+    open config file to file menu bound to F8.
+
+- 28 hours ago (origin/master, master) Dan Graham
+    73ddd4c 2019-12-09 13:41:49 -0500
     Tagged version 4.0.0rc0.
 
-- 37 seconds ago Dan Graham
+- 28 hours ago Dan Graham
     d2eb866 2019-12-09 13:41:12 -0500
     Changed goto date to jump to date and changed binding from 'g' to
     'j'.
 
-- 60 minutes ago Dan Graham
+- 29 hours ago Dan Graham
     e3f58f0 2019-12-09 12:42:07 -0500
     Changed history display to group by year and put modified/created
     label first in the right hand column.
 
-- 87 minutes ago Dan Graham
+- 30 hours ago Dan Graham
     eda8cc5 2019-12-09 12:14:40 -0500
     Renamed relevant view as forthcoming view. Changed binding from r
     to f. Show relevant from today forward grouped by year without
     reverse sort.
 
-- 3 hours ago Dan Graham
+- 31 hours ago Dan Graham
     2ef82cb 2019-12-09 10:47:20 -0500
     Set tz='local' for Date objects converted to 12am datetimes.
 
-- 25 hours ago (origin/working, origin/master, working, readme, master) Dan Graham
+- 2 days ago Dan Graham
     a6f167b 2019-12-08 12:30:35 -0500
     Tagged version 4.0.0b12.
 
-- 25 hours ago Dan Graham
+- 2 days ago Dan Graham
     8d3d425 2019-12-08 12:29:42 -0500
     Moved use of width to summary column.
 
-- 25 hours ago Dan Graham
+- 2 days ago Dan Graham
     41209ee 2019-12-08 12:19:50 -0500
     Fixed timer: T to begin then toggle paused, running and ^T to end
     timer with choice of whether or not to record used time.
 
-- 27 hours ago Dan Graham
+- 2 days ago Dan Graham
     4f0e785 2019-12-08 11:03:35 -0500
     Added tags view. Remaining: fix timers
 
-- 28 hours ago Dan Graham
+- 2 days ago Dan Graham
     30251ce 2019-12-08 09:43:14 -0500
     Redirect stderr and stdout to log file. Fixed bug in when
     cancelling do_goto_date.
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     e852a08 2019-12-05 22:07:08 -0500
     Tagged version 4.0.0b11.
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     397e72f 2019-12-05 22:05:28 -0500
     Fixed bug in completions
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     8a334ed 2019-12-05 08:05:33 -0500
     Added logger to view namespace and removed call to get_logger.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     85f9699 2019-12-04 14:36:59 -0500
     Tagged version 4.0.0b10.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     385d3be 2019-12-04 14:36:35 -0500
     Allow finishing a task with jobs only when a job is selected.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     2caa77e 2019-12-04 11:28:40 -0500
     Set logger in __main__ and insert into model namespace. Cleaned up
     comments.
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     af1576a 2019-12-03 16:40:11 -0500
     Tagged version 4.0.0b9.
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     095e4f6 2019-12-03 16:39:09 -0500
     Fixed various 'yield from' and 'asyncio.ensure_future' bugs
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     7c4b26a 2019-12-03 12:49:55 -0500
     Removed erroneous call to setup_logging in model.py
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     23181a4 2019-12-03 12:19:04 -0500
     Fixed bug in activate/close menu
 
-- 6 days ago Dan Graham
+- 8 days ago Dan Graham
     7060e70 2019-12-03 05:13:07 -0500
     Tagged version 4.0.0b8.
 
-- 6 days ago Dan Graham
+- 8 days ago Dan Graham
     5465775 2019-12-03 05:10:14 -0500
     Updated to prompt_toolkit 3 with necessary changes to asyncio.
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     24483a7 2019-11-30 17:21:44 -0500
     README tweaks
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     2633be6 2019-11-30 11:01:57 -0500
     Tagged version 4.0.0b7.
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     18c15e0 2019-11-30 11:01:43 -0500
     Fixed bug in processing expansions
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     3f34e0d 2019-11-22 10:04:43 -0500
     Tagged version 4.0.0b6.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     b64ad3d 2019-11-22 10:04:14 -0500
     Cleaned up debugging
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     c7966e6 2019-11-22 08:46:04 -0500
     Tagged version 4.0.0b5.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     a6f3a90 2019-11-22 08:43:50 -0500
     Catch dateutil timezone warnings as errors in parse
 
@@ -138,7 +147,7 @@ Recent changes as of 2019-12-09T13:41:49.683831-05:00:
     e99bca0 2019-07-29 17:17:25 -0400
     Tagged version 4.0.0b3.
 
-- 4 months ago (restart) Dan Graham
+- 4 months ago Dan Graham
     fbe4ca6 2019-07-29 17:14:03 -0400
     When finishing overdue r task, set dtstart to the completion
     datetime
@@ -418,11 +427,3 @@ Recent changes as of 2019-12-09T13:41:49.683831-05:00:
 - 9 months ago Dan Graham
     b090d23 2019-03-15 14:54:41 -0400
     Tagged version 4.0.0a50.
-
-- 9 months ago Dan Graham
-    a1e4206 2019-03-15 14:51:19 -0400
-    Added archive_after option.
-
-- 9 months ago Dan Graham
-    360b9e7 2019-03-15 13:50:51 -0400
-    Added goto date to menu.
