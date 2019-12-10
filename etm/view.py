@@ -57,8 +57,6 @@ import os
 
 import pyperclip
 
-cfgfile = '' # override this
-
 class InteractiveInputDialog(object):
     def __init__(self, title='', help_text='', evaluator=None, padding=10, completer=None):
         self.future = asyncio.Future()
@@ -320,19 +318,27 @@ Timezones can be appended to x and y.
 
     asyncio.ensure_future(coroutine())
 
-# @bindings.add('f6')
-# def do_open_config(*event):
-#     openWithDefault(cfgfile)
+@bindings.add('f8')
+def do_open_config(*event):
+    openWithDefault(cfgfile)
 
 def save_before_quit(*event):
     def coroutine():
         dialog = ConfirmDialog("unsaved changes", "Save them before closing?")
 
-        save_changes = yield from show_dialog_as_float(dialog)
-        if save_changes:
-            if item.doc_id is not None:
-                # del dataview.itemcache[item.doc_id]
-                dataview.itemcache[item.doc_id] = {}
+        save = yield from show_dialog_as_float(dialog)
+        if save:
+            # we want to save, check that hsh is ok
+            item.update_item_hsh()
+            if item.item_hsh['itemtype'] == '*' and 's' not in item.item_hsh: 
+                dialog = MessageDialog('Error', 'An entry for @s is required for events but is missing.', 0)
+                yield from show_dialog_as_float(dialog)
+                # we have a problem so continue edit
+                return
+        else: 
+            # we want to discard changes
+            if item.doc_id in dataview.itemcache:
+                del dataview.itemcache[item.doc_id]
             dataview.is_editing = False
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
@@ -381,7 +387,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used', 'relevant']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used', 'relevant', 'forthcoming']
 
 @Condition
 def is_editing():
@@ -1364,25 +1370,38 @@ def show_details(*event):
 def close_edit(*event):
     if item.is_modified:
         save_before_quit()
-    item.is_modified = False
-    dataview.is_editing = False
-    application.layout.focus(text_area)
-    set_text(dataview.show_active_view())
+    else:
+        item.is_modified = False
+        dataview.is_editing = False
+        application.layout.focus(text_area)
+        set_text(dataview.show_active_view())
 
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):
     if item.is_modified:
-        if item.doc_id in dataview.itemcache:
-            del dataview.itemcache[item.doc_id]
-        dataview.is_editing = False
-        application.layout.focus(text_area)
-        set_text(dataview.show_active_view())
-        loop = asyncio.get_event_loop()
-        loop.call_later(0, item_changed, loop)
+        maybe_save(item)
     else:
+        # no changes to save - close editor
         dataview.is_editing = False
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
+
+
+def maybe_save(item):
+    # check hsh
+    item.update_item_hsh()
+    if item.item_hsh['itemtype'] == '*' and 's' not in item.item_hsh: 
+        show_message('Error', 'An entry for @s is required for events but is missing.', 0)
+        # item needs correcting, return to edit
+        return 
+    # hsh ok, save changes and close editor
+    if item.doc_id in dataview.itemcache:
+        del dataview.itemcache[item.doc_id]
+    dataview.is_editing = False
+    application.layout.focus(text_area)
+    set_text(dataview.show_active_view())
+    loop = asyncio.get_event_loop()
+    loop.call_later(0, item_changed, loop)
 
 
 root_container = MenuContainer(body=body, menu_items=[
@@ -1394,6 +1413,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem("F5) show today's alerts", handler=do_alerts),
         MenuItem('F6) datetime calculator', handler=datetime_calculator),
         MenuItem('F7) import file', handler=do_import_file),
+        MenuItem('F8) configuration settings', handler=do_open_config),
         MenuItem('-', disabled=True),
         MenuItem('^q) quit', handler=exit),
     ]),

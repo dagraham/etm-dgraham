@@ -4347,7 +4347,7 @@ def relevant(db, now=pendulum.now()):
                 if 'b' in job:
                     days = int(job['b']) * DAY
                     if today + DAY <= jobstart <= tomorrow + days:
-                        beginbys.append([(jobstart.date() - today.date()).days, job['summary'], item.item_id, job_id, None])
+                        beginbys.append([(jobstart.date() - today.date()).days, job['summary'], item.doc_id, job_id, None])
                 if 'a' in job:
                     for alert in job['a']:
                         for td in alert[0]:
@@ -4454,6 +4454,7 @@ def show_forthcoming(db, id2relevant):
                 ) 
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
+    logger.info(f"tree: {tree}; row2id: {row2id}")
     return tree, row2id
 
 
