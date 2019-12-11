@@ -30,9 +30,10 @@ def main():
         os.makedirs(backdir)
 
     import etm.options as options
-    settings = options.Settings(etmdir).settings
     setup_logging = options.setup_logging
     setup_logging(loglevel, logdir)
+    options.logger = logger
+    settings = options.Settings(etmdir).settings
 
     logger.info(f"running in a virtual environment: {IS_VENV}")
 

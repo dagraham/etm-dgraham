@@ -48,6 +48,14 @@ keep_current: false
 # and records are not archived.
 archive_after: 0
 
+# usedtime_minutes: Round used times up to the nearest 
+# usedtime_minutes in used time views. Possible choices are 1, 
+# 6, 12, 30 and 60. With 1, no rounding is done and times are 
+# reported as integer minutes. Otherwise, the prescribed 
+# rounding is done and times are reported as floating point 
+# hours.
+usedtime_minutes: 1
+
 # alerts: A dictionary with single-character, "alert" keys and 
 # corresponding "system command" values. Note that characters 
 # "t" (text message) and "e" (email) are already used.  The 
@@ -186,6 +194,11 @@ smtp:
 
         for key, value in new.items():
             self.settings[key] = new[key]
+
+        if self.settings['usedtime_minutes'] not in [1, 6, 12, 30, 60]:
+            changed.append(f"{self.settings['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 1.")
+            self.settings['usedtime_minutes'] = 1 
+
         return changed
 
 

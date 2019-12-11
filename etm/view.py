@@ -336,7 +336,6 @@ def save_before_quit(*event):
                 # we have a problem so continue edit
                 return
             else:
-                # hsh ok, save changes
                 if item.doc_id in dataview.itemcache:
                     del dataview.itemcache[item.doc_id]
                 dataview.is_editing = False

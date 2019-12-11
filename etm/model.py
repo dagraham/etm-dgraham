@@ -7,7 +7,7 @@ from pendulum.datetime import Timezone
 from pendulum import __version__ as pendulum_version
 import calendar
 from copy import deepcopy
-
+import math
 from ruamel.yaml import YAML
 yaml = YAML(typ='safe', pure=True) 
 
@@ -1421,6 +1421,36 @@ def format_datetime_list(obj_lst):
 def plain_datetime_list(obj_lst):
     ret = ", ".join([plain_datetime(x)[1] for x in obj_lst])
     return ret
+
+def format_hours_and_tenths(obj):
+    """
+    Convert a pendulum duration object into hours and tenths of an hour rounding up to the nearest tenth.
+    """
+    if not isinstance(obj, pendulum.Duration):
+        return None
+    usedtime_minutes = settings.get('usedtime_minutes', 1)
+    try:
+        minutes = 0
+        if obj.weeks:
+            minutes += obj.weeks * 7 * 24 * 60
+        if obj.remaining_days:
+            minutes += obj.remaining_days * 24 * 60
+        if obj.hours:
+            minutes += obj.hours * 60
+        if obj.minutes:
+            minutes += obj.minutes
+        if usedtime_minutes == 1:
+            return f"{minutes}m"
+        elif usedtime_minutes in [6, 12, 15, 30, 60]: 
+            return f"{math.ceil(minutes/usedtime_minutes)/(60/usedtime_minutes)}h"
+        else:
+            return ""
+
+    except Exception as e:
+        print('format_duration', e)
+        print(obj)
+        return None
+
 
 
 def format_duration(obj, short=False):
@@ -4456,7 +4486,6 @@ def show_forthcoming(db, id2relevant):
                 ) 
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
-    logger.info(f"tree: {tree}; row2id: {row2id}")
     return tree, row2id
 
 
@@ -4662,14 +4691,7 @@ def get_usedtime(db):
 
     """
     width = shutil.get_terminal_size()[0] - 2
-    summary_width = width - 12
-    key_len_char = {
-            0: "",  # should not happen
-            1: "",  # month
-            2: "*", # first element of path: client
-            3: "-", # second element of path: project
-            4: "+", # third element of path: day
-            }
+    summary_width = width - 14
 
     used_details = {}
     used_details2id = {}
@@ -4682,10 +4704,11 @@ def get_usedtime(db):
         used = item.get('u')
         if not used:
             continue
-        index = item.get('i', '~').split(':')
+        index_tup = item.get('i', '~')
+        index = index_tup.split(':')
         doc_id = item.doc_id
         id_used = {}
-        details = f"{item['itemtype']} {item['summary']} @i {item.get('i', '~')}"
+        details = f"{item['itemtype']} {item['summary']}"
         for period, dt in used:
             # for id2used 
             monthday = dt.date()
@@ -4693,23 +4716,20 @@ def get_usedtime(db):
             id_used[monthday] += period
             # for used_time
             month = dt.format("YYYY-MM")
-            day = dt.format("MMM DD")
             used_time.setdefault(tuple((month,)), ZERO)
             used_time[tuple((month, ))] += period
             for i in range(len(index)):
                 used_time.setdefault(tuple((month, *index[:i+1])), ZERO)
                 used_time[tuple((month, *index[:i+1]))] += period
-            used_time.setdefault(tuple((month, *index, day)), ZERO)
-            used_time[tuple((month, *index, day))] += period
-
+        logger.debug(f"id_used: {id_used}; index_tup: {index_tup}")
         for monthday in id_used:
             detail_rows.append({
-                        'sort': (monthday, details),
+                        'sort': (month, *index, details),
                         'month': monthday.format("YYYY-MM"),
-                        'path': f"{monthday.format('MMMM YYYY')}:{monthday.format('MMM D')}",
+                        'path': f"{monthday.format('MMMM YYYY')}:{index_tup}",
                         'columns': [
                             details,
-                            format_duration(id_used[monthday], True),
+                            f"{format_hours_and_tenths(id_used[monthday]):>6}: {monthday.format('MMM D')}",
                             doc_id],
                         })
 
@@ -4718,16 +4738,16 @@ def get_usedtime(db):
         months.add(month)
         rdict = RDict()
         for row in items:
-            summary = row['columns'][0][:summary_width - 4].ljust(summary_width -4, ' ')
-            rhc = row['columns'][1].center(12, ' ')
+            summary = row['columns'][0][:summary_width - 6].ljust(summary_width -6, ' ')
+            rhc = row['columns'][1]
             path = row['path']
             values = (
                     f"{summary}{rhc}", row['columns'][2]
                     ) 
             try:
                 rdict.add(path, values)
-            except:
-                logger.error(f"error adding path: {path}, values: {values}")
+            except Exception as e:
+                logger.error(f"error adding path: {path}, values: {values}: {e}")
         tree, row2id = rdict.as_tree(rdict, level=0)
         used_details[month] = tree
         used_details2id[month] = row2id
@@ -4737,21 +4757,22 @@ def get_usedtime(db):
     for key in keys:
         period = used_time[key]
         month_rows.setdefault(key[0], [])
-        indent = (len(key) - 1) * 4 * " "
-        char = key_len_char.get(len(key), "")
+        indent = (len(key) - 1) * 3 * " "
         if len(key) == 1:
             yrmnth = pendulum.from_format(key[0] + "-01", "YYYY-MM-DD").format("MMMM YYYY")
             try:
-                summary = f"{indent}{yrmnth}"[:summary_width].ljust(summary_width, ' ')
-                rhc = f"{format_duration(period, True)}".center(12, ' ')
-                month_rows[key[0]].append(f"{summary}{rhc}")
+                rhc = f"{format_hours_and_tenths(period)}"
+                summary = f"{indent}{yrmnth}: {rhc}"[:summary_width]
+                month_rows[key[0]].append(f"{summary}")
+                logger.debug(f"len key == 1: {key[0]} {rhc}: {summary}")
             except Exception as e:
                 logger.error(f"e: {repr(e)}")
 
         else:
-            summary = f"{indent}{char} {key[-1]}"[:summary_width].ljust(summary_width, ' ')
-            rhc = f"{format_duration(period, True)}".center(12, ' ')
-            month_rows[key[0]].append(f"{summary}{rhc}")
+            rhc = f"{format_hours_and_tenths(period)}"
+            summary = f"{indent}{key[-1]}: {rhc}"[:summary_width].ljust(summary_width, ' ')
+            month_rows[key[0]].append(f"{summary}")
+            logger.debug(f"len key > 1: {key[0]} {rhc}: {summary}")
 
     used_summary = {}
     for key, val in month_rows.items():
