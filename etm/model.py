@@ -682,7 +682,7 @@ class Item(object):
 
 
     def finish_item(self, item_id, job_id, completed_datetime, due_datetime):
-        # item_id and job_id should have come from dataview.maybe_finish and thus be valid
+        # item_id and job_id should have come from dataview.hsh ok, maybe_finish and thus be valid
         save_item = False
         self.item_hsh = self.db.get(doc_id=item_id)
         self.doc_id = item_id
@@ -2119,13 +2119,14 @@ class DataView(object):
                     rows.append(item)
                     continue
             elif item['itemtype'] == '*':
-                if isinstance(item['s'], pendulum.DateTime):
-                    if item['s'] < old:
+                start = item.get('s', None)
+                if isinstance(start, pendulum.DateTime):
+                    if start < old:
                         # toss old, non-repeating events
                         rows.append(item)
                         continue
-                elif isinstance(item['s'], pendulum.Date):
-                    if item['s'] < old.date():
+                elif isinstance(start, pendulum.Date):
+                    if start < old.date():
                         # toss old, non-repeating events
                         rows.append(item)
                         continue
@@ -4432,13 +4433,14 @@ def show_forthcoming(db, id2relevant):
 
         # dtfmt = format_datetime(relevant, short=True)[1]
         itemtype = finished_char if 'f' in item else item['itemtype']
+        summary = set_summary(item['summary'], relevant)
         rows.append(
                 {
                     'id': id,
                     'sort': relevant,
                     'path': year,
                     'columns': [itemtype,
-                        item['summary'][:summary_width].ljust(summary_width, ' '), 
+                        summary[:summary_width].ljust(summary_width, ' '), 
                         dtfmt,
                         item.doc_id],
                 }

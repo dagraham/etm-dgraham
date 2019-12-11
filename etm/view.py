@@ -335,6 +335,15 @@ def save_before_quit(*event):
                 yield from show_dialog_as_float(dialog)
                 # we have a problem so continue edit
                 return
+            else:
+                # hsh ok, save changes
+                if item.doc_id in dataview.itemcache:
+                    del dataview.itemcache[item.doc_id]
+                dataview.is_editing = False
+                application.layout.focus(text_area)
+                set_text(dataview.show_active_view())
+                loop = asyncio.get_event_loop()
+                loop.call_later(0, item_changed, loop)
         else: 
             # we want to discard changes
             if item.doc_id in dataview.itemcache:
@@ -343,7 +352,6 @@ def save_before_quit(*event):
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
             loop = asyncio.get_event_loop()
-            loop.call_later(0, item_changed, loop)
 
     asyncio.ensure_future(coroutine())
 
