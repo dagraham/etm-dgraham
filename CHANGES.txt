@@ -1,25 +1,39 @@
-Recent changes as of 2019-12-12T11:35:48.475821-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0rc3) Dan Graham
-    acc7df1 2019-12-12 11:35:48 -0500
+Recent changes as of 2019-12-12T16:37:30.652442-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0rc4) Dan Graham
+    367d816 2019-12-12 16:37:30 -0500
+    Tagged version 4.0.0rc4.
+
+- 42 minutes ago (origin/working) Dan Graham
+    0016ca0 2019-12-12 15:55:34 -0500
+    Use @n attendees to provide phone numbers for text alerts to
+    parallel the email alert usage.
+
+- 2 hours ago Dan Graham
+    900cfdb 2019-12-12 15:03:55 -0500
+    Added needed 'aync' to send_mail and send_text. Fixed bug in
+    getting the relevant item in both from the doc_id.
+
+- 5 hours ago (origin/master, master) Dan Graham
+    a9d594d 2019-12-12 11:35:48 -0500
     Tagged version 4.0.0rc3.
 
-- 29 seconds ago Dan Graham
+- 5 hours ago Dan Graham
     f5dd517 2019-12-12 11:35:19 -0500
     Apply usedtime_minutes to each @u entry before adding. Fixed bug
     in short=True format_duration.
 
-- 19 hours ago (origin/working, origin/master, master) Dan Graham
+- 24 hours ago Dan Graham
     f5b3cbe 2019-12-11 16:50:45 -0500
     Tagged version 4.0.0rc2.
 
-- 19 hours ago Dan Graham
+- 24 hours ago Dan Graham
     60ff12d 2019-12-11 16:49:35 -0500
     Fixed bug in logging from options.py. Added 'usedtime_minutes' to
     options with default 1 to control rounding in used time views.
     Modified used time views to sort by year-month and index and to
     display times using usedtime_minutes setting.
 
-- 25 hours ago Dan Graham
+- 30 hours ago Dan Graham
     f4b9f55 2019-12-11 10:21:48 -0500
     Fixed bug in save_before_quit. Added anniversary expansions to
     forthcoming view.
@@ -420,15 +434,3 @@ Recent changes as of 2019-12-12T11:35:48.475821-05:00:
     Added check_goto_link while editing. Check for settings.alerts and
     warn if missing and alerts are set. Convert bytes to str in
     check_output.
-
-- 9 months ago Dan Graham
-    5ffbc00 2019-03-15 18:06:43 -0400
-    Tagged version 4.0.0a52.
-
-- 9 months ago Dan Graham
-    3ddc90a 2019-03-15 18:05:07 -0400
-    Corrected commit
-
-- 9 months ago Dan Graham
-    7e66cea 2019-03-15 16:20:01 -0400
-    Tagged version 4.0.0a51.
