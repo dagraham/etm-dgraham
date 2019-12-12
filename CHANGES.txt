@@ -1,113 +1,122 @@
-Recent changes as of 2019-12-11T16:50:45.540209-05:00:
-- 0 seconds ago (HEAD -> master, tag: 4.0.0rc2) Dan Graham
-    22015e9 2019-12-11 16:50:45 -0500
+Recent changes as of 2019-12-12T11:35:48.475821-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0rc3) Dan Graham
+    acc7df1 2019-12-12 11:35:48 -0500
+    Tagged version 4.0.0rc3.
+
+- 29 seconds ago Dan Graham
+    f5dd517 2019-12-12 11:35:19 -0500
+    Apply usedtime_minutes to each @u entry before adding. Fixed bug
+    in short=True format_duration.
+
+- 19 hours ago (origin/working, origin/master, master) Dan Graham
+    f5b3cbe 2019-12-11 16:50:45 -0500
     Tagged version 4.0.0rc2.
 
-- 70 seconds ago (origin/working, working, usedtime) Dan Graham
+- 19 hours ago Dan Graham
     60ff12d 2019-12-11 16:49:35 -0500
     Fixed bug in logging from options.py. Added 'usedtime_minutes' to
     options with default 1 to control rounding in used time views.
     Modified used time views to sort by year-month and index and to
     display times using usedtime_minutes setting.
 
-- 6 hours ago Dan Graham
+- 25 hours ago Dan Graham
     f4b9f55 2019-12-11 10:21:48 -0500
     Fixed bug in save_before_quit. Added anniversary expansions to
     forthcoming view.
 
-- 23 hours ago (origin/master) Dan Graham
+- 2 days ago Dan Graham
     7b47331 2019-12-10 18:07:00 -0500
     Tagged version 4.0.0rc1.
 
-- 23 hours ago Dan Graham
+- 2 days ago Dan Graham
     384b3ea 2019-12-10 18:04:45 -0500
     Don't allow events to be saved without @s entries. Added option to
     open config file to file menu bound to F8.
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     73ddd4c 2019-12-09 13:41:49 -0500
     Tagged version 4.0.0rc0.
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     d2eb866 2019-12-09 13:41:12 -0500
     Changed goto date to jump to date and changed binding from 'g' to
     'j'.
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     e3f58f0 2019-12-09 12:42:07 -0500
     Changed history display to group by year and put modified/created
     label first in the right hand column.
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     eda8cc5 2019-12-09 12:14:40 -0500
     Renamed relevant view as forthcoming view. Changed binding from r
     to f. Show relevant from today forward grouped by year without
     reverse sort.
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     2ef82cb 2019-12-09 10:47:20 -0500
     Set tz='local' for Date objects converted to 12am datetimes.
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     a6f167b 2019-12-08 12:30:35 -0500
     Tagged version 4.0.0b12.
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     8d3d425 2019-12-08 12:29:42 -0500
     Moved use of width to summary column.
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     41209ee 2019-12-08 12:19:50 -0500
     Fixed timer: T to begin then toggle paused, running and ^T to end
     timer with choice of whether or not to record used time.
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     4f0e785 2019-12-08 11:03:35 -0500
     Added tags view. Remaining: fix timers
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     30251ce 2019-12-08 09:43:14 -0500
     Redirect stderr and stdout to log file. Fixed bug in when
     cancelling do_goto_date.
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     e852a08 2019-12-05 22:07:08 -0500
     Tagged version 4.0.0b11.
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     397e72f 2019-12-05 22:05:28 -0500
     Fixed bug in completions
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     8a334ed 2019-12-05 08:05:33 -0500
     Added logger to view namespace and removed call to get_logger.
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     85f9699 2019-12-04 14:36:59 -0500
     Tagged version 4.0.0b10.
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     385d3be 2019-12-04 14:36:35 -0500
     Allow finishing a task with jobs only when a job is selected.
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     2caa77e 2019-12-04 11:28:40 -0500
     Set logger in __main__ and insert into model namespace. Cleaned up
     comments.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     af1576a 2019-12-03 16:40:11 -0500
     Tagged version 4.0.0b9.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     095e4f6 2019-12-03 16:39:09 -0500
     Fixed various 'yield from' and 'asyncio.ensure_future' bugs
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     7c4b26a 2019-12-03 12:49:55 -0500
     Removed erroneous call to setup_logging in model.py
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     23181a4 2019-12-03 12:19:04 -0500
     Fixed bug in activate/close menu
 
@@ -119,15 +128,15 @@ Recent changes as of 2019-12-11T16:50:45.540209-05:00:
     5465775 2019-12-03 05:10:14 -0500
     Updated to prompt_toolkit 3 with necessary changes to asyncio.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     24483a7 2019-11-30 17:21:44 -0500
     README tweaks
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     2633be6 2019-11-30 11:01:57 -0500
     Tagged version 4.0.0b7.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     18c15e0 2019-11-30 11:01:43 -0500
     Fixed bug in processing expansions
 
@@ -147,7 +156,7 @@ Recent changes as of 2019-12-11T16:50:45.540209-05:00:
     a6f3a90 2019-11-22 08:43:50 -0500
     Catch dateutil timezone warnings as errors in parse
 
-- 10 weeks ago Dan Graham
+- 2 months ago Dan Graham
     d5567ce 2019-10-03 12:18:41 -0400
     changed prompt for summary
 
@@ -188,11 +197,11 @@ Recent changes as of 2019-12-11T16:50:45.540209-05:00:
     36efdc9 2019-04-15 13:36:29 -0400
     added refreshCurrent to new_day.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     c24dd4a 2019-04-01 10:31:12 -0400
     Tagged version 4.0.0b0.
 
-- 8 months ago Dan Graham
+- 9 months ago Dan Graham
     26d64d5 2019-04-01 10:30:26 -0400
     Fixed bug in possible_archive.
 
@@ -423,11 +432,3 @@ Recent changes as of 2019-12-11T16:50:45.540209-05:00:
 - 9 months ago Dan Graham
     7e66cea 2019-03-15 16:20:01 -0400
     Tagged version 4.0.0a51.
-
-- 9 months ago Dan Graham
-    046410e 2019-03-15 16:19:18 -0400
-    Tagged version 4.0.0a50.
-
-- 9 months ago Dan Graham
-    a2af926 2019-03-15 16:18:56 -0400
-    Added youtube links to README for editing and installation.
