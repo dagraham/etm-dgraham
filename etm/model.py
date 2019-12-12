@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 * ON
 from pprint import pprint
 import datetime # for type testing in rrule
 import pendulum
@@ -91,7 +91,9 @@ etmdir = None
 
 ETMFMT = "%Y%m%dT%H%M"
 ZERO = pendulum.duration(minutes=0)
+ONEMIN = pendulum.duration(minutes=1)
 DAY = pendulum.duration(days=1)
+
 finished_char = u"\u2713"  #  ✓
 
 WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
@@ -1430,6 +1432,8 @@ def format_hours_and_tenths(obj):
         return None
     usedtime_minutes = settings.get('usedtime_minutes', 1)
     try:
+        if usedtime_minutes == 1:
+            return format_duration(obj, short=True)
         minutes = 0
         if obj.weeks:
             minutes += obj.weeks * 7 * 24 * 60
@@ -1439,12 +1443,10 @@ def format_hours_and_tenths(obj):
             minutes += obj.hours * 60
         if obj.minutes:
             minutes += obj.minutes
-        if usedtime_minutes == 1:
-            return f"{minutes}m"
-        elif usedtime_minutes in [6, 12, 15, 30, 60]: 
+        if minutes: 
             return f"{math.ceil(minutes/usedtime_minutes)/(60/usedtime_minutes)}h"
         else:
-            return ""
+            return "0m"
 
     except Exception as e:
         print('format_duration', e)
@@ -1455,20 +1457,29 @@ def format_hours_and_tenths(obj):
 
 def format_duration(obj, short=False):
     """
+    if short report only hours and minutes, else include weeks and days
     >>> td = pendulum.duration(weeks=1, days=2, hours=3, minutes=27)
     >>> format_duration(td)
     '1w2d3h27m'
     """
     if not isinstance(obj, pendulum.Duration):
         return None
+    hours = obj.hours
     try:
         until =[]
-        if obj.weeks and not short:
-            until.append(f"{obj.weeks}w")
-        if obj.remaining_days and not short:
-            until.append(f"{obj.remaining_days}d")
-        if obj.hours:
-            until.append(f"{obj.hours}h")
+        if obj.weeks:
+            if short: 
+                hours += obj.weeks * 7 * 24
+            else:
+                until.append(f"{obj.weeks}w")
+
+        if obj.remaining_days:
+            if short:
+                hours += obj.remaining_days * 24
+            else:
+                until.append(f"{obj.remaining_days}d")
+        if hours:
+            until.append(f"{hours}h")
         if obj.minutes:
             until.append(f"{obj.minutes}m")
         if not until and not short:
@@ -1777,7 +1788,7 @@ class DataView(object):
         else:
             lastcfgtime = None
         if lastcfgtime is None or cfgmtime > lastcfgtime:
-            logger.info(f"lastcfgtime: {lastcfgtime}; cfgmtime: {cfgmtime}; cfgfiles: {cfgfiles}")
+            logger.debug(f"lastcfgtime: {lastcfgtime}; cfgmtime: {cfgmtime}; cfgfiles: {cfgfiles}")
             backupfile = os.path.join(self.backupdir, f"{timestamp}-cfg.yaml")
             shutil.copy2(self.cfgfile, backupfile)
             logger.info(f"backed up {self.cfgfile} to {backupfile}")
@@ -4690,6 +4701,10 @@ def get_usedtime(db):
     All items with used entries grouped by month, index entry and day
 
     """
+    UT_MIN = settings.get('usedtime_minutes', 1)
+    UT_DUR = pendulum.duration(minutes=UT_MIN)
+    logger.debug(f"UT_MIN: {UT_MIN}; UT_DUR: {UT_DUR}")
+
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 14
 
@@ -4701,7 +4716,7 @@ def get_usedtime(db):
     detail_rows = []
     months = set([])
     for item in db:
-        used = item.get('u')
+        used = item.get('u') # this will be a list of 'period, datetime' tuples 
         if not used:
             continue
         index_tup = item.get('i', '~')
@@ -4710,7 +4725,14 @@ def get_usedtime(db):
         id_used = {}
         details = f"{item['itemtype']} {item['summary']}"
         for period, dt in used:
-            # for id2used 
+            # for id2used
+            logger.debug(f"starting period: {period}")
+            if UT_MIN != 1:
+                res = period.minutes % UT_MIN
+                if res:
+                    period += (UT_MIN - res) * ONEMIN
+            logger.debug(f"ending period: {period}")
+
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
             id_used[monthday] += period
@@ -4729,20 +4751,21 @@ def get_usedtime(db):
                         'path': f"{monthday.format('MMMM YYYY')}:{index_tup}",
                         'columns': [
                             details,
-                            f"{format_hours_and_tenths(id_used[monthday]):>6}: {monthday.format('MMM D')}",
+                            f"{monthday.format('MMM D')} {format_hours_and_tenths(id_used[monthday])}",
                             doc_id],
                         })
 
+    logger.debug(f"used_time: {used_time}")
     detail_rows.sort(key=itemgetter('sort'))
     for month, items in groupby(detail_rows, key=itemgetter('month')):
         months.add(month)
         rdict = RDict()
         for row in items:
-            summary = row['columns'][0][:summary_width - 6].ljust(summary_width -6, ' ')
+            summary = row['columns'][0][:summary_width]
             rhc = row['columns'][1]
             path = row['path']
             values = (
-                    f"{summary}{rhc}", row['columns'][2]
+                    f"{summary}: {rhc}", row['columns'][2]
                     ) 
             try:
                 rdict.add(path, values)

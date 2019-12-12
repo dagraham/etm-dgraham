@@ -51,7 +51,7 @@ archive_after: 0
 # usedtime_minutes: Round used times up to the nearest 
 # usedtime_minutes in used time views. Possible choices are 1, 
 # 6, 12, 30 and 60. With 1, no rounding is done and times are 
-# reported as integer minutes. Otherwise, the prescribed 
+# reported as hours and minutes. Otherwise, the prescribed 
 # rounding is done and times are reported as floating point 
 # hours.
 usedtime_minutes: 1
