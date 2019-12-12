@@ -79,7 +79,7 @@ usedtime_minutes: 1
 # would make the alert 'v' use the builtin text to speech sytem 
 # to speak the item's summary followed by a slight pause 
 # (the comma) and then the time remaining until the starting 
-# time, e.g., "sales meeting in 20 minutes".
+# time, e.g., "sales meeting, in 20 minutes".
 alerts:
 
 # expansions: A dictionary with 'expansion name' keys and 
@@ -90,7 +90,7 @@ alerts:
 #       ...
 #
 # then when "@x tennis" is entered the popup completions for 
-# "@x tennis" would offer eplacement by the corresponding 
+# "@x tennis" would offer replacement by the corresponding 
 # "@e 1h30m @a 30m: d @i personal:exercise".
 expansions:
 
@@ -121,10 +121,10 @@ sms:
 
 # smtp: Settings to send "e" (email message) alerts to the 
 # list of "name <email>" entries in the item's @n (attendee)
-# entry using the item's summary as the subject and 
-# smtp_body as the message. E.g., if you have a gmail 
-# account with email address "whatever457@gmail.com", then 
-# your entries would look like
+# entries using the item's summary as the subject and body as 
+# the message. E.g., if you have a gmail account with email 
+# address "whatever457@gmail.com", then your entries would 
+# look like
 #     from: whatever457@gmail.com
 #     id: whatever457
 #     pw: your gmail password

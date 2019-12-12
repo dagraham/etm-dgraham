@@ -2192,7 +2192,8 @@ class DataView(object):
 
 
     def send_mail(self, doc_id):
-        item = self.dbquery.get(doc_id=doc_id)
+        item = DBITEM.get(doc_id=doc_id)
+        # item = self.dbquery.get(doc_id=doc_id)
         attendees = item.get('n', None)
         if not attendees:
             logger.error(f"@n (attendees) are not specified in {item}. send_mail aborted.")
@@ -2229,6 +2230,7 @@ class DataView(object):
         msg['Date'] = formatdate(localtime=True)
         msg['Subject'] = item['summary']
         msg.attach(MIMEText(message))
+        logger.debug(f"msg: {msg}")
         smtp = smtplib.SMTP_SSL(smtp_server)
         smtp.login(smtp_id, smtp_pw)
         smtp.sendmail(smtp_from, attendees, msg.as_string())
@@ -2236,7 +2238,8 @@ class DataView(object):
 
 
     def send_text(self, doc_id):
-        item = self.dbquery.get(doc_id=doc_id)
+        item = DBITEM.get(doc_id=doc_id)
+        # item = self.dbquery.get(doc_id=doc_id)
         sms = self.settings['sms']
         sms_from = sms.get('from', None)
         sms_phone = sms.get('phone', None)
@@ -2265,6 +2268,7 @@ class DataView(object):
             msg["From"] = sms_from
             msg["Subject"] = summary
             msg['To'] = num
+            logger.debug(f"msg: {msg}; num: {num}")
             sms.sendmail(sms_from, sms_phone, msg.as_string())
         sms.quit()
 
@@ -3495,7 +3499,7 @@ def item_instances(item, aft_dt, bef_dt=1):
         aft_dt = pendulum.datetime(year=aft_dt.year, month=aft_dt.month, day=aft_dt.day, hour=0, minute=0)
     if isinstance(bef_dt, pendulum.Date) and not isinstance(bef_dt, pendulum.DateTime):
         bef_dt = pendulum.datetime(year=bef_dt.year, month=bef_dt.month, day=bef_dt.day, hour=0, minute=0)
-    logger.debug(f"aft_dt: {aft_dt}; bef_dt: {bef_dt}")
+    # logger.debug(f"aft_dt: {aft_dt}; bef_dt: {bef_dt}")
 
     if 'r' in item:
         lofh = item['r']
@@ -4702,8 +4706,6 @@ def get_usedtime(db):
 
     """
     UT_MIN = settings.get('usedtime_minutes', 1)
-    UT_DUR = pendulum.duration(minutes=UT_MIN)
-    logger.debug(f"UT_MIN: {UT_MIN}; UT_DUR: {UT_DUR}")
 
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 14
@@ -4726,12 +4728,10 @@ def get_usedtime(db):
         details = f"{item['itemtype']} {item['summary']}"
         for period, dt in used:
             # for id2used
-            logger.debug(f"starting period: {period}")
             if UT_MIN != 1:
                 res = period.minutes % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
-            logger.debug(f"ending period: {period}")
 
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
@@ -4743,7 +4743,7 @@ def get_usedtime(db):
             for i in range(len(index)):
                 used_time.setdefault(tuple((month, *index[:i+1])), ZERO)
                 used_time[tuple((month, *index[:i+1]))] += period
-        logger.debug(f"id_used: {id_used}; index_tup: {index_tup}")
+        # logger.debug(f"id_used: {id_used}; index_tup: {index_tup}")
         for monthday in id_used:
             detail_rows.append({
                         'sort': (month, *index, details),
@@ -4755,7 +4755,7 @@ def get_usedtime(db):
                             doc_id],
                         })
 
-    logger.debug(f"used_time: {used_time}")
+    # logger.debug(f"used_time: {used_time}")
     detail_rows.sort(key=itemgetter('sort'))
     for month, items in groupby(detail_rows, key=itemgetter('month')):
         months.add(month)
@@ -4787,7 +4787,6 @@ def get_usedtime(db):
                 rhc = f"{format_hours_and_tenths(period)}"
                 summary = f"{indent}{yrmnth}: {rhc}"[:summary_width]
                 month_rows[key[0]].append(f"{summary}")
-                logger.debug(f"len key == 1: {key[0]} {rhc}: {summary}")
             except Exception as e:
                 logger.error(f"e: {repr(e)}")
 
@@ -4795,7 +4794,6 @@ def get_usedtime(db):
             rhc = f"{format_hours_and_tenths(period)}"
             summary = f"{indent}{key[-1]}: {rhc}"[:summary_width].ljust(summary_width, ' ')
             month_rows[key[0]].append(f"{summary}")
-            logger.debug(f"len key > 1: {key[0]} {rhc}: {summary}")
 
     used_summary = {}
     for key, val in month_rows.items():

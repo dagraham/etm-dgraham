@@ -684,7 +684,7 @@ def alerts():
         return "There are no alerts for today."
 
 
-def maybe_alerts(now):
+async def maybe_alerts(now):
     global current_datetime
     if dataview.alerts and not ('alerts' in settings and settings['alerts']):
         logger.warn("alerts have not been configured")
@@ -711,16 +711,20 @@ def maybe_alerts(now):
             item = dataview.db.get(doc_id=doc_id)
             location = item.get('l', '')
             description = item.get('d', '')
+            logger.debug(f"command_list: {command_list}")
             if 'e' in command_list:
+                logger.debug("e alert")
                 command_list.remove('e')
                 dataview.send_mail(doc_id)
             if 't' in command_list:
                 command_list.remove('t')
+                logger.debug("t alert")
                 dataview.send_text(doc_id)
             commands = [settings['alerts'].get(x).format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list]
 
             for command in commands:
                 if command:
+                    logger.debug(f"{command} alert")
                     check_output(command)
 
 async def event_handler():
@@ -729,7 +733,7 @@ async def event_handler():
         while True:
             now = pendulum.now()
             current_today = dataview.now.format("YYYYMMDD")
-            maybe_alerts(now)
+            asyncio.ensure_future(maybe_alerts(now))
             current_datetime = status_time(now)
             today = now.format("YYYYMMDD")
             wait = 60 - now.second
