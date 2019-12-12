@@ -95,32 +95,37 @@ alerts:
 expansions:
 
 # sms: Settings to send "t" (sms text message) alerts to the 
-# phone numbers listed in sms_phone. E.g., if you have a 
-# gmail account with email address "whatever457@gmail.com" 
+# list of phone number entries from the item's @n (attendee) 
+# entries using the item's summary and the body as specified 
+# in the template below as the message. E.g., suppose you 
+# have a gmail account with email address "who457@gmail.com" 
 # and want to text alerts to Verizon moble phone (123) 
-# 456-7890 then your entries would look like
-#     from: whatever457@gmail.com
-#     phone: 1234567890vzwpix.com
+# 456-7890. Then your sms entries would look like
+#     from: who457@gmail.com
 #     pw: your gmail password
 #     server: smtp.gmail.com:587
-# In the phone entry above, vzwpix.com is the mms gateway
-# for Verizon. Other common mms gateways are
+# and your item would include the following attendee entry
+#     @n 1234567890vzwpix.com
+#
+# Hint: use expansions, discussed above, for commonly used 
+# phone numbers, e.g.,
+# expansions:
+#   joe: '@x 9194910041@pm.sprint.com'
+#
+# In the illustrative phone number, vzwpix.com is the mms 
+# gateway for Verizon. Other common mms gateways are
 #     AT&T:     @mms.att.net
 #     Sprint:   @pm.sprint.com
 #     T-Mobile: @tmomail.net
-# Google "mms gateway listing" for other alternatives.
-# 
-# The subject of the message will be {summary} and the body 
-# as specified in the template below.
+# You can google "mms gateway listing" for other alternatives.
 sms:
     body: "{location} {when}"
     from: 
-    phone: 
     pw: 
     server: 
 
 # smtp: Settings to send "e" (email message) alerts to the 
-# list of "name <email>" entries in the item's @n (attendee)
+# list of "name <email>" entries from the item's @n (attendee)
 # entries using the item's summary as the subject and body as 
 # the message. E.g., if you have a gmail account with email 
 # address "whatever457@gmail.com", then your entries would 

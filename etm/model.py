@@ -2193,7 +2193,6 @@ class DataView(object):
 
     def send_mail(self, doc_id):
         item = DBITEM.get(doc_id=doc_id)
-        # item = self.dbquery.get(doc_id=doc_id)
         attendees = item.get('n', None)
         if not attendees:
             logger.error(f"@n (attendees) are not specified in {item}. send_mail aborted.")
@@ -2239,10 +2238,16 @@ class DataView(object):
 
     def send_text(self, doc_id):
         item = DBITEM.get(doc_id=doc_id)
-        # item = self.dbquery.get(doc_id=doc_id)
+        attendees = item.get('n', None)
+        if not attendees:
+            logger.error(f"@n (attendees) are not specified in {item}. send_text aborted.")
+            return
+        from email.utils import COMMASPACE
+
         sms = self.settings['sms']
         sms_from = sms.get('from', None)
-        sms_phone = sms.get('phone', None)
+        # sms_phone = sms.get('phone', None)
+        sms_phone = COMMASPACE.join(attendees)
         sms_pw = sms.get('pw', None)
         sms_server = sms.get('server', None)
         sms_body = sms.get('body', None)
