@@ -397,7 +397,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @j*: job summary. string, optionally followed by job &key entries
 *  @l: location/context. string
 *  @m: mask. string stored in obfuscated form
-*  @n*: attendee. string using "name <emailaddress>" format
+*  @n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion.
 *  @o: overdue. character from (r) restart, (s) skip or (k) keep
 *  @p: priority. integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
 *  @r*: repetition frequency, a character from (y)early, (m)onthly, (w)eekly,  

@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 import sys
 
-from prompt_toolkit import __version__ as prompt_toolkit_version
+# from prompt_toolkit import __version__ as prompt_toolkit_version
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings
@@ -56,6 +56,7 @@ import platform
 import os
 
 import pyperclip
+logger = None
 
 class InteractiveInputDialog(object):
     def __init__(self, title='', help_text='', evaluator=None, padding=10, completer=None):

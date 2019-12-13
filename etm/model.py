@@ -1,4 +1,5 @@
 #!/usr/bin/env python3 * ON
+
 from pprint import pprint
 import datetime # for type testing in rrule
 import pendulum
@@ -58,6 +59,9 @@ DBITEM = None
 DBARCH = None
 # NOTE: view.main() will override ampm using the configuration setting
 ampm = True
+logger = None
+
+PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
 
 # The style sheet for terminal output
 style = Style.from_dict({
@@ -2197,7 +2201,10 @@ class DataView(object):
         if not attendees:
             logger.error(f"@n (attendees) are not specified in {item}. send_mail aborted.")
             return
-
+        # attendees can have the form "abbrev: emailaddress". Split on the colon and keep the emailaddress.
+        addresses = [x.split(':')[-1].strip() for x in attendees]
+        email_addresses = [x for x in addresses if not PHONE_REGEX.match(x)]
+        logger.debug(f"email_addresses: {email_addresses}")
         smtp = self.settings['smtp']
         smtp_from = smtp.get('from', None)
         smtp_id = smtp.get('id', None)
@@ -2222,10 +2229,10 @@ class DataView(object):
         from email.mime.text import MIMEText
         from email.utils import COMMASPACE, formatdate
         # from email import encoders as Encoders
-        assert type(attendees) == list
+        assert type(email_addresses) == list
         msg = MIMEMultipart()
         msg['From'] = smtp_from
-        msg['To'] = COMMASPACE.join(attendees)
+        msg['To'] = COMMASPACE.join(email_addresses)
         msg['Date'] = formatdate(localtime=True)
         msg['Subject'] = item['summary']
         msg.attach(MIMEText(message))
@@ -2242,12 +2249,17 @@ class DataView(object):
         if not attendees:
             logger.error(f"@n (attendees) are not specified in {item}. send_text aborted.")
             return
+        addresses = [x.split(':')[-1].strip() for x in attendees]
+        phone_numbers = [x for x in addresses if PHONE_REGEX.match(x)]
+        logger.debug(f"phone_numbers: {phone_numbers}")
+
         from email.utils import COMMASPACE
+
 
         sms = self.settings['sms']
         sms_from = sms.get('from', None)
         # sms_phone = sms.get('phone', None)
-        sms_phone = COMMASPACE.join(attendees)
+        sms_phone = COMMASPACE.join(phone_numbers)
         sms_pw = sms.get('pw', None)
         sms_server = sms.get('server', None)
         sms_body = sms.get('body', None)
@@ -2268,13 +2280,12 @@ class DataView(object):
         sms = smtplib.SMTP(sms_server)
         sms.starttls()
         sms.login(sms_from, sms_pw)
-        for num in sms_phone.split(','):
-            msg = MIMEText(message)
-            msg["From"] = sms_from
-            msg["Subject"] = summary
-            msg['To'] = num
-            logger.debug(f"msg: {msg}; num: {num}")
-            sms.sendmail(sms_from, sms_phone, msg.as_string())
+        msg = MIMEText(message)
+        msg["From"] = sms_from
+        msg["Subject"] = summary
+        msg['To'] = sms_phone
+        logger.debug(f"msg: {msg}")
+        sms.sendmail(sms_from, sms_phone, msg.as_string())
         sms.quit()
 
 

@@ -105,19 +105,13 @@ expansions:
 #     pw: your gmail password
 #     server: smtp.gmail.com:587
 # and your item would include the following attendee entry
-#     @n 1234567890vzwpix.com
-#
-# Hint: use expansions, discussed above, for commonly used 
-# phone numbers, e.g.,
-# expansions:
-#   joe: '@x 9194910041@pm.sprint.com'
-#
-# In the illustrative phone number, vzwpix.com is the mms 
+#     @n 1234567890@vzwpix.com
+# In the illustrative phone number, @vzwpix.com is the mms 
 # gateway for Verizon. Other common mms gateways are
 #     AT&T:     @mms.att.net
 #     Sprint:   @pm.sprint.com
 #     T-Mobile: @tmomail.net
-# You can google "mms gateway listing" for other alternatives.
+# Google "mms gateway listing" for other alternatives.
 sms:
     body: "{location} {when}"
     from: 
