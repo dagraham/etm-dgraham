@@ -4481,7 +4481,7 @@ def show_forthcoming(db, id2relevant):
     rows = []
     today = pendulum.today()
     for item in db:
-        if item.doc_id not in id2relevant:
+        if item.doc_id not in id2relevant or item['itemtype'] == '!':
             continue
         id = item.doc_id
         relevant = id2relevant[item.doc_id]

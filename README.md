@@ -366,15 +366,19 @@ When a task or job is finished, it is displayed on the finished date using **✓
 
 ## [Options](#etm)
 
-Note: The term "list" in the following means a comma and space separated list of elements, e.g., 
+Notes:
+
+* The term "list" means a comma and space separated list of elements, e.g., 
 
     @+ 2p Thu, 9p Mon, 11a Wed
-Options with an asterick can be used more than once, e.g., 
 
-    @n Joe Doaks <jdoaks@whatever.com @n John Smith <jsmith@wherever.org> 
-or
+* Options displayed with an asterick can be used more than once, e.g., 
 
-    @a 1h, 30m: t, v @a 1d: e
+    @a 1h, 30m: t, v   @a 1d: e
+
+    @n joe: jdoaks@whatever.com   @n john: jsmith@wherever.org
+
+	@t red   @t green
 
 ### [@ keys](#etm) 
 
@@ -402,7 +406,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @p: priority. integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
 *  @r*: repetition frequency, a character from (y)early, (m)onthly, (w)eekly,  
   (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &key entries
-*  @s: start/due. date or datetime
+*  @s: start. date or datetime
 *  @t*: tag. string
 *  @u*: usedtime. string using "timeperiod spent: ending datetime" format
 *  @x*: expansion. string
