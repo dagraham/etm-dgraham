@@ -4239,7 +4239,7 @@ def relevant(db, now=pendulum.now()):
             continue
         if item['itemtype'] == '!':
             inbox.append([0, item['summary'], item.doc_id, None, None])
-            id2relevant[item.doc_id] = today
+            relevant = today
 
         elif 'f' in item:
             relevant = item['f']
@@ -4481,8 +4481,9 @@ def show_forthcoming(db, id2relevant):
     rows = []
     today = pendulum.today()
     for item in db:
-        if item.doc_id not in id2relevant or item['itemtype'] == '!':
+        if item.doc_id not in id2relevant:
             continue
+
         id = item.doc_id
         relevant = id2relevant[item.doc_id]
         if relevant < today:
@@ -4492,7 +4493,6 @@ def show_forthcoming(db, id2relevant):
         time = fmt_time(relevant)
         dtfmt = f"{monthday} {time}"
 
-        # dtfmt = format_datetime(relevant, short=True)[1]
         itemtype = finished_char if 'f' in item else item['itemtype']
         summary = set_summary(item['summary'], relevant)
         rows.append(
@@ -4507,7 +4507,6 @@ def show_forthcoming(db, id2relevant):
                 }
                 )
 
-    # rows.sort(key=itemgetter('sort'), reverse=True)
     rows.sort(key=itemgetter('sort'))
     rdict = RDict()
     for row in rows:
