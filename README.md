@@ -2,6 +2,7 @@
 <!-- ![event and task manager](https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png) -->
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" />
 
+# Overview
 
 ## [Reminders](#etm)
 
@@ -9,68 +10,331 @@
 
 Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used. Each reminder in *etm* begins with a *type character* followed by a brief *summary* of the item and then, perhaps, by one or more *@key value* pairs to specify other attributes of the reminder. Mnemonics are used to make the keys easy to remember, e.g, @s for starting datetime, @l for location, @d for description and so forth.
 
-There are 4 types of reminders and associated *type characters*: task (**-**),event (**\***), record (**%**) and inbox (**!**). 
+The 4 types of reminders in etm with their associated type characters:
+
+* task: **-** 
+* event: **\***
+* record: **%**
+* inbox: **!** 
+
+See [Item Types](#item-types) for details about these item types and [Options](#options) for details about possible attributes.
+
 
 ### examples
 
 * A task (**-**): pick up milk. 
 
 		- pick up milk
-* An event (**\***): lunch with Burk [s]tarting next Tuesday at 12pm and [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm.
+* An event (**\***): have lunch with Burk [s]tarting next Tuesday at 12pm and [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm.
 
         * Lunch with Burk @s tue 12p @e 90m
 * A record (**%**): a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
 
-        % Give me a pig - Churchill @s 2p @d Dogs look up at you. Cats look 
-          down at you. Give me a pig - they look you in the eye and treat you
-          as an equal.
+        % Give me a pig - Churchill @s 2p @d Dogs look up at 
+          you. Cats look down at you. Give me a pig - they 
+          look you in the eye and treat you as an equal.
 * A task (**-**): build a dog house, with component [j]obs.
 
-		- Build dog house @j pick up materials @j cut pieces @j assemble
-		  @j sand @j paint
-* Inbox (**!**): meet Alex for coffee Friday. This can be changed to an event when the time is confirmed by replacing the **!** with an **\***.
+        - Build dog house @j pick up materials @j cut pieces 
+          @j assemble @j sand @j paint
+* Inbox (**!**): meet Alex for coffee Friday. This can be 
+  changed to an event when the time is confirmed by 
+  replacing the **!** with an **\***.
 
         ! Coffee with Alex @s fri ? @e 1h
-
-### repetition
-
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
-        * dental exam and cleaning @s 2p feb 5 2019 @e 45m @+ 9am Sep 3 2019
-* Christmas (an all day event) [r]epating (y)early on Dec 25.
+        * dental exam and cleaning @s 2p feb 5 2019 @e 45m 
+          @+ 9am Sep 3 2019
 
-        * Christmas @s 2015/12/25 @r y
-* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the last completion date:
+### text entry versus forms
 
-        - haircut @s 24 @r d &i 14 @o r
-* Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the pastdue reminders.
+* Text entry removes the need to hunt for and click in the relevant entry box and allows you to keep your fingers on the keyboard.
+* Text entry supports the full flexibility of the superb Python *dateutil* package. Consider, for example, creating a reminder for Presidential election day which repeats every 4 years on the first Tuesday after a Monday in November (a monthday falling between 2 and 8). In *etm*, this event would be
 
-        - Take out trash @s mon @r w @o s
-* A sales meeting (an event) [r]epeating m)onthly on [w]eekdays that are either the first or third Tuesdays in the month.
+        * Presidential election day @s nov 3 2020 @r y &i 4 &M 11 
+          &m 2, 3, 4, 5, 6, 7, 8 &w tu
+  Try this with a form based calendar application.
 
-        * sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
+### timely and unobtrusive entry assistance
 
-* Presidential election day every four years on the first Tuesday after a Monday in November (a Tuesday whose month day falls between 2 and 8).
+#### just in time entry prompts and feedback
 
-        * Presidential Election Day @s 2012-11-06
-          @r y &i 4 &M 11 &m 2, 3, 4, 5, 6, 7, 8 &w TU
-* Good Friday each year 2 days before [E]aster Sunday.
 
-        * Good Friday @s 1/1/2015 @r y @E -2
-* Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
+Let's create the election day reminder to illustrate the *etm* prompt/feedback process. In the illustrations below, the prompt appears above the horizontal line and your entry appears below the horizontal line with the position of the cursor indicated by the underscore character.
 
-        * Friday tennis @s 2019-01-01 6a @e 90m
-          @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
-          @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
-* Payday on the last week day of each month. The &s -1 part of the entry extracts the last (-1) date which is both a weekday and falls within the last three days of the month):
+Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character
 
-        * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
+        item type
+        Choose a character from * (event), - (task), % (record)
+        or ! (inbox)
 
-See [Item Types](#item-types) for details about these item types and [Options](#options) for details about possible attributes.
+        ────────────────────────────────────────────────────────────
+        _
+Enter an "\*" to create an event and *etm* prompts you for the event summary
+
+        summary
+        brief item description. Append an '@' to add an option.
+
+        ────────────────────────────────────────────────────────────
+        *_
+
+Enter the summary followed by an `@` and *etm* automatically prompts you with the required and available `@-keys`
+
+        @-key
+        required: @s (start)
+        available: @+ (include), @- (exclude), @a (alerts),
+        @b (beginby), @c (calendar), @d (description),
+        @e (extent), @g (goto), @i (index), @l (location),
+        @m (mask), @n (attendee), @o (overdue),
+        @r (repetition frequency), @s (start), @t (tag),
+        @u (used time), @x (expansion), @z (timezone)
+        ────────────────────────────────────────────────────────────
+        * Presidential election day @_
+
+You see that "@s" is required, so enter the "s" and *etm* prompts you for the value for the start option
+
+        start
+        starting date or datetime
+
+        ────────────────────────────────────────────────────────────
+        * Presidential election day @s_
+
+Enter a date and *etm* will display its interpretation of your entry as you type
+
+        start
+        Sun Nov 1 2020
+
+        ────────────────────────────────────────────────────────────
+        * Presidential election day @s nov 1 20_
+
+Now append an @ to see the prompt for options
+
+        @-key
+        available: @+ (include), @- (exclude), @a (alerts),
+        @b (beginby), @c (calendar), @d (description),
+        @e (extent), @g (goto), @i (index), @l (location),
+        @m (mask), @n (attendee), @o (overdue),
+        @r (repetition frequency), @t (tag), @u (used time),
+        @x (expansion), @z (timezone)
+        ────────────────────────────────────────────────────────────
+        * Presidential election day @s nov 1 20 @_
+
+We want to repeat so enter an "r"
+
+        repetition frequency
+        repetition frequency: character from (y)early,
+        (m)onthly, (w)eekly, (d)aily, (h)ourly or
+        mi(n)utely.
+
+        ────────────────────────────────────────────────────────────
+        * Presidential election day @s nov 1 20 @r_
+
+Add a "y" for yearly and an "&" to see the prompts for repetition options.
+
+        repetition &-key
+        repetition &-keys: &i (interval), &m (monthdays),
+        &E (easterdays), &h (hours), &M (months),
+        &n (minutes), &w (weekdays), &W (week numbers),
+        &c (count), &u (until), &s (set positions)
+
+        ────────────────────────────────────────────────────────────
+        * Presidential election day @s nov 1 20 @r y &_
+
+
+Enter "i" to see what "interval" means 
+
+        interval
+        Interval requires a positive integer (default 1) that
+        sets the frequency interval. E.g., with frequency w
+        (weekly), interval 3 would repeat every three weeks.
+
+        ────────────────────────────────────────────────────────────
+        * Presidential election day @s nov 1 20 @r y &i_
+
+We want to repeat every 4 years so enter "4" followed by another "&" to see other options. [The display for *repetition &-keys* is unchanged from above and thus omitted here.] Then enter "M" to see what "months" means
+
+        months
+        months: a comma separated list of integer month numbers
+        from 1, 2, ..., 12
+
+        ────────────────────────────────────────────────────────────
+        * Presidential election day @s nov 1 20 @r y &i 4 &M_
+
+We want November, so enter 11 followed by an "&" for other options. Then enter "m" to see what "monthdays" means
+
+        monthdays
+        monthdays: a comma separated list of integer month days
+        from  (1, 2, ..., 31. Prepend a minus sign to count
+        backwards from the end of the month. E.g., use  -1 for
+        the last day of the month.
+
+        ────────────────────────────────────────────────────────────
+        * Presidential election day @s nov 1 20 @r y &i 4 &M 11 &m_ 
+
+We want a monthday between 2 and 8 so enter these monthdays followed by "&" for options. Then enter "w" to see what "weekdays" means
+
+        weekdays
+        weekdays: a comma separated list of English weekday
+        abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend
+        an integer to specify a particular weekday in the month.
+        E.g., 3WE for the 3rd Wednesday or -1FR, for the last
+        Friday in the month.
+
+        ────────────────────────────────────────────────────────────
+        * Presidential election day @s nov 1 20 @r y &i 4 &M 11 
+        &m 2, 3, 4, 5, 6, 7, 8 &w_
+
+We want a Tuesday, so add "tu" to complete the entry. To check the entry, press ^R to show repetitions
+
+            ┌─────| First 5 repetitions |──────┐
+            │                                  │
+            │ from Sun Nov 1 2020:             │
+            │   Tue Nov 3 2020                 │
+            │   Tue Nov 5 2024                 │
+            │   Tue Nov 7 2028                 │
+            │   Tue Nov 2 2032                 │
+            │   Tue Nov 4 2036                 │
+            │                                  │
+            │           <    OK    >           │
+            │                                  │
+            └──────────────────────────────────┘
+
+These are the first 5 repetitions on or after Nov 1 2020. They appear to be correct, so press ^S to save the reminder.
+
+
+General observations:
+
+* The general structure of this reminder is
+
+        * Presidential election day 
+            @s nov 1 20 
+            @r y 
+                &i 4 
+                &M 11 
+                &m 2, 3, 4, 5, 6, 7, 8 
+                &w tu
+   The `@s` and `@r` entries provide attributes of the event itself and the `&i`, `&M`, `&m` and `&w` entries provide attributes of the `@r` entry. More than one `@r` entry can be provided and each can have its own set of `&-key` entries with each `&-key` applying to the last `@r` entry which precedes it. 
+* *@-keys* can generally be entered in any order provided that `@s` is entered before any options that require it. *&-keys* can also be entered in any order.
+* The prompts provide "just in time" information relevant to the entry you are typing and need only be consulted if you are uncertain about your entry. With a little experience, most reminders can be completed without a glance at the prompt.
+
+
+#### Fuzzy parsing of datetimes
+
+Whenever *etm* expects a datetime entry as, for example, when you are entering an `@s` starting datetime, it applies fuzzy parsing to your entry.  Suppose it is Dec 17 2019, your computer is in the Eastern timezone and you have just entered `@s` for your lunch event
+
+        start
+        starting date or datetime
+
+        ────────────────────────────────────────────────────────────
+        * lunch @s_
+
+If you enter `1`, *etm* will interpret it as 1am on the current date in the local timezone:
+
+        start
+        Tue Dec 17 2019 1:00am EST
+
+        ────────────────────────────────────────────────────────────
+        * lunch @s 1_
+
+Adding `p` changes the interpretation to 1pm
+
+        start
+        Tue Dec 17 2019 1:00pm EST
+
+        ────────────────────────────────────────────────────────────
+        * lunch @s 1p_
+
+Now start adding 'fri' by appending an 'f'
+
+        start
+        '1p f' is incomplete or invalid
+
+        ────────────────────────────────────────────────────────────
+        * lunch @s 1p f_
+
+and *etm* will complain that the entry is now either incomplete or invalid. Add the remaining 'ri'
+
+        start
+        Fri Dec 20 2019 1:00pm EST
+
+        ────────────────────────────────────────────────────────────
+        * lunch @s 1p fri_
+
+and *etm* understands that you want the coming Friday, Dec 20. Now suppose that you will be in California on Friday and you want Pacific, not Eastern time. Then add an entry for `@z`
+
+        start
+        local datetime: Fri Dec 20 2019 4:00pm EST
+
+        ────────────────────────────────────────────────────────────
+        * lunch @s 1p fri_ @z US/Pacific
+
+Note that `local datetime` is now prepended to the result which is still displayed in the local timezone, since that is the location of your computer, but the time has changed to `4:00pm EST` which, of course, is the same time as `1:00pm PST`. [*etm* always displays times in the local time zone.]
+
+What if you had entered the 'fri' first?
+
+        start
+        Fri Dec 20 2019
+
+        ────────────────────────────────────────────────────────────
+        * lunch @s fri
+
+Here *etm* supposes again that you want the coming Friday, Dec 20 but without a time being specified, it is interpreted as a date rather than a datetime and thus without a timezone. Add the `1p` and timezone the result will be the same as before.
+
+As a final illustration, suppose you want to be reminded of lunch at 1pm in whatever timezone you happen to be, i.e., you want the datetime to float to the local timezone. Add the `@z`
+
+        timezone
+        a timezone entry such as 'US/Eastern' or 'Europe/Paris'
+        or 'float' to specify a naive/floating datetime
+
+        ────────────────────────────────────────────────────────────
+        * lunch @s fri 1p @z
+and note that supplying 'float' as the timezone will do the trick
+
+        start
+        Fri Dec 20 2019 1:00pm
+
+        ────────────────────────────────────────────────────────────
+        * lunch @s fri 1p_ @z float
+The datetime now appears without either the 'local datetime' prefix or the 'EST' suffix which reveals that it is a naive/floating datetime.
+
+
+The assumption here is that when a user enters a date, a date is what the
+user wants. When both a date and time are given, what the user wants
+is a datetime and, most probably, one based on the local timezone. Less
+probably, one based on a different timezone and that requires the additon
+of the `@z` and timezone. Still less probably, one that floats and this
+requires the addition of the `@z` and 'float'.
+
+
+#### tab completion
+
+Some optional attributes that can be used in reminders can be tedious to enter either because they are lengthy or because they are used often and typographical errors would be problematic. These attributes include the following: 
+
+* *@g*: goto url or filepath. In the latter case, the system default application is used to open the filepath, e.g., on my macbook the system default for files ending in `.py` is to open them in MacVim. In the former case, the url will be opened in the default browser. In either case, a typo would likely render the link useless.
+
+* *@l*: location/context. In the *do next* view, `location` is used to organize undated tasks. Using `@l errands` in one task and `@l erands` in another would cause these tasks to be grouped separately.
+
+* *@i*: index - colon delimited string. In both the *index* and the *used time* views, the index entry is used to group and aggregate entries. Using `@i jsmith:project a` in one entry and `@i jsmth:project a` in another would cause these these entries to be grouped and aggregated erroneously. 
+
+* *@n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion. Attendee entries are used in both email and text alerts. 
+
+* *@z*: timezone. `@z Europe/Paris` is a valid timezone but `@z EU/Paris` isn't.
+
+Other tracked attributes include *@c* (calendar) and *@t* (tag).
+
+For these attributes, etm keeps a record of each usage. I.e., for each record in your *etm* database, if the record includes a tracked attribute that has not already been included in the list of completions, then that attribute will be added. E.g., if you create an item containing
+
+        @n joe: jsmith457@gmail.com
+  and '@n joe: jsmith457@gmail.com' is not already in the list of completions, then it will be added.
+
+When you next create a reminder and enter `@n `, *etm* will pop up a sorted list of every item in the completion list that begins with `@n`. You can use the up and down cursor keys to move through this list or you can continue typing to limit the possible completions, e.g., after entering `@n joe` only those completions that start with `@n joe` would still be displayed. When you have selected the completion you want, press the space bar to insert the completion in your entry.
+
 
 ## [Views](#etm)
 
-_etm_ has several ways of viewing entries. This are listed below by  the shortcut key used to activate the view. E.g., pressing “a” activates _Agenda_ view.
+
+_etm_ has several ways of viewing entries. This are listed below by the shortcut key used to activate the view. E.g., pressing “a” activates _Agenda_ view.
 
   * a: Agenda
   * b: Busy
@@ -171,23 +435,6 @@ While the views differ in many respects, they also share some common aspects:
     * After entering the search expression, press “n” to search  forward  (cyclically)  for other matches.
 
 
-
-## [Editing](#etm) ##
-
-<!-- [![etm: creating a new item](http://img.youtube.com/vi/62cps01Rh50/0.jpg)](http://www.youtube.com/watch?v=62cps01Rh50 "creating a new item") -->
-
-Etm offers several conveniences when creating or modifying an item.
-
-* Fuzzy parsing of dates and date times. Supposing it is currently Wed, Feb 13 2019:
-    * `@s 2` would be interpreted as the date Feb 2, 2019.
-    * `@s 2p` would be interpreted as the datetime 2pm on Wed Feb 13 in the local timezone.
-    * `@s 2p fri` would be interpreted as the datetime 2pm Fri, Feb 15 in the local timezone.
-    * `@s 2p fri @z US/Pacific` would be interpreted as the datetime 2pm Fri, Feb 15 in the Pacific timezone but would be displayed as the corresponding time in the local timezone.
-    * `@s 2p fri @z float` would be interpreted as the naive datetime 2pm Fri, Feb 15 and would be displayed as such in whatever happens to be the local timezone.
-* Automatic tab completion for elements you have used before including @z (timezone), @c (calendar), @t (tags), @i (index), @l (location), @n (attendees) and @x (expansion). E.g. when entering @z, you can choose from any timezone you have previously used. 
-
-# [Details](#etm)
-
 ## [Installation/Deinstallation](#etm)
 
 ### [Installation](#etm)
@@ -216,7 +463,7 @@ This will install etm and all its requirements in `./env/lib/python3.x/sitepacka
 
 By the way, the suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set in `cfg.yaml`.
 
-Before you start etm, think about where you would like to keep your personal data and configuration files. The default is to use whatever directory you created for your virtual environment as your etm *home* directory. If this is not what you want, you can just give the path for whatever directory you would like to use when you start etm, e.g.,
+Before you start etm, think about where you would like to keep your personal data and configuration files. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_, e.g.,
 
         (env) $ etm ~/Documents/etm
 
@@ -224,6 +471,7 @@ Considerations:
 
 * If more than one person will be using etm on the same computer, you might want to have different *home* directories for each user.
 * If you want to use etm on  more than one computer and use Dropbox, you might want to use `~/Dropbox/etm` to have access on each of your computers.
+* If you want to separate personal and professional reminders, you could use separate _home_ directories for each. You can run two instances of _etm_ simultaneously, one for each directory, and view both at the same time. 
 
 Whatever *home* directory you choose, running etm for the first time will add the following to that folder.
 
@@ -232,7 +480,7 @@ Whatever *home* directory you choose, running etm for the first time will add th
             logs/
             cfg.yaml
             db.json
-Here `cfg.yaml` is your user configuration file and `db.json` contains all your etm reminders. The folders `backups/` and `logs/` contain, respectively, the 5 most recent daily backups of your `db.json` and `cfg.yaml` files. The folder `logs` contains the current `etm.log` file and the 5 most recent daily backus.
+Here `cfg.yaml` is your user configuration file and `db.json` contains all your etm reminders. The folders `backups/` contains the 5 most recent daily backups of your `db.json` and `cfg.yaml` files. The folder `logs` contains the current `etm.log` file and the 5 most recent daily backups. Note that backup files are only created when the relevant file has been modified since the last backup.
 
 The file `cfg.yaml` can be edited and the options are documented in the file.
 
@@ -243,6 +491,8 @@ If you should ever want to deinstall etm, first deactivate the virtual environme
         (env) $ deactivate
 
 You can now simply delete the virtual environment directory and, if you have additional *home* directories, by deleting each of them. One of the many advantages of the virtual environment is that all installations are local to that environment and removing the directory, removes every trace.
+
+# [Details](#etm)
 
 ## [Item Types](#etm)
 
@@ -446,30 +696,82 @@ For use with @r:
 *  &W: week number. list of integers in 1, ..., 53
 
 
-### [Notes](#etm)
+## [Notes](#etm)
 
-@a alerts and @b beginbys:
+### @a alerts and @b beginbys:
 
-* With an email alert, the item summary is used as the subject and emails are sent to each attendee listed in an @n entry. The content of the body of the emails is a option that can be set in the user's configuration file. 
+* With an email/text alert, the item summary is used as the subject and emails/text messages are sent to each attendee listed in an @n entry. The content of the body of the emails/messages are options that can be set in the user's configuration file. 
 * Alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance.
 
-Repetition:
+### repetition notes
 
-* Using @s, @r and, optionally, @+. Datetimes from @+, if any, are added to the datetimes generated from the @r entry which fall on or after the @s datetime. Note that the datetime from @s will only be included if it matches one generated by the @r entry or by one included in @+.  
+* Daylight savings time using @s and @r. The time specified in @s is, by default, respected in the repetitions. E.g., the first five repetitions for 
+
+        * monthly @s jan 1 2020 9a @r m 
+  would be 
+
+            ┌─────| First 5 repetitions |──────┐  
+            │                                  │
+            │ from Wed Jan 1 2020:             │ 
+            │   Wed Jan 1 2020 9:00am EST      │
+            │   Sat Feb 1 2020 9:00am EST      │
+            │   Sun Mar 1 2020 9:00am EST      │
+            │   Wed Apr 1 2020 9:00am EDT      │
+            │   Fri May 1 2020 9:00am EDT      │
+            │                                  │
+            │           <    OK    >           │
+            │                                  │
+            └──────────────────────────────────┘
+  Note that all start at 9am even though the first 3 are EST and the last 2 are EDT. 
+* Using @s with @r and, optionally, with @+. Datetimes from @+ which fall on or after the @s datetime, if any, are added to the datetimes generated from the @r entry. Note that the datetime from @s will only be included if it matches one generated by the @r entry or by one included in @+. E.g., 
 
         * my event @s 2018-02-15 3p @r d &h 18 @+ 2018-03-02 4p
     would repeat daily at 6pm starting Feb 15 and at 4pm on Mar 2, *but not* at 3pm on Feb 15 which is specified in `@s`. 
-* Using @s and, optionally, @+ (but without @r). Datetimes from @+, if any, are added to @s. E.g., 
+* Using @s without @r and, optionally, @+. Datetimes from @+, if any, are added to @s. E.g., 
 
         * my event @s 2018-02-15 3p @+ 2018-03-02 4p
     would repeat at 4pm on Mar 2 *and* at 3pm on Feb 15 since `@r` is not specified.
-* Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would at best be redundant. A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
+* Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would be at best redundant and at worst conflicting. A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
-@m masked entry. These entries are encoded in the database in an obfuscated or masked format but decoded when displayed in etm itself. A key, *secret*, specified in the user configuration file is used for the encoding/decoding. E.g., a reminder that appears as
+
+### repetition examples
+
+* Christmas (an all day event) [r]epating (y)early on Dec 25.
+
+        * Christmas @s 2015/12/25 @r y
+* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the last completion date:
+
+        - haircut @s 24 @r d &i 14 @o r
+* Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the pastdue reminders.
+
+        - Take out trash @s mon @r w @o s
+* A sales meeting (an event) [r]epeating m)onthly on [w]eekdays that are either the first or third Tuesdays in the month.
+
+        * sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
+
+* Presidential election day every four years on the first Tuesday after a Monday in November (a Tuesday whose month day falls between 2 and 8).
+
+        * Presidential Election Day @s 2012-11-06
+          @r y &i 4 &M 11 &m 2, 3, 4, 5, 6, 7, 8 &w TU
+* Good Friday each year 2 days before [E]aster Sunday.
+
+        * Good Friday @s 1/1/2015 @r y @E -2
+* Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
+
+        * Friday tennis @s 2019-01-01 6a @e 90m
+          @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
+          @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
+* Payday on the last week day of each month. The &s -1 part of the entry extracts the last (-1) date which is both a weekday and falls within the last three days of the month):
+
+        * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
+
+### @m masked/obfuscated entry
+
+These entries are encoded in the database in an obfuscated or masked format but decoded when displayed in etm itself. A key, *secret*, specified in the user configuration file is used for the encoding/decoding. E.g., a reminder that appears as
 
         % masked entry @s 2019-11-30 4pm @m obfuscated entry
 
-in *etm* could appear in the database as
+could appear in the database as
 
         "1685": {
         "itemtype": "%",
@@ -480,8 +782,9 @@ in *etm* could appear in the database as
         "modified": "{T}:20191130T1643A"
         }
 
+### @x expansions
 
-@x expansions. The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
+The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
 
             expansions:
                 tennis: '@e 1h30m @a 30m, 15m: v @i personal:tennis'

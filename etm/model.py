@@ -460,7 +460,7 @@ class Item(object):
                 'g': ["goto", "url or filepath", do_string],
                 'h': ["completions", "list of completion datetimes", self.do_datetimes],
                 'i': ["index", "colon delimited string", do_string],
-                'l': ["location", "location or context", do_string],
+                'l': ["location", "location or context, e.g., home, office, errands", do_string],
                 'm': ["mask", "string to be masked", do_mask],
                 'n': ["attendee", "name <email address>", do_string],
                 'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", do_overdue],
@@ -468,9 +468,9 @@ class Item(object):
                 's': ["start", "starting date or datetime", self.do_datetime],
                 't': ["tag", "tag", do_string],
                 'u': ["used time", "timeperiod: datetime", do_usedtime],
-                'w': ['who', 'who is responsible for this item', do_string],
+                # 'w': ['who', 'who is responsible for this item', do_string],
                 'x': ["expansion", "expansion key", do_string],
-                'z': ["timezone", "", self.do_timezone],
+                'z': ["timezone", "a timezone entry such as 'US/Eastern' or 'Europe/Paris' or 'float' to specify a naive/floating datetime", self.do_timezone],
                 '?': ["@-key", "", self.do_at],
 
                 'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute", do_frequency],
@@ -933,6 +933,7 @@ class Item(object):
         if not self.item_hsh:
             return
         if key in ['?', 'r?', 'j?', 'itemtype', 'summary']:
+            logger.debug(f"key: {key}")
             return ""
         if key not in self.keys:
             if len(key) > 1:
@@ -1001,8 +1002,10 @@ class Item(object):
             &c (count), &u (until), &s (set positions)
         """
         keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('r') and k[1] not in 'r?'] 
+        logger.debug(f"ampr keys: {keys}")
         rep = wrap("repetition &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
 
+        logger.debug(f"repetition: {rep}")
         return None, rep
 
 
@@ -1018,7 +1021,9 @@ class Item(object):
             &s (start), &u (used time)
         """
         keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('j') and k[1] not in 'j?'] 
+        logger.debug(f"ampj keys: {keys}")
         rep = wrap("job &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
+        logger.debug(f"jobs: {rep}")
 
         return None, rep
 

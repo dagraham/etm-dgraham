@@ -813,8 +813,8 @@ class AtCompleter(Completer):
         cur_line = document.current_line_before_cursor
         matches = re.findall(AtCompleter.pat, cur_line)
         word = matches[-1] if matches else ""
-        logger.debug(f"get_completions word: {word}")
         if word:
+            logger.debug(f"get_completions word: {word}")
             word_len = len(word)
             word = word.rstrip()
             for completion in completions:
@@ -833,6 +833,7 @@ class AtCompleter(Completer):
                     yield Completion(
                         completion,
                         start_position=-word_len)
+        return
 
 
 at_completer = AtCompleter()
