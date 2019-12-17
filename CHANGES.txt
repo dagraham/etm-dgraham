@@ -1,14 +1,22 @@
-Recent changes as of 2019-12-17T16:16:03.605152-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0rc6) Dan Graham
-    812ba68 2019-12-17 16:16:03 -0500
+Recent changes as of 2019-12-17T16:39:51.815549-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.0rc7) Dan Graham
+    c857681 2019-12-17 16:39:51 -0500
+    Tagged version 4.0.0rc7.
+
+- 8 minutes ago (origin/working, origin/master, master) Dan Graham
+    f7a6016 2019-12-17 16:32:14 -0500
+    README fix
+
+- 24 minutes ago Dan Graham
+    f34c5a6 2019-12-17 16:16:03 -0500
     Tagged version 4.0.0rc6.
 
-- 14 seconds ago Dan Graham
+- 24 minutes ago Dan Graham
     53d8920 2019-12-17 16:15:49 -0500
     Much work on README. Possibly fixed by in ATCompleter by adding a
     'return'.
 
-- 2 days ago (origin/working) Dan Graham
+- 2 days ago Dan Graham
     ce58b6a 2019-12-15 12:05:29 -0500
     Fixed bug in setting relevant for inbox items
 
@@ -16,7 +24,7 @@ Recent changes as of 2019-12-17T16:16:03.605152-05:00:
     889467d 2019-12-15 08:48:51 -0500
     Omit inbox items in show_forthcoming.
 
-- 4 days ago (origin/master, master) Dan Graham
+- 4 days ago Dan Graham
     b71e363 2019-12-13 11:37:37 -0500
     Tagged version 4.0.0rc5.
 
@@ -426,12 +434,3 @@ Recent changes as of 2019-12-17T16:16:03.605152-05:00:
 - 9 months ago Dan Graham
     969a7bf 2019-03-18 12:19:27 -0400
     Tagged version 4.0.0a55.
-
-- 9 months ago Dan Graham
-    e4e1e4c 2019-03-18 12:18:51 -0400
-    Added datetime_calculator to view bound to f6.
-
-- 9 months ago Dan Graham
-    7c566bd 2019-03-18 09:04:46 -0400
-    More work on current week/current day. Call doctest on model and
-    view from __main__.
