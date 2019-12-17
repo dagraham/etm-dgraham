@@ -63,6 +63,8 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
 Let's create the election day reminder to illustrate the *etm* prompt/feedback process. In the illustrations below, the prompt appears above the horizontal line and your entry appears below the horizontal line with the position of the cursor indicated by the underscore character.
 
+**Important**: updating the prompt is virtually instantaneous and, in any event,  does not block keyboard entry. Your can continue typing without regard to the prompt if you like.
+
 Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character
 
         item type
