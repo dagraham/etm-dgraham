@@ -64,7 +64,7 @@ When you want to create a new reminder or edit an exiting one, *etm* opens an ar
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/new.png" alt="new" title="new entry" />
 
-Let's create the election day reminder to illustrate the **timely** part of the process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character and suggests the alternatives
+Let's create the election day reminder to illustrate the **timely** part of the process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character and suggests the alternatives.
 
         item type
         Choose a character from * (event), - (task), % (record)
@@ -143,7 +143,7 @@ Add a `y` for yearly. The repetition attribute, `@r`, has several possible attri
         ────────────────────────────────────────────────────────────
         * Presidential election day @s nov 1 20 @r y &_
 
-Enter "i" to see what "interval" means 
+Enter an "i" to see what "interval" means. 
 
         interval
         Interval requires a positive integer (default 1) that
@@ -153,7 +153,7 @@ Enter "i" to see what "interval" means
         ────────────────────────────────────────────────────────────
         * Presidential election day @s nov 1 20 @r y &i_
 
-We want to repeat every 4 years so enter `4` followed by another `&` to see other options. [The display for *repetition &-keys* is unchanged from above and will thus be hereafter omitted.] Then enter "M" to see what "months" means
+We want to repeat every 4 years so enter `4` followed by another `&` to see other options. [The display for *repetition &-keys* is unchanged from above and will be omitted hereafter.] Now enter an `M` to see what "months" means.
 
         months
         months: a comma separated list of integer month numbers
@@ -162,7 +162,7 @@ We want to repeat every 4 years so enter `4` followed by another `&` to see othe
         ────────────────────────────────────────────────────────────
         * Presidential election day @s nov 1 20 @r y &i 4 &M_
 
-We want November, so enter 11 followed by an "&" for other options. Then enter "m" to see what "monthdays" means
+We want November, so enter 11 followed by an `&` for other options. Then enter an `m` to see what "monthdays" means
 
         monthdays
         monthdays: a comma separated list of integer month days
@@ -173,7 +173,7 @@ We want November, so enter 11 followed by an "&" for other options. Then enter "
         ────────────────────────────────────────────────────────────
         * Presidential election day @s nov 1 20 @r y &i 4 &M 11 &m_ 
 
-We want a monthday between 2 and 8 so enter these monthdays followed by "&" for options. Then enter "w" to see what "weekdays" means
+We want a monthday between 2 and 8 so enter these monthdays followed by "&" for options. Then enter `w` to see what "weekdays" means
 
         weekdays
         weekdays: a comma separated list of English weekday
@@ -186,7 +186,7 @@ We want a monthday between 2 and 8 so enter these monthdays followed by "&" for 
         * Presidential election day @s nov 1 20 @r y &i 4 &M 11 
         &m 2, 3, 4, 5, 6, 7, 8 &w_
 
-We want a Tuesday, so add "tu" to complete the entry. To check the entry, press ^R to show repetitions
+We want a Tuesday, so add `tu` to complete the entry. To check the entry, press ^R to show repetitions
 
             ┌─────| First 5 repetitions |──────┐
             │                                  │
@@ -201,7 +201,7 @@ We want a Tuesday, so add "tu" to complete the entry. To check the entry, press 
             │                                  │
             └──────────────────────────────────┘
 
-These are the first 5 repetitions on or after Nov 1 2020. They appear to be correct, so press ^S to save the reminder.
+These are the first 5 repetitions on or after Nov 1 2020. Notice that the start value of Nov 1 2020 is not one of the repetitions since it doesn't satisfy the requirements. These appear correct, so press ^S to save the reminder.
 
 
 General observations:
@@ -215,7 +215,7 @@ General observations:
                 &M 11 
                 &m 2, 3, 4, 5, 6, 7, 8 
                 &w tu
-   The `@s` and `@r` entries provide attributes of the event itself and the `&i`, `&M`, `&m` and `&w` entries provide attributes of the `@r` entry. More than one `@r` entry can be provided and each can have its own set of `&-key` entries with each `&-key` applying to the last `@r` entry which precedes it. 
+   The `@s` and `@r` entries provide attributes of the event itself and the `&i`, `&M`, `&m` and `&w` entries provide attributes of the `@r` entry. More than one `@r` entry can be provided and each can have its own set of `&-key` entries. 
 * *@-keys* can generally be entered in any order provided that `@s` is entered before any options that require it. *&-keys* can also be entered in any order.
 * The prompts provide "just in time" information relevant to the entry you are typing and need only be consulted if you are uncertain about your entry. With a little experience, most reminders can be completed without a glance at the prompt.
 
@@ -230,7 +230,7 @@ Whenever *etm* expects a datetime entry as, for example, when you are entering a
         ────────────────────────────────────────────────────────────
         * lunch @s_
 
-If you enter `1`, *etm* will interpret it as 1am on the current date in the local timezone:
+If you enter `1`, *etm* will interpret it as 1am on the current date in the local timezone.
 
         start
         Tue Dec 17 2019 1:00am EST
@@ -238,7 +238,7 @@ If you enter `1`, *etm* will interpret it as 1am on the current date in the loca
         ────────────────────────────────────────────────────────────
         * lunch @s 1_
 
-Adding `p` changes the interpretation to 1pm
+Adding `p` changes the interpretation to 1pm.
 
         start
         Tue Dec 17 2019 1:00pm EST
@@ -246,7 +246,7 @@ Adding `p` changes the interpretation to 1pm
         ────────────────────────────────────────────────────────────
         * lunch @s 1p_
 
-Now start adding 'fri' by appending an 'f'
+Now start adding 'fri' by appending an 'f'.
 
         start
         '1p f' is incomplete or invalid
@@ -254,7 +254,7 @@ Now start adding 'fri' by appending an 'f'
         ────────────────────────────────────────────────────────────
         * lunch @s 1p f_
 
-and *etm* will complain that the entry is now either incomplete or invalid. Add the remaining 'ri'
+and *etm* will complain that the entry is now either incomplete or invalid. Add the remaining 'ri'.
 
         start
         Fri Dec 20 2019 1:00pm EST
@@ -262,7 +262,7 @@ and *etm* will complain that the entry is now either incomplete or invalid. Add 
         ────────────────────────────────────────────────────────────
         * lunch @s 1p fri_
 
-and *etm* understands that you want the coming Friday, Dec 20. Now suppose that you will be in California on Friday and you want Pacific, not Eastern time. Then add an entry for `@z`
+and *etm* understands that you want the coming Friday, Dec 20. Now suppose that you will be in California on Friday and you want Pacific, not Eastern time. Then add an entry for `@z`.
 
         start
         local datetime: Fri Dec 20 2019 4:00pm EST
@@ -270,7 +270,7 @@ and *etm* understands that you want the coming Friday, Dec 20. Now suppose that 
         ────────────────────────────────────────────────────────────
         * lunch @s 1p fri_ @z US/Pacific
 
-Note that `local datetime` is now prepended to the result which is still displayed in the local timezone, since that is the location of your computer, but the time has changed to `4:00pm EST` which, of course, is the same time as `1:00pm PST`. [*etm* always displays times in the local time zone.]
+Note that `local datetime` is now prepended to the result which is still displayed in the local timezone, since that is the location of your computer, but the time has changed to `4:00pm EST` which, of course, is the same time as `1:00pm PST`. *etm* **always** displays times in the local time zone.
 
 What if you had entered the 'fri' first?
 
@@ -282,7 +282,7 @@ What if you had entered the 'fri' first?
 
 Here *etm* supposes again that you want the coming Friday, Dec 20 but without a time being specified, it is interpreted as a date rather than a datetime and thus without a timezone. Add the `1p` and timezone the result will be the same as before.
 
-As a final illustration, suppose you want to be reminded of lunch at 1pm in whatever timezone you happen to be, i.e., you want the datetime to float to the local timezone. Add the `@z`
+As a final illustration, suppose you want to be reminded of lunch at 1pm in whatever timezone you happen to be, i.e., you want the datetime to float to the local timezone. Add the `@z`.
 
         timezone
         a timezone entry such as 'US/Eastern' or 'Europe/Paris'
@@ -290,7 +290,7 @@ As a final illustration, suppose you want to be reminded of lunch at 1pm in what
 
         ────────────────────────────────────────────────────────────
         * lunch @s fri 1p @z
-and note that supplying 'float' as the timezone will do the trick
+and note that supplying 'float' as the timezone does the trick.
 
         start
         Fri Dec 20 2019 1:00pm
@@ -303,27 +303,27 @@ The datetime now appears without either the 'local datetime' prefix or the 'EST'
 The assumption here is that when a user enters a date, a date is what the
 user wants. When both a date and time are given, what the user wants
 is a datetime and, most probably, one based on the local timezone. Less
-probably, one based on a different timezone and that requires the additon
+probably, one based on a different timezone and that requires the addition
 of the `@z` and timezone. Still less probably, one that floats and this
 requires the addition of the `@z` and 'float'.
 
 
 #### tab completion
 
-Some optional attributes that can be used in reminders can be tedious to enter either because they are lengthy or because they are used often and typographical errors would be problematic. These attributes include the following: 
+Some optional attributes that can be used in reminders can be tedious to enter either because they are lengthy or because they are used often and typographical errors would introduce inconsistencies. These attributes include the following: 
 
 * *@g*: goto url or filepath. In the latter case, the system default application is used to open the filepath, e.g., on my macbook the system default for files ending in `.py` is to open them in MacVim. In the former case, the url will be opened in the default browser. In either case, a typo would likely render the link useless.
 * *@l*: location/context. In the *do next* view, `location` is used to organize undated tasks. Using `@l errands` in one task and `@l erands` in another would cause these tasks to be grouped separately.
-* *@i*: index - colon delimited string. In both the *index* and the *used time* views, the index entry is used to group and aggregate entries. Using `@i jsmith:project a` in one entry and `@i jsmth:project a` in another would cause these these entries to be grouped and aggregated erroneously. 
+* *@i*: index - colon delimited string. In both the *index* and the *used time* views, the index entry is used to group and aggregate entries. Using `@i jsmith:project a` in one entry and `@i jsmth:project a` in another would cause these these entries to be grouped and aggregated separately. 
 * *@n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion. Attendee entries are used in both email and text alerts. 
 * *@z*: timezone. `@z Europe/Paris` is a valid timezone but `@z EU/Paris` isn't.
 
 Other tracked attributes include *@c* (calendar) and *@t* (tag).
 
-For these attributes, etm keeps a record of each usage. I.e., for each record in your *etm* database, if the record includes a tracked attribute that has not already been included in the list of completions, then that attribute will be added. E.g., if you create an item containing
+For these attributes, etm keeps a record of each usage. I.e., for each reminder in your *etm* database, if the reminder includes a tracked attribute that has not already been included in the list of completions, then that attribute will be added. E.g., if you create an reminder containing
 
         @n joe: jsmith457@gmail.com
-  and '@n joe: jsmith457@gmail.com' is not already in the list of completions, then it will be added.
+  and '@n joe: jsmith457@gmail.com' is not already in the list of completions, then it would be added.
 
 When you next create a reminder and enter @n, *etm* will pop up a sorted list of every item in the completion list that begins with @n. You can use the up and down cursor keys to move through this list or you can continue typing to limit the possible completions, e.g., after entering '@n joe' only those completions that start with '@n joe' would still be displayed. When you have selected the completion you want, press the space bar to insert the completion in your entry.
 
@@ -331,60 +331,66 @@ When you next create a reminder and enter @n, *etm* will pop up a sorted list of
 ## [Views](#etm)
 
 
-_etm_ has several ways of viewing entries. This are listed below by the shortcut key used to activate the view. E.g., pressing “a” activates _Agenda_ view.
+_etm_ has several ways of viewing entries. These are listed below by the shortcut key used to activate the view. E.g., pressing `a` activates _Agenda_ view.
 
   * a: Agenda: dated unfinished tasks and other reminders by year-week and week day 
-  * b: Busy: a graphical illustration of busy times by year-week
+  * b: Busy: a graphical illustration of busy and conflicted times by year-week
   * c: Completed: finished tasks and jobs by completion year-week and week day
   * d: Do Next: undated tasks grouped by location
-  * f: Forthcoming: dated unfinished tasks and other reminders by next occurrence 
-  * h: History: all items by last modified or created datetime descending
+  * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence 
+  * h: History: all items by the latter of the modified or created datetimes in descending order
   * i: Index: all items grouped hierarchically by index entry
   * r: Records: all items of type 'record' grouped hierarchically by index
   * t: Tags: all items with @t tag entries grouped by tag
   * u: Used Time: all items with @u used time entries grouped hierarchically by index 
   * U: Used Time Summary: used time aggregates grouped hierarchically by index
+  * y: Yearly Planning Calendar: compact monthly calendar by half year. 
 
-The _weekly_ agenda, busy and completed views display one week at a time and are synchronized so that all three views always display the same week. Left or right cursor keys go backward or forward a week at a time and the pressing the space bar jumps to the week containing the current day. You can also press "j" and enter a date to jump to the week containing the date.
+The _weekly_ agenda, busy and completed views display one week at a time and are *synchronized* so that all three views always display the same week. Left or right cursor keys go backward or forward a week at a time and the pressing the space bar jumps to the week containing the current day. You can also press "j" and enter a date to jump to the week containing the date.
 
-When displaying the current week in agenda view, the entry for the current date begins with some special entries:
+When displaying the *current week* in agenda view, the label for the *current date* has '(Today)' appended and its entries begin with some special ones:
 
 * *!* inbox entries, if any, are listed first
 * *<* pastdue warnings, if any, are listed next in descending order of the number of days they are past due
-* *>* beginby warnings, if any, are list next in ascending order of the number of days remaining
+* *>* beginby warnings, if any, are listed next in ascending order of the number of days remaining
 
 After these special entries, the display continues with the normal agenda listing for a week day
 
-* date-only items, if any
-* datetime items sorted by start time 
-
+* all day items (items with dates as `@s` entries), if any
+* datetime items (items with datetimes as `@s` entries) sorted by time 
 
 While the views differ in many respects, they also share some common aspects:
 
-* Press “N” in any view to create a new item.
+* Press `N` in any view to create a new item.
 * Select a reminder by clicking on it or by using the up and down cursor keys to move the cursor to the line displaying the reminder. 
 * With a reminder selected:
-    * Press “return” to toggle displaying the details. 
-    * Pressing “E” to edit.  Then press “Ctrl-S” to save your changes and end  editing or “Ctrl-C” to end editing without saving your changes.
-    * Press “C” to open a copy as a new reminder for editing.
-    * Press “D” to delete.
-    * Press “R” to reschedule the starting datetime.
-    * Press “S” to schedule a new datetime instance.
-    * For an item with an @g “goto” link, press “Ctrl-G” to open the link.
-    * For an item that repeats, press “Ctrl-R” to show repetitions.
-    * Timers
-        * Press “T” to begin a timer for the reminder.
-        * With a timer active, press “T” to toggle paused/running.
-        * Press “^T” to end the timer and record an  `@u usedtime` entry in the reminder.
+    * Press `return` to toggle displaying the details. 
+    * Pressing `E` to edit.  Then press `Ctrl-S` to save your changes and end  editing or `Ctrl-C` to end editing without saving your changes.
+    * Press `C` to open a copy as a new reminder for editing.
+    * Press `D` to delete.
+    * Press `R` to reschedule the starting datetime.
+    * Press `S` to schedule a new datetime instance.
+    * For an item with an @g `goto` link, press `Ctrl-G` to open the link.
+    * For an item that repeats, press `Ctrl-R` to show repetitions.
+    * Timers and Used Time (@u entries)
+        * Press `T` to begin a timer for the reminder.
+        * If a timer is active
+			* The current accumulated time period for the timer will be displayed in the status bar with an `*` or a `!` appended depending upon whether the timer is currently running or paused. E.g., 
+
+						12:02pm Wed Dec 18                 36m *   agenda
+			* Press `T` to toggle paused/running.
+			* Press `Ctrl-T` to end the timer and record an  `@u usedtime` entry in the reminder based on the accumulated period for the timer and and the current datetime. 
+		* If a timer is not active, press `Ctrl-T` to open a dialog to directly add an `@u usedtime` entry to the item by specifying the period and ending datetime. (Not yet implemented.)
 * Movement
     * Press page up or page down to shift the display a page at a time. 
     * Press “l”  (lower case L) and enter a number to move the cursor to a particular line  number. 
-    * In the weekly views a),  b) and c), press “g” and enter a date to display the week containing the date.
+    * In the weekly views a),  b) and c), press “j” and enter a date to display the week containing that date.
     * In the dated views a), b), c), u), U) and y), press the right or left cursor keys to go  to the next or previous period, respectively, and the space bar to return to the current period.
 * Search.
-    * Press “/“ (forward slash) and enter an expression to search the view for an row whose content contains (case insensitive) the expression. 
-    * After entering the search expression, press “n” to search  forward  (cyclically)  for other matches.
-	* Once a search is initiated, it remains active in all views. To remove the highlighting, search for something not likely to be matched such as 3 consecutive commas.
+    * Press “/“ (forward slash) and enter an expression to search the view for a row whose content contains (case insensitive) the expression. 
+	* While entering the search expression, push the `up` or `down` cursor keys to change the direction of search.
+    * After entering the search expression, press “n” to search (cyclically) for other matches in the direction specified.
+	* Once a search is initiated, it remains active in all views with matches highlighted. To remove the highlighting, search for something not likely to be matched such as 3 consecutive commas.
 
 
 ## [Installation/Deinstallation](#etm)
@@ -399,7 +405,7 @@ Open a terminal and begin by creating a new directory/folder, say `etm-pypi` in 
 
         $ mkdir ~/etm-pypi
         $ cd ~/etm-pypi
-Now continue by creating the virtual environment (python >= 3.6 is required):
+Now continue by creating the virtual environment (python >= 3.6 is required for *etm*):
 
         $ python3 -m venv env
 After a few seconds you will have an `./env` directory. Now activate the virtual environment:
@@ -423,7 +429,7 @@ Considerations:
 
 * If more than one person will be using etm on the same computer, you might want to have different *home* directories for each user.
 * If you want to use etm on  more than one computer and use Dropbox, you might want to use `~/Dropbox/etm` to have access on each of your computers.
-* If you want to separate personal and professional reminders, you could use separate _home_ directories for each. You can run two instances of _etm_ simultaneously, one for each directory, and view both at the same time. 
+* If you want to separate personal and professional reminders, you could use different _home_ directories for each. You can run two instances of _etm_ simultaneously, one for each directory, and have access to both at the same time. 
 
 Whatever *home* directory you choose, running etm for the first time will add the following to that folder.
 
@@ -593,7 +599,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @-: exclude. list of datetimes to exclude
 *  @a*: alert. list of + (before) or - (after) periods: list of commands
 *  @b: beginby. integer (number of days before)
-*  @c: calendar. string 
+*  @c: calendar. string (implemented but not currently used by *etm*) 
 *  @d: description. string
 *  @e: extent. timeperiod
 *  @f: finished. datetime
@@ -652,7 +658,7 @@ For use with @r:
 
 ### @a alerts and @b beginbys:
 
-* With an email/text alert, the item summary is used as the subject and emails/text messages are sent to each attendee listed in an @n entry. The content of the body of the emails/messages are options that can be set in the user's configuration file. 
+* With an email or text alert, the item summary is used as the subject and an email or text message is sent to each attendee listed in @n entries. The content of the body of the emails/messages are options that can be set in the user's configuration file. 
 * Alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance.
 
 ### repetition notes
@@ -683,7 +689,9 @@ For use with @r:
 
         * my event @s 2018-02-15 3p @+ 2018-03-02 4p
     would repeat at 4pm on Mar 2 *and* at 3pm on Feb 15 since `@r` is not specified.
-* Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would be at best redundant and at worst conflicting. A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
+* Using &c and &u in @r. It is an error in *dateutil* to specify both &c (count) and &u (until) since providing both would be at best redundant and at worst conflicting. 
+
+    A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
 
 ### repetition examples
@@ -719,7 +727,7 @@ These entries are encoded in the database in an obfuscated or masked format but 
 
         % masked entry @s 2019-11-30 4pm @m obfuscated entry
 
-could appear in the database as
+might appear in the database, depending upon *secret*, as
 
         "1685": {
         "itemtype": "%",
@@ -739,7 +747,7 @@ The `@x`, *expansion key*, entry is used to specify a key for options to be extr
                 ...
 Then when entering the following reminder
 
-        * Conflict and Cooperation @s 1/25/2018 9:35am @x tennis 
-tab completion would offer `'@e 1h30m @a 30m, 15m: v @i personal:tennis'` as a replacement for `'@x tennis'`.
+        * Tennis @s 1/25/2018 9:30am @x tennis 
+tab completion would offer `@e 1h30m @a 30m, 15m: v @i personal:tennis` as a replacement for `@x tennis`.
 
 
