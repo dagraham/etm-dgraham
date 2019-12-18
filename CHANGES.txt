@@ -1,155 +1,184 @@
-Recent changes as of 2019-12-17T16:39:51.815549-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0rc7) Dan Graham
-    c857681 2019-12-17 16:39:51 -0500
+Recent changes as of 2019-12-18T13:18:30.379932-05:00:
+- 0 seconds ago (HEAD -> master, tag: 4.0.0rc8) Dan Graham
+    2973a7d 2019-12-18 13:18:30 -0500
+    Tagged version 4.0.0rc8.
+
+- 14 seconds ago Dan Graham
+    803f7b2 2019-12-18 13:18:16 -0500
+    README ...
+
+- 3 hours ago (origin/working, origin/master, working) Dan Graham
+    350e596 2019-12-18 10:38:39 -0500
+    working on new.png image
+
+- 3 hours ago Dan Graham
+    7305c91 2019-12-18 10:13:06 -0500
+    working on new.png link
+
+- 3 hours ago Dan Graham
+    e211747 2019-12-18 10:04:33 -0500
+    Still more README tweaks - added new.png
+
+- 3 hours ago Dan Graham
+    6e3ece6 2019-12-18 10:03:06 -0500
+    More README tweaks
+
+- 17 hours ago Dan Graham
+    cce855e 2019-12-17 19:49:04 -0500
+    Removed id2relevant from sort in show_tags, show_records and
+    show_index. More README mods in views section.
+
+- 21 hours ago Dan Graham
+    a23f3aa 2019-12-17 16:39:51 -0500
     Tagged version 4.0.0rc7.
 
-- 8 minutes ago (origin/working, origin/master, master) Dan Graham
+- 21 hours ago Dan Graham
     f7a6016 2019-12-17 16:32:14 -0500
     README fix
 
-- 24 minutes ago Dan Graham
+- 21 hours ago Dan Graham
     f34c5a6 2019-12-17 16:16:03 -0500
     Tagged version 4.0.0rc6.
 
-- 24 minutes ago Dan Graham
+- 21 hours ago Dan Graham
     53d8920 2019-12-17 16:15:49 -0500
     Much work on README. Possibly fixed by in ATCompleter by adding a
     'return'.
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     ce58b6a 2019-12-15 12:05:29 -0500
     Fixed bug in setting relevant for inbox items
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     889467d 2019-12-15 08:48:51 -0500
     Omit inbox items in show_forthcoming.
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     b71e363 2019-12-13 11:37:37 -0500
     Tagged version 4.0.0rc5.
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     8150a1f 2019-12-13 11:29:19 -0500
     Changed @n attendee format to "@n [label:] address" where the
     optional "label:" can be used to facilitate autocompletion and
     address is interpreted as a phone number if it begins with exactly
     10 digits followed by an "@" and otherwise as an email address.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     ad7ccdc 2019-12-12 16:37:30 -0500
     Tagged version 4.0.0rc4.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     0016ca0 2019-12-12 15:55:34 -0500
     Use @n attendees to provide phone numbers for text alerts to
     parallel the email alert usage.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     900cfdb 2019-12-12 15:03:55 -0500
     Added needed 'aync' to send_mail and send_text. Fixed bug in
     getting the relevant item in both from the doc_id.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     a9d594d 2019-12-12 11:35:48 -0500
     Tagged version 4.0.0rc3.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     f5dd517 2019-12-12 11:35:19 -0500
     Apply usedtime_minutes to each @u entry before adding. Fixed bug
     in short=True format_duration.
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     f5b3cbe 2019-12-11 16:50:45 -0500
     Tagged version 4.0.0rc2.
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     60ff12d 2019-12-11 16:49:35 -0500
     Fixed bug in logging from options.py. Added 'usedtime_minutes' to
     options with default 1 to control rounding in used time views.
     Modified used time views to sort by year-month and index and to
     display times using usedtime_minutes setting.
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     f4b9f55 2019-12-11 10:21:48 -0500
     Fixed bug in save_before_quit. Added anniversary expansions to
     forthcoming view.
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     7b47331 2019-12-10 18:07:00 -0500
     Tagged version 4.0.0rc1.
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     384b3ea 2019-12-10 18:04:45 -0500
     Don't allow events to be saved without @s entries. Added option to
     open config file to file menu bound to F8.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     73ddd4c 2019-12-09 13:41:49 -0500
     Tagged version 4.0.0rc0.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     d2eb866 2019-12-09 13:41:12 -0500
     Changed goto date to jump to date and changed binding from 'g' to
     'j'.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     e3f58f0 2019-12-09 12:42:07 -0500
     Changed history display to group by year and put modified/created
     label first in the right hand column.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     eda8cc5 2019-12-09 12:14:40 -0500
     Renamed relevant view as forthcoming view. Changed binding from r
     to f. Show relevant from today forward grouped by year without
     reverse sort.
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     2ef82cb 2019-12-09 10:47:20 -0500
     Set tz='local' for Date objects converted to 12am datetimes.
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     a6f167b 2019-12-08 12:30:35 -0500
     Tagged version 4.0.0b12.
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     8d3d425 2019-12-08 12:29:42 -0500
     Moved use of width to summary column.
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     41209ee 2019-12-08 12:19:50 -0500
     Fixed timer: T to begin then toggle paused, running and ^T to end
     timer with choice of whether or not to record used time.
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     4f0e785 2019-12-08 11:03:35 -0500
     Added tags view. Remaining: fix timers
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     30251ce 2019-12-08 09:43:14 -0500
     Redirect stderr and stdout to log file. Fixed bug in when
     cancelling do_goto_date.
 
-- 12 days ago Dan Graham
+- 13 days ago Dan Graham
     e852a08 2019-12-05 22:07:08 -0500
     Tagged version 4.0.0b11.
 
-- 12 days ago Dan Graham
+- 13 days ago Dan Graham
     397e72f 2019-12-05 22:05:28 -0500
     Fixed bug in completions
 
-- 12 days ago Dan Graham
+- 13 days ago Dan Graham
     8a334ed 2019-12-05 08:05:33 -0500
     Added logger to view namespace and removed call to get_logger.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     85f9699 2019-12-04 14:36:59 -0500
     Tagged version 4.0.0b10.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     385d3be 2019-12-04 14:36:35 -0500
     Allow finishing a task with jobs only when a job is selected.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     2caa77e 2019-12-04 11:28:40 -0500
     Set logger in __main__ and insert into model namespace. Cleaned up
     comments.
@@ -178,15 +207,15 @@ Recent changes as of 2019-12-17T16:39:51.815549-05:00:
     5465775 2019-12-03 05:10:14 -0500
     Updated to prompt_toolkit 3 with necessary changes to asyncio.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     24483a7 2019-11-30 17:21:44 -0500
     README tweaks
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     2633be6 2019-11-30 11:01:57 -0500
     Tagged version 4.0.0b7.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     18c15e0 2019-11-30 11:01:43 -0500
     Fixed bug in processing expansions
 
@@ -210,11 +239,11 @@ Recent changes as of 2019-12-17T16:39:51.815549-05:00:
     d5567ce 2019-10-03 12:18:41 -0400
     changed prompt for summary
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     c3a79d6 2019-08-05 10:29:55 -0400
     Tagged version 4.0.0b4.
 
-- 4 months ago Dan Graham
+- 5 months ago Dan Graham
     e6b1e30 2019-08-05 10:29:10 -0400
     Fixed bug in showing reps for all-day items
 
@@ -400,37 +429,3 @@ Recent changes as of 2019-12-17T16:39:51.815549-05:00:
     98b2473 2019-03-21 15:25:08 -0400
     Added test for running in a virtual environment. Added secret
     setting in options.
-
-- 9 months ago Dan Graham
-    b0b75c4 2019-03-21 11:48:01 -0400
-    Tagged version 4.0.0a56.
-
-- 9 months ago Dan Graham
-    6310485 2019-03-21 11:43:28 -0400
-    Added confirmation/result dialogs to import json and text. Expand
-    user and normalized paths to import file. Call data_changed after
-    import. Use temp file for text import tinydb.
-
-- 9 months ago Dan Graham
-    7738297 2019-03-20 19:18:12 -0400
-    Added import text and json to menu.
-
-- 9 months ago Dan Graham
-    286bf92 2019-03-20 17:35:43 -0400
-    Added file dialogs for import text and json.
-
-- 9 months ago Dan Graham
-    07e9315 2019-03-20 16:08:19 -0400
-    Work on import_text and import_json. Much work on checking for
-    duplicates in json file. Fixed bug in pen_from_fmt. Fixed bug by
-    replacing getmtime with of getctime. Fixed bug in erroneously
-    adjusting dst in @- entries. Fixed bug in setting instance for
-    non-repeating items in agenda view.
-
-- 9 months ago Dan Graham
-    2832445 2019-03-18 12:35:46 -0400
-    cleanup
-
-- 9 months ago Dan Graham
-    969a7bf 2019-03-18 12:19:27 -0400
-    Tagged version 4.0.0a55.
