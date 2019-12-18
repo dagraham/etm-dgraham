@@ -4638,11 +4638,12 @@ def show_records(db, id2relevant):
     rows = []
     # indices = set([])
     for item in db:
-        if item['itemtype'] != '%': #  or 's' in item:
+        if item['itemtype'] != '%': 
             continue
         index = item.get('i', '~')
         rows.append({
-                    'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
+                    # 'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
+                    'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
                         item['summary'][:width - 15], 
@@ -4670,7 +4671,8 @@ def show_tags(db, id2relevant):
         tags = item.get('t', [])
         for tag in tags:
             rows.append({
-                        'sort': (tag, item['itemtype'], item['summary'], id2relevant.get(item.doc_id)),
+                        # 'sort': (tag, item['itemtype'], item['summary'], id2relevant.get(item.doc_id)),
+                        'sort': (tag, item['itemtype'], item['summary']),
                         'tag': tag,
                         'columns': [item['itemtype'],
                             item['summary'][:width - 15], 
@@ -4693,13 +4695,15 @@ def show_index(db, id2relevant):
     """
     All items grouped by index entry
     """
+    now = pendulum.now()
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     # indices = set([])
     for item in db:
         index = item.get('i', '~')
         rows.append({
-                    'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
+                    # 'sort': (index, item['summary'], id2relevant.get(item.doc_id,now)),
+                    'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
                         item['summary'][:width - 15], 

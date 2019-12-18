@@ -52,7 +52,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 * Text entry removes the need to hunt for and click in the relevant entry box and allows you to keep your fingers on the keyboard.
 * Text entry supports the full flexibility of the superb Python *dateutil* package. Consider, for example, creating a reminder for Presidential election day which repeats every 4 years on the first Tuesday after a Monday in November (a monthday falling between 2 and 8). In *etm*, this event would be
 
-        * Presidential election day @s nov 3 2020 @r y &i 4 &M 11 
+        * Presidential election day @s nov 1 2020 @r y &i 4 &M 11 
           &m 2, 3, 4, 5, 6, 7, 8 &w tu
   Try this with a form based calendar application.
 
@@ -60,12 +60,11 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
 #### just in time entry prompts and feedback
 
+**Important**: Prompt updates do not block keyboard entry and are virtually instantaneous. Your can continue typing without regard to the prompt or even paste entire items into the entry area.
 
-Let's create the election day reminder to illustrate the *etm* prompt/feedback process. In the illustrations below, the prompt appears above the horizontal line and your entry appears below the horizontal line with the position of the cursor indicated by the underscore character.
+In the illustrations below, the prompt appears above the horizontal line and your entry appears below the horizontal line with the position of the cursor indicated by the underscore character.
 
-**Important**: updating the prompt is virtually instantaneous and, in any event,  does not block keyboard entry. Your can continue typing without regard to the prompt if you like.
-
-Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character
+Let's create the election day reminder to illustrate the *etm* prompt/feedback process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character
 
         item type
         Choose a character from * (event), - (task), % (record)
@@ -338,77 +337,30 @@ When you next create a reminder and enter `@n `, *etm* will pop up a sorted list
 
 _etm_ has several ways of viewing entries. This are listed below by the shortcut key used to activate the view. E.g., pressing “a” activates _Agenda_ view.
 
-  * a: Agenda
-  * b: Busy
-  * c: Completed
-  * d: Do Next
-  * f: Forthcoming
-  * h: History
-  * i: Index
-  * r: Records
-  * t: Tags
-  * u: Used Time or U: Used Time Summary
+  * a: Agenda: dated unfinished tasks and other reminders by year-week 
+  * b: Busy: a graphical illustration of busy times by year-week
+  * c: Completed: finished tasks and jobs by completion year-week
+  * d: Do Next: undated tasks grouped by location
+  * f: Forthcoming: dated unfinished tasks and other reminders by next occurrence 
+  * h: History: all items by last modified or created datetime descending
+  * i: Index: all items grouped hierarchically by index entry
+  * r: Records: all items of type 'record' grouped hierarchically by index
+  * t: Tags: all items with @t tag entries grouped by tag
+  * u: Used Time: all items with @u used time entries grouped hierarchically by index 
+  * U: Used Time Summary: used time aggregates grouped hierarchically by index
 
-### a] Agenda View
-                        Dec 2 - 8, 2019 #49 
-        Mon Dec 2
-            * Corolla 
-            * Tennis                                   8am 
-        Tue Dec 3 (Today)
-            < Subaru Outback license renewal            -2 
-            > Fri tennis                                13 
-            > Tue tennis                                13 
-        Wed Dec 4
-            * Tennis                                   8am 
-            * Candlelight dinner                   5:30-9:30pm 
-        Thu Dec 5
-            * cleaners                                1:30pm 
-        Sat Dec 7
-            * Breakfast buffet                    10:15am-1:15pm 
-        Sun Dec 8
-            - Hair cut                                 3pm 
-            * Cassells for dinner and tree            6-10pm 
+The _weekly_ agenda, busy and completed views display one week at a time and are synchronized so that all three views always display the same week. Left or right cursor keys go backward or forward a week at a time and the pressing the space bar jumps to the week containing the current day. You can also press "j" and enter a date to jump to the week containing the date.
+
+When displaying the current week in agenda view, the entry for the current date begins with some special entries:
+
+	* _!_ inbox entries, if any, are listed first
+	* _<_ pastdue warnings, if any, are listed next in descending order of the number of days they are past due
+	* _>_ beginby warnings, if any, are list next in ascending order of the number of days remaining
+After these special entries, the display continues with the normal agenda listing for a date
+	* date-only items, if any
+	* dated 
 
 
-### b] Busy View
-
-                          Dec 2 - 8, 2019 #49 
-              Mo 2   Tu 3   We 4   Th 5   Fr 6   Sa 7   Su 8  
-              _____  _____  _____  _____  _____  _____  _____
-        12am    .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-        6am     .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-                .      .      .      .      .      #      .  
-                .      .      .      .      .      #      .  
-        12pm    .      .      .      .      .      #      .  
-                .      .      .      .      .      #      .  
-                .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-                .      .      #      .      .      .      .  
-        6pm     .      .      #      .      .      .      #  
-                .      .      #      .      .      .      #  
-                .      .      #      .      .      .      #  
-                .      .      #      .      .      .      #  
-                .      .      .      .      .      .      .  
-                .      .      .      .      .      .      .  
-              _____  _____  _____  _____  _____  _____  _____
-        total   0      0     240     0      0     180    240 
-
-
-### c] Completed View
-
-                        Dec 2 - 8, 2019 #49 
-        Tue Dec 3 (Today)
-            ✓ Tue tennis 1/1/1: request dates          1pm 
-            ✓ Fri tennis 1/1/1: request dates          1pm 
 
 While the views differ in many respects, they also share some common aspects:
 
@@ -725,11 +677,11 @@ For use with @r:
             │                                  │
             └──────────────────────────────────┘
   Note that all start at 9am even though the first 3 are EST and the last 2 are EDT. 
-* Using @s with @r and, optionally, with @+. Datetimes from @+ which fall on or after the @s datetime, if any, are added to the datetimes generated from the @r entry. Note that the datetime from @s will only be included if it matches one generated by the @r entry or by one included in @+. E.g., 
+* Using @s with @r and with @+. Datetimes from @+ are added to the datetimes generated from the @r entry. Note that the datetime from @s will only be included if it matches one generated by the @r entry or by one included in @+. E.g., 
 
         * my event @s 2018-02-15 3p @r d &h 18 @+ 2018-03-02 4p
     would repeat daily at 6pm starting Feb 15 and at 4pm on Mar 2, *but not* at 3pm on Feb 15 which is specified in `@s`. 
-* Using @s without @r and, optionally, @+. Datetimes from @+, if any, are added to @s. E.g., 
+* Using @s with @+ but without @r. Datetimes from @+ are added to @s. E.g., 
 
         * my event @s 2018-02-15 3p @+ 2018-03-02 4p
     would repeat at 4pm on Mar 2 *and* at 3pm on Feb 15 since `@r` is not specified.
@@ -751,10 +703,6 @@ For use with @r:
 
         * sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
 
-* Presidential election day every four years on the first Tuesday after a Monday in November (a Tuesday whose month day falls between 2 and 8).
-
-        * Presidential Election Day @s 2012-11-06
-          @r y &i 4 &M 11 &m 2, 3, 4, 5, 6, 7, 8 &w TU
 * Good Friday each year 2 days before [E]aster Sunday.
 
         * Good Friday @s 1/1/2015 @r y @E -2
