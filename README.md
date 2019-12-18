@@ -25,9 +25,9 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 * A task (**-**): pick up milk. 
 
 		- pick up milk
-* An event (**\***): have lunch with Burk [s]tarting next Tuesday at 12pm and [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm.
+* An event (**\***): have lunch with Ed [s]tarting next Tuesday at 12pm and [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm.
 
-        * Lunch with Burk @s tue 12p @e 90m
+        * Lunch with Ed @s tue 12p @e 90m
 * A record (**%**): a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
 
         % Give me a pig - Churchill @s 2p @d Dogs look up at 
@@ -56,15 +56,13 @@ See [Item Types](#item-types) for details about these item types and [Options](#
           &m 2, 3, 4, 5, 6, 7, 8 &w tu
   Try this with a form based calendar application.
 
-### timely and unobtrusive entry assistance
+### unobtrusive and timely entry assistance
 
 #### just in time entry prompts and feedback
 
-**Important**: Prompt updates do not block keyboard entry and are virtually instantaneous. Your can continue typing without regard to the prompt or even paste entire items into the entry area.
+When you want to create a new reminder or edit an exiting one, *etm* opens an area at the bottom of the screen that is divided into two parts by a horizontal line. The lower part is the entry area where what you type appears. The upper part is the prompt/feedback area where *etm* responds to your typing. This response might take the form of providing a suggestion about alternatives, information about the type of input required or feedback about how your current entry is being interpreted. It is important to realize that none of this interferes with your typing - you can blaze away as quickly as you like or even paste complete entries and never glance at the prompt if you like. This is the **unobtrusive** part of the prompt/feedback process.  
 
-In the illustrations below, the prompt appears above the horizontal line and your entry appears below the horizontal line with the position of the cursor indicated by the underscore character.
-
-Let's create the election day reminder to illustrate the *etm* prompt/feedback process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character
+Let's create the election day reminder to illustrate the **timely** part of the process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character and suggests the alternatives
 
         item type
         Choose a character from * (event), - (task), % (record)
@@ -72,7 +70,8 @@ Let's create the election day reminder to illustrate the *etm* prompt/feedback p
 
         ────────────────────────────────────────────────────────────
         _
-Enter an "\*" to create an event and *etm* prompts you for the event summary
+
+Notice that you don't have to search for the part of the form in which you specify the type of reminder - *etm* effectively makes the one entry area the appropriate spot for this and all other input. Now enter an `*` to create an event and *etm* will prompt you for the event summary.
 
         summary
         brief item description. Append an '@' to add an option.
@@ -80,7 +79,7 @@ Enter an "\*" to create an event and *etm* prompts you for the event summary
         ────────────────────────────────────────────────────────────
         *_
 
-Enter the summary followed by an `@` and *etm* automatically prompts you with the required and available `@-keys`
+Enter the summary followed by an `@` and *etm* automatically prompts you with the required and available `@-keys`.
 
         @-key
         required: @s (start)
@@ -93,7 +92,7 @@ Enter the summary followed by an `@` and *etm* automatically prompts you with th
         ────────────────────────────────────────────────────────────
         * Presidential election day @_
 
-You see that "@s" is required, so enter the "s" and *etm* prompts you for the value for the start option
+You see that `@s` is required, so add the `s` and *etm* will prompt you for the value for the start option and describe the type of input required.
 
         start
         starting date or datetime
@@ -101,7 +100,7 @@ You see that "@s" is required, so enter the "s" and *etm* prompts you for the va
         ────────────────────────────────────────────────────────────
         * Presidential election day @s_
 
-Enter a date and *etm* will display its interpretation of your entry as you type
+As you enter the datetime, *etm* will display its interpretation of your entry.
 
         start
         Sun Nov 1 2020
@@ -109,7 +108,7 @@ Enter a date and *etm* will display its interpretation of your entry as you type
         ────────────────────────────────────────────────────────────
         * Presidential election day @s nov 1 20_
 
-Now append an @ to see the prompt for options
+Now append an `@` to see the prompt for options and note that `@s`, having been provided, is no longer listed. 
 
         @-key
         available: @+ (include), @- (exclude), @a (alerts),
@@ -121,7 +120,7 @@ Now append an @ to see the prompt for options
         ────────────────────────────────────────────────────────────
         * Presidential election day @s nov 1 20 @_
 
-We want to repeat so enter an "r"
+We want to repeat so enter an `r` and *etm* will describe the required input.
 
         repetition frequency
         repetition frequency: character from (y)early,
@@ -131,7 +130,7 @@ We want to repeat so enter an "r"
         ────────────────────────────────────────────────────────────
         * Presidential election day @s nov 1 20 @r_
 
-Add a "y" for yearly and an "&" to see the prompts for repetition options.
+Add a `y` for yearly. The repetition attribute, `@r`, has several possible attributes which apply specifically to it. Such attributes use `&` rather than `@` as a tag. Enter an `&` to see the prompts for repetition options.
 
         repetition &-key
         repetition &-keys: &i (interval), &m (monthdays),
@@ -141,7 +140,6 @@ Add a "y" for yearly and an "&" to see the prompts for repetition options.
 
         ────────────────────────────────────────────────────────────
         * Presidential election day @s nov 1 20 @r y &_
-
 
 Enter "i" to see what "interval" means 
 
@@ -153,7 +151,7 @@ Enter "i" to see what "interval" means
         ────────────────────────────────────────────────────────────
         * Presidential election day @s nov 1 20 @r y &i_
 
-We want to repeat every 4 years so enter "4" followed by another "&" to see other options. [The display for *repetition &-keys* is unchanged from above and thus omitted here.] Then enter "M" to see what "months" means
+We want to repeat every 4 years so enter `4` followed by another `&` to see other options. [The display for *repetition &-keys* is unchanged from above and will thus be hereafter omitted.] Then enter "M" to see what "months" means
 
         months
         months: a comma separated list of integer month numbers
@@ -313,13 +311,9 @@ requires the addition of the `@z` and 'float'.
 Some optional attributes that can be used in reminders can be tedious to enter either because they are lengthy or because they are used often and typographical errors would be problematic. These attributes include the following: 
 
 * *@g*: goto url or filepath. In the latter case, the system default application is used to open the filepath, e.g., on my macbook the system default for files ending in `.py` is to open them in MacVim. In the former case, the url will be opened in the default browser. In either case, a typo would likely render the link useless.
-
 * *@l*: location/context. In the *do next* view, `location` is used to organize undated tasks. Using `@l errands` in one task and `@l erands` in another would cause these tasks to be grouped separately.
-
 * *@i*: index - colon delimited string. In both the *index* and the *used time* views, the index entry is used to group and aggregate entries. Using `@i jsmith:project a` in one entry and `@i jsmth:project a` in another would cause these these entries to be grouped and aggregated erroneously. 
-
 * *@n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion. Attendee entries are used in both email and text alerts. 
-
 * *@z*: timezone. `@z Europe/Paris` is a valid timezone but `@z EU/Paris` isn't.
 
 Other tracked attributes include *@c* (calendar) and *@t* (tag).
@@ -329,7 +323,7 @@ For these attributes, etm keeps a record of each usage. I.e., for each record in
         @n joe: jsmith457@gmail.com
   and '@n joe: jsmith457@gmail.com' is not already in the list of completions, then it will be added.
 
-When you next create a reminder and enter `@n `, *etm* will pop up a sorted list of every item in the completion list that begins with `@n`. You can use the up and down cursor keys to move through this list or you can continue typing to limit the possible completions, e.g., after entering `@n joe` only those completions that start with `@n joe` would still be displayed. When you have selected the completion you want, press the space bar to insert the completion in your entry.
+When you next create a reminder and enter @n, *etm* will pop up a sorted list of every item in the completion list that begins with @n. You can use the up and down cursor keys to move through this list or you can continue typing to limit the possible completions, e.g., after entering '@n joe' only those completions that start with '@n joe' would still be displayed. When you have selected the completion you want, press the space bar to insert the completion in your entry.
 
 
 ## [Views](#etm)
@@ -337,9 +331,9 @@ When you next create a reminder and enter `@n `, *etm* will pop up a sorted list
 
 _etm_ has several ways of viewing entries. This are listed below by the shortcut key used to activate the view. E.g., pressing “a” activates _Agenda_ view.
 
-  * a: Agenda: dated unfinished tasks and other reminders by year-week 
+  * a: Agenda: dated unfinished tasks and other reminders by year-week and week day 
   * b: Busy: a graphical illustration of busy times by year-week
-  * c: Completed: finished tasks and jobs by completion year-week
+  * c: Completed: finished tasks and jobs by completion year-week and week day
   * d: Do Next: undated tasks grouped by location
   * f: Forthcoming: dated unfinished tasks and other reminders by next occurrence 
   * h: History: all items by last modified or created datetime descending
@@ -353,13 +347,14 @@ The _weekly_ agenda, busy and completed views display one week at a time and are
 
 When displaying the current week in agenda view, the entry for the current date begins with some special entries:
 
-	* _!_ inbox entries, if any, are listed first
-	* _<_ pastdue warnings, if any, are listed next in descending order of the number of days they are past due
-	* _>_ beginby warnings, if any, are list next in ascending order of the number of days remaining
-After these special entries, the display continues with the normal agenda listing for a date
-	* date-only items, if any
-	* dated 
+* *!* inbox entries, if any, are listed first
+* *<* pastdue warnings, if any, are listed next in descending order of the number of days they are past due
+* *>* beginby warnings, if any, are list next in ascending order of the number of days remaining
 
+After these special entries, the display continues with the normal agenda listing for a week day
+
+* date-only items, if any
+* datetime items sorted by start time 
 
 
 While the views differ in many respects, they also share some common aspects:
@@ -385,8 +380,9 @@ While the views differ in many respects, they also share some common aspects:
     * In the weekly views a),  b) and c), press “g” and enter a date to display the week containing the date.
     * In the dated views a), b), c), u), U) and y), press the right or left cursor keys to go  to the next or previous period, respectively, and the space bar to return to the current period.
 * Search.
-    * Press “/“ (forward slash) and enter an expression to search the view for an item whose summary contains (case insensitive) the expression. 
+    * Press “/“ (forward slash) and enter an expression to search the view for an row whose content contains (case insensitive) the expression. 
     * After entering the search expression, press “n” to search  forward  (cyclically)  for other matches.
+	* Once a search is initiated, it remains active in all views. To remove the highlighting, search for something not likely to be matched such as 3 consecutive commas.
 
 
 ## [Installation/Deinstallation](#etm)
@@ -444,7 +440,7 @@ If you should ever want to deinstall etm, first deactivate the virtual environme
 
         (env) $ deactivate
 
-You can now simply delete the virtual environment directory and, if you have additional *home* directories, by deleting each of them. One of the many advantages of the virtual environment is that all installations are local to that environment and removing the directory, removes every trace.
+You can now simply delete the virtual environment directory and, if you have additional *home* directories, delete each of them. One of the many advantages of the virtual environment is that these steps remove every trace.
 
 # [Details](#etm)
 
@@ -566,7 +562,7 @@ When a task job has one or more unfinished prerequisites, it is displayed using 
 
 Type character: **✓**
 
-When a task or job is finished, it is displayed on the finished date using **✓** rather than **-**. 
+When a task or job is finished, it is displayed in _completed view_ on the finished date using **✓** rather than **-**. 
 
 ## [Options](#etm)
 
