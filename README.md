@@ -81,7 +81,7 @@ Notice that you don't have to search for the part of the form in which you speci
         ────────────────────────────────────────────────────────────
         *_
 
-Enter the summary followed by an `@` and *etm* automatically prompts you with the required and available `@-keys`.
+Enter the summary followed by an `@` and *etm* will automatically display the required and available `@-keys`.
 
         @-key
         required: @s (start)
@@ -110,7 +110,7 @@ As you enter the datetime, *etm* will display its interpretation of your entry.
         ────────────────────────────────────────────────────────────
         * Presidential election day @s nov 1 20_
 
-Now append an `@` to see the prompt for options and note that `@s`, having been provided, is no longer listed. 
+Now append an `@` to see the prompt for options and notice that `@s`, having been provided, is no longer listed. 
 
         @-key
         available: @+ (include), @- (exclude), @a (alerts),
