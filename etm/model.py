@@ -5468,6 +5468,8 @@ tinydb:           {tinydb_version}
 jinja2:           {jinja2_version}
 ruamel.yaml:      {ruamel_version}
 platform:         {system_platform}
+etm home directory: 
+   {etmhome:^30}
 """
     return ret1, ret2
 

@@ -71,6 +71,8 @@ def main():
     model.DBARCH = DBARCH
     model.settings = settings
     model.logger = logger
+    userhome = os.path.expanduser('~')
+    model.etmhome = os.path.join('~', os.path.relpath(etmdir, userhome)) if etmdir.startswith(userhome) else etmdir 
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
     datetime_calculator = model.datetime_calculator
