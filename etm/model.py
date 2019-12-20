@@ -601,6 +601,37 @@ class Item(object):
             return False
 
 
+    def add_used(self, doc_id, usedtime):
+        # usedtime = "period_str: datetime_str"
+
+        self.item_hsh = self.db.get(doc_id=doc_id)
+        self.doc_id = doc_id
+        logger.debug(f"item_hsh: {self.item_hsh}; doc_id: {doc_id}")
+        self.created = self.item_hsh['created']
+        ut = [x.strip() for x in usedtime.split(': ')]
+        logger.debug(f"ut: {ut}")
+        if not len(ut) == 2:
+            return False
+
+        per_ok, per = parse_duration(ut[0])
+        logger.debug(f"per_ok: {per_ok}; per: {per}")
+        if not per_ok:
+            return False
+        dt_ok, dt, z = parse_datetime(ut[1])
+        if not dt_ok:
+            return False
+
+        used_times = self.item_hsh.get("u", [])
+        used_times.append([per, dt])
+        self.item_hsh['u'] = used_times
+        self.item_hsh['created'] = self.created
+        self.item_hsh['modified'] = pendulum.now('local')
+        logger.debug(f"new item_hsh: {self.item_hsh}")
+        self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+
+        return True
+
+
     def schedule_new(self, doc_id, new_dt):
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id

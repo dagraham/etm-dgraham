@@ -373,14 +373,14 @@ While the views differ in many respects, they also share some common aspects:
     * For an item with an @g `goto` link, press `Ctrl-G` to open the link.
     * For an item that repeats, press `Ctrl-R` to show repetitions.
     * Timers and Used Time (@u entries)
-        * Press `T` to begin a timer for the reminder.
+        * Press `T` to begin a timer for the reminder or to toggle paused/running if a timer is already active.
         * If a timer is active
 			* The current accumulated time period for the timer will be displayed in the status bar with an `*` or a `!` appended depending upon whether the timer is currently running or paused. E.g., 
 
 						12:02pm Wed Dec 18                 36m *   agenda
-			* Press `T` to toggle paused/running.
 			* Press `Ctrl-T` to end the timer and record an  `@u usedtime` entry in the reminder based on the accumulated period for the timer and and the current datetime. 
-		* If a timer is not active, press `Ctrl-T` to open a dialog to directly add an `@u usedtime` entry to the item by specifying the period and ending datetime. (Not yet implemented.)
+		* If a timer is not active
+            * press `Ctrl-T` to open a dialog to directly add an `@u usedtime` entry to the selected item by specifying the period and ending datetime.
 * Movement
     * Press page up or page down to shift the display a page at a time. 
     * Press “l”  (lower case L) and enter a number to move the cursor to a particular line  number. 

@@ -355,6 +355,47 @@ def save_before_quit(*event):
 
     asyncio.ensure_future(coroutine())
 
+def add_usedtime(*event):
+
+    doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+
+    if not doc_id:
+        logger.debug('no doc_id')
+        return
+
+    hsh = DBITEM.get(doc_id=doc_id)
+    logger.debug(f"doc_id: {doc_id}; instance: {instance}; hsh: {hsh}")
+
+
+    def coroutine():
+        dialog = TextInputDialog(
+            title='add usedtime',
+            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\n add usedtime using the format:\n    used timeperiod: ending datetime")
+
+        ok = True
+        usedtime = yield from show_dialog_as_float(dialog)
+        logger.debug(f"usedtime: {usedtime}")
+
+        if not usedtime:
+            # None (cancelled) or null string
+            return
+
+        changed = item.add_used(doc_id, usedtime)
+
+        if changed:
+            if doc_id in dataview.itemcache:
+                del dataview.itemcache[doc_id]
+            application.layout.focus(text_area)
+            set_text(dataview.show_active_view())
+            loop = asyncio.get_event_loop()
+            loop.call_later(0, data_changed, loop)
+        else:
+            show_message('add usedtime', f"Cancelled, '{usedtime}' is invalid.\nThe required entry format is:\n   used timeperiod: ending datetime")
+
+
+    asyncio.ensure_future(coroutine())
+
+
 today = pendulum.today()
 calyear = today.year
 calmonth = today.month
@@ -1076,6 +1117,7 @@ def do_timer_toggle(*event):
 @bindings.add('c-t', filter=is_viewing_or_details)
 def do_maybe_record_timer(*event):
     if not dataview.timer_id:
+        add_usedtime() 
         return
     item_id = dataview.timer_id
     job_id = dataview.timer_job
@@ -1473,7 +1515,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^R) show repetitions', handler=not_editing_reps),
         MenuItem('-', disabled=True),
         MenuItem('T) begin timer, then toggle paused/running', handler=do_timer_toggle),
-        MenuItem("^T) end timer", handler=do_maybe_record_timer),
+        MenuItem("^T) record usedtime", handler=do_maybe_record_timer),
     ]),
 ], floats=[
     Float(xcursor=True,
