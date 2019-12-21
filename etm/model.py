@@ -2007,10 +2007,11 @@ class DataView(object):
         if self.currfile is None:
             return
 
-        thisYrWk = getWeekNum(self.now)
-        nextYrWk = nextWeek(thisYrWk)
+        week1 = getWeekNum(self.now)
+        week2 = nextWeek(week1)
+        week3 = nextWeek(week2)
         current = []
-        for week in [thisYrWk, nextYrWk]:
+        for week in [week1, week2, week3]:
             if week not in self.cache:
                 self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now))
             agenda, done, busy, num2id, row2id = self.cache[week]

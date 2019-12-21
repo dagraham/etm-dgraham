@@ -58,11 +58,11 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
 ### unobtrusive and timely entry assistance
 
-#### just in time entry prompts and feedback
-
 When you want to create a new reminder or edit an exiting one, *etm* opens an area at the bottom of the screen that is divided into two parts by a horizontal line. The lower part is the entry area where what you type appears. The upper part is the prompt/feedback area where *etm* responds to your typing. This response might take the form of providing a suggestion about alternatives, information about the type of input required or feedback about how your current entry is being interpreted. It is important to realize that none of this interferes with your typing - you can blaze away as quickly as you like or even paste complete entries and never glance at the prompt if you like. This is the **unobtrusive** part of the prompt/feedback process.  
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/new.png" alt="new" title="new entry" />
+
+#### just in time entry prompts and feedback
 
 Let's create the election day reminder to illustrate the **timely** part of the process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character and suggests the alternatives.
 
@@ -346,6 +346,8 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
   * U: Used Time Summary: used time aggregates grouped hierarchically by index
   * y: Yearly Planning Calendar: compact monthly calendar by half year. 
 
+### [Weekly Views](#etm)
+
 The _weekly_ agenda, busy and completed views display one week at a time and are *synchronized* so that all three views always display the same week. Left or right cursor keys go backward or forward a week at a time and the pressing the space bar jumps to the week containing the current day. You can also press "j" and enter a date to jump to the week containing the date.
 
 When displaying the *current week* in agenda view, the label for the *current date* has '(Today)' appended and its entries begin with some special ones:
@@ -358,6 +360,8 @@ After these special entries, the display continues with the normal agenda listin
 
 * all day items (items with dates as `@s` entries), if any
 * datetime items (items with datetimes as `@s` entries) sorted by time 
+
+### [Common Features](#etm)
 
 While the views differ in many respects, they also share some common aspects:
 
@@ -377,7 +381,7 @@ While the views differ in many respects, they also share some common aspects:
         * If a timer is active
 			* The current accumulated time period for the timer will be displayed in the status bar with an `*` or a `!` appended depending upon whether the timer is currently running or paused. E.g., 
 
-						12:02pm Wed Dec 18                 36m *   agenda
+					12:02pm Wed Dec 18                36m *   agenda
 			* Press `Ctrl-T` to end the timer and record an  `@u usedtime` entry in the reminder based on the accumulated period for the timer and and the current datetime. 
 		* If a timer is not active
             * press `Ctrl-T` to open a dialog to directly add an `@u usedtime` entry to the selected item by specifying the period and ending datetime.
@@ -419,7 +423,7 @@ Note that this invokes `./env/bin/pip`. Once this is finished, use pip to instal
         (env) $ pip install -U etm-dgraham
 This will install etm and all its requirements in `./env/lib/python3.x/sitepackages` and will also install an executable called `etm` in `./env/bin`.
 
-By the way, the suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set in `cfg.yaml`.
+By the way, the suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display. 
 
 Before you start etm, think about where you would like to keep your personal data and configuration files. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_, e.g.,
 
@@ -431,7 +435,7 @@ Considerations:
 * If you want to use etm on  more than one computer and use Dropbox, you might want to use `~/Dropbox/etm` to have access on each of your computers.
 * If you want to separate personal and professional reminders, you could use different _home_ directories for each. You can run two instances of _etm_ simultaneously, one for each directory, and have access to both at the same time. 
 
-Whatever *home* directory you choose, running etm for the first time will add the following to that folder.
+Whatever *home* directory you choose, running etm for the first time will add the following to that directory.
 
         etm home directory/
             backups/
@@ -552,13 +556,13 @@ These type characters are generated automatically by *etm* to display the status
 
 Type character: **>**
 
-For unfinished tasks and other items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining.
+For unfinished tasks and other items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining until the current date.
 
 #### [past due](#etm)
 
 Type character: **<**
 
-When a task is past due, a warning that the task is past due appears on the current date together with the item summary and the number of days past due. 
+When a task is past due, a warning that the task is past due appears on the current date together with the item summary and the number of days that the task is past due. 
 
 #### [waiting](#etm)
 
@@ -570,7 +574,7 @@ When a task job has one or more unfinished prerequisites, it is displayed using 
 
 Type character: **✓**
 
-When a task or job is finished, it is displayed in _completed view_ on the finished date using **✓** rather than **-**. 
+When a task or job is finished, it is displayed in the _completed view_ on the  date that it was finished using **✓** rather than **-**. 
 
 ## [Options](#etm)
 
@@ -656,12 +660,12 @@ For use with @r:
 
 ## [Notes](#etm)
 
-### @a alerts and @b beginbys:
+### [alerts and beginbys](#etm)
 
-* With an email or text alert, the item summary is used as the subject and an email or text message is sent to each attendee listed in @n entries. The content of the body of the emails/messages are options that can be set in the user's configuration file. 
+* With an email, `e`, or text alert, `v`, the item summary is used as the subject and an email or text message is sent to each attendee listed in @n entries. The content of the body of the emails/messages are options that can be set in the user's configuration file. 
 * Alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance.
 
-### repetition notes
+### [repetition](#etm)
 
 * Daylight savings time using @s and @r. The time specified in @s is, by default, respected in the repetitions. E.g., the first five repetitions for 
 
@@ -678,7 +682,6 @@ For use with @r:
             │   Fri May 1 2020 9:00am EDT      │
             │                                  │
             │           <    OK    >           │
-            │                                  │
             └──────────────────────────────────┘
   Note that all start at 9am even though the first 3 are EST and the last 2 are EDT. 
 * Using @s with @r and with @+. Datetimes from @+ are added to the datetimes generated from the @r entry. Note that the datetime from @s will only be included if it matches one generated by the @r entry or by one included in @+. E.g., 
@@ -694,60 +697,163 @@ For use with @r:
     A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
 
-### repetition examples
+* @r examples
 
-* Christmas (an all day event) [r]epating (y)early on Dec 25.
+	* Christmas (an all day event) [r]epating (y)early on Dec 25.
 
-        * Christmas @s 2015/12/25 @r y
-* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the last completion date:
+			* Christmas @s 2015/12/25 @r y
+	* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the last completion date:
 
-        - haircut @s 24 @r d &i 14 @o r
-* Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the pastdue reminders.
+			- haircut @s 24 @r d &i 14 @o r
+	* Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the pastdue reminders.
 
-        - Take out trash @s mon @r w @o s
-* A sales meeting (an event) [r]epeating m)onthly on [w]eekdays that are either the first or third Tuesdays in the month.
+			- Take out trash @s mon @r w @o s
+	* A sales meeting (an event) [r]epeating m)onthly on [w]eekdays that are either the first or third Tuesdays in the month.
 
-        * sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
+			* sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
 
-* Good Friday each year 2 days before [E]aster Sunday.
+	* Good Friday each year 2 days before [E]aster Sunday.
 
-        * Good Friday @s 1/1/2015 @r y @E -2
-* Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
+			* Good Friday @s 1/1/2015 @r y @E -2
+	* Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
 
-        * Friday tennis @s 2019-01-01 6a @e 90m
-          @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
-          @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
-* Payday on the last week day of each month. The &s -1 part of the entry extracts the last (-1) date which is both a weekday and falls within the last three days of the month):
+			* Friday tennis @s 2019-01-01 6a @e 90m
+			  @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
+			  @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
+	* Payday on the last week day of each month. The &s -1 part of the entry extracts the last (-1) date which is both a weekday and falls within the last three days of the month):
 
-        * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, -2, -3 &s -1
+			* payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1, 
+			  -2, -3 &s -1
 
-### @m masked/obfuscated entry
 
-These entries are encoded in the database in an obfuscated or masked format but decoded when displayed in etm itself. A key, *secret*, specified in the user configuration file is used for the encoding/decoding. E.g., a reminder that appears as
+### [configuration](#etm)
 
-        % masked entry @s 2019-11-30 4pm @m obfuscated entry
+Configuration settings for *etm* are specified in the file `cfg.yaml` located in your etm *home directory*. See [installation](#installation) for the location of this directory. When *etm* is running, you can press `F8` to open this configuration file using your system default editor for *yaml* (text) files. Note that any changes you make will not become effective until you stop and restart *etm*. 
 
-might appear in the database, depending upon *secret*, as
+Here are the options with their default values from that file. The lines beginning with `#` are comments that describe the settings.
 
-        "1685": {
-        "itemtype": "%",
-        "summary": "masked entry",
-        "s": "{T}:20191130T2100A",
-        "m": "{M}:w5TDlsOTwpXDnMOWwoHDm8OXw4nCgcOZwo_DmcOmw6Y=",
-        "created": "{T}:20191130T1642A",
-        "modified": "{T}:20191130T1643A"
-        }
+	# ampm: true or false. Use AM/PM format for datetimes if true 
+	# else use 24 hour format. 
+	ampm: true
 
-### @x expansions
+	# locale: A two character locale abbreviation. E.g., "fr" for 
+	# French.
+	locale: en
 
-The `@x`, *expansion key*, entry is used to specify a key for options to be extracted from the etm configuration settings. E.g., suppose your configuration setting has the following entry for *expansions*:
+	# secret: A string to use as the secret_key for @m masked 
+	# entries. WARNING: if you change this key, any @m entries 
+	# that you made before the change will be unreadable after 
+	# the change. 
+	secret: etm is great! 
 
-            expansions:
-                tennis: '@e 1h30m @a 30m, 15m: v @i personal:tennis'
-                ...
-Then when entering the following reminder
+	# style: dark or light. Designed for, respectively, dark or 
+	# light terminal backgounds. Some output may not be visible
+	# unless this is set correctly for your display.
+	style: dark
 
-        * Tennis @s 1/25/2018 9:30am @x tennis 
-tab completion would offer `@e 1h30m @a 30m, 15m: v @i personal:tennis` as a replacement for `@x tennis`.
+	# keep_current: true or false. If true, the agenda for the  
+	# current and following two weeks will be written to "current.txt" 
+	# in your etm home directory and updated when necessary. You 
+	# could, for example, create a link to this file in a pCloud or 
+	# DropBox folder and have access to your current schecule on 
+	# your mobile device.
+	keep_current: false
 
+	# archive_after: A non-negative integer. If zero, do not 
+	# archive items. If positive, finished tasks and events with 
+	# relevant datetimes falling more than this number of years 
+	# before the current date will automatically be archived on a 
+	# daily basis.  Archived items are moved from the "items" 
+	# folder in the database to the "archive" folder and no 
+	# longer appear in normal views. Note that unfinished tasks 
+	# and records are not archived.
+	archive_after: 0
+
+	# usedtime_minutes: Round used times up to the nearest 
+	# usedtime_minutes in used time views. Possible choices are 1, 
+	# 6, 12, 30 and 60. With 1, no rounding is done and times are 
+	# reported as hours and minutes. Otherwise, the prescribed 
+	# rounding is done and times are reported as floating point 
+	# hours. Note that each "@u" timeperiod is rounded before 
+	# aggregation.
+	usedtime_minutes: 1
+
+	# alerts: A dictionary with single-character, "alert" keys and 
+	# corresponding "system command" values. Note that characters 
+	# "t" (text message) and "e" (email) are already used.  The 
+	# "system command" string should be a comand with any 
+	# applicable arguments that could be run in a terminal. 
+	# Properties of the item triggering the alert can be included 
+	# in the command arguments using the syntax '{property}', e.g., 
+	# {summary} in the command string would be replaced by the 
+	# summary of the item. Similarly {start} by the starting time, 
+	# {when} by the time remaining until the starting time, 
+	# {location} by the @l entry and {description} by the @d entry. 
+	# E.g., If the event "* sales meeting @s 2019-02-12 3p" 
+	# triggered an alert 30 minutes before the starting time the 
+	# string "{summary} {when}" would expand to "sales meeting in 
+	# 30 minutes". E.g. on my macbook
+	# 
+	#    alerts:
+	#       v: /usr/bin/say -v "Alex" "{summary}, {when}"
+	#       ...
+	#
+	# would make the alert 'v' use the builtin text to speech sytem 
+	# to speak the item's summary followed by a slight pause 
+	# (the comma) and then the time remaining until the starting 
+	# time, e.g., "sales meeting, in 20 minutes".
+	alerts:
+
+	# expansions: A dictionary with 'expansion name' keys and 
+	# corresponding 'replacement string' values. E.g. with
+	#
+	#    expansions:
+	#       tennis: "@e 1h30m @a 30m: d @i personal:exercise" 
+	#       ...
+	#
+	# then when "@x tennis" is entered the popup completions for 
+	# "@x tennis" would offer replacement by the corresponding 
+	# "@e 1h30m @a 30m: d @i personal:exercise".
+	expansions:
+
+	# sms: Settings to send "t" (sms text message) alerts to the 
+	# list of phone numbers from the item's @n attendee 
+	# entries using the item's summary and the body as specified 
+	# in the template below as the message. E.g., suppose you 
+	# have a gmail account with email address "who457@gmail.com" 
+	# and want to text alerts to Verizon moble phone (123) 
+	# 456-7890. Then your sms entries should be
+	#     from: who457@gmail.com
+	#     pw: your gmail password
+	#     server: smtp.gmail.com:587
+	# and your item should include the following attendee entry
+	#     @n 1234567890@vzwpix.com
+	# In the illustrative phone number, @vzwpix.com is the mms 
+	# gateway for Verizon. Other common mms gateways are
+	#     AT&T:     @mms.att.net
+	#     Sprint:   @pm.sprint.com
+	#     T-Mobile: @tmomail.net
+	# Note. Google "mms gateway listing" for other alternatives.
+	sms:
+		body: "{location} {when}"
+		from: 
+		pw: 
+		server: 
+
+	# smtp: Settings to send "e" (email message) alerts to the 
+	# list of email addresses from the item's @n attendee
+	# entries using the item's summary as the subject and body as 
+	# the message. E.g., if you have a gmail account with email 
+	# address "whatever457@gmail.com", then your entries should 
+	# be
+	#     from: whatever457@gmail.com
+	#     id: whatever457
+	#     pw: your gmail password
+	#     server: smtp.gmail.com
+	smtp:
+		body: "{location} {when}\\n{description}"
+		from: 
+		id: 
+		pw: 
+		server: 
 
