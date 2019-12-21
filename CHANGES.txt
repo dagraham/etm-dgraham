@@ -1,171 +1,193 @@
-Recent changes as of 2019-12-19T21:33:06.645505-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.0rc9) Dan Graham
-    8013be2 2019-12-19 21:33:06 -0500
+Recent changes as of 2019-12-21T16:08:37.123505-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.1) Dan Graham
+    f62002d 2019-12-21 16:08:37 -0500
+    Tagged version 4.0.1.
+
+- 2 minutes ago Dan Graham
+    cab2354 2019-12-21 16:06:47 -0500
+    When a timezone other than 'float' is provided, datetimes are
+    interpreted as belonging to that timezone when converted to
+    universal time for encoding. When saving the itemremove the @z
+    entry after all such conversions have been made. This avoids
+    applying the timezone correction again erroneously should the item
+    be subsequently edited.
+
+- 2 hours ago (master) Dan Graham
+    4ce442f 2019-12-21 13:42:34 -0500
+    Added data storage section to README.
+
+- 6 hours ago Dan Graham
+    9cec1b8 2019-12-21 10:03:45 -0500
+    README tweaks. Added configuration section. Save the current and
+    the following 2 weeks instead of 1 in current.
+
+- 2 days ago (origin/working, origin/master) Dan Graham
+    2a9dd7d 2019-12-19 21:33:06 -0500
     Tagged version 4.0.0rc9.
 
-- 3 minutes ago (origin/working) Dan Graham
+- 2 days ago Dan Graham
     d184492 2019-12-19 21:30:08 -0500
     Added Item.add_used and binding to ^T in view.
 
-- 11 hours ago Dan Graham
+- 2 days ago Dan Graham
     036f75a 2019-12-19 10:13:59 -0500
     Added etm home directory to system information.
 
-- 32 hours ago (origin/master, master) Dan Graham
+- 3 days ago Dan Graham
     1a8b0ad 2019-12-18 13:18:30 -0500
     Tagged version 4.0.0rc8.
 
-- 32 hours ago Dan Graham
+- 3 days ago Dan Graham
     803f7b2 2019-12-18 13:18:16 -0500
     README ...
 
-- 35 hours ago Dan Graham
+- 3 days ago Dan Graham
     350e596 2019-12-18 10:38:39 -0500
     working on new.png image
 
-- 35 hours ago Dan Graham
+- 3 days ago Dan Graham
     7305c91 2019-12-18 10:13:06 -0500
     working on new.png link
 
-- 35 hours ago Dan Graham
+- 3 days ago Dan Graham
     e211747 2019-12-18 10:04:33 -0500
     Still more README tweaks - added new.png
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     6e3ece6 2019-12-18 10:03:06 -0500
     More README tweaks
 
-- 2 days ago Dan Graham
+- 4 days ago Dan Graham
     cce855e 2019-12-17 19:49:04 -0500
     Removed id2relevant from sort in show_tags, show_records and
     show_index. More README mods in views section.
 
-- 2 days ago Dan Graham
+- 4 days ago Dan Graham
     a23f3aa 2019-12-17 16:39:51 -0500
     Tagged version 4.0.0rc7.
 
-- 2 days ago Dan Graham
+- 4 days ago Dan Graham
     f7a6016 2019-12-17 16:32:14 -0500
     README fix
 
-- 2 days ago Dan Graham
+- 4 days ago Dan Graham
     f34c5a6 2019-12-17 16:16:03 -0500
     Tagged version 4.0.0rc6.
 
-- 2 days ago Dan Graham
+- 4 days ago Dan Graham
     53d8920 2019-12-17 16:15:49 -0500
     Much work on README. Possibly fixed by in ATCompleter by adding a
     'return'.
 
-- 4 days ago Dan Graham
+- 6 days ago Dan Graham
     ce58b6a 2019-12-15 12:05:29 -0500
     Fixed bug in setting relevant for inbox items
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     889467d 2019-12-15 08:48:51 -0500
     Omit inbox items in show_forthcoming.
 
-- 6 days ago Dan Graham
+- 8 days ago Dan Graham
     b71e363 2019-12-13 11:37:37 -0500
     Tagged version 4.0.0rc5.
 
-- 6 days ago Dan Graham
+- 8 days ago Dan Graham
     8150a1f 2019-12-13 11:29:19 -0500
     Changed @n attendee format to "@n [label:] address" where the
     optional "label:" can be used to facilitate autocompletion and
     address is interpreted as a phone number if it begins with exactly
     10 digits followed by an "@" and otherwise as an email address.
 
-- 7 days ago Dan Graham
+- 9 days ago Dan Graham
     ad7ccdc 2019-12-12 16:37:30 -0500
     Tagged version 4.0.0rc4.
 
-- 7 days ago Dan Graham
+- 9 days ago Dan Graham
     0016ca0 2019-12-12 15:55:34 -0500
     Use @n attendees to provide phone numbers for text alerts to
     parallel the email alert usage.
 
-- 7 days ago Dan Graham
+- 9 days ago Dan Graham
     900cfdb 2019-12-12 15:03:55 -0500
     Added needed 'aync' to send_mail and send_text. Fixed bug in
     getting the relevant item in both from the doc_id.
 
-- 7 days ago Dan Graham
+- 9 days ago Dan Graham
     a9d594d 2019-12-12 11:35:48 -0500
     Tagged version 4.0.0rc3.
 
-- 7 days ago Dan Graham
+- 9 days ago Dan Graham
     f5dd517 2019-12-12 11:35:19 -0500
     Apply usedtime_minutes to each @u entry before adding. Fixed bug
     in short=True format_duration.
 
-- 8 days ago Dan Graham
+- 10 days ago Dan Graham
     f5b3cbe 2019-12-11 16:50:45 -0500
     Tagged version 4.0.0rc2.
 
-- 8 days ago Dan Graham
+- 10 days ago Dan Graham
     60ff12d 2019-12-11 16:49:35 -0500
     Fixed bug in logging from options.py. Added 'usedtime_minutes' to
     options with default 1 to control rounding in used time views.
     Modified used time views to sort by year-month and index and to
     display times using usedtime_minutes setting.
 
-- 8 days ago Dan Graham
+- 10 days ago Dan Graham
     f4b9f55 2019-12-11 10:21:48 -0500
     Fixed bug in save_before_quit. Added anniversary expansions to
     forthcoming view.
 
-- 9 days ago Dan Graham
+- 11 days ago Dan Graham
     7b47331 2019-12-10 18:07:00 -0500
     Tagged version 4.0.0rc1.
 
-- 9 days ago Dan Graham
+- 11 days ago Dan Graham
     384b3ea 2019-12-10 18:04:45 -0500
     Don't allow events to be saved without @s entries. Added option to
     open config file to file menu bound to F8.
 
-- 10 days ago Dan Graham
+- 12 days ago Dan Graham
     73ddd4c 2019-12-09 13:41:49 -0500
     Tagged version 4.0.0rc0.
 
-- 10 days ago Dan Graham
+- 12 days ago Dan Graham
     d2eb866 2019-12-09 13:41:12 -0500
     Changed goto date to jump to date and changed binding from 'g' to
     'j'.
 
-- 10 days ago Dan Graham
+- 12 days ago Dan Graham
     e3f58f0 2019-12-09 12:42:07 -0500
     Changed history display to group by year and put modified/created
     label first in the right hand column.
 
-- 10 days ago Dan Graham
+- 12 days ago Dan Graham
     eda8cc5 2019-12-09 12:14:40 -0500
     Renamed relevant view as forthcoming view. Changed binding from r
     to f. Show relevant from today forward grouped by year without
     reverse sort.
 
-- 10 days ago Dan Graham
+- 12 days ago Dan Graham
     2ef82cb 2019-12-09 10:47:20 -0500
     Set tz='local' for Date objects converted to 12am datetimes.
 
-- 11 days ago Dan Graham
+- 13 days ago Dan Graham
     a6f167b 2019-12-08 12:30:35 -0500
     Tagged version 4.0.0b12.
 
-- 11 days ago Dan Graham
+- 13 days ago Dan Graham
     8d3d425 2019-12-08 12:29:42 -0500
     Moved use of width to summary column.
 
-- 11 days ago Dan Graham
+- 13 days ago Dan Graham
     41209ee 2019-12-08 12:19:50 -0500
     Fixed timer: T to begin then toggle paused, running and ^T to end
     timer with choice of whether or not to record used time.
 
-- 11 days ago Dan Graham
+- 13 days ago Dan Graham
     4f0e785 2019-12-08 11:03:35 -0500
     Added tags view. Remaining: fix timers
 
-- 12 days ago Dan Graham
+- 13 days ago Dan Graham
     30251ce 2019-12-08 09:43:14 -0500
     Redirect stderr and stdout to log file. Fixed bug in when
     cancelling do_goto_date.
@@ -195,27 +217,27 @@ Recent changes as of 2019-12-19T21:33:06.645505-05:00:
     Set logger in __main__ and insert into model namespace. Cleaned up
     comments.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     af1576a 2019-12-03 16:40:11 -0500
     Tagged version 4.0.0b9.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     095e4f6 2019-12-03 16:39:09 -0500
     Fixed various 'yield from' and 'asyncio.ensure_future' bugs
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     7c4b26a 2019-12-03 12:49:55 -0500
     Removed erroneous call to setup_logging in model.py
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     23181a4 2019-12-03 12:19:04 -0500
     Fixed bug in activate/close menu
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     7060e70 2019-12-03 05:13:07 -0500
     Tagged version 4.0.0b8.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     5465775 2019-12-03 05:10:14 -0500
     Updated to prompt_toolkit 3 with necessary changes to asyncio.
 
@@ -412,19 +434,3 @@ Recent changes as of 2019-12-19T21:33:06.645505-05:00:
 - 9 months ago Dan Graham
     d0a627f 2019-03-22 20:40:41 -0400
     Tagged version 4.0.0a58.
-
-- 9 months ago Dan Graham
-    19accb1 2019-03-22 20:27:36 -0400
-    calendar view -> monthly view, added completed view
-
-- 9 months ago Dan Graham
-    876b398 2019-03-22 18:48:59 -0400
-    moved done items to done view
-
-- 9 months ago Dan Graham
-    0965d58 2019-03-22 12:09:25 -0400
-    search color tweaks
-
-- 9 months ago Dan Graham
-    e420ab2 2019-03-21 16:57:59 -0400
-    Tagged version 4.0.0a57.
