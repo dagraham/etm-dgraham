@@ -270,7 +270,7 @@ and *etm* understands that you want the coming Friday, Dec 20. Now suppose that 
         ────────────────────────────────────────────────────────────
         * lunch @s 1p fri_ @z US/Pacific
 
-Note that `local datetime` is now prepended to the result which is still displayed in the local timezone, since that is the location of your computer, but the time has changed to `4:00pm EST` which, of course, is the same time as `1:00pm PST`. *etm* **always** displays times in the local time zone.
+Note that `local datetime` is now prepended to the result which is still displayed in the local timezone, since that is the location of your computer, but the time has changed to `4:00pm EST` which, of course, is the same time as `1:00pm PST`. *etm* **always** displays times in the current local time zone. When you save this item, the time will be converted to universal time and the `@z US/Pacific` will be deleted - once the time has been converted, the original timezone is no longer relevant.
 
 What if you had entered the 'fri' first?
 

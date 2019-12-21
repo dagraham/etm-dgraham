@@ -559,7 +559,6 @@ class Item(object):
             showing = "No repetitions"
         return  showing, f"from {starting}:\n  " + "\n  ".join(pairs)
 
-
     def edit_item(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
@@ -923,6 +922,8 @@ class Item(object):
                 if last:
                     self.item_hsh['f'] = last
         now = pendulum.now('local')
+        if self.item_hsh.get('z', None) not in [None, 'float']:
+            del self.item_hsh['z']
         if self.is_new:
             # creating a new item or editing a copy of an existing item
             self.created = now
@@ -1289,7 +1290,7 @@ def parse_datetime(s, z=None):
     >>> dt[1]
     Date(2015, 10, 15)
 
-    To get a datetime for midnight, schedule for 1 second later and note that the second is removed from the datetime:
+    To get a datetime for midnight, schedule for 1 second later - the second will be dropped from the hours and minutes datetime:
     >>> dt = parse_datetime("2015-10-15 00:00:01")
     >>> dt[1]
     DateTime(2015, 10, 15, 0, 0, 1, tzinfo=Timezone('America/New_York'))
