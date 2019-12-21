@@ -857,3 +857,48 @@ Here are the options with their default values from that file. The lines beginni
 		pw: 
 		server: 
 
+### [data storage](#etm)
+
+All *etm* reminders are stored in the text file `db.json` in your etm home direcotry using the wonderful *TinyDB* package. This *json* file is human readable but not easily editable. When you start *etm* for the first time, this file will have no entries:
+
+	{
+	"items": {},
+	"archive": {}
+	}
+
+Note that to *json* this is a hash/dictionary with two keys: "items" and "archive". Both have empty hashes/dictionaries as values.
+
+Add a first reminder to take out the trash on Mondays
+
+	- trash @s 2019-12-21 @r w &w mo
+
+at 10:26am on Dec 21, 2019 EST and the file would change to
+
+	{
+	"items": {
+	"1": {
+	"itemtype": "-",
+	"summary": "trash",
+	"s": "{D}:20191223",
+	"r": [
+		{
+		"r": "w",
+		"w": [
+		"{W}:MO"
+		]
+		}
+	],
+	"created": "{T}:20191221T1526A"
+	}
+	},
+	"archive": {}
+	}
+
+`items` now has a first item with key (unique identifier) "1". The value corresponding to this key is a hash with keys and values corresponding to the attributes of the reminder. Though these attributes are stored as strings, some actually represent non-string objects. How is this possible? 
+
+Take the entry `2019-12-23` for `@s`. To *etm* this is a pendulum date object. When *etm* stores this record, *TinyDB* recognizes that this attribute is a pendulum date object and encodes/serializes it as the string `"{D}:20191223"`. When *etm* retrieves this record from storage, *TinyDB* recognizes from the `{D}` that it is to be decoded and returned as a pendulum date object. All this is completely transparent - *etm* gives a date object to *TinyDB* which stores it as a string and when *etm* wants it back, *TinyDB* deserializes it and returns it as a date object.
+
+As another example, When the reminder is created by *etm* the `created` timestamp is handed to *TinyDB* as an aware pendulum datetime object with US/Eastern as the timezone. *TinyDB* recognizes this and, because it is an aware datetime, first converts it to Universal time and then encodes/serializes it at `"{T}:20191221T1526A"`. The `{T}` indicates that it is a datetime object and the appended `A` indicates that it is aware and thus has been converted to Universal time. When *etm* retrieves this record, *TinyDB* recognizes from the `{T}` and the `A` that this is an aware datetime object, decodes it as an aware datetime object and, because it is aware, converts it from Universal time to whatever the current local timezone happens to be before returning it. Had this been a naive datetime, an `N` would have been appended to the serialization and no conversion would have been done either way.
+
+These **date** and **datetime** serializations are extensions of *TinyDB* provided by *etm*. Three further extensions are also provided: **interval** for *pendulum duration* objects using the tag `{I}`, **weekday** for  *dateutil* weekday objects using the tag `{W}` and **mask** using the tag `{M}` for encoding/serializing *etm* strings in a masked or obfuscated manner.
+
