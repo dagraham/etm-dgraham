@@ -1738,6 +1738,7 @@ class DataView(object):
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
         self.calAdv = pendulum.today().month // 7
+        logger.debug(f"calAdv: {self.calAdv}")
 
         self.refreshAgenda()
         self.refreshCurrent()
@@ -2347,6 +2348,7 @@ class DataView(object):
         # make advance = 0 show the half year containing the current month
         y = today.year
         adv = self.calAdv 
+        logger.debug(f"adv: {adv}")
         m = 1
         m += 6 * adv
         y += m // 12
@@ -2380,7 +2382,7 @@ class DataView(object):
 
 
     def currcal(self):
-        self.calAdv = 0
+        self.calAdv = pendulum.today().month // 7
         self.refreshCalendar()
 
 

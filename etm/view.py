@@ -372,7 +372,6 @@ def add_usedtime(*event):
             title='add usedtime',
             label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\n add usedtime using the format:\n    used timeperiod: ending datetime")
 
-        ok = True
         usedtime = yield from show_dialog_as_float(dialog)
         logger.debug(f"usedtime: {usedtime}")
 
