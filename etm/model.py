@@ -1780,7 +1780,7 @@ class DataView(object):
         """
         Get completions from db items
         """
-        completion_keys = ['c', 'g', 'l', 'n',  't', 'i', 'z']
+        completion_keys = ['c', 'g', 'l', 'n',  't', 'i']
         completions = set([])
         for item in self.db:
             found = {x: v for x, v in item.items() if x in completion_keys}

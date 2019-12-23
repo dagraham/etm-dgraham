@@ -316,7 +316,6 @@ Some optional attributes that can be used in reminders can be tedious to enter e
 * *@l*: location/context. In the *do next* view, `location` is used to organize undated tasks. Using `@l errands` in one task and `@l erands` in another would cause these tasks to be grouped separately.
 * *@i*: index - colon delimited string. In both the *index* and the *used time* views, the index entry is used to group and aggregate entries. Using `@i jsmith:project a` in one entry and `@i jsmth:project a` in another would cause these these entries to be grouped and aggregated separately. 
 * *@n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion. Attendee entries are used in both email and text alerts. 
-* *@z*: timezone. `@z Europe/Paris` is a valid timezone but `@z EU/Paris` isn't.
 
 Other tracked attributes include *@c* (calendar) and *@t* (tag).
 
@@ -622,7 +621,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @t*: tag. string
 *  @u*: usedtime. string using "timeperiod spent: ending datetime" format
 *  @x*: expansion. string
-*  @z: timezone. string
+*  @z: timezone. string. A timezone specification, such as 'US/Eastern' or 'Europe/Paris' for aware datetimes or 'float', to indicate a naive or floating datetime. Datetime entries in the item are interpreted as belonging to the specified timezone when the entry is saved. The current timezone is the default when @z is not specified. Aware datetimes are converted to UTC (coordinated universal time) when stored and the @z entry, now irrelevant, is discarded.
 
 
 ### [& keys](#etm)
