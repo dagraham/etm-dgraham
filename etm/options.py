@@ -49,6 +49,13 @@ keep_current: false
 # and records are not archived.
 archive_after: 0
 
+# num_finished: A non-negative integer. If positive, when 
+# saving retain only the most recent 'num_finished' 
+# completions of an infinitely repeating task, i.e., repeating 
+# without an "&c" count or an "&u" until attribute. If zero or 
+# not infinitely repeating, save all completions.
+num_finished: 0
+
 # usedtime_minutes: Round used times up to the nearest 
 # usedtime_minutes in used time views. Possible choices are 1, 
 # 6, 12, 30 and 60. With 1, no rounding is done and times are 

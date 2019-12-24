@@ -61,6 +61,7 @@ DBARCH = None
 ampm = True
 logger = None
 
+
 PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
 
 # The style sheet for terminal output
@@ -317,6 +318,7 @@ def process_entry(s, settings={}):
             replacement = settings['expansions'][xparts[1]] + xparts[2]
             s = s.replace(match[0], replacement)
             logger.debug(f"settings expansions replacement: {replacement}, s: {s}")
+
 
     pattern = re.compile("\s[@&][a-zA-Z+-]")
     parts = []
@@ -782,6 +784,22 @@ class Item(object):
                 save_item = True
 
         if save_item:
+            num_finished = settings.get('num_finished', 0)
+            logger.debug(f"num_finished: {num_finished}")
+            if 'h' in self.item_hsh and num_finished:
+                ok = True
+                # only truncate completions for infinitely repeating tasks
+                for rr in self.item_hsh.get('r', {}):
+                    if 'c' in rr or 'u' in rr:
+                        # we have a count or an until: keep all completions
+                        ok = False
+                if ok:
+                    sh = self.item_hsh['h']
+                    logger.debug(f"sh: {sh}")
+                    sh.sort()
+                    logger.debug(f"sh: {sh[-num_finished:]}")
+                    self.item_hsh['h'] = sh[-num_finished:] 
+
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
@@ -2905,10 +2923,16 @@ def do_period(arg):
 
 
 def do_overdue(arg):
-    if arg in ('k', 'r', 's'):
-        return arg, arg
+    ovrstr = "overdue: character from (r)estart, (s)kip or (k)eep"
+
+    if arg:
+        ok = arg in ('k', 'r', 's')
+        if ok:
+            return arg, f"overdue: {arg}"
+        else:
+            return None, f"invalid overdue: '{arg}'. {ovrstr}"
     else:
-        return None, f"~{arg}~"
+        return None, ovrstr
 
 
 def job_datetime(arg):
@@ -3622,8 +3646,8 @@ def item_instances(item, aft_dt, bef_dt=1):
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                 pairs.append(pair)
         elif item['itemtype'] == "-" and item.get('o', 'k') == 's':
-            # drop old skip instances
-            if instance >= pendulum.now(tz=item.get('z', None)):
+            # keep skip instances if they fall during or after the current day.
+            if instance.replace(hour=23, minute=59, second=59) >= pendulum.now(tz=item.get('z', None)):
                 pairs.append((instance, None))
         else:
             pairs.append((instance, None))
