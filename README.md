@@ -213,13 +213,13 @@ General observations:
 
 * The general structure of this reminder is
 
-        * Presidential election day 
-            @s nov 1 20 
-            @r y 
-                &i 4 
-                &M 11 
-                &m 2, 3, 4, 5, 6, 7, 8 
-                &w tu
+			* Presidential election day 
+				@s nov 1 20 
+				@r y 
+					&i 4 
+					&M 11 
+					&m 2, 3, 4, 5, 6, 7, 8 
+					&w tu
 
    The `@s` and `@r` entries provide attributes of the event itself and the `&i`, `&M`, `&m` and `&w` entries provide attributes of the `@r` entry. More than one `@r` entry can be provided and each can have its own set of `&-key` entries. 
 * *@-keys* can generally be entered in any order provided that `@s` is entered before any options that require it. *&-keys* can also be entered in any order.
