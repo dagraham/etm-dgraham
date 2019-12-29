@@ -15,7 +15,7 @@ from setuptools import find_packages, setup, Command
 # Package meta-data.
 NAME = 'etm-dgraham'
 DESCRIPTION = 'event and task manager'
-URL = 'https://github.com/dagraham/etm-dgraham'
+URL = 'https://dagraham.github.io/etm-dgraham/'
 EMAIL = 'dnlgrhm@gmail.com'
 AUTHOR = 'Daniel A Graham'
 REQUIRES_PYTHON = '>=3.6.0'
