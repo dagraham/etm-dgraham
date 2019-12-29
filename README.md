@@ -220,6 +220,7 @@ General observations:
                 &M 11 
                 &m 2, 3, 4, 5, 6, 7, 8 
                 &w tu
+
    The `@s` and `@r` entries provide attributes of the event itself and the `&i`, `&M`, `&m` and `&w` entries provide attributes of the `@r` entry. More than one `@r` entry can be provided and each can have its own set of `&-key` entries. 
 * *@-keys* can generally be entered in any order provided that `@s` is entered before any options that require it. *&-keys* can also be entered in any order.
 * The prompts provide "just in time" information relevant to the entry you are typing and need only be consulted if you are uncertain about your entry. With a little experience, most reminders can be completed without a glance at the prompt.
@@ -386,6 +387,7 @@ While the views differ in many respects, they also share some common aspects:
 			* The current accumulated time period for the timer will be displayed in the status bar with an `*` or a `!` appended depending upon whether the timer is currently running or paused. E.g., 
 
 					12:02pm Wed Dec 18                36m *   agenda
+
 			* Press `Ctrl-T` to end the timer and record an  `@u usedtime` entry in the reminder based on the accumulated period for the timer and and the current datetime. 
 		* If a timer is not active
             * press `Ctrl-T` to open a dialog to directly add an `@u usedtime` entry to the selected item by specifying the period and ending datetime.
@@ -413,18 +415,23 @@ Open a terminal and begin by creating a new directory/folder, say `etm-pypi` in 
 
         $ mkdir ~/etm-pypi
         $ cd ~/etm-pypi
+
 Now continue by creating the virtual environment (python >= 3.6 is required for *etm*):
 
         $ python3 -m venv env
+
 After a few seconds you will have an `./env` directory. Now activate the virtual environment:
 
         $ source env/bin/activate
+
 The prompt will now change to something containing `(env)` to indicate that the virtual environment is active. Updating pip is now recommended:
 
         (env) $ pip install -U pip
+
 Note that this invokes `./env/bin/pip`. Once this is finished, use pip to install etm:
 
         (env) $ pip install -U etm-dgraham
+
 This will install etm and all its requirements in `./env/lib/python3.x/sitepackages` and will also install an executable called `etm` in `./env/bin`.
 
 By the way, the suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display. 
@@ -446,6 +453,7 @@ Whatever *home* directory you choose, running etm for the first time will add th
             logs/
             cfg.yaml
             db.json
+
 Here `cfg.yaml` is your user configuration file and `db.json` contains all your etm reminders. The folders `backups/` contains the 5 most recent daily backups of your `db.json` and `cfg.yaml` files. The folder `logs` contains the current `etm.log` file and the 5 most recent daily backups. Note that backup files are only created when the relevant file has been modified since the last backup.
 
 The file `cfg.yaml` can be edited and the options are documented in the file.
