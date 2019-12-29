@@ -55,8 +55,11 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit import __version__ as prompt_toolkit_version
 
 settings = {'ampm': True}
+# These are set in _main_
 DBITEM = None
 DBARCH = None
+ETMDB = None
+data = None
 # NOTE: view.main() will override ampm using the configuration setting
 ampm = True
 logger = None

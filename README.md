@@ -54,6 +54,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
         * Presidential election day @s nov 1 2020 @r y &i 4 &M 11 
           &m 2, 3, 4, 5, 6, 7, 8 &w tu
+
   Try this with a form based calendar application.
 
 ### unobtrusive and timely entry assistance
