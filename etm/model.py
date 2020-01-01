@@ -1759,7 +1759,6 @@ class DataView(object):
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
         self.calAdv = pendulum.today().month // 7
-        logger.debug(f"calAdv: {self.calAdv}")
 
         self.refreshAgenda()
         self.refreshCurrent()
@@ -2349,7 +2348,6 @@ class DataView(object):
         sms.quit()
 
 
-
     def refreshCalendar(self):
         """
         Advance = 0 shows the half year containing the current month. Advance 
@@ -2366,12 +2364,9 @@ class DataView(object):
             logger.warn(f"error using locale {self.cal_locale}")
             c = calendar.LocaleTextCalendar(0)
         cal = []
-        # make advance = 0 show the half year containing the current month
-        y = today.year
-        adv = self.calAdv 
-        logger.debug(f"adv: {adv}")
+        logger.debug(f"self.calAdv: {self.calAdv}")
         m = 1
-        m += 6 * adv
+        m += 6 * self.calAdv
         y += m // 12
         m = m % 12
         for i in range(6): # months in the half year
@@ -2394,17 +2389,14 @@ class DataView(object):
 
     def nextcal(self):
         self.calAdv += 1
-        self.refreshCalendar()
 
 
     def prevcal(self):
         self.calAdv -= 1
-        self.refreshCalendar()
 
 
     def currcal(self):
         self.calAdv = pendulum.today().month // 7
-        self.refreshCalendar()
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
