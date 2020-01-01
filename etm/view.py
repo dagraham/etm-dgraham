@@ -325,33 +325,21 @@ def do_open_config(*event):
 
 def save_before_quit(*event):
     def coroutine():
-        dialog = ConfirmDialog("unsaved changes", "Save them before closing?")
+        dialog = ConfirmDialog("unsaved changes", "discard changes and close editor?")
 
-        save = yield from show_dialog_as_float(dialog)
-        if save:
-            # we want to save, check that hsh is ok
-            item.update_item_hsh()
-            if item.item_hsh['itemtype'] == '*' and 's' not in item.item_hsh: 
-                dialog = MessageDialog('Error', 'An entry for @s is required for events but is missing.', 0)
-                yield from show_dialog_as_float(dialog)
-                # we have a problem so continue edit
-                return
-            else:
-                if item.doc_id in dataview.itemcache:
-                    del dataview.itemcache[item.doc_id]
-                dataview.is_editing = False
-                application.layout.focus(text_area)
-                set_text(dataview.show_active_view())
-                loop = asyncio.get_event_loop()
-                loop.call_later(0, item_changed, loop)
-        else: 
+        discard = yield from show_dialog_as_float(dialog)
+        if discard:
             # we want to discard changes
             if item.doc_id in dataview.itemcache:
                 del dataview.itemcache[item.doc_id]
             dataview.is_editing = False
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
-            loop = asyncio.get_event_loop()
+            # the following is probably not needed
+            # item.update_item_hsh()
+        else:
+            # continue editing
+            return
 
     asyncio.ensure_future(coroutine())
 
@@ -1445,8 +1433,16 @@ def save_changes(*event):
 def maybe_save(item):
     # check hsh
     item.update_item_hsh()
+    if item.item_hsh.get('itemtype', None) is None:
+        show_message('Error', 'An entry for itemtype is required but missing.', 0)
+        return 
+
+    if item.item_hsh.get('summary', None) is None:
+        show_message('Error', 'A summary is required but missing.', 0)
+        return 
+
     if item.item_hsh['itemtype'] == '*' and 's' not in item.item_hsh: 
-        show_message('Error', 'An entry for @s is required for events but is missing.', 0)
+        show_message('Error', 'An entry for @s is required for events but missing.', 0)
         # item needs correcting, return to edit
         return 
     # hsh ok, save changes and close editor
