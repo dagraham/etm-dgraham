@@ -4786,7 +4786,7 @@ def get_usedtime(db):
     UT_MIN = settings.get('usedtime_minutes', 1)
 
     width = shutil.get_terminal_size()[0] - 2
-    summary_width = width - 14
+    summary_width = width - 22
 
     used_details = {}
     used_details2id = {}
@@ -4826,7 +4826,7 @@ def get_usedtime(db):
             detail_rows.append({
                         'sort': (month, *index, details),
                         'month': monthday.format("YYYY-MM"),
-                        'path': f"{monthday.format('MMMM YYYY')}:{index_tup}",
+                        'path': f"{monthday.format('MMMM YYYY')}/{index_tup}",
                         'columns': [
                             details,
                             f"{monthday.format('MMM D')} {format_hours_and_tenths(id_used[monthday])}",
