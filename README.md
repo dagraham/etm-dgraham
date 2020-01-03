@@ -326,6 +326,7 @@ Other tracked attributes include *@c* (calendar) and *@t* (tag).
 For these attributes, etm keeps a record of each usage. I.e., for each reminder in your *etm* database, if the reminder includes a tracked attribute that has not already been included in the list of completions, then that attribute will be added. E.g., if you create an reminder containing
 
         @n joe: jsmith457@gmail.com
+
   and '@n joe: jsmith457@gmail.com' is not already in the list of completions, then it would be added.
 
 When you next create a reminder and enter @n, *etm* will pop up a sorted list of every item in the completion list that begins with @n. You can use the up and down cursor keys to move through this list or you can continue typing to limit the possible completions, e.g., after entering '@n joe' only those completions that start with '@n joe' would still be displayed. When you have selected the completion you want, press the space bar to insert the completion in your entry.
@@ -363,6 +364,16 @@ After these special entries, the display continues with the normal agenda listin
 
 * all day items (items with dates as `@s` entries), if any
 * datetime items (items with datetimes as `@s` entries) sorted by time 
+
+### [Used Time Views](#etm)
+
+The *used time* and *used time summary* views are bound to `u` and `U` respectively and report `@u period: ending datetime` in your reminders grouped by year-month and then heirarchially by `@i` entries. Suppose, for example, that you have the reminder
+
+		% Amet non dolorem non quisquam numquam dolorem 
+		  @i client A/project a1/phone 
+		  @u 34m: 2019-12-09 11:00AM
+
+
 
 ### [Common Features](#etm)
 
@@ -620,7 +631,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @f: finished. datetime
 *  @g: goto. string (url or filepath)
 *  @h: history. (for repeating tasks, a list of the most recent completion datetimes)
-*  @i: index. colon delimited string
+*  @i: index. forward slash delimited string
 *  @j*: job summary. string, optionally followed by job &key entries
 *  @l: location/context. string
 *  @m: mask. string stored in obfuscated form

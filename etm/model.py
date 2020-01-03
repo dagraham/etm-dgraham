@@ -1655,7 +1655,7 @@ class RDict(dict):
 
     tab = " " * 2
 
-    def __init__(self, split_char=':'):
+    def __init__(self, split_char='/'):
         self.split_char = split_char
         self.row = 0
         self.row2id = {}
@@ -4800,7 +4800,7 @@ def get_usedtime(db):
         if not used:
             continue
         index_tup = item.get('i', '~')
-        index = index_tup.split(':')
+        index = index_tup.split('/')
         doc_id = item.doc_id
         id_used = {}
         details = f"{item['itemtype']} {item['summary']}"
