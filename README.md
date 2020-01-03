@@ -27,23 +27,28 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 * A task (**-**): pick up milk. 
 
 		- pick up milk
+
 * An event (**\***): have lunch with Ed [s]tarting next Tuesday at 12pm and [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm.
 
         * Lunch with Ed @s tue 12p @e 90m
+
 * A record (**%**): a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
 
         % Give me a pig - Churchill @s 2p @d Dogs look up at 
           you. Cats look down at you. Give me a pig - they 
           look you in the eye and treat you as an equal.
+
 * A task (**-**): build a dog house, with component [j]obs.
 
         - Build dog house @j pick up materials @j cut pieces 
           @j assemble @j sand @j paint
+
 * Inbox (**!**): meet Alex for coffee Friday. This can be 
   changed to an event when the time is confirmed by 
   replacing the **!** with an **\***.
 
         ! Coffee with Alex @s fri ? @e 1h
+
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
         * dental exam and cleaning @s 2p feb 5 2019 @e 45m 
@@ -294,6 +299,7 @@ As a final illustration, suppose you want to be reminded of lunch at 1pm in what
 
         ────────────────────────────────────────────────────────────
         * lunch @s fri 1p @z
+
 and note that supplying 'float' as the timezone does the trick.
 
         start
@@ -301,6 +307,7 @@ and note that supplying 'float' as the timezone does the trick.
 
         ────────────────────────────────────────────────────────────
         * lunch @s fri 1p_ @z float
+
 The datetime now appears without either the 'local datetime' prefix or the 'EST' suffix which reveals that it is a naive/floating datetime.
 
 
