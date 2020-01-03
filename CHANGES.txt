@@ -1,88 +1,111 @@
-Recent changes as of 2019-12-29T11:43:54.627763-05:00:
-- 0 seconds ago (HEAD -> master, tag: 4.0.3) Dan Graham
-    09cec4c 2019-12-29 11:43:54 -0500
+Recent changes as of 2020-01-03T14:28:47.135150-05:00:
+- 0 seconds ago (HEAD -> master, tag: 4.0.4) Dan Graham
+    53a58b8 2020-01-03 14:28:47 -0500
+    Tagged version 4.0.4.
+
+- 56 seconds ago (filter) Dan Graham
+    5f70b3e 2020-01-03 14:27:51 -0500
+    Added utilities/colons_to_slashes.py. Finished 'Used Times Views'.
+
+- 88 minutes ago Dan Graham
+    4e78bb8 2020-01-03 13:01:04 -0500
+    Start on adding 'Used Time Views' to README. Switched delimiter
+    from : to / for @i index entries.
+
+- 2 days ago (origin/working, origin/master) Dan Graham
+    794ba9a 2020-01-01 13:10:17 -0500
+    Fixed 'unsaved changes' to make discarding them the default.
+    Selecting 'no' just returns to the editor - much simpler. Added
+    checks for itemtype and summary to that for @s for events.
+
+- 2 days ago Dan Graham
+    77932d1 2020-01-01 10:36:01 -0500
+    refreshCalendar tweaks
+
+- 5 days ago Dan Graham
+    1c80f3a 2019-12-29 11:43:54 -0500
     Tagged version 4.0.3.
 
-- 17 minutes ago Dan Graham
+- 5 days ago Dan Graham
     619eed4 2019-12-29 11:26:56 -0500
     Change URL in setup to github pages location.
 
-- 48 minutes ago (origin/master) Dan Graham
+- 5 days ago Dan Graham
     2aa3e07 2019-12-29 10:55:33 -0500
     typo fixes
 
-- 64 minutes ago Dan Graham
+- 5 days ago Dan Graham
     5a4327c 2019-12-29 10:40:20 -0500
     Still more README toc tweaks
 
-- 67 minutes ago Dan Graham
+- 5 days ago Dan Graham
     5b33dd3 2019-12-29 10:36:57 -0500
     Add empty lines after code blocks for github pages display
 
-- 70 minutes ago Dan Graham
+- 5 days ago Dan Graham
     f9e87c9 2019-12-29 10:34:22 -0500
     Add empty lines after code blocks for github pages display
 
-- 75 minutes ago Dan Graham
+- 5 days ago Dan Graham
     8640aae 2019-12-29 10:28:55 -0500
     Still more README toc tweaks
 
-- 83 minutes ago Dan Graham
+- 5 days ago Dan Graham
     47460bb 2019-12-29 10:21:08 -0500
     More README toc tweaks
 
-- 86 minutes ago Dan Graham
+- 5 days ago Dan Graham
     7b40ed6 2019-12-29 10:18:06 -0500
     README toc tweaks
 
-- 2 hours ago Dan Graham
+- 5 days ago Dan Graham
     8a723fd 2019-12-29 10:05:58 -0500
     Test toc addition
 
-- 2 hours ago Dan Graham
+- 5 days ago Dan Graham
     150bfec 2019-12-29 09:39:50 -0500
     Merge branch 'master' of https://github.com/dagraham/etm-dgraham
 
-- 2 hours ago (filter) Dan Graham
+- 5 days ago Dan Graham
     9e94c50 2019-12-29 09:39:10 -0500
     Initialize ETMDB and friends as None in model - they will be set
     in _main_.
 
-- 2 hours ago dagraham
+- 5 days ago dagraham
     752ecf8 2019-12-29 09:32:40 -0500
     Set theme jekyll-theme-slate
-- 2 hours ago dagraham
+- 5 days ago dagraham
     df99b51 2019-12-29 09:31:14 -0500
     Set theme jekyll-theme-slate
-- 2 hours ago dagraham
+- 5 days ago dagraham
     f35561c 2019-12-29 09:28:59 -0500
     Set theme jekyll-theme-time-machine
-- 5 days ago (origin/working, working) Dan Graham
+- 10 days ago Dan Graham
     af98527 2019-12-24 11:12:12 -0500
     Tagged version 4.0.2.
 
-- 5 days ago Dan Graham
+- 10 days ago Dan Graham
     910c370 2019-12-24 11:11:28 -0500
     Added 'num_finished' to configuration settings to provide option
     to limit the number of saved completions for infinitely repeating
     tasks. Fixed display for 'do_overdue'. Keep instances of @o s
     tasks that fall during or after the current day.
 
-- 6 days ago Dan Graham
+- 11 days ago Dan Graham
     448a521 2019-12-23 16:26:41 -0500
     Removed @z from tab completions - the ony entry that is stored
     being 'float'.
 
-- 7 days ago Dan Graham
+- 12 days ago Dan Graham
     8029336 2019-12-22 23:34:48 -0500
     Fixed bug in showing current yearly calendar to respect the
     half-year.
 
-- 8 days ago Dan Graham
+- 13 days ago Dan Graham
     1688f49 2019-12-21 16:08:37 -0500
     Tagged version 4.0.1.
 
-- 8 days ago Dan Graham
+- 13 days ago Dan Graham
     cab2354 2019-12-21 16:06:47 -0500
     When a timezone other than 'float' is provided, datetimes are
     interpreted as belonging to that timezone when converted to
@@ -91,111 +114,111 @@ Recent changes as of 2019-12-29T11:43:54.627763-05:00:
     applying the timezone correction again erroneously should the item
     be subsequently edited.
 
-- 8 days ago Dan Graham
+- 13 days ago Dan Graham
     4ce442f 2019-12-21 13:42:34 -0500
     Added data storage section to README.
 
-- 8 days ago Dan Graham
+- 13 days ago Dan Graham
     9cec1b8 2019-12-21 10:03:45 -0500
     README tweaks. Added configuration section. Save the current and
     the following 2 weeks instead of 1 in current.
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     2a9dd7d 2019-12-19 21:33:06 -0500
     Tagged version 4.0.0rc9.
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     d184492 2019-12-19 21:30:08 -0500
     Added Item.add_used and binding to ^T in view.
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     036f75a 2019-12-19 10:13:59 -0500
     Added etm home directory to system information.
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     1a8b0ad 2019-12-18 13:18:30 -0500
     Tagged version 4.0.0rc8.
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     803f7b2 2019-12-18 13:18:16 -0500
     README ...
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     350e596 2019-12-18 10:38:39 -0500
     working on new.png image
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     7305c91 2019-12-18 10:13:06 -0500
     working on new.png link
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     e211747 2019-12-18 10:04:33 -0500
     Still more README tweaks - added new.png
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     6e3ece6 2019-12-18 10:03:06 -0500
     More README tweaks
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     cce855e 2019-12-17 19:49:04 -0500
     Removed id2relevant from sort in show_tags, show_records and
     show_index. More README mods in views section.
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     a23f3aa 2019-12-17 16:39:51 -0500
     Tagged version 4.0.0rc7.
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     f7a6016 2019-12-17 16:32:14 -0500
     README fix
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     f34c5a6 2019-12-17 16:16:03 -0500
     Tagged version 4.0.0rc6.
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     53d8920 2019-12-17 16:15:49 -0500
     Much work on README. Possibly fixed by in ATCompleter by adding a
     'return'.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     ce58b6a 2019-12-15 12:05:29 -0500
     Fixed bug in setting relevant for inbox items
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     889467d 2019-12-15 08:48:51 -0500
     Omit inbox items in show_forthcoming.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     b71e363 2019-12-13 11:37:37 -0500
     Tagged version 4.0.0rc5.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     8150a1f 2019-12-13 11:29:19 -0500
     Changed @n attendee format to "@n [label:] address" where the
     optional "label:" can be used to facilitate autocompletion and
     address is interpreted as a phone number if it begins with exactly
     10 digits followed by an "@" and otherwise as an email address.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     ad7ccdc 2019-12-12 16:37:30 -0500
     Tagged version 4.0.0rc4.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     0016ca0 2019-12-12 15:55:34 -0500
     Use @n attendees to provide phone numbers for text alerts to
     parallel the email alert usage.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     900cfdb 2019-12-12 15:03:55 -0500
     Added needed 'aync' to send_mail and send_text. Fixed bug in
     getting the relevant item in both from the doc_id.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     a9d594d 2019-12-12 11:35:48 -0500
     Tagged version 4.0.0rc3.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     f5dd517 2019-12-12 11:35:19 -0500
     Apply usedtime_minutes to each @u entry before adding. Fixed bug
     in short=True format_duration.
@@ -225,61 +248,61 @@ Recent changes as of 2019-12-29T11:43:54.627763-05:00:
     Don't allow events to be saved without @s entries. Added option to
     open config file to file menu bound to F8.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     73ddd4c 2019-12-09 13:41:49 -0500
     Tagged version 4.0.0rc0.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     d2eb866 2019-12-09 13:41:12 -0500
     Changed goto date to jump to date and changed binding from 'g' to
     'j'.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     e3f58f0 2019-12-09 12:42:07 -0500
     Changed history display to group by year and put modified/created
     label first in the right hand column.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     eda8cc5 2019-12-09 12:14:40 -0500
     Renamed relevant view as forthcoming view. Changed binding from r
     to f. Show relevant from today forward grouped by year without
     reverse sort.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     2ef82cb 2019-12-09 10:47:20 -0500
     Set tz='local' for Date objects converted to 12am datetimes.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     a6f167b 2019-12-08 12:30:35 -0500
     Tagged version 4.0.0b12.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     8d3d425 2019-12-08 12:29:42 -0500
     Moved use of width to summary column.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     41209ee 2019-12-08 12:19:50 -0500
     Fixed timer: T to begin then toggle paused, running and ^T to end
     timer with choice of whether or not to record used time.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     4f0e785 2019-12-08 11:03:35 -0500
     Added tags view. Remaining: fix timers
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     30251ce 2019-12-08 09:43:14 -0500
     Redirect stderr and stdout to log file. Fixed bug in when
     cancelling do_goto_date.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     e852a08 2019-12-05 22:07:08 -0500
     Tagged version 4.0.0b11.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     397e72f 2019-12-05 22:05:28 -0500
     Fixed bug in completions
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     8a334ed 2019-12-05 08:05:33 -0500
     Added logger to view namespace and removed call to get_logger.
 
@@ -320,31 +343,31 @@ Recent changes as of 2019-12-29T11:43:54.627763-05:00:
     5465775 2019-12-03 05:10:14 -0500
     Updated to prompt_toolkit 3 with necessary changes to asyncio.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     24483a7 2019-11-30 17:21:44 -0500
     README tweaks
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     2633be6 2019-11-30 11:01:57 -0500
     Tagged version 4.0.0b7.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     18c15e0 2019-11-30 11:01:43 -0500
     Fixed bug in processing expansions
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     3f34e0d 2019-11-22 10:04:43 -0500
     Tagged version 4.0.0b6.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     b64ad3d 2019-11-22 10:04:14 -0500
     Cleaned up debugging
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     c7966e6 2019-11-22 08:46:04 -0500
     Tagged version 4.0.0b5.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     a6f3a90 2019-11-22 08:43:50 -0500
     Catch dateutil timezone warnings as errors in parse
 
@@ -409,23 +432,3 @@ Recent changes as of 2019-12-29T11:43:54.627763-05:00:
     66b8b93 2019-03-31 15:55:54 -0400
     Added etm/ical.py. Import file now supports .json, .text and .ics
     files.
-
-- 9 months ago Dan Graham
-    d4b0007 2019-03-28 12:35:45 -0400
-    added @w who corresponding to ical organizer
-
-- 9 months ago Dan Graham
-    8de6917 2019-03-27 11:36:51 -0400
-    Tagged version 4.0.0a65.
-
-- 9 months ago Dan Graham
-    b814695 2019-03-27 11:36:30 -0400
-    added pyperclip to setup.py requirements
-
-- 9 months ago Dan Graham
-    0347c44 2019-03-27 11:22:26 -0400
-    Tagged version 4.0.0a64.
-
-- 9 months ago Dan Graham
-    527c718 2019-03-27 11:22:06 -0400
-    Added copy active view to menu, ^c under views.
