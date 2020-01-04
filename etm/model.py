@@ -872,6 +872,7 @@ class Item(object):
 
     def update_keyval(self, kv):
         """
+        TODO: add return status
         """
         key, val = kv
 
@@ -5277,57 +5278,39 @@ def import_text(import_file=None):
         return f"could not locate: {import_file}"
     import tempfile
     docs = []
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_dbfile = os.path.join(tmpdirname, 'temp.json')
-        TEMPDB = data.initialize_tinydb(temp_dbfile)
-        TEMPDB.purge()
-        i = 0
-        with open(import_file, 'r') as fo:
-            for line in fo:
-                i += 1
-                try:
-                    s = line.strip()
-                    item = Item(temp_dbfile)
-                    item.new_item()
-                    item.text_changed(s, 1)
-                    item.update_item_hsh()
-                    docs.append(item.item_hsh)
-                except Exception as e:
-                    logger.error(f"error processing line: '{s}'; {repr(e)}")
+    with open(import_file, 'r') as fo:
+        results = []
+        good = []
+        bad = []
+        for line in fo:
+            ok = True
+            s = line.strip()
+            if not s: continue
+            item = Item()  # used ETMDB by default
+            item.new_item()
+            item.text_changed(s, 1)
+            if item.item_hsh.get('itemtype', None) is None:
+                ok = False
 
-    exst = []
-    new = []
-    dups = 0
-    for x in ETMDB:
-        exst.append({
-                    'itemtype': x.get('itemtype'),
-                    'summary': x.get('summary'),
-                    's': x.get('s'),
-                    # 'f': x.get('f')
-                    })
-    i = 0
-    num_docs = len(docs)
-    for x in docs:
-        i += 1
-        y = {
-                    'itemtype': x.get('itemtype'),
-                    'summary': x.get('summary'),
-                    's': x.get('s'),
-                    # 'f': x.get('f')
-                    }
-        if y in exst:
-            dups += 1
-        else:
-            new.append(x)
-    ids = []
-    if new:
-        ids = ETMDB.insert_multiple(new)
-    msg = f"imported {len(new)} items"
-    if ids:
-        msg += f"\n  ids: {ids[0]}-{ids[-1]}."
-    if dups:
-        msg += f"\n  rejected {len(dups)} items as duplicates"
-    return msg
+            if item.item_hsh.get('summary', None) is None:
+                ok = False
+
+            if not ok:
+                bad.append(f"{item.doc_id}")
+                results.append(f"   {s}")
+                continue 
+
+            # update_item_hsh stores the item in ETMDB
+            item.update_item_hsh()
+            good.append(f"{item.doc_id}")
+
+    res = f"imported {len(good)} items"
+    if good:
+        res += f"\n  ids: {good[0]} - {good[-1]}"
+    if bad: 
+        res += f"\nrejected {len(bad)} items:\n  "
+        res += "\n  ".join(results)
+    return res
 
 
 def import_json(import_file=None):
