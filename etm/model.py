@@ -5283,35 +5283,34 @@ def import_text(import_file=None):
         good = []
         bad = []
         for line in fo:
+            ok = True
             s = line.strip()
+            if not s: continue
             item = Item()  # used ETMDB by default
             item.new_item()
             item.text_changed(s, 1)
-            msg = []
             if item.item_hsh.get('itemtype', None) is None:
-                msg.append('An entry for itemtype is required but missing.')
+                ok = False
 
             if item.item_hsh.get('summary', None) is None:
-                msg.append('A summary is required but missing.')
+                ok = False
 
-            if item.item_hsh['itemtype'] == '*' and 's' not in item.item_hsh: 
-                msg.append('An entry for @s is required for events but missing.')
-            if msg:
-                results.append(f"error processing {s}: {msg}")
+            if not ok:
                 bad.append(f"{item.doc_id}")
+                results.append(f"   {s}")
                 continue 
 
-            results.append(f"adding {s}")
             # update_item_hsh stores the item in ETMDB
             item.update_item_hsh()
             good.append(f"{item.doc_id}")
 
-    msg = f"imported {len(good)} items"
+    res = f"imported {len(good)} items"
     if good:
-        msg += f"\n ids: {good[0]} - {good[-1]}"
+        res += f"\n  ids: {good[0]} - {good[-1]}"
     if bad: 
-        msg += f"\n  rejected {len(bad)} items"
-    return msg
+        res += f"\nrejected {len(bad)} items:\n  "
+        res += "\n  ".join(results)
+    return res
 
 
 def import_json(import_file=None):
