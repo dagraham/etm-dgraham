@@ -1762,6 +1762,7 @@ class DataView(object):
 
         self.refreshAgenda()
         self.refreshCurrent()
+        self.currcal()
 
     def set_etmdir(self, etmdir):
         self.etmdir = etmdir
@@ -1930,7 +1931,7 @@ class DataView(object):
             self.refreshAgenda()
             return self.busy_view
         elif self.active_view == 'yearly':
-            self.refreshCalendar()
+            # self.refreshCalendar()
             return self.calendar_view
         elif self.active_view == 'history':
             self.history_view, self.row2id = show_history(self.db)
@@ -2024,7 +2025,7 @@ class DataView(object):
 
     def refreshCurrent(self):
         """
-        Agenda for the current and following week
+        Agenda for the current and following 2 weeks
         """
         if self.currfile is None:
             return
@@ -2357,6 +2358,7 @@ class DataView(object):
         width = shutil.get_terminal_size()[0]
         indent = int((width - 45)/2) * " "
         today = pendulum.today()
+        y = today.year
         try:
 
             c = calendar.LocaleTextCalendar(0, self.cal_locale)
@@ -2389,14 +2391,17 @@ class DataView(object):
 
     def nextcal(self):
         self.calAdv += 1
+        self.refreshCalendar()
 
 
     def prevcal(self):
         self.calAdv -= 1
+        self.refreshCalendar()
 
 
     def currcal(self):
         self.calAdv = pendulum.today().month // 7
+        self.refreshCalendar()
 
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
