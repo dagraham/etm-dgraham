@@ -1,97 +1,109 @@
-Recent changes as of 2020-01-03T14:28:47.135150-05:00:
-- 0 seconds ago (HEAD -> master, tag: 4.0.4) Dan Graham
-    53a58b8 2020-01-03 14:28:47 -0500
+Recent changes as of 2020-01-04T09:03:41.145179-05:00:
+- 0 seconds ago (HEAD -> master, tag: 4.0.5) Dan Graham
+    05bd375 2020-01-04 09:03:41 -0500
+    Tagged version 4.0.5.
+
+- 34 seconds ago (filter) Dan Graham
+    725f577 2020-01-04 09:03:07 -0500
+    Fixed bug in setting the current calendar.
+
+- 16 hours ago (origin/master) Dan Graham
+    c7258f0 2020-01-03 17:08:17 -0500
+    Readme tweaks
+
+- 19 hours ago Dan Graham
+    d432862 2020-01-03 14:28:47 -0500
     Tagged version 4.0.4.
 
-- 56 seconds ago (filter) Dan Graham
+- 19 hours ago Dan Graham
     5f70b3e 2020-01-03 14:27:51 -0500
     Added utilities/colons_to_slashes.py. Finished 'Used Times Views'.
 
-- 88 minutes ago Dan Graham
+- 20 hours ago Dan Graham
     4e78bb8 2020-01-03 13:01:04 -0500
     Start on adding 'Used Time Views' to README. Switched delimiter
     from : to / for @i index entries.
 
-- 2 days ago (origin/working, origin/master) Dan Graham
+- 3 days ago (origin/working) Dan Graham
     794ba9a 2020-01-01 13:10:17 -0500
     Fixed 'unsaved changes' to make discarding them the default.
     Selecting 'no' just returns to the editor - much simpler. Added
     checks for itemtype and summary to that for @s for events.
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     77932d1 2020-01-01 10:36:01 -0500
     refreshCalendar tweaks
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     1c80f3a 2019-12-29 11:43:54 -0500
     Tagged version 4.0.3.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     619eed4 2019-12-29 11:26:56 -0500
     Change URL in setup to github pages location.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     2aa3e07 2019-12-29 10:55:33 -0500
     typo fixes
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     5a4327c 2019-12-29 10:40:20 -0500
     Still more README toc tweaks
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     5b33dd3 2019-12-29 10:36:57 -0500
     Add empty lines after code blocks for github pages display
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     f9e87c9 2019-12-29 10:34:22 -0500
     Add empty lines after code blocks for github pages display
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     8640aae 2019-12-29 10:28:55 -0500
     Still more README toc tweaks
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     47460bb 2019-12-29 10:21:08 -0500
     More README toc tweaks
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     7b40ed6 2019-12-29 10:18:06 -0500
     README toc tweaks
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     8a723fd 2019-12-29 10:05:58 -0500
     Test toc addition
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     150bfec 2019-12-29 09:39:50 -0500
     Merge branch 'master' of https://github.com/dagraham/etm-dgraham
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     9e94c50 2019-12-29 09:39:10 -0500
     Initialize ETMDB and friends as None in model - they will be set
     in _main_.
 
-- 5 days ago dagraham
+- 6 days ago dagraham
     752ecf8 2019-12-29 09:32:40 -0500
     Set theme jekyll-theme-slate
-- 5 days ago dagraham
+- 6 days ago dagraham
     df99b51 2019-12-29 09:31:14 -0500
     Set theme jekyll-theme-slate
-- 5 days ago dagraham
+- 6 days ago dagraham
     f35561c 2019-12-29 09:28:59 -0500
     Set theme jekyll-theme-time-machine
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     af98527 2019-12-24 11:12:12 -0500
     Tagged version 4.0.2.
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     910c370 2019-12-24 11:11:28 -0500
     Added 'num_finished' to configuration settings to provide option
     to limit the number of saved completions for infinitely repeating
     tasks. Fixed display for 'do_overdue'. Keep instances of @o s
     tasks that fall during or after the current day.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     448a521 2019-12-23 16:26:41 -0500
     Removed @z from tab completions - the ony entry that is stored
     being 'float'.
@@ -101,11 +113,11 @@ Recent changes as of 2020-01-03T14:28:47.135150-05:00:
     Fixed bug in showing current yearly calendar to respect the
     half-year.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     1688f49 2019-12-21 16:08:37 -0500
     Tagged version 4.0.1.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     cab2354 2019-12-21 16:06:47 -0500
     When a timezone other than 'float' is provided, datetimes are
     interpreted as belonging to that timezone when converted to
@@ -114,11 +126,11 @@ Recent changes as of 2020-01-03T14:28:47.135150-05:00:
     applying the timezone correction again erroneously should the item
     be subsequently edited.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     4ce442f 2019-12-21 13:42:34 -0500
     Added data storage section to README.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     9cec1b8 2019-12-21 10:03:45 -0500
     README tweaks. Added configuration section. Save the current and
     the following 2 weeks instead of 1 in current.
@@ -159,24 +171,24 @@ Recent changes as of 2020-01-03T14:28:47.135150-05:00:
     6e3ece6 2019-12-18 10:03:06 -0500
     More README tweaks
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     cce855e 2019-12-17 19:49:04 -0500
     Removed id2relevant from sort in show_tags, show_records and
     show_index. More README mods in views section.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     a23f3aa 2019-12-17 16:39:51 -0500
     Tagged version 4.0.0rc7.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     f7a6016 2019-12-17 16:32:14 -0500
     README fix
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     f34c5a6 2019-12-17 16:16:03 -0500
     Tagged version 4.0.0rc6.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     53d8920 2019-12-17 16:15:49 -0500
     Much work on README. Possibly fixed by in ATCompleter by adding a
     'return'.
@@ -239,11 +251,11 @@ Recent changes as of 2020-01-03T14:28:47.135150-05:00:
     Fixed bug in save_before_quit. Added anniversary expansions to
     forthcoming view.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     7b47331 2019-12-10 18:07:00 -0500
     Tagged version 4.0.0rc1.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     384b3ea 2019-12-10 18:04:45 -0500
     Don't allow events to be saved without @s entries. Added option to
     open config file to file menu bound to F8.
@@ -319,27 +331,27 @@ Recent changes as of 2020-01-03T14:28:47.135150-05:00:
     Set logger in __main__ and insert into model namespace. Cleaned up
     comments.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     af1576a 2019-12-03 16:40:11 -0500
     Tagged version 4.0.0b9.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     095e4f6 2019-12-03 16:39:09 -0500
     Fixed various 'yield from' and 'asyncio.ensure_future' bugs
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     7c4b26a 2019-12-03 12:49:55 -0500
     Removed erroneous call to setup_logging in model.py
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     23181a4 2019-12-03 12:19:04 -0500
     Fixed bug in activate/close menu
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     7060e70 2019-12-03 05:13:07 -0500
     Tagged version 4.0.0b8.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     5465775 2019-12-03 05:10:14 -0500
     Updated to prompt_toolkit 3 with necessary changes to asyncio.
 
@@ -419,16 +431,3 @@ Recent changes as of 2020-01-03T14:28:47.135150-05:00:
 - 9 months ago Dan Graham
     26d64d5 2019-04-01 10:30:26 -0400
     Fixed bug in possible_archive.
-
-- 9 months ago Dan Graham
-    38ce78d 2019-03-31 22:35:48 -0400
-    removed etm-vim.sh
-
-- 9 months ago Dan Graham
-    c0431d3 2019-03-31 15:58:03 -0400
-    Tagged version 4.0.0a66.
-
-- 9 months ago Dan Graham
-    66b8b93 2019-03-31 15:55:54 -0400
-    Added etm/ical.py. Import file now supports .json, .text and .ics
-    files.
