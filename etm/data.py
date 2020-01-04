@@ -166,7 +166,7 @@ def decode(key, enc):
         dec.append(dec_c)
     return "".join(dec)
 
-# NOTE: The real secret is set in cfg.yaml/options
+# NOTE: The real secret is set in cfg.yaml
 secret = "whatever"
 
 class Mask():

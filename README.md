@@ -374,71 +374,75 @@ After these special entries, the display continues with the normal agenda listin
 
 ### [Used Time Views](#etm)
 
-The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. Suppose, for example, that you have reminders with `@i` and `@u` entries such as
+The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
 
-        - Non dolore magnam ipsum velit 
-		  @i client A/project a2/writing 
-		  @u 52m: 2019-12-13 09:00AM
+        % Etincidunt labore 
+        @i client A/project a1/meeting 
+        @u 22m: 2019-11-12 10:00AM
 
-Then the *used time view* for December would appear
+and the *used time view* for November begins with
 
-		December 2019
-		  client A
-			project a2
-			  writing
-				- Non dolore magnam ipsum velit: Dec 13 0.9h
-		  client B
-			project b2
-			  correspondence
-				- Adipisci aliquam ut neque: Dec 30 0.3h
-			  writing
-				* Labore voluptatem aliquam porro ip: Dec 20 0.4h
-			project b3
-			  writing
-				- Magnam aliquam quaerat velit non a: Dec 9 0.7h
-		  client C
-			project c1
-			  meeting
-				* Numquam labore tempora adipisci nu: Dec 9 0.9h
-			  writing
-				- Dolor quiquia amet numquam: Dec 4 0.7h
-			project c3
-			  writing
-				% Ipsum modi dolor est aliquam quisq: Dec 2 1.5h
-			project c4
-			  phone
-				% Ipsum amet modi quaerat etincidunt: Dec 5 0.2h
+        November 2019
+          client A
+            project a1
+              meeting
+                % Etincidunt labore: Nov 12 0.4h
+              phone
+                * Aliquam velit: Nov 8 0.3h
+                * Numquam quisquam: Nov 22 1.3h
+              research
+                * Voluptatem porro: Nov 26 1.4h
+            project a2
+              correspondence
+                % Dolore quiquia: Nov 12 1.4h
+                % Velit numquam: Nov 28 0.9h
+              meeting
+                % Quiquia voluptatem: Nov 29 1.1h
+          client B
+            project b2
+              correspondence
+                * Non sit sit: Nov 14 0.5h
+                - Aliquam eius: Nov 19 0.8h
+              meeting
+                - Consectetur: Nov 18 0.3h
+              phone
+                - Ipsum consectetur: Nov 11 1.1h
+            project b3
+              phone
+                - Voluptatem sed: Nov 11 0.4h
+              research
+                * Labore consectetur: Nov 13 1.2h
 
 Note that the display is by month and, within the month, heirarchially by index entry and reminder. With, e.g., 
 
-			- Non dolore magnam ipsum velit: Dec 13 0.9h
+            % Etincidunt labore: Nov 12 0.4h
 
-selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth. Note also that the `0.9h` is the 52 minutes from the item's `@u 52m: 2019-12-13 09:00AM` rounded up to the next 6 minutes and expressed in hours and tenths. This rounding is due to the entry `usedtime_minutes: 6` in `cfg.yaml`.
+selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth. Note also that the `0.4h` is the 22 minutes from the item's `@u 22m: 2019-12-13 09:00AM` rounded up to the next 6 minutes and expressed in hours and tenths. This rounding is due to the entry `usedtime_minutes: 6` in `cfg.yaml`.
 
-Pressing `U` would display the *used time **summary** view* for the same month:
+The *used time **summary** view* for the same month begins with:
 
-		December 2019: 5.6h
-		   client A: 0.9h 
-			  project a2: 0.9h 
-				 writing: 0.9h 
-		   client B: 1.4h 
-			  project b2: 0.7h 
-				 correspondence: 0.3h 
-				 writing: 0.4h 
-			  project b3: 0.7h 
-				 writing: 0.7h 
-		   client C: 3.3h 
-			  project c1: 1.6h 
-				 meeting: 0.9h 
-				 writing: 0.7h 
-			  project c3: 1.5h 
-				 writing: 1.5h 
-			  project c4: 0.2h 
-				 phone: 0.2h 
+        November 2019: 17.0h
+           client A: 6.8h 
+              project a1: 3.4h 
+                 meeting: 0.4h 
+                 phone: 1.6h 
+                 research: 1.4h 
+              project a2: 3.4h 
+                 correspondence: 2.3h 
+                 meeting: 1.1h 
+           client B: 4.3h 
+              project b2: 2.7h 
+                 correspondence: 1.3h 
+                 meeting: 0.3h 
+                 phone: 1.1h 
+              project b3: 1.6h 
+                 phone: 0.4h 
+                 research: 1.2h 
 
-This view omits the item details and aggregates the used times.
+This view omits the reminder lines and aggregates the used times heirarchially by index entry.
 
-As with other dated views, the left and right cursor keys go backwards or forwards a month at a time and the space bar returns to the current month.
+As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
+
 
 ### [Common Features](#etm)
 

@@ -872,6 +872,7 @@ class Item(object):
 
     def update_keyval(self, kv):
         """
+        TODO: add return status
         """
         key, val = kv
 
@@ -5277,56 +5278,39 @@ def import_text(import_file=None):
         return f"could not locate: {import_file}"
     import tempfile
     docs = []
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_dbfile = os.path.join(tmpdirname, 'temp.json')
-        TEMPDB = data.initialize_tinydb(temp_dbfile)
-        TEMPDB.purge()
-        i = 0
-        with open(import_file, 'r') as fo:
-            for line in fo:
-                i += 1
-                try:
-                    s = line.strip()
-                    item = Item(temp_dbfile)
-                    item.new_item()
-                    item.text_changed(s, 1)
-                    item.update_item_hsh()
-                    docs.append(item.item_hsh)
-                except Exception as e:
-                    logger.error(f"error processing line: '{s}'; {repr(e)}")
+    with open(import_file, 'r') as fo:
+        results = []
+        good = []
+        bad = []
+        for line in fo:
+            s = line.strip()
+            item = Item()  # used ETMDB by default
+            item.new_item()
+            item.text_changed(s, 1)
+            msg = []
+            if item.item_hsh.get('itemtype', None) is None:
+                msg.append('An entry for itemtype is required but missing.')
 
-    exst = []
-    new = []
-    dups = 0
-    for x in ETMDB:
-        exst.append({
-                    'itemtype': x.get('itemtype'),
-                    'summary': x.get('summary'),
-                    's': x.get('s'),
-                    # 'f': x.get('f')
-                    })
-    i = 0
-    num_docs = len(docs)
-    for x in docs:
-        i += 1
-        y = {
-                    'itemtype': x.get('itemtype'),
-                    'summary': x.get('summary'),
-                    's': x.get('s'),
-                    # 'f': x.get('f')
-                    }
-        if y in exst:
-            dups += 1
-        else:
-            new.append(x)
-    ids = []
-    if new:
-        ids = ETMDB.insert_multiple(new)
-    msg = f"imported {len(new)} items"
-    if ids:
-        msg += f"\n  ids: {ids[0]}-{ids[-1]}."
-    if dups:
-        msg += f"\n  rejected {len(dups)} items as duplicates"
+            if item.item_hsh.get('summary', None) is None:
+                msg.append('A summary is required but missing.')
+
+            if item.item_hsh['itemtype'] == '*' and 's' not in item.item_hsh: 
+                msg.append('An entry for @s is required for events but missing.')
+            if msg:
+                results.append(f"error processing {s}: {msg}")
+                bad.append(f"{item.doc_id}")
+                continue 
+
+            results.append(f"adding {s}")
+            # update_item_hsh stores the item in ETMDB
+            item.update_item_hsh()
+            good.append(f"{item.doc_id}")
+
+    msg = f"imported {len(good)} items"
+    if good:
+        msg += f"\n ids: {good[0]} - {good[-1]}"
+    if bad: 
+        msg += f"\n  rejected {len(bad)} items"
     return msg
 
 
