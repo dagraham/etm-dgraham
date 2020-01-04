@@ -285,8 +285,19 @@ def do_about(*event):
 @bindings.add('f3')
 def do_check_updates(*event):
     res = check_output("pip search etm-dgraham")
+
     info =  "".join( chr(x) for x in res)
-    show_message("version information", info, 2)
+    lines = info.split('\n')
+    msg = []
+    for line in lines:
+        if line.lstrip().startswith('etm-dgraham'):
+            msg.append('etm-dgraham')
+        elif line.lstrip().startswith('INSTALLED'):
+            msg.append(line)
+        elif line.lstrip().startswith('LATEST'):
+            msg.append(line)
+
+    show_message("version information", "\n".join(msg), 2)
 
 @bindings.add('f4')
 def do_system(*event):
