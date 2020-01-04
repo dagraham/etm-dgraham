@@ -1,25 +1,42 @@
-Recent changes as of 2020-01-04T09:03:41.145179-05:00:
-- 0 seconds ago (HEAD -> master, tag: 4.0.5) Dan Graham
-    05bd375 2020-01-04 09:03:41 -0500
+Recent changes as of 2020-01-04T15:54:18.386506-05:00:
+- 0 seconds ago (HEAD -> master, tag: 4.0.6) Dan Graham
+    96ce1b6 2020-01-04 15:54:18 -0500
+    Tagged version 4.0.6.
+
+- 74 seconds ago (origin/master, filter) Dan Graham
+    537cced 2020-01-04 15:53:04 -0500
+    Merge branch 'filter'
+
+- 2 minutes ago Dan Graham
+    59ccb46 2020-01-04 15:52:43 -0500
+    Further tweaks to import_text.
+
+- 58 minutes ago Dan Graham
+    0b60fc5 2020-01-04 14:56:35 -0500
+    Improved the used time section in README. Simplified import_text
+    to add directly to the database.
+
+- 7 hours ago Dan Graham
+    483cf5d 2020-01-04 09:03:41 -0500
     Tagged version 4.0.5.
 
-- 34 seconds ago (filter) Dan Graham
+- 7 hours ago Dan Graham
     725f577 2020-01-04 09:03:07 -0500
     Fixed bug in setting the current calendar.
 
-- 16 hours ago (origin/master) Dan Graham
+- 23 hours ago Dan Graham
     c7258f0 2020-01-03 17:08:17 -0500
     Readme tweaks
 
-- 19 hours ago Dan Graham
+- 25 hours ago Dan Graham
     d432862 2020-01-03 14:28:47 -0500
     Tagged version 4.0.4.
 
-- 19 hours ago Dan Graham
+- 25 hours ago Dan Graham
     5f70b3e 2020-01-03 14:27:51 -0500
     Added utilities/colons_to_slashes.py. Finished 'Used Times Views'.
 
-- 20 hours ago Dan Graham
+- 27 hours ago Dan Graham
     4e78bb8 2020-01-03 13:01:04 -0500
     Start on adding 'Used Time Views' to README. Switched delimiter
     from : to / for @i index entries.
@@ -108,7 +125,7 @@ Recent changes as of 2020-01-04T09:03:41.145179-05:00:
     Removed @z from tab completions - the ony entry that is stored
     being 'float'.
 
-- 12 days ago Dan Graham
+- 13 days ago Dan Graham
     8029336 2019-12-22 23:34:48 -0500
     Fixed bug in showing current yearly calendar to respect the
     half-year.
@@ -415,19 +432,3 @@ Recent changes as of 2020-01-04T09:03:41.145179-05:00:
 - 8 months ago Dan Graham
     89b4eec 2019-05-02 07:59:23 -0400
     Changed pastdue color.
-
-- 9 months ago Dan Graham
-    b708d7e 2019-04-15 21:07:19 -0400
-    Tagged version 4.0.0b1.
-
-- 9 months ago Dan Graham
-    36efdc9 2019-04-15 13:36:29 -0400
-    added refreshCurrent to new_day.
-
-- 9 months ago Dan Graham
-    c24dd4a 2019-04-01 10:31:12 -0400
-    Tagged version 4.0.0b0.
-
-- 9 months ago Dan Graham
-    26d64d5 2019-04-01 10:30:26 -0400
-    Fixed bug in possible_archive.
