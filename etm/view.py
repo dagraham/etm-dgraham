@@ -282,7 +282,7 @@ bindings = KeyBindings()
 def do_about(*event):
     show_message('etm information', about(2)[0], 0)
 
-@bindings.add('f3')
+@bindings.add('f4')
 def do_check_updates(*event):
     res = check_output("pip search etm-dgraham")
 
@@ -299,7 +299,7 @@ def do_check_updates(*event):
 
     show_message("version information", "\n".join(msg), 2)
 
-@bindings.add('f4')
+@bindings.add('f3')
 def do_system(*event):
     show_message('system information', about(22)[1], 20)
 
@@ -1469,8 +1469,8 @@ root_container = MenuContainer(body=body, menu_items=[
     MenuItem('etm', children=[
         MenuItem('F1) activate/close menu', handler=menu),
         MenuItem('F2) about etm', handler=do_about),
-        MenuItem('F3) check for updates', handler=do_check_updates),
-        MenuItem('F4) system info', handler=do_system),
+        MenuItem('F3) system info', handler=do_system),
+        MenuItem('F4) check for updates', handler=do_check_updates),
         MenuItem("F5) show today's alerts", handler=do_alerts),
         MenuItem('F6) datetime calculator', handler=datetime_calculator),
         MenuItem('F7) import file', handler=do_import_file),
