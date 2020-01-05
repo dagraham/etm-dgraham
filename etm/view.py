@@ -1248,7 +1248,6 @@ def is_editing_reps(*event):
 
 @bindings.add('f7')
 def do_import_file(*event):
-    # TODO: add dialog
     msg = ""
     def coroutine():
         global msg

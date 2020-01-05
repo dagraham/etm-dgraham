@@ -5470,7 +5470,6 @@ def import_json(import_file=None):
 
 def about(padding=0):
     logo_lines = [
-        "                          ",
         " █████╗██████╗███╗   ███╗ ",
         " ██╔══╝╚═██╔═╝████╗ ████║ ",
         " ███╗    ██║  ██╔████╔██║ ",
@@ -5493,15 +5492,17 @@ def about(padding=0):
 {logo}
 {summary}
 
-etm-dgraham: {etm_version}
-Developer:   dnlgrhm@gmail.com
-GitHub:      github.com/dagraham/etm-mv
-Discussion:  groups.google.com/group/eventandtaskmanager
+Developer:    dnlgrhm@gmail.com
+PyPi:         pypi.org/project/etm-dgraham
+GitHub:       github.com/dagraham/etm-dgraham
+GitHub Pages: dagraham.github.io/etm-dgraham
+Discussion:   groups.io/g/etm
 
 {copyright}\
 """
 
     ret2 = f"""
+etm:              {etm_version}
 python:           {python_version}
 dateutil:         {dateutil_version}
 pendulum:         {pendulum_version}
