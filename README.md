@@ -459,6 +459,7 @@ While the views differ in many respects, they also share some common aspects:
     * Press `S` to schedule a new datetime instance.
     * For an item with an @g `goto` link, press `Ctrl-G` to open the link.
     * For an item that repeats, press `Ctrl-R` to show repetitions.
+	* Press `Ctrl-C` to copy the view to the system clipboard. 
     * Timers and Used Time (@u entries)
         * Press `T` to begin a timer for the reminder or to toggle paused/running if a timer is already active.
         * If a timer is active
