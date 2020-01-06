@@ -303,10 +303,6 @@ def do_check_updates(*event):
 def do_system(*event):
     show_message('system information', about(22)[1], 20)
 
-@bindings.add('f5')
-def do_alerts(*event):
-    show_message("today's alerts", alerts(), 2)
-
 
 @bindings.add('f6')
 def datetime_calculator(*event):
@@ -330,7 +326,7 @@ Timezones can be appended to x and y.
 
     asyncio.ensure_future(coroutine())
 
-@bindings.add('f8')
+@bindings.add('f7')
 def do_open_config(*event):
     openWithDefault(cfgfile)
 
@@ -479,6 +475,10 @@ def is_showing_details():
 bindings.add('tab', filter=is_not_editing)(focus_next)
 bindings.add('s-tab', filter=is_not_editing)(focus_previous)
 
+
+@bindings.add('s', filter=is_not_editing)
+def do_alerts(*event):
+    show_message("today's scheduled alerts", alerts(), 2)
 
 @bindings.add('l', filter=is_viewing)
 def do_go_to_line(*event):
@@ -1246,7 +1246,7 @@ def is_editing_reps(*event):
     show_message(showing, reps, 24)
 
 
-@bindings.add('f7')
+@bindings.add('f5')
 def do_import_file(*event):
     msg = ""
     def coroutine():
@@ -1471,10 +1471,9 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F2) about etm', handler=do_about),
         MenuItem('F3) system info', handler=do_system),
         MenuItem('F4) check for updates', handler=do_check_updates),
-        MenuItem("F5) show today's alerts", handler=do_alerts),
+        MenuItem('F5) import file', handler=do_import_file),
         MenuItem('F6) datetime calculator', handler=datetime_calculator),
-        MenuItem('F7) import file', handler=do_import_file),
-        MenuItem('F8) configuration settings', handler=do_open_config),
+        MenuItem('F7) configuration settings', handler=do_open_config),
         MenuItem('-', disabled=True),
         MenuItem('^q) quit', handler=exit),
     ]),
@@ -1490,12 +1489,14 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
-        MenuItem('y) yearly', handler=yearly_view),
+        MenuItem('-', disabled=True),
+        MenuItem("s) scheduled alerts for today", handler=do_alerts),
+        MenuItem('y) half yearly calendar', handler=yearly_view),
         MenuItem('-', disabled=True),
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
         MenuItem('l) go to line number', handler=do_go_to_line),
-        MenuItem('^C) copy active view to clipboard', handler=copy_active_view),
+        MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
         MenuItem('-', disabled=True),
         MenuItem('j) jump to date in a), b) and c)', handler=do_jump_to_date),
         MenuItem('right) next in a), b), c), u), U) and y)'),
@@ -1505,9 +1506,9 @@ root_container = MenuContainer(body=body, menu_items=[
     MenuItem('editor', children=[
         MenuItem('N) create new item', handler=edit_new),
         MenuItem('-', disabled=True),
-        MenuItem('^S) save changes & close', handler=save_changes),
-        MenuItem('^R) show repetitions', handler=is_editing_reps),
-        MenuItem('^C) close editor', handler=close_edit),
+        MenuItem('^s) save changes & close', handler=save_changes),
+        MenuItem('^r) show repetitions', handler=is_editing_reps),
+        MenuItem('^c) close editor', handler=close_edit),
     ]),
     MenuItem('selected', children=[
         MenuItem('Enter) toggle showing details', handler=show_details),
@@ -1517,8 +1518,8 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F) finish', handler=do_finish),
         MenuItem('R) reschedule',  handler=do_reschedule),
         MenuItem('S) schedule new', handler=do_schedule_new),
-        MenuItem('^G) open goto', handler=do_goto),
-        MenuItem('^R) show repetitions', handler=not_editing_reps),
+        MenuItem('^g) open goto', handler=do_goto),
+        MenuItem('^r) show repetitions', handler=not_editing_reps),
         MenuItem('-', disabled=True),
         MenuItem('T) begin timer, then toggle paused/running', handler=do_timer_toggle),
         MenuItem("^T) record usedtime", handler=do_maybe_record_timer),

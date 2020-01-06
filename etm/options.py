@@ -12,6 +12,13 @@ yaml = YAML()
 class Settings():
 
     inp = """\
+################# IMPORTANT #############################
+#
+# Changes to this file only take effect when etm is next
+# restarted.
+#
+#########################################################
+
 # ampm: true or false. Use AM/PM format for datetimes if true 
 # else use 24 hour format. 
 ampm: true
