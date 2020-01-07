@@ -3285,9 +3285,10 @@ def do_hours(arg):
 def do_mask(arg):
     """
     >>> do_mask('when to the sessions')[0].encoded
-    'w5zDnMOSwo7CicOnwo_Ch8Omw43DhsKUwpTDisOnw6DCicOYw6HCkw=='
+    'w5zDnMOSwo7CicOnwo_Cl8Ojw5bDicKFw6XDi8Oow5_CisOUw6LDoA=='
     """
-    return Mask(arg), arg
+    obj = Mask(arg)
+    return obj, arg
 
 
 def do_minutes(arg):

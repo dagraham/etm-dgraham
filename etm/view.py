@@ -481,7 +481,7 @@ bindings.add('tab', filter=is_not_editing)(focus_next)
 bindings.add('s-tab', filter=is_not_editing)(focus_previous)
 
 
-@bindings.add('s', filter=is_not_editing)
+@bindings.add('s', filter=is_viewing)
 def do_alerts(*event):
     show_message("today's scheduled alerts", alerts(), 2)
 

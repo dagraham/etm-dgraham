@@ -172,10 +172,18 @@ secret = "whatever"
 class Mask():
     """
     Provide an encoded value with an "isinstance" test for serializaton
+    >>> mask = Mask('my dirty secret')
+    >>> isinstance(mask, Mask)
+    True
     """
 
     def __init__(self, message=""):
         self.encoded = encode(secret, message)
+
+
+    def __repr__(self):
+        return decode(secret, self.encoded)
+
 
 
 class MaskSerializer(Serializer):
@@ -183,9 +191,9 @@ class MaskSerializer(Serializer):
     This class handles pendulum.duration (timedelta) objects.
     >>> mask = MaskSerializer()
     >>> mask.encode(Mask("when to the sessions")) # doctest: +NORMALIZE_WHITESPACE
-    'w5zDnMOSwo7CicOnwo_Ch8Omw43DhsKUwpTDisOnw6DCicOYw6HCkw=='
-    >>> mask.decode('    w5zDnMOSwo7CicOnwo_Ch8Omw43DhsKUwpTDisOnw6DCicOYw6HCkw==') # doctest: +NORMALIZE_WHITESPACE
-    'when to the sessions' 
+    'w5zDnMOSwo7CicOnwo_Cl8Ojw5bDicKFw6XDi8Oow5_CisOUw6LDoA=='
+    >>> mask.decode('    w5zDnMOSwo7CicOnwo_Cl8Ojw5bDicKFw6XDi8Oow5_CisOUw6LDoA==') # doctest: +NORMALIZE_WHITESPACE
+    when to the sessions 
     """
     OBJ_CLASS = Mask
 
@@ -199,7 +207,7 @@ class MaskSerializer(Serializer):
         """
         Decode the base
         """
-        return decode(secret, s)
+        return Mask(decode(secret, s))
 
 ########################################
 ###### End Mask ########################
