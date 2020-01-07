@@ -42,7 +42,7 @@ style: dark
 # current and following two weeks will be written to "current.txt" 
 # in your etm home directory and updated when necessary. You 
 # could, for example, create a link to this file in a pCloud or 
-# DropBox folder and have access to your current schecule on 
+# DropBox folder and have access to your current schedule on 
 # your mobile device.
 keep_current: false
 
