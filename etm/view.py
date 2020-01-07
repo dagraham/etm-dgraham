@@ -330,6 +330,11 @@ Timezones can be appended to x and y.
 def do_open_config(*event):
     openWithDefault(cfgfile)
 
+@bindings.add('f8')
+def do_show_help(*event):
+    help_link = "https://dagraham.github.io/etm-dgraham/"
+    openWithDefault(help_link)
+
 def save_before_quit(*event):
     def coroutine():
         dialog = ConfirmDialog("unsaved changes", "discard changes and close editor?")
@@ -1218,6 +1223,7 @@ def do_goto(*event):
     else:
         show_message("goto", goto, 8)
 
+
 @bindings.add('c-g', filter=is_editing)
 def check_goto(*event):
     ok, goto = item.check_goto_link()
@@ -1474,6 +1480,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F5) import file', handler=do_import_file),
         MenuItem('F6) datetime calculator', handler=datetime_calculator),
         MenuItem('F7) configuration settings', handler=do_open_config),
+        MenuItem('F8) help', handler=do_show_help),
         MenuItem('-', disabled=True),
         MenuItem('^q) quit', handler=exit),
     ]),
