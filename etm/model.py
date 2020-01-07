@@ -4731,7 +4731,6 @@ def show_tags(db, id2relevant):
         tags = item.get('t', [])
         for tag in tags:
             rows.append({
-                        # 'sort': (tag, item['itemtype'], item['summary'], id2relevant.get(item.doc_id)),
                         'sort': (tag, item['itemtype'], item['summary']),
                         'tag': tag,
                         'columns': [item['itemtype'],
@@ -4755,14 +4754,11 @@ def show_index(db, id2relevant):
     """
     All items grouped by index entry
     """
-    now = pendulum.now()
     width = shutil.get_terminal_size()[0] - 2
     rows = []
-    # indices = set([])
     for item in db:
         index = item.get('i', '~')
         rows.append({
-                    # 'sort': (index, item['summary'], id2relevant.get(item.doc_id,now)),
                     'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
@@ -4805,10 +4801,12 @@ def get_usedtime(db):
         used = item.get('u') # this will be a list of 'period, datetime' tuples 
         if not used:
             continue
-        index_tup = item.get('i', '~')
-        index = index_tup.split('/')
-        doc_id = item.doc_id
+        index = item.get('i', '~')
+        # if index == '~':
+        #     continue
         id_used = {}
+        index_tup = index.split('/')
+        doc_id = item.doc_id
         details = f"{item['itemtype']} {item['summary']}"
         for period, dt in used:
             # for id2used
@@ -4824,23 +4822,25 @@ def get_usedtime(db):
             month = dt.format("YYYY-MM")
             used_time.setdefault(tuple((month,)), ZERO)
             used_time[tuple((month, ))] += period
-            for i in range(len(index)):
-                used_time.setdefault(tuple((month, *index[:i+1])), ZERO)
-                used_time[tuple((month, *index[:i+1]))] += period
+            for i in range(len(index_tup)):
+                used_time.setdefault(tuple((month, *index_tup[:i+1])), ZERO)
+                used_time[tuple((month, *index_tup[:i+1]))] += period
         # logger.debug(f"id_used: {id_used}; index_tup: {index_tup}")
         for monthday in id_used:
+            month = monthday.format("YYYY-MM")
             detail_rows.append({
-                        'sort': (month, *index, details),
-                        'month': monthday.format("YYYY-MM"),
-                        'path': f"{monthday.format('MMMM YYYY')}/{index_tup}",
+                        'sort': (month, *index_tup, details),
+                        'month': month,
+                        'path': f"{monthday.format('MMMM YYYY')}/{index}",
                         'columns': [
                             details,
-                            f"{monthday.format('MMM D')} {format_hours_and_tenths(id_used[monthday])}",
+                            f"{format_hours_and_tenths(id_used[monthday])} {monthday.format('MMM D')}",
                             doc_id],
                         })
 
     # logger.debug(f"used_time: {used_time}")
     detail_rows.sort(key=itemgetter('sort'))
+    # logger.debug(f"detail_rows: {detail_rows}")
     for month, items in groupby(detail_rows, key=itemgetter('month')):
         months.add(month)
         rdict = RDict()
