@@ -14,7 +14,6 @@ yaml = YAML(typ='safe', pure=True)
 
 from ruamel.yaml import __version__ as ruamel_version
 
-import dateutil
 from dateutil.rrule import *
 from dateutil import __version__ as dateutil_version
 
@@ -26,10 +25,8 @@ def parse(s, **kwd):
 
 import sys
 import re
-from re import finditer
 
 from tinydb import __version__ as tinydb_version
-from tinydb import Query
 
 from jinja2 import Template
 from jinja2 import __version__ as jinja2_version
@@ -5517,6 +5514,191 @@ etm home directory:
 """
     return ret1, ret2
 
+
+############ begin query ###############################
+from tinydb import where
+
+def matches(a, b):
+    # the value of at least one element of field 'a' begins with the case-insensitive regex 'b'
+    return where(a).matches(b, flags=re.IGNORECASE)
+
+def search(a, b):
+    # the value of at least one element of field 'a' contains the case-insensitive regex 'b'
+    return where(a).search(b, flags=re.IGNORECASE)
+
+def equals(a, b):
+    # the value of at least one element of field 'a' equals 'b'
+    return where(a) == b
+
+def exists(a):
+    # field 'a' exists
+    return where(a).exists()
+
+# egs
+#   % blue and green @t blue @t green
+#   % green @t green
+#   % blue @t blue
+
+
+def in_any(a, b):
+    """
+    the value of field 'a' is a list of values and at least 
+    one of them is an element from 'b'. Here 'b' should be a list with
+    2 or more elements. With only a single element, there is no 
+    difference between any and all.
+
+    With egs, "any,  blue, green" returns all three items.
+    """
+
+    if not isinstance(b, list):
+        b = [b]
+    return where(a).any(b)
+
+def in_all(a, b):
+    """
+    the value of field 'a' is a list of values and among the list 
+    are all the elements in 'b'. Here 'b' should be a list with
+    2 or more elements. With only a single element, there is no 
+    difference between any and all.
+
+    With egs, "all, blue, green" returns just "blue and green"
+    """
+    if not isinstance(b, list):
+        b = [b]
+    return where(a).all(b)
+
+def one_of(a, b):
+    """
+    the value of field 'a' is one of the elements in 'b'. 
+
+    With egs, "one, summary, blue, green" returns both "green" and "blue"
+    """
+    if not isinstance(b, list):
+        b = [b]
+    return where(a).one_of(b)
+
+arg = { 'matches': matches,
+        'search': search,
+        'equals': equals,
+        'exists': exists,
+        'any': in_any,
+        'all': in_all,
+        'one': one_of
+        }
+
+allowed = ", ".join([x for x in arg])
+usage = f"""\
+Process a query string in the format: 
+    [[cmd, field, value] [|&]]+
+where "cmd" is one of 
+    {allowed}
+and "field" is one of
+    itemtype, summary, or one of the etm @keys
+"value" is either a case insensitive regex 
+(with match, search), a string or integer or a
+list of strings or integers (with any, all, one)
+or not given (with exists). 
+
+E.g., find reminders where either the summary or 
+the entry for @d (description) contains "waldo":
+
+query: search, summary, waldo | search, d, waldo
+
+Note that "|" is used for the logical "or" and "&"
+for the logical "and" in joining expressions.
+"""
+
+
+def process_query(query):
+
+    # cmnd_str = "search, summary, waldo | search, d, waldo"
+
+    # print(f"query: {query}")
+    parts = [x.split(',') for x in re.split(r' ([&|]) ', query)]
+    # print(f"parts: {parts}")
+
+    cmnds = []
+    for part in parts:
+        part = [x.strip() for x in part if x.strip()]
+        # print(f"processing part: {part}; len(part): {len(part)}")
+        if part[0] not in ['|', '&'] and arg.get(part[0], None) is None:
+            return False, f"""bad command: '{part[0]}'. Only commands in\n {allowed}\nare allowed."""
+
+        if len(part) > 3:
+            cmnds.append(arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+        elif len(part) > 2:
+            cmnds.append(arg[part[0]](part[1], part[2]))
+        elif len(part) > 1:
+            cmnds.append(arg[part[0]](part[1]))
+        else:
+            cmnds.append(part[0])
+
+    # print(f"cmnds: {cmnds}")
+    test = cmnds[0]
+    for i in range(1, len(cmnds)):
+        if i % 2:
+            if cmnds[i] == '|' or cmnds[i] == '&':
+                andor = cmnds[i]
+                continue
+        if andor == '|':
+            test = test | cmnds[i]
+        else:
+            test = test & cmnds[i]
+    return True, test
+
+def do_query(string):
+    """
+    For internal usage
+    """
+    pass
+
+
+def query_loop():
+    """
+    For command line usage.
+    """
+    from prompt_toolkit import PromptSession
+    # from prompt_toolkit.history import InMemoryHistory
+    from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+
+    session = PromptSession()
+
+    again = True
+    while again:
+        query = session.prompt('\nquery: ', auto_suggest=AutoSuggestFromHistory())
+        if not query:
+            again = False
+            print('exiting')
+            break
+        ok, test = process_query(query)
+        if not ok:
+            print(test)
+            continue
+        items = DBITEM.search(test)
+        print(f"test: {test}")
+        for item in items:
+            print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
+
+
+
+
+    # again = True
+
+
+
+    # print(usage)
+    # while again:
+    #     query = get_input("\nReturn nothing to quit.\nquery:")
+    #     ok, test = process_query(query)
+    #     if not ok:
+    #         print(test)
+    #         continue
+    #     items = DBITEM.search(test)
+    #     print(f"test: {test}")
+    #     for item in items:
+    #         print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
+
+############# end query ################################
 
 dataview = None
 item = None
