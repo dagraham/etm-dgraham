@@ -5517,6 +5517,36 @@ etm home directory:
 
 ############ begin query ###############################
 from tinydb import where
+from pygments.lexer import RegexLexer
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Operator
+from pygments.token import Comment
+from prompt_toolkit.styles import Style
+from prompt_toolkit.lexers import PygmentsLexer
+
+etm_style = Style.from_dict({
+    'pygments.comment':   '#888888 bold',
+    'pygments.keyword': '#009900 bold',
+    'pygments.literal':   '#0066ff bold',  #blue
+    'pygments.operator':  '#e62e00 bold',  #red
+    # 'pygments.keyword':   '#e62e00 bold',  #red
+})
+
+class TDBLexer(RegexLexer):
+
+    name = 'TDB'
+    aliases = ['tdb']
+    filenames = '*.*'
+    flags = re.MULTILINE | re.DOTALL
+
+    tokens = {
+            'root': [
+                (r'(matches|search|equals|exists|any|all|one)\b', Keyword),
+                (r'(itemtype|summary)\b', Literal),
+                (r'(and|or)\b', Operator),
+                ],
+            }
 
 def matches(a, b):
     # the value of at least one element of field 'a' begins with the case-insensitive regex 'b'
@@ -5587,14 +5617,14 @@ arg = { 'matches': matches,
         }
 
 allowed = ", ".join([x for x in arg])
-usage = f"""\
+usage = f"""
 Process a query string in the format: 
-    [[cmd, field, value] [|&]]+
-where "cmd" is one of 
+    [[[~]command field value] [and|or]]+
+where "command" is one of 
     {allowed}
-and "field" is one of
+"field" is one of
     itemtype, summary, or one of the etm @keys
-"value" is either a case insensitive regex 
+and "value" is either a case insensitive regex 
 (with match, search), a string or integer or a
 list of strings or integers (with any, all, one)
 or not given (with exists). 
@@ -5602,45 +5632,60 @@ or not given (with exists).
 E.g., find reminders where either the summary or 
 the entry for @d (description) contains "waldo":
 
-query: search, summary, waldo | search, d, waldo
+query: search summary waldo or search d waldo
 
-Note that "|" is used for the logical "or" and "&"
-for the logical "and" in joining expressions.
-"""
+Note that the logical "or" or "and" is used in joining 
+expressions. Preceed a command with "~" to negate it.
+E.g., find reminders where the summary does not contain
+"waldo":
+
+query: ~search summary waldo
+
+Return nothing at the query prompt to quit. """
 
 
 def process_query(query):
+    # TODO: handle not
 
-    # cmnd_str = "search, summary, waldo | search, d, waldo"
-
-    # print(f"query: {query}")
-    parts = [x.split(',') for x in re.split(r' ([&|]) ', query)]
-    # print(f"parts: {parts}")
+    parts = [x.split() for x in re.split(r' (and|or) ', query)]
 
     cmnds = []
     for part in parts:
         part = [x.strip() for x in part if x.strip()]
-        # print(f"processing part: {part}; len(part): {len(part)}")
-        if part[0] not in ['|', '&'] and arg.get(part[0], None) is None:
-            return False, f"""bad command: '{part[0]}'. Only commands in\n {allowed}\nare allowed."""
+        negation = part[0].startswith('~')
+        if part[0] not in ['and', 'or']:
+            # we have a command
+            if negation:
+                # drop the ~
+                part[0] = part[0][1:]
+            if arg.get(part[0], None) is None:
+                return False, f"""bad command: '{part[0]}'. Only commands in\n {allowed}\nare allowed."""
 
         if len(part) > 3:
-            cmnds.append(arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+            if negation:
+                cmnds.append(~ arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+            else:
+                cmnds.append(arg[part[0]](part[1], [x.strip() for x in part[2:]]))
         elif len(part) > 2:
-            cmnds.append(arg[part[0]](part[1], part[2]))
+            if negation:
+                cmnds.append(~ arg[part[0]](part[1], part[2]))
+            else:
+                cmnds.append(arg[part[0]](part[1], part[2]))
         elif len(part) > 1:
-            cmnds.append(arg[part[0]](part[1]))
+            if negation:
+                cmnds.append(~ arg[part[0]](part[1]))
+            else:
+                cmnds.append(arg[part[0]](part[1]))
         else:
             cmnds.append(part[0])
 
-    # print(f"cmnds: {cmnds}")
     test = cmnds[0]
     for i in range(1, len(cmnds)):
         if i % 2:
-            if cmnds[i] == '|' or cmnds[i] == '&':
+            if cmnds[i] == 'and' or cmnds[i] == 'or':
                 andor = cmnds[i]
                 continue
-        if andor == '|':
+        if andor == 'or':
             test = test | cmnds[i]
         else:
             test = test & cmnds[i]
@@ -5661,8 +5706,9 @@ def query_loop():
     # from prompt_toolkit.history import InMemoryHistory
     from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
-    session = PromptSession()
+    session = PromptSession(lexer=PygmentsLexer(TDBLexer), style=etm_style)
 
+    print(usage)
     again = True
     while again:
         query = session.prompt('\nquery: ', auto_suggest=AutoSuggestFromHistory())
@@ -5670,33 +5716,17 @@ def query_loop():
             again = False
             print('exiting')
             break
+        if query == "?" or query == "help":
+            print(usage)
+            continue
         ok, test = process_query(query)
         if not ok:
             print(test)
             continue
         items = DBITEM.search(test)
-        print(f"test: {test}")
+        print(f"{test}")
         for item in items:
             print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
-
-
-
-
-    # again = True
-
-
-
-    # print(usage)
-    # while again:
-    #     query = get_input("\nReturn nothing to quit.\nquery:")
-    #     ok, test = process_query(query)
-    #     if not ok:
-    #         print(test)
-    #         continue
-    #     items = DBITEM.search(test)
-    #     print(f"test: {test}")
-    #     for item in items:
-    #         print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
 
 ############# end query ################################
 
