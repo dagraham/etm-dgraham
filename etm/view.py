@@ -1302,7 +1302,13 @@ def exit(*event):
 @bindings.add('c-c', filter=is_viewing)
 def copy_active_view(*event):
     pyperclip.copy(text_area.text)
+    show_message("copy", "view copied to system clipboard", 2)
 
+@bindings.add('c-c', filter=is_viewing_or_details & is_item_view)
+def copy_details(*event):
+    details = dataview.get_details(text_area.document.cursor_position_row)[1]
+    pyperclip.copy(details)
+    show_message("copy", "details copied to system clipboard", 2)
 
 def set_text(txt, row=0):
     text_area.text = txt

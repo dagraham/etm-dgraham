@@ -5616,12 +5616,12 @@ arg = { 'matches': matches,
         'one': one_of
         }
 
-allowed = ", ".join([x for x in arg])
+allowed_commands = ", ".join([x for x in arg])
 usage = f"""
 Process a query string in the format: 
     [[[~]command field value] [and|or]]+
 where "command" is one of 
-    {allowed}
+    {allowed_commands}
 "field" is one of
     itemtype, summary, or one of the etm @keys
 and "value" is either a case insensitive regex 
