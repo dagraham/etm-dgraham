@@ -420,6 +420,10 @@ def is_viewing():
 def is_viewing_or_details():
     return get_app().layout.has_focus(text_area) or get_app().layout.has_focus(details_area) 
 
+@Condition
+def is_details():
+    return get_app().layout.has_focus(details_area) 
+
 
 @bindings.add('f1')
 def menu(event=None):
@@ -1304,7 +1308,7 @@ def copy_active_view(*event):
     pyperclip.copy(text_area.text)
     show_message("copy", "view copied to system clipboard", 2)
 
-@bindings.add('c-c', filter=is_viewing_or_details & is_item_view)
+@bindings.add('c-c', filter=is_details)
 def copy_details(*event):
     details = dataview.get_details(text_area.document.cursor_position_row)[1]
     pyperclip.copy(details)
