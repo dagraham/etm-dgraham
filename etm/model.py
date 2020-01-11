@@ -2072,12 +2072,21 @@ class DataView(object):
 
         if not edit and item_id in self.itemcache:
             return item_id, self.itemcache[item_id]
-        item = DBITEM.get(doc_id=item_id)
+        item = dbitem.get(doc_id=item_id)
         if item:
             self.itemcache[item_id] = item_details(item, edit)
             return item_id, self.itemcache[item_id] 
 
         return None, ''
+
+    def get_details_for_id(self, item_id):
+        item = dbitem.get(doc_id=item_id)
+        if item:
+            res = item_details(item, edit)
+            return item_id, res 
+
+        return None, ''
+
 
 
     def get_goto(self, row=None):
@@ -5544,7 +5553,7 @@ class TDBLexer(RegexLexer):
             'root': [
                 (r'(matches|search|equals|exists|any|all|one)\b', Keyword),
                 (r'(itemtype|summary)\b', Literal),
-                (r'(and|or)\b', Operator),
+                (r'(and|or|details)\b', Operator),
                 ],
             }
 
@@ -5610,6 +5619,8 @@ def one_of(a, b):
 arg = { 'matches': matches,
         'search': search,
         'equals': equals,
+        'more': equals,
+        'less': equals,
         'exists': exists,
         'any': in_any,
         'all': in_all,
@@ -5617,31 +5628,33 @@ arg = { 'matches': matches,
         }
 
 allowed_commands = ", ".join([x for x in arg])
-usage = f"""
-Process a query string in the format: 
-    [[[~]command field value] [and|or]]+
-where "command" is one of 
-    {allowed_commands}
-"field" is one of
-    itemtype, summary, or one of the etm @keys
-and "value" is either a case insensitive regex 
-(with match, search), a string or integer or a
-list of strings or integers (with any, all, one)
-or not given (with exists). 
+usage = f"""\
+    ###############################################
+    Process a query string in the format: 
+        [[[~]command field value] [and|or]]+
+    where "command" is one of 
+        {allowed_commands}
+    "field" is one of
+        itemtype, summary, or one of the etm @keys
+    and "value" is either a case insensitive regex 
+    (with match, search), a string or integer or a
+    list of strings or integers (with any, all, one)
+    or not given (with exists). 
 
-E.g., find reminders where either the summary or 
-the entry for @d (description) contains "waldo":
+    E.g., find reminders where either the summary or 
+    the entry for @d (description) contains "waldo":
 
-query: search summary waldo or search d waldo
+    query: search summary waldo or search d waldo
 
-Note that the logical "or" or "and" is used in joining 
-expressions. Preceed a command with "~" to negate it.
-E.g., find reminders where the summary does not contain
-"waldo":
+    Note that the logical "or" or "and" is used in 
+    joining expressions. Preceed a command with "~" 
+    to negate it. E.g., find reminders where the 
+    summary does not contain "waldo":
 
-query: ~search summary waldo
+    query: ~search summary waldo
 
-Return nothing at the query prompt to quit. """
+    Return nothing at the query prompt to quit. 
+    ###############################################"""
 
 
 def process_query(query):
@@ -5650,6 +5663,8 @@ def process_query(query):
     parts = [x.split() for x in re.split(r' (and|or) ', query)]
 
     cmnds = []
+    details = parts[-1][-1] == 'details'
+    if details: del parts[-1][-1]
     for part in parts:
         part = [x.strip() for x in part if x.strip()]
         negation = part[0].startswith('~')
@@ -5659,7 +5674,7 @@ def process_query(query):
                 # drop the ~
                 part[0] = part[0][1:]
             if arg.get(part[0], None) is None:
-                return False, f"""bad command: '{part[0]}'. Only commands in\n {allowed}\nare allowed."""
+                return False, f"""bad command: '{part[0]}'. Only commands in\n {allowed_commands}\nare allowed."""
 
         if len(part) > 3:
             if negation:
@@ -5689,7 +5704,7 @@ def process_query(query):
             test = test | cmnds[i]
         else:
             test = test & cmnds[i]
-    return True, test
+    return True, details, test
 
 def do_query(string):
     """
@@ -5719,14 +5734,18 @@ def query_loop():
         if query == "?" or query == "help":
             print(usage)
             continue
-        ok, test = process_query(query)
+        ok, details, test = process_query(query)
         if not ok:
             print(test)
             continue
         items = DBITEM.search(test)
         print(f"{test}")
         for item in items:
-            print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
+            if details:
+                item = DBITEM.get(doc_id=item.doc_id)
+                print(f"{item_details(item, False)}")
+            else:
+                print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
 
 ############# end query ################################
 
