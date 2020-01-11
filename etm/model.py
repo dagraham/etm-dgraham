@@ -2072,7 +2072,7 @@ class DataView(object):
 
         if not edit and item_id in self.itemcache:
             return item_id, self.itemcache[item_id]
-        item = dbitem.get(doc_id=item_id)
+        item = DBITEM.get(doc_id=item_id)
         if item:
             self.itemcache[item_id] = item_details(item, edit)
             return item_id, self.itemcache[item_id] 

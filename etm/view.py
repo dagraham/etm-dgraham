@@ -424,6 +424,10 @@ def is_viewing_or_details():
 def is_details():
     return get_app().layout.has_focus(details_area) 
 
+@Condition
+def is_querying():
+    return get_app().layout.has_focus(query_area) 
+
 
 @bindings.add('f1')
 def menu(event=None):
@@ -513,7 +517,7 @@ def do_go_to_line(*event):
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('j', filter=is_viewing_or_details)
+@bindings.add('j', filter=is_viewing)
 def do_jump_to_date(*event):
     def coroutine():
         dialog = TextInputDialog(
@@ -850,7 +854,7 @@ details_area = TextArea(
 completions = [
         ]
 
-# expansions will actually come from cfg.yaml
+# expansions will come from cfg.yaml
 expansions = {
         }
 
@@ -903,6 +907,7 @@ reply_dimension = Dimension(min=2, weight=2)
 entry_dimension = Dimension(min=3, weight=2)
 
 entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
+query_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
 ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
 reply_window = Window(BufferControl(buffer=reply_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:reply')
 
@@ -914,8 +919,16 @@ edit_area = HSplit([
     entry_window,
 ])
 
+query_area = HSplit([
+    query_window,
+    ])
+
 edit_container = HSplit([
     edit_area,
+    ])
+
+query_container = HSplit([
+    query_area,
     ])
 
 def default_buffer_changed(_):
@@ -949,6 +962,9 @@ body = HSplit([
     ConditionalContainer(
         content=edit_container,
         filter=is_editing),
+    ConditionalContainer(
+        content=query_container,
+        filter=is_querying),
     search_field,
     ])
 
@@ -1116,6 +1132,23 @@ def edit_existing(*event):
     default_buffer_changed(event)
     default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
+
+# @bindings.add('q', filter=is_viewing)
+@bindings.add('E', filter=is_viewing)
+def edit_existing(*event):
+    global item
+    if dataview.is_showing_details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    dataview.is_editing = True
+    doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
+    item.edit_item(doc_id, entry)
+    entry_buffer.text = item.entry
+    default_buffer_changed(event)
+    default_cursor_position_changed(event)
+    application.layout.focus(entry_buffer)
+
+
 
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
 def do_timer_toggle(*event):
@@ -1308,7 +1341,7 @@ def copy_active_view(*event):
     pyperclip.copy(text_area.text)
     show_message("copy", "view copied to system clipboard", 2)
 
-@bindings.add('c-c', filter=is_details)
+@bindings.add('c-c', filter=is_details | is_editing)
 def copy_details(*event):
     details = dataview.get_details(text_area.document.cursor_position_row)[1]
     pyperclip.copy(details)
@@ -1435,7 +1468,8 @@ def show_details(*event):
             application.layout.focus(details_area)
 
 
-@bindings.add('c-c', filter=is_editing, eager=True)
+# @bindings.add('c-c', filter=is_editing, eager=True)
+@bindings.add('escape', filter=is_editing, eager=True)
 def close_edit(*event):
     if item.is_modified:
         save_before_quit()
@@ -1525,7 +1559,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('-', disabled=True),
         MenuItem('^s) save changes & close', handler=save_changes),
         MenuItem('^r) show repetitions', handler=is_editing_reps),
-        MenuItem('^c) close editor', handler=close_edit),
+        MenuItem('escape) close editor', handler=close_edit),
     ]),
     MenuItem('selected', children=[
         MenuItem('Enter) toggle showing details', handler=show_details),
