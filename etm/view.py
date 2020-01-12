@@ -443,7 +443,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used', 'relevant', 'forthcoming']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used', 'relevant', 'forthcoming', 'query']
 
 @Condition
 def is_editing():
@@ -468,6 +468,10 @@ def is_agenda_view():
 @Condition
 def is_used_view():
     return dataview.active_view in ['used', 'used summary']
+
+@Condition
+def is_query_view():
+    return dataview.active_view in ['query']
 
 @Condition
 def is_yearly_view():
@@ -842,13 +846,6 @@ text_area = TextArea(
     lexer=ETMLexer()
     )
 
-details_area = TextArea(
-    text="",
-    style='class:details', 
-    read_only=True,
-    search_field=search_field,
-    )
-
 
 # completions will come from prior database entries 
 completions = [
@@ -907,10 +904,10 @@ reply_dimension = Dimension(min=2, weight=2)
 entry_dimension = Dimension(min=3, weight=2)
 
 entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
-query_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
 ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
 reply_window = Window(BufferControl(buffer=reply_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:reply')
 
+query_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
 
 edit_area = HSplit([
     ask_window,
@@ -919,16 +916,22 @@ edit_area = HSplit([
     entry_window,
 ])
 
-query_area = HSplit([
-    query_window,
-    ])
+details_area = TextArea(
+    text="",
+    style='class:details', 
+    read_only=True,
+    search_field=search_field,
+    )
+
+query_area = TextArea(
+    text="",
+    style='class:details', 
+    read_only=False,
+    search_field=search_field,
+    )
 
 edit_container = HSplit([
     edit_area,
-    ])
-
-query_container = HSplit([
-    query_area,
     ])
 
 def default_buffer_changed(_):
@@ -960,11 +963,11 @@ body = HSplit([
         content=details_area,
         filter=is_showing_details & is_not_busy_view),
     ConditionalContainer(
+        content=query_area,
+        filter=is_querying),
+    ConditionalContainer(
         content=edit_container,
         filter=is_editing),
-    ConditionalContainer(
-        content=query_container,
-        filter=is_querying),
     search_field,
     ])
 
@@ -1363,6 +1366,11 @@ def completed_view(*event):
 @bindings.add('b', filter=is_viewing)
 def busy_view(*event):
     dataview.set_active_view('b')
+    set_text(dataview.show_active_view())
+
+@bindings.add('q', filter=is_viewing)
+def used_summary_view(*event):
+    dataview.set_active_view('q')
     set_text(dataview.show_active_view())
 
 @bindings.add('u', filter=is_viewing)

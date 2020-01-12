@@ -1717,6 +1717,7 @@ class DataView(object):
         self.done_view = ""
         self.busy_view = ""
         self.calendar_view = ""
+        self.query_view = ""
         self.cal_locale = None
         self.history_view = ""
         self.cache = {}
@@ -1741,6 +1742,7 @@ class DataView(object):
                 'f': 'forthcoming',
                 'h': 'history',
                 'i': 'index',
+                'q': 'query',
                 'r': 'records',
                 't': 'tags',
                 'u': 'used',
@@ -1928,6 +1930,8 @@ class DataView(object):
         elif self.active_view == 'busy':
             self.refreshAgenda()
             return self.busy_view
+        elif self.active_view == 'query':
+            return self.query_view
         elif self.active_view == 'yearly':
             # self.refreshCalendar()
             return self.calendar_view
@@ -1960,6 +1964,14 @@ class DataView(object):
         elif self.active_view == 'used summary':
             self.row2id = {}
             used_summary = self.used_summary.get(self.active_month)
+            if not used_summary:
+                month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
+                return f"Nothing recorded for {month_format}"
+            self.used_summary_view = used_summary
+            return self.used_summary_view
+        elif self.active_view == 'query':
+            self.row2id = {}
+            query_details = self.query.get()
             if not used_summary:
                 month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
                 return f"Nothing recorded for {month_format}"
@@ -5551,7 +5563,7 @@ class TDBLexer(RegexLexer):
 
     tokens = {
             'root': [
-                (r'(matches|search|equals|exists|any|all|one)\b', Keyword),
+                (r'(matches|search|equals|more|less|exists|any|all|one)\b', Keyword),
                 (r'(itemtype|summary)\b', Literal),
                 (r'(and|or|details)\b', Operator),
                 ],
@@ -5567,7 +5579,27 @@ def search(a, b):
 
 def equals(a, b):
     # the value of at least one element of field 'a' equals 'b'
+    try:
+        b = int(b)
+    except:
+        pass
     return where(a) == b
+
+def more(a, b):
+    # the value of at least one element of field 'a' >= 'b'
+    try:
+        b = int(b)
+    except:
+        pass
+    return where(a) >= b
+
+def less(a, b):
+    # the value of at least one element of field 'a' equals 'b'
+    try:
+        b = int(b)
+    except:
+        pass
+    return where(a) <= b
 
 def exists(a):
     # field 'a' exists
@@ -5616,55 +5648,73 @@ def one_of(a, b):
         b = [b]
     return where(a).one_of(b)
 
+def details(a):
+    # field 'a' exists
+    item = DBITEM.get(doc_id=int(a))
+    return  f"{item_details(item, False)}"
+
+
 arg = { 'matches': matches,
         'search': search,
         'equals': equals,
-        'more': equals,
-        'less': equals,
+        'more': more,
+        'less': less,
         'exists': exists,
         'any': in_any,
         'all': in_all,
-        'one': one_of
+        'one': one_of,
+        'details': details,
         }
 
 allowed_commands = ", ".join([x for x in arg])
+
+command_details = """\
+    matches: return items in which regex b matches 
+        the begining of field[a] 
+    search: return items in which field[a] 
+        contains regex b
+    equals: return items in which field[a] == b
+    more: return items in which field[a] >= b
+    less: return items in which field[a] <= b
+    exists: return items in which field[a] exists
+    any: return items in which at least one 
+        element of field[a] is an element of the list b 
+    all: return items in which the elements of 
+        field[a] contain all the elements of the list b 
+    one: return items in which the value of 
+        field[a] is one of the elements of list b
+    details: return the details of the document in 
+        which doc_id == a, if it exists\
+"""
+
 usage = f"""\
-    ###############################################
-    Process a query string in the format: 
-        [[[~]command field value] [and|or]]+
-    where "command" is one of 
-        {allowed_commands}
-    "field" is one of
-        itemtype, summary, or one of the etm @keys
-    and "value" is either a case insensitive regex 
-    (with match, search), a string or integer or a
-    list of strings or integers (with any, all, one)
-    or not given (with exists). 
-
-    E.g., find reminders where either the summary or 
-    the entry for @d (description) contains "waldo":
-
+###############################################
+Process a query string in the format: 
+    [[[~]command a b] [and|or]]+
+where "command" is one of
+{command_details}
+"a" is one of
+    itemtype, summary, or one of the etm @keys
+and "b" is either a case insensitive regex, a string 
+or integer or a list of strings or integers. E.g., 
+find reminders where either the summary or the entry 
+for @d (description) contains "waldo":
     query: search summary waldo or search d waldo
-
-    Note that the logical "or" or "and" is used in 
-    joining expressions. Preceed a command with "~" 
-    to negate it. E.g., find reminders where the 
-    summary does not contain "waldo":
-
+Note that the logical "or" or "and" is used in 
+joining expressions. Preceed a command with "~" 
+to negate it. E.g., find reminders where the 
+summary does not contain "waldo":
     query: ~search summary waldo
+Return nothing at the query prompt to quit. 
+###############################################"""
 
-    Return nothing at the query prompt to quit. 
-    ###############################################"""
-
-
+#TODO: replace details with the option to enter an integer as a query and show the details of the item with that id
 def process_query(query):
     # TODO: handle not
 
     parts = [x.split() for x in re.split(r' (and|or) ', query)]
 
     cmnds = []
-    details = parts[-1][-1] == 'details'
-    if details: del parts[-1][-1]
     for part in parts:
         part = [x.strip() for x in part if x.strip()]
         negation = part[0].startswith('~')
@@ -5704,7 +5754,7 @@ def process_query(query):
             test = test | cmnds[i]
         else:
             test = test & cmnds[i]
-    return True, details, test
+    return True, test
 
 def do_query(string):
     """
@@ -5734,17 +5784,15 @@ def query_loop():
         if query == "?" or query == "help":
             print(usage)
             continue
-        ok, details, test = process_query(query)
+        ok, test = process_query(query)
         if not ok:
             print(test)
             continue
-        items = DBITEM.search(test)
-        print(f"{test}")
-        for item in items:
-            if details:
-                item = DBITEM.get(doc_id=item.doc_id)
-                print(f"{item_details(item, False)}")
-            else:
+        if isinstance(test, str): 
+            print(f"{test}")
+        else:
+            items = DBITEM.search(test)
+            for item in items:
                 print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
 
 ############# end query ################################
