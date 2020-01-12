@@ -134,7 +134,8 @@ def main():
             doctest.testmod(data)
         elif sys.argv[1] == 'query':
             logger.info(f"calling model.query with etmdir: {etmdir}, argv: {sys.argv}")
-            model.query_loop()
+            query = model.Query()
+            query.query_loop()
         else:
             logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
             model.main(etmdir, sys.argv)

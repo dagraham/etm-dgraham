@@ -5565,235 +5565,248 @@ class TDBLexer(RegexLexer):
             'root': [
                 (r'(matches|search|equals|more|less|exists|any|all|one)\b', Keyword),
                 (r'(itemtype|summary)\b', Literal),
-                (r'(and|or|details)\b', Operator),
+                (r'(and|or|info)\b', Operator),
                 ],
             }
 
-def matches(a, b):
-    # the value of at least one element of field 'a' begins with the case-insensitive regex 'b'
-    return where(a).matches(b, flags=re.IGNORECASE)
+class Query(object):
 
-def search(a, b):
-    # the value of at least one element of field 'a' contains the case-insensitive regex 'b'
-    return where(a).search(b, flags=re.IGNORECASE)
+    def __init__(self):
+        self.arg = { 'matches': self.matches,
+                'search': self.search,
+                'equals': self.equals,
+                'more': self.more,
+                'less': self.less,
+                'exists': self.exists,
+                'any': self.in_any,
+                'all': self.in_all,
+                'one': self.one_of,
+                'info': self.info,
+                }
 
-def equals(a, b):
-    # the value of at least one element of field 'a' equals 'b'
-    try:
-        b = int(b)
-    except:
-        pass
-    return where(a) == b
+        self.allowed_commands = ", ".join([x for x in self.arg])
 
-def more(a, b):
-    # the value of at least one element of field 'a' >= 'b'
-    try:
-        b = int(b)
-    except:
-        pass
-    return where(a) >= b
-
-def less(a, b):
-    # the value of at least one element of field 'a' equals 'b'
-    try:
-        b = int(b)
-    except:
-        pass
-    return where(a) <= b
-
-def exists(a):
-    # field 'a' exists
-    return where(a).exists()
-
-# egs
-#   % blue and green @t blue @t green
-#   % green @t green
-#   % blue @t blue
-
-
-def in_any(a, b):
-    """
-    the value of field 'a' is a list of values and at least 
-    one of them is an element from 'b'. Here 'b' should be a list with
-    2 or more elements. With only a single element, there is no 
-    difference between any and all.
-
-    With egs, "any,  blue, green" returns all three items.
-    """
-
-    if not isinstance(b, list):
-        b = [b]
-    return where(a).any(b)
-
-def in_all(a, b):
-    """
-    the value of field 'a' is a list of values and among the list 
-    are all the elements in 'b'. Here 'b' should be a list with
-    2 or more elements. With only a single element, there is no 
-    difference between any and all.
-
-    With egs, "all, blue, green" returns just "blue and green"
-    """
-    if not isinstance(b, list):
-        b = [b]
-    return where(a).all(b)
-
-def one_of(a, b):
-    """
-    the value of field 'a' is one of the elements in 'b'. 
-
-    With egs, "one, summary, blue, green" returns both "green" and "blue"
-    """
-    if not isinstance(b, list):
-        b = [b]
-    return where(a).one_of(b)
-
-def details(a):
-    # field 'a' exists
-    item = DBITEM.get(doc_id=int(a))
-    return  f"{item_details(item, False)}"
-
-
-arg = { 'matches': matches,
-        'search': search,
-        'equals': equals,
-        'more': more,
-        'less': less,
-        'exists': exists,
-        'any': in_any,
-        'all': in_all,
-        'one': one_of,
-        'details': details,
-        }
-
-allowed_commands = ", ".join([x for x in arg])
-
-command_details = """\
-    matches: return items in which regex b matches 
-        the begining of field[a] 
-    search: return items in which field[a] 
-        contains regex b
-    equals: return items in which field[a] == b
-    more: return items in which field[a] >= b
-    less: return items in which field[a] <= b
-    exists: return items in which field[a] exists
-    any: return items in which at least one 
+        self.command_details = """\
+    matches a b: return items in which regex b matches the 
+        begining of field[a] 
+    search a b: return items in which field[a] contains 
+        regex b
+    equals a b: return items in which field[a] == b
+    more a b: return items in which field[a] >= b
+    less a b: return items in which field[a] <= b
+    exists a: return items in which field[a] exists
+    any a b: return items in which at least one 
         element of field[a] is an element of the list b 
-    all: return items in which the elements of 
+    all a b: return items in which the elements of 
         field[a] contain all the elements of the list b 
-    one: return items in which the value of 
+    one a b: return items in which the value of 
         field[a] is one of the elements of list b
-    details: return the details of the document in 
-        which doc_id == a, if it exists\
-"""
+    info doc_id: return the details of the item whose 
+        document id equal to the integer doc_id, if 
+        it exists\
+        """
 
-usage = f"""\
+        self.usage = f"""\
 ###############################################
 Process a query string in the format: 
     [[[~]command a b] [and|or]]+
-where "command" is one of
-{command_details}
-"a" is one of
-    itemtype, summary, or one of the etm @keys
-and "b" is either a case insensitive regex, a string 
-or integer or a list of strings or integers. E.g., 
-find reminders where either the summary or the entry 
-for @d (description) contains "waldo":
+where "command", "a" and "b" correspond to one of the
+following:
+{self.command_details}
+In the above, "a" is one of the etm fields: itemtype, 
+summary, or one of the @keys and "b" is either a case
+insensitive regex, a string or integer or a list of 
+strings or integers. To enter a list of values for "b",
+simply separate the components with spaces. Conversely,
+to enter a regex with a space and avoid its being
+interpreted as a list, replace the space with \s.
+Note that the logical "or" or "and" is used in joining 
+expressions. E.g., find reminders where either the 
+summary or the entry for @d (description) contains 
+"waldo":
     query: search summary waldo or search d waldo
-Note that the logical "or" or "and" is used in 
-joining expressions. Preceed a command with "~" 
-to negate it. E.g., find reminders where the 
-summary does not contain "waldo":
+Preceed a command with "~" to negate it. E.g., find 
+reminders where the summary does not contain "waldo":
     query: ~search summary waldo
 Return nothing at the query prompt to quit. 
 ###############################################"""
 
-#TODO: replace details with the option to enter an integer as a query and show the details of the item with that id
-def process_query(query):
-    # TODO: handle not
+        print(self.usage)
 
-    parts = [x.split() for x in re.split(r' (and|or) ', query)]
 
-    cmnds = []
-    for part in parts:
-        part = [x.strip() for x in part if x.strip()]
-        negation = part[0].startswith('~')
-        if part[0] not in ['and', 'or']:
-            # we have a command
-            if negation:
-                # drop the ~
-                part[0] = part[0][1:]
-            if arg.get(part[0], None) is None:
-                return False, f"""bad command: '{part[0]}'. Only commands in\n {allowed_commands}\nare allowed."""
 
-        if len(part) > 3:
-            if negation:
-                cmnds.append(~ arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+    def matches(self, a, b):
+        # the value of at least one element of field 'a' begins with the case-insensitive regex 'b'
+        return where(a).matches(b, flags=re.IGNORECASE)
+
+    def search(self, a, b):
+        # the value of at least one element of field 'a' contains the case-insensitive regex 'b'
+        return where(a).search(b, flags=re.IGNORECASE)
+
+    def equals(self, a, b):
+        # the value of at least one element of field 'a' equals 'b'
+        try:
+            b = int(b)
+        except:
+            pass
+        return where(a) == b
+
+    def more(self, a, b):
+        # the value of at least one element of field 'a' >= 'b'
+        try:
+            b = int(b)
+        except:
+            pass
+        return where(a) >= b
+
+    def less(self, a, b):
+        # the value of at least one element of field 'a' equals 'b'
+        try:
+            b = int(b)
+        except:
+            pass
+        return where(a) <= b
+
+    def exists(self, a):
+        # field 'a' exists
+        return where(a).exists()
+
+    # egs
+    #   % blue and green @t blue @t green
+    #   % green @t green
+    #   % blue @t blue
+
+
+    def in_any(self, a, b):
+        """
+        the value of field 'a' is a list of values and at least 
+        one of them is an element from 'b'. Here 'b' should be a list with
+        2 or more elements. With only a single element, there is no 
+        difference between any and all.
+
+        With egs, "any,  blue, green" returns all three items.
+        """
+
+        if not isinstance(b, list):
+            b = [b]
+        return where(a).any(b)
+
+    def in_all(self, a, b):
+        """
+        the value of field 'a' is a list of values and among the list 
+        are all the elements in 'b'. Here 'b' should be a list with
+        2 or more elements. With only a single element, there is no 
+        difference between any and all.
+
+        With egs, "all, blue, green" returns just "blue and green"
+        """
+        if not isinstance(b, list):
+            b = [b]
+        return where(a).all(b)
+
+    def one_of(self, a, b):
+        """
+        the value of field 'a' is one of the elements in 'b'. 
+
+        With egs, "one, summary, blue, green" returns both "green" and "blue"
+        """
+        if not isinstance(b, list):
+            b = [b]
+        return where(a).one_of(b)
+
+    def info(self, a):
+        # field 'a' exists
+        item = DBITEM.get(doc_id=int(a))
+        return  f"{item_details(item, False)}"
+
+
+
+    #TODO: replace details with the option to enter an integer as a query and show the details of the item with that id
+    def process_query(self, query):
+        # TODO: handle not
+
+        parts = [x.split() for x in re.split(r' (and|or) ', query)]
+
+        cmnds = []
+        for part in parts:
+            part = [x.strip() for x in part if x.strip()]
+            negation = part[0].startswith('~')
+            if part[0] not in ['and', 'or']:
+                # we have a command
+                if negation:
+                    # drop the ~
+                    part[0] = part[0][1:]
+                if self.arg.get(part[0], None) is None:
+                    return False, f"""bad command: '{part[0]}'. Only commands in\n {self.allowed_commands}\nare allowed."""
+
+            if len(part) > 3:
+                if negation:
+                    cmnds.append(~ self.arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+                else:
+                    cmnds.append(self.arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+            elif len(part) > 2:
+                if negation:
+                    cmnds.append(~ self.arg[part[0]](part[1], part[2]))
+                else:
+                    cmnds.append(self.arg[part[0]](part[1], part[2]))
+            elif len(part) > 1:
+                if negation:
+                    cmnds.append(~ self.arg[part[0]](part[1]))
+                else:
+                    cmnds.append(self.arg[part[0]](part[1]))
             else:
-                cmnds.append(arg[part[0]](part[1], [x.strip() for x in part[2:]]))
-        elif len(part) > 2:
-            if negation:
-                cmnds.append(~ arg[part[0]](part[1], part[2]))
-            else:
-                cmnds.append(arg[part[0]](part[1], part[2]))
-        elif len(part) > 1:
-            if negation:
-                cmnds.append(~ arg[part[0]](part[1]))
-            else:
-                cmnds.append(arg[part[0]](part[1]))
-        else:
-            cmnds.append(part[0])
+                cmnds.append(part[0])
 
-    test = cmnds[0]
-    for i in range(1, len(cmnds)):
-        if i % 2:
-            if cmnds[i] == 'and' or cmnds[i] == 'or':
-                andor = cmnds[i]
+        test = cmnds[0]
+        for i in range(1, len(cmnds)):
+            if i % 2:
+                if cmnds[i] == 'and' or cmnds[i] == 'or':
+                    andor = cmnds[i]
+                    continue
+            if andor == 'or':
+                test = test | cmnds[i]
+            else:
+                test = test & cmnds[i]
+        return True, test
+
+    def do_query(self, string):
+        """
+        For internal usage
+        """
+        pass
+
+
+    def query_loop(self):
+        """
+        For command line usage.
+        """
+        from prompt_toolkit import PromptSession
+        # from prompt_toolkit.history import InMemoryHistory
+        from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+
+        session = PromptSession(lexer=PygmentsLexer(TDBLexer), style=etm_style)
+
+        print(self.usage)
+        again = True
+        while again:
+            query = session.prompt('\nquery: ', auto_suggest=AutoSuggestFromHistory())
+            if not query:
+                again = False
+                print('exiting')
+                break
+            if query == "?" or query == "help":
+                print(self.usage)
                 continue
-        if andor == 'or':
-            test = test | cmnds[i]
-        else:
-            test = test & cmnds[i]
-    return True, test
-
-def do_query(string):
-    """
-    For internal usage
-    """
-    pass
-
-
-def query_loop():
-    """
-    For command line usage.
-    """
-    from prompt_toolkit import PromptSession
-    # from prompt_toolkit.history import InMemoryHistory
-    from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-
-    session = PromptSession(lexer=PygmentsLexer(TDBLexer), style=etm_style)
-
-    print(usage)
-    again = True
-    while again:
-        query = session.prompt('\nquery: ', auto_suggest=AutoSuggestFromHistory())
-        if not query:
-            again = False
-            print('exiting')
-            break
-        if query == "?" or query == "help":
-            print(usage)
-            continue
-        ok, test = process_query(query)
-        if not ok:
-            print(test)
-            continue
-        if isinstance(test, str): 
-            print(f"{test}")
-        else:
-            items = DBITEM.search(test)
-            for item in items:
-                print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
+            ok, test = self.process_query(query)
+            if not ok:
+                print(test)
+                continue
+            if isinstance(test, str): 
+                print(f"{test}")
+            else:
+                items = DBITEM.search(test)
+                for item in items:
+                    print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
 
 ############# end query ################################
 
