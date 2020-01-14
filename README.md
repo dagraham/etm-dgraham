@@ -349,7 +349,7 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
   * c: Completed: finished tasks and jobs by completion year-week and week day
   * d: Do Next: undated tasks grouped by location
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence 
-  * h: History: all items by the latter of the modified or created datetimes in descending order
+  * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first
   * i: Index: events, tasks and inbox items grouped hierarchically by index entry
   * q: Query: items matching a user specified query. Enter ? for query usage.
   * r: Records: records grouped hierarchically by index entry
@@ -759,7 +759,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @f: finished. datetime
 *  @g: goto. string (url or filepath)
 *  @h: history. (for repeating tasks, a list of the most recent completion datetimes)
-*  @i: index. forward slash delimited string
+*  @i: index. forward slash delimited string. E.g., client/project/activity
 *  @j*: job summary. string, optionally followed by job &key entries
 *  @l: location/context. string
 *  @m: mask. string stored in obfuscated form
