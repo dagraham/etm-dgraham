@@ -460,13 +460,11 @@ As with other etm views, in query view you can select a reminder, press `Enter` 
 
 Enter `?` or `help` at the prompt to get usage information:
 
-		###############################################
-		Process a query string in the format: 
-			[[[~]command a b] [and|or]]+
+		Query has components in the format: [~]command a [b]
 		where "command", "a" and "b" correspond to one of the
 		following:
-			matches a b: return items in which regex b matches 
-				the begining of field[a] 
+			matches a b: return items in which field[a] begins
+				with regex b 
 			search a b: return items in which field[a] contains 
 				regex b
 			equals a b: return items in which field[a] == b
@@ -479,28 +477,28 @@ Enter `?` or `help` at the prompt to get usage information:
 				field[a] contain all the elements of the list b 
 			one a b: return items in which the value of 
 				field[a] is one of the elements of list b
-			info doc_id: return the details of the item whose 
-				document id equal to the integer doc_id, if 
-				it exists 
+			info a: return the details of the item whose 
+				document id equals the integer a 
 		In the above, "a" is one of the etm fields: itemtype, 
 		summary, or one of the @keys and "b" is either a case
 		insensitive regex, a string or integer or a list of 
-		strings or integers. To enter a list of values for "b",
-		simply separate the components with spaces. Conversely,
-		to enter a regex with a space and avoid its being
-		interpreted as a list, replace the space with \s.
-		Note that the logical "or" or "and" is used in joining 
-		expressions. E.g., find reminders where either the 
-		summary or the entry for @d (description) contains 
-		"waldo":
-			query: search summary waldo or search d waldo
-		Preceed a command with "~" to negate it. E.g., find 
+		strings or integers. E.g., find reminders where the 
+		summary contains "waldo":
+			query: search summary waldo
+		Precede a command with "~" to negate it. E.g., find 
 		reminders where the summary does not contain "waldo":
 			query: ~search summary waldo
+		To enter a list of values for "b", simply separate the 
+		components with spaces. Conversely, to enter a regex 
+		with a space and avoid its being interpreted as a list, 
+		replace the space with \s. Components can be joined the 
+		using "or" or "and". E.g., find reminders where either 
+		the summary or the entry for @d (description) contains 
+		"waldo":
+			query: search summary waldo or search d waldo
 		Return nothing at the query prompt to quit. 
-		###############################################
 
-Query view keeps a history of queries you submit which can be accessed using the up and down cursor keys and edited before submitting.
+Query view keeps a history of queries you submit which can be accessed using the up and down cursor keys.
 
 ### [Common Features](#etm)
 
