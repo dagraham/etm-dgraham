@@ -294,7 +294,7 @@ Return nothing at the query prompt to quit.
                 test = test & cmnds[i]
         return True, test
 
-    def do_query(self, query='?'):
+    def do_query(self, query):
         """
         For internal usage
         """
@@ -310,39 +310,6 @@ Return nothing at the query prompt to quit.
             items = DBITEM.search(test)
             logger.debug(f"items: {items}")
             return True, items 
-
-
-    def query_loop(self):
-        """
-        For external usage
-        """
-        from prompt_toolkit import PromptSession
-        # from prompt_toolkit.history import InMemoryHistory
-        from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-
-        session = PromptSession(lexer=PygmentsLexer(TDBLexer), style=etm_style)
-
-        print(self.usage)
-        again = True
-        while again:
-            query = session.prompt('\nquery: ', auto_suggest=AutoSuggestFromHistory())
-            if not query:
-                again = False
-                print('exiting')
-                break
-            if query == "?" or query == "help":
-                print(self.usage)
-                continue
-            ok, test = self.process_query(query)
-            if not ok:
-                print(test)
-                continue
-            if isinstance(test, str): 
-                print(f"{test}")
-            else:
-                items = DBITEM.search(test)
-                for item in items:
-                    print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
 
 ############# end query ################################
 
@@ -1225,14 +1192,19 @@ query_area = TextArea(
     )
 
 def accept(buff):
-    ok, items = query.do_query(query_area.text)
-    if ok:
-        dataview.set_query(query_area.text, items)
-        logger.debug
-        application.layout.focus(text_area)
-        set_text(dataview.show_active_view())
+    if query_area.text:
+        ok, items = query.do_query(query_area.text)
+        if ok:
+            dataview.set_query(query_area.text, items)
+            logger.debug
+            application.layout.focus(text_area)
+            set_text(dataview.show_active_view())
+        else:
+            text_area.text = items
     else:
-        text_area.text = items
+        text_area.text = ""
+        application.layout.focus(text_area)
+
 
 
 query_area.accept_handler = accept
@@ -1679,9 +1651,7 @@ def query_view(*event):
     set_text("")
     dataview.set_active_view('q')
     dataview.show_query()
-
     application.layout.focus(query_area)
-    # dataview.show_active_view()
 
 @bindings.add('u', filter=is_viewing)
 def used_view(*event):
