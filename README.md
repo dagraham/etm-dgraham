@@ -444,6 +444,58 @@ This view omits the reminder lines and aggregates the used times heirarchially b
 
 As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
 
+### [Query View](#etm)
+
+In *query view* an entry line at the bottom of the screen is used to submit queries to your data store of reminders. For example, press `q` to open query view, enter
+
+		search summary waldo or search d waldo
+
+and press return to see a list of reminders in which either the summary or the `@d` element contains the case-insensitive regular expression "waldo" will be displayed. Each line of the display contains the item type, the summary and the document id of the matching reminder. As another example
+
+		exists u and ~exists i
+
+would display reminders with @u elements but not an @i element. Enter `?` or `help` at the prompt to get usage information:
+
+		###############################################
+		Process a query string in the format: 
+			[[[~]command a b] [and|or]]+
+		where "command", "a" and "b" correspond to one of the
+		following:
+			matches a b: return items in which regex b matches 
+				the begining of field[a] 
+			search a b: return items in which field[a] contains 
+				regex b
+			equals a b: return items in which field[a] == b
+			more a b: return items in which field[a] >= b
+			less a b: return items in which field[a] <= b
+			exists a: return items in which field[a] exists
+			any a b: return items in which at least one 
+				element of field[a] is an element of the list b 
+			all a b: return items in which the elements of 
+				field[a] contain all the elements of the list b 
+			one a b: return items in which the value of 
+				field[a] is one of the elements of list b
+			info doc_id: return the details of the item whose 
+				document id equal to the integer doc_id, if 
+				it exists 
+		In the above, "a" is one of the etm fields: itemtype, 
+		summary, or one of the @keys and "b" is either a case
+		insensitive regex, a string or integer or a list of 
+		strings or integers. To enter a list of values for "b",
+		simply separate the components with spaces. Conversely,
+		to enter a regex with a space and avoid its being
+		interpreted as a list, replace the space with \s.
+		Note that the logical "or" or "and" is used in joining 
+		expressions. E.g., find reminders where either the 
+		summary or the entry for @d (description) contains 
+		"waldo":
+			query: search summary waldo or search d waldo
+		Preceed a command with "~" to negate it. E.g., find 
+		reminders where the summary does not contain "waldo":
+			query: ~search summary waldo
+		Return nothing at the query prompt to quit. 
+		###############################################
+
 
 ### [Common Features](#etm)
 
