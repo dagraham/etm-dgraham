@@ -350,12 +350,12 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
   * d: Do Next: undated tasks grouped by location
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence 
   * h: History: all items by the latter of the modified or created datetimes in descending order
-  * i: Index: all items grouped hierarchically by index entry
+  * i: Index: events, tasks and inbox items grouped hierarchically by index entry
   * q: Query: items matching a user specified query. Enter ? for query usage.
-  * r: Records: all items of type 'record' grouped hierarchically by index
+  * r: Records: records grouped hierarchically by index entry
   * t: Tags: all items with @t tag entries grouped by tag
-  * u: Used Time: all items with @u used time entries grouped hierarchically by index 
-  * U: Used Time Summary: used time aggregates grouped hierarchically by index
+  * u: Used Time: all items with @u used time entries grouped by month and hierarchically by index 
+  * U: Used Time Summary: used time aggregates grouped by month and hierarchically by index
   * y: Yearly Planning Calendar: compact monthly calendar by half year. 
 
 ### [Weekly Views](#etm)

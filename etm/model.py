@@ -4821,6 +4821,8 @@ def show_index(db, id2relevant):
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     for item in db:
+        if item['itemtype'] == '%':
+            continue
         index = item.get('i', '~')
         rows.append({
                     'sort': (index, item['summary']),
