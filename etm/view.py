@@ -1854,6 +1854,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('f) forthcoming', handler=forthcoming_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
+        MenuItem('q) query', handler=query_view),
         MenuItem('r) records', handler=records_view),
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
