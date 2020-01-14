@@ -450,11 +450,15 @@ In *query view* an entry line at the bottom of the screen is used to submit quer
 
 		search summary waldo or search d waldo
 
-and press return to see a list of reminders in which either the summary or the `@d` element contains the case-insensitive regular expression "waldo" will be displayed. Each line of the display contains the item type, the summary and the document id of the matching reminder. As another example
+and press return to see a list of reminders in which either the summary or the `@d` element contains the case-insensitive regular expression "waldo". Each line of the display contains the item type, the summary and the document id of the matching reminder. As another example
 
 		exists u and ~exists i
 
-would display reminders with @u elements but not an @i element. Enter `?` or `help` at the prompt to get usage information:
+would display reminders with @u elements but not an @i element. 
+
+As with other etm views, in query view you can select a reminder, press `Enter` to display its details, press `E` to edit it and so forth.
+
+Enter `?` or `help` at the prompt to get usage information:
 
 		###############################################
 		Process a query string in the format: 
@@ -496,6 +500,7 @@ would display reminders with @u elements but not an @i element. Enter `?` or `he
 		Return nothing at the query prompt to quit. 
 		###############################################
 
+Query view keeps a history of queries you submit which can be accessed using the up and down cursor keys and edited before submitting.
 
 ### [Common Features](#etm)
 
