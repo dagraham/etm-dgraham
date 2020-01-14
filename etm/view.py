@@ -31,6 +31,9 @@ from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous  
 import shutil
 
+from pygments.lexer import RegexLexer
+
+from prompt_toolkit.lexers import PygmentsLexer
 # from prompt_toolkit.layout import FloatContainer
 from prompt_toolkit.layout import Float
 from prompt_toolkit.widgets import Dialog, Label, Button
@@ -57,6 +60,292 @@ import os
 
 import pyperclip
 logger = None
+
+############ begin query ###############################
+from tinydb import where
+from pygments.lexer import RegexLexer
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Operator
+from pygments.token import Comment
+from prompt_toolkit.styles import Style
+from prompt_toolkit.lexers import PygmentsLexer
+
+etm_style = Style.from_dict({
+    'pygments.comment':   '#888888 bold',
+    'pygments.keyword': '#009900 bold',
+    'pygments.literal':   '#0066ff bold',  #blue
+    'pygments.operator':  '#e62e00 bold',  #red
+    # 'pygments.keyword':   '#e62e00 bold',  #red
+})
+
+class TDBLexer(RegexLexer):
+
+    name = 'TDB'
+    aliases = ['tdb']
+    filenames = '*.*'
+    flags = re.MULTILINE | re.DOTALL
+
+    tokens = {
+            'root': [
+                (r'(matches|search|equals|more|less|exists|any|all|one)\b', Keyword),
+                (r'(itemtype|summary)\b', Literal),
+                (r'(and|or|info)\b', Operator),
+                ],
+            }
+
+class Query(object):
+
+    def __init__(self):
+        self.arg = { 'matches': self.matches,
+                'search': self.search,
+                'equals': self.equals,
+                'more': self.more,
+                'less': self.less,
+                'exists': self.exists,
+                'any': self.in_any,
+                'all': self.in_all,
+                'one': self.one_of,
+                'info': self.info,
+                }
+
+        self.lexer = PygmentsLexer(TDBLexer)
+        self.style = etm_style
+
+        self.allowed_commands = ", ".join([x for x in self.arg])
+
+        self.command_details = """\
+    matches a b: return items in which regex b matches 
+        the begining of field[a] 
+    search a b: return items in which field[a] contains 
+        regex b
+    equals a b: return items in which field[a] == b
+    more a b: return items in which field[a] >= b
+    less a b: return items in which field[a] <= b
+    exists a: return items in which field[a] exists
+    any a b: return items in which at least one 
+        element of field[a] is an element of the list b 
+    all a b: return items in which the elements of 
+        field[a] contain all the elements of the list b 
+    one a b: return items in which the value of 
+        field[a] is one of the elements of list b
+    info doc_id: return the details of the item whose 
+        document id equal to the integer doc_id, if 
+        it exists\
+        """
+
+        self.usage = f"""\
+###############################################
+Process a query string in the format: 
+    [[[~]command a b] [and|or]]+
+where "command", "a" and "b" correspond to one of the
+following:
+{self.command_details}
+In the above, "a" is one of the etm fields: itemtype, 
+summary, or one of the @keys and "b" is either a case
+insensitive regex, a string or integer or a list of 
+strings or integers. To enter a list of values for "b",
+simply separate the components with spaces. Conversely,
+to enter a regex with a space and avoid its being
+interpreted as a list, replace the space with \s.
+Note that the logical "or" or "and" is used in joining 
+expressions. E.g., find reminders where either the 
+summary or the entry for @d (description) contains 
+"waldo":
+    query: search summary waldo or search d waldo
+Preceed a command with "~" to negate it. E.g., find 
+reminders where the summary does not contain "waldo":
+    query: ~search summary waldo
+Return nothing at the query prompt to quit. 
+###############################################"""
+
+
+    def matches(self, a, b):
+        # the value of at least one element of field 'a' begins with the case-insensitive regex 'b'
+        return where(a).matches(b, flags=re.IGNORECASE)
+
+    def search(self, a, b):
+        # the value of at least one element of field 'a' contains the case-insensitive regex 'b'
+        return where(a).search(b, flags=re.IGNORECASE)
+
+    def equals(self, a, b):
+        # the value of at least one element of field 'a' equals 'b'
+        try:
+            b = int(b)
+        except:
+            pass
+        return where(a) == b
+
+    def more(self, a, b):
+        # the value of at least one element of field 'a' >= 'b'
+        try:
+            b = int(b)
+        except:
+            pass
+        return where(a) >= b
+
+    def less(self, a, b):
+        # the value of at least one element of field 'a' equals 'b'
+        try:
+            b = int(b)
+        except:
+            pass
+        return where(a) <= b
+
+    def exists(self, a):
+        # field 'a' exists
+        return where(a).exists()
+
+    # egs
+    #   % blue and green @t blue @t green
+    #   % green @t green
+    #   % blue @t blue
+
+
+    def in_any(self, a, b):
+        """
+        the value of field 'a' is a list of values and at least 
+        one of them is an element from 'b'. Here 'b' should be a list with
+        2 or more elements. With only a single element, there is no 
+        difference between any and all.
+
+        With egs, "any,  blue, green" returns all three items.
+        """
+
+        if not isinstance(b, list):
+            b = [b]
+        return where(a).any(b)
+
+    def in_all(self, a, b):
+        """
+        the value of field 'a' is a list of values and among the list 
+        are all the elements in 'b'. Here 'b' should be a list with
+        2 or more elements. With only a single element, there is no 
+        difference between any and all.
+
+        With egs, "all, blue, green" returns just "blue and green"
+        """
+        if not isinstance(b, list):
+            b = [b]
+        return where(a).all(b)
+
+    def one_of(self, a, b):
+        """
+        the value of field 'a' is one of the elements in 'b'. 
+
+        With egs, "one, summary, blue, green" returns both "green" and "blue"
+        """
+        if not isinstance(b, list):
+            b = [b]
+        return where(a).one_of(b)
+
+    def info(self, a):
+        # field 'a' exists
+        item = DBITEM.get(doc_id=int(a))
+        return  f"{item_details(item, False)}"
+
+
+
+    #TODO: replace details with the option to enter an integer as a query and show the details of the item with that id
+    def process_query(self, query):
+        # TODO: handle not
+
+        parts = [x.split() for x in re.split(r' (and|or) ', query)]
+
+        cmnds = []
+        for part in parts:
+            part = [x.strip() for x in part if x.strip()]
+            negation = part[0].startswith('~')
+            if part[0] not in ['and', 'or']:
+                # we have a command
+                if negation:
+                    # drop the ~
+                    part[0] = part[0][1:]
+                if self.arg.get(part[0], None) is None:
+                    return False, f"""bad command: '{part[0]}'. Only commands in\n {self.allowed_commands}\nare allowed."""
+
+            if len(part) > 3:
+                if negation:
+                    cmnds.append(~ self.arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+                else:
+                    cmnds.append(self.arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+            elif len(part) > 2:
+                if negation:
+                    cmnds.append(~ self.arg[part[0]](part[1], part[2]))
+                else:
+                    cmnds.append(self.arg[part[0]](part[1], part[2]))
+            elif len(part) > 1:
+                if negation:
+                    cmnds.append(~ self.arg[part[0]](part[1]))
+                else:
+                    cmnds.append(self.arg[part[0]](part[1]))
+            else:
+                cmnds.append(part[0])
+
+        test = cmnds[0]
+        for i in range(1, len(cmnds)):
+            if i % 2:
+                if cmnds[i] == 'and' or cmnds[i] == 'or':
+                    andor = cmnds[i]
+                    continue
+            if andor == 'or':
+                test = test | cmnds[i]
+            else:
+                test = test & cmnds[i]
+        return True, test
+
+    def do_query(self, query='?'):
+        """
+        For internal usage
+        """
+        if query == "?" or query == "help":
+            return False, self.usage
+        ok, test = self.process_query(query)
+        if not ok:
+            return False, test
+        if isinstance(test, str): 
+            # info
+            return False, test
+        else:
+            items = DBITEM.search(test)
+            logger.debug(f"items: {items}")
+            return True, items 
+
+
+    def query_loop(self):
+        """
+        For external usage
+        """
+        from prompt_toolkit import PromptSession
+        # from prompt_toolkit.history import InMemoryHistory
+        from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+
+        session = PromptSession(lexer=PygmentsLexer(TDBLexer), style=etm_style)
+
+        print(self.usage)
+        again = True
+        while again:
+            query = session.prompt('\nquery: ', auto_suggest=AutoSuggestFromHistory())
+            if not query:
+                again = False
+                print('exiting')
+                break
+            if query == "?" or query == "help":
+                print(self.usage)
+                continue
+            ok, test = self.process_query(query)
+            if not ok:
+                print(test)
+                continue
+            if isinstance(test, str): 
+                print(f"{test}")
+            else:
+                items = DBITEM.search(test)
+                for item in items:
+                    print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
+
+############# end query ################################
+
 
 class InteractiveInputDialog(object):
     def __init__(self, title='', help_text='', evaluator=None, padding=10, completer=None):
@@ -916,6 +1205,7 @@ edit_area = HSplit([
     entry_window,
 ])
 
+
 details_area = TextArea(
     text="",
     style='class:details', 
@@ -923,12 +1213,30 @@ details_area = TextArea(
     search_field=search_field,
     )
 
+query = Query()
 query_area = TextArea(
-    text="",
-    style='class:details', 
-    read_only=False,
-    search_field=search_field,
+    height=3, 
+    # style=query.style,
+    lexer=query.lexer,
+    multiline=False,
+    prompt='query: ', 
+    focusable=True,
+    # wrap_lines=True,
     )
+
+def accept(buff):
+    ok, items = query.do_query(query_area.text)
+    if ok:
+        dataview.set_query(query_area.text, items)
+        logger.debug
+        application.layout.focus(text_area)
+        set_text(dataview.show_active_view())
+    else:
+        text_area.text = items
+
+
+query_area.accept_handler = accept
+
 
 edit_container = HSplit([
     edit_area,
@@ -1121,7 +1429,6 @@ def edit_new(*event):
     application.layout.focus(entry_buffer)
 
 
-# @bindings.add('E', filter=is_not_editing)
 @bindings.add('E', filter=is_viewing_or_details & is_item_view)
 def edit_existing(*event):
     global item
@@ -1136,7 +1443,6 @@ def edit_existing(*event):
     default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
 
-# @bindings.add('q', filter=is_viewing)
 @bindings.add('E', filter=is_viewing)
 def edit_existing(*event):
     global item
@@ -1369,9 +1675,13 @@ def busy_view(*event):
     set_text(dataview.show_active_view())
 
 @bindings.add('q', filter=is_viewing)
-def used_summary_view(*event):
+def query_view(*event):
+    set_text("")
     dataview.set_active_view('q')
-    set_text(dataview.show_active_view())
+    dataview.show_query()
+
+    application.layout.focus(query_area)
+    # dataview.show_active_view()
 
 @bindings.add('u', filter=is_viewing)
 def used_view(*event):

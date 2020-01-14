@@ -351,6 +351,7 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence 
   * h: History: all items by the latter of the modified or created datetimes in descending order
   * i: Index: all items grouped hierarchically by index entry
+  * q: Query: items matching a user specified query. Enter ? for query usage.
   * r: Records: all items of type 'record' grouped hierarchically by index
   * t: Tags: all items with @t tag entries grouped by tag
   * u: Used Time: all items with @u used time entries grouped hierarchically by index 

@@ -59,6 +59,7 @@ def main():
 
     from etm.model import about
     from etm.model import import_file
+    from etm.model import RDict
     import etm.model as model
     model.etm_version = etm_version
     model.secret = secret
@@ -96,6 +97,8 @@ def main():
     import etm.view as view
     view.cfgfile = cfgfile
     view.model = model
+    view.RDict = RDict
+    # view.TDBLexer = model.TBDLexer
     view.item = item
     view.logger = logger
     view.import_file = import_file

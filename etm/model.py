@@ -1718,6 +1718,8 @@ class DataView(object):
         self.busy_view = ""
         self.calendar_view = ""
         self.query_view = ""
+        self.query_text = ""
+        self.query_items = []
         self.cal_locale = None
         self.history_view = ""
         self.cache = {}
@@ -1752,6 +1754,7 @@ class DataView(object):
 
         self.edit_item = None
         self.is_showing_details = False
+        self.is_showing_query = False
         self.is_showing_help = False
         self.is_editing = False
         self.is_showing_items = True
@@ -1930,8 +1933,6 @@ class DataView(object):
         elif self.active_view == 'busy':
             self.refreshAgenda()
             return self.busy_view
-        elif self.active_view == 'query':
-            return self.query_view
         elif self.active_view == 'yearly':
             # self.refreshCalendar()
             return self.calendar_view
@@ -1970,14 +1971,12 @@ class DataView(object):
             self.used_summary_view = used_summary
             return self.used_summary_view
         elif self.active_view == 'query':
-            self.row2id = {}
-            query_details = self.query.get()
-            if not used_summary:
-                month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
-                return f"Nothing recorded for {month_format}"
-            self.used_summary_view = used_summary
-            return self.used_summary_view
+            self.query_view, self.row2id = show_query_items(self.query_text, self.query_items)
+            return self.query_view
 
+    def set_query(self, text, items):
+        self.query_text = text
+        self.query_items = items
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk) 
@@ -2053,6 +2052,12 @@ class DataView(object):
             fo.write("\n\n".join(current))
         logger.info(f"saved current schedule to {self.currfile}")
 
+
+    def show_query(self):
+        self.is_showing_query = True
+
+    def hide_query(self):
+        self.is_showing_query = False
 
     def show_details(self):
         self.is_showing_details = True 
@@ -4603,6 +4608,46 @@ def show_forthcoming(db, id2relevant):
     return tree, row2id
 
 
+def show_query_items(text, items=[]):
+    width = shutil.get_terminal_size()[0] - 7 
+    rows = []
+    summary_width = width - 6 
+    if not isinstance(items, list):
+        return '', {}
+    for item in items:
+        mt = item.get('modified', None)
+        if mt is not None:
+            dt, label = mt, 'm'
+        else:
+            dt, label = item.get('created', None), 'c'
+        if dt is not None:
+            id = item.doc_id
+            year = dt.format("YYYY")
+            itemtype = finished_char if 'f' in item else item['itemtype']
+            rows.append(
+                    {
+                        'id': id,
+                        'sort': dt,
+                        'path': year,
+                        'columns': [itemtype,
+                            item['summary'][:summary_width].ljust(summary_width, ' '),
+                            id],
+                    }
+                    )
+
+    # rows.sort(key=itemgetter('sort'))
+    rdict = RDict()
+    for row in rows:
+        # path = row['path']
+        path = f"query: {text[:summary_width]}"
+        values = (
+                f"{row['columns'][0]} {row['columns'][1]} {row['columns'][2]: >6}", row['columns'][2]
+                ) 
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    return tree, row2id
+
+
 def show_history(db, reverse=True):
     width = shutil.get_terminal_size()[0] - 2 
     rows = []
@@ -4828,6 +4873,9 @@ def get_usedtime(db):
         doc_id = item.doc_id
         details = f"{item['itemtype']} {item['summary']}"
         for period, dt in used:
+            if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
+                dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
+                dt.set(hour=23, minute=59, second=59)
             # for id2used
             if UT_MIN != 1:
                 res = period.minutes % UT_MIN
@@ -5536,279 +5584,6 @@ etm home directory:
     return ret1, ret2
 
 
-############ begin query ###############################
-from tinydb import where
-from pygments.lexer import RegexLexer
-from pygments.token import Keyword
-from pygments.token import Literal
-from pygments.token import Operator
-from pygments.token import Comment
-from prompt_toolkit.styles import Style
-from prompt_toolkit.lexers import PygmentsLexer
-
-etm_style = Style.from_dict({
-    'pygments.comment':   '#888888 bold',
-    'pygments.keyword': '#009900 bold',
-    'pygments.literal':   '#0066ff bold',  #blue
-    'pygments.operator':  '#e62e00 bold',  #red
-    # 'pygments.keyword':   '#e62e00 bold',  #red
-})
-
-class TDBLexer(RegexLexer):
-
-    name = 'TDB'
-    aliases = ['tdb']
-    filenames = '*.*'
-    flags = re.MULTILINE | re.DOTALL
-
-    tokens = {
-            'root': [
-                (r'(matches|search|equals|more|less|exists|any|all|one)\b', Keyword),
-                (r'(itemtype|summary)\b', Literal),
-                (r'(and|or|info)\b', Operator),
-                ],
-            }
-
-class Query(object):
-
-    def __init__(self):
-        self.arg = { 'matches': self.matches,
-                'search': self.search,
-                'equals': self.equals,
-                'more': self.more,
-                'less': self.less,
-                'exists': self.exists,
-                'any': self.in_any,
-                'all': self.in_all,
-                'one': self.one_of,
-                'info': self.info,
-                }
-
-        self.allowed_commands = ", ".join([x for x in self.arg])
-
-        self.command_details = """\
-    matches a b: return items in which regex b matches the 
-        begining of field[a] 
-    search a b: return items in which field[a] contains 
-        regex b
-    equals a b: return items in which field[a] == b
-    more a b: return items in which field[a] >= b
-    less a b: return items in which field[a] <= b
-    exists a: return items in which field[a] exists
-    any a b: return items in which at least one 
-        element of field[a] is an element of the list b 
-    all a b: return items in which the elements of 
-        field[a] contain all the elements of the list b 
-    one a b: return items in which the value of 
-        field[a] is one of the elements of list b
-    info doc_id: return the details of the item whose 
-        document id equal to the integer doc_id, if 
-        it exists\
-        """
-
-        self.usage = f"""\
-###############################################
-Process a query string in the format: 
-    [[[~]command a b] [and|or]]+
-where "command", "a" and "b" correspond to one of the
-following:
-{self.command_details}
-In the above, "a" is one of the etm fields: itemtype, 
-summary, or one of the @keys and "b" is either a case
-insensitive regex, a string or integer or a list of 
-strings or integers. To enter a list of values for "b",
-simply separate the components with spaces. Conversely,
-to enter a regex with a space and avoid its being
-interpreted as a list, replace the space with \s.
-Note that the logical "or" or "and" is used in joining 
-expressions. E.g., find reminders where either the 
-summary or the entry for @d (description) contains 
-"waldo":
-    query: search summary waldo or search d waldo
-Preceed a command with "~" to negate it. E.g., find 
-reminders where the summary does not contain "waldo":
-    query: ~search summary waldo
-Return nothing at the query prompt to quit. 
-###############################################"""
-
-        print(self.usage)
-
-
-
-    def matches(self, a, b):
-        # the value of at least one element of field 'a' begins with the case-insensitive regex 'b'
-        return where(a).matches(b, flags=re.IGNORECASE)
-
-    def search(self, a, b):
-        # the value of at least one element of field 'a' contains the case-insensitive regex 'b'
-        return where(a).search(b, flags=re.IGNORECASE)
-
-    def equals(self, a, b):
-        # the value of at least one element of field 'a' equals 'b'
-        try:
-            b = int(b)
-        except:
-            pass
-        return where(a) == b
-
-    def more(self, a, b):
-        # the value of at least one element of field 'a' >= 'b'
-        try:
-            b = int(b)
-        except:
-            pass
-        return where(a) >= b
-
-    def less(self, a, b):
-        # the value of at least one element of field 'a' equals 'b'
-        try:
-            b = int(b)
-        except:
-            pass
-        return where(a) <= b
-
-    def exists(self, a):
-        # field 'a' exists
-        return where(a).exists()
-
-    # egs
-    #   % blue and green @t blue @t green
-    #   % green @t green
-    #   % blue @t blue
-
-
-    def in_any(self, a, b):
-        """
-        the value of field 'a' is a list of values and at least 
-        one of them is an element from 'b'. Here 'b' should be a list with
-        2 or more elements. With only a single element, there is no 
-        difference between any and all.
-
-        With egs, "any,  blue, green" returns all three items.
-        """
-
-        if not isinstance(b, list):
-            b = [b]
-        return where(a).any(b)
-
-    def in_all(self, a, b):
-        """
-        the value of field 'a' is a list of values and among the list 
-        are all the elements in 'b'. Here 'b' should be a list with
-        2 or more elements. With only a single element, there is no 
-        difference between any and all.
-
-        With egs, "all, blue, green" returns just "blue and green"
-        """
-        if not isinstance(b, list):
-            b = [b]
-        return where(a).all(b)
-
-    def one_of(self, a, b):
-        """
-        the value of field 'a' is one of the elements in 'b'. 
-
-        With egs, "one, summary, blue, green" returns both "green" and "blue"
-        """
-        if not isinstance(b, list):
-            b = [b]
-        return where(a).one_of(b)
-
-    def info(self, a):
-        # field 'a' exists
-        item = DBITEM.get(doc_id=int(a))
-        return  f"{item_details(item, False)}"
-
-
-
-    #TODO: replace details with the option to enter an integer as a query and show the details of the item with that id
-    def process_query(self, query):
-        # TODO: handle not
-
-        parts = [x.split() for x in re.split(r' (and|or) ', query)]
-
-        cmnds = []
-        for part in parts:
-            part = [x.strip() for x in part if x.strip()]
-            negation = part[0].startswith('~')
-            if part[0] not in ['and', 'or']:
-                # we have a command
-                if negation:
-                    # drop the ~
-                    part[0] = part[0][1:]
-                if self.arg.get(part[0], None) is None:
-                    return False, f"""bad command: '{part[0]}'. Only commands in\n {self.allowed_commands}\nare allowed."""
-
-            if len(part) > 3:
-                if negation:
-                    cmnds.append(~ self.arg[part[0]](part[1], [x.strip() for x in part[2:]]))
-                else:
-                    cmnds.append(self.arg[part[0]](part[1], [x.strip() for x in part[2:]]))
-            elif len(part) > 2:
-                if negation:
-                    cmnds.append(~ self.arg[part[0]](part[1], part[2]))
-                else:
-                    cmnds.append(self.arg[part[0]](part[1], part[2]))
-            elif len(part) > 1:
-                if negation:
-                    cmnds.append(~ self.arg[part[0]](part[1]))
-                else:
-                    cmnds.append(self.arg[part[0]](part[1]))
-            else:
-                cmnds.append(part[0])
-
-        test = cmnds[0]
-        for i in range(1, len(cmnds)):
-            if i % 2:
-                if cmnds[i] == 'and' or cmnds[i] == 'or':
-                    andor = cmnds[i]
-                    continue
-            if andor == 'or':
-                test = test | cmnds[i]
-            else:
-                test = test & cmnds[i]
-        return True, test
-
-    def do_query(self, string):
-        """
-        For internal usage
-        """
-        pass
-
-
-    def query_loop(self):
-        """
-        For command line usage.
-        """
-        from prompt_toolkit import PromptSession
-        # from prompt_toolkit.history import InMemoryHistory
-        from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-
-        session = PromptSession(lexer=PygmentsLexer(TDBLexer), style=etm_style)
-
-        print(self.usage)
-        again = True
-        while again:
-            query = session.prompt('\nquery: ', auto_suggest=AutoSuggestFromHistory())
-            if not query:
-                again = False
-                print('exiting')
-                break
-            if query == "?" or query == "help":
-                print(self.usage)
-                continue
-            ok, test = self.process_query(query)
-            if not ok:
-                print(test)
-                continue
-            if isinstance(test, str): 
-                print(f"{test}")
-            else:
-                items = DBITEM.search(test)
-                for item in items:
-                    print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
-
-############# end query ################################
 
 dataview = None
 item = None
