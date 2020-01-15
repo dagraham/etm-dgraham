@@ -496,7 +496,13 @@ Enter `?` or `help` at the prompt to get usage information:
 		the summary or the entry for @d (description) contains 
 		"waldo":
 			query: search summary waldo or search d waldo
-		Return nothing at the query prompt to quit. 
+		Press 'Enter' to submit a query, close the entry area
+		and display the results. Press 'q' to reopen the entry
+		area to submit another query. Submit '?' or 'help' 
+		to show this display or nothing to quit. In the entry
+		area, the 'up' and 'down' cursor keys scroll through
+		previously submitted queries.
+
 
 Query view keeps a history of queries you submit which can be accessed using the up and down cursor keys.
 

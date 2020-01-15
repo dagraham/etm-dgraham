@@ -155,7 +155,13 @@ using "or" or "and". E.g., find reminders where either
 the summary or the entry for @d (description) contains 
 "waldo":
     query: search summary waldo or search d waldo
-Return nothing at the query prompt to quit. """
+Press 'Enter' to submit a query, close the entry area
+and display the results. Press 'q' to reopen the entry
+area to submit another query. Submit '?' or 'help' 
+to show this display or nothing to quit. In the entry
+area, the 'up' and 'down' cursor keys scroll through
+previously submitted queries.
+"""
 
 
     def matches(self, a, b):
@@ -1200,8 +1206,10 @@ def accept(buff):
         else:
             text_area.text = items
     else:
-        text_area.text = ""
+        # quitting 
+        dataview.active_view = dataview.prior_view
         application.layout.focus(text_area)
+        set_text(dataview.show_active_view())
 
 
 

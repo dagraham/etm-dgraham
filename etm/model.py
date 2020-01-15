@@ -1708,6 +1708,7 @@ class DataView(object):
 
     def __init__(self, etmdir):
         self.active_view = 'agenda'  
+        self.prior_view = 'agenda'
         self.current = []
         self.alerts = []
         self.row2id = []
@@ -1919,6 +1920,7 @@ class DataView(object):
 
     def set_active_view(self, c):
         self.current_row = None
+        self.prior_view = self.active_view
         self.active_view = self.views.get(c, 'agenda')
 
 
@@ -3586,6 +3588,8 @@ def item_instances(item, aft_dt, bef_dt=1):
             return []
     instances = []
     dtstart = item['s']
+    if not isinstance(dtstart, pendulum.DateTime) and not isinstance(dtstart, pendulum.Date):
+        return []
     # This should not be necessary since the data store decodes dates as datetimes
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
@@ -4203,6 +4207,8 @@ def fmt_extent(beg_dt, end_dt):
     """
     beg_suffix = end_suffix = ""
     ampm = settings['ampm']
+    if not isinstance(beg_dt, pendulum.DateTime) or not isinstance(end_dt, pendulum.DateTime):
+        return "xxx"
 
     if ampm:
         diff = beg_dt.hour < 12 and end_dt.hour >= 12
