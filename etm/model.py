@@ -119,10 +119,10 @@ item_types = """item type characters:\n    """ + """\n    """.join([f"{k}: {v}" 
 
 allowed = {}
 required = {}
-common_methods = [x for x in 'cdegilmnstux']
+common_methods = [x for x in 'cdgilmnstuxz']
 repeating_methods = [x for x in '+-o'] + ['rr', 'rc', 'rm', 'rE', 'rh', 'ri', 'rM', 'rn', 'rs', 'ru', 'rW', 'rw']
-datetime_methods = [x for x in 'abez']
-task_methods = [x for x in 'fhp'] + ['jj', 'ja', 'jb', 'jd', 'je', 'jf', 'ji', 'jl', 'jm', 'jp', 'js', 'ju']
+datetime_methods = [x for x in 'abe']
+task_methods = [x for x in 'efhp'] + ['jj', 'ja', 'jb', 'jd', 'je', 'jf', 'ji', 'jl', 'jm', 'jp', 'js', 'ju']
 
 # event
 required['*'] = ['s']
@@ -135,7 +135,7 @@ allowed['-'] = common_methods + datetime_methods + task_methods + repeating_meth
 
 # record
 required['%'] = []
-allowed['%'] = common_methods + datetime_methods
+allowed['%'] = common_methods 
 
 # inbox
 required['!'] = []
