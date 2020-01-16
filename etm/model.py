@@ -18,7 +18,6 @@ from dateutil.rrule import *
 from dateutil import __version__ as dateutil_version
 
 from warnings import filterwarnings
-
 def parse(s, **kwd):
     # logger.debug(f"parse: {s} {kwd}")
     return pendulum_parse(s, strict=False, **kwd)
@@ -4904,7 +4903,7 @@ def get_usedtime(db):
         for monthday in id_used:
             month = monthday.format("YYYY-MM")
             detail_rows.append({
-                        'sort': (month, *index_tup, details),
+                        'sort': (month, *index_tup, monthday, details),
                         'month': month,
                         'path': f"{monthday.format('MMMM YYYY')}/{index}",
                         'columns': [
