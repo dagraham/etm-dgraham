@@ -1421,21 +1421,6 @@ def edit_existing(*event):
     default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
 
-@bindings.add('E', filter=is_viewing)
-def edit_existing(*event):
-    global item
-    if dataview.is_showing_details:
-        application.layout.focus(text_area)
-        dataview.hide_details()
-    dataview.is_editing = True
-    doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
-    item.edit_item(doc_id, entry)
-    entry_buffer.text = item.entry
-    default_buffer_changed(event)
-    default_cursor_position_changed(event)
-    application.layout.focus(entry_buffer)
-
-
 
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
 def do_timer_toggle(*event):

@@ -565,6 +565,7 @@ class Item(object):
             return None
         item_hsh = self.dbquery.get(doc_id=doc_id)
         self.init_entry = entry
+        # logger.debug(f"doc_id: {doc_id}; entry: {entry}")
         if item_hsh:
             self.doc_id = doc_id
             self.is_new = False
@@ -2092,6 +2093,7 @@ class DataView(object):
             return item_id, self.itemcache[item_id]
         item = DBITEM.get(doc_id=item_id)
         if item:
+            # logger.debug(f"edit: {edit}\n   item: {item}")
             self.itemcache[item_id] = item_details(item, edit)
             return item_id, self.itemcache[item_id] 
 
@@ -2428,6 +2430,9 @@ class DataView(object):
         self.calAdv = pendulum.today().month // 7
         self.refreshCalendar()
 
+def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
+    # logger.debug(f"nowrap txt: {txt}")
+    return txt
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
     """
@@ -2443,6 +2448,7 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
         to the aid of their country. Now is the time for
         all good men to come to the aid of their country.
     """
+    # logger.debug(f"wrap txt: {txt}")
     para = [textwrap.dedent(x).strip() for x in txt.split('\n') if x.strip()]
     tmp = []
     first = True
@@ -2699,6 +2705,106 @@ entry_tmpl = """\
 {%- if 'b' in h %}{{ " @b {}".format(h['b']) }}{% endif %}\
 {%- if 'z' in h %}{{ " @z {}".format(h['z']) }}{% endif %}\
 {%- endset %}\
+{{ nowrap(title) }} \
+{% if 'f' in h %}\
+{{ "@f {} ".format(dt2str(h['f'])[1]) }} \
+{% endif -%}\
+{% if 'a' in h %}\
+{%- set alerts %}\
+{% for x in h['a'] %}{{ "@a {}: {} ".format(inlst2str(x[0]), ", ".join(x[1])) }}{% endfor %}\
+{% endset %}\
+{{ nowrap(alerts) }} \
+{% endif %}\
+{% if 'u' in h %}\
+{%- set used %}\
+{% for x in h['u'] %}{{ "@u {}: {} ".format(in2str(x[0]), dt2str(x[1])[1]) }}{% endfor %}\
+{% endset %}
+{{ nowrap(used) }} \
+{% endif %}\
+{%- set is = namespace(found=false) -%}\
+{%- set index -%}\
+{%- for k in ['c', 'i'] -%}\
+{%- if k in h %}@{{ k }} {{ h[k] }}{% set is.found = true %} {% endif %}\
+{%- endfor %}\
+{%- endset %}\
+{% if is.found %}
+{{ nowrap(index) }} \
+{% endif %}\
+{%- if 't' in h %}
+{% for x in h['t'] %}{{ "@t {} ".format(x) }}{% endfor %}\
+{% endif %}\
+{%- if 'n' in h %}
+{% for x in h['n'] %}{{ "@n {} ".format(x) }}{% endfor %}\
+{% endif %}\
+{%- set ls = namespace(found=false) -%}\
+{%- set location -%}\
+{%- for k in ['l', 'm', 'g', 'x', 'p'] -%}\
+{%- if k in h %}@{{ k }} {{ h[k] }}{% set ls.found = true %} {% endif -%}\
+{%- endfor -%}\
+{%- endset -%}\
+{%- if ls.found -%}\
+{{ nowrap(location) }} \
+{% endif -%}\
+{%- if 'r' in h -%}\
+{%- for x in h['r'] -%}\
+{%- if 'r' in x and x['r'] -%}\
+{%- set rrule %}\
+{{ x['r'] }}\
+{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'h', 'E', 'c'] -%}
+{%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
+{%- endfor %}
+{% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
+{%- endset %}
+@r {{ nowrap(rrule) }} \
+{% endif -%}\
+{%- endfor %}\
+{% if 'o' in h %}\
+@o {{ h['o'] }}{% endif %} \
+{% endif %}\
+{% for k in ['+', '-', 'h'] %}\
+{% if k in h and h[k] %}
+@{{ k }} {{ nowrap(dtlst2str(h[k])) }} \
+{%- endif %}\
+{%- endfor %}\
+{% if 'd' in h %}
+@d {{ nowrap(h['d'], 0) }} \
+{% endif -%}
+{%- if 'j' in h %}\
+{%- for x in h['j'] %}\
+{%- set job -%}\
+{{ x['j'] }}\
+{%- for k in ['s', 'e'] -%}
+{%- if k in x and x[k] %} {{ "&{} {}".format(k, in2str(x[k])) }}{% endif %}\
+{%- endfor %}
+{%- for k in ['b', 'd', 'l', 'i', 'p'] %}
+{%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
+{%- endfor %}
+{%- if 'a' in x %}\
+{%- for a in x['a'] %} {{ "&a {}: {}".format( inlst2str(a[0]), one_or_more(a[1]) ) }}{% endfor %}\
+{%- endif %}\
+{% if 'u' in x %}\
+{%- set used %}
+{% for u in x['u'] %}{{ "&u {}: {} ".format(in2str(u[0]), dt2str(u[1])[1]) }}{% endfor %}\
+{% endset %}
+{{ nowrap(used) }} \
+{% endif %}\
+{% if 'f' in x %}{{ " &f {}".format(dt2str(x['f'])[1]) }}{% endif %}\
+{%- endset %}
+@j {{ nowrap(job) }} \
+{%- endfor %}\
+{%- endif %}
+"""
+
+# This duplication seems silly but seemed necessary to use nowrap in entry and wrap in display
+
+display_tmpl = """\
+{%- set title -%}\
+{{ h.itemtype }} {{ h.summary }}\
+{% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %}\
+{%- if 'e' in h %}{{ " @e {}".format(in2str(h['e'])) }}{% endif %}\
+{%- if 'b' in h %}{{ " @b {}".format(h['b']) }}{% endif %}\
+{%- if 'z' in h %}{{ " @z {}".format(h['z']) }}{% endif %}\
+{%- endset %}\
 {{ wrap(title) }} \
 {% if 'f' in h %}\
 {{ "@f {} ".format(dt2str(h['f'])[1]) }} \
@@ -2787,9 +2893,6 @@ entry_tmpl = """\
 @j {{ wrap(job) }} \
 {%- endfor %}\
 {%- endif %}
-"""
-
-display_tmpl = entry_tmpl + """\
 
 {% if h.doc_id %}\
 {{ h.doc_id }}: \
@@ -2809,7 +2912,7 @@ jinja_entry_template.globals['dtlst2str'] = format_datetime_list
 jinja_entry_template.globals['inlst2str'] = format_duration_list
 jinja_entry_template.globals['one_or_more'] = one_or_more
 jinja_entry_template.globals['isinstance'] = isinstance
-jinja_entry_template.globals['wrap'] = wrap
+jinja_entry_template.globals['nowrap'] = nowrap
 
 jinja_display_template = Template(display_tmpl)
 jinja_display_template.globals['dt2str'] = plain_datetime
@@ -2817,7 +2920,7 @@ jinja_display_template.globals['in2str'] = format_duration
 jinja_display_template.globals['dtlst2str'] = plain_datetime_list
 jinja_display_template.globals['inlst2str'] = format_duration_list
 jinja_display_template.globals['one_or_more'] = one_or_more
-jinja_entry_template.globals['isinstance'] = isinstance
+jinja_display_template.globals['isinstance'] = isinstance
 jinja_display_template.globals['wrap'] = wrap
 
 
@@ -4268,7 +4371,9 @@ def item_details(item, edit=False):
     """
     try:
         if edit:
-            return jinja_entry_template.render(h=item)
+            ret = jinja_entry_template.render(h=item)
+            # logger.debug(f"edit: {edit}\nitem: {item}\nret: {ret}")
+            return ret
         else:
             # return jinja_entry_template.render(h=item)
             return jinja_display_template.render(h=item)
@@ -4833,7 +4938,8 @@ def show_index(db, id2relevant):
                     'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
-                        item['summary'][:width - 15], 
+                        item['summary'][:width - 10], 
+                        # item['summary'],
                         item.doc_id],
                     })
     rows.sort(key=itemgetter('sort'))
