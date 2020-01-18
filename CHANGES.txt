@@ -1,189 +1,214 @@
-Recent changes as of 2020-01-15T13:44:42.459904-05:00:
-- 0 seconds ago (HEAD -> master, tag: 4.0.12) Dan Graham
-    b5b3d64 2020-01-15 13:44:42 -0500
+Recent changes as of 2020-01-18T18:12:59.937384-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.13) Dan Graham
+    08557ee 2020-01-18 18:12:59 -0500
+    Tagged version 4.0.13.
+
+- 22 seconds ago Dan Graham
+    e00152d 2020-01-18 18:12:38 -0500
+    Avoid starting a new instance of TinyDB with the same database
+    file when importing text files. Avoid referring to item_ids for
+    bad items - the id's have not been assigned.
+
+- 28 hours ago Dan Graham
+    595fc34 2020-01-17 14:38:04 -0500
+    Wrap text in showing details but not when editing. Removed
+    duplicate 'edit_existing'.
+
+- 2 days ago (origin/master, master) Dan Graham
+    268904e 2020-01-16 12:12:52 -0500
+    Added monthday to used time sort.
+
+- 2 days ago Dan Graham
+    3865bcc 2020-01-16 09:33:58 -0500
+    Removed e and added z to common_methods and removed
+    datetime_methods from allowed['%'] to prevent @e entries in
+    records.
+
+- 3 days ago Dan Graham
+    fb8efda 2020-01-15 13:44:42 -0500
     Tagged version 4.0.12.
 
-- 46 seconds ago Dan Graham
+- 3 days ago Dan Graham
     f984c89 2020-01-15 13:43:56 -0500
     README tweaks re query. Save prior_view when switching to query
     and restore it when quitting. Added error trapping for bad
     datetime entries.
 
-- 20 hours ago (origin/master, working) Dan Graham
+- 4 days ago Dan Graham
     011bcbb 2020-01-14 17:29:11 -0500
     Tagged version 4.0.11.
 
-- 20 hours ago Dan Graham
+- 4 days ago Dan Graham
     dca2958 2020-01-14 17:28:42 -0500
     Added item_details to the view name space. Improved the
     documentation for query usage.
 
-- 21 hours ago Dan Graham
+- 4 days ago Dan Graham
     bedcef9 2020-01-14 16:34:14 -0500
     More README edits
 
-- 23 hours ago Dan Graham
+- 4 days ago Dan Graham
     408be32 2020-01-14 14:43:36 -0500
     Changed 'index view' to display only non-record item types to
     removed duplication with 'record view'.
 
-- 23 hours ago Dan Graham
+- 4 days ago Dan Graham
     d5df64a 2020-01-14 14:20:05 -0500
     README tweaks.
 
-- 24 hours ago Dan Graham
+- 4 days ago Dan Graham
     71da56a 2020-01-14 14:06:23 -0500
     Added a section on query view to README.
 
-- 24 hours ago Dan Graham
+- 4 days ago Dan Graham
     be57acb 2020-01-14 13:50:32 -0500
     In query, submitting nothing closes query and shifts focus to text
     area. Removed external query - testing is complete.
 
-- 2 days ago Dan Graham
+- 5 days ago Dan Graham
     e2380f2 2020-01-13 22:38:20 -0500
     Fixed menu to include q: query
 
-- 2 days ago Dan Graham
+- 5 days ago Dan Graham
     67f54f5 2020-01-13 19:28:44 -0500
     Tagged version 4.0.10.
 
-- 2 days ago Dan Graham
+- 5 days ago Dan Graham
     672f7f1 2020-01-13 19:28:29 -0500
     Added query view bound to 'q'. Allow dates as well as datetimes in
     @u entries.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     079e216 2020-01-12 14:31:09 -0500
     Encapsulated the query procedures and definitions into a class.
 
-- 3 days ago Dan Graham
+- 6 days ago Dan Graham
     f60f6ed 2020-01-12 13:41:28 -0500
     More query external and internal tweaks
 
-- 4 days ago Dan Graham
+- 7 days ago Dan Graham
     f8fbc6a 2020-01-11 12:43:39 -0500
     Start on internal query. Changed binding for close edit to
     'escape' and bind '^c' in edit to copy to clipboard.
 
-- 4 days ago Dan Graham
+- 7 days ago Dan Graham
     f5d9a98 2020-01-11 11:11:55 -0500
     Added 'details' to external query.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     bacdcab 2020-01-10 13:50:48 -0500
     Tagged version 4.0.9.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     0706981 2020-01-10 13:13:32 -0500
     Corrected filter for ^c binding for copying item details.
 
-- 5 days ago Dan Graham
+- 8 days ago Dan Graham
     bd4943a 2020-01-10 12:13:19 -0500
     Fixed bug introduced by query. Added binding for ^c to save the
     details of an item in detail view.
 
-- 6 days ago Dan Graham
+- 9 days ago Dan Graham
     3cd1313 2020-01-09 16:41:15 -0500
     External query improvements. Added pygments keyword styling. Added
     'and' and 'or' conjunctions and '~' to prepend commands to negate
     them. Removed commas to split on spaces.
 
-- 7 days ago Dan Graham
+- 10 days ago Dan Graham
     e32a1e1 2020-01-08 16:33:03 -0500
     First pass at query processing. Uses prompt_session with command
     history and completion. Invoked by adding 'query' to the command
     line when starting etm.
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     767c15e 2020-01-07 17:00:33 -0500
     fixed spelling typos
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     ff1692f 2020-01-07 16:46:41 -0500
     Fixed a bug in Mask serialization. Add __repr__ to class and in
     the serialization decode as a Mask object which will be displayed
     using __repr__. Fixed binding for 's' show alerts to use the
     filter is_viewing.
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     1cd7065 2020-01-07 10:07:05 -0500
     Added help bound to F8. Opens link to etm github pages using
     default browser.
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     18c17bf 2020-01-07 09:47:20 -0500
     Tagged version 4.0.8.
 
-- 8 days ago Dan Graham
+- 11 days ago Dan Graham
     f2bc1cc 2020-01-07 09:46:47 -0500
     Fixed bug in used time details report.
 
-- 9 days ago Dan Graham
+- 12 days ago Dan Graham
     dc0ed10 2020-01-06 10:48:12 -0500
     bindings changes: scheduled alerts -> s; open config -> F7; import
     file -> F5.
 
-- 9 days ago Dan Graham
+- 12 days ago Dan Graham
     35c961c 2020-01-06 08:39:46 -0500
     Tagged version 4.0.7.
 
-- 9 days ago Dan Graham
+- 12 days ago Dan Graham
     4ae020c 2020-01-06 08:39:19 -0500
     README tweaks.
 
-- 10 days ago Dan Graham
+- 13 days ago Dan Graham
     14819a1 2020-01-05 17:41:06 -0500
     Switched F3 (check for updates) and F4 (system info) bindings and
     menu listings.
 
-- 10 days ago Dan Graham
+- 13 days ago Dan Graham
     b82cb6a 2020-01-05 17:29:28 -0500
     Cleaned up system info output.
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     ce66e8c 2020-01-04 16:18:08 -0500
     Cleaned up do_check_updates output to remove extraneous
     information from pip search.
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     81cbf69 2020-01-04 15:54:18 -0500
     Tagged version 4.0.6.
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     537cced 2020-01-04 15:53:04 -0500
     Merge branch 'filter'
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     59ccb46 2020-01-04 15:52:43 -0500
     Further tweaks to import_text.
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     0b60fc5 2020-01-04 14:56:35 -0500
     Improved the used time section in README. Simplified import_text
     to add directly to the database.
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     483cf5d 2020-01-04 09:03:41 -0500
     Tagged version 4.0.5.
 
-- 11 days ago Dan Graham
+- 2 weeks ago Dan Graham
     725f577 2020-01-04 09:03:07 -0500
     Fixed bug in setting the current calendar.
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     c7258f0 2020-01-03 17:08:17 -0500
     Readme tweaks
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     d432862 2020-01-03 14:28:47 -0500
     Tagged version 4.0.4.
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     5f70b3e 2020-01-03 14:27:51 -0500
     Added utilities/colons_to_slashes.py. Finished 'Used Times Views'.
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     4e78bb8 2020-01-03 13:01:04 -0500
     Start on adding 'Used Time Views' to README. Switched delimiter
     from : to / for @i index entries.
@@ -198,81 +223,81 @@ Recent changes as of 2020-01-15T13:44:42.459904-05:00:
     77932d1 2020-01-01 10:36:01 -0500
     refreshCalendar tweaks
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     1c80f3a 2019-12-29 11:43:54 -0500
     Tagged version 4.0.3.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     619eed4 2019-12-29 11:26:56 -0500
     Change URL in setup to github pages location.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     2aa3e07 2019-12-29 10:55:33 -0500
     typo fixes
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     5a4327c 2019-12-29 10:40:20 -0500
     Still more README toc tweaks
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     5b33dd3 2019-12-29 10:36:57 -0500
     Add empty lines after code blocks for github pages display
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     f9e87c9 2019-12-29 10:34:22 -0500
     Add empty lines after code blocks for github pages display
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     8640aae 2019-12-29 10:28:55 -0500
     Still more README toc tweaks
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     47460bb 2019-12-29 10:21:08 -0500
     More README toc tweaks
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     7b40ed6 2019-12-29 10:18:06 -0500
     README toc tweaks
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     8a723fd 2019-12-29 10:05:58 -0500
     Test toc addition
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     150bfec 2019-12-29 09:39:50 -0500
     Merge branch 'master' of https://github.com/dagraham/etm-dgraham
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     9e94c50 2019-12-29 09:39:10 -0500
     Initialize ETMDB and friends as None in model - they will be set
     in _main_.
 
-- 2 weeks ago dagraham
+- 3 weeks ago dagraham
     752ecf8 2019-12-29 09:32:40 -0500
     Set theme jekyll-theme-slate
-- 2 weeks ago dagraham
+- 3 weeks ago dagraham
     df99b51 2019-12-29 09:31:14 -0500
     Set theme jekyll-theme-slate
-- 2 weeks ago dagraham
+- 3 weeks ago dagraham
     f35561c 2019-12-29 09:28:59 -0500
     Set theme jekyll-theme-time-machine
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     af98527 2019-12-24 11:12:12 -0500
     Tagged version 4.0.2.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     910c370 2019-12-24 11:11:28 -0500
     Added 'num_finished' to configuration settings to provide option
     to limit the number of saved completions for infinitely repeating
     tasks. Fixed display for 'do_overdue'. Keep instances of @o s
     tasks that fall during or after the current day.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     448a521 2019-12-23 16:26:41 -0500
     Removed @z from tab completions - the ony entry that is stored
     being 'float'.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     8029336 2019-12-22 23:34:48 -0500
     Fixed bug in showing current yearly calendar to respect the
     half-year.
@@ -335,33 +360,33 @@ Recent changes as of 2020-01-15T13:44:42.459904-05:00:
     6e3ece6 2019-12-18 10:03:06 -0500
     More README tweaks
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     cce855e 2019-12-17 19:49:04 -0500
     Removed id2relevant from sort in show_tags, show_records and
     show_index. More README mods in views section.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     a23f3aa 2019-12-17 16:39:51 -0500
     Tagged version 4.0.0rc7.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     f7a6016 2019-12-17 16:32:14 -0500
     README fix
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     f34c5a6 2019-12-17 16:16:03 -0500
     Tagged version 4.0.0rc6.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     53d8920 2019-12-17 16:15:49 -0500
     Much work on README. Possibly fixed by in ATCompleter by adding a
     'return'.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     ce58b6a 2019-12-15 12:05:29 -0500
     Fixed bug in setting relevant for inbox items
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     889467d 2019-12-15 08:48:51 -0500
     Omit inbox items in show_forthcoming.
 
@@ -415,35 +440,11 @@ Recent changes as of 2020-01-15T13:44:42.459904-05:00:
     Fixed bug in save_before_quit. Added anniversary expansions to
     forthcoming view.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     7b47331 2019-12-10 18:07:00 -0500
     Tagged version 4.0.0rc1.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     384b3ea 2019-12-10 18:04:45 -0500
     Don't allow events to be saved without @s entries. Added option to
     open config file to file menu bound to F8.
-
-- 5 weeks ago Dan Graham
-    73ddd4c 2019-12-09 13:41:49 -0500
-    Tagged version 4.0.0rc0.
-
-- 5 weeks ago Dan Graham
-    d2eb866 2019-12-09 13:41:12 -0500
-    Changed goto date to jump to date and changed binding from 'g' to
-    'j'.
-
-- 5 weeks ago Dan Graham
-    e3f58f0 2019-12-09 12:42:07 -0500
-    Changed history display to group by year and put modified/created
-    label first in the right hand column.
-
-- 5 weeks ago Dan Graham
-    eda8cc5 2019-12-09 12:14:40 -0500
-    Renamed relevant view as forthcoming view. Changed binding from r
-    to f. Show relevant from today forward grouped by year without
-    reverse sort.
-
-- 5 weeks ago Dan Graham
-    2ef82cb 2019-12-09 10:47:20 -0500
-    Set tz='local' for Date objects converted to 12am datetimes.
