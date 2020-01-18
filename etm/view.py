@@ -1603,10 +1603,6 @@ def do_whatever(*event):
 def exit(*event):
     application.exit()
 
-# @bindings.add('f8')
-# def _(event):
-#     " Quit. "
-#     event.app.exit()
 
 @bindings.add('c-c', filter=is_viewing)
 def copy_active_view(*event):

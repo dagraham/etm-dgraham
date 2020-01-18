@@ -513,6 +513,8 @@ class Item(object):
             self.db = ETMDB
             self.dbarch = DBARCH
             self.dbitem = DBITEM
+            self.dbquery = DBITEM 
+
         else: 
             if not os.path.exists(dbfile):
                 logger.error(f"{dbfile} does not exist")
@@ -5461,7 +5463,7 @@ def import_text(import_file=None):
     with open(import_file, 'r') as fo:
         results = []
         good = []
-        bad = []
+        bad = 0
         for line in fo:
             ok = True
             s = line.strip()
@@ -5476,19 +5478,22 @@ def import_text(import_file=None):
                 ok = False
 
             if not ok:
-                bad.append(f"{item.doc_id}")
+                bad += 1
                 results.append(f"   {s}")
                 continue 
 
             # update_item_hsh stores the item in ETMDB
             item.update_item_hsh()
+            logger.debug(f"item: {item}\n   item_hsh: {item.item_hsh}")
+            # docs.append(item)
             good.append(f"{item.doc_id}")
 
-    res = f"imported {len(good)} items"
+    res = f"imported {len(docs)} items"
     if good:
+        # ids = ETMDB.insert_multiple(docs)
         res += f"\n  ids: {good[0]} - {good[-1]}"
     if bad: 
-        res += f"\nrejected {len(bad)} items:\n  "
+        res += f"\nrejected {bad} items:\n  "
         res += "\n  ".join(results)
     return res
 

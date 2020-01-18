@@ -78,8 +78,7 @@ def main():
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
     datetime_calculator = model.datetime_calculator
-    Item = model.Item
-    item = model.Item(dbfile)
+    item = model.Item()
     format_time = model.format_time
     format_datetime = model.format_datetime
     format_duration = model.format_duration
