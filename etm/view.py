@@ -312,7 +312,6 @@ previously submitted queries.
             return False, test
         else:
             items = DBITEM.search(test)
-            logger.debug(f"items: {items}")
             return True, items 
 
 ############# end query ################################
@@ -1200,7 +1199,6 @@ def accept(buff):
         ok, items = query.do_query(query_area.text)
         if ok:
             dataview.set_query(query_area.text, items)
-            logger.debug
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
         else:

@@ -4724,8 +4724,8 @@ def show_query_items(text, items=[]):
     width = shutil.get_terminal_size()[0] - 7 
     rows = []
     summary_width = width - 6 
-    if not isinstance(items, list):
-        return '', {}
+    if not items or not isinstance(items, list):
+        return f"query: {text}\n   none matching", {}
     for item in items:
         mt = item.get('modified', None)
         if mt is not None:
