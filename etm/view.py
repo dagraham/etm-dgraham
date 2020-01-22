@@ -200,11 +200,6 @@ previously submitted queries.
         # field 'a' exists
         return where(a).exists()
 
-    # egs
-    #   % blue and green @t blue @t green
-    #   % green @t green
-    #   % blue @t blue
-
 
     def in_any(self, a, b):
         """
@@ -250,9 +245,7 @@ previously submitted queries.
 
 
 
-    #TODO: replace details with the option to enter an integer as a query and show the details of the item with that id
     def process_query(self, query):
-        # TODO: handle not
 
         parts = [x.split() for x in re.split(r' (and|or) ', query)]
 
