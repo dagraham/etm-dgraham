@@ -63,6 +63,7 @@ logger = None
 
 ############ begin query ###############################
 from tinydb import where
+from tinydb import Query
 from pygments.lexer import RegexLexer
 from pygments.token import Keyword
 from pygments.token import Literal
@@ -94,7 +95,7 @@ class TDBLexer(RegexLexer):
                 ],
             }
 
-class Query(object):
+class ETMQuery(object):
 
     def __init__(self):
         self.arg = { 'matches': self.matches,
@@ -107,10 +108,18 @@ class Query(object):
                 'all': self.in_all,
                 'one': self.one_of,
                 'info': self.info,
+                'dt' : self.dt,
+                }
+
+        self.op = {
+                '=': self.maybe_equal,
+                '>': self.maybe_later,
+                '<': self.maybe_earlier
                 }
 
         self.lexer = PygmentsLexer(TDBLexer)
         self.style = etm_style
+        self.Item = Query()
 
         self.allowed_commands = ", ".join([x for x in self.arg])
 
@@ -130,19 +139,27 @@ class Query(object):
     one a b: return items in which the value of 
         field[a] is one of the elements of list b
     info a: return the details of the item whose 
-        document id equals the integer a\
-        """
+        document id equals the integer a
+    dt a b: return items in which the value of field[a] 
+        is a date if b = '? date' or a datetime if 
+        b = '? time'. Else if b begins with  '>', '='
+        or '<' followed by a string following the format 
+        'yyyy-mm-dd-HH-MM' then return items where the
+        date/time in field[a] bears the specified 
+        relation to the string. E.g., 
+            dt s < 2020-1-17 
+        would return items with @s date/times whose 
+        year <= 2020, month <= 1 and month day <= 17. 
+        Hours and minutes are ignored when field[a] is
+        a date."""
 
         self.usage = f"""\
 Query has components in the format: [~]command a [b]
-where "command", "a" and "b" correspond to one of the
+where "a" is one of the etm fields: itemtype, summary,
+or one of the @keys and "command" is one of the 
 following:
 {self.command_details}
-In the above, "a" is one of the etm fields: itemtype, 
-summary, or one of the @keys and "b" is either a case
-insensitive regex, a string or integer or a list of 
-strings or integers. E.g., find reminders where the 
-summary contains "waldo":
+E.g., find items where the summary contains "waldo":
     query: search summary waldo
 Precede a command with "~" to negate it. E.g., find 
 reminders where the summary does not contain "waldo":
@@ -162,6 +179,81 @@ to show this display or nothing to quit. In the entry
 area, the 'up' and 'down' cursor keys scroll through
 previously submitted queries.
 """
+
+    def is_datetime(self, val):
+        return isinstance(val, pendulum.DateTime)
+
+    def is_date(self, val):
+        return isinstance(val, pendulum.Date) and not isinstance(val, pendulum.DateTime)
+
+    def maybe_equal(self, val, args):
+        """
+        args = year-month-...-minute
+        """
+        args = args.split("-")
+        # args = list(args)
+        if not isinstance(val, pendulum.Date):
+            # neither a date or a datetime
+            return False
+        if args and not val.year == int(args.pop(0)):
+            return False
+        if args and not val.month == int(args.pop(0)):
+            return False
+        if args and not val.day == int(args.pop(0)):
+            return False
+        if isinstance(val, pendulum.DateTime):
+            # val has hours and minutes
+            if args and not val.hour == int(args.pop(0)):
+                return False
+            if args and not val.minute == int(args.pop(0)):
+                return False
+        return True
+
+    def maybe_later(self, val, args):
+        """
+        args = year-month-...-minute
+        """
+        args = args.split("-")
+        # args = list(args)
+        if not isinstance(val, pendulum.Date):
+            # neither a date or a datetime
+            return False
+        if args and not val.year >= int(args.pop(0)):
+            return False
+        if args and not val.month >= int(args.pop(0)):
+            return False
+        if args and not val.day >= int(args.pop(0)):
+            return False
+        if isinstance(val, pendulum.DateTime):
+            # val has hours and minutes
+            if args and not val.hour >= int(args.pop(0)):
+                return False
+            if args and not val.minute >= int(args.pop(0)):
+                return False
+        return True
+
+    def maybe_earlier(self, val, args):
+        """
+        args = year-month-...-minute
+        """
+        args = args.split("-")
+        # args = list(args)
+        if not isinstance(val, pendulum.Date):
+            # neither a date or a datetime
+            return False
+        if args and not val.year <= int(args.pop(0)):
+            return False
+        if args and not val.month <= int(args.pop(0)):
+            return False
+        if args and not val.day <= int(args.pop(0)):
+            return False
+        if isinstance(val, pendulum.DateTime):
+            # val has hours and minutes
+            if args and not val.hour <= int(args.pop(0)):
+                return False
+            if args and not val.minute <= int(args.pop(0)):
+                return False
+        return True
 
 
     def matches(self, a, b):
@@ -244,6 +336,14 @@ previously submitted queries.
         return  f"{item_details(item, False)}"
 
 
+    def dt(self, a, b):
+        if b[0]  == '?':
+            if b[1] == 'time':
+                return self.Item[a].test(self.is_datetime)
+            elif b[1] == 'date':
+                return self.Item[a].test(self.is_date)
+
+        return self.Item[a].test(self.op[b[0]], b[1])
 
     def process_query(self, query):
 
@@ -297,15 +397,18 @@ previously submitted queries.
         """
         if query == "?" or query == "help":
             return False, self.usage
-        ok, test = self.process_query(query)
-        if not ok:
-            return False, test
-        if isinstance(test, str): 
-            # info
-            return False, test
-        else:
-            items = DBITEM.search(test)
-            return True, items 
+        try:
+            ok, test = self.process_query(query)
+            if not ok:
+                return False, test
+            if isinstance(test, str): 
+                # info
+                return False, test
+            else:
+                items = DBITEM.search(test)
+                return True, items 
+        except Exception as e:
+            return False, f"exception processing '{query}':\n{e}"
 
 ############# end query ################################
 
@@ -1176,7 +1279,7 @@ details_area = TextArea(
     search_field=search_field,
     )
 
-query = Query()
+query = ETMQuery()
 query_area = TextArea(
     height=3, 
     # style=query.style,

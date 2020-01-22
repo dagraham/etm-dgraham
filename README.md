@@ -461,7 +461,8 @@ As with other etm views, in query view you can select a reminder, press `Enter` 
 Enter `?` or `help` at the prompt to get usage information:
 
 		Query has components in the format: [~]command a [b]
-		where "command", "a" and "b" correspond to one of the
+		where "a" is one of the etm fields: itemtype, summary,
+		or one of the @keys and "command" is one of the 
 		following:
 			matches a b: return items in which field[a] begins
 				with regex b 
@@ -478,12 +479,20 @@ Enter `?` or `help` at the prompt to get usage information:
 			one a b: return items in which the value of 
 				field[a] is one of the elements of list b
 			info a: return the details of the item whose 
-				document id equals the integer a 
-		In the above, "a" is one of the etm fields: itemtype, 
-		summary, or one of the @keys and "b" is either a case
-		insensitive regex, a string or integer or a list of 
-		strings or integers. E.g., find reminders where the 
-		summary contains "waldo":
+				document id equals the integer a
+			dt a b: return items in which the value of field[a] 
+				is a date if b = '? date' or a datetime if 
+				b = '? time'. Else if b begins with  '>', '='
+				or '<' followed by a string following the format 
+				'yyyy-mm-dd-HH-MM' then return items where the
+				date/time in field[a] bears the specified 
+				relation to the string. E.g., 
+					dt s < 2020-1-17 
+				would return items with @s date/times whose 
+				year <= 2020, month <= 1 and month day <= 17. 
+				Hours and minutes are ignored when field[a] is
+				a date.
+		E.g., find items where the summary contains "waldo":
 			query: search summary waldo
 		Precede a command with "~" to negate it. E.g., find 
 		reminders where the summary does not contain "waldo":
@@ -503,8 +512,6 @@ Enter `?` or `help` at the prompt to get usage information:
 		area, the 'up' and 'down' cursor keys scroll through
 		previously submitted queries.
 
-
-Query view keeps a history of queries you submit which can be accessed using the up and down cursor keys.
 
 ### [Common Features](#etm)
 
