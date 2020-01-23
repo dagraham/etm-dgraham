@@ -4420,9 +4420,10 @@ def relevant(db, now=pendulum.now()):
     # These need to be local times since all times from the datastore and rrule will be local times
     today = pendulum.today()
     tomorrow = today + DAY
-    today_fmt = today.format("YYYYMMDD")
-    begday_fmt = today.format("YYYYMMDD00")
-    endday_fmt = today.format("YYYYMMDD24")
+    # begday_fmt = today.format("YYYYMMDD0000")
+    inbox_fmt = today.format("YYYYMMDD24@@")
+    pastdue_fmt = today.format("YYYYMMDD24^^")
+    begby_fmt = today.format("YYYYMMDD24~~")
 
     id2relevant = {}
     inbox = []
@@ -4631,13 +4632,13 @@ def relevant(db, now=pendulum.now()):
     week = today.isocalendar()[:2]
     day = (today.format("ddd MMM D"), )
     for item in inbox:
-        current.append({'id': item[2], 'job': None, 'instance': None, 'sort': (begday_fmt, 0), 'week': week, 'day': day, 'columns': ['!', item[1], '']})
+        current.append({'id': item[2], 'job': None, 'instance': None, 'sort': (inbox_fmt, 1), 'week': week, 'day': day, 'columns': ['!', item[1], '']})
 
     for item in pastdue:
         # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
         rhc = str(item[0]) + " "*7 if item[0] in item else ""
         try:
-            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begday_fmt, 1, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], rhc]})
+            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], rhc]})
         except Exception as e:
             logger.warn(f"could not append item: {item}; e: {e}")
 
@@ -4645,7 +4646,7 @@ def relevant(db, now=pendulum.now()):
         # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
         rhc = str(item[0]) + " "*7 if item[0] in item else ""
         # rhc = str(item[0]) if item[0] in item else ""
-        current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (endday_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], rhc]})
+        current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begby_fmt, 3, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], rhc]})
 
     return current, alerts, id2relevant
 
@@ -5236,12 +5237,22 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     rhc = fmt_time(dt).center(16, ' ')
                 else:
                     rhc = fmt_extent(dt, et).center(16, ' ') if 'e' in item  else fmt_time(dt).center(16, ' ') 
+                sort_dt = dt.format("YYYYMMDDHHmm")
+                if sort_dt.endswith('0000'):
+                    # all day
+                    if item['itemtype'] == '*':
+                        sort_dt = sort_dt[:-4] + '$$$$'
+                    elif item['itemtype'] in ['-']:
+                        sort_dt = sort_dt[:-4] + '24$$'
+                    elif item['itemtype'] in ['%']:
+                        sort_dt = sort_dt[:-4] + '24%%'
+
                 rows.append(
                         {
                             'id': item.doc_id,
                             'job': None,
                             'instance': instance,
-                            'sort': (dt.format("YYYYMMDDHHmm"), 0),
+                            'sort': (sort_dt, 0),
                             'week': (
                                 dt.isocalendar()[:2]
                                 ),

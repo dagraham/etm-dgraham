@@ -362,16 +362,20 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
 
 The _weekly_ agenda, busy and completed views display one week at a time and are *synchronized* so that all three views always display the same week. Left or right cursor keys go backward or forward a week at a time and the pressing the space bar jumps to the week containing the current day. You can also press "j" and enter a date to jump to the week containing the date.
 
-When displaying the *current week* in agenda view, the label for the *current date* has '(Today)' appended and its entries begin with some special ones:
 
-* *!* inbox entries, if any, are listed first
-* *<* pastdue warnings, if any, are listed next in descending order of the number of days they are past due
-* *>* beginby warnings, if any, are listed next in ascending order of the number of days remaining
+The normal agenda listing for a week day:
 
-After these special entries, the display continues with the normal agenda listing for a week day
+* all day events (events with dates as `@s` entries)
+* datetime items (items with datetimes as `@s` entries) by time
+* all day tasks (tasks with dates as `@s` entries)
+* all day records (records with dates as `@s` entries)
 
-* all day items (items with dates as `@s` entries), if any
-* datetime items (items with datetimes as `@s` entries) sorted by time 
+And, on the current day only: 
+
+* inbox items
+* *<* pastdue warnings in descending order of the number of days past due
+* *>* beginby warnings in ascending order of the number of days remaining
+
 
 ### [Used Time Views](#etm)
 
