@@ -5684,7 +5684,7 @@ def about(padding=0):
 
     copyright = wrap(f"Copyright 2009-{pendulum.today().format('YYYY')}, Daniel A Graham. All rights reserved. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version. See www.gnu.org/licenses/gpl.html for details.", 0, width)
 
-    summary = wrap(f"This application provides a format for using plain text entries to create events, tasks and other items and a prompt_toolkit based interface for creating and modifying items as well as viewing them.", 0, width)
+    summary = wrap(f"This application provides a format for using plain text entries to create events, tasks and other reminders and a prompt_toolkit based interface for creating and modifying items as well as viewing them.", 0, width)
 
     ret1 = f"""\
 {logo}
