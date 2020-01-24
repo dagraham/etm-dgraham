@@ -955,7 +955,7 @@ dark_etmstyle = {
     'plain':        'Ivory',
     'inbox':        'Tomato',
     'pastdue':      'SteelBlue',
-    'begin':        'LightYellow',
+    'begin':        'Yellow',
     'record':       'GoldenRod',
     'event':        'LimeGreen',
     'available':    'DodgerBlue',
