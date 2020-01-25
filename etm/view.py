@@ -953,9 +953,9 @@ light_style = Style.from_dict({
 
 dark_etmstyle = {
     'plain':        'Ivory',
-    'inbox':        'Tomato',
-    'pastdue':      'SteelBlue',
-    'begin':        'Yellow',
+    'inbox':        'LightCoral',
+    'pastdue':      'CadetBlue',
+    'begin':        'PeachPuff',
     'record':       'GoldenRod',
     'event':        'LimeGreen',
     'available':    'DodgerBlue',
