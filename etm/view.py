@@ -798,7 +798,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used', 'used description',  'relevant', 'forthcoming', 'query']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used', 'used time expanded',  'relevant', 'forthcoming', 'query']
 
 @Condition
 def is_editing():
@@ -822,7 +822,7 @@ def is_agenda_view():
 
 @Condition
 def is_used_view():
-    return dataview.active_view in ['used', 'used summary', 'used description']
+    return dataview.active_view in ['used', 'used summary', 'used time expanded']
 
 @Condition
 def is_query_view():
@@ -1915,7 +1915,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
-        MenuItem('x) used time with descriptions', handler=used_description),
+        MenuItem('x) used time expanded', handler=used_description),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
         MenuItem('y) half yearly calendar', handler=yearly_view),

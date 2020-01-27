@@ -1771,7 +1771,7 @@ class DataView(object):
                 't': 'tags',
                 'u': 'used',
                 'U': 'used summary',
-                'x': 'used description',
+                'x': 'used time expanded',
                 'y': 'yearly',
                 }
 
@@ -1986,7 +1986,7 @@ class DataView(object):
             self.used_view = used_details
             self.row2id = self.used_details2id.get(self.active_month)
             return self.used_view
-        elif self.active_view == 'used description':
+        elif self.active_view == 'used time expanded':
             used_description = self.used_description.get(self.active_month)
             if not used_description:
                 month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
