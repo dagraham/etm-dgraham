@@ -798,7 +798,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used', 'relevant', 'forthcoming', 'query']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used', 'used description',  'relevant', 'forthcoming', 'query']
 
 @Condition
 def is_editing():
@@ -822,7 +822,7 @@ def is_agenda_view():
 
 @Condition
 def is_used_view():
-    return dataview.active_view in ['used', 'used summary']
+    return dataview.active_view in ['used', 'used summary', 'used description']
 
 @Condition
 def is_query_view():
@@ -1737,6 +1737,12 @@ def used_view(*event):
     dataview.set_active_view('u')
     set_text(dataview.show_active_view())
 
+@bindings.add('x', filter=is_viewing)
+def used_description(*event):
+    dataview.set_active_view('x')
+    set_text(dataview.show_active_view())
+    logger.debug(f"dataview.active_view: {dataview.active_view}")
+
 @bindings.add('U', filter=is_viewing)
 def used_summary_view(*event):
     dataview.set_active_view('U')
@@ -1824,6 +1830,7 @@ def currcal(*event):
 
 @bindings.add('enter', filter=is_viewing_or_details & is_item_view)
 def show_details(*event):
+    logger.debug('processing enter')
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
@@ -1908,6 +1915,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
+        MenuItem('x) used time with descriptions', handler=used_view),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
         MenuItem('y) half yearly calendar', handler=yearly_view),

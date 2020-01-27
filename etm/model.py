@@ -455,7 +455,7 @@ class Item(object):
                 'a': ["alerts", "list of alerts", do_alert],
                 'b': ["beginby", "number of days for beginby notices", do_beginby],
                 'c': ["calendar", "calendar", do_string],
-                'd': ["description", "item details", do_string],
+                'd': ["description", "item details", do_paragraph],
                 'e': ["extent", "timeperiod", do_period],
                 'f': ["finish", "completion datetime", self.do_datetime],
                 'g': ["goto", "url or filepath", do_string],
@@ -491,7 +491,7 @@ class Item(object):
                 'jj': ["summary", "job summary", do_string],
                 'ja': ["alert", "list of timeperiod before task start followed by a colon and a list of command", do_alert],
                 'jb': ["beginby", " integer number of days", do_beginby],
-                'jd': ["description", " string", do_string],
+                'jd': ["description", " string", do_paragraph],
                 'je': ["extent", " timeperiod", do_period],
                 'jf': ["finished", " datetime", self.do_datetime],
                 'ji': ["unique id", " integer or string", do_string],
@@ -1653,10 +1653,12 @@ class RDict(dict):
     Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row. 
     """
 
-    tab = " " * 2
+    # tab = " " * 2
+    tab = 2
 
     def __init__(self, split_char='/'):
         self.split_char = split_char
+        self.width = shutil.get_terminal_size()[0]
         self.row = 0
         self.row2id = {}
         self.output = []
@@ -1667,6 +1669,14 @@ class RDict(dict):
 
     def as_dict(self):
         return self
+
+    def leaf_detail(self, detail, depth):
+        dindent = RDict.tab * (depth + 1) * " "
+        paragraphs = detail.split('\n')
+        ret = []
+        for para in paragraphs:
+            ret.extend(textwrap.fill(para, initial_indent=dindent, subsequent_indent=dindent, width=self.width-RDict.tab*(depth-1)).split('\n'))
+        return ret
 
 
     def add(self, tkeys, values=()):
@@ -1688,7 +1698,8 @@ class RDict(dict):
     def as_tree(self, t={}, depth = 0, level=0):
         """ return an indented tree """
         for k in t.keys():
-            self.output.append("%s%s" % (depth * RDict.tab,  k))
+            indent = RDict.tab * depth * " "
+            self.output.append("%s%s" % (indent,  k))
             self.row += 1 
             depth += 1
             if level and depth > level:
@@ -1699,9 +1710,15 @@ class RDict(dict):
                 self.as_tree(t[k], depth, level)
             else:
                 for leaf in t[k]:
-                    self.output.append("%s%s" % (depth * RDict.tab, leaf[0]))
+                    indent = RDict.tab * depth * " "
+                    self.output.append("%s%s" % (indent, leaf[0]))
                     self.row2id[self.row] = leaf[1]
                     self.row += 1 
+                    if len(leaf) > 2:
+                        lines = self.leaf_detail(leaf[2], depth)
+                        for line in lines:
+                            self.output.append(line)
+                            self.row += 1
             depth -= 1
         return "\n".join(self.output), self.row2id
 
@@ -1730,6 +1747,8 @@ class DataView(object):
         self.used_summary = {}
         self.used_details = {}
         self.used_details2id = {}
+        self.used_description = {}
+        self.used_description2id = {}
         self.currMonth()
         self.completions = []
         self.timer_status = 0  # 0: stopped, 1: running, 2: paused
@@ -1752,6 +1771,7 @@ class DataView(object):
                 't': 'tags',
                 'u': 'used',
                 'U': 'used summary',
+                'x': 'used description',
                 'y': 'yearly',
                 }
 
@@ -1966,6 +1986,15 @@ class DataView(object):
             self.used_view = used_details
             self.row2id = self.used_details2id.get(self.active_month)
             return self.used_view
+        elif self.active_view == 'used description':
+            used_description = self.used_description.get(self.active_month)
+            if not used_description:
+                month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
+                return f"Nothing recorded for {month_format}"
+            self.used_description_view = used_description
+            self.row2id = self.used_description2id.get(self.active_month)
+            logger.debug(f"row2id: {self.row2id}")
+            return self.used_description_view
         elif self.active_view == 'used summary':
             self.row2id = {}
             used_summary = self.used_summary.get(self.active_month)
@@ -2211,7 +2240,9 @@ class DataView(object):
 
     def refreshCache(self):
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20)
-        self.used_details, self.used_details2id, self.used_summary = get_usedtime(self.db)
+        self.used_details, self.used_details2id, self.used_summary, self.used_description, self.used_description2id = get_usedtime(self.db)
+        logger.debug(f"used_description: {self.used_description}")
+        logger.debug(f"used_description2id: {self.used_description2id}")
 
 
     def possible_archive(self):
@@ -2451,7 +2482,9 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
         all good men to come to the aid of their country.
     """
     # logger.debug(f"wrap txt: {txt}")
-    para = [textwrap.dedent(x).strip() for x in txt.split('\n') if x.strip()]
+    # para = [textwrap.dedent(x).strip() for x in txt.split('\n') if x.strip()]
+    # para = txt.strip().split('\n')
+    para = [x.rstrip() for x in txt.split('\n')]
     tmp = []
     first = True
     for p in para:
@@ -2530,6 +2563,28 @@ def do_string(arg):
         rep = f"invalid: {arg}" 
     return obj, rep
 
+def do_paragraph(arg):
+    """
+    Remove trailing whitespace.
+    """
+    obj = None
+    rep = arg
+    para = [x.rstrip() for x in arg.split('\n')]
+    if para:
+        all_ok = True
+        obj_lst = []
+        rep_lst = []
+        for p in para:
+            try:
+                res = str(p)
+                obj_lst.append(res)
+                rep_lst.append(res)
+            except:
+                all_ok = False
+                rep_lst.append(f"~{arg}~")
+        obj = "\n".join(obj_lst) if all_ok else None
+        rep = "\n".join(rep_lst)
+    return obj, rep
 
 def do_stringlist(args):
     """
@@ -4974,6 +5029,9 @@ def get_usedtime(db):
 
     used_details = {}
     used_details2id = {}
+    used_description = {}
+    used_description2id = {}
+    used_summary = {}
 
     month_rows = {}
     used_time = {}
@@ -4986,6 +5044,7 @@ def get_usedtime(db):
         index = item.get('i', '~')
         # if index == '~':
         #     continue
+        description = item.get('d', "")
         id_used = {}
         index_tup = index.split('/')
         doc_id = item.doc_id
@@ -5017,6 +5076,7 @@ def get_usedtime(db):
                         'sort': (month, *index_tup, monthday, details),
                         'month': month,
                         'path': f"{monthday.format('MMMM YYYY')}/{index}",
+                        'description': description,
                         'columns': [
                             details,
                             f"{format_hours_and_tenths(id_used[monthday])} {monthday.format('MMM D')}",
@@ -5029,20 +5089,30 @@ def get_usedtime(db):
     for month, items in groupby(detail_rows, key=itemgetter('month')):
         months.add(month)
         rdict = RDict()
+        ddict = RDict()
         for row in items:
             summary = row['columns'][0][:summary_width]
             rhc = row['columns'][1]
             path = row['path']
-            values = (
-                    f"{summary}: {rhc}", row['columns'][2]
-                    ) 
+            description = row['description']
+            values = [f"{summary}: {rhc}", row['columns'][2]
+                    ] 
             try:
-                rdict.add(path, values)
+                rdict.add(path, tuple(values))
+            except Exception as e:
+                logger.error(f"error adding path: {path}, values: {values}: {e}")
+            if description:
+                values.append(description)
+            try:
+                ddict.add(path, tuple(values))
             except Exception as e:
                 logger.error(f"error adding path: {path}, values: {values}: {e}")
         tree, row2id = rdict.as_tree(rdict, level=0)
         used_details[month] = tree
         used_details2id[month] = row2id
+        dtree, drow2id = ddict.as_tree(ddict, level=0)
+        used_description[month] = dtree
+        used_description2id[month] = drow2id
 
     keys = [x for x in used_time]
     keys.sort()
@@ -5064,11 +5134,11 @@ def get_usedtime(db):
             summary = f"{indent}{key[-1]}: {rhc}"[:summary_width].ljust(summary_width, ' ')
             month_rows[key[0]].append(f"{summary}")
 
-    used_summary = {}
     for key, val in month_rows.items():
         used_summary[key] = "\n".join(val)
 
-    return used_details, used_details2id, used_summary 
+    logger.debug(f"used_description2id: {used_description2id}")
+    return used_details, used_details2id, used_summary, used_description, used_description2id
 
 
 def fmt_class(txt, cls=None, plain=False):
