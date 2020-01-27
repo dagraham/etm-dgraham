@@ -1769,8 +1769,8 @@ class DataView(object):
                 'q': 'query',
                 'r': 'records',
                 't': 'tags',
-                'u': 'used',
-                'U': 'used summary',
+                'u': 'used time',
+                'U': 'used time summary',
                 'x': 'used time expanded',
                 'y': 'yearly',
                 }
@@ -1978,7 +1978,7 @@ class DataView(object):
         elif self.active_view == 'index':
             self.index_view, self.row2id = show_index(self.db, self.id2relevant)
             return self.index_view
-        elif self.active_view == 'used':
+        elif self.active_view == 'used time':
             used_details = self.used_details.get(self.active_month)
             if not used_details:
                 month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
@@ -1995,7 +1995,7 @@ class DataView(object):
             self.row2id = self.used_description2id.get(self.active_month)
             logger.debug(f"row2id: {self.row2id}")
             return self.used_description_view
-        elif self.active_view == 'used summary':
+        elif self.active_view == 'used time summary':
             self.row2id = {}
             used_summary = self.used_summary.get(self.active_month)
             if not used_summary:
