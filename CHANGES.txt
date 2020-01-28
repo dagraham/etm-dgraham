@@ -1,17 +1,26 @@
-Recent changes as of 2020-01-28T09:20:21.924414-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.16a1) Dan Graham
-    ecdc0ce 2020-01-28 09:20:21 -0500
+Recent changes as of 2020-01-28T10:08:59.050049-05:00:
+- 0 seconds ago (HEAD -> master, tag: 4.0.17) Dan Graham
+    2080ad7 2020-01-28 10:08:59 -0500
+    Tagged version 4.0.17.
+
+- 23 seconds ago Dan Graham
+    5463603 2020-01-28 10:08:36 -0500
+    Corrected setup.py to require python >= 3.7.4 which is needed for
+    the updates to asyncio.
+
+- 49 minutes ago (origin/master, working) Dan Graham
+    02315a6 2020-01-28 09:20:21 -0500
     Tagged version 4.0.16a1.
 
-- 27 seconds ago Dan Graham
+- 49 minutes ago Dan Graham
     7570893 2020-01-28 09:19:55 -0500
     Provisional removal of update from setup REQUIRED.
 
-- 48 minutes ago (origin/master, master) Dan Graham
+- 2 hours ago Dan Graham
     559b2bc 2020-01-28 08:32:23 -0500
     Tagged version 4.0.16.
 
-- 49 minutes ago Dan Graham
+- 2 hours ago Dan Graham
     b43cf42 2020-01-28 08:31:29 -0500
     Added 'used time expanded' to README. Updated used time view
     names. Added pygments to requirements in setup.py.
@@ -21,15 +30,15 @@ Recent changes as of 2020-01-28T09:20:21.924414-05:00:
     modified view names: used -> used time, used summary -> used time
     summary.
 
-- 19 hours ago Dan Graham
+- 20 hours ago Dan Graham
     5d6a5fa 2020-01-27 14:16:04 -0500
     Tagged version 4.0.15.
 
-- 19 hours ago Dan Graham
+- 20 hours ago Dan Graham
     70280e7 2020-01-27 14:15:37 -0500
     changed 'used description' view to 'used time expanded' view.
 
-- 19 hours ago Dan Graham
+- 20 hours ago Dan Graham
     2f0b6e8 2020-01-27 14:01:15 -0500
     Fixed bug involving calling the wrong handler for 'used time with
     descriptions'.
@@ -436,11 +445,3 @@ Recent changes as of 2020-01-28T09:20:21.924414-05:00:
 - 6 weeks ago Dan Graham
     350e596 2019-12-18 10:38:39 -0500
     working on new.png image
-
-- 6 weeks ago Dan Graham
-    7305c91 2019-12-18 10:13:06 -0500
-    working on new.png link
-
-- 6 weeks ago Dan Graham
-    e211747 2019-12-18 10:04:33 -0500
-    Still more README tweaks - added new.png
