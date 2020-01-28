@@ -798,7 +798,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used', 'used time expanded',  'relevant', 'forthcoming', 'query']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query']
 
 @Condition
 def is_editing():
@@ -822,7 +822,7 @@ def is_agenda_view():
 
 @Condition
 def is_used_view():
-    return dataview.active_view in ['used', 'used summary', 'used time expanded']
+    return dataview.active_view in ['used time', 'used time summary', 'used time expanded']
 
 @Condition
 def is_query_view():

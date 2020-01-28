@@ -381,68 +381,121 @@ And, on the current day only:
 
 The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
 
-        % Etincidunt labore 
-        @i client A/project a1/meeting 
-        @u 22m: 2019-11-12 10:00AM
+		* Modi ut sit sed amet sit @s 2019-11-11 10:00am @e
+		   1h30m 
+		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am 
+		@i client A/project a1/correspondence 
+		@d Aliquam non sed aliquam eius tempora quisquam dolorem.
+		Neque quiquia labore tempora magnam. Quiquia tempora
+		porro est ut. Ut tempora sed non ut eius neque porro.
+		Sed quaerat consectetur dolor sit. 
 
 and the *used time view* for November begins with
 
-        November 2019
-          client A
-            project a1
-              meeting
-                % Etincidunt labore: Nov 12 0.4h
-              phone
-                * Aliquam velit: Nov 8 0.3h
-                * Numquam quisquam: Nov 22 1.3h
-              research
-                * Voluptatem porro: Nov 26 1.4h
-            project a2
-              correspondence
-                % Dolore quiquia: Nov 12 1.4h
-                % Velit numquam: Nov 28 0.9h
-              meeting
-                % Quiquia voluptatem: Nov 29 1.1h
-          client B
-            project b2
-              correspondence
-                * Non sit sit: Nov 14 0.5h
-                - Aliquam eius: Nov 19 0.8h
-              meeting
-                - Consectetur: Nov 18 0.3h
-              phone
-                - Ipsum consectetur: Nov 11 1.1h
-            project b3
-              phone
-                - Voluptatem sed: Nov 11 0.4h
-              research
-                * Labore consectetur: Nov 13 1.2h
+		November 2019
+		  client A
+			project a1
+			  correspondence
+				* Modi ut sit sed amet sit: 1.6h Nov 11
+				% Amet modi neque eius adipisci: 2.7h Nov 27
+			  research
+				* Quisquam quiquia velit non: 2.0h Nov 19
+			project a2
+			  correspondence
+				* Consectetur voluptatem dolorem: 1.0h Nov 6
+				* Quaerat etincidunt sed non: 0.9h Nov 13
+				* Consectetur eius est adipisci: 0.5h Nov 25
+				% Magnam labore etincidunt: 1.8h Nov 28
+			  meeting
+				% Adipisci dolor labore quiquia: 0.9h Nov 7
+				% Adipisci eius velit porro: 1.4h Nov 14
+			  research
+				* Non modi non velit eius: 1.0h Nov 20
+		  client B
+			project b1
+			  correspondence
+				* Dolor neque velit dolorem: 0.4h Nov 22
+			  meeting
+				* Ipsum numquam porro consectetur: 0.8h Nov 15
+			  phone
+				- Porro voluptatem aliquam: 1.0h Nov 12
+				% Amet ut dolor velit aliquam: 1.9h Nov 13
+			  research
+				* Quisquam labore ut sit aliquam: 0.7h Nov 5
+				* Quiquia ut quisquam sit: 1.5h Nov 12
+				% Adipisci amet modi sed eius: 2.6h Nov 15
+				- Velit dolor quiquia etincidunt: 1.9h Nov 15
 
 Note that the display is by month and, within the month, heirarchially by index entry and reminder. With, e.g., 
 
-            % Etincidunt labore: Nov 12 0.4h
+			* Modi ut sit sed amet sit: 1.6h Nov 11
 
-selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth. Note also that the `0.4h` is the 22 minutes from the item's `@u 22m: 2019-12-13 09:00AM` rounded up to the next 6 minutes and expressed in hours and tenths. This rounding is due to the entry `usedtime_minutes: 6` in `cfg.yaml`.
+selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth. 
+
+The *used time **expanded** view* is like the *used time* view but when a reminder has an "@d" entry, the contents of that field are also displayed wrapped and indented under the reminder. This view for November begins with
+
+		November 2019
+		  client A
+			project a1
+			  correspondence
+				* Modi ut sit sed amet sit: 1.6h Nov 11
+				  Aliquam non sed aliquam eius tempora
+				  quisquam dolorem. Neque quiquia labore
+				  tempora magnam. Quiquia tempora porro est
+				  ut. Ut tempora sed non ut eius neque porro.
+				  Sed quaerat consectetur dolor sit.
+				% Amet modi neque eius adipisci: 2.7h Nov 27
+				  Adipisci voluptatem labore amet neque neque
+				  numquam. Voluptatem dolor dolorem sed sit.
+				  Tempora labore ut ut labore tempora. Sit
+				  ipsum dolorem aliquam aliquam voluptatem non
+				  labore. Est quisquam etincidunt quiquia est
+				  ipsum adipisci. Est quiquia velit sed sed
+				  quisquam quisquam porro.
+			  research
+				* Quisquam quiquia velit non: 2.0h Nov 19
+				  Labore ipsum non consectetur amet quiquia
+				  sit porro. Quisquam amet ut sit etincidunt.
+				  Quiquia modi consectetur ipsum velit eius.
+				  Est dolorem etincidunt porro. Modi dolorem
+				  porro magnam est. Adipisci non quiquia
+				  voluptatem porro consectetur. Quaerat neque
+				  modi sed tempora sit adipisci consectetur.
+				  Dolor non dolore ut quaerat ipsum labore.
+			project a2
+			  correspondence
+				* Consectetur voluptatem dolorem: 1.0h Nov 6
+				  Dolore quaerat est dolore tempora. Modi amet
+				  voluptatem etincidunt numquam neque velit.
+				  Ipsum neque amet dolor magnam consectetur
+				  dolorem voluptatem. Neque amet etincidunt
+				  quiquia neque dolorem numquam quiquia. Neque
+				  etincidunt labore numquam neque modi.
+
 
 The *used time **summary** view* for the same month begins with:
 
-        November 2019: 17.0h
-           client A: 6.8h 
-              project a1: 3.4h 
-                 meeting: 0.4h 
-                 phone: 1.6h 
-                 research: 1.4h 
-              project a2: 3.4h 
-                 correspondence: 2.3h 
-                 meeting: 1.1h 
-           client B: 4.3h 
-              project b2: 2.7h 
-                 correspondence: 1.3h 
-                 meeting: 0.3h 
-                 phone: 1.1h 
-              project b3: 1.6h 
-                 phone: 0.4h 
-                 research: 1.2h 
+		November 2019: 44.4h
+		   client A: 13.8h 
+			  project a1: 6.3h 
+				 correspondence: 4.3h 
+				 research: 2.0h 
+			  project a2: 7.5h 
+				 correspondence: 4.2h 
+				 meeting: 2.3h 
+				 research: 1.0h 
+		   client B: 16.6h 
+			  project b1: 10.8h 
+				 correspondence: 0.4h 
+				 meeting: 0.8h 
+				 phone: 2.9h 
+				 research: 6.7h 
+			  project b2: 3.9h 
+				 meeting: 1.8h 
+				 research: 2.1h 
+			  project b3: 1.9h 
+				 correspondence: 1.9h 
+
 
 This view omits the reminder lines and aggregates the used times heirarchially by index entry.
 
