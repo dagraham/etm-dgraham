@@ -41,7 +41,6 @@ REQUIRED = [
         "tinydb-smartcache>=1.0.2",
         "tzlocal>=1.5.1",
         "ujson>=1.35",
-        "update>=0.0.1",
         "wcwidth>=0.1.7"
 ]
 
