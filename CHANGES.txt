@@ -1,49 +1,58 @@
-Recent changes as of 2020-01-28T10:08:59.050049-05:00:
-- 0 seconds ago (HEAD -> master, tag: 4.0.17) Dan Graham
-    2080ad7 2020-01-28 10:08:59 -0500
+Recent changes as of 2020-01-28T12:22:48.510278-05:00:
+- 0 seconds ago (HEAD -> master, tag: 4.0.18) Dan Graham
+    3f5d1bb 2020-01-28 12:22:48 -0500
+    Tagged version 4.0.18.
+
+- 26 seconds ago Dan Graham
+    a8cc500 2020-01-28 12:22:22 -0500
+    README tweaks. Removed ujson requirement from setup.py. Removed
+    python 3.6 from setup.py classifiers.
+
+- 2 hours ago (origin/master) Dan Graham
+    c9e833f 2020-01-28 10:08:59 -0500
     Tagged version 4.0.17.
 
-- 23 seconds ago Dan Graham
+- 2 hours ago Dan Graham
     5463603 2020-01-28 10:08:36 -0500
     Corrected setup.py to require python >= 3.7.4 which is needed for
     the updates to asyncio.
 
-- 49 minutes ago (origin/master, working) Dan Graham
+- 3 hours ago (working) Dan Graham
     02315a6 2020-01-28 09:20:21 -0500
     Tagged version 4.0.16a1.
 
-- 49 minutes ago Dan Graham
+- 3 hours ago Dan Graham
     7570893 2020-01-28 09:19:55 -0500
     Provisional removal of update from setup REQUIRED.
 
-- 2 hours ago Dan Graham
+- 4 hours ago Dan Graham
     559b2bc 2020-01-28 08:32:23 -0500
     Tagged version 4.0.16.
 
-- 2 hours ago Dan Graham
+- 4 hours ago Dan Graham
     b43cf42 2020-01-28 08:31:29 -0500
     Added 'used time expanded' to README. Updated used time view
     names. Added pygments to requirements in setup.py.
 
-- 19 hours ago Dan Graham
+- 22 hours ago Dan Graham
     cbdb6e6 2020-01-27 14:43:12 -0500
     modified view names: used -> used time, used summary -> used time
     summary.
 
-- 20 hours ago Dan Graham
+- 22 hours ago Dan Graham
     5d6a5fa 2020-01-27 14:16:04 -0500
     Tagged version 4.0.15.
 
-- 20 hours ago Dan Graham
+- 22 hours ago Dan Graham
     70280e7 2020-01-27 14:15:37 -0500
     changed 'used description' view to 'used time expanded' view.
 
-- 20 hours ago Dan Graham
+- 22 hours ago Dan Graham
     2f0b6e8 2020-01-27 14:01:15 -0500
     Fixed bug involving calling the wrong handler for 'used time with
     descriptions'.
 
-- 20 hours ago Dan Graham
+- 23 hours ago Dan Graham
     c751cc3 2020-01-27 13:50:43 -0500
     Strip trailing whitespace in @d entries. Modified RDict.tree to
     append a wrapped and indented 3rd element of leaf nodes, if
@@ -437,11 +446,3 @@ Recent changes as of 2020-01-28T10:08:59.050049-05:00:
 - 6 weeks ago Dan Graham
     1a8b0ad 2019-12-18 13:18:30 -0500
     Tagged version 4.0.0rc8.
-
-- 6 weeks ago Dan Graham
-    803f7b2 2019-12-18 13:18:16 -0500
-    README ...
-
-- 6 weeks ago Dan Graham
-    350e596 2019-12-18 10:38:39 -0500
-    working on new.png image
