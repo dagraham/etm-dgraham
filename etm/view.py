@@ -801,6 +801,10 @@ def is_item_view():
     return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query']
 
 @Condition
+def is_dated_view():
+    return dataview.active_view in ['agenda', 'completed', 'busy'] and get_app().layout.has_focus(text_area) 
+
+@Condition
 def is_editing():
     return dataview.is_editing
 
@@ -876,7 +880,7 @@ def do_go_to_line(*event):
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('j', filter=is_viewing)
+@bindings.add('j', filter=is_dated_view)
 def do_jump_to_date(*event):
     def coroutine():
         dialog = TextInputDialog(
