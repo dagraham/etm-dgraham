@@ -426,7 +426,17 @@ and the *used time view* for November begins with
 				% Adipisci amet modi sed eius: 2.6h Nov 15
 				- Velit dolor quiquia etincidunt: 1.9h Nov 15
 
-Note that the display is by month and, within the month, heirarchially by index entry and reminder. With, e.g., 
+Note that the display is by month and, within the month, heirarchially by index entry and reminder. Note also, that the reported times are aggregates of all `@u` entries in the reminder. The first reminder, for example, has 2 such entries:
+
+		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
+
+Because of a 
+
+		usedtime_minutes: 6
+
+setting in `cfg.yaml` **each** `@u` timeperiod is first rounded up to the next 6 minutes and then added. Thus 58m becomes 1h, 34m becomes 36m and the sum, 1h36m, is reported in hours and tenths as 1.6h.
+
+The reminder lines are similar to those in other views. With, e.g., 
 
 			* Modi ut sit sed amet sit: 1.6h Nov 11
 
@@ -621,7 +631,7 @@ Open a terminal and begin by creating a new directory/folder, say `etm-pypi` in 
         $ mkdir ~/etm-pypi
         $ cd ~/etm-pypi
 
-Now continue by creating the virtual environment (python >= 3.6 is required for *etm*):
+Now continue by creating the virtual environment (python >= 3.7.4 is required):
 
         $ python3 -m venv env
 
@@ -637,7 +647,7 @@ Note that this invokes `./env/bin/pip`. Once this is finished, use pip to instal
 
         (env) $ pip install -U etm-dgraham
 
-This will install etm and all its requirements in `./env/lib/python3.x/sitepackages` and will also install an executable called `etm` in `./env/bin`.
+This will install etm and all its requirements in `./env/lib/python3.x/sitepackages` and will also install an executable called `etm` in `./env/bin`. You may see a warning about update 0.0.1 requiring style 1.0.0 - this can be ignored.
 
 By the way, the suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display. 
 
@@ -650,6 +660,7 @@ Considerations:
 * If more than one person will be using etm on the same computer, you might want to have different *home* directories for each user.
 * If you want to use etm on  more than one computer and use Dropbox, you might want to use `~/Dropbox/etm` to have access on each of your computers.
 * If you want to separate personal and professional reminders, you could use different _home_ directories for each. You can run two instances of _etm_ simultaneously, one for each directory, and have access to both at the same time. 
+* You can have multiple instances of *etm* running with the same *home* directory, provided that you treat all instances save one as **read only**, i.e., only make changes in one instance.
 
 Whatever *home* directory you choose, running etm for the first time will add the following to that directory.
 
@@ -662,6 +673,7 @@ Whatever *home* directory you choose, running etm for the first time will add th
 Here `cfg.yaml` is your user configuration file and `db.json` contains all your etm reminders. The folders `backups/` contains the 5 most recent daily backups of your `db.json` and `cfg.yaml` files. The folder `logs` contains the current `etm.log` file and the 5 most recent daily backups. Note that backup files are only created when the relevant file has been modified since the last backup.
 
 The file `cfg.yaml` can be edited and the options are documented in the file.
+See [configuration](#configuration) for details. 
 
 ### [Deinstallation](#etm)
 
@@ -809,7 +821,8 @@ Notes:
 
 	@t red   @t green
 
-### [@ keys](#etm) 
+
+### [\@ keys](#etm)
 
 `@` followed by a character from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
 
@@ -978,11 +991,11 @@ Here are the options with their default values from that file. The lines beginni
 	style: dark
 
 	# keep_current: true or false. If true, the agenda for the  
-	# current and following two weeks will be written to "current.txt" 
-	# in your etm home directory and updated when necessary. You 
-	# could, for example, create a link to this file in a pCloud or 
-	# DropBox folder and have access to your current schedule on 
-	# your mobile device.
+	# current and following two weeks will be written to 
+	# "current.txt" # in your etm home directory and updated when 
+	# necessary. You # could, for example, create a link to this 
+	# file in a pCloud or # DropBox folder and have access to your 
+	# current schedule on # your mobile device.
 	keep_current: false
 
 	# archive_after: A non-negative integer. If zero, do not 
@@ -1028,8 +1041,8 @@ Here are the options with their default values from that file. The lines beginni
 	# 30 minutes". E.g. on my macbook
 	# 
 	#    alerts:
-	#       v: /usr/bin/say -v "Alex" "{summary}, {when}"
-	#       ...
+	#        v: /usr/bin/say -v "Alex" "{summary}, {when}"
+	#        ...
 	#
 	# would make the alert 'v' use the builtin text to speech sytem 
 	# to speak the item's summary followed by a slight pause 
@@ -1089,6 +1102,21 @@ Here are the options with their default values from that file. The lines beginni
 		id: 
 		pw: 
 		server: 
+
+Note that in the 'dictionary' entries above, the components must be indented. E.g., the illustrative alert entry would be:
+
+	alerts:
+	    v: /usr/bin/say -v "Alex" "{summary}, {when}"
+
+Also note that the command can be anything that could be run at a terminal prompt. On my mac, my own command for `v` is:
+
+		v: /Users/dag/bin/SleepDisplay -w && 
+			/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier 
+			-title "{summary}" -subtitle "{start}" -message "{when}" & 
+			/usr/bin/say -v "Alex" ". {summary}, {when}"
+
+
+
 
 ### [data storage](#etm)
 

@@ -40,7 +40,6 @@ REQUIRED = [
         "tinydb-serialization>=1.0.4",
         "tinydb-smartcache>=1.0.2",
         "tzlocal>=1.5.1",
-        "ujson>=1.35",
         "wcwidth>=0.1.7"
 ]
 
@@ -85,7 +84,6 @@ else:
         'Intended Audience :: End Users/Desktop', 
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
