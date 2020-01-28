@@ -18,7 +18,7 @@ DESCRIPTION = 'event and task manager'
 URL = 'https://dagraham.github.io/etm-dgraham/'
 EMAIL = 'dnlgrhm@gmail.com'
 AUTHOR = 'Daniel A Graham'
-REQUIRES_PYTHON = '>=3.6.0'
+REQUIRES_PYTHON = '>=3.7.4'
 VERSION = version
 
 # What packages are required for this module to be executed?
