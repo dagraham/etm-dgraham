@@ -5047,7 +5047,11 @@ def get_usedtime(db):
         id_used = {}
         index_tup = index.split('/')
         doc_id = item.doc_id
-        details = f"{item['itemtype']} {item['summary']}"
+        if item['itemtype'] == '-' and 'f' in item:
+            itemtype = finished_char
+        else:
+            itemtype = item['itemtype'] 
+        details = f"{itemtype} {item['summary']}"
         for period, dt in used:
             if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
                 dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
