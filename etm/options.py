@@ -269,11 +269,11 @@ def setup_logging(level, etmdir, file=None):
                   'level': loglevel},
               'version': 1}
     logging.config.dictConfig(config)
-    logger.info("\n######## Initializing logging #########")
+    logger.critical("\n######## Initializing logging #########")
     if file:
-        logger.info(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
+        logger.critical(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
     else:
-        logger.info(f'logging at level: {loglevel}\n    logging to file: {logfile}')
+        logger.critical(f'logging at level: {loglevel}\n    logging to file: {logfile}')
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):

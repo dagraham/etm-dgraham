@@ -17,7 +17,7 @@ def main():
     loglevel = 2 # info
     log_levels = [str(x) for x in range(1, 6)]
     if len(sys.argv) > 1 and sys.argv[1] in log_levels:
-        loglevel = sys.argv.pop(1)
+        loglevel = int(sys.argv.pop(1))
     if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
         etmdir = sys.argv.pop(1)
 

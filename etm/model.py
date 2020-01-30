@@ -3056,7 +3056,8 @@ def do_alert(arg):
     rep = arg
     parts = arg.split(':')
     periods = parts.pop(0)
-    command = parts[0] if parts else None
+    logger.info(f"parts: {parts}")
+    command = parts[0] if parts and parts[0] else None
     if command:
         commands = [x.strip() for x in command.split(',')]
     else:

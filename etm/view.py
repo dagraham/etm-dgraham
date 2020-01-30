@@ -1104,6 +1104,7 @@ async def maybe_alerts(now):
     if dataview.alerts and not ('alerts' in settings and settings['alerts']):
         logger.warn("alerts have not been configured")
         return
+    bad = []
     for alert in dataview.alerts:
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
             alertdt = alert[0] 
@@ -1137,12 +1138,18 @@ async def maybe_alerts(now):
                 command_list.remove('t')
                 logger.debug("t alert")
                 dataview.send_text(doc_id)
-            commands = [settings['alerts'].get(x).format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list]
-
+            commands = [settings['alerts'][x].format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list if x in settings['alerts']]
             for command in commands:
                 if command:
                     logger.debug(f"{command} alert")
                     check_output(command)
+            if len(commands) < len(command_list):
+                bad.extend([x for x in command_list if x not in settings['alerts']])
+
+    if bad:
+        logger.error(f"unrecognized alert commands: {bad}")
+        # show_message(f"unrecognized alert commands", f"{bad}", 0)
+
 
 async def event_handler():
     global current_datetime
