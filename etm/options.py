@@ -76,7 +76,7 @@ usedtime_minutes: 1
 # corresponding "system command" values. Note that characters 
 # "t" (text message) and "e" (email) are already used.  The 
 # "system command" string should be a comand with any 
-# applicable arguments that could be run in a terminal. 
+# applicable arguments that could be run in a terminal.
 # Properties of the item triggering the alert can be included 
 # in the command arguments using the syntax '{property}', e.g., 
 # {summary} in the command string would be replaced by the 
@@ -89,13 +89,14 @@ usedtime_minutes: 1
 # 30 minutes". E.g. on my macbook
 # 
 #    alerts:
-#        v: /usr/bin/say -v "Alex" "{summary}, {when}"
+#        v:   /usr/bin/say -v "Alex" "{summary}, {when}"
 #        ...
 #
 # would make the alert 'v' use the builtin text to speech sytem 
 # to speak the item's summary followed by a slight pause 
 # (the comma) and then the time remaining until the starting 
-# time, e.g., "sales meeting, in 20 minutes".
+# time, e.g., "sales meeting, in 20 minutes" would be triggered
+# by including "@a 20m: v" in the reminder.
 alerts:
 
 # expansions: A dictionary with 'expansion name' keys and 
@@ -117,8 +118,8 @@ expansions:
 # have a gmail account with email address "who457@gmail.com" 
 # and want to text alerts to Verizon moble phone (123) 
 # 456-7890. Then your sms entries should be
-#     from: who457@gmail.com
-#     pw: your gmail password
+#     from:   who457@gmail.com
+#     pw:     your gmail password
 #     server: smtp.gmail.com:587
 # and your item should include the following attendee entry
 #     @n 1234567890@vzwpix.com
@@ -129,7 +130,7 @@ expansions:
 #     T-Mobile: @tmomail.net
 # Note. Google "mms gateway listing" for other alternatives.
 sms:
-    body: "{location} {when}"
+    body:   "{location} {when}"
     from: 
     pw: 
     server: 

@@ -5760,11 +5760,11 @@ def about(padding=0):
 {logo}
 {summary}
 
-Developer:    dnlgrhm@gmail.com
-PyPi:         pypi.org/project/etm-dgraham
-GitHub:       github.com/dagraham/etm-dgraham
-GitHub Pages: dagraham.github.io/etm-dgraham
-Discussion:   groups.io/g/etm
+Discussion:     groups.io/g/etm
+Documentation:  dagraham.github.io/etm-dgraham
+PyPi:           pypi.org/project/etm-dgraham
+GitHub:         github.com/dagraham/etm-dgraham
+Developer:      dnlgrhm@gmail.com
 
 {copyright}\
 """

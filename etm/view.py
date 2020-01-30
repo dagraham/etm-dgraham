@@ -1115,8 +1115,10 @@ async def maybe_alerts(now):
                 # rrule produces datetime.datetime objects
                 startdt = pendulum.instance(startdt)
             # when = startdt.diff_for_humans()
-            if startdt >= alertdt:
+            if startdt > alertdt:
                 when = f"in {(startdt-alertdt).in_words()}"
+            elif startdt == alertdt:
+                when = f"now"
             else:
                 when = f"{(alertdt-startdt).in_words()} ago"
             start = format_datetime(startdt)[1]

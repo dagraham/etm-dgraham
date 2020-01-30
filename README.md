@@ -45,9 +45,11 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
 * Inbox (**!**): meet Alex for coffee Friday. This can be 
   changed to an event when the time is confirmed by 
-  replacing the **!** with an **\***.
+  replacing the **!** with an **\*** and adding the time to `@s`.
 
-        ! Coffee with Alex @s fri ? @e 1h
+        ! Coffee with Alex @s fri @e 1h
+
+    This inbox entry will appear on the current day in *agenda view* until you make the changes.
 
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
@@ -430,11 +432,11 @@ Note that the display is by month and, within the month, heirarchially by index 
 
 		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
 
-Because of a 
+Because of 
 
 		usedtime_minutes: 6
 
-setting in `cfg.yaml` **each** `@u` timeperiod is first rounded up to the next 6 minutes and then added. Thus 58m becomes 1h, 34m becomes 36m and the sum, 1h36m, is reported in hours and tenths as 1.6h.
+in `cfg.yaml`, each `@u` timeperiod is first rounded up to the next 6 minutes and then added. Thus 58m becomes 1h, 34m becomes 36m and the sum, 1h36m, is reported in hours and tenths as 1.6h.
 
 The reminder lines are similar to those in other views. With, e.g., 
 
@@ -442,7 +444,7 @@ The reminder lines are similar to those in other views. With, e.g.,
 
 selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth. 
 
-The *used time **expanded** view* is like the *used time* view but when a reminder has an "@d" entry, the contents of that field are also displayed wrapped and indented under the reminder. This view for November begins with
+The *used time **expanded** view* is like the *used time* view but when a reminder has an `@d` entry, the contents of that field are also displayed wrapped and indented under the reminder. This view for November begins with
 
 		November 2019
 		  client A
@@ -647,7 +649,11 @@ Note that this invokes `./env/bin/pip`. Once this is finished, use pip to instal
 
         (env) $ pip install -U etm-dgraham
 
-This will install etm and all its requirements in `./env/lib/python3.x/sitepackages` and will also install an executable called `etm` in `./env/bin`. You may see a warning about update 0.0.1 requiring style 1.0.0 - this can be ignored.
+This will install etm and all its requirements in 
+
+		./env/lib/python3.x/sitepackages 
+
+and will also install an executable called `etm` in `./env/bin`. 
 
 By the way, the suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display. 
 
@@ -658,7 +664,7 @@ Before you start etm, think about where you would like to keep your personal dat
 Considerations:
 
 * If more than one person will be using etm on the same computer, you might want to have different *home* directories for each user.
-* If you want to use etm on  more than one computer and use Dropbox, you might want to use `~/Dropbox/etm` to have access on each of your computers.
+* If you want to use etm on more than one computer and use Dropbox, you might want to use `~/Dropbox/etm` to have access on each of your computers.
 * If you want to separate personal and professional reminders, you could use different _home_ directories for each. You can run two instances of _etm_ simultaneously, one for each directory, and have access to both at the same time. 
 * You can have multiple instances of *etm* running with the same *home* directory, provided that you treat all instances save one as **read only**, i.e., only make changes in one instance.
 
@@ -815,14 +821,14 @@ Notes:
 
 * Options displayed with an asterick can be used more than once, e.g., 
 
-    @a 1h, 30m: t, v   @a 1d: e
+    @a 1h, 30m: t, v @a 1d: e
 
-    @n joe: jdoaks@whatever.com   @n john: jsmith@wherever.org
+    @n joe: jdoaks@whatever.com  @n john: jsmith@wherever.org
 
-	@t red   @t green
+	@t red  @t green
 
 
-### [\@ keys](#etm)
+### [@ keys](#etm)
 
 `@` followed by a character from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
 
