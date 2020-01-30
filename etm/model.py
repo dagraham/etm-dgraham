@@ -2241,8 +2241,6 @@ class DataView(object):
     def refreshCache(self):
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20)
         self.used_details, self.used_details2id, self.used_summary, self.used_description, self.used_description2id = get_usedtime(self.db)
-        logger.debug(f"used_description: {self.used_description}")
-        logger.debug(f"used_description2id: {self.used_description2id}")
 
 
     def possible_archive(self):
@@ -5070,7 +5068,6 @@ def get_usedtime(db):
             for i in range(len(index_tup)):
                 used_time.setdefault(tuple((month, *index_tup[:i+1])), ZERO)
                 used_time[tuple((month, *index_tup[:i+1]))] += period
-        # logger.debug(f"id_used: {id_used}; index_tup: {index_tup}")
         for monthday in id_used:
             month = monthday.format("YYYY-MM")
             detail_rows.append({
@@ -5084,9 +5081,7 @@ def get_usedtime(db):
                             doc_id],
                         })
 
-    # logger.debug(f"used_time: {used_time}")
     detail_rows.sort(key=itemgetter('sort'))
-    # logger.debug(f"detail_rows: {detail_rows}")
     for month, items in groupby(detail_rows, key=itemgetter('month')):
         months.add(month)
         rdict = RDict()
@@ -5138,7 +5133,6 @@ def get_usedtime(db):
     for key, val in month_rows.items():
         used_summary[key] = "\n".join(val)
 
-    logger.debug(f"used_description2id: {used_description2id}")
     return used_details, used_details2id, used_summary, used_description, used_description2id
 
 
