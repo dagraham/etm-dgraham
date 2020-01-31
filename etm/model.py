@@ -14,6 +14,7 @@ yaml = YAML(typ='safe', pure=True)
 
 from ruamel.yaml import __version__ as ruamel_version
 
+import dateutil
 from dateutil.rrule import *
 from dateutil import __version__ as dateutil_version
 

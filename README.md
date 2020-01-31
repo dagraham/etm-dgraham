@@ -1060,12 +1060,12 @@ Here are the options with their default values from that file. The lines beginni
 	# corresponding 'replacement string' values. E.g. with
 	#
 	#    expansions:
-	#       tennis: "@e 1h30m @a 30m: d @i personal:exercise" 
+	#       tennis: "@e 1h30m @a 30m: d @i personal/exercise" 
 	#       ...
 	#
 	# then when "@x tennis" is entered the popup completions for 
 	# "@x tennis" would offer replacement by the corresponding 
-	# "@e 1h30m @a 30m: d @i personal:exercise".
+	# "@e 1h30m @a 30m: d @i personal/exercise".
 	expansions:
 
 	# sms: Settings to send "t" (sms text message) alerts to the 
