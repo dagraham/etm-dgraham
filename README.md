@@ -4,9 +4,9 @@
 * auto-gen TOC:
 {:toc}
 
-# [Overview](#etm)
+# [Overview](#overview)
 
-## [Reminders](#etm)
+## [Reminders](#overview)
 
 *etm* offers a simple way to manage your events, tasks and other reminders. 
 
@@ -64,7 +64,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
         * Presidential election day @s nov 1 2020 @r y &i 4 &M 11 
           &m 2, 3, 4, 5, 6, 7, 8 &w tu
 
-  Try this with a form based calendar application.
+    Try this with a form based calendar application.
 
 ### unobtrusive and timely entry assistance
 
@@ -341,7 +341,7 @@ For these attributes, etm keeps a record of each usage. I.e., for each reminder 
 When you next create a reminder and enter @n, *etm* will pop up a sorted list of every item in the completion list that begins with @n. You can use the up and down cursor keys to move through this list or you can continue typing to limit the possible completions, e.g., after entering '@n joe' only those completions that start with '@n joe' would still be displayed. When you have selected the completion you want, press the space bar to insert the completion in your entry.
 
 
-## [Views](#etm)
+## [Views](#overview)
 
 
 _etm_ has several ways of viewing entries. These are listed below by the shortcut key used to activate the view. E.g., pressing `a` activates _Agenda_ view.
@@ -361,7 +361,7 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
   * x: Used Time Expanded: similar to Used Time but with @d entries displayed
   * y: Yearly Planning Calendar: compact monthly calendar by half year. 
 
-### [Weekly Views](#etm)
+### [Weekly Views](#overview)
 
 The _weekly_ agenda, busy and completed views display one week at a time and are *synchronized* so that all three views always display the same week. Left or right cursor keys go backward or forward a week at a time and the pressing the space bar jumps to the week containing the current day. You can also press "j" and enter a date to jump to the week containing the date.
 
@@ -380,7 +380,7 @@ And, on the current day only:
 * *>* beginby warnings in ascending order of the number of days remaining
 
 
-### [Used Time Views](#etm)
+### [Used Time Views](#overview)
 
 The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
 
@@ -514,7 +514,7 @@ This view omits the reminder lines and aggregates the used times heirarchially b
 
 As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
 
-### [Query View](#etm)
+### [Query View](#overview)
 
 In *query view* an entry line at the bottom of the screen is used to submit queries to your data store of reminders. For example, press `q` to open query view, enter
 
@@ -583,7 +583,7 @@ Enter `?` or `help` at the prompt to get usage information:
 		previously submitted queries.
 
 
-### [Common Features](#etm)
+### [Common Features](#overview)
 
 While the views differ in many respects, they also share some common aspects:
 
@@ -621,9 +621,63 @@ While the views differ in many respects, they also share some common aspects:
 	* Once a search is initiated, it remains active in all views with matches highlighted. To remove the highlighting, search for something not likely to be matched such as 3 consecutive commas.
 
 
-## [Installation/Deinstallation](#etm)
+## [Menus](#overview)
 
-### [Installation](#etm)
+### [etm](#overview)
+
+Pressing F1 toggles the *etm* menu display - opening it if it is closed and closing it if it is open. The first of four menus is labeled *etm*: 
+
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-etm.png" alt="menu" title="menu-etm" width="50%" height="50%"/>
+
+As with the other menus, each entry is preceeded by its shortcut, e.g., F2 for *about etm* or `^q` (`control` and `q` simultaneously) to quit.
+
+Many of the entries are obvious but a few deserve comment.
+
+* *import file* supports importing three different file types. A file ending with `.json` is expected to be one exported from *etm* 3.2.x. A file ending with  `.text` is expected to be a text file with lines corresponding to *etm* 4.x reminders. A file ending with `.ics` is expected to be a file in *iCalendar* format.
+* *datetime calculator* processes an expression of the form `x [+-] y` where x is a datetime and y is either a timeperiod with `+` or a datetime or a timeperiod with `-`. As an example, suppose you have the arrival time in Paris of a flight and the departure time from Raleigh/Durham and you would like to determine the flight time. Entering
+
+			7:45a 4/7 Europe/Paris - 5:30p 4/6 US/Eastern
+
+    yields 
+
+			8 hours 15 minutes
+* *configuration settings* opens the file `cfg.yaml` using the default text editor for your operating system. Note that any changes you make to this file will not take effect until you close and reopen *etm*.
+* *help* opens the *etm* documentation on google pages using the default web browser for your system. This is the most user friendly source for the documentation because it begins with a table of contents whose elements are active links to the relevant sections. It is updated with every commit so it is always the most recent version available.
+
+### [view](#overview)
+
+The *view* menu provides access to all the *etm* views with the shortcut keys for these views. E.g., press `a` to open *agenda view*. 
+
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-view.png" alt="menu" title="menu-view" width="75%" height="75%"/>
+
+The entries here are pretty obvious and the views themselves are descibed elsewhere.
+
+### [editor](#overview)
+
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-editor.png" alt="menu" title="menu-editor" width="50%" height="50%"/>
+
+It is worth noting here that when you are editing an item, `^s` (control and s) saves any changes you have made and closes the editor. `escape`, on the other hand, closes the editor without saving any changes but, if there are changes, asks for confirmation that this is what you want. 
+
+### [selected](#overview)
+
+Options in the *selected* menu are only relevant when a reminder has been selected in one of the views.
+
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-selected.png" alt="menu" title="menu-selected" width="75%" height="75%"/>
+
+Several options here deserve comment.
+
+* *delete* will prompt for comfirmation and, if the selected item is repeating, for whether to delete only the selected instance or the item itself, i.e., all instances. 
+* *finish* applies only to unfinished task and will prompt for a datetime to use in creating an `@f` entry for the task.
+* *reschedule* will prompt for a datetime. If the reminder is repeating, the provided datetime will replace the datetime of the selected instance. Otherwise it will be used either to replace the current value of `@s` or, if there is no `@s` entry, to create one.
+* *schedule new* will prompt for a datetime and add that instance to any other instances of the reminder.
+* *open goto* will use the system default application to open the file path or url specified in the selected reminders `@g` entry.
+* *begin timer then toggle paused/running* will create and start an active timer associated with the selected reminder if an active timer does not currently exist and will otherwise toggle the paused or running state of the active timer.
+* If there is an active timer, *record used time* will create an `@u` entry in the associated reminder using the current elapsed time as the time period and the current datetime as the ending time and then cancel the active timer. If there is no active timer, then *record used time* will prompt for a timeperiod and an ending time and then create an `@u` entry in the selected reminder using those elements. 
+
+
+## [Installation/Deinstallation](#overview)
+
+### [Installation](#overview)
 
 <!--  [![etm: installing etm in a virtual environment](http://img.youtube.com/vi/fEPPG82AH7M/0.jpg)](http://www.youtube.com/watch?v=fEPPG82AH7M "installing etm in a virtual environment") -->
 
@@ -682,7 +736,7 @@ Here `cfg.yaml` is your user configuration file and `db.json` contains all your 
 The file `cfg.yaml` can be edited and the options are documented in the file.
 See [configuration](#configuration) for details. 
 
-### [Deinstallation](#etm)
+### [Deinstallation](#overview)
 
 If you should ever want to deinstall etm, first deactivate the virtual environment, if necessary, by changing to the virtual environment directory and entering
 
@@ -690,11 +744,11 @@ If you should ever want to deinstall etm, first deactivate the virtual environme
 
 You can now simply delete the virtual environment directory and, if you have additional *home* directories, delete each of them. One of the many advantages of the virtual environment is that these steps remove every trace.
 
-# [Details](#etm)
+# [Details](#overview)
 
-## [Item Types](#etm)
+## [Item Types](#overview)
 
-### [event](#etm)
+### [event](#overview)
 
 Type character: **\***
 
@@ -707,7 +761,7 @@ An event is something that happens at a particular date or datetime without any 
 
 Corresponds to VEVENT in the vcalendar specification.
 
-### [task](#etm)
+### [task](#overview)
 
 Type character: **-**
 
@@ -764,7 +818,7 @@ A task is something that requires action from the user and lasts, so to speak, u
 
 Corresponds to VTODO in the vcalendar specification.
 
-### [record](#etm)
+### [record](#overview)
 
 Type character: **%**
 
@@ -776,7 +830,7 @@ A record of something that the user wants to remember. The userid and password f
 
 Corresponds to VJOURNAL in the vcalendar specification.
 
-### [inbox](#etm)
+### [inbox](#overview)
 
 Type character: **!**
 
@@ -784,35 +838,35 @@ An inbox item can be regarded as a task that is always due on the current date. 
 
 Corresponds to VTODO in the vcalendar specification.
 
-### [status](#etm)
+### [status](#overview)
 
 These type characters are generated automatically by *etm* to display the status of reminders.
 
-#### [beginning soon](#etm)
+#### [beginning soon](#overview)
 
 Type character: **>**
 
 For unfinished tasks and other items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining until the current date.
 
-#### [past due](#etm)
+#### [past due](#overview)
 
 Type character: **<**
 
 When a task is past due, a warning that the task is past due appears on the current date together with the item summary and the number of days that the task is past due. 
 
-#### [waiting](#etm)
+#### [waiting](#overview)
 
 Type character: **+**
 
 When a task job has one or more unfinished prerequisites, it is displayed using **+** rather than **-**.
 
-#### [finished](#etm)
+#### [finished](#overview)
 
 Type character: **✓**
 
 When a task or job is finished, it is displayed in the _completed view_ on the  date that it was finished using **✓** rather than **-**. 
 
-## [Options](#etm)
+## [Options](#overview)
 
 Notes:
 
@@ -829,7 +883,7 @@ Notes:
 	@t red  @t green
 
 
-### [@ keys](#etm)
+### [@ keys](#overview)
 
 `@` followed by a character from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
 
@@ -863,7 +917,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @z: timezone. string. A timezone specification, such as 'US/Eastern' or 'Europe/Paris' for aware datetimes or 'float', to indicate a naive or floating datetime. Datetime entries in the item are interpreted as belonging to the specified timezone when the entry is saved. The current timezone is the default when @z is not specified. Aware datetimes are converted to UTC (coordinated universal time) when stored and the @z entry, now irrelevant, is discarded.
 
 
-### [& keys](#etm)
+### [& keys](#overview)
 
 & followed by a character from one of the lists below. These keys are only used with @j (job) and @r (repetition) entries.
 
@@ -896,9 +950,9 @@ For use with @r:
 *  &W: week number. list of integers in 1, ..., 53
 
 
-## [Notes](#etm)
+## [Notes](#overview)
 
-### [alerts and beginbys](#etm)
+### [alerts and beginbys](#overview)
 
 * Alerts and beginbys can be added to any reminder with an `@s` start date/time entry. Alerts require a datetime in `@s`; beginbys also allow a date in `@s`.
 * A beginby is specified by adding `@b n` to a reminder where `n` is a positive integer and is interpreted as a number of days. A reminder with such an entry will be displayed in *agenda view* on the current date provided that the current date is no more than `n` days before the start date/time of the reminder. Such a warning will appear n days before, n-1 days before and so forth until 1 day before the starting date/time of the reminder. The warning displays the type character `>`, the summary of the reminder and the number of days remaining. 
@@ -915,7 +969,7 @@ For use with @r:
 * With an email, `e`, or text alert, `t`, the item summary is used as the subject and an email or text message is sent to each attendee listed in @n entries. The content of the body of the emails/messages are options that can be set in the user's configuration file. 
 * Alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance.
 
-### [repetition](#etm)
+### [repetition](#overview)
 
 * Daylight savings time using @s and @r. The time specified in @s is respected in the repetitions. E.g., the first five repetitions for 
 
@@ -984,7 +1038,7 @@ For use with @r:
 			  -2, -3 &s -1
 
 
-### [configuration](#etm)
+### [configuration](#overview)
 
 Configuration settings for *etm* are specified in the file `cfg.yaml` located in your etm *home directory*. See [installation](#installation) for the location of this directory. When *etm* is running, you can press `F8` to open this configuration file using your system default editor for *yaml* (text) files. Note that any changes you make will not become effective until you stop and restart *etm*. 
 
@@ -1127,17 +1181,8 @@ Note that in the 'dictionary' entries above, the components must be indented. E.
 	alerts:
 	    v: /usr/bin/say -v "Alex" "{summary}, {when}"
 
-Also note that the command can be anything that could be run at a terminal prompt. On my mac, my own command for `v` is:
 
-		v: /Users/dag/bin/SleepDisplay -w && 
-			/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier 
-			-title "{summary}" -subtitle "{start}" -message "{when}" & 
-			/usr/bin/say -v "Alex" ". {summary}, {when}"
-
-
-
-
-### [data storage](#etm)
+### [data storage](#overview)
 
 All *etm* reminders are stored in the text file `db.json` in your etm home direcotry using the wonderful *TinyDB* package. This *json* file is human readable but not easily editable. When you start *etm* for the first time, this file will have no entries:
 

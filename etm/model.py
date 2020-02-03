@@ -1453,7 +1453,7 @@ def format_datetime(obj, short=False):
         try:
             obj = pendulum.instance(obj)
         except:
-            return False, "The argument must be a pendulum date or datetime."
+            return False, "a pendulum date or datetime."
 
     # we want all-day events to display as dates
     if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
