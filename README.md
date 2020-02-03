@@ -589,26 +589,7 @@ While the views differ in many respects, they also share some common aspects:
 
 * Press `N` in any view to create a new item.
 * Select a reminder by clicking on it or by using the up and down cursor keys to move the cursor to the line displaying the reminder. 
-* With a reminder selected:
-    * Press `return` to toggle displaying the details. 
-    * Pressing `E` to edit.  Then press `Ctrl-S` to save your changes and end  editing or `Ctrl-C` to end editing without saving your changes.
-    * Press `C` to open a copy as a new reminder for editing.
-    * Press `D` to delete.
-    * Press `R` to reschedule the starting datetime.
-    * Press `S` to schedule a new datetime instance.
-    * For an item with an @g `goto` link, press `Ctrl-G` to open the link.
-    * For an item that repeats, press `Ctrl-R` to show repetitions.
-	* Press `Ctrl-C` to copy the view to the system clipboard. 
-    * Timers and Used Time (@u entries)
-        * Press `T` to begin a timer for the reminder or to toggle paused/running if a timer is already active.
-        * If a timer is active
-			* The current accumulated time period for the timer will be displayed in the status bar with an `*` or a `!` appended depending upon whether the timer is currently running or paused. E.g., 
-
-					12:02pm Wed Dec 18                36m *   agenda
-
-			* Press `Ctrl-T` to end the timer and record an  `@u usedtime` entry in the reminder based on the accumulated period for the timer and and the current datetime. 
-		* If a timer is not active
-            * press `Ctrl-T` to open a dialog to directly add an `@u usedtime` entry to the selected item by specifying the period and ending datetime.
+* With a reminder selected, press `return` to toggle displaying the details. 
 * Movement
     * Press page up or page down to shift the display a page at a time. 
     * Press “l”  (lower case L) and enter a number to move the cursor to a particular line  number. 
@@ -627,7 +608,7 @@ While the views differ in many respects, they also share some common aspects:
 
 Pressing F1 toggles the *etm* menu display - opening it if it is closed and closing it if it is open. The first of four menus is labeled *etm*: 
 
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-etm.png" alt="menu" title="menu-etm" width="50%" height="50%"/>
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-etm.png" alt="etm" title="menu-etm" width="50%" height="50%"/>
 
 As with the other menus, each entry is preceeded by its shortcut, e.g., F2 for *about etm* or `^q` (`control` and `q` simultaneously) to quit.
 
@@ -648,13 +629,13 @@ Many of the entries are obvious but a few deserve comment.
 
 The *view* menu provides access to all the *etm* views with the shortcut keys for these views. E.g., press `a` to open *agenda view*. 
 
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-view.png" alt="menu" title="menu-view" width="75%" height="75%"/>
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-view.png" alt="view" title="menu-view" width="75%" height="75%"/>
 
 The entries here are pretty obvious and the views themselves are descibed elsewhere.
 
 ### [editor](#overview)
 
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-editor.png" alt="menu" title="menu-editor" width="50%" height="50%"/>
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-editor.png" alt="editor" title="menu-editor" width="50%" height="50%"/>
 
 It is worth noting here that when you are editing an item, `^s` (control and s) saves any changes you have made and closes the editor. `escape`, on the other hand, closes the editor without saving any changes but, if there are changes, asks for confirmation that this is what you want. 
 
@@ -662,7 +643,7 @@ It is worth noting here that when you are editing an item, `^s` (control and s) 
 
 Options in the *selected* menu are only relevant when a reminder has been selected in one of the views.
 
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-selected.png" alt="menu" title="menu-selected" width="75%" height="75%"/>
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-selected.png" alt="selected" title="menu-selected" width="75%" height="75%"/>
 
 Several options here deserve comment.
 
@@ -769,7 +750,7 @@ A task is something that requires action from the user and lasts, so to speak, u
 
 - The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is due. 
     - Tasks with an `@s` datetime entry are regarded as pastdue after the datetime and are displayed in *Agenda View* on the relevant date according to the starting time. 
-    - Tasks with `@s` date entry are regarded as pastdue after the due date and are displayed in *Agenda View* on the due date before all items with datetimes.
+    - Tasks with `@s` date entry are regarded as pastdue after the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
     - Tasks that are pastdue are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Do Next* view grouped by @l (location/context).
 - Jobs
@@ -825,8 +806,8 @@ Type character: **%**
 A record of something that the user wants to remember. The userid and password for a website would be an example. A journal entry for vacation day is another example. 
 
 - The `@s` is optional and, if given, is interpreted as the datetime to which the record applies. 
-- Records without @s entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime. They are displayed in the *Journal* view
-- Records with @s entries associate the record with the datetime given by @s. A vacation log entry, for example, might record the highlights of the day given by @s. They are displayed in the *Agenda* view as well as the *Journal* view.
+- Records without @s entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime. They are displayed in the *Record* view
+- Records with @s entries associate the record with the datetime given by @s. A vacation log entry, for example, might record the highlights of the day given by @s. They are displayed in the *Agenda* view as well as the *Record* view.
 
 Corresponds to VJOURNAL in the vcalendar specification.
 
