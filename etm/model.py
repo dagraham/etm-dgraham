@@ -485,7 +485,7 @@ class Item(object):
                 'rw': ["weekdays", "list from SU, MO, ..., SA, possibly prepended with a positive or negative integer", do_weekdays],
                 'rW': ["week numbers", "list of integers in 1, ... 53", do_weeknumbers],
                 'rc': ["count", "integer number of repetitions", do_count],
-                'ru': ["until", "datetime", until],
+                'ru': ["until", "datetime", self.do_until],
                 'rs': ["set positions", "integer", do_setpositions],
                 'r?': ["repetition &-key", "enter &-key", self.do_ampr],
 
@@ -1116,6 +1116,27 @@ class Item(object):
         elif 'summary' in self.item_hsh:
             del self.item_hsh['summary']
 
+        return obj, rep
+
+    # FIXME: Will this work without considering @z?
+    def do_until(self, arg):
+        """
+        Return a datetime object. This will be an aware datetime in the local timezone. 
+        >>> until('2019-01-03 10am')
+        (True, DateTime(2019, 1, 3, 10, 0, 0, tzinfo=Timezone('America/New_York')))
+        >>> until('whenever')
+        (False, 'Include repetitions falling on or before this datetime.')
+        """
+        obj = None
+        tz = self.item_hsh.get('z', None)
+        ok, res, z = parse_datetime(arg, tz)
+        if ok:
+            if isinstance(res, pendulum.Date) and not isinstance(res, pendulum.DateTime):
+                return obj, "a datetime is required"
+            obj = res 
+            rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
+        else:
+            rep = "Include repetitions falling on or before this datetime"
         return obj, rep
 
 
@@ -3172,26 +3193,6 @@ def history(arg):
     else:
         return True, tmp
 
-# FIXME: Will this work without considering @z?
-def until(arg):
-    """
-    Return a datetime object. This will be an aware datetime in the local timezone. 
-    >>> until('2019-01-03 10am')
-    (True, DateTime(2019, 1, 3, 10, 0, 0, tzinfo=Timezone('America/New_York')))
-    >>> until('whenever')
-    (False, 'Include repetitions falling on or before this datetime.')
-    """
-    obj = None
-    ok, res, z = parse_datetime(arg)
-    if ok:
-        if isinstance(res, pendulum.Date) and not isinstance(res, pendulum.DateTime):
-            return obj, "a datetime is required"
-        obj = res 
-        rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
-    else:
-        rep = "Include repetitions falling on or before this datetime"
-    return obj, rep
-
 
 def do_priority(arg):
     """
@@ -3518,18 +3519,18 @@ def do_minutes(arg):
 
 
 rrule_methods = {
-    'r':  do_frequency,
-    'i':  do_interval,
-    's':  do_setpositions,
-    'c':  do_count,
-    'u':  until,
-    'M':  do_months,
-    'm':  do_monthdays,
-    'W':  do_weeknumbers,
-    'w':  do_weekdays,
-    'h':  do_hours,
-    'n':  do_minutes,
-    'E':  do_easterdays,
+    'r':  'frequency',
+    'i':  'interval',
+    's':  'setpositions',
+    'c':  'count',
+    'u':  'until',
+    'M':  'months',
+    'm':  'monthdays',
+    'W':  'weeknumbers',
+    'w':  'weekdays',
+    'h':  'hours',
+    'n':  'minutes',
+    'E':  'easterdays',
     }
 
 freq_names = {
