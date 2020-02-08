@@ -485,7 +485,7 @@ class Item(object):
                 'rw': ["weekdays", "list from SU, MO, ..., SA, possibly prepended with a positive or negative integer", do_weekdays],
                 'rW': ["week numbers", "list of integers in 1, ... 53", do_weeknumbers],
                 'rc': ["count", "integer number of repetitions", do_count],
-                'ru': ["until", "datetime", self.do_datetime],
+                'ru': ["until", "datetime", until],
                 'rs': ["set positions", "integer", do_setpositions],
                 'r?': ["repetition &-key", "enter &-key", self.do_ampr],
 
@@ -2272,9 +2272,21 @@ class DataView(object):
             elif 'r' in item:
                 toss = True
                 for rr in item['r']:
-                    if 'u' not in rr or rr['u'] >= old:
+                    if 'u' not in rr: 
                         toss = False
                         break
+                    elif isinstance(rr['u'], pendulum.Date):
+                        # could be date or datetime
+                        if isinstance(rr['u'], pendulum.DateTime):
+                            # datetime
+                            if rr['u'].date() >= old.date():
+                                toss = False
+                                break
+                        else:
+                            # date 
+                            if rr['u'] >= old.date():
+                                toss = False
+                                break
                     else:
                         prov = rr['u']
                     # FIXME: complicated whether or not to archive other repeating items with 't' so keep them
@@ -3169,11 +3181,16 @@ def until(arg):
     >>> until('whenever')
     (False, 'Include repetitions falling on or before this datetime.')
     """
-    ok, res, tz = parse_datetime(arg)
+    obj = None
+    ok, res, z = parse_datetime(arg)
     if ok:
-        return True, res
+        if isinstance(res, pendulum.Date) and not isinstance(res, pendulum.DateTime):
+            return obj, "a datetime is required"
+        obj = res 
+        rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
     else:
-        return False, "Include repetitions falling on or before this datetime."
+        rep = "Include repetitions falling on or before this datetime"
+    return obj, rep
 
 
 def do_priority(arg):
@@ -4590,7 +4607,9 @@ def relevant(db, now=pendulum.now()):
                         logger.error(f"error processing {item}; {repr(e)}")
                     if not relevant:
                         relevant = rset.before(today, inc=True)
-                    relevant = pendulum.instance(relevant)
+                    logger.debug(f"relevant: {relevant}, {type(relevant)}")
+                    if relevant:
+                        relevant = pendulum.instance(relevant)
 
                 # rset
                 if instance_interval:
@@ -5247,7 +5266,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     if res:
                         period += (UT_MIN - res) * ONEMIN
                 dates_to_periods.setdefault(dt, []).append(period)
-            logger.debug(f"dates_to_periods: {dates_to_periods}")
             for dt in dates_to_periods:
                 total = ZERO
                 for p in dates_to_periods[dt]:
