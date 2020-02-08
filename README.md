@@ -365,11 +365,12 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
 
 The _weekly_ agenda, busy and completed views display one week at a time and are *synchronized* so that all three views always display the same week. Left or right cursor keys go backward or forward a week at a time and the pressing the space bar jumps to the week containing the current day. You can also press "j" and enter a date to jump to the week containing the date.
 
+In both agenda and completed views, only days with scheduled reminders are listed. If nothing is scheduled for the entire week, then "Nothing scheduled" is displayed.
 
 The normal agenda listing for a week day:
 
 * all day events (events with dates as `@s` entries)
-* datetime items (items with datetimes as `@s` entries) by time
+* datetime items (reminders with datetimes as `@s` entries) by time
 * all day tasks (tasks with dates as `@s` entries)
 * all day records (records with dates as `@s` entries)
 
@@ -653,6 +654,7 @@ Several options here deserve comment.
 * *schedule new* will prompt for a datetime and add that instance to any other instances of the reminder.
 * *open goto* will use the system default application to open the file path or url specified in the selected reminders `@g` entry.
 * *begin timer then toggle paused/running* will create and start an active timer associated with the selected reminder if an active timer does not currently exist and will otherwise toggle the paused or running state of the active timer.
+* When a timer is active, the current status of the timer will be displayed in the bottom, status line of the display just to the left of the view name. For example, `3m *` means that the timer has 3 minutes of elapsed time and, because of the asterisk, that the timer is running. When the timer is paused, an exclamation point replaces the asterisk. 
 * If there is an active timer, *record used time* will create an `@u` entry in the associated reminder using the current elapsed time as the time period and the current datetime as the ending time and then cancel the active timer. If there is no active timer, then *record used time* will prompt for a timeperiod and an ending time and then create an `@u` entry in the selected reminder using those elements. 
 
 
