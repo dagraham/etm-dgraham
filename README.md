@@ -348,7 +348,7 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
 
   * a: Agenda: dated unfinished tasks and other reminders by year-week and week day 
   * b: Busy: a graphical illustration of busy and conflicted times by year-week
-  * c: Completed: finished tasks and jobs by completion year-week and week day
+  * c: Completed: finished tasks and jobs and used time entries by year-week and week day
   * d: Do Next: undated tasks grouped by location
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence 
   * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first

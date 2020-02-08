@@ -5186,6 +5186,7 @@ def no_busy_periods(week, width):
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0):
     ampm = settings['ampm']
+    UT_MIN = settings.get('usedtime_minutes', 1)
     # yw will be the active week, but now will be the current moment
     LL = {}
     for hour in range(24):
@@ -5225,6 +5226,52 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             continue
         if item['itemtype'] in "!?":
             continue
+
+        if 'u' in item:
+            used = item.get('u') # this will be a list of @u entries
+            if item['itemtype'] == '-' and 'f' in item:
+                itemtype = finished_char
+            else:
+                itemtype = item['itemtype'] 
+            id = item.doc_id
+            # details = f"{itemtype} {item['summary']}"
+            dates_to_periods = {}
+            for period, dt in used:
+                if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
+                    pass
+                else:
+                    dt = dt.date()
+                if UT_MIN != 1:
+                    # round up minutes
+                    res = period.minutes % UT_MIN
+                    if res:
+                        period += (UT_MIN - res) * ONEMIN
+                dates_to_periods.setdefault(dt, []).append(period)
+            logger.debug(f"dates_to_periods: {dates_to_periods}")
+            for dt in dates_to_periods:
+                total = ZERO
+                for p in dates_to_periods[dt]:
+                    total += p
+                rhc = format_hours_and_tenths(total).center(16, ' ') 
+                done.append(
+                        {
+                            'id': id,
+                            'job': None,
+                            'instance': None,
+                            'sort': (dt.format("YYYYMMDD"), 1),
+                            'week': (
+                                dt.isocalendar()[:2]
+                                ),
+                            'day': (
+                                dt.format("ddd MMM D"),
+                                ),
+                            'columns': [itemtype,
+                                item['summary'], 
+                                rhc,
+                                ],
+                        }
+                        )
+
 
         if item['itemtype'] == '-':
             d = []
