@@ -38,6 +38,14 @@ secret: etm is great!
 # unless this is set correctly for your display.
 style: dark
 
+# omit_calendars: A list of calendars whose extents should
+# be omitted in agenda and busy views. Events with @c entries
+# belonging to this list will only have their starting times
+# displayed in agenda view and will neither appear nor cause
+# conflicts in busy view.
+omit_calendars:
+    - omit
+
 # keep_current: true or false. If true, the agenda for the  
 # current and following two weeks will be written to "current.txt" 
 # in your etm home directory and updated when necessary. You 
