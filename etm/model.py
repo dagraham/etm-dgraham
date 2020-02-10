@@ -1945,7 +1945,7 @@ class DataView(object):
             elapsed = self.timer_time + (pendulum.now() - self.timer_start)
         if self.timer_status == 2:  # paused
             elapsed = self.timer_time
-        return f"{format_duration(elapsed)} {status}   "
+        return f"{format_duration(elapsed)}{status}   "
 
 
     def timer_clear(self):

@@ -654,7 +654,7 @@ Several options here deserve comment.
 * *schedule new* will prompt for a datetime and add that instance to any other instances of the reminder.
 * *open goto* will use the system default application to open the file path or url specified in the selected reminders `@g` entry.
 * *begin timer then toggle paused/running* will create and start an active timer associated with the selected reminder if an active timer does not currently exist and will otherwise toggle the paused or running state of the active timer.
-* When a timer is active, the current status of the timer will be displayed in the bottom, status line of the display just to the left of the view name. For example, `3m *` means that the timer has 3 minutes of elapsed time and, because of the asterisk, that the timer is running. When the timer is paused, an exclamation point replaces the asterisk. 
+* When a timer is active, the current status of the timer is displayed in the bottom, status line just to the left of the view name. For example, `3m*` would mean that the timer has 3 minutes of elapsed time and, because of the asterisk, that the timer is running. When the timer is paused, an exclamation point replaces the asterisk. 
 * If there is an active timer, *record used time* will create an `@u` entry in the associated reminder using the current elapsed time as the time period and the current datetime as the ending time and then cancel the active timer. If there is no active timer, then *record used time* will prompt for a timeperiod and an ending time and then create an `@u` entry in the selected reminder using those elements. 
 
 
