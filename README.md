@@ -1036,15 +1036,24 @@ Here are the options with their default values from that file. The lines beginni
 	locale: en
 
 	# secret: A string to use as the secret_key for @m masked 
-	# entries. WARNING: if you change this key, any @m entries 
-	# that you made before the change will be unreadable after 
-	# the change. 
-	secret: etm is great! 
+	# entries. The default string is randomly generated when 
+	# this file is created and will be unique for each etm 
+	# installation. WARNING: if you change this key, any @m 
+	# entries that you made before the change will be unreadable 
+	# after the change. 
+	secret: 4Zf4ETTl6B
 
 	# style: dark or light. Designed for, respectively, dark or 
 	# light terminal backgounds. Some output may not be visible
 	# unless this is set correctly for your display.
 	style: dark
+
+	# omit_extent: A list of calendars. Events with @c entries
+	# belonging to this list will only have their starting times
+	# displayed in agenda view and will neither appear nor cause
+	# conflicts in busy view.
+	omit_extent:
+	- omit
 
 	# keep_current: true or false. If true, the agenda for the  
 	# current and following two weeks will be written to 

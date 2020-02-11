@@ -4,14 +4,28 @@ from ruamel.yaml import YAML
 import logging
 import logging.config
 logger = logging.getLogger()
+import string
+import random
 from copy import deepcopy
 
 yaml = YAML()  
 
+def randomString(stringLength=10):
+    """Generate a random string with the combination of lowercase and uppercase letters """
+
+    letters = string.ascii_letters + 2*'0123456789'
+    return ''.join(random.choice(letters) for i in range(stringLength))
+
+summary = "{summary}"
+start = "{start}"
+when = "{when}"
+location = "{location}"
+description = "{description}"
+property = "{property}"
 
 class Settings():
 
-    inp = """\
+    inp = f"""\
 ################# IMPORTANT #############################
 #
 # Changes to this file only take effect when etm is next
@@ -28,22 +42,23 @@ ampm: true
 locale: en
 
 # secret: A string to use as the secret_key for @m masked 
-# entries. WARNING: if you change this key, any @m entries 
-# that you made before the change will be unreadable after 
-# the change. 
-secret: etm is great! 
+# entries. The default string is randomly generated when 
+# this file is created and will be unique for each etm 
+# installation. WARNING: if you change this key, any @m 
+# entries that you made before the change will be unreadable 
+# after the change. 
+secret: 4Zf4ETTl6B
 
 # style: dark or light. Designed for, respectively, dark or 
 # light terminal backgounds. Some output may not be visible
 # unless this is set correctly for your display.
 style: dark
 
-# omit_calendars: A list of calendars whose extents should
-# be omitted in agenda and busy views. Events with @c entries
+# omit_extent: A list of calendars. Events with @c entries
 # belonging to this list will only have their starting times
 # displayed in agenda view and will neither appear nor cause
 # conflicts in busy view.
-omit_calendars:
+omit_extent:
     - omit
 
 # keep_current: true or false. If true, the agenda for the  
