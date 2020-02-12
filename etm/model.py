@@ -5206,7 +5206,7 @@ def no_busy_periods(week, width):
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0):
     ampm = settings['ampm']
-    omit = settings['omit_calendars']
+    omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
     # yw will be the active week, but now will be the current moment
     LL = {}

@@ -11,21 +11,15 @@ from copy import deepcopy
 yaml = YAML()  
 
 def randomString(stringLength=10):
-    """Generate a random string with the combination of lowercase and uppercase letters """
+    """Generate a random string with the combination of lowercase and uppercase letters and digits """
 
-    letters = string.ascii_letters + 2*'0123456789'
+    letters = string.ascii_letters + 2*'0123456789' 
     return ''.join(random.choice(letters) for i in range(stringLength))
 
-summary = "{summary}"
-start = "{start}"
-when = "{when}"
-location = "{location}"
-description = "{description}"
-property = "{property}"
 
 class Settings():
 
-    inp = f"""\
+    inp = """\
 ################# IMPORTANT #############################
 #
 # Changes to this file only take effect when etm is next
@@ -41,18 +35,20 @@ ampm: true
 # French.
 locale: en
 
-# secret: A string to use as the secret_key for @m masked 
-# entries. The default string is randomly generated when 
-# this file is created and will be unique for each etm 
-# installation. WARNING: if you change this key, any @m 
-# entries that you made before the change will be unreadable 
-# after the change. 
-secret: 4Zf4ETTl6B
-
 # style: dark or light. Designed for, respectively, dark or 
 # light terminal backgounds. Some output may not be visible
 # unless this is set correctly for your display.
 style: dark
+""" + f"""\
+
+# secret: A string to use as the secret_key for @m masked 
+# entries. In etm versions after 4.0.21, the default string 
+# is randomly generated when this file is first created and 
+# should be unique for each etm installation. WARNING: if 
+# you change this key, any @m entries that you made before 
+# the change will be unreadable after the change. 
+secret: {randomString(10)}
+""" + """\
 
 # omit_extent: A list of calendars. Events with @c entries
 # belonging to this list will only have their starting times
