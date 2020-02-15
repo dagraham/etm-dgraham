@@ -666,12 +666,12 @@ Several options here deserve comment.
 
 Setting up a virtual environment for etm is recommended. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
 
-Open a terminal and begin by creating a new directory/folder, say `etm-pypi` in your home directory, for the virtual environment:
+Open a terminal and begin by creating a new directory/folder for the virtual environment, say `etm-pypi` in your home directory:
 
         $ mkdir ~/etm-pypi
         $ cd ~/etm-pypi
 
-Now continue by creating the virtual environment (python >= 3.7.4 is required):
+Now continue by creating the virtual environment (python >= 3.7.4 is required for etm):
 
         $ python3 -m venv env
 
@@ -1009,6 +1009,7 @@ For use with @r:
 	* Good Friday each year 2 days before [E]aster Sunday.
 
 			* Good Friday @s 1/1/2015 @r y @E -2
+
 	* Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
 
 			* Friday tennis @s 2019-01-01 6a @e 90m

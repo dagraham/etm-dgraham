@@ -3853,7 +3853,9 @@ def item_instances(item, aft_dt, bef_dt=1):
                 pairs.append(pair)
         elif item['itemtype'] == "-" and item.get('o', 'k') == 's':
             # keep skip instances if they fall during or after the current day.
-            if instance.replace(hour=23, minute=59, second=59) >= pendulum.now(tz=item.get('z', None)):
+            if isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime) and instance >= pendulum.now().date():
+                pairs.append((instance, None))
+            elif instance.replace(hour=23, minute=59, second=59) >= pendulum.now(tz=item.get('z', None)):
                 pairs.append((instance, None))
         else:
             pairs.append((instance, None))
@@ -4512,7 +4514,7 @@ def relevant(db, now=pendulum.now()):
         possible_alerts = []
         all_tds = []
         if 'itemtype' not in item:
-            logger.warn(f"no itemtype: {item}")
+            logger.warning(f"no itemtype: {item}")
             continue
         if item['itemtype'] == '!':
             inbox.append([0, item['summary'], item.doc_id, None, None])
@@ -4608,7 +4610,7 @@ def relevant(db, now=pendulum.now()):
                         logger.error(f"error processing {item}; {repr(e)}")
                     if not relevant:
                         relevant = rset.before(today, inc=True)
-                    logger.debug(f"relevant: {relevant}, {type(relevant)}")
+                    # logger.debug(f"relevant: {relevant}, {type(relevant)}")
                     if relevant:
                         relevant = pendulum.instance(relevant)
 
