@@ -3718,6 +3718,11 @@ def get_next_due(item, done, due):
     logger.debug(f"nxt: {nxt}")
     return nxt
 
+def date_to_datetime(dt):
+    if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
+        dt= pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0)
+    return dt
+
 
 def item_instances(item, aft_dt, bef_dt=1):
     """
@@ -3806,11 +3811,11 @@ def item_instances(item, aft_dt, bef_dt=1):
 
         if '-' in item:
             for dt in item['-']:
-                rset.exdate(dt)
+                rset.exdate(date_to_datetime(dt))
 
         if '+' in item:
             for dt in item['+']:
-                rset.rdate(dt)
+                rset.rdate(date_to_datetime(dt))
         if isinstance(bef_dt, int):
             tmp = []
             inc = True
@@ -3832,6 +3837,7 @@ def item_instances(item, aft_dt, bef_dt=1):
         # no @r but @+ => simple repetition
         tmp = [dtstart]
         tmp.extend(item['+'])
+        tmp = [date_to_datetime(x) for x in tmp]
         tmp.sort()
         if isinstance(bef_dt, int):
             instances = [x for x in tmp if (x >= aft_dt)][:bef_dt]
@@ -4633,6 +4639,7 @@ def relevant(db, now=pendulum.now()):
                 # no @r but @+ => simple repetition
                 tmp = [dtstart]
                 tmp.extend(item['+'])
+                tmp = [date_to_datetime(x) for x in tmp]
                 tmp.sort()
                 aft = [x for x in tmp if x >= today]
                 bef = [x for x in tmp if x < today]
