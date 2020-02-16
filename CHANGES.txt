@@ -1,169 +1,183 @@
-Recent changes as of 2020-02-12T14:05:06.811151-05:00:
-- 0 seconds ago (HEAD -> master, tag: 4.0.22) Dan Graham
-    33db303 2020-02-12 14:05:06 -0500
+Recent changes as of 2020-02-16T11:37:45.622627-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.0.23) Dan Graham
+    20f10b4 2020-02-16 11:37:45 -0500
+    Tagged version 4.0.23.
+
+- 4 minutes ago Dan Graham
+    b21f835 2020-02-16 11:33:16 -0500
+    Handle combinations of dates and datetimes in repetitions with @+
+    both with and without @r.
+
+- 20 hours ago (origin/master, master) Dan Graham
+    f33f10a 2020-02-15 16:05:42 -0500
+    Fixed bug in generating instances for all-day task with @o s.
+    README tweaks.
+
+- 4 days ago Dan Graham
+    f756263 2020-02-12 14:05:06 -0500
     Tagged version 4.0.22.
 
-- 80 seconds ago (working) Dan Graham
+- 4 days ago Dan Graham
     43defda 2020-02-12 14:03:46 -0500
     README tweaks regarding 'secret'.
 
-- 27 hours ago Dan Graham
+- 5 days ago Dan Graham
     b576407 2020-02-11 11:00:39 -0500
     Changed omit_calendars to omit_extent. Randomly genterate 'secret'
     when cfg.yaml is created.
 
-- 2 days ago (origin/master) Dan Graham
+- 6 days ago Dan Graham
     501e737 2020-02-10 11:21:19 -0500
     Added 'omit_calendars' entry to options to allow calendars to be
     specified for events whose extents should be ignored in agenda and
     busy views.
 
-- 2 days ago Dan Graham
+- 6 days ago Dan Graham
     cac8e6b 2020-02-10 10:36:15 -0500
     Removed the space in the timer status display.
 
-- 4 days ago Dan Graham
+- 8 days ago Dan Graham
     3001e91 2020-02-08 15:44:46 -0500
     README tweaks
 
-- 4 days ago (help) Dan Graham
+- 8 days ago (help) Dan Graham
     52038c3 2020-02-08 11:08:25 -0500
     Tagged version 4.0.21.
 
-- 4 days ago (completed) Dan Graham
+- 8 days ago (completed) Dan Graham
     c55afb0 2020-02-08 11:06:19 -0500
     Moved until into Item as do_until and added timezone.
 
-- 4 days ago Dan Graham
+- 8 days ago Dan Graham
     d742a40 2020-02-08 10:54:17 -0500
     require datetimes as &u entries
 
-- 4 days ago Dan Graham
+- 8 days ago Dan Graham
     e1d949f 2020-02-08 09:17:44 -0500
     Added used times to completed view. Modified README accordingly.
 
-- 9 days ago Dan Graham
+- 13 days ago Dan Graham
     5ae9c21 2020-02-03 18:51:32 -0500
     README tweaks
 
-- 9 days ago Dan Graham
+- 13 days ago Dan Graham
     a4d964f 2020-02-03 18:49:13 -0500
     README tweaks
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     1852277 2020-02-02 21:01:23 -0500
     Added menu section to README.
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     2cbc490 2020-02-02 15:59:33 -0500
     reduced menu png sizes.
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     fe1636b 2020-02-02 15:56:15 -0500
     reduced menu png sizes.
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     eae46a2 2020-02-02 15:49:44 -0500
     Added menu screen shots
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     8661391 2020-02-02 10:59:47 -0500
     Tagged version 4.0.20.
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     fceadfb 2020-02-02 10:54:55 -0500
     Backed off python requirement from >= 3.7.4 to >= 3.7.3
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     e83fedb 2020-02-02 10:21:22 -0500
     Improved discussion of alerts and beginbys in README.
 
-- 12 days ago Dan Graham
+- 2 weeks ago Dan Graham
     9fb9a5e 2020-01-31 15:49:55 -0500
     Added missing import dateutil statement to model.py.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     bb5d75a 2020-01-30 14:54:19 -0500
     Show tasks with @f entries as finished in used time views.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     8e085e7 2020-01-30 13:46:51 -0500
     Tagged version 4.0.19.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     5e7a24f 2020-01-30 13:46:20 -0500
     Cleaned up logger.debug statements.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     f2cd0af 2020-01-30 13:40:39 -0500
     When specifying an alert, report 'missing command' until one is
     specified. Changed inital logging statement to 'critical' to
     insure that it is always recorded. Log bad alert commands as
     errors.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     8934b22 2020-01-30 10:04:47 -0500
     README tweaks. Use 'now' for when in alerts when the alert and
     start times are the same.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     da1c3a2 2020-01-28 14:10:36 -0500
     Filter 'j' binding to a, b and c views.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     9441f92 2020-01-28 12:22:48 -0500
     Tagged version 4.0.18.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     a8cc500 2020-01-28 12:22:22 -0500
     README tweaks. Removed ujson requirement from setup.py. Removed
     python 3.6 from setup.py classifiers.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     c9e833f 2020-01-28 10:08:59 -0500
     Tagged version 4.0.17.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     5463603 2020-01-28 10:08:36 -0500
     Corrected setup.py to require python >= 3.7.4 which is needed for
     the updates to asyncio.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     02315a6 2020-01-28 09:20:21 -0500
     Tagged version 4.0.16a1.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     7570893 2020-01-28 09:19:55 -0500
     Provisional removal of update from setup REQUIRED.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     559b2bc 2020-01-28 08:32:23 -0500
     Tagged version 4.0.16.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     b43cf42 2020-01-28 08:31:29 -0500
     Added 'used time expanded' to README. Updated used time view
     names. Added pygments to requirements in setup.py.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     cbdb6e6 2020-01-27 14:43:12 -0500
     modified view names: used -> used time, used summary -> used time
     summary.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     5d6a5fa 2020-01-27 14:16:04 -0500
     Tagged version 4.0.15.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     70280e7 2020-01-27 14:15:37 -0500
     changed 'used description' view to 'used time expanded' view.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     2f0b6e8 2020-01-27 14:01:15 -0500
     Fixed bug involving calling the wrong handler for 'used time with
     descriptions'.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     c751cc3 2020-01-27 13:50:43 -0500
     Strip trailing whitespace in @d entries. Modified RDict.tree to
     append a wrapped and indented 3rd element of leaf nodes, if
@@ -202,17 +216,17 @@ Recent changes as of 2020-02-12T14:05:06.811151-05:00:
     79a0a33 2020-01-23 09:29:00 -0500
     Changed display order in agenda view.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     969f453 2020-01-22 17:08:24 -0500
     Added dt command to query view to handle dates and datetimes in
     fields.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     f742a78 2020-01-22 10:14:46 -0500
     Display query string and 'none matching' when there are no results
     from the query.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     77345b3 2020-01-19 10:31:21 -0500
     Display query string and 'none matching' when there are no results
     from the query.
@@ -242,65 +256,65 @@ Recent changes as of 2020-02-12T14:05:06.811151-05:00:
     datetime_methods from allowed['%'] to prevent @e entries in
     records.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     fb8efda 2020-01-15 13:44:42 -0500
     Tagged version 4.0.12.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     f984c89 2020-01-15 13:43:56 -0500
     README tweaks re query. Save prior_view when switching to query
     and restore it when quitting. Added error trapping for bad
     datetime entries.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     011bcbb 2020-01-14 17:29:11 -0500
     Tagged version 4.0.11.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     dca2958 2020-01-14 17:28:42 -0500
     Added item_details to the view name space. Improved the
     documentation for query usage.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     bedcef9 2020-01-14 16:34:14 -0500
     More README edits
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     408be32 2020-01-14 14:43:36 -0500
     Changed 'index view' to display only non-record item types to
     removed duplication with 'record view'.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     d5df64a 2020-01-14 14:20:05 -0500
     README tweaks.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     71da56a 2020-01-14 14:06:23 -0500
     Added a section on query view to README.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     be57acb 2020-01-14 13:50:32 -0500
     In query, submitting nothing closes query and shifts focus to text
     area. Removed external query - testing is complete.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     e2380f2 2020-01-13 22:38:20 -0500
     Fixed menu to include q: query
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     67f54f5 2020-01-13 19:28:44 -0500
     Tagged version 4.0.10.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     672f7f1 2020-01-13 19:28:29 -0500
     Added query view bound to 'q'. Allow dates as well as datetimes in
     @u entries.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     079e216 2020-01-12 14:31:09 -0500
     Encapsulated the query procedures and definitions into a class.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     f60f6ed 2020-01-12 13:41:28 -0500
     More query external and internal tweaks
 
@@ -332,55 +346,55 @@ Recent changes as of 2020-02-12T14:05:06.811151-05:00:
     'and' and 'or' conjunctions and '~' to prepend commands to negate
     them. Removed commas to split on spaces.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     e32a1e1 2020-01-08 16:33:03 -0500
     First pass at query processing. Uses prompt_session with command
     history and completion. Invoked by adding 'query' to the command
     line when starting etm.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     767c15e 2020-01-07 17:00:33 -0500
     fixed spelling typos
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     ff1692f 2020-01-07 16:46:41 -0500
     Fixed a bug in Mask serialization. Add __repr__ to class and in
     the serialization decode as a Mask object which will be displayed
     using __repr__. Fixed binding for 's' show alerts to use the
     filter is_viewing.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     1cd7065 2020-01-07 10:07:05 -0500
     Added help bound to F8. Opens link to etm github pages using
     default browser.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     18c17bf 2020-01-07 09:47:20 -0500
     Tagged version 4.0.8.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     f2bc1cc 2020-01-07 09:46:47 -0500
     Fixed bug in used time details report.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     dc0ed10 2020-01-06 10:48:12 -0500
     bindings changes: scheduled alerts -> s; open config -> F7; import
     file -> F5.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     35c961c 2020-01-06 08:39:46 -0500
     Tagged version 4.0.7.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     4ae020c 2020-01-06 08:39:19 -0500
     README tweaks.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     14819a1 2020-01-05 17:41:06 -0500
     Switched F3 (check for updates) and F4 (system info) bindings and
     menu listings.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     b82cb6a 2020-01-05 17:29:28 -0500
     Cleaned up system info output.
 
@@ -430,17 +444,3 @@ Recent changes as of 2020-02-12T14:05:06.811151-05:00:
     4e78bb8 2020-01-03 13:01:04 -0500
     Start on adding 'Used Time Views' to README. Switched delimiter
     from : to / for @i index entries.
-
-- 6 weeks ago (origin/working) Dan Graham
-    794ba9a 2020-01-01 13:10:17 -0500
-    Fixed 'unsaved changes' to make discarding them the default.
-    Selecting 'no' just returns to the editor - much simpler. Added
-    checks for itemtype and summary to that for @s for events.
-
-- 6 weeks ago Dan Graham
-    77932d1 2020-01-01 10:36:01 -0500
-    refreshCalendar tweaks
-
-- 6 weeks ago Dan Graham
-    1c80f3a 2019-12-29 11:43:54 -0500
-    Tagged version 4.0.3.
