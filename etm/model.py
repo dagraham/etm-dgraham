@@ -20,7 +20,6 @@ from dateutil import __version__ as dateutil_version
 
 from warnings import filterwarnings
 def parse(s, **kwd):
-    # logger.debug(f"parse: {s} {kwd}")
     return pendulum_parse(s, strict=False, **kwd)
 
 import sys
@@ -311,13 +310,10 @@ def process_entry(s, settings={}):
     xpat = re.compile("@x\s+[a-zA-Z]+\s")
     match = xpat.findall(s)
     if match and settings:
-        logger.debug(f"settings: {settings}; s: {s}; match: {match}")
         xparts = match[0].split(' ')
-        logger.debug(f"xparts: {xparts}")
         if xparts[1] in settings['expansions']:
             replacement = settings['expansions'][xparts[1]] + xparts[2]
             s = s.replace(match[0], replacement)
-            logger.debug(f"settings expansions replacement: {replacement}, s: {s}")
 
 
     pattern = re.compile("\s[@&][a-zA-Z+-]")
@@ -546,11 +542,8 @@ class Item(object):
         item = self.item_hsh
         showing =  "Repetitions"
         if not ('s' in item and ('r' in item or '+' in item)):
-            logger.debug(f"item: {item}")
             return showing, "not a repeating item"
-        relevant = item['s'] 
-        if isinstance(relevant, pendulum.Date) and not isinstance(relevant, pendulum.DateTime):
-            relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0)
+        relevant = date_to_datetime(item['s']) 
 
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
         starting = format_datetime(relevant.date())[1]
@@ -568,7 +561,6 @@ class Item(object):
             return None
         item_hsh = self.dbquery.get(doc_id=doc_id)
         self.init_entry = entry
-        # logger.debug(f"doc_id: {doc_id}; entry: {entry}")
         if item_hsh:
             self.doc_id = doc_id
             self.is_new = False
@@ -610,15 +602,12 @@ class Item(object):
 
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
-        logger.debug(f"item_hsh: {self.item_hsh}; doc_id: {doc_id}")
         self.created = self.item_hsh['created']
         ut = [x.strip() for x in usedtime.split(': ')]
-        logger.debug(f"ut: {ut}")
         if not len(ut) == 2:
             return False
 
         per_ok, per = parse_duration(ut[0])
-        logger.debug(f"per_ok: {per_ok}; per: {per}")
         if not per_ok:
             return False
         dt_ok, dt, z = parse_datetime(ut[1])
@@ -630,7 +619,6 @@ class Item(object):
         self.item_hsh['u'] = used_times
         self.item_hsh['created'] = self.created
         self.item_hsh['modified'] = pendulum.now('local')
-        logger.debug(f"new item_hsh: {self.item_hsh}")
         self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
         return True
@@ -788,7 +776,6 @@ class Item(object):
 
         if save_item:
             num_finished = settings.get('num_finished', 0)
-            logger.debug(f"num_finished: {num_finished}")
             if 'h' in self.item_hsh and num_finished:
                 ok = True
                 # only truncate completions for infinitely repeating tasks
@@ -798,9 +785,7 @@ class Item(object):
                         ok = False
                 if ok:
                     sh = self.item_hsh['h']
-                    logger.debug(f"sh: {sh}")
                     sh.sort()
-                    logger.debug(f"sh: {sh[-num_finished:]}")
                     self.item_hsh['h'] = sh[-num_finished:] 
 
             self.item_hsh['created'] = self.created
@@ -952,9 +937,7 @@ class Item(object):
             self.item_hsh['created'] = now
             if self.doc_id is None:
                 self.doc_id = self.db.insert(self.item_hsh)
-                logger.debug(f"new item {self.doc_id} -> {self.item_hsh}")
             else:
-                logger.debug("This shouldn't happen")
                 self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
         else:
             # editing an existing item
@@ -2015,7 +1998,6 @@ class DataView(object):
                 return f"Nothing recorded for {month_format}"
             self.used_description_view = used_description
             self.row2id = self.used_description2id.get(self.active_month)
-            logger.debug(f"row2id: {self.row2id}")
             return self.used_description_view
         elif self.active_view == 'used time summary':
             self.row2id = {}
@@ -2146,7 +2128,6 @@ class DataView(object):
             return item_id, self.itemcache[item_id]
         item = DBITEM.get(doc_id=item_id)
         if item:
-            # logger.debug(f"edit: {edit}\n   item: {item}")
             self.itemcache[item_id] = item_details(item, edit)
             return item_id, self.itemcache[item_id] 
 
@@ -2228,7 +2209,6 @@ class DataView(object):
         item_id, instance, job_id = res
 
         item = DBITEM.get(doc_id=item_id)
-        logger.debug(f"item type: {item['itemtype']}; item_id: {item_id}; instance: {instance}; job_id: {job_id}; item has jobs: {'j' in item}")
         if item['itemtype'] != '-':
             return False, 'only tasks can be finished', None, None, None
         if 'f' in item:
@@ -2458,7 +2438,6 @@ class DataView(object):
             logger.warn(f"error using locale {self.cal_locale}")
             c = calendar.LocaleTextCalendar(0)
         cal = []
-        logger.debug(f"self.calAdv: {self.calAdv}")
         m = 1
         m += 6 * self.calAdv
         y += m // 12
@@ -2496,7 +2475,6 @@ class DataView(object):
         self.refreshCalendar()
 
 def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
-    # logger.debug(f"nowrap txt: {txt}")
     return txt
 
 def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
@@ -2513,9 +2491,6 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
         to the aid of their country. Now is the time for
         all good men to come to the aid of their country.
     """
-    # logger.debug(f"wrap txt: {txt}")
-    # para = [textwrap.dedent(x).strip() for x in txt.split('\n') if x.strip()]
-    # para = txt.strip().split('\n')
     para = [x.rstrip() for x in txt.split('\n')]
     tmp = []
     first = True
@@ -3786,11 +3761,8 @@ def item_instances(item, aft_dt, bef_dt=1):
             print('dtstart:', dtstart)
             dtstart = dtstart[0]
 
-    if isinstance(aft_dt, pendulum.Date) and not isinstance(aft_dt, pendulum.DateTime):
-        aft_dt = pendulum.datetime(year=aft_dt.year, month=aft_dt.month, day=aft_dt.day, hour=0, minute=0)
-    if isinstance(bef_dt, pendulum.Date) and not isinstance(bef_dt, pendulum.DateTime):
-        bef_dt = pendulum.datetime(year=bef_dt.year, month=bef_dt.month, day=bef_dt.day, hour=0, minute=0)
-    # logger.debug(f"aft_dt: {aft_dt}; bef_dt: {bef_dt}")
+    aft_dt = date_to_datetime(aft_dt)
+    bef_dt = date_to_datetime(bef_dt)
 
     if 'r' in item:
         lofh = item['r']
@@ -4455,7 +4427,6 @@ def item_details(item, edit=False):
     try:
         if edit:
             ret = jinja_entry_template.render(h=item)
-            # logger.debug(f"edit: {edit}\nitem: {item}\nret: {ret}")
             return ret
         else:
             # return jinja_entry_template.render(h=item)
@@ -4616,7 +4587,6 @@ def relevant(db, now=pendulum.now()):
                         logger.error(f"error processing {item}; {repr(e)}")
                     if not relevant:
                         relevant = rset.before(today, inc=True)
-                    # logger.debug(f"relevant: {relevant}, {type(relevant)}")
                     if relevant:
                         relevant = pendulum.instance(relevant)
 
@@ -5009,7 +4979,6 @@ def show_tags(db, id2relevant):
                 ) 
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
-    logger.debug(f"tree: {tree}; row2id: {row2id}")
     return tree, row2id
 
 
