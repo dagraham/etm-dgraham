@@ -1,66 +1,74 @@
-Recent changes as of 2020-02-16T11:37:45.622627-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.0.23) Dan Graham
-    20f10b4 2020-02-16 11:37:45 -0500
+Recent changes as of 2020-02-18T09:33:48.628517-05:00:
+- 0 seconds ago (HEAD -> master, tag: 4.0.24) Dan Graham
+    7797fe5 2020-02-18 09:33:48 -0500
+    Tagged version 4.0.24.
+
+- 23 hours ago (origin/master) Dan Graham
+    0b6a7a4 2020-02-17 11:00:00 -0500
+    Dark color tweaks. logger.debug cleanups.
+
+- 2 days ago Dan Graham
+    3af47e9 2020-02-16 11:37:45 -0500
     Tagged version 4.0.23.
 
-- 4 minutes ago Dan Graham
+- 2 days ago Dan Graham
     b21f835 2020-02-16 11:33:16 -0500
     Handle combinations of dates and datetimes in repetitions with @+
     both with and without @r.
 
-- 20 hours ago (origin/master, master) Dan Graham
+- 3 days ago Dan Graham
     f33f10a 2020-02-15 16:05:42 -0500
     Fixed bug in generating instances for all-day task with @o s.
     README tweaks.
 
-- 4 days ago Dan Graham
+- 6 days ago Dan Graham
     f756263 2020-02-12 14:05:06 -0500
     Tagged version 4.0.22.
 
-- 4 days ago Dan Graham
+- 6 days ago Dan Graham
     43defda 2020-02-12 14:03:46 -0500
     README tweaks regarding 'secret'.
 
-- 5 days ago Dan Graham
+- 7 days ago Dan Graham
     b576407 2020-02-11 11:00:39 -0500
     Changed omit_calendars to omit_extent. Randomly genterate 'secret'
     when cfg.yaml is created.
 
-- 6 days ago Dan Graham
+- 8 days ago Dan Graham
     501e737 2020-02-10 11:21:19 -0500
     Added 'omit_calendars' entry to options to allow calendars to be
     specified for events whose extents should be ignored in agenda and
     busy views.
 
-- 6 days ago Dan Graham
+- 8 days ago Dan Graham
     cac8e6b 2020-02-10 10:36:15 -0500
     Removed the space in the timer status display.
 
-- 8 days ago Dan Graham
+- 10 days ago Dan Graham
     3001e91 2020-02-08 15:44:46 -0500
     README tweaks
 
-- 8 days ago (help) Dan Graham
+- 10 days ago Dan Graham
     52038c3 2020-02-08 11:08:25 -0500
     Tagged version 4.0.21.
 
-- 8 days ago (completed) Dan Graham
+- 10 days ago Dan Graham
     c55afb0 2020-02-08 11:06:19 -0500
     Moved until into Item as do_until and added timezone.
 
-- 8 days ago Dan Graham
+- 10 days ago Dan Graham
     d742a40 2020-02-08 10:54:17 -0500
     require datetimes as &u entries
 
-- 8 days ago Dan Graham
+- 10 days ago Dan Graham
     e1d949f 2020-02-08 09:17:44 -0500
     Added used times to completed view. Modified README accordingly.
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     5ae9c21 2020-02-03 18:51:32 -0500
     README tweaks
 
-- 13 days ago Dan Graham
+- 2 weeks ago Dan Graham
     a4d964f 2020-02-03 18:49:13 -0500
     README tweaks
 
@@ -92,30 +100,30 @@ Recent changes as of 2020-02-16T11:37:45.622627-05:00:
     e83fedb 2020-02-02 10:21:22 -0500
     Improved discussion of alerts and beginbys in README.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     9fb9a5e 2020-01-31 15:49:55 -0500
     Added missing import dateutil statement to model.py.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     bb5d75a 2020-01-30 14:54:19 -0500
     Show tasks with @f entries as finished in used time views.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     8e085e7 2020-01-30 13:46:51 -0500
     Tagged version 4.0.19.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     5e7a24f 2020-01-30 13:46:20 -0500
     Cleaned up logger.debug statements.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     f2cd0af 2020-01-30 13:40:39 -0500
     When specifying an alert, report 'missing command' until one is
     specified. Changed inital logging statement to 'critical' to
     insure that it is always recorded. Log bad alert commands as
     errors.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     8934b22 2020-01-30 10:04:47 -0500
     README tweaks. Use 'now' for when in alerts when the alert and
     start times are the same.
@@ -188,31 +196,31 @@ Recent changes as of 2020-02-16T11:37:45.622627-05:00:
     b31488d 2020-01-25 15:26:27 -0500
     Color tweaks
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     898e75f 2020-01-24 16:16:01 -0500
     More color tweaks
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     a4d78d2 2020-01-24 13:08:49 -0500
     Color tweaks for light_style
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     a53e781 2020-01-23 16:31:55 -0500
     Tweaked summary.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     5bb7eb6 2020-01-23 16:21:29 -0500
     Added etmlogo_small.png
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     9feefb3 2020-01-23 15:26:51 -0500
     Color tweaks for dark_style.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     0268ae9 2020-01-23 09:30:00 -0500
     Tagged version 4.0.14.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     79a0a33 2020-01-23 09:29:00 -0500
     Changed display order in agenda view.
 
@@ -241,16 +249,16 @@ Recent changes as of 2020-02-16T11:37:45.622627-05:00:
     file when importing text files. Avoid referring to item_ids for
     bad items - the id's have not been assigned.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     595fc34 2020-01-17 14:38:04 -0500
     Wrap text in showing details but not when editing. Removed
     duplicate 'edit_existing'.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     268904e 2020-01-16 12:12:52 -0500
     Added monthday to used time sort.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     3865bcc 2020-01-16 09:33:58 -0500
     Removed e and added z to common_methods and removed
     datetime_methods from allowed['%'] to prevent @e entries in
@@ -327,20 +335,20 @@ Recent changes as of 2020-02-16T11:37:45.622627-05:00:
     f5d9a98 2020-01-11 11:11:55 -0500
     Added 'details' to external query.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     bacdcab 2020-01-10 13:50:48 -0500
     Tagged version 4.0.9.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     0706981 2020-01-10 13:13:32 -0500
     Corrected filter for ^c binding for copying item details.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     bd4943a 2020-01-10 12:13:19 -0500
     Fixed bug introduced by query. Added binding for ^c to save the
     details of an item in detail view.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     3cd1313 2020-01-09 16:41:15 -0500
     External query improvements. Added pygments keyword styling. Added
     'and' and 'or' conjunctions and '~' to prepend commands to negate
@@ -428,19 +436,10 @@ Recent changes as of 2020-02-16T11:37:45.622627-05:00:
     725f577 2020-01-04 09:03:07 -0500
     Fixed bug in setting the current calendar.
 
-- 6 weeks ago Dan Graham
+- 7 weeks ago Dan Graham
     c7258f0 2020-01-03 17:08:17 -0500
     Readme tweaks
 
-- 6 weeks ago Dan Graham
+- 7 weeks ago Dan Graham
     d432862 2020-01-03 14:28:47 -0500
     Tagged version 4.0.4.
-
-- 6 weeks ago Dan Graham
-    5f70b3e 2020-01-03 14:27:51 -0500
-    Added utilities/colons_to_slashes.py. Finished 'Used Times Views'.
-
-- 6 weeks ago Dan Graham
-    4e78bb8 2020-01-03 13:01:04 -0500
-    Start on adding 'Used Time Views' to README. Switched delimiter
-    from : to / for @i index entries.
