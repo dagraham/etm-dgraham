@@ -4874,14 +4874,18 @@ def show_next(db):
             sort_priority = 4 - int(priority)
             show_priority = str(priority) if priority > 0 else ""
             for job in item['j']:
+                if job.get('f'):
+                    # show completed jobs only in completed view
+                    continue
                 location = job.get('l', task_location)
                 status = 0 if job.get('status') == '-' else 1
+                # status 1 -> waiting, status 0 -> available
                 rows.append(
                     {
                         'id': item.doc_id,
                         'job': job['i'],
                         'instance': None,
-                        'sort': (location, sort_priority, status, job['summary']),
+                        'sort': (location, status, sort_priority, job['i'], job['summary']),
                         'location': location,
                         'columns': [job['status'],
                             job['summary'], 
