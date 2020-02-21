@@ -697,8 +697,8 @@ def save_before_quit(*event):
         discard = yield from show_dialog_as_float(dialog)
         if discard:
             # we want to discard changes
-            if item.doc_id in dataview.itemcache:
-                del dataview.itemcache[item.doc_id]
+            # if item.doc_id in dataview.itemcache:
+            #     del dataview.itemcache[item.doc_id]
             dataview.is_editing = False
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
@@ -1597,11 +1597,8 @@ def do_finish(*event):
 
         done_str = yield from show_dialog_as_float(dialog)
         if done_str:
-            try:
-                done = parse_datetime(done_str)[1]
-            except ValueError:
-                show_message('Finish task/job?', 'Invalid finished datetime')
-            else:
+            ok, done, z = parse_datetime(done_str)
+            if ok:
                 # valid done
                 item.finish_item(item_id, job_id, done, due)
                 # dataview.itemcache[item.doc_id] = {}
@@ -1609,6 +1606,8 @@ def do_finish(*event):
                     del dataview.itemcache[item_id]
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
+            else:
+                show_message('Finish task/job?', 'Invalid finished datetime')
 
     asyncio.ensure_future(coroutine())
 
@@ -1685,14 +1684,15 @@ Enter the path of the file to import:""")
         file_path = yield from show_dialog_as_float(dialog)
 
         if file_path:
-            msg = import_file(file_path)
-            if msg:
+            ok, msg = import_file(file_path)
+            if ok:
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
-                show_message('import file', msg)
+            show_message('import file', msg)
+
     asyncio.ensure_future(coroutine())
 
 
@@ -1755,7 +1755,6 @@ def used_view(*event):
 def used_description(*event):
     dataview.set_active_view('x')
     set_text(dataview.show_active_view())
-    logger.debug(f"dataview.active_view: {dataview.active_view}")
 
 @bindings.add('U', filter=is_viewing)
 def used_summary_view(*event):
@@ -1844,7 +1843,6 @@ def currcal(*event):
 
 @bindings.add('enter', filter=is_viewing_or_details & is_item_view)
 def show_details(*event):
-    logger.debug('processing enter')
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
@@ -1860,9 +1858,11 @@ def show_details(*event):
 @bindings.add('escape', filter=is_editing, eager=True)
 def close_edit(*event):
     if item.is_modified:
+        logger.debug(f"item modified - saving")
         save_before_quit()
     else:
-        item.is_modified = False
+        # item.is_modified = False
+        logger.debug(f"item not modified - closing")
         dataview.is_editing = False
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
@@ -1880,7 +1880,10 @@ def save_changes(*event):
 
 def maybe_save(item):
     # check hsh
-    item.update_item_hsh()
+    msg = item.check_item_hsh()
+    if msg:
+        show_message('Error', ", ".join(msg))
+        return
     if item.item_hsh.get('itemtype', None) is None:
         show_message('Error', 'An entry for itemtype is required but missing.', 0)
         return 

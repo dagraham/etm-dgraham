@@ -576,7 +576,7 @@ class Item(object):
         if item_hsh:
             self.doc_id = None
             self.is_new = True
-            self.item_hsh = item_hsh # created and modified entries
+            self.item_hsh = deepcopy(item_hsh) # created and modified entries
             self.keyvals = []
             self.text_changed(entry, 0, False)
 
@@ -887,14 +887,17 @@ class Item(object):
             display_key = f"@{key}" if len(key) == 1 else f"&{key[-1]}"
             self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
 
-    def update_item_hsh(self):
-        self.created = self.item_hsh.get('created', None)
-        self.item_hsh = {}
+    def check_item_hsh(self):
+        created = self.item_hsh.get('created', None)
+        self.item_hsh = {'created': created}
         cur_hsh = {}
         cur_key = None
+        msg = []
+        logger.debug(f"pos_hsh: {self.pos_hsh}")
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if not obj:
+                msg.append(f"bad entry for {k}: {v}")
                 continue
             if k in ['a', 'u', 'n', 't']:
                 self.item_hsh.setdefault(k, []).append(obj)
@@ -928,22 +931,29 @@ class Item(object):
                 self.item_hsh['j'] = res
                 if last:
                     self.item_hsh['f'] = last
-        now = pendulum.now('local')
         if self.item_hsh.get('z', None) not in [None, 'float']:
             del self.item_hsh['z']
-        if self.is_new:
-            # creating a new item or editing a copy of an existing item
-            self.created = now
-            self.item_hsh['created'] = now
-            if self.doc_id is None:
-                self.doc_id = self.db.insert(self.item_hsh)
+        if msg:
+            logger.debug(f"{msg}")
+
+        return msg
+
+    def update_item_hsh(self):
+        msg = self.check_item_hsh()
+
+        if self.is_modified and not msg:
+            now = pendulum.now('local')
+            if self.is_new:
+                # creating a new item or editing a copy of an existing item
+                self.item_hsh['created'] = now
+                if self.doc_id is None:
+                    self.doc_id = self.db.insert(self.item_hsh)
+                else:
+                    self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
             else:
+                # editing an existing item
+                self.item_hsh['modified'] = now
                 self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
-        else:
-            # editing an existing item
-            self.item_hsh['created'] = self.created
-            self.item_hsh['modified'] = now
-            self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
 
 
     def check_requires(self, key):
@@ -970,7 +980,6 @@ class Item(object):
         if not self.item_hsh:
             return
         if key in ['?', 'r?', 'j?', 'itemtype', 'summary']:
-            logger.debug(f"key: {key}")
             return ""
         if key not in self.keys:
             if len(key) > 1:
@@ -2128,19 +2137,10 @@ class DataView(object):
             return item_id, self.itemcache[item_id]
         item = DBITEM.get(doc_id=item_id)
         if item:
-            self.itemcache[item_id] = item_details(item, edit)
-            return item_id, self.itemcache[item_id] 
+            item_hsh = item_details(item, edit)
+            return item_id, item_hsh
 
         return None, ''
-
-    def get_details_for_id(self, item_id):
-        item = dbitem.get(doc_id=item_id)
-        if item:
-            res = item_details(item, edit)
-            return item_id, res 
-
-        return None, ''
-
 
 
     def get_goto(self, row=None):
@@ -4426,10 +4426,8 @@ def item_details(item, edit=False):
     """
     try:
         if edit:
-            ret = jinja_entry_template.render(h=item)
-            return ret
+            return jinja_entry_template.render(h=item)
         else:
-            # return jinja_entry_template.render(h=item)
             return jinja_display_template.render(h=item)
 
     except Exception as e:
@@ -4492,7 +4490,8 @@ def relevant(db, now=pendulum.now()):
         all_tds = []
         if 'itemtype' not in item:
             logger.warning(f"no itemtype: {item}")
-            continue
+            item['itemtype'] = '?'
+            # continue
         if item['itemtype'] == '!':
             inbox.append([0, item['summary'], item.doc_id, None, None])
             relevant = today
@@ -4833,7 +4832,7 @@ def show_history(db, reverse=True):
             monthday = dt.format("MMM D")
             time = fmt_time(dt)
             dtfmt = f"{monthday} {time}"
-            itemtype = finished_char if 'f' in item else item['itemtype']
+            itemtype = finished_char if 'f' in item else item.get('itemtype', '?')
             rows.append(
                     {
                         'id': id,
@@ -4866,7 +4865,7 @@ def show_next(db):
     rows = []
     locations = set([])
     for item in db:
-        if item['itemtype'] not in ['-'] or 's' in item or 'f' in item:
+        if item.get('itemtype', None) not in ['-'] or 's' in item or 'f' in item:
             continue
         if 'j' in item:
             task_location = item.get('l', '~')
@@ -5532,26 +5531,26 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
 
 def import_file(import_file=None):
+    if not import_file:
+        return False, ""
+    import_file = os.path.normpath(os.path.expanduser(import_file))
+    if not os.path.exists(import_file):
+        return False, f"could not locate: {import_file}"
     filename, extension = os.path.splitext(import_file)
     if extension == '.json':
-        return import_json(import_file)
+        return True, import_json(import_file)
     elif extension == '.text':
-        return import_text(import_file)
+        return True, import_text(import_file)
     elif extension == '.ics':
-        return import_ics(import_file) 
+        return True, import_ics(import_file) 
     else:
-        return f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized"
+        return False, f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized"
 
 
 def import_ics(import_file=None):
     """
     open ics file and convert it to text file in tempdir. Then import the text file using 
     """
-    if not import_file:
-        return ""
-    import_file = os.path.normpath(os.path.expanduser(import_file))
-    if not os.path.exists(import_file):
-        return f"could not locate: {import_file}"
     items = ical.ics_to_items(import_file)
     if not items:
         return
@@ -5592,11 +5591,6 @@ def import_ics(import_file=None):
 
 
 def import_text(import_file=None):
-    if not import_file:
-        return ""
-    import_file = os.path.normpath(os.path.expanduser(import_file))
-    if not os.path.exists(import_file):
-        return f"could not locate: {import_file}"
     import tempfile
     docs = []
     with open(import_file, 'r') as fo:
@@ -5623,11 +5617,9 @@ def import_text(import_file=None):
 
             # update_item_hsh stores the item in ETMDB
             item.update_item_hsh()
-            logger.debug(f"item: {item}\n   item_hsh: {item.item_hsh}")
-            # docs.append(item)
             good.append(f"{item.doc_id}")
 
-    res = f"imported {len(docs)} items"
+    res = f"imported {len(good)} items"
     if good:
         # ids = ETMDB.insert_multiple(docs)
         res += f"\n  ids: {good[0]} - {good[-1]}"
@@ -5638,11 +5630,6 @@ def import_text(import_file=None):
 
 
 def import_json(import_file=None):
-    if not import_file:
-        return ""
-    import_file = os.path.normpath(os.path.expanduser(import_file))
-    if not os.path.exists(import_file):
-        return f"could not locate: {import_file}"
     import json
     with open(import_file, 'r') as fo:
         import_hsh = json.load(fo)
@@ -5767,7 +5754,6 @@ def import_json(import_file=None):
                     # 'f': x.get('f')
                     })
     i = 0
-    num_docs = len(docs)
     for x in docs:
         i += 1
         y = {
