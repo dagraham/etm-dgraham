@@ -905,6 +905,7 @@ dark_style = Style.from_dict({
     'dialog frame-label': 'bg:#ffffff #000000',
     'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'dialog shadow':      'bg:#444444',
+    'text-area': f"{NAMED_COLORS['Black']}", 
 
     'status':     f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'details':    f"{NAMED_COLORS['Ivory']}",
@@ -932,6 +933,7 @@ light_style = Style.from_dict({
     'dialog frame-label': 'bg:#ffffff #000000',
     'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'dialog shadow':      'bg:#444444',
+    'text-area': f"{NAMED_COLORS['Black']}", 
 
     'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'details': f"{NAMED_COLORS['Black']}",
@@ -972,11 +974,11 @@ dark_etmstyle = {
 
 light_etmstyle = {
     'plain':        'Black',
-    'inbox':        'FireBrick',
-    'pastdue':      'RebeccaPurple',
-    'begin':        'DarkRed',
+    'inbox':        'Crimson',
+    'pastdue':      'FireBrick',
+    'begin':        'DarkOrange',
     'record':       'SaddleBrown',
-    'event':        'Green',
+    'event':        'DarkGreen',
     'available':    'DarkBlue',
     'waiting':      'DarkSlateBlue',
     'finished':     'LightSlateGrey',
