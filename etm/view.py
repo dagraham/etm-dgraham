@@ -908,6 +908,7 @@ dark_style = Style.from_dict({
     'text-area': f"{NAMED_COLORS['Black']}", 
 
     'status':     f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'query':     f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
     'details':    f"{NAMED_COLORS['Ivory']}",
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
@@ -936,6 +937,7 @@ light_style = Style.from_dict({
     'text-area': f"{NAMED_COLORS['Black']}", 
 
     'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'query':     f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
     'details': f"{NAMED_COLORS['Black']}",
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
@@ -1296,6 +1298,7 @@ details_area = TextArea(
 query = ETMQuery()
 query_area = TextArea(
     height=3, 
+    style='class:query', 
     # style=query.style,
     lexer=query.lexer,
     multiline=False,
