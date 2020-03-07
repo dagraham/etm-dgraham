@@ -967,7 +967,7 @@ dark_etmstyle = {
     'begin':        'Gold',
     'record':       'GoldenRod',
     'event':        'LimeGreen',
-    'available':    'DodgerBlue',
+    'available':    'LightSkyBlue',
     'waiting':      'SlateGrey',
     'finished':     'DarkGrey',
     'today':        f"{NAMED_COLORS['Ivory']} bold",
