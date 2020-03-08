@@ -7,6 +7,7 @@ logger = logging.getLogger()
 import string
 import random
 from copy import deepcopy
+from prompt_toolkit.styles.named_colors import NAMED_COLORS
 
 yaml = YAML()  
 
@@ -18,6 +19,33 @@ def randomString(stringLength=10):
 
 
 class Settings():
+
+    colors = {
+        'dark': {
+            'plain':        'Ivory',
+            'today':        'Ivory bold',
+            'inbox':        'Yellow',
+            'pastdue':      'LightSalmon',
+            'begin':        'Gold',
+            'record':       'GoldenRod',
+            'event':        'LimeGreen',
+            'available':    'LightSkyBlue',
+            'waiting':      'SlateGrey',
+            'finished':     'DarkGrey',
+            },
+        'light': {
+            'plain':        'Black',
+            'today':        'Black bold',
+            'inbox':        'Crimson',
+            'pastdue':      'FireBrick',
+            'begin':        'DarkOrange',
+            'record':       'SaddleBrown',
+            'event':        'DarkGreen',
+            'available':    'DarkBlue',
+            'waiting':      'DarkSlateBlue',
+            'finished':     'LightSlateGrey',
+            },
+    }
 
     inp = """\
 ################# IMPORTANT #############################
@@ -39,6 +67,41 @@ locale: en
 # light terminal backgounds. Some output may not be visible
 # unless this is set correctly for your display.
 style: dark
+""" + """\
+
+# colors: a 'namedcolor' entry for each of the following items:
+#     plain:        headings such as outline branches
+#     today:        the current date heading in agenda view
+#     inbox:        inbox reminders
+#     pastdue:      pasdue task warnings
+#     begin:        begin by warnings
+#     record:       record reminders
+#     event:        event reminders
+#     waiting:      waiting job reminders (unfinished prereqs)
+#     finished:     finished task/job reminders
+#     available:    available task/job reminders 
+# The default entries are suitable for the style "dark" given 
+# above. 
+# To restore the default colors for whichever "style" you have
+# set above, remove the color name for each of the items you 
+# want to restore and restart etm. 
+# To preview the namedcolors, download "namedcolors.py" from 
+#    "https://github.com/dagraham/etm-dgraham",
+# open a terminal with your chosen background color and run
+#    python3 <path to namedcolors.py>
+# at the command prompt.
+# Note that the color names are case sensitive. 
+colors:
+    plain:        'Ivory'
+    today:        'Ivory bold'
+    inbox:        'Yellow'
+    pastdue:      'LightSalmon'
+    begin:        'Gold'
+    record:       'GoldenRod'
+    event:        'LimeGreen'
+    waiting:      'SlateGrey'
+    finished:     'DarkGrey'
+    available:    'LightSkyBlue'
 """ + f"""\
 
 # secret: A string to use as the secret_key for @m masked 
@@ -174,14 +237,18 @@ smtp:
 
     def __init__(self, etmdir):
         if os.path.isdir(etmdir):
+            self.colorst = Settings.colors
             self.settings = yaml.load(Settings.inp)
+            # logger.debug(f"settings: {type(self.settings)}; {self.settings}")
             self.cfgfile = os.path.normpath(
                     os.path.join(etmdir, 'cfg.yaml'))
             if os.path.exists(self.cfgfile):
                 with open(self.cfgfile, 'r') as fn:
                     self.user = yaml.load(fn)
+                    # logger.debug(f"user: {self.user}")
                 if self.user and isinstance(self.user, dict):
                     self.changes = self.check_options()
+                    # logger.debug(f"changes: {self.changes}")
                 else:
                     self.changes = [f'invalid settings from {self.cfgfile} - using defaults']
             else:
@@ -200,39 +267,76 @@ smtp:
     def check_options(self):
         changed = []
         new = deepcopy(self.user)
+        logger.info(f"new: {type(new)}; {new}")
+        active_style = new.get('style', self.settings['style'])
+        # logger.debug(f"active_style: {active_style}")
+        default_colors = self.colors[active_style]
+        self.settings['colors'] = default_colors
+        # logger.debug(f"default_colors: {default_colors}")
         # add missing default keys
         for key, value in self.settings.items():
             if isinstance(self.settings[key], dict):
                 if key not in new or not isinstance(new[key], dict):
                     new[key] = self.settings[key]
-                    changed.append(f"added {key}: self.settings[key]")
+                    changed.append(f"retaining default {key}: self.settings[key]")
                 else:
                     for k, v in self.settings[key].items():
                         if k not in new[key]:
                             new[key][k] = self.settings[key][k] 
-                            changed.append(f"added {key}.{k}: {self.settings[key][k]}")
+                            changed.append(f"retaining default {key}.{k}: {self.settings[key][k]}")
             elif key not in new:
                 new[key] = self.settings[key]
-                changed.append(f"added {key}: {self.settings[key]}")
+                changed.append(f"retaining default {key}: {self.settings[key]}")
         # remove invalid user keys
-        for key, value in self.user.items():
+        for key in new:
             if key not in self.settings:
                 # not a valid option
                 del new[key]
                 changed.append(f"removed {key}: {self.user[key]}")
-            elif key in ['sms', 'smtp']:
+            elif key in ['sms', 'smtp', 'colors']:
                 # only allow the specified subfields for these keys
-                for k, v in self.user[key].items():
+                ks = new[key] or []
+                for k in ks:
                     if k not in self.settings[key]:
                         changed.append(f"removed {key}.{k}: {new[key][k]}")
                         del new[key][k]
 
-        for key, value in new.items():
-            self.settings[key] = new[key]
+        if new['colors']:
+            for k in new['colors']:
+                if k not in default_colors:
+                    changed.append(f"removed invalid color entry: {k}")
+                    del new['colors'][k]
+            for k, v in default_colors.items():
+                if k not in new['colors']:
+                    changed.append(f"appending missing color entry for {k}. Using default.")
+                    new['colors'][k] = default_colors[k]
+                elif not new['colors'][k] or new['colors'][k].split(" ")[0] not in NAMED_COLORS:
+                    changed.append(f"{new['colors'][k]} is invalid. Using default.")
+                    new['colors'][k] = default_colors[k]
+        else:
+            new['colors'] = default_colors
+        # logger.debug(f"new new colors: {new['colors']}")
 
-        if self.settings['usedtime_minutes'] not in [1, 6, 12, 30, 60]:
-            changed.append(f"{self.settings['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 1.")
-            self.settings['usedtime_minutes'] = 1 
+
+        if new['usedtime_minutes'] not in [1, 6, 12, 30, 60]:
+            changed.append(f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 1.")
+            new['usedtime_minutes'] = 1
+
+        for key in self.settings:
+            self.settings[key] = new.get(key, None)
+
+        # logger.debug(f" new settings: {self.settings}")
+
+        # for k, v in self.settings['colors'].items():
+        #     if not v or v.split(" ")[0].strip() not in NAMED_COLORS:
+        #         changed.append(f"{v} is an invalid color name in colors: {k}. Using default value: {default_colors[k]}")
+        #         self.settings['colors'][k] = default_colors[k]
+        # for k, v in default_colors.items():
+        #     logger.debug(f"checking {k}: {v}")
+        #     if k not in self.settings['colors']:
+        #         logger.debug(f"{k} missing")
+        #         changed.append(f"a colors setting for {k} is missing, Using default value: {default_colors[k]}")
+        #         self.settings['colors'][k] = default_colors[k]
 
         return changed
 
