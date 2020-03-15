@@ -1,6 +1,7 @@
 import os
 import sys
 from ruamel.yaml import YAML
+yaml = YAML(typ='safe', pure=True) 
 import logging
 import logging.config
 logger = logging.getLogger()
@@ -9,7 +10,6 @@ import random
 from copy import deepcopy
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 
-yaml = YAML()  
 
 def randomString(stringLength=10):
     """Generate a random string with the combination of lowercase and uppercase letters and digits """
