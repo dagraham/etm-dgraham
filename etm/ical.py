@@ -40,7 +40,10 @@ def pen_from_fmt(s, z='local'):
         dt = pendulum.from_format(s, "YYYYMMDD", z)
         return dt.date()
     else:
-        dt = pendulum.from_format(s, "YYYYMMDDTHHmm", z)
+        if len(s) == 14:
+            dt = pendulum.from_format(s, "YYYYMMDDTHHmm", z)
+        else:
+            dt = pendulum.from_format(s, "YYYYMMDDTHHmmss", z)
         if z in ['local', 'Factory'] and dt.hour == dt.minute == 0:
             dt = dt.date()
         return dt
