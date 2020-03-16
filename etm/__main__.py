@@ -48,6 +48,7 @@ def main():
 
 
     import etm.ical as ical
+    ical.logger = logger
     import etm.data as data
     data.secret = secret
     from etm.data import Mask

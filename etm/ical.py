@@ -1,5 +1,3 @@
-import logging
-logger = logging.getLogger()
 import os
 
 from datetime import timedelta
@@ -40,10 +38,7 @@ def pen_from_fmt(s, z='local'):
         dt = pendulum.from_format(s, "YYYYMMDD", z)
         return dt.date()
     else:
-        if len(s) == 14:
-            dt = pendulum.from_format(s, "YYYYMMDDTHHmm", z)
-        else:
-            dt = pendulum.from_format(s, "YYYYMMDDTHHmmss", z)
+        dt = pendulum.from_format(s, "YYYYMMDDTHHmmss", z)
         if z in ['local', 'Factory'] and dt.hour == dt.minute == 0:
             dt = dt.date()
         return dt
@@ -170,9 +165,9 @@ def ics_to_items(ics_file=None):
     """
     Process an ics (iCalendar) file and return a corresponding hash of item hashes suitable for adding to tinydb.
     """
+    logger.debug(f"ics_file: {ics_file}")
     if not os.path.isfile(ics_file):
         return False, f"Could not open {ics_file}"
-    logger.debug(f"ics_file: {0}")
     with open(ics_file, 'rb') as g:
         cal = Calendar.from_ical(g.read())
     ilst = []
@@ -267,7 +262,6 @@ def ics_to_items(ics_file=None):
                     rhsh['w'] = wkdays_decode(tmp[0])
                 elif key in ical_rrule_hsh:
                     tmp = rule.get(key) #.to_ical().decode('utf-8')
-                    # logger.info(f"tmp: {tmp}")
                     if not isinstance(tmp, list):
                         tmp = [x.strip() for x in tmp.split(',')]
                     rhsh[ical_rrule_hsh[key]] = tmp
