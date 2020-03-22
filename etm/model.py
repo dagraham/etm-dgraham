@@ -471,7 +471,7 @@ class Item(object):
                 'z': ["timezone", "a timezone entry such as 'US/Eastern' or 'Europe/Paris' or 'float' to specify a naive/floating datetime", self.do_timezone],
                 '?': ["@-key", "", self.do_at],
 
-                'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute", do_frequency],
+                'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute. Append an '&' to add a repetition option.", do_frequency],
                 'ri': ["interval", "positive integer", do_interval],
                 'rm': ["monthdays", "list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", do_monthdays], 
                 'rE': ["easterdays", "number of days before (-), on (0) or after (+) Easter", do_easterdays],
@@ -485,7 +485,7 @@ class Item(object):
                 'rs': ["set positions", "integer", do_setpositions],
                 'r?': ["repetition &-key", "enter &-key", self.do_ampr],
 
-                'jj': ["summary", "job summary", do_string],
+                'jj': ["summary", "job summary. Append an '&' to add a job option.", do_string],
                 'ja': ["alert", "list of timeperiod before task start followed by a colon and a list of command", do_alert],
                 'jb': ["beginby", " integer number of days", do_beginby],
                 'jd': ["description", " string", do_paragraph],
@@ -3264,7 +3264,7 @@ def do_frequency(arg):
     elif arg:
         return None, wrap(f"invalid frequency: {arg} not in {freqstr}", 2)
     else:
-        return None, wrap(f"repetition frequency: character from {freqstr}", 2)
+        return None, wrap(f"repetition frequency: character from {freqstr} Append an '&' to add an option.", 2)
 
 
 def do_setpositions(arg):
