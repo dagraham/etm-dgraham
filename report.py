@@ -58,6 +58,122 @@ Options
 examples
     u i[0]; i[1:]; 
 
+From get_usedtime
+    for item in matching_items:
+        used = item.get('u') # this will be a list of 'period, datetime' tuples 
+        if not used:
+            continue
+        index = item.get('i', '~')
+        # if index == '~':
+        #     continue
+        description = item.get('d', "")
+        id_used = {}
+        index_tup = index.split('/')
+        doc_id = item.doc_id
+        if item['itemtype'] == '-' and 'f' in item:
+            itemtype = finished_char
+        else:
+            itemtype = item['itemtype'] 
+        details = f"{itemtype} {item['summary']}"
+        for period, dt in used:
+            if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
+                dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
+                dt.set(hour=23, minute=59, second=59)
+            # for id2used
+            if UT_MIN != 1:
+                res = period.minutes % UT_MIN
+                if res:
+                    period += (UT_MIN - res) * ONEMIN
+
+            monthday = dt.date()
+            id_used.setdefault(monthday, ZERO)
+            id_used[monthday] += period
+            # for used_time
+            month = dt.format("YYYY-MM")
+            used_time.setdefault(tuple((month,)), ZERO)
+            used_time[tuple((month, ))] += period
+            for i in range(len(index_tup)):
+                used_time.setdefault(tuple((month, *index_tup[:i+1])), ZERO)
+                used_time[tuple((month, *index_tup[:i+1]))] += period
+        for monthday in id_used:
+            month = monthday.format("YYYY-MM")
+            detail_rows.append({
+                        'sort': (month, *index_tup, monthday, details),
+                        'month': month,
+                        'path': f"{monthday.format('MMMM YYYY')}/{index}",
+                        'description': description,
+                        'columns': [
+                            details,
+                            f"{format_hours_and_tenths(id_used[monthday])} {monthday.format('MMM D')}",
+                            doc_id],
+                        })
+
+    detail_rows.sort(key=itemgetter('sort'))
+    for month, items in groupby(detail_rows, key=itemgetter('month')):
+        months.add(month)
+        rdict = RDict()
+        ddict = RDict()
+        for row in items:
+            summary = row['columns'][0][:summary_width]
+            rhc = row['columns'][1]
+            path = row['path']
+            description = row['description']
+            values = [f"{summary}: {rhc}", row['columns'][2]
+                    ] 
+            try:
+                rdict.add(path, tuple(values))
+            except Exception as e:
+                logger.error(f"error adding path: {path}, values: {values}: {e}")
+            if description:
+                values.append(description)
+            try:
+                ddict.add(path, tuple(values))
+            except Exception as e:
+                logger.error(f"error adding path: {path}, values: {values}: {e}")
+        tree, row2id = rdict.as_tree(rdict, level=0)
+        used_details[month] = tree
+        used_details2id[month] = row2id
+        dtree, drow2id = ddict.as_tree(ddict, level=0)
+        used_description[month] = dtree
+        used_description2id[month] = drow2id
+
+    keys = [x for x in used_time]
+    keys.sort()
+    for key in keys:
+        period = used_time[key]
+        month_rows.setdefault(key[0], [])
+        indent = (len(key) - 1) * 3 * " "
+        if len(key) == 1:
+            yrmnth = pendulum.from_format(key[0] + "-01", "YYYY-MM-DD").format("MMMM YYYY")
+            try:
+                rhc = f"{format_hours_and_tenths(period)}"
+                summary = f"{indent}{yrmnth}: {rhc}"[:summary_width]
+                month_rows[key[0]].append(f"{summary}")
+            except Exception as e:
+                logger.error(f"e: {repr(e)}")
+
+        else:
+            rhc = f"{format_hours_and_tenths(period)}"
+            summary = f"{indent}{key[-1]}: {rhc}"[:summary_width].ljust(summary_width, ' ')
+            month_rows[key[0]].append(f"{summary}")
+
+    for key, val in month_rows.items():
+        used_summary[key] = "\n".join(val)
+
+    return used_details, used_details2id, used_summary, used_description, used_description2id
+
+Strategy:
+    Prepare and execute query to fetch the appropriate records.
+    * get records with @u entries
+    * filter to match conditions
+        * toss if if -b bdt is given and all @u entries occured before bdt
+        * toss if -e edt is given and all @u entries occured after edt
+        * toss if -i indx is given and either @i is missing or its value does not start with indx
+        * toss if -t tags is given and either @t is missing or none of its values are in tags
+        * toss if -l loc is given and either @l is missing or its value does not match loc
+        * toss if -c cal is given and either @c is missing or it's value does not match cal
+
+
 """
 
 minus_regex = re.compile(r'\s+\-(?=[a-zA-Z])')
