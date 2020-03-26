@@ -36,11 +36,12 @@ Groupby
     l) location
     i) index
     t) tag
-dates
-    w) week
-    y) year
-    m) month
-    d) day
+    dates)
+        year: YYYY, YY
+        quarter: Q
+        month: MMMM, MMM, MM, M
+        day of month: DD, D
+        day of week: dddd, ddd, dd, d
 
 Options
     -a append fields, eg 'd', 'l'
@@ -50,9 +51,9 @@ Options
     -d depth
     -i index
     -m missing
-    -o omit
-    -s summary
-    -S search
+    -o omit ['$'], just inbox items by default
+    -q query
+        -q itemtype equals - and ~exists f
     -t tags
 
 examples
@@ -172,15 +173,28 @@ Strategy:
         * toss if -t tags is given and either @t is missing or none of its values are in tags
         * toss if -l loc is given and either @l is missing or its value does not match loc
         * toss if -c cal is given and either @c is missing or it's value does not match cal
-
-
 """
+def report(required_fields, filters):
+    required_fields = ['u', 'i']
+
 
 minus_regex = re.compile(r'\s+\-(?=[a-zA-Z])')
-# group_regex = re.compile(r'^\s*(.*)\s+(\d+)/(\d+):\s*(.*)')
-groupdate_regex = re.compile(r'\by{2}\b|\by{4}\b|\b[dM]{1,4}\b|\bw\b')
+groupdate_regex = re.compile(r'\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\b[d]{2,4}\b|\b[D]{1,2}\b|\b[w]\b')
 # options_regex = re.compile(r'^\s*(!?[fk](\[[:\d]+\])?)|(!?[clostu])\s*$')
 
+# supported date formats (subset of pendulum)
+# 'YYYY',     # year 2019
+# 'YY',       # year 19
+# 'Q',        # quarter 1, .., 4
+# 'MMMM',     # month January
+# 'MMM',      # month Jan
+# 'MM',       # month 01
+# 'M',        # month 1
+# 'DD',       # month day 09
+# 'D',        # month day 9
+# 'dddd',     # week day Monday
+# 'ddd',      # week day Mon
+# 'dd',       # week day Mo
 ETMDB = None
 DBITEM = None
 DBARCH = None
@@ -220,144 +234,135 @@ class Query(ETMQuery):
         self.command_details += """
     ut_ok a b: return items in which @u exists and blah
         """ 
+    def all(self):
+        return where('itemtype').exists()
 
     def ut_ok(self, a, b=None, e=None):
         return where('u').exists()
 
 def str2opts(s, options=None):
+
     if not options:
         options = {}
+    grpby = {}
     filters = {}
     op_str = s.split('#')[0]
     parts = minus_regex.split(op_str)
     head = parts.pop(0)
     report = head[0]
     groupbystr = head[1:].strip()
-    if not report or report not in ['c', 'u'] or not groupbystr:
-        return {}, {}, {}
-    grpby = {'report': report}
+    if not report or report not in ['c', 'u']:
+        return {}, {}
+    grpby['report'] = report
     filters['dates'] = False
-    dated = {'grpby': False}
-    filters['report'] = report
-    filters['omit'] = [True, []]
+    grpby['dated'] = False
+    filters['query'] = f"exists {report}" if report == 'u' else ""
     filters['neg_fields'] = []
     filters['pos_fields'] = []
-    groupbylst = [x.strip() for x in groupbystr.split(';')]
-    grpby['lst'] = groupbylst
-    for part in groupbylst:
-        if groupdate_regex.search(part):
-            dated['grpby'] = True
-            filters['dates'] = True
-        elif part not in ['c', 'l'] and part[0] not in ['i', 't']:
-            term_print(
-                str(_('Ignoring invalid grpby part: "{0}"'.format(part))))
-            groupbylst.remove(part)
-    if not groupbylst:
-        return {}, {}, {}
-        # we'll split cols on :: after applying fmts to the string
-    grpby['cols'] = "::".join([f"{i}" for i in range(len(groupbylst))])
-    grpby['fmts'] = []
-    grpby['tuples'] = []
-    filters['grpby'] = ['_summary']
+    groupbylst = []
+    if groupbystr:
+        groupbylst = [x.strip() for x in groupbystr.split(';')]
+        print(f"groupbylst: {groupbylst}")
+        for comp in groupbylst:
+            comp_parts = comp.split(' ')
+            for part in comp_parts:
+                if groupdate_regex.match(part):
+                    grpby['dated'] = True
+                    filters['dates'] = True
+                elif part not in ['c', 'l'] and part[0] not in ['i', 't']:
+                    print(f"Ignoring invalid groupby part: {part}")
+                    groupbylst.remove(comp)
+        grpby['args'] = groupbylst
+    grpby['tups'] = []
+    grpby['sort'] = []
     filters['missing'] = False
-    include = {'y', 'm', 'd'}
-    for group in groupbylst:
-        d_lst = []
-        if groupdate_regex.search(group):
-            if 'w' in group:
-                # groupby week or some other date spec,  not both
-                group = "w"
-                d_lst.append('w')
-                # include.discard('w')
-                if 'y' in group:
-                    include.discard('y')
-                if 'M' in group:
-                    include.discard('m')
-                if 'd' in group:
-                    include.discard('d')
-            else:
-                if 'y' in group:
-                    d_lst.append('yyyy')
-                    include.discard('y')
-                if 'M' in group:
-                    d_lst.append('MM')
-                    include.discard('m')
-                if 'd' in group:
-                    d_lst.append('dd')
-                    include.discard('d')
-            grpby['tuples'].append(" ".join(d_lst))
-            grpby['fmts'].append(
-                "d_to_str(tup[-3], '%s')" % group)
-
-        elif '[' in group:
-            if group[0] == 'i':
-                if ':' in group:
-                    grpby['fmts'].append(
-                        "':'.join(rsplit(':', hsh['%s'])%s)" %
-                        (group[0], group[1:]))
-                    grpby['tuples'].append(
-                        "':'.join(rsplit(':', hsh['%s'])%s)" %
-                        (group[0], group[1:]))
+    include = {'Y', 'M', 'D'}
+    if groupbylst:
+        for group in groupbylst:
+            d_lst = []
+            if groupdate_regex.search(group):
+                if 'w' in group:
+                    # groupby week or some other date spec,  not both
+                    group = "w"
+                    d_lst.append('w')
+                    # include.discard('w')
+                    if 'Y' in group:
+                        include.discard('Y')
+                    if 'M' in group:
+                        include.discard('M')
+                    if 'D' in group:
+                        include.discard('D')
                 else:
-                    grpby['fmts'].append(
-                        "rsplit(':', hsh['%s'])%s" % (group[0], group[1:]))
-                    grpby['tuples'].append(
-                        "rsplit(':', hsh['%s'])%s" % (group[0], group[1:]))
-            filters['grpby'].append(group[0])
-        else:
-            grpby['fmts'].append("hsh['%s']" % group.strip())
-            grpby['tuples'].append("hsh['%s']" % group.strip())
-            filters['grpby'].append(group[0])
-        if include:
-            if include == {'y', 'm', 'd'}:
-                grpby['include'] = "yyyy-MM-dd"
-            elif include == {'m', 'd'}:
-                grpby['include'] = "MMM d"
-            elif include == {'y', 'd'}:
-                grpby['include'] = "yyyy-MM-dd"
-            elif include == set(['y', 'w']):
-                groupby['include'] = "w"
-            elif include == {'d'}:
-                grpby['include'] = "MMM dd"
-            elif include == set(['w']):
-                grpby['include'] = "w"
+                    if 'Y' in group:
+                        d_lst.append('YYYY')
+                        include.discard('Y')
+                    if 'M' in group:
+                        d_lst.append('MM')
+                        include.discard('M')
+                    if 'D' in group:
+                        d_lst.append('DD')
+                        include.discard('D')
+                tmp = " ".join(d_lst)
+                grpby['sort'].append(f"rel_dt.format('{tmp}')")
+                grpby['tups'].append(
+                    f"rel_dt.format('{group}')")
+
+            elif '[' in group:
+                if group[0] == 'i':
+                    if ':' in group:
+                        grpby['tups'].append(
+                                f"'/'.join(re.split('/', hsh['{group[0]}']){group[1:]})")
+                        grpby['sort'].append(
+                                f"'/'.join(re.split('/', hsh[{group[0]}]){group[1:]})")
+                    else:
+                        grpby['tups'].append(
+                                f"re.split('/', hsh['{group[0]}']){group[1:]}" )
+                        grpby['sort'].append(
+                                f"re.split('/', hsh['{group[0]}']){group[1:]}")
+            else:
+                grpby['tups'].append("hsh['%s']" % group.strip())
+                grpby['sort'].append(f"hsh['{group.strip()}']")
+            if include:
+                if include == {'Y', 'M', 'D'}:
+                    grpby['include'] = "YYYY-MM-DD"
+                elif include == {'M', 'D'}:
+                    grpby['include'] = "MMM D"
+                elif include == {'y', 'd'}:
+                    grpby['include'] = "YYYY-MM-DD"
+                elif include == set(['Y', 'w']):
+                    groupby['include'] = "w"
+                elif include == {'D'}:
+                    grpby['include'] = "MMM D"
+                elif include == set(['w']):
+                    grpby['include'] = "w"
+                else:
+                    grpby['include'] = ""
             else:
                 grpby['include'] = ""
-        else:
-            grpby['include'] = ""
-        # logger.debug('grpby final: {0}'.format(grpby))
+            # logger.debug('grpby final: {0}'.format(grpby))
 
     also = []
+    omit = ['$']
     for part in parts:
         key = part[0]
         if key == 'a':
             value = [x.strip() for x in part[1:].split(',')]
             also.extend(value)
-        if key in ['b', 'e']:
+        elif key in ['b', 'e']:
             dt = parse_datetime(part[1:])
-            dated[key] = dt
+            filters[key] = dt
 
         elif key == 'm':
             value = part[1:].strip()
             if value == '1':
                 filters['missing'] = True
 
-        elif key == 's':
+        elif key == 'q':
             value = part[1:].strip()
-            if value[0] == '!':
-                filters['search'] = (False, re.compile(r'%s' % value[1:],
-                                                       re.IGNORECASE))
-            else:
-                filters['search'] = (True, re.compile(r'%s' % value,
-                                                      re.IGNORECASE))
-        elif key == 'S':
-            value = part[1:].strip()
-            if value[0] == '!':
-                filters['search-all'] = (False, re.compile(r'%s' % value[1:], re.IGNORECASE | re.DOTALL))
-            else:
-                filters['search-all'] = (True, re.compile(r'%s' % value, re.IGNORECASE | re.DOTALL))
+            filters['query'] += f" and {value}"
+
         elif key == 'd':
-            if grpby['report'] == 'a':
+            if grpby['report'] == 'u':
                 d = int(part[1:])
                 if d:
                     d += 1
@@ -373,13 +378,7 @@ def str2opts(s, options=None):
                     filters['pos_fields'].append((
                         't', re.compile(r'%s' % t, re.IGNORECASE)))
         elif key == 'o':
-            value = part[1:].strip()
-            if value[0] == '!':
-                filters['omit'][0] = False
-                filters['omit'][1] = [x for x in value[1:]]
-            else:
-                filters['omit'][0] = True
-                filters['omit'][1] = [x for x in value]
+            omit = [x.strip() for x in part[1:].split(',') if x in "$*-%"]
         elif key == 'w':
             grpby['width1'] = int(part[1:])
         elif key == 'W':
@@ -392,11 +391,15 @@ def str2opts(s, options=None):
             else:
                 filters['pos_fields'].append((
                     key, re.compile(r'%s' % value, re.IGNORECASE)))
-    grpby['lst'].append('summary')
+    grpby.setdefault('lst', []).append('summary')
+    if omit:
+        tmp = [f" and ~equals itemtype {key}" for key in omit]
+        filters['query'] += "".join(tmp)
+
     if also:
-        grpby['lst'].extend(also)
+        grpby['also'] = also
     # logger.debug('grpby: {0}; dated: {1}; filters: {2}'.format(grpby, dated, filters))
-    return grpby, dated, filters
+    return grpby, filters
 
 
 def main():
@@ -419,9 +422,20 @@ def main():
             again = False
             continue
         if text.startswith('u') or text.startswith('c'):
-            grpby, dated, filters = str2opts(text)
-            print(f"grpby: {grpby}\ndated: {dated}\nfilters: {filters}")
-            # ok, items = query.do_query('exists u')
+            # if len(text.strip()) == 1:
+            #     continue
+            grpby, filters = str2opts(text)
+            if not grpby:
+                continue
+            # print(f"grpby: {grpby}")
+            # print(f"grpby: {grpby}\nfilters: {filters}")
+            print(f"grpby: {grpby}\n\nfilters: {filters}")
+            ok, items = query.do_query(filters.get('query'))
+            if ok:
+                for item in items:
+                    print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
+            else:
+                print(items)
         else:
             ok, items = query.do_query(text)
 
