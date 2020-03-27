@@ -240,6 +240,34 @@ class Query(ETMQuery):
     def ut_ok(self, a, b=None, e=None):
         return where('u').exists()
 
+def apply_dates_filter(items, grpby, filters):
+    if 'b' not in filters and 'e' not in filters:
+        return items
+    ok_items = []
+    if grpby['report'] == 'u':
+        def rel_dt(item, filters):
+            l = [x[1] for x in item['u']]
+            e_ok = 'e' not in filters or min(l) <= filters['e']
+            b_ok = 'b' not in filters or max(l) >= filters['b']
+            return e_ok and b_ok 
+    elif grpby['report'] == 'c':
+        def rel_dt(item, filters):
+            if 'f' in item:
+                e_ok = 'e' not in filters or item['f'] <= filters['e'] 
+                b_ok = 'b' not in filters or item['f'] >= filters['b']
+            elif 's' in item:
+                e_ok = 'e' not in filters or item['s'] <= filters['s'] 
+                b_ok = 'b' not in filters or item['s'] >= filters['s']
+            else:
+                e_ok = b_ok = True
+            return e_ok and b_ok
+
+    for item in items:
+        if rel_dt(item, filters):
+            ok_items.append(item)
+    return ok_items
+
+
 def str2opts(s, options=None):
 
     if not options:
@@ -256,7 +284,7 @@ def str2opts(s, options=None):
     grpby['report'] = report
     filters['dates'] = False
     grpby['dated'] = False
-    filters['query'] = f"exists {report}" if report == 'u' else ""
+    filters['query'] = f"exists {report}" if report == 'u' else "exists itemtype"
     filters['neg_fields'] = []
     filters['pos_fields'] = []
     groupbylst = []
@@ -378,7 +406,7 @@ def str2opts(s, options=None):
                     filters['pos_fields'].append((
                         't', re.compile(r'%s' % t, re.IGNORECASE)))
         elif key == 'o':
-            omit = [x.strip() for x in part[1:].split(',') if x in "$*-%"]
+            omit = [x.strip() for x in part[1:].split(',') if x.strip() in ['$', '*', '-', '%']]
         elif key == 'w':
             grpby['width1'] = int(part[1:])
         elif key == 'W':
@@ -432,6 +460,8 @@ def main():
             print(f"grpby: {grpby}\n\nfilters: {filters}")
             ok, items = query.do_query(filters.get('query'))
             if ok:
+                if 'b' in filters or 'e' in filters:
+                    items = apply_dates_filter(items, grpby, filters)
                 for item in items:
                     print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
             else:
