@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+from copy import deepcopy
 from tinydb import where, Query
 from prompt_toolkit import prompt
 from prompt_toolkit import PromptSession
@@ -25,6 +26,9 @@ from etm.view import ETMQuery
 def parse_datetime(s):
     return parse(s, strict=False, tz='local')
 
+ZERO = pendulum.duration(minutes=0)
+ONEMIN = pendulum.duration(minutes=1)
+DAY = pendulum.duration(days=1)
 
 """
 From etm3
@@ -240,32 +244,86 @@ class Query(ETMQuery):
     def ut_ok(self, a, b=None, e=None):
         return where('u').exists()
 
+
+def round_period(period):
+    if UT_MIN != 1:
+        res = period.minutes % UT_MIN
+        if res:
+            period += (UT_MIN - res) * ONEMIN
+    return period
+
+
 def apply_dates_filter(items, grpby, filters):
-    if 'b' not in filters and 'e' not in filters:
-        return items
-    ok_items = []
     if grpby['report'] == 'u':
         def rel_dt(item, filters):
-            l = [x[1] for x in item['u']]
-            e_ok = 'e' not in filters or min(l) <= filters['e']
-            b_ok = 'b' not in filters or max(l) >= filters['b']
-            return e_ok and b_ok 
+            rdts = []
+            ok = False
+            used_times = deepcopy(item['u'])
+            if 'b' in filters and 'e' in filters: # both b and e
+                for x in used_times:
+                    if x[1] < filters['b'] or x[1] > filters['e']:
+                        item['u'].remove(x)
+            elif 'b' in filters: # only b
+                for x in used_times:
+                    if x[1] < filters['b']:
+                        item['u'].remove(x)
+            elif 'e' in filters: # only e
+                for x in item['u']:
+                    if x[1] > filters['e']:
+                        item['u'].remove(x)
+            items = []
+            dt2ut = {}
+            for x in item['u']:
+                rdt = x[1].date()
+                dt2ut.setdefault(rdt, ZERO)
+                dt2ut[rdt] += round_period(x[0])
+            for rdt in dt2ut:
+                tmp = deepcopy(item)
+                tmp['rdt'] = rdt
+                tmp['u'] = (rdt, dt2ut[rdt])
+                items.append(tmp)
+            return items
+
     elif grpby['report'] == 'c':
         def rel_dt(item, filters):
+            ok = False
+            items = []
+            tmp = deepcopy(item)
             if 'f' in item:
+                rdt = item['f'].date()
                 e_ok = 'e' not in filters or item['f'] <= filters['e'] 
                 b_ok = 'b' not in filters or item['f'] >= filters['b']
             elif 's' in item:
-                e_ok = 'e' not in filters or item['s'] <= filters['s'] 
-                b_ok = 'b' not in filters or item['s'] >= filters['s']
+                rdt = item['s'].date()
+                e_ok = 'e' not in filters or item['s'] <= filters['e'] 
+                b_ok = 'b' not in filters or item['s'] >= filters['b']
             else:
-                e_ok = b_ok = True
-            return e_ok and b_ok
+                e_ok = b_ok = False
+            if e_ok and b_ok:
+                tmp['rdt'] = rdt
+                items.append(tmp)
+            return items
 
+    ok_items = []
     for item in items:
-        if rel_dt(item, filters):
-            ok_items.append(item)
+        ok_items.extend(rel_dt(item, filters))
     return ok_items
+
+
+def get_sort_and_path(items, grpby):
+    ret = []
+    sort_tups = [x for x in grpby.get('sort', [])]
+    path_tups = [x for x in grpby.get('path', [])]
+    print("sort_tups:", sort_tups)
+    print("path_tups:", path_tups)
+    for item in items:
+        st = [eval(x, {'item': item, 're': re}) for x in sort_tups]
+        pt = [eval(x, {'item': item, 're': re}) for x in path_tups]
+        ret.append((st, pt))
+    ret.sort()
+    for x in ret:
+        print(x[1])
+
 
 
 def str2opts(s, options=None):
@@ -301,7 +359,7 @@ def str2opts(s, options=None):
                     print(f"Ignoring invalid groupby part: {part}")
                     groupbylst.remove(comp)
         grpby['args'] = groupbylst
-    grpby['tups'] = []
+    grpby['path'] = []
     grpby['sort'] = []
     filters['missing'] = False
     include = {'Y', 'M', 'D'}
@@ -331,25 +389,25 @@ def str2opts(s, options=None):
                         d_lst.append('DD')
                         include.discard('D')
                 tmp = " ".join(d_lst)
-                grpby['sort'].append(f"rel_dt.format('{tmp}')")
-                grpby['tups'].append(
-                    f"rel_dt.format('{group}')")
+                grpby['sort'].append(f"item['rdt'].format('{tmp}')")
+                grpby['path'].append(
+                    f"item['rdt'].format('{group}')")
 
             elif '[' in group:
                 if group[0] == 'i':
                     if ':' in group:
-                        grpby['tups'].append(
-                                f"'/'.join(re.split('/', hsh['{group[0]}']){group[1:]})")
+                        grpby['path'].append(
+                                f"'/'.join(re.split('/', item['{group[0]}']){group[1:]})")
                         grpby['sort'].append(
-                                f"'/'.join(re.split('/', hsh[{group[0]}]){group[1:]})")
+                                f"'/'.join(re.split('/', item['{group[0]}']){group[1:]})")
                     else:
-                        grpby['tups'].append(
-                                f"re.split('/', hsh['{group[0]}']){group[1:]}" )
+                        grpby['path'].append(
+                                f"re.split('/', item['{group[0]}']){group[1:]}" )
                         grpby['sort'].append(
-                                f"re.split('/', hsh['{group[0]}']){group[1:]}")
+                                f"re.split('/', item['{group[0]}']){group[1:]}")
             else:
-                grpby['tups'].append("hsh['%s']" % group.strip())
-                grpby['sort'].append(f"hsh['{group.strip()}']")
+                grpby['path'].append("item['%s']" % group.strip())
+                grpby['sort'].append(f"item['{group.strip()}']")
             if include:
                 if include == {'Y', 'M', 'D'}:
                     grpby['include'] = "YYYY-MM-DD"
@@ -460,10 +518,10 @@ def main():
             print(f"grpby: {grpby}\n\nfilters: {filters}")
             ok, items = query.do_query(filters.get('query'))
             if ok:
-                if 'b' in filters or 'e' in filters:
-                    items = apply_dates_filter(items, grpby, filters)
+                items = apply_dates_filter(items, grpby, filters)
+                get_sort_and_path(items, grpby)
                 for item in items:
-                    print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
+                    print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id} {item.get('rdt')}")
             else:
                 print(items)
         else:
@@ -489,4 +547,9 @@ if __name__ == "__main__":
     view.ETMDB = ETMDB
     view.DBITEM = DBITEM
     view.DBARCH = DBARCH
+    # setup_logging = options.setup_logging
+    # setup_logging(loglevel, logdir)
+    # options.logger = logger
+    settings = options.Settings(etmdir).settings
+    UT_MIN = settings.get('usedtime_minutes', 1)
     main()
