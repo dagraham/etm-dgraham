@@ -1,6 +1,10 @@
 import os
+import math
 import sys
+import shutil
+import textwrap
 import re
+from pprint import pprint
 from copy import deepcopy
 from tinydb import where, Query
 from prompt_toolkit import prompt
@@ -8,6 +12,7 @@ from prompt_toolkit import PromptSession
 import etm.options as options
 from etm import view
 from etm.model import item_details
+from etm.model import format_hours_and_tenths
 import etm.data as data
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
@@ -18,6 +23,10 @@ from pygments.token import Operator
 from pygments.token import Comment
 import pendulum
 from pendulum import parse
+import itertools
+from itertools import groupby
+flatten = itertools.chain.from_iterable
+from operator import itemgetter
 
 import etm.view as view
 from etm.view import ETMQuery
@@ -253,6 +262,35 @@ def round_period(period):
     return period
 
 
+def maybe_round(obj):
+    """
+    round up to the nearest UT_MIN minutes.
+    """
+    if not isinstance(obj, pendulum.Duration):
+        return None
+    try:
+        if UT_MIN == 1:
+            return obj
+        minutes = 0
+        if obj.weeks:
+            minutes += obj.weeks * 7 * 24 * 60
+        if obj.remaining_days:
+            minutes += obj.remaining_days * 24 * 60
+        if obj.hours:
+            minutes += obj.hours * 60
+        if obj.minutes:
+            minutes += obj.minutes
+        if minutes: 
+            minutes = math.ceil(minutes/UT_MIN)*(UT_MIN)
+            return minutes * ONEMIN
+        else:
+            return ZERO
+
+    except Exception as e:
+        print('format_duration', e)
+        print(obj)
+        return None
+
 def apply_dates_filter(items, grpby, filters):
     if grpby['report'] == 'u':
         def rel_dt(item, filters):
@@ -310,19 +348,118 @@ def apply_dates_filter(items, grpby, filters):
     return ok_items
 
 
+
+class RDict(dict):
+    """
+    Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row. 
+    """
+
+    # tab = " " * 2
+    tab = 3
+
+    def __init__(self):
+        self.width = shutil.get_terminal_size()[0]
+        self.row = 0
+        self.row2id = {}
+        self.output = []
+
+    def __missing__(self, key):
+        self[key] = RDict()
+        return self[key]
+
+    def as_dict(self):
+        return self
+
+    def leaf_detail(self, detail, depth):
+        dindent = RDict.tab * (depth + 1) * " "
+        paragraphs = detail.split('\n')
+        ret = []
+        for para in paragraphs:
+            ret.extend(textwrap.fill(para, initial_indent=dindent, subsequent_indent=dindent, width=self.width-RDict.tab*(depth-1)).split('\n'))
+        return ret
+
+
+    def add(self, keys, values=()):
+        # keys = tkeys.split(self.split_char)
+        for j in range(len(keys)):
+            key = keys[j]
+            keys_left = keys[j+1:]
+            if not keys_left:
+                try:
+                    self.setdefault(key, []).append(values)
+                except Exception as e:
+                    logger.warn(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
+            if isinstance(self[key], dict):
+                self = self[key]
+            elif keys_left:
+                self.setdefault(":".join(keys[j:]), []).append(values)
+                break
+
+    def as_tree(self, t={}, depth = 0, level=0):
+        """ return an indented tree """
+        for k in t.keys():
+            indent = RDict.tab * depth * " "
+            self.output.append("%s%s" % (indent,  k))
+            self.row += 1 
+            depth += 1
+            if level and depth > level:
+                depth -= 1
+                continue
+
+            if type(t[k]) == RDict:
+                self.as_tree(t[k], depth, level)
+            else:
+                for leaf in t[k]:
+                    indent = RDict.tab * depth * " "
+                    self.output.append("%s%s %s %s" % (indent, leaf[0], leaf[1], leaf[2]))
+                    self.row2id[self.row] = leaf[-1]
+                    self.row += 1 
+                    if len(leaf) > 4:
+                        if leaf[3]:
+                            lines = self.leaf_detail(leaf[3], depth)
+                            for line in lines:
+                                self.output.append(line)
+                                self.row += 1
+            depth -= 1
+        return "\n".join(self.output), self.row2id
+
+
 def get_sort_and_path(items, grpby):
+    used_time = {}
     ret = []
     sort_tups = [x for x in grpby.get('sort', [])]
     path_tups = [x for x in grpby.get('path', [])]
+    dtls_tups  = [x for x in grpby.get('dtls', [])]
     print("sort_tups:", sort_tups)
     print("path_tups:", path_tups)
+    print("dtls_tups:", dtls_tups)
     for item in items:
         st = [eval(x, {'item': item, 're': re}) for x in sort_tups]
         pt = [eval(x, {'item': item, 're': re}) for x in path_tups]
-        ret.append((st, pt))
+        dt = [eval(x, {'item': item, 're': re}) for x in dtls_tups]
+        if grpby['report'] == 'u':
+            dt[2] = ut = maybe_round(dt[2])
+            # for comp in pt:
+
+        ret.append((st, pt, dt))
     ret.sort()
-    for x in ret:
-        print(x[1])
+    ret = [x[1:] for x in ret]
+
+
+    # create recursive dict from data
+    index = RDict()
+    for path, value in ret:
+        # add(index, path, value)
+        index.add(path, value)
+
+    print("\nindex pprint")
+    pprint(index)
+
+    # as_tree(index)
+    print("\nindex as_tree")
+    output, row2id = index.as_tree(index)
+    print(output)
+
 
 
 
@@ -477,13 +614,21 @@ def str2opts(s, options=None):
             else:
                 filters['pos_fields'].append((
                     key, re.compile(r'%s' % value, re.IGNORECASE)))
-    grpby.setdefault('lst', []).append('summary')
     if omit:
         tmp = [f" and ~equals itemtype {key}" for key in omit]
         filters['query'] += "".join(tmp)
 
+    details = []
+    details.append("item['itemtype']")
+    details.append("item['summary']")
+    if report == 'u':
+        details.append("item['u'][1]")
+    else:
+        details.append("")
     if also:
-        grpby['also'] = also
+        details.extend([f"item.get('{x}', '')" for x in also])
+    details.append("item.doc_id")
+    grpby['dtls'] = details
     # logger.debug('grpby: {0}; dated: {1}; filters: {2}'.format(grpby, dated, filters))
     return grpby, filters
 
@@ -507,6 +652,10 @@ def main():
         if not text:
             again = False
             continue
+        if text == "d": # with descriptions
+            text = "u i[0]; MMM YYYY; i[1:]; ddd D -b 3/1 -e 4/1 -a d"
+        elif text == "p": # without descriptions
+            text = "u i[0]; MMM YYYY; i[1:]; ddd D -b 3/1 -e 4/1"
         if text.startswith('u') or text.startswith('c'):
             # if len(text.strip()) == 1:
             #     continue
@@ -520,10 +669,11 @@ def main():
             if ok:
                 items = apply_dates_filter(items, grpby, filters)
                 get_sort_and_path(items, grpby)
-                for item in items:
-                    print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id} {item.get('rdt')}")
+                # for item in items:
+                #     print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id} {item.get('rdt')}")
             else:
-                print(items)
+                pass
+                # print(items)
         else:
             ok, items = query.do_query(text)
 
@@ -531,7 +681,8 @@ def main():
                 for item in items:
                     print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
             else:
-                print(items)
+                pass
+                # print(items)
 
 # text = prompt('query: ', lexer=PygmentsLexer(etm_style))
 # print('You said: %s' % text)
@@ -552,4 +703,5 @@ if __name__ == "__main__":
     # options.logger = logger
     settings = options.Settings(etmdir).settings
     UT_MIN = settings.get('usedtime_minutes', 1)
+    print(f"UT_MIN: {UT_MIN}")
     main()
