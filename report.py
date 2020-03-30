@@ -354,8 +354,7 @@ class RDict(dict):
     Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row. 
     """
 
-    # tab = " " * 2
-    tab = 3
+    tab = 2
 
     def __init__(self):
         self.width = shutil.get_terminal_size()[0]
@@ -411,7 +410,7 @@ class RDict(dict):
             else:
                 for leaf in t[k]:
                     indent = RDict.tab * depth * " "
-                    self.output.append("%s%s %s %s" % (indent, leaf[0], leaf[1], leaf[2]))
+                    self.output.append("%s%s %s: %s" % (indent, leaf[0], leaf[1], leaf[2]))
                     self.row2id[self.row] = leaf[-1]
                     self.row += 1 
                     if len(leaf) > 4:
@@ -430,20 +429,23 @@ def get_sort_and_path(items, grpby):
     sort_tups = [x for x in grpby.get('sort', [])]
     path_tups = [x for x in grpby.get('path', [])]
     dtls_tups  = [x for x in grpby.get('dtls', [])]
-    print("sort_tups:", sort_tups)
-    print("path_tups:", path_tups)
-    print("dtls_tups:", dtls_tups)
+    # print("sort_tups:", sort_tups)
+    # print("path_tups:", path_tups)
+    # print("dtls_tups:", dtls_tups)
     for item in items:
         st = [eval(x, {'item': item, 're': re}) for x in sort_tups]
         pt = [eval(x, {'item': item, 're': re}) for x in path_tups]
         dt = [eval(x, {'item': item, 're': re}) for x in dtls_tups]
         if grpby['report'] == 'u':
             dt[2] = ut = maybe_round(dt[2])
-            # for comp in pt:
-
+            for i in range(len(pt)):
+                key = tuple(pt[:i+1])
+                used_time.setdefault(key, ZERO) 
+                used_time[key] += ut
         ret.append((st, pt, dt))
     ret.sort()
     ret = [x[1:] for x in ret]
+    pprint(used_time)
 
 
     # create recursive dict from data
@@ -452,8 +454,8 @@ def get_sort_and_path(items, grpby):
         # add(index, path, value)
         index.add(path, value)
 
-    print("\nindex pprint")
-    pprint(index)
+    # print("\nindex pprint")
+    # pprint(index)
 
     # as_tree(index)
     print("\nindex as_tree")
@@ -656,15 +658,18 @@ def main():
             text = "u i[0]; MMM YYYY; i[1:]; ddd D -b 3/1 -e 4/1 -a d"
         elif text == "p": # without descriptions
             text = "u i[0]; MMM YYYY; i[1:]; ddd D -b 3/1 -e 4/1"
+        elif text == "w": # without descriptions
+            text = "u i[0]; MMM YYYY; i[1:] -b 1/1 -e 5/1"
+        elif text == "a": # client a only
+            text = "u i[0]; MMM YYYY; i[1:] -q matches i client\sa -a d"
+        print(f"query: {text}")
         if text.startswith('u') or text.startswith('c'):
             # if len(text.strip()) == 1:
             #     continue
             grpby, filters = str2opts(text)
             if not grpby:
                 continue
-            # print(f"grpby: {grpby}")
-            # print(f"grpby: {grpby}\nfilters: {filters}")
-            print(f"grpby: {grpby}\n\nfilters: {filters}")
+            # print(f"grpby: {grpby}\n\nfilters: {filters}")
             ok, items = query.do_query(filters.get('query'))
             if ok:
                 items = apply_dates_filter(items, grpby, filters)
@@ -703,5 +708,5 @@ if __name__ == "__main__":
     # options.logger = logger
     settings = options.Settings(etmdir).settings
     UT_MIN = settings.get('usedtime_minutes', 1)
-    print(f"UT_MIN: {UT_MIN}")
+    # print(f"UT_MIN: {UT_MIN}")
     main()
