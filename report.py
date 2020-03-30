@@ -348,6 +348,40 @@ def apply_dates_filter(items, grpby, filters):
     return ok_items
 
 
+def format_duration(obj, short=True):
+    """
+    if short report only hours and minutes, else include weeks and days
+    >>> td = pendulum.duration(weeks=1, days=2, hours=3, minutes=27)
+    >>> format_duration(td)
+    '1w2d3h27m'
+    """
+    if not isinstance(obj, pendulum.Duration):
+        return None
+    hours = obj.hours
+    try:
+        until =[]
+        if obj.weeks:
+            if short: 
+                hours += obj.weeks * 7 * 24
+            else:
+                until.append(f"{obj.weeks}w")
+
+        if obj.remaining_days:
+            if short:
+                hours += obj.remaining_days * 24
+            else:
+                until.append(f"{obj.remaining_days}d")
+        if hours:
+            until.append(f"{hours}h")
+        if obj.minutes:
+            until.append(f"{obj.minutes}m")
+        if not until and not short:
+            until.append("0m")
+        return "".join(until)
+    except Exception as e:
+        print('format_duration', e)
+        print(obj)
+        return None
 
 class RDict(dict):
     """
@@ -356,11 +390,12 @@ class RDict(dict):
 
     tab = 2
 
-    def __init__(self):
+    def __init__(self, used_time={}):
         self.width = shutil.get_terminal_size()[0]
         self.row = 0
         self.row2id = {}
         self.output = []
+        self.used_time = used_time
 
     def __missing__(self, key):
         self[key] = RDict()
@@ -394,11 +429,13 @@ class RDict(dict):
                 self.setdefault(":".join(keys[j:]), []).append(values)
                 break
 
-    def as_tree(self, t={}, depth = 0, level=0):
+    def as_tree(self, t={}, depth = 0, level=0, pre=[]):
         """ return an indented tree """
         for k in t.keys():
+            del pre[depth:]
+            pre.append(k)
             indent = RDict.tab * depth * " "
-            self.output.append("%s%s" % (indent,  k))
+            self.output.append("%s%s: %s" % (indent,  k, format_duration(self.used_time.get(tuple(pre), ''))))
             self.row += 1 
             depth += 1
             if level and depth > level:
@@ -406,11 +443,11 @@ class RDict(dict):
                 continue
 
             if type(t[k]) == RDict:
-                self.as_tree(t[k], depth, level)
+                self.as_tree(t[k], depth, level, pre)
             else:
                 for leaf in t[k]:
                     indent = RDict.tab * depth * " "
-                    self.output.append("%s%s %s: %s" % (indent, leaf[0], leaf[1], leaf[2]))
+                    self.output.append("%s%s %s: %s" % (indent, leaf[0], leaf[1], format_duration(leaf[2])))
                     self.row2id[self.row] = leaf[-1]
                     self.row += 1 
                     if len(leaf) > 4:
@@ -445,24 +482,20 @@ def get_sort_and_path(items, grpby):
         ret.append((st, pt, dt))
     ret.sort()
     ret = [x[1:] for x in ret]
-    pprint(used_time)
+    # pprint(used_time)
 
 
     # create recursive dict from data
-    index = RDict()
+    index = RDict(used_time)
     for path, value in ret:
-        # add(index, path, value)
         index.add(path, value)
 
     # print("\nindex pprint")
     # pprint(index)
 
-    # as_tree(index)
-    print("\nindex as_tree")
+    # print("\nindex as_tree")
     output, row2id = index.as_tree(index)
     print(output)
-
-
 
 
 def str2opts(s, options=None):
@@ -487,7 +520,7 @@ def str2opts(s, options=None):
     groupbylst = []
     if groupbystr:
         groupbylst = [x.strip() for x in groupbystr.split(';')]
-        print(f"groupbylst: {groupbylst}")
+        # print(f"groupbylst: {groupbylst}")
         for comp in groupbylst:
             comp_parts = comp.split(' ')
             for part in comp_parts:
@@ -658,10 +691,10 @@ def main():
             text = "u i[0]; MMM YYYY; i[1:]; ddd D -b 3/1 -e 4/1 -a d"
         elif text == "p": # without descriptions
             text = "u i[0]; MMM YYYY; i[1:]; ddd D -b 3/1 -e 4/1"
-        elif text == "w": # without descriptions
-            text = "u i[0]; MMM YYYY; i[1:] -b 1/1 -e 5/1"
+        elif text == "w": # without descriptions and days
+            text = "u i[0]; MMM YYYY; i[1:] -b 1/1 -e 3/1"
         elif text == "a": # client a only
-            text = "u i[0]; MMM YYYY; i[1:] -q matches i client\sa -a d"
+            text = "u i[0]; MMM YYYY; i[1:] -q matches i client\sa -b 1/1 -e 3/1 -a d"
         print(f"query: {text}")
         if text.startswith('u') or text.startswith('c'):
             # if len(text.strip()) == 1:
@@ -669,7 +702,7 @@ def main():
             grpby, filters = str2opts(text)
             if not grpby:
                 continue
-            # print(f"grpby: {grpby}\n\nfilters: {filters}")
+            print(f"grpby: {grpby}\n\nfilters: {filters}")
             ok, items = query.do_query(filters.get('query'))
             if ok:
                 items = apply_dates_filter(items, grpby, filters)
