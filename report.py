@@ -435,7 +435,10 @@ class RDict(dict):
             del pre[depth:]
             pre.append(k)
             indent = RDict.tab * depth * " "
-            self.output.append("%s%s: %s" % (indent,  k, format_duration(self.used_time.get(tuple(pre), ''))))
+            if self.used_time:
+                self.output.append("%s%s: %s" % (indent,  k, format_duration(self.used_time.get(tuple(pre), ''))))
+            else:
+                self.output.append("%s%s" % (indent,  k))
             self.row += 1 
             depth += 1
             if level and depth > level:
@@ -447,12 +450,17 @@ class RDict(dict):
             else:
                 for leaf in t[k]:
                     indent = RDict.tab * depth * " "
-                    self.output.append("%s%s %s: %s" % (indent, leaf[0], leaf[1], format_duration(leaf[2])))
+                    if self.used_time:
+                        self.output.append("%s%s %s: %s" % (indent, leaf[0], leaf[1], format_duration(leaf[2])))
+                        num_leafs = 3
+                    else:
+                        self.output.append("%s%s %s" % (indent, leaf[0], leaf[1]))
+                        num_leafs = 2
                     self.row2id[self.row] = leaf[-1]
                     self.row += 1 
-                    if len(leaf) > 4:
-                        if leaf[3]:
-                            lines = self.leaf_detail(leaf[3], depth)
+                    if len(leaf) > num_leafs + 1:
+                        if leaf[num_leafs]:
+                            lines = self.leaf_detail(leaf[num_leafs], depth)
                             for line in lines:
                                 self.output.append(line)
                                 self.row += 1
@@ -472,7 +480,10 @@ def get_sort_and_path(items, grpby):
     for item in items:
         st = [eval(x, {'item': item, 're': re}) for x in sort_tups]
         pt = [eval(x, {'item': item, 're': re}) for x in path_tups]
-        dt = [eval(x, {'item': item, 're': re}) for x in dtls_tups]
+        try:
+            dt = [eval(x, {'item': item, 're': re}) for x in dtls_tups if x]
+        except:
+            print(f"error processing {dtls_tups}")
         if grpby['report'] == 'u':
             dt[2] = ut = maybe_round(dt[2])
             for i in range(len(pt)):
@@ -496,6 +507,7 @@ def get_sort_and_path(items, grpby):
     # print("\nindex as_tree")
     output, row2id = index.as_tree(index)
     print(output)
+    pprint(row2id)
 
 
 def str2opts(s, options=None):
@@ -661,7 +673,7 @@ def str2opts(s, options=None):
     else:
         details.append("")
     if also:
-        details.extend([f"item.get('{x}', '')" for x in also])
+        details.extend([f"item.get('{x}', 'none')" for x in also])
     details.append("item.doc_id")
     grpby['dtls'] = details
     # logger.debug('grpby: {0}; dated: {1}; filters: {2}'.format(grpby, dated, filters))
