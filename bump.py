@@ -77,7 +77,11 @@ res = res.lower()
 if res in extension_options[ext]:
     new_version = f"{pre}{extension_options[ext][res]}"
 elif res == 'p':
-    new_version = new_patch
+    new_version = b_patch
+elif res == 'm':
+    new_version = b_minor
+elif res == 'M':
+    new_version = b_major
 
 ans = input(f"Commit and tag new version: {new_version}? [yN] ")
 if ans.lower() != 'y':
