@@ -63,8 +63,8 @@ if ext and ext in extension_options:
     for k, v in extension_options[ext].items():
         opts.append(f"  {k}: {pre}{v}")
     opts.append(f"  p: {b_patch}")
-    opts.append(f"  m: {b_minor}")
-    opts.append(f"  M: {b_major}")
+    opts.append(f"  n: {b_minor}")
+    opts.append(f"  j: {b_major}")
 
 import os
 version_file = os.path.join(os.getcwd(), 'etm', '__version__.py')
@@ -78,9 +78,9 @@ if res in extension_options[ext]:
     new_version = f"{pre}{extension_options[ext][res]}"
 elif res == 'p':
     new_version = b_patch
-elif res == 'm':
+elif res == 'n':
     new_version = b_minor
-elif res == 'M':
+elif res == 'j':
     new_version = b_major
 
 ans = input(f"Commit and tag new version: {new_version}? [yN] ")
