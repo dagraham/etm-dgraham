@@ -47,17 +47,24 @@ extension_options = {
 
 new_ext = f"{pre}{ext}{ext_num}"
 # print(pre)
-parts = pre.split('.')
-# print(parts)
-parts[-1] = str(int(parts[-1]) + 1)
-new_patch = ".".join(parts)
+major, minor, patch = pre.split('.')
+# print(major, minor, patch)
+b_patch = ".".join([major, minor, str(int(patch)+1)])
+b_minor = ".".join([major, str(int(minor)+1), '0'])
+b_major = ".".join([str(int(major)+1), '0', '0'])
+# print(b_patch, b_minor, b_major)
+# parts = pre.split('.')
+# parts[-1] = str(int(parts[-1]) + 1)
+# new_patch = ".".join(parts)
 
 opts = [f'The current version is {version}']
 if ext and ext in extension_options:
     i = 0
     for k, v in extension_options[ext].items():
         opts.append(f"  {k}: {pre}{v}")
-    opts.append(f"  p: {new_patch}")
+    opts.append(f"  p: {b_patch}")
+    opts.append(f"  m: {b_minor}")
+    opts.append(f"  M: {b_major}")
 
 import os
 version_file = os.path.join(os.getcwd(), 'etm', '__version__.py')
