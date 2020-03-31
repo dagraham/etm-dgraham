@@ -397,6 +397,9 @@ previously submitted queries.
         """
         if query == "?" or query == "help":
             return False, self.usage
+        elif query.startswith('u') or query.startswith('c'):
+            show_report_items(query)
+            ok, 
         try:
             ok, test = self.process_query(query)
             if not ok:
@@ -406,6 +409,7 @@ previously submitted queries.
                 return False, test
             else:
                 items = DBITEM.search(test)
+                logger.debug(f"search items: {items}")
                 return True, items 
         except Exception as e:
             return False, f"exception processing '{query}':\n{e}"
@@ -1308,13 +1312,25 @@ query_area = TextArea(
 
 def accept(buff):
     if query_area.text:
-        ok, items = query.do_query(query_area.text)
-        if ok:
-            dataview.set_query(query_area.text, items)
-            application.layout.focus(text_area)
-            set_text(dataview.show_active_view())
+        text = query_area.text
+        if text.startswith('u') or text.startswith('c'):
+
+            grpby, filters = report.str2opts(text)
+            ok, items = query.do_query(filters.get('query'))
+            if ok:
+                dataview.set_query(query_area.text, items)
+                application.layout.focus(text_area)
+                set_text(dataview.show_active_view())
+            else:
+                text_area.text = items
         else:
-            text_area.text = items
+            ok, items = query.do_query(query_area.text)
+            if ok:
+                dataview.set_query(query_area.text, items)
+                application.layout.focus(text_area)
+                set_text(dataview.show_active_view())
+            else:
+                text_area.text = items
     else:
         # quitting 
         dataview.active_view = dataview.prior_view

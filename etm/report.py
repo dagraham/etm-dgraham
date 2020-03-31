@@ -32,6 +32,10 @@ import etm.view as view
 from etm.view import ETMQuery
 # from etm.model import parse_datetime, date_to_datetime
 
+ETMDB = view.ETMDB 
+DBITEM = view.DBITEM
+DBARCH = view.DBARCH
+
 def parse_datetime(s):
     return parse(s, strict=False, tz='local')
 
@@ -484,8 +488,9 @@ def get_sort_and_path(items, grpby):
 
     # print("\nindex as_tree")
     output, row2id = index.as_tree(index)
-    print(output)
-    pprint(row2id)
+    return output, row2id
+    # print(output)
+    # pprint(row2id)
 
 
 def str2opts(s, options=None):
@@ -657,8 +662,23 @@ def str2opts(s, options=None):
     # logger.debug('grpby: {0}; dated: {1}; filters: {2}'.format(grpby, dated, filters))
     return grpby, filters
 
+def get_report_results(text):
+    query = ETMQuery()
+    if len(text.strip()) == 1:
+        return f"report arguments missing in '{text}'", {}
+    grpby, filters = str2opts(text)
+    ok, items = query.do_query(filters.get('query'))
+    if ok:
+        items = apply_dates_filter(items, grpby, filters)
+        if not items or not isinstance(items, list):
+            return f"query: {text}\n   none matching", {}
+        output, row2id = get_sort_and_path(items, grpby)
+        return output, row2id
+    else:
+        return items, {}
 
-def main():
+
+def main(etmdir, args):
 
     # view.item_details = item_details
     # settings = options.Settings(etmdir).settings
@@ -673,8 +693,9 @@ def main():
     again = True
     while again:
 
+        print("Enter 'quit', 'stop', 'exit' or '' to exit loop")
         text = session.prompt("query: ", lexer=query.lexer)
-        if not text:
+        if not text or text in ['quit', 'stop', 'exit']:
             again = False
             continue
         if text == "d": # with descriptions
@@ -685,6 +706,9 @@ def main():
             text = "u i[0]; MMM YYYY; i[1:] -b 1/1 -e 3/1"
         elif text == "a": # client a only
             text = "u i[0]; MMM YYYY; i[1:] -q matches i client\sa -b 1/1 -e 3/1 -a d"
+        elif len(text.strip()) == 1:
+            print("missing report arguments")
+            continue
         print(f"query: {text}")
         if text.startswith('u') or text.startswith('c'):
             # if len(text.strip()) == 1:
@@ -696,40 +720,39 @@ def main():
             ok, items = query.do_query(filters.get('query'))
             if ok:
                 items = apply_dates_filter(items, grpby, filters)
-                get_sort_and_path(items, grpby)
-                # for item in items:
-                #     print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id} {item.get('rdt')}")
+                output, row2id = get_sort_and_path(items, grpby)
+                print(output)
             else:
-                pass
-                # print(items)
+                print(items)
         else:
             ok, items = query.do_query(text)
-
             if ok:
                 for item in items:
                     print(f"   {item['itemtype']} {item.get('summary', 'none')} {item.doc_id}")
             else:
-                pass
-                # print(items)
+                print(items)
 
 # text = prompt('query: ', lexer=PygmentsLexer(etm_style))
 # print('You said: %s' % text)
 
-if __name__ == "__main__":
-    if not (len(sys.argv) == 2 and os.path.isdir(sys.argv[1])):
-        sys.exit()
-    etmdir = sys.argv[1]
-    dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
-    ETMDB = data.initialize_tinydb(dbfile)
-    DBITEM = ETMDB.table('items', cache_size=None)
-    DBARCH = ETMDB.table('archive', cache_size=None)
-    view.ETMDB = ETMDB
-    view.DBITEM = DBITEM
-    view.DBARCH = DBARCH
-    # setup_logging = options.setup_logging
-    # setup_logging(loglevel, logdir)
-    # options.logger = logger
-    settings = options.Settings(etmdir).settings
-    UT_MIN = settings.get('usedtime_minutes', 1)
-    # print(f"UT_MIN: {UT_MIN}")
-    main()
+if __name__ == '__main__':
+    sys.exit('report.py should only be imported')
+
+# if __name__ == "__main__":
+#     if not (len(sys.argv) == 2 and os.path.isdir(sys.argv[1])):
+#         sys.exit()
+#     etmdir = sys.argv[1]
+#     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+#     ETMDB = data.initialize_tinydb(dbfile)
+#     DBITEM = ETMDB.table('items', cache_size=None)
+#     DBARCH = ETMDB.table('archive', cache_size=None)
+#     view.ETMDB = ETMDB
+#     view.DBITEM = DBITEM
+#     view.DBARCH = DBARCH
+#     # setup_logging = options.setup_logging
+#     # setup_logging(loglevel, logdir)
+#     # options.logger = logger
+#     settings = options.Settings(etmdir).settings
+#     UT_MIN = settings.get('usedtime_minutes', 1)
+#     # print(f"UT_MIN: {UT_MIN}")
+#     main()

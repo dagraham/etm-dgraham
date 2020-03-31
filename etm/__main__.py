@@ -121,6 +121,20 @@ def main():
     view.completions = completions
     view.expansions = expansions
     view.terminal_style = style
+    from etm.view import ETMQuery
+
+    import etm.report as report
+    view.report = report
+    report.ETMQuery = ETMQuery
+    get_report_results = report.get_report_results
+    view.get_report_results = get_report_results
+    model.get_report_results = get_report_results
+    report.ETMDB = ETMDB
+    report.DBITEM = DBITEM
+    report.DBARCH = DBARCH
+    report.settings = settings
+    report.UT_MIN = settings.get('usedtime_minutes', 1)
+
     logger.info(f"setting terminal_style: {style}")
 
 
@@ -137,8 +151,11 @@ def main():
             logger.info(f"calling data doctest with etmdir: {etmdir}, argv: {sys.argv}")
             import doctest
             doctest.testmod(data)
+        elif sys.argv[1] == 'rep':
+            logger.info(f"calling report.main with etmdir: {etmdir}, argv: {sys.argv}")
+            report.main(etmdir, sys.argv)
         else:
-            logger.info(f"calling data.main with etmdir: {etmdir}, argv: {sys.argv}")
+            logger.info(f"calling model.main with etmdir: {etmdir}, argv: {sys.argv}")
             model.main(etmdir, sys.argv)
 
     else:

@@ -1754,6 +1754,9 @@ class DataView(object):
         self.query_view = ""
         self.query_text = ""
         self.query_items = []
+        self.report_view = ""
+        self.report_text = ""
+        self.report_items = []
         self.cal_locale = None
         self.history_view = ""
         self.cache = {}
@@ -2017,7 +2020,15 @@ class DataView(object):
             self.used_summary_view = used_summary
             return self.used_summary_view
         elif self.active_view == 'query':
-            self.query_view, self.row2id = show_query_items(self.query_text, self.query_items)
+            if self.query_text.startswith('u') or self.query_text.startswith('c'):
+                # report
+                self.query_view, self.row2id = get_report_results(self.query_text) 
+            else:
+                # standard query
+                self.query_view, self.row2id = show_query_items(self.query_text, self.query_items)
+            return self.query_view
+        elif self.active_view == 'report':
+            self.report_view, self.row2id = show_report_items(self.report_text, self.report_items)
             return self.query_view
 
     def set_query(self, text, items):
