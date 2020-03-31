@@ -2027,9 +2027,9 @@ class DataView(object):
                 # standard query
                 self.query_view, self.row2id = show_query_items(self.query_text, self.query_items)
             return self.query_view
-        elif self.active_view == 'report':
-            self.report_view, self.row2id = show_report_items(self.report_text, self.report_items)
-            return self.query_view
+        # elif self.active_view == 'report':
+        #     self.report_view, self.row2id = show_report_items(self.report_text, self.report_items)
+        #     return self.query_view
 
     def set_query(self, text, items):
         self.query_text = text

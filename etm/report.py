@@ -369,9 +369,9 @@ class RDict(dict):
     tab = 2
 
     # def __init__(self, split_char='/', used_time={}):
-    def __init__(self, used_time={}):
+    def __init__(self, used_time={}, row=0):
         self.width = shutil.get_terminal_size()[0]
-        self.row = 0
+        self.row = row
         self.row2id = {}
         self.output = []
         # self.split_char = split_char
@@ -450,7 +450,7 @@ class RDict(dict):
         return "\n".join(self.output), self.row2id
 
 
-def get_sort_and_path(items, grpby):
+def get_sort_and_path(items, grpby, query=""):
     used_time = {}
     ret = []
     sort_tups = [x for x in grpby.get('sort', [])]
@@ -479,7 +479,13 @@ def get_sort_and_path(items, grpby):
 
 
     # create recursive dict from data
-    index = RDict(used_time)
+    if query:
+        row = 2
+        title = f"query: {query}\n{'='*(6+len(query))}\n"
+    else:
+        row = 0
+        title = ""
+    index = RDict(used_time, row)
     for path, value in ret:
         index.add(path, value)
 
@@ -488,7 +494,7 @@ def get_sort_and_path(items, grpby):
 
     # print("\nindex as_tree")
     output, row2id = index.as_tree(index)
-    return output, row2id
+    return title + output, row2id
     # print(output)
     # pprint(row2id)
 
@@ -672,7 +678,7 @@ def get_report_results(text):
         items = apply_dates_filter(items, grpby, filters)
         if not items or not isinstance(items, list):
             return f"query: {text}\n   none matching", {}
-        output, row2id = get_sort_and_path(items, grpby)
+        output, row2id = get_sort_and_path(items, grpby, text)
         return output, row2id
     else:
         return items, {}
