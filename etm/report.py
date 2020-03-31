@@ -193,7 +193,6 @@ def report(required_fields, filters):
 
 minus_regex = re.compile(r'\s+\-(?=[a-zA-Z])')
 groupdate_regex = re.compile(r'\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\b[d]{2,4}\b|\b[D]{1,2}\b|\b[w]\b')
-# options_regex = re.compile(r'^\s*(!?[fk](\[[:\d]+\])?)|(!?[clostu])\s*$')
 
 # supported date formats (subset of pendulum)
 # 'YYYY',     # year 2019
@@ -235,31 +234,6 @@ class TDBLexer(RegexLexer):
                 (r'(and|or|info)\b', Operator),
                 ],
             }
-
-class Query(ETMQuery):
-
-    def __init__(self):
-        super().__init__()
-        self.arg['ut'] = self.ut_ok
-
-        self.allowed_commands = ", ".join([x for x in self.arg])
-
-        self.command_details += """
-    ut_ok a b: return items in which @u exists and blah
-        """ 
-    def all(self):
-        return where('itemtype').exists()
-
-    def ut_ok(self, a, b=None, e=None):
-        return where('u').exists()
-
-
-def round_period(period):
-    if UT_MIN != 1:
-        res = period.minutes % UT_MIN
-        if res:
-            period += (UT_MIN - res) * ONEMIN
-    return period
 
 
 def maybe_round(obj):
@@ -314,7 +288,7 @@ def apply_dates_filter(items, grpby, filters):
             for x in item['u']:
                 rdt = x[1].date()
                 dt2ut.setdefault(rdt, ZERO)
-                dt2ut[rdt] += round_period(x[0])
+                dt2ut[rdt] += maybe_round(x[0])
             for rdt in dt2ut:
                 tmp = deepcopy(item)
                 tmp['rdt'] = rdt
@@ -390,11 +364,13 @@ class RDict(dict):
 
     tab = 2
 
+    # def __init__(self, split_char='/', used_time={}):
     def __init__(self, used_time={}):
         self.width = shutil.get_terminal_size()[0]
         self.row = 0
         self.row2id = {}
         self.output = []
+        # self.split_char = split_char
         self.used_time = used_time
 
     def __missing__(self, key):
@@ -415,6 +391,8 @@ class RDict(dict):
 
     def add(self, keys, values=()):
         # keys = tkeys.split(self.split_char)
+        # if isinstance(keys, str):
+        #     keys = keys.split(self.split_char)
         for j in range(len(keys)):
             key = keys[j]
             keys_left = keys[j+1:]
@@ -688,7 +666,7 @@ def main():
     # data.secret = secret
 
     # from etm.view import Query
-    query = Query()
+    query = ETMQuery()
 
     session = PromptSession()
 
