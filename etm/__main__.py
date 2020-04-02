@@ -133,6 +133,7 @@ def main():
     report.DBITEM = DBITEM
     report.DBARCH = DBARCH
     report.settings = settings
+    report.logger = logger
     report.UT_MIN = settings.get('usedtime_minutes', 1)
 
     logger.info(f"setting terminal_style: {style}")
