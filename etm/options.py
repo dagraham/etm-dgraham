@@ -1,7 +1,7 @@
 import os
 import sys
 from ruamel.yaml import YAML
-yaml = YAML(typ='safe', pure=True) 
+yaml = YAML() 
 import logging
 import logging.config
 logger = logging.getLogger()
@@ -233,6 +233,17 @@ smtp:
     id: 
     pw: 
     server: 
+
+# queries: A dictionary with sort query "keys" and 
+# corresponding "query" values. Each "query" must be one that 
+# could be entered as the command in query view. E.g.,
+#
+#   queries:
+#       um: u MMM YYYY; i[0]; i[1]; i[2:]
+#       ui: u i[0]; MMM YYYY; i[1:]; ddd D  
+queries:
+
+
 """
 
     def __init__(self, etmdir):
