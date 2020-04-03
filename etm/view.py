@@ -62,9 +62,6 @@ import pyperclip
 # set in __main__
 logger = None
 
-class ETMQuery(object):
-
-    pass
 
 ############ begin query ###############################
 from tinydb import where
@@ -91,14 +88,19 @@ class TDBLexer(RegexLexer):
     aliases = ['tdb']
     filenames = '*.*'
     flags = re.MULTILINE | re.DOTALL
+    qk = ''
+    # queries = settings.get('queries')
+    # if queries:
+    #     qk = ''.join([f"|{k}" for k in queries])
 
     tokens = {
             'root': [
-                (r'(matches|search|equals|more|less|exists|any|all|one)\b', Keyword),
+                (r'(matches|search|equals|more|less|exists|any|all|one%s)\b' % qk, Keyword),
                 (r'(itemtype|summary)\b', Literal),
                 (r'(and|or|info)\b', Operator),
                 ],
             }
+
 
 class ETMQuery(object):
 
@@ -1321,6 +1323,7 @@ def accept(buff):
         queries = settings.get('queries')
         if queries and text in queries:
             text = queries[text]
+            query_area.text = text
         if text.startswith('u') or text.startswith('c'):
             grpby, filters = report.get_grpby_and_filters(text)
             ok, items = query.do_query(filters.get('query'))

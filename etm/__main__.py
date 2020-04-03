@@ -96,6 +96,7 @@ def main():
 
 
     import etm.view as view
+    view.settings = settings
     view.cfgfile = cfgfile
     view.model = model
     view.RDict = RDict
