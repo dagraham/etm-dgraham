@@ -125,13 +125,13 @@ def main():
 
     import etm.report as report
     view.report = report
-    report.ETMQuery = ETMQuery
-    get_report_results = report.get_report_results
-    view.get_report_results = get_report_results
-    model.get_report_results = get_report_results
+    show_query_results = report.show_query_results
+    view.show_query_results = show_query_results
+    model.show_query_results = show_query_results
     report.ETMDB = ETMDB
     report.DBITEM = DBITEM
     report.DBARCH = DBARCH
+    report.ETMQuery = ETMQuery
     report.settings = settings
     report.logger = logger
     report.UT_MIN = settings.get('usedtime_minutes', 1)

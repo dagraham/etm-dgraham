@@ -16,6 +16,7 @@ from etm.model import format_hours_and_tenths
 import etm.data as data
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
+from prompt_toolkit.widgets import TextArea
 from pygments.lexer import RegexLexer
 from pygments.token import Keyword
 from pygments.token import Literal
@@ -28,172 +29,364 @@ from itertools import groupby
 flatten = itertools.chain.from_iterable
 from operator import itemgetter
 
-import etm.view as view
-from etm.view import ETMQuery
+# import etm.view as view
 # from etm.model import parse_datetime, date_to_datetime
 
-ETMDB = view.ETMDB 
-DBITEM = view.DBITEM
-DBARCH = view.DBARCH
-
-def parse_datetime(s):
-    return parse(s, strict=False, tz='local')
+# ETMDB = view.ETMDB 
+# DBITEM = view.DBITEM
+# DBARCH = view.DBARCH
 
 ZERO = pendulum.duration(minutes=0)
 ONEMIN = pendulum.duration(minutes=1)
 DAY = pendulum.duration(days=1)
 
-"""
-From etm3
-Report types
-    a) action report (used time)
-    c) custom report (non action)
+# class TDBLexer(RegexLexer):
 
-Groupby
-    l) location
-    i) index
-    t) tag
-    dates)
-        year: YYYY, YY
-        quarter: Q
-        month: MMMM, MMM, MM, M
-        day of month: DD, D
-        day of week: dddd, ddd, dd, d
+#     name = 'TDB'
+#     aliases = ['tdb']
+#     filenames = '*.*'
+#     flags = re.MULTILINE | re.DOTALL
 
-Options
-    -a append fields, eg 'd', 'l'
-    -b begin date
-    -e end date 
-    -l location
-    -d depth
-    -i index
-    -m missing
-    -o omit ['$'], just inbox items by default
-    -q query
-        -q itemtype equals - and ~exists f
-    -t tags
+#     tokens = {
+#             'root': [
+#                 (r'(matches|search|equals|more|less|exists|any|all|one)\b', Keyword),
+#                 (r'(itemtype|summary)\b', Literal),
+#                 (r'(and|or|info)\b', Operator),
+#                 ],
+#             }
 
-examples
-    u i[0]; i[1:]; 
+# class ETMQuery(object):
 
-From get_usedtime
-    for item in matching_items:
-        used = item.get('u') # this will be a list of 'period, datetime' tuples 
-        if not used:
-            continue
-        index = item.get('i', '~')
-        # if index == '~':
-        #     continue
-        description = item.get('d', "")
-        id_used = {}
-        index_tup = index.split('/')
-        doc_id = item.doc_id
-        if item['itemtype'] == '-' and 'f' in item:
-            itemtype = finished_char
-        else:
-            itemtype = item['itemtype'] 
-        details = f"{itemtype} {item['summary']}"
-        for period, dt in used:
-            if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
-                dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
-                dt.set(hour=23, minute=59, second=59)
-            # for id2used
-            if UT_MIN != 1:
-                res = period.minutes % UT_MIN
-                if res:
-                    period += (UT_MIN - res) * ONEMIN
+#     def __init__(self):
+#         self.arg = { 'matches': self.matches,
+#                 'search': self.search,
+#                 'equals': self.equals,
+#                 'more': self.more,
+#                 'less': self.less,
+#                 'exists': self.exists,
+#                 'any': self.in_any,
+#                 'all': self.in_all,
+#                 'one': self.one_of,
+#                 'info': self.info,
+#                 'dt' : self.dt,
+#                 }
 
-            monthday = dt.date()
-            id_used.setdefault(monthday, ZERO)
-            id_used[monthday] += period
-            # for used_time
-            month = dt.format("YYYY-MM")
-            used_time.setdefault(tuple((month,)), ZERO)
-            used_time[tuple((month, ))] += period
-            for i in range(len(index_tup)):
-                used_time.setdefault(tuple((month, *index_tup[:i+1])), ZERO)
-                used_time[tuple((month, *index_tup[:i+1]))] += period
-        for monthday in id_used:
-            month = monthday.format("YYYY-MM")
-            detail_rows.append({
-                        'sort': (month, *index_tup, monthday, details),
-                        'month': month,
-                        'path': f"{monthday.format('MMMM YYYY')}/{index}",
-                        'description': description,
-                        'columns': [
-                            details,
-                            f"{format_hours_and_tenths(id_used[monthday])} {monthday.format('MMM D')}",
-                            doc_id],
-                        })
+#         self.op = {
+#                 '=': self.maybe_equal,
+#                 '>': self.maybe_later,
+#                 '<': self.maybe_earlier
+#                 }
 
-    detail_rows.sort(key=itemgetter('sort'))
-    for month, items in groupby(detail_rows, key=itemgetter('month')):
-        months.add(month)
-        rdict = RDict()
-        ddict = RDict()
-        for row in items:
-            summary = row['columns'][0][:summary_width]
-            rhc = row['columns'][1]
-            path = row['path']
-            description = row['description']
-            values = [f"{summary}: {rhc}", row['columns'][2]
-                    ] 
-            try:
-                rdict.add(path, tuple(values))
-            except Exception as e:
-                logger.error(f"error adding path: {path}, values: {values}: {e}")
-            if description:
-                values.append(description)
-            try:
-                ddict.add(path, tuple(values))
-            except Exception as e:
-                logger.error(f"error adding path: {path}, values: {values}: {e}")
-        tree, row2id = rdict.as_tree(rdict, level=0)
-        used_details[month] = tree
-        used_details2id[month] = row2id
-        dtree, drow2id = ddict.as_tree(ddict, level=0)
-        used_description[month] = dtree
-        used_description2id[month] = drow2id
+#         self.lexer = PygmentsLexer(TDBLexer)
+#         self.style = etm_style
+#         self.Item = Query()
 
-    keys = [x for x in used_time]
-    keys.sort()
-    for key in keys:
-        period = used_time[key]
-        month_rows.setdefault(key[0], [])
-        indent = (len(key) - 1) * 3 * " "
-        if len(key) == 1:
-            yrmnth = pendulum.from_format(key[0] + "-01", "YYYY-MM-DD").format("MMMM YYYY")
-            try:
-                rhc = f"{format_hours_and_tenths(period)}"
-                summary = f"{indent}{yrmnth}: {rhc}"[:summary_width]
-                month_rows[key[0]].append(f"{summary}")
-            except Exception as e:
-                logger.error(f"e: {repr(e)}")
+#         self.allowed_commands = ", ".join([x for x in self.arg])
 
-        else:
-            rhc = f"{format_hours_and_tenths(period)}"
-            summary = f"{indent}{key[-1]}: {rhc}"[:summary_width].ljust(summary_width, ' ')
-            month_rows[key[0]].append(f"{summary}")
+#         self.command_details = """\
+#     matches a b: return items in which field[a] begins
+#         with regex b 
+#     search a b: return items in which field[a] contains 
+#         regex b
+#     equals a b: return items in which field[a] == b
+#     more a b: return items in which field[a] >= b
+#     less a b: return items in which field[a] <= b
+#     exists a: return items in which field[a] exists
+#     any a b: return items in which at least one 
+#         element of field[a] is an element of the list b 
+#     all a b: return items in which the elements of 
+#         field[a] contain all the elements of the list b 
+#     one a b: return items in which the value of 
+#         field[a] is one of the elements of list b
+#     info a: return the details of the item whose 
+#         document id equals the integer a
+#     dt a b: return items in which the value of field[a] 
+#         is a date if b = '? date' or a datetime if 
+#         b = '? time'. Else if b begins with  '>', '='
+#         or '<' followed by a string following the format 
+#         'yyyy-mm-dd-HH-MM' then return items where the
+#         date/time in field[a] bears the specified 
+#         relation to the string. E.g., 
+#             dt s < 2020-1-17 
+#         would return items with @s date/times whose 
+#         year <= 2020, month <= 1 and month day <= 17. 
+#         Hours and minutes are ignored when field[a] is
+#         a date."""
 
-    for key, val in month_rows.items():
-        used_summary[key] = "\n".join(val)
+#         self.usage = f"""\
+# Query has components in the format: [~]command a [b]
+# where "a" is one of the etm fields: itemtype, summary,
+# or one of the @keys and "command" is one of the 
+# following:
+# {self.command_details}
+# E.g., find items where the summary contains "waldo":
+#     query: search summary waldo
+# Precede a command with "~" to negate it. E.g., find 
+# reminders where the summary does not contain "waldo":
+#     query: ~search summary waldo
+# To enter a list of values for "b", simply separate the 
+# components with spaces. Conversely, to enter a regex 
+# with a space and avoid its being interpreted as a list, 
+# replace the space with \s. Components can be joined the 
+# using "or" or "and". E.g., find reminders where either 
+# the summary or the entry for @d (description) contains 
+# "waldo":
+#     query: search summary waldo or search d waldo
+# Press 'Enter' to submit a query, close the entry area
+# and display the results. Press 'q' to reopen the entry
+# area to submit another query. Submit '?' or 'help' 
+# to show this display or nothing to quit. In the entry
+# area, the 'up' and 'down' cursor keys scroll through
+# previously submitted queries.
+# """
 
-    return used_details, used_details2id, used_summary, used_description, used_description2id
+#     def is_datetime(self, val):
+#         return isinstance(val, pendulum.DateTime)
 
-Strategy:
-    Prepare and execute query to fetch the appropriate records.
-    * get records with @u entries
-    * filter to match conditions
-        * toss if if -b bdt is given and all @u entries occured before bdt
-        * toss if -e edt is given and all @u entries occured after edt
-        * toss if -i indx is given and either @i is missing or its value does not start with indx
-        * toss if -t tags is given and either @t is missing or none of its values are in tags
-        * toss if -l loc is given and either @l is missing or its value does not match loc
-        * toss if -c cal is given and either @c is missing or it's value does not match cal
-"""
-def report(required_fields, filters):
-    required_fields = ['u', 'i']
+#     def is_date(self, val):
+#         return isinstance(val, pendulum.Date) and not isinstance(val, pendulum.DateTime)
 
+#     def maybe_equal(self, val, args):
+#         """
+#         args = year-month-...-minute
+#         """
+#         args = args.split("-")
+#         # args = list(args)
+#         if not isinstance(val, pendulum.Date):
+#             # neither a date or a datetime
+#             return False
+#         if args and not val.year == int(args.pop(0)):
+#             return False
+#         if args and not val.month == int(args.pop(0)):
+#             return False
+#         if args and not val.day == int(args.pop(0)):
+#             return False
+#         if isinstance(val, pendulum.DateTime):
+#             # val has hours and minutes
+#             if args and not val.hour == int(args.pop(0)):
+#                 return False
+#             if args and not val.minute == int(args.pop(0)):
+#                 return False
+#         return True
+
+#     def maybe_later(self, val, args):
+#         """
+#         args = year-month-...-minute
+#         """
+#         args = args.split("-")
+#         # args = list(args)
+#         if not isinstance(val, pendulum.Date):
+#             # neither a date or a datetime
+#             return False
+#         if args and not val.year >= int(args.pop(0)):
+#             return False
+#         if args and not val.month >= int(args.pop(0)):
+#             return False
+#         if args and not val.day >= int(args.pop(0)):
+#             return False
+#         if isinstance(val, pendulum.DateTime):
+#             # val has hours and minutes
+#             if args and not val.hour >= int(args.pop(0)):
+#                 return False
+#             if args and not val.minute >= int(args.pop(0)):
+#                 return False
+#         return True
+
+#     def maybe_earlier(self, val, args):
+#         """
+#         args = year-month-...-minute
+#         """
+#         args = args.split("-")
+#         # args = list(args)
+#         if not isinstance(val, pendulum.Date):
+#             # neither a date or a datetime
+#             return False
+#         if args and not val.year <= int(args.pop(0)):
+#             return False
+#         if args and not val.month <= int(args.pop(0)):
+#             return False
+#         if args and not val.day <= int(args.pop(0)):
+#             return False
+#         if isinstance(val, pendulum.DateTime):
+#             # val has hours and minutes
+#             if args and not val.hour <= int(args.pop(0)):
+#                 return False
+#             if args and not val.minute <= int(args.pop(0)):
+#                 return False
+#         return True
+
+
+#     def matches(self, a, b):
+#         # the value of at least one element of field 'a' begins with the case-insensitive regex 'b'
+#         return where(a).matches(b, flags=re.IGNORECASE)
+
+#     def search(self, a, b):
+#         # the value of at least one element of field 'a' contains the case-insensitive regex 'b'
+#         return where(a).search(b, flags=re.IGNORECASE)
+
+#     def equals(self, a, b):
+#         # the value of at least one element of field 'a' equals 'b'
+#         try:
+#             b = int(b)
+#         except:
+#             pass
+#         return where(a) == b
+
+#     def more(self, a, b):
+#         # the value of at least one element of field 'a' >= 'b'
+#         try:
+#             b = int(b)
+#         except:
+#             pass
+#         return where(a) >= b
+
+#     def less(self, a, b):
+#         # the value of at least one element of field 'a' equals 'b'
+#         try:
+#             b = int(b)
+#         except:
+#             pass
+#         return where(a) <= b
+
+#     def exists(self, a):
+#         # field 'a' exists
+#         return where(a).exists()
+
+
+#     def in_any(self, a, b):
+#         """
+#         the value of field 'a' is a list of values and at least 
+#         one of them is an element from 'b'. Here 'b' should be a list with
+#         2 or more elements. With only a single element, there is no 
+#         difference between any and all.
+
+#         With egs, "any,  blue, green" returns all three items.
+#         """
+
+#         if not isinstance(b, list):
+#             b = [b]
+#         return where(a).any(b)
+
+#     def in_all(self, a, b):
+#         """
+#         the value of field 'a' is a list of values and among the list 
+#         are all the elements in 'b'. Here 'b' should be a list with
+#         2 or more elements. With only a single element, there is no 
+#         difference between any and all.
+
+#         With egs, "all, blue, green" returns just "blue and green"
+#         """
+#         if not isinstance(b, list):
+#             b = [b]
+#         return where(a).all(b)
+
+#     def one_of(self, a, b):
+#         """
+#         the value of field 'a' is one of the elements in 'b'. 
+
+#         With egs, "one, summary, blue, green" returns both "green" and "blue"
+#         """
+#         if not isinstance(b, list):
+#             b = [b]
+#         return where(a).one_of(b)
+
+#     def info(self, a):
+#         # field 'a' exists
+#         item = DBITEM.get(doc_id=int(a))
+#         return  f"{item_details(item, False)}"
+
+
+#     def dt(self, a, b):
+#         if b[0]  == '?':
+#             if b[1] == 'time':
+#                 return self.Item[a].test(self.is_datetime)
+#             elif b[1] == 'date':
+#                 return self.Item[a].test(self.is_date)
+
+#         return self.Item[a].test(self.op[b[0]], b[1])
+
+#     def process_query(self, query):
+
+#         parts = [x.split() for x in re.split(r' (and|or) ', query)]
+
+#         cmnds = []
+#         for part in parts:
+#             part = [x.strip() for x in part if x.strip()]
+#             negation = part[0].startswith('~')
+#             if part[0] not in ['and', 'or']:
+#                 # we have a command
+#                 if negation:
+#                     # drop the ~
+#                     part[0] = part[0][1:]
+#                 if self.arg.get(part[0], None) is None:
+#                     return False, f"""bad command: '{part[0]}'. Only commands in\n {self.allowed_commands}\nare allowed."""
+
+#             if len(part) > 3:
+#                 if negation:
+#                     cmnds.append(~ self.arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+#                 else:
+#                     cmnds.append(self.arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+#             elif len(part) > 2:
+#                 if negation:
+#                     cmnds.append(~ self.arg[part[0]](part[1], part[2]))
+#                 else:
+#                     cmnds.append(self.arg[part[0]](part[1], part[2]))
+#             elif len(part) > 1:
+#                 if negation:
+#                     cmnds.append(~ self.arg[part[0]](part[1]))
+#                 else:
+#                     cmnds.append(self.arg[part[0]](part[1]))
+#             else:
+#                 cmnds.append(part[0])
+
+#         test = cmnds[0]
+#         for i in range(1, len(cmnds)):
+#             if i % 2:
+#                 if cmnds[i] == 'and' or cmnds[i] == 'or':
+#                     andor = cmnds[i]
+#                     continue
+#             if andor == 'or':
+#                 test = test | cmnds[i]
+#             else:
+#                 test = test & cmnds[i]
+#         return True, test
+
+#     def do_query(self, query):
+#         """
+#         For internal usage
+#         """
+#         if query == "?" or query == "help":
+#             return False, self.usage
+#         elif query.startswith('u') or query.startswith('c'):
+#             show_report_items(query)
+#             ok, 
+#         try:
+#             ok, test = self.process_query(query)
+#             if not ok:
+#                 return False, test
+#             if isinstance(test, str): 
+#                 # info
+#                 return False, test
+#             else:
+#                 items = DBITEM.search(test)
+#                 logger.debug(f"search items: {items}")
+#                 return True, items 
+#         except Exception as e:
+#             return False, f"exception processing '{query}':\n{e}"
+
+# query = ETMQuery()
+# query_area = TextArea(
+#     height=3, 
+#     style='class:query', 
+#     # style=query.style,
+#     lexer=query.lexer,
+#     multiline=False,
+#     prompt='query: ', 
+#     focusable=True,
+#     # wrap_lines=True,
+#     )
+
+# ############# end query ################################
 
 minus_regex = re.compile(r'\s+\-(?=[a-zA-Z])')
 groupdate_regex = re.compile(r'\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\b[d]{2,4}\b|\b[D]{1,2}\b|\b[w]\b')
@@ -211,6 +404,7 @@ groupdate_regex = re.compile(r'\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\b[d]{2,4}\b|\b[D]
 # 'dddd',     # week day Monday
 # 'ddd',      # week day Mon
 # 'dd',       # week day Mo
+
 ETMDB = None
 DBITEM = None
 DBARCH = None
@@ -265,7 +459,7 @@ def maybe_round(obj):
             return ZERO
 
     except Exception as e:
-        print('format_duration', e)
+        print('format_usedtime', e)
         print(obj)
         return None
 
@@ -323,14 +517,15 @@ def apply_dates_filter(items, grpby, filters):
     ok_items = []
     for item in items:
         ok_items.extend(rel_dt(item, filters))
+    ok = len(ok_items) > 0
     return ok_items
 
 
-def format_duration(obj, short=True):
+def format_usedtime(obj, short=True):
     """
     if short report only hours and minutes, else include weeks and days
     >>> td = pendulum.duration(weeks=1, days=2, hours=3, minutes=27)
-    >>> format_duration(td)
+    >>> format_usedtime(td)
     '1w2d3h27m'
     """
     if not isinstance(obj, pendulum.Duration):
@@ -357,11 +552,11 @@ def format_duration(obj, short=True):
             until.append("0m")
         return "".join(until)
     except Exception as e:
-        print('format_duration', e)
+        print('format_usedtime', e)
         print(obj)
         return None
 
-class RDict(dict):
+class QDict(dict):
     """
     Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row. 
     """
@@ -378,18 +573,18 @@ class RDict(dict):
         self.used_time = used_time
 
     def __missing__(self, key):
-        self[key] = RDict()
+        self[key] = QDict()
         return self[key]
 
     def as_dict(self):
         return self
 
     def leaf_detail(self, detail, depth):
-        dindent = RDict.tab * (depth + 1) * " "
+        dindent = QDict.tab * (depth + 1) * " "
         paragraphs = detail.split('\n')
         ret = []
         for para in paragraphs:
-            ret.extend(textwrap.fill(para, initial_indent=dindent, subsequent_indent=dindent, width=self.width-RDict.tab*(depth-1)).split('\n'))
+            ret.extend(textwrap.fill(para, initial_indent=dindent, subsequent_indent=dindent, width=self.width-QDict.tab*(depth-1)).split('\n'))
         return ret
 
 
@@ -416,9 +611,9 @@ class RDict(dict):
         for k in t.keys():
             del pre[depth:]
             pre.append(k)
-            indent = RDict.tab * depth * " "
+            indent = QDict.tab * depth * " "
             if self.used_time:
-                self.output.append("%s%s: %s" % (indent,  k, format_duration(self.used_time.get(tuple(pre), ''))))
+                self.output.append("%s%s: %s" % (indent,  k, format_usedtime(self.used_time.get(tuple(pre), ''))))
             else:
                 self.output.append("%s%s" % (indent,  k))
             self.row += 1 
@@ -427,13 +622,13 @@ class RDict(dict):
                 depth -= 1
                 continue
 
-            if type(t[k]) == RDict:
+            if type(t[k]) == QDict:
                 self.as_tree(t[k], depth, level, pre)
             else:
                 for leaf in t[k]:
-                    indent = RDict.tab * depth * " "
+                    indent = QDict.tab * depth * " "
                     if self.used_time:
-                        self.output.append("%s%s %s: %s" % (indent, leaf[0], leaf[1], format_duration(leaf[2])))
+                        self.output.append("%s%s %s: %s" % (indent, leaf[0], leaf[1], format_usedtime(leaf[2])))
                         num_leafs = 3
                     else:
                         self.output.append("%s%s %s" % (indent, leaf[0], leaf[1]))
@@ -447,18 +642,15 @@ class RDict(dict):
                                 self.output.append(line)
                                 self.row += 1
             depth -= 1
-        return "\n".join(self.output), self.row2id
+        return "\n  ".join(self.output), self.row2id
 
 
-def get_sort_and_path(items, grpby, query=""):
+def get_output_and_row2id(items, grpby, header=""):
     used_time = {}
     ret = []
     sort_tups = [x for x in grpby.get('sort', [])]
     path_tups = [x for x in grpby.get('path', [])]
     dtls_tups  = [x for x in grpby.get('dtls', [])]
-    # print("sort_tups:", sort_tups)
-    # print("path_tups:", path_tups)
-    # print("dtls_tups:", dtls_tups)
     for item in items:
         st = [eval(x, {'item': item, 're': re}) for x in sort_tups]
         pt = [eval(x, {'item': item, 're': re}) for x in path_tups]
@@ -475,31 +667,20 @@ def get_sort_and_path(items, grpby, query=""):
         ret.append((st, pt, dt))
     ret.sort()
     ret = [x[1:] for x in ret]
-    # pprint(used_time)
-
 
     # create recursive dict from data
-    if query:
-        row = 2
-        title = f"query: {query}\n{'='*(6+len(query))}\n"
+    if header:
+        row = 1
     else:
         row = 0
-        title = ""
-    index = RDict(used_time, row)
+    index = QDict(used_time, row)
     for path, value in ret:
         index.add(path, value)
 
-    # print("\nindex pprint")
-    # pprint(index)
-
-    # print("\nindex as_tree")
     output, row2id = index.as_tree(index)
-    return title + output, row2id
-    # print(output)
-    # pprint(row2id)
+    return f"{header}\n  {output}", row2id
 
-
-def str2opts(s, options=None):
+def get_grpby_and_filters(s, options=None):
 
     if not options:
         options = {}
@@ -608,7 +789,7 @@ def str2opts(s, options=None):
             value = [x.strip() for x in part[1:].split(',')]
             also.extend(value)
         elif key in ['b', 'e']:
-            dt = parse_datetime(part[1:])
+            dt = parse(part[1:], strict=False, tz='local')
             filters[key] = dt
 
         elif key == 'm':
@@ -668,20 +849,15 @@ def str2opts(s, options=None):
     # logger.debug('grpby: {0}; dated: {1}; filters: {2}'.format(grpby, dated, filters))
     return grpby, filters
 
-def get_report_results(text):
-    query = ETMQuery()
-    if len(text.strip()) == 1:
-        return f"report arguments missing in '{text}'", {}
-    grpby, filters = str2opts(text)
-    ok, items = query.do_query(filters.get('query'))
-    if ok:
-        items = apply_dates_filter(items, grpby, filters)
-        if not items or not isinstance(items, list):
-            return f"query: {text}\n   none matching", {}
-        output, row2id = get_sort_and_path(items, grpby, text)
-        return output, row2id
-    else:
-        return items, {}
+def show_query_results(text, grpby, items):
+    width = shutil.get_terminal_size()[0] - 7 
+    rows = []
+    summary_width = width - 6 
+    if not items or not isinstance(items, list):
+        return f"query: {text}\n   none matching", {}
+    header = f"query: {text[:summary_width]}"
+    output, row2id = get_output_and_row2id(items, grpby, header)
+    return output, row2id
 
 
 def main(etmdir, args):
@@ -719,14 +895,14 @@ def main(etmdir, args):
         if text.startswith('u') or text.startswith('c'):
             # if len(text.strip()) == 1:
             #     continue
-            grpby, filters = str2opts(text)
+            grpby, filters = get_grpby_and_filters(text)
             if not grpby:
                 continue
             print(f"grpby: {grpby}\n\nfilters: {filters}")
             ok, items = query.do_query(filters.get('query'))
             if ok:
                 items = apply_dates_filter(items, grpby, filters)
-                output, row2id = get_sort_and_path(items, grpby)
+                output, row2id = get_output_and_row2id(items, grpby)
                 print(output)
             else:
                 print(items)
@@ -744,21 +920,3 @@ def main(etmdir, args):
 if __name__ == '__main__':
     sys.exit('report.py should only be imported')
 
-# if __name__ == "__main__":
-#     if not (len(sys.argv) == 2 and os.path.isdir(sys.argv[1])):
-#         sys.exit()
-#     etmdir = sys.argv[1]
-#     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
-#     ETMDB = data.initialize_tinydb(dbfile)
-#     DBITEM = ETMDB.table('items', cache_size=None)
-#     DBARCH = ETMDB.table('archive', cache_size=None)
-#     view.ETMDB = ETMDB
-#     view.DBITEM = DBITEM
-#     view.DBARCH = DBARCH
-#     # setup_logging = options.setup_logging
-#     # setup_logging(loglevel, logdir)
-#     # options.logger = logger
-#     settings = options.Settings(etmdir).settings
-#     UT_MIN = settings.get('usedtime_minutes', 1)
-#     # print(f"UT_MIN: {UT_MIN}")
-#     main()

@@ -59,7 +59,12 @@ import platform
 import os
 
 import pyperclip
+# set in __main__
 logger = None
+
+class ETMQuery(object):
+
+    pass
 
 ############ begin query ###############################
 from tinydb import where
@@ -1313,20 +1318,23 @@ query_area = TextArea(
 def accept(buff):
     if query_area.text:
         text = query_area.text
+        queries = settings.get('queries')
+        if queries and text in queries:
+            text = queries[text]
         if text.startswith('u') or text.startswith('c'):
-
-            grpby, filters = report.str2opts(text)
+            grpby, filters = report.get_grpby_and_filters(text)
             ok, items = query.do_query(filters.get('query'))
             if ok:
-                dataview.set_query(query_area.text, items)
+                items = report.apply_dates_filter(items, grpby, filters)
+                dataview.set_query(text, grpby, items)
                 application.layout.focus(text_area)
                 set_text(dataview.show_active_view())
             else:
                 text_area.text = items
         else:
-            ok, items = query.do_query(query_area.text)
+            ok, items = query.do_query(text)
             if ok:
-                dataview.set_query(query_area.text, items)
+                dataview.set_query(text, {}, items)
                 application.layout.focus(text_area)
                 set_text(dataview.show_active_view())
             else:

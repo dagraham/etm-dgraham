@@ -234,7 +234,7 @@ smtp:
     pw: 
     server: 
 
-# queries: A dictionary with sort query "keys" and 
+# queries: A dictionary with short query "keys" and 
 # corresponding "query" values. Each "query" must be one that 
 # could be entered as the command in query view. E.g.,
 #
