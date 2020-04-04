@@ -88,14 +88,10 @@ class TDBLexer(RegexLexer):
     aliases = ['tdb']
     filenames = '*.*'
     flags = re.MULTILINE | re.DOTALL
-    qk = ''
-    # queries = settings.get('queries')
-    # if queries:
-    #     qk = ''.join([f"|{k}" for k in queries])
 
     tokens = {
             'root': [
-                (r'(matches|search|equals|more|less|exists|any|all|one%s)\b' % qk, Keyword),
+                (r'(matches|search|equals|more|less|exists|any|all|one)\b', Keyword),
                 (r'(itemtype|summary)\b', Literal),
                 (r'(and|or|info)\b', Operator),
                 ],
@@ -131,37 +127,38 @@ class ETMQuery(object):
         self.allowed_commands = ", ".join([x for x in self.arg])
 
         self.command_details = """\
-    matches a b: return items in which field[a] begins
-        with regex b 
-    search a b: return items in which field[a] contains 
-        regex b
-    equals a b: return items in which field[a] == b
-    more a b: return items in which field[a] >= b
-    less a b: return items in which field[a] <= b
-    exists a: return items in which field[a] exists
-    any a b: return items in which at least one 
-        element of field[a] is an element of the list b 
-    all a b: return items in which the elements of 
-        field[a] contain all the elements of the list b 
-    one a b: return items in which the value of 
-        field[a] is one of the elements of list b
-    info a: return the details of the item whose 
-        document id equals the integer a
-    dt a b: return items in which the value of field[a] 
-        is a date if b = '? date' or a datetime if 
-        b = '? time'. Else if b begins with  '>', '='
-        or '<' followed by a string following the format 
-        'yyyy-mm-dd-HH-MM' then return items where the
-        date/time in field[a] bears the specified 
-        relation to the string. E.g., 
-            dt s < 2020-1-17 
-        would return items with @s date/times whose 
-        year <= 2020, month <= 1 and month day <= 17. 
-        Hours and minutes are ignored when field[a] is
-        a date."""
+  matches a b: return items in which field[a] begins
+      with regex b 
+  search a b: return items in which field[a] contains 
+      regex b
+  equals a b: return items in which field[a] == b
+  more a b: return items in which field[a] >= b
+  less a b: return items in which field[a] <= b
+  exists a: return items in which field[a] exists
+  any a b: return items in which at least one 
+      element of field[a] is an element of the list b 
+  all a b: return items in which the elements of 
+      field[a] contain all the elements of the list b 
+  one a b: return items in which the value of 
+      field[a] is one of the elements of list b
+  info a: return the details of the item whose 
+      document id equals the integer a
+  dt a b: return items in which the value of field[a] 
+      is a date if b = '? date' or a datetime if 
+      b = '? time'. Else if b begins with  '>', '='
+      or '<' followed by a string following the format 
+      'yyyy-mm-dd-HH-MM' then return items where the
+      date/time in field[a] bears the specified 
+      relation to the string. E.g., 
+          dt s < 2020-1-17 
+      would return items with @s date/times whose 
+      year <= 2020, month <= 1 and month day <= 17. 
+      Hours and minutes are ignored when field[a] is
+      a date."""
 
         self.usage = f"""\
-Query has components in the format: [~]command a [b]
+Simple queries have components in the format: 
+    [~]command a [b]
 where "a" is one of the etm fields: itemtype, summary,
 or one of the @keys and "command" is one of the 
 following:
@@ -185,6 +182,49 @@ area to submit another query. Submit '?' or 'help'
 to show this display or nothing to quit. In the entry
 area, the 'up' and 'down' cursor keys scroll through
 previously submitted queries.
+
+Complex queries have two types. 
+  1) Usedtime queries begin with a "u" and report 
+     aggregates of used time "@u" entries in items.
+  2) Composite queries begin with a "c" and create
+     general reports but without usedtime aggregates.
+Both types of queries follow the report type, "u" or 
+"c" with a group/sort specification consisting of a 
+semicolon separated list with one or more of the 
+following components:
+  index specifications such as i, i[0] or i[1:]
+  date specifications:
+    YY: 2-digit year
+    YYYY: 4-digit year
+    M: month: 1 - 12
+    MM: month: 01 - 12
+    MMM: locale specific abbreviated month name: Jan - Dec
+    MMMM: locale specific month name: January - December
+    D: month day: 1 - 31
+    DD: month day: 01 - 31
+    ddd: locale specific abbreviated week day: Mon - Sun
+    dddd: locale specific week day: Monday - Sunday
+E.g. 
+    u i[0]; MMM YYYY; i[1:]; ddd D
+would create a usedtime query grouped (and sorted) by the 
+first component of the index entry, the month and year, 
+the remaining components of the index entry and finally 
+the month day. Note, for example, that "MMM YYYY", "YYYY 
+MMM" and "YYYY MM" would all sort using "YYYY MM" but 
+would be displayed using whatever was specified. 
+Similarly, "ddd D", "D ddd", and "DD" would all sort by 
+"DD".
+The group/sort specification is followed, optionally, by
+one or more of these specifications
+  -b begin: exclude items with earlier datetimes
+  -e end: exclude items with later datetimes
+  -q query: exclude items not matching this simple query.
+     Anything that could be used in a simple query can be
+     used here.
+  -a 
+
+
+
 """
 
     def is_datetime(self, val):
@@ -416,7 +456,6 @@ previously submitted queries.
                 return False, test
             else:
                 items = DBITEM.search(test)
-                logger.debug(f"search items: {items}")
                 return True, items 
         except Exception as e:
             return False, f"exception processing '{query}':\n{e}"
@@ -1176,7 +1215,6 @@ async def event_handler():
             current_datetime = status_time(now)
             today = now.format("YYYYMMDD")
             wait = 60 - now.second
-            logger.debug(f"current_datetime: {current_datetime}; wait: {wait}")
 
             if today != current_today:
                 logger.debug(f"calling new_day. current_today: {current_today}; today: {today}")
@@ -1324,6 +1362,7 @@ def accept(buff):
         if queries and text in queries:
             text = queries[text]
             query_area.text = text
+            return text
         if text.startswith('u') or text.startswith('c'):
             grpby, filters = report.get_grpby_and_filters(text)
             ok, items = query.do_query(filters.get('query'))

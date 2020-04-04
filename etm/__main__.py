@@ -38,6 +38,7 @@ def main():
     logger.info(f"running in a virtual environment: {IS_VENV}")
 
     secret = settings.get('secret')
+    queries = settings.get('queries')
     import pendulum
     locale = settings.get('locale', None)
     if locale:
@@ -83,6 +84,7 @@ def main():
     format_time = model.format_time
     format_datetime = model.format_datetime
     format_duration = model.format_duration
+    format_hours_and_tenths = model.format_hours_and_tenths
     # since dataview calls schedule it will also have settings
     completions = dataview.completions
     expansions = settings["expansions"]
@@ -109,7 +111,6 @@ def main():
     view.datetime_calculator = datetime_calculator
     view.about = about
     view.wrap = model.wrap
-    view.settings = settings
     view.format_time = format_time
     view.format_datetime = format_datetime
     view.format_duration = format_duration
@@ -134,6 +135,10 @@ def main():
     report.DBARCH = DBARCH
     report.ETMQuery = ETMQuery
     report.settings = settings
+    report.format_time = format_time
+    report.format_datetime = format_datetime
+    report.format_duration = format_duration
+    report.format_hours_and_tenths = format_hours_and_tenths
     report.logger = logger
     report.UT_MIN = settings.get('usedtime_minutes', 1)
 

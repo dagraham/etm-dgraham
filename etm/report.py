@@ -33,6 +33,8 @@ ZERO = pendulum.duration(minutes=0)
 ONEMIN = pendulum.duration(minutes=1)
 DAY = pendulum.duration(days=1)
 
+finished_char = u"\u2713"  #  ✓
+
 minus_regex = re.compile(r'\s+\-(?=[a-zA-Z])')
 groupdate_regex = re.compile(r'\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\b[d]{2,4}\b|\b[D]{1,2}\b|\b[w]\b')
 
@@ -104,7 +106,7 @@ def maybe_round(obj):
             return ZERO
 
     except Exception as e:
-        print('format_usedtime', e)
+        print('format_hours_and_tenths', e)
         print(obj)
         return None
 
@@ -135,7 +137,7 @@ def apply_dates_filter(items, grpby, filters):
             for rdt in dt2ut:
                 tmp = deepcopy(item)
                 tmp['rdt'] = rdt
-                tmp['u'] = (rdt, dt2ut[rdt])
+                tmp['u'] = [rdt, dt2ut[rdt]]
                 items.append(tmp)
             return items
 
@@ -166,42 +168,6 @@ def apply_dates_filter(items, grpby, filters):
     return ok_items
 
 
-def format_usedtime(obj, short=True):
-    """
-    if short report only hours and minutes, else include weeks and days
-    >>> td = pendulum.duration(weeks=1, days=2, hours=3, minutes=27)
-    >>> format_usedtime(td)
-    '1w2d3h27m'
-    """
-    if not isinstance(obj, pendulum.Duration):
-        return None
-    hours = obj.hours
-    try:
-        until =[]
-        if obj.weeks:
-            if short: 
-                hours += obj.weeks * 7 * 24
-            else:
-                until.append(f"{obj.weeks}w")
-
-        if obj.remaining_days:
-            if short:
-                hours += obj.remaining_days * 24
-            else:
-                until.append(f"{obj.remaining_days}d")
-        if hours:
-            until.append(f"{hours}h")
-        if obj.minutes:
-            until.append(f"{obj.minutes}m")
-        if not until and not short:
-            until.append("0m")
-        return "".join(until)
-    except Exception as e:
-        print('format_usedtime', e)
-        print(obj)
-        return None
-
-
 class QDict(dict):
     """
     Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row. 
@@ -210,7 +176,7 @@ class QDict(dict):
     tab = 2
 
     def __init__(self, used_time={}, row=0):
-        self.width = shutil.get_terminal_size()[0]
+        self.width = shutil.get_terminal_size()[0] - 2 # -2 for query indent
         self.row = row
         self.row2id = {}
         self.output = []
@@ -226,10 +192,44 @@ class QDict(dict):
 
     def leaf_detail(self, detail, depth):
         dindent = QDict.tab * (depth + 1) * " "
-        paragraphs = detail.split('\n')
-        ret = []
-        for para in paragraphs:
-            ret.extend(textwrap.fill(para, initial_indent=dindent, subsequent_indent=dindent, width=self.width-QDict.tab*(depth-1)).split('\n'))
+        if isinstance(detail, str):
+            paragraphs = detail.split('\n')
+            ret = []
+            for para in paragraphs:
+                ret.extend(textwrap.fill(para, initial_indent=dindent, subsequent_indent=dindent, width=self.width - QDict.tab*(depth-1)).split('\n'))
+        elif isinstance(detail, pendulum.DateTime):
+            ret = [dindent + format_datetime(detail, short=True)[1]]
+        elif isinstance(detail, pendulum.Duration):
+            ret = [dindent + format_hours_and_tenths(detail)]
+        elif isinstance(detail, list):
+            if isinstance(detail[0], str):
+                # logger.debug(f"detail list of str: {detail}")
+                ret = [dindent + ", ".join(detail)]
+            elif isinstance(detail[0], list):
+                # u, e.g., will be a list of duration, datetime tuples
+                ret = []
+                detail.sort(key=lambda x: x[1])
+                # logger.debug(f"detail list of lists: {detail}")
+                for d in detail:
+                    try:
+                        tmp = f"{format_hours_and_tenths(d[0])}: {format_datetime(d[1], short=True)[1]}"
+                        ret.append(dindent + tmp)
+                    except Exception as e:
+                        logger.error(f"error {e}, processing {d}")
+                        ret.append(dindent + repr(d))
+            else:
+                ret = []
+                # logger.debug(f"detail list: {detail}")
+                try:
+                    tmp = f"{format_datetime(detail[0], short=True)[1]}: {format_hours_and_tenths(detail[1])}"
+                    ret.append(dindent + tmp)
+                except Exception as e:
+                    logger.error(f"error {e}, processing {detail}")
+                    ret.append(dindent + repr(detail))
+
+        else:
+            # logger.debug(f"detail tyoe: {type(detail)}")
+            ret = [dindent + repr(detail)]
         return ret
 
 
@@ -258,7 +258,7 @@ class QDict(dict):
             pre.append(k)
             indent = QDict.tab * depth * " "
             if self.used_time:
-                self.output.append("%s%s: %s" % (indent,  k, format_usedtime(self.used_time.get(tuple(pre), ''))))
+                self.output.append("%s%s: %s" % (indent,  k, format_hours_and_tenths(self.used_time.get(tuple(pre), ''))))
             else:
                 self.output.append("%s%s" % (indent,  k))
             self.row += 1 
@@ -273,37 +273,48 @@ class QDict(dict):
                 for leaf in t[k]:
                     indent = QDict.tab * depth * " "
                     if self.used_time:
-                        self.output.append("%s%s %s: %s" % (indent, leaf[0], leaf[1], format_usedtime(leaf[2])))
+                        self.output.append("%s%s %s: %s" % (indent, leaf[0], leaf[1], format_hours_and_tenths(leaf[2])))
                         num_leafs = 3
                     else:
                         self.output.append("%s%s %s" % (indent, leaf[0], leaf[1]))
                         num_leafs = 2
                     self.row2id[self.row] = leaf[-1]
                     self.row += 1 
-                    if len(leaf) > num_leafs + 1:
-                        if leaf[num_leafs]:
-                            lines = self.leaf_detail(leaf[num_leafs], depth)
-                            for line in lines:
-                                self.output.append(line)
-                                self.row += 1
+                    # len(leaf) - 1 skips the last integer doc_id leaf 
+                    for i in range(num_leafs, len(leaf) - 1): 
+                        lines = self.leaf_detail(leaf[i], depth)
+                        for line in lines:
+                            self.output.append(line)
+                            self.row += 1
+
             depth -= 1
         return "\n  ".join(self.output), self.row2id
 
 
 def get_output_and_row2id(items, grpby, header=""):
+    # logger.debug(f"grpby: {grpby}; header: {header}")
     used_time = {}
     ret = []
+    report = grpby['report']
     sort_tups = [x for x in grpby.get('sort', [])]
     path_tups = [x for x in grpby.get('path', [])]
     dtls_tups  = [x for x in grpby.get('dtls', [])]
+    # logger.debug(f"dtls_tups: {dtls_tups}")
     for item in items:
+        if 'f' in item:
+            item['itemtype'] = finished_char 
         st = [eval(x, {'item': item, 're': re}) for x in sort_tups]
         pt = [eval(x, {'item': item, 're': re}) for x in path_tups]
-        try:
-            dt = [eval(x, {'item': item, 're': re}) for x in dtls_tups if x]
-        except:
-            print(f"error processing {dtls_tups}")
+        dt = []
+        for x in dtls_tups:
+            if not x:
+                continue
+            try:
+                dt.append(eval(x, {'item': item, 're': re}))
+            except Exception as e:
+                logger.error(f"error: {e}, evaluating {x}")
         if grpby['report'] == 'u':
+            # logger.debug(f"dt: {dt}")
             dt[2] = ut = maybe_round(dt[2])
             for i in range(len(pt)):
                 key = tuple(pt[:i+1])
@@ -353,7 +364,7 @@ def get_grpby_and_filters(s, options=None):
                 if groupdate_regex.match(part):
                     grpby['dated'] = True
                     filters['dates'] = True
-                elif part not in ['c', 'l'] and part[0] not in ['i', 't']:
+                elif part[0] != 'i':
                     print(f"Ignoring invalid groupby part: {part}")
                     groupbylst.remove(comp)
         grpby['args'] = groupbylst
@@ -432,6 +443,7 @@ def get_grpby_and_filters(s, options=None):
         if key == 'a':
             value = [x.strip() for x in part[1:].split(',')]
             also.extend(value)
+            # logger.debug(f"also value: {value}, also: {also}")
         elif key in ['b', 'e']:
             dt = parse(part[1:], strict=False, tz='local')
             filters[key] = dt
@@ -487,7 +499,8 @@ def get_grpby_and_filters(s, options=None):
     else:
         details.append("")
     if also:
-        details.extend([f"item.get('{x}', 'none')" for x in also])
+        details.extend([f"item.get('{x}', '~')" for x in also])
+        # logger.debug(f"details: {details}")
     details.append("item.doc_id")
     grpby['dtls'] = details
     # logger.debug('grpby: {0}; dated: {1}; filters: {2}'.format(grpby, dated, filters))

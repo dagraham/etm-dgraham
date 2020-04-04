@@ -1525,10 +1525,8 @@ def format_hours_and_tenths(obj):
             return "0m"
 
     except Exception as e:
-        print('format_duration', e)
-        print(obj)
+        logger.error(f"error: {e} formatting {obj}")
         return None
-
 
 
 def format_duration(obj, short=False):
