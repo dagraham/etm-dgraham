@@ -41,7 +41,6 @@ groupdate_regex = re.compile(r'\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\b[d]{2,4}\b|\b[D]
 # supported date formats (subset of pendulum)
 # 'YYYY',     # year 2019
 # 'YY',       # year 19
-# 'Q',        # quarter 1, .., 4
 # 'MMMM',     # month January
 # 'MMM',      # month Jan
 # 'MM',       # month 01
@@ -56,29 +55,13 @@ ETMDB = None
 DBITEM = None
 DBARCH = None
 
-etm_style = Style.from_dict({
-    'pygments.comment':   '#888888 bold',
-    'pygments.keyword': '#009900 bold',
-    'pygments.literal':   '#0066ff bold',  #blue
-    'pygments.operator':  '#e62e00 bold',  #red
-    # 'pygments.keyword':   '#e62e00 bold',  #red
-})
-
-
-class TDBLexer(RegexLexer):
-
-    name = 'TDB'
-    aliases = ['tdb']
-    filenames = '*.*'
-    flags = re.MULTILINE | re.DOTALL
-
-    tokens = {
-            'root': [
-                (r'(matches|search|equals|more|less|exists|any|all|one|dt)\b', Keyword),
-                (r'(itemtype|summary)\b', Literal),
-                (r'(and|or|info)\b', Operator),
-                ],
-            }
+# etm_style = Style.from_dict({
+#     'pygments.comment':   '#888888 bold',
+#     'pygments.keyword': '#009900 bold',
+#     'pygments.literal':   '#0066ff bold',  #blue
+#     'pygments.operator':  '#e62e00 bold',  #red
+#     # 'pygments.keyword':   '#e62e00 bold',  #red
+# })
 
 
 def maybe_round(obj):
@@ -146,6 +129,7 @@ def apply_dates_filter(items, grpby, filters):
             ok = False
             items = []
             tmp = deepcopy(item)
+            rdt = None
             if 'f' in item:
                 rdt = item['f'].date()
                 e_ok = 'e' not in filters or item['f'] <= filters['e'] 
@@ -155,10 +139,15 @@ def apply_dates_filter(items, grpby, filters):
                 e_ok = 'e' not in filters or item['s'] <= filters['e'] 
                 b_ok = 'b' not in filters or item['s'] >= filters['b']
             else:
-                e_ok = b_ok = False
+                e_ok = b_ok = True
             if e_ok and b_ok:
-                tmp['rdt'] = rdt
-                items.append(tmp)
+                if grpby['dated']:
+                    if rdt:
+                        tmp['rdt'] = rdt
+                        items.append(tmp)
+                else:
+                    # not dated, don't need rdt
+                    items.append(tmp)
             return items
 
     ok_items = []
@@ -292,7 +281,7 @@ class QDict(dict):
 
 
 def get_output_and_row2id(items, grpby, header=""):
-    # logger.debug(f"grpby: {grpby}; header: {header}")
+    logger.debug(f"grpby: {grpby}; header: {header}")
     used_time = {}
     ret = []
     report = grpby['report']
@@ -301,6 +290,7 @@ def get_output_and_row2id(items, grpby, header=""):
     dtls_tups  = [x for x in grpby.get('dtls', [])]
     # logger.debug(f"dtls_tups: {dtls_tups}")
     for item in items:
+        item.setdefault('i', '~') # make ~ the default 
         if 'f' in item:
             item['itemtype'] = finished_char 
         st = [eval(x, {'item': item, 're': re}) for x in sort_tups]
@@ -351,7 +341,7 @@ def get_grpby_and_filters(s, options=None):
     grpby['report'] = report
     filters['dates'] = False
     grpby['dated'] = False
-    filters['query'] = f"exists {report}" if report == 'u' else "exists itemtype"
+    filters['query'] = "exists u" if report == 'u' else "exists itemtype"
     filters['neg_fields'] = []
     filters['pos_fields'] = []
     groupbylst = []
@@ -377,16 +367,12 @@ def get_grpby_and_filters(s, options=None):
             d_lst = []
             if groupdate_regex.search(group):
                 if 'w' in group:
-                    # groupby week or some other date spec,  not both
+                    # groupby week or month,  not both
                     group = "w"
                     d_lst.append('w')
                     # include.discard('w')
-                    if 'Y' in group:
-                        include.discard('Y')
                     if 'M' in group:
                         include.discard('M')
-                    if 'D' in group:
-                        include.discard('D')
                 else:
                     if 'Y' in group:
                         d_lst.append('YYYY')

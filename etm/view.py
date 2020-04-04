@@ -188,22 +188,26 @@ Complex queries have two types.
      aggregates of used time "@u" entries in items.
   2) Composite queries begin with a "c" and create
      general reports but without usedtime aggregates.
+
 Both types of queries follow the report type, "u" or 
-"c" with a group/sort specification consisting of a 
+"c", with a group/sort specification consisting of a 
 semicolon separated list with one or more of the 
 following components:
   index specifications such as i, i[0] or i[1:]
   date specifications:
-    YY: 2-digit year
-    YYYY: 4-digit year
-    M: month: 1 - 12
-    MM: month: 01 - 12
-    MMM: locale specific abbreviated month name: Jan - Dec
-    MMMM: locale specific month name: January - December
-    D: month day: 1 - 31
-    DD: month day: 01 - 31
-    ddd: locale specific abbreviated week day: Mon - Sun
-    dddd: locale specific week day: Monday - Sunday
+    year:
+      YY: 2-digit year
+      YYYY: 4-digit year
+    month:
+      M: month: 1 - 12
+      MM: month: 01 - 12
+      MMM: locale abbreviated month name: Jan - Dec
+      MMMM: locale month name: January - December
+    month day:
+      D: month day: 1 - 31
+      DD: month day: 01 - 31
+      ddd: locale abbreviated week day: Mon - Sun
+      dddd: locale week day: Monday - Sunday
 E.g. 
     u i[0]; MMM YYYY; i[1:]; ddd D
 would create a usedtime query grouped (and sorted) by the 
@@ -211,23 +215,39 @@ first component of the index entry, the month and year,
 the remaining components of the index entry and finally 
 the month day. Note, for example, that "MMM YYYY", "YYYY 
 MMM" and "YYYY MM" would all sort using "YYYY MM" but 
-would be displayed using whatever was specified. 
-Similarly, "ddd D", "D ddd", and "DD" would all sort by 
-"DD".
-The group/sort specification is followed, optionally, by
-one or more of these specifications
-  -b begin: exclude items with earlier datetimes
-  -e end: exclude items with later datetimes
-  -q query: exclude items not matching this simple query.
-     Anything that could be used in a simple query can be
-     used here.
-  -a 
+would be displayed using the specified format. Similarly,
+"ddd D", "D ddd", and "DD" would all sort by "DD".
 
+The group/sort specification is followed, optionally, by
+one or more of the following options:
+  -b begin date/datetime: exclude items with earlier datetimes
+  -e end date/datetime: exclude items with later datetimes
+  -q query: exclude items not satisfying this simple query.
+     Anything that could be used in a simple query described 
+     above could be used here. E.g., "-q exists f" would 
+     limit the display items with an "@f" entry, i.e., to 
+     finished tasks.
+  -a append: append the contents of this comma separated
+     list of @key characters to the formatted output. E.g.,
+     "-a d, l" would append the item description and location
+     to the display of each item.
+
+Commonly used queries can be specified in the "queries" section
+of `cfg.yaml` in your etm home directory along with shortcuts
+for their use. E.g. with this entry
+
+  queries:
+    # todo - unfinished tasks by month and day
+    td: c MMM YYYY; ddd D -q equals itemtype - and ~exists f
+    # usedtimes by i[0], month and i[1] with u and d appended
+    ut: u i[0]; MMM YYYY; i[1] -a u, d
+    # items with an "@u" but missing the needed "@i"
+    mi: exists u and ~exists i
 
 
 """
 
-    def is_datetime(self, val):
+    def is_datetime(self, val): 
         return isinstance(val, pendulum.DateTime)
 
     def is_date(self, val):
