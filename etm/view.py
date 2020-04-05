@@ -14,14 +14,12 @@ from prompt_toolkit.layout.containers import HSplit, VSplit, Window, WindowAlign
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.dimension import D
-# from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
 from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.application.current import get_app
-# from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.completion import Completion, Completer
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.layout.controls import BufferControl
@@ -34,13 +32,9 @@ import shutil
 from pygments.lexer import RegexLexer
 
 from prompt_toolkit.lexers import PygmentsLexer
-# from prompt_toolkit.layout import FloatContainer
 from prompt_toolkit.layout import Float
 from prompt_toolkit.widgets import Dialog, Label, Button
 
-# from asyncio import .get_event_loop
-# from prompt_toolkit.eventloop import use_asyncio_event_loop
-# from prompt_toolkit.eventloop import Future, ensure_future, Return, From
 import asyncio
 
 import pendulum
@@ -49,8 +43,6 @@ def parse(s, **kwd):
     return pendulum_parse(s, strict=False, **kwd)
 
 import re
-# from model import wrap, format_time, format_datetime
-# from model import wrap
 
 import subprocess # for check_output
 

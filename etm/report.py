@@ -55,14 +55,6 @@ ETMDB = None
 DBITEM = None
 DBARCH = None
 
-# etm_style = Style.from_dict({
-#     'pygments.comment':   '#888888 bold',
-#     'pygments.keyword': '#009900 bold',
-#     'pygments.literal':   '#0066ff bold',  #blue
-#     'pygments.operator':  '#e62e00 bold',  #red
-#     # 'pygments.keyword':   '#e62e00 bold',  #red
-# })
-
 
 def maybe_round(obj):
     """
@@ -169,7 +161,6 @@ class QDict(dict):
         self.row = row
         self.row2id = {}
         self.output = []
-        # self.split_char = split_char
         self.used_time = used_time
 
     def __missing__(self, key):
@@ -223,9 +214,6 @@ class QDict(dict):
 
 
     def add(self, keys, values=()):
-        # keys = tkeys.split(self.split_char)
-        # if isinstance(keys, str):
-        #     keys = keys.split(self.split_char)
         for j in range(len(keys)):
             key = keys[j]
             keys_left = keys[j+1:]
@@ -367,14 +355,6 @@ def get_grpby_and_filters(s, options=None):
         for group in groupbylst:
             d_lst = []
             if groupdate_regex.search(group):
-                # if 'w' in group:
-                #     # groupby week or month,  not both
-                #     group = "w"
-                #     d_lst.append('w')
-                #     # include.discard('w')
-                #     if 'M' in group:
-                #         include.discard('M')
-                # else:
                 if 'Y' in group:
                     d_lst.append('YYYY')
                     include.discard('Y')
@@ -397,13 +377,14 @@ def get_grpby_and_filters(s, options=None):
                     grpby['sort'].append(
                             f"'/'.join(re.split('/', item['{group[0]}']){group[1:]}) or '~'")
                 else:
-                    # replace, e.g., i[1] with i[1:2]
-                    s = f"{group[1]}[1:-1]"
-                    tmp = f"{group[1][:-1]}:{group[1][-1]}"
-                    grpby['path'].append(
-                            f"re.split('/', item['{group[0]}']){tmp}" )
-                    grpby['sort'].append(
-                            f"re.split('/', item['{group[0]}']){tmp}")
+                    logger.warn(f"non slice use of i: {group}")
+                    # # replace, e.g., i[1] with i[1:2]
+                    # s = f"{group[1]}[1:-1]"
+                    # tmp = f"{group[1][:-1]}:{group[1][-1]}"
+                    # grpby['path'].append(
+                    #         f"re.split('/', item['{group[0]}']){tmp}" )
+                    # grpby['sort'].append(
+                    #         f"re.split('/', item['{group[0]}']){tmp}")
             else:
                 grpby['path'].append("item['%s']" % group.strip())
                 grpby['sort'].append(f"item['{group.strip()}']")
@@ -437,38 +418,11 @@ def get_grpby_and_filters(s, options=None):
         elif key in ['b', 'e']:
             dt = parse(part[1:], strict=False, tz='local')
             filters[key] = dt
-
-        # elif key == 'm':
-        #     value = part[1:].strip()
-        #     if value == '1':
-        #         filters['missing'] = True
-
         elif key == 'q':
             value = part[1:].strip()
             filters['query'] += f" and {value}"
-
-        # elif key == 'd':
-        #     if grpby['report'] == 'u':
-        #         d = int(part[1:])
-        #         if d:
-        #             d += 1
-        #         grpby['depth'] = d
-
         elif key == 't':
             value = [x.strip() for x in part[1:].split(',')]
-            # for t in value:
-            #     if t[0] == '!':
-            #         filters['neg_fields'].append((
-            #             't', re.compile(r'%s' % t[1:], re.IGNORECASE)))
-            #     else:
-            #         filters['pos_fields'].append((
-            #             't', re.compile(r'%s' % t, re.IGNORECASE)))
-        # elif key == 'o':
-        #     omit = [x.strip() for x in part[1:].split(',') if x.strip() in ['$', '*', '-', '%']]
-        # elif key == 'w':
-        #     grpby['width1'] = int(part[1:])
-        # elif key == 'W':
-        #     grpby['width2'] = int(part[1:])
         else:
             value = part[1:].strip()
             if value[0] == '~':
@@ -508,11 +462,6 @@ def show_query_results(text, grpby, items):
 
 
 def main(etmdir, args):
-
-    # view.item_details = item_details
-    # settings = options.Settings(etmdir).settings
-    # secret = settings.get('secret')
-    # data.secret = secret
 
     # from etm.view import Query
     query = ETMQuery()

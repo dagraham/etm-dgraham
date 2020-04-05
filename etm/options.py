@@ -341,19 +341,6 @@ queries:
         for key in self.settings:
             self.settings[key] = new.get(key, None)
 
-        # logger.debug(f" new settings: {self.settings}")
-
-        # for k, v in self.settings['colors'].items():
-        #     if not v or v.split(" ")[0].strip() not in NAMED_COLORS:
-        #         changed.append(f"{v} is an invalid color name in colors: {k}. Using default value: {default_colors[k]}")
-        #         self.settings['colors'][k] = default_colors[k]
-        # for k, v in default_colors.items():
-        #     logger.debug(f"checking {k}: {v}")
-        #     if k not in self.settings['colors']:
-        #         logger.debug(f"{k} missing")
-        #         changed.append(f"a colors setting for {k} is missing, Using default value: {default_colors[k]}")
-        #         self.settings['colors'][k] = default_colors[k]
-
         return changed
 
 
