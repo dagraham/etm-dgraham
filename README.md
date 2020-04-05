@@ -825,7 +825,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @-: exclude. list of datetimes to exclude
 *  @a*: alert. list of + (before) or - (after) periods: list of commands
 *  @b: beginby. integer (number of days before)
-*  @c: calendar. string (implemented but not currently used by *etm*) 
+*  @c: calendar. string  
 *  @d: description. string
 *  @e: extent. timeperiod
 *  @f: finished. datetime

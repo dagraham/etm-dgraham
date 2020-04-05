@@ -48,7 +48,7 @@ class Settings():
     }
 
     inp = """\
-################# IMPORTANT #############################
+###################### IMPORTANT ########################
 #
 # Changes to this file only take effect when etm is next
 # restarted.
@@ -242,7 +242,12 @@ smtp:
 #       um: u MMM YYYY; i[0]; i[1]; i[2:]
 #       ui: u i[0]; MMM YYYY; i[1:]; ddd D  
 queries:
-
+    # unfinished tasks ordered by location
+    td: c l -q equals itemtype - and ~exists f
+    # usedtimes by i[0:1], month and i[1:2] with u and d
+    ut: u i[0:1]; MMM YYYY; i[1:2] -a u, d
+    # items with an "@u" but missing the needed "@i"
+    mi: exists u and ~exists i
 
 """
 

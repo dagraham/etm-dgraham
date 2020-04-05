@@ -249,9 +249,13 @@ with a required group/sort specification consisting of a
 semicolon separated list with one or more of the following
 components:
 
-  index specifications such as i, i[0] or i[1:]
+  index specification such as i, i[1:2] or i[1:]
+    Note: using slices such as i[1:2] rather than
+    i[1] avoids list index out of range errors.
 
-  date specifications:
+  field specification: l (location) or c (calendar)
+
+  date specification:
     year:
       YY: 2-digit year
       YYYY: 4-digit year
@@ -260,7 +264,7 @@ components:
       MM: month: 01 - 12
       MMM: locale abbreviated month name: Jan - Dec
       MMMM: locale month name: January - December
-    month day:
+    day:
       D: month day: 1 - 31
       DD: month day: 01 - 31
       ddd: locale abbreviated week day: Mon - Sun
@@ -268,7 +272,7 @@ components:
 
 E.g.
 
-    query: u i[0]; MMM YYYY; i[1:]; ddd D
+    query: u i[0:1]; MMM YYYY; i[1:]; ddd D
 
 would create a usedtime query grouped (and sorted) by the
 first component of the index entry, the month and year,
@@ -306,8 +310,10 @@ section of `cfg.yaml` in your etm home directory along
 with shortcuts for their use. E.g. with this entry
 
   queries:
-    # usedtimes by i[0], month and i[1] with u and d
-    ut: u i[0]; MMM YYYY; i[1] -a u, d
+    # unfinished tasks ordered by location
+    td: c l -q equals itemtype - and ~exists f
+    # usedtimes by i[0:1], month and i[1:2] with u and d
+    ut: u i[0:1]; MMM YYYY; i[1:2] -a u, d
     # items with an "@u" but missing the needed "@i"
     mi: exists u and ~exists i
 
@@ -315,7 +321,7 @@ entering
 
     query: ut
 
-and preesing 'Enter' would result in the 'ut' being
+and pressing 'Enter' would result in the 'ut' being
 replaced by its corresponding value to give
 
     query: u i[0]; MMM YYYY; i[1] -a u, d
@@ -324,6 +330,12 @@ The query can now be submitted as is or first edited to
 add, say, `-b` and `-e` options and then submitted. The
 submitted form of the query is added to the command
 history.
+
+Enter
+
+    query: l
+
+to see a list of the keys and values stored in 'queries'.
 """
 
     def is_datetime(self, val):
@@ -543,9 +555,6 @@ history.
         """
         if query == "?" or query == "help":
             return False, self.usage
-        elif query.startswith('u') or query.startswith('c'):
-            show_report_items(query)
-            ok,
         try:
             ok, test = self.process_query(query)
             if not ok:
@@ -1462,7 +1471,11 @@ def accept(buff):
             text = queries[text]
             query_area.text = text
             return text
-        if text.startswith('u') or text.startswith('c'):
+        if text == 'l' and queries:
+            text = "\n".join([f"{k}: {v}" for k, v in queries.items()])
+            text_area.text = text
+            return ""
+        if text.startswith('u ') or text.startswith('c '):
             grpby, filters = report.get_grpby_and_filters(text)
             ok, items = query.do_query(filters.get('query'))
             if ok:

@@ -290,11 +290,12 @@ def get_output_and_row2id(items, grpby, header=""):
     dtls_tups  = [x for x in grpby.get('dtls', [])]
     # logger.debug(f"dtls_tups: {dtls_tups}")
     for item in items:
-        item.setdefault('i', '~') # make ~ the default 
+        for x in ['i', 'c', 'l']:
+            item.setdefault(x, '~') # make ~ the default 
         if 'f' in item:
             item['itemtype'] = finished_char 
-        st = [eval(x, {'item': item, 're': re}) for x in sort_tups]
-        pt = [eval(x, {'item': item, 're': re}) for x in path_tups]
+        st = [eval(x, {'item': item, 're': re}) for x in sort_tups if x]
+        pt = [eval(x, {'item': item, 're': re}) for x in path_tups if x]
         dt = []
         for x in dtls_tups:
             if not x:
@@ -354,7 +355,7 @@ def get_grpby_and_filters(s, options=None):
                 if groupdate_regex.match(part):
                     grpby['dated'] = True
                     filters['dates'] = True
-                elif part[0] != 'i':
+                elif part[0] not in ['i', 'c', 'l']:
                     print(f"Ignoring invalid groupby part: {part}")
                     groupbylst.remove(comp)
         grpby['args'] = groupbylst
@@ -366,40 +367,43 @@ def get_grpby_and_filters(s, options=None):
         for group in groupbylst:
             d_lst = []
             if groupdate_regex.search(group):
-                if 'w' in group:
-                    # groupby week or month,  not both
-                    group = "w"
-                    d_lst.append('w')
-                    # include.discard('w')
-                    if 'M' in group:
-                        include.discard('M')
-                else:
-                    if 'Y' in group:
-                        d_lst.append('YYYY')
-                        include.discard('Y')
-                    if 'M' in group:
-                        d_lst.append('MM')
-                        include.discard('M')
-                    if 'D' in group:
-                        d_lst.append('DD')
-                        include.discard('D')
+                # if 'w' in group:
+                #     # groupby week or month,  not both
+                #     group = "w"
+                #     d_lst.append('w')
+                #     # include.discard('w')
+                #     if 'M' in group:
+                #         include.discard('M')
+                # else:
+                if 'Y' in group:
+                    d_lst.append('YYYY')
+                    include.discard('Y')
+                if 'M' in group:
+                    d_lst.append('MM')
+                    include.discard('M')
+                if 'D' in group:
+                    d_lst.append('DD')
+                    include.discard('D')
                 tmp = " ".join(d_lst)
                 grpby['sort'].append(f"item['rdt'].format('{tmp}')")
                 grpby['path'].append(
                     f"item['rdt'].format('{group}')")
 
-            elif '[' in group:
-                if group[0] == 'i':
-                    if ':' in group:
-                        grpby['path'].append(
-                                f"'/'.join(re.split('/', item['{group[0]}']){group[1:]})")
-                        grpby['sort'].append(
-                                f"'/'.join(re.split('/', item['{group[0]}']){group[1:]})")
-                    else:
-                        grpby['path'].append(
-                                f"re.split('/', item['{group[0]}']){group[1:]}" )
-                        grpby['sort'].append(
-                                f"re.split('/', item['{group[0]}']){group[1:]}")
+            elif '[' in group and group[0] == 'i':
+                logger.debug(f"i group: {group[0]}, {group[1:]}")
+                if ':' in group:
+                    grpby['path'].append(
+                            f"'/'.join(re.split('/', item['{group[0]}']){group[1:]}) or '~'")
+                    grpby['sort'].append(
+                            f"'/'.join(re.split('/', item['{group[0]}']){group[1:]}) or '~'")
+                else:
+                    # replace, e.g., i[1] with i[1:2]
+                    s = f"{group[1]}[1:-1]"
+                    tmp = f"{group[1][:-1]}:{group[1][-1]}"
+                    grpby['path'].append(
+                            f"re.split('/', item['{group[0]}']){tmp}" )
+                    grpby['sort'].append(
+                            f"re.split('/', item['{group[0]}']){tmp}")
             else:
                 grpby['path'].append("item['%s']" % group.strip())
                 grpby['sort'].append(f"item['{group.strip()}']")
@@ -434,37 +438,37 @@ def get_grpby_and_filters(s, options=None):
             dt = parse(part[1:], strict=False, tz='local')
             filters[key] = dt
 
-        elif key == 'm':
-            value = part[1:].strip()
-            if value == '1':
-                filters['missing'] = True
+        # elif key == 'm':
+        #     value = part[1:].strip()
+        #     if value == '1':
+        #         filters['missing'] = True
 
         elif key == 'q':
             value = part[1:].strip()
             filters['query'] += f" and {value}"
 
-        elif key == 'd':
-            if grpby['report'] == 'u':
-                d = int(part[1:])
-                if d:
-                    d += 1
-                grpby['depth'] = d
+        # elif key == 'd':
+        #     if grpby['report'] == 'u':
+        #         d = int(part[1:])
+        #         if d:
+        #             d += 1
+        #         grpby['depth'] = d
 
         elif key == 't':
             value = [x.strip() for x in part[1:].split(',')]
-            for t in value:
-                if t[0] == '!':
-                    filters['neg_fields'].append((
-                        't', re.compile(r'%s' % t[1:], re.IGNORECASE)))
-                else:
-                    filters['pos_fields'].append((
-                        't', re.compile(r'%s' % t, re.IGNORECASE)))
-        elif key == 'o':
-            omit = [x.strip() for x in part[1:].split(',') if x.strip() in ['$', '*', '-', '%']]
-        elif key == 'w':
-            grpby['width1'] = int(part[1:])
-        elif key == 'W':
-            grpby['width2'] = int(part[1:])
+            # for t in value:
+            #     if t[0] == '!':
+            #         filters['neg_fields'].append((
+            #             't', re.compile(r'%s' % t[1:], re.IGNORECASE)))
+            #     else:
+            #         filters['pos_fields'].append((
+            #             't', re.compile(r'%s' % t, re.IGNORECASE)))
+        # elif key == 'o':
+        #     omit = [x.strip() for x in part[1:].split(',') if x.strip() in ['$', '*', '-', '%']]
+        # elif key == 'w':
+        #     grpby['width1'] = int(part[1:])
+        # elif key == 'W':
+        #     grpby['width2'] = int(part[1:])
         else:
             value = part[1:].strip()
             if value[0] == '~':
