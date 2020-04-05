@@ -211,26 +211,31 @@ components with spaces. E.g.,
 
     query: all t blue green
 
-would return items with both blue and green tags.
+would return items with both blue and green tags or
+
+    query: any t blue green
+
+would return items with either a blue or a green tag.
 
 Conversely, to enter a regex with a space and avoid its
 being interpreted as a list, replace the space with \s.
 
     query: matches i john\sdoe
 
-would return items with `@i` (index) entries such as "John
-Doe/Probate". Components can be joined the using "or" or
-"and". E.g., find reminders where either the summary or
-the entry for @d (description) contains "waldo":
+would return items with `@i` (index) entries such as 
+"John Doe/Probate". Components can be joined the using 
+"or" or "and". E.g., find reminders where either the 
+summary or the entry for @d (description) contains 
+"waldo":
 
     query: search summary waldo or search d waldo
 
-Pressing 'Enter' submits the query, closes the entry area
-and displays the results. Press 'q' to reopen the entry
-area to submit another query. Submit '?' or 'help'
-to show this display or nothing to quit. In the entry
-area, the 'up' and 'down' cursor keys scroll through
-previously submitted queries.
+Pressing 'Enter' submits the query, closes the entry area 
+and displays the results. Press 'q' to reopen the entry 
+area to submit another query. Submit '?' or 'help' to show 
+this display or nothing to quit. In the entry area, the 
+'up' and 'down' cursor keys scroll through previously 
+submitted queries.
 
 Complex queries
 ===============
@@ -253,7 +258,9 @@ components:
     Note: using slices such as i[1:2] rather than
     i[1] avoids list index out of range errors.
 
-  field specification: l (location) or c (calendar)
+  field specification: 
+    l (location)
+    c (calendar)
 
   date specification:
     year:
