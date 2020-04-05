@@ -28,7 +28,7 @@ from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.layout import Dimension
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.layout.menus import CompletionsMenu
-from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous  
+from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 import shutil
 
 from pygments.lexer import RegexLexer
@@ -127,73 +127,130 @@ class ETMQuery(object):
         self.allowed_commands = ", ".join([x for x in self.arg])
 
         self.command_details = """\
-  matches a b: return items in which field[a] begins
-      with regex b 
-  search a b: return items in which field[a] contains 
-      regex b
-  equals a b: return items in which field[a] == b
-  more a b: return items in which field[a] >= b
-  less a b: return items in which field[a] <= b
-  exists a: return items in which field[a] exists
-  any a b: return items in which at least one 
-      element of field[a] is an element of the list b 
-  all a b: return items in which the elements of 
-      field[a] contain all the elements of the list b 
-  one a b: return items in which the value of 
-      field[a] is one of the elements of list b
-  info a: return the details of the item whose 
-      document id equals the integer a
-  dt a b: return items in which the value of field[a] 
-      is a date if b = '? date' or a datetime if 
-      b = '? time'. Else if b begins with  '>', '='
-      or '<' followed by a string following the format 
-      'yyyy-mm-dd-HH-MM' then return items where the
-      date/time in field[a] bears the specified 
-      relation to the string. E.g., 
-          dt s < 2020-1-17 
-      would return items with @s date/times whose 
-      year <= 2020, month <= 1 and month day <= 17. 
-      Hours and minutes are ignored when field[a] is
-      a date."""
+* matches field regex: return items in which field begins
+    with case insensitve regex.
+
+* search field regex: return items in which field
+    contains case insensitive regex
+
+* equals field value: return items in which field == value
+
+* more field value: return items in which field >= value
+
+* less field value: return items in which field <= value
+
+* exists field: return items in which field exists
+
+* any field list: return items in which at least one
+    element of field is an element of list
+
+* all field list: return items in which the elements of
+    field contain all the elements of the list
+
+* one field list: return items in which the value of
+    field is one of the elements of list
+
+* info id: return the details of the item whose
+    document id equals the integer id
+
+* dt field expression: return items in which the value of
+    field is a date if expression = '? date' or a datetime
+    if expression = '? time'. Else if expression begins
+    with  '>', '=' or '<' followed by a string following
+    the format 'yyyy-mm-dd-HH-MM' then return items where
+    the date/time in field[a] bears the specified relation
+    to the string. E.g.,
+
+        dt s < 2020-1-17
+
+    would return items with @s date/times whose year <=
+    2020, month <= 1 and month day <= 17. Hours and
+    minutes are ignored when field is a date.\
+    """
+
 
         self.usage = f"""\
-Simple queries have components in the format: 
-    [~]command a [b]
-where "a" is one of the etm fields: itemtype, summary,
-or one of the @keys and "command" is one of the 
-following:
+Command History
+===============
+Any query entered at the `query:` prompt and submitted by
+pressing 'Enter' is added to the command history. These
+queries are kept as long as 'etm' is running and can be
+accessed using the up and down cursor keys in the query
+field. This means you can enter a query, check the result,
+press 'q' to reopen the query prompt, press the up cursor
+and you will have your previous query ready to modify and
+submit again. It is also possible to keep a permanent list
+of queries accessible by shortcuts. See 'Saved Queries'
+below.
+
+Simple queries
+==============
+Return a list of items displaying the itemtype, summary
+and id, and sorted by id, (order created) using commands
+with the format:
+
+    [~]command field [arg]
+
+where "field" is one of the etm fields: itemtype,
+summary, or one of the @keys and "command" is one of
+the following:
+
 {self.command_details}
+
 E.g., find items where the summary contains "waldo":
+
     query: search summary waldo
-Precede a command with "~" to negate it. E.g., find 
+
+Precede a command with `~` to negate it. E.g., find
 reminders where the summary does not contain "waldo":
+
     query: ~search summary waldo
-To enter a list of values for "b", simply separate the 
-components with spaces. Conversely, to enter a regex 
-with a space and avoid its being interpreted as a list, 
-replace the space with \s. Components can be joined the 
-using "or" or "and". E.g., find reminders where either 
-the summary or the entry for @d (description) contains 
-"waldo":
+
+To enter a list of values for "arg", simply separate the
+components with spaces. E.g.,
+
+    query: all t blue green
+
+would return items with both blue and green tags.
+
+Conversely, to enter a regex with a space and avoid its
+being interpreted as a list, replace the space with \s.
+
+    query: matches i john\sdoe
+
+would return items with `@i` (index) entries such as "John
+Doe/Probate". Components can be joined the using "or" or
+"and". E.g., find reminders where either the summary or
+the entry for @d (description) contains "waldo":
+
     query: search summary waldo or search d waldo
-Press 'Enter' to submit a query, close the entry area
-and display the results. Press 'q' to reopen the entry
-area to submit another query. Submit '?' or 'help' 
+
+Pressing 'Enter' submits the query, closes the entry area
+and displays the results. Press 'q' to reopen the entry
+area to submit another query. Submit '?' or 'help'
 to show this display or nothing to quit. In the entry
 area, the 'up' and 'down' cursor keys scroll through
 previously submitted queries.
 
-Complex queries have two types. 
-  1) Usedtime queries begin with a "u" and report 
+Complex queries
+===============
+Return a formatted, heirarchial display of items. Both
+the format and the items displayed are determined by the
+type of the query and the arguments provided. There are
+two types of complex queries:
+
+  u) Usedtime queries begin with a "u" and report
      aggregates of used time "@u" entries in items.
-  2) Composite queries begin with a "c" and create
+  c) Composite queries begin with a "c" and create
      general reports but without usedtime aggregates.
 
-Both types of queries follow the report type, "u" or 
-"c", with a group/sort specification consisting of a 
-semicolon separated list with one or more of the 
-following components:
+Both types of queries follow the report type, "u" or "c",
+with a required group/sort specification consisting of a
+semicolon separated list with one or more of the following
+components:
+
   index specifications such as i, i[0] or i[1:]
+
   date specifications:
     year:
       YY: 2-digit year
@@ -208,46 +265,68 @@ following components:
       DD: month day: 01 - 31
       ddd: locale abbreviated week day: Mon - Sun
       dddd: locale week day: Monday - Sunday
-E.g. 
-    u i[0]; MMM YYYY; i[1:]; ddd D
-would create a usedtime query grouped (and sorted) by the 
-first component of the index entry, the month and year, 
-the remaining components of the index entry and finally 
-the month day. Note, for example, that "MMM YYYY", "YYYY 
-MMM" and "YYYY MM" would all sort using "YYYY MM" but 
-would be displayed using the specified format. Similarly,
-"ddd D", "D ddd", and "DD" would all sort by "DD".
+
+E.g.
+
+    query: u i[0]; MMM YYYY; i[1:]; ddd D
+
+would create a usedtime query grouped (and sorted) by the
+first component of the index entry, the month and year,
+the remaining components of the index entry and finally
+the month day. Note, for example, that "MMM YYYY", "YYYY
+MMM" and "YYYY MM" would all be sorted using "YYYY MM"
+(2020 01, 2020 02, ...) but would be displayed using the
+specified format (Jan 2020, Feb 2020, ...). Similarly,
+"ddd D", "D ddd", and "DD" would all sort by "DD" (01, 92,
+...) but would also be displayed using the specified
+format (Wed 1, Thu 2,...).
 
 The group/sort specification is followed, optionally, by
-one or more of the following options:
-  -b begin date/datetime: exclude items with earlier datetimes
-  -e end date/datetime: exclude items with later datetimes
-  -q query: exclude items not satisfying this simple query.
-     Anything that could be used in a simple query described 
-     above could be used here. E.g., "-q exists f" would 
-     limit the display items with an "@f" entry, i.e., to 
-     finished tasks.
-  -a append: append the contents of this comma separated
-     list of @key characters to the formatted output. E.g.,
-     "-a d, l" would append the item description and location
-     to the display of each item.
+one or more of the following:
 
-Commonly used queries can be specified in the "queries" section
-of `cfg.yaml` in your etm home directory along with shortcuts
-for their use. E.g. with this entry
+-b begin date/datetime: omit items with earlier datetimes
+
+-e end date/datetime: omit items with later datetimes
+
+-q query: exclude items not satisfying this simple query.
+    Anything that could be used in a simple query 
+    described above could be used here. E.g., "-q exists 
+    f" would limit the display items with an "@f" entry, 
+    i.e., finished tasks.
+
+-a append: append the contents of this comma separated
+    list of @key characters to the formatted output. E.g., 
+    "-a d, l" would append the item description and 
+    location to the display of each item.
+
+Saved Queries
+=============
+Commonly used queries can be specified in the "queries"
+section of `cfg.yaml` in your etm home directory along
+with shortcuts for their use. E.g. with this entry
 
   queries:
-    # todo - unfinished tasks by month and day
-    td: c MMM YYYY; ddd D -q equals itemtype - and ~exists f
-    # usedtimes by i[0], month and i[1] with u and d appended
+    # usedtimes by i[0], month and i[1] with u and d
     ut: u i[0]; MMM YYYY; i[1] -a u, d
     # items with an "@u" but missing the needed "@i"
     mi: exists u and ~exists i
 
+entering
 
+    query: ut
+
+and preesing 'Enter' would result in the 'ut' being
+replaced by its corresponding value to give
+
+    query: u i[0]; MMM YYYY; i[1] -a u, d
+
+The query can now be submitted as is or first edited to
+add, say, `-b` and `-e` options and then submitted. The
+submitted form of the query is added to the command
+history.
 """
 
-    def is_datetime(self, val): 
+    def is_datetime(self, val):
         return isinstance(val, pendulum.DateTime)
 
     def is_date(self, val):
@@ -362,9 +441,9 @@ for their use. E.g. with this entry
 
     def in_any(self, a, b):
         """
-        the value of field 'a' is a list of values and at least 
+        the value of field 'a' is a list of values and at least
         one of them is an element from 'b'. Here 'b' should be a list with
-        2 or more elements. With only a single element, there is no 
+        2 or more elements. With only a single element, there is no
         difference between any and all.
 
         With egs, "any,  blue, green" returns all three items.
@@ -376,9 +455,9 @@ for their use. E.g. with this entry
 
     def in_all(self, a, b):
         """
-        the value of field 'a' is a list of values and among the list 
+        the value of field 'a' is a list of values and among the list
         are all the elements in 'b'. Here 'b' should be a list with
-        2 or more elements. With only a single element, there is no 
+        2 or more elements. With only a single element, there is no
         difference between any and all.
 
         With egs, "all, blue, green" returns just "blue and green"
@@ -389,7 +468,7 @@ for their use. E.g. with this entry
 
     def one_of(self, a, b):
         """
-        the value of field 'a' is one of the elements in 'b'. 
+        the value of field 'a' is one of the elements in 'b'.
 
         With egs, "one, summary, blue, green" returns both "green" and "blue"
         """
@@ -466,17 +545,17 @@ for their use. E.g. with this entry
             return False, self.usage
         elif query.startswith('u') or query.startswith('c'):
             show_report_items(query)
-            ok, 
+            ok,
         try:
             ok, test = self.process_query(query)
             if not ok:
                 return False, test
-            if isinstance(test, str): 
+            if isinstance(test, str):
                 # info
                 return False, test
             else:
                 items = DBITEM.search(test)
-                return True, items 
+                return True, items
         except Exception as e:
             return False, f"exception processing '{query}':\n{e}"
 
@@ -504,7 +583,7 @@ class InteractiveInputDialog(object):
             try:
                 output = 'In:  {}\nOut: {}\n\n'.format(
                     self.input_field.text,
-                    evaluator(self.input_field.text))  
+                    evaluator(self.input_field.text))
             except BaseException as e:
                 output = '\n\n{}'.format(e)
             new_text = self.output_field.text + output
@@ -576,7 +655,7 @@ class RadioListDialog(object):
         self.future = asyncio.Future()
 
         self.radios = RadioList(values=values)
-        # radios.current_value will contain the first component of the selected tuple 
+        # radios.current_value will contain the first component of the selected tuple
         # title = "Delete"
         # values =[
         #     (0, 'this instance'),
@@ -839,19 +918,19 @@ editing = False
 
 @Condition
 def is_viewing():
-    return get_app().layout.has_focus(text_area) 
+    return get_app().layout.has_focus(text_area)
 
 @Condition
 def is_viewing_or_details():
-    return get_app().layout.has_focus(text_area) or get_app().layout.has_focus(details_area) 
+    return get_app().layout.has_focus(text_area) or get_app().layout.has_focus(details_area)
 
 @Condition
 def is_details():
-    return get_app().layout.has_focus(details_area) 
+    return get_app().layout.has_focus(details_area)
 
 @Condition
 def is_querying():
-    return get_app().layout.has_focus(query_area) 
+    return get_app().layout.has_focus(query_area)
 
 
 @bindings.add('f1')
@@ -872,7 +951,7 @@ def is_item_view():
 
 @Condition
 def is_dated_view():
-    return dataview.active_view in ['agenda', 'completed', 'busy'] and get_app().layout.has_focus(text_area) 
+    return dataview.active_view in ['agenda', 'completed', 'busy'] and get_app().layout.has_focus(text_area)
 
 @Condition
 def is_editing():
@@ -931,7 +1010,7 @@ def do_go_to_line(*event):
     def coroutine():
         default = ''
         if dataview.current_row:
-            default = dataview.current_row + 1 
+            default = dataview.current_row + 1
         dialog = TextInputDialog(
             title='Go to line',
             label_text='Line number:',
@@ -975,7 +1054,7 @@ dark_style = Style.from_dict({
     'dialog frame-label': 'bg:#ffffff #000000',
     'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'dialog shadow':      'bg:#444444',
-    'text-area': f"{NAMED_COLORS['Black']}", 
+    'text-area': f"{NAMED_COLORS['Black']}",
 
     'status':     f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'query':     f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
@@ -1004,7 +1083,7 @@ light_style = Style.from_dict({
     'dialog frame-label': 'bg:#ffffff #000000',
     'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'dialog shadow':      'bg:#444444',
-    'text-area': f"{NAMED_COLORS['Black']}", 
+    'text-area': f"{NAMED_COLORS['Black']}",
 
     'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'query':     f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
@@ -1148,7 +1227,7 @@ async def new_day(loop):
     dataview.handle_backups()
     dataview.possible_archive()
     logger.debug(f"leaving new_day")
-    return True 
+    return True
 
 current_datetime = pendulum.now('local')
 
@@ -1181,7 +1260,7 @@ async def maybe_alerts(now):
     bad = []
     for alert in dataview.alerts:
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
-            alertdt = alert[0] 
+            alertdt = alert[0]
             if not isinstance(alertdt, pendulum.DateTime):
                 # rrule produces datetime.datetime objects
                 alertdt = pendulum.instance(alertdt)
@@ -1286,7 +1365,7 @@ text_area = TextArea(
     )
 
 
-# completions will come from prior database entries 
+# completions will come from prior database entries
 completions = [
         ]
 
@@ -1358,19 +1437,19 @@ edit_area = HSplit([
 
 details_area = TextArea(
     text="",
-    style='class:details', 
+    style='class:details',
     read_only=True,
     search_field=search_field,
     )
 
 query = ETMQuery()
 query_area = TextArea(
-    height=3, 
-    style='class:query', 
+    height=3,
+    style='class:query',
     # style=query.style,
     lexer=query.lexer,
     multiline=False,
-    prompt='query: ', 
+    prompt='query: ',
     focusable=True,
     # wrap_lines=True,
     )
@@ -1402,7 +1481,7 @@ def accept(buff):
             else:
                 text_area.text = items
     else:
-        # quitting 
+        # quitting
         dataview.active_view = dataview.prior_view
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
@@ -1472,7 +1551,7 @@ def do_schedule_new(*event):
         new_datetime = yield from show_dialog_as_float(dialog)
 
         if not new_datetime:
-            return 
+            return
         changed = False
         ok, dt, z = parse_datetime(new_datetime)
 
@@ -1510,7 +1589,7 @@ def do_reschedule(*event):
         new_datetime = yield from show_dialog_as_float(dialog)
 
         if not new_datetime:
-            return 
+            return
         changed = False
         ok, dt, z = parse_datetime(new_datetime)
 
@@ -1543,7 +1622,7 @@ def do_maybe_delete(*event):
     if not instance:
         # not repeating
         def coroutine():
-            dialog = ConfirmDialog("Delete", 
+            dialog = ConfirmDialog("Delete",
                     f"Selected: {hsh['itemtype']} {hsh['summary']}\n\nAre you sure you want to delete this item?\nThis would remove the item from the database\nand cannot be undone.")
 
             delete = yield from show_dialog_as_float(dialog)
@@ -1562,7 +1641,7 @@ def do_maybe_delete(*event):
         # repeating
         def coroutine():
 
-            # radios.current_value will contain the first component of the selected tuple 
+            # radios.current_value will contain the first component of the selected tuple
             title = "Delete"
             text = f"Selected: {hsh['itemtype']} {hsh['summary']}\nInstance: {format_datetime(instance)[1]}\n\nDelete what?"
             values =[
@@ -1626,7 +1705,7 @@ def do_timer_toggle(*event):
 @bindings.add('c-t', filter=is_viewing_or_details)
 def do_maybe_record_timer(*event):
     if not dataview.timer_id:
-        add_usedtime() 
+        add_usedtime()
         return
     item_id = dataview.timer_id
     job_id = dataview.timer_job
@@ -1656,7 +1735,7 @@ def do_maybe_record_timer(*event):
             values=values)
 
         which = yield from show_dialog_as_float(dialog)
-        # None: do nothing; 0: record and close; 1: close 
+        # None: do nothing; 0: record and close; 1: close
         if which is not None:
             if which == 0:
                 item.record_timer(item_id, job_id, completed, time)
@@ -1744,7 +1823,7 @@ def not_editing_reps(*event):
     res = dataview.get_repetitions(row, 5)
     if not res:
         return
-    showing, reps = res 
+    showing, reps = res
     show_message(showing, reps, 24)
 
 @bindings.add('c-r', filter=is_editing)
@@ -1752,7 +1831,7 @@ def is_editing_reps(*event):
     res = item.get_repetitions(5)
     if not res:
         return
-    showing, reps = res 
+    showing, reps = res
     show_message(showing, reps, 24)
 
 
@@ -1764,10 +1843,10 @@ def do_import_file(*event):
         dialog = TextInputDialog(
             title='import file',
             label_text="""\
-It is possible to import data from files with 
+It is possible to import data from files with
 one of the following extensions:
-  .json  a json file exported from etm 3.2.x 
-  .text  a text file with etm entries as lines 
+  .json  a json file exported from etm 3.2.x
+  .text  a text file with etm entries as lines
   .ics   an iCalendar file
 Enter the path of the file to import:""")
 
@@ -1976,16 +2055,16 @@ def maybe_save(item):
         return
     if item.item_hsh.get('itemtype', None) is None:
         show_message('Error', 'An entry for itemtype is required but missing.', 0)
-        return 
+        return
 
     if item.item_hsh.get('summary', None) is None:
         show_message('Error', 'A summary is required but missing.', 0)
-        return 
+        return
 
-    if item.item_hsh['itemtype'] == '*' and 's' not in item.item_hsh: 
+    if item.item_hsh['itemtype'] == '*' and 's' not in item.item_hsh:
         show_message('Error', 'An entry for @s is required for events but missing.', 0)
         # item needs correcting, return to edit
-        return 
+        return
     # hsh ok, save changes and close editor
     if item.doc_id in dataview.itemcache:
         del dataview.itemcache[item.doc_id]
@@ -2067,7 +2146,7 @@ root_container = MenuContainer(body=body, menu_items=[
 ])
 
 
-# This is slick - add a call to default_buffer_changed 
+# This is slick - add a call to default_buffer_changed
 entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
@@ -2077,7 +2156,7 @@ def set_askreply(_):
     else:
         ask, reply = item.askreply[('itemtype', '')]
     ask_buffer.text = ask
-    reply_buffer.text = wrap(reply, 0) 
+    reply_buffer.text = wrap(reply, 0)
 
 
 dataview = None
@@ -2089,7 +2168,7 @@ async def main(etmdir=""):
     global item, settings, ampm, style, etmstyle, application
     ampm = settings['ampm']
     terminal_style = settings['style']
-    if terminal_style == "dark": 
+    if terminal_style == "dark":
         style = dark_style
         etmstyle = dark_etmstyle
     else:

@@ -527,62 +527,9 @@ and press return to see a list of reminders in which either the summary or the `
 
 would display reminders with @u elements but not an @i element. 
 
-As with other etm views, in query view you can select a reminder, press `Enter` to display its details, press `E` to edit it and so forth.
+Simple queries of this type produce a list of matching items with the itemtype, summary and id displayed and sorted by id, i.e., by the order created. It is also possible to create more complex queries in which the output is displayed heirarchially using a format determined by the query parameters. Enter `?` or `help` at the prompt to get detailed usage information.
 
-Enter `?` or `help` at the prompt to get usage information:
-
-		Query has components in the format: [~]command a [b]
-		where "a" is one of the etm fields: itemtype, summary,
-		or one of the @keys and "command" is one of the 
-		following:
-			matches a b: return items in which field[a] begins
-				with regex b 
-			search a b: return items in which field[a] contains 
-				regex b
-			equals a b: return items in which field[a] == b
-			more a b: return items in which field[a] >= b
-			less a b: return items in which field[a] <= b
-			exists a: return items in which field[a] exists
-			any a b: return items in which at least one 
-				element of field[a] is an element of the list b 
-			all a b: return items in which the elements of 
-				field[a] contain all the elements of the list b 
-			one a b: return items in which the value of 
-				field[a] is one of the elements of list b
-			info a: return the details of the item whose 
-				document id equals the integer a
-			dt a b: return items in which the value of field[a] 
-				is a date if b = '? date' or a datetime if 
-				b = '? time'. Else if b begins with  '>', '='
-				or '<' followed by a string following the format 
-				'yyyy-mm-dd-HH-MM' then return items where the
-				date/time in field[a] bears the specified 
-				relation to the string. E.g., 
-					dt s < 2020-1-17 
-				would return items with @s date/times whose 
-				year <= 2020, month <= 1 and month day <= 17. 
-				Hours and minutes are ignored when field[a] is
-				a date.
-		E.g., find items where the summary contains "waldo":
-			query: search summary waldo
-		Precede a command with "~" to negate it. E.g., find 
-		reminders where the summary does not contain "waldo":
-			query: ~search summary waldo
-		To enter a list of values for "b", simply separate the 
-		components with spaces. Conversely, to enter a regex 
-		with a space and avoid its being interpreted as a list, 
-		replace the space with \s. Components can be joined the 
-		using "or" or "and". E.g., find reminders where either 
-		the summary or the entry for @d (description) contains 
-		"waldo":
-			query: search summary waldo or search d waldo
-		Press 'Enter' to submit a query, close the entry area
-		and display the results. Press 'q' to reopen the entry
-		area to submit another query. Submit '?' or 'help' 
-		to show this display or nothing to quit. In the entry
-		area, the 'up' and 'down' cursor keys scroll through
-		previously submitted queries.
-
+As with other etm views, in query view you can press `Ctrl-C` to copy the view to the system clipboard or select a reminder and press `Enter` to display its details, press `E` to edit it and so forth. 
 
 ### [Common Features](#overview)
 
