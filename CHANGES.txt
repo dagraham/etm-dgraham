@@ -1,21 +1,29 @@
-Recent changes as of 2020-04-05T18:45:38.645783-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.1.0) Dan Graham
-    90e15de2 2020-04-05 18:45:38 -0400
+Recent changes as of 2020-04-06T14:07:52.780301-04:00:
+- 46 minutes ago (HEAD -> master, origin/master, origin/HEAD, working) Dan Graham
+    2a0cbd04 2020-04-06 13:22:01 -0400
+    Removed tag 4.1.0
+
+- 59 minutes ago Dan Graham
+    b0e548a2 2020-04-06 13:09:06 -0400
+    Many query help improvements
+
+- 19 hours ago Dan Graham
+    41787c77 2020-04-05 18:45:38 -0400
     Tagged version 4.1.0.
 
-- 6 minutes ago (origin/master, origin/HEAD, working, custom) Dan Graham
+- 19 hours ago (custom) Dan Graham
     7442092f 2020-04-05 18:39:31 -0400
     More doc fixes.
 
-- 65 minutes ago Dan Graham
+- 20 hours ago Dan Graham
     1b199520 2020-04-05 17:40:36 -0400
     cleaned up comments
 
-- 2 hours ago Dan Graham
+- 22 hours ago Dan Graham
     0041eff7 2020-04-05 16:33:17 -0400
     More query help tweaks
 
-- 2 hours ago Dan Graham
+- 22 hours ago Dan Graham
     a8602885 2020-04-05 16:23:53 -0400
     Cleanup, query help, add query 'l' command to list the key and
     value shortcuts in 'queries'. Added c and l to query fields with
@@ -23,15 +31,15 @@ Recent changes as of 2020-04-05T18:45:38.645783-04:00:
     simple indexes for 'i'. Commented out week, width and other unused
     grpby items. Added '~' for empty i slices.
 
-- 7 hours ago Dan Graham
+- 26 hours ago Dan Graham
     2f4e4778 2020-04-05 12:06:53 -0400
     much work on query help and README
 
-- 26 hours ago Dan Graham
+- 2 days ago Dan Graham
     a36b068f 2020-04-04 16:37:25 -0400
     More cleanup and bug fixes
 
-- 29 hours ago Dan Graham
+- 2 days ago Dan Graham
     00cb8757 2020-04-04 14:04:26 -0400
     Many fixed for -a entries including tags, location, usedtime. Use
     finished_char as itemtype when f is in item. Used hours_and_tenths
@@ -41,84 +49,84 @@ Recent changes as of 2020-04-05T18:45:38.645783-04:00:
     pasting the correspond value into the entry field for optional
     modification and to join the command history.
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     1f76a086 2020-04-03 13:57:24 -0400
     cleanup and put a query from queries into the command history
 
-- 2 days ago Dan Graham
+- 3 days ago Dan Graham
     8acc26ed 2020-04-03 13:12:01 -0400
     Refactor and cleanup
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     b86edca4 2020-04-02 09:33:24 -0400
     rolled by tag from 4.1.0 to 4.0.28
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     e115c524 2020-04-02 08:52:08 -0400
     Added 'queries' to option settings and corrected yaml instance to
     preserve comments and order.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     bd7003b9 2020-03-31 19:50:22 -0400
     Tagged version 4.1.0.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     ad8e2270 2020-03-31 19:43:41 -0400
     bump tweaks
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     49a14526 2020-03-31 19:41:10 -0400
     bump tweaks
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     2282e8cc 2020-03-31 19:38:27 -0400
     added increments for minor and major numbers to bump.py
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     f9278af5 2020-03-31 19:03:16 -0400
     clean up, added query text as title for output
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     08149ddd 2020-03-31 16:33:03 -0400
     reports working from etm itself
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     4bb89e67 2020-03-31 09:49:49 -0400
     Moved report.py into etm/
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     615bf24c 2020-03-30 12:04:46 -0400
     Ready to migrate report to etm
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     bfe3dcd4 2020-03-30 10:42:48 -0400
     Working but needs cleanup and more testing
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     79643518 2020-03-29 22:10:14 -0400
     clean up
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     e3fe30cd 2020-03-29 17:59:03 -0400
     incorporated RDict approach
 
-- 8 days ago Dan Graham
+- 9 days ago Dan Graham
     599a2401 2020-03-28 18:17:56 -0400
     sort and path formatting working
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     6e02e9a6 2020-03-27 09:19:46 -0400
     added apply_dates_filter to report.py
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     c8480de3 2020-03-26 16:20:20 -0400
     getting there with reports.py
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     f9c8097a 2020-03-25 14:58:24 -0400
     moved report to root directory
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     a08c2a6d 2020-03-25 13:37:56 -0400
     added first pass add report.py
 
@@ -288,26 +296,26 @@ Recent changes as of 2020-04-05T18:45:38.645783-04:00:
     9fb9a5e0 2020-01-31 15:49:55 -0500
     Added missing import dateutil statement to model.py.
 
-- 9 weeks ago Dan Graham
+- 10 weeks ago Dan Graham
     bb5d75af 2020-01-30 14:54:19 -0500
     Show tasks with @f entries as finished in used time views.
 
-- 9 weeks ago Dan Graham
+- 10 weeks ago Dan Graham
     8e085e78 2020-01-30 13:46:51 -0500
     Tagged version 4.0.19.
 
-- 9 weeks ago Dan Graham
+- 10 weeks ago Dan Graham
     5e7a24f7 2020-01-30 13:46:20 -0500
     Cleaned up logger.debug statements.
 
-- 9 weeks ago Dan Graham
+- 10 weeks ago Dan Graham
     f2cd0afe 2020-01-30 13:40:39 -0500
     When specifying an alert, report 'missing command' until one is
     specified. Changed inital logging statement to 'critical' to
     insure that it is always recorded. Log bad alert commands as
     errors.
 
-- 9 weeks ago Dan Graham
+- 10 weeks ago Dan Graham
     8934b22e 2020-01-30 10:04:47 -0500
     README tweaks. Use 'now' for when in alerts when the alert and
     start times are the same.
@@ -351,25 +359,25 @@ Recent changes as of 2020-04-05T18:45:38.645783-04:00:
     Added 'used time expanded' to README. Updated used time view
     names. Added pygments to requirements in setup.py.
 
-- 10 weeks ago Dan Graham
+- 2 months ago Dan Graham
     cbdb6e65 2020-01-27 14:43:12 -0500
     modified view names: used -> used time, used summary -> used time
     summary.
 
-- 10 weeks ago Dan Graham
+- 2 months ago Dan Graham
     5d6a5fa1 2020-01-27 14:16:04 -0500
     Tagged version 4.0.15.
 
-- 10 weeks ago Dan Graham
+- 2 months ago Dan Graham
     70280e70 2020-01-27 14:15:37 -0500
     changed 'used description' view to 'used time expanded' view.
 
-- 10 weeks ago Dan Graham
+- 2 months ago Dan Graham
     2f0b6e87 2020-01-27 14:01:15 -0500
     Fixed bug involving calling the wrong handler for 'used time with
     descriptions'.
 
-- 10 weeks ago Dan Graham
+- 2 months ago Dan Graham
     c751cc30 2020-01-27 13:50:43 -0500
     Strip trailing whitespace in @d entries. Modified RDict.tree to
     append a wrapped and indented 3rd element of leaf nodes, if
@@ -408,12 +416,12 @@ Recent changes as of 2020-04-05T18:45:38.645783-04:00:
     79a0a337 2020-01-23 09:29:00 -0500
     Changed display order in agenda view.
 
-- 2 months ago Dan Graham
+- 3 months ago Dan Graham
     969f4530 2020-01-22 17:08:24 -0500
     Added dt command to query view to handle dates and datetimes in
     fields.
 
-- 2 months ago Dan Graham
+- 3 months ago Dan Graham
     f742a781 2020-01-22 10:14:46 -0500
     Display query string and 'none matching' when there are no results
     from the query.
@@ -422,13 +430,3 @@ Recent changes as of 2020-04-05T18:45:38.645783-04:00:
     77345b3c 2020-01-19 10:31:21 -0500
     Display query string and 'none matching' when there are no results
     from the query.
-
-- 3 months ago Dan Graham
-    af7a03c6 2020-01-18 18:12:59 -0500
-    Tagged version 4.0.13.
-
-- 3 months ago Dan Graham
-    e00152d9 2020-01-18 18:12:38 -0500
-    Avoid starting a new instance of TinyDB with the same database
-    file when importing text files. Avoid referring to item_ids for
-    bad items - the id's have not been assigned.
