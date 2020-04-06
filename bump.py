@@ -74,6 +74,9 @@ res = input(f"Which new version? ")
 
 new_version = ''
 res = res.lower()
+if not res:
+    print('cancelled')
+    sys.exit()
 if res in extension_options[ext]:
     new_version = f"{pre}{extension_options[ext][res]}"
 elif res == 'p':
