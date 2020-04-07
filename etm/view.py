@@ -154,21 +154,26 @@ class ETMQuery(object):
 * info ID: return the details of the item whose
     document id equals the integer ID
 
-* dt field EXP: return items in which the value of
-    field is a date if EXP = '? date' or a datetime
-    if EXP = '? time'. Else if EXP begins
-    with  '>', '=' or '<' followed by a string following
-    the format 'yyyy-mm-dd-HH-MM' then return items where
-    the date/time in field bears the specified relation
-    to the string. E.g., 
+* dt field EXP: return items in which the value of field 
+    is a date if EXP = '? date' or a datetime if EXP = '? 
+    time'. Else if EXP begins with  '>', '=' or '<' 
+    followed by a string following the format 
+    'yyyy-mm-dd-HH-MM' then return items where the 
+    datetime of the field value bears the specified 
+    relation to the string, with hours and minutes 
+    ignored when the value of field is a date. E.g., 
 
         dt s < 2020-1-17
 
     would return items with @s date/times whose year <=
-    2020, month <= 1 and month day <= 17. Hours and
-    minutes are ignored when field is a date.\
-  """
+    2020, month <= 1 and month day <= 17. 
 
+    Alternatively,
+
+        dt s ? date and equals itemtype *
+
+    would return events with @s date/times that are 
+    dates, i.e., all day events or occasions."""
 
         self.usage = f"""\
 Simple queries
@@ -185,15 +190,20 @@ the following:
 
 {self.command_details}
 
-Enter the command at the 'query:' prompt and press 'Enter'
-to submit the query, close the entry area and display the
-results. Press 'q' to reopen the entry area to submit
-another query. Submit '?' or 'help' to show this display
-or nothing to quit. 
+Enter the command at the 'query:' prompt and press 
+'enter' to submit the query and display the results. 
+Press 'q' to reopen the entry area to submit another 
+query. Use up and down cursor keys to choose from the 
+command history (see Command History below), submit '?' 
+or 'help' to show this display, submit 'l' to see a list 
+of stored queries (see Saved Queries below) or submit 
+nothing to close the entry area and return to the 
+previous display. 
 
 Simple Query Examples
 =====================
-Find items where the summary includes a match for "waldo":
+Find items where the summary includes a match for 
+"waldo":
 
     query: includes summary waldo
 
@@ -221,13 +231,16 @@ would return items in which the item type is either '-'
 or '*', i.e., either a task or an event.
 
 Conversely, to enter a regex with a space and avoid its
-being interpreted as a list, replace the space with \s.
+being interpreted as a list, replace the space with '\s'.
+E.g., 
 
     query: matches i john\sdoe
 
 would return items with '@i' (index) entries such as 
-"John Doe/...". Note: in the world of regular expressions
-'\s' matches any white space character, including a space.
+"John Doe/...". 
+
+Note: in the world of regular expressions '\s' matches
+any white space character, including a space.
 
 Components can be joined the using "or" or "and". E.g., 
 find reminders where either the summary or the entry for 
@@ -248,15 +261,19 @@ two types of complex queries:
 * Composite queries begin with a "c" and create
     general reports but without usedtime aggregates.
 
-Both types of queries follow the report type, "u" or "c",
-with a required group/sort specification consisting of a
-semicolon separated list with one or more of the following
-components:
+Both types of queries follow the report type, "u" or "c", 
+with a required group/sort specification consisting of a 
+semicolon separated list with at least one of the 
+following components:
 
 * index specification such as i, i[1:2] or i[1:]
-    E.g. with '@i A/B/C', i gives ['A','B','C'], i[1:2] 
-    gives ['B'], i[1:] gives ['B','C'], i[:3] gives 
-    ['A','B'] and so forth. 
+
+    E.g. for an item with index entry '@i A/B/C': 
+        i      => ['A','B','C']
+        i[1:2] => ['B'] 
+        i[1:]  => ['B','C']
+        i[:3]  => ['A','B'] 
+    and so forth. 
 
     Note: using slices such as i[1:2] rather than i[1] 
     avoids 'list index out of range errors' for index 
@@ -265,16 +282,20 @@ components:
     there is no such index, but i[3:] would return the 
     empty list, []. 
 
-    When an index specification returns an empty list, '~' 
-    is used for the missing entry. Items without an '@i'
-    entry are given a default entry of '~' and included.
+    When an index specification returns an empty list, 
+    '~' is used for the missing entry. Items without an 
+    '@i' entry are given a default entry of '~' and 
+    included by default. Add 'exists i' to '-q' 
+    (discussed below) to overrule this default.
 
 * field specification: 
     l: location
     c: calendar
 
     Note: items without the specified field are given a
-    default entry of '~' and included.
+    default entry of '~' and included by default. Add 
+    'exists l' or 'exists c' to '-q' (discussed below) 
+    to overrule these defaults.
 
 * date specification:
     year:
@@ -292,13 +313,14 @@ components:
       dddd: locale week day: Monday - Sunday
 
     Note: when a date specification is given, the datetime
-    used depends upon the report type
+    used depends upon the report type.
         u: the value of the datetime component of the @u 
-           entry. Items without @u entries are omitted.
+           entry. Items without @u entries are omitted. 
+           Items with multiple @u entries that fall on 
+           different dates 
         c: the value of @f when it exists and, otherwise, 
            the value of @s. Items without @f and @s entries
-           are omitted. For repeating items, only the next
-           instance is included.
+           are omitted. 
 
 E.g.
 
