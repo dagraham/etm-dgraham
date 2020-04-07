@@ -119,10 +119,6 @@ class ETMQuery(object):
         self.allowed_commands = ", ".join([x for x in self.arg])
 
         self.command_details = """\
-* matches field RGX: return items in which the value of
-    field BEGINS with the case insensitve regular 
-    expression RGX.
-
 * matches field RGX: return items in which the case 
     insensitve regular expression RGX matches the 
     BEGINNING of the value of field.
@@ -181,7 +177,7 @@ Return a list of items displaying the itemtype, summary
 and id, and sorted by id, (order created) using commands
 with the format:
 
-    command field [arg]
+    command field [args]
 
 where "field" is one of the etm fields: itemtype,
 summary, or one of the @keys and "command" is one of
@@ -189,10 +185,10 @@ the following:
 
 {self.command_details}
 
-Enter the command at the 'query:' prompt and press 'Enter' 
-to submit the query, close the entry area and display the 
-results. Press 'q' to reopen the entry area to submit 
-another query. Submit '?' or 'help' to show this display 
+Enter the command at the 'query:' prompt and press 'Enter'
+to submit the query, close the entry area and display the
+results. Press 'q' to reopen the entry area to submit
+another query. Submit '?' or 'help' to show this display
 or nothing to quit. 
 
 Simple Query Examples
