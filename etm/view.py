@@ -83,7 +83,7 @@ class TDBLexer(RegexLexer):
 
     tokens = {
             'root': [
-                (r'(matches|search|equals|more|less|exists|any|all|one)\b', Keyword),
+                (r'(begins|includes|equals|more|less|exists|any|all|one)\b', Keyword),
                 (r'(itemtype|summary)\b', Literal),
                 (r'(and|or|info)\b', Operator),
                 ],
@@ -93,8 +93,8 @@ class TDBLexer(RegexLexer):
 class ETMQuery(object):
 
     def __init__(self):
-        self.arg = { 'matches': self.matches,
-                'search': self.search,
+        self.arg = { 'begins': self.begins,
+                'includes': self.includes,
                 'equals': self.equals,
                 'more': self.more,
                 'less': self.less,
@@ -119,13 +119,13 @@ class ETMQuery(object):
         self.allowed_commands = ", ".join([x for x in self.arg])
 
         self.command_details = """\
-* matches field RGX: return items in which the case 
-    insensitve regular expression RGX matches the 
-    BEGINNING of the value of field.
+* begins field RGX: return items in which the value of 
+    field begins with a match for the case insensitve 
+    regular expression RGX.
 
-* search field regex: return items in which the case
-    insensitve regular expression RGX matches SOMEWHERE 
-    in the value of field.
+* includes field RGX: return items in which the value of
+    field includes a match for the case insensitive
+    regular expression RGX.
 
 * equals field VAL: return items in which the value of 
     field == VAL
@@ -193,15 +193,15 @@ or nothing to quit.
 
 Simple Query Examples
 =====================
-Find items where the summary contains a match for "waldo":
+Find items where the summary includes a match for "waldo":
 
-    query: search summary waldo
+    query: includes summary waldo
 
 Precede a command with `~` to negate it. E.g., find
-reminders where the summary does not contain a match for
+reminders where the summary does not include a match for
 "waldo":
 
-    query: ~search summary waldo
+    query: ~includes summary waldo
 
 To enter a list of values for "arg", simply separate the
 components with spaces. E.g.,
@@ -226,13 +226,14 @@ being interpreted as a list, replace the space with \s.
     query: matches i john\sdoe
 
 would return items with '@i' (index) entries such as 
-"John Doe/...". 
+"John Doe/...". Note: in the world of regular expressions
+'\s' matches any white space character, including a space.
 
 Components can be joined the using "or" or "and". E.g., 
 find reminders where either the summary or the entry for 
-@d (description) contains "waldo":
+@d (description) includes "waldo":
 
-    query: search summary waldo or search d waldo
+    query: includes summary waldo or includes d waldo
 
 Complex queries
 ===============
@@ -456,12 +457,12 @@ to see a list of the keys and values stored in 'queries'.
         return True
 
 
-    def matches(self, a, b):
-        # the value of at least one element of field 'a' begins with the case-insensitive regex 'b'
+    def begins(self, a, b):
+        # the value of field 'a' begins with the case-insensitive regex 'b'
         return where(a).matches(b, flags=re.IGNORECASE)
 
-    def search(self, a, b):
-        # the value of at least one element of field 'a' contains the case-insensitive regex 'b'
+    def includes(self, a, b):
+        # the value of field 'a' includes the case-insensitive regex 'b'
         return where(a).search(b, flags=re.IGNORECASE)
 
     def equals(self, a, b):
