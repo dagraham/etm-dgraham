@@ -184,9 +184,10 @@ with the format:
 
     command field [args]
 
-where "field" is one of the etm fields: itemtype,
-summary, or one of the @keys and "command" is one of
-the following:
+where "field" is either 'itemtype', 'summary' or one of 
+the '@-keys' such as 'l' or 's', and "command" is one of 
+those listed below (see Simple Query Examples below for 
+examples):
 
 {self.command_details}
 
@@ -197,8 +198,8 @@ query. Use up and down cursor keys to choose from the
 command history (see Command History below), submit '?' 
 or 'help' to show this display, submit 'l' to see a list 
 of stored queries (see Saved Queries below) or submit 
-nothing to close the entry area and return to the 
-previous display. 
+'quit', 'exit' or nothing at all, '', to close the entry 
+area and return to the previous display. 
 
 Simple Query Examples
 =====================
@@ -285,7 +286,7 @@ following components:
     When an index specification returns an empty list, 
     '~' is used for the missing entry. Items without an 
     '@i' entry are given a default entry of '~' and 
-    included by default. Add 'exists i' to '-q' 
+    included by default. Include 'exists i' in '-q' 
     (discussed below) to overrule this default.
 
 * field specification: 
@@ -293,8 +294,8 @@ following components:
     c: calendar
 
     Note: items without the specified field are given a
-    default entry of '~' and included by default. Add 
-    'exists l' or 'exists c' to '-q' (discussed below) 
+    default entry of '~' and included by default. Include 
+    'exists l' or 'exists c' in '-q' (discussed below) 
     to overrule these defaults.
 
 * date specification:
@@ -316,29 +317,28 @@ following components:
     used depends upon the report type.
         u: the value of the datetime component of the @u 
            entry. Items without @u entries are omitted. 
-           Items with multiple @u entries that fall on 
-           different dates 
         c: the value of @f when it exists and, otherwise, 
-           the value of @s. Items without @f and @s entries
-           are omitted. 
+           the value of @s. Items lacking both @f and @s
+           entries are omitted. 
 
-E.g.
+  E.g.
 
-    query: u i[0:1]; MMM YYYY; i[1:]; ddd D
+        query: u i[0:1]; MMM YYYY; i[1:]; ddd D
 
-would create a usedtime query grouped (and sorted) by the
-first component of the index entry, the month and year,
-the remaining components of the index entry and finally
-the month day. Note, for example, that "MMM YYYY", "YYYY
-MMM" and "YYYY MM" would all be sorted using "YYYY MM"
-(2020 01, 2020 02, ...) but would be displayed using the
-specified format (Jan 2020, Feb 2020, ...). Similarly,
-"ddd D", "D ddd", and "DD" would all sort by "DD" (01, 02,
-...) but would also be displayed using the specified
-format (Wed 1, Thu 2,...).
+  would create a usedtime query grouped (and sorted) by 
+  the first component of the index entry, the month and 
+  year, the remaining components of the index entry and 
+  finally the month day. Note, for example, that "MMM 
+  YYYY", "YYYY MMM" and "YYYY MM" would all be sorted 
+  using "YYYY MM" (2020 01, 2020 02, ...) but would be 
+  displayed using the specified format (Jan 2020, Feb 
+  2020, ...). Similarly, "ddd D", "D ddd", and "DD" would 
+  all sort by "DD" (01, 02, ...) but would also be 
+  displayed using the specified format (Wed 1, Thu 
+  2,...).
 
-The group/sort specification is followed, optionally, by
-one or more of the following:
+The group/sort specification can be followed, optionally, 
+by any of the following:
 
 -b begin date/datetime: omit items with earlier datetimes
 
@@ -348,11 +348,13 @@ one or more of the following:
     Anything that could be used in a simple query 
     described above could be used here. E.g., "-q exists 
     f" would limit the display items with an "@f" entry, 
-    i.e., finished tasks.
+    i.e., finished tasks. Similarly "-q equals itemtype - 
+    and ~exists f" would limit the display to unfinished
+    tasks.
 
 -a append: append the contents of this comma separated
-    list of @key characters to the formatted output. E.g., 
-    "-a d, l" would append the item description and 
+    list of @key characters to the formatted output. 
+    E.g., "-a d, l" would append the item description and 
     location to the display of each item.
 
 Command History
@@ -372,13 +374,15 @@ Saved Queries
 =============
 Commonly used queries can be specified in the "queries"
 section of `cfg.yaml` in your etm home directory along
-with shortcuts for their use. E.g. with this entry
+with shortcuts for their use. E.g. with the default entry
 
   queries:
     # unfinished tasks ordered by location
     td: c l -q equals itemtype - and ~exists f
-    # usedtimes by i[0:1], month and i[1:2] with u and d
-    ut: u i[0:1]; MMM YYYY; i[1:2] -a u, d
+    # usedtimes by i[0:1], month and i[1:2] with d
+    ut: u i[0:1]; MMM YYYY; i[1:2] -a d
+    # composite by i[0:1], month and i[1:2] with u and d
+    ct: c i[0:1]; MMM YYYY; i[1:2] -a u, d
     # items with an "@u" but missing the needed "@i"
     mi: exists u and ~exists i
 
@@ -386,21 +390,21 @@ entering
 
     query: ut
 
-and pressing 'Enter' would result in the 'ut' being
+and pressing 'enter' would result in the 'ut' being
 replaced by its corresponding value to give
 
-    query: u i[0]; MMM YYYY; i[1] -a u, d
+    query: u i[0:1]; MMM YYYY; i[1:2] -a d
 
-The query can now be submitted as is or first edited to
-add, say, `-b` and `-e` options and then submitted. The
-submitted form of the query is added to the command
-history.
+This query can now be submitted as is or first edited to
+add, say, `-b` and `-e` options and then submitted. As 
+with other queries, the submitted form of the query is 
+added to the command history.
 
 Enter
 
     query: l
 
-to see a list of the keys and values stored in 'queries'.
+to display a list of the saved keys and values.
 """
 
     def is_datetime(self, val):
@@ -1532,6 +1536,12 @@ def accept(buff):
     if query_area.text:
         text = query_area.text
         queries = settings.get('queries')
+        if text.strip() in ['quit', 'exit']:
+            # quitting
+            dataview.active_view = dataview.prior_view
+            application.layout.focus(text_area)
+            set_text(dataview.show_active_view())
+            return ""
         if queries and text in queries:
             text = queries[text]
             query_area.text = text
