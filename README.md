@@ -1028,7 +1028,7 @@ Here are the options with their default values from that file. The lines beginni
         # should be unique for each etm installation. WARNING: if 
         # you change this key, any @m entries that you made before 
         # the change will be unreadable after the change. 
-        secret: <randomly generated alphanumeric string>
+        secret: N1mvzwZDGg
 
         # omit_extent: A list of calendars. Events with @c entries
         # belonging to this list will only have their starting times
@@ -1150,6 +1150,21 @@ Here are the options with their default values from that file. The lines beginni
           id:
           pw:
           server:
+
+        # queries: A dictionary with short query "keys" and 
+        # corresponding "query" values. Each "query" must be one 
+        # that could be entered as the command in query view. Keys 
+        # can be any short string other than 'u', 'c' or 'l'
+        # which are already in use.
+        queries:
+          # unfinished tasks ordered by location
+          td: c l -q equals itemtype - and ~exists f
+          # usedtimes by i[0:1], month and i[1:2] with d
+          ut: u i[0:1]; MMM YYYY; i[1:2] -a d
+          # composite by i[0:1], month and i[1:2] with u and d
+          ct: c i[0:1]; MMM YYYY; i[1:2] -a u, d
+          # items with an "@u" but missing the needed "@i"
+          mi: exists u and ~exists i
 
 Note that in the 'dictionary' entries above, the components must be indented. E.g., the illustrative alert entry would be:
 

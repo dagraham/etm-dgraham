@@ -235,13 +235,9 @@ smtp:
     server: 
 
 # queries: A dictionary with short query "keys" and 
-# corresponding "query" values. Each "query" must be one that 
-# could be entered as the command in query view. E.g.,
-#
-#   queries:
-#       um: u MMM YYYY; i[0]; i[1]; i[2:]
-#       ui: u i[0]; MMM YYYY; i[1:]; ddd D  
-# Keys can be any short string other than 'u', 'c' or 'l'
+# corresponding "query" values. Each "query" must be one 
+# that could be entered as the command in query view. Keys 
+# can be any short string other than 'u', 'c' or 'l'
 # which are already in use.
 queries:
   # unfinished tasks ordered by location
