@@ -1163,7 +1163,7 @@ Here are the options with their default values from that file. The lines beginni
           ut: u i[0:1]; MMM YYYY; i[1:2] -a d
           # composite by i[0:1], month and i[1:2] with u and d
           ct: c i[0:1]; MMM YYYY; i[1:2] -a u, d
-          # items with an "@u" but missing the needed "@i"
+          # items with u but missing the needed i
           mi: exists u and ~exists i
 
 Note that in the 'dictionary' entries above, the components must be indented. E.g., the illustrative alert entry would be:

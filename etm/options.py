@@ -246,7 +246,7 @@ queries:
     ut: u i[0:1]; MMM YYYY; i[1:2] -a d
   # composite by i[0:1], month and i[1:2] with u and d
     ct: c i[0:1]; MMM YYYY; i[1:2] -a u, d
-  # items with an "@u" but missing the needed "@i"
+  # items with u but missing the needed i
     mi: exists u and ~exists i
 
 """
