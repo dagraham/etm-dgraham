@@ -527,7 +527,292 @@ and press return to see a list of reminders in which either the summary or the `
 
 would display reminders with @u elements but not an @i element. 
 
-Simple queries of this type produce a list of matching items with the itemtype, summary and id displayed and sorted by id, i.e., by the order created. It is also possible to create more complex queries in which the output is displayed heirarchially using a format determined by the query parameters. Enter `?` or `help` at the prompt to get detailed usage information.
+Simple queries of this type produce a list of matching items with the itemtype, summary and id displayed and sorted by id, i.e., by the order created. It is also possible to create more complex queries in which the output is displayed heirarchially using a format determined by the query parameters. Enter `?` or `help` at the prompt to get this detailed usage information:
+
+
+		Simple queries
+		==============
+		Return a list of items displaying the itemtype, summary
+		and id, and sorted by id, (order created) using commands
+		with the format:
+
+			command field [args]
+
+		where "field" is either 'itemtype', 'summary' or one of 
+		the '@-keys' such as 'l' or 's', and "command" is one of 
+		those listed below (see Simple Query Examples below for 
+		examples):
+
+		* begins field RGX: return items in which the value of 
+			field begins with a match for the case insensitve 
+			regular expression RGX.
+
+		* includes field RGX: return items in which the value of
+			field includes a match for the case insensitive
+			regular expression RGX.
+
+		* equals field VAL: return items in which the value of 
+			field == VAL
+
+		* more field VAL: return items in which the value of 
+			field >= VAL. The value of field and VAL must be 
+			comparable, i.e., both strings or both numbers
+
+		* less field VAL: return items in which the value of 
+			field <= VAL. The value of field and VAL must be 
+			comparable, i.e., both strings or both numbers
+
+		* exists field: return items in which field exists
+
+		* any field LST: return items in which the value of field 
+			is a list and at least one element of field is an 
+			element of LST
+
+		* all field LST: return items in which the value of field 
+			is a list and the elements of field contain all the 
+			elements of LST
+
+		* one field LST: return items in which the value of
+			field is one of the elements of LST
+
+		* info ID: return the details of the item whose
+			document id equals the integer ID
+
+		* dt field EXP: return items in which the value of field 
+			is a date if EXP = '? date' or a datetime if EXP = '? 
+			time'. Else if EXP begins with  '>', '=' or '<' 
+			followed by a string following the format 
+			'yyyy-mm-dd-HH-MM' then return items where the 
+			datetime of the field value bears the specified 
+			relation to the string, with hours and minutes 
+			ignored when the value of field is a date. E.g., 
+
+				dt s < 2020-1-17
+
+			would return items with @s date/times whose year <=
+			2020, month <= 1 and month day <= 17. 
+
+			Alternatively,
+
+				dt s ? date and equals itemtype *
+
+			would return events with @s date/times that are 
+			dates, i.e., all day events or occasions.
+
+		Enter the command at the 'query:' prompt and press 
+		'enter' to submit the query and display the results. 
+		Press 'q' to reopen the entry area to submit another 
+		query. Use up and down cursor keys to choose from the 
+		command history (see Command History below), submit '?' 
+		or 'help' to show this display, submit 'l' to see a list 
+		of stored queries (see Saved Queries below) or submit 
+		'quit', 'exit' or nothing at all, '', to close the entry 
+		area and return to the previous display. 
+
+		Simple Query Examples
+		=====================
+		Find items where the summary includes a match for 
+		"waldo":
+
+			query: includes summary waldo
+
+		Precede a command with `~` to negate it. E.g., find
+		reminders where the summary does not include a match for
+		"waldo":
+
+			query: ~includes summary waldo
+
+		To enter a list of values for "arg", simply separate the
+		components with spaces. E.g.,
+
+			query: all t blue green
+
+		would return items with both blue and green tags or
+
+			query: any t blue green
+
+		would return items with either a blue or a green tag. As
+		a last example
+
+			query: one itemtype - *
+
+		would return items in which the item type is either '-'
+		or '*', i.e., either a task or an event.
+
+		Conversely, to enter a regex with a space and avoid its
+		being interpreted as a list, replace the space with '\s'.
+		E.g., 
+
+			query: matches i john\sdoe
+
+		would return items with '@i' (index) entries such as 
+		"John Doe/...". 
+
+		Note: in the world of regular expressions '\s' matches
+		any white space character, including a space.
+
+		Components can be joined the using "or" or "and". E.g., 
+		find reminders where either the summary or the entry for 
+		@d (description) includes "waldo":
+
+			query: includes summary waldo or includes d waldo
+
+		Complex queries
+		===============
+		Return a formatted, heirarchial display of items. Both
+		the format and the items displayed are determined by the
+		type of the query and the arguments provided. There are
+		two types of complex queries:
+
+		* Usedtime queries begin with a "u" and report
+			aggregates of used time "@u" entries in items.
+
+		* Composite queries begin with a "c" and create
+			general reports but without usedtime aggregates.
+
+		Both types of queries follow the report type, "u" or "c", 
+		with a required group/sort specification consisting of a 
+		semicolon separated list with at least one of the 
+		following components:
+
+		* index specification such as i, i[1:2] or i[1:]
+
+			E.g. for an item with index entry '@i A/B/C': 
+				i      => ['A','B','C']
+				i[1:2] => ['B'] 
+				i[1:]  => ['B','C']
+				i[:3]  => ['A','B'] 
+			and so forth. 
+
+			Note: using slices such as i[1:2] rather than i[1] 
+			avoids 'list index out of range errors' for index 
+			entries missing the indicated position. E.g., in 
+			the given example, i[3] would return an error since 
+			there is no such index, but i[3:] would return the 
+			empty list, []. 
+
+			When an index specification returns an empty list, 
+			'~' is used for the missing entry. Items without an 
+			'@i' entry are given a default entry of '~' and 
+			included by default. Include 'exists i' in '-q' 
+			(discussed below) to overrule this default.
+
+		* field specification: 
+			l: location
+			c: calendar
+
+			Note: items without the specified field are given a
+			default entry of '~' and included by default. Include 
+			'exists l' or 'exists c' in '-q' (discussed below) 
+			to overrule these defaults.
+
+		* date specification:
+			year:
+			  YY: 2-digit year
+			  YYYY: 4-digit year
+			month:
+			  M: month: 1 - 12
+			  MM: month: 01 - 12
+			  MMM: locale abbreviated month name: Jan - Dec
+			  MMMM: locale month name: January - December
+			day:
+			  D: month day: 1 - 31
+			  DD: month day: 01 - 31
+			  ddd: locale abbreviated week day: Mon - Sun
+			  dddd: locale week day: Monday - Sunday
+
+			Note: when a date specification is given, the datetime
+			used depends upon the report type.
+				u: the value of the datetime component of the @u 
+				   entry. Items without @u entries are omitted. 
+				c: the value of @f when it exists and, otherwise, 
+				   the value of @s. Items lacking both @f and @s
+				   entries are omitted. 
+
+		  E.g.
+
+				query: u i[0:1]; MMM YYYY; i[1:]; ddd D
+
+		  would create a usedtime query grouped (and sorted) by 
+		  the first component of the index entry, the month and 
+		  year, the remaining components of the index entry and 
+		  finally the month day. Note, for example, that "MMM 
+		  YYYY", "YYYY MMM" and "YYYY MM" would all be sorted 
+		  using "YYYY MM" (2020 01, 2020 02, ...) but would be 
+		  displayed using the specified format (Jan 2020, Feb 
+		  2020, ...). Similarly, "ddd D", "D ddd", and "DD" would 
+		  all sort by "DD" (01, 02, ...) but would also be 
+		  displayed using the specified format (Wed 1, Thu 
+		  2,...).
+
+		The group/sort specification can be followed, optionally, 
+		by any of the following:
+
+		-b begin date/datetime: omit items with earlier datetimes
+
+		-e end date/datetime: omit items with later datetimes
+
+		-q query: exclude items not satisfying this simple query.
+			Anything that could be used in a simple query 
+			described above could be used here. E.g., "-q exists 
+			f" would limit the display items with an "@f" entry, 
+			i.e., finished tasks. Similarly "-q equals itemtype - 
+			and ~exists f" would limit the display to unfinished
+			tasks.
+
+		-a append: append the contents of this comma separated
+			list of @key characters to the formatted output. 
+			E.g., "-a d, l" would append the item description and 
+			location to the display of each item.
+
+		Command History
+		===============
+		Any query entered at the `query:` prompt and submitted by
+		pressing 'Enter' is added to the command history. These
+		queries are kept as long as 'etm' is running and can be
+		accessed using the up and down cursor keys in the query
+		field. This means you can enter a query, check the result,
+		press 'q' to reopen the query prompt, press the up cursor
+		and you will have your previous query ready to modify and
+		submit again. It is also possible to keep a permanent list
+		of queries accessible by shortcuts. See 'Saved Queries'
+		below.
+
+		Saved Queries
+		=============
+		Commonly used queries can be specified in the "queries"
+		section of `cfg.yaml` in your etm home directory along
+		with shortcuts for their use. E.g. with the default entry
+
+		  queries:
+			# unfinished tasks ordered by location
+			td: c l -q equals itemtype - and ~exists f
+			# usedtimes by i[0:1], month and i[1:2] with d
+			ut: u i[0:1]; MMM YYYY; i[1:2] -a d
+			# composite by i[0:1], month and i[1:2] with u and d
+			ct: c i[0:1]; MMM YYYY; i[1:2] -a u, d
+			# items with an "@u" but missing the needed "@i"
+			mi: exists u and ~exists i
+
+		entering
+
+			query: ut
+
+		and pressing 'enter' would result in the 'ut' being
+		replaced by its corresponding value to give
+
+			query: u i[0:1]; MMM YYYY; i[1:2] -a d
+
+		This query can now be submitted as is or first edited to
+		add, say, `-b` and `-e` options and then submitted. As 
+		with other queries, the submitted form of the query is 
+		added to the command history.
+
+		Enter
+
+			query: l
+
+		to display a list of the saved keys and values.
 
 As with other etm views, in query view you can press `Ctrl-C` to copy the view to the system clipboard or select a reminder and press `Enter` to display its details, press `E` to edit it and so forth. 
 
