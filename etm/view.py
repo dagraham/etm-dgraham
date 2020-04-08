@@ -270,18 +270,23 @@ following components:
 * index specification such as i, i[1:2] or i[1:]
 
     E.g. for an item with index entry '@i A/B/C': 
-        i      => ['A','B','C']
-        i[1:2] => ['B'] 
-        i[1:]  => ['B','C']
-        i[:3]  => ['A','B'] 
-    and so forth. 
+        i      = ['A','B','C']
+        i[0]   = 'A'
+        i[1]   = 'B'
+        i[2]   = 'C'
+        i[3]   => error, list index out of range
+        i[0:]  = ['A','B','C']
+        i[:1]  = ['A']
+        i[1:]  = ['B','C']
+        i[1:2] = ['B']
+        i[:2]  = ['A','B'] 
+        i[2:]  = ['C']
+        i[3:]  = i[3:4] = []
 
     Note: using slices such as i[1:2] rather than i[1] 
     avoids 'list index out of range errors' for index 
-    entries missing the indicated position. E.g., in 
-    the given example, i[3] would return an error since 
-    there is no such index, but i[3:] would return the 
-    empty list, []. 
+    entries missing the indicated position and is 
+    strongly recommended.  
 
     When an index specification returns an empty list, 
     '~' is used for the missing entry. Items without an 
@@ -323,7 +328,7 @@ following components:
 
   E.g.
 
-        query: u i[0:1]; MMM YYYY; i[1:]; ddd D
+        query: u i[:1]; MMM YYYY; i[1:]; ddd D
 
   would create a usedtime query grouped (and sorted) by 
   the first component of the index entry, the month and 
