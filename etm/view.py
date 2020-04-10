@@ -119,33 +119,33 @@ class ETMQuery(object):
         self.allowed_commands = ", ".join([x for x in self.arg])
 
         self.command_details = """\
-* begins field RGX: return items in which the value of 
-    field begins with a match for the case insensitve 
+* begins field RGX: return items in which the value of
+    field begins with a match for the case insensitve
     regular expression RGX.
 
 * includes field RGX: return items in which the value of
     field includes a match for the case insensitive
     regular expression RGX.
 
-* equals field VAL: return items in which the value of 
+* equals field VAL: return items in which the value of
     field == VAL
 
-* more field VAL: return items in which the value of 
-    field >= VAL. The value of field and VAL must be 
+* more field VAL: return items in which the value of
+    field >= VAL. The value of field and VAL must be
     comparable, i.e., both strings or both numbers
 
-* less field VAL: return items in which the value of 
-    field <= VAL. The value of field and VAL must be 
+* less field VAL: return items in which the value of
+    field <= VAL. The value of field and VAL must be
     comparable, i.e., both strings or both numbers
 
 * exists field: return items in which field exists
 
-* any field LST: return items in which the value of field 
-    is a list and at least one element of field is an 
+* any field LST: return items in which the value of field
+    is a list and at least one element of field is an
     element of LST
 
-* all field LST: return items in which the value of field 
-    is a list and the elements of field contain all the 
+* all field LST: return items in which the value of field
+    is a list and the elements of field contain all the
     elements of LST
 
 * one field LST: return items in which the value of
@@ -154,25 +154,25 @@ class ETMQuery(object):
 * info ID: return the details of the item whose
     document id equals the integer ID
 
-* dt field EXP: return items in which the value of field 
-    is a date if EXP = '? date' or a datetime if EXP = '? 
-    time'. Else if EXP begins with  '>', '=' or '<' 
-    followed by a string following the format 
-    'yyyy-mm-dd-HH-MM' then return items where the 
-    datetime of the field value bears the specified 
-    relation to the string, with hours and minutes 
-    ignored when the value of field is a date. E.g., 
+* dt field EXP: return items in which the value of field
+    is a date if EXP = '? date' or a datetime if EXP = '?
+    time'. Else if EXP begins with  '>', '=' or '<'
+    followed by a string following the format
+    'yyyy-mm-dd-HH-MM' then return items where the
+    datetime of the field value bears the specified
+    relation to the string, with hours and minutes
+    ignored when the value of field is a date. E.g.,
 
         dt s < 2020-1-17
 
     would return items with @s date/times whose year <=
-    2020, month <= 1 and month day <= 17. 
+    2020, month <= 1 and month day <= 17.
 
     Alternatively,
 
         dt s ? date and equals itemtype *
 
-    would return events with @s date/times that are 
+    would return events with @s date/times that are
     dates, i.e., all day events or occasions."""
 
         self.usage = f"""\
@@ -184,26 +184,26 @@ with the format:
 
     command field [args]
 
-where "field" is either 'itemtype', 'summary' or one of 
-the '@-keys' such as 'l' or 's', and "command" is one of 
-those listed below (see Simple Query Examples below for 
+where "field" is either 'itemtype', 'summary' or one of
+the '@-keys' such as 'l' or 's', and "command" is one of
+those listed below (see Simple Query Examples below for
 examples):
 
 {self.command_details}
 
-Enter the command at the 'query:' prompt and press 
-'enter' to submit the query and display the results. 
-Press 'q' to reopen the entry area to submit another 
-query. Use up and down cursor keys to choose from the 
-command history (see Command History below), submit '?' 
-or 'help' to show this display, submit 'l' to see a list 
-of stored queries (see Saved Queries below) or submit 
-'quit', 'exit' or nothing at all, '', to close the entry 
-area and return to the previous display. 
+Enter the command at the 'query:' prompt and press
+'enter' to submit the query and display the results.
+Press 'q' to reopen the entry area to submit another
+query. Use up and down cursor keys to choose from the
+command history (see Command History below), submit '?'
+or 'help' to show this display, submit 'l' to see a list
+of stored queries (see Saved Queries below) or submit
+'quit', 'exit' or nothing at all, '', to close the entry
+area and return to the previous display.
 
 Simple Query Examples
 =====================
-Find items where the summary includes a match for 
+Find items where the summary includes a match for
 "waldo":
 
     query: includes summary waldo
@@ -233,18 +233,18 @@ or '*', i.e., either a task or an event.
 
 Conversely, to enter a regex with a space and avoid its
 being interpreted as a list, replace the space with '\s'.
-E.g., 
+E.g.,
 
     query: matches i john\sdoe
 
-would return items with '@i' (index) entries such as 
-"John Doe/...". 
+would return items with '@i' (index) entries such as
+"John Doe/...".
 
 Note: in the world of regular expressions '\s' matches
 any white space character, including a space.
 
-Components can be joined the using "or" or "and". E.g., 
-find reminders where either the summary or the entry for 
+Components can be joined the using "or" or "and". E.g.,
+find reminders where either the summary or the entry for
 @d (description) includes "waldo":
 
     query: includes summary waldo or includes d waldo
@@ -262,45 +262,45 @@ two types of complex queries:
 * Composite queries begin with a "c" and create
     general reports but without usedtime aggregates.
 
-Both types of queries follow the report type, "u" or "c", 
-with a required group/sort specification consisting of a 
-semicolon separated list with at least one of the 
+Both types of queries follow the report type, "u" or "c",
+with a required group/sort specification consisting of a
+semicolon separated list with at least one of the
 following components:
 
 * index specification such as i, i[1:2] or i[1:]
 
-    E.g. for an item with index entry '@i A/B/C': 
+    E.g. for an item with index entry '@i A/B/C':
         i      = ['A','B','C']
         i[0]   = 'A'
         i[1]   = 'B'
         i[2]   = 'C'
-        i[3]   => error, list index out of range
         i[0:]  = ['A','B','C']
         i[:1]  = ['A']
         i[1:]  = ['B','C']
         i[1:2] = ['B']
-        i[:2]  = ['A','B'] 
+        i[:2]  = ['A','B']
         i[2:]  = ['C']
-        i[3:]  = i[3:4] = []
+        i[3:4] = []
+        i[3]   => error, list index out of range
 
-    Note: using slices such as i[1:2] rather than i[1] 
-    avoids 'list index out of range errors' for index 
-    entries missing the indicated position and is 
-    strongly recommended.  
+    Note: using slices such as i[1:2] rather than i[1]
+    avoids 'list index out of range errors' for index
+    entries missing the indicated position and is
+    strongly recommended.
 
-    When an index specification returns an empty list, 
-    '~' is used for the missing entry. Items without an 
-    '@i' entry are given a default entry of '~' and 
-    included by default. Include 'exists i' in '-q' 
+    When an index specification returns an empty list,
+    '~' is used for the missing entry. Items without an
+    '@i' entry are given a default entry of '~' and
+    included by default. Include 'exists i' in '-q'
     (discussed below) to overrule this default.
 
-* field specification: 
+* field specification:
     l: location
     c: calendar
 
     Note: items without the specified field are given a
-    default entry of '~' and included by default. Include 
-    'exists l' or 'exists c' in '-q' (discussed below) 
+    default entry of '~' and included by default. Include
+    'exists l' or 'exists c' in '-q' (discussed below)
     to overrule these defaults.
 
 * date specification:
@@ -320,29 +320,29 @@ following components:
 
     Note: when a date specification is given, the datetime
     used depends upon the report type.
-        u: the value of the datetime component of the @u 
-           entry. Items without @u entries are omitted. 
-        c: the value of @f when it exists and, otherwise, 
+        u: the value of the datetime component of the @u
+           entry. Items without @u entries are omitted.
+        c: the value of @f when it exists and, otherwise,
            the value of @s. Items lacking both @f and @s
-           entries are omitted. 
+           entries are omitted.
 
   E.g.
 
         query: u i[:1]; MMM YYYY; i[1:]; ddd D
 
-  would create a usedtime query grouped (and sorted) by 
-  the first component of the index entry, the month and 
-  year, the remaining components of the index entry and 
-  finally the month day. Note, for example, that "MMM 
-  YYYY", "YYYY MMM" and "YYYY MM" would all be sorted 
-  using "YYYY MM" (2020 01, 2020 02, ...) but would be 
-  displayed using the specified format (Jan 2020, Feb 
-  2020, ...). Similarly, "ddd D", "D ddd", and "DD" would 
-  all sort by "DD" (01, 02, ...) but would also be 
-  displayed using the specified format (Wed 1, Thu 
+  would create a usedtime query grouped (and sorted) by
+  the first component of the index entry, the month and
+  year, the remaining components of the index entry and
+  finally the month day. Note, for example, that "MMM
+  YYYY", "YYYY MMM" and "YYYY MM" would all be sorted
+  using "YYYY MM" (2020 01, 2020 02, ...) but would be
+  displayed using the specified format (Jan 2020, Feb
+  2020, ...). Similarly, "ddd D", "D ddd", and "DD" would
+  all sort by "DD" (01, 02, ...) but would also be
+  displayed using the specified format (Wed 1, Thu
   2,...).
 
-The group/sort specification can be followed, optionally, 
+The group/sort specification can be followed, optionally,
 by any of the following:
 
 -b begin date/datetime: omit items with earlier datetimes
@@ -350,16 +350,16 @@ by any of the following:
 -e end date/datetime: omit items with later datetimes
 
 -q query: exclude items not satisfying this simple query.
-    Anything that could be used in a simple query 
-    described above could be used here. E.g., "-q exists 
-    f" would limit the display items with an "@f" entry, 
-    i.e., finished tasks. Similarly "-q equals itemtype - 
+    Anything that could be used in a simple query
+    described above could be used here. E.g., "-q exists
+    f" would limit the display items with an "@f" entry,
+    i.e., finished tasks. Similarly "-q equals itemtype -
     and ~exists f" would limit the display to unfinished
     tasks.
 
 -a append: append the contents of this comma separated
-    list of @key characters to the formatted output. 
-    E.g., "-a d, l" would append the item description and 
+    list of @key characters to the formatted output.
+    E.g., "-a d, l" would append the item description and
     location to the display of each item.
 
 Command History
@@ -384,10 +384,10 @@ with shortcuts for their use. E.g. with the default entry
   queries:
     # unfinished tasks ordered by location
     td: c l -q equals itemtype - and ~exists f
-    # usedtimes by i[0:1], month and i[1:2] with d
-    ut: u i[0:1]; MMM YYYY; i[1:2] -a d
-    # composite by i[0:1], month and i[1:2] with u and d
-    ct: c i[0:1]; MMM YYYY; i[1:2] -a u, d
+    # usedtimes by i[:1], month and i[1:2] with d
+    ut: u i[:1]; MMM YYYY; i[1:2] -a d
+    # composite by i[:1], month and i[1:2] with u and d
+    ct: c i[:1]; MMM YYYY; i[1:2] -a u, d
     # items with an "@u" but missing the needed "@i"
     mi: exists u and ~exists i
 
@@ -398,11 +398,11 @@ entering
 and pressing 'enter' would result in the 'ut' being
 replaced by its corresponding value to give
 
-    query: u i[0:1]; MMM YYYY; i[1:2] -a d
+    query: u i[:1]; MMM YYYY; i[1:2] -a d
 
 This query can now be submitted as is or first edited to
-add, say, `-b` and `-e` options and then submitted. As 
-with other queries, the submitted form of the query is 
+add, say, `-b` and `-e` options and then submitted. As
+with other queries, the submitted form of the query is
 added to the command history.
 
 Enter
@@ -2201,6 +2201,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('-', disabled=True),
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
+        MenuItem('n) next incrementally in search'),
         MenuItem('l) go to line number', handler=do_go_to_line),
         MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
         MenuItem('-', disabled=True),
