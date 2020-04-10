@@ -274,14 +274,14 @@ following components:
         i[0]   = 'A'
         i[1]   = 'B'
         i[2]   = 'C'
+        i[3]   => error, list index out of range
         i[0:]  = ['A','B','C']
         i[:1]  = ['A']
         i[1:]  = ['B','C']
         i[1:2] = ['B']
         i[:2]  = ['A','B']
         i[2:]  = ['C']
-        i[3:4] = []
-        i[3]   => error, list index out of range
+        i[3:4] = i[3:] = []
 
     Note: using slices such as i[1:2] rather than i[1]
     avoids 'list index out of range errors' for index
