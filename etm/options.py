@@ -1,7 +1,7 @@
 import os
 import sys
 from ruamel.yaml import YAML
-yaml = YAML() 
+yaml = YAML()
 import logging
 import logging.config
 logger = logging.getLogger()
@@ -14,7 +14,7 @@ from prompt_toolkit.styles.named_colors import NAMED_COLORS
 def randomString(stringLength=10):
     """Generate a random string with the combination of lowercase and uppercase letters and digits """
 
-    letters = string.ascii_letters + 2*'0123456789' 
+    letters = string.ascii_letters + 2*'0123456789'
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
@@ -55,15 +55,19 @@ class Settings():
 #
 #########################################################
 
-# ampm: true or false. Use AM/PM format for datetimes if true 
-# else use 24 hour format. 
+# ampm: true or false. Use AM/PM format for datetimes if true
+# else use 24 hour format.
 ampm: true
 
-# locale: A two character locale abbreviation. E.g., "fr" for 
+# locale: A two character locale abbreviation. E.g., "fr" for
 # French.
 locale: en
 
-# style: dark or light. Designed for, respectively, dark or 
+# vi_mode: true or false. Use vi keybindings for editing if
+# true else use emacs style keybindings.
+vi_mode: false
+
+# style: dark or light. Designed for, respectively, dark or
 # light terminal backgounds. Some output may not be visible
 # unless this is set correctly for your display.
 style: dark
@@ -79,18 +83,18 @@ style: dark
 #     event:        event reminders
 #     waiting:      waiting job reminders (unfinished prereqs)
 #     finished:     finished task/job reminders
-#     available:    available task/job reminders 
-# The default entries are suitable for the style "dark" given 
-# above. 
+#     available:    available task/job reminders
+# The default entries are suitable for the style "dark" given
+# above.
 # To restore the default colors for whichever "style" you have
-# set above, remove the color name for each of the items you 
-# want to restore and restart etm. 
-# To preview the namedcolors, download "namedcolors.py" from 
+# set above, remove the color name for each of the items you
+# want to restore and restart etm.
+# To preview the namedcolors, download "namedcolors.py" from
 #    "https://github.com/dagraham/etm-dgraham",
 # open a terminal with your chosen background color and run
 #    python3 <path to namedcolors.py>
 # at the command prompt.
-# Note that the color names are case sensitive. 
+# Note that the color names are case sensitive.
 colors:
     plain:        'Ivory'
     today:        'Ivory bold'
@@ -104,12 +108,12 @@ colors:
     available:    'LightSkyBlue'
 """ + f"""\
 
-# secret: A string to use as the secret_key for @m masked 
-# entries. In etm versions after 4.0.21, the default string 
-# is randomly generated when this file is first created and 
-# should be unique for each etm installation. WARNING: if 
-# you change this key, any @m entries that you made before 
-# the change will be unreadable after the change. 
+# secret: A string to use as the secret_key for @m masked
+# entries. In etm versions after 4.0.21, the default string
+# is randomly generated when this file is first created and
+# should be unique for each etm installation. WARNING: if
+# you change this key, any @m entries that you made before
+# the change will be unreadable after the change.
 secret: {randomString(10)}
 """ + """\
 
@@ -120,92 +124,92 @@ secret: {randomString(10)}
 omit_extent:
     - omit
 
-# keep_current: true or false. If true, the agenda for the  
-# current and following two weeks will be written to "current.txt" 
-# in your etm home directory and updated when necessary. You 
-# could, for example, create a link to this file in a pCloud or 
-# DropBox folder and have access to your current schedule on 
+# keep_current: true or false. If true, the agenda for the
+# current and following two weeks will be written to "current.txt"
+# in your etm home directory and updated when necessary. You
+# could, for example, create a link to this file in a pCloud or
+# DropBox folder and have access to your current schedule on
 # your mobile device.
 keep_current: false
 
-# archive_after: A non-negative integer. If zero, do not 
-# archive items. If positive, finished tasks and events with 
-# last datetimes falling more than this number of years 
-# before the current date will automatically be archived on a 
-# daily basis.  Archived items are moved from the "items" 
-# folder in the database to the "archive" folder and no 
-# longer appear in normal views. Note that unfinished tasks 
+# archive_after: A non-negative integer. If zero, do not
+# archive items. If positive, finished tasks and events with
+# last datetimes falling more than this number of years
+# before the current date will automatically be archived on a
+# daily basis.  Archived items are moved from the "items"
+# folder in the database to the "archive" folder and no
+# longer appear in normal views. Note that unfinished tasks
 # and records are not archived.
 archive_after: 0
 
-# num_finished: A non-negative integer. If positive, when 
-# saving retain only the most recent 'num_finished' 
-# completions of an infinitely repeating task, i.e., repeating 
-# without an "&c" count or an "&u" until attribute. If zero or 
+# num_finished: A non-negative integer. If positive, when
+# saving retain only the most recent 'num_finished'
+# completions of an infinitely repeating task, i.e., repeating
+# without an "&c" count or an "&u" until attribute. If zero or
 # not infinitely repeating, save all completions.
 num_finished: 0
 
-# usedtime_minutes: Round used times up to the nearest 
-# usedtime_minutes in used time views. Possible choices are 1, 
-# 6, 12, 30 and 60. With 1, no rounding is done and times are 
-# reported as hours and minutes. Otherwise, the prescribed 
-# rounding is done and times are reported as floating point 
-# hours. Note that each "@u" timeperiod is rounded before 
+# usedtime_minutes: Round used times up to the nearest
+# usedtime_minutes in used time views. Possible choices are 1,
+# 6, 12, 30 and 60. With 1, no rounding is done and times are
+# reported as hours and minutes. Otherwise, the prescribed
+# rounding is done and times are reported as floating point
+# hours. Note that each "@u" timeperiod is rounded before
 # aggregation.
 usedtime_minutes: 1
 
-# alerts: A dictionary with single-character, "alert" keys and 
-# corresponding "system command" values. Note that characters 
-# "t" (text message) and "e" (email) are already used.  The 
-# "system command" string should be a comand with any 
+# alerts: A dictionary with single-character, "alert" keys and
+# corresponding "system command" values. Note that characters
+# "t" (text message) and "e" (email) are already used.  The
+# "system command" string should be a comand with any
 # applicable arguments that could be run in a terminal.
-# Properties of the item triggering the alert can be included 
-# in the command arguments using the syntax '{property}', e.g., 
-# {summary} in the command string would be replaced by the 
-# summary of the item. Similarly {start} by the starting time, 
-# {when} by the time remaining until the starting time, 
-# {location} by the @l entry and {description} by the @d entry. 
-# E.g., If the event "* sales meeting @s 2019-02-12 3p" 
-# triggered an alert 30 minutes before the starting time the 
-# string "{summary} {when}" would expand to "sales meeting in 
+# Properties of the item triggering the alert can be included
+# in the command arguments using the syntax '{property}', e.g.,
+# {summary} in the command string would be replaced by the
+# summary of the item. Similarly {start} by the starting time,
+# {when} by the time remaining until the starting time,
+# {location} by the @l entry and {description} by the @d entry.
+# E.g., If the event "* sales meeting @s 2019-02-12 3p"
+# triggered an alert 30 minutes before the starting time the
+# string "{summary} {when}" would expand to "sales meeting in
 # 30 minutes". E.g. on my macbook
-# 
+#
 #    alerts:
 #        v:   /usr/bin/say -v "Alex" "{summary}, {when}"
 #        ...
 #
-# would make the alert 'v' use the builtin text to speech sytem 
-# to speak the item's summary followed by a slight pause 
-# (the comma) and then the time remaining until the starting 
+# would make the alert 'v' use the builtin text to speech sytem
+# to speak the item's summary followed by a slight pause
+# (the comma) and then the time remaining until the starting
 # time, e.g., "sales meeting, in 20 minutes" would be triggered
 # by including "@a 20m: v" in the reminder.
 alerts:
 
-# expansions: A dictionary with 'expansion name' keys and 
+# expansions: A dictionary with 'expansion name' keys and
 # corresponding 'replacement string' values. E.g. with
 #
 #    expansions:
-#        tennis: "@e 1h30m @a 30m: d @i personal:exercise" 
+#        tennis: "@e 1h30m @a 30m: d @i personal:exercise"
 #        ...
 #
-# then when "@x tennis" is entered the popup completions for 
-# "@x tennis" would offer replacement by the corresponding 
+# then when "@x tennis" is entered the popup completions for
+# "@x tennis" would offer replacement by the corresponding
 # "@e 1h30m @a 30m: d @i personal:exercise".
 expansions:
 
-# sms: Settings to send "t" (sms text message) alerts to the 
-# list of phone numbers from the item's @n attendee 
-# entries using the item's summary and the body as specified 
-# in the template below as the message. E.g., suppose you 
-# have a gmail account with email address "who457@gmail.com" 
-# and want to text alerts to Verizon moble phone (123) 
+# sms: Settings to send "t" (sms text message) alerts to the
+# list of phone numbers from the item's @n attendee
+# entries using the item's summary and the body as specified
+# in the template below as the message. E.g., suppose you
+# have a gmail account with email address "who457@gmail.com"
+# and want to text alerts to Verizon moble phone (123)
 # 456-7890. Then your sms entries should be
 #     from:   who457@gmail.com
 #     pw:     your gmail password
 #     server: smtp.gmail.com:587
 # and your item should include the following attendee entry
 #     @n 1234567890@vzwpix.com
-# In the illustrative phone number, @vzwpix.com is the mms 
+# In the illustrative phone number, @vzwpix.com is the mms
 # gateway for Verizon. Other common mms gateways are
 #     AT&T:     @mms.att.net
 #     Sprint:   @pm.sprint.com
@@ -213,15 +217,15 @@ expansions:
 # Note. Google "mms gateway listing" for other alternatives.
 sms:
     body:   "{location} {when}"
-    from: 
-    pw: 
-    server: 
+    from:
+    pw:
+    server:
 
-# smtp: Settings to send "e" (email message) alerts to the 
+# smtp: Settings to send "e" (email message) alerts to the
 # list of email addresses from the item's @n attendee
-# entries using the item's summary as the subject and body as 
-# the message. E.g., if you have a gmail account with email 
-# address "whatever457@gmail.com", then your entries should 
+# entries using the item's summary as the subject and body as
+# the message. E.g., if you have a gmail account with email
+# address "whatever457@gmail.com", then your entries should
 # be
 #     from: whatever457@gmail.com
 #     id: whatever457
@@ -229,14 +233,14 @@ sms:
 #     server: smtp.gmail.com
 smtp:
     body: "{location} {when}\\n{description}"
-    from: 
-    id: 
-    pw: 
-    server: 
+    from:
+    id:
+    pw:
+    server:
 
-# queries: A dictionary with short query "keys" and 
-# corresponding "query" values. Each "query" must be one 
-# that could be entered as the command in query view. Keys 
+# queries: A dictionary with short query "keys" and
+# corresponding "query" values. Each "query" must be one
+# that could be entered as the command in query view. Keys
 # can be any short string other than 'u', 'c' or 'l'
 # which are already in use.
 queries:
@@ -285,6 +289,8 @@ queries:
         new = deepcopy(self.user)
         logger.info(f"new: {type(new)}; {new}")
         active_style = new.get('style', self.settings['style'])
+        if active_style not in ['dark', 'light']:
+            active_style = self.settings['style']
         # logger.debug(f"active_style: {active_style}")
         default_colors = self.colors[active_style]
         self.settings['colors'] = default_colors
@@ -298,13 +304,14 @@ queries:
                 else:
                     for k, v in self.settings[key].items():
                         if k not in new[key]:
-                            new[key][k] = self.settings[key][k] 
+                            new[key][k] = self.settings[key][k]
                             changed.append(f"retaining default {key}.{k}: {self.settings[key][k]}")
             elif key not in new:
                 new[key] = self.settings[key]
                 changed.append(f"retaining default {key}: {self.settings[key]}")
-        # remove invalid user keys
-        for key in new:
+        # remove invalid user keys/values
+        tmp = deepcopy(new) # avoid modifying ordered_dict during iteration
+        for key in tmp:
             if key not in self.settings:
                 # not a valid option
                 del new[key]
@@ -316,7 +323,6 @@ queries:
                     if k not in self.settings[key]:
                         changed.append(f"removed {key}.{k}: {new[key][k]}")
                         del new[key][k]
-
         if new['colors']:
             for k in new['colors']:
                 if k not in default_colors:
@@ -337,6 +343,13 @@ queries:
         if new['usedtime_minutes'] not in [1, 6, 12, 30, 60]:
             changed.append(f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 1.")
             new['usedtime_minutes'] = 1
+        if  new['style'] not in ['dark', 'light']:
+            new['style'] = self.settings['style']
+            changed.append(f"retaining default for 'style': {self.settings['style']}")
+        if  not isinstance(new['vi_mode'], bool):
+            new['vi_mode'] = self.settings['vi_mode']
+            changed.append(f"retaining default for 'vi_mode': {self.settings['vi_mode']}")
+
 
         for key in self.settings:
             self.settings[key] = new.get(key, None)

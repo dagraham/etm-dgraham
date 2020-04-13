@@ -886,7 +886,7 @@ Options in the *selected* menu are only relevant when a reminder has been select
 Several options here deserve comment.
 
 * *delete* will prompt for comfirmation and, if the selected item is repeating, for whether to delete only the selected instance or the item itself, i.e., all instances.
-* *finish* applies only to unfinished task and will prompt for a datetime to use in creating an `@f` entry for the task.
+* *finish* applies only to unfinished tasks and will prompt for a datetime to use in creating an `@f` entry for the task with the current datetime as the default. Press 
 * *reschedule* will prompt for a datetime. If the reminder is repeating, the provided datetime will replace the datetime of the selected instance. Otherwise it will be used either to replace the current value of `@s` or, if there is no `@s` entry, to create one.
 * *schedule new* will prompt for a datetime and add that instance to any other instances of the reminder.
 * *open goto* will use the system default application to open the file path or url specified in the selected reminders `@g` entry.
@@ -1272,6 +1272,10 @@ Here are the options with their default values from that file. The lines beginni
         # locale: A two character locale abbreviation. E.g., "fr" for
         # French.
         locale: en
+
+        # vi_mode: true or false. Use vi keybindings for editing if
+        # true else use emacs style keybindings.
+        vi_mode: false
 
         # style: dark or light. Designed for, respectively, dark or
         # light terminal backgounds. Some output may not be visible

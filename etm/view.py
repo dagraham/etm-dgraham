@@ -16,6 +16,7 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
+from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from prompt_toolkit.filters import Condition
@@ -1847,6 +1848,8 @@ def do_maybe_record_timer(*event):
 def do_finish(*event):
 
     ok, show, item_id, job_id, due = dataview.maybe_finish(text_area.document.cursor_position_row)
+    ampm = settings['ampm']
+    fmt = "ddd M/D h:mmA" if ampm else "ddd M/D H:mm"
 
     if not ok:
         return
@@ -1855,7 +1858,8 @@ def do_finish(*event):
 
         dialog = TextInputDialog(
             title='finish task/job',
-            label_text=f"selected: {show}\ndatetime completed:")
+            label_text=f"selected: {show}\ndatetime completed:",
+            default=pendulum.now().format(fmt))
 
         done_str = yield from show_dialog_as_float(dialog)
         if done_str:
@@ -2268,6 +2272,8 @@ async def main(etmdir=""):
     else:
         style = light_style
         etmstyle = light_etmstyle
+    vi_mode = settings['vi_mode']
+    edit_mode = EditingMode['VI'] if vi_mode else EditingMode['EMACS']
     agenda_view()
 
     application = Application(
@@ -2275,6 +2281,7 @@ async def main(etmdir=""):
             root_container,
             focused_element=text_area,
         ),
+        editing_mode=edit_mode,
         key_bindings=bindings,
         enable_page_navigation_bindings=True,
         mouse_support=True,
