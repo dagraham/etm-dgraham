@@ -875,7 +875,7 @@ The entries here are pretty obvious and the views themselves are descibed elsewh
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-editor.png" alt="editor" title="menu-editor" width="36%" height="36%"/>
 
-It is worth noting here that when you are editing an item, `^s` (control and s) saves any changes you have made and closes the editor. `escape`, on the other hand, closes the editor without saving any changes but, if there are changes, asks for confirmation that this is what you want.
+It is worth noting here that when you are editing an item, `^s` (control and s) saves any changes you have made and closes the editor. `^z` (control and z), on the other hand, closes the editor without saving any changes but, if there are changes, asks for confirmation that this is what you want.
 
 ### [selected](#overview)
 

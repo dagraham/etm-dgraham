@@ -2120,8 +2120,7 @@ def show_details(*event):
             application.layout.focus(details_area)
 
 
-# @bindings.add('c-c', filter=is_editing, eager=True)
-@bindings.add('escape', filter=is_editing, eager=True)
+@bindings.add('c-z', filter=is_editing, eager=True)
 def close_edit(*event):
     if item.is_modified:
         logger.debug(f"item modified - saving")
@@ -2219,7 +2218,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('-', disabled=True),
         MenuItem('^s) save changes & close', handler=save_changes),
         MenuItem('^r) show repetitions', handler=is_editing_reps),
-        MenuItem('escape) close editor', handler=close_edit),
+        MenuItem('^z) close editor', handler=close_edit),
     ]),
     MenuItem('selected', children=[
         MenuItem('Enter) toggle showing details', handler=show_details),
