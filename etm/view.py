@@ -933,16 +933,12 @@ def save_before_quit(*event):
 
         discard = yield from show_dialog_as_float(dialog)
         if discard:
-            # we want to discard changes
-            # if item.doc_id in dataview.itemcache:
-            #     del dataview.itemcache[item.doc_id]
+            app = get_app()
+            app.editing_mode = EditingMode.EMACS
             dataview.is_editing = False
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
-            # the following is probably not needed
-            # item.update_item_hsh()
         else:
-            # continue editing
             return
 
     asyncio.ensure_future(coroutine())
@@ -1417,45 +1413,47 @@ async def event_handler():
         logger.info(f"Background task cancelled.")
 
 
-def edit_mode():
+def get_edit_mode():
     app = get_app()
-    if get_app().layout.has_focus(entry_buffer) and app.editing_mode == EditingMode.VI:
-        insert_mode = app.vi_state.input_mode in (InputMode.INSERT, InputMode.INSERT_MULTIPLE)
-        replace_mode = app.vi_state.input_mode == InputMode.REPLACE
-        sel = entry_buffer.selection_state
-        temp_navigation = app.vi_state.temporary_navigation_mode
-        visual_line = sel is not None and sel.type == SelectionType.LINES
-        visual_block = sel is not None and sel.type == SelectionType.BLOCK
-        visual_char = sel is not None and sel.type == SelectionType.CHARACTERS
-        if insert_mode:
-            return 'vi: insert'
-            # if temp_navigation:
-            #     return ' -- (insert) --'
-            # elif editor.paste_mode:
-            #     return ' -- INSERT (paste)--'
-            # else:
-            #     return ' -- INSERT --'
-        elif replace_mode:
-            return 'vi: replace'
-            # if temp_navigation:
-            #     return ' -- (replace) --'
-            # else:
-            #     return ' -- REPLACE --'
-        elif visual_block:
-            return 'vi: v-block'
-        elif visual_line:
-            return 'vi: v-line'
-        elif visual_char:
-            return 'vi: visual'
+    if get_app().layout.has_focus(entry_buffer):
+        if app.editing_mode == EditingMode.VI:
+            insert_mode = app.vi_state.input_mode in (InputMode.INSERT, InputMode.INSERT_MULTIPLE)
+            replace_mode = app.vi_state.input_mode == InputMode.REPLACE
+            sel = entry_buffer.selection_state
+            temp_navigation = app.vi_state.temporary_navigation_mode
+            visual_line = sel is not None and sel.type == SelectionType.LINES
+            visual_block = sel is not None and sel.type == SelectionType.BLOCK
+            visual_char = sel is not None and sel.type == SelectionType.CHARACTERS
+            mode = 'vi:'
+            if insert_mode:
+                mode += ' insert'
+            elif replace_mode:
+                mode += ' replace'
+            elif visual_block:
+                mode += ' vblock'
+            elif visual_line:
+                mode += ' vline'
+            elif visual_char:
+                mode += 'vchar'
+            else:
+                mode += ' norm'
         else:
-            return 'vi: normal'
+            mode = 'emacs'
+
+        return ''.join([
+            mode,
+            ' ',
+            ('+' if entry_buffer_changed() else ''),
+            (' '),
+        ])
+
     return '        '
 
 def get_statusbar_text():
     return [ ('class:status',  f' {current_datetime}'), ]
 
 def get_statusbar_center_text():
-    return [ ('class:status',  f' {edit_mode()}'), ]
+    return [ ('class:status',  f' {get_edit_mode()}'), ]
 
 
 def get_statusbar_right_text():
@@ -1540,17 +1538,20 @@ def process_input(buf):
 edit_bindings = KeyBindings()
 ask_buffer = Buffer()
 entry_buffer = Buffer(multiline=True, completer=at_completer, complete_while_typing=True, accept_handler=process_input)
+query_buffer = Buffer(multiline=False, completer=None, complete_while_typing=False, accept_handler=process_input)
 
 reply_buffer = Buffer(multiline=True)
 
-reply_dimension = Dimension(min=2, weight=2)
-entry_dimension = Dimension(min=3, weight=2)
+reply_dimension = 2
+entry_dimension = 8
+# reply_dimension = Dimension(min=2, weight=2)
+# entry_dimension = Dimension(min=3, weight=2)
 
 entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
 ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
 reply_window = Window(BufferControl(buffer=reply_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:reply')
 
-query_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
+query_window = Window(BufferControl(buffer=query_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
 
 edit_area = HSplit([
     ask_window,
@@ -1804,10 +1805,15 @@ def do_maybe_delete(*event):
 
         asyncio.ensure_future(coroutine())
 
+starting_buffer_text = ""
 
 @bindings.add('N', filter=is_viewing)
 def edit_new(*event):
     global item
+    global starting_buffer_text
+    app = get_app()
+    app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+    starting_buffer_text = ""
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
@@ -1822,6 +1828,9 @@ def edit_new(*event):
 @bindings.add('E', filter=is_viewing_or_details & is_item_view)
 def edit_existing(*event):
     global item
+    global starting_buffer_text
+    app = get_app()
+    app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
@@ -1829,9 +1838,13 @@ def edit_existing(*event):
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
     item.edit_item(doc_id, entry)
     entry_buffer.text = item.entry
+    starting_buffer_text = item.entry
     default_buffer_changed(event)
     default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
+
+def entry_buffer_changed():
+    return entry_buffer.text != starting_buffer_text
 
 
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
@@ -1923,6 +1936,9 @@ def do_finish(*event):
 @bindings.add('C', filter=is_viewing_or_details & is_item_view)
 def edit_copy(*event):
     global item
+    global starting_buffer_text
+    app = get_app()
+    app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
@@ -1930,6 +1946,7 @@ def edit_copy(*event):
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
     item.edit_copy(doc_id, entry)
     entry_buffer.text = item.entry
+    starting_buffer_text = ""
     default_buffer_changed(event)
     default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
@@ -2050,9 +2067,9 @@ def busy_view(*event):
 
 @bindings.add('q', filter=is_viewing)
 def query_view(*event):
-    set_text("")
     dataview.set_active_view('q')
     dataview.show_query()
+    set_text(dataview.show_active_view())
     application.layout.focus(query_area)
 
 @bindings.add('u', filter=is_viewing)
@@ -2165,25 +2182,29 @@ def show_details(*event):
 
 @bindings.add('c-z', filter=is_editing, eager=True)
 def close_edit(*event):
-    if item.is_modified:
+    if entry_buffer_changed():
         logger.debug(f"item modified - saving")
         save_before_quit()
     else:
         # item.is_modified = False
         logger.debug(f"item not modified - closing")
+        app = get_app()
+        app.editing_mode = EditingMode.EMACS
         dataview.is_editing = False
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
 
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):
-    if item.is_modified:
+    if entry_buffer_changed():
         maybe_save(item)
     else:
         # no changes to save - close editor
         dataview.is_editing = False
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
+        app = get_app()
+        app.editing_mode = EditingMode.EMACS
 
 
 def maybe_save(item):
@@ -2207,6 +2228,8 @@ def maybe_save(item):
     # hsh ok, save changes and close editor
     if item.doc_id in dataview.itemcache:
         del dataview.itemcache[item.doc_id]
+    app = get_app()
+    app.editing_mode = EditingMode.EMACS
     dataview.is_editing = False
     application.layout.focus(text_area)
     set_text(dataview.show_active_view())
@@ -2314,8 +2337,6 @@ async def main(etmdir=""):
     else:
         style = light_style
         etmstyle = light_etmstyle
-    vi_mode = settings['vi_mode']
-    edit_mode = EditingMode['VI'] if vi_mode else EditingMode['EMACS']
     agenda_view()
 
     application = Application(
@@ -2323,7 +2344,7 @@ async def main(etmdir=""):
             root_container,
             focused_element=text_area,
         ),
-        editing_mode=edit_mode,
+        # set editing_mode in the entry buffer, use default elsewhere
         key_bindings=bindings,
         enable_page_navigation_bindings=True,
         mouse_support=True,

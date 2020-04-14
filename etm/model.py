@@ -10,7 +10,7 @@ import calendar
 from copy import deepcopy
 import math
 from ruamel.yaml import YAML
-yaml = YAML(typ='safe', pure=True) 
+yaml = YAML(typ='safe', pure=True)
 
 from ruamel.yaml import __version__ as ruamel_version
 
@@ -134,7 +134,7 @@ allowed['-'] = common_methods + datetime_methods + task_methods + repeating_meth
 
 # record
 required['%'] = []
-allowed['%'] = common_methods 
+allowed['%'] = common_methods
 
 # inbox
 required['!'] = []
@@ -154,7 +154,7 @@ requires = {
         }
 
 busy_template = """{week}
-         {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[7]} {DD[7]} 
+         {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[7]} {DD[7]}
          _____  _____  _____  _____  _____  _____  _____
 {l[0]}   {h[0][1]}  {h[0][2]}  {h[0][3]}  {h[0][4]}  {h[0][5]}  {h[0][6]}  {h[0][7]}
 {l[1]}   {h[1][1]}  {h[1][2]}  {h[1][3]}  {h[1][4]}  {h[1][5]}  {h[1][6]}  {h[1][7]}
@@ -186,7 +186,7 @@ busy_template = """{week}
 
 def busy_conf_minutes(lofp):
     """
-    lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi < ei. By sort, bi <= bi+1. 
+    lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi < ei. By sort, bi <= bi+1.
     Return list of busy intervals, list of conflict intervals, busy minutes.
     [(540, 600), (600, 720)]
     >>> busy_conf_minutes([(540, 600)])
@@ -259,7 +259,7 @@ def busy_conf_day(lofp):
         for i in range(h_b, h_e):
             if i not in conf_hours and i not in busy_hours:
                 busy_hours.append(i)
-    h = {} 
+    h = {}
     for i in range(24):
         if i in busy_hours:
             h[i] = '#'.center(5, ' ')
@@ -272,8 +272,8 @@ def busy_conf_day(lofp):
 
 def process_entry(s, settings={}):
     """
-    Return tuples containing key, value and postion tuples for the string s. 
-    0         1         2         3         4         5         6 
+    Return tuples containing key, value and postion tuples for the string s.
+    0         1         2         3         4         5         6
     0123456789012345678901234567890123456789012345678901234567890123456789
     * evnt @s 2p fri @e 90m @r m &w 2fr &u 6/1 9a @c dag @l home
     >>> s = "* evnt @s 2p fri @e 90m @r m &w 2fr & @c dag"
@@ -433,10 +433,10 @@ class Item(object):
         self.created = None
         self.modified = None
         self.set_dbfile(dbfile)
-        self.object_hsh = {}    # key, val -> object version of raw string for tinydb 
+        self.object_hsh = {}    # key, val -> object version of raw string for tinydb
         self.askreply= {}       # key, val -> display version raw string
         self.pos_hsh = {}       # (beg, end) -> (key, val)
-        self.keyvals = [] 
+        self.keyvals = []
 
         self.messages = []
         self.active = ()
@@ -473,11 +473,11 @@ class Item(object):
 
                 'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute. Append an '&' to add a repetition option.", do_frequency],
                 'ri': ["interval", "positive integer", do_interval],
-                'rm': ["monthdays", "list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", do_monthdays], 
+                'rm': ["monthdays", "list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", do_monthdays],
                 'rE': ["easterdays", "number of days before (-), on (0) or after (+) Easter", do_easterdays],
                 'rh': ["hours", "list of integers in 0 ... 23", do_hours],
-                'rM': ["months", "list of integers in 1 ... 12", do_months], 
-                'rn': ["minutes", "list of integers in 0 ... 59", do_minutes], 
+                'rM': ["months", "list of integers in 1 ... 12", do_months],
+                'rn': ["minutes", "list of integers in 0 ... 59", do_minutes],
                 'rw': ["weekdays", "list from SU, MO, ..., SA, possibly prepended with a positive or negative integer", do_weekdays],
                 'rW': ["week numbers", "list of integers in 1, ... 53", do_weeknumbers],
                 'rc': ["count", "integer number of repetitions", do_count],
@@ -510,15 +510,15 @@ class Item(object):
             self.db = ETMDB
             self.dbarch = DBARCH
             self.dbitem = DBITEM
-            self.dbquery = DBITEM 
+            self.dbquery = DBITEM
 
-        else: 
+        else:
             if not os.path.exists(dbfile):
                 logger.error(f"{dbfile} does not exist")
                 return
             self.db = data.initialize_tinydb(dbfile)
             self.dbarch = self.db.table('archive', cache_size=None)
-            self.dbquery = self.db.table('items', cache_size=None) 
+            self.dbquery = self.db.table('items', cache_size=None)
 
 
     def check_goto_link(self, num=5):
@@ -543,7 +543,7 @@ class Item(object):
         showing =  "Repetitions"
         if not ('s' in item and ('r' in item or '+' in item)):
             return showing, "not a repeating item"
-        relevant = date_to_datetime(item['s']) 
+        relevant = date_to_datetime(item['s'])
 
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
         starting = format_datetime(relevant.date())[1]
@@ -786,7 +786,7 @@ class Item(object):
                 if ok:
                     sh = self.item_hsh['h']
                     sh.sort()
-                    self.item_hsh['h'] = sh[-num_finished:] 
+                    self.item_hsh['h'] = sh[-num_finished:]
 
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
@@ -795,7 +795,7 @@ class Item(object):
 
     def record_timer(self, item_id, job_id=None, completed_datetime=None, elapsed_time=None):
         if not (item_id and completed_datetime and elapsed_time):
-            return 
+            return
         save_item = False
         self.item_hsh = self.db.get(doc_id=item_id)
         self.doc_id = item_id
@@ -811,7 +811,7 @@ class Item(object):
                     j += 1
                     continue
         else:
-            self.item_hsh.setdefault('u', []).append([elapsed_time, completed_datetime]) 
+            self.item_hsh.setdefault('u', []).append([elapsed_time, completed_datetime])
             save_item = True
         if save_item:
             self.item_hsh['created'] = self.created
@@ -874,7 +874,7 @@ class Item(object):
                     obj = None
                     reply = msg
                 else:
-                    # call the appropriate do for the key 
+                    # call the appropriate do for the key
                     obj, rep = do(val)
                     reply = rep if rep else r
                     if obj:
@@ -920,7 +920,7 @@ class Item(object):
                     cur_hsh = {}
                 self.item_hsh[k] = obj
         if cur_key:
-            # record the last if necessary 
+            # record the last if necessary
             self.item_hsh.setdefault(cur_key, []).append(cur_hsh)
             cur_key = None
             cur_hsh = {}
@@ -1018,11 +1018,11 @@ class Item(object):
         if itemtype:
             # only @-keys; allow a, u, rr and jj more than once
             already_entered = [k for (k, v) in self.keyvals if len(k) == 1 and k not in ['a', 'u']]
-            require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in required[itemtype] and k != '?' and k not in already_entered)] 
+            require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in required[itemtype] and k != '?' and k not in already_entered)]
             # allow rr to be entered as r and jj as j
             avail = [x for x in allowed[itemtype] if len(x) == 1 or x in ['rr', 'jj'] ]
             logger.debug(f"avail: {avail}")
-            allow = [f"@{k[0]}_({v[0]})" for k, v in self.keys.items() if (k in avail and k not in already_entered)] 
+            allow = [f"@{k[0]}_({v[0]})" for k, v in self.keys.items() if (k in avail and k not in already_entered)]
             allow.sort()
             logger.debug(f"allow: {allow}")
             prompt = ""
@@ -1047,7 +1047,7 @@ class Item(object):
             &n (minutes), &w (weekdays), &W (week numbers),
             &c (count), &u (until), &s (set positions)
         """
-        keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('r') and k[1] not in 'r?'] 
+        keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('r') and k[1] not in 'r?']
         logger.debug(f"ampr keys: {keys}")
         rep = wrap("repetition &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
 
@@ -1066,7 +1066,7 @@ class Item(object):
             &l (location), &m (mask), &p (prerequisite ids),
             &s (start), &u (used time)
         """
-        keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('j') and k[1] not in 'j?'] 
+        keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('j') and k[1] not in 'j?']
         logger.debug(f"ampj keys: {keys}")
         rep = wrap("job &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
         logger.debug(f"jobs: {rep}")
@@ -1091,11 +1091,11 @@ class Item(object):
         elif arg in type_keys:
             obj = arg
             rep = f"{arg} ({type_keys[arg]})"
-            self.item_hsh['itemtype'] = obj 
+            self.item_hsh['itemtype'] = obj
         else:
             obj = None
             rep = f"'{arg}' is invalid. Choose a {r}"
-            self.item_hsh['itemtype'] = '' 
+            self.item_hsh['itemtype'] = ''
         return obj, rep
 
     def do_summary(self, arg):
@@ -1113,7 +1113,7 @@ class Item(object):
     # FIXME: Will this work without considering @z?
     def do_until(self, arg):
         """
-        Return a datetime object. This will be an aware datetime in the local timezone. 
+        Return a datetime object. This will be an aware datetime in the local timezone.
         >>> until('2019-01-03 10am')
         (True, DateTime(2019, 1, 3, 10, 0, 0, tzinfo=Timezone('America/New_York')))
         >>> until('whenever')
@@ -1125,7 +1125,7 @@ class Item(object):
         if ok:
             if isinstance(res, pendulum.Date) and not isinstance(res, pendulum.DateTime):
                 return obj, "a datetime is required"
-            obj = res 
+            obj = res
             rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
         else:
             rep = "Include repetitions falling on or before this datetime"
@@ -1146,7 +1146,7 @@ class Item(object):
         tz = self.item_hsh.get('z', None)
         ok, res, z = parse_datetime(arg, tz)
         if ok:
-            obj = res 
+            obj = res
             rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
         else:
             rep = res
@@ -1179,8 +1179,8 @@ class Item(object):
             else:
                 all_ok = False
                 bad.append(arg)
-        obj = obj if all_ok else None 
-        rep = f"local datetimes: {', '.join(rep)}" if (tz is not None and tz != 'float') else f"datetimes: {', '.join(rep)}" 
+        obj = obj if all_ok else None
+        rep = f"local datetimes: {', '.join(rep)}" if (tz is not None and tz != 'float') else f"datetimes: {', '.join(rep)}"
         if bad:
             rep += f"\nincomplete or invalid datetimes:  {', '.join(bad)}"
         return obj, rep
@@ -1206,7 +1206,7 @@ class Item(object):
             if 'z' in self.item_hsh:
                 del self.item_hsh['z']
         elif arg in ['local', 'float']:
-            self.item_hsh['z'] = arg 
+            self.item_hsh['z'] = arg
             obj = rep = arg
         elif not arg.strip():
             obj = None
@@ -1215,7 +1215,7 @@ class Item(object):
             try:
                 Timezone(arg)
                 obj = rep = arg
-                self.item_hsh['z'] = obj 
+                self.item_hsh['z'] = obj
                 rep = f"timezone: {obj}"
             except:
                 obj = None
@@ -1228,7 +1228,7 @@ class Item(object):
 def listdiff(old_lst, new_lst):
     """
     >>> old_lst = [('s', '2p fri'), ('z', 'US/Eastern')]
-    >>> new_lst = [('s', '3p fri'), ('e', '90m'), ('z', 'US/Eastern')] 
+    >>> new_lst = [('s', '3p fri'), ('e', '90m'), ('z', 'US/Eastern')]
     >>> listdiff(old_lst, new_lst)
     ([('s', '2p fri')], [('s', '3p fri'), ('e', '90m')])
     """
@@ -1519,7 +1519,7 @@ def format_hours_and_tenths(obj):
             minutes += obj.hours * 60
         if obj.minutes:
             minutes += obj.minutes
-        if minutes: 
+        if minutes:
             return f"{math.ceil(minutes/usedtime_minutes)/(60/usedtime_minutes)}h"
         else:
             return "0m"
@@ -1542,7 +1542,7 @@ def format_duration(obj, short=False):
     try:
         until =[]
         if obj.weeks:
-            if short: 
+            if short:
                 hours += obj.weeks * 7 * 24
             else:
                 until.append(f"{obj.weeks}w")
@@ -1662,7 +1662,7 @@ class TimeIt(object):
 
 class RDict(dict):
     """
-    Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row. 
+    Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row.
     """
 
     # tab = " " * 2
@@ -1712,7 +1712,7 @@ class RDict(dict):
         for k in t.keys():
             indent = RDict.tab * depth * " "
             self.output.append("%s%s" % (indent,  k))
-            self.row += 1 
+            self.row += 1
             depth += 1
             if level and depth > level:
                 depth -= 1
@@ -1725,7 +1725,7 @@ class RDict(dict):
                     indent = RDict.tab * depth * " "
                     self.output.append("%s%s" % (indent, leaf[0]))
                     self.row2id[self.row] = leaf[1]
-                    self.row += 1 
+                    self.row += 1
                     if len(leaf) > 2:
                         lines = self.leaf_detail(leaf[2], depth)
                         for line in lines:
@@ -1738,7 +1738,7 @@ class RDict(dict):
 class DataView(object):
 
     def __init__(self, etmdir):
-        self.active_view = 'agenda'  
+        self.active_view = 'agenda'
         self.prior_view = 'agenda'
         self.current = []
         self.alerts = []
@@ -1862,7 +1862,7 @@ class DataView(object):
         filelist = os.listdir(self.backupdir)
         # deal with db.json
         dbmtime = os.path.getctime(self.dbfile)
-        zipfiles = [x for x in filelist if x.endswith('db.zip')] 
+        zipfiles = [x for x in filelist if x.endswith('db.zip')]
         zipfiles.sort(reverse=True)
         if zipfiles:
             lastdbtime = os.path.getctime(os.path.join(self.backupdir, zipfiles[0]))
@@ -1885,7 +1885,7 @@ class DataView(object):
 
         # deal with cfg.yaml
         cfgmtime = os.path.getctime(self.cfgfile)
-        cfgfiles = [x for x in filelist if x.endswith('cfg.yaml')] 
+        cfgfiles = [x for x in filelist if x.endswith('cfg.yaml')]
         cfgfiles.sort(reverse=True)
         if cfgfiles:
             lastcfgtime = os.path.getctime(os.path.join(self.backupdir, cfgfiles[0]))
@@ -1898,7 +1898,7 @@ class DataView(object):
             logger.info(f"backed up {self.cfgfile} to {backupfile}")
             cfgfiles.insert(0, f"{timestamp}-cfg.yaml")
             cfgfiles.sort(reverse=True)
-            removefiles.extend([os.path.join(self.backupdir, x) for x in 
+            removefiles.extend([os.path.join(self.backupdir, x) for x in
                 cfgfiles[5:]])
         else:
             logger.info(f"{self.cfgfile} unchanged - skipping backup")
@@ -1952,7 +1952,7 @@ class DataView(object):
 
 
     def set_now(self):
-        self.now = pendulum.now('local')  
+        self.now = pendulum.now('local')
 
 
     def set_active_view(self, c):
@@ -1967,7 +1967,7 @@ class DataView(object):
             return self.agenda_view
         if self.active_view == 'completed':
             self.refreshAgenda()
-            self.row2id = self.done2id 
+            self.row2id = self.done2id
             return self.done_view
         elif self.active_view == 'busy':
             self.refreshAgenda()
@@ -2018,13 +2018,18 @@ class DataView(object):
             self.used_summary_view = used_summary
             return self.used_summary_view
         elif self.active_view == 'query':
-            if self.query_text.startswith('u') or self.query_text.startswith('c'):
-                # report
-                self.query_view, self.row2id = show_query_results(self.query_text, self.query_grpby, self.query_items) 
+            if self.query_text:
+                if self.query_text.startswith('u') or self.query_text.startswith('c'):
+                    # report
+                    self.query_view, self.row2id = show_query_results(self.query_text, self.query_grpby, self.query_items)
+                else:
+                    # standard query
+                    self.query_view, self.row2id = show_query_items(self.query_text, self.query_items)
+                return self.query_view
             else:
-                # standard query
-                self.query_view, self.row2id = show_query_items(self.query_text, self.query_items)
-            return self.query_view
+                self.query_view = ""
+                self.row2id = {}
+                return self.query_view
 
     def set_query(self, text, grpby, items):
         self.query_text = text
@@ -2032,12 +2037,12 @@ class DataView(object):
         self.query_grpby = grpby
 
     def nextYrWk(self):
-        self.activeYrWk = nextWeek(self.activeYrWk) 
+        self.activeYrWk = nextWeek(self.activeYrWk)
         self.refreshAgenda()
 
 
     def prevYrWk(self):
-        self.activeYrWk = prevWeek(self.activeYrWk) 
+        self.activeYrWk = prevWeek(self.activeYrWk)
         self.refreshAgenda()
 
 
@@ -2113,11 +2118,11 @@ class DataView(object):
         self.is_showing_query = False
 
     def show_details(self):
-        self.is_showing_details = True 
+        self.is_showing_details = True
 
 
     def hide_details(self):
-        self.is_showing_details = False 
+        self.is_showing_details = False
 
 
     def get_row_details(self, row=None):
@@ -2185,7 +2190,7 @@ class DataView(object):
         showing =  "Repetitions"
         details = f"{item['itemtype']} {item['summary']}"
         if not relevant:
-            return "Repetitons", details + "none" 
+            return "Repetitons", details + "none"
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
@@ -2209,7 +2214,7 @@ class DataView(object):
         Jobs? Which job?
         Reps? Which instance?
 
-        """ 
+        """
         res = self.get_row_details(row)
         if not res:
             return None, ''
@@ -2226,14 +2231,14 @@ class DataView(object):
         due = self.id2relevant.get(item_id)
         due_str = f"due: {format_datetime(due, short=True)[1]}" if due else ""
 
-        if job_id: 
+        if job_id:
             for job in item.get('j', []):
                 if job['i'] != job_id:
                     continue
-                elif job['status'] != '-': 
+                elif job['status'] != '-':
                     # the requisite job_id is already finished or waiting
                     return False, 'this job is either finished or waiting', None, None, None
-                else: 
+                else:
                     # the requisite job_id and available
                     return True, f"{job['status']} {job['summary']}\n{due_str}", item_id, job_id, due
             # couldn't find job_id
@@ -2280,7 +2285,7 @@ class DataView(object):
             elif 'r' in item:
                 toss = True
                 for rr in item['r']:
-                    if 'u' not in rr: 
+                    if 'u' not in rr:
                         toss = False
                         break
                     elif isinstance(rr['u'], pendulum.Date):
@@ -2291,7 +2296,7 @@ class DataView(object):
                                 toss = False
                                 break
                         else:
-                            # date 
+                            # date
                             if rr['u'] >= old.date():
                                 toss = False
                                 break
@@ -2324,7 +2329,7 @@ class DataView(object):
             item['doc_id'] = item.doc_id
             add_items.append(item)
 
-        try: 
+        try:
             self.dbarch.insert_multiple(add_items)
         except:
             logger.error(f"archive failed for doc_ids: {rem_ids}")
@@ -2430,9 +2435,9 @@ class DataView(object):
 
     def refreshCalendar(self):
         """
-        Advance = 0 shows the half year containing the current month. Advance 
-        = n shows the half year containing the month that is 6 x n months in 
-        the future if n > 0 or the past if n < 0.  
+        Advance = 0 shows the half year containing the current month. Advance
+        = n shows the half year containing the month that is 6 x n months in
+        the future if n > 0 or the past if n < 0.
         """
         width = shutil.get_terminal_size()[0]
         indent = int((width - 45)/2) * " "
@@ -2459,7 +2464,7 @@ class DataView(object):
                     for j in range(len(cal[r + i]), l + 1):
                         cal[r + i].append('')
             for j in range(l):  # rows from each of the 2 months
-                ret.append((u'%-20s     %-20s ' % (cal[r][j], cal[r + 
+                ret.append((u'%-20s     %-20s ' % (cal[r][j], cal[r +
                     1][j])))
 
         ret_lines = [f"{indent}{line}" for line in ret]
@@ -2574,7 +2579,7 @@ def do_string(arg):
         rep = arg
     except:
         obj = None
-        rep = f"invalid: {arg}" 
+        rep = f"invalid: {arg}"
     return obj, rep
 
 def do_paragraph(arg):
@@ -3019,7 +3024,7 @@ def do_usedtime(arg):
     if not arg:
         return None, ''
     got_period = got_datetime = False
-    rep_period = 'period' 
+    rep_period = 'period'
     rep_datetime = 'datetime'
     parts = arg.split(': ')
     period = parts.pop(0)
@@ -3053,7 +3058,7 @@ def do_alert(arg):
     p1, p2, ...: cmd
     >>> do_alert('')
     (None, '')
-    >>> print(do_alert('90m, 45m')[1])  # doctest: +NORMALIZE_WHITESPACE 
+    >>> print(do_alert('90m, 45m')[1])  # doctest: +NORMALIZE_WHITESPACE
     1h30m, 45m:
     commmand is required but missing
     >>> print(do_alert('90m, 45m, 10: d')[1])
@@ -3260,7 +3265,7 @@ def do_frequency(arg):
     or mi(n)utely.
     >>> do_frequency('d')
     ('d', 'daily')
-    >>> print(do_frequency('z')[1]) # doctest: +NORMALIZE_WHITESPACE 
+    >>> print(do_frequency('z')[1]) # doctest: +NORMALIZE_WHITESPACE
     invalid frequency: z not in (y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.
     """
 
@@ -3286,7 +3291,7 @@ def do_setpositions(arg):
         args = arg.split(',')
         ok, res = integer_list(args, None, None, False, "")
         if ok:
-            obj = res 
+            obj = res
             rep = f"set positions: {arg}"
         else:
             obj = None
@@ -3520,7 +3525,7 @@ freq_names = {
     'm': 'monthly',
     'w': 'weekly',
     'd': 'daily',
-    'h': 'hourly', 
+    'h': 'hourly',
     'n': 'minutely',
     }
 
@@ -3597,7 +3602,7 @@ def check_rrule(lofh):
 
 def rrule_args(r_hsh):
     """
-    Housekeeping: Check for u and c, fix integers and weekdays. Replace etm arg names with dateutil. E.g., frequency 'y' with 0, 'E' with 'byeaster', ... Called by item_instances. 
+    Housekeeping: Check for u and c, fix integers and weekdays. Replace etm arg names with dateutil. E.g., frequency 'y' with 0, 'E' with 'byeaster', ... Called by item_instances.
     >>> item_eg = { "s": parse('2018-03-07 8am').naive(), "r": [ { "r": "w", "u": parse('2018-04-01 8am').naive(), }, ], "itemtype": "*"}
     >>> item_instances(item_eg, parse('2018-03-01 12am').naive(), parse('2018-04-01 12am').naive())
     [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 14, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 28, 8, 0, 0, tzinfo=Timezone('UTC')), None)]
@@ -3649,7 +3654,7 @@ def rrule_args(r_hsh):
 
 def get_next_due(item, done, due):
     """
-    return the next due datetime for an @r repetition 
+    return the next due datetime for an @r repetition
     """
     lofh = item.get('r')
     if not lofh:
@@ -4388,7 +4393,7 @@ def fmt_extent(beg_dt, end_dt):
 
 def fmt_time(dt, ignore_midnight=True):
     ampm = settings['ampm']
-    if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0: 
+    if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0:
         return ""
     suffix = dt.format("A").lower() if ampm else ""
     dt_fmt = drop_zero_minutes(dt)
@@ -4397,7 +4402,7 @@ def fmt_time(dt, ignore_midnight=True):
 
 def beg_ends(starting_dt, extent_duration, z=None):
     """
-    >>> starting = parse('2018-03-02 9am') 
+    >>> starting = parse('2018-03-02 9am')
     >>> beg_ends(starting, parse_duration('2d2h20m')[1])
     [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 3, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 3, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 4, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 4, 11, 20, 0, tzinfo=Timezone('UTC')))]
     >>> beg_ends(starting, parse_duration('8h20m')[1])
@@ -4472,7 +4477,7 @@ def get_item(id):
 
 def relevant(db, now=pendulum.now()):
     """
-    Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task 
+    Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
     """
     # These need to be local times since all times from the datastore and rrule will be local times
     today = pendulum.today()
@@ -4491,7 +4496,7 @@ def relevant(db, now=pendulum.now()):
     current = []
 
     for item in db:
-        instance_interval = [] 
+        instance_interval = []
         possible_beginby = None
         possible_alerts = []
         all_tds = []
@@ -4509,7 +4514,7 @@ def relevant(db, now=pendulum.now()):
                 relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0, tz='local')
 
         elif 's' in item:
-            dtstart = item['s'] 
+            dtstart = item['s']
             has_a = 'a' in item
             has_b = 'b' in item
             # for daylight savings time changes
@@ -4573,16 +4578,16 @@ def relevant(db, now=pendulum.now()):
                             dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
                         rset.rdate(dt)
 
-                if item['itemtype'] == '-': 
+                if item['itemtype'] == '-':
                     if item.get('o', 'k') == 's':
                         relevant = rset.after(today, inc=True)
-                        if relevant: 
+                        if relevant:
                             if item['s'] != pendulum.instance(relevant):
                                 item['s'] = pendulum.instance(relevant)
                                 update_db(db, item.doc_id, item)
                         else:
                             relevant = dtstart
-                    else: 
+                    else:
                         # for a restart or keep task, relevant is dtstart
                         relevant = dtstart
                 else:
@@ -4662,7 +4667,7 @@ def relevant(db, now=pendulum.now()):
         if 'j' in item and 'f' not in item:
             # jobs only for the relevant instance of unfinished tasks
             for job in item['j']:
-                job_id = job.get('i') 
+                job_id = job.get('i')
                 if 'f' in job:
                     continue
                 # adjust job starting time if 's' in job
@@ -4727,7 +4732,7 @@ def update_db(db, id, hsh={}):
 
 def insert_db(db, hsh={}):
     """
-    Assume hsh has been vetted. 
+    Assume hsh has been vetted.
     """
     if not hsh:
         logger.warn(f"Empty hash passed to insert_db")
@@ -4740,8 +4745,8 @@ def insert_db(db, hsh={}):
 
 
 def show_forthcoming(db, id2relevant):
-    width = shutil.get_terminal_size()[0] - 2 
-    summary_width = width - 19 
+    width = shutil.get_terminal_size()[0] - 2
+    summary_width = width - 19
     rows = []
     today = pendulum.today()
     for item in db:
@@ -4765,7 +4770,7 @@ def show_forthcoming(db, id2relevant):
                     'sort': relevant,
                     'path': year,
                     'columns': [itemtype,
-                        summary[:summary_width].ljust(summary_width, ' '), 
+                        summary[:summary_width].ljust(summary_width, ' '),
                         dtfmt,
                         item.doc_id],
                 }
@@ -4777,16 +4782,16 @@ def show_forthcoming(db, id2relevant):
         path = row['path']
         values = (
                 f"{row['columns'][0]} {row['columns'][1]} {row['columns'][2]}", row['columns'][3]
-                ) 
+                )
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
 
 def show_query_items(text, items=[]):
-    width = shutil.get_terminal_size()[0] - 7 
+    width = shutil.get_terminal_size()[0] - 7
     rows = []
-    summary_width = width - 6 
+    summary_width = width - 6
     if not items or not isinstance(items, list):
         return f"query: {text}\n   none matching", {}
     for item in items:
@@ -4817,16 +4822,16 @@ def show_query_items(text, items=[]):
         path = f"query: {text[:summary_width]}"
         values = (
                 f"{row['columns'][0]} {row['columns'][1]} {row['columns'][2]: >6}", row['columns'][2]
-                ) 
+                )
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
 
 def show_history(db, reverse=True):
-    width = shutil.get_terminal_size()[0] - 2 
+    width = shutil.get_terminal_size()[0] - 2
     rows = []
-    summary_width = width - 21 
+    summary_width = width - 21
     for item in db:
         mt = item.get('modified', None)
         if mt is not None:
@@ -4846,7 +4851,7 @@ def show_history(db, reverse=True):
                         'sort': dt,
                         'path': year,
                         'columns': [itemtype,
-                            item['summary'][:summary_width].ljust(summary_width, ' '), 
+                            item['summary'][:summary_width].ljust(summary_width, ' '),
                             f"{label} {dtfmt}",
                             item.doc_id],
                     }
@@ -4858,7 +4863,7 @@ def show_history(db, reverse=True):
         path = row['path']
         values = (
                 f"{row['columns'][0]} {row['columns'][1]} {row['columns'][2]}", row['columns'][3]
-                ) 
+                )
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
@@ -4894,7 +4899,7 @@ def show_next(db):
                         'sort': (location, status, sort_priority, job['i'], job['summary']),
                         'location': location,
                         'columns': [job['status'],
-                            job['summary'], 
+                            job['summary'],
                             show_priority,
                             ]
                     }
@@ -4912,7 +4917,7 @@ def show_next(db):
                         'sort': (location, sort_priority, 0, item['summary']),
                         'location': location,
                         'columns': [item['itemtype'],
-                            item['summary'], 
+                            item['summary'],
                             show_priority,
                             ]
                     }
@@ -4941,7 +4946,7 @@ def show_records(db, id2relevant):
     rows = []
     # indices = set([])
     for item in db:
-        if item['itemtype'] != '%': 
+        if item['itemtype'] != '%':
             continue
         index = item.get('i', '~')
         rows.append({
@@ -4949,7 +4954,7 @@ def show_records(db, id2relevant):
                     'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
-                        item['summary'][:width - 15], 
+                        item['summary'][:width - 15],
                         item.doc_id],
                     })
     rows.sort(key=itemgetter('sort'))
@@ -4958,7 +4963,7 @@ def show_records(db, id2relevant):
         path = row['index']
         values = (
                 f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
-                ) 
+                )
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
@@ -4977,7 +4982,7 @@ def show_tags(db, id2relevant):
                         'sort': (tag, item['itemtype'], item['summary']),
                         'tag': tag,
                         'columns': [item['itemtype'],
-                            item['summary'][:width - 15], 
+                            item['summary'][:width - 15],
                             item.doc_id],
                         })
     rows.sort(key=itemgetter('sort'))
@@ -4986,7 +4991,7 @@ def show_tags(db, id2relevant):
         path = row['tag']
         values = (
                 f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
-                ) 
+                )
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
@@ -5006,7 +5011,7 @@ def show_index(db, id2relevant):
                     'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
-                        item['summary'][:width - 10], 
+                        item['summary'][:width - 10],
                         # item['summary'],
                         item.doc_id],
                     })
@@ -5016,7 +5021,7 @@ def show_index(db, id2relevant):
         path = row['index']
         values = (
                 f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
-                ) 
+                )
         try:
             rdict.add(path, values)
         except:
@@ -5046,7 +5051,7 @@ def get_usedtime(db):
     detail_rows = []
     months = set([])
     for item in db:
-        used = item.get('u') # this will be a list of 'period, datetime' tuples 
+        used = item.get('u') # this will be a list of 'period, datetime' tuples
         if not used:
             continue
         index = item.get('i', '~')
@@ -5059,10 +5064,10 @@ def get_usedtime(db):
         if item['itemtype'] == '-' and 'f' in item:
             itemtype = finished_char
         else:
-            itemtype = item['itemtype'] 
+            itemtype = item['itemtype']
         details = f"{itemtype} {item['summary']}"
         for period, dt in used:
-            if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
+            if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
                 dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
                 dt.set(hour=23, minute=59, second=59)
             # for id2used
@@ -5105,7 +5110,7 @@ def get_usedtime(db):
             path = row['path']
             description = row['description']
             values = [f"{summary}: {rhc}", row['columns'][2]
-                    ] 
+                    ]
             try:
                 rdict.add(path, tuple(values))
             except Exception as e:
@@ -5241,12 +5246,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             if item['itemtype'] == '-' and 'f' in item:
                 itemtype = finished_char
             else:
-                itemtype = item['itemtype'] 
+                itemtype = item['itemtype']
             id = item.doc_id
             # details = f"{itemtype} {item['summary']}"
             dates_to_periods = {}
             for period, dt in used:
-                if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
+                if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
                     pass
                 else:
                     dt = dt.date()
@@ -5260,7 +5265,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 total = ZERO
                 for p in dates_to_periods[dt]:
                     total += p
-                rhc = format_hours_and_tenths(total).center(16, ' ') 
+                rhc = format_hours_and_tenths(total).center(16, ' ')
                 done.append(
                         {
                             'id': id,
@@ -5274,7 +5279,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 dt.format("ddd MMM D"),
                                 ),
                             'columns': [itemtype,
-                                item['summary'], 
+                                item['summary'],
                                 rhc,
                                 ],
                         }
@@ -5294,13 +5299,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         d.append([job['f'], job['summary'], item.doc_id, job['i']])
             if d:
                 for row in d:
-                    dt = row[0] 
-                    if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime): 
+                    dt = row[0]
+                    if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
                         dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
                         dt.set(hour=23, minute=59, second=59)
                         rhc = ''
                     else:
-                        rhc = fmt_time(dt).center(16, ' ') 
+                        rhc = fmt_time(dt).center(16, ' ')
 
                     if dt < aft_dt or dt > bef_dt:
                         continue
@@ -5318,7 +5323,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                     dt.format("ddd MMM D"),
                                     ),
                                 'columns': [finished_char,
-                                    row[1], 
+                                    row[1],
                                     rhc
                                     ],
                             }
@@ -5342,7 +5347,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         {
                             'id': item.doc_id,
                             'job': job_id,
-                            'instance': instance, 
+                            'instance': instance,
                             'sort': (jobstart.format("YYYYMMDDHHmm"), 0),
                             'week': (
                                 jobstart.isocalendar()[:2]
@@ -5351,7 +5356,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 jobstart.format("ddd MMM D"),
                                 ),
                             'columns': [job['status'],
-                                set_summary(job['summary'], jobstart), 
+                                set_summary(job['summary'], jobstart),
                                 rhc
                                 ]
                         }
@@ -5365,7 +5370,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         et = None
                         rhc = fmt_time(dt).center(16, ' ')
                     else:
-                        rhc = fmt_extent(dt, et).center(16, ' ') 
+                        rhc = fmt_extent(dt, et).center(16, ' ')
                 else:
                     rhc = fmt_time(dt).center(16, ' ')
 
@@ -5392,7 +5397,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 dt.format("ddd MMM D"),
                                 ),
                             'columns': [item['itemtype'],
-                                set_summary(item['summary'], dt), 
+                                set_summary(item['summary'], dt),
                                 rhc
                                 ]
                         }
@@ -5463,7 +5468,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         agenda = []
         row2id = {}
         row_num = 0
-        agenda.append("{}".format(fmt_week(week).center(width, ' '))) 
+        agenda.append("{}".format(fmt_week(week).center(width, ' ')))
         for day, columns in groupby(items, key=itemgetter('day')):
             for d in day:
                 if week == yw:
@@ -5475,7 +5480,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 for i in columns:
                     summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
                     rhc = i['columns'][2].rjust(16, ' ')
-                    agenda.append(f"    {i['columns'][0]} {summary}{rhc}") 
+                    agenda.append(f"    {i['columns'][0]} {summary}{rhc}")
                     row_num += 1
                     row2id[row_num] = (i['id'], i['instance'], i['job'])
         agenda_hsh[week] = "\n".join(agenda)
@@ -5486,7 +5491,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         done = []
         done2id = {}
         row_num = 0
-        done.append("{}".format(fmt_week(week).center(width, ' '))) 
+        done.append("{}".format(fmt_week(week).center(width, ' ')))
         for day, columns in groupby(items, key=itemgetter('day')):
             for d in day:
                 if week == yw:
@@ -5498,7 +5503,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 for i in columns:
                     summary = i['columns'][1][:summary_width].ljust(summary_width, ' ')
                     rhc = i['columns'][2].rjust(16, ' ')
-                    done.append(f"    {i['columns'][0]} {summary}{rhc}") 
+                    done.append(f"    {i['columns'][0]} {summary}{rhc}")
                     row_num += 1
                     done2id[row_num] = (i['id'], i['instance'], i['job'])
         done_hsh[week] = "\n".join(done)
@@ -5549,14 +5554,14 @@ def import_file(import_file=None):
     elif extension == '.text':
         return True, import_text(import_file)
     elif extension == '.ics':
-        return True, import_ics(import_file) 
+        return True, import_ics(import_file)
     else:
         return False, f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized"
 
 
 def import_ics(import_file=None):
     """
-    open ics file and convert it to text file in tempdir. Then import the text file using 
+    open ics file and convert it to text file in tempdir. Then import the text file using
     """
     items = ical.ics_to_items(import_file)
     if not items:
@@ -5620,7 +5625,7 @@ def import_text(import_file=None):
             if not ok:
                 bad += 1
                 results.append(f"   {s}")
-                continue 
+                continue
 
             # update_item_hsh stores the item in ETMDB
             item.update_item_hsh()
@@ -5630,7 +5635,7 @@ def import_text(import_file=None):
     if good:
         # ids = ETMDB.insert_multiple(docs)
         res += f"\n  ids: {good[0]} - {good[-1]}"
-    if bad: 
+    if bad:
         res += f"\nrejected {bad} items:\n  "
         res += "\n  ".join(results)
     return res
@@ -5828,7 +5833,7 @@ tinydb:           {tinydb_version}
 jinja2:           {jinja2_version}
 ruamel.yaml:      {ruamel_version}
 platform:         {system_platform}
-etm home directory: 
+etm home directory:
    {etmhome:^30}
 """
     return ret1, ret2
