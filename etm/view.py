@@ -20,6 +20,10 @@ from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.lexers import Lexer
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from prompt_toolkit.filters import Condition
+
+from prompt_toolkit.selection import SelectionType
+from prompt_toolkit.key_binding.vi_state import InputMode
+from prompt_toolkit.filters import vi_mode, vi_navigation_mode, vi_insert_mode, vi_replace_mode, vi_selection_mode, emacs_mode, emacs_selection_mode, emacs_insert_mode
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.completion import Completion, Completer
 from prompt_toolkit.buffer import Buffer
@@ -1413,8 +1417,45 @@ async def event_handler():
         logger.info(f"Background task cancelled.")
 
 
+def edit_mode():
+    app = get_app()
+    if get_app().layout.has_focus(entry_buffer) and app.editing_mode == EditingMode.VI:
+        insert_mode = app.vi_state.input_mode in (InputMode.INSERT, InputMode.INSERT_MULTIPLE)
+        replace_mode = app.vi_state.input_mode == InputMode.REPLACE
+        sel = entry_buffer.selection_state
+        temp_navigation = app.vi_state.temporary_navigation_mode
+        visual_line = sel is not None and sel.type == SelectionType.LINES
+        visual_block = sel is not None and sel.type == SelectionType.BLOCK
+        visual_char = sel is not None and sel.type == SelectionType.CHARACTERS
+        if insert_mode:
+            return 'vi: insert'
+            # if temp_navigation:
+            #     return ' -- (insert) --'
+            # elif editor.paste_mode:
+            #     return ' -- INSERT (paste)--'
+            # else:
+            #     return ' -- INSERT --'
+        elif replace_mode:
+            return 'vi: replace'
+            # if temp_navigation:
+            #     return ' -- (replace) --'
+            # else:
+            #     return ' -- REPLACE --'
+        elif visual_block:
+            return 'vi: v-block'
+        elif visual_line:
+            return 'vi: v-line'
+        elif visual_char:
+            return 'vi: visual'
+        else:
+            return 'vi: normal'
+    return '        '
+
 def get_statusbar_text():
     return [ ('class:status',  f' {current_datetime}'), ]
+
+def get_statusbar_center_text():
+    return [ ('class:status',  f' {edit_mode()}'), ]
 
 
 def get_statusbar_right_text():
@@ -1606,6 +1647,8 @@ entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
 status_area = VSplit([
             Window(FormattedTextControl(get_statusbar_text), style='class:status'),
+            Window(FormattedTextControl(get_statusbar_center_text),
+                   style='class:status', width=20, align=WindowAlign.CENTER),
             Window(FormattedTextControl(get_statusbar_right_text),
                    style='class:status', width=20, align=WindowAlign.RIGHT),
         ], height=1)
