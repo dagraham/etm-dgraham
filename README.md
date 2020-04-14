@@ -877,6 +877,8 @@ The entries here are pretty obvious and the views themselves are descibed elsewh
 
 It is worth noting here that when you are editing an item, `^s` (control and s) saves any changes you have made and closes the editor. `^z` (control and z), on the other hand, closes the editor without saving any changes but, if there are changes, asks for confirmation that this is what you want.
 
+An options setting, 'vi_mode' determines which keybindings are used in the entry buffer when editing. If 'vi_mode' is true, then vi-style bindings are used and, otherwise, the default emacs-style bindings are used. The status bar describes the current mode, e.g., 'vi: insert' with a '+' appended if the contents have been modified.
+
 ### [selected](#overview)
 
 Options in the *selected* menu are only relevant when a reminder has been selected in one of the views.
