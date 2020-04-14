@@ -74,7 +74,7 @@ def maybe_round(obj):
             minutes += obj.hours * 60
         if obj.minutes:
             minutes += obj.minutes
-        if minutes: 
+        if minutes:
             minutes = math.ceil(minutes/UT_MIN)*(UT_MIN)
             return minutes * ONEMIN
         else:
@@ -123,12 +123,12 @@ def apply_dates_filter(items, grpby, filters):
             tmp = deepcopy(item)
             rdt = None
             if 'f' in item:
-                rdt = item['f'].date()
-                e_ok = 'e' not in filters or item['f'] <= filters['e'] 
+                rdt = item['f'] if isinstance(item['f'], pendulum.Date) else item['f'].date()
+                e_ok = 'e' not in filters or item['f'] <= filters['e']
                 b_ok = 'b' not in filters or item['f'] >= filters['b']
             elif 's' in item:
-                rdt = item['s'].date()
-                e_ok = 'e' not in filters or item['s'] <= filters['e'] 
+                rdt = item['s'] if isinstance(item['s'], pendulum.Date) else item['s'].date()
+                e_ok = 'e' not in filters or item['s'] <= filters['e']
                 b_ok = 'b' not in filters or item['s'] >= filters['b']
             else:
                 e_ok = b_ok = True
@@ -151,7 +151,7 @@ def apply_dates_filter(items, grpby, filters):
 
 class QDict(dict):
     """
-    Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row. 
+    Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row.
     """
 
     tab = 2
@@ -238,7 +238,7 @@ class QDict(dict):
                 self.output.append("%s%s: %s" % (indent,  k, format_hours_and_tenths(self.used_time.get(tuple(pre), ''))))
             else:
                 self.output.append("%s%s" % (indent,  k))
-            self.row += 1 
+            self.row += 1
             depth += 1
             if level and depth > level:
                 depth -= 1
@@ -256,9 +256,9 @@ class QDict(dict):
                         self.output.append("%s%s %s" % (indent, leaf[0], leaf[1]))
                         num_leafs = 2
                     self.row2id[self.row] = leaf[-1]
-                    self.row += 1 
-                    # len(leaf) - 1 skips the last integer doc_id leaf 
-                    for i in range(num_leafs, len(leaf) - 1): 
+                    self.row += 1
+                    # len(leaf) - 1 skips the last integer doc_id leaf
+                    for i in range(num_leafs, len(leaf) - 1):
                         lines = self.leaf_detail(leaf[i], depth)
                         for line in lines:
                             self.output.append(line)
@@ -279,9 +279,9 @@ def get_output_and_row2id(items, grpby, header=""):
     # logger.debug(f"dtls_tups: {dtls_tups}")
     for item in items:
         for x in ['i', 'c', 'l']:
-            item.setdefault(x, '~') # make ~ the default 
+            item.setdefault(x, '~') # make ~ the default
         if 'f' in item:
-            item['itemtype'] = finished_char 
+            item['itemtype'] = finished_char
         st = [eval(x, {'item': item, 're': re}) for x in sort_tups if x]
         pt = [eval(x, {'item': item, 're': re}) for x in path_tups if x]
         dt = []
@@ -297,7 +297,7 @@ def get_output_and_row2id(items, grpby, header=""):
             dt[2] = ut = maybe_round(dt[2])
             for i in range(len(pt)):
                 key = tuple(pt[:i+1])
-                used_time.setdefault(key, ZERO) 
+                used_time.setdefault(key, ZERO)
                 used_time[key] += ut
         ret.append((st, pt, dt))
     ret.sort()
@@ -451,9 +451,9 @@ def get_grpby_and_filters(s, options=None):
     return grpby, filters
 
 def show_query_results(text, grpby, items):
-    width = shutil.get_terminal_size()[0] - 7 
+    width = shutil.get_terminal_size()[0] - 7
     rows = []
-    summary_width = width - 6 
+    summary_width = width - 6
     if not items or not isinstance(items, list):
         return f"query: {text}\n   none matching", {}
     header = f"query: {text[:summary_width]}"

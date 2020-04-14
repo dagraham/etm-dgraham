@@ -1436,7 +1436,7 @@ def get_edit_mode():
             elif visual_char:
                 mode += 'vchar'
             else:
-                mode += ' norm'
+                mode += ' normal'
         else:
             mode = 'emacs'
 
@@ -1543,7 +1543,7 @@ query_buffer = Buffer(multiline=False, completer=None, complete_while_typing=Fal
 reply_buffer = Buffer(multiline=True)
 
 reply_dimension = 2
-entry_dimension = 8
+entry_dimension = 10
 # reply_dimension = Dimension(min=2, weight=2)
 # entry_dimension = Dimension(min=3, weight=2)
 
