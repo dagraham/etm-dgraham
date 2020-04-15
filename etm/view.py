@@ -59,6 +59,11 @@ import pyperclip
 # set in __main__
 logger = None
 
+dataview = None
+item = None
+style = None
+etmstyle = None
+application = None
 
 ############ begin query ###############################
 from tinydb import where
@@ -71,13 +76,6 @@ from pygments.token import Comment
 from prompt_toolkit.styles import Style
 from prompt_toolkit.lexers import PygmentsLexer
 
-etm_style = Style.from_dict({
-    'pygments.comment':   '#888888 bold',
-    'pygments.keyword': '#009900 bold',
-    'pygments.literal':   '#0066ff bold',  #blue
-    'pygments.operator':  '#e62e00 bold',  #red
-    # 'pygments.keyword':   '#e62e00 bold',  #red
-})
 
 class TDBLexer(RegexLexer):
 
@@ -118,7 +116,7 @@ class ETMQuery(object):
                 }
 
         self.lexer = PygmentsLexer(TDBLexer)
-        self.style = etm_style
+        self.style = etmstyle
         self.Item = Query()
 
         self.allowed_commands = ", ".join([x for x in self.arg])
@@ -659,10 +657,14 @@ class InteractiveInputDialog(object):
 
         self.output_field = TextArea(
                 text='',
+                style='class:dialog-entry',
                 focusable=False,
                 )
         self.input_field = TextArea(
-            height=1, prompt='>>> ', multiline=False,
+            height=1,
+            # prompt='',
+            multiline=False,
+            style='class:dialog-entry',
             focusable=True,
             wrap_lines=False)
 
@@ -717,6 +719,7 @@ class TextInputDialog(object):
         self.text_area = TextArea(
             completer=completer,
             text=default,
+            style='class:dialog-entry',
             multiline=False,
             width=D(preferred=shutil.get_terminal_size()[0]-padding),
             accept_handler=accept_text)
@@ -1138,10 +1141,13 @@ dark_style = Style.from_dict({
     'dialog frame-label': 'bg:#ffffff #000000',
     'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'dialog shadow':      'bg:#444444',
-    'text-area': f"{NAMED_COLORS['Black']}",
+    'text-area': f"{NAMED_COLORS['Ivory']}",
+    # 'text-area':     f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
 
+    'dialog-entry':     f"{NAMED_COLORS['Black']}",
     'status':     f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'query':     f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
+    'query':      f"{NAMED_COLORS['Ivory']}",
+    'details':    f"{NAMED_COLORS['Ivory']}",
     'details':    f"{NAMED_COLORS['Ivory']}",
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
@@ -1170,7 +1176,7 @@ light_style = Style.from_dict({
     'text-area': f"{NAMED_COLORS['Black']}",
 
     'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'query':     f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
+    'query':   f"{NAMED_COLORS['Black']}",
     'details': f"{NAMED_COLORS['Black']}",
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
@@ -1551,8 +1557,6 @@ entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_o
 ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
 reply_window = Window(BufferControl(buffer=reply_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:reply')
 
-query_window = Window(BufferControl(buffer=query_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
-
 edit_area = HSplit([
     ask_window,
     reply_window,
@@ -1572,13 +1576,12 @@ query = ETMQuery()
 query_area = TextArea(
     height=3,
     style='class:query',
-    # style=query.style,
     lexer=query.lexer,
     multiline=False,
-    prompt='query: ',
     focusable=True,
-    # wrap_lines=True,
+    prompt='query: ',
     )
+
 
 def accept(buff):
     if query_area.text:
@@ -1919,7 +1922,11 @@ def do_finish(*event):
 
         done_str = yield from show_dialog_as_float(dialog)
         if done_str:
-            ok, done, z = parse_datetime(done_str)
+            try:
+                done = pendulum.parse(done_str, strict=False, tz='local')
+                ok = True
+            except:
+                ok = False
             if ok:
                 # valid done
                 item.finish_item(item_id, job_id, done, due)
@@ -1929,7 +1936,7 @@ def do_finish(*event):
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
             else:
-                show_message('Finish task/job?', 'Invalid finished datetime')
+                show_message('Finish task/job?', f"Invalid finished datetime: {done_str}")
 
     asyncio.ensure_future(coroutine())
 
@@ -2322,11 +2329,6 @@ def set_askreply(_):
     reply_buffer.text = wrap(reply, 0)
 
 
-dataview = None
-item = None
-style = None
-etmstyle = None
-application = None
 async def main(etmdir=""):
     global item, settings, ampm, style, etmstyle, application
     ampm = settings['ampm']

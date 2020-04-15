@@ -2020,7 +2020,7 @@ class DataView(object):
         elif self.active_view == 'query':
             if self.query_text:
                 if self.query_text.startswith('u') or self.query_text.startswith('c'):
-                    # report
+                    # complex query
                     self.query_view, self.row2id = show_query_results(self.query_text, self.query_grpby, self.query_items)
                 else:
                     # standard query
