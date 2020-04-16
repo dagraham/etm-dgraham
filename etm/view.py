@@ -1582,6 +1582,31 @@ query_area = TextArea(
     prompt='query: ',
     )
 
+def do_complex_query(text, loop):
+    if text.startswith('u ') or text.startswith('c '):
+        grpby, filters = report.get_grpby_and_filters(text)
+        ok, items = query.do_query(filters.get('query'))
+        if ok:
+            items = report.apply_dates_filter(items, grpby, filters)
+            dataview.set_query(text, grpby, items)
+            application.layout.focus(text_area)
+            set_text(dataview.show_active_view())
+        else:
+            set_text(items)
+    else:
+        ok, items = query.do_query(text)
+        if ok:
+            dataview.set_query(text, {}, items)
+            application.layout.focus(text_area)
+            set_text(dataview.show_active_view())
+        else:
+            set_text(items)
+
+def do_show_processing(loop):
+    set_text("processing query ...")
+    application.layout.focus(text_area)
+    get_app().invalidate()
+
 
 def accept(buff):
     set_text('processing query ...')
@@ -1603,26 +1628,11 @@ def accept(buff):
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
             return False
-        if text.startswith('u ') or text.startswith('c '):
-            set_text('processing query ...')
-            get_app().invalidate()
-            grpby, filters = report.get_grpby_and_filters(text)
-            ok, items = query.do_query(filters.get('query'))
-            if ok:
-                items = report.apply_dates_filter(items, grpby, filters)
-                dataview.set_query(text, grpby, items)
-                application.layout.focus(text_area)
-                set_text(dataview.show_active_view())
-            else:
-                set_text(items)
-        else:
-            ok, items = query.do_query(text)
-            if ok:
-                dataview.set_query(text, {}, items)
-                application.layout.focus(text_area)
-                set_text(dataview.show_active_view())
-            else:
-                set_text(items)
+
+        loop = asyncio.get_event_loop()
+        loop.call_later(0, do_show_processing, loop)
+        loop.call_later(.1, do_complex_query, text, loop)
+
         return False
     else:
         # quitting
