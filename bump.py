@@ -95,7 +95,7 @@ if bmsg:
 
 tmsg = f"Tagged version {new_version}. {tplus}"
 
-print(f"The tag message for the new version will be:\n{tmsg}\n")
+print(f"\nThe tag message for the new version will be:\n{tmsg}\n")
 
 ans = input(f"Commit and tag new version: {new_version}? [yN] ")
 if ans.lower() != 'y':
