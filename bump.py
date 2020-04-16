@@ -89,13 +89,18 @@ elif res == 'j':
     new_version = b_major
     bmsg = "major version update"
 
+tplus = ""
+if bmsg:
+    tplus = input(f"Optional {bmsg} message:\n")
+
+tmsg = f"Tagged version {new_version}. {tplus}"
+
+print(f"The tag message for the new version will be:\n{tmsg}\n")
+
 ans = input(f"Commit and tag new version: {new_version}? [yN] ")
 if ans.lower() != 'y':
     print('cancelled')
     sys.exit()
-
-if bmsg:
-    tplus = input(f"Append a message for this {bmsg}?")
 
 if new_version:
     with open(version_file, 'w') as fo:
