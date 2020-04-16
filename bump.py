@@ -23,7 +23,7 @@ if gs:
 
 # PEP 440 extensions
 # possible_extensions = ['a', 'b', 'rc', '.post', '.dev']
-# For etm only the following will be used 
+# For etm only the following will be used
 possible_extensions = ['a', 'b', 'rc']
 
 pre = post = version
@@ -77,25 +77,31 @@ res = res.lower()
 if not res:
     print('cancelled')
     sys.exit()
+bmsg = ""
 if res in extension_options[ext]:
     new_version = f"{pre}{extension_options[ext][res]}"
 elif res == 'p':
     new_version = b_patch
 elif res == 'n':
     new_version = b_minor
+    bmsg = "minor version update"
 elif res == 'j':
     new_version = b_major
+    bmsg = "major version update"
 
 ans = input(f"Commit and tag new version: {new_version}? [yN] ")
 if ans.lower() != 'y':
     print('cancelled')
     sys.exit()
 
+if bmsg:
+    tplus = input(f"Append a message for this {bmsg}?")
+
 if new_version:
     with open(version_file, 'w') as fo:
         fo.write(f"version = '{new_version}'")
     print(f"new version: {new_version}")
-    tmsg = f"Tagged version {new_version}."
+    tmsg = f"Tagged version {new_version}. {tplus}"
     check_output(f"git commit -a -m '{tmsg}'")
     version_info = byte2str(check_output("git log --pretty=format:'%ai' -n 1"))
     check_output(f"git tag -a -f '{new_version}' -m '{version_info}'")
