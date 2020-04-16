@@ -500,7 +500,7 @@ to display a list of the saved keys and values.
         return where(a).search(b, flags=re.IGNORECASE)
 
     def equals(self, a, b):
-        # the value of at least one element of field 'a' equals 'b'
+        # the value of field 'a' equals 'b'
         try:
             b = int(b)
         except:
@@ -508,7 +508,7 @@ to display a list of the saved keys and values.
         return where(a) == b
 
     def more(self, a, b):
-        # the value of at least one element of field 'a' >= 'b'
+        # the value of field 'a' >= 'b'
         try:
             b = int(b)
         except:
@@ -516,7 +516,7 @@ to display a list of the saved keys and values.
         return where(a) >= b
 
     def less(self, a, b):
-        # the value of at least one element of field 'a' equals 'b'
+        # the value of field 'a' equals 'b'
         try:
             b = int(b)
         except:
@@ -594,7 +594,7 @@ to display a list of the saved keys and values.
                     # drop the ~
                     part[0] = part[0][1:]
                 if self.arg.get(part[0], None) is None:
-                    return False, f"""bad command: '{part[0]}'. Only commands in\n {self.allowed_commands}\nare allowed."""
+                    return False, wrap(f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed.""")
 
             if len(part) > 3:
                 if negation:
@@ -1584,24 +1584,28 @@ query_area = TextArea(
 
 
 def accept(buff):
+    set_text('processing query ...')
     if query_area.text:
         text = query_area.text
         queries = settings.get('queries')
+        if text == 'l' and queries:
+            set_text("\n".join([f"{k}: {v}" for k, v in queries.items()]))
+            return False
+        if queries and text in queries:
+            set_text("")
+            text = queries[text]
+            query_area.text = text
+            # don't reset the query area buffer we just set
+            return True
         if text.strip() in ['quit', 'exit']:
             # quitting
             dataview.active_view = dataview.prior_view
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
-            return ""
-        if queries and text in queries:
-            text = queries[text]
-            query_area.text = text
-            return text
-        if text == 'l' and queries:
-            text = "\n".join([f"{k}: {v}" for k, v in queries.items()])
-            text_area.text = text
-            return ""
+            return False
         if text.startswith('u ') or text.startswith('c '):
+            set_text('processing query ...')
+            get_app().invalidate()
             grpby, filters = report.get_grpby_and_filters(text)
             ok, items = query.do_query(filters.get('query'))
             if ok:
@@ -1610,7 +1614,7 @@ def accept(buff):
                 application.layout.focus(text_area)
                 set_text(dataview.show_active_view())
             else:
-                text_area.text = items
+                set_text(items)
         else:
             ok, items = query.do_query(text)
             if ok:
@@ -1618,12 +1622,14 @@ def accept(buff):
                 application.layout.focus(text_area)
                 set_text(dataview.show_active_view())
             else:
-                text_area.text = items
+                set_text(items)
+        return False
     else:
         # quitting
         dataview.active_view = dataview.prior_view
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
+        return False
 
 
 
