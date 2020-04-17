@@ -4940,7 +4940,7 @@ def show_next(db):
 
 def show_records(db, id2relevant):
     """
-    Undated records grouped by index entry
+    Records grouped by index entry
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
@@ -5004,8 +5004,8 @@ def show_index(db, id2relevant):
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     for item in db:
-        if item['itemtype'] == '%':
-            continue
+        # if item['itemtype'] == '%':
+        #     continue
         index = item.get('i', '~')
         rows.append({
                     'sort': (index, item['summary']),

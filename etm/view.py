@@ -1136,6 +1136,14 @@ def do_jump_to_date(*event):
 
 terminal_style = None
 
+# bggrey = "bg:#4D4D4D"
+# bggrey = "bg:#555555"
+# bggrey = "bg:#437070" # 2 shades lighter darkslategrey
+# tagrey = "bg:#264040" # 1 shade darker of darkslategrey
+
+bggrey = "bg:#396060" # 1 shade lighter of darkslategrey for status and menubar
+tagrey = "bg:#1d3030" # 2 shades darker of darkslategrey for textarea
+
 dark_style = Style.from_dict({
     'dialog':             f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
     'frame.label':       f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
@@ -1143,10 +1151,10 @@ dark_style = Style.from_dict({
     'dialog.body label': f"{NAMED_COLORS['White']}",
     'dialog.body':        f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
     'dialog shadow':      'bg:#444444',
-    'text-area': f"{NAMED_COLORS['Ivory']}",
+    'text-area': f"{tagrey} {NAMED_COLORS['Ivory']}",
 
     'dialog-entry':     f"{NAMED_COLORS['Black']}",
-    'status':     f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
+    'status':     f"{bggrey} {NAMED_COLORS['White']}",
     'query':      f"{NAMED_COLORS['Ivory']}",
     'details':    f"{NAMED_COLORS['Ivory']}",
     'details':    f"{NAMED_COLORS['Ivory']}",
@@ -1160,7 +1168,7 @@ dark_style = Style.from_dict({
     'window.border': '#888888',
     'shadow':        'bg:#222222',
 
-    'menu-bar': f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
+    'menu-bar': f"{bggrey} {NAMED_COLORS['White']}",
     'menu-bar.selected-item': 'bg:#ffffff #000000',
     'menu': f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
     'menu.border': '#aaaaaa',
@@ -1170,13 +1178,15 @@ dark_style = Style.from_dict({
     })
 
 light_style = Style.from_dict({
-    'dialog':             f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
-    'dialog frame-label': 'bg:#ffffff #000000',
-    'dialog.body':        f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
+    'dialog':             f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'frame.label':       f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'button.focused':   f"bg:{NAMED_COLORS['DarkGreen']} {NAMED_COLORS['White']}",
+    'dialog.body label': f"{NAMED_COLORS['White']}",
+    'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'dialog shadow':      'bg:#444444',
     'text-area': f"{NAMED_COLORS['Black']}",
 
-    'status': f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
+    'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'query':   f"{NAMED_COLORS['Black']}",
     'details': f"{NAMED_COLORS['Black']}",
     'status.position': '#aaaa00',
@@ -1189,9 +1199,9 @@ light_style = Style.from_dict({
     'window.border': '#888888',
     'shadow': 'bg:#222222',
 
-    'menu-bar': f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
+    'menu-bar': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'menu-bar.selected-item': 'bg:#ffffff #000000',
-    'menu': f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
+    'menu': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'menu.border': '#aaaaaa',
     'window.border shadow': '#444444',
 
