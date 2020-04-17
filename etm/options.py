@@ -47,6 +47,8 @@ class Settings():
             },
     }
 
+    secret = randomString(10)
+
     inp = """\
 ###################### IMPORTANT ########################
 #
@@ -67,62 +69,20 @@ locale: en
 # true else use emacs style keybindings.
 vi_mode: false
 
-# style: dark or light. Designed for, respectively, dark or
-# light terminal backgounds. Some output may not be visible
-# unless this is set correctly for your display.
-style: dark
-""" + """\
-
-# colors: a 'namedcolor' entry for each of the following items:
-#     plain:        headings such as outline branches
-#     today:        the current date heading in agenda view
-#     inbox:        inbox reminders
-#     pastdue:      pasdue task warnings
-#     begin:        begin by warnings
-#     record:       record reminders
-#     event:        event reminders
-#     waiting:      waiting job reminders (unfinished prereqs)
-#     finished:     finished task/job reminders
-#     available:    available task/job reminders
-# The default entries are suitable for the style "dark" given
-# above.
-# To restore the default colors for whichever "style" you have
-# set above, remove the color name for each of the items you
-# want to restore and restart etm.
-# To preview the namedcolors, download "namedcolors.py" from
-#    "https://github.com/dagraham/etm-dgraham",
-# open a terminal with your chosen background color and run
-#    python3 <path to namedcolors.py>
-# at the command prompt.
-# Note that the color names are case sensitive.
-colors:
-    plain:        'Ivory'
-    today:        'Ivory bold'
-    inbox:        'Yellow'
-    pastdue:      'LightSalmon'
-    begin:        'Gold'
-    record:       'GoldenRod'
-    event:        'LimeGreen'
-    waiting:      'SlateGrey'
-    finished:     'DarkGrey'
-    available:    'LightSkyBlue'
-""" + f"""\
-
 # secret: A string to use as the secret_key for @m masked
 # entries. In etm versions after 4.0.21, the default string
-# is randomly generated when this file is first created and
-# should be unique for each etm installation. WARNING: if
-# you change this key, any @m entries that you made before
+# is randomly generated when this file is created or when
+# the secret value is removed and etm is restarted. WARNING:
+# if this key is changed, any @m entries that were made before
 # the change will be unreadable after the change.
-secret: {randomString(10)}
-""" + """\
+secret: %s
 
-# omit_extent: A list of calendars. Events with @c entries
+# omit_extent: A list of calendar names with each name
+# indented on a separate line. Events with @c entries
 # belonging to this list will only have their starting times
 # displayed in agenda view and will neither appear nor cause
 # conflicts in busy view.
 omit_extent:
-    - omit
 
 # keep_current: true or false. If true, the agenda for the
 # current and following two weeks will be written to "current.txt"
@@ -253,7 +213,45 @@ queries:
   # items with u but missing the needed i
     mi: exists u and ~exists i
 
-"""
+# style: dark or light. Designed for, respectively, dark or
+# light terminal backgounds. Some output may not be visible
+# unless this is set correctly for your display.
+style: dark
+
+# colors: a 'namedcolor' entry for each of the following items:
+#     plain:        headings such as outline branches
+#     today:        the current date heading in agenda view
+#     inbox:        inbox reminders
+#     pastdue:      pasdue task warnings
+#     begin:        begin by warnings
+#     record:       record reminders
+#     event:        event reminders
+#     waiting:      waiting job reminders (unfinished prereqs)
+#     finished:     finished task/job reminders
+#     available:    available task/job reminders
+# The default entries are suitable for the style "dark" given
+# above. Note that the color names are case sensitive.
+# To restore the default colors for whichever "style" you have
+# set above, remove the color name for each of the items you
+# want to restore and restart etm.
+# To preview the namedcolors, download "namedcolors.py" from
+#    "https://github.com/dagraham/etm-dgraham",
+# open a terminal with your chosen background color and run
+#    python3 <path to namedcolors.py>
+# at the command prompt.
+colors:
+    plain:        'Ivory'
+    today:        'Ivory bold'
+    inbox:        'Yellow'
+    pastdue:      'LightSalmon'
+    begin:        'Gold'
+    record:       'GoldenRod'
+    event:        'LimeGreen'
+    waiting:      'SlateGrey'
+    finished:     'DarkGrey'
+    available:    'LightSkyBlue'
+
+""" % secret
 
     def __init__(self, etmdir):
         if os.path.isdir(etmdir):
