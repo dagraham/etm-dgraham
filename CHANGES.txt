@@ -1,51 +1,60 @@
-Recent changes as of 2020-04-17T13:14:27.859975-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.2.2) Dan Graham
-    40bad290 2020-04-17 13:14:27 -0400
+Recent changes as of 2020-04-17T16:48:53.016982-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.2.3) Dan Graham
+    5f4dc113 2020-04-17 16:48:53 -0400
+    Tagged version 4.2.3.
+
+- 75 seconds ago (master) Dan Graham
+    afbc3bb6 2020-04-17 16:47:38 -0400
+    Fixed several bugs involving background colors in dialogs and such
+    and also a failure to use the colors setting from options.
+
+- 4 hours ago (origin/master, origin/HEAD) Dan Graham
+    f841c4c1 2020-04-17 13:14:27 -0400
     Tagged version 4.2.2.
 
-- 2 minutes ago Dan Graham
+- 4 hours ago Dan Graham
     6e3bd1ad 2020-04-17 13:12:02 -0400
     Dialog color fix
 
-- 45 minutes ago (origin/master, origin/HEAD, working) Dan Graham
+- 4 hours ago Dan Graham
     8438bc5c 2020-04-17 12:29:37 -0400
     Tagged version 4.2.1.
 
-- 53 minutes ago Dan Graham
+- 4 hours ago Dan Graham
     c3cbed6b 2020-04-17 12:21:49 -0400
     Option explanation and color tweaks.
 
-- 3 hours ago Dan Graham
+- 6 hours ago Dan Graham
     64d7ec3b 2020-04-17 10:20:59 -0400
     Show all item types in index view. Background color tweaks for
     textarea, menubar, status, menu and dialogs.
 
-- 22 hours ago Dan Graham
+- 25 hours ago Dan Graham
     5585da5f 2020-04-16 15:32:39 -0400
     Improved dialog and menu colors.
 
-- 23 hours ago Dan Graham
+- 27 hours ago Dan Graham
     53b03822 2020-04-16 14:09:15 -0400
     More bump message tweaks.
 
-- 24 hours ago Dan Graham
+- 27 hours ago Dan Graham
     bb01d46f 2020-04-16 13:27:09 -0400
     Tagged version 4.2.0. Support for vi and emacs style editing.
 
-- 24 hours ago Dan Graham
+- 27 hours ago Dan Graham
     7d1348f4 2020-04-16 13:26:19 -0400
     More bump message tweaks.
 
-- 24 hours ago Dan Graham
+- 28 hours ago Dan Graham
     7bf89b4a 2020-04-16 13:07:11 -0400
     Added option to append to tag message
 
-- 25 hours ago Dan Graham
+- 28 hours ago Dan Graham
     fa8e9f5f 2020-04-16 12:42:24 -0400
     Clear query_area and show 'processing query ...' in text_area
     while query is bbeing processed.
 
-- 26 hours ago Dan Graham
+- 29 hours ago Dan Graham
     5e630222 2020-04-16 11:34:52 -0400
     More fiddles to show 'working' when processing query
 
@@ -419,11 +428,3 @@ Recent changes as of 2020-04-17T13:14:27.859975-04:00:
 - 3 months ago Dan Graham
     fe1636b1 2020-02-02 15:56:15 -0500
     reduced menu png sizes.
-
-- 3 months ago Dan Graham
-    eae46a27 2020-02-02 15:49:44 -0500
-    Added menu screen shots
-
-- 3 months ago Dan Graham
-    86613916 2020-02-02 10:59:47 -0500
-    Tagged version 4.0.20.
