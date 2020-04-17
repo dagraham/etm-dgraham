@@ -1141,8 +1141,8 @@ terminal_style = None
 # bggrey = "bg:#437070" # 2 shades lighter darkslategrey
 # tagrey = "bg:#264040" # 1 shade darker of darkslategrey
 
-bggrey = "bg:#396060" # 1 shade lighter of darkslategrey for status and menubar
-tagrey = "bg:#1d3030" # 2 shades darker of darkslategrey for textarea
+bggrey = "bg:#396060" # 1 shade lighter of darkslategrey for status and menubar background
+tagrey = "bg:#1d3030" # 2 shades darker of darkslategrey for textarea background
 
 dark_style = Style.from_dict({
     'dialog':             f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
@@ -1153,7 +1153,7 @@ dark_style = Style.from_dict({
     'dialog shadow':      'bg:#444444',
     'text-area': f"{tagrey} {NAMED_COLORS['Ivory']}",
 
-    'dialog-entry':     f"{NAMED_COLORS['Black']}",
+    'dialog-entry':     f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
     'status':     f"{bggrey} {NAMED_COLORS['White']}",
     'query':      f"{NAMED_COLORS['Ivory']}",
     'details':    f"{NAMED_COLORS['Ivory']}",
@@ -1174,7 +1174,6 @@ dark_style = Style.from_dict({
     'menu.border': '#aaaaaa',
     'window.border shadow': '#444444',
 
-    # 'focused  button': 'bg:#880000 #ffffff noinherit',
     })
 
 light_style = Style.from_dict({
@@ -1186,7 +1185,7 @@ light_style = Style.from_dict({
     'dialog shadow':      'bg:#444444',
     'text-area': f"bg:{NAMED_COLORS['Cornsilk']} {NAMED_COLORS['Black']}",
 
-    # 'status': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
+    'dialog-entry':     f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
     'status':     f"{bggrey} {NAMED_COLORS['White']}",
     'query':   f"{NAMED_COLORS['Black']}",
     'details': f"{NAMED_COLORS['Black']}",
@@ -1201,13 +1200,11 @@ light_style = Style.from_dict({
     'shadow': 'bg:#222222',
 
     'menu-bar': f"{bggrey} {NAMED_COLORS['White']}",
-    # 'menu-bar': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'menu-bar.selected-item': 'bg:#ffffff #000000',
     'menu': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'menu.border': '#aaaaaa',
     'window.border shadow': '#444444',
 
-    # 'focused  button': 'bg:#880000 #ffffff noinherit',
     })
 
 
