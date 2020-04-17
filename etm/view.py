@@ -1136,8 +1136,6 @@ def do_jump_to_date(*event):
 
 terminal_style = None
 
-# bggrey = "bg:#4D4D4D"
-# bggrey = "bg:#555555"
 # bggrey = "bg:#437070" # 2 shades lighter darkslategrey
 # tagrey = "bg:#264040" # 1 shade darker of darkslategrey
 
@@ -1157,13 +1155,12 @@ dark_style = Style.from_dict({
     'status':     f"{bggrey} {NAMED_COLORS['White']}",
     'query':      f"{NAMED_COLORS['Ivory']}",
     'details':    f"{NAMED_COLORS['Ivory']}",
-    'details':    f"{NAMED_COLORS['Ivory']}",
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
     'not-searching': '#222222',
-    'entry':      f"{NAMED_COLORS['LightGoldenRodYellow']}",
-    'ask':        f"{NAMED_COLORS['Lime']} bold",
-    'reply':      f"{NAMED_COLORS['DeepSkyBlue']}",
+    'entry':      f"{tagrey} {NAMED_COLORS['LightGoldenRodYellow']}",
+    'ask':        f"{tagrey} {NAMED_COLORS['Lime']} bold",
+    'reply':      f"{tagrey} {NAMED_COLORS['DeepSkyBlue']}",
 
     'window.border': '#888888',
     'shadow':        'bg:#222222',
@@ -1192,9 +1189,9 @@ light_style = Style.from_dict({
     'status.position': '#aaaa00',
     'status.key': '#ffaa00',
     'not-searching': '#777777',
-    'entry': f"{NAMED_COLORS['Black']}",
-    'ask':   f"{NAMED_COLORS['DarkGreen']} bold",
-    'reply': f"{NAMED_COLORS['Blue']}",
+    'entry': f"bg:{NAMED_COLORS['Cornsilk']} {NAMED_COLORS['Black']}",
+    'ask':   f"bg:{NAMED_COLORS['Cornsilk']} {NAMED_COLORS['DarkGreen']} bold",
+    'reply': f"bg:{NAMED_COLORS['Cornsilk']} {NAMED_COLORS['Blue']}",
 
     'window.border': '#888888',
     'shadow': 'bg:#222222',
@@ -1204,36 +1201,7 @@ light_style = Style.from_dict({
     'menu': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
     'menu.border': '#aaaaaa',
     'window.border shadow': '#444444',
-
     })
-
-
-dark_etmstyle = {
-    'plain':        'Ivory',
-    'today':        'Ivory bold',
-    'inbox':        'Yellow',
-    'pastdue':      'LightSalmon',
-    'begin':        'Gold',
-    'record':       'GoldenRod',
-    'event':        'LimeGreen',
-    'available':    'LightSkyBlue',
-    'waiting':      'SlateGrey',
-    'finished':     'DarkGrey',
-}
-
-
-light_etmstyle = {
-    'plain':        'Black',
-    'today':        'Black bold',
-    'inbox':        'Crimson',
-    'pastdue':      'FireBrick',
-    'begin':        'DarkOrange',
-    'record':       'SaddleBrown',
-    'event':        'DarkGreen',
-    'available':    'DarkBlue',
-    'waiting':      'DarkSlateBlue',
-    'finished':     'LightSlateGrey',
-}
 
 
 type2style = {
@@ -1572,7 +1540,7 @@ edit_area = HSplit([
     reply_window,
     HorizontalLine(),
     entry_window,
-])
+    ], style='class:entry')
 
 
 details_area = TextArea(
@@ -2359,12 +2327,13 @@ async def main(etmdir=""):
     global item, settings, ampm, style, etmstyle, application
     ampm = settings['ampm']
     terminal_style = settings['style']
+    etmstyle = settings['colors']
     if terminal_style == "dark":
         style = dark_style
-        etmstyle = dark_etmstyle
+        # etmstyle = dark_etmstyle
     else:
         style = light_style
-        etmstyle = light_etmstyle
+        # etmstyle = light_etmstyle
     agenda_view()
 
     application = Application(
