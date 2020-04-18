@@ -1597,7 +1597,7 @@ def accept(buff):
         text = query_window.text
         queries = settings.get('queries')
         if text == 'l' and queries:
-            tmp = """\
+            tmp = """
 Stored queries are listed as <key>: <query> below. Enter
 <key> at the prompt and then press 'Enter' to replace
 <key> with <query>. Submit this query as is or edit first
