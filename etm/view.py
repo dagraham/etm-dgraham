@@ -1551,14 +1551,19 @@ details_area = TextArea(
     )
 
 query = ETMQuery()
-query_area = TextArea(
-    height=3,
+
+query_window = TextArea(
     style='class:query',
     lexer=query.lexer,
     multiline=False,
     focusable=True,
     prompt='query: ',
     )
+
+query_area = HSplit([
+    ask_window,
+    query_window,
+    ], style='class:entry')
 
 def do_complex_query(text, loop):
     if text.startswith('u ') or text.startswith('c '):
@@ -1588,16 +1593,23 @@ def do_show_processing(loop):
 
 def accept(buff):
     set_text('processing query ...')
-    if query_area.text:
-        text = query_area.text
+    if query_window.text:
+        text = query_window.text
         queries = settings.get('queries')
         if text == 'l' and queries:
-            set_text("\n".join([f"{k}: {v}" for k, v in queries.items()]))
+            tmp = """
+Stored queries are listed as <key>: <query> below. Enter
+<key> at the prompt and then press 'Enter' to replace
+<key> with <query>. Submit this query as is or edit first
+and then submit.
+
+  """ + "\n  ".join([f"{k}: {v}" for k, v in queries.items()])
+            set_text(tmp)
             return False
         if queries and text in queries:
             set_text("")
             text = queries[text]
-            query_area.text = text
+            query_window.text = text
             # don't reset the query area buffer we just set
             return True
         if text.strip() in ['quit', 'exit']:
@@ -1621,7 +1633,7 @@ def accept(buff):
 
 
 
-query_area.accept_handler = accept
+query_window.accept_handler = accept
 
 
 edit_container = HSplit([
@@ -2068,6 +2080,7 @@ def busy_view(*event):
 
 @bindings.add('q', filter=is_viewing)
 def query_view(*event):
+    ask_buffer.text = "Submit '?' for help or 'l' for a list of stored queries"
     dataview.set_active_view('q')
     dataview.show_query()
     set_text(dataview.show_active_view())
