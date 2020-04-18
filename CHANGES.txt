@@ -1,10 +1,23 @@
-Recent changes as of 2020-04-18T14:34:14.467779-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.2.4) Dan Graham
-    0de6f523 2020-04-18 14:34:14 -0400
+Recent changes as of 2020-04-18T14:40:01.731143-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.2.5) Dan Graham
+    c2ccb776 2020-04-18 14:40:01 -0400
+    Tagged version 4.2.5.
+
+- 25 seconds ago Dan Graham
+    a1504c62 2020-04-18 14:39:36 -0400
+    Bad merge
+
+- 6 minutes ago (working) Dan Graham
+    72384dd6 2020-04-18 14:34:14 -0400
     Tagged version 4.2.4.
 
-- 54 minutes ago Dan Graham
+- 60 minutes ago Dan Graham
     c31073c8 2020-04-18 13:40:00 -0400
+    Added info line above prompt in query and added instructions to
+    the beginning of the stored query listing.
+
+- 60 minutes ago (origin/master, origin/HEAD) Dan Graham
+    e6497419 2020-04-18 13:40:00 -0400
     Added info line above prompt in query and added instructions to
     the beginning of the stored query listing.
 
@@ -417,15 +430,3 @@ Recent changes as of 2020-04-18T14:34:14.467779-04:00:
 - 2 months ago Dan Graham
     e1d949ff 2020-02-08 09:17:44 -0500
     Added used times to completed view. Modified README accordingly.
-
-- 3 months ago Dan Graham
-    5ae9c213 2020-02-03 18:51:32 -0500
-    README tweaks
-
-- 3 months ago Dan Graham
-    a4d964f4 2020-02-03 18:49:13 -0500
-    README tweaks
-
-- 3 months ago Dan Graham
-    18522772 2020-02-02 21:01:23 -0500
-    Added menu section to README.
