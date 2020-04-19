@@ -1,36 +1,45 @@
-Recent changes as of 2020-04-19T09:53:45.345216-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.2.6) Dan Graham
-    7a5a21b2 2020-04-19 09:53:45 -0400
+Recent changes as of 2020-04-19T15:33:23.028523-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.2.7) Dan Graham
+    1c1db29f 2020-04-19 15:33:23 -0400
+    Tagged version 4.2.7.
+
+- 20 seconds ago Dan Graham
+    8a6b3f31 2020-04-19 15:33:03 -0400
+    Apply sort_dates_times to the date/time component of u in query
+    -a.
+
+- 6 hours ago (origin/master, origin/HEAD, master) Dan Graham
+    fdb515ad 2020-04-19 09:53:45 -0400
     Tagged version 4.2.6.
 
-- 7 minutes ago (master) Dan Graham
+- 6 hours ago Dan Graham
     1cbd3832 2020-04-19 09:46:38 -0400
     Merge branch 'working'
 
-- 19 minutes ago Dan Graham
+- 6 hours ago Dan Graham
     c15d20cd 2020-04-19 09:34:48 -0400
     Added sort_dates_times to report.py to handle sorting a list with
     both dates and datetimes.Return dates as rdt for both u and f
     instances.
 
-- 19 hours ago (origin/master, origin/HEAD) Dan Graham
+- 25 hours ago Dan Graham
     793e7399 2020-04-18 14:40:01 -0400
     Tagged version 4.2.5.
 
-- 19 hours ago Dan Graham
+- 25 hours ago Dan Graham
     a1504c62 2020-04-18 14:39:36 -0400
     Bad merge
 
-- 19 hours ago Dan Graham
+- 25 hours ago Dan Graham
     72384dd6 2020-04-18 14:34:14 -0400
     Tagged version 4.2.4.
 
-- 20 hours ago Dan Graham
+- 26 hours ago Dan Graham
     c31073c8 2020-04-18 13:40:00 -0400
     Added info line above prompt in query and added instructions to
     the beginning of the stored query listing.
 
-- 20 hours ago Dan Graham
+- 26 hours ago Dan Graham
     e6497419 2020-04-18 13:40:00 -0400
     Added info line above prompt in query and added instructions to
     the beginning of the stored query listing.
@@ -424,11 +433,3 @@ Recent changes as of 2020-04-19T09:53:45.345216-04:00:
 - 10 weeks ago Dan Graham
     cac8e6b6 2020-02-10 10:36:15 -0500
     Removed the space in the timer status display.
-
-- 2 months ago Dan Graham
-    3001e912 2020-02-08 15:44:46 -0500
-    README tweaks
-
-- 2 months ago Dan Graham
-    52038c38 2020-02-08 11:08:25 -0500
-    Tagged version 4.0.21.
