@@ -309,7 +309,8 @@ def get_output_and_row2id(items, grpby, header=""):
                 used_time.setdefault(key, ZERO)
                 used_time[key] += ut
         ret.append((st, pt, dt))
-    ret.sort()
+    ret.sort(key=lambda x: sort_dates_times(x[2][1]))
+
     ret = [x[1:] for x in ret]
 
     # create recursive dict from data
