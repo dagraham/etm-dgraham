@@ -85,6 +85,15 @@ def maybe_round(obj):
         print(obj)
         return None
 
+def sort_dates_times(obj):
+    if isinstance(obj, pendulum.Date):
+        return obj.format("YYYY-MM-DD 00:00")
+    if isinstance(obj, pendulum.DateTime):
+        return obj.format("YYYY-MM-DD HH:mm")
+    else:
+        return obj
+
+
 def apply_dates_filter(items, grpby, filters):
     if grpby['report'] == 'u':
         def rel_dt(item, filters):
@@ -106,7 +115,7 @@ def apply_dates_filter(items, grpby, filters):
             items = []
             dt2ut = {}
             for x in item['u']:
-                rdt = x[1].date()
+                rdt = x[1] if isinstance(x[1], pendulum.Date) else x[1].date()
                 dt2ut.setdefault(rdt, ZERO)
                 dt2ut[rdt] += maybe_round(x[0])
             for rdt in dt2ut:
@@ -188,7 +197,7 @@ class QDict(dict):
             elif isinstance(detail[0], list):
                 # u, e.g., will be a list of duration, datetime tuples
                 ret = []
-                detail.sort(key=lambda x: x[1])
+                detail.sort(key=lambda x: sort_dates_times(x[1]))
                 # logger.debug(f"detail list of lists: {detail}")
                 for d in detail:
                     try:
