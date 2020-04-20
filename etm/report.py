@@ -302,14 +302,13 @@ def get_output_and_row2id(items, grpby, header=""):
             except Exception as e:
                 logger.error(f"error: {e}, evaluating {x}")
         if grpby['report'] == 'u':
-            # logger.debug(f"dt: {dt}")
             dt[2] = ut = maybe_round(dt[2])
             for i in range(len(pt)):
                 key = tuple(pt[:i+1])
                 used_time.setdefault(key, ZERO)
                 used_time[key] += ut
         ret.append((st, pt, dt))
-    ret.sort(key=lambda x: sort_dates_times(x[2][1]))
+    ret.sort(key=lambda x: x[0])
 
     ret = [x[1:] for x in ret]
 
