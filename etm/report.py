@@ -285,7 +285,6 @@ def get_output_and_row2id(items, grpby, header=""):
     sort_tups = [x for x in grpby.get('sort', [])]
     path_tups = [x for x in grpby.get('path', [])]
     dtls_tups  = [x for x in grpby.get('dtls', [])]
-    # logger.debug(f"dtls_tups: {dtls_tups}")
     for item in items:
         for x in ['i', 'c', 'l']:
             item.setdefault(x, '~') # make ~ the default
@@ -387,16 +386,10 @@ def get_grpby_and_filters(s, options=None):
                             f"'/'.join(re.split('/', item['{group[0]}']){group[1:]}) or '~'")
                 else:
                     logger.warn(f"non slice use of i: {group}")
-                    # # replace, e.g., i[1] with i[1:2]
-                    # s = f"{group[1]}[1:-1]"
-                    # tmp = f"{group[1][:-1]}:{group[1][-1]}"
-                    # grpby['path'].append(
-                    #         f"re.split('/', item['{group[0]}']){tmp}" )
-                    # grpby['sort'].append(
-                    #         f"re.split('/', item['{group[0]}']){tmp}")
             else:
                 grpby['path'].append("item['%s']" % group.strip())
                 grpby['sort'].append(f"item['{group.strip()}']")
+
             if include:
                 if include == {'Y', 'M', 'D'}:
                     grpby['include'] = "YYYY-MM-DD"
@@ -414,8 +407,9 @@ def get_grpby_and_filters(s, options=None):
                     grpby['include'] = ""
             else:
                 grpby['include'] = ""
-            # logger.debug('grpby final: {0}'.format(grpby))
 
+        if grpby['dated'] or grpby['report'] == 'u':
+            grpby['sort'].append(f"item['rdt'].format('YYYYMMDD')")
     also = []
     omit = ['$']
     for part in parts:
