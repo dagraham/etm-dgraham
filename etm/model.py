@@ -2859,7 +2859,7 @@ entry_tmpl = """\
 {%- for a in x['a'] %} {{ "&a {}: {}".format( inlst2str(a[0]), one_or_more(a[1]) ) }}{% endfor %}\
 {%- endif %}\
 {% if 'u' in x %}\
-{%- set used %}
+{%- set used %}\
 {% for u in x['u'] %}{{ "&u {}: {} ".format(in2str(u[0]), dt2str(u[1])[1]) }}{% endfor %}\
 {% endset %}
 {{ nowrap(used) }} \
@@ -2959,9 +2959,9 @@ display_tmpl = """\
 {%- for a in x['a'] %} {{ "&a {}: {}".format( inlst2str(a[0]), one_or_more(a[1]) ) }}{% endfor %}\
 {%- endif %}\
 {% if 'u' in x %}\
-{%- set used %}
+{%- set used %}\
 {% for u in x['u'] %}{{ "&u {}: {} ".format(in2str(u[0]), dt2str(u[1])[1]) }}{% endfor %}\
-{% endset %}
+{% endset %}\
 {{ wrap(used) }} \
 {% endif %}\
 {% if 'f' in x %}{{ " &f {}".format(dt2str(x['f'])[1]) }}{% endif %}\
