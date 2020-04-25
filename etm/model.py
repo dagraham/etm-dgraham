@@ -1767,8 +1767,6 @@ class DataView(object):
         self.used_summary = {}
         self.used_details = {}
         self.used_details2id = {}
-        self.used_description = {}
-        self.used_description2id = {}
         self.currMonth()
         self.completions = []
         self.timer_status = 0  # 0: stopped, 1: running, 2: paused
@@ -2010,14 +2008,6 @@ class DataView(object):
             self.used_view = used_details
             self.row2id = self.used_details2id.get(self.active_month)
             return self.used_view
-        elif self.active_view == 'used time expanded':
-            used_description = self.used_description.get(self.active_month)
-            if not used_description:
-                month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
-                return f"Nothing recorded for {month_format}"
-            self.used_description_view = used_description
-            self.row2id = self.used_description2id.get(self.active_month)
-            return self.used_description_view
         elif self.active_view == 'used time summary':
             self.row2id = {}
             used_summary = self.used_summary.get(self.active_month)
@@ -2286,7 +2276,7 @@ class DataView(object):
 
     def refreshCache(self):
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20, self.pinned_list)
-        self.used_details, self.used_details2id, self.used_summary, self.used_description, self.used_description2id = get_usedtime(self.db)
+        self.used_details, self.used_details2id, self.used_summary = get_usedtime(self.db)
 
 
     def possible_archive(self):
@@ -5137,8 +5127,6 @@ def get_usedtime(db):
 
     used_details = {}
     used_details2id = {}
-    used_description = {}
-    used_description2id = {}
     used_summary = {}
 
     month_rows = {}
@@ -5220,8 +5208,7 @@ def get_usedtime(db):
         used_details[month] = tree
         used_details2id[month] = row2id
         dtree, drow2id = ddict.as_tree(ddict, level=0)
-        used_description[month] = dtree
-        used_description2id[month] = drow2id
+
 
     keys = [x for x in used_time]
     keys.sort()
@@ -5246,7 +5233,7 @@ def get_usedtime(db):
     for key, val in month_rows.items():
         used_summary[key] = "\n".join(val)
 
-    return used_details, used_details2id, used_summary, used_description, used_description2id
+    return used_details, used_details2id, used_summary
 
 
 def fmt_class(txt, cls=None, plain=False):
