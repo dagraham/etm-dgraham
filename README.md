@@ -387,8 +387,6 @@ Items that have been "pinned" (have their pin status toggled on) are displayed i
 
 If your daily work flow will involve dealing with a number of reminders, you can "pin" them by selecting each one in which ever view is most convenient and then pressing `P`. All such pinned items will appear in this view. Selecting a reminder in this view and pressing `P` will toggle its pin status off and remove it from the view.
 
-Pinned items are displayed in all views using a map pin symbol, 📌.
-
 ### [Query View](#overview)
 
 In *query view* an entry line at the bottom of the screen is used to submit queries to your data store of reminders. For example, press `q` to open query view, enter
