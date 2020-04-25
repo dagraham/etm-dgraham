@@ -24,7 +24,7 @@ class Settings():
         'dark': {
             'plain':        'Ivory',
             'today':        'Ivory bold',
-            'inbox':        'Yellow',
+            'inbox':        'OrangeRed',
             'pastdue':      'LightSalmon',
             'begin':        'Gold',
             'record':       'GoldenRod',

@@ -2004,7 +2004,7 @@ def is_editing_reps(*event):
     showing, reps = res
     show_message(showing, reps, 24)
 
-@bindings.add('c-p', filter=is_viewing_or_details & is_item_view)
+@bindings.add('P', filter=is_viewing_or_details & is_item_view)
 def toggle_pinned(*event):
     row = text_area.document.cursor_position_row
     res = dataview.toggle_pinned(row)
@@ -2120,7 +2120,7 @@ def history_view(*event):
     set_text(dataview.show_active_view())
 
 @bindings.add('p', filter=is_viewing)
-def show_pinned(*event):
+def pinned_view(*event):
     dataview.set_active_view('p')
     set_text(dataview.show_active_view())
 
@@ -2286,6 +2286,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('f) forthcoming', handler=forthcoming_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
+        MenuItem('p) pinned', handler=pinned_view),
         MenuItem('q) query', handler=query_view),
         MenuItem('r) records', handler=records_view),
         MenuItem('t) tags', handler=tag_view),
@@ -2320,6 +2321,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('C) edit copy', handler=edit_copy),
         MenuItem('D) delete', handler=do_maybe_delete),
         MenuItem('F) finish', handler=do_finish),
+        MenuItem('P) toggle pin', handler=toggle_pinned),
         MenuItem('R) reschedule',  handler=do_reschedule),
         MenuItem('S) schedule new', handler=do_schedule_new),
         MenuItem('^g) open goto', handler=do_goto),

@@ -353,6 +353,7 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence
   * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first
   * i: Index: all items grouped hierarchically by index entry
+  * p: Pinned: items whose pin status is on. 
   * q: Query: items matching a user specified query. Enter ? for query usage.
   * r: Records: records grouped hierarchically by index entry
   * t: Tags: all items with @t tag entries grouped by tag
@@ -380,140 +381,13 @@ And, on the current day only:
 * *<* pastdue warnings in descending order of the number of days past due
 * *>* beginby warnings in ascending order of the number of days remaining
 
+### [Pinned View](#overview)
 
-### [Used Time Views](#overview)
+Items that have been "pinned" (have their pin status toggled on) are displayed in *pinned view*. 
 
-The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
+If your daily work flow will involve dealing with a number of reminders, you can "pin" them by selecting each one in which ever view is most convenient and then pressing `P`. All such pinned items will appear in this view. Selecting a reminder in this view and pressing `P` will toggle its pin status off and remove it from the view.
 
-		* Modi ut sit sed amet sit @s 2019-11-11 10:00am @e
-		   1h30m
-		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
-		@i client A/project a1/correspondence
-		@d Aliquam non sed aliquam eius tempora quisquam dolorem.
-		Neque quiquia labore tempora magnam. Quiquia tempora
-		porro est ut. Ut tempora sed non ut eius neque porro.
-		Sed quaerat consectetur dolor sit.
-
-and the *used time view* for November begins with
-
-		November 2019
-		  client A
-			project a1
-			  correspondence
-				* Modi ut sit sed amet sit: 1.6h Nov 11
-				% Amet modi neque eius adipisci: 2.7h Nov 27
-			  research
-				* Quisquam quiquia velit non: 2.0h Nov 19
-			project a2
-			  correspondence
-				* Consectetur voluptatem dolorem: 1.0h Nov 6
-				* Quaerat etincidunt sed non: 0.9h Nov 13
-				* Consectetur eius est adipisci: 0.5h Nov 25
-				% Magnam labore etincidunt: 1.8h Nov 28
-			  meeting
-				% Adipisci dolor labore quiquia: 0.9h Nov 7
-				% Adipisci eius velit porro: 1.4h Nov 14
-			  research
-				* Non modi non velit eius: 1.0h Nov 20
-		  client B
-			project b1
-			  correspondence
-				* Dolor neque velit dolorem: 0.4h Nov 22
-			  meeting
-				* Ipsum numquam porro consectetur: 0.8h Nov 15
-			  phone
-				- Porro voluptatem aliquam: 1.0h Nov 12
-				% Amet ut dolor velit aliquam: 1.9h Nov 13
-			  research
-				* Quisquam labore ut sit aliquam: 0.7h Nov 5
-				* Quiquia ut quisquam sit: 1.5h Nov 12
-				% Adipisci amet modi sed eius: 2.6h Nov 15
-				- Velit dolor quiquia etincidunt: 1.9h Nov 15
-
-Note that the display is by month and, within the month, heirarchially by index entry and reminder. Note also, that the reported times are aggregates of all `@u` entries in the reminder. The first reminder, for example, has 2 such entries:
-
-		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
-
-Because of
-
-		usedtime_minutes: 6
-
-in `cfg.yaml`, each `@u` timeperiod is first rounded up to the next 6 minutes and then added. Thus 58m becomes 1h, 34m becomes 36m and the sum, 1h36m, is reported in hours and tenths as 1.6h.
-
-The reminder lines are similar to those in other views. With, e.g.,
-
-			* Modi ut sit sed amet sit: 1.6h Nov 11
-
-selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth.
-
-The *used time **expanded** view* is like the *used time* view but when a reminder has an `@d` entry, the contents of that field are also displayed wrapped and indented under the reminder. This view for November begins with
-
-		November 2019
-		  client A
-			project a1
-			  correspondence
-				* Modi ut sit sed amet sit: 1.6h Nov 11
-				  Aliquam non sed aliquam eius tempora
-				  quisquam dolorem. Neque quiquia labore
-				  tempora magnam. Quiquia tempora porro est
-				  ut. Ut tempora sed non ut eius neque porro.
-				  Sed quaerat consectetur dolor sit.
-				% Amet modi neque eius adipisci: 2.7h Nov 27
-				  Adipisci voluptatem labore amet neque neque
-				  numquam. Voluptatem dolor dolorem sed sit.
-				  Tempora labore ut ut labore tempora. Sit
-				  ipsum dolorem aliquam aliquam voluptatem non
-				  labore. Est quisquam etincidunt quiquia est
-				  ipsum adipisci. Est quiquia velit sed sed
-				  quisquam quisquam porro.
-			  research
-				* Quisquam quiquia velit non: 2.0h Nov 19
-				  Labore ipsum non consectetur amet quiquia
-				  sit porro. Quisquam amet ut sit etincidunt.
-				  Quiquia modi consectetur ipsum velit eius.
-				  Est dolorem etincidunt porro. Modi dolorem
-				  porro magnam est. Adipisci non quiquia
-				  voluptatem porro consectetur. Quaerat neque
-				  modi sed tempora sit adipisci consectetur.
-				  Dolor non dolore ut quaerat ipsum labore.
-			project a2
-			  correspondence
-				* Consectetur voluptatem dolorem: 1.0h Nov 6
-				  Dolore quaerat est dolore tempora. Modi amet
-				  voluptatem etincidunt numquam neque velit.
-				  Ipsum neque amet dolor magnam consectetur
-				  dolorem voluptatem. Neque amet etincidunt
-				  quiquia neque dolorem numquam quiquia. Neque
-				  etincidunt labore numquam neque modi.
-
-
-The *used time **summary** view* for the same month begins with:
-
-		November 2019: 44.4h
-		   client A: 13.8h
-			  project a1: 6.3h
-				 correspondence: 4.3h
-				 research: 2.0h
-			  project a2: 7.5h
-				 correspondence: 4.2h
-				 meeting: 2.3h
-				 research: 1.0h
-		   client B: 16.6h
-			  project b1: 10.8h
-				 correspondence: 0.4h
-				 meeting: 0.8h
-				 phone: 2.9h
-				 research: 6.7h
-			  project b2: 3.9h
-				 meeting: 1.8h
-				 research: 2.1h
-			  project b3: 1.9h
-				 correspondence: 1.9h
-
-
-This view omits the reminder lines and aggregates the used times heirarchially by index entry.
-
-As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
+Pinned items are displayed in all views using a map pin symbol, 📌.
 
 ### [Query View](#overview)
 
@@ -821,6 +695,142 @@ Simple queries of this type produce a list of matching items with the itemtype, 
 
 As with other etm views, in query view you can press `Ctrl-C` to copy the view to the system clipboard or select a reminder and press `Enter` to display its details, press `E` to edit it and so forth.
 
+
+### [Used Time Views](#overview)
+
+The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
+
+		* Modi ut sit sed amet sit @s 2019-11-11 10:00am @e
+		   1h30m
+		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
+		@i client A/project a1/correspondence
+		@d Aliquam non sed aliquam eius tempora quisquam dolorem.
+		Neque quiquia labore tempora magnam. Quiquia tempora
+		porro est ut. Ut tempora sed non ut eius neque porro.
+		Sed quaerat consectetur dolor sit.
+
+and the *used time view* for November begins with
+
+		November 2019
+		  client A
+			project a1
+			  correspondence
+				* Modi ut sit sed amet sit: 1.6h Nov 11
+				% Amet modi neque eius adipisci: 2.7h Nov 27
+			  research
+				* Quisquam quiquia velit non: 2.0h Nov 19
+			project a2
+			  correspondence
+				* Consectetur voluptatem dolorem: 1.0h Nov 6
+				* Quaerat etincidunt sed non: 0.9h Nov 13
+				* Consectetur eius est adipisci: 0.5h Nov 25
+				% Magnam labore etincidunt: 1.8h Nov 28
+			  meeting
+				% Adipisci dolor labore quiquia: 0.9h Nov 7
+				% Adipisci eius velit porro: 1.4h Nov 14
+			  research
+				* Non modi non velit eius: 1.0h Nov 20
+		  client B
+			project b1
+			  correspondence
+				* Dolor neque velit dolorem: 0.4h Nov 22
+			  meeting
+				* Ipsum numquam porro consectetur: 0.8h Nov 15
+			  phone
+				- Porro voluptatem aliquam: 1.0h Nov 12
+				% Amet ut dolor velit aliquam: 1.9h Nov 13
+			  research
+				* Quisquam labore ut sit aliquam: 0.7h Nov 5
+				* Quiquia ut quisquam sit: 1.5h Nov 12
+				% Adipisci amet modi sed eius: 2.6h Nov 15
+				- Velit dolor quiquia etincidunt: 1.9h Nov 15
+
+Note that the display is by month and, within the month, heirarchially by index entry and reminder. Note also, that the reported times are aggregates of all `@u` entries in the reminder. The first reminder, for example, has 2 such entries:
+
+		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
+
+Because of
+
+		usedtime_minutes: 6
+
+in `cfg.yaml`, each `@u` timeperiod is first rounded up to the next 6 minutes and then added. Thus 58m becomes 1h, 34m becomes 36m and the sum, 1h36m, is reported in hours and tenths as 1.6h.
+
+The reminder lines are similar to those in other views. With, e.g.,
+
+			* Modi ut sit sed amet sit: 1.6h Nov 11
+
+selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth.
+
+The *used time **expanded** view* is like the *used time* view but when a reminder has an `@d` entry, the contents of that field are also displayed wrapped and indented under the reminder. This view for November begins with
+
+		November 2019
+		  client A
+			project a1
+			  correspondence
+				* Modi ut sit sed amet sit: 1.6h Nov 11
+				  Aliquam non sed aliquam eius tempora
+				  quisquam dolorem. Neque quiquia labore
+				  tempora magnam. Quiquia tempora porro est
+				  ut. Ut tempora sed non ut eius neque porro.
+				  Sed quaerat consectetur dolor sit.
+				% Amet modi neque eius adipisci: 2.7h Nov 27
+				  Adipisci voluptatem labore amet neque neque
+				  numquam. Voluptatem dolor dolorem sed sit.
+				  Tempora labore ut ut labore tempora. Sit
+				  ipsum dolorem aliquam aliquam voluptatem non
+				  labore. Est quisquam etincidunt quiquia est
+				  ipsum adipisci. Est quiquia velit sed sed
+				  quisquam quisquam porro.
+			  research
+				* Quisquam quiquia velit non: 2.0h Nov 19
+				  Labore ipsum non consectetur amet quiquia
+				  sit porro. Quisquam amet ut sit etincidunt.
+				  Quiquia modi consectetur ipsum velit eius.
+				  Est dolorem etincidunt porro. Modi dolorem
+				  porro magnam est. Adipisci non quiquia
+				  voluptatem porro consectetur. Quaerat neque
+				  modi sed tempora sit adipisci consectetur.
+				  Dolor non dolore ut quaerat ipsum labore.
+			project a2
+			  correspondence
+				* Consectetur voluptatem dolorem: 1.0h Nov 6
+				  Dolore quaerat est dolore tempora. Modi amet
+				  voluptatem etincidunt numquam neque velit.
+				  Ipsum neque amet dolor magnam consectetur
+				  dolorem voluptatem. Neque amet etincidunt
+				  quiquia neque dolorem numquam quiquia. Neque
+				  etincidunt labore numquam neque modi.
+
+
+The *used time **summary** view* for the same month begins with:
+
+		November 2019: 44.4h
+		   client A: 13.8h
+			  project a1: 6.3h
+				 correspondence: 4.3h
+				 research: 2.0h
+			  project a2: 7.5h
+				 correspondence: 4.2h
+				 meeting: 2.3h
+				 research: 1.0h
+		   client B: 16.6h
+			  project b1: 10.8h
+				 correspondence: 0.4h
+				 meeting: 0.8h
+				 phone: 2.9h
+				 research: 6.7h
+			  project b2: 3.9h
+				 meeting: 1.8h
+				 research: 2.1h
+			  project b3: 1.9h
+				 correspondence: 1.9h
+
+
+This view omits the reminder lines and aggregates the used times heirarchially by index entry.
+
+As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
+
+
 ### [Common Features](#overview)
 
 While the views differ in many respects, they also share some common aspects:
@@ -842,11 +852,72 @@ While the views differ in many respects, they also share some common aspects:
 
 ## [Menus](#overview)
 
-### [etm](#overview)
+Pressing F1 toggles the *etm* menu display - opening it if it is closed and closing it if it is open. There are four menu tabs labeled *etm*, *view*, *editor* and *selected* with the options listed below:
 
-Pressing F1 toggles the *etm* menu display - opening it if it is closed and closing it if it is open. The first of four menus is labeled *etm*:
+    etm
+	    F1) activate/close menu
+        F2) about etm
+        F3) system info
+        F4) check for updates
+        F5) import file
+        F6) datetime calculator
+        F7) configuration settings
+        F8) help
+        ---
+        ^q) quit
+    view
+        a) agenda
+        b) busy
+        c) completed
+        d) do next
+        f) forthcoming
+        h) history
+        i) index
+        p) pinned
+        q) query
+        r) records
+        t) tags
+        u) used time
+        U) used time summary
+        ---
+        s) scheduled alerts for today
+        y) half yearly calendar
+        ---
+        /) search forward
+        ?) search backward
+        n) next incrementally in search
+        l) go to line number
+        ^c) copy active view to clipboars
+        ---
+        j) jump to date in a), b) and c)
+        right) next in a), b), c), u), U) and y)
+        left) previous in a), b), c), u), U) and y)
+        space) current in a), b), c), u), U) and y)
+    editor
+        N) create new item
+        ---
+        ^s) save changes & close
+        ^r) show repetitions
+        ^z) close editor
+    selected
+        Enter) toggle showing details
+        E) edit
+        C) edit copy
+        D) delete
+        F) finish
+        P) toggle pin
+        R) reschedule
+        S) schedule new
+        ---
+        ^g) open goto
+        ^r) show repetitions
+        ---
+        T) begin timer, then toggle paused/running
+        ^T) record used time
 
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-etm.png" alt="etm" title="menu-etm" width="40%" height="40%"/>
+
+### [etm menu notes](#overview)
+
 
 As with the other menus, each entry is preceeded by its shortcut, e.g., F2 for *about etm* or `^q` (`control` and `q` simultaneously) to quit.
 
@@ -863,27 +934,22 @@ Many of the entries are obvious but a few deserve comment.
 * *configuration settings* opens the file `cfg.yaml` using the default text editor for your operating system. Note that any changes you make to this file will not take effect until you close and reopen *etm*.
 * *help* opens the *etm* documentation on google pages using the default web browser for your system. This is the most user friendly source for the documentation because it begins with a table of contents whose elements are active links to the relevant sections. It is updated with every commit so it is always the most recent version available.
 
-### [view](#overview)
+### [view menu notes](#overview)
 
 The *view* menu provides access to all the *etm* views with the shortcut keys for these views. E.g., press `a` to open *agenda view*.
 
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-view.png" alt="editor" title="menu-editor" width="56%" height="56%"/>
 
 The entries here are pretty obvious and the views themselves are descibed elsewhere.
 
-### [editor](#overview)
-
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-editor.png" alt="editor" title="menu-editor" width="36%" height="36%"/>
+### [editor menu notes](#overview)
 
 It is worth noting here that when you are editing an item, `^s` (control and s) saves any changes you have made and closes the editor. `^z` (control and z), on the other hand, closes the editor without saving any changes but, if there are changes, asks for confirmation that this is what you want.
 
 An options setting, 'vi_mode' determines which keybindings are used in the entry buffer when editing. If 'vi_mode' is true, then vi-style bindings are used and, otherwise, the default emacs-style bindings are used. The status bar describes the current mode, e.g., 'vi: insert' with a '+' appended if the contents have been modified.
 
-### [selected](#overview)
+### [selected menu notes](#overview)
 
 Options in the *selected* menu are only relevant when a reminder has been selected in one of the views.
-
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/menu-selected.png" alt="selected" title="menu-selected" width="55%" height="55%"/>
 
 Several options here deserve comment.
 
@@ -892,6 +958,8 @@ Several options here deserve comment.
 * *reschedule* will prompt for a datetime. If the reminder is repeating, the provided datetime will replace the datetime of the selected instance. Otherwise it will be used either to replace the current value of `@s` or, if there is no `@s` entry, to create one.
 * *schedule new* will prompt for a datetime and add that instance to any other instances of the reminder.
 * *open goto* will use the system default application to open the file path or url specified in the selected reminders `@g` entry.
+* *toggle pin* toggles the pin status of an item between off and on. Items for which the pin status is on have a map pin symbol, 📌, appended to their summaries in all views and are also displayed in *pinned view*.
+* *show repetitions* pops up a display showing illustrative repetitions if the item is repeating.
 * *begin timer then toggle paused/running* will create and start an active timer associated with the selected reminder if an active timer does not currently exist and will otherwise toggle the paused or running state of the active timer.
 * When a timer is active, the current status of the timer is displayed in the bottom, status line just to the left of the view name. For example, `3m*` would mean that the timer has 3 minutes of elapsed time and, because of the asterisk, that the timer is running. When the timer is paused, an exclamation point replaces the asterisk.
 * If there is an active timer, *record used time* will create an `@u` entry in the associated reminder using the current elapsed time as the time period and the current datetime as the ending time and then cancel the active timer. If there is no active timer, then *record used time* will prompt for a timeperiod and an ending time and then create an `@u` entry in the selected reminder using those elements.
