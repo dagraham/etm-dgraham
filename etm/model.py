@@ -5084,7 +5084,7 @@ def show_index(db, id2relevant, pinned_list=[]):
 def show_pinned(items, pinned_list=[]):
     width = shutil.get_terminal_size()[0] - 2
     rows = []
-    summary_width = width - 22
+    summary_width = width - 18
     for item in items:
         mt = item.get('modified', None)
         if mt is not None:
@@ -5096,14 +5096,15 @@ def show_pinned(items, pinned_list=[]):
             year = dt.format("YYYY")
             monthday = dt.format("MMM D")
             time = fmt_time(dt)
-            dtfmt = f"{monthday} {time}"
+            # dtfmt = f"{monthday} {time}"
+            dtfmt = dt.format("YYYY-MM-DD")
             itemtype = finished_char if 'f' in item else item.get('itemtype', '?')
             summary = item['summary'][:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else item['summary'][:summary_width]
             rows.append(
                     {
                         'id': id,
-                        'sort': dt,
-                        'path': year,
+                        'sort': (itemtype, dt),
+                        'path': type_keys[itemtype],
                         'columns': [itemtype,
                             summary.ljust(summary_width, ' '),
                             f"{label} {dtfmt}",

@@ -383,7 +383,7 @@ And, on the current day only:
 
 ### [Pinned View](#overview)
 
-Items that have been "pinned" (have their pin status toggled on) are displayed in *pinned view*. 
+Items that have been "pinned" (have their pin status toggled on) are displayed in *pinned view* grouped by itemtype and sorted by the created/modified datetime. 
 
 If your daily work flow will involve dealing with a number of reminders, you can "pin" them by selecting each one in which ever view is most convenient and then pressing `P`. All such pinned items will appear in this view. Selecting a reminder in this view and pressing `P` will toggle its pin status off and remove it from the view.
 
