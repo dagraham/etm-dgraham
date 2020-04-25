@@ -111,6 +111,7 @@ for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
 type_keys = {
     "*": "event",
     "-": "task",
+    "✓": "finished",
     "%": "record",
     "!": "inbox",
 }
@@ -4645,7 +4646,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[]):
                     if possible_beginby:
                         for instance in instances:
                             if today + DAY <= instance <= tomorrow + possible_beginby:
-                                beginbys.append([(instance.date() - today.date()).days, item['summary'], item.doc_id, None, instance])
+                                beginbys.append([(instance.date() - today.date()).days, summary, item.doc_id, None, instance])
                     if possible_alerts:
                         for instance in instances:
                             for possible_alert in possible_alerts:
@@ -4668,7 +4669,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[]):
                 if possible_beginby:
                     for instance in aft:
                         if today + DAY <= instance <= tomorrow + possible_beginby:
-                            beginbys.append([(instance.date() - today.date()).days, item['summary'], item.doc_id, None, instance])
+                            beginbys.append([(instance.date() - today.date()).days, summary, item.doc_id, None, instance])
                 if possible_alerts:
                     for instance in aft + bef:
                         for possible_alert in possible_alerts:
@@ -4715,7 +4716,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[]):
                 if 'b' in job:
                     days = int(job['b']) * DAY
                     if today + DAY <= jobstart <= tomorrow + days:
-                        beginbys.append([(jobstart.date() - today.date()).days, job['summary'], item.doc_id, job_id, None])
+                        beginbys.append([(jobstart.date() - today.date()).days, job_summary, item.doc_id, job_id, None])
                 if 'a' in job:
                     for alert in job['a']:
                         for td in alert[0]:
@@ -5112,7 +5113,7 @@ def show_pinned(items, pinned_list=[]):
                     }
                     )
 
-    rows.sort(key=itemgetter('sort'), reverse=True)
+    rows.sort(key=itemgetter('sort'), reverse=False)
     rdict = RDict()
     for row in rows:
         path = row['path']
