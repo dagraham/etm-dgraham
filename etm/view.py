@@ -1034,7 +1034,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned']
 
 @Condition
 def is_dated_view():
@@ -2004,6 +2004,14 @@ def is_editing_reps(*event):
     showing, reps = res
     show_message(showing, reps, 24)
 
+@bindings.add('c-p', filter=is_viewing_or_details & is_item_view)
+def toggle_pinned(*event):
+    row = text_area.document.cursor_position_row
+    res = dataview.toggle_pinned(row)
+    dataview.refreshRelevant()
+    set_text(dataview.show_active_view())
+    text_area.buffer.cursor_position = \
+                    text_area.buffer.document.translate_row_col_to_index(row, 0)
 
 @bindings.add('f5')
 def do_import_file(*event):
@@ -2035,7 +2043,7 @@ Enter the path of the file to import:""")
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('c-p')
+# @bindings.add('c-p')
 def do_whatever(*event):
     """
     For testing whatever
@@ -2110,6 +2118,12 @@ def yearly_view(*event):
 def history_view(*event):
     dataview.set_active_view('h')
     set_text(dataview.show_active_view())
+
+@bindings.add('p', filter=is_viewing)
+def show_pinned(*event):
+    dataview.set_active_view('p')
+    set_text(dataview.show_active_view())
+
 
 @bindings.add('f', filter=is_viewing)
 def forthcoming_view(*event):
