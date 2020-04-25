@@ -2099,11 +2099,6 @@ def used_view(*event):
     dataview.set_active_view('u')
     set_text(dataview.show_active_view())
 
-@bindings.add('x', filter=is_viewing)
-def used_description(*event):
-    dataview.set_active_view('x')
-    set_text(dataview.show_active_view())
-
 @bindings.add('U', filter=is_viewing)
 def used_summary_view(*event):
     dataview.set_active_view('U')
@@ -2292,7 +2287,6 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
-        MenuItem('x) used time expanded', handler=used_description),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
         MenuItem('y) half yearly calendar', handler=yearly_view),
