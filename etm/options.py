@@ -266,7 +266,6 @@ colors:
                     # logger.debug(f"user: {self.user}")
                 if self.user and isinstance(self.user, dict):
                     self.changes = self.check_options()
-                    # logger.debug(f"changes: {self.changes}")
                 else:
                     self.changes = [f'invalid settings from {self.cfgfile} - using defaults']
             else:
@@ -285,7 +284,6 @@ colors:
     def check_options(self):
         changed = []
         new = deepcopy(self.user)
-        logger.info(f"new: {type(new)}; {new}")
         active_style = new.get('style', self.settings['style'])
         if active_style not in ['dark', 'light']:
             active_style = self.settings['style']

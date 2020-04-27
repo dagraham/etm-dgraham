@@ -414,7 +414,6 @@ Enter
 
 to display a list of the saved keys and values.
 """
-
     def is_datetime(self, val):
         return isinstance(val, pendulum.DateTime)
 
@@ -567,7 +566,7 @@ to display a list of the saved keys and values.
 
     def info(self, a):
         # field 'a' exists
-        item = DBITEM.get(doc_id=int(a))
+        item = dataview.db.get(doc_id=int(a))
         return  f"{item_details(item, False)}"
 
 
@@ -640,7 +639,7 @@ to display a list of the saved keys and values.
                 # info
                 return False, test
             else:
-                items = DBITEM.search(test)
+                items = dataview.db.search(test)
                 return True, items
         except Exception as e:
             return False, f"exception processing '{query}':\n{e}"
@@ -1437,7 +1436,10 @@ def get_statusbar_text():
     return [ ('class:status',  f' {current_datetime}'), ]
 
 def get_statusbar_center_text():
-    return [ ('class:status',  f' {get_edit_mode()}'), ]
+    if dataview.is_editing:
+        return [ ('class:status',  f' {get_edit_mode()}'), ]
+    if dataview.is_showing_query:
+        return [ ('class:status',  f' {dataview.query_mode}'), ]
 
 
 def get_statusbar_right_text():
@@ -1566,6 +1568,16 @@ query_area = HSplit([
     ], style='class:entry')
 
 def do_complex_query(text, loop):
+    if text.startswith('arch '):
+        arch = text[:5]
+        text = text[5:]
+        dataview.use_archive()
+        item.use_archive()
+    else:
+        arch = ''
+        dataview.use_items()
+        item.use_items()
+
     if text.startswith('u ') or text.startswith('c '):
         grpby, filters = report.get_grpby_and_filters(text)
         ok, items = query.do_query(filters.get('query'))
@@ -1579,7 +1591,7 @@ def do_complex_query(text, loop):
     else:
         ok, items = query.do_query(text)
         if ok:
-            dataview.set_query(text, {}, items)
+            dataview.set_query(f"{arch}{text}", {}, items)
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
         else:
@@ -2043,7 +2055,7 @@ Enter the path of the file to import:""")
     asyncio.ensure_future(coroutine())
 
 
-# @bindings.add('c-p')
+@bindings.add('c-p')
 def do_whatever(*event):
     """
     For testing whatever
@@ -2074,16 +2086,19 @@ def set_text(txt, row=0):
 @bindings.add('a', filter=is_viewing)
 def agenda_view(*event):
     dataview.set_active_view('a')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('c', filter=is_viewing)
 def completed_view(*event):
     dataview.set_active_view('c')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('b', filter=is_viewing)
 def busy_view(*event):
     dataview.set_active_view('b')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('q', filter=is_viewing)
@@ -2097,11 +2112,13 @@ def query_view(*event):
 @bindings.add('u', filter=is_viewing)
 def used_view(*event):
     dataview.set_active_view('u')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('U', filter=is_viewing)
 def used_summary_view(*event):
     dataview.set_active_view('U')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('y', filter=is_viewing)
@@ -2112,37 +2129,44 @@ def yearly_view(*event):
 @bindings.add('h', filter=is_viewing)
 def history_view(*event):
     dataview.set_active_view('h')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('p', filter=is_viewing)
 def pinned_view(*event):
     dataview.set_active_view('p')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 
 @bindings.add('f', filter=is_viewing)
 def forthcoming_view(*event):
     dataview.set_active_view('f')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('d', filter=is_viewing)
 def next_view(*event):
     dataview.set_active_view('d')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('r', filter=is_viewing)
 def records_view(*event):
     dataview.set_active_view('r')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('t', filter=is_viewing)
 def tag_view(*event):
     dataview.set_active_view('t')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('i', filter=is_viewing)
 def index_view(*event):
     dataview.set_active_view('i')
+    item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('right', filter=is_agenda_view & is_viewing)

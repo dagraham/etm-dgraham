@@ -524,6 +524,15 @@ class Item(object):
             self.dbarch = self.db.table('archive', cache_size=None)
             self.dbquery = self.db.table('items', cache_size=None)
 
+    def use_archive(self):
+        self.query_mode = "archive table"
+        logger.debug("using archive table")
+        self.db = DBARCH
+
+    def use_items(self):
+        self.query_mode = "items table"
+        logger.debug("using items table")
+        self.db = DBITEM
 
     def check_goto_link(self, num=5):
         """
@@ -561,9 +570,11 @@ class Item(object):
         return  showing, f"from {starting}:\n  " + "\n  ".join(pairs)
 
     def edit_item(self, doc_id=None, entry=""):
+        logger.debug(f"doc_id: {doc_id}; entry: {entry}")
         if not (doc_id and entry):
             return None
-        item_hsh = self.dbquery.get(doc_id=doc_id)
+        item_hsh = self.db.get(doc_id=doc_id)
+        # item_hsh = self.dbquery.get(doc_id=doc_id)
         self.init_entry = entry
         if item_hsh:
             self.doc_id = doc_id
@@ -1757,6 +1768,7 @@ class DataView(object):
         self.query_view = ""
         self.query_text = ""
         self.query_items = []
+        self.query_mode = "items table"
         self.report_view = ""
         self.report_text = ""
         self.report_items = []
@@ -1841,6 +1853,13 @@ class DataView(object):
         logger.info(f"items: {len(DBITEM)}; archive: {len(DBARCH)}")
         self.possible_archive()
 
+    def use_archive(self):
+        self.query_mode = "archive table"
+        self.db = DBARCH
+
+    def use_items(self):
+        self.query_mode = "items table"
+        self.db = DBITEM
 
     def get_completions(self):
         """
@@ -1963,6 +1982,9 @@ class DataView(object):
         self.current_row = None
         self.prior_view = self.active_view
         self.active_view = self.views.get(c, 'agenda')
+        if self.active_view != 'query':
+            self.use_items()
+        logger.debug(f"active_view: {self.active_view}")
 
 
     def show_active_view(self):
@@ -2123,9 +2145,6 @@ class DataView(object):
     def hide_details(self):
         self.is_showing_details = False
 
-
-
-
     def get_row_details(self, row=None):
         if row is None:
             return ()
@@ -2148,9 +2167,10 @@ class DataView(object):
 
         if not edit and item_id in self.itemcache:
             return item_id, self.itemcache[item_id]
-        item = DBITEM.get(doc_id=item_id)
+        item = self.db.get(doc_id=item_id)
         if item:
             item_hsh = item_details(item, edit)
+            logger.debug(f"returning item_id: {item_id}; item_hsh: {item_hsh}")
             return item_id, item_hsh
 
         return None, ''
@@ -4458,6 +4478,7 @@ def item_details(item, edit=False):
     """
 
     """
+    logger.debug(f"item: {item}; edit: {edit}")
     try:
         if edit:
             return jinja_entry_template.render(h=item)
@@ -4878,7 +4899,6 @@ def show_history(db, reverse=True, pinned_list=[]):
                 summary = (item['summary'][:summary_width - 1] + PIN_CHAR).ljust(summary_width-1, ' ')
             else:
                 summary = item['summary'][:summary_width].ljust(summary_width, ' ')
-            logger.debug(f"summary: {len(summary)} {summary} ")
             rows.append(
                     {
                         'id': id,
