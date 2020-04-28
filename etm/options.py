@@ -97,7 +97,7 @@ keep_current: false
 # last datetimes falling more than this number of years
 # before the current date will automatically be archived on a
 # daily basis.  Archived items are moved from the "items"
-# folder in the database to the "archive" folder and no
+# table in the database to the "archive" table and will no
 # longer appear in normal views. Note that unfinished tasks
 # and records are not archived.
 archive_after: 0

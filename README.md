@@ -909,6 +909,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         ---
         ^g) open goto
         ^r) show repetitions
+        ^x) toggle archived status
         ---
         T) begin timer, then toggle paused/running
         ^T) record used time
@@ -958,6 +959,7 @@ Several options here deserve comment.
 * *open goto* will use the system default application to open the file path or url specified in the selected reminders `@g` entry.
 * *toggle pin* toggles the pin status of an item between off and on. Items for which the pin status is on have a map pin symbol, 📌, appended to their summaries in all views and are also displayed in *pinned view*.
 * *show repetitions* pops up a display showing illustrative repetitions if the item is repeating.
+* *toggle archived status* moves the selected reminder from the items table if it is active to the archive table and vice versa if the archive table is active. 
 * *begin timer then toggle paused/running* will create and start an active timer associated with the selected reminder if an active timer does not currently exist and will otherwise toggle the paused or running state of the active timer.
 * When a timer is active, the current status of the timer is displayed in the bottom, status line just to the left of the view name. For example, `3m*` would mean that the timer has 3 minutes of elapsed time and, because of the asterisk, that the timer is running. When the timer is paused, an exclamation point replaces the asterisk.
 * If there is an active timer, *record used time* will create an `@u` entry in the associated reminder using the current elapsed time as the time period and the current datetime as the ending time and then cancel the active timer. If there is no active timer, then *record used time* will prompt for a timeperiod and an ending time and then create an `@u` entry in the selected reminder using those elements.
@@ -1326,6 +1328,15 @@ For use with @r:
 			* payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1,
 			  -2, -3 &s -1
 
+### [archived reminders](#overview)
+
+When a reminder is 'archived' in *etm*, it is is moved from the *items* table in the database to the *archive* table. Reminders in the *archive* table can only be viewed by opening *query view* and then begin the query with 'a' to use the *archive* table. All other views display reminders from the *items* table.
+
+There are two ways to archive a reminder:
+* Automatically. If 'archive_after' in the configuration settings is set to a positive integer, then tasks with finished datetimes and events with last datetimes more than this number of years before the current date will be achived automatically at the beginning of each new day. Note that unfinshed tasks, records and inbox reminders are never automatically archived.
+* Manually. Select a reminder and press `^x` (control and x) to archive it.
+
+There is only one way to un-archive a reminder. Run a query beinging with 'a' in *query* view to use the archive table, select a reminder and press `^x`. This will un-archive the reminder, i.e., move it back to the *items* table.
 
 ### [configuration](#overview)
 
@@ -1380,7 +1391,7 @@ Here are the options with their default values from that file. The lines beginni
 	# last datetimes falling more than this number of years
 	# before the current date will automatically be archived on a
 	# daily basis.  Archived items are moved from the "items"
-	# folder in the database to the "archive" folder and no
+	# table in the database to the "archive" table and will no
 	# longer appear in normal views. Note that unfinished tasks
 	# and records are not archived.
 	archive_after: 0

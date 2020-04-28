@@ -365,6 +365,22 @@ by any of the following:
     E.g., "-a d, l" would append the item description and
     location to the display of each item.
 
+Archived Reminders
+==================
+
+Queries, by default, search the *items* table in the etm
+database. You can preceed any query with 'a ' (the letter
+'a' followed by a space), to search the *archive* table
+instead. E.g.,
+
+    query: a includes summary waldo or includes d waldo
+
+will search the archive table for reminders with matches
+for 'waldo' in the summary or in the description.
+
+Queries beginning with 'a ' are, in fact, the only way
+to see archived items from within etm itself.
+
 Command History
 ===============
 Any query entered at the `query:` prompt and submitted by
@@ -579,8 +595,8 @@ to display a list of the saved keys and values.
 
         return self.Item[a].test(self.op[b[0]], b[1])
 
-    def process_query(self, query):
 
+    def process_query(self, query):
         parts = [x.split() for x in re.split(r' (and|or) ', query)]
 
         cmnds = []
@@ -625,9 +641,9 @@ to display a list of the saved keys and values.
                 test = test & cmnds[i]
         return True, test
 
+
     def do_query(self, query):
         """
-        For internal usage
         """
         if query == "?" or query == "help":
             return False, self.usage
@@ -1017,6 +1033,10 @@ def is_details():
 @Condition
 def is_querying():
     return get_app().layout.has_focus(query_area)
+
+@Condition
+def is_items_table():
+    return dataview.query_mode == "items table"
 
 
 @bindings.add('f1')
@@ -1440,6 +1460,7 @@ def get_statusbar_center_text():
         return [ ('class:status',  f' {get_edit_mode()}'), ]
     if dataview.is_showing_query:
         return [ ('class:status',  f' {dataview.query_mode}'), ]
+    return [ ('class:status',  '                      '), ]
 
 
 def get_statusbar_right_text():
@@ -1568,13 +1589,12 @@ query_area = HSplit([
     ], style='class:entry')
 
 def do_complex_query(text, loop):
-    if text.startswith('arch '):
-        arch = text[:5]
-        text = text[5:]
+    logger.debug(f"text: {text}")
+    if text.startswith('a '):
+        text = text[2:]
         dataview.use_archive()
         item.use_archive()
     else:
-        arch = ''
         dataview.use_items()
         item.use_items()
 
@@ -1591,7 +1611,7 @@ def do_complex_query(text, loop):
     else:
         ok, items = query.do_query(text)
         if ok:
-            dataview.set_query(f"{arch}{text}", {}, items)
+            dataview.set_query(f"{text}", {}, items)
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
         else:
@@ -1693,7 +1713,7 @@ body = HSplit([
 
 item_not_selected = False
 
-@bindings.add('S', filter=is_viewing_or_details)
+@bindings.add('S', filter=is_viewing_or_details & is_items_table)
 def do_schedule_new(*event):
     doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
 
@@ -1731,7 +1751,7 @@ def do_schedule_new(*event):
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('R', filter=is_viewing_or_details)
+@bindings.add('R', filter=is_viewing_or_details & is_items_table)
 def do_reschedule(*event):
     doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
 
@@ -1828,7 +1848,7 @@ def do_maybe_delete(*event):
 
 starting_buffer_text = ""
 
-@bindings.add('N', filter=is_viewing)
+@bindings.add('N', filter=is_viewing & is_items_table)
 def edit_new(*event):
     global item
     global starting_buffer_text
@@ -1958,7 +1978,7 @@ def do_finish(*event):
 
     asyncio.ensure_future(coroutine())
 
-@bindings.add('C', filter=is_viewing_or_details & is_item_view)
+@bindings.add('C', filter=is_viewing_or_details & is_item_view & is_items_table)
 def edit_copy(*event):
     global item
     global starting_buffer_text
@@ -2016,7 +2036,7 @@ def is_editing_reps(*event):
     showing, reps = res
     show_message(showing, reps, 24)
 
-@bindings.add('P', filter=is_viewing_or_details & is_item_view)
+@bindings.add('P', filter=is_viewing_or_details & is_item_view & is_items_table)
 def toggle_pinned(*event):
     row = text_area.document.cursor_position_row
     res = dataview.toggle_pinned(row)
@@ -2055,14 +2075,40 @@ Enter the path of the file to import:""")
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('c-p')
+@bindings.add('c-p', filter=is_viewing & is_item_view)
 def do_whatever(*event):
     """
     For testing whatever
     """
+    dataview.get_arch_id(text_area.document.cursor_position_row)
+
+
+@bindings.add('c-x', filter=is_viewing & is_item_view)
+def toggle_archived_status(*event):
+    """
+    If using items table move the selected item to the archive table and vice versa.
+    """
     # row = text_area.document.cursor_position_row
-    # dataview.get_row_details(row)
-    dataview.possible_archive()
+    # dataview.get_arch_id(text_area.document.cursor_position_row)
+    res = dataview.move_item(text_area.document.cursor_position_row)
+    if not res:
+        return
+    application.layout.focus(text_area)
+    loop = asyncio.get_event_loop()
+    if dataview.query_mode == "items table":
+        set_text(dataview.show_active_view())
+        loop.call_later(0, data_changed, loop)
+    else:
+        set_text("The reminder has been moved to items table.\nRun the previous query again to update the display")
+        text = f"a { dataview.query_text }"
+        logger.debug(f"calling complex query with text: {text}")
+        dataview.use_items()
+        item.use_items()
+        loop.call_later(0, data_changed, loop)
+        # loop.call_later(0, do_show_processing, loop)
+        loop.call_later(.1, do_complex_query, text, loop)
+    return
+
 
 @bindings.add('c-q')
 def exit(*event):
@@ -2344,6 +2390,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('S) schedule new', handler=do_schedule_new),
         MenuItem('^g) open goto', handler=do_goto),
         MenuItem('^r) show repetitions', handler=not_editing_reps),
+        MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
         MenuItem('T) begin timer, then toggle paused/running', handler=do_timer_toggle),
         MenuItem("^T) record usedtime", handler=do_maybe_record_timer),

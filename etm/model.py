@@ -1988,6 +1988,8 @@ class DataView(object):
 
 
     def show_active_view(self):
+        if self.active_view != 'query':
+            self.hide_query()
         if self.active_view == 'agenda':
             self.refreshAgenda()
             return self.agenda_view
@@ -1995,34 +1997,34 @@ class DataView(object):
             self.refreshAgenda()
             self.row2id = self.done2id
             return self.done_view
-        elif self.active_view == 'busy':
+        if self.active_view == 'busy':
             self.refreshAgenda()
             return self.busy_view
-        elif self.active_view == 'yearly':
+        if self.active_view == 'yearly':
             # self.refreshCalendar()
             return self.calendar_view
-        elif self.active_view == 'history':
+        if self.active_view == 'history':
             self.history_view, self.row2id = show_history(self.db, True, self.pinned_list)
             return self.history_view
-        elif self.active_view == 'forthcoming':
+        if self.active_view == 'forthcoming':
             self.forthcoming_view, self.row2id = show_forthcoming(self.db, self.id2relevant, self.pinned_list)
             return self.forthcoming_view
-        elif self.active_view == 'do next':
+        if self.active_view == 'do next':
             self.next_view, self.row2id = show_next(self.db, self.pinned_list)
             return self.next_view
-        elif self.active_view == 'records':
+        if self.active_view == 'records':
             self.records_view, self.row2id = show_records(self.db, self.id2relevant, self.pinned_list)
             return self.records_view
-        elif self.active_view == 'tags':
+        if self.active_view == 'tags':
             self.tag_view, self.row2id = show_tags(self.db, self.id2relevant, self.pinned_list)
             return self.tag_view
-        elif self.active_view == 'index':
+        if self.active_view == 'index':
             self.index_view, self.row2id = show_index(self.db, self.id2relevant, self.pinned_list)
             return self.index_view
-        elif self.active_view == 'pinned':
+        if self.active_view == 'pinned':
             self.pinned_view, self.row2id = show_pinned(self.get_pinned(), self.pinned_list)
             return self.pinned_view
-        elif self.active_view == 'used time':
+        if self.active_view == 'used time':
             used_details = self.used_details.get(self.active_month)
             if not used_details:
                 month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
@@ -2030,7 +2032,7 @@ class DataView(object):
             self.used_view = used_details
             self.row2id = self.used_details2id.get(self.active_month)
             return self.used_view
-        elif self.active_view == 'used time summary':
+        if self.active_view == 'used time summary':
             self.row2id = {}
             used_summary = self.used_summary.get(self.active_month)
             if not used_summary:
@@ -2038,7 +2040,7 @@ class DataView(object):
                 return f"Nothing recorded for {month_format}"
             self.used_summary_view = used_summary
             return self.used_summary_view
-        elif self.active_view == 'query':
+        if self.active_view == 'query':
             if self.query_text:
                 if self.query_text.startswith('u') or self.query_text.startswith('c'):
                     # complex query
@@ -2157,6 +2159,18 @@ class DataView(object):
             instance = None
             job = None
         return (item_id, instance, job)
+
+
+    def get_arch_id(self, row=None, edit=False):
+        res = self.get_row_details(row)
+        if not res or not res[0]:
+            return None, ''
+        item_id = res[0]
+        item = self.db.get(doc_id=item_id)
+        if 'doc_id' in item:
+            logger.debug(f"item has 'doc_id': {item['doc_id']}")
+            return item['doc_id']
+
 
 
     def get_details(self, row=None, edit=False):
@@ -2380,6 +2394,29 @@ class DataView(object):
 
         return rows
 
+    def move_item(self, row=None):
+        res = self.get_row_details(row)
+        if not res or not res[0]:
+            return False
+        item_id = res[0]
+        item = self.db.get(doc_id=item_id)
+        logger.debug(f"moving item_id {item_id} from {self.query_mode}")
+        try:
+            if self.query_mode == "items table":
+                # move to archive
+                item['doc_id'] = item.doc_id
+                DBARCH.insert(item)
+                DBITEM.remove(doc_ids=[item_id])
+            else:
+                # back to items
+                if 'doc_id' in item:
+                    del item['doc_id']
+                DBITEM.insert(item)
+                DBARCH.remove(doc_ids=[item_id])
+        except Exception as e:
+            logger.error(f"move from {self.query_mode} failed for item_id: {item_id}; exception: {e}")
+            return False
+        return True
 
     def send_mail(self, doc_id):
         item = DBITEM.get(doc_id=doc_id)
