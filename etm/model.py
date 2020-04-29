@@ -2403,13 +2403,10 @@ class DataView(object):
         try:
             if self.query_mode == "items table":
                 # move to archive
-                item['doc_id'] = item.doc_id
                 DBARCH.insert(item)
                 DBITEM.remove(doc_ids=[item_id])
             else:
                 # back to items
-                if 'doc_id' in item:
-                    del item['doc_id']
                 DBITEM.insert(item)
                 DBARCH.remove(doc_ids=[item_id])
         except Exception as e:
