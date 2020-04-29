@@ -2382,7 +2382,6 @@ class DataView(object):
         rem_ids = []
         for item in rows:
             rem_ids.append(item.doc_id)
-            item['doc_id'] = item.doc_id
             add_items.append(item)
 
         try:
