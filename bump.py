@@ -82,6 +82,7 @@ if res in extension_options[ext]:
     new_version = f"{pre}{extension_options[ext][res]}"
 elif res == 'p':
     new_version = b_patch
+    bmsg = "patch version update"
 elif res == 'n':
     new_version = b_minor
     bmsg = "minor version update"
