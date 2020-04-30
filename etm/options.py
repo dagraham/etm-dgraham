@@ -201,7 +201,7 @@ smtp:
 # queries: A dictionary with short query "keys" and
 # corresponding "query" values. Each "query" must be one
 # that could be entered as the command in query view. Keys
-# can be any short string other than 'u', 'c' or 'l'
+# can be any short string other than 'a', 'u', 'c' or 'l'
 # which are already in use.
 queries:
   # unfinished tasks ordered by location

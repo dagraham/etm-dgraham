@@ -385,7 +385,9 @@ And, on the current day only:
 
 Items that have been "pinned" (have their pin status toggled on) are displayed in *pinned view* grouped by itemtype and sorted by the created/modified datetime. 
 
-If your daily work flow will involve dealing with a number of reminders, you can "pin" them by selecting each one in which ever view is most convenient and then pressing `P`. All such pinned items will appear in this view. Selecting a reminder in this view and pressing `P` will toggle its pin status off and remove it from the view.
+This view can be used to flag items that need attention in your daily workflow in the same way that you might flag email in your inbox that you want to handle first. Just as you might sort your inbox to move the flagged items to the top, you can switch to pinned view to see just the reminders that need attention. And just as you would remove the flag when you finish with an email, you can unpin the reminder that no longer needs attention and thus remove it from the pinned view.
+
+The pinned status of items is retained so long as *etm* is active but cleared when *etm* is restarted.
 
 ### [Query View](#overview)
 
@@ -690,6 +692,20 @@ Simple queries of this type produce a list of matching items with the itemtype, 
 			query: l
 
 		to display a list of the saved keys and values.
+
+		Archive queries
+		===============
+
+        Preceed any query with an `a` to apply the query to the
+        *archive* table in the database rather than the default
+        *items* table. E.g.,
+
+            query: a includes summary waldo
+
+        or
+
+            query: a c MMM D YYYY -a d
+
 
 As with other etm views, in query view you can press `Ctrl-C` to copy the view to the system clipboard or select a reminder and press `Enter` to display its details, press `E` to edit it and so forth.
 
@@ -1495,7 +1511,7 @@ Here are the options with their default values from that file. The lines beginni
 	# queries: A dictionary with short query "keys" and
 	# corresponding "query" values. Each "query" must be one
 	# that could be entered as the command in query view. Keys
-	# can be any short string other than 'u', 'c' or 'l'
+	# can be any short string other than 'a', 'u', 'c' or 'l'
 	# which are already in use.
 	queries:
 	  # unfinished tasks ordered by location
@@ -1555,7 +1571,7 @@ Note that in the 'dictionary' entries above, the components must be indented. E.
 
 ### [data storage](#overview)
 
-All *etm* reminders are stored in the text file `db.json` in your etm home direcotry using the wonderful *TinyDB* package. This *json* file is human readable but not easily editable. When you start *etm* for the first time, this file will have no entries:
+All *etm* reminders are stored in the text file `db.json` in your etm home directory using the wonderful *TinyDB* package. This *json* file is human readable but not easily editable. When you start *etm* for the first time, this file will have no entries:
 
 	{
 	"items": {},
