@@ -2042,7 +2042,7 @@ class DataView(object):
             return self.used_summary_view
         if self.active_view == 'query':
             if self.query_text:
-                if self.query_text.startswith('u') or self.query_text.startswith('c'):
+                if len(self.query_text) > 1 and self.query_text[1] == ' ' and self.query_text[0] in ['s', 'u', 'm', 'c']:
                     # complex query
                     self.query_view, self.row2id = show_query_results(self.query_text, self.query_grpby, self.query_items)
                 else:

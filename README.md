@@ -695,7 +695,6 @@ Simple queries of this type produce a list of matching items with the itemtype, 
 
 		Archive queries
 		===============
-
         Preceed any query with an `a` to apply the query to the
         *archive* table in the database rather than the default
         *items* table. E.g.,
@@ -1346,7 +1345,7 @@ For use with @r:
 
 ### [archived reminders](#overview)
 
-When a reminder is 'archived' in *etm*, it is is moved from the *items* table in the database to the *archive* table. Reminders in the *archive* table can only be viewed by opening *query view* and then begin the query with 'a' to use the *archive* table. All other views display reminders from the *items* table.
+When a reminder is 'archived' in *etm*, it is is moved from the *items* table in the database to the *archive* table. Reminders in the *archive* table can only be viewed by opening *query view* and then beginning the query with 'a' to use the *archive* table. All other views display reminders from the *items* table.
 
 There are two ways to archive a reminder:
 * Automatically. If 'archive_after' in the configuration settings is set to a positive integer, then tasks with finished datetimes and events with last datetimes more than this number of years before the current date will be achived automatically at the beginning of each new day. Note that unfinshed tasks, records and inbox reminders are never automatically archived.

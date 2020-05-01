@@ -254,19 +254,27 @@ find reminders where either the summary or the entry for
 
 Complex queries
 ===============
-Return a formatted, heirarchial display of items. Both
-the format and the items displayed are determined by the
-type of the query and the arguments provided. There are
-two types of complex queries:
+Return a formatted, heirarchial display of items. Both the
+format and the items displayed are determined by the type
+of the query and the arguments provided. Since these
+queries can group and sort by date/times, these queries
+must begin by specifying which of the possible datetimes
+to use. There are four types of datetime specifications:
 
-* Usedtime queries begin with a "u" and report
-    aggregates of used time "@u" entries in items.
+* u: sort and group by datetimes in '@u' (used time)
+  entries. Also report aggregates of times spent in these
+  entries. Only items with '@u' entries will be reported.
+* s: sort and group by datetimes in '@f' entries in
+  finished tasks and otherwise by '@s' entries. Only items
+  with '@f' or '@s' entries will be reported.
+* c: sort and group by the 'created' datetime. All items
+  will be reported.
+* m: sort and group by the 'modified' datetime if given
+  else by the 'created' datetime. All items will be
+  reported.
 
-* Composite queries begin with a "c" and create
-    general reports but without usedtime aggregates.
-
-Both types of queries follow the report type, "u" or "c",
-with a required group/sort specification consisting of a
+Complex queries follow the datetime specifier with a
+required group/sort specification consisting of a
 semicolon separated list with at least one of the
 following components:
 
@@ -355,9 +363,9 @@ by any of the following:
 -q query: exclude items not satisfying this simple query.
     Anything that could be used in a simple query
     described above could be used here. E.g., "-q exists
-    f" would limit the display items with an "@f" entry,
-    i.e., finished tasks. Similarly "-q equals itemtype -
-    and ~exists f" would limit the display to unfinished
+    f" would display only items with an "@f" entry, i.e.,
+    finished tasks. Similarly "-q equals itemtype - and
+    ~exists f" would limit the display to unfinished
     tasks.
 
 -a append: append the contents of this comma separated
@@ -401,12 +409,12 @@ section of `cfg.yaml` in your etm home directory along
 with shortcuts for their use. E.g. with the default entry
 
   queries:
-    # unfinished tasks ordered by location
-    td: c l -q equals itemtype - and ~exists f
+    # unfinished tasks by location and modified datetime
+    md: m l -q equals itemtype - and ~exists f
     # usedtimes by i[:1], month and i[1:2] with d
     ut: u i[:1]; MMM YYYY; i[1:2] -a d
-    # composite by i[:1], month and i[1:2] with u and d
-    ct: c i[:1]; MMM YYYY; i[1:2] -a u, d
+    # finish/start by i[:1], month and i[1:2] with u and d
+    st: s i[:1]; MMM YYYY; i[1:2] -a u, d
     # items with an "@u" but missing the needed "@i"
     mi: exists u and ~exists i
 
@@ -1598,7 +1606,7 @@ def do_complex_query(text, loop):
         dataview.use_items()
         item.use_items()
 
-    if text.startswith('u ') or text.startswith('c '):
+    if len(text) > 1 and text[1] == ' ' and text[0] in ['s', 'u', 'm', 'c']:
         grpby, filters = report.get_grpby_and_filters(text)
         ok, items = query.do_query(filters.get('query'))
         if ok:

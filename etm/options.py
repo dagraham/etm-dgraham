@@ -205,13 +205,15 @@ smtp:
 # which are already in use.
 queries:
   # unfinished tasks ordered by location
-    td: c l -q equals itemtype - and ~exists f
+    td: m l -q equals itemtype - and ~exists f
   # usedtimes by i[:1], month and i[1:2] with d
     ut: u i[:1]; MMM YYYY; i[1:2] -a d
-  # composite by i[:1], month and i[1:2] with u and d
+  # finished|start by i[:1], month and i[1:2] with u and d
     ct: c i[:1]; MMM YYYY; i[1:2] -a u, d
   # items with u but missing the needed i
     mi: exists u and ~exists i
+  # all archived items
+    arch: a exists itemtype
 
 # style: dark or light. Designed for, respectively, dark or
 # light terminal backgounds. Some output may not be visible

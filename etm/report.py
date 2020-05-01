@@ -125,7 +125,7 @@ def apply_dates_filter(items, grpby, filters):
                 items.append(tmp)
             return items
 
-    elif grpby['report'] == 'c':
+    elif grpby['report'] == 's':
         def rel_dt(item, filters):
             ok = False
             items = []
@@ -146,6 +146,40 @@ def apply_dates_filter(items, grpby, filters):
                     if rdt:
                         tmp['rdt'] = rdt
                         items.append(tmp)
+                else:
+                    # not dated, don't need rdt
+                    items.append(tmp)
+            return items
+
+    elif grpby['report'] == 'c':
+        def rel_dt(item, filters):
+            ok = False
+            items = []
+            tmp = deepcopy(item)
+            rdt = item['created']
+            e_ok = 'e' not in filters or rdt <= filters['e']
+            b_ok = 'b' not in filters or rdt >= filters['b']
+            if e_ok and b_ok:
+                if rdt:
+                    tmp['rdt'] = rdt
+                    items.append(tmp)
+                else:
+                    # not dated, don't need rdt
+                    items.append(tmp)
+            return items
+
+    elif grpby['report'] == 'm':
+        def rel_dt(item, filters):
+            ok = False
+            items = []
+            tmp = deepcopy(item)
+            rdt = item.get('modified', item['created'])
+            e_ok = 'e' not in filters or rdt <= filters['e']
+            b_ok = 'b' not in filters or rdt >= filters['b']
+            if e_ok and b_ok:
+                if rdt:
+                    tmp['rdt'] = rdt
+                    items.append(tmp)
                 else:
                     # not dated, don't need rdt
                     items.append(tmp)
@@ -288,6 +322,7 @@ def get_output_and_row2id(items, grpby, header=""):
     for item in items:
         for x in ['i', 'c', 'l']:
             item.setdefault(x, '~') # make ~ the default
+        item.setdefault('modified', item['created'])
         if 'f' in item:
             item['itemtype'] = finished_char
         st = [eval(x, {'item': item, 're': re}) for x in sort_tups if x]
@@ -333,7 +368,8 @@ def get_grpby_and_filters(s, options=None):
     head = parts.pop(0)
     report = head[0]
     groupbystr = head[1:].strip()
-    if not report or report not in ['c', 'u']:
+    logger.debug(f"report: {report}")
+    if not report or report not in ['s', 'u', 'm', 'c']:
         return {}, {}
     grpby['report'] = report
     filters['dates'] = False
@@ -351,7 +387,7 @@ def get_grpby_and_filters(s, options=None):
                 if groupdate_regex.match(part):
                     grpby['dated'] = True
                     filters['dates'] = True
-                elif part[0] not in ['i', 'c', 'l']:
+                elif part[0] != 'i' and part not in ['c', 'l', 'itemtype', 'created', 'modified', 'summary']:
                     print(f"Ignoring invalid groupby part: {part}")
                     groupbylst.remove(comp)
         grpby['args'] = groupbylst
@@ -408,7 +444,7 @@ def get_grpby_and_filters(s, options=None):
             else:
                 grpby['include'] = ""
 
-        if grpby['dated'] or grpby['report'] == 'u':
+        if grpby['dated'] or grpby['report'] in ['u', 'm', 'c']:
             grpby['sort'].append(f"item['rdt'].format('YYYYMMDD')")
     also = []
     omit = ['$']
@@ -491,9 +527,7 @@ def main(etmdir, args):
             print("missing report arguments")
             continue
         print(f"query: {text}")
-        if text.startswith('u') or text.startswith('c'):
-            # if len(text.strip()) == 1:
-            #     continue
+        if len(self.query_text) > 1 and self.query_text[1] == ' ' and self.query_text[0] in ['s', 'u', 'm', 'c']:
             grpby, filters = get_grpby_and_filters(text)
             if not grpby:
                 continue
