@@ -224,7 +224,7 @@ class QDict(dict):
             ret = [dindent + format_datetime(detail, short=True)[1]]
         elif isinstance(detail, pendulum.Duration):
             ret = [dindent + format_hours_and_tenths(detail)]
-        elif isinstance(detail, list):
+        elif isinstance(detail, list) and detail:
             if isinstance(detail[0], str):
                 # logger.debug(f"detail list of str: {detail}")
                 ret = [dindent + ", ".join(detail)]
@@ -447,7 +447,6 @@ def get_grpby_and_filters(s, options=None):
         if grpby['dated'] or grpby['report'] in ['u', 'm', 'c']:
             grpby['sort'].append(f"item['rdt'].format('YYYYMMDD')")
     also = []
-    omit = ['$']
     for part in parts:
         key = part[0]
         if key == 'a':
@@ -470,10 +469,6 @@ def get_grpby_and_filters(s, options=None):
             else:
                 filters['pos_fields'].append((
                     key, re.compile(r'%s' % value, re.IGNORECASE)))
-    if omit:
-        tmp = [f" and ~equals itemtype {key}" for key in omit]
-        filters['query'] += "".join(tmp)
-
     details = []
     details.append("item['itemtype']")
     details.append("item['summary']")

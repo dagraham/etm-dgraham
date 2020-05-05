@@ -34,9 +34,6 @@ from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 import shutil
 
-from pygments.lexer import RegexLexer
-
-from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.layout import Float
 from prompt_toolkit.widgets import Dialog, Label, Button
 
@@ -76,109 +73,104 @@ from pygments.token import Comment
 from prompt_toolkit.styles import Style
 from prompt_toolkit.lexers import PygmentsLexer
 
-
-class TDBLexer(RegexLexer):
-
-    name = 'TDB'
-    aliases = ['tdb']
-    filenames = '*.*'
-    flags = re.MULTILINE | re.DOTALL
-
-    tokens = {
-            'root': [
-                (r'(begins|includes|equals|more|less|exists|any|all|one)\b', Keyword),
-                (r'(itemtype|summary)\b', Literal),
-                (r'(and|or|info)\b', Operator),
-                ],
-            }
-
-
-class ETMQuery(object):
-
-    def __init__(self):
-        self.arg = { 'begins': self.begins,
-                'includes': self.includes,
-                'equals': self.equals,
-                'more': self.more,
-                'less': self.less,
-                'exists': self.exists,
-                'any': self.in_any,
-                'all': self.in_all,
-                'one': self.one_of,
-                'info': self.info,
-                'dt' : self.dt,
-                }
-
-        self.op = {
-                '=': self.maybe_equal,
-                '>': self.maybe_later,
-                '<': self.maybe_earlier
-                }
-
-        self.lexer = PygmentsLexer(TDBLexer)
-        self.style = etmstyle
-        self.Item = Query()
-
-        self.allowed_commands = ", ".join([x for x in self.arg])
-
-        self.command_details = """\
+COMMAND_DETAILS = """\
 * begins field RGX: return items in which the value of
-    field begins with a match for the case insensitve
-    regular expression RGX.
+  field begins with a match for the case insensitve
+  regular expression RGX.
 
 * includes field RGX: return items in which the value of
-    field includes a match for the case insensitive
-    regular expression RGX.
+  field includes a match for the case insensitive
+  regular expression RGX.
 
 * equals field VAL: return items in which the value of
-    field == VAL
+  field == VAL
 
 * more field VAL: return items in which the value of
-    field >= VAL. The value of field and VAL must be
-    comparable, i.e., both strings or both numbers
+  field >= VAL. The value of field and VAL must be
+  comparable, i.e., both strings or both numbers
 
 * less field VAL: return items in which the value of
-    field <= VAL. The value of field and VAL must be
-    comparable, i.e., both strings or both numbers
+  field <= VAL. The value of field and VAL must be
+  comparable, i.e., both strings or both numbers
 
 * exists field: return items in which field exists
 
 * any field LST: return items in which the value of field
-    is a list and at least one element of field is an
-    element of LST
+  is a list and at least one element of field is an
+  element of LST
 
 * all field LST: return items in which the value of field
-    is a list and the elements of field contain all the
-    elements of LST
+  is a list and the elements of field contain all the
+  elements of LST
 
 * one field LST: return items in which the value of
-    field is one of the elements of LST
+  field is one of the elements of LST
 
 * info ID: return the details of the item whose
-    document id equals the integer ID
+  document id equals the integer ID
 
 * dt field EXP: return items in which the value of field
-    is a date if EXP = '? date' or a datetime if EXP = '?
-    time'. Else if EXP begins with  '>', '=' or '<'
-    followed by a string following the format
-    'yyyy-mm-dd-HH-MM' then return items where the
-    datetime of the field value bears the specified
-    relation to the string, with hours and minutes
-    ignored when the value of field is a date. E.g.,
+  is a date if EXP = '? date' or a datetime if EXP = '?
+  time'. Else if EXP begins with  '>', '=' or '<' followed
+  by a string following the format 'yyyy-mm-dd-HH-MM' then
+  return items where the datetime of the field value bears
+  the specified relation to the string, with hours and
+  minutes ignored when the value of field is a date. E.g.,
 
         dt s < 2020-1-17
 
-    would return items with @s date/times whose year <=
-    2020, month <= 1 and month day <= 17.
+  would return items with @s date/times whose year <=
+  2020, month <= 1 and month day <= 17.
 
-    Alternatively,
+  Alternatively,
 
         dt s ? date and equals itemtype *
 
-    would return events with @s date/times that are
-    dates, i.e., all day events or occasions."""
+  would return events with @s date/times that are dates,
+  i.e., all day events or occasions."""
 
-        self.usage = f"""\
+
+UPDATE_DETAILS = """\
+* archive: if the items table is active, move the
+  reminders from the items table to the archive table,
+  else vice versa
+
+* remove: remove the reminders from the database
+
+* replace field RGX VAL: in the value of 'field', replace
+  matches for RGX with VAL. If the value of 'field' is a
+  list, do this for each element of the list. Remember to
+  replace spaces in in both RGX and VAL with '\s'
+
+* delete field: if the reminder has an entry for 'field',
+  delete the entry
+
+* set field VAL: set the value of 'field' to VAL
+  overriding the current value if it exists
+
+* provide field VAL: set the value of 'field' to VAL if
+  there is no existing entry for 'field'
+
+* attach field VAL: if the value of 'field' is intended to
+  be a list and if VAL is not in this list, then add VAL
+  to the list, creating the entry if necessary
+
+* detach field VAL: if the value of 'field' is a list and
+  this list contains VAL, then remove VAL from the list"""
+
+USAGE = f"""\
+Contents:
+  Simple queries
+  Simple query examples
+  Archive queries
+  Update queries
+  Complex queries
+  Command history
+  Saved queries
+
+Hint: press '/' or '?' to search incrementally forward
+or backwards, respectively.
+
 Simple queries
 ==============
 Return a list of items displaying the itemtype, summary
@@ -192,19 +184,19 @@ the '@-keys' such as 'l' or 's', and "command" is one of
 those listed below (see Simple Query Examples below for
 examples):
 
-{self.command_details}
+{COMMAND_DETAILS}
 
-Enter the command at the 'query:' prompt and press
-'enter' to submit the query and display the results.
-Press 'q' to reopen the entry area to submit another
-query. Use up and down cursor keys to choose from the
-command history (see Command History below), submit '?'
-or 'help' to show this display, submit 'l' to see a list
-of stored queries (see Saved Queries below) or submit
-'quit', 'exit' or nothing at all, '', to close the entry
-area and return to the previous display.
+Enter the command at the 'query:' prompt and press 'enter'
+to submit the query and display the results. Press 'q' to
+reopen the entry area to submit another query. Use up and
+down cursor keys to choose from the command history (see
+Command History below), submit '?' or 'help' to show this
+display, submit 'l' to see a list of stored queries (see
+Saved queries below) or submit 'quit', 'exit' or nothing
+at all, '', to close the entry area and return to the
+previous display.
 
-Simple Query Examples
+Simple query examples
 =====================
 Find items where the summary includes a match for
 "waldo":
@@ -251,6 +243,58 @@ find reminders where either the summary or the entry for
 @d (description) includes "waldo":
 
     query: includes summary waldo or includes d waldo
+
+Archive queries
+===============
+
+Queries, by default, search the items table in the etm
+database. You can preceed any query with 'a ' (the letter
+'a' followed by a space), to search the archive
+table instead. E.g.,
+
+    query: a includes summary waldo or includes d waldo
+
+will search the archive table for reminders with matches
+for 'waldo' in the summary or in the description.
+
+Queries beginning with 'a ' are, in fact, the only way
+to see archived items from within etm itself.
+
+Update queries
+==============
+
+Queries can not only locate reminders but also update
+them. The update commands act on items returned by a
+query. E.g., this query
+
+    query: includes i john\sdoe | replace i john\sdoe
+        Jane\sDoe
+
+can be regarded as taking the reminders whose index entry,
+'i', includes a match for 'john doe' and feeding them to
+the 'replace' command which then takes the index entry of
+each reminder and replaces each match for 'john doe' with
+'Jane Doe'.
+
+All of the update commands work the same way: a query that
+returns a list of reminders is followed by a pipe symbol
+surrounded by spaces, ' | ', and an update command with
+its arguments. Here is the complete list of these
+update commands:
+
+{UPDATE_DETAILS}
+
+Bearing in mind that the results may not be reversible,
+consider backing up your 'db.json' database before using
+update commands. Remember the old carpentry addage:
+
+    measure twice, cut once.
+
+The recommended workflow for updating reminders is first
+to perfect the query to be certain that it lists just the
+items you want to update. Then press 'q' and the 'up'
+cursor key to restore the previous query, add ' | ' and
+the update command you want with its arguments.
 
 Complex queries
 ===============
@@ -373,25 +417,9 @@ by any of the following:
     E.g., "-a d, l" would append the item description and
     location to the display of each item.
 
-Archived Reminders
-==================
-
-Queries, by default, search the *items* table in the etm
-database. You can preceed any query with 'a ' (the letter
-'a' followed by a space), to search the *archive* table
-instead. E.g.,
-
-    query: a includes summary waldo or includes d waldo
-
-will search the archive table for reminders with matches
-for 'waldo' in the summary or in the description.
-
-Queries beginning with 'a ' are, in fact, the only way
-to see archived items from within etm itself.
-
 Command History
 ===============
-Any query entered at the `query:` prompt and submitted by
+Any query entered at the 'query:' prompt and submitted by
 pressing 'Enter' is added to the command history. These
 queries are kept as long as 'etm' is running and can be
 accessed using the up and down cursor keys in the query
@@ -438,6 +466,210 @@ Enter
 
 to display a list of the saved keys and values.
 """
+
+class TDBLexer(RegexLexer):
+
+    name = 'TDB'
+    aliases = ['tdb']
+    filenames = '*.*'
+    flags = re.MULTILINE | re.DOTALL
+
+    tokens = {
+            'root': [
+                (r'\b(begins|includes|equals|more|less|exists|any|all|one)\b', Keyword),
+                (r'\b(replace|remove|archive|delete|set|provide|attach|detach)\b', Keyword),
+                (r'\b(itemtype|summary)\b', Literal),
+                (r'\b(and|or|info)\b', Comment),
+                ],
+            }
+
+
+class ETMQuery(object):
+
+    def __init__(self):
+        self.filters = {
+                'begins': self.begins,
+                'includes': self.includes,
+                'equals': self.equals,
+                'more': self.more,
+                'less': self.less,
+                'exists': self.exists,
+                'any': self.in_any,
+                'all': self.in_all,
+                'one': self.one_of,
+                'info': self.info,
+                'dt' : self.dt,
+                }
+
+        self.op = {
+                '=': self.maybe_equal,
+                '>': self.maybe_later,
+                '<': self.maybe_earlier
+                }
+
+        self.update = {
+                'replace': self.replace,    # a, rgx, rep
+                'remove': self.remove,      #
+                'archive': self.archive,    #
+                'delete': self.delete,      # a
+                'set': self.set,            # a, b
+                'provide': self.provide,   # a, b
+                'attach': self.attach,      # a, b
+                'detach': self.detach,      # a, b
+                }
+
+        self.changed = False
+
+        self.lexer = PygmentsLexer(TDBLexer)
+        self.style = etmstyle
+        self.Item = Query()
+
+        self.allowed_commands = ", ".join([x for x in self.filters])
+
+        self.usage = USAGE
+
+    def replace(self, a, rgx, rep, items):
+        """
+        Replace matches for rgx with rep in item['a']. If item['a']
+        is a list, do this for each element in item['a']
+        """
+        changed = []
+        rep = re.sub('\\\s', ' ', rep)
+        for item in items:
+            if a in item:
+                res = []
+                lst = item[a] if isinstance(item[a], list) else [item[a]]
+                for i in range(len(lst)):
+                    res.append(re.sub(rgx, rep, lst[i], flags=re.IGNORECASE))
+                if res != lst:
+                    item[a] = res
+                    item['modified'] = pendulum.now('local')
+                    changed.append(item)
+        if changed:
+            dataview.db.write_back(changed)
+            self.changed = True
+        logger.debug(f"a: {a}; rgx: {rgx}; re;: {rep}; changed: {changed}")
+        return changed
+
+
+    def remove(self, items):
+        """
+        Remove items.
+        """
+        rem_ids = [item.doc_id for item in items]
+        # warn
+        if rem_ids:
+            dataview.db.remove(doc_ids=rem_ids)
+            self.changed = True
+
+    def archive(self, items):
+        """
+        When querying the items table, move items to the archive table and vice versa.
+        """
+        rem_ids = [item.doc_id for item in items]
+
+        try:
+            if dataview.query_mode == "items table":
+                # move to archive
+                DBARCH.insert_multiple(items)
+                DBITEM.remove(doc_ids=rem_ids)
+            else:
+                # back to items
+                DBITEM.insert_multiple(items)
+                DBARCH.remove(doc_ids=rem_ids)
+        except Exception as e:
+            logger.error(f"move from {dataview.query_mode} failed for items: {items}; rem_ids: {rem_ids}; exception: {e}")
+            return False
+        else:
+            self.changed = True
+
+
+    def delete(self, a, items):
+        """
+        For items having key 'a', remove the key and value from the item.
+        """
+        logger.debug(f"a: {a}; len(items): {len(items)}")
+        changed = []
+        for item in items:
+            if a in item:
+                del item[a]
+                item['modified'] = pendulum.now('local')
+                changed.append(item)
+        if changed:
+            dataview.db.write_back(changed)
+            self.changed = True
+        logger.debug(f"a: {a}; changed: {changed}")
+        return changed
+
+    def set(self, a, b, items):
+        """
+        Set the value of item[a] = b for items
+        """
+        changed = []
+        b = re.sub('\\\s', ' ', b)
+        for item in items:
+            item[a] = b
+            item['modified'] = pendulum.now('local')
+            changed.append(item)
+        if changed:
+            dataview.db.write_back(changed)
+            self.changed = True
+        logger.debug(f"a: {a}; b: {b}; changed: {changed}")
+
+    def provide(self, a, b, items):
+        """
+        Provide item['a'] = b for items without an exising entry for 'a'.
+        """
+        changed = []
+        b = re.sub('\\\s', ' ', b)
+        for item in items:
+            item.setdefault(a, b)
+            item['modified'] = pendulum.now('local')
+            changed.append(item)
+        if changed:
+            dataview.db.write_back(changed)
+            self.changed = True
+        logger.debug(f"a: {a}; b: {b}; changed: {changed}")
+
+
+    def attach(self, a, b, items):
+        """
+        Attach 'b' into the item['a'] list if 'b' is not in the list.
+        """
+        changed = []
+        b = re.sub('\\\s', ' ', b)
+        for item in items:
+            if a not in item:
+                logger.debug(f"{a} not in item")
+                item.setdefault(a, []).append(b)
+                item['modified'] = pendulum.now('local')
+                changed.append(item)
+            elif a in item and isinstance(item[a], list) and b not in item[a]:
+                item.setdefault(a, []).append(b)
+                item['modified'] = pendulum.now('local')
+                changed.append(item)
+        if changed:
+            dataview.db.write_back(changed)
+            self.changed = True
+        logger.debug(f"a: {a}; item[{a}]: {item[a]};  b: {b}; changed: {changed}")
+
+    def detach(self, a, b, items):
+        """
+        Detatch 'b' from the item['a'] list if it belongs to the list.
+        """
+        changed = []
+        b = re.sub('\\\s', ' ', b)
+        for item in items:
+            if a in item and isinstance(item[a], list) and b in item[a]:
+                item[a].remove(b)
+                item['modified'] = pendulum.now('local')
+                changed.append(item)
+        if changed:
+            dataview.db.write_back(changed)
+            self.changed = True
+        logger.debug(f"a: {a}; b: {b}; changed: {changed}")
+
+
     def is_datetime(self, val):
         return isinstance(val, pendulum.DateTime)
 
@@ -605,7 +837,18 @@ to display a list of the saved keys and values.
 
 
     def process_query(self, query):
-        parts = [x.split() for x in re.split(r' (and|or) ', query)]
+        """
+
+        """
+        [fltr, *updt] = [x.strip() for x in query.split(" | ")]
+        if len(updt) == 1:
+            # get a list with the update command and arguments
+            updt = [x.strip() for x in updt[0].split(' ')]
+            logger.debug(f"updt: {updt}")
+        else:
+            updt = []
+
+        parts = [x.split() for x in re.split(r' (and|or) ', fltr)]
 
         cmnds = []
         for part in parts:
@@ -616,24 +859,24 @@ to display a list of the saved keys and values.
                 if negation:
                     # drop the ~
                     part[0] = part[0][1:]
-                if self.arg.get(part[0], None) is None:
+                if self.filters.get(part[0], None) is None:
                     return False, wrap(f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed.""")
 
             if len(part) > 3:
                 if negation:
-                    cmnds.append(~ self.arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+                    cmnds.append(~ self.filters[part[0]](part[1], [x.strip() for x in part[2:]]))
                 else:
-                    cmnds.append(self.arg[part[0]](part[1], [x.strip() for x in part[2:]]))
+                    cmnds.append(self.filters[part[0]](part[1], [x.strip() for x in part[2:]]))
             elif len(part) > 2:
                 if negation:
-                    cmnds.append(~ self.arg[part[0]](part[1], part[2]))
+                    cmnds.append(~ self.filters[part[0]](part[1], part[2]))
                 else:
-                    cmnds.append(self.arg[part[0]](part[1], part[2]))
+                    cmnds.append(self.filters[part[0]](part[1], part[2]))
             elif len(part) > 1:
                 if negation:
-                    cmnds.append(~ self.arg[part[0]](part[1]))
+                    cmnds.append(~ self.filters[part[0]](part[1]))
                 else:
-                    cmnds.append(self.arg[part[0]](part[1]))
+                    cmnds.append(self.filters[part[0]](part[1]))
             else:
                 cmnds.append(part[0])
 
@@ -647,7 +890,7 @@ to display a list of the saved keys and values.
                 test = test | cmnds[i]
             else:
                 test = test & cmnds[i]
-        return True, test
+        return True, test, updt
 
 
     def do_query(self, query):
@@ -656,7 +899,7 @@ to display a list of the saved keys and values.
         if query == "?" or query == "help":
             return False, self.usage
         try:
-            ok, test = self.process_query(query)
+            ok, test, updt = self.process_query(query)
             if not ok:
                 return False, test
             if isinstance(test, str):
@@ -664,6 +907,13 @@ to display a list of the saved keys and values.
                 return False, test
             else:
                 items = dataview.db.search(test)
+                if updt:
+                    self.update[updt[0]](*updt[1:], items)
+                    if self.changed:
+                        loop = asyncio.get_event_loop()
+                        loop.call_later(0, data_changed, loop)
+                        self.changed = False
+
                 return True, items
         except Exception as e:
             return False, f"exception processing '{query}':\n{e}"
@@ -1553,7 +1803,6 @@ def process_input(buf):
 edit_bindings = KeyBindings()
 ask_buffer = Buffer()
 entry_buffer = Buffer(multiline=True, completer=at_completer, complete_while_typing=True, accept_handler=process_input)
-query_buffer = Buffer(multiline=False, completer=None, complete_while_typing=False, accept_handler=process_input)
 
 reply_buffer = Buffer(multiline=True)
 
@@ -1581,66 +1830,20 @@ details_area = TextArea(
     search_field=search_field,
     )
 
-query = ETMQuery()
+query_bindings = KeyBindings()
 
-query_window = TextArea(
-    style='class:query',
-    lexer=query.lexer,
-    multiline=False,
-    focusable=True,
-    prompt='query: ',
-    )
-
-query_area = HSplit([
-    ask_window,
-    query_window,
-    ], style='class:entry')
-
-def do_complex_query(text, loop):
-    logger.debug(f"text: {text}")
-    if text.startswith('a '):
-        text = text[2:]
-        dataview.use_archive()
-        item.use_archive()
-    else:
-        dataview.use_items()
-        item.use_items()
-
-    if len(text) > 1 and text[1] == ' ' and text[0] in ['s', 'u', 'm', 'c']:
-        grpby, filters = report.get_grpby_and_filters(text)
-        ok, items = query.do_query(filters.get('query'))
-        if ok:
-            items = report.apply_dates_filter(items, grpby, filters)
-            dataview.set_query(text, grpby, items)
-            application.layout.focus(text_area)
-            set_text(dataview.show_active_view())
-        else:
-            set_text(items)
-    else:
-        ok, items = query.do_query(text)
-        if ok:
-            dataview.set_query(f"{text}", {}, items)
-            application.layout.focus(text_area)
-            set_text(dataview.show_active_view())
-        else:
-            set_text(items)
-
-def do_show_processing(loop):
-    set_text("processing query ...")
-    application.layout.focus(text_area)
-    get_app().invalidate()
-
-
+@query_bindings.add('enter', filter=is_querying)
 def accept(buff):
+    logger.debug('accept triggered')
     set_text('processing query ...')
     if query_window.text:
         text = query_window.text
         queries = settings.get('queries')
         if text == 'l' and queries:
-            tmp = """
+            tmp = """\
 Stored queries are listed as <key>: <query> below. Enter
-<key> at the prompt and then press 'Enter' to replace
-<key> with <query>. Submit this query as is or edit first
+<key> at the prompt and press 'enter' to replace <key>
+with <query>. Submit this query as is or edit it first
 and then submit.
 
   """ + "\n  ".join([f"{k}: {v}" for k, v in queries.items()])
@@ -1672,8 +1875,69 @@ and then submit.
         return False
 
 
+query = ETMQuery()
+
+query_buffer = Buffer(multiline=False, completer=None, complete_while_typing=False, accept_handler=accept)
+# query_window = Window(BufferControl(buffer=query_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=reply_dimension, wrap_lines=True, style='class:query')
+
+
+
+query_window = TextArea(
+    style='class:query',
+    lexer=query.lexer,
+    multiline=False,
+    focusable=True,
+    # height=3,
+    wrap_lines=True,
+    prompt='query: ',
+    )
 
 query_window.accept_handler = accept
+
+query_area = HSplit([
+    ask_window,
+    query_window,
+    ], style='class:entry')
+
+def do_complex_query(text, loop):
+    text, *updt = [x.strip() for x in text.split(' | ')]
+    if updt:
+        updt = f" | {updt[0]}"
+    else:
+        updt = ""
+    logger.debug(f"text: {text}; updt: {updt}")
+    if text.startswith('a '):
+        text = text[2:]
+        dataview.use_archive()
+        item.use_archive()
+    else:
+        dataview.use_items()
+        item.use_items()
+
+    if len(text) > 1 and text[1] == ' ' and text[0] in ['s', 'u', 'm', 'c']:
+        grpby, filters = report.get_grpby_and_filters(text)
+        ok, items = query.do_query(filters.get('query') + updt)
+        if ok:
+            items = report.apply_dates_filter(items, grpby, filters)
+            dataview.set_query(text, grpby, items)
+            application.layout.focus(text_area)
+            set_text(dataview.show_active_view())
+        else:
+            set_text(items)
+    else:
+        ok, items = query.do_query(text + updt)
+        if ok:
+            dataview.set_query(f"{text + updt}", {}, items)
+            application.layout.focus(text_area)
+            set_text(dataview.show_active_view())
+        else:
+            set_text(items)
+
+def do_show_processing(loop):
+    set_text("processing query ...")
+    application.layout.focus(text_area)
+    get_app().invalidate()
+
 
 
 edit_container = HSplit([
@@ -2157,6 +2421,7 @@ def busy_view(*event):
 
 @bindings.add('q', filter=is_viewing)
 def query_view(*event):
+    # ask_buffer.text = "Submit '?' for help or 'l' for a list of stored queries"
     ask_buffer.text = "Submit '?' for help or 'l' for a list of stored queries"
     dataview.set_active_view('q')
     dataview.show_query()

@@ -207,9 +207,9 @@ queries:
   # unfinished tasks ordered by location
     td: m l -q equals itemtype - and ~exists f
   # usedtimes by i[:1], month and i[1:2] with d
-    ut: u i[:1]; MMM YYYY; i[1:2] -a d
+    ui: u i[:1]; MMM YYYY; i[1:2] -a d
   # finished|start by i[:1], month and i[1:2] with u and d
-    ct: c i[:1]; MMM YYYY; i[1:2] -a u, d
+    si: s i[:1]; MMM YYYY; i[1:2] -a u, d
   # items with u but missing the needed i
     mi: exists u and ~exists i
   # all archived items
@@ -264,7 +264,14 @@ colors:
                     os.path.join(etmdir, 'cfg.yaml'))
             if os.path.exists(self.cfgfile):
                 with open(self.cfgfile, 'r') as fn:
-                    self.user = yaml.load(fn)
+                    try:
+                        self.user = yaml.load(fn)
+                    except Exception as e:
+                        error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {self.cfgfile} and restart etm.\n"
+                        logger.critical(error)
+                        print(error)
+                        sys.exit()
+
                     # logger.debug(f"user: {self.user}")
                 if self.user and isinstance(self.user, dict):
                     self.changes = self.check_options()
