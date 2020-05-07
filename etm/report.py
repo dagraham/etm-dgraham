@@ -487,10 +487,11 @@ def get_grpby_and_filters(s, options=None):
 def show_query_results(text, grpby, items):
     width = shutil.get_terminal_size()[0] - 7
     rows = []
-    summary_width = width - 6
+    item_count = f" [{len(items)}]"
+    summary_width = width - 6 - len(item_count)
     if not items or not isinstance(items, list):
         return f"query: {text}\n   none matching", {}
-    header = f"query: {text[:summary_width]}"
+    header = f"query: {text[:summary_width]}{item_count}"
     output, row2id = get_output_and_row2id(items, grpby, header)
     return output, row2id
 

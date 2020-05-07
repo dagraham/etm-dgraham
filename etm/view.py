@@ -537,14 +537,21 @@ class ETMQuery(object):
         rep = re.sub('\\\s', ' ', rep)
         for item in items:
             if a in item:
-                res = []
-                lst = item[a] if isinstance(item[a], list) else [item[a]]
-                for i in range(len(lst)):
-                    res.append(re.sub(rgx, rep, lst[i], flags=re.IGNORECASE))
-                if res != lst:
-                    item[a] = res
-                    item['modified'] = pendulum.now('local')
-                    changed.append(item)
+                if isinstance(item[a], list):
+                    res = []
+                    # apply to each component
+                    for item in item[a]:
+                        res.append(re.sub(rgx, rep, item, flags=re.IGNORECASE))
+                    if res != item[a]:
+                        item[a] = res
+                        item['modified'] = pendulum.now('local')
+                        changed.append(item)
+                else:
+                    res = re.sub(rgx, rep, item[a], flags=re.IGNORECASE)
+                    if res != item[a]:
+                        item[a] = res
+                        item['modified'] = pendulum.now('local')
+                        changed.append(item)
         if changed:
             dataview.db.write_back(changed)
             self.changed = True
@@ -2324,6 +2331,7 @@ def do_import_file(*event):
         global msg
         dialog = TextInputDialog(
             title='import file',
+            # completer=?file_path_completer?,
             label_text="""\
 It is possible to import data from files with
 one of the following extensions:
@@ -2333,7 +2341,6 @@ one of the following extensions:
 Enter the path of the file to import:""")
 
         file_path = yield from show_dialog_as_float(dialog)
-
         if file_path:
             ok, msg = import_file(file_path)
             if ok:
