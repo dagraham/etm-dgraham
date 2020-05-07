@@ -1,16 +1,27 @@
-Recent changes as of 2020-05-07T11:37:03.836680-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.3.2) Dan Graham
-    555910fd 2020-05-07 11:37:03 -0400
+Recent changes as of 2020-05-07T13:11:48.523525-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.4.0) Dan Graham
+    e9ab0550 2020-05-07 13:11:48 -0400
+    Tagged version 4.4.0. Added update commands to queries and file
+    path completions when importing files.
+
+- 22 minutes ago (master) Dan Graham
+    1d928170 2020-05-07 12:49:20 -0400
+    Changed backup formats from timestamp-db.zip to db-timestamp.zip
+    and from timestamp-cfg.yaml to cfg-timestamp.yaml to improve
+    sorting. Files in new format will be added to existing backups.
+
+- 2 hours ago (origin/master, origin/HEAD) Dan Graham
+    40425d1e 2020-05-07 11:37:03 -0400
     Tagged version 4.3.2. Added option to update/modify reminders in
     query view. Added path completion to import file.
 
-- 3 minutes ago (update) Dan Graham
+- 2 hours ago (update) Dan Graham
     b5409535 2020-05-07 11:33:42 -0400
     Adjust summary width for itemcount in query views. Added query
     update section to README. Implemented path completion in import
     file.
 
-- 2 hours ago Dan Graham
+- 3 hours ago Dan Graham
     c8ae4a0b 2020-05-07 09:47:36 -0400
     Added item count to the query result display. Fixed list bug in
     replace.
@@ -28,7 +39,7 @@ Recent changes as of 2020-05-07T11:37:03.836680-04:00:
     (modified|created) time and 'c' (created) time to the complex
     query date specifications to join 'u' (usedtime) time.
 
-- 7 days ago (origin/master, origin/HEAD, master) Dan Graham
+- 7 days ago Dan Graham
     c21cd32d 2020-04-30 13:51:19 -0400
     Tagged version 4.3.1. Added option to query the archive table.
     Added option to manually archive items in normal views and to
@@ -436,11 +447,3 @@ Recent changes as of 2020-05-07T11:37:03.836680-04:00:
 - 6 weeks ago Dan Graham
     c8480de3 2020-03-26 16:20:20 -0400
     getting there with reports.py
-
-- 6 weeks ago Dan Graham
-    f9c8097a 2020-03-25 14:58:24 -0400
-    moved report to root directory
-
-- 6 weeks ago Dan Graham
-    a08c2a6d 2020-03-25 13:37:56 -0400
-    added first pass add report.py
