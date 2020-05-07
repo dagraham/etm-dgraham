@@ -1,209 +1,238 @@
-Recent changes as of 2020-04-30T13:51:19.410493-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.3.1) Dan Graham
-    439cecea 2020-04-30 13:51:19 -0400
+Recent changes as of 2020-05-07T11:37:03.836680-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.3.2) Dan Graham
+    555910fd 2020-05-07 11:37:03 -0400
+    Tagged version 4.3.2. Added option to update/modify reminders in
+    query view. Added path completion to import file.
+
+- 3 minutes ago (update) Dan Graham
+    b5409535 2020-05-07 11:33:42 -0400
+    Adjust summary width for itemcount in query views. Added query
+    update section to README. Implemented path completion in import
+    file.
+
+- 2 hours ago Dan Graham
+    c8ae4a0b 2020-05-07 09:47:36 -0400
+    Added item count to the query result display. Fixed list bug in
+    replace.
+
+- 2 days ago Dan Graham
+    10a7a041 2020-05-05 16:09:58 -0400
+    Trap settings loading errors. In report details, skip empty lists.
+    Removed unused omit setting. Added update commands to queries.
+    Added table of contents to query help. Update commands include
+    archive, remove, replace, delete, set, provide, attach and detach.
+
+- 6 days ago Dan Graham
+    2f180008 2020-05-01 13:02:16 -0400
+    Replaced 'c' with 's' (start|finished) time and added 'm'
+    (modified|created) time and 'c' (created) time to the complex
+    query date specifications to join 'u' (usedtime) time.
+
+- 7 days ago (origin/master, origin/HEAD, master) Dan Graham
+    c21cd32d 2020-04-30 13:51:19 -0400
     Tagged version 4.3.1. Added option to query the archive table.
     Added option to manually archive items in normal views and to
     unarchive in query view when showing items from the archive table.
 
-- 7 minutes ago (archive) Dan Graham
+- 7 days ago Dan Graham
     ae40e625 2020-04-30 13:44:35 -0400
     added option to bump.py to provide a tag message for patch updates
     as well as major and minor changes.
 
-- 2 hours ago Dan Graham
+- 7 days ago Dan Graham
     216b0802 2020-04-30 12:08:48 -0400
     README tweaks.
 
-- 29 hours ago Dan Graham
+- 8 days ago Dan Graham
     6ca46c19 2020-04-29 09:00:27 -0400
     Don't add 'doc_id' to items when moving from items to archive.
 
-- 29 hours ago Dan Graham
+- 8 days ago Dan Graham
     e45250cb 2020-04-29 08:52:35 -0400
     Don't add 'doc_id' to items when archiving.
 
-- 2 days ago Dan Graham
+- 9 days ago Dan Graham
     6bf7ef12 2020-04-28 19:13:05 -0400
     Getting close on archive toggle
 
-- 3 days ago Dan Graham
+- 10 days ago Dan Graham
     68892536 2020-04-27 16:34:34 -0400
     Basic archive query seems to work with details and edit using the
     correct id.
 
-- 5 days ago (origin/master, origin/HEAD, master) Dan Graham
+- 12 days ago Dan Graham
     96b2e4a7 2020-04-25 17:04:47 -0400
     Tagged version 4.3.0. Added pinned view and removed used time
     expanded.
 
-- 5 days ago Dan Graham
+- 12 days ago Dan Graham
     f5282471 2020-04-25 17:04:02 -0400
     README fixes - add pinned view and remove used time expanded
 
-- 5 days ago Dan Graham
+- 12 days ago Dan Graham
     ff0a6819 2020-04-25 16:49:40 -0400
     Merge branch 'expanded' into working
 
-- 5 days ago Dan Graham
+- 12 days ago Dan Graham
     feaf3627 2020-04-25 16:49:31 -0400
     Fixed bug in adding pins to beginbys. Fixed sort in pinned view
     and added a finished itemtype to correspond to the finished type
     character.
 
-- 5 days ago Dan Graham
+- 12 days ago Dan Graham
     63547e21 2020-04-25 15:07:53 -0400
     Group pinned by itemtype and sort by created/modified datetime
     displayed as YYYY-MM-DD.
 
-- 5 days ago Dan Graham
+- 12 days ago Dan Graham
     632b006d 2020-04-25 14:36:02 -0400
     Removed used time expanded view.
 
-- 5 days ago Dan Graham
+- 12 days ago Dan Graham
     da9e6484 2020-04-25 14:24:58 -0400
     Removed menu image files. Added text menu description.
 
-- 5 days ago Dan Graham
+- 12 days ago Dan Graham
     0d9cca1c 2020-04-25 12:33:08 -0400
     Implemented pinned view. Toggle works and shows pin in all views.
 
-- 7 days ago Dan Graham
+- 2 weeks ago Dan Graham
     0dfc42f0 2020-04-23 14:29:53 -0400
     Fixed formatting for job used time entries in jinja templates.
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     56e30280 2020-04-20 14:38:56 -0400
     Tagged version 4.2.9.
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     aa994158 2020-04-20 13:10:45 -0400
     More query sort tweaks
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     3a508ad5 2020-04-20 10:09:42 -0400
     Tagged version 4.2.8.
 
-- 10 days ago Dan Graham
+- 2 weeks ago Dan Graham
     b89e2cde 2020-04-20 10:09:13 -0400
     Fixed sorting error in complex queries.
 
-- 11 days ago Dan Graham
+- 3 weeks ago Dan Graham
     e6ef39cc 2020-04-19 15:33:23 -0400
     Tagged version 4.2.7.
 
-- 11 days ago Dan Graham
+- 3 weeks ago Dan Graham
     8a6b3f31 2020-04-19 15:33:03 -0400
     Apply sort_dates_times to the date/time component of u in query
     -a.
 
-- 11 days ago Dan Graham
+- 3 weeks ago Dan Graham
     fdb515ad 2020-04-19 09:53:45 -0400
     Tagged version 4.2.6.
 
-- 11 days ago Dan Graham
+- 3 weeks ago Dan Graham
     1cbd3832 2020-04-19 09:46:38 -0400
     Merge branch 'working'
 
-- 11 days ago Dan Graham
+- 3 weeks ago Dan Graham
     c15d20cd 2020-04-19 09:34:48 -0400
     Added sort_dates_times to report.py to handle sorting a list with
     both dates and datetimes.Return dates as rdt for both u and f
     instances.
 
-- 12 days ago Dan Graham
+- 3 weeks ago Dan Graham
     793e7399 2020-04-18 14:40:01 -0400
     Tagged version 4.2.5.
 
-- 12 days ago Dan Graham
+- 3 weeks ago Dan Graham
     a1504c62 2020-04-18 14:39:36 -0400
     Bad merge
 
-- 12 days ago Dan Graham
+- 3 weeks ago Dan Graham
     72384dd6 2020-04-18 14:34:14 -0400
     Tagged version 4.2.4.
 
-- 12 days ago Dan Graham
+- 3 weeks ago Dan Graham
     c31073c8 2020-04-18 13:40:00 -0400
     Added info line above prompt in query and added instructions to
     the beginning of the stored query listing.
 
-- 12 days ago Dan Graham
+- 3 weeks ago Dan Graham
     e6497419 2020-04-18 13:40:00 -0400
     Added info line above prompt in query and added instructions to
     the beginning of the stored query listing.
 
-- 13 days ago Dan Graham
+- 3 weeks ago Dan Graham
     5e1087d7 2020-04-17 16:48:53 -0400
     Tagged version 4.2.3.
 
-- 13 days ago Dan Graham
+- 3 weeks ago Dan Graham
     afbc3bb6 2020-04-17 16:47:38 -0400
     Fixed several bugs involving background colors in dialogs and such
     and also a failure to use the colors setting from options.
 
-- 13 days ago Dan Graham
+- 3 weeks ago Dan Graham
     f841c4c1 2020-04-17 13:14:27 -0400
     Tagged version 4.2.2.
 
-- 13 days ago Dan Graham
+- 3 weeks ago Dan Graham
     6e3bd1ad 2020-04-17 13:12:02 -0400
     Dialog color fix
 
-- 13 days ago Dan Graham
+- 3 weeks ago Dan Graham
     8438bc5c 2020-04-17 12:29:37 -0400
     Tagged version 4.2.1.
 
-- 13 days ago Dan Graham
+- 3 weeks ago Dan Graham
     c3cbed6b 2020-04-17 12:21:49 -0400
     Option explanation and color tweaks.
 
-- 13 days ago Dan Graham
+- 3 weeks ago Dan Graham
     64d7ec3b 2020-04-17 10:20:59 -0400
     Show all item types in index view. Background color tweaks for
     textarea, menubar, status, menu and dialogs.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     5585da5f 2020-04-16 15:32:39 -0400
     Improved dialog and menu colors.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     53b03822 2020-04-16 14:09:15 -0400
     More bump message tweaks.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     bb01d46f 2020-04-16 13:27:09 -0400
     Tagged version 4.2.0. Support for vi and emacs style editing.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     7d1348f4 2020-04-16 13:26:19 -0400
     More bump message tweaks.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     7bf89b4a 2020-04-16 13:07:11 -0400
     Added option to append to tag message
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     fa8e9f5f 2020-04-16 12:42:24 -0400
     Clear query_area and show 'processing query ...' in text_area
     while query is bbeing processed.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     5e630222 2020-04-16 11:34:52 -0400
     More fiddles to show 'working' when processing query
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     e343467d 2020-04-15 16:48:47 -0400
     Changed query prompt to use etm style. Work on colors. Cleanup.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     26da3fc3 2020-04-14 18:45:14 -0400
     Fixed date/datetime bug in setting rdt in reports.py
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     faa8146e 2020-04-14 15:40:44 -0400
     Updated README regarding vi vs emacs mode.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     35f7cc36 2020-04-14 15:34:11 -0400
     Apply vi_mode setting only to the entry buffer for new, copy and
     existing items. Display modified state using + for all edit
@@ -212,104 +241,104 @@ Recent changes as of 2020-04-30T13:51:19.410493-04:00:
     current buffer content to determine whether content modified and
     apply this to unsaved changes prompt as well as '+'.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     fb2ad1e6 2020-04-14 11:28:44 -0400
     Added vi mode display to status bar when applicable.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     bafa8b90 2020-04-13 15:07:27 -0400
     Changed binding for closing editor from 'escape' to 'ctrl-z'
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     3aab754e 2020-04-13 14:22:49 -0400
     Tagged version 4.1.2.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     8a2a8e96 2020-04-13 14:21:54 -0400
     Added option to use vi or emacs (the default) key bindings when
     editing. Provide the current datetime as a default when finishing
     a task. Avoid mutating an ordered dict when checking options.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     7a6cc85f 2020-04-10 11:34:47 -0400
     More query help tweaks
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     bdc11313 2020-04-10 11:29:54 -0400
     Readme tweaks and image size adjustments
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     c27d29c7 2020-04-08 11:03:34 -0400
     Still more documenation tweaks
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     d82eac22 2020-04-08 10:20:14 -0400
     Added query help to README
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     71040d9e 2020-04-08 10:10:53 -0400
     Options and README tweaks
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     cf236de7 2020-04-08 09:27:21 -0400
     Updated queries section of options and README
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     c47eed4e 2020-04-07 12:41:20 -0400
     Tagged version 4.1.1.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     f1d1837d 2020-04-07 12:40:46 -0400
     Added 'exit' and 'quit' to '' as commands to close the query
     prompt. More documentation tweaks.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     10ef8c44 2020-04-07 11:34:03 -0400
     Query help fixes and tweaks
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     a97b487d 2020-04-07 09:36:04 -0400
     Change the query commands 'matches' and 'search' to 'begins' and
     'includes', repectively, as being more suggestive.
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     17a7a0e2 2020-04-07 08:35:01 -0400
     query help tweaks
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     3baab7fd 2020-04-06 16:02:32 -0400
     bump.py tweaks
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     fa4da7dc 2020-04-06 14:10:18 -0400
     re tagged 4.1.0 to incorporate the latest updates before uploading
     to pypi
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     2a0cbd04 2020-04-06 13:22:01 -0400
     Removed tag 4.1.0
 
-- 3 weeks ago Dan Graham
+- 4 weeks ago Dan Graham
     b0e548a2 2020-04-06 13:09:06 -0400
     Many query help improvements
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     41787c77 2020-04-05 18:45:38 -0400
     Tagged version 4.1.0.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     7442092f 2020-04-05 18:39:31 -0400
     More doc fixes.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     1b199520 2020-04-05 17:40:36 -0400
     cleaned up comments
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     0041eff7 2020-04-05 16:33:17 -0400
     More query help tweaks
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     a8602885 2020-04-05 16:23:53 -0400
     Cleanup, query help, add query 'l' command to list the key and
     value shortcuts in 'queries'. Added c and l to query fields with
@@ -317,15 +346,15 @@ Recent changes as of 2020-04-30T13:51:19.410493-04:00:
     simple indexes for 'i'. Commented out week, width and other unused
     grpby items. Added '~' for empty i slices.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     2f4e4778 2020-04-05 12:06:53 -0400
     much work on query help and README
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     a36b068f 2020-04-04 16:37:25 -0400
     More cleanup and bug fixes
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     00cb8757 2020-04-04 14:04:26 -0400
     Many fixed for -a entries including tags, location, usedtime. Use
     finished_char as itemtype when f is in item. Used hours_and_tenths
@@ -335,103 +364,83 @@ Recent changes as of 2020-04-30T13:51:19.410493-04:00:
     pasting the correspond value into the entry field for optional
     modification and to join the command history.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     1f76a086 2020-04-03 13:57:24 -0400
     cleanup and put a query from queries into the command history
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     8acc26ed 2020-04-03 13:12:01 -0400
     Refactor and cleanup
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     b86edca4 2020-04-02 09:33:24 -0400
     rolled by tag from 4.1.0 to 4.0.28
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     e115c524 2020-04-02 08:52:08 -0400
     Added 'queries' to option settings and corrected yaml instance to
     preserve comments and order.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     bd7003b9 2020-03-31 19:50:22 -0400
     Tagged version 4.1.0.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     ad8e2270 2020-03-31 19:43:41 -0400
     bump tweaks
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     49a14526 2020-03-31 19:41:10 -0400
     bump tweaks
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     2282e8cc 2020-03-31 19:38:27 -0400
     added increments for minor and major numbers to bump.py
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     f9278af5 2020-03-31 19:03:16 -0400
     clean up, added query text as title for output
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     08149ddd 2020-03-31 16:33:03 -0400
     reports working from etm itself
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     4bb89e67 2020-03-31 09:49:49 -0400
     Moved report.py into etm/
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     615bf24c 2020-03-30 12:04:46 -0400
     Ready to migrate report to etm
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     bfe3dcd4 2020-03-30 10:42:48 -0400
     Working but needs cleanup and more testing
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     79643518 2020-03-29 22:10:14 -0400
     clean up
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     e3fe30cd 2020-03-29 17:59:03 -0400
     incorporated RDict approach
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     599a2401 2020-03-28 18:17:56 -0400
     sort and path formatting working
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     6e02e9a6 2020-03-27 09:19:46 -0400
     added apply_dates_filter to report.py
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     c8480de3 2020-03-26 16:20:20 -0400
     getting there with reports.py
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     f9c8097a 2020-03-25 14:58:24 -0400
     moved report to root directory
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     a08c2a6d 2020-03-25 13:37:56 -0400
     added first pass add report.py
-
-- 6 weeks ago Dan Graham
-    ff03306b 2020-03-22 11:10:19 -0400
-    added 'append an & to add an option' to the prompt for @r and @j
-
-- 6 weeks ago Dan Graham
-    36b4d752 2020-03-16 14:41:09 -0400
-    Tagged version 4.0.28.
-
-- 6 weeks ago Dan Graham
-    f7f5d881 2020-03-16 14:09:51 -0400
-    More ical fixes
-
-- 7 weeks ago Dan Graham
-    3fb29324 2020-03-15 12:50:41 -0400
-    Fixed bug in ics_import
-
-- 7 weeks ago Dan Graham
-    429b7aa9 2020-03-15 09:15:57 -0400
-    fixed yaml safe load issues
