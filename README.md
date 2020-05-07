@@ -845,46 +845,6 @@ The reminder lines are similar to those in other views. With, e.g.,
 
 selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth.
 
-The *used time **expanded** view* is like the *used time* view but when a reminder has an `@d` entry, the contents of that field are also displayed wrapped and indented under the reminder. This view for November begins with
-
-		November 2019
-		  client A
-			project a1
-			  correspondence
-				* Modi ut sit sed amet sit: 1.6h Nov 11
-				  Aliquam non sed aliquam eius tempora
-				  quisquam dolorem. Neque quiquia labore
-				  tempora magnam. Quiquia tempora porro est
-				  ut. Ut tempora sed non ut eius neque porro.
-				  Sed quaerat consectetur dolor sit.
-				% Amet modi neque eius adipisci: 2.7h Nov 27
-				  Adipisci voluptatem labore amet neque neque
-				  numquam. Voluptatem dolor dolorem sed sit.
-				  Tempora labore ut ut labore tempora. Sit
-				  ipsum dolorem aliquam aliquam voluptatem non
-				  labore. Est quisquam etincidunt quiquia est
-				  ipsum adipisci. Est quiquia velit sed sed
-				  quisquam quisquam porro.
-			  research
-				* Quisquam quiquia velit non: 2.0h Nov 19
-				  Labore ipsum non consectetur amet quiquia
-				  sit porro. Quisquam amet ut sit etincidunt.
-				  Quiquia modi consectetur ipsum velit eius.
-				  Est dolorem etincidunt porro. Modi dolorem
-				  porro magnam est. Adipisci non quiquia
-				  voluptatem porro consectetur. Quaerat neque
-				  modi sed tempora sit adipisci consectetur.
-				  Dolor non dolore ut quaerat ipsum labore.
-			project a2
-			  correspondence
-				* Consectetur voluptatem dolorem: 1.0h Nov 6
-				  Dolore quaerat est dolore tempora. Modi amet
-				  voluptatem etincidunt numquam neque velit.
-				  Ipsum neque amet dolor magnam consectetur
-				  dolorem voluptatem. Neque amet etincidunt
-				  quiquia neque dolorem numquam quiquia. Neque
-				  etincidunt labore numquam neque modi.
-
 
 The *used time **summary** view* for the same month begins with:
 
