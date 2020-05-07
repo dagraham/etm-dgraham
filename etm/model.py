@@ -1885,7 +1885,7 @@ class DataView(object):
         filelist = os.listdir(self.backupdir)
         # deal with db.json
         dbmtime = os.path.getctime(self.dbfile)
-        zipfiles = [x for x in filelist if x.endswith('db.zip')]
+        zipfiles = [x for x in filelist if x.startswith('db')]
         zipfiles.sort(reverse=True)
         if zipfiles:
             lastdbtime = os.path.getctime(os.path.join(self.backupdir, zipfiles[0]))
@@ -1893,14 +1893,14 @@ class DataView(object):
             lastdbtime = None
 
         if lastdbtime is None or dbmtime > lastdbtime:
-            backupfile = os.path.join(self.backupdir, f"{timestamp}-db.json")
-            zipfile = os.path.join(self.backupdir, f"{timestamp}-db.zip")
+            backupfile = os.path.join(self.backupdir, f"db-{timestamp}.json")
+            zipfile = os.path.join(self.backupdir, f"db-{timestamp}.zip")
             shutil.copy2(self.dbfile, backupfile)
             with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
                 zip.write(backupfile, os.path.basename(backupfile))
             os.remove(backupfile)
             logger.info(f"backed up {self.dbfile} to {zipfile}")
-            zipfiles.insert(0, f"{timestamp}-db.zip")
+            zipfiles.insert(0, f"db-{timestamp}.zip")
             zipfiles.sort(reverse=True)
             removefiles.extend([os.path.join(self.backupdir, x) for x in zipfiles[5:]])
         else:
@@ -1908,18 +1908,17 @@ class DataView(object):
 
         # deal with cfg.yaml
         cfgmtime = os.path.getctime(self.cfgfile)
-        cfgfiles = [x for x in filelist if x.endswith('cfg.yaml')]
+        cfgfiles = [x for x in filelist if x.startswith('cfg')]
         cfgfiles.sort(reverse=True)
         if cfgfiles:
             lastcfgtime = os.path.getctime(os.path.join(self.backupdir, cfgfiles[0]))
         else:
             lastcfgtime = None
         if lastcfgtime is None or cfgmtime > lastcfgtime:
-            logger.debug(f"lastcfgtime: {lastcfgtime}; cfgmtime: {cfgmtime}; cfgfiles: {cfgfiles}")
-            backupfile = os.path.join(self.backupdir, f"{timestamp}-cfg.yaml")
+            backupfile = os.path.join(self.backupdir, f"cfg-{timestamp}.yaml")
             shutil.copy2(self.cfgfile, backupfile)
             logger.info(f"backed up {self.cfgfile} to {backupfile}")
-            cfgfiles.insert(0, f"{timestamp}-cfg.yaml")
+            cfgfiles.insert(0, f"cfg-{timestamp}.yaml")
             cfgfiles.sort(reverse=True)
             removefiles.extend([os.path.join(self.backupdir, x) for x in
                 cfgfiles[5:]])
@@ -1931,7 +1930,6 @@ class DataView(object):
             logger.info(f"removing old files: {removefiles}")
             for f in removefiles:
                 os.remove(f)
-        logger.debug(f"leaving handle_backups")
         return True
 
 

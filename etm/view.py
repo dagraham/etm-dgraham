@@ -2360,7 +2360,7 @@ def do_whatever(*event):
     """
     For testing whatever
     """
-    dataview.get_arch_id(text_area.document.cursor_position_row)
+    dataview.handle_backups()
 
 
 @bindings.add('c-x', filter=is_viewing & is_item_view)
