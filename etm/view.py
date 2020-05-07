@@ -25,7 +25,7 @@ from prompt_toolkit.selection import SelectionType
 from prompt_toolkit.key_binding.vi_state import InputMode
 from prompt_toolkit.filters import vi_mode, vi_navigation_mode, vi_insert_mode, vi_replace_mode, vi_selection_mode, emacs_mode, emacs_selection_mode, emacs_insert_mode
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import Completion, Completer
+from prompt_toolkit.completion import Completion, Completer, PathCompleter
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.layout import Dimension
@@ -168,8 +168,8 @@ Contents:
   Command history
   Saved queries
 
-Hint: press '/' or '?' to search incrementally forward
-or backwards, respectively.
+Press '/' or '?' to search incrementally forward or
+backward, respectively.
 
 Simple queries
 ==============
@@ -284,17 +284,18 @@ update commands:
 
 {UPDATE_DETAILS}
 
-Bearing in mind that the results may not be reversible,
-consider backing up your 'db.json' database before using
-update commands. Remember the old carpentry addage:
-
-    measure twice, cut once.
-
 The recommended workflow for updating reminders is first
 to perfect the query to be certain that it lists just the
 items you want to update. Then press 'q' and the 'up'
 cursor key to restore the previous query, add ' | ' and
 the update command you want with its arguments.
+
+WARNING: Since the results may not be reversible, consider
+backing up your 'db.json' database before using update
+commands. This simple command, e.g., would PERMANENTLY
+DELETE ALL YOUR REMINDERS:
+
+    query: exists itemtype | remove
 
 Complex queries
 ===============
@@ -2331,7 +2332,7 @@ def do_import_file(*event):
         global msg
         dialog = TextInputDialog(
             title='import file',
-            # completer=?file_path_completer?,
+            completer=PathCompleter(expanduser=True),
             label_text="""\
 It is possible to import data from files with
 one of the following extensions:

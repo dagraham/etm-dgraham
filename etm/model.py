@@ -4874,9 +4874,11 @@ def show_forthcoming(db, id2relevant, pinned_list=[]):
 def show_query_items(text, items=[], pinned_list=[]):
     width = shutil.get_terminal_size()[0] - 7
     rows = []
-    summary_width = width - 6
+    # summary_width = width - 6
     if not items or not isinstance(items, list):
         return f"query: {text}\n   none matching", {}
+    item_count = f" [{len(items)}]"
+    summary_width = width - 6 - len(item_count)
     for item in items:
         mt = item.get('modified', None)
         if mt is not None:
@@ -4902,7 +4904,7 @@ def show_query_items(text, items=[], pinned_list=[]):
     rdict = RDict()
     for row in rows:
         # path = row['path']
-        path = f"query: {text[:summary_width]}"
+        path = f"query: {text[:summary_width]}{item_count}"
         values = (
                 f"{row['columns'][0]} {row['columns'][1]} {row['columns'][2]: >6}", row['columns'][2]
                 )
