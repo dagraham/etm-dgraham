@@ -480,7 +480,7 @@ class TDBLexer(RegexLexer):
                 (r'\b(begins|includes|equals|more|less|exists|any|all|one)\b', Keyword),
                 (r'\b(replace|remove|archive|delete|set|provide|attach|detach)\b', Keyword),
                 (r'\b(itemtype|summary)\b', Literal),
-                (r'\b(and|or|info)\b', Comment),
+                (r'\b(and|or|info)\b', Keyword),
                 ],
             }
 

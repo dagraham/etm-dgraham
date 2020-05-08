@@ -5197,10 +5197,11 @@ def get_usedtime(db):
         id_used = {}
         index_tup = index.split('/')
         doc_id = item.doc_id
-        if item['itemtype'] == '-' and 'f' in item:
-            itemtype = finished_char
-        else:
-            itemtype = item['itemtype']
+        # if item['itemtype'] == '-' and 'f' in item:
+        #     itemtype = finished_char
+        # else:
+        #     itemtype = item['itemtype']
+        itemtype = item['itemtype']
         details = f"{itemtype} {item['summary']}"
         for period, dt in used:
             if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
@@ -5391,10 +5392,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         if 'u' in item:
             used = item.get('u') # this will be a list of @u entries
-            if item['itemtype'] == '-' and 'f' in item:
-                itemtype = finished_char
-            else:
-                itemtype = item['itemtype']
+            # if item['itemtype'] == '-' and 'f' in item:
+            #     itemtype = finished_char
+            # else:
+            #     itemtype = item['itemtype']
+            itemtype = item['itemtype']
             id = item.doc_id
             dates_to_periods = {}
             for period, dt in used:
