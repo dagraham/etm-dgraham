@@ -357,7 +357,7 @@ def get_output_and_row2id(items, grpby, header=""):
             item.setdefault(x, '~') # make ~ the default
         item.setdefault('modified', item['created'])
         if 'f' in item:
-            item['itemtype'] = finished_char
+            item['itemtype'] = '-' if report == 'u' else finished_char
         st = [eval(x, {'item': item, 're': re, 'format_week': format_week}) for x in sort_tups if x]
         # pt = [eval(x, {'item': item, 're': re, 'format_week': format_week}) for x in path_tups if x]
         pt = []
