@@ -36,7 +36,7 @@ DAY = pendulum.duration(days=1)
 finished_char = u"\u2713"  #  ✓
 
 minus_regex = re.compile(r'\s+\-(?=[a-zA-Z])')
-groupdate_regex = re.compile(r'\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\b[d]{2,4}\b|\b[D]{1,2}\b|\b[w]\b')
+groupdate_regex = re.compile(r'\bW{1,4}\b|\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\bd{1,4}\b|\b[D]{1,2}\b|\b[w]\b')
 
 # supported date formats (subset of pendulum)
 # 'YYYY',     # year 2019
@@ -54,6 +54,39 @@ groupdate_regex = re.compile(r'\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\b[d]{2,4}\b|\b[D]
 ETMDB = None
 DBITEM = None
 DBARCH = None
+
+def format_week(dt, fmt="WWW"):
+    """
+    """
+    if fmt.endswith(','):
+        add_comma = ','
+        fmt = fmt[:-1]
+    else:
+        add_comma = ''
+
+    if fmt == "W":
+        return str(dt.week_of_year) + add_comma
+
+    dt_year, dt_week = dt.isocalendar()[:2]
+
+    if fmt == "WWW":
+        year_week = f", {dt_year}"
+    elif fmt == "WWWW":
+        year_week = f", {dt_year} #{dt_week}"
+    else:
+        year_week = ""
+
+
+    mfmt = "MMM D"
+
+    wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
+    wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
+    week_begin = wkbeg.format(mfmt)
+    if wkbeg.month == wkend.month:
+        week_end = wkend.format("D")
+    else:
+        week_end = wkend.format(mfmt)
+    return f"{week_begin} - {week_end}{year_week}{add_comma}"
 
 
 def maybe_round(obj):
@@ -325,8 +358,17 @@ def get_output_and_row2id(items, grpby, header=""):
         item.setdefault('modified', item['created'])
         if 'f' in item:
             item['itemtype'] = finished_char
-        st = [eval(x, {'item': item, 're': re}) for x in sort_tups if x]
-        pt = [eval(x, {'item': item, 're': re}) for x in path_tups if x]
+        st = [eval(x, {'item': item, 're': re, 'format_week': format_week}) for x in sort_tups if x]
+        # pt = [eval(x, {'item': item, 're': re, 'format_week': format_week}) for x in path_tups if x]
+        pt = []
+        for y in path_tups:
+            if not y:
+                continue
+            if isinstance(y, list):
+                pt.append(" ".join([eval(x, {'item': item, 're': re, 'format_week': format_week}) for x in y if x]))
+            else:
+                pt.append(eval(y, {'item': item, 're': re, 'format_week': format_week}))
+
         dt = []
         for x in dtls_tups:
             if not x:
@@ -357,6 +399,7 @@ def get_output_and_row2id(items, grpby, header=""):
 
     output, row2id = index.as_tree(index)
     return f"{header}\n  {output}", row2id
+
 
 def get_grpby_and_filters(s, options=None):
     if not options:
@@ -394,24 +437,44 @@ def get_grpby_and_filters(s, options=None):
     grpby['path'] = []
     grpby['sort'] = []
     filters['missing'] = False
-    include = {'Y', 'M', 'D'}
+    # week sort : (202003)
+    # W: display 3
+    # WW: display Jan 13 - 19
+    # WWW: display January 13 - 19, 2020
+    # WWWW: display January 13 - 19, 2020 #3
+    include = {'W', 'Y', 'M', 'D'}
     if groupbylst:
         for group in groupbylst:
+            logger.debug(f"group: {group}")
             d_lst = []
+            this_sort = []
+            this_path = []
             if groupdate_regex.search(group):
-                if 'Y' in group:
-                    d_lst.append('YYYY')
-                    include.discard('Y')
-                if 'M' in group:
-                    d_lst.append('MM')
-                    include.discard('M')
-                if 'D' in group:
-                    d_lst.append('DD')
-                    include.discard('D')
-                tmp = " ".join(d_lst)
-                grpby['sort'].append(f"item['rdt'].format('{tmp}')")
-                grpby['path'].append(
-                    f"item['rdt'].format('{group}')")
+                gparts = group.split(' ')
+                for part in gparts:
+                    # W includes year, precludes M
+                    if 'W' in part:
+                        include.discard('W')
+                        include.discard('Y')
+                        this_sort.append("item['rdt'].strftime('%W')")
+                        this_path.append(f"format_week(item['rdt'], '{part}')")
+                    if 'Y' in part:
+                        include.discard('Y')
+                        this_sort.append("item['rdt'].format('YYYY')")
+                        this_path.append(f"item['rdt'].format('{part}')")
+                    if 'M' in part:
+                        include.discard('M')
+                        this_sort.append("item['rdt'].format('MM')")
+                        this_path.append(f"item['rdt'].format('{part}')")
+                    if 'D' in part:
+                        include.discard('D')
+                        this_sort.append("item['rdt'].format('DD')")
+                        this_path.append(f"item['rdt'].format('{part}')")
+                    if 'd' in part:
+                        this_path.append(f"item['rdt'].format('{part}')")
+                grpby['sort'].extend(this_sort)
+                grpby['path'].append(this_path)
+
 
             elif '[' in group and group[0] == 'i':
                 logger.debug(f"i group: {group[0]}, {group[1:]}")
@@ -443,7 +506,6 @@ def get_grpby_and_filters(s, options=None):
                     grpby['include'] = ""
             else:
                 grpby['include'] = ""
-
         if grpby['dated'] or grpby['report'] in ['u', 'm', 'c']:
             grpby['sort'].append(f"item['rdt'].format('YYYYMMDD')")
     also = []
@@ -463,7 +525,7 @@ def get_grpby_and_filters(s, options=None):
             value = [x.strip() for x in part[1:].split(',')]
         else:
             value = part[1:].strip()
-            if value[0] == '~':
+            if value and value[0] == '~':
                 filters['neg_fields'].append((
                     key, re.compile(r'%s' % value[1:], re.IGNORECASE)))
             else:
@@ -481,7 +543,7 @@ def get_grpby_and_filters(s, options=None):
         # logger.debug(f"details: {details}")
     details.append("item.doc_id")
     grpby['dtls'] = details
-    # logger.debug('grpby: {0}; dated: {1}; filters: {2}'.format(grpby, dated, filters))
+    logger.debug(f'grpby: {grpby}; filters: {filters}')
     return grpby, filters
 
 def show_query_results(text, grpby, items):

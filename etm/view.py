@@ -484,6 +484,27 @@ class TDBLexer(RegexLexer):
                 ],
             }
 
+def format_week(dt, fmt="WWW"):
+    """
+    """
+    if fmt == "W":
+        return dt.week_of_year
+    if fmt == "WW":
+        return dt.strftime("%W")
+
+    dt_year, dt_week = dt.isocalendar()[:2]
+
+    mfmt = "MMMM D" if fmt == "WWWW" else "MMM D"
+
+    wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
+    wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
+    week_begin = wkbeg.format(mfmt)
+    if wkbeg.month == wkend.month:
+        week_end = wkend.format("D")
+    else:
+        week_end = wkend.format(mfmt)
+    return f"{week_begin} - {week_end}"
+
 
 class ETMQuery(object):
 
