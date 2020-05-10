@@ -5385,17 +5385,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         if item['itemtype'] in "!?":
             continue
         summary = summary_pin(item['summary'], summary_width, item.doc_id, pinned_list)
-        # if item.doc_id in pinned_list:
-        #     summary = (item['summary'][:summary_width - 1] + PIN_CHAR).ljust(summary_width-1, ' ')
-        # else:
-        #     summary = item['summary'][:summary_width].ljust(summary_width, ' ')
 
         if 'u' in item:
             used = item.get('u') # this will be a list of @u entries
-            # if item['itemtype'] == '-' and 'f' in item:
-            #     itemtype = finished_char
-            # else:
-            #     itemtype = item['itemtype']
             itemtype = item['itemtype']
             id = item.doc_id
             dates_to_periods = {}
@@ -5453,10 +5445,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
                         dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
                         dt.set(hour=23, minute=59, second=59)
-                        rhc = ''
-                    else:
-                        rhc = fmt_time(dt).center(16, ' ')
 
+                    rhc = ''
                     if dt < aft_dt or dt > bef_dt:
                         continue
 
