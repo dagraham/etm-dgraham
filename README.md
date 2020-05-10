@@ -669,19 +669,24 @@ following components:
     to overrule these defaults.
 
 * date specification:
-  *  year:
-      * YY: 2-digit year
-      * YYYY: 4-digit year
-  *  month:
-      * M: month: 1 - 12
-      * MM: month: 01 - 12
-      * MMM: locale abbreviated month name: Jan - Dec
-      * MMMM: locale month name: January - December
-  *  day:
-      * D: month day: 1 - 31
-      * DD: month day: 01 - 31
-      * ddd: locale abbreviated week day: Mon - Sun
-      * dddd: locale week day: Monday - Sunday
+  * year:
+    * YY: 2-digit year
+	* YYYY: 4-digit year
+  * month:
+	* M: month: 1 - 12
+	* MM: month: 01 - 12
+	* MMM: locale abbreviated month name: Jan - Dec
+	* MMMM: locale month name: January - December
+  * week: (examples based on 2020 iso week number 3):
+	* W: week number: 3
+	* WW: month days interval for week: Jan 13 - 19
+	* WWW: interval and year: Jan 13 - 19, 2020
+	* WWWW: interval, year and week number: Jan 13 - 19, 2020 #3
+  * day:
+	* D: month day: 1 - 31
+	* DD: month day: 01 - 31
+	* ddd: locale abbreviated week day: Mon - Sun
+	* dddd: locale week day: Monday - Sunday
 
 Note: when a date specification is given, the datetime
 used depends upon the report type.
