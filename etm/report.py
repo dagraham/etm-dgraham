@@ -24,6 +24,7 @@ from pygments.token import Operator
 from pygments.token import Comment
 import pendulum
 from pendulum import parse
+from pendulum import duration
 import itertools
 from itertools import groupby
 flatten = itertools.chain.from_iterable
@@ -54,6 +55,34 @@ groupdate_regex = re.compile(r'\bW{1,4}\b|\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\bd{1,4
 ETMDB = None
 DBITEM = None
 DBARCH = None
+
+def _fmtdt(dt):
+    # assumes dt is either a date or a datetime
+    try:
+        # this works if dt is a datetime
+        return dt.format("YYYYMMDDHHmm")
+    except:
+        # this works if dt is a date by providing 00 for HH and mm
+        return dt.format("YYYYMMDD0000")
+
+
+def later(d1, d2):
+    """
+    True if d1 > d2
+    """
+    if not isinstance(d1, pendulum.Date) or not isinstance(d2, pendulum.Date):
+        # each must be a date or a datetime
+        return "only pendulum dates or datetimes can be compared"
+    return _fmtdt(d1) > _fmtdt(d2)
+
+def earlier(d1, d2):
+    """
+    True if d1 < d2
+    """
+    if not isinstance(d1, pendulum.Date) or not isinstance(d2, pendulum.Date):
+        # each must be a date or a datetime
+        return "only pendulum dates or datetimes can be compared"
+    return _fmtdt(d1) < _fmtdt(d2)
 
 def format_week(dt, fmt="WWW"):
     """
@@ -135,15 +164,15 @@ def apply_dates_filter(items, grpby, filters):
             used_times = deepcopy(item['u'])
             if 'b' in filters and 'e' in filters: # both b and e
                 for x in used_times:
-                    if x[1] < filters['b'] or x[1] > filters['e']:
+                    if earlier(x[1], filters['b']) or later(x[1], filters['e']):
                         item['u'].remove(x)
             elif 'b' in filters: # only b
                 for x in used_times:
-                    if x[1] < filters['b']:
+                    if earlier(x[1], filters['b']):
                         item['u'].remove(x)
             elif 'e' in filters: # only e
                 for x in item['u']:
-                    if x[1] > filters['e']:
+                    if later(x[1], filters['e']):
                         item['u'].remove(x)
             items = []
             dt2ut = {}
@@ -433,11 +462,6 @@ def get_grpby_and_filters(s, options=None):
         grpby['args'] = groupbylst
     grpby['path'] = []
     grpby['sort'] = []
-    # week sort : (202003)
-    # W: display 3
-    # WW: display Jan 13 - 19
-    # WWW: display January 13 - 19, 2020
-    # WWWW: display January 13 - 19, 2020 #3
     include = {'W', 'Y', 'M', 'D'}
     if groupbylst:
         for group in groupbylst:
