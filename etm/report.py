@@ -418,12 +418,9 @@ def get_grpby_and_filters(s, options=None):
     filters['dates'] = False
     grpby['dated'] = False
     filters['query'] = "exists u" if report == 'u' else "exists itemtype"
-    filters['neg_fields'] = []
-    filters['pos_fields'] = []
     groupbylst = []
     if groupbystr:
         groupbylst = [x.strip() for x in groupbystr.split(';')]
-        # print(f"groupbylst: {groupbylst}")
         for comp in groupbylst:
             comp_parts = comp.split(' ')
             for part in comp_parts:
@@ -436,7 +433,6 @@ def get_grpby_and_filters(s, options=None):
         grpby['args'] = groupbylst
     grpby['path'] = []
     grpby['sort'] = []
-    filters['missing'] = False
     # week sort : (202003)
     # W: display 3
     # WW: display Jan 13 - 19
@@ -446,28 +442,21 @@ def get_grpby_and_filters(s, options=None):
     if groupbylst:
         for group in groupbylst:
             logger.debug(f"group: {group}")
-            d_lst = []
             this_sort = []
             this_path = []
             if groupdate_regex.search(group):
                 gparts = group.split(' ')
                 for part in gparts:
-                    # W includes year, precludes M
                     if 'W' in part:
-                        include.discard('W')
-                        include.discard('Y')
                         this_sort.append("item['rdt'].strftime('%W')")
                         this_path.append(f"format_week(item['rdt'], '{part}')")
                     if 'Y' in part:
-                        include.discard('Y')
                         this_sort.append("item['rdt'].format('YYYY')")
                         this_path.append(f"item['rdt'].format('{part}')")
                     if 'M' in part:
-                        include.discard('M')
                         this_sort.append("item['rdt'].format('MM')")
                         this_path.append(f"item['rdt'].format('{part}')")
                     if 'D' in part:
-                        include.discard('D')
                         this_sort.append("item['rdt'].format('DD')")
                         this_path.append(f"item['rdt'].format('{part}')")
                     if 'd' in part:
@@ -489,23 +478,6 @@ def get_grpby_and_filters(s, options=None):
                 grpby['path'].append("item['%s']" % group.strip())
                 grpby['sort'].append(f"item['{group.strip()}']")
 
-            if include:
-                if include == {'Y', 'M', 'D'}:
-                    grpby['include'] = "YYYY-MM-DD"
-                elif include == {'M', 'D'}:
-                    grpby['include'] = "MMM D"
-                elif include == {'y', 'd'}:
-                    grpby['include'] = "YYYY-MM-DD"
-                elif include == set(['Y', 'w']):
-                    groupby['include'] = "w"
-                elif include == {'D'}:
-                    grpby['include'] = "MMM D"
-                elif include == set(['w']):
-                    grpby['include'] = "w"
-                else:
-                    grpby['include'] = ""
-            else:
-                grpby['include'] = ""
         if grpby['dated'] or grpby['report'] in ['u', 'm', 'c']:
             grpby['sort'].append(f"item['rdt'].format('YYYYMMDD')")
     also = []
@@ -523,14 +495,6 @@ def get_grpby_and_filters(s, options=None):
             filters['query'] += f" and {value}"
         elif key == 't':
             value = [x.strip() for x in part[1:].split(',')]
-        else:
-            value = part[1:].strip()
-            if value and value[0] == '~':
-                filters['neg_fields'].append((
-                    key, re.compile(r'%s' % value[1:], re.IGNORECASE)))
-            else:
-                filters['pos_fields'].append((
-                    key, re.compile(r'%s' % value, re.IGNORECASE)))
     details = []
     details.append("item['itemtype']")
     details.append("item['summary']")
@@ -540,7 +504,6 @@ def get_grpby_and_filters(s, options=None):
         details.append("")
     if also:
         details.extend([f"item.get('{x}', '~')" for x in also])
-        # logger.debug(f"details: {details}")
     details.append("item.doc_id")
     grpby['dtls'] = details
     logger.debug(f'grpby: {grpby}; filters: {filters}')
