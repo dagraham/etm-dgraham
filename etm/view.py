@@ -2257,7 +2257,9 @@ def do_finish(*event):
         dialog = TextInputDialog(
             title='finish task/job',
             label_text=f"selected: {show}\ndatetime completed:",
-            default=pendulum.now().format(fmt))
+            # default=pendulum.now().format(fmt)
+            default='now'
+            )
 
         done_str = yield from show_dialog_as_float(dialog)
         if done_str:
