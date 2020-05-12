@@ -368,6 +368,11 @@ following components:
       MM: month: 01 - 12
       MMM: locale abbreviated month name: Jan - Dec
       MMMM: locale month name: January - December
+    week: (examples based on 2020 iso week number 3):
+      W: week number: 3
+      WW: month days interval for week: Jan 13 - 19
+      WWW: interval and year: Jan 13 - 19, 2020
+      WWWW: interval, year and week number: Jan 13 - 19, 2020 #3
     day:
       D: month day: 1 - 31
       DD: month day: 01 - 31
@@ -378,9 +383,12 @@ following components:
     used depends upon the report type.
         u: the value of the datetime component of the @u
            entry. Items without @u entries are omitted.
-        c: the value of @f when it exists and, otherwise,
+        s: the value of @f when it exists and, otherwise,
            the value of @s. Items lacking both @f and @s
            entries are omitted.
+        c: the created datetime.
+        m: the modified datetime if it exists, else the created
+           datetime.
 
   E.g.
 

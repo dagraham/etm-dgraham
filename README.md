@@ -404,7 +404,7 @@ would display reminders with @u elements but not an @i element.
 Simple queries of this type produce a list of matching items with the itemtype, summary and id displayed and sorted by id, i.e., by the order created. It is also possible to create more complex queries in which the output is displayed heirarchially using a format determined by the query parameters. Enter `?` or `help` at the prompt to get this detailed usage information:
 
 
-#### Simple queries
+#### [Simple queries](#overview)
 Return a list of items displaying the itemtype, summary
 and id, and sorted by id, (order created) using commands
 with the format:
@@ -481,7 +481,7 @@ Saved queries below) or submit 'quit', 'exit' or nothing
 at all, '', to close the entry area and return to the
 previous display.
 
-#### Simple query examples
+#### [Simple query examples](#overview)
 
 Find items where the summary includes a match for
 "waldo":
@@ -529,7 +529,7 @@ find reminders where either the summary or the entry for
 
     query: includes summary waldo or includes d waldo
 
-#### Archive queries
+#### [Archive queries](#overview)
 
 Queries, by default, search the items table in the etm
 database. You can preceed any query with 'a ' (the letter
@@ -544,7 +544,7 @@ for 'waldo' in the summary or in the description.
 Queries beginning with 'a ' are, in fact, the only way
 to see archived items from within etm itself.
 
-#### Update queries
+#### [Update queries](#overview)
 
 Queries can not only locate reminders but also update
 them. The update commands act on items returned by a
@@ -606,7 +606,7 @@ ALL YOUR REMINDERS:
     query exists itemtype | remove
 
 
-#### Complex queries
+#### [Complex queries](#overview)
 
 Return a formatted, heirarchial display of items. Both the
 format and the items displayed are determined by the type
@@ -692,9 +692,12 @@ Note: when a date specification is given, the datetime
 used depends upon the report type.
 * u: the value of the datetime component of the @u
            entry. Items without @u entries are omitted.
-* c: the value of @f when it exists and, otherwise,
+* s: the value of @f when it exists and, otherwise,
            the value of @s. Items lacking both @f and @s
            entries are omitted.
+* c: the created datetime.
+* m: the modified datetime if it exists, else the created
+          datetime.
 
 E.g.
 
@@ -703,14 +706,12 @@ E.g.
 would create a usedtime query grouped (and sorted) by
 the first component of the index entry, the month and
 year, the remaining components of the index entry and
-finally the month day. Note, for example, that "MMM
-YYYY", "YYYY MMM" and "YYYY MM" would all be sorted
-using "YYYY MM" (2020 01, 2020 02, ...) but would be
-displayed using the specified format (Jan 2020, Feb
-2020, ...). Similarly, "ddd D", "D ddd", and "DD" would
-all sort by "DD" (01, 02, ...) but would also be
-displayed using the specified format (Wed 1, Thu
-2,...).
+finally the month day. 
+
+Sorting note: Specifications using weeks are all sorted 
+and grouped by by (YYYY, W). Specifications involving 
+months are all sorted by (YYYY, M). Specifications 
+involving days are all sorted by (D). 
 
 The group/sort specification can be followed, optionally,
 by any of the following:
@@ -732,7 +733,20 @@ by any of the following:
     E.g., "-a d, l" would append the item description and
     location to the display of each item.
 
-#### Command History
+Note: -b and -e accept shortcuts: 
+* daybeg: 12am on the current day
+* dayend: 12am on the following day
+* weekbeg: 12am on Monday of the current week
+* weekend: 12am on Monday of the following week
+* monthbeg: 12am on the 1st of the current month
+* monthend: 12am on the 1st of the following month
+
+and can be combined with period strings using M (month),
+w (week), d (day), h (hour) and m (minute). E.g.:
+* `weekbeg - 1w`  (the beginning of the previous week)
+* `monthend + 1M` (the end of the following month)
+
+#### [Command History](#overview)
 
 Any query entered at the 'query:' prompt and submitted by
 pressing 'Enter' is added to the command history. These
@@ -745,7 +759,7 @@ submit again. It is also possible to keep a permanent list
 of queries accessible by shortcuts. See 'Saved Queries'
 below.
 
-#### Saved Queries
+#### [Saved Queries](#overview)
 
 Commonly used queries can be specified in the "queries"
 section of `cfg.yaml` in your etm home directory along
