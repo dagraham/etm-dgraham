@@ -562,24 +562,37 @@ WARNING: Since the results may not be reversible, consider backing up your 'db.j
 
 Return a formatted, heirarchial display of items. Both the format and the items displayed are determined by the type of the query and the arguments provided. Since these queries can group and sort by date/times, these queries must begin by specifying which of the possible datetimes to use. There are four types of datetime specifications:
 
--   u: sort and group by datetimes in '@u' (used time) entries. Also report aggregates of times spent in these entries. Only items with '@u' entries will be reported.
--   s: sort and group by datetimes in '@f' entries in finished tasks and otherwise by '@s' entries. Only items with '@f' or '@s' entries will be reported.
+-   u: sort and group by datetimes in `@u` (used time) entries. Also report aggregates of times spent in these entries. Only items with '@u' entries will be reported.
+-   s: sort and group by datetimes in `@f` entries in finished tasks and otherwise by '@s' entries. Only items with `@f` or `@s` entries will be reported.
 -   c: sort and group by the 'created' datetime. All items will be reported.
 -   m: sort and group by the 'modified' datetime if given else by the 'created' datetime. All items will be reported.
 
 Complex queries follow the datetime specifier with a required group/sort specification consisting of a semicolon separated list with at least one of the following components:
 
--   index specification such as i, i\[1:2\] or i\[1:\]
+-   index specification such as i, i[1:2] or i[1:]
 
-    E.g. for an item with index entry '@i A/B/C': i = \['A','B','C'\] i\[0\] = 'A' i\[1\] = 'B' i\[2\] = 'C' i\[3\] =&gt; error, list index out of range i\[0:\] = \['A','B','C'\] i\[:1\] = \['A'\] i\[1:\] = \['B','C'\] i\[1:2\] = \['B'\] i\[:2\] = \['A','B'\] i\[2:\] = \['C'\] i\[3:4\] = i\[3:\] = \[\]
+    E.g. for an item with index entry '@i A/B/C': 
 
-    Note: using slices such as i\[1:2\] rather than i\[1\] avoids 'list index out of range errors' for index entries missing the indicated position and is strongly recommended.
+        i = ['A','B','C'] 
+        i[0] = 'A' 
+        i[1] = 'B' 
+        i[2] = 'C' 
+        i[3] => error, list index out of range 
+        i[0:] = ['A','B','C'] 
+        i[:1] = ['A'] 
+        i[1:] = ['B','C'] 
+        i[1:2] = ['B'] 
+        i[:2] = ['A','B'] 
+        i[2:] = ['C'] 
+        i[3:4] = i[3:] = []
 
-    When an index specification returns an empty list, '~' is used for the missing entry. Items without an '@i' entry are given a default entry of '~' and included by default. Include 'exists i' in '-q' (discussed below) to overrule this default.
+    Note: using slices such as `i[1:2]` rather than `i[1]` avoids 'list index out of range errors' for index entries missing the indicated position and is strongly recommended.
+
+    When an index specification returns an empty list, `~` is used for the missing entry. Items without an '@i' entry are given a default entry of `~` and included by default. Include `exists i` in `-q` (discussed below) to overrule this default.
 
 -   field specification: l: location c: calendar
 
-    Note: items without the specified field are given a default entry of '~' and included by default. Include 'exists l' or 'exists c' in '-q' (discussed below) to overrule these defaults.
+    Note: items without the specified field are given a default entry of `~` and included by default. Include `exists l` or `exists c` in `-q` (discussed below) to overrule these defaults.
 
 -   date specification:
     -   year:
@@ -601,7 +614,11 @@ Complex queries follow the datetime specifier with a required group/sort specifi
         -   ddd: locale abbreviated week day: Mon - Sun
         -   dddd: locale week day: Monday - Sunday
 
-Note: when a date specification is given, the datetime used depends upon the report type. \* u: the value of the datetime component of the @u entry. Items without @u entries are omitted. \* s: the value of @f when it exists and, otherwise, the value of @s. Items lacking both @f and @s entries are omitted. \* c: the created datetime. \* m: the modified datetime if it exists, else the created datetime.
+Note: when a date specification is given, the datetime used depends upon the report type. 
+* u: the value of the datetime component of the @u entry. Items without @u entries are omitted. 
+* s: the value of @f when it exists and, otherwise, the value of @s. Items lacking both @f and @s entries are omitted. 
+* c: the created datetime. 
+* m: the modified datetime if it exists, else the created datetime.
 
 E.g.
 
@@ -621,9 +638,17 @@ The group/sort specification can be followed, optionally, by any of the followin
 
 -a append: append the contents of this comma separated list of @key characters to the formatted output. E.g., "-a d, l" would append the item description and location to the display of each item.
 
-Note: -b and -e accept shortcuts: \* daybeg: 12am on the current day \* dayend: 12am on the following day \* weekbeg: 12am on Monday of the current week \* weekend: 12am on Monday of the following week \* monthbeg: 12am on the 1st of the current month \* monthend: 12am on the 1st of the following month
+Note: -b and -e accept shortcuts: 
+* daybeg: 12am on the current day 
+* dayend: 12am on the following day 
+* weekbeg: 12am on Monday of the current week 
+* weekend: 12am on Monday of the following week 
+* monthbeg: 12am on the 1st of the current month 
+* monthend: 12am on the 1st of the following month
 
-and can be combined with period strings using M (month), w (week), d (day), h (hour) and m (minute). E.g.: \* `weekbeg - 1w` (the beginning of the previous week) \* `monthend + 1M` (the end of the following month)
+and can be combined with period strings using M (month), w (week), d (day), h (hour) and m (minute). E.g.: 
+* `weekbeg - 1w` (the beginning of the previous week) 
+* `monthend + 1M` (the end of the following month)
 
 #### Command History
 

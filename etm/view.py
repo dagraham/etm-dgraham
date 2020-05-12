@@ -397,14 +397,12 @@ following components:
   would create a usedtime query grouped (and sorted) by
   the first component of the index entry, the month and
   year, the remaining components of the index entry and
-  finally the month day. Note, for example, that "MMM
-  YYYY", "YYYY MMM" and "YYYY MM" would all be sorted
-  using "YYYY MM" (2020 01, 2020 02, ...) but would be
-  displayed using the specified format (Jan 2020, Feb
-  2020, ...). Similarly, "ddd D", "D ddd", and "DD" would
-  all sort by "DD" (01, 02, ...) but would also be
-  displayed using the specified format (Wed 1, Thu
-  2,...).
+  finally the month day.
+
+  Sorting note: Specifications using weeks are all sorted
+  and grouped by by (YYYY, W). Specifications involving
+  months are all sorted by (YYYY, M). Specifications
+  involving days are all sorted by (D).
 
 The group/sort specification can be followed, optionally,
 by any of the following:
