@@ -30,9 +30,8 @@ from itertools import groupby
 flatten = itertools.chain.from_iterable
 from operator import itemgetter
 
-ZERO = pendulum.duration(minutes=0)
-ONEMIN = pendulum.duration(minutes=1)
-DAY = pendulum.duration(days=1)
+ZERO = duration(minutes=0)
+ONEMIN = duration(minutes=1)
 
 finished_char = u"\u2713"  #  ✓
 
@@ -40,21 +39,102 @@ minus_regex = re.compile(r'\s+\-(?=[a-zA-Z])')
 groupdate_regex = re.compile(r'\bW{1,4}\b|\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\bd{1,4}\b|\b[D]{1,2}\b|\b[w]\b')
 
 # supported date formats (subset of pendulum)
-# 'YYYY',     # year 2019
-# 'YY',       # year 19
-# 'MMMM',     # month January
-# 'MMM',      # month Jan
-# 'MM',       # month 01
-# 'M',        # month 1
-# 'DD',       # month day 09
-# 'D',        # month day 9
-# 'dddd',     # week day Monday
-# 'ddd',      # week day Mon
-# 'dd',       # week day Mo
+# YYYY        year 2019
+# YY          year 19
+# MMMM        month January
+# MMM         month Jan
+# MM          month 01
+# M           month 1
+# DD          month day 09
+# D           month day 9
+# dddd        week day Monday
+# ddd         week day Mon
+# dd          week day Mo
+# week add ons, eg week 3 2020
+# W           week number of year, 3
+# WW          month days interval, Jan 13 - 19
+# WWW         interval plus year,  Jan 13 - 19, 2020
+# WWWW        interval, year and #, Jan 13 -19, 2020 #3
 
 ETMDB = None
 DBITEM = None
 DBARCH = None
+
+def daybeg():
+    return pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+def dayend():
+    return daybeg() + duration(days=1)
+
+def weekbeg():
+    d = daybeg()
+    return d - duration(days=d.weekday())
+
+def weekend():
+    d = daybeg()
+    return d + duration(days=7-d.weekday())
+
+def monthbeg():
+    return daybeg().replace(day=1)
+
+def monthend():
+    return monthbeg() + duration(months=1)
+
+
+
+date_shortcuts = {
+        'daybeg': daybeg,
+        'dayend': dayend,
+        'weekbeg': weekbeg,
+        'weekend': weekend,
+        'monthbeg': monthbeg,
+        'monthend': monthend,
+        }
+
+
+def parse_reldt(s):
+    """
+    s takes the form datetime str [+-] duration str
+    """
+    msg = []
+    plus = r'[+]\s'
+    minus = r'[-]\s'
+    sign = ''
+    if re.search(plus, s):
+        sign = '+'
+    elif re.search(minus, s):
+        sign = '-'
+    logger.debug(f"s: {s}")
+    if sign:
+        if s[0] in ['+', '-']:
+            dtm = ''
+            dur = s[1:]
+        else:
+            parts = [x.strip() for x in re.split(r'[+-]\s', s)]
+            dtm = parts[0]
+            dur = parts[1] if len(parts) > 1 else ''
+    else:
+        dtm = s.strip()
+        dur = ''
+    logger.debug(f"dtm: {dtm}; dur: {dur}")
+    if dtm in date_shortcuts:
+        dt = date_shortcuts[dtm]()
+    else:
+        dt = pendulum.parse(dtm, strict=False, tz='local')
+    logger.debug(f"dt: {dt}")
+    if dur:
+        ok, du = parse_duration(dur)
+    else:
+        du = ''
+    logger.debug(f"du: {du}")
+    if du:
+        if sign == '+':
+            return dt + du
+        elif sign == '-':
+            return dt - du
+    else:
+        return dt
+
 
 def _fmtdt(dt):
     # assumes dt is either a date or a datetime
@@ -195,12 +275,16 @@ def apply_dates_filter(items, grpby, filters):
             rdt = None
             if 'f' in item:
                 rdt = item['f'] if isinstance(item['f'], pendulum.Date) else item['f'].date()
-                e_ok = 'e' not in filters or item['f'] <= filters['e']
-                b_ok = 'b' not in filters or item['f'] >= filters['b']
+                # e_ok = 'e' not in filters or item['f'] <= filters['e']
+                e_ok = 'e' not in filters or not later(item['f'], filters['e'])
+                # b_ok = 'b' not in filters or item['f'] >= filters['b']
+                b_ok = 'b' not in filters or not earlier(item['f'], filters['b'])
             elif 's' in item:
                 rdt = item['s'] if isinstance(item['s'], pendulum.Date) else item['s'].date()
-                e_ok = 'e' not in filters or item['s'] <= filters['e']
-                b_ok = 'b' not in filters or item['s'] >= filters['b']
+                # e_ok = 'e' not in filters or rdt <= filters['e']
+                e_ok = 'e' not in filters or not later(item['s'], filters['e'])
+                # b_ok = 'b' not in filters or rdt >= filters['b']
+                b_ok = 'b' not in filters or not earlier(item['s'], filters['b'])
             else:
                 e_ok = b_ok = True
             if e_ok and b_ok:
@@ -219,8 +303,10 @@ def apply_dates_filter(items, grpby, filters):
             items = []
             tmp = deepcopy(item)
             rdt = item['created']
-            e_ok = 'e' not in filters or rdt <= filters['e']
-            b_ok = 'b' not in filters or rdt >= filters['b']
+            # e_ok = 'e' not in filters or rdt <= filters['e']
+            e_ok = 'e' not in filters or not later(rdt, filters['e'])
+            # b_ok = 'b' not in filters or rdt >= filters['b']
+            b_ok = 'b' not in filters or not earlier(rdt, filters['b'])
             if e_ok and b_ok:
                 if rdt:
                     tmp['rdt'] = rdt
@@ -236,8 +322,10 @@ def apply_dates_filter(items, grpby, filters):
             items = []
             tmp = deepcopy(item)
             rdt = item.get('modified', item['created'])
-            e_ok = 'e' not in filters or rdt <= filters['e']
-            b_ok = 'b' not in filters or rdt >= filters['b']
+            # e_ok = 'e' not in filters or rdt <= filters['e']
+            e_ok = 'e' not in filters or not later(rdt, filters['e'])
+            # b_ok = 'b' not in filters or rdt >= filters['b']
+            b_ok = 'b' not in filters or not earlier(rdt, filters['b'])
             if e_ok and b_ok:
                 if rdt:
                     tmp['rdt'] = rdt
@@ -512,7 +600,8 @@ def get_grpby_and_filters(s, options=None):
             also.extend(value)
             # logger.debug(f"also value: {value}, also: {also}")
         elif key in ['b', 'e']:
-            dt = parse(part[1:], strict=False, tz='local')
+            # dt = parse(part[1:], strict=False, tz='local')
+            dt = parse_reldt(part[1:])
             filters[key] = dt
         elif key == 'q':
             value = part[1:].strip()

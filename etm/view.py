@@ -418,6 +418,18 @@ by any of the following:
     E.g., "-a d, l" would append the item description and
     location to the display of each item.
 
+Note: -b and -e accept shortcuts:
+    daybeg: 12am on the current day
+    dayend: 12am on the following day
+    weekbeg: 12am on Monday of the current week
+    weekend: 12am on Monday of the following week
+    monthbeg: 12am on the 1st of the current month
+    monthend: 12am on the 1st of the following month
+and can be combined with period strings using M (month),
+w (week), d (day), h (hour) and m (minute). E.g.:
+    weekbeg - 1w (the beginning of the previous week)
+    monthend + 1M (the end of the following month)
+
 Command History
 ===============
 Any query entered at the 'query:' prompt and submitted by

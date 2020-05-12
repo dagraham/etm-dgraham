@@ -208,6 +208,8 @@ queries:
     td: m l -q equals itemtype - and ~exists f
   # usedtimes by i[:1], month and i[1:2] with d
     ui: u i[:1]; MMM YYYY; i[1:2] -a d
+  # usedtimes by week and day for the past and current week
+    uw: u WWW; ddd D -b weekbeg - 1w -e weekend
   # finished|start by i[:1], month and i[1:2] with u and d
     si: s i[:1]; MMM YYYY; i[1:2] -a u, d
   # items with u but missing the needed i

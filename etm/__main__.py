@@ -76,7 +76,7 @@ def main():
     model.settings = settings
     model.logger = logger
     userhome = os.path.expanduser('~')
-    model.etmhome = os.path.join('~', os.path.relpath(etmdir, userhome)) if etmdir.startswith(userhome) else etmdir 
+    model.etmhome = os.path.join('~', os.path.relpath(etmdir, userhome)) if etmdir.startswith(userhome) else etmdir
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
     datetime_calculator = model.datetime_calculator
@@ -93,6 +93,7 @@ def main():
             completions.append(f"@x {x}")
     style = dataview.settings["style"]
     parse_datetime = model.parse_datetime
+    parse_duration = model.parse_duration
 
     logger.info(f"initialized TinyDB using {dbfile}")
 
@@ -136,6 +137,8 @@ def main():
     report.ETMQuery = ETMQuery
     report.settings = settings
     report.format_time = format_time
+    report.parse_duration = parse_duration
+    report.parse_datetime = parse_datetime
     report.format_datetime = format_datetime
     report.format_duration = format_duration
     report.format_hours_and_tenths = format_hours_and_tenths

@@ -1589,7 +1589,7 @@ def format_duration_list(obj_lst):
         print(obj_lst)
 
 
-period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
+period_regex = re.compile(r'(([+-]?)(\d+)([wdhmM]))+?')
 threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
 
@@ -1599,6 +1599,7 @@ period_hsh = dict(
     h=pendulum.duration(hours=1),
     d=pendulum.duration(days=1),
     w=pendulum.duration(weeks=1),
+    M=pendulum.duration(months=1),
         )
 
 
@@ -1610,6 +1611,7 @@ def parse_duration(s):
         parse_duration('1h30m') = Duration(hours=1, minutes=30)
         parse_duration('-10m') = Duration(minutes=10)
     where:
+        M: months
         w: weeks
         d: days
         h: hours
@@ -2170,7 +2172,6 @@ class DataView(object):
             return item['doc_id']
 
 
-
     def get_details(self, row=None, edit=False):
         res = self.get_row_details(row)
         if not res or not res[0]:
@@ -2184,7 +2185,6 @@ class DataView(object):
             item_hsh = item_details(item, edit)
             logger.debug(f"returning item_id: {item_id}; item_hsh: {item_hsh}")
             return item_id, item_hsh
-
         return None, ''
 
     def toggle_pinned(self, row=None):
@@ -5965,17 +5965,16 @@ Developer:      dnlgrhm@gmail.com
 """
 
     ret2 = f"""
-etm:              {etm_version}
-python:           {python_version}
-dateutil:         {dateutil_version}
-pendulum:         {pendulum_version}
-prompt_toolkit:   {prompt_toolkit_version}
-tinydb:           {tinydb_version}
-jinja2:           {jinja2_version}
-ruamel.yaml:      {ruamel_version}
-platform:         {system_platform}
-etm home directory:
-   {etmhome:^30}
+etm:            {etm_version}
+python:         {python_version}
+dateutil:       {dateutil_version}
+pendulum:       {pendulum_version}
+prompt_toolkit: {prompt_toolkit_version}
+tinydb:         {tinydb_version}
+jinja2:         {jinja2_version}
+ruamel.yaml:    {ruamel_version}
+platform:       {system_platform}
+etm directory:  {etmhome}
 """
     return ret1, ret2
 
