@@ -1171,6 +1171,10 @@ A task is something that requires action from the user and lasts, so to speak, u
     - Tasks with `@s` date entry are regarded as pastdue after the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
     - Tasks that are pastdue are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Do Next* view grouped by @l (location/context).
+- Tasks with an `@r` (repeat) entry can have an `@o` (overdue) setting.
+	- `@o k`: keep. Whenever completed, the next instance is due at the datetime specified in the recurrance rule even if that datetime has already passed. E.g. mortage payments to be made on the 1st of the month are due for each prior month in which they have not been made. With this option, many instances can be past due. This is the default when no `@o` entry is given.
+	- `@o r`: reset. Whenever completed, the next instance is due at the first datetime from the recurrance rule that falls after the current datetime. E.g., getting a haircut every 14 days is due 14 days after the last haircut. With this option, at most one instance can be past due.
+	- `@o s`: skip. Like 'keep' and 'reset' combined with the addition that pastdue instances are ignored. E.g., taking out the trash every Monday morning for pickup is due every Monday morning but, if a Monday passes without taking out the trash, the instance is better regarded as irrelevant than past due. With this option, an instance can never be past due. 
 - Jobs
     - Tasks, both with and without @s entries can have component jobs using @j entries.
     - For tasks with an @s entry, jobs can have an &s entry to set the due date/datetime for the job. It is entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task. Zero minutes is the default when &s is not entered.
