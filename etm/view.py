@@ -947,6 +947,7 @@ class ETMQuery(object):
             return False, self.usage
         try:
             ok, test, updt = self.process_query(query)
+            logger.debug(f"query: {query}; ok: {ok}; test: {test}; updt: {updt}")
             if not ok:
                 return False, test
             if isinstance(test, str):
@@ -1965,6 +1966,7 @@ def do_complex_query(text, loop):
         grpby, filters = report.get_grpby_and_filters(text)
         ok, items = query.do_query(filters.get('query') + updt)
         if ok:
+            logger.debug("calling apply_dates_filter with {len(items)} and {filters}")
             items = report.apply_dates_filter(items, grpby, filters)
             dataview.set_query(text, grpby, items)
             application.layout.focus(text_area)

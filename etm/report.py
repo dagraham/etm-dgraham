@@ -237,26 +237,31 @@ def sort_dates_times(obj):
 
 
 def apply_dates_filter(items, grpby, filters):
+    logger.debug(f"starting len(items): {len(items)}; filters: {filters}")
     if grpby['report'] == 'u':
         def rel_dt(item, filters):
             rdts = []
             ok = False
             used_times = deepcopy(item['u'])
+            drop = []
             if 'b' in filters and 'e' in filters: # both b and e
                 for x in used_times:
                     if earlier(x[1], filters['b']) or later(x[1], filters['e']):
-                        item['u'].remove(x)
+                        drop.append(x)
             elif 'b' in filters: # only b
                 for x in used_times:
                     if earlier(x[1], filters['b']):
-                        item['u'].remove(x)
+                        drop.append(x)
             elif 'e' in filters: # only e
-                for x in item['u']:
+                for x in used_times:
                     if later(x[1], filters['e']):
-                        item['u'].remove(x)
+                        drop.append(x)
+            if drop:
+                for x in drop:
+                    used_times.remove(x)
             items = []
             dt2ut = {}
-            for x in item['u']:
+            for x in used_times:
                 rdt = x[1] if isinstance(x[1], pendulum.Date) else x[1].date()
                 dt2ut.setdefault(rdt, ZERO)
                 dt2ut[rdt] += maybe_round(x[0])
@@ -265,6 +270,7 @@ def apply_dates_filter(items, grpby, filters):
                 tmp['rdt'] = rdt
                 tmp['u'] = [rdt, dt2ut[rdt]]
                 items.append(tmp)
+            # logger.debug(f"ending len(items): {len(items)}")
             return items
 
     elif grpby['report'] == 's':
@@ -295,6 +301,7 @@ def apply_dates_filter(items, grpby, filters):
                 else:
                     # not dated, don't need rdt
                     items.append(tmp)
+            # logger.debug(f"ending len(items): {len(items)}")
             return items
 
     elif grpby['report'] == 'c':
@@ -314,6 +321,7 @@ def apply_dates_filter(items, grpby, filters):
                 else:
                     # not dated, don't need rdt
                     items.append(tmp)
+            # logger.debug(f"ending len(items): {len(items)}")
             return items
 
     elif grpby['report'] == 'm':
@@ -333,12 +341,13 @@ def apply_dates_filter(items, grpby, filters):
                 else:
                     # not dated, don't need rdt
                     items.append(tmp)
+            # logger.debug(f"ending len(items): {len(items)}")
             return items
 
     ok_items = []
     for item in items:
         ok_items.extend(rel_dt(item, filters))
-    ok = len(ok_items) > 0
+    logger.debug(f"ending len(ok_items): {len(ok_items)}")
     return ok_items
 
 
@@ -619,7 +628,7 @@ def get_grpby_and_filters(s, options=None):
         details.extend([f"item.get('{x}', '~')" for x in also])
     details.append("item.doc_id")
     grpby['dtls'] = details
-    logger.debug(f'grpby: {grpby}; filters: {filters}')
+    logger.debug(f'get_grpby_and_filters: rgrpby: {grpby}; filters: {filters}')
     return grpby, filters
 
 def show_query_results(text, grpby, items):
