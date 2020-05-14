@@ -97,8 +97,8 @@ def parse_reldt(s):
     s takes the form datetime str [+-] duration str
     """
     msg = []
-    plus = r'[+]\s'
-    minus = r'[-]\s'
+    plus = r'\s[+]\s'
+    minus = r'\s[-]\s'
     sign = ''
     if re.search(plus, s):
         sign = '+'
