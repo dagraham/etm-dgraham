@@ -806,6 +806,8 @@ class Item(object):
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
             self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+            return True
+        return False
 
 
     def record_timer(self, item_id, job_id=None, completed_datetime=None, elapsed_time=None):
@@ -4982,12 +4984,16 @@ def show_next(db, pinned_list=[]):
                 status = 0 if job.get('status') == '-' else 1
                 # status 1 -> waiting, status 0 -> available
                 summary = job['summary'][:width - 1] + PIN_CHAR if item.doc_id in pinned_list else job['summary'][:width]
+                try:
+                    job_id = int(job.get('i', None))
+                except:
+                    job_id = job.get('i', None)
                 rows.append(
                     {
                         'id': item.doc_id,
-                        'job': job['i'],
+                        'job': job_id,
                         'instance': None,
-                        'sort': (location, status, sort_priority, job['i'], job['summary']),
+                        'sort': (location, status, sort_priority, job_id, job['summary']),
                         'location': location,
                         'columns': [job['status'],
                             summary,
@@ -5482,14 +5488,18 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         continue
                     job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list)
                     jobstart = dt - job.get('s', ZERO)
-                    job_id = job.get('i', None)
+                    try:
+                        job_id = int(job.get('i', None))
+                    except:
+                        job_id = job.get('i', None)
+
                     rhc = fmt_time(dt).center(16, ' ')
                     rows.append(
                         {
                             'id': item.doc_id,
                             'job': job_id,
                             'instance': instance,
-                            'sort': (jobstart.format("YYYYMMDDHHmm"), 0),
+                            'sort': (jobstart.format("YYYYMMDDHHmm"), job_id),
                             'week': (
                                 jobstart.isocalendar()[:2]
                                 ),

@@ -2004,6 +2004,7 @@ def default_cursor_position_changed(_):
     item.cursor_changed(entry_buffer.cursor_position)
     set_askreply('_')
 
+# This is slick - add a call to default_buffer_changed
 entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
@@ -2091,7 +2092,13 @@ def do_reschedule(*event):
         if not new_datetime:
             return
         changed = False
-        ok, dt, z = parse_datetime(new_datetime)
+        # ok, dt, z = parse_datetime(new_datetime)
+        try:
+            dt = pendulum.parse(new_datetime, strict=False, tz='local')
+            ok = True
+        except Exception as e:
+            logger.error(f"Exception parsing new_datetime: {new_datetime}; {e}")
+            ok = False
 
         if ok:
             changed = item.reschedule(doc_id, instance, dt)
@@ -2285,17 +2292,19 @@ def do_finish(*event):
         if done_str:
             try:
                 done = pendulum.parse(done_str, strict=False, tz='local')
+                logger.debug(f"done: {done}; {type(done)}")
                 ok = True
             except:
                 ok = False
             if ok:
                 # valid done
-                item.finish_item(item_id, job_id, done, due)
+                res = item.finish_item(item_id, job_id, done, due)
                 # dataview.itemcache[item.doc_id] = {}
-                if item_id in dataview.itemcache:
-                    del dataview.itemcache[item_id]
-                loop = asyncio.get_event_loop()
-                loop.call_later(0, data_changed, loop)
+                if res:
+                    if item_id in dataview.itemcache:
+                        del dataview.itemcache[item_id]
+                    loop = asyncio.get_event_loop()
+                    loop.call_later(0, data_changed, loop)
             else:
                 show_message('Finish task/job?', f"Invalid finished datetime: {done_str}")
 
@@ -2727,10 +2736,6 @@ root_container = MenuContainer(body=body, menu_items=[
               scroll_offset=1)),
 ])
 
-
-# This is slick - add a call to default_buffer_changed
-entry_buffer.on_text_changed += default_buffer_changed
-entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 
 def set_askreply(_):
     if item.active:
