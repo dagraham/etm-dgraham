@@ -44,6 +44,7 @@ from pendulum import parse as pendulum_parse
 def parse(s, **kwd):
     return pendulum_parse(s, strict=False, **kwd)
 
+
 import re
 
 import subprocess # for check_output
@@ -978,8 +979,9 @@ class InteractiveInputDialog(object):
 
         self.output_field = TextArea(
                 text='',
-                style='class:dialog-entry',
+                style='class:dialog-output',
                 focusable=False,
+                height=3,
                 )
         self.input_field = TextArea(
             height=1,
@@ -992,13 +994,11 @@ class InteractiveInputDialog(object):
         def accept(buff):
             # Evaluate "calculator" expression.
             try:
-                output = 'In:  {}\nOut: {}\n\n'.format(
-                    self.input_field.text,
-                    evaluator(self.input_field.text))
+                output = f"In:  {self.input_field.text}\nOut: {evaluator(self.input_field.text)}\n"
             except BaseException as e:
-                output = '\n\n{}'.format(e)
-            new_text = self.output_field.text + output
-
+                output = f"\n{e}"
+            # new_text = self.output_field.text + output
+            new_text = output
             # Add text to output buffer.
             self.output_field.buffer.text = new_text
 
@@ -1011,7 +1011,7 @@ class InteractiveInputDialog(object):
             body=HSplit([
                 Label(text=help_text),
                 self.output_field,
-                HorizontalLine(),
+                # HorizontalLine(),
                 self.input_field,
             ]),
             buttons=[cancel_button],
@@ -1476,6 +1476,7 @@ dark_style = Style.from_dict({
     'dialog shadow':      'bg:#444444',
     'text-area': f"{tagrey} {NAMED_COLORS['Ivory']}",
 
+    'dialog-output':    f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['Lime']}",
     'dialog-entry':     f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
     'status':     f"{bggrey} {NAMED_COLORS['White']}",
     'query':      f"{NAMED_COLORS['Ivory']}",
@@ -2096,8 +2097,7 @@ def do_reschedule(*event):
         try:
             dt = pendulum.parse(new_datetime, strict=False, tz='local')
             ok = True
-        except Exception as e:
-            logger.error(f"Exception parsing new_datetime: {new_datetime}; {e}")
+        except:
             ok = False
 
         if ok:
