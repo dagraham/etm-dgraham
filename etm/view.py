@@ -2082,6 +2082,8 @@ def do_reschedule(*event):
         return
 
     hsh = DBITEM.get(doc_id=doc_id)
+    if instance is None and 's' in hsh:
+        instance = hsh['s']
 
     def coroutine():
         dialog = TextInputDialog(
@@ -2273,6 +2275,7 @@ def do_maybe_record_timer(*event):
 def do_finish(*event):
 
     ok, show, item_id, job_id, due = dataview.maybe_finish(text_area.document.cursor_position_row)
+    logger.debug(f"ok: {ok}; show: {show}; item_id: {item_id}; job_id: {job_id}; due: {due}")
     ampm = settings['ampm']
     fmt = "ddd M/D h:mmA" if ampm else "ddd M/D H:mm"
 
@@ -2284,7 +2287,6 @@ def do_finish(*event):
         dialog = TextInputDialog(
             title='finish task/job',
             label_text=f"selected: {show}\ndatetime completed:",
-            # default=pendulum.now().format(fmt)
             default='now'
             )
 

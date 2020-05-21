@@ -4984,16 +4984,17 @@ def show_next(db, pinned_list=[]):
                 status = 0 if job.get('status') == '-' else 1
                 # status 1 -> waiting, status 0 -> available
                 summary = job['summary'][:width - 1] + PIN_CHAR if item.doc_id in pinned_list else job['summary'][:width]
+                job_id = job.get('i', None)
                 try:
-                    job_id = int(job.get('i', None))
+                    job_sort = int(job_id)
                 except:
-                    job_id = job.get('i', None)
+                    job_sort = job_id
                 rows.append(
                     {
                         'id': item.doc_id,
                         'job': job_id,
                         'instance': None,
-                        'sort': (location, status, sort_priority, job_id, job['summary']),
+                        'sort': (location, status, sort_priority, job_sort, job['summary']),
                         'location': location,
                         'columns': [job['status'],
                             summary,
@@ -5488,10 +5489,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         continue
                     job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list)
                     jobstart = dt - job.get('s', ZERO)
+                    job_id = job.get('i', None)
                     try:
-                        job_id = int(job.get('i', None))
+                        job_sort = int(job_id)
                     except:
-                        job_id = job.get('i', None)
+                        job_sort = job_id
 
                     rhc = fmt_time(dt).center(16, ' ')
                     rows.append(
@@ -5499,7 +5501,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                             'id': item.doc_id,
                             'job': job_id,
                             'instance': instance,
-                            'sort': (jobstart.format("YYYYMMDDHHmm"), job_id),
+                            'sort': (jobstart.format("YYYYMMDDHHmm"), job_sort),
                             'week': (
                                 jobstart.isocalendar()[:2]
                                 ),
