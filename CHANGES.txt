@@ -1,16 +1,26 @@
-Recent changes as of 2020-05-22T10:41:52.615374-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.4.4) Dan Graham
-    e657d7fc 2020-05-22 10:41:52 -0400
+Recent changes as of 2020-05-22T12:52:25.152900-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.4.5) Dan Graham
+    f2c2a5ec 2020-05-22 12:52:25 -0400
+    Tagged version 4.4.5. Allow auto regeneration of job ids and
+    prereqs by removing the &i and &p entries from the first job.
+
+- 68 seconds ago Dan Graham
+    7d8bbd56 2020-05-22 12:51:17 -0400
+    Allow auto regeneration of job ids and prereqs by removing the &i
+    and &p entries (if necessary) from the first job.
+
+- 2 hours ago (origin/master, origin/HEAD, working) Dan Graham
+    d7b2a686 2020-05-22 10:41:52 -0400
     Tagged version 4.4.4. Fixed bug in processing prerequisites for
     jobs.
 
-- 11 minutes ago (master) Dan Graham
+- 2 hours ago Dan Graham
     11e017d5 2020-05-22 10:30:45 -0400
     Switch from integers to lowercase letters for auto assigned ids
     and prereqs for jobs. Fixed bug in inadvertent modification of
     prereqs by using deepcopy. Updated README.
 
-- 18 hours ago Dan Graham
+- 21 hours ago Dan Graham
     3a5946f3 2020-05-21 16:13:05 -0400
     Fixed bug in converting job ids to integers. When reschuling
     non-repeating items, use the @s entry, if any, for the instance.
@@ -27,7 +37,7 @@ Recent changes as of 2020-05-22T10:41:52.615374-04:00:
     2cb3d37c 2020-05-13 23:04:02 -0400
     Added spaces on both sides of [+-] in parse_reldt
 
-- 9 days ago (origin/master, origin/HEAD) Dan Graham
+- 9 days ago Dan Graham
     2bd47fc9 2020-05-13 11:47:53 -0400
     Tagged version 4.4.3. Fixed bug in date specifications for
     usedtime queries. README updates.
@@ -440,11 +450,3 @@ Recent changes as of 2020-05-22T10:41:52.615374-04:00:
 - 7 weeks ago Dan Graham
     b0e548a2 2020-04-06 13:09:06 -0400
     Many query help improvements
-
-- 7 weeks ago Dan Graham
-    41787c77 2020-04-05 18:45:38 -0400
-    Tagged version 4.1.0.
-
-- 7 weeks ago Dan Graham
-    7442092f 2020-04-05 18:39:31 -0400
-    More doc fixes.
