@@ -35,6 +35,10 @@ import textwrap
 import os
 import platform
 
+import string
+# for automatic job ids
+LOWERCASE = list(string.ascii_lowercase)
+
 # for compressing backup files
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -428,7 +432,6 @@ class Item(object):
     def __init__(self, dbfile=None):
         """
         """
-
         self.doc_id = None
         self.entry = ""
         self.init_entry = ""
@@ -4162,23 +4165,29 @@ def jobs(lofh, at_hsh={}):
                 auto = True
                 count = 0
         if auto: # auto mode
+            logger.debug('auto mode')
+            if count > 25:
+                count = 0
+                msg.append(
+                    "error: at most 26 jobs are allowed in auto mode")
             if 'i' in hsh:
                 msg.append(
                     "error: &i should not be specified in auto mode")
             if 'p' in hsh:
                 msg.append(
                     "error: &p should not be specified in auto mode")
-            # auto generate simple sequence for i: 1, 2, 3, ... and
-            # for p: 1 requires nothing, 2 requires 1, 3 requires  2, ...
-            count += 1
-            hsh['i'] = str(count)
-            if count > 1:
-                hsh['p'] = [str(count - 1)]
+            # auto generate simple sequence for i: a, b, c, ... and
+            # for p: a requires nothing, b requires a, c requires b, ...
+            hsh['i'] = LOWERCASE[count]
+            if count > 0:
+                hsh['p'] = [LOWERCASE[count - 1]]
             else:
                 hsh['p'] = []
-            req[hsh['i']] = hsh['p']
+            count += 1
+            req[hsh['i']] = deepcopy(hsh['p'])
 
         else: # manual mode
+            logger.debug('manual mode')
             if 'i' not in hsh:
                 # TODO: fix this
                 rmd.append('reminder: &i is required for each job in manual mode')
@@ -4188,7 +4197,7 @@ def jobs(lofh, at_hsh={}):
                     if type(hsh['p']) == str:
                         req[hsh['i']] = [x.strip() for x in hsh['p'].split(',') if x]
                     else:
-                        req[hsh['i']] = hsh['p']
+                        req[hsh['i']] = deepcopy(hsh['p'])
             else:
                 req[hsh['i']] = []
 
@@ -5442,6 +5451,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 for dt in item['h']:
                     d.append([dt, summary, item.doc_id, None])
             if 'j' in item:
+                logger.debug(f"item['j']: {item['j']}")
                 for job in item['j']:
                     job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list)
                     if 'f' in job:

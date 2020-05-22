@@ -1186,7 +1186,7 @@ A task is something that requires action from the user and lasts, so to speak, u
 
         Beginning soon notices would begin on Jan 15 for job A (due Jan 25) and on January 25 for job B (due Jan 30).
     - Prerequisites
-        - Automatically assigned. The default is to suppose that jobs must be completed sequentially in the order in which they are listed. E.g., with
+        - Automatically assigned. Here it is supposed that jobs must be completed sequentially in the order in which they are listed. E.g., with
 
                 - automatically assigned
                     @j job A
@@ -1195,6 +1195,16 @@ A task is something that requires action from the user and lasts, so to speak, u
                     @j job D
 
             `job A` has no prerequisites but is a prerequisite for `job B` which, in turn, is a prerequisite for `job C` which, finally, is a prerequisite for `job D`.
+
+            Auto assignment is done when the task is first saved by assigning 'a', 'b', 'c', ... as ids for the successive jobs with 'a' as a prerequisite for 'b', 'b' for 'c' and so forth. The task is then saved as
+
+                - automatically assigned
+                    @j job A &i a
+                    @j job B &i b &p a
+                    @j job C &i c &p b
+                    @j job D &i d &p c
+
+            and thereafter treated as if the ids and prerequisites had been manually assigned. Note that at most 26 jobs are possible with auto assignment. 
         - Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
 
                 - manually assigned
