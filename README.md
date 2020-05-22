@@ -1205,6 +1205,8 @@ A task is something that requires action from the user and lasts, so to speak, u
                     @j job D &i d &p c
 
             and thereafter treated as if the ids and prerequisites had been manually assigned. Note that at most 26 jobs are possible with auto assignment. 
+
+			Once ids and prerequisites have been assigned, it is sometimes useful to be able to add a job here or there or change the order of existing jobs and have the ids and prerequisites generated again. To do this simply remove the `&i` and `&p` entries from the *first job* and save the task - *all* job ids and preqrequisites will automatically be reassigned. 
         - Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
 
                 - manually assigned

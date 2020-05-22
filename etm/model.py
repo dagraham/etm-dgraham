@@ -4300,13 +4300,11 @@ def jobs(lofh, at_hsh={}):
         id2hsh[i]['summary'] = "{} {}: {}".format(summary, "/".join([str(x) for x in awf]), id2hsh[i]['j'])
         id2hsh[i]['req'] = req[i]
         id2hsh[i]['i'] = i
+        logger.debug(f"id2hsh[{i}]: {id2hsh[i]}")
 
     if msg:
-        return False, "; ".join(msg), None
-    else:
-        # return the list of job hashes
-        # print('id2hsh', id2hsh)
-        return True, [id2hsh[i] for i in ids], last_completion
+        logger.warn(f"{msg}")
+    return True, [id2hsh[i] for i in ids], last_completion
 
 #######################
 ### end jobs setup ####
@@ -4992,20 +4990,17 @@ def show_next(db, pinned_list=[]):
                 location = job.get('l', task_location)
                 status = 0 if job.get('status') == '-' else 1
                 # status 1 -> waiting, status 0 -> available
-                summary = job['summary'][:width - 1] + PIN_CHAR if item.doc_id in pinned_list else job['summary'][:width]
+                summary = job.get('summary', '')[:width - 1] + PIN_CHAR if item.doc_id in pinned_list else job.get('summary', '')[:width]
                 job_id = job.get('i', None)
-                try:
-                    job_sort = int(job_id)
-                except:
-                    job_sort = job_id
+                job_sort = str(job_id)
                 rows.append(
                     {
                         'id': item.doc_id,
                         'job': job_id,
                         'instance': None,
-                        'sort': (location, status, sort_priority, job_sort, job['summary']),
+                        'sort': (location, status, sort_priority, job_sort, job.get('summary', '')),
                         'location': location,
-                        'columns': [job['status'],
+                        'columns': [job.get('status', ''),
                             summary,
                             show_priority,
                             ]
@@ -5022,7 +5017,7 @@ def show_next(db, pinned_list=[]):
                         'id': item.doc_id,
                         'job': None,
                         'instance': None,
-                        'sort': (location, sort_priority, 0, item['summary']),
+                        'sort': (location, sort_priority, '', item['summary']),
                         'location': location,
                         'columns': [item['itemtype'],
                             summary,
@@ -5453,7 +5448,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             if 'j' in item:
                 logger.debug(f"item['j']: {item['j']}")
                 for job in item['j']:
-                    job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list)
+                    job_summary = summary_pin(job.get('summary', ''), summary_width, item.doc_id, pinned_list)
                     if 'f' in job:
                         d.append([job['f'], job_summary, item.doc_id, job['i']])
             if d:
@@ -5500,10 +5495,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list)
                     jobstart = dt - job.get('s', ZERO)
                     job_id = job.get('i', None)
-                    try:
-                        job_sort = int(job_id)
-                    except:
-                        job_sort = job_id
+                    job_sort = str(job_id)
 
                     rhc = fmt_time(dt).center(16, ' ')
                     rows.append(
