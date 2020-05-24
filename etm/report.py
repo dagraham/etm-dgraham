@@ -423,7 +423,7 @@ class QDict(dict):
                 try:
                     self.setdefault(key, []).append(values)
                 except Exception as e:
-                    logger.warn(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
+                    logger.warning(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
             if isinstance(self[key], dict):
                 self = self[key]
             elif keys_left:
@@ -594,7 +594,7 @@ def get_grpby_and_filters(s, options=None):
                     grpby['sort'].append(
                             f"'/'.join(re.split('/', item['{group[0]}']){group[1:]}) or '~'")
                 else:
-                    logger.warn(f"non slice use of i: {group}")
+                    logger.warning(f"non slice use of i: {group}")
             else:
                 grpby['path'].append("item['%s']" % group.strip())
                 grpby['sort'].append(f"item['{group.strip()}']")

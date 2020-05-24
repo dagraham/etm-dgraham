@@ -1649,7 +1649,7 @@ def alerts():
 async def maybe_alerts(now):
     global current_datetime
     if dataview.alerts and not ('alerts' in settings and settings['alerts']):
-        logger.warn("alerts have not been configured")
+        logger.warning("alerts have not been configured")
         return
     bad = []
     for alert in dataview.alerts:

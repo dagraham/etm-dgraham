@@ -684,7 +684,7 @@ class Item(object):
             if added_new:
                 removed_old = self.delete_instances(doc_id, old_dt, 0)
             else:
-                logger.warn(f"doc_id: {doc_id}; error adding {new_dt}")
+                logger.warning(f"doc_id: {doc_id}; error adding {new_dt}")
             changed = added_new and removed_old
         return changed
 
@@ -715,7 +715,7 @@ class Item(object):
                     changed = True
                 else:
                     # should not happen
-                    logger.warn(f"could not remove {instance} from {self.item_hsh}")
+                    logger.warning(f"could not remove {instance} from {self.item_hsh}")
             if changed:
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
@@ -1667,7 +1667,7 @@ class TimeIt(object):
         elif self.loglevel == 2:
             logger.debug(msg)
         elif self.loglevel == 3:
-            logger.warn(msg)
+            logger.warning(msg)
         self.start = timer()
 
     def stop(self, *args):
@@ -1680,7 +1680,7 @@ class TimeIt(object):
         elif self.loglevel == 2:
             logger.debug(msg)
         elif self.loglevel == 3:
-            logger.warn(msg)
+            logger.warning(msg)
 
 class RDict(dict):
     """
@@ -1722,7 +1722,7 @@ class RDict(dict):
                 try:
                     self.setdefault(key, []).append(values)
                 except Exception as e:
-                    logger.warn(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
+                    logger.warning(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
             if isinstance(self[key], dict):
                 self = self[key]
             elif keys_left:
@@ -2525,7 +2525,7 @@ class DataView(object):
 
             c = calendar.LocaleTextCalendar(0, self.cal_locale)
         except:
-            logger.warn(f"error using locale {self.cal_locale}")
+            logger.warning(f"error using locale {self.cal_locale}")
             c = calendar.LocaleTextCalendar(0)
         cal = []
         m = 1
@@ -3724,7 +3724,7 @@ def rrule_args(r_hsh):
             else:
                 r_hsh[k] = tmp
     if 'u' in r_hsh and 'c' in r_hsh:
-        logger.warn(f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}")
+        logger.warning(f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}")
     freq = rrule_freq[r_hsh['r']]
     kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
@@ -4141,7 +4141,7 @@ def jobs(lofh, at_hsh={}):
         job_methods = undated_job_methods
 
     msg = []
-    rmd = []
+    # rmd = []
     req = {}
     id2hsh = {}
     first = True
@@ -4170,12 +4170,12 @@ def jobs(lofh, at_hsh={}):
                 count = 0
                 msg.append(
                     "error: at most 26 jobs are allowed in auto mode")
-            if 'i' in hsh:
-                msg.append(
-                    "error: &i should not be specified in auto mode")
-            if 'p' in hsh:
-                msg.append(
-                    "error: &p should not be specified in auto mode")
+            # if 'i' in hsh:
+            #     msg.append(
+            #         "error: &i should not be specified in auto mode")
+            # if 'p' in hsh:
+            #     msg.append(
+            #         "error: &p should not be specified in auto mode")
             # auto generate simple sequence for i: a, b, c, ... and
             # for p: a requires nothing, b requires a, c requires b, ...
             hsh['i'] = LOWERCASE[count]
@@ -4190,9 +4190,9 @@ def jobs(lofh, at_hsh={}):
             logger.debug('manual mode')
             if 'i' not in hsh:
                 # TODO: fix this
-                rmd.append('reminder: &i is required for each job in manual mode')
+                msg.append('error: &i is required for each job in manual mode')
             elif hsh['i'] in req:
-                msg.append("error: '&i {}' has already been used".format(hsh['i']))
+                msg.append(f"error: '&i {hsh['i']}' has already been used")
             elif 'p' in hsh:
                     if type(hsh['p']) == str:
                         req[hsh['i']] = [x.strip() for x in hsh['p'].split(',') if x]
@@ -4303,7 +4303,7 @@ def jobs(lofh, at_hsh={}):
         logger.debug(f"id2hsh[{i}]: {id2hsh[i]}")
 
     if msg:
-        logger.warn(f"{msg}")
+        logger.warning(f"{msg}")
     return True, [id2hsh[i] for i in ids], last_completion
 
 #######################
@@ -4794,7 +4794,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[]):
         try:
             current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], rhc]})
         except Exception as e:
-            logger.warn(f"could not append item: {item}; e: {e}")
+            logger.warning(f"could not append item: {item}; e: {e}")
 
     for item in beginbys:
         # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
@@ -4824,7 +4824,7 @@ def insert_db(db, hsh={}):
     Assume hsh has been vetted.
     """
     if not hsh:
-        logger.warn(f"Empty hash passed to insert_db")
+
         return
     hsh['created'] = pendulum.now()
     try:
