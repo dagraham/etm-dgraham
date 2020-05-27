@@ -4189,7 +4189,6 @@ def jobs(lofh, at_hsh={}):
         else: # manual mode
             logger.debug('manual mode')
             if 'i' not in hsh:
-                # TODO: fix this
                 msg.append('error: &i is required for each job in manual mode')
             elif hsh['i'] in req:
                 msg.append(f"error: '&i {hsh['i']}' has already been used")
@@ -4232,8 +4231,9 @@ def jobs(lofh, at_hsh={}):
 
     ids.sort()
 
-    # Recursively compute the transitive closure of req so that j in req[i] iff
-    # i requires j either directly or indirectly through some chain of requirements
+    # Recursively compute the transitive closure of req so that j in req[i]
+    # iff i requires j either directly or indirectly through some chain of
+    # requirements
     again = True
     while again:
         # stop after this loop unless we've added a new requirement
@@ -4243,7 +4243,8 @@ def jobs(lofh, at_hsh={}):
                 for k in ids:
                     if j in req[i] and k in req[j] and k not in req[i]:
                         # since i requires j and j requires k, i indirectly
-                        # requires k so, if not already included, add k to req[i]
+                        # requires k so, if not already included, add k to
+                        # req[i]
                         # and loop again
                         req[i].append(k)
                         again = True
@@ -4253,8 +4254,8 @@ def jobs(lofh, at_hsh={}):
     for i in ids:
         if i in req[i]:
             tmp.append(i)
-    tmp.sort()
     if tmp:
+        tmp.sort()
         msg.append("error: circular dependency for jobs {}".format(", ".join(tmp)))
 
     # Are all jobs finished:

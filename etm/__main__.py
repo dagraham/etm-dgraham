@@ -54,8 +54,10 @@ def main():
     data.secret = secret
     from etm.data import Mask
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+    logger.debug(f"using dbfile: {dbfile}")
     cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
     ETMDB = data.initialize_tinydb(dbfile)
+    logger.debug(f"created ETMDB: {ETMDB}; type: {type(ETMDB)}")
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
 

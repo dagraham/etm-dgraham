@@ -132,7 +132,7 @@ class PendulumWeekdaySerializer(Serializer):
         Serialize the weekday object.
         """
         s = WKDAYS_ENCODE[obj.__repr__()]
-        if s.startswith('+'): 
+        if s.startswith('+'):
             # drop the leading + sign
             s = s[1:]
         # print('serializing', obj.__repr__(), type(obj), 'as', s)
@@ -193,7 +193,7 @@ class MaskSerializer(Serializer):
     >>> mask.encode(Mask("when to the sessions")) # doctest: +NORMALIZE_WHITESPACE
     'w5zDnMOSwo7CicOnwo_Cl8Ojw5bDicKFw6XDi8Oow5_CisOUw6LDoA=='
     >>> mask.decode('    w5zDnMOSwo7CicOnwo_Cl8Ojw5bDicKFw6XDi8Oow5_CisOUw6LDoA==') # doctest: +NORMALIZE_WHITESPACE
-    when to the sessions 
+    when to the sessions
     """
     OBJ_CLASS = Mask
 
@@ -220,9 +220,17 @@ def initialize_tinydb(dbfile):
     serialization.register_serializer(PendulumDateTimeSerializer(), 'T') # Time
     serialization.register_serializer(PendulumDateSerializer(), 'D')     # Date
     serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
-    serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday 
-    serialization.register_serializer(MaskSerializer(), 'M')             # Mask 
-    return TinyDB(dbfile, storage=serialization, default_table='items', indent=1, ensure_ascii=False)
+    serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday
+    serialization.register_serializer(MaskSerializer(), 'M')             # Mask
+    if tinydb_version >= '4.0.0':
+        db = TinyDB(dbfile, storage=serialization,
+                indent=1, ensure_ascii=False)
+        db.default_table_name='items'
+    else:
+        db = TinyDB(dbfile, storage=serialization,
+                default_table='items',
+                indent=1, ensure_ascii=False)
+    return db
 
 def format_duration(obj):
     """

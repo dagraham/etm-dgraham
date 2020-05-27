@@ -1,5 +1,8 @@
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" />
 
+This is the etm user manual. Further information about etm is available in [topics](https://groups.io/g/etm/topics) and [user notes](https://groups.io/g/etm/files/user%20notes) at groups.io.
+
+#### Contents
 -   [Overview](#overview)
     -   [Reminders](#reminders)
         -   [examples](#examples)
