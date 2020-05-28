@@ -637,7 +637,7 @@ class Item(object):
         self.item_hsh['u'] = used_times
         self.item_hsh['created'] = self.created
         self.item_hsh['modified'] = pendulum.now('local')
-        self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+        self.db.update(self.item_hsh, doc_ids=[self.doc_id])
 
         return True
 
@@ -660,7 +660,7 @@ class Item(object):
         if changed:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+            self.db.update(self.item_hsh, doc_ids=[self.doc_id])
         return changed
 
 
@@ -675,7 +675,7 @@ class Item(object):
             # not repeating
             self.item_hsh['s'] = new_dt
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+            self.db.update(self.item_hsh, doc_ids=[self.doc_id])
             changed = True
         else:
             # repeating
@@ -719,7 +719,7 @@ class Item(object):
             if changed:
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
-                self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+                self.db.update(self.item_hsh, doc_ids=[self.doc_id])
             return changed
 
         else: # 1
@@ -808,7 +808,7 @@ class Item(object):
 
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+            self.db.update(self.item_hsh, doc_ids=[self.doc_id])
             return True
         return False
 
@@ -836,7 +836,7 @@ class Item(object):
         if save_item:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+            self.db.update(self.item_hsh, doc_ids=[self.doc_id])
 
 
     def cursor_changed(self, pos):
@@ -969,11 +969,11 @@ class Item(object):
                 if self.doc_id is None:
                     self.doc_id = self.db.insert(self.item_hsh)
                 else:
-                    self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+                    self.db.update(self.item_hsh, doc_ids=[self.doc_id])
             else:
                 # editing an existing item
                 self.item_hsh['modified'] = now
-                self.db.write_back([self.item_hsh], doc_ids=[self.doc_id])
+                self.db.update(self.item_hsh, doc_ids=[self.doc_id])
 
 
     def check_requires(self, key):
