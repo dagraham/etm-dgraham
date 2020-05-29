@@ -637,7 +637,7 @@ class Item(object):
         self.item_hsh['u'] = used_times
         self.item_hsh['created'] = self.created
         self.item_hsh['modified'] = pendulum.now('local')
-        self.db.update(self.item_hsh, doc_ids=[self.doc_id])
+        self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
 
         return True
 
@@ -660,7 +660,7 @@ class Item(object):
         if changed:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(self.item_hsh, doc_ids=[self.doc_id])
+            self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
         return changed
 
 
@@ -675,7 +675,7 @@ class Item(object):
             # not repeating
             self.item_hsh['s'] = new_dt
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(self.item_hsh, doc_ids=[self.doc_id])
+            self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
             changed = True
         else:
             # repeating
@@ -719,7 +719,7 @@ class Item(object):
             if changed:
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
-                self.db.update(self.item_hsh, doc_ids=[self.doc_id])
+                self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
             return changed
 
         else: # 1
@@ -808,7 +808,7 @@ class Item(object):
 
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(self.item_hsh, doc_ids=[self.doc_id])
+            self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
             return True
         return False
 
@@ -836,7 +836,7 @@ class Item(object):
         if save_item:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(self.item_hsh, doc_ids=[self.doc_id])
+            self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
 
 
     def cursor_changed(self, pos):
@@ -969,11 +969,11 @@ class Item(object):
                 if self.doc_id is None:
                     self.doc_id = self.db.insert(self.item_hsh)
                 else:
-                    self.db.update(self.item_hsh, doc_ids=[self.doc_id])
+                    self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
             else:
                 # editing an existing item
                 self.item_hsh['modified'] = now
-                self.db.update(self.item_hsh, doc_ids=[self.doc_id])
+                self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
 
 
     def check_requires(self, key):
@@ -4806,6 +4806,20 @@ def relevant(db, now=pendulum.now(), pinned_list=[]):
     return current, alerts, id2relevant
 
 
+def replace(new):
+    """
+    Used with update to replace the original doc with new.
+    """
+    def transform(doc):
+        # update doc to include key/values from new
+        doc.update(new)
+        # remove any key/values from doc that are not in new
+        for k in list(doc.keys()):
+            if k not in new:
+                del doc[k]
+    return transform
+
+
 def update_db(db, id, hsh={}):
     old = db.get(doc_id=id)
     if not old:
@@ -4815,7 +4829,7 @@ def update_db(db, id, hsh={}):
         return
     hsh['modified'] = pendulum.now()
     try:
-        db.update(hsh, doc_ids=[id])
+        db.update(replace(hsh), doc_ids=[id])
     except Exception as e:
         logger.error(f"Error updating document corresponding to id {id}\nhsh {hsh}\nexception: {repr(e)}")
 
