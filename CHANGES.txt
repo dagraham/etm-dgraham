@@ -1,51 +1,65 @@
-Recent changes as of 2020-05-27T14:39:30.965802-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.4.6) Dan Graham
-    218be502 2020-05-27 14:39:30 -0400
-    Tagged version 4.4.6. Added support for tinydb 4.x.
+Recent changes as of 2020-05-29T13:09:22.740558-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.4.7) Dan Graham
+    24fe1b23 2020-05-29 13:09:22 -0400
+    Tagged version 4.4.7. Added support for tinydb 4.x update
+    operations.
 
 - 2 minutes ago Dan Graham
+    68f946d0 2020-05-29 13:06:57 -0400
+    Added 'replace' to use with 'update' to replace one document with
+    another.
+
+- 23 hours ago (origin/master, origin/HEAD, master) Dan Graham
+    b44ac806 2020-05-28 14:06:22 -0400
+    Replaced write_back with update to comply with tinydb 4.x.
+
+- 2 days ago Dan Graham
+    e1f4057d 2020-05-27 14:39:30 -0400
+    Tagged version 4.4.6. Added support for tinydb 4.x.
+
+- 2 days ago Dan Graham
     4928a0cd 2020-05-27 14:37:58 -0400
     Added links to etm@groups.io in README. Added test for tinydb
     version in data/initialize_tinydb to support changes in
     default_table from 3.15.2 to 4.0.0.
 
-- 3 days ago Dan Graham
+- 5 days ago Dan Graham
     f39eee55 2020-05-24 10:53:58 -0400
     Replaced depreciated 'logger.warn' with 'logger.warning'. Removed
     warnings for 'i' and 'p' instances in automode to faciliated auto
     regeneration.
 
-- 5 days ago (origin/master, origin/HEAD, master) Dan Graham
+- 7 days ago Dan Graham
     d4cb8fb7 2020-05-22 12:52:25 -0400
     Tagged version 4.4.5. Allow auto regeneration of job ids and
     prereqs by removing the &i and &p entries from the first job.
 
-- 5 days ago Dan Graham
+- 7 days ago Dan Graham
     7d8bbd56 2020-05-22 12:51:17 -0400
     Allow auto regeneration of job ids and prereqs by removing the &i
     and &p entries (if necessary) from the first job.
 
-- 5 days ago Dan Graham
+- 7 days ago Dan Graham
     d7b2a686 2020-05-22 10:41:52 -0400
     Tagged version 4.4.4. Fixed bug in processing prerequisites for
     jobs.
 
-- 5 days ago Dan Graham
+- 7 days ago Dan Graham
     11e017d5 2020-05-22 10:30:45 -0400
     Switch from integers to lowercase letters for auto assigned ids
     and prereqs for jobs. Fixed bug in inadvertent modification of
     prereqs by using deepcopy. Updated README.
 
-- 6 days ago Dan Graham
+- 8 days ago Dan Graham
     3a5946f3 2020-05-21 16:13:05 -0400
     Fixed bug in converting job ids to integers. When reschuling
     non-repeating items, use the @s entry, if any, for the instance.
 
-- 8 days ago Dan Graham
+- 10 days ago Dan Graham
     d4e4817d 2020-05-19 15:53:29 -0400
     Improved date_calculator display.
 
-- 9 days ago Dan Graham
+- 11 days ago Dan Graham
     9b2ac9c7 2020-05-18 12:51:13 -0400
     Treat job ids as integers if possible when sorting.
 
@@ -90,25 +104,25 @@ Recent changes as of 2020-05-27T14:39:30.965802-04:00:
     query specifications. Completed use of earlier and later in -b and
     -e entries to avoid date vs datetime errors.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     bae1762c 2020-05-11 08:57:59 -0400
     use 'now' as the default for finish task - parses as the current
     datetime
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     583946da 2020-05-10 08:54:12 -0400
     added earlier and later to allow comparing dates and datetimes in
     setting -b and -e for queries
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     7b603852 2020-05-10 07:41:20 -0400
     added week grouping options to README
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     25de7c13 2020-05-10 07:25:22 -0400
     Don't show completion time in rhc of completed view.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     c4834b06 2020-05-10 07:09:41 -0400
     cleaned up get_grpby_and_filters
 
@@ -200,7 +214,7 @@ Recent changes as of 2020-05-27T14:39:30.965802-04:00:
     6bf7ef12 2020-04-28 19:13:05 -0400
     Getting close on archive toggle
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     68892536 2020-04-27 16:34:34 -0400
     Basic archive query seems to work with details and edit using the
     correct id.
@@ -245,40 +259,40 @@ Recent changes as of 2020-05-27T14:39:30.965802-04:00:
     0dfc42f0 2020-04-23 14:29:53 -0400
     Fixed formatting for job used time entries in jinja templates.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     56e30280 2020-04-20 14:38:56 -0400
     Tagged version 4.2.9.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     aa994158 2020-04-20 13:10:45 -0400
     More query sort tweaks
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     3a508ad5 2020-04-20 10:09:42 -0400
     Tagged version 4.2.8.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     b89e2cde 2020-04-20 10:09:13 -0400
     Fixed sorting error in complex queries.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     e6ef39cc 2020-04-19 15:33:23 -0400
     Tagged version 4.2.7.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     8a6b3f31 2020-04-19 15:33:03 -0400
     Apply sort_dates_times to the date/time component of u in query
     -a.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     fdb515ad 2020-04-19 09:53:45 -0400
     Tagged version 4.2.6.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     1cbd3832 2020-04-19 09:46:38 -0400
     Merge branch 'working'
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     c15d20cd 2020-04-19 09:34:48 -0400
     Added sort_dates_times to report.py to handle sorting a list with
     both dates and datetimes.Return dates as rdt for both u and f
@@ -390,15 +404,15 @@ Recent changes as of 2020-05-27T14:39:30.965802-04:00:
     fb2ad1e6 2020-04-14 11:28:44 -0400
     Added vi mode display to status bar when applicable.
 
-- 6 weeks ago Dan Graham
+- 7 weeks ago Dan Graham
     bafa8b90 2020-04-13 15:07:27 -0400
     Changed binding for closing editor from 'escape' to 'ctrl-z'
 
-- 6 weeks ago Dan Graham
+- 7 weeks ago Dan Graham
     3aab754e 2020-04-13 14:22:49 -0400
     Tagged version 4.1.2.
 
-- 6 weeks ago Dan Graham
+- 7 weeks ago Dan Graham
     8a2a8e96 2020-04-13 14:21:54 -0400
     Added option to use vi or emacs (the default) key bindings when
     editing. Provide the current datetime as a default when finishing
@@ -440,16 +454,3 @@ Recent changes as of 2020-05-27T14:39:30.965802-04:00:
 - 7 weeks ago Dan Graham
     10ef8c44 2020-04-07 11:34:03 -0400
     Query help fixes and tweaks
-
-- 7 weeks ago Dan Graham
-    a97b487d 2020-04-07 09:36:04 -0400
-    Change the query commands 'matches' and 'search' to 'begins' and
-    'includes', repectively, as being more suggestive.
-
-- 7 weeks ago Dan Graham
-    17a7a0e2 2020-04-07 08:35:01 -0400
-    query help tweaks
-
-- 7 weeks ago Dan Graham
-    3baab7fd 2020-04-06 16:02:32 -0400
-    bump.py tweaks
