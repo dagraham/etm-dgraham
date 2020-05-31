@@ -1,15 +1,27 @@
-Recent changes as of 2020-05-31T09:36:28.482519-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.4.8) Dan Graham
-    c5b204b3 2020-05-31 09:36:28 -0400
+Recent changes as of 2020-05-31T16:47:10.856152-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.4.9) Dan Graham
+    d462b39e 2020-05-31 16:47:10 -0400
+    Tagged version 4.4.9.
+
+- 18 minutes ago Dan Graham
+    33749d01 2020-05-31 16:28:49 -0400
+    Fixed tinydb 4.x compatability bug in using doc_ids in contains.
+
+- 7 hours ago (origin/master, origin/HEAD, master) Dan Graham
+    aa275e4e 2020-05-31 09:47:26 -0400
+    README tweaks.
+
+- 7 hours ago Dan Graham
+    a2f97271 2020-05-31 09:36:28 -0400
     Tagged version 4.4.8. Fixed sorting bug in repeating task
     completions.
 
-- 74 seconds ago Dan Graham
+- 7 hours ago Dan Graham
     271ade16 2020-05-31 09:35:14 -0400
     Fixed date vs datetime sorting bug in completion history for
     repeating tasks.
 
-- 2 days ago (origin/master, origin/HEAD, master) Dan Graham
+- 2 days ago Dan Graham
     1cc12dc3 2020-05-29 13:09:22 -0400
     Tagged version 4.4.7. Added support for tinydb 4.x update
     operations.
@@ -73,7 +85,7 @@ Recent changes as of 2020-05-31T09:36:28.482519-04:00:
     9b2ac9c7 2020-05-18 12:51:13 -0400
     Treat job ids as integers if possible when sorting.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     2cb3d37c 2020-05-13 23:04:02 -0400
     Added spaces on both sides of [+-] in parse_reldt
 
@@ -443,15 +455,3 @@ Recent changes as of 2020-05-31T09:36:28.482519-04:00:
 - 8 weeks ago Dan Graham
     d82eac22 2020-04-08 10:20:14 -0400
     Added query help to README
-
-- 8 weeks ago Dan Graham
-    71040d9e 2020-04-08 10:10:53 -0400
-    Options and README tweaks
-
-- 8 weeks ago Dan Graham
-    cf236de7 2020-04-08 09:27:21 -0400
-    Updated queries section of options and README
-
-- 8 weeks ago Dan Graham
-    c47eed4e 2020-04-07 12:41:20 -0400
-    Tagged version 4.1.1.
