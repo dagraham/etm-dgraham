@@ -64,6 +64,16 @@ data = None
 ampm = True
 logger = None
 
+def sortdt(dt):
+    # assumes dt is either a date or a datetime
+    try:
+        # this works if dt is a datetime
+        return dt.format("YYYYMMDDHHmm")
+    except:
+        # this works if dt is a date by providing 00 for HH and mm
+        return dt.format("YYYYMMDD0000")
+
+
 
 PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
 
@@ -803,7 +813,7 @@ class Item(object):
                         ok = False
                 if ok:
                     sh = self.item_hsh['h']
-                    sh.sort()
+                    sh.sort(key=sortdt)
                     self.item_hsh['h'] = sh[-num_finished:]
 
             self.item_hsh['created'] = self.created
