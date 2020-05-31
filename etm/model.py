@@ -618,10 +618,10 @@ class Item(object):
     def delete_item(self, doc_id=None):
         if not (doc_id):
             return None
-        if self.db.contains(doc_ids=[doc_id]):
+        try:
             self.db.remove(doc_ids=[doc_id])
             return True
-        else:
+        except:
             return False
 
 
