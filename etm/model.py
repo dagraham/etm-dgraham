@@ -1919,7 +1919,7 @@ class DataView(object):
             logger.info(f"backed up {self.dbfile} to {zipfile}")
             zipfiles.insert(0, f"db-{timestamp}.zip")
             zipfiles.sort(reverse=True)
-            removefiles.extend([os.path.join(self.backupdir, x) for x in zipfiles[5:]])
+            removefiles.extend([os.path.join(self.backupdir, x) for x in zipfiles[7:]])
         else:
             logger.info(f"{self.dbfile} unchanged - skipping backup")
 
@@ -1938,7 +1938,7 @@ class DataView(object):
             cfgfiles.insert(0, f"cfg-{timestamp}.yaml")
             cfgfiles.sort(reverse=True)
             removefiles.extend([os.path.join(self.backupdir, x) for x in
-                cfgfiles[5:]])
+                cfgfiles[7:]])
         else:
             logger.info(f"{self.cfgfile} unchanged - skipping backup")
 

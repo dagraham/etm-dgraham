@@ -1133,7 +1133,7 @@ Whatever *home* directory you choose, running etm for the first time will add th
             cfg.yaml
             db.json
 
-Here `cfg.yaml` is your user configuration file and `db.json` contains all your etm reminders. The folders `backups/` contains the 5 most recent daily backups of your `db.json` and `cfg.yaml` files. The folder `logs` contains the current `etm.log` file and the 5 most recent daily backups. Note that backup files are only created when the relevant file has been modified since the last backup.
+Here `cfg.yaml` is your user configuration file and `db.json` contains all your etm reminders. The folders `backups/` contains the 7 most recent daily backups of your `db.json` and `cfg.yaml` files. The folder `logs` contains the current `etm.log` file and the 7 most recent daily backups. Note that backup files are only created when the relevant file has been modified since the last backup.
 
 The file `cfg.yaml` can be edited and the options are documented in the file.
 See [configuration](#configuration) for details.
