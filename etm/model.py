@@ -2135,11 +2135,13 @@ class DataView(object):
         if self.currfile is None:
             return
 
-        week1 = getWeekNum(self.now)
-        week2 = nextWeek(week1)
-        week3 = nextWeek(week2)
+        weeks = []
+        this_week = getWeekNum(self.now)
+        for i in range(self.settings['keep_current']):
+            weeks.append(this_week)
+            this_week = nextWeek(this_week)
         current = []
-        for week in [week1, week2, week3]:
+        for week in weeks:
             if week not in self.cache:
                 self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now, pinned_list=self.pinned_list))
             agenda, done, busy, num2id, row2id = self.cache[week]
