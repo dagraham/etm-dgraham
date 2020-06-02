@@ -2147,7 +2147,7 @@ class DataView(object):
             agenda, done, busy, num2id, row2id = self.cache[week]
             current.append(agenda)
         with open(self.currfile, 'w') as fo:
-            fo.write("\n\n".join(current))
+            fo.write("\n\n".join([x.lstrip() for x in current]))
         logger.info(f"saved current schedule to {self.currfile}")
 
 

@@ -1,7 +1,6 @@
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" />
 
-This is the etm user manual. Further information about etm is available in [topics](https://groups.io/g/etm/topics) and [user notes](https://groups.io/g/etm/files/user%20notes) at groups.io and at [github](https://github.com/dagraham/etm-dgraham).
-
+This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/etm-dgraham) and in [files](https://groups.io/g/etm/files/) at [groups.io](https://groups.io/g/etm).
 #### Contents
 -   [Overview](#overview)
     -   [Reminders](#reminders)
@@ -1506,13 +1505,14 @@ Here are the options with their default values from that file. The lines beginni
 	# conflicts in busy view.
 	omit_extent:
 
-	# keep_current: true or false. If true, the agenda for the
-	# current and following two weeks will be written to "current.txt"
-	# in your etm home directory and updated when necessary. You
-	# could, for example, create a link to this file in a pCloud or
-	# DropBox folder and have access to your current schedule on
-	# your mobile device.
-	keep_current: false
+	# keep_current: non-negative integer. If positive, the agenda
+	# for that integer number of weeks starting with the current
+	# week will be written to "current.txt" in your etm home
+	# directory and updated when necessary. You could, for
+	# example, create a link to this file in a pCloud or DropBox
+	# folder and have access to your current schedule on your
+	# mobile device.
+	keep_current: 0
 
 	# archive_after: A non-negative integer. If zero, do not
 	# archive items. If positive, finished tasks and events with
