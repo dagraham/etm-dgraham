@@ -258,38 +258,37 @@ colors:
 """ % secret
 
     def __init__(self, etmdir):
-        if os.path.isdir(etmdir):
-            self.colorst = Settings.colors
-            self.settings = yaml.load(Settings.inp)
-            # logger.debug(f"settings: {type(self.settings)}; {self.settings}")
-            self.cfgfile = os.path.normpath(
-                    os.path.join(etmdir, 'cfg.yaml'))
-            if os.path.exists(self.cfgfile):
-                with open(self.cfgfile, 'r') as fn:
-                    try:
-                        self.user = yaml.load(fn)
-                    except Exception as e:
-                        error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {self.cfgfile} and restart etm.\n"
-                        logger.critical(error)
-                        print(error)
-                        sys.exit()
-
-                    # logger.debug(f"user: {self.user}")
-                if self.user and isinstance(self.user, dict):
-                    self.changes = self.check_options()
-                else:
-                    self.changes = [f'invalid settings from {self.cfgfile} - using defaults']
-            else:
-                self.changes = [f'missing {self.cfgfile} - using defaults']
-
-            if self.changes:
-                with open(self.cfgfile, 'w') as fn:
-                    yaml.dump(self.settings, fn)
-                logger.info(f"updated {self.cfgfile}: {', '.join(self.changes)}")
-            else:
-                logger.info(f"using settings from {self.cfgfile}")
-        else:
+        if not os.path.isdir(etmdir):
             raise ValueError(f"{etmdir} is not a valid directory")
+        self.colorst = Settings.colors
+        self.settings = yaml.load(Settings.inp)
+        # logger.debug(f"settings: {type(self.settings)}; {self.settings}")
+        self.cfgfile = os.path.normpath(
+                os.path.join(etmdir, 'cfg.yaml'))
+        if os.path.exists(self.cfgfile):
+            with open(self.cfgfile, 'r') as fn:
+                try:
+                    self.user = yaml.load(fn)
+                except Exception as e:
+                    error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {self.cfgfile} and restart etm.\n"
+                    logger.critical(error)
+                    print(error)
+                    sys.exit()
+
+                # logger.debug(f"user: {self.user}")
+            if self.user and isinstance(self.user, dict):
+                self.changes = self.check_options()
+            else:
+                self.changes = [f'invalid settings from {self.cfgfile} - using defaults']
+        else:
+            self.changes = [f'missing {self.cfgfile} - using defaults']
+
+        if self.changes:
+            with open(self.cfgfile, 'w') as fn:
+                yaml.dump(self.settings, fn)
+            logger.info(f"updated {self.cfgfile}: {', '.join(self.changes)}")
+        else:
+            logger.info(f"using settings from {self.cfgfile}")
 
 
     def check_options(self):
@@ -382,10 +381,7 @@ def setup_logging(level, etmdir, file=None):
     }
 
     level = int(level)
-    if level in log_levels:
-        loglevel = log_levels[level]
-    else:
-        loglevel = log_levels[3]
+    loglevel = log_levels.get(level, log_levels[3])
 
     # if we get here, we have an existing etmdir
     logfile = os.path.normpath(os.path.abspath(os.path.join(etmdir, "etm.log")))

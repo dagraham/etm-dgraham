@@ -150,7 +150,7 @@ def later(d1, d2):
     """
     True if d1 > d2
     """
-    if not isinstance(d1, pendulum.Date) or not isinstance(d2, pendulum.Date):
+    if not (isinstance(d1, pendulum.Date) and isinstance(d2, pendulum.Date)):
         # each must be a date or a datetime
         return "only pendulum dates or datetimes can be compared"
     return _fmtdt(d1) > _fmtdt(d2)
@@ -159,7 +159,7 @@ def earlier(d1, d2):
     """
     True if d1 < d2
     """
-    if not isinstance(d1, pendulum.Date) or not isinstance(d2, pendulum.Date):
+    if not (isinstance(d1, pendulum.Date) and isinstance(d2, pendulum.Date)):
         # each must be a date or a datetime
         return "only pendulum dates or datetimes can be compared"
     return _fmtdt(d1) < _fmtdt(d2)
@@ -282,15 +282,15 @@ def apply_dates_filter(items, grpby, filters):
             if 'f' in item:
                 rdt = item['f'] if isinstance(item['f'], pendulum.Date) else item['f'].date()
                 # e_ok = 'e' not in filters or item['f'] <= filters['e']
-                e_ok = 'e' not in filters or not later(item['f'], filters['e'])
+                e_ok = not ('e' in filters and later(item['f'], filters['e']))
                 # b_ok = 'b' not in filters or item['f'] >= filters['b']
-                b_ok = 'b' not in filters or not earlier(item['f'], filters['b'])
+                b_ok = not ('b' in filters and earlier(item['f'], filters['b']))
             elif 's' in item:
                 rdt = item['s'] if isinstance(item['s'], pendulum.Date) else item['s'].date()
                 # e_ok = 'e' not in filters or rdt <= filters['e']
-                e_ok = 'e' not in filters or not later(item['s'], filters['e'])
+                e_ok = not ('e' in filters and later(item['s'], filters['e']))
                 # b_ok = 'b' not in filters or rdt >= filters['b']
-                b_ok = 'b' not in filters or not earlier(item['s'], filters['b'])
+                b_ok = not ('b' in filters and earlier(item['s'], filters['b']))
             else:
                 e_ok = b_ok = True
             if e_ok and b_ok:
@@ -515,10 +515,7 @@ def get_output_and_row2id(items, grpby, header=""):
     ret = [x[1:] for x in ret]
 
     # create recursive dict from data
-    if header:
-        row = 1
-    else:
-        row = 0
+    row = 1 if header else 0
     index = QDict(used_time, row)
     for path, value in ret:
         index.add(path, value)
@@ -538,7 +535,7 @@ def get_grpby_and_filters(s, options=None):
     report = head[0]
     groupbystr = head[1:].strip()
     logger.debug(f"report: {report}")
-    if not report or report not in ['s', 'u', 'm', 'c']:
+    if not (report and report in ['s', 'u', 'm', 'c']):
         return {}, {}
     grpby['report'] = report
     filters['dates'] = False
@@ -553,7 +550,11 @@ def get_grpby_and_filters(s, options=None):
                 if groupdate_regex.match(part):
                     grpby['dated'] = True
                     filters['dates'] = True
-                elif part[0] != 'i' and part not in ['c', 'l', 'itemtype', 'created', 'modified', 'summary']:
+                elif not (
+                    part[0] == 'i'
+                    or part
+                    in ['c', 'l', 'itemtype', 'created', 'modified', 'summary']
+                ):
                     print(f"Ignoring invalid groupby part: {part}")
                     groupbylst.remove(comp)
         grpby['args'] = groupbylst
@@ -563,10 +564,10 @@ def get_grpby_and_filters(s, options=None):
     if groupbylst:
         for group in groupbylst:
             logger.debug(f"group: {group}")
-            this_sort = []
-            this_path = []
             if groupdate_regex.search(group):
                 gparts = group.split(' ')
+                this_sort = []
+                this_path = []
                 for part in gparts:
                     if 'W' in part:
                         this_sort.append("item['rdt'].strftime('%W')")
@@ -617,9 +618,7 @@ def get_grpby_and_filters(s, options=None):
             filters['query'] += f" and {value}"
         elif key == 't':
             value = [x.strip() for x in part[1:].split(',')]
-    details = []
-    details.append("item['itemtype']")
-    details.append("item['summary']")
+    details = ["item['itemtype']", "item['summary']"]
     if report == 'u':
         details.append("item['u'][1]")
     else:
@@ -636,7 +635,7 @@ def show_query_results(text, grpby, items):
     rows = []
     item_count = f" [{len(items)}]"
     summary_width = width - 6 - len(item_count)
-    if not items or not isinstance(items, list):
+    if not (items and isinstance(items, list)):
         return f"query: {text}\n   none matching", {}
     header = f"query: {text[:summary_width]}{item_count}"
     output, row2id = get_output_and_row2id(items, grpby, header)

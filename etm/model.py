@@ -237,9 +237,7 @@ def busy_conf_minutes(lofp):
                 b = E
                 e = e
     busy_minutes.append((b, e))
-    total_minutes = 0
-    for (b, e) in busy_minutes + conf_minutes:
-        total_minutes += e - b
+    total_minutes = sum(e - b for (b, e) in busy_minutes + conf_minutes)
     return busy_minutes, conf_minutes, total_minutes
 
 def busy_conf_day(lofp):
@@ -388,8 +386,6 @@ def process_entry(s, settings={}):
         elif key.startswith('&'):
             if adding:
                 pos_hsh[tuple((beg, end))] = (f"{adding}{key[-1]}", value)
-            else:
-                pass
         elif key in ['itemtype', 'summary']:
             adding = None
             pos_hsh[tuple((beg, end))] = (key, value)
@@ -632,7 +628,7 @@ class Item(object):
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
         ut = [x.strip() for x in usedtime.split(': ')]
-        if not len(ut) == 2:
+        if len(ut) != 2:
             return False
 
         per_ok, per = parse_duration(ut[0])
@@ -659,14 +655,12 @@ class Item(object):
         changed = False
         if 's' not in self.item_hsh:
             self.item_hsh['s'] = new_dt
-            changed = True
         elif 'r' in self.item_hsh and '-' in self.item_hsh and new_dt in self.item_hsh['-']:
             self.item_hsh['-'].remove(new_dt)
-            changed = True
         else:
             # works both with and without r
             self.item_hsh.setdefault('+', []).append(new_dt)
-            changed = True
+        changed = True
         if changed:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
@@ -681,7 +675,7 @@ class Item(object):
         changed = False
         self.doc_id = doc_id
         self.item_hsh = self.db.get(doc_id=doc_id)
-        if not ('r' in self.item_hsh or '+' in self.item_hsh):
+        if 'r' not in self.item_hsh and '+' not in self.item_hsh:
             # not repeating
             self.item_hsh['s'] = new_dt
             self.item_hsh['modified'] = pendulum.now('local')
@@ -730,12 +724,11 @@ class Item(object):
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
                 self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
-            return changed
-
         else: # 1
             # all instance - delete item
             changed = self.delete_item(doc_id)
-            return changed
+
+        return changed
 
 
     def finish_item(self, item_id, job_id, completed_datetime, due_datetime):
@@ -1310,11 +1303,7 @@ def datetime_calculator(s):
     period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
 
     ampm = settings.get('ampm', True)
-    if ampm:
-        datetime_fmt = "ddd MMM D YYYY h:mmA zz"
-    else:
-        datetime_fmt = "ddd MMM D YYYY H:mm zz"
-
+    datetime_fmt = "ddd MMM D YYYY h:mmA zz" if ampm else "ddd MMM D YYYY H:mm zz"
     m = date_calc_regex.match(s)
     if not m:
         return f'Could not parse "{s}"'
@@ -1337,8 +1326,7 @@ def datetime_calculator(s):
         else:
             ok, dt_y, z = parse_datetime(y, yz)
             if pm == '-':
-                res = (dt_x - dt_y).in_words()
-                return res
+                return (dt_x - dt_y).in_words()
             else:
                 return 'error: datetimes cannot be added'
     except ValueError:
@@ -1398,7 +1386,12 @@ def parse_datetime(s, z=None):
     except:
         return False, f"'{s}' is incomplete or invalid", z
     else:
-        if (tzinfo == 'local' or tzinfo == 'float') and (res.hour, res.minute, res.second, res.microsecond) == (0, 0, 0, 0):
+        if tzinfo in ['local', 'float'] and (
+            res.hour,
+            res.minute,
+            res.second,
+            res.microsecond,
+        ) == (0, 0, 0, 0):
             return 'date', res.replace(tzinfo='Factory').date(), z
         elif ok == 'aware':
             return ok, res.in_timezone('UTC'), z
@@ -1508,13 +1501,11 @@ def format_datetime(obj, short=False):
         if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
             # treat as date
             return True, obj.format(date_fmt)
-        res = obj.format(f"{date_fmt} {time_fmt}")
     else:
         # aware datetime
         obj = obj.in_timezone('local')
         if not short: time_fmt += " zz"
-        res = obj.format(f"{date_fmt} {time_fmt}")
-
+    res = obj.format(f"{date_fmt} {time_fmt}")
     if ampm:
         res = res.replace('AM', 'am')
         res = res.replace('PM', 'pm')
@@ -1522,13 +1513,11 @@ def format_datetime(obj, short=False):
 
 
 def format_datetime_list(obj_lst):
-    ret = ", ".join([format_datetime(x)[1] for x in obj_lst])
-    return ret
+    return ", ".join([format_datetime(x)[1] for x in obj_lst])
 
 
 def plain_datetime_list(obj_lst):
-    ret = ", ".join([plain_datetime(x)[1] for x in obj_lst])
-    return ret
+    return ", ".join([plain_datetime(x)[1] for x in obj_lst])
 
 def format_hours_and_tenths(obj):
     """
@@ -1586,7 +1575,7 @@ def format_duration(obj, short=False):
             until.append(f"{hours}h")
         if obj.minutes:
             until.append(f"{obj.minutes}m")
-        if not until and not short:
+        if not (until or short):
             until.append("0m")
         return "".join(until)
     except Exception as e:
@@ -1597,8 +1586,7 @@ def format_duration(obj, short=False):
 
 def format_duration_list(obj_lst):
     try:
-        ret = ", ".join([format_duration(x) for x in obj_lst])
-        return ret
+        return ", ".join([format_duration(x) for x in obj_lst])
     except Exception as e:
         print('format_duration_list', e)
         print(obj_lst)
@@ -1649,10 +1637,7 @@ def parse_duration(s):
     if not m:
         return False, "Invalid period '{0}'".format(s)
     for g in m:
-        if g[1] == '-':
-            num = -int(g[2])
-        else:
-            num = int(g[2])
+        num = -int(g[2]) if g[1] == '-' else int(g[2])
         td += num * period_hsh[g[3]]
     return True, td
 
@@ -1672,9 +1657,7 @@ class TimeIt(object):
         self.loglevel = loglevel
         self.label = label
         msg = "{0} timer started; loglevel: {1}".format(self.label, self.loglevel)
-        if self.loglevel == 1:
-            logger.debug(msg)
-        elif self.loglevel == 2:
+        if self.loglevel in [1, 2]:
             logger.debug(msg)
         elif self.loglevel == 3:
             logger.warning(msg)
@@ -1685,9 +1668,7 @@ class TimeIt(object):
         self.secs = self.end - self.start
         self.msecs = self.secs * 1000  # millisecs
         msg = "{0} timer stopped; elapsed time: {1} milliseconds".format(self.label, self.msecs)
-        if self.loglevel == 1:
-            logger.debug(msg)
-        elif self.loglevel == 2:
+        if self.loglevel in [1, 2]:
             logger.debug(msg)
         elif self.loglevel == 3:
             logger.warning(msg)
@@ -2063,11 +2044,11 @@ class DataView(object):
                 else:
                     # standard query
                     self.query_view, self.row2id = show_query_items(self.query_text, self.query_items)
-                return self.query_view
             else:
                 self.query_view = ""
                 self.row2id = {}
-                return self.query_view
+
+            return self.query_view
 
     def set_query(self, text, grpby, items):
         self.query_text = text
@@ -2178,7 +2159,7 @@ class DataView(object):
 
     def get_arch_id(self, row=None, edit=False):
         res = self.get_row_details(row)
-        if not res or not res[0]:
+        if not (res and res[0]):
             return None, ''
         item_id = res[0]
         item = self.db.get(doc_id=item_id)
@@ -2189,7 +2170,7 @@ class DataView(object):
 
     def get_details(self, row=None, edit=False):
         res = self.get_row_details(row)
-        if not res or not res[0]:
+        if not (res and res[0]):
             return None, ''
         item_id = res[0]
 
@@ -2205,7 +2186,7 @@ class DataView(object):
     def toggle_pinned(self, row=None):
         res = self.get_row_details(row)
         logger.debug(f"res: {res} for row: {row}")
-        if not res or not res[0]:
+        if not (res and res[0]):
             return None, ''
         item_id = res[0]
         if item_id in self.pinned_list:
@@ -2408,7 +2389,7 @@ class DataView(object):
 
     def move_item(self, row=None):
         res = self.get_row_details(row)
-        if not res or not res[0]:
+        if not (res and res[0]):
             return False
         item_id = res[0]
         item = self.db.get(doc_id=item_id)
@@ -2541,7 +2522,7 @@ class DataView(object):
         m = 1
         m += 6 * self.calAdv
         y += m // 12
-        m = m % 12
+        m %= 12
         for i in range(6): # months in the half year
             cal.append(c.formatmonth(y, m+i, w=2).split('\n'))
         ret = ['']
@@ -2549,7 +2530,7 @@ class DataView(object):
             l = max(len(cal[r]), len(cal[r + 1]))
             for i in range(2):
                 if len(cal[r + i]) < l:
-                    for j in range(len(cal[r + i]), l + 1):
+                    for _ in range(len(cal[r + i]), l + 1):
                         cal[r + i].append('')
             for j in range(l):  # rows from each of the 2 months
                 ret.append((u'%-20s     %-20s ' % (cal[r][j], cal[r +
@@ -3165,10 +3146,7 @@ def do_alert(arg):
     periods = parts.pop(0)
     logger.info(f"parts: {parts}")
     command = parts[0] if parts and parts[0] else None
-    if command:
-        commands = [x.strip() for x in command.split(',')]
-    else:
-        commands = []
+    commands = [x.strip() for x in command.split(',')] if command else []
     if periods:
         periods = [x.strip() for x in periods.split(',')]
         obj_periods = []
@@ -3470,8 +3448,6 @@ def do_weeknumbers(arg):
     >>> do_weeknumbers("0, 1, 5, 54")
     (None, 'invalid weeknumbers: {res}. Required for {weeknumbersstr}')
     """
-    weeknumbersstr = "weeknumbers: a comma separated list of integer week numbers from 1, 2, ..., 53"
-
     if arg:
         args = arg.split(',')
         ok, res = integer_list(args, 0, 53, False)
@@ -3483,6 +3459,8 @@ def do_weeknumbers(arg):
             rep = "invalid weeknumbers: {res}. Required for {weeknumbersstr}"
     else:
         obj = None
+        weeknumbersstr = "weeknumbers: a comma separated list of integer week numbers from 1, 2, ..., 53"
+
         rep = weeknumbersstr
     return obj, rep
 
@@ -3729,10 +3707,7 @@ def rrule_args(r_hsh):
             if not isinstance(args, list):
                 args = [args]
             tmp = [int(x) for x in args]
-            if len(tmp) == 1:
-                r_hsh[k] = tmp[0]
-            else:
-                r_hsh[k] = tmp
+            r_hsh[k] = tmp[0] if len(tmp) == 1 else tmp
     if 'u' in r_hsh and 'c' in r_hsh:
         logger.warning(f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}")
     freq = rrule_freq[r_hsh['r']]
@@ -3845,7 +3820,10 @@ def item_instances(item, aft_dt, bef_dt=1):
             return []
     instances = []
     dtstart = item['s']
-    if not isinstance(dtstart, pendulum.DateTime) and not isinstance(dtstart, pendulum.Date):
+    if not (
+        isinstance(dtstart, pendulum.DateTime)
+        or isinstance(dtstart, pendulum.Date)
+    ):
         return []
     # This should not be necessary since the data store decodes dates as datetimes
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
@@ -3891,7 +3869,7 @@ def item_instances(item, aft_dt, bef_dt=1):
         if isinstance(bef_dt, int):
             tmp = []
             inc = True
-            for i in range(bef_dt):
+            for _ in range(bef_dt):
                 aft_dt = rset.after(aft_dt, inc=inc)
                 if aft_dt:
                     tmp.append(aft_dt)
@@ -3907,8 +3885,7 @@ def item_instances(item, aft_dt, bef_dt=1):
 
     elif '+' in item:
         # no @r but @+ => simple repetition
-        tmp = [dtstart]
-        tmp.extend(item['+'])
+        tmp = [dtstart, *item['+']]
         tmp = [date_to_datetime(x) for x in tmp]
         tmp.sort()
         if isinstance(bef_dt, int):
@@ -4145,11 +4122,7 @@ def jobs(lofh, at_hsh={}):
        'summary': ' 1/2/0: Job Three'}],
      DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern')))
     """
-    if 's' in at_hsh:
-        job_methods = datetime_job_methods
-    else:
-        job_methods = undated_job_methods
-
+    job_methods = datetime_job_methods if 's' in at_hsh else undated_job_methods
     msg = []
     # rmd = []
     req = {}
@@ -4189,14 +4162,11 @@ def jobs(lofh, at_hsh={}):
             # auto generate simple sequence for i: a, b, c, ... and
             # for p: a requires nothing, b requires a, c requires b, ...
             hsh['i'] = LOWERCASE[count]
-            if count > 0:
-                hsh['p'] = [LOWERCASE[count - 1]]
-            else:
-                hsh['p'] = []
+            hsh['p'] = [LOWERCASE[count - 1]] if count > 0 else []
             count += 1
             req[hsh['i']] = deepcopy(hsh['p'])
 
-        else: # manual mode
+        else:    # manual mode
             logger.debug('manual mode')
             if 'i' not in hsh:
                 msg.append('error: &i is required for each job in manual mode')
@@ -4397,7 +4367,7 @@ def getWeeksForMonth(ym):
     """
     wp = pendulum.date(ym[0], ym[1], 1).isocalendar()[:2]
     wl = [wp]
-    for i in range(5):
+    for _ in range(5):
         wn = nextWeek(wp)
         wl.append(wn)
         wp = wn
@@ -4413,7 +4383,7 @@ def getWeekNumbers(dt=pendulum.now(), bef=3, after=9):
     """
     yw = dt.add(days=-bef*7).isocalendar()[:2]
     weeks = [yw]
-    for i in range(1, bef + after + 1):
+    for _ in range(1, bef + after + 1):
         yw = nextWeek(yw)
         weeks.append(yw)
     return weeks
@@ -4469,7 +4439,10 @@ def fmt_extent(beg_dt, end_dt):
     """
     beg_suffix = end_suffix = ""
     ampm = settings['ampm']
-    if not isinstance(beg_dt, pendulum.DateTime) or not isinstance(end_dt, pendulum.DateTime):
+    if not (
+        isinstance(beg_dt, pendulum.DateTime)
+        and isinstance(end_dt, pendulum.DateTime)
+    ):
         return "xxx"
 
     if ampm:
