@@ -4,9 +4,10 @@ def main():
     import logging
     import logging.config
     logger = logging.getLogger()
-    MIN_PYTHON = (3, 6)
+    MIN_PYTHON = (3, 7, 3)
     if sys.version_info < MIN_PYTHON:
-        sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
+        mv = ".".join([str(x) for x in MIN_PYTHON])
+        sys.exit(f"Python {mv} or later is required.\n")
     import os
     IS_VENV = os.getenv('VIRTUAL_ENV') is not None
 
@@ -57,7 +58,7 @@ def main():
     logger.debug(f"using dbfile: {dbfile}")
     cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
     ETMDB = data.initialize_tinydb(dbfile)
-    logger.debug(f"created ETMDB: {ETMDB}; type: {type(ETMDB)}")
+    logger.debug(f"created ETMDB: {ETMDB}")
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
 

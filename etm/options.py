@@ -395,7 +395,7 @@ def setup_logging(level, etmdir, file=None):
                   'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
               'handlers': {
                     'file': {
-                        'backupCount': 5,
+                        'backupCount': 7,
                         'class': 'logging.handlers.TimedRotatingFileHandler',
                         'encoding': 'utf8',
                         'filename': logfile,
