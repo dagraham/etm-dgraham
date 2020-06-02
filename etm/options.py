@@ -84,13 +84,14 @@ secret: %s
 # conflicts in busy view.
 omit_extent:
 
-# keep_current: true or false. If true, the agenda for the
-# current and following two weeks will be written to "current.txt"
-# in your etm home directory and updated when necessary. You
-# could, for example, create a link to this file in a pCloud or
-# DropBox folder and have access to your current schedule on
-# your mobile device.
-keep_current: false
+# keep_current: non-negative integer. If positive, the agenda
+# for that integer number of weeks starting with the current
+# week will be written to "current.txt" in your etm home
+# directory and updated when necessary. You could, for
+# example, create a link to this file in a pCloud or DropBox
+# folder and have access to your current schedule on your
+# mobile device.
+keep_current: 0
 
 # archive_after: A non-negative integer. If zero, do not
 # archive items. If positive, finished tasks and events with
@@ -357,6 +358,12 @@ colors:
             new['vi_mode'] = self.settings['vi_mode']
             changed.append(f"retaining default for 'vi_mode': {self.settings['vi_mode']}")
 
+        if isinstance(new['keep_current'], bool):
+            if new['keep_current']:
+                new['keep_current'] = 3
+            else:
+                new['keep_current'] = 0
+            changed.append(f"Converting 'keep_current' from boolian to integer {new['keep_current']}")
 
         for key in self.settings:
             self.settings[key] = new.get(key, None)
@@ -395,7 +402,7 @@ def setup_logging(level, etmdir, file=None):
                   'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
               'handlers': {
                     'file': {
-                        'backupCount': 5,
+                        'backupCount': 7,
                         'class': 'logging.handlers.TimedRotatingFileHandler',
                         'encoding': 'utf8',
                         'filename': logfile,
