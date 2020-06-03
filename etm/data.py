@@ -261,8 +261,7 @@ def format_duration(obj):
 
 def format_duration_list(obj_lst):
     try:
-        ret = ", ".join([format_duration(x) for x in obj_lst])
-        return ret
+        return ", ".join([format_duration(x) for x in obj_lst])
     except Exception as e:
         print('format_duration_list', e)
         print(obj_lst)
@@ -310,10 +309,7 @@ def parse_duration(s):
     if not m:
         return False, "Invalid period '{0}'".format(s)
     for g in m:
-        if g[1] == '-':
-            num = -int(g[2])
-        else:
-            num = int(g[2])
+        num = -int(g[2]) if g[1] == '-' else int(g[2])
         td += num * period_hsh[g[3]]
     return True, td
 
