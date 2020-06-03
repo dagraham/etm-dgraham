@@ -583,16 +583,12 @@ class ETMQuery(object):
                     # apply to each component
                     for item in item[a]:
                         res.append(re.sub(rgx, rep, item, flags=re.IGNORECASE))
-                    if res != item[a]:
-                        item[a] = res
-                        item['modified'] = pendulum.now('local')
-                        changed.append(item)
                 else:
                     res = re.sub(rgx, rep, item[a], flags=re.IGNORECASE)
-                    if res != item[a]:
-                        item[a] = res
-                        item['modified'] = pendulum.now('local')
-                        changed.append(item)
+                if res != item[a]:
+                    item[a] = res
+                    item['modified'] = pendulum.now('local')
+                    changed.append(item)
         if changed:
             dataview.db.write_back(changed)
             self.changed = True
@@ -692,7 +688,7 @@ class ETMQuery(object):
                 item.setdefault(a, []).append(b)
                 item['modified'] = pendulum.now('local')
                 changed.append(item)
-            elif a in item and isinstance(item[a], list) and b not in item[a]:
+            elif isinstance(item[a], list) and b not in item[a]:
                 item.setdefault(a, []).append(b)
                 item['modified'] = pendulum.now('local')
                 changed.append(item)
@@ -733,17 +729,17 @@ class ETMQuery(object):
         if not isinstance(val, pendulum.Date):
             # neither a date or a datetime
             return False
-        if args and not val.year == int(args.pop(0)):
+        if args and val.year != int(args.pop(0)):
             return False
-        if args and not val.month == int(args.pop(0)):
+        if args and val.month != int(args.pop(0)):
             return False
-        if args and not val.day == int(args.pop(0)):
+        if args and val.day != int(args.pop(0)):
             return False
         if isinstance(val, pendulum.DateTime):
             # val has hours and minutes
-            if args and not val.hour == int(args.pop(0)):
+            if args and val.hour != int(args.pop(0)):
                 return False
-            if args and not val.minute == int(args.pop(0)):
+            if args and val.minute != int(args.pop(0)):
                 return False
         return True
 
@@ -930,21 +926,17 @@ class ETMQuery(object):
 
         test = cmnds[0]
         for i in range(1, len(cmnds)):
-            if i % 2:
-                if cmnds[i] == 'and' or cmnds[i] == 'or':
-                    andor = cmnds[i]
-                    continue
-            if andor == 'or':
-                test = test | cmnds[i]
-            else:
-                test = test & cmnds[i]
+            if i % 2 and cmnds[i] in ['and', 'or']:
+                andor = cmnds[i]
+                continue
+            test = test | cmnds[i] if andor == 'or' else test & cmnds[i]
         return True, test, updt
 
 
     def do_query(self, query):
         """
         """
-        if query == "?" or query == "help":
+        if query in ["?", "help"]:
             return False, self.usage
         try:
             ok, test, updt = self.process_query(query)
@@ -1399,7 +1391,7 @@ def is_yearly_view():
 
 @Condition
 def is_not_yearly_view():
-    return not dataview.active_view in ['yearly']
+    return dataview.active_view not in ['yearly']
 
 @Condition
 def not_showing_details():
@@ -1551,10 +1543,8 @@ def first_char(s):
     m = re.match('(\s+)', s)
     if m:
         return s[len(m.group(0))]
-    elif len(s):
-        # no leading spaces
-        return None
     else:
+        # no leading spaces
         return None
 
 # Create one text buffer for the main content.
@@ -1584,15 +1574,9 @@ def status_time(dt):
     d_fmt = dt.format("ddd MMM D")
     suffix = dt.format("A").lower() if ampm else ""
     if dt.minute == 0:
-        if ampm:
-            t_fmt = dt.format("h")
-        else:
-            t_fmt = dt.format("H")
+        t_fmt = dt.format("h") if ampm else dt.format("H")
     else:
-        if ampm:
-            t_fmt = dt.format("h:mm")
-        else:
-            t_fmt = dt.format("H:mm")
+        t_fmt = dt.format("h:mm") if ampm else dt.format("H:mm")
     return f"{t_fmt}{suffix} {d_fmt}"
 
 def item_changed(loop):
@@ -1781,12 +1765,8 @@ def openWithDefault(path):
         os.startfile(path)
         return()
 
-    if mac:
-        cmd = 'open' + f" {path}"
-    else:
-        cmd = 'xdg-open' + f" {path}"
-    res = check_output(cmd)
-    return res
+    cmd = 'open' + f" {path}" if mac else 'xdg-open' + f" {path}"
+    return check_output(cmd)
 
 search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
@@ -1915,13 +1895,13 @@ and then submit.
         loop.call_later(0, do_show_processing, loop)
         loop.call_later(.1, do_complex_query, text, loop)
 
-        return False
     else:
         # quitting
         dataview.active_view = dataview.prior_view
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
-        return False
+
+    return False
 
 
 query = ETMQuery()
@@ -1950,10 +1930,7 @@ query_area = HSplit([
 
 def do_complex_query(text, loop):
     text, *updt = [x.strip() for x in text.split(' | ')]
-    if updt:
-        updt = f" | {updt[0]}"
-    else:
-        updt = ""
+    updt = f" | {updt[0]}" if updt else ""
     logger.debug(f"text: {text}; updt: {updt}")
     if text.startswith('a '):
         text = text[2:]

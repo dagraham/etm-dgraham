@@ -159,7 +159,8 @@ item_types = {
 # UID:f42d3035fd634835a01f6193a925f32eetm
 # RRULE:FREQ=DAILY;COUNT=4
 # END:VEVENT
-# END:VCALENDAR 
+# END:VCALENDAR
+ 
 
 def ics_to_items(ics_file=None):
     """
@@ -217,10 +218,9 @@ def ics_to_items(ics_file=None):
         tmp = comp.get('summary')
         if tmp:
             item['summary'] = tmp.to_ical().decode('utf-8')
-        if start:
-            if 'TZID' in start.params:
-                logger.debug("TZID: {0}".format(start.params['TZID']))
-                item['z'] = start.params['TZID']
+        if start and 'TZID' in start.params:
+            logger.debug("TZID: {0}".format(start.params['TZID']))
+            item['z'] = start.params['TZID']
         if s:
             item['s'] = pen_from_fmt(s)
         if e:
@@ -239,10 +239,7 @@ def ics_to_items(ics_file=None):
         tmp = comp.get('description')
         if tmp:
             desc = tmp.to_ical().decode('utf-8').replace('\,', ',').replace('\;', ';').replace('\\n', '\n')
-            if isinstance(desc, list):
-                item['d'] = "".join(desc)
-            else:
-                item['d'] = desc
+            item['d'] = "".join(desc) if isinstance(desc, list) else desc
         tmp = comp.get('organizer')
         if tmp:
             item['w'] =  tmp.to_ical().decode('utf-8')
@@ -612,8 +609,8 @@ def export_active_to_ics(file2uuids, uuid2hash, ics_file, calendars=None):
         return
 
     logger.debug('using cal_tuples: {0}'.format(cal_tuples))
+    match = False
     for rp in file2uuids:
-        match = False
         for name, regex in cal_tuples:
             if regex.match(rp):
                 for uid in file2uuids[rp]:
