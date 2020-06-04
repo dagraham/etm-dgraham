@@ -1307,10 +1307,10 @@ def check_output(cmd):
     if not cmd:
         return
     try:
-        res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-    except subprocess.CalledProcessError as exc:
-        res = "".join( chr(x) for x in exc.output)
-        logger.error("command: {0}\n    output: {1}".format(cmd, res))
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
+        res = ""
+    except Exception as res:
+        logger.error(f"Error running {cmd}: {res}")
     finally:
         return res
 
