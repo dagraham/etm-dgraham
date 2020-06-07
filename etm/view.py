@@ -2717,10 +2717,11 @@ root_container = MenuContainer(body=body, menu_items=[
 
 
 def set_askreply(_):
-    logger.debug(f"item.active: {item.active}; item.askreply: {item.askreply}")
+    # logger.debug(f"item.active: {item.active}; item.askreply: {item.askreply}")
     if item.active:
         ask, reply = item.askreply[item.active]
     elif item.askreply.get(('itemtype', '')):
+        logger.debug(f"got ('itemtype', '')")
         ask, reply = item.askreply[('itemtype', '')]
     else:
         ask, reply = ('', '')

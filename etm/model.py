@@ -423,7 +423,7 @@ def active_from_pos(pos_hsh, pos):
     >>> active_from_pos(pos_hsh, 3)
     ((0, 21), ('itemtype', '+'))
     """
-    logger.debug(f"pos_hsh: {pos_hsh}; pos: {pos}")
+    # logger.debug(f"pos_hsh: {pos_hsh}; pos: {pos}")
     for p, v in pos_hsh.items():
         if p[0] <= pos < p[1]:
             return p, v
@@ -857,7 +857,7 @@ class Item(object):
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s, self.settings)
         removed, changed = listdiff(self.keyvals, keyvals)
-        logger.debug(f"pos_hsh: {self.pos_hsh}; keyvals: {keyvals}; removed: {removed}; changed: {changed}")
+        # logger.debug(f"pos_hsh: {self.pos_hsh}; keyvals: {keyvals}; removed: {removed}; changed: {changed}")
         # if removed + changed != []:
         if self.init_entry != self.entry:
             self.is_modified = True
@@ -2189,7 +2189,7 @@ class DataView(object):
 
     def toggle_pinned(self, row=None):
         res = self.get_row_details(row)
-        logger.debug(f"res: {res} for row: {row}")
+        # logger.debug(f"res: {res} for row: {row}")
         if not (res and res[0]):
             return None, ''
         item_id = res[0]
@@ -2199,13 +2199,13 @@ class DataView(object):
         else:
             self.pinned_list.append(item_id)
             act = 'pinned'
-        logger.debug(f"returning {act} {item_id}")
+        # logger.debug(f"returning {act} {item_id}")
         return f"{act} {item_id}"
 
 
     def get_pinned(self):
         items = [self.db.get(doc_id=x) for x in self.pinned_list]
-        logger.debug(f"pinned_list: {self.pinned_list}; items: {items}")
+        # logger.debug(f"pinned_list: {self.pinned_list}; items: {items}")
         return items
 
 
@@ -3745,11 +3745,11 @@ def get_next_due(item, done, due):
             aft = due
             inc = False
     using_dates = False
-    logger.debug(f'overdue: {overdue}; aft: {aft}; inc: {inc}; dtstart: {dtstart}')
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
         using_dates = True
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
-    logger.debug(f"using dates: {using_dates}")
+        aft = pendulum.datetime(year=aft.year, month=aft.month, day=aft.day, hour=0, minute=0)
+    logger.debug(f'using_dates: {using_dates}; overdue: {overdue}; aft: {aft}; inc: {inc}; dtstart: {dtstart}')
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
         kwd['dtstart'] = dtstart
@@ -4553,7 +4553,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[]):
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
     """
     # These need to be local times since all times from the datastore and rrule will be local times
-    logger.debug(f"pinned: {pinned_list}")
+    # logger.debug(f"pinned: {pinned_list}")
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 7 - 16
 
