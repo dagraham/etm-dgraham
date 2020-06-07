@@ -423,10 +423,12 @@ def active_from_pos(pos_hsh, pos):
     >>> active_from_pos(pos_hsh, 3)
     ((0, 21), ('itemtype', '+'))
     """
+    logger.debug(f"pos_hsh: {pos_hsh}; pos: {pos}")
     for p, v in pos_hsh.items():
         if p[0] <= pos < p[1]:
             return p, v
-    return None, None
+    # return the last p, v pair
+    return p, v
 
 
 class Item(object):
@@ -855,7 +857,7 @@ class Item(object):
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s, self.settings)
         removed, changed = listdiff(self.keyvals, keyvals)
-
+        logger.debug(f"pos_hsh: {self.pos_hsh}; keyvals: {keyvals}; removed: {removed}; changed: {changed}")
         # if removed + changed != []:
         if self.init_entry != self.entry:
             self.is_modified = True
@@ -3747,6 +3749,7 @@ def get_next_due(item, done, due):
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
         using_dates = True
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
+    logger.debug(f"using dates: {using_dates}")
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
         kwd['dtstart'] = dtstart
@@ -3764,6 +3767,7 @@ def get_next_due(item, done, due):
         for dt in item['+']:
             rset.rdate(dt)
     nxt_rset = rset.after(aft, inc)
+    logger.debug(f"nxt_rset: {nxt_rset}; aft: {aft}, inc: {inc}")
     nxt = pendulum.instance(nxt_rset)
     if using_dates:
         nxt = nxt.date()
