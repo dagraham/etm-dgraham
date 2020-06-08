@@ -1,38 +1,48 @@
-Recent changes as of 2020-06-07T14:07:42.018412-04:00:
-- 1 second ago (HEAD -> working, tag: 4.5.2) Dan Graham
-    c9d80b6e 2020-06-07 14:07:41 -0400
+Recent changes as of 2020-06-08T08:53:57.398050-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.5.3) Dan Graham
+    4a6a48a1 2020-06-08 08:53:57 -0400
+    Tagged version 4.5.3. Fail gracefully with unsupported locales.
+
+- 2 minutes ago (master) Dan Graham
+    ec955640 2020-06-08 08:52:06 -0400
+    Put set locale for pendulum, calendar and locale in try/except
+    clauses to fail gracefully with log error messages for unsupported
+    locales.
+
+- 19 hours ago (origin/master, origin/HEAD) Dan Graham
+    9dc43fd3 2020-06-07 14:07:41 -0400
     Tagged version 4.5.2. Bug fixes.
 
-- 83 seconds ago Dan Graham
+- 19 hours ago Dan Graham
     cb22691e 2020-06-07 14:06:19 -0400
     Fixed bug in finishing repeating tasks with date due dates in
     timezones with positive offsets.
 
-- 2 hours ago Dan Graham
+- 21 hours ago Dan Graham
     1e878499 2020-06-07 11:40:02 -0400
     Fixed bug in active_from_pos.
 
-- 3 days ago (origin/master, origin/HEAD, master) Dan Graham
+- 4 days ago Dan Graham
     bf11525e 2020-06-04 12:52:57 -0400
     Tagged version 4.5.1. Fixed bug in check_output.
 
-- 3 days ago Dan Graham
+- 4 days ago Dan Graham
     d5a07394 2020-06-04 12:45:28 -0400
     Trial bug fix in check_output
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     eacc59f8 2020-06-03 11:19:28 -0400
     Merge branch 'master' into working
 
-- 4 days ago Dan Graham
+- 5 days ago Dan Graham
     c107018f 2020-06-03 10:22:04 -0400
     Tagged version 4.5.0. Merged sourcery.ai refactor.
 
-- 4 days ago (tag: post_sourcery) Dan Graham
+- 5 days ago (tag: post_sourcery) Dan Graham
     89c9d3c3 2020-06-03 09:15:33 -0400
     Merge branch 'sourcery' into working
 
-- 5 days ago (tag: pre_sourcery) Dan Graham
+- 6 days ago (tag: pre_sourcery) Dan Graham
     3b2f87ca 2020-06-02 16:38:13 -0400
     Squashed commit of the following:
 
@@ -58,69 +68,69 @@ Recent changes as of 2020-06-07T14:07:42.018412-04:00:
 
         Increased number of backups from 5 to 7.
 
-- 5 days ago (origin/sourcery/master, sourcery) Sourcery AI
+- 6 days ago (origin/sourcery/master, sourcery) Sourcery AI
     b7b6731f 2020-06-02 19:39:16 +0000
     Refactored by Sourcery
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     7cf4ca20 2020-06-02 13:15:00 -0400
     Left justify week headings in current.txt. README tweaks.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     29b59a35 2020-06-02 12:43:08 -0400
     Changed keep_current in options from a boolian to an integer
     number of weeks with 0 equivalent to the original false.
 
-- 5 days ago Dan Graham
+- 6 days ago Dan Graham
     f12763d4 2020-06-02 09:07:41 -0400
     Set MIN_PYTHON = (3,7,3). Increased logging backup count from 5 to
     7.
 
-- 6 days ago Dan Graham
+- 7 days ago Dan Graham
     edf182b0 2020-06-01 11:53:53 -0400
     Increased number of backups from 5 to 7.
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     84bf5393 2020-05-31 16:47:10 -0400
     Tagged version 4.4.9.
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     33749d01 2020-05-31 16:28:49 -0400
     Fixed tinydb 4.x compatability bug in using doc_ids in contains.
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     aa275e4e 2020-05-31 09:47:26 -0400
     README tweaks.
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     a2f97271 2020-05-31 09:36:28 -0400
     Tagged version 4.4.8. Fixed sorting bug in repeating task
     completions.
 
-- 7 days ago Dan Graham
+- 8 days ago Dan Graham
     271ade16 2020-05-31 09:35:14 -0400
     Fixed date vs datetime sorting bug in completion history for
     repeating tasks.
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     1cc12dc3 2020-05-29 13:09:22 -0400
     Tagged version 4.4.7. Added support for tinydb 4.x update
     operations.
 
-- 9 days ago Dan Graham
+- 10 days ago Dan Graham
     68f946d0 2020-05-29 13:06:57 -0400
     Added 'replace' to use with 'update' to replace one document with
     another.
 
-- 10 days ago Dan Graham
+- 11 days ago Dan Graham
     b44ac806 2020-05-28 14:06:22 -0400
     Replaced write_back with update to comply with tinydb 4.x.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     e1f4057d 2020-05-27 14:39:30 -0400
     Tagged version 4.4.6. Added support for tinydb 4.x.
 
-- 11 days ago Dan Graham
+- 12 days ago Dan Graham
     4928a0cd 2020-05-27 14:37:58 -0400
     Added links to etm@groups.io in README. Added test for tinydb
     version in data/initialize_tinydb to support changes in
@@ -153,7 +163,7 @@ Recent changes as of 2020-06-07T14:07:42.018412-04:00:
     and prereqs for jobs. Fixed bug in inadvertent modification of
     prereqs by using deepcopy. Updated README.
 
-- 2 weeks ago Dan Graham
+- 3 weeks ago Dan Graham
     3a5946f3 2020-05-21 16:13:05 -0400
     Fixed bug in converting job ids to integers. When reschuling
     non-repeating items, use the @s entry, if any, for the instance.
@@ -246,33 +256,33 @@ Recent changes as of 2020-06-07T14:07:42.018412-04:00:
     Show usedtime entries in completed tasks as normal, available
     tasks in both completed and usedtime views.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     d3261db8 2020-05-07 14:37:18 -0400
     Removed 'used time expanded' section from README.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     631a80b8 2020-05-07 13:11:48 -0400
     Tagged version 4.4.0. Added update commands to queries and file
     path completions when importing files.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     1d928170 2020-05-07 12:49:20 -0400
     Changed backup formats from timestamp-db.zip to db-timestamp.zip
     and from timestamp-cfg.yaml to cfg-timestamp.yaml to improve
     sorting. Files in new format will be added to existing backups.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     40425d1e 2020-05-07 11:37:03 -0400
     Tagged version 4.3.2. Added option to update/modify reminders in
     query view. Added path completion to import file.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     b5409535 2020-05-07 11:33:42 -0400
     Adjust summary width for itemcount in query views. Added query
     update section to README. Implemented path completion in import
     file.
 
-- 4 weeks ago Dan Graham
+- 5 weeks ago Dan Graham
     c8ae4a0b 2020-05-07 09:47:36 -0400
     Added item count to the query result display. Fixed list bug in
     replace.
@@ -290,18 +300,18 @@ Recent changes as of 2020-06-07T14:07:42.018412-04:00:
     (modified|created) time and 'c' (created) time to the complex
     query date specifications to join 'u' (usedtime) time.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     c21cd32d 2020-04-30 13:51:19 -0400
     Tagged version 4.3.1. Added option to query the archive table.
     Added option to manually archive items in normal views and to
     unarchive in query view when showing items from the archive table.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     ae40e625 2020-04-30 13:44:35 -0400
     added option to bump.py to provide a tag message for patch updates
     as well as major and minor changes.
 
-- 5 weeks ago Dan Graham
+- 6 weeks ago Dan Graham
     216b0802 2020-04-30 12:08:48 -0400
     README tweaks.
 
@@ -358,7 +368,7 @@ Recent changes as of 2020-06-07T14:07:42.018412-04:00:
     0d9cca1c 2020-04-25 12:33:08 -0400
     Implemented pinned view. Toggle works and shows pin in all views.
 
-- 6 weeks ago Dan Graham
+- 7 weeks ago Dan Graham
     0dfc42f0 2020-04-23 14:29:53 -0400
     Fixed formatting for job used time entries in jinja templates.
 
@@ -453,22 +463,14 @@ Recent changes as of 2020-06-07T14:07:42.018412-04:00:
     Show all item types in index view. Background color tweaks for
     textarea, menubar, status, menu and dialogs.
 
-- 7 weeks ago Dan Graham
+- 8 weeks ago Dan Graham
     5585da5f 2020-04-16 15:32:39 -0400
     Improved dialog and menu colors.
 
-- 7 weeks ago Dan Graham
+- 8 weeks ago Dan Graham
     53b03822 2020-04-16 14:09:15 -0400
     More bump message tweaks.
 
-- 7 weeks ago Dan Graham
+- 8 weeks ago Dan Graham
     bb01d46f 2020-04-16 13:27:09 -0400
     Tagged version 4.2.0. Support for vi and emacs style editing.
-
-- 7 weeks ago Dan Graham
-    7d1348f4 2020-04-16 13:26:19 -0400
-    More bump message tweaks.
-
-- 7 weeks ago Dan Graham
-    7bf89b4a 2020-04-16 13:07:11 -0400
-    Added option to append to tag message
