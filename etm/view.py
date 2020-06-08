@@ -1192,10 +1192,10 @@ def do_about(*event):
 
 @bindings.add('f4')
 def do_check_updates(*event):
+    # res = subprocess.check_output("pip search etm-dgraham", stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
     res = check_output("pip search etm-dgraham")
 
-    info =  "".join( chr(x) for x in res)
-    lines = info.split('\n')
+    lines = res.split('\n')
     msg = []
     for line in lines:
         if line.lstrip().startswith('etm-dgraham'):
@@ -1307,8 +1307,7 @@ def check_output(cmd):
     if not cmd:
         return
     try:
-        subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
-        res = ""
+        res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
     except Exception as res:
         logger.error(f"Error running {cmd}: {res}")
     finally:
@@ -1766,7 +1765,8 @@ def openWithDefault(path):
         return()
 
     cmd = 'open' + f" {path}" if mac else 'xdg-open' + f" {path}"
-    return check_output(cmd)
+    check_output(cmd)
+    return
 
 search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
