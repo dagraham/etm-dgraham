@@ -6,6 +6,7 @@ import pendulum
 from pendulum import parse as pendulum_parse
 from pendulum.datetime import Timezone
 from pendulum import __version__ as pendulum_version
+import locale
 import calendar
 from copy import deepcopy
 import math
@@ -1836,11 +1837,24 @@ class DataView(object):
         if 'locale' in self.settings:
             locale_str = settings['locale']
             if locale_str:
-                pendulum.set_locale(locale_str)
+                try:
+                    pendulum.set_locale(locale_str)
+                except:
+                    logger.error(f"could not set pendulum locale to {locale_str}")
+
                 if locale_str == "en":
-                    self.cal_locale = ["en_US", "UTF-8"]
+                    tmp = "en_US"
                 else:
-                    self.cal_locale = [f"{locale_str}_{locale_str.upper()}", "UTF-8"]
+                    tmp = f"{locale_str}_{locale_str.upper()}"
+                try:
+                    locale.setlocale(locale.LC_ALL, f"{tmp}.UTF-8")
+                except:
+                    logger.error(f"could not set locale to {tmp}.UTF-8")
+
+                try:
+                    self.cal_locale = [tmp, "UTF-8"]
+                except:
+                    logger.error(f"could not set cal_locale to {tmp} UTF-8")
 
         if 'archive_after' in self.settings:
             try:

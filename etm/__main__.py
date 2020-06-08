@@ -41,9 +41,12 @@ def main():
     secret = settings.get('secret')
     queries = settings.get('queries')
     import pendulum
-    locale = settings.get('locale', None)
-    if locale:
-        pendulum.set_locale(locale)
+    locale_str = settings.get('locale', None)
+    if locale_str:
+        try:
+            pendulum.set_locale(locale_str)
+        except:
+            logger.error(f"could not set_locale for pendulum to {locale_str} ")
     today = pendulum.today()
     day = today.end_of('week')  # Sunday
     WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
