@@ -106,7 +106,7 @@ if new_version:
     print(f"new version: {new_version}")
     tmsg = f"Tagged version {new_version}. {tplus}"
     check_output(f"git commit -a -m '{tmsg}'")
-    version_info = byte2str(check_output("git log --pretty=format:'%ai' -n 1"))
+    version_info = check_output("git log --pretty=format:'%ai' -n 1")
     check_output(f"git tag -a -f '{new_version}' -m '{version_info}'")
 
     count = 100
