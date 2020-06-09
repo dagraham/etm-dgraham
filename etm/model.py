@@ -1322,7 +1322,8 @@ def datetime_calculator(s):
     """
     date_calc_regex = re.compile(r'^\s*(.+)\s+([+-])\s+(.+)\s*$')
     timezone_regex = re.compile(r'^(.+)\s+([A-Za-z]+/[A-Za-z]+)$')
-    period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
+    # period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
+    period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmM])+\s*$)')
 
     ampm = settings.get('ampm', True)
     datetime_fmt = "ddd MMM D YYYY h:mmA zz" if ampm else "ddd MMM D YYYY H:mm zz"
@@ -1330,6 +1331,7 @@ def datetime_calculator(s):
     if not m:
         return f'Could not parse "{s}"'
     x, pm, y = [z.strip() for z in m.groups()]
+    logger.debug(f"x: {x}; pm: {pm}; y: {y}")
     xz = 'local'
     nx = timezone_regex.match(x)
     if nx:
@@ -1343,7 +1345,7 @@ def datetime_calculator(s):
         if isinstance(dt_x, pendulum.Date) and not isinstance(dt_x, pendulum.DateTime):
             return "error: 'x' is a date but a datetime is required"
         pmy = f"{pm}{y}"
-        if period_string_regex.match(pmy):
+        if period_string_regex.match(y):
             ok, dur = parse_duration(pmy)
             if not ok:
                 return dur
@@ -1629,14 +1631,14 @@ period_regex = re.compile(r'(([+-]?)(\d+)([wdhmM]))+?')
 threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
 
-period_hsh = dict(
-    z=pendulum.duration(months=0),
-    m=pendulum.duration(minutes=1),
-    h=pendulum.duration(hours=1),
-    d=pendulum.duration(days=1),
-    w=pendulum.duration(weeks=1),
-    M=pendulum.duration(months=1),
-        )
+# period_hsh = dict(
+#     z=pendulum.duration(months=0),
+#     m=pendulum.duration(minutes=1),
+#     h=pendulum.duration(hours=1),
+#     d=pendulum.duration(days=1),
+#     w=pendulum.duration(weeks=1),
+#     M=pendulum.duration(months=1),
+#         )
 
 
 def parse_duration(s):
@@ -1664,22 +1666,37 @@ def parse_duration(s):
     >>> pendulum.datetime(2015, 10, 15, 9, 0) + parse_duration("1w-2d+3h")[1]
     DateTime(2015, 10, 20, 12, 0, 0, tzinfo=Timezone('UTC'))
     """
-    # td = period_hsh['z']
-    td = pendulum.Duration()
+
+    knms = {
+            'M': 'months',
+            'w': 'weeks',
+            'd': 'days',
+            'h': 'hours',
+            'm': 'minutes',
+            }
+
+    kwds = {
+            'months': 0,
+            'weeks': 0,
+            'days': 0,
+            'hours': 0,
+            'minutes': 0
+            }
 
     m = period_regex.findall(s)
+    logger.debug(f"m: {m}")
     if not m:
         return False, f"Invalid period string '{s}'"
     for g in m:
-        if g[3] not in period_hsh:
+        logger.debug(f"processing g: {g}")
+        if g[3] not in knms:
             return False, f"invalid period argument: {g[3]}"
 
         num = -int(g[2]) if g[1] == '-' else int(g[2])
-        if td:
-            td += num * period_hsh[g[3]]
-        else:
-            td = num * period_hsh[g[3]]
-        logger.debug(f"td: {td}; num: {num}; g[3]: {g[3]}; p_hsh: {period_hsh[g[3]]} num*per: {num * period_hsh[g[3]]}")
+        if num:
+            kwds[knms[g[3]]] = num
+    td = pendulum.duration(**kwds)
+
     return True, td
 
 
