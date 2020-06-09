@@ -5,14 +5,11 @@ from etm.view import check_output
 import pendulum
 import sys
 
-def byte2str(b):
-    return "".join( chr(x) for x in b )
 
-
-gb = byte2str(check_output("git branch"))
+gb = check_output("git branch")
 print('branch:')
 print(gb)
-gs = byte2str(check_output("git status -s"))
+gs = check_output("git status -s")
 if gs:
     print('status:')
     print(gs)
