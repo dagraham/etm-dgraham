@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 * ON
+#!/usr/bin/env python
 
 from pprint import pprint
 import datetime # for type testing in rrule
@@ -18,10 +18,25 @@ from ruamel.yaml import __version__ as ruamel_version
 import dateutil
 from dateutil.rrule import *
 from dateutil import __version__ as dateutil_version
+from dateutil.parser import parse as dateutil_parse
+from dateutil.tz import gettz
+
+
 
 from warnings import filterwarnings
 def parse(s, **kwd):
-    return pendulum_parse(s, strict=False, **kwd)
+    # return pendulum_parse(s, strict=False, parserinfo=pi, **kwd)
+    pi = dateutil.parser.parserinfo(
+            dayfirst=settings['dayfirst'],
+            yearfirst=settings['yearfirst']
+            )
+    dt = pendulum.instance(dateutil_parse(s, parserinfo=pi))
+    if 'tzinfo' in kwd:
+        tz = kwd['tzinfo']
+        # logger.debug(f"setting tzinfo: {tz}")
+        dt = dt.replace(tzinfo=tz)
+    logger.debug(f"dt: {dt}; type: {type(dt)}")
+    return dt
 
 import sys
 import re
@@ -687,8 +702,10 @@ class Item(object):
         else:
             # repeating
             removed_old = False
+            logger.debug(f"adding {new_dt}")
             added_new = self.schedule_new(doc_id, new_dt)
             if added_new:
+                logger.debug(f"removing {old_dt}")
                 removed_old = self.delete_instances(doc_id, old_dt, 0)
             else:
                 logger.warning(f"doc_id: {doc_id}; error adding {new_dt}")
@@ -726,6 +743,8 @@ class Item(object):
             if changed:
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
+                logger.debug(f"replacing {self.item_hsh}")
+
                 self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
         else: # 1
             # all instance - delete item
@@ -1321,13 +1340,21 @@ def datetime_calculator(s):
         y, yz = ny.groups()
     try:
         ok, dt_x, z = parse_datetime(x, xz)
+        if isinstance(dt_x, pendulum.Date) and not isinstance(dt_x, pendulum.DateTime):
+            return "error: 'x' is a date but a datetime is required"
         pmy = f"{pm}{y}"
         if period_string_regex.match(pmy):
-            dur = parse_duration(pmy)[1]
+            ok, dur = parse_duration(pmy)
+            if not ok:
+                return dur
+            logger.debug(f"dur: {dur}")
             dt = (dt_x + dur).in_timezone(yz)
             return dt.format(datetime_fmt)
         else:
             ok, dt_y, z = parse_datetime(y, yz)
+            if isinstance(dt_y, pendulum.Date) and not isinstance(dt_y, pendulum.DateTime):
+                return "error: 'y' is a date but a datetime is required"
+
             if pm == '-':
                 return (dt_x - dt_y).in_words()
             else:
@@ -1385,9 +1412,12 @@ def parse_datetime(s, z=None):
     if not s:
         return False, '', z
     try:
-        res = parse(s, tz=tzinfo)
-    except:
-        return False, f"'{s}' is incomplete or invalid", z
+        logger.debug(f"tzinfo: {tzinfo}")
+        res = parse(s, tzinfo=tzinfo)
+        # res = parse(s)
+        logger.debug(f"s: {s} -> res: {res}")
+    except Exception as e:
+        return False, f"'{s}' is incomplete or invalid: {e}", z
     else:
         if tzinfo in ['local', 'float'] and (
             res.hour,
@@ -1600,7 +1630,7 @@ threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IG
 anniversary_regex = re.compile(r'!(\d{4})!')
 
 period_hsh = dict(
-    z=pendulum.duration(seconds=0),
+    z=pendulum.duration(months=0),
     m=pendulum.duration(minutes=1),
     h=pendulum.duration(hours=1),
     d=pendulum.duration(days=1),
@@ -1634,14 +1664,22 @@ def parse_duration(s):
     >>> pendulum.datetime(2015, 10, 15, 9, 0) + parse_duration("1w-2d+3h")[1]
     DateTime(2015, 10, 20, 12, 0, 0, tzinfo=Timezone('UTC'))
     """
-    td = period_hsh['z']
+    # td = period_hsh['z']
+    td = pendulum.Duration()
 
     m = period_regex.findall(s)
     if not m:
-        return False, "Invalid period '{0}'".format(s)
+        return False, f"Invalid period string '{s}'"
     for g in m:
+        if g[3] not in period_hsh:
+            return False, f"invalid period argument: {g[3]}"
+
         num = -int(g[2]) if g[1] == '-' else int(g[2])
-        td += num * period_hsh[g[3]]
+        if td:
+            td += num * period_hsh[g[3]]
+        else:
+            td = num * period_hsh[g[3]]
+        logger.debug(f"td: {td}; num: {num}; g[3]: {g[3]}; p_hsh: {period_hsh[g[3]]} num*per: {num * period_hsh[g[3]]}")
     return True, td
 
 
@@ -5345,7 +5383,7 @@ def no_busy_periods(week, width):
         else:
             LL[hour] = ' '.rjust(6, ' ')
 
-    monday = parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
+    monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
     DD = {}
     h = {}
     t = {0: 'total'.rjust(6, ' ')}
@@ -5606,7 +5644,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         busy = {}
         t = {0: 'total'.rjust(6, ' ')}
 
-        monday = parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
+        monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
         DD = {}
         for i in range(7):
             DD[i+1] = monday.add(days=i).format("D").ljust(2, ' ')

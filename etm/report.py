@@ -104,7 +104,7 @@ def parse_reldt(s):
         sign = '+'
     elif re.search(minus, s):
         sign = '-'
-    logger.debug(f"s: {s}")
+    logger.debug(f"s: {s}; sign: {sign}")
     if sign:
         if s[0] in ['+', '-']:
             dtm = ''
@@ -112,7 +112,7 @@ def parse_reldt(s):
         else:
             parts = [x.strip() for x in re.split(r'[+-]\s', s)]
             dtm = parts[0]
-            dur = parts[1] if len(parts) > 1 else ''
+            dur = f"{sign}{parts[1]}" if len(parts) > 1 else ''
     else:
         dtm = s.strip()
         dur = ''
@@ -125,15 +125,9 @@ def parse_reldt(s):
     if dur:
         ok, du = parse_duration(dur)
     else:
-        du = ''
-    logger.debug(f"du: {du}")
-    if du:
-        if sign == '+':
-            return dt + du
-        elif sign == '-':
-            return dt - du
-    else:
-        return dt
+        du = pendulum.Duration()
+    logger.debug(f"dt: {dt}, du: {du}, dt+du: {dt+du}")
+    return dt + du
 
 
 def _fmtdt(dt):

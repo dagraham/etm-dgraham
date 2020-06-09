@@ -1192,7 +1192,6 @@ def do_about(*event):
 
 @bindings.add('f4')
 def do_check_updates(*event):
-    # res = subprocess.check_output("pip search etm-dgraham", stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
     res = check_output("pip search etm-dgraham")
 
     lines = res.split('\n')
@@ -1213,7 +1212,7 @@ def do_system(*event):
 
 
 @bindings.add('f6')
-def datetime_calculator(*event):
+def dt_calculator(*event):
     def coroutine():
         prompt = """\
 Enter an expression of the form:
@@ -2062,10 +2061,20 @@ def do_reschedule(*event):
     if instance is None and 's' in hsh:
         instance = hsh['s']
 
+    # date_required = isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime)
+
+    date_required = instance.hour == 0 and instance.minute == 0
+
+    instance = pendulum.instance(instance)
+
+    instance = instance.date() if date_required else instance
+    logger.debug(f"date_required: {date_required}; instance: {instance}; type: {type(instance)}")
+    new = "new date" if date_required else "new datetime"
+
     def coroutine():
         dialog = TextInputDialog(
             title='reschedule instance',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\ninstance: {format_datetime(instance)[1]}\n\nnew datetime:")
+            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\ninstance: {format_datetime(instance)[1]}\n\n{new}:")
 
         new_datetime = yield from show_dialog_as_float(dialog)
 
@@ -2080,6 +2089,7 @@ def do_reschedule(*event):
             ok = False
 
         if ok:
+            dt = dt.date() if date_required else dt
             changed = item.reschedule(doc_id, instance, dt)
         else:
             show_message('new instance', f"'{new_datetime}' is invalid")
@@ -2649,7 +2659,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('F3) system info', handler=do_system),
         MenuItem('F4) check for updates', handler=do_check_updates),
         MenuItem('F5) import file', handler=do_import_file),
-        MenuItem('F6) datetime calculator', handler=datetime_calculator),
+        MenuItem('F6) datetime calculator', handler=dt_calculator),
         MenuItem('F7) configuration settings', handler=do_open_config),
         MenuItem('F8) help', handler=do_show_help),
         MenuItem('-', disabled=True),
