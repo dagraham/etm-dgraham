@@ -1322,7 +1322,6 @@ def datetime_calculator(s):
     """
     date_calc_regex = re.compile(r'^\s*(.+)\s+([+-])\s+(.+)\s*$')
     timezone_regex = re.compile(r'^(.+)\s+([A-Za-z]+/[A-Za-z]+)$')
-    # period_string_regex = re.compile(r'^\s*([+-]?(\d+[wWdDhHmM])+\s*$)')
     period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmM])+\s*$)')
 
     ampm = settings.get('ampm', True)
@@ -1342,21 +1341,22 @@ def datetime_calculator(s):
         y, yz = ny.groups()
     try:
         ok, dt_x, z = parse_datetime(x, xz)
-        if isinstance(dt_x, pendulum.Date) and not isinstance(dt_x, pendulum.DateTime):
-            return "error: 'x' is a date but a datetime is required"
+        if not ok:
+            return f"error: could not parse '{x}'"
+        dt_x = date_to_datetime(dt_x)
         pmy = f"{pm}{y}"
         if period_string_regex.match(y):
             ok, dur = parse_duration(pmy)
             if not ok:
-                return dur
+                return f"error: could not parse '{y}'"
             logger.debug(f"dur: {dur}")
             dt = (dt_x + dur).in_timezone(yz)
             return dt.format(datetime_fmt)
         else:
             ok, dt_y, z = parse_datetime(y, yz)
-            if isinstance(dt_y, pendulum.Date) and not isinstance(dt_y, pendulum.DateTime):
-                return "error: 'y' is a date but a datetime is required"
-
+            if not ok:
+                return f"error: could not parse '{y}'"
+            dt_y = date_to_datetime(dt_y)
             if pm == '-':
                 return (dt_x - dt_y).in_words()
             else:
@@ -3845,7 +3845,7 @@ def get_next_due(item, done, due):
 
 def date_to_datetime(dt):
     if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
-        dt= pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0)
+        dt= pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
     return dt
 
 
