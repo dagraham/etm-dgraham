@@ -69,6 +69,8 @@ def main():
     from etm.model import import_file
     from etm.model import RDict
     from etm.model import item_details
+    from etm.model import FINISHED_CHAR
+    from etm.model import PIN_CHAR
     import etm.model as model
     model.etm_version = etm_version
     model.secret = secret
@@ -105,6 +107,8 @@ def main():
 
 
     import etm.view as view
+    view.FINISHED_CHAR = FINISHED_CHAR
+    view.PIN_CHAR = PIN_CHAR
     view.settings = settings
     view.cfgfile = cfgfile
     view.model = model

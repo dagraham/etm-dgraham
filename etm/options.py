@@ -89,6 +89,16 @@ ampm: true
 yearfirst: false
 dayfirst: false
 
+# updates_interval: a non-negative integer. If positive,
+# automatically check for updates every 'updates_interval'
+# minutes. If zero, do not automatically check for updates.
+# When enabled, a circled u symbol, ⓤ, will be displayed at
+# the right end of status bar when an update is available,
+# a check mark symbol, ✓, when the latest version is installed
+# and a question mark, ?, when the check cannot be completed
+# as, for example, when there is no internet connection.
+updates_interval: 0
+
 # locale: A two character locale abbreviation. E.g., "fr" for
 # French.
 locale: en
@@ -291,7 +301,7 @@ colors:
             raise ValueError(f"{etmdir} is not a valid directory")
         self.colorst = Settings.colors
         self.settings = yaml.load(Settings.inp)
-        # logger.debug(f"settings: {type(self.settings)}; {self.settings}")
+        logger.debug(f"settings: {type(self.settings)}; {self.settings}")
         self.cfgfile = os.path.normpath(
                 os.path.join(etmdir, 'cfg.yaml'))
         if os.path.exists(self.cfgfile):
@@ -332,6 +342,7 @@ colors:
         # logger.debug(f"default_colors: {default_colors}")
         # add missing default keys
         for key, value in self.settings.items():
+            logger.debug(f"checking {key} {value}")
             if isinstance(self.settings[key], dict):
                 if key not in new or not isinstance(new[key], dict):
                     new[key] = self.settings[key]
@@ -374,6 +385,10 @@ colors:
             new['colors'] = default_colors
         # logger.debug(f"new new colors: {new['colors']}")
 
+
+        if not isinstance(new['updates_interval'], int) or new['updates_interval'] < 0:
+            new['updates_interval'] = self.settings['updates_interval']
+            changed.append(f"retaining default for 'updates_interval': {self.settings['updates_interval']}")
 
         if new['usedtime_minutes'] not in [1, 6, 12, 30, 60]:
             changed.append(f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 1.")

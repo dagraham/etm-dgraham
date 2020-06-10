@@ -487,6 +487,16 @@ Enter
 to display a list of the saved keys and values.
 """
 
+class UpdateStatus():
+    def __init__(self, new=""):
+        self.status = new
+
+    def set_status(self, new):
+        self.status = new
+
+    def get_status(self):
+        return self.status
+
 class TDBLexer(RegexLexer):
 
     name = 'TDB'
@@ -1203,8 +1213,30 @@ def do_check_updates(*event):
             msg.append(line)
         elif line.lstrip().startswith('LATEST'):
             msg.append(line)
-
     show_message("version information", "\n".join(msg), 2)
+
+update_status = UpdateStatus()
+
+async def auto_check_loop(loop):
+    logger.debug("in auto_check_loop")
+    res = check_output("pip search etm-dgraham")
+    logger.debug(f"res: {res}")
+    if not res:
+        update_status.set_status("?")
+        return
+
+    lines = res.split('\n')
+    new = False
+    for line in lines:
+        if line.lstrip().startswith('LATEST'):
+            new = re.split(":\s+", line)[1]
+            break
+    logger.debug(f"new: {new}")
+    # status = f"{FINISHED_CHAR} " if new else f"{FINISHED_CHAR} "
+    # status = f"[{new}] " if new else f"{PIN_CHAR}"
+    status = "ⓤ " if new else FINISHED_CHAR
+    logger.debug(f"updating status: '{status}'")
+    update_status.set_status(status)
 
 @bindings.add('f3')
 def do_system(*event):
@@ -1305,12 +1337,13 @@ calmonth = today.month
 def check_output(cmd):
     if not cmd:
         return
+    res = ""
     try:
         res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
-    except Exception as res:
-        logger.error(f"Error running {cmd}: {res}")
-    finally:
         return res
+    except Exception as res:
+        logger.warn(f"Error running {cmd}: {res}")
+        return ""
 
 editing = False
 
@@ -1682,6 +1715,10 @@ async def maybe_alerts(now):
 
 async def event_handler():
     global current_datetime
+    # check for updates every interval minutes
+
+    interval = settings.get('updates_interval', 0)
+    minutes = 0
     try:
         while True:
             now = pendulum.now()
@@ -1689,15 +1726,24 @@ async def event_handler():
             asyncio.ensure_future(maybe_alerts(now))
             current_datetime = status_time(now)
             today = now.format("YYYYMMDD")
+            logger.debug(f"minutes: {minutes}; interval: {interval}")
             wait = 60 - now.second
+
+            if interval:
+                if minutes == 0:
+                    minutes = 1
+                    logger.debug("calling auto_check_loop")
+                    loop = asyncio.get_event_loop()
+                    asyncio.ensure_future(auto_check_loop(loop))
+                    logger.debug("back from auto_check")
+                else:
+                    minutes += 1
+                    minutes = minutes % interval
 
             if today != current_today:
                 logger.debug(f"calling new_day. current_today: {current_today}; today: {today}")
                 loop = asyncio.get_event_loop()
-                # python >= 3.6:
                 asyncio.ensure_future(new_day(loop))
-                # python >= 3.7:
-                # asyncio.create_task(new_day(loop))
                 logger.debug(f"back from new_day")
             get_app().invalidate()
             await asyncio.sleep(wait)
@@ -1753,7 +1799,7 @@ def get_statusbar_center_text():
 
 
 def get_statusbar_right_text():
-    return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} "), ]
+    return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} {update_status.get_status()}"), ]
 
 def openWithDefault(path):
     sys_platform = platform.system()
@@ -1788,6 +1834,7 @@ completions = [
 # expansions will come from cfg.yaml
 expansions = {
         }
+
 
 class AtCompleter(Completer):
     # pat = re.compile(r'@[cgilntxz]\s?\S*')

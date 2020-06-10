@@ -1482,6 +1482,44 @@ Here are the options with their default values from that file. The lines beginni
 	# else use 24 hour format.
 	ampm: true
 
+	# yearfirst and dayfirst. Each true or false. Whenever an
+	# ambiguous date is parsed, the dayfirst and yearfirst
+	# parameters control how the information is processed.
+	# Here is the precedence in each case:
+	#
+	#   If dayfirst is False and yearfirst is False:
+	#       MM-DD-YY
+	#       DD-MM-YY
+	#       YY-MM-DD
+	#
+	#   If dayfirst is True and yearfirst is False:
+	#       DD-MM-YY
+	#       MM-DD-YY
+	#       YY-MM-DD
+	#
+	#   If dayfirst is False and yearfirst is True:
+	#       YY-MM-DD
+	#       MM-DD-YY
+	#       DD-MM-YY
+	#
+	#   If dayfirst is True and yearfirst is True:
+	#       YY-MM-DD
+	#       DD-MM-YY
+	#       MM-DD-YY
+	#
+	yearfirst: false
+	dayfirst: false
+
+	# updates_interval: a non-negative integer. If positive, 
+	# automatically check for updates every 'updates_interval' 
+	# minutes. If zero, do not automatically check for updates. 
+	# When enabled, a circled u symbol, ⓤ, will be displayed at 
+	# the right end of status bar when an update is available,  
+	# a check mark symbol, ✓, when the latest version is installed
+	# and a question mark, ?, when the check cannot be completed 
+	# as, for example, when there is no internet connection.
+	updates_interval: 0
+
 	# locale: A two character locale abbreviation. E.g., "fr" for
 	# French.
 	locale: en
