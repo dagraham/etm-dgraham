@@ -1232,7 +1232,8 @@ async def auto_check_loop(loop):
             new = re.split(":\s+", line)[1]
             break
     logger.debug(f"new: {new}")
-    status = "ⓤ " if new else FINISHED_CHAR
+    status = UPDATE_CHAR if new else FINISHED_CHAR
+    status = UPDATE_CHAR if new else ''
     logger.debug(f"updating status: '{status}'")
     update_status.set_status(status)
 

@@ -120,6 +120,8 @@ type2style = {
 
 FINISHED_CHAR = '✓'
 
+UPDATE_CHAR = "ⓤ "
+
 # LINK_CHAR = ' †'
 # LINK_CHAR = ' 🔗'
 LINK_CHAR = ' ‡'
@@ -133,7 +135,7 @@ ZERO = pendulum.duration(minutes=0)
 ONEMIN = pendulum.duration(minutes=1)
 DAY = pendulum.duration(days=1)
 
-finished_char = u"\u2713"  #  ✓
+# finished_char = u"\u2713"  #  ✓
 
 WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
 WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4']}
@@ -4951,7 +4953,7 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[]):
         time = fmt_time(relevant)
         dtfmt = f"{monthday} {time}"
 
-        itemtype = finished_char if 'f' in item else item['itemtype']
+        itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = set_summary(item['summary'], relevant)
         summary = (summary[:width-3].rstrip() + LINK_CHAR) if id in link_list else summary
         summary = summary[:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else summary[:summary_width]
@@ -4996,7 +4998,7 @@ def show_query_items(text, items=[], pinned_list=[], link_list=[]):
         if dt is not None:
             id = item.doc_id
             year = dt.format("YYYY")
-            itemtype = finished_char if 'f' in item else item['itemtype']
+            itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
             summary = item['summary']
             summary = (summary[:width-3].rstrip() + LINK_CHAR) if 'g' in item else summary
             summary = summary[:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else summary[:summary_width]
@@ -5039,7 +5041,7 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[]):
             monthday = dt.format("MMM D")
             time = fmt_time(dt)
             dtfmt = f"{monthday} {time}"
-            itemtype = finished_char if 'f' in item else item.get('itemtype', '?')
+            itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item['summary']
             summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
             if item.doc_id in pinned_list:
@@ -5272,7 +5274,7 @@ def show_pinned(items, pinned_list=[], link_list=[]):
             time = fmt_time(dt)
             # dtfmt = f"{monthday} {time}"
             dtfmt = dt.format("YYYY-MM-DD")
-            itemtype = finished_char if 'f' in item else item.get('itemtype', '?')
+            itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item['summary']
             summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
             summary = summary[:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else summary[:summary_width]
@@ -5323,16 +5325,10 @@ def get_usedtime(db):
         if not used:
             continue
         index = item.get('i', '~')
-        # if index == '~':
-        #     continue
         description = item.get('d', "")
         id_used = {}
         index_tup = index.split('/')
         doc_id = item.doc_id
-        # if item['itemtype'] == '-' and 'f' in item:
-        #     itemtype = finished_char
-        # else:
-        #     itemtype = item['itemtype']
         itemtype = item['itemtype']
         details = f"{itemtype} {item['summary']}"
         for period, dt in used:
@@ -5597,7 +5593,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 'day': (
                                     dt.format("ddd MMM D"),
                                     ),
-                                'columns': [finished_char,
+                                'columns': [FINISHED_CHAR,
                                     row[1],
                                     rhc
                                     ],

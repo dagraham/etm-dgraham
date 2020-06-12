@@ -1515,9 +1515,8 @@ Here are the options with their default values from that file. The lines beginni
 	# automatically check for updates every 'updates_interval' 
 	# minutes. If zero, do not automatically check for updates. 
 	# When enabled, a circled u symbol, ⓤ, will be displayed at 
-	# the right end of status bar when an update is available,  
-	# a check mark symbol, ✓, when the latest version is installed
-	# and a question mark, ?, when the check cannot be completed 
+	# the right end of status bar when an update is available  
+	# or a question mark, ?, when the check cannot be completed 
 	# as, for example, when there is no internet connection.
 	updates_interval: 0
 
