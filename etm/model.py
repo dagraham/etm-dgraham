@@ -120,18 +120,22 @@ type2style = {
 
 FINISHED_CHAR = '✓'
 
+UPDATE_CHAR = "ⓤ "
+
+# LINK_CHAR = ' †'
+# LINK_CHAR = ' 🔗'
+LINK_CHAR = ' ‡'
+
 PIN_CHAR = '📌'   # U+1F4CC
 
-
 etmdir = None
-
 
 ETMFMT = "%Y%m%dT%H%M"
 ZERO = pendulum.duration(minutes=0)
 ONEMIN = pendulum.duration(minutes=1)
 DAY = pendulum.duration(days=1)
 
-finished_char = u"\u2713"  #  ✓
+# finished_char = u"\u2713"  #  ✓
 
 WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
 WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4']}
@@ -1149,6 +1153,7 @@ class Item(object):
         obj, rep = do_string(arg)
         if obj:
             self.item_hsh['summary'] = obj
+
             rep = arg
         elif 'summary' in self.item_hsh:
             del self.item_hsh['summary']
@@ -1815,6 +1820,7 @@ class DataView(object):
         self.alerts = []
         self.row2id = []
         self.id2relevant = {}
+        self.link_list = []
         self.pinned_list = []
         self.current_row = 0
         self.agenda_view = ""
@@ -1921,6 +1927,7 @@ class DataView(object):
         self.dbarch = DBARCH
         logger.info(f"items: {len(DBITEM)}; archive: {len(DBARCH)}")
         self.possible_archive()
+        self.update_links()
 
     def use_archive(self):
         self.query_mode = "archive table"
@@ -2071,25 +2078,25 @@ class DataView(object):
             # self.refreshCalendar()
             return self.calendar_view
         if self.active_view == 'history':
-            self.history_view, self.row2id = show_history(self.db, True, self.pinned_list)
+            self.history_view, self.row2id = show_history(self.db, True, self.pinned_list, self.link_list)
             return self.history_view
         if self.active_view == 'forthcoming':
-            self.forthcoming_view, self.row2id = show_forthcoming(self.db, self.id2relevant, self.pinned_list)
+            self.forthcoming_view, self.row2id = show_forthcoming(self.db, self.id2relevant, self.pinned_list, self.link_list)
             return self.forthcoming_view
         if self.active_view == 'do next':
-            self.next_view, self.row2id = show_next(self.db, self.pinned_list)
+            self.next_view, self.row2id = show_next(self.db, self.pinned_list, self.link_list)
             return self.next_view
         if self.active_view == 'records':
-            self.records_view, self.row2id = show_records(self.db, self.id2relevant, self.pinned_list)
+            self.records_view, self.row2id = show_records(self.db, self.id2relevant, self.pinned_list, self.link_list)
             return self.records_view
         if self.active_view == 'tags':
-            self.tag_view, self.row2id = show_tags(self.db, self.id2relevant, self.pinned_list)
+            self.tag_view, self.row2id = show_tags(self.db, self.id2relevant, self.pinned_list, self.link_list)
             return self.tag_view
         if self.active_view == 'index':
-            self.index_view, self.row2id = show_index(self.db, self.id2relevant, self.pinned_list)
+            self.index_view, self.row2id = show_index(self.db, self.id2relevant, self.pinned_list, self.link_list)
             return self.index_view
         if self.active_view == 'pinned':
-            self.pinned_view, self.row2id = show_pinned(self.get_pinned(), self.pinned_list)
+            self.pinned_view, self.row2id = show_pinned(self.get_pinned(), self.pinned_list, self.link_list)
             return self.pinned_view
         if self.active_view == 'used time':
             used_details = self.used_details.get(self.active_month)
@@ -2169,13 +2176,13 @@ class DataView(object):
         """
         self.set_now()
         self.currentYrWk = getWeekNum(self.now)
-        self.current, self.alerts, self.id2relevant = relevant(self.db, self.now, self.pinned_list)
+        self.current, self.alerts, self.id2relevant = relevant(self.db, self.now, self.pinned_list, self.link_list)
         self.refreshCache()
 
 
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
-            self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list))
+            self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list))
         # agenda, done, busy, row2id, done2id
         self.agenda_view, self.done_view, self.busy_view, self.row2id, self.done2id = self.cache[self.activeYrWk]
 
@@ -2195,7 +2202,7 @@ class DataView(object):
         current = []
         for week in weeks:
             if week not in self.cache:
-                self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now, pinned_list=self.pinned_list))
+                self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list= self.link_list))
             agenda, done, busy, num2id, row2id = self.cache[week]
             current.append(agenda)
         with open(self.currfile, 'w') as fo:
@@ -2376,8 +2383,22 @@ class DataView(object):
 
 
     def refreshCache(self):
-        self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20, self.pinned_list)
+        self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20, self.pinned_list, self.link_list)
         self.used_details, self.used_details2id, self.used_summary = get_usedtime(self.db)
+
+    def update_links(self):
+        """
+        Look for items with @g entries and add their ids
+        to link_list.
+        """
+        for item in self.db:
+            if 'g' in item:
+                if item.doc_id not in self.link_list:
+                    self.link_list.append(item.doc_id)
+            else:
+                if item.doc_id in self.link_list:
+                    self.link_list.remove(item_id)
+        logger.debug(f"link_list: {self.link_list}")
 
 
     def possible_archive(self):
@@ -4617,7 +4638,7 @@ def get_item(id):
     pass
 
 
-def relevant(db, now=pendulum.now(), pinned_list=[]):
+def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[]):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
     """
@@ -4646,11 +4667,19 @@ def relevant(db, now=pendulum.now(), pinned_list=[]):
         possible_beginby = None
         possible_alerts = []
         all_tds = []
+        id = item.doc_id
         if 'itemtype' not in item:
             logger.warning(f"no itemtype: {item}")
             item['itemtype'] = '?'
             # continue
-        summary = summary_pin(item['summary'], summary_width, item.doc_id, pinned_list)
+        if 'g' in item:
+            if id not in link_list:
+                link_list.append(id)
+        else:
+            if id in link_list:
+                link_list.remove(id)
+
+        summary = summary_pin(item['summary'], summary_width, item.doc_id, pinned_list, link_list)
         if item['itemtype'] == '!':
             inbox.append([0, summary, item.doc_id, None, None])
             relevant = today
@@ -4818,7 +4847,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[]):
                 if 'f' in job:
                     continue
                 # adjust job starting time if 's' in job
-                job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list)
+                job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list, link_list)
                 jobstart = relevant - job.get('s', ZERO)
                 if jobstart.date() < today.date():
                     pastdue_jobs = True
@@ -4906,7 +4935,7 @@ def insert_db(db, hsh={}):
         logger.error(f"Error updating database:\nid {id}\nold {old}\nhsh {hsh}\ne {repr(e)}")
 
 
-def show_forthcoming(db, id2relevant, pinned_list=[]):
+def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[]):
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 19
     rows = []
@@ -4924,8 +4953,9 @@ def show_forthcoming(db, id2relevant, pinned_list=[]):
         time = fmt_time(relevant)
         dtfmt = f"{monthday} {time}"
 
-        itemtype = finished_char if 'f' in item else item['itemtype']
+        itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = set_summary(item['summary'], relevant)
+        summary = (summary[:width-3].rstrip() + LINK_CHAR) if id in link_list else summary
         summary = summary[:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else summary[:summary_width]
         rows.append(
                 {
@@ -4951,7 +4981,7 @@ def show_forthcoming(db, id2relevant, pinned_list=[]):
     return tree, row2id
 
 
-def show_query_items(text, items=[], pinned_list=[]):
+def show_query_items(text, items=[], pinned_list=[], link_list=[]):
     width = shutil.get_terminal_size()[0] - 7
     rows = []
     # summary_width = width - 6
@@ -4968,8 +4998,10 @@ def show_query_items(text, items=[], pinned_list=[]):
         if dt is not None:
             id = item.doc_id
             year = dt.format("YYYY")
-            itemtype = finished_char if 'f' in item else item['itemtype']
-            summary = item['summary'][:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else item['summary'][:summary_width]
+            itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
+            summary = item['summary']
+            summary = (summary[:width-3].rstrip() + LINK_CHAR) if 'g' in item else summary
+            summary = summary[:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else summary[:summary_width]
             rows.append(
                     {
                         'id': id,
@@ -4993,7 +5025,7 @@ def show_query_items(text, items=[], pinned_list=[]):
     return tree, row2id
 
 
-def show_history(db, reverse=True, pinned_list=[]):
+def show_history(db, reverse=True, pinned_list=[], link_list=[]):
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     summary_width = width - 21
@@ -5009,11 +5041,13 @@ def show_history(db, reverse=True, pinned_list=[]):
             monthday = dt.format("MMM D")
             time = fmt_time(dt)
             dtfmt = f"{monthday} {time}"
-            itemtype = finished_char if 'f' in item else item.get('itemtype', '?')
+            itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+            summary = item['summary']
+            summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
             if item.doc_id in pinned_list:
-                summary = (item['summary'][:summary_width - 1] + PIN_CHAR).ljust(summary_width-1, ' ')
+                summary = (summary[:summary_width - 1] + PIN_CHAR).ljust(summary_width-1, ' ')
             else:
-                summary = item['summary'][:summary_width].ljust(summary_width, ' ')
+                summary = summary[:summary_width].ljust(summary_width, ' ')
             rows.append(
                     {
                         'id': id,
@@ -5041,7 +5075,7 @@ def show_history(db, reverse=True, pinned_list=[]):
     return tree, row2id
 
 
-def show_next(db, pinned_list=[]):
+def show_next(db, pinned_list=[], link_list=[]):
     """
     Unfinished, undated tasks and jobs
     """
@@ -5049,6 +5083,7 @@ def show_next(db, pinned_list=[]):
     rows = []
     locations = set([])
     for item in db:
+        id = item.doc_id
         if item.get('itemtype', None) not in ['-'] or 's' in item or 'f' in item:
             continue
         if 'j' in item:
@@ -5063,7 +5098,9 @@ def show_next(db, pinned_list=[]):
                 location = job.get('l', task_location)
                 status = 0 if job.get('status') == '-' else 1
                 # status 1 -> waiting, status 0 -> available
-                summary = job.get('summary', '')[:width - 1] + PIN_CHAR if item.doc_id in pinned_list else job.get('summary', '')[:width]
+                summary = job.get('summary')
+                summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+                summary = summary[:width - 1] + PIN_CHAR if id in pinned_list else summary[:width]
                 job_id = job.get('i', None)
                 job_sort = str(job_id)
                 rows.append(
@@ -5084,7 +5121,9 @@ def show_next(db, pinned_list=[]):
             priority = int(item.get('p', 0))
             sort_priority = 4 - int(priority)
             show_priority = str(priority) if priority > 0 else ""
-            summary = item['summary'][:width - 1] + PIN_CHAR if item.doc_id in pinned_list else item['summary'][:width]
+            summary = item['summary']
+            summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+            summary = summary[:width - 1] + PIN_CHAR if id in pinned_list else summary[:width]
             rows.append(
                     {
                         'id': item.doc_id,
@@ -5114,7 +5153,7 @@ def show_next(db, pinned_list=[]):
     return "\n".join(next_view), row2id
 
 
-def show_records(db, id2relevant, pinned_list):
+def show_records(db, id2relevant, pinned_list=[], link_list=[]):
     """
     Records grouped by index entry
     """
@@ -5122,10 +5161,13 @@ def show_records(db, id2relevant, pinned_list):
     rows = []
     # indices = set([])
     for item in db:
+        id = item.doc_id
         if item['itemtype'] != '%':
             continue
         index = item.get('i', '~')
-        summary = item['summary'][:width - 16] + PIN_CHAR if item.doc_id in pinned_list else item['summary'][:width - 15]
+        summary = item['summary']
+        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+        summary = item['summary'][:width - 16] + PIN_CHAR if id in pinned_list else item['summary'][:width - 15]
         rows.append({
                     # 'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
                     'sort': (index, item['summary']),
@@ -5146,15 +5188,18 @@ def show_records(db, id2relevant, pinned_list):
     return tree, row2id
 
 
-def show_tags(db, id2relevant, pinned_list=[]):
+def show_tags(db, id2relevant, pinned_list=[], link_list=[]):
     """
     tagged items grouped by tag
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     for item in db:
+        id = item.doc_id
         tags = item.get('t', [])
-        summary = item['summary'][:width - 16] + PIN_CHAR if item.doc_id in pinned_list else item['summary'][:width - 15]
+        summary = item['summary']
+        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+        summary = summary[:width - 16] + PIN_CHAR if id in pinned_list else summary[:width - 15]
         for tag in tags:
             rows.append({
                         'sort': (tag, item['itemtype'], item['summary']),
@@ -5175,7 +5220,7 @@ def show_tags(db, id2relevant, pinned_list=[]):
     return tree, row2id
 
 
-def show_index(db, id2relevant, pinned_list=[]):
+def show_index(db, id2relevant, pinned_list=[], link_list=[]):
     """
     All items grouped by index entry
     """
@@ -5184,8 +5229,11 @@ def show_index(db, id2relevant, pinned_list=[]):
     for item in db:
         # if item['itemtype'] == '%':
         #     continue
+        id = item.doc_id
         index = item.get('i', '~')
-        summary = item['summary'][:width - 11] + PIN_CHAR if item.doc_id in pinned_list else item['summary'][:width - 10]
+        summary = item['summary']
+        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+        summary = summary[:width - 11] + PIN_CHAR if item.doc_id in pinned_list else summary[:width - 10]
         rows.append({
                     'sort': (index, item['summary']),
                     'index': index,
@@ -5209,7 +5257,7 @@ def show_index(db, id2relevant, pinned_list=[]):
     return tree, row2id
 
 
-def show_pinned(items, pinned_list=[]):
+def show_pinned(items, pinned_list=[], link_list=[]):
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     summary_width = width - 18
@@ -5226,8 +5274,10 @@ def show_pinned(items, pinned_list=[]):
             time = fmt_time(dt)
             # dtfmt = f"{monthday} {time}"
             dtfmt = dt.format("YYYY-MM-DD")
-            itemtype = finished_char if 'f' in item else item.get('itemtype', '?')
-            summary = item['summary'][:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else item['summary'][:summary_width]
+            itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+            summary = item['summary']
+            summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+            summary = summary[:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else summary[:summary_width]
             rows.append(
                     {
                         'id': id,
@@ -5275,16 +5325,10 @@ def get_usedtime(db):
         if not used:
             continue
         index = item.get('i', '~')
-        # if index == '~':
-        #     continue
         description = item.get('d', "")
         id_used = {}
         index_tup = index.split('/')
         doc_id = item.doc_id
-        # if item['itemtype'] == '-' and 'f' in item:
-        #     itemtype = finished_char
-        # else:
-        #     itemtype = item['itemtype']
         itemtype = item['itemtype']
         details = f"{itemtype} {item['summary']}"
         for period, dt in used:
@@ -5416,7 +5460,9 @@ def no_busy_periods(week, width):
             h[hour][weekday] = '  .  '
     return busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
-def summary_pin(text, width, id, pinned_list):
+def summary_pin(text, width, id, pinned_list, link_list):
+    if id in link_list:
+        text = (text[:width-3].rstrip() +  LINK_CHAR)
     if id in pinned_list:
         ret = (text[:width-1] + PIN_CHAR).ljust(width-1, ' ')
     else:
@@ -5424,7 +5470,7 @@ def summary_pin(text, width, id, pinned_list):
     return ret
 
 
-def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[]):
+def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[]):
     logger.debug(f"pinned_list: {pinned_list}")
     ampm = settings['ampm']
     omit = settings['omit_extent']
@@ -5468,7 +5514,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             continue
         if item['itemtype'] in "!?":
             continue
-        summary = summary_pin(item['summary'], summary_width, item.doc_id, pinned_list)
+        summary = summary_pin(item['summary'], summary_width, item.doc_id, pinned_list, link_list)
 
         if 'u' in item:
             used = item.get('u') # this will be a list of @u entries
@@ -5521,7 +5567,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             if 'j' in item:
                 logger.debug(f"item['j']: {item['j']}")
                 for job in item['j']:
-                    job_summary = summary_pin(job.get('summary', ''), summary_width, item.doc_id, pinned_list)
+                    job_summary = summary_pin(job.get('summary', ''), summary_width, item.doc_id, pinned_list, link_list)
                     if 'f' in job:
                         d.append([job['f'], job_summary, item.doc_id, job['i']])
             if d:
@@ -5547,7 +5593,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 'day': (
                                     dt.format("ddd MMM D"),
                                     ),
-                                'columns': [finished_char,
+                                'columns': [FINISHED_CHAR,
                                     row[1],
                                     rhc
                                     ],
@@ -5565,7 +5611,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 for job in item['j']:
                     if 'f' in job:
                         continue
-                    job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list)
+                    job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list, link_list)
                     jobstart = dt - job.get('s', ZERO)
                     job_id = job.get('i', None)
                     job_sort = str(job_id)
