@@ -1,15 +1,27 @@
 #! ./env/bin/python
 
-from etm.__version__ import version
-from etm.view import check_output
 import pendulum
 import sys
+import logging
+import logging.config
+logger = logging.getLogger()
+
+from etm.__version__ import version
+import etm.view as view
+# from etm.view import check_output
+import etm.options as options
 
 
-gb = check_output("git branch")
+setup_logging = options.setup_logging
+setup_logging(1, '~/etm-mv')
+view.logger = logger
+
+
+check_output = view.check_output
+ok, gb = check_output("git branch")
 print('branch:')
 print(gb)
-gs = check_output("git status -s")
+ok, gs = check_output("git status -s")
 if gs:
     print('status:')
     print(gs)
@@ -106,7 +118,7 @@ if new_version:
     print(f"new version: {new_version}")
     tmsg = f"Tagged version {new_version}. {tplus}"
     check_output(f"git commit -a -m '{tmsg}'")
-    version_info = check_output("git log --pretty=format:'%ai' -n 1")
+    ok, version_info = check_output("git log --pretty=format:'%ai' -n 1")
     check_output(f"git tag -a -f '{new_version}' -m '{version_info}'")
 
     count = 100
