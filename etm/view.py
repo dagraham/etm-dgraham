@@ -1342,7 +1342,7 @@ def check_output(cmd):
         res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
         return res
     except Exception as res:
-        logger.warn(f"Error running {cmd}: {res}")
+        logger.warning(f"Error running {cmd}: {res}")
         return ""
 
 editing = False
@@ -2757,7 +2757,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('P) toggle pin', handler=toggle_pinned),
         MenuItem('R) reschedule',  handler=do_reschedule),
         MenuItem('S) schedule new', handler=do_schedule_new),
-        MenuItem('^g) open goto', handler=do_goto),
+        MenuItem('^g) open goto link', handler=do_goto),
         MenuItem('^r) show repetitions', handler=not_editing_reps),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),

@@ -1371,6 +1371,7 @@ For use with @r:
 
 ### alerts and beginbys
 
+* A link character, ‡, is appended to the displayed summary of any reminder with an `@g` goto link.
 * Alerts and beginbys can be added to any reminder with an `@s` start date/time entry. Alerts require a datetime in `@s`; beginbys also allow a date in `@s`.
 * A beginby is specified by adding `@b n` to a reminder where `n` is a positive integer and is interpreted as a number of days. A reminder with such an entry will be displayed in *agenda view* on the current date provided that the current date is no more than `n` days before the start date/time of the reminder. Such a warning will appear n days before, n-1 days before and so forth until 1 day before the starting date/time of the reminder. The warning displays the type character `>`, the summary of the reminder and the number of days remaining.
 * An alert is specified by adding `@a <list of time periods>: <list of commands>` to a reminder. The time periods must be given in the usual etm format, e.g., `1h13m` for one hour and 13 minutes. The commands are single alphabetic characters, e.g., `a`, `b` and such. The commands used must either be `e` (email) or `t` (text) or be specified in the `alerts` section of the `cfg.yaml` file in your etm home directory. See [configuration](#configuration) for details about this file. Basically, it associates a command, such as `v` with a shell command to be invoked when an alert that includes `v` is triggered. E.g., the alert
