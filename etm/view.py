@@ -1202,7 +1202,7 @@ def do_about(*event):
 
 @bindings.add('f4')
 def do_check_updates(*event):
-    res = check_output("pip search etm-dgraham")
+    ok, res = check_output("pip search etm-dgraham")
 
     lines = res.split('\n')
     msg = []
@@ -1219,9 +1219,9 @@ update_status = UpdateStatus()
 
 async def auto_check_loop(loop):
     logger.debug("in auto_check_loop")
-    res = check_output("pip search etm-dgraham")
+    ok, res = check_output("pip search etm-dgraham")
     logger.debug(f"res: {res}")
-    if not res:
+    if not ok:
         update_status.set_status("?")
         return
 
@@ -1232,8 +1232,6 @@ async def auto_check_loop(loop):
             new = re.split(":\s+", line)[1]
             break
     logger.debug(f"new: {new}")
-    # status = f"{FINISHED_CHAR} " if new else f"{FINISHED_CHAR} "
-    # status = f"[{new}] " if new else f"{PIN_CHAR}"
     status = "ⓤ " if new else FINISHED_CHAR
     logger.debug(f"updating status: '{status}'")
     update_status.set_status(status)
@@ -1339,11 +1337,12 @@ def check_output(cmd):
         return
     res = ""
     try:
-        res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
-        return res
+        res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True, encoding='UTF-8')
+        logger.debug(f"Success running {cmd}; res: '{res}'")
+        return True, res
     except Exception as res:
-        logger.warning(f"Error running {cmd}: {res}")
-        return ""
+        logger.warning(f"Error running {cmd}; res: '{res}'")
+        return False, res
 
 editing = False
 
@@ -1810,7 +1809,14 @@ def openWithDefault(path):
         return()
 
     cmd = 'open' + f" {path}" if mac else 'xdg-open' + f" {path}"
-    check_output(cmd)
+    # show_message('goto', f"attempting to open '{path}'")
+    ok, res = check_output(cmd)
+    # res will be '' on success and failure otherwise
+    if ok:
+        logger.debug(f"ok True; res: '{res}'")
+    else:
+        logger.debug(f"ok False; res: '{res}'")
+        show_message('goto', f"failed to open '{path}'")
     return
 
 search_field = SearchToolbar(text_if_not_searching=[

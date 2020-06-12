@@ -5041,8 +5041,7 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[]):
             dtfmt = f"{monthday} {time}"
             itemtype = finished_char if 'f' in item else item.get('itemtype', '?')
             summary = item['summary']
-            if id in link_list:
-                summary = (summary[:width-3].rstrip() +  LINK_CHAR)
+            summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
             if item.doc_id in pinned_list:
                 summary = (summary[:summary_width - 1] + PIN_CHAR).ljust(summary_width-1, ' ')
             else:
