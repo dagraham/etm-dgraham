@@ -1,123 +1,9 @@
-<<<<<<< HEAD
-Recent changes as of 2020-06-12T15:12:54.416110-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.5.6) Dan Graham
-=======
 - 2 days ago (tag: 4.5.6) Dan Graham
->>>>>>> master
     c0e8fc08 2020-06-12 15:12:54 -0400
     Tagged version 4.5.6. Added a link-character to the displayed
     summary of reminders with an @g entry. Report failures when
     activating @g links.
 
-<<<<<<< HEAD
-- 3 minutes ago Dan Graham
-    37022842 2020-06-12 15:10:19 -0400
-    added logging to bump.py to accomodate check_output
-
-- 28 minutes ago Dan Graham
-    dd5813cf 2020-06-12 14:45:01 -0400
-    Omit check mark in status bar when version is up to date. Removed
-    redundant lower case finishe)char from model. Fixed README.
-
-- 46 minutes ago Dan Graham
-    1a153647 2020-06-12 14:26:29 -0400
-    Report open goto link failure in a message box.
-
-- 3 hours ago Dan Graham
-    e38468ef 2020-06-12 12:21:57 -0400
-    Added a link-character, ‡, to the displayed summary of reminders
-    with an '@g' goto link entry.
-
-- 2 days ago (origin/master, origin/HEAD, master) Dan Graham
-    f8258e6e 2020-06-10 15:39:12 -0400
-    Tagged version 4.5.5. Added option to automatically check for
-    updates.
-
-- 2 days ago Dan Graham
-    a970052f 2020-06-10 15:19:08 -0400
-    Added 'updates_interval' to options and, if set to a positive
-    integer, automatically check for available updates every
-    'updates_interval' minutes displaying the result at the right end
-    of the status bar.
-
-- 3 days ago Dan Graham
-    61cba133 2020-06-09 16:52:36 -0400
-    Tagged version 4.5.4. Added support for yearfirst and dayfirst
-    options in datetime parsing.
-
-- 3 days ago Dan Graham
-    bf34c070 2020-06-09 16:50:13 -0400
-    Fixed bug in bump.py involving byte2str.
-
-- 3 days ago Dan Graham
-    a1727233 2020-06-09 16:44:53 -0400
-    In datetime_calculator: fixed period_string_regex and used
-    date_to_datetime to replace dates with datetimes as midnight in
-    the local timezone.
-
-- 3 days ago Dan Graham
-    d8afaf71 2020-06-09 16:23:36 -0400
-    More tweaks on parse_duration. To avoid adding component
-    durations, accumulate the kwds and construct the duration from
-    them all at once.
-
-- 3 days ago Dan Graham
-    b3587d1a 2020-06-09 14:17:36 -0400
-    Workaround for parse to support dateutil dayfirst and yearfirst
-    settings. Added dayfirst and yearfirst to options. Various
-    workarounds for a pendulum duration problem with processing
-    months. Require datetimes instead of dates in dt_calculator.
-
-- 4 days ago Dan Graham
-    9de52630 2020-06-08 09:52:16 -0400
-    Return the output in check_output but ignore it in
-    openWithDefault.
-
-- 4 days ago Dan Graham
-    881d88ac 2020-06-08 08:53:57 -0400
-    Tagged version 4.5.3. Fail gracefully with unsupported locales.
-
-- 4 days ago Dan Graham
-    ec955640 2020-06-08 08:52:06 -0400
-    Put set locale for pendulum, calendar and locale in try/except
-    clauses to fail gracefully with log error messages for unsupported
-    locales.
-
-- 5 days ago Dan Graham
-    9dc43fd3 2020-06-07 14:07:41 -0400
-    Tagged version 4.5.2. Bug fixes.
-
-- 5 days ago Dan Graham
-    cb22691e 2020-06-07 14:06:19 -0400
-    Fixed bug in finishing repeating tasks with date due dates in
-    timezones with positive offsets.
-
-- 5 days ago Dan Graham
-    1e878499 2020-06-07 11:40:02 -0400
-    Fixed bug in active_from_pos.
-
-- 8 days ago Dan Graham
-    bf11525e 2020-06-04 12:52:57 -0400
-    Tagged version 4.5.1. Fixed bug in check_output.
-
-- 8 days ago Dan Graham
-    d5a07394 2020-06-04 12:45:28 -0400
-    Trial bug fix in check_output
-
-- 9 days ago Dan Graham
-    eacc59f8 2020-06-03 11:19:28 -0400
-    Merge branch 'master' into working
-
-- 9 days ago Dan Graham
-    c107018f 2020-06-03 10:22:04 -0400
-    Tagged version 4.5.0. Merged sourcery.ai refactor.
-
-- 9 days ago (tag: post_sourcery) Dan Graham
-    89c9d3c3 2020-06-03 09:15:33 -0400
-    Merge branch 'sourcery' into working
-
-- 10 days ago (tag: pre_sourcery) Dan Graham
-=======
 - 4 days ago (tag: 4.5.5) Dan Graham
     e701c43f 2020-06-10 15:39:12 -0400
     Tagged version 4.5.5. Added option to automatically check for
@@ -144,7 +30,6 @@ Recent changes as of 2020-06-12T15:12:54.416110-04:00:
     Merge branch 'sourcery' into working
 
 - 12 days ago (tag: pre_sourcery) Dan Graham
->>>>>>> master
     3b2f87ca 2020-06-02 16:38:13 -0400
     Squashed commit of the following:
 
@@ -170,84 +55,6 @@ Recent changes as of 2020-06-12T15:12:54.416110-04:00:
 
         Increased number of backups from 5 to 7.
 
-<<<<<<< HEAD
-- 10 days ago (origin/sourcery/master, sourcery) Sourcery AI
-    b7b6731f 2020-06-02 19:39:16 +0000
-    Refactored by Sourcery
-
-- 10 days ago Dan Graham
-    7cf4ca20 2020-06-02 13:15:00 -0400
-    Left justify week headings in current.txt. README tweaks.
-
-- 10 days ago Dan Graham
-    29b59a35 2020-06-02 12:43:08 -0400
-    Changed keep_current in options from a boolian to an integer
-    number of weeks with 0 equivalent to the original false.
-
-- 10 days ago Dan Graham
-    f12763d4 2020-06-02 09:07:41 -0400
-    Set MIN_PYTHON = (3,7,3). Increased logging backup count from 5 to
-    7.
-
-- 11 days ago Dan Graham
-    edf182b0 2020-06-01 11:53:53 -0400
-    Increased number of backups from 5 to 7.
-
-- 12 days ago Dan Graham
-    84bf5393 2020-05-31 16:47:10 -0400
-    Tagged version 4.4.9.
-
-- 12 days ago Dan Graham
-    33749d01 2020-05-31 16:28:49 -0400
-    Fixed tinydb 4.x compatability bug in using doc_ids in contains.
-
-- 12 days ago Dan Graham
-    aa275e4e 2020-05-31 09:47:26 -0400
-    README tweaks.
-
-- 12 days ago Dan Graham
-    a2f97271 2020-05-31 09:36:28 -0400
-    Tagged version 4.4.8. Fixed sorting bug in repeating task
-    completions.
-
-- 12 days ago Dan Graham
-    271ade16 2020-05-31 09:35:14 -0400
-    Fixed date vs datetime sorting bug in completion history for
-    repeating tasks.
-
-- 2 weeks ago Dan Graham
-    1cc12dc3 2020-05-29 13:09:22 -0400
-    Tagged version 4.4.7. Added support for tinydb 4.x update
-    operations.
-
-- 2 weeks ago Dan Graham
-    68f946d0 2020-05-29 13:06:57 -0400
-    Added 'replace' to use with 'update' to replace one document with
-    another.
-
-- 2 weeks ago Dan Graham
-    b44ac806 2020-05-28 14:06:22 -0400
-    Replaced write_back with update to comply with tinydb 4.x.
-
-- 2 weeks ago Dan Graham
-    e1f4057d 2020-05-27 14:39:30 -0400
-    Tagged version 4.4.6. Added support for tinydb 4.x.
-
-- 2 weeks ago Dan Graham
-    4928a0cd 2020-05-27 14:37:58 -0400
-    Added links to etm@groups.io in README. Added test for tinydb
-    version in data/initialize_tinydb to support changes in
-    default_table from 3.15.2 to 4.0.0.
-
-- 3 weeks ago Dan Graham
-    f39eee55 2020-05-24 10:53:58 -0400
-    Replaced depreciated 'logger.warn' with 'logger.warning'. Removed
-    warnings for 'i' and 'p' instances in automode to faciliated auto
-    regeneration.
-
-- 3 weeks ago Dan Graham
-    d4cb8fb7 2020-05-22 12:52:25 -0400
-=======
 - 2 weeks ago (tag: 4.4.9) Dan Graham
     d462b39e 2020-05-31 16:47:10 -0400
     Tagged version 4.4.9.
@@ -268,7 +75,6 @@ Recent changes as of 2020-06-12T15:12:54.416110-04:00:
 
 - 3 weeks ago (tag: 4.4.5) Dan Graham
     f2c2a5ec 2020-05-22 12:52:25 -0400
->>>>>>> master
     Tagged version 4.4.5. Allow auto regeneration of job ids and
     prereqs by removing the &i and &p entries from the first job.
 
@@ -277,36 +83,8 @@ Recent changes as of 2020-06-12T15:12:54.416110-04:00:
     Tagged version 4.4.4. Fixed bug in processing prerequisites for
     jobs.
 
-<<<<<<< HEAD
-- 3 weeks ago Dan Graham
-    11e017d5 2020-05-22 10:30:45 -0400
-    Switch from integers to lowercase letters for auto assigned ids
-    and prereqs for jobs. Fixed bug in inadvertent modification of
-    prereqs by using deepcopy. Updated README.
-
-- 3 weeks ago Dan Graham
-    3a5946f3 2020-05-21 16:13:05 -0400
-    Fixed bug in converting job ids to integers. When reschuling
-    non-repeating items, use the @s entry, if any, for the instance.
-
-- 3 weeks ago Dan Graham
-    d4e4817d 2020-05-19 15:53:29 -0400
-    Improved date_calculator display.
-
-- 4 weeks ago Dan Graham
-    9b2ac9c7 2020-05-18 12:51:13 -0400
-    Treat job ids as integers if possible when sorting.
-
-- 4 weeks ago Dan Graham
-    2cb3d37c 2020-05-13 23:04:02 -0400
-    Added spaces on both sides of [+-] in parse_reldt
-
-- 4 weeks ago Dan Graham
-    2bd47fc9 2020-05-13 11:47:53 -0400
-=======
 - 5 weeks ago (tag: 4.4.3) Dan Graham
     22bb8dee 2020-05-13 11:47:53 -0400
->>>>>>> master
     Tagged version 4.4.3. Fixed bug in date specifications for
     usedtime queries. README updates.
 
@@ -315,50 +93,8 @@ Recent changes as of 2020-06-12T15:12:54.416110-04:00:
     Tagged version 4.4.2. Added grouping by week options to queries
     with datetime shortcuts and option to combine with period strings.
 
-<<<<<<< HEAD
-- 4 weeks ago Dan Graham
-    0f11430d 2020-05-12 09:41:16 -0400
-    Added M (month) to period string. Added datetime shortcuts daybeg,
-    ... monthend. Added option to use +/- period strings in -b and -e
-    query specifications. Completed use of earlier and later in -b and
-    -e entries to avoid date vs datetime errors.
-
-- 5 weeks ago Dan Graham
-    bae1762c 2020-05-11 08:57:59 -0400
-    use 'now' as the default for finish task - parses as the current
-    datetime
-
-- 5 weeks ago Dan Graham
-    583946da 2020-05-10 08:54:12 -0400
-    added earlier and later to allow comparing dates and datetimes in
-    setting -b and -e for queries
-
-- 5 weeks ago Dan Graham
-    7b603852 2020-05-10 07:41:20 -0400
-    added week grouping options to README
-
-- 5 weeks ago Dan Graham
-    25de7c13 2020-05-10 07:25:22 -0400
-    Don't show completion time in rhc of completed view.
-
-- 5 weeks ago Dan Graham
-    c4834b06 2020-05-10 07:09:41 -0400
-    cleaned up get_grpby_and_filters
-
-- 5 weeks ago Dan Graham
-    97749bc3 2020-05-09 19:01:27 -0400
-    Don't use finished_char in used time queries.
-
-- 5 weeks ago Dan Graham
-    6af5a91e 2020-05-09 17:54:39 -0400
-    Added grouping/sorting by weeknumber to query.
-
-- 5 weeks ago Dan Graham
-    4e250b7d 2020-05-08 09:17:04 -0400
-=======
 - 5 weeks ago (tag: 4.4.1) Dan Graham
     4592a3ce 2020-05-08 09:17:04 -0400
->>>>>>> master
     Tagged version 4.4.1.
 
 - 5 weeks ago (tag: 4.4.0) Dan Graham
@@ -376,119 +112,3 @@ Recent changes as of 2020-06-12T15:12:54.416110-04:00:
     Tagged version 4.3.1. Added option to query the archive table.
     Added option to manually archive items in normal views and to
     unarchive in query view when showing items from the archive table.
-<<<<<<< HEAD
-
-- 6 weeks ago Dan Graham
-    ae40e625 2020-04-30 13:44:35 -0400
-    added option to bump.py to provide a tag message for patch updates
-    as well as major and minor changes.
-
-- 6 weeks ago Dan Graham
-    216b0802 2020-04-30 12:08:48 -0400
-    README tweaks.
-
-- 6 weeks ago Dan Graham
-    6ca46c19 2020-04-29 09:00:27 -0400
-    Don't add 'doc_id' to items when moving from items to archive.
-
-- 6 weeks ago Dan Graham
-    e45250cb 2020-04-29 08:52:35 -0400
-    Don't add 'doc_id' to items when archiving.
-
-- 6 weeks ago Dan Graham
-    6bf7ef12 2020-04-28 19:13:05 -0400
-    Getting close on archive toggle
-
-- 7 weeks ago Dan Graham
-    68892536 2020-04-27 16:34:34 -0400
-    Basic archive query seems to work with details and edit using the
-    correct id.
-
-- 7 weeks ago Dan Graham
-    96b2e4a7 2020-04-25 17:04:47 -0400
-    Tagged version 4.3.0. Added pinned view and removed used time
-    expanded.
-
-- 7 weeks ago Dan Graham
-    f5282471 2020-04-25 17:04:02 -0400
-    README fixes - add pinned view and remove used time expanded
-
-- 7 weeks ago Dan Graham
-    ff0a6819 2020-04-25 16:49:40 -0400
-    Merge branch 'expanded' into working
-
-- 7 weeks ago Dan Graham
-    feaf3627 2020-04-25 16:49:31 -0400
-    Fixed bug in adding pins to beginbys. Fixed sort in pinned view
-    and added a finished itemtype to correspond to the finished type
-    character.
-
-- 7 weeks ago Dan Graham
-    63547e21 2020-04-25 15:07:53 -0400
-    Group pinned by itemtype and sort by created/modified datetime
-    displayed as YYYY-MM-DD.
-
-- 7 weeks ago Dan Graham
-    632b006d 2020-04-25 14:36:02 -0400
-    Removed used time expanded view.
-
-- 7 weeks ago Dan Graham
-    da9e6484 2020-04-25 14:24:58 -0400
-    Removed menu image files. Added text menu description.
-
-- 7 weeks ago Dan Graham
-    0d9cca1c 2020-04-25 12:33:08 -0400
-    Implemented pinned view. Toggle works and shows pin in all views.
-
-- 7 weeks ago Dan Graham
-    0dfc42f0 2020-04-23 14:29:53 -0400
-    Fixed formatting for job used time entries in jinja templates.
-
-- 8 weeks ago Dan Graham
-    56e30280 2020-04-20 14:38:56 -0400
-    Tagged version 4.2.9.
-
-- 8 weeks ago Dan Graham
-    aa994158 2020-04-20 13:10:45 -0400
-    More query sort tweaks
-
-- 8 weeks ago Dan Graham
-    3a508ad5 2020-04-20 10:09:42 -0400
-    Tagged version 4.2.8.
-
-- 8 weeks ago Dan Graham
-    b89e2cde 2020-04-20 10:09:13 -0400
-    Fixed sorting error in complex queries.
-
-- 8 weeks ago Dan Graham
-    e6ef39cc 2020-04-19 15:33:23 -0400
-    Tagged version 4.2.7.
-
-- 8 weeks ago Dan Graham
-    8a6b3f31 2020-04-19 15:33:03 -0400
-    Apply sort_dates_times to the date/time component of u in query
-    -a.
-
-- 8 weeks ago Dan Graham
-    fdb515ad 2020-04-19 09:53:45 -0400
-    Tagged version 4.2.6.
-
-- 8 weeks ago Dan Graham
-    1cbd3832 2020-04-19 09:46:38 -0400
-    Merge branch 'working'
-
-- 8 weeks ago Dan Graham
-    c15d20cd 2020-04-19 09:34:48 -0400
-    Added sort_dates_times to report.py to handle sorting a list with
-    both dates and datetimes.Return dates as rdt for both u and f
-    instances.
-
-- 8 weeks ago Dan Graham
-    793e7399 2020-04-18 14:40:01 -0400
-    Tagged version 4.2.5.
-
-- 8 weeks ago Dan Graham
-    a1504c62 2020-04-18 14:39:36 -0400
-    Bad merge
-=======
->>>>>>> master

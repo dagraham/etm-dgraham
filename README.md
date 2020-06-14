@@ -390,8 +390,9 @@ When you next create a reminder and enter @n, *etm* will pop up a sorted list of
 
 ## [Views](#overview)
 
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmview_agenda.png" alt="new" title="new entry" width="450px" hspace="20px"/>
 
-_etm_ has several ways of viewing entries. These are listed below by the shortcut key used to activate the view. E.g., pressing `a` activates _Agenda_ view.
+_etm_ has several ways of viewing entries. These are listed below by the shortcut key used to activate the view. E.g., pressing `a` activates _Agenda_ view shown above. In each of the views, the etm menus appear at the top and the status bar at the bottom. The latter displayes the current datetime and the name of the view. The circled-i symbol to the right of view name indicates that inbasket reminders are available to be imported. See [etm menu notes](#etm-menu-notes) for details.  
 
   * a: Agenda: dated unfinished tasks and other reminders by year-week and week day
   * b: Busy: a graphical illustration of busy and conflicted times by year-week
