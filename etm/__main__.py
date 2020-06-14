@@ -72,6 +72,7 @@ def main():
     from etm.model import FINISHED_CHAR
     from etm.model import UPDATE_CHAR
     from etm.model import PIN_CHAR
+    from etm.model import INBASKET_CHAR
     import etm.model as model
     model.etm_version = etm_version
     model.secret = secret
@@ -85,7 +86,8 @@ def main():
     model.settings = settings
     model.logger = logger
     userhome = os.path.expanduser('~')
-    model.etmhome = os.path.join('~', os.path.relpath(etmdir, userhome)) if etmdir.startswith(userhome) else etmdir
+    etmhome = os.path.join('~', os.path.relpath(etmdir, userhome)) if etmdir.startswith(userhome) else etmdir
+    model.etmhome = etmhome
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
     datetime_calculator = model.datetime_calculator
@@ -111,6 +113,7 @@ def main():
     view.FINISHED_CHAR = FINISHED_CHAR
     view.UPDATE_CHAR = UPDATE_CHAR
     view.PIN_CHAR = PIN_CHAR
+    view.INBASKET_CHAR = INBASKET_CHAR
     view.settings = settings
     view.cfgfile = cfgfile
     view.model = model
@@ -121,6 +124,8 @@ def main():
     view.logger = logger
     view.import_file = import_file
     view.etmdir = etmdir
+    view.inbasket_file = os.path.join(etmdir, 'inbasket.text')
+    view.etmhome = etmhome
     view.datetime_calculator = datetime_calculator
     view.about = about
     view.wrap = model.wrap

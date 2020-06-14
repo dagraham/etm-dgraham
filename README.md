@@ -1035,7 +1035,11 @@ As with the other menus, each entry is preceeded by its shortcut, e.g., F2 for *
 
 Many of the entries are obvious but a few deserve comment.
 
-* *import file* supports importing three different file types. A file ending with `.json` is expected to be one exported from *etm* 3.2.x. A file ending with  `.text` is expected to be a text file with lines corresponding to *etm* 4.x reminders. A file ending with `.ics` is expected to be a file in *iCalendar* format.
+* *import file* supports importing three different file types. A file ending with `.json` is expected to be one exported from *etm* 3.2.x. A file ending with  `.text` is expected to be a text file with lines corresponding to *etm* 4.x reminders. A file ending with `.ics` is expected to be a file in *iCalendar* format. 
+
+  If a file named `inbasket.text` exists in the root of the *etmdir* directory, it will be offered as the default for importing. When etm detects the presence of this file, a circled-i symbol, ⓘ , will be displayed in the right-hand end of the status bar. 
+
+  Any file located in the root of the *etmdir* will automatically be removed after it is imported to avoid duplications. 
 * *datetime calculator* processes an expression of the form `x [+-] y` where x is a datetime and y is either a timeperiod with `+` or a datetime or a timeperiod with `-`. As an example, suppose you have the arrival time in Paris of a flight and the departure time from Raleigh/Durham and you would like to determine the flight time. Entering
 
 			7:45a 4/7 Europe/Paris - 5:30p 4/6 US/Eastern

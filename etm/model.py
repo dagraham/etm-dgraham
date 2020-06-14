@@ -121,7 +121,7 @@ type2style = {
 FINISHED_CHAR = '✓'
 
 UPDATE_CHAR = "ⓤ "
-
+INBASKET_CHAR = 'ⓘ '
 # LINK_CHAR = ' †'
 # LINK_CHAR = ' 🔗'
 LINK_CHAR = ' ‡'
@@ -5878,6 +5878,7 @@ def import_ics(import_file=None):
 
 def import_text(import_file=None):
     import tempfile
+
     docs = []
     with open(import_file, 'r') as fo:
         results = []

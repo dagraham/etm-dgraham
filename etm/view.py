@@ -1640,6 +1640,7 @@ async def new_day(loop):
 
 current_datetime = pendulum.now('local')
 
+
 def alerts():
     alerts = []
     now = pendulum.now('local')
@@ -1787,6 +1788,7 @@ def get_edit_mode():
 
     return '        '
 
+
 def get_statusbar_text():
     return [ ('class:status',  f' {current_datetime}'), ]
 
@@ -1799,7 +1801,8 @@ def get_statusbar_center_text():
 
 
 def get_statusbar_right_text():
-    return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} {update_status.get_status()}"), ]
+    inbasket = INBASKET_CHAR if os.path.exists(inbasket_file) else ""
+    return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
 
 def openWithDefault(path):
     sys_platform = platform.system()
@@ -2422,24 +2425,41 @@ def toggle_pinned(*event):
 
 @bindings.add('f5')
 def do_import_file(*event):
+    inbasket = os.path.join(etmhome, "inbasket.text")
+    default = inbasket if os.path.exists(os.path.expanduser(inbasket)) else etmhome
+    # default = inbasket
     msg = ""
     def coroutine():
         global msg
         dialog = TextInputDialog(
             title='import file',
             completer=PathCompleter(expanduser=True),
-            label_text="""\
+            default=default,
+            label_text=f"""\
 It is possible to import data from files with
 one of the following extensions:
   .json  a json file exported from etm 3.2.x
   .text  a text file with etm entries as lines
   .ics   an iCalendar file
+
+Warning: files imported from the directory
+   {etmhome}
+will be removed after importing.
+
 Enter the path of the file to import:""")
 
         file_path = yield from show_dialog_as_float(dialog)
         if file_path:
+            file_path = os.path.normpath(os.path.expanduser(file_path))
             ok, msg = import_file(file_path)
             if ok:
+                etm_dir = os.path.normpath(os.path.expanduser(etmdir))
+
+                logger.debug(f"dirname {os.path.dirname(file_path)}; etm_dir: {etm_dir}; equal? {os.path.dirname(file_path) == etm_dir}")
+                if os.path.dirname(file_path) == etm_dir:
+                    os.remove(file_path)
+                    filehome = os.path.join("~", os.path.split(file_path)[1])
+                    msg += f"\n and removed {filehome}"
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
