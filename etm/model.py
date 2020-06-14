@@ -670,6 +670,7 @@ class Item(object):
         return True
 
 
+
     def schedule_new(self, doc_id, new_dt):
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
@@ -688,6 +689,7 @@ class Item(object):
             self.item_hsh['modified'] = pendulum.now('local')
             self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
         return changed
+
 
 
     def reschedule(self, doc_id, old_dt, new_dt):
@@ -2329,6 +2331,17 @@ class DataView(object):
         else:
             showing = f"All repetitions"
         return  showing, f"from {starting} for\n{details}:\n  " + "\n  ".join(pairs)
+
+    def touch(self, row):
+        res = self.get_row_details(row)
+        if not res:
+            return False, 'Touch failed'
+        doc_id, instance, job_id = res
+        now = pendulum.now('local')
+        item_hsh = self.db.get(doc_id=doc_id)
+        item_hsh['modified'] = pendulum.now('local')
+        self.db.update(replace(item_hsh), doc_ids=[doc_id])
+        return format_datetime(now)
 
 
     def maybe_finish(self, row):

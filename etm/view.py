@@ -2315,6 +2315,13 @@ def do_maybe_record_timer(*event):
     asyncio.ensure_future(coroutine())
 
 
+@bindings.add('V', filter=is_viewing_or_details & is_item_view)
+def do_touch(*event):
+    ok, msg = dataview.touch(text_area.document.cursor_position_row)
+    msg = f"Set last reviewed: {msg}" if ok else "Update failed: {msg}"
+    show_message('Update reviewed', msg)
+
+
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
 def do_finish(*event):
 
