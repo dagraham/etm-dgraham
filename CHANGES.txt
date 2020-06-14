@@ -1,3 +1,10 @@
+Recent tagged changes as of 2020-06-14T15:41:02.299809-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.5.7) Dan Graham
+    58f15423 2020-06-14 15:41:02 -0400
+    Tagged version 4.5.7. Implemented importing inbasket.text from the
+    etm directory with an alert to the existence of this file in the
+    status bar.
+
 - 2 days ago (tag: 4.5.6) Dan Graham
     c0e8fc08 2020-06-12 15:12:54 -0400
     Tagged version 4.5.6. Added a link-character to the displayed
@@ -106,9 +113,3 @@
     555910fd 2020-05-07 11:37:03 -0400
     Tagged version 4.3.2. Added option to update/modify reminders in
     query view. Added path completion to import file.
-
-- 6 weeks ago (tag: 4.3.1) Dan Graham
-    439cecea 2020-04-30 13:51:19 -0400
-    Tagged version 4.3.1. Added option to query the archive table.
-    Added option to manually archive items in normal views and to
-    unarchive in query view when showing items from the archive table.
