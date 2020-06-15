@@ -1865,6 +1865,7 @@ class DataView(object):
                 'r': 'records',
                 't': 'tags',
                 'u': 'used time',
+                'v': 'review',
                 'U': 'used time summary',
                 'x': 'used time expanded',
                 'y': 'yearly',
@@ -2116,6 +2117,9 @@ class DataView(object):
                 return f"Nothing recorded for {month_format}"
             self.used_summary_view = used_summary
             return self.used_summary_view
+        if self.active_view == 'review':
+            self.review_view, self.row2id = show_review(self.db, self.pinned_list, self.link_list)
+            return self.review_view
         if self.active_view == 'query':
             if self.query_text:
                 if len(self.query_text) > 1 and self.query_text[1] == ' ' and self.query_text[0] in ['s', 'u', 'm', 'c']:
@@ -2335,13 +2339,13 @@ class DataView(object):
     def touch(self, row):
         res = self.get_row_details(row)
         if not res:
-            return False, 'Touch failed'
+            return False
         doc_id, instance, job_id = res
         now = pendulum.now('local')
         item_hsh = self.db.get(doc_id=doc_id)
         item_hsh['modified'] = pendulum.now('local')
         self.db.update(replace(item_hsh), doc_ids=[doc_id])
-        return format_datetime(now)
+        return True
 
 
     def maybe_finish(self, row):
@@ -5076,6 +5080,68 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[]):
     try:
         rows.sort(key=itemgetter('sort'), reverse=reverse)
     except:
+        logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
+    rdict = RDict()
+    for row in rows:
+        path = row['path']
+        values = (
+                f"{row['columns'][0]} {row['columns'][1]}{row['columns'][2]}", row['columns'][3]
+                )
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    return tree, row2id
+
+
+def show_review(db, pinned_list=[], link_list=[]):
+    """
+    Unfinished, undated tasks and jobs
+    """
+    width = shutil.get_terminal_size()[0] - 2
+    rows = []
+    locations = set([])
+    summary_width = width - 18
+    for item in db:
+        id = item.doc_id
+        if item.get('itemtype', None) not in ['-'] or 's' in item or 'f' in item:
+            continue
+        location = item.get('l', '~')[:13]
+        summary = item['summary']
+        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+        if item.doc_id in pinned_list:
+            summary = (summary[:summary_width - 1] + PIN_CHAR).ljust(summary_width-1, ' ')
+        else:
+            summary = summary[:summary_width].ljust(summary_width, ' ')
+        modified = item['modified'] if 'modified' in item else item['created']
+
+        year = modified.format("YYYY")
+        monthday = modified.format("MMM D")
+        time = fmt_time(modified)
+        dtfmt = f"{monthday} {time}"
+        weeks = (pendulum.now() - modified).days // 7
+        logger.debug(f"weeks 0: {weeks == 0}; 1: {weeks == 1}; >1: {weeks > 1}")
+        if weeks == 0:
+            wkfmt = "this week"
+        elif weeks == 1:
+            wkfmt = "last week"
+        else:
+            wkfmt = f"{weeks} weeks ago"
+        rows.append(
+                {
+                    'id': item.doc_id,
+                    'path': wkfmt,
+                    'job': None,
+                    'instance': None,
+                    'sort': (modified),
+                    'columns': [item['itemtype'],
+                        summary,
+                        location,
+                        id,
+                        ]
+                }
+                )
+    try:
+        rows.sort(key=itemgetter('sort'), reverse=False)
+    except Exception as e:
         logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
     rdict = RDict()
     for row in rows:
