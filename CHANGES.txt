@@ -1,42 +1,47 @@
-Recent tagged changes as of 2020-06-14T15:41:02.299809-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.5.7) Dan Graham
+Recent tagged changes as of 2020-06-15T10:21:17.771120-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.5.8) Dan Graham
+    415423bb 2020-06-15 10:21:17 -0400
+    Tagged version 4.5.8. Add view for reviewing undated and
+    unfinished tasks.
+
+- 19 hours ago (tag: 4.5.7) Dan Graham
     58f15423 2020-06-14 15:41:02 -0400
     Tagged version 4.5.7. Implemented importing inbasket.text from the
     etm directory with an alert to the existence of this file in the
     status bar.
 
-- 2 days ago (tag: 4.5.6) Dan Graham
+- 3 days ago (tag: 4.5.6) Dan Graham
     c0e8fc08 2020-06-12 15:12:54 -0400
     Tagged version 4.5.6. Added a link-character to the displayed
     summary of reminders with an @g entry. Report failures when
     activating @g links.
 
-- 4 days ago (tag: 4.5.5) Dan Graham
+- 5 days ago (tag: 4.5.5) Dan Graham
     e701c43f 2020-06-10 15:39:12 -0400
     Tagged version 4.5.5. Added option to automatically check for
     updates.
 
-- 6 days ago (tag: 4.5.3) Dan Graham
+- 7 days ago (tag: 4.5.3) Dan Graham
     4a6a48a1 2020-06-08 08:53:57 -0400
     Tagged version 4.5.3. Fail gracefully with unsupported locales.
 
-- 7 days ago (tag: 4.5.2) Dan Graham
+- 8 days ago (tag: 4.5.2) Dan Graham
     c9d80b6e 2020-06-07 14:07:41 -0400
     Tagged version 4.5.2. Bug fixes.
 
-- 10 days ago (tag: 4.5.1) Dan Graham
+- 11 days ago (tag: 4.5.1) Dan Graham
     fc10cfd5 2020-06-04 12:52:57 -0400
     Tagged version 4.5.1. Fixed bug in check_output.
 
-- 11 days ago (tag: 4.5.0) Dan Graham
+- 12 days ago (tag: 4.5.0) Dan Graham
     7e6d06fb 2020-06-03 10:22:04 -0400
     Tagged version 4.5.0. Merged sourcery.ai refactor.
 
-- 11 days ago (tag: post_sourcery) Dan Graham
+- 12 days ago (tag: post_sourcery) Dan Graham
     89c9d3c3 2020-06-03 09:15:33 -0400
     Merge branch 'sourcery' into working
 
-- 12 days ago (tag: pre_sourcery) Dan Graham
+- 13 days ago (tag: pre_sourcery) Dan Graham
     3b2f87ca 2020-06-02 16:38:13 -0400
     Squashed commit of the following:
 
@@ -104,12 +109,7 @@ Recent tagged changes as of 2020-06-14T15:41:02.299809-04:00:
     4592a3ce 2020-05-08 09:17:04 -0400
     Tagged version 4.4.1.
 
-- 5 weeks ago (tag: 4.4.0) Dan Graham
+- 6 weeks ago (tag: 4.4.0) Dan Graham
     e9ab0550 2020-05-07 13:11:48 -0400
     Tagged version 4.4.0. Added update commands to queries and file
     path completions when importing files.
-
-- 5 weeks ago (tag: 4.3.2) Dan Graham
-    555910fd 2020-05-07 11:37:03 -0400
-    Tagged version 4.3.2. Added option to update/modify reminders in
-    query view. Added path completion to import file.
