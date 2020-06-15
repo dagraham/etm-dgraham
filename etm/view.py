@@ -1382,7 +1382,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned', 'review']
 
 @Condition
 def is_dated_view():
@@ -2315,6 +2315,17 @@ def do_maybe_record_timer(*event):
     asyncio.ensure_future(coroutine())
 
 
+@bindings.add('V', filter=is_viewing_or_details & is_item_view)
+def do_touch(*event):
+    ok = dataview.touch(text_area.document.cursor_position_row)
+    if ok:
+        set_text(dataview.show_active_view())
+        loop = asyncio.get_event_loop()
+        loop.call_later(0, item_changed, loop)
+    else:
+        show_message('Update reviewed', "Update last-modified failed")
+
+
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
 def do_finish(*event):
 
@@ -2599,6 +2610,12 @@ def records_view(*event):
     item.use_items()
     set_text(dataview.show_active_view())
 
+@bindings.add('v', filter=is_viewing)
+def review_view(*event):
+    dataview.set_active_view('v')
+    item.use_items()
+    set_text(dataview.show_active_view())
+
 @bindings.add('t', filter=is_viewing)
 def tag_view(*event):
     dataview.set_active_view('t')
@@ -2753,6 +2770,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
+        MenuItem('v) review', handler=review_view),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
         MenuItem('y) half yearly calendar', handler=yearly_view),
