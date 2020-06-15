@@ -21,6 +21,7 @@ This is the etm user manual. Further information about etm is available at [gith
             -   [Complex queries](#complex-queries)
             -   [Command History](#command-history)
             -   [Saved Queries](#saved-queries)
+		-   [Review View](#review-view)
         -   [Used Time Views](#used-time-views)
         -   [Common Features](#common-features)
     -   [Menus](#menus)
@@ -451,6 +452,13 @@ would display reminders with @u elements but not an @i element.
 
 Simple queries of this type produce a list of matching items with the itemtype, summary and id displayed and sorted by id, i.e., by the order created. It is also possible to create more complex queries in which the output is displayed heirarchially using a format determined by the query parameters. Enter `?` or `help` at the prompt to get this detailed usage information:
 
+### Review View
+
+Displays a list of the summaries and location/contexts (@l entries) of undated and unfinished tasks sorted by their (last) modified timestamp and grouped by the number of weeks since last modified. 
+
+This view is used for a periodic review of such "todos" with the goal of not letting them 'slip through the cracks'. Either editing a task or pressing "V" with the task selected resets the modified timestamp to the current time and thus moves the task to the "this week" group at the bottom of the list. 
+
+A reasonable work flow would be to open this view once every week or so and examine tasks more than a week "old", editing them when necessary and otherwise updating the modified timestamp using "V" so that all tasks are kept within the 'last week' or 'this week' groups. 
 
 #### Simple queries
 
@@ -956,7 +964,7 @@ While the views differ in many respects, they also share some common aspects:
     * In the weekly views a),  b) and c), press “j” and enter a date to display the week containing that date.
     * In the dated views a), b), c), u), U) and y), press the right or left cursor keys to go  to the next or previous period, respectively, and the space bar to return to the current period.
 * Search.
-    * Press “/“ (forward slash) and enter an expression to search the view for a row whose content contains (case insensitive) the expression.
+    * Press “/“ (or "?") and enter an expression to search the view forward (or backward) for a row whose content contains (case insensitive) the expression.
 	* While entering the search expression, push the `up` or `down` cursor keys to change the direction of search.
     * After entering the search expression, press “n” to search (cyclically) for other matches in the direction specified.
 	* Once a search is initiated, it remains active in all views with matches highlighted. To remove the highlighting, search for something not likely to be matched such as 3 consecutive commas.
@@ -991,6 +999,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         t) tags
         u) used time
         U) used time summary
+		v) review
         ---
         s) scheduled alerts for today
         y) half yearly calendar
