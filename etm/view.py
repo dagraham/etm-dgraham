@@ -2348,7 +2348,11 @@ def do_finish(*event):
         done_str = yield from show_dialog_as_float(dialog)
         if done_str:
             try:
-                done = pendulum.parse(done_str, strict=False, tz='local')
+
+                logger.debug(f"done_str: {done_str}")
+                # done = parse_datetime(done_str, tz='local')
+                done = pendulum.now(tz='local') if done_str.strip() == 'now' else parse_datetime(done_str, z='local')[1]
+
                 logger.debug(f"done: {done}; {type(done)}")
                 ok = True
             except:

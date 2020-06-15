@@ -1420,14 +1420,20 @@ def parse_datetime(s, z=None):
 
     if not s:
         return False, '', z
+
     try:
         logger.debug(f"tzinfo: {tzinfo}")
-        res = parse(s, tzinfo=tzinfo)
-        # res = parse(s)
+        if relative_regex.match(s.lstrip()):
+            yes, dur = parse_duration(s)
+        else:
+            yes = False
+            dur = ZERO
+        res = pendulum.now(tz=tzinfo) + dur if yes else parse(s, tzinfo=tzinfo)
         logger.debug(f"s: {s} -> res: {res}")
     except Exception as e:
         return False, f"'{s}' is incomplete or invalid: {e}", z
     else:
+        logger.debug(f"tzinfo: {tzinfo}; z: {z}")
         if tzinfo in ['local', 'float'] and (
             res.hour,
             res.minute,
@@ -1635,6 +1641,7 @@ def format_duration_list(obj_lst):
 
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhmM]))+?')
+relative_regex = re.compile(r'(([+-])(\d+)([wdhmM]))+?')
 threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
 
