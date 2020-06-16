@@ -2118,13 +2118,14 @@ def do_reschedule(*event):
     if instance is None and 's' in hsh:
         instance = hsh['s']
 
-    # date_required = isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime)
+    is_date = (isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime))
 
-    date_required = instance.hour == 0 and instance.minute == 0
+    logger.debug(f"instance: {instance}; type: {type(instance)}")
+    date_required = is_date or (instance.hour == 0 and instance.minute == 0)
 
-    instance = pendulum.instance(instance)
+    # instance = pendulum.instance(instance)
 
-    instance = instance.date() if date_required else instance
+    instance = instance.date() if date_required and not is_date else instance
     logger.debug(f"date_required: {date_required}; instance: {instance}; type: {type(instance)}")
     new = "new date" if date_required else "new datetime"
 
@@ -2138,15 +2139,13 @@ def do_reschedule(*event):
         if not new_datetime:
             return
         changed = False
-        # ok, dt, z = parse_datetime(new_datetime)
         try:
-            dt = pendulum.parse(new_datetime, strict=False, tz='local')
+            dt = parse_datetime(new_datetime, z='local')[1]
             ok = True
         except:
             ok = False
 
         if ok:
-            dt = dt.date() if date_required else dt
             changed = item.reschedule(doc_id, instance, dt)
         else:
             show_message('new instance', f"'{new_datetime}' is invalid")
@@ -2158,7 +2157,6 @@ def do_reschedule(*event):
             set_text(dataview.show_active_view())
             loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
-
 
     asyncio.ensure_future(coroutine())
 
@@ -2348,10 +2346,9 @@ def do_finish(*event):
         done_str = yield from show_dialog_as_float(dialog)
         if done_str:
             try:
-
                 logger.debug(f"done_str: {done_str}")
                 # done = parse_datetime(done_str, tz='local')
-                done = pendulum.now(tz='local') if done_str.strip() == 'now' else parse_datetime(done_str, z='local')[1]
+                done = parse_datetime(done_str, z='local')[1]
 
                 logger.debug(f"done: {done}; {type(done)}")
                 ok = True

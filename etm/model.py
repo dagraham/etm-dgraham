@@ -1423,13 +1423,37 @@ def parse_datetime(s, z=None):
 
     try:
         logger.debug(f"tzinfo: {tzinfo}")
-        if relative_regex.match(s.lstrip()):
-            yes, dur = parse_duration(s)
+        s = s.strip()
+        if s == 'now':
+            return True, pendulum.now(tz=tzinfo), z
+
+        dt_str = ''
+        dur_str = ''
+        dt_and_dur_regex = re.compile(r'^(.+)\s+([+-].+)?$')
+        days_or_more_regex = re.compile(r'[dwM]')
+        g = dt_and_dur_regex.match(s)
+        if g:
+            # we have dt and dur strings
+            dt_str = g.group(1)
+            dur_str = g.group(2)
+        elif s[0] in ['+', '-']:
+            # must be a dur string
+            dur_str = s
         else:
-            yes = False
-            dur = ZERO
-        res = pendulum.now(tz=tzinfo) + dur if yes else parse(s, tzinfo=tzinfo)
+            # must be a dt string
+            dt_str = s
+
+        if dt_str:
+            dt = parse(dt_str, tzinfo=tzinfo)
+        else:
+            dt = pendulum.now(tz=tzinfo)
+            if dur_str and re.search(r'[dwM]', dur_str):
+                dt = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        dur = parse_duration(dur_str)[1] if dur_str else ZERO
+        res = dt + dur
         logger.debug(f"s: {s} -> res: {res}")
+
     except Exception as e:
         return False, f"'{s}' is incomplete or invalid: {e}", z
     else:
