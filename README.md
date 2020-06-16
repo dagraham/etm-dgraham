@@ -8,7 +8,8 @@ This is the etm user manual. Further information about etm is available at [gith
         -   [text entry versus forms](#text-entry-versus-forms)
         -   [unobtrusive and timely entry assistance](#unobtrusive-and-timely-entry-assistance)
             -   [just in time entry prompts and feedback](#just-in-time-entry-prompts-and-feedback)
-            -   [Fuzzy parsing of datetimes](#fuzzy-parsing-of-datetimes)
+            -   [fuzzy parsing of datetimes](#fuzzy-parsing-of-datetimes)
+			-   [relative datetimes](#relative-datetimes)
             -   [tab completion](#tab-completion)
     -   [Views](#views)
         -   [Weekly Views](#weekly-views)
@@ -279,7 +280,7 @@ General observations:
 * The prompts provide "just in time" information relevant to the entry you are typing and need only be consulted if you are uncertain about your entry. With a little experience, most reminders can be completed without a glance at the prompt.
 
 
-#### Fuzzy parsing of datetimes
+#### fuzzy parsing of datetimes
 
 Whenever *etm* expects a datetime entry as, for example, when you are entering an `@s` starting datetime, it applies fuzzy parsing to your entry.  Suppose it is Dec 17 2019, your computer is in the Eastern timezone and you have just entered `@s` for your lunch event
 
@@ -368,6 +369,30 @@ probably, one based on a different timezone and that requires the addition
 of the `@z` and timezone. Still less probably, one that floats and this
 requires the addition of the `@z` and 'float'.
 
+#### relative datetimes
+
+Relative datetimes can be entered using period strings either instead of or in 
+addition to datetimes using the format:
+
+    [datetime] [period string]
+
+Either the datetime or the period string is required but both are 
+allowed. The period string must begin with either a plus or a minus 
+sign.
+
+If the datetime is omitted and
+* the period string involves d (days), w (weeks) or M (months),
+       then the assumed datetime is the current date, 
+* the period string involves only h (hours) or m (minutes),
+       then the assumed datetime is the current time
+
+Examples supposing it is currently 1:20pm on July 15:
+
+	+1h30m     => 2:50pm on July 15
+	+3d        => July 18
+	8a         => 8am on July 15
+	8a +1h30m  => 9:30am on July 15
+	8a +3d     => 8am on July 18
 
 #### tab completion
 
