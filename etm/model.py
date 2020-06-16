@@ -1202,6 +1202,7 @@ class Item(object):
             rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
         else:
             rep = res
+        logger.debug(f"obj: {obj}; rep: {rep}")
         return obj, rep
 
     def do_datetimes(self, args):
@@ -1478,8 +1479,10 @@ def timestamp(arg):
     >>> timestamp("13/16/16 2p")
     (False, 'invalid time-stamp: 13/16/16 2p')
     """
-    if type(arg) is pendulum.DateTime:
+    if isinstance(arg, pendulum.DateTime):
         return True, arg
+    elif isinstance(arg, pendulum.Date):
+        return True, date_to_datetime(arg)
     try:
         # res = parse(arg).strftime(ETMFMT)
         res = parse(arg)
@@ -5675,7 +5678,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 for dt in item['h']:
                     d.append([dt, summary, item.doc_id, None])
             if 'j' in item:
-                logger.debug(f"item['j']: {item['j']}")
+                # logger.debug(f"item['j']: {item['j']}")
                 for job in item['j']:
                     job_summary = summary_pin(job.get('summary', ''), summary_width, item.doc_id, pinned_list, link_list)
                     if 'f' in job:
