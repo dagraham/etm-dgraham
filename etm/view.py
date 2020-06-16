@@ -79,9 +79,9 @@ COMMAND_DETAILS = """\
   field begins with a match for the case insensitve
   regular expression RGX.
 
-* includes field RGX: return items in which the value of
-  field includes a match for the case insensitive
-  regular expression RGX.
+* includes LST RGX: return items in which the value of
+  one of the fields in LST includes a match for the case
+  insensitive regular expression RGX.
 
 * equals field VAL: return items in which the value of
   field == VAL
@@ -240,10 +240,10 @@ Note: in the world of regular expressions '\s' matches
 any white space character, including a space.
 
 Components can be joined the using "or" or "and". E.g.,
-find reminders where either the summary or the entry for
-@d (description) includes "waldo":
+find reminders where the summary entry contains a match
+for "waldo" but the @d (description) entry does not:
 
-    query: includes summary waldo or includes d waldo
+    query: includes summary waldo and ~includes d waldo
 
 Archive queries
 ===============
@@ -805,8 +805,14 @@ class ETMQuery(object):
         return where(a).matches(b, flags=re.IGNORECASE)
 
     def includes(self, a, b):
-        # the value of field 'a' includes the case-insensitive regex 'b'
-        return where(a).search(b, flags=re.IGNORECASE)
+        # the value of one of the fields in 'a' includes the case-insensitive regex 'b'
+        if not isinstance(a, list):
+            a = [a]
+        res = [where(field).search(b, flags=re.IGNORECASE) for field in a]
+        test = res.pop(0)
+        for i in range(len(res)):
+            test = test | res[i]
+        return test
 
     def equals(self, a, b):
         # the value of field 'a' equals 'b'
@@ -917,10 +923,18 @@ class ETMQuery(object):
                     return False, wrap(f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed.""")
 
             if len(part) > 3:
-                if negation:
-                    cmnds.append(~ self.filters[part[0]](part[1], [x.strip() for x in part[2:]]))
+                if part[0] == 'includes':
+                    logger.debug(f"0: {part[0]}; 1: {part[1:-1]}; 2: {part[-1]}")
+                    if negation:
+                        cmnds.append(~ self.filters[part[0]]([x.strip() for x in part[1:-1]], part[-1]))
+                    else:
+                        cmnds.append(self.filters[part[0]]([x.strip() for x in part[1:-1]], part[-1]))
                 else:
-                    cmnds.append(self.filters[part[0]](part[1], [x.strip() for x in part[2:]]))
+                    if negation:
+                        cmnds.append(~ self.filters[part[0]](part[1], [x.strip() for x in part[2:]]))
+                    else:
+                        logger.debug(f"0: {part[0]}; 1: {part[1]}; 2: {part[2:]}")
+                        cmnds.append(self.filters[part[0]](part[1], [x.strip() for x in part[2:]]))
             elif len(part) > 2:
                 if negation:
                     cmnds.append(~ self.filters[part[0]](part[1], part[2]))

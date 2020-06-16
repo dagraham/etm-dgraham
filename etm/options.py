@@ -255,6 +255,10 @@ queries:
     mi: exists u and ~exists i
   # all archived items
     arch: a exists itemtype
+  # items in which either the summary or the @d description
+  # contains a match for a RGX (to be appended when executing
+  # the query)
+    find: includes summary d
 
 # style: dark or light. Designed for, respectively, dark or
 # light terminal backgounds. Some output may not be visible

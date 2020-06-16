@@ -1444,7 +1444,7 @@ def parse_datetime(s, z=None):
             dt_str = s
 
         if dt_str:
-            dt = parse(dt_str, tzinfo=tzinfo)
+            dt = pendulum.now(tz=tzinfo) if dt_str.strip() == 'now' else parse(dt_str, tzinfo=tzinfo)
         else:
             dt = pendulum.now(tz=tzinfo)
             if dur_str and re.search(r'[dwM]', dur_str):

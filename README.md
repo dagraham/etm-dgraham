@@ -1,6 +1,9 @@
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" />
 
-This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/etm-dgraham) and in [files](https://groups.io/g/etm/files/) in the discussion group at [groups.io](https://groups.io/g/etm).
+This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/etm-dgraham) and in [files](https://groups.io/g/etm/files/). 
+
+Please consider joining the etm discussion group at [groups.io](https://groups.io/g/etm).
+
 # Contents
 -   [Overview](#overview)
     -   [Reminders](#reminders)
@@ -13,6 +16,7 @@ This is the etm user manual. Further information about etm is available at [gith
             -   [tab completion](#tab-completion)
     -   [Views](#views)
         -   [Weekly Views](#weekly-views)
+        -   [Review View](#review-view)
         -   [Pinned View](#pinned-view)
         -   [Query View](#query-view)
             -   [Simple queries](#simple-queries)
@@ -22,7 +26,6 @@ This is the etm user manual. Further information about etm is available at [gith
             -   [Complex queries](#complex-queries)
             -   [Command History](#command-history)
             -   [Saved Queries](#saved-queries)
-		-   [Review View](#review-view)
         -   [Used Time Views](#used-time-views)
         -   [Common Features](#common-features)
     -   [Menus](#menus)
@@ -44,12 +47,12 @@ This is the etm user manual. Further information about etm is available at [gith
             -   [waiting](#waiting)
             -   [finished](#finished)
     -   [Options](#options)
-        -   [@ keys](#keys)
-        -   [& keys](#keys-1)
+        -   [@ keys](#atkeys)
+        -   [& keys](#ampkeys)
     -   [Notes](#notes)
-        -   [alerts and beginbys](#alerts-and-beginbys)
+        -   [notices](#notices)
         -   [repetition](#repetition)
-        -   [archived reminders](#archived-reminders)
+        -   [archived reminders](#archivedg-reminders)
         -   [configuration](#configuration)
         -   [data storage](#data-storage)
 
@@ -369,6 +372,17 @@ probably, one based on a different timezone and that requires the addition
 of the `@z` and timezone. Still less probably, one that floats and this
 requires the addition of the `@z` and 'float'.
 
+Note: When entering dates, `.`, `-` or `/` can be used to separate the components.
+The interpretation of the date depends upon the 'dayfirst' and 'yearfirst' settings
+in the etm configuration file - see [configuration](#configuration) for details
+about these settings. For example, with both dayfirst and yearfirst false, 
+
+	6/1 => June 1 in the current year
+
+but after changing dayfirst to true
+
+	6/1 => January 6 in the current year
+
 #### relative datetimes
 
 Relative datetimes can be entered using period strings either instead of or in 
@@ -455,6 +469,14 @@ And, on the current day only:
 * *<* pastdue warnings in descending order of the number of days past due
 * *>* beginby warnings in ascending order of the number of days remaining
 
+### Review View
+
+Displays a list of the summaries and location/contexts (@l entries) of undated and unfinished tasks sorted by their (last) modified timestamp and grouped by the number of weeks since last modified. 
+
+This view is used for a periodic review of such "todos" with the goal of not letting them 'slip through the cracks'. Either editing a task or pressing "V" with the task selected resets the modified timestamp to the current time and thus moves the task to the "this week" group at the bottom of the list. 
+
+A reasonable work flow would be to open this view once every week or so and examine tasks more than a week "old", editing them when necessary and otherwise updating the modified timestamp using "V" so that all tasks are kept within the 'last week' or 'this week' groups. 
+
 ### Pinned View
 
 Items that have been "pinned" (have their pin status toggled on) are displayed in *pinned view* grouped by itemtype and sorted by the created/modified datetime. 
@@ -477,14 +499,6 @@ would display reminders with @u elements but not an @i element.
 
 Simple queries of this type produce a list of matching items with the itemtype, summary and id displayed and sorted by id, i.e., by the order created. It is also possible to create more complex queries in which the output is displayed heirarchially using a format determined by the query parameters. Enter `?` or `help` at the prompt to get this detailed usage information:
 
-### Review View
-
-Displays a list of the summaries and location/contexts (@l entries) of undated and unfinished tasks sorted by their (last) modified timestamp and grouped by the number of weeks since last modified. 
-
-This view is used for a periodic review of such "todos" with the goal of not letting them 'slip through the cracks'. Either editing a task or pressing "V" with the task selected resets the modified timestamp to the current time and thus moves the task to the "this week" group at the bottom of the list. 
-
-A reasonable work flow would be to open this view once every week or so and examine tasks more than a week "old", editing them when necessary and otherwise updating the modified timestamp using "V" so that all tasks are kept within the 'last week' or 'this week' groups. 
-
 #### Simple queries
 
 Return a list of items displaying the itemtype, summary
@@ -502,9 +516,9 @@ examples):
   field begins with a match for the case insensitve
   regular expression RGX.
 
-* includes field RGX: return items in which the value of
-  field includes a match for the case insensitive
-  regular expression RGX.
+* includes LST RGX: return items in which the value of
+  one of the fields in LST includes a match for the case
+  insensitive regular expression RGX. 
 
 * equals field VAL: return items in which the value of
   field == VAL
@@ -579,6 +593,11 @@ reminders where the summary does not include a match for
 To enter a list of values for "arg", simply separate the
 components with spaces. E.g.,
 
+	query: includes summary d waldo
+
+would return items in which either the summary or d
+(@d description) contains a match for "waldo". Similarly
+
     query: all t blue green
 
 would return items with both blue and green tags or
@@ -606,10 +625,10 @@ Note: in the world of regular expressions '\s' matches
 any white space character, including a space.
 
 Components can be joined the using "or" or "and". E.g.,
-find reminders where either the summary or the entry for
-@d (description) includes "waldo":
+find reminders where the summary entry contains a match
+for "waldo" but the @d (description) entry does not:
 
-    query: includes summary waldo or includes d waldo
+    query: includes summary waldo and ~includes d waldo
 
 #### Archive queries
 
@@ -1000,7 +1019,7 @@ While the views differ in many respects, they also share some common aspects:
 Pressing F1 toggles the *etm* menu display - opening it if it is closed and closing it if it is open. There are four menu tabs labeled *etm*, *view*, *editor* and *selected* with the options listed below:
 
     etm
-	    F1) activate/close menu
+		F1) activate/close menu
         F2) about etm
         F3) system info
         F4) check for updates
@@ -1338,8 +1357,9 @@ Notes:
 
 	@t red  @t green
 
-
-### @ keys
+<h3 id="atkeys">
+@ keys
+</h3>
 
 `@` followed by a character from the list below and a value appropriate to the key is used to apply attributes to an item. E.g.,
 
@@ -1372,8 +1392,9 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @x*: expansion. string
 *  @z: timezone. string. A timezone specification, such as 'US/Eastern' or 'Europe/Paris' for aware datetimes or 'float', to indicate a naive or floating datetime. Datetime entries in the item are interpreted as belonging to the specified timezone when the entry is saved. The current timezone is the default when @z is not specified. Aware datetimes are converted to UTC (coordinated universal time) when stored and the @z entry, now irrelevant, is discarded.
 
-
-### & keys
+<h3 id="ampkeys">
+& keys
+</h3>
 
 & followed by a character from one of the lists below. These keys are only used with @j (job) and @r (repetition) entries.
 
@@ -1408,9 +1429,11 @@ For use with @r:
 
 ## Notes
 
-### alerts and beginbys
+### notices
 
-* A link character, ‡, is appended to the displayed summary of any reminder with an `@g` goto link.
+* A link character, ‡, is appended to the displayed summary of any reminder with an `@g` goto link. Press `^g` with such a reminder selected to have the operating system open the link using the default application. E.g. if the link is a URL, then it would be opened using the default browser.
+* An in-basket character, ⓘ , is appended to the right end of the status bar when a file named 'inbasket.text' is found in the etm root directory. This file should contain lines containing etm reminder entries - one on each line. It can be imported using the import file command bound to F5. 
+* An update available character, ⓤ , is appended to the right end of the status bar when checking for updates is enabled and a later version of etm is available. Details for enabling checking for updates are in [configuration](#configuration). 
 * Alerts and beginbys can be added to any reminder with an `@s` start date/time entry. Alerts require a datetime in `@s`; beginbys also allow a date in `@s`.
 * A beginby is specified by adding `@b n` to a reminder where `n` is a positive integer and is interpreted as a number of days. A reminder with such an entry will be displayed in *agenda view* on the current date provided that the current date is no more than `n` days before the start date/time of the reminder. Such a warning will appear n days before, n-1 days before and so forth until 1 day before the starting date/time of the reminder. The warning displays the type character `>`, the summary of the reminder and the number of days remaining.
 * An alert is specified by adding `@a <list of time periods>: <list of commands>` to a reminder. The time periods must be given in the usual etm format, e.g., `1h13m` for one hour and 13 minutes. The commands are single alphabetic characters, e.g., `a`, `b` and such. The commands used must either be `e` (email) or `t` (text) or be specified in the `alerts` section of the `cfg.yaml` file in your etm home directory. See [configuration](#configuration) for details about this file. Basically, it associates a command, such as `v` with a shell command to be invoked when an alert that includes `v` is triggered. E.g., the alert
@@ -1503,7 +1526,7 @@ There are two ways to archive a reminder:
 * Automatically. If 'archive_after' in the configuration settings is set to a positive integer, then tasks with finished datetimes and events with last datetimes more than this number of years before the current date will be achived automatically at the beginning of each new day. Note that unfinshed tasks, records and inbox reminders are never automatically archived.
 * Manually. Select a reminder and press `^x` (control and x) to archive it.
 
-There is only one way to un-archive a reminder. Run a query beinging with 'a' in *query* view to use the archive table, select a reminder and press `^x`. This will un-archive the reminder, i.e., move it back to the *items* table.
+There is only one way to un-archive a reminder. Run a query beginning with 'a' in *query* view to use the archive table, select a reminder and press `^x`. This will un-archive the reminder, i.e., move it back to the *items* table.
 
 ### configuration
 
@@ -1547,6 +1570,9 @@ Here are the options with their default values from that file. The lines beginni
 	#       DD-MM-YY
 	#       MM-DD-YY
 	#
+	# E.g., with both false, '6/1' gives June 1 in the current
+	# year but after changing dayfirst to true, '6/1' would give
+	# January 6 in the current year.
 	yearfirst: false
 	dayfirst: false
 
@@ -1710,7 +1736,13 @@ Here are the options with their default values from that file. The lines beginni
 	  # composite by i[:1], month and i[1:2] with u and d
 	  ct: c i[:1]; MMM YYYY; i[1:2] -a u, d
 	  # items with u but missing the needed i
-	  mi: exists u and ~exists i
+	  mi: exists u and ~exists i 
+	  # all archived items
+	  arch: a exists itemtype
+	  # items in which either the summary or the @d description
+	  # contains a match for a RGX (to be appended when executing
+	  # the query)
+	  find: includes summary d
 
 	# style: dark or light. Designed for, respectively, dark or
 	# light terminal backgounds. Some output may not be visible
@@ -1755,7 +1787,7 @@ Here are the options with their default values from that file. The lines beginni
 Note that in the 'dictionary' entries above, the components must be indented. E.g., the illustrative alert entry would be:
 
 	alerts:
-	    v: /usr/bin/say -v "Alex" "{summary}, {when}"
+		v: /usr/bin/say -v "Alex" "{summary}, {when}"
 
 
 ### data storage
