@@ -1491,34 +1491,6 @@ def timestamp(arg):
     return True, res
 
 
-def timestamp_list(arg, typ=None):
-    if type(arg) == str:
-        try:
-            args = [x.strip() for x in arg.split(",")]
-        except:
-            return False, '{}'.format(arg)
-    elif type(arg) == list:
-        try:
-            args = [str(x).strip() for x in arg]
-        except:
-            return False, '{}'.format(arg)
-    else:
-        return False, '{}'.format(arg)
-
-    tmp = []
-    msg = []
-    for p in args:
-        ok, res = format_datetime(p, typ)
-        if ok:
-            tmp.append(res)
-        else:
-            msg.append(res)
-    if msg:
-        return False, "{}".format(", ".join(msg))
-    else:
-        return True, tmp
-
-
 def plain_datetime(obj):
     return format_datetime(obj, short=True)
 

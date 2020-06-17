@@ -2668,10 +2668,6 @@ def prevcal(*event):
     dataview.prevcal()
     set_text(dataview.show_active_view())
 
-@bindings.add('space', filter=is_yearly_view & is_viewing)
-def currcal(*event):
-    dataview.currcal()
-    set_text(dataview.show_active_view())
 
 @bindings.add('right', filter=is_used_view & is_viewing)
 def nextcal(*event):
