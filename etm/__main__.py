@@ -199,31 +199,33 @@ def inbasket():
     import sys
     import os
     typechar = '!' # inbasket
-    option = '@t etm_in'
+    option = '@t etm+'
 
     help = f"""\
-    usage: etm+ [text]          use text
-       or: etm_in               get text from stdin
-       or: etm_in ['?'|'help']  print this usage information
+usage: etm+ [text]          use text
+   or: etm+                 get text from stdin
+   or: etm+ ['?'|'help']    print this usage information
 
-    With this script in your path and made executable and with the
-    environmental variable ETMHOME set to your etm root directory, text
-    either piped to this script or provided as arguments will be
-    appended to 'inbasket.text' in the ETMHOME directory. When this file
-    exists, etm will display an ⓘ character at the right end of status
-    bar alerting you that this file is available for import by pressing
-    F5.
+With the environmental variable ETMHOME set to your etm
+root directory, text either piped to this script or
+provided as arguments will be appended to 'inbasket.text'
+in the ETMHOME directory. When this file exists, etm will
+display an ⓘ character at the right end of status bar
+alerting you that this file is available for import by
+pressing F5.
 
-    If the text provided to this script does not begin with an etm
-    typechar in  -, *, % or !, then the default typechar '{typechar}'
-    will be used. If the provided string does not contain any @-key
-    options, then '{option}' will be appended.
+If the text provided to this script does not begin with an
+etm typechar in  -, *, % or !, then the default typechar
+'{typechar}' will be used. If the provided string does not
+contain any @-key options, then '{option}' will be
+appended.
 
-    If the inbox typechar '!' is used then after importing, the reminder
-    will appear as an 'inbox' item requiring your attention in the list
-    for the current day in agenda view. This may be especially advantageous
-    when the text is piped to this script and may require editing.
-    """
+If the inbox typechar '!' is used then after importing,
+the reminder will appear as an 'inbox' item requiring your
+attention in the list for the current day in agenda view.
+This may be especially useful in composing quick notes with
+the assurance that you will be reminded to sort them out
+later. """
 
     etmhome = os.environ.get("ETMHOME")
     if not etmhome:
