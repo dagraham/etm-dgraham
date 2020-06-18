@@ -1,5 +1,10 @@
-Recent tagged changes as of 2020-06-18T09:19:31.999294-04:00:
-- 1 second ago (HEAD -> working, tag: 4.5.10rc0) Dan Graham
+Recent tagged changes as of 2020-06-18T09:24:19.751364-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.5.11) Dan Graham
+    333b353b 2020-06-18 09:24:19 -0400
+    Tagged version 4.5.11. Test addition of etm+ to console_scripts
+    entry points.
+
+- 5 minutes ago (tag: 4.5.10rc0) Dan Graham
     6d762d63 2020-06-18 09:19:31 -0400
     Tagged version 4.5.10rc0. Test addition of etm+ to console_scripts
     entry points.
@@ -110,8 +115,3 @@ Recent tagged changes as of 2020-06-18T09:19:31.999294-04:00:
     e657d7fc 2020-05-22 10:41:52 -0400
     Tagged version 4.4.4. Fixed bug in processing prerequisites for
     jobs.
-
-- 5 weeks ago (tag: 4.4.3) Dan Graham
-    22bb8dee 2020-05-13 11:47:53 -0400
-    Tagged version 4.4.3. Fixed bug in date specifications for
-    usedtime queries. README updates.
