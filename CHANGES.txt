@@ -1,15 +1,20 @@
-Recent tagged changes as of 2020-06-18T09:24:19.751364-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.5.11) Dan Graham
+Recent tagged changes as of 2020-06-18T17:42:36.869196-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.5.12) Dan Graham
+    1054a7cc 2020-06-18 17:42:36 -0400
+    Tagged version 4.5.12. Fully implemented etm+ into the etm
+    installation.
+
+- 8 hours ago (tag: 4.5.11) Dan Graham
     333b353b 2020-06-18 09:24:19 -0400
     Tagged version 4.5.11. Test addition of etm+ to console_scripts
     entry points.
 
-- 5 minutes ago (tag: 4.5.10rc0) Dan Graham
+- 8 hours ago (tag: 4.5.10rc0) Dan Graham
     6d762d63 2020-06-18 09:19:31 -0400
     Tagged version 4.5.10rc0. Test addition of etm+ to console_scripts
     entry points.
 
-- 24 hours ago (tag: 4.5.10) Dan Graham
+- 32 hours ago (tag: 4.5.10) Dan Graham
     e9b4a08d 2020-06-17 09:35:46 -0400
     Tagged version 4.5.10. In queries, take all but the last argument
     to includes to be fields in which to find matches for the last
@@ -110,8 +115,3 @@ Recent tagged changes as of 2020-06-18T09:24:19.751364-04:00:
     f2c2a5ec 2020-05-22 12:52:25 -0400
     Tagged version 4.4.5. Allow auto regeneration of job ids and
     prereqs by removing the &i and &p entries from the first job.
-
-- 4 weeks ago (tag: 4.4.4) Dan Graham
-    e657d7fc 2020-05-22 10:41:52 -0400
-    Tagged version 4.4.4. Fixed bug in processing prerequisites for
-    jobs.
