@@ -1903,6 +1903,10 @@ class DataView(object):
             self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
         else:
             self.currfile = None
+        if 'keep_next' in self.settings and self.settings['keep_next']:
+            self.nextfile = os.path.normpath(os.path.join(etmdir, 'next.txt'))
+        else:
+            self.nextfile = None
 
         if 'locale' in self.settings:
             locale_str = settings['locale']
@@ -2203,23 +2207,27 @@ class DataView(object):
         """
         Agenda for the current and following 2 weeks
         """
-        if self.currfile is None:
-            return
+        if self.currfile is not None:
+            weeks = []
+            this_week = getWeekNum(self.now)
+            for i in range(self.settings['keep_current']):
+                weeks.append(this_week)
+                this_week = nextWeek(this_week)
+            current = []
+            for week in weeks:
+                if week not in self.cache:
+                    self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list= self.link_list))
+                agenda, done, busy, num2id, row2id = self.cache[week]
+                current.append(agenda)
+            with open(self.currfile, 'w') as fo:
+                fo.write("\n\n".join([x.lstrip() for x in current]))
+            logger.info(f"saved current schedule to {self.currfile}")
 
-        weeks = []
-        this_week = getWeekNum(self.now)
-        for i in range(self.settings['keep_current']):
-            weeks.append(this_week)
-            this_week = nextWeek(this_week)
-        current = []
-        for week in weeks:
-            if week not in self.cache:
-                self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list= self.link_list))
-            agenda, done, busy, num2id, row2id = self.cache[week]
-            current.append(agenda)
-        with open(self.currfile, 'w') as fo:
-            fo.write("\n\n".join([x.lstrip() for x in current]))
-        logger.info(f"saved current schedule to {self.currfile}")
+        if self.nextfile is not None:
+            next_view, row2id = show_next(self.db, self.pinned_list, self.link_list)
+            with open(self.nextfile, 'w') as fo:
+                fo.write(next_view)
+            logger.info(f"saved do next to {self.nextfile}")
 
 
     def show_query(self):

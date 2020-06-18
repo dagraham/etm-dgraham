@@ -81,7 +81,7 @@ else:
 
     CLASSIFIERS.extend([
         'Environment :: Console',
-        'Intended Audience :: End Users/Desktop', 
+        'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.7',
@@ -148,6 +148,7 @@ setup(
     entry_points={
         'console_scripts': [
             'etm=etm.__main__:main',
+            'etm+=etm.__main__:inbasket',
         ],
     },
     # entry_points={

@@ -131,6 +131,12 @@ omit_extent:
 # mobile device.
 keep_current: 0
 
+# keep_next: true or false. If true, the 'do next' view will
+# be written to "next.txt" in your etm home directory. As with
+# "current.txt", a link to this file could be created in a
+# pCloud or DropBox folder for access from your mobile device.
+keep_next: false
+
 # archive_after: A non-negative integer. If zero, do not
 # archive items. If positive, finished tasks and events with
 # last datetimes falling more than this number of years

@@ -489,13 +489,13 @@ The pinned status of items is retained so long as *etm* is active but cleared wh
 
 In *query view* an entry line at the bottom of the screen is used to submit queries to your data store of reminders. For example, press `q` to open query view, enter
 
-		search summary waldo or search d waldo
+		includes summary waldo
 
-and press return to see a list of reminders in which either the summary or the `@d` element contains the case-insensitive regular expression "waldo". Each line of the display contains the item type, the summary and the document id of the matching reminder. As another example
+and press return to see a list of reminders in which either the summary or the `@d` element includes a match for the case-insensitive regular expression "waldo". Each line of the display contains the item type, the summary and the document id of the matching reminder. As another example
 
 		exists u and ~exists i
 
-would display reminders with @u elements but not an @i element.
+would display reminders with an @u element but not an @i element.
 
 Simple queries of this type produce a list of matching items with the itemtype, summary and id displayed and sorted by id, i.e., by the order created. It is also possible to create more complex queries in which the output is displayed heirarchially using a format determined by the query parameters. Enter `?` or `help` at the prompt to get this detailed usage information:
 
@@ -518,7 +518,8 @@ examples):
 
 * includes LST RGX: return items in which the value of
   one of the fields in LST includes a match for the case
-  insensitive regular expression RGX. 
+  insensitive regular expression RGX. (LST contains all 
+  but the last, RGX, argument.)
 
 * equals field VAL: return items in which the value of
   field == VAL

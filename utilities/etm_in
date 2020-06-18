@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+import sys
+import os
+
+typechar = '!' # inbasket
+option = '@t etm_in'
+
+help = f"""\
+usage: etm_in [text]        use text
+   or: etm_in               get text from stdin
+   or: etm_in ['?'|'help']  print this usage information
+
+With this script in your path and made executable and with the
+environmental variable ETMHOME set to your etm root directory, text
+either piped to this script or provided as arguments will be
+appended to 'inbasket.text' in the ETMHOME directory. When this file
+exists, etm will display an ⓘ character at the right end of status
+bar alerting you that this file is available for import by pressing
+F5.
+
+If the text provided to this script does not begin with an etm
+typechar in  -, *, % or !, then the default typechar '{typechar}'
+will be used. If the provided string does not contain any @-key
+options, then '{option}' will be appended.
+
+If the inbox typechar '!' is used then after importing, the reminder
+will appear as an 'inbox' item requiring your attention in the list
+for the current day in agenda view. This may be especially advantageous
+when the text is piped to this script and may require editing.
+"""
+
+etmhome = os.environ.get("ETMHOME")
+if not etmhome:
+    print("The environmental variable 'ETMHOME' is missing but required.")
+    sys.exit()
+elif not os.path.isdir(etmhome):
+    print(f"The environmental variable 'ETMHOME={etmhome}' is not a valid directory.")
+    sys.exit()
+
+inbasket = os.path.join(etmhome, 'inbasket.text')
+
+
+# use stdin if it's full
+if not sys.stdin.isatty():
+    input = sys.stdin.read()
+
+# otherwise, get the input from
+elif len(sys.argv) > 1:
+    input = " ".join(sys.argv[1:])
+
+else:
+    print(help)
+    sys.exit()
+
+input = input.strip()
+if input in ["help", "?"]:
+    print(help)
+    sys.exit()
+
+# if input does not begins with an itemtype character, prepend typechar .
+input = input if input[0] in "!*-%" else f"{typechar} {input}"
+input = input if '@' in input else f"{input} {option}"
+
+with open(inbasket, 'a') as fo:
+    fo.write(f"{input}\n")
+print(f"appended:\n   '{input}'\nto {inbasket}")
