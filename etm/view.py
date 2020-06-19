@@ -32,10 +32,10 @@ from prompt_toolkit.layout import Dimension
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
-import shutil
-
 from prompt_toolkit.layout import Float
 from prompt_toolkit.widgets import Dialog, Label, Button
+
+import shutil
 
 import asyncio
 

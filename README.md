@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" />
 
-This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/etm-dgraham) and in [files](https://groups.io/g/etm/files/). 
+This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/etm-dgraham) and in [files](https://groups.io/g/etm/files/).
 
 Please consider joining the etm discussion group at [groups.io](https://groups.io/g/etm).
 
@@ -377,7 +377,7 @@ requires the addition of the `@z` and 'float'.
 Note: When entering dates, `.`, `-` or `/` can be used to separate the components.
 The interpretation of the date depends upon the 'dayfirst' and 'yearfirst' settings
 in the etm configuration file - see [configuration](#configuration) for details
-about these settings. For example, with both dayfirst and yearfirst false, 
+about these settings. For example, with both dayfirst and yearfirst false,
 
 	6/1 => June 1 in the current year
 
@@ -387,18 +387,18 @@ but after changing dayfirst to true
 
 #### relative datetimes
 
-Relative datetimes can be entered using period strings either instead of or in 
+Relative datetimes can be entered using period strings either instead of or in
 addition to datetimes using the format:
 
     [datetime] [period string]
 
-Either the datetime or the period string is required but both are 
-allowed. The period string must begin with either a plus or a minus 
+Either the datetime or the period string is required but both are
+allowed. The period string must begin with either a plus or a minus
 sign.
 
 If the datetime is omitted and
 * the period string involves d (days), w (weeks) or M (months),
-       then the assumed datetime is the current date, 
+       then the assumed datetime is the current date,
 * the period string involves only h (hours) or m (minutes),
        then the assumed datetime is the current time
 
@@ -434,7 +434,7 @@ When you next create a reminder and enter @n, *etm* will pop up a sorted list of
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmview_agenda.png" alt="new" title="new entry" width="450px" hspace="20px"/>
 
-_etm_ has several ways of viewing entries. These are listed below by the shortcut key used to activate the view. E.g., pressing `a` activates _Agenda_ view shown above. In each of the views, the etm menus appear at the top and the status bar at the bottom. The latter displayes the current datetime and the name of the view. The circled-i symbol to the right of view name indicates that inbasket reminders are available to be imported. See [etm menu notes](#etm-menu-notes) for details.  
+_etm_ has several ways of viewing entries. These are listed below by the shortcut key used to activate the view. E.g., pressing `a` activates _Agenda_ view shown above. In each of the views, the etm menus appear at the top and the status bar at the bottom. The latter displayes the current datetime and the name of the view. The circled-i symbol to the right of view name indicates that inbasket reminders are available to be imported. See [etm menu notes](#etm-menu-notes) for details.
 
   * a: Agenda: dated unfinished tasks and other reminders by year-week and week day
   * b: Busy: a graphical illustration of busy and conflicted times by year-week
@@ -443,7 +443,7 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence
   * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first
   * i: Index: all items grouped hierarchically by index entry
-  * p: Pinned: items whose pin status is on. 
+  * p: Pinned: items whose pin status is on.
   * q: Query: items matching a user specified query. Enter ? for query usage.
   * r: Records: records grouped hierarchically by index entry
   * t: Tags: all items with @t tag entries grouped by tag
@@ -473,15 +473,15 @@ And, on the current day only:
 
 ### Review View
 
-Displays a list of the summaries and location/contexts (@l entries) of undated and unfinished tasks sorted by their (last) modified timestamp and grouped by the number of weeks since last modified. 
+Displays a list of the summaries and location/contexts (@l entries) of undated and unfinished tasks sorted by their (last) modified timestamp and grouped by the number of weeks since last modified.
 
-This view is used for a periodic review of such "todos" with the goal of not letting them 'slip through the cracks'. Either editing a task or pressing "V" with the task selected resets the modified timestamp to the current time and thus moves the task to the "this week" group at the bottom of the list. 
+This view is used for a periodic review of such "todos" with the goal of not letting them 'slip through the cracks'. Either editing a task or pressing "V" with the task selected resets the modified timestamp to the current time and thus moves the task to the "this week" group at the bottom of the list.
 
-A reasonable work flow would be to open this view once every week or so and examine tasks more than a week "old", editing them when necessary and otherwise updating the modified timestamp using "V" so that all tasks are kept within the 'last week' or 'this week' groups. 
+A reasonable work flow would be to open this view once every week or so and examine tasks more than a week "old", editing them when necessary and otherwise updating the modified timestamp using "V" so that all tasks are kept within the 'last week' or 'this week' groups.
 
 ### Pinned View
 
-Items that have been "pinned" (have their pin status toggled on) are displayed in *pinned view* grouped by itemtype and sorted by the created/modified datetime. 
+Items that have been "pinned" (have their pin status toggled on) are displayed in *pinned view* grouped by itemtype and sorted by the created/modified datetime.
 
 This view can be used to flag items that need attention in your daily workflow in the same way that you might flag email in your inbox that you want to handle first. Just as you might sort your inbox to move the flagged items to the top, you can switch to pinned view to see just the reminders that need attention. And just as you would remove the flag when you finish with an email, you can unpin the reminder that no longer needs attention and thus remove it from the pinned view.
 
@@ -520,7 +520,7 @@ examples):
 
 * includes LST RGX: return items in which the value of
   one of the fields in LST includes a match for the case
-  insensitive regular expression RGX. (LST contains all 
+  insensitive regular expression RGX. (LST contains all
   but the last, RGX, argument.)
 
 * equals field VAL: return items in which the value of
@@ -702,8 +702,8 @@ items you want to update. Then press 'q' and the 'up'
 cursor key to restore the previous query, add ' | ' and
 the update command you want with its arguments.
 
-WARNING: Since the results may not be reversible, consider 
-backing up your 'db.json' database before using update 
+WARNING: Since the results may not be reversible, consider
+backing up your 'db.json' database before using update
 commands. This simple query, e.g., would PERMANENTLY DELETE
 ALL YOUR REMINDERS:
 
@@ -810,12 +810,12 @@ E.g.
 would create a usedtime query grouped (and sorted) by
 the first component of the index entry, the month and
 year, the remaining components of the index entry and
-finally the month day. 
+finally the month day.
 
-Sorting note: Specifications using weeks are all sorted 
-and grouped by by (YYYY, W). Specifications involving 
-months are all sorted by (YYYY, M). Specifications 
-involving days are all sorted by (D). 
+Sorting note: Specifications using weeks are all sorted
+and grouped by by (YYYY, W). Specifications involving
+months are all sorted by (YYYY, M). Specifications
+involving days are all sorted by (D).
 
 The group/sort specification can be followed, optionally,
 by any of the following:
@@ -837,7 +837,7 @@ by any of the following:
     E.g., "-a d, l" would append the item description and
     location to the display of each item.
 
-Note: -b and -e accept shortcuts: 
+Note: -b and -e accept shortcuts:
 * daybeg: 12am on the current day
 * dayend: 12am on the following day
 * weekbeg: 12am on Monday of the current week
@@ -1092,11 +1092,11 @@ As with the other menus, each entry is preceeded by its shortcut, e.g., F2 for *
 
 Many of the entries are obvious but a few deserve comment.
 
-* *import file* supports importing three different file types. A file ending with `.json` is expected to be one exported from *etm* 3.2.x. A file ending with  `.text` is expected to be a text file with lines corresponding to *etm* 4.x reminders. A file ending with `.ics` is expected to be a file in *iCalendar* format. 
+* *import file* supports importing three different file types. A file ending with `.json` is expected to be one exported from *etm* 3.2.x. A file ending with  `.text` is expected to be a text file with lines corresponding to *etm* 4.x reminders. A file ending with `.ics` is expected to be a file in *iCalendar* format.
 
-  If a file named `inbasket.text` exists in the root of the *etmdir* directory, it will be offered as the default for importing. When etm detects the presence of this file, a circled-i symbol, ⓘ , will be displayed in the right-hand end of the status bar. 
+  If a file named `inbasket.text` exists in the root of the *etmdir* directory, it will be offered as the default for importing. When etm detects the presence of this file, a circled-i symbol, ⓘ , will be displayed in the right-hand end of the status bar.
 
-  Any file located in the root of the *etmdir* will automatically be removed after it is imported to avoid duplications. 
+  Any file located in the root of the *etmdir* will automatically be removed after it is imported to avoid duplications.
 * *datetime calculator* processes an expression of the form `x [+-] y` where x is a datetime and y is either a timeperiod with `+` or a datetime or a timeperiod with `-`. As an example, suppose you have the arrival time in Paris of a flight and the departure time from Raleigh/Durham and you would like to determine the flight time. Entering
 
 			7:45a 4/7 Europe/Paris - 5:30p 4/6 US/Eastern
@@ -1127,13 +1127,13 @@ Options in the *selected* menu are only relevant when a reminder has been select
 Several options here deserve comment.
 
 * *delete* will prompt for comfirmation and, if the selected item is repeating, for whether to delete only the selected instance or the item itself, i.e., all instances.
-* *finish* applies only to unfinished tasks and will prompt for a datetime to use in creating an `@f` entry for the task with the current datetime as the default. Press 
+* *finish* applies only to unfinished tasks and will prompt for a datetime to use in creating an `@f` entry for the task with the current datetime as the default. Press
 * *reschedule* will prompt for a datetime. If the reminder is repeating, the provided datetime will replace the datetime of the selected instance. Otherwise it will be used either to replace the current value of `@s` or, if there is no `@s` entry, to create one.
 * *schedule new* will prompt for a datetime and add that instance to any other instances of the reminder.
 * *open goto* will use the system default application to open the file path or url specified in the selected reminders `@g` entry.
 * *toggle pin* toggles the pin status of an item between off and on. Items for which the pin status is on have a map pin symbol, 📌, appended to their summaries in all views and are also displayed in *pinned view*.
 * *show repetitions* pops up a display showing illustrative repetitions if the item is repeating.
-* *toggle archived status* moves the selected reminder from the items table if it is active to the archive table and vice versa if the archive table is active. 
+* *toggle archived status* moves the selected reminder from the items table if it is active to the archive table and vice versa if the archive table is active.
 * *begin timer then toggle paused/running* will create and start an active timer associated with the selected reminder if an active timer does not currently exist and will otherwise toggle the paused or running state of the active timer.
 * When a timer is active, the current status of the timer is displayed in the bottom, status line just to the left of the view name. For example, `3m*` would mean that the timer has 3 minutes of elapsed time and, because of the asterisk, that the timer is running. When the timer is paused, an exclamation point replaces the asterisk.
 * If there is an active timer, *record used time* will create an `@u` entry in the associated reminder using the current elapsed time as the time period and the current datetime as the ending time and then cancel the active timer. If there is no active timer, then *record used time* will prompt for a timeperiod and an ending time and then create an `@u` entry in the selected reminder using those elements.
@@ -1200,39 +1200,39 @@ See [configuration](#configuration) for details.
 
 ## Usage
 
-Once etm is installed, you can start etm by opening a terminal with a width of at least 60 charaters and entering 
+Once etm is installed, you can start etm by opening a terminal with a width of at least 60 charaters and entering
 
-	$ etm <path to etmhome>
+	$ etm <path to home>
 
-where `<path to etmhome>` is the path to the directory where you want your data files to be kept. Alternatively, if there is an environmental variable, `ETMHOME`, set to this path then you can just enter
+where `<path to home>` is the path to your *home* directory where your data files are kept. Alternatively, if there is an environmental variable, `ETMHOME`, set to this path then you can just enter
 
 	$ etm
 
-and etm will use `ETMHOME`. 
+and etm will use `ETMHOME` as its home directory.
 
-An added bonus of setting `ETMHOME` is the possibility of usint the `etm+` shortcut for creating reminders. E.g., entering 
+An added bonus of setting `ETMHOME` is the possibility of using the `etm+` shortcut for creating reminders. E.g., entering
 
 	$ etm+ * lunch with Peter @s fri 12p
 
-would cause the line `* lunch with Peter @s fri 12p` to be appended to the file `inbasket.text`in `ETMHOME`, creating the file if necessary. `etm+` also accepts input piped to it so that 
+would cause the line `* lunch with Peter @s fri 12p` to be appended to the file `inbasket.text`in `ETMHOME`, creating the file if necessary. `etm+` also accepts input piped to it so that
 
 	$ echo * lunch with Peter @s fri 12p | etm+
 
-would produce exactly the same result. 
+would produce exactly the same result.
 
-When `inbasket.text` exists in `ETMHOME`, etm will display an inbasket character, ⓘ , at the right end of its status bar reminding you that inbasket items are available for importing. Just press F5 in etm to import the reminders from this file and, on successful completion, automatically remove the file. 
+When `inbasket.text` exists in `ETMHOME`, etm will display an inbasket character, ⓘ , at the right end of its status bar reminding you that inbasket items are available for importing. Just press F5 in etm to import the reminders from this file and, on successful completion, automatically remove the file.
 
-Note finally that `etm+` will accept quick notes which are not themselves valid etm reminders such as 
+Note finally that `etm+` will accept quick notes which are not themselves valid etm reminders such as
 
-	$ etm+ 123 456-7890 Peter 
+	$ etm+ 123 456-7890 Peter
 
-This would result in the valid reminder 
+This would result in the valid reminder
 
-	! 123 456-7890 Peter @t etm+ 
+	! 123 456-7890 Peter @t etm+
 
-being appended to `inbasket.text` - note the added type character, `!` and the tag, `@t etm+`. 
+being appended to `inbasket.text` - note the added type character, `!` and the tag, `@t etm+`.
 
-The addition of the typechar '!' means that after importing the reminder will appear as an 'inbox' item. These are highlighted in the list for the current day in agenda view, reminding you that they require futher attention. You can thus make quick notes without much thought and know that you will automatically be reminded to sort them out later. An added bonus is that when editing such entries in etm itself, all its completion, fuzzy parsing and verification features are available. 
+The addition of the typechar '!' means that after importing the reminder will appear as an 'inbox' item. These are highlighted in the list for the current day in agenda view, reminding you that they require futher attention. You can thus make quick notes without much thought and know that you will automatically be reminded to sort them out later. An added bonus is that when editing such entries in etm itself, all its completion, fuzzy parsing and verification features are available.
 
 
 ## Deinstallation
@@ -1252,7 +1252,6 @@ You can now simply delete the virtual environment directory and, if you have add
 Type character: **\***
 
 An event is something that happens at a particular date or datetime without any action from the user. Christmas, for example, is an event that happens whether or not the user does anything about it.
-
 
 - The `@s` entry is required and can be specified either as a date or as a datetime. It is interpreted as the starting date or datetime of the event.
 - If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date.
@@ -1274,7 +1273,7 @@ A task is something that requires action from the user and lasts, so to speak, u
 - Tasks with an `@r` (repeat) entry can have an `@o` (overdue) setting.
 	- `@o k`: keep. Whenever completed, the next instance is due at the datetime specified in the recurrance rule even if that datetime has already passed. E.g. mortage payments to be made on the 1st of the month are due for each prior month in which they have not been made. With this option, many instances can be past due. This is the default when no `@o` entry is given.
 	- `@o r`: reset. Whenever completed, the next instance is due at the first datetime from the recurrance rule that falls after the current datetime. E.g., getting a haircut every 14 days is due 14 days after the last haircut. With this option, at most one instance can be past due.
-	- `@o s`: skip. Like 'keep' and 'reset' combined with the addition that pastdue instances are ignored. E.g., taking out the trash every Monday morning for pickup is due every Monday morning but, if a Monday passes without taking out the trash, the instance is better regarded as irrelevant than past due. With this option, an instance can never be past due. 
+	- `@o s`: skip. Like 'keep' and 'reset' combined with the addition that pastdue instances are ignored. E.g., taking out the trash every Monday morning for pickup is due every Monday morning but, if a Monday passes without taking out the trash, the instance is better regarded as irrelevant than past due. With this option, an instance can never be past due.
 - Jobs
     - Tasks, both with and without @s entries can have component jobs using @j entries.
     - For tasks with an @s entry, jobs can have an &s entry to set the due date/datetime for the job. It is entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task. Zero minutes is the default when &s is not entered.
@@ -1304,9 +1303,9 @@ A task is something that requires action from the user and lasts, so to speak, u
                     @j job C &i c &p b
                     @j job D &i d &p c
 
-            and thereafter treated as if the ids and prerequisites had been manually assigned. Note that at most 26 jobs are possible with auto assignment. 
+            and thereafter treated as if the ids and prerequisites had been manually assigned. Note that at most 26 jobs are possible with auto assignment.
 
-			Once ids and prerequisites have been assigned, it is sometimes useful to be able to add a job here or there or change the order of existing jobs and have the ids and prerequisites generated again. To do this simply remove the `&i` and `&p` entries from the *first job* and save the task - *all* job ids and preqrequisites will automatically be reassigned. 
+			Once ids and prerequisites have been assigned, it is sometimes useful to be able to add a job here or there or change the order of existing jobs and have the ids and prerequisites generated again. To do this simply remove the `&i` and `&p` entries from the *first job* and save the task - *all* job ids and preqrequisites will automatically be reassigned.
         - Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
 
                 - manually assigned
@@ -1472,8 +1471,8 @@ For use with @r:
 ### notices
 
 * A link character, ‡, is appended to the displayed summary of any reminder with an `@g` goto link. Press `^g` with such a reminder selected to have the operating system open the link using the default application. E.g. if the link is a URL, then it would be opened using the default browser.
-* An in-basket character, ⓘ , is appended to the right end of the status bar when a file named 'inbasket.text' is found in the etm root directory. This file should contain lines containing etm reminder entries - one on each line. It can be imported using the import file command bound to F5. 
-* An update available character, ⓤ , is appended to the right end of the status bar when checking for updates is enabled and a later version of etm is available. Details for enabling checking for updates are in [configuration](#configuration). 
+* An in-basket character, ⓘ , is appended to the right end of the status bar when a file named 'inbasket.text' is found in the etm root directory. This file should contain lines containing etm reminder entries - one on each line. It can be imported using the import file command bound to F5.
+* An update available character, ⓤ , is appended to the right end of the status bar when checking for updates is enabled and a later version of etm is available. Details for enabling checking for updates are in [configuration](#configuration).
 * Alerts and beginbys can be added to any reminder with an `@s` start date/time entry. Alerts require a datetime in `@s`; beginbys also allow a date in `@s`.
 * A beginby is specified by adding `@b n` to a reminder where `n` is a positive integer and is interpreted as a number of days. A reminder with such an entry will be displayed in *agenda view* on the current date provided that the current date is no more than `n` days before the start date/time of the reminder. Such a warning will appear n days before, n-1 days before and so forth until 1 day before the starting date/time of the reminder. The warning displays the type character `>`, the summary of the reminder and the number of days remaining.
 * An alert is specified by adding `@a <list of time periods>: <list of commands>` to a reminder. The time periods must be given in the usual etm format, e.g., `1h13m` for one hour and 13 minutes. The commands are single alphabetic characters, e.g., `a`, `b` and such. The commands used must either be `e` (email) or `t` (text) or be specified in the `alerts` section of the `cfg.yaml` file in your etm home directory. See [configuration](#configuration) for details about this file. Basically, it associates a command, such as `v` with a shell command to be invoked when an alert that includes `v` is triggered. E.g., the alert
@@ -1616,12 +1615,12 @@ Here are the options with their default values from that file. The lines beginni
 	yearfirst: false
 	dayfirst: false
 
-	# updates_interval: a non-negative integer. If positive, 
-	# automatically check for updates every 'updates_interval' 
-	# minutes. If zero, do not automatically check for updates. 
-	# When enabled, a circled u symbol, ⓤ, will be displayed at 
-	# the right end of status bar when an update is available  
-	# or a question mark, ?, when the check cannot be completed 
+	# updates_interval: a non-negative integer. If positive,
+	# automatically check for updates every 'updates_interval'
+	# minutes. If zero, do not automatically check for updates.
+	# When enabled, a circled u symbol, ⓤ, will be displayed at
+	# the right end of status bar when an update is available
+	# or a question mark, ?, when the check cannot be completed
 	# as, for example, when there is no internet connection.
 	updates_interval: 0
 
@@ -1656,6 +1655,12 @@ Here are the options with their default values from that file. The lines beginni
 	# folder and have access to your current schedule on your
 	# mobile device.
 	keep_current: 0
+
+	# keep_next: true or false. If true, the 'do next' view will
+	# be written to "next.txt" in your etm home directory. As with
+	# "current.txt", a link to this file could be created in a
+	# pCloud or DropBox folder for access from your mobile device.
+	keep_next: false
 
 	# archive_after: A non-negative integer. If zero, do not
 	# archive items. If positive, finished tasks and events with
@@ -1776,7 +1781,7 @@ Here are the options with their default values from that file. The lines beginni
 	  # composite by i[:1], month and i[1:2] with u and d
 	  ct: c i[:1]; MMM YYYY; i[1:2] -a u, d
 	  # items with u but missing the needed i
-	  mi: exists u and ~exists i 
+	  mi: exists u and ~exists i
 	  # all archived items
 	  arch: a exists itemtype
 	  # items in which either the summary or the @d description
@@ -1874,4 +1879,3 @@ Take the entry `2019-12-23` for `@s`. To *etm* this is a pendulum date object. W
 As another example, When the reminder is created by *etm* the `created` timestamp is handed to *TinyDB* as an aware pendulum datetime object with US/Eastern as the timezone. *TinyDB* recognizes this and, because it is an aware datetime, first converts it to Universal time and then encodes/serializes it at `"{T}:20191221T1526A"`. The `{T}` indicates that it is a datetime object and the appended `A` indicates that it is aware and thus has been converted to Universal time. When *etm* retrieves this record, *TinyDB* recognizes from the `{T}` and the `A` that this is an aware datetime object, decodes it as an aware datetime object and, because it is aware, converts it from Universal time to whatever the current local timezone happens to be before returning it. Had this been a naive datetime, an `N` would have been appended to the serialization and no conversion would have been done either way.
 
 These **date** and **datetime** serializations are extensions of *TinyDB* provided by *etm*. Three further extensions are also provided: **interval** for *pendulum duration* objects using the tag `{I}`, **weekday** for  *dateutil* weekday objects using the tag `{W}` and **mask** using the tag `{M}` for encoding/serializing *etm* strings in a masked or obfuscated manner.
-

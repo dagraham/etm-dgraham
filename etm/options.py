@@ -19,7 +19,6 @@ def randomString(stringLength=10):
 
 
 class Settings():
-
     colors = {
         'dark': {
             'plain':        'Ivory',
@@ -46,9 +45,7 @@ class Settings():
             'finished':     'LightSlateGrey',
             },
     }
-
     secret = randomString(10)
-
     inp = """\
 ###################### IMPORTANT ########################
 #
