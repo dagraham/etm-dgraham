@@ -1212,19 +1212,21 @@ and etm will use `ETMHOME` as its home directory.
 
 An added bonus of setting `ETMHOME` is the possibility of using the `etm+` shortcut for creating reminders. E.g., entering
 
-	$ etm+ * lunch with Peter @s fri 12p
+	$ etm+ '* lunch with Peter @s fri 12p'
 
 would cause the line `* lunch with Peter @s fri 12p` to be appended to the file `inbasket.text`in `ETMHOME`, creating the file if necessary. `etm+` also accepts input piped to it so that
 
-	$ echo * lunch with Peter @s fri 12p | etm+
+	$ echo '* lunch with Peter @s fri 12p' | etm+
 
 would produce exactly the same result.
+
+Note that the single quotes are necessary to keep the shell from treating "*" as a wildcard to be expanded into the names of all the files in the current working directory. Similarly, without the single quotes, the shell would interpret '$50' as a shell variable because of the dollar sign. The safest policy is to always wrap the entry for etm+ in single quotes.
 
 When `inbasket.text` exists in `ETMHOME`, etm will display an inbasket character, ⓘ , at the right end of its status bar reminding you that inbasket items are available for importing. Just press F5 in etm to import the reminders from this file and, on successful completion, automatically remove the file.
 
 Note finally that `etm+` will accept quick notes which are not themselves valid etm reminders such as
 
-	$ etm+ 123 456-7890 Peter
+	$ etm+ '123 456-7890 Peter'
 
 This would result in the valid reminder
 
