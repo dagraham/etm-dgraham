@@ -1877,6 +1877,7 @@ class DataView(object):
                 'y': 'yearly',
                 }
 
+        self.completion_keys = ['c', 'g', 'i', 'l', 'n', 't']
         self.edit_item = None
         self.is_showing_details = False
         self.is_showing_query = False
@@ -1954,10 +1955,10 @@ class DataView(object):
         """
         Get completions from db items
         """
-        completion_keys = ['c', 'g', 'l', 'n',  't', 'i']
+        # completion_keys = ['c', 'g', 'l', 'n',  't', 'i']
         completions = set([])
         for item in self.db:
-            found = {x: v for x, v in item.items() if x in completion_keys}
+            found = {x: v for x, v in item.items() if x in self.completion_keys}
             for x, v in found.items():
                 if isinstance(v, list):
                     for p in v:
@@ -1966,6 +1967,25 @@ class DataView(object):
                     completions.add(f"@{x} {v}")
         self.completions = list(completions)
         self.completions.sort()
+
+    def update_completions(self, item):
+        """
+        update self.completions, if necessary, for the @keys in item
+        """
+        completions = set([])
+
+        found = {x: v for x, v in item.item_hsh.items() if x in self.completion_keys}
+        for x, v in found.items():
+            if isinstance(v, list):
+                for p in v:
+                    completions.add(f"@{x} {p}")
+            else:
+                completions.add(f"@{x} {v}")
+        new = [x for x in list(completions) if x not in self.completions]
+        if new:
+            self.completions.extend(new)
+            self.completions.sort()
+
 
 
     def handle_backups(self):

@@ -1011,7 +1011,7 @@ While the views differ in many respects, they also share some common aspects:
     * In the weekly views a),  b) and c), press “j” and enter a date to display the week containing that date.
     * In the dated views a), b), c), u), U) and y), press the right or left cursor keys to go  to the next or previous period, respectively, and the space bar to return to the current period.
 * Search.
-    * Press “/“ (or "?") and enter an expression to search the view forward (or backward) for a row whose content contains (case insensitive) the expression.
+    * Press “/“ (or "?") and enter an expression to search the view forward (or backward) for a row whose content contains a case-insensitive match for the expression.
 	* While entering the search expression, push the `up` or `down` cursor keys to change the direction of search.
     * After entering the search expression, press “n” to search (cyclically) for other matches in the direction specified.
 	* Once a search is initiated, it remains active in all views with matches highlighted. To remove the highlighting, search for something not likely to be matched such as 3 consecutive commas.
