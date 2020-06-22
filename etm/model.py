@@ -118,12 +118,12 @@ type2style = {
         '✓': 'class:finished',
         }
 
-FINISHED_CHAR = '✓'
+# LINK_CHAR = ' 🔗'
 
+FINISHED_CHAR = '✓'
 UPDATE_CHAR = "ⓤ "
 INBASKET_CHAR = 'ⓘ '
-# LINK_CHAR = ' †'
-# LINK_CHAR = ' 🔗'
+KONNECT_CHAR = ' †'
 LINK_CHAR = ' ‡'
 
 PIN_CHAR = '📌'   # U+1F4CC
@@ -156,7 +156,7 @@ item_types = """item type characters:\n    """ + """\n    """.join([f"{k}: {v}" 
 
 allowed = {}
 required = {}
-common_methods = [x for x in 'cdgilmnstuxz']
+common_methods = [x for x in 'cdgiklmnstuxz']
 repeating_methods = [x for x in '+-o'] + ['rr', 'rc', 'rm', 'rE', 'rh', 'ri', 'rM', 'rn', 'rs', 'ru', 'rW', 'rw']
 datetime_methods = [x for x in 'abe']
 task_methods = [x for x in 'efhp'] + ['jj', 'ja', 'jb', 'jd', 'je', 'jf', 'ji', 'jl', 'jm', 'jp', 'js', 'ju']
@@ -493,6 +493,7 @@ class Item(object):
                 'g': ["goto", "url or filepath", do_string],
                 'h': ["completions", "list of completion datetimes", self.do_datetimes],
                 'i': ["index", "colon delimited string", do_string],
+                'k': ["konnection", "document id", do_konnection],
                 'l': ["location", "location or context, e.g., home, office, errands", do_string],
                 'm': ["mask", "string to be masked", do_mask],
                 'n': ["attendee", "name <email address>", do_string],
@@ -950,7 +951,7 @@ class Item(object):
             if not obj:
                 msg.append(f"bad entry for {k}: {v}")
                 continue
-            if k in ['a', 'u', 'n', 't']:
+            if k in ['a', 'u', 'n', 't', 'k']:
                 self.item_hsh.setdefault(k, []).append(obj)
             elif k in ['rr', 'jj']:
                 if cur_hsh:
@@ -970,6 +971,11 @@ class Item(object):
                     cur_key = None
                     cur_hsh = {}
                 self.item_hsh[k] = obj
+        for k in ['a', 'k', 't', 'n']:
+            # remove duplicates
+            # XXX: should 'u' be included?
+            if k in self.item_hsh:
+                self.item_hsh[k] = list(set(self.item_hsh[k]))
         if cur_key:
             # record the last if necessary
             self.item_hsh.setdefault(cur_key, []).append(cur_hsh)
@@ -1003,6 +1009,11 @@ class Item(object):
                     self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
             else:
                 # editing an existing item
+                if 'k' in self.item_hsh:
+                    logger.debug(f"adding 'k': {self.item_hsh} to item with doc_id: {self.doc_id}; type: {type(self.doc_id)}")
+                    if self.doc_id in self.item_hsh['k']:
+                        # remove self referential konnections
+                        self.item_hsh['k'].remove(self.doc_id)
                 self.item_hsh['modified'] = now
                 self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
 
@@ -1866,6 +1877,7 @@ class DataView(object):
                 'f': 'forthcoming',
                 'h': 'history',
                 'i': 'index',
+                'k': 'konnection',
                 'p': 'pinned',
                 'q': 'query',
                 'r': 'records',
@@ -1987,6 +1999,23 @@ class DataView(object):
             self.completions.sort()
 
 
+    def refresh_konnections(self):
+        """
+        to_hsh: ID -> ids of items with @k ID
+        from_hsh ID -> ids in @k
+        """
+        self.konnections_to = {}
+        self.konnectons_from = {}
+        for item in self.db:
+            links = self.item.item_hsh.get('k', [])
+            self.konnections_from[self.item.doc_id] = links
+            for link in links:
+                self.konnections_to.setdefault(link, []).append(self.item.doc_id)
+
+    def has_konnections(self, item):
+        k_to = self.item.doc_id in self.konnections_to
+        k_from = self.item.doc_id in self.konnections_from
+        return k_from, k_to
 
     def handle_backups(self):
         removefiles = []
@@ -3023,6 +3052,9 @@ entry_tmpl = """\
 {%- if 't' in h %}
 {% for x in h['t'] %}{{ "@t {} ".format(x) }}{% endfor %}\
 {% endif %}\
+{%- if 'k' in h %}
+{% for x in h['k'] %}{{ "@k {} ".format(x) }}{% endfor %}\
+{% endif %}\
 {%- if 'n' in h %}
 {% for x in h['n'] %}{{ "@n {} ".format(x) }}{% endfor %}\
 {% endif %}\
@@ -3122,6 +3154,9 @@ display_tmpl = """\
 {% endif %}\
 {%- if 't' in h %}
 {% for x in h['t'] %}{{ "@t {} ".format(x) }}{% endfor %}\
+{% endif %}\
+{%- if 'k' in h %}
+{% for x in h['k'] %}{{ "@k {} ".format(x) }}{% endfor %}\
 {% endif %}\
 {%- if 'n' in h %}
 {% for x in h['n'] %}{{ "@n {} ".format(x) }}{% endfor %}\
@@ -3225,6 +3260,19 @@ def do_beginby(arg):
     else:
         obj = None
         rep = f"'{arg}' is invalid. Beginby requires {beginby_str}."
+    return obj, rep
+
+def do_konnection(arg):
+    konnection_str = "an integer document id"
+    if not arg:
+        return None, konnection_str
+    ok, res = integer(arg, 1, None, False)
+    if ok:
+        obj = res
+        rep = arg
+    else:
+        obj = None
+        rep = f"'{arg}' is invalid. Konnection requires {konnection_str}."
     return obj, rep
 
 

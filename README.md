@@ -18,6 +18,8 @@ Please consider joining the etm discussion group at [groups.io](https://groups.i
         -   [Weekly Views](#weekly-views)
         -   [Review View](#review-view)
         -   [Pinned View](#pinned-view)
+        -   [Konnection View](#konnection-view)
+        -   [Used Time Views](#used-time-views)
         -   [Query View](#query-view)
             -   [Simple queries](#simple-queries)
             -   [Simple query examples](#simple-query-examples)
@@ -26,7 +28,6 @@ Please consider joining the etm discussion group at [groups.io](https://groups.i
             -   [Complex queries](#complex-queries)
             -   [Command History](#command-history)
             -   [Saved Queries](#saved-queries)
-        -   [Used Time Views](#used-time-views)
         -   [Common Features](#common-features)
     -   [Menus](#menus)
         -   [etm menu notes](#etm-menu-notes)
@@ -443,6 +444,7 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence
   * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first
   * i: Index: all items grouped hierarchically by index entry
+  * k: Konnection: items with @k konnection links either to or from the selected item.
   * p: Pinned: items whose pin status is on.
   * q: Query: items matching a user specified query. Enter ? for query usage.
   * r: Records: records grouped hierarchically by index entry
@@ -487,6 +489,110 @@ This view can be used to flag items that need attention in your daily workflow i
 
 The pinned status of items is retained so long as *etm* is active but cleared when *etm* is restarted.
 
+### Konnections View
+
+Items with @k konnection links either to or from other items are displayed with a dagger, †, appended to their summaries in all views. When such an item is selected and `k` is pressed this view displays all reminders konnected to the selected reminder, organized as follows:
+
+	reminders with links to the selection
+	   the list of items with @k entries which include the id of the selected item
+	the selection
+	   the selected item
+	reminders with links from the selection
+	   the list of items whose ids are included in the @k entries of the selected item
+
+### Used Time Views
+
+The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
+
+		* Modi ut sit sed amet sit @s 2019-11-11 10:00am @e
+		   1h30m
+		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
+		@i client A/project a1/correspondence
+		@d Aliquam non sed aliquam eius tempora quisquam dolorem.
+		Neque quiquia labore tempora magnam. Quiquia tempora
+		porro est ut. Ut tempora sed non ut eius neque porro.
+		Sed quaerat consectetur dolor sit.
+
+and the *used time view* for November begins with
+
+		November 2019
+		  client A
+			project a1
+			  correspondence
+				* Modi ut sit sed amet sit: 1.6h Nov 11
+				% Amet modi neque eius adipisci: 2.7h Nov 27
+			  research
+				* Quisquam quiquia velit non: 2.0h Nov 19
+			project a2
+			  correspondence
+				* Consectetur voluptatem dolorem: 1.0h Nov 6
+				* Quaerat etincidunt sed non: 0.9h Nov 13
+				* Consectetur eius est adipisci: 0.5h Nov 25
+				% Magnam labore etincidunt: 1.8h Nov 28
+			  meeting
+				% Adipisci dolor labore quiquia: 0.9h Nov 7
+				% Adipisci eius velit porro: 1.4h Nov 14
+			  research
+				* Non modi non velit eius: 1.0h Nov 20
+		  client B
+			project b1
+			  correspondence
+				* Dolor neque velit dolorem: 0.4h Nov 22
+			  meeting
+				* Ipsum numquam porro consectetur: 0.8h Nov 15
+			  phone
+				- Porro voluptatem aliquam: 1.0h Nov 12
+				% Amet ut dolor velit aliquam: 1.9h Nov 13
+			  research
+				* Quisquam labore ut sit aliquam: 0.7h Nov 5
+				* Quiquia ut quisquam sit: 1.5h Nov 12
+				% Adipisci amet modi sed eius: 2.6h Nov 15
+				- Velit dolor quiquia etincidunt: 1.9h Nov 15
+
+Note that the display is by month and, within the month, heirarchially by index entry and reminder. Note also, that the reported times are aggregates of all `@u` entries in the reminder. The first reminder, for example, has 2 such entries:
+
+		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
+
+Because of
+
+		usedtime_minutes: 6
+
+in `cfg.yaml`, each `@u` timeperiod is first rounded up to the next 6 minutes and then added. Thus 58m becomes 1h, 34m becomes 36m and the sum, 1h36m, is reported in hours and tenths as 1.6h.
+
+The reminder lines are similar to those in other views. With, e.g.,
+
+			* Modi ut sit sed amet sit: 1.6h Nov 11
+
+selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth.
+
+
+The *used time **summary** view* for the same month begins with:
+
+		November 2019: 44.4h
+		   client A: 13.8h
+			  project a1: 6.3h
+				 correspondence: 4.3h
+				 research: 2.0h
+			  project a2: 7.5h
+				 correspondence: 4.2h
+				 meeting: 2.3h
+				 research: 1.0h
+		   client B: 16.6h
+			  project b1: 10.8h
+				 correspondence: 0.4h
+				 meeting: 0.8h
+				 phone: 2.9h
+				 research: 6.7h
+			  project b2: 3.9h
+				 meeting: 1.8h
+				 research: 2.1h
+			  project b3: 1.9h
+				 correspondence: 1.9h
+
+
+This view omits the reminder lines and aggregates the used times heirarchially by index entry.
+
+As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
 ### Query View
 
 In *query view* an entry line at the bottom of the screen is used to submit queries to your data store of reminders. For example, press `q` to open query view, enter
@@ -903,101 +1009,6 @@ to display a list of the saved keys and values.
 As with other etm views, in query view you can enter `/` or `?` to search incrementally forward or backward, resepectively, or press `Ctrl-C` to copy the view to the system clipboard or select a reminder and press `Enter` to display its details, press `E` to edit it and so forth.
 
 
-### Used Time Views
-
-The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
-
-		* Modi ut sit sed amet sit @s 2019-11-11 10:00am @e
-		   1h30m
-		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
-		@i client A/project a1/correspondence
-		@d Aliquam non sed aliquam eius tempora quisquam dolorem.
-		Neque quiquia labore tempora magnam. Quiquia tempora
-		porro est ut. Ut tempora sed non ut eius neque porro.
-		Sed quaerat consectetur dolor sit.
-
-and the *used time view* for November begins with
-
-		November 2019
-		  client A
-			project a1
-			  correspondence
-				* Modi ut sit sed amet sit: 1.6h Nov 11
-				% Amet modi neque eius adipisci: 2.7h Nov 27
-			  research
-				* Quisquam quiquia velit non: 2.0h Nov 19
-			project a2
-			  correspondence
-				* Consectetur voluptatem dolorem: 1.0h Nov 6
-				* Quaerat etincidunt sed non: 0.9h Nov 13
-				* Consectetur eius est adipisci: 0.5h Nov 25
-				% Magnam labore etincidunt: 1.8h Nov 28
-			  meeting
-				% Adipisci dolor labore quiquia: 0.9h Nov 7
-				% Adipisci eius velit porro: 1.4h Nov 14
-			  research
-				* Non modi non velit eius: 1.0h Nov 20
-		  client B
-			project b1
-			  correspondence
-				* Dolor neque velit dolorem: 0.4h Nov 22
-			  meeting
-				* Ipsum numquam porro consectetur: 0.8h Nov 15
-			  phone
-				- Porro voluptatem aliquam: 1.0h Nov 12
-				% Amet ut dolor velit aliquam: 1.9h Nov 13
-			  research
-				* Quisquam labore ut sit aliquam: 0.7h Nov 5
-				* Quiquia ut quisquam sit: 1.5h Nov 12
-				% Adipisci amet modi sed eius: 2.6h Nov 15
-				- Velit dolor quiquia etincidunt: 1.9h Nov 15
-
-Note that the display is by month and, within the month, heirarchially by index entry and reminder. Note also, that the reported times are aggregates of all `@u` entries in the reminder. The first reminder, for example, has 2 such entries:
-
-		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
-
-Because of
-
-		usedtime_minutes: 6
-
-in `cfg.yaml`, each `@u` timeperiod is first rounded up to the next 6 minutes and then added. Thus 58m becomes 1h, 34m becomes 36m and the sum, 1h36m, is reported in hours and tenths as 1.6h.
-
-The reminder lines are similar to those in other views. With, e.g.,
-
-			* Modi ut sit sed amet sit: 1.6h Nov 11
-
-selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth.
-
-
-The *used time **summary** view* for the same month begins with:
-
-		November 2019: 44.4h
-		   client A: 13.8h
-			  project a1: 6.3h
-				 correspondence: 4.3h
-				 research: 2.0h
-			  project a2: 7.5h
-				 correspondence: 4.2h
-				 meeting: 2.3h
-				 research: 1.0h
-		   client B: 16.6h
-			  project b1: 10.8h
-				 correspondence: 0.4h
-				 meeting: 0.8h
-				 phone: 2.9h
-				 research: 6.7h
-			  project b2: 3.9h
-				 meeting: 1.8h
-				 research: 2.1h
-			  project b3: 1.9h
-				 correspondence: 1.9h
-
-
-This view omits the reminder lines and aggregates the used times heirarchially by index entry.
-
-As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
-
-
 ### Common Features
 
 While the views differ in many respects, they also share some common aspects:
@@ -1014,7 +1025,7 @@ While the views differ in many respects, they also share some common aspects:
     * Press “/“ (or "?") and enter an expression to search the view forward (or backward) for a row whose content contains a case-insensitive match for the expression.
 	* While entering the search expression, push the `up` or `down` cursor keys to change the direction of search.
     * After entering the search expression, press “n” to search (cyclically) for other matches in the direction specified.
-	* Once a search is initiated, it remains active in all views with matches highlighted. To remove the highlighting, search for something not likely to be matched such as 3 consecutive commas.
+	* Once a search is initiated, it remains active in all views with matches highlighted. To remove the highlighting, search for something unlikely to be matched, e.g., 3 consecutive commas.
 
 
 ## Menus
@@ -1420,6 +1431,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @h: history. (for repeating tasks, a list of the most recent completion datetimes)
 *  @i: index. forward slash delimited string. E.g., client/project/activity
 *  @j*: job summary. string, optionally followed by job &key entries
+*  @k*: doc_id. connect this reminder to the one corresponding to doc_id.
 *  @l: location/context. string
 *  @m: mask. string stored in obfuscated form
 *  @n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion.
