@@ -1396,7 +1396,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned', 'review']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected']
 
 @Condition
 def is_dated_view():
@@ -2632,6 +2632,15 @@ def review_view(*event):
     dataview.set_active_view('v')
     item.use_items()
     set_text(dataview.show_active_view())
+
+@bindings.add('k', filter=is_viewing)
+def show_konnections(*event):
+    selected_id = dataview.get_details(text_area.document.cursor_position_row)[0]
+    if selected_id in dataview.konnected:
+        dataview.set_active_item(selected_id)
+        dataview.set_active_view('k')
+        item.use_items()
+        set_text(dataview.show_active_view())
 
 @bindings.add('t', filter=is_viewing)
 def tag_view(*event):

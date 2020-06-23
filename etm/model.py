@@ -1838,6 +1838,7 @@ class RDict(dict):
 class DataView(object):
 
     def __init__(self, etmdir):
+        self.active_item = None
         self.active_view = 'agenda'
         self.prior_view = 'agenda'
         self.current = []
@@ -1885,7 +1886,7 @@ class DataView(object):
                 'f': 'forthcoming',
                 'h': 'history',
                 'i': 'index',
-                'k': 'konnection',
+                'k': 'konnected',
                 'p': 'pinned',
                 'q': 'query',
                 'r': 'records',
@@ -2145,6 +2146,8 @@ class DataView(object):
     def set_now(self):
         self.now = pendulum.now('local')
 
+    def set_active_item(self, id):
+        self.active_item = id
 
     def set_active_view(self, c):
         self.current_row = None
@@ -2211,6 +2214,9 @@ class DataView(object):
         if self.active_view == 'review':
             self.review_view, self.row2id = show_review(self.db, self.pinned_list, self.link_list, self.konnected)
             return self.review_view
+        if self.active_view == 'konnected':
+            self.konnected_view, self.row2id = show_konnected(self.db, self.pinned_list, self.link_list, self.konnected, self.active_item, self.konnections_from, self.konnections_to)
+            return self.konnected_view
         if self.active_view == 'query':
             if self.query_text:
                 if len(self.query_text) > 1 and self.query_text[1] == ' ' and self.query_text[0] in ['s', 'u', 'm', 'c']:
@@ -5265,6 +5271,77 @@ def show_review(db, pinned_list=[], link_list=[], konnect_list=[]):
         path = row['path']
         values = (
                 f"{row['columns'][0]} {row['columns'][1]}{row['columns'][2]}", row['columns'][3]
+                )
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    return tree, row2id
+
+
+def show_konnected(db, pinned_list=[], link_list=[], konnect_list=[], selected_id=None, from_ids={}, to_ids={}):
+    """
+    konnected view for selected_id
+    """
+    if selected_id is None or not db.contains(doc_id=selected_id):
+        return [], {}
+    selected_item = db.get(doc_id=selected_id)
+    if selected_item is None:
+        return [], {}
+
+    relevant = []
+    relevant.append(['selection', selected_item])
+
+    for id in from_ids.get(selected_id, []):
+        tmp = db.get(doc_id=id)
+        if tmp:
+            relevant.append(['from the selection', tmp])
+
+    for id in to_ids.get(selected_id, []):
+        tmp = db.get(doc_id=id)
+        if tmp:
+            relevant.append(['to the selection', tmp])
+
+    if len(relevant) < 2:
+        # from and to are empty
+        return [], {}
+
+    width = shutil.get_terminal_size()[0] - 2
+    rows = []
+    summary_width = width - 8
+    for path, item in relevant:
+        id = item.doc_id
+        itemtype = item['itemtype']
+        # modified = item['modified'] if 'modified' in item else item['created']
+
+        summary = item['summary']
+        summary = (summary[:width-3].rstrip() +  KONNECT_CHAR) if id in konnect_list else summary
+        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+        if item.doc_id in pinned_list:
+            summary = (summary[:summary_width - 1] + PIN_CHAR).ljust(summary_width-1, ' ')
+        else:
+            summary = summary[:summary_width].ljust(summary_width, ' ')
+        rows.append(
+                {
+                    'id': id,
+                    'path': path,
+                    'job': None,
+                    'instance': None,
+                    'sort': (path, -id),
+                    'columns': [itemtype,
+                        summary,
+                        id,
+                        ]
+                }
+                )
+    try:
+        rows.sort(key=itemgetter('sort'), reverse=True)
+    except Exception as e:
+        logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
+    rdict = RDict()
+    for row in rows:
+        path = row['path']
+        values = (
+                f"{row['columns'][0]} {row['columns'][1]}{row['columns'][2]}",
+                row['columns'][2]
                 )
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
