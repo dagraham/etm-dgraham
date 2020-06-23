@@ -2496,7 +2496,7 @@ class DataView(object):
 
     def refreshCache(self):
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20, self.pinned_list, self.link_list, self.konnected)
-        self.used_details, self.used_details2id, self.used_summary = get_usedtime(self.db)
+        self.used_details, self.used_details2id, self.used_summary = get_usedtime(self.db, self.pinned_list, self.link_list, self.konnected)
 
     def update_links(self):
         """
@@ -5503,7 +5503,7 @@ def show_pinned(items, pinned_list=[], link_list=[], konnect_list=[]):
     logger.debug(f"row2id: {row2id}")
     return tree, row2id
 
-def get_usedtime(db):
+def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[]):
     """
     All items with used entries grouped by month, index entry and day
 
@@ -5511,7 +5511,7 @@ def get_usedtime(db):
     UT_MIN = settings.get('usedtime_minutes', 1)
 
     width = shutil.get_terminal_size()[0] - 2
-    summary_width = width - 22
+    summary_width = width - 21
 
     used_details = {}
     used_details2id = {}
@@ -5529,9 +5529,14 @@ def get_usedtime(db):
         description = item.get('d', "")
         id_used = {}
         index_tup = index.split('/')
-        doc_id = item.doc_id
+        id = item.doc_id
         itemtype = item['itemtype']
-        details = f"{itemtype} {item['summary']}"
+        summary = item['summary']
+        summary = (summary[:summary_width-3].rstrip() +  KONNECT_CHAR) if id in konnect_list else summary
+        summary = (summary[:summary_width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+        summary = (summary[:summary_width - 1] + PIN_CHAR) if id in pinned_list else summary
+
+        details = f"{itemtype} {summary}".ljust(summary_width, ' ')
         for period, dt in used:
             if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
                 dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
@@ -5562,7 +5567,7 @@ def get_usedtime(db):
                         'columns': [
                             details,
                             f"{format_hours_and_tenths(id_used[monthday])} {monthday.format('MMM D')}",
-                            doc_id],
+                            id],
                         })
 
     detail_rows.sort(key=itemgetter('sort'))
@@ -5575,7 +5580,7 @@ def get_usedtime(db):
             rhc = row['columns'][1]
             path = row['path']
             description = row['description']
-            values = [f"{summary}: {rhc}", row['columns'][2]
+            values = [f"{summary}{rhc}", row['columns'][2]
                     ]
             try:
                 rdict.add(path, tuple(values))
