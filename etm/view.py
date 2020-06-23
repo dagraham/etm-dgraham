@@ -1627,6 +1627,7 @@ def status_time(dt):
 def item_changed(loop):
     item.update_item_hsh()
     dataview.update_completions(item)
+    dataview.update_konnections(item)
     data_changed(loop)
 
 def data_changed(loop):
