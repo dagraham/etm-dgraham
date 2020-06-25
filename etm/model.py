@@ -1804,7 +1804,7 @@ class RDict(dict):
             if isinstance(self[key], dict):
                 self = self[key]
             elif keys_left:
-                self.setdefault(":".join(keys[j:]), []).append(values)
+                self.setdefault("/".join(keys[j:]), []).append(values)
                 break
 
     def as_tree(self, t={}, depth = 0, level=0):
@@ -1907,7 +1907,7 @@ class DataView(object):
         self.is_showing_items = True
         self.get_completions()
         self.refresh_konnections()
-        self.refresh_konnected()
+        # self.refresh_konnected()
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
         self.calAdv = pendulum.today().month // 7
@@ -2043,12 +2043,12 @@ class DataView(object):
                 for link in links:
                     self.konnections_to.setdefault(link, []).append(item.doc_id)
 
-        logger.debug(f"_to: {self.konnections_to}; _from: {self.konnections_from}")
-
-    def refresh_konnected(self):
         konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
         self.konnected = list(set(konnected))
-        logger.debug(f"konnected: {self.konnected}")
+
+    # def refresh_konnected(self):
+    #     konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
+    #     self.konnected = list(set(konnected))
 
     def handle_backups(self):
         removefiles = []
@@ -5243,11 +5243,11 @@ def show_review(db, pinned_list=[], link_list=[], konnect_list=[]):
         weeks = (pendulum.now() - modified).days // 7
         logger.debug(f"weeks 0: {weeks == 0}; 1: {weeks == 1}; >1: {weeks > 1}")
         if weeks == 0:
-            wkfmt = "this week"
+            wkfmt = " This week"
         elif weeks == 1:
-            wkfmt = "last week"
+            wkfmt = " Last week"
         else:
-            wkfmt = f"{weeks} weeks ago"
+            wkfmt = f" {weeks} weeks ago"
         rows.append(
                 {
                     'id': item.doc_id,
@@ -5288,17 +5288,17 @@ def show_konnected(db, pinned_list=[], link_list=[], konnect_list=[], selected_i
         return [], {}
 
     relevant = []
-    relevant.append(['selection', selected_item])
+    relevant.append([' Selection', selected_item])
 
     for id in from_ids.get(selected_id, []):
         tmp = db.get(doc_id=id)
         if tmp:
-            relevant.append(['from the selection', tmp])
+            relevant.append([' From the selection', tmp])
 
     for id in to_ids.get(selected_id, []):
         tmp = db.get(doc_id=id)
         if tmp:
-            relevant.append(['to the selection', tmp])
+            relevant.append([' To the selection', tmp])
 
     if len(relevant) < 2:
         # from and to are empty
