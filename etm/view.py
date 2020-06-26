@@ -1864,7 +1864,7 @@ expansions = {
 
 class AtCompleter(Completer):
     # pat = re.compile(r'@[cgilntxz]\s?\S*')
-    pat = re.compile(r'@[cgilntxz]\s?[^@&]*')
+    pat = re.compile(r'@[cgiklntxz]\s?[^@&]*')
 
     def get_completions(self, document, complete_event):
         cur_line = document.current_line_before_cursor

@@ -92,6 +92,7 @@ def sortdt(dt):
 
 
 PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
+KONNECT_REGEX = re.compile(r'^.+:\s+(\d+)\s*$')
 
 # The style sheet for terminal output
 style = Style.from_dict({
@@ -951,7 +952,7 @@ class Item(object):
             if not obj:
                 msg.append(f"bad entry for {k}: {v}")
                 continue
-            if k in ['a', 'u', 'n', 't', 'k']:
+            elif k in ['a', 'u', 'n', 't', 'k']:
                 self.item_hsh.setdefault(k, []).append(obj)
             elif k in ['rr', 'jj']:
                 if cur_hsh:
@@ -1793,9 +1794,11 @@ class RDict(dict):
 
     def add(self, tkeys, values=()):
         keys = tkeys.split(self.split_char)
+        logger.debug(f"split_char: {self.split_char}; keys: {keys}")
         for j in range(len(keys)):
             key = keys[j]
             keys_left = keys[j+1:]
+            logger.debug(f"j: {j}; key: {key}; keys_left: {keys_left}")
             if not keys_left:
                 try:
                     self.setdefault(key, []).append(values)
@@ -1804,7 +1807,7 @@ class RDict(dict):
             if isinstance(self[key], dict):
                 self = self[key]
             elif keys_left:
-                self.setdefault("/".join(keys[j:]), []).append(values)
+                self.setdefault(":".join(keys[j:]), []).append(values)
                 break
 
     def as_tree(self, t={}, depth = 0, level=0):
@@ -1898,7 +1901,7 @@ class DataView(object):
                 'y': 'yearly',
                 }
 
-        self.completion_keys = ['c', 'g', 'i', 'l', 'n', 't']
+        self.completion_keys = ['c', 'g', 'i', 'k', 'l', 'n', 't']
         self.edit_item = None
         self.is_showing_details = False
         self.is_showing_query = False
@@ -1907,7 +1910,6 @@ class DataView(object):
         self.is_showing_items = True
         self.get_completions()
         self.refresh_konnections()
-        # self.refresh_konnected()
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
         self.calAdv = pendulum.today().month // 7
@@ -1978,12 +1980,18 @@ class DataView(object):
         """
         Get completions from db items
         """
-        # completion_keys = ['c', 'g', 'l', 'n',  't', 'i']
         completions = set([])
         for item in self.db:
             found = {x: v for x, v in item.items() if x in self.completion_keys}
+
+            if item['itemtype'] == '%' and item.get('i', None):
+                tmp = f"@k {item['i']} {item['itemtype']} {item['summary']}: {item.doc_id}"
+                logger.debug(f"adding {tmp}")
+                completions.add(tmp)
             for x, v in found.items():
                 if isinstance(v, list):
+                    if x == 'k':
+                        continue
                     for p in v:
                         completions.add(f"@{x} {p}")
                 else:
@@ -1999,6 +2007,8 @@ class DataView(object):
 
         found = {x: v for x, v in item.item_hsh.items() if x in self.completion_keys}
         for x, v in found.items():
+            if x == 'k':
+                logger.debug(f"adding completion for k: {v}")
             if isinstance(v, list):
                 for p in v:
                     completions.add(f"@{x} {p}")
@@ -2011,19 +2021,36 @@ class DataView(object):
 
     def update_konnections(self, item):
         """
-        to_hsh: ID -> ids of items with @k ID
-        from_hsh ID -> ids in @k
+        Only change relevant hashes
         """
-        links = item.item_hsh.get('k', [])
-        # # make sure the doc_id refers to an actual document
-        # links = [x for x in links if self.db.contains(doc_id=x)]
+        # the original @k entries
+        orig = self.konnections_from.get(item.doc_id)
+
+        # the new and valid @k entries
+        links = [x for x in item.item_hsh.get('k', []) if self.db.contains(doc_id = x)]
+
+        # remove duplicates
+        links = list(set(links))
+
+        # upate konnections_from to the new, valid,
+        # and non-duplicate @k's
         self.konnections_from[item.doc_id] = links
-        logger.debug(f"links: {links}; doc_id: {item.doc_id}")
+
+        # these @k's were added
+        added = [x for x in links if x not in orig]
+        # these @k's were removed
+        removed = [x for x in orig if x not in links]
+
         for link in links:
-            if not self.db.contains(doc_id=link):
-                continue
-            if link not in self.konnections_to or item.doc_id not in self.konnections_to[link]:
+            if link in added:
                 self.konnections_to.setdefault(link, []).append(item.doc_id)
+            elif link in removed:
+                self.konnections_to[link].remove(item.doc_id)
+
+        # now update konnected to reflect the changes
+        konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
+        self.konnected = list(set(konnected))
+
 
 
     def refresh_konnections(self):
@@ -3302,6 +3329,11 @@ def do_beginby(arg):
 
 def do_konnection(arg):
     konnection_str = "an integer document id"
+    m = KONNECT_REGEX.match(arg)
+    if m:
+        logger.debug(f"arg: {arg}; m[1]: {m[1]}")
+        arg = m[1]
+
     if not arg:
         return None, konnection_str
     ok, res = integer(arg, 1, None, False)
@@ -3310,7 +3342,7 @@ def do_konnection(arg):
         rep = arg
     else:
         obj = None
-        rep = f"'{arg}' is invalid. Konnection requires {konnection_str}."
+        rep = f"'{arg}' is incomple or invalid. Konnection requires {konnection_str}."
     return obj, rep
 
 
@@ -5508,6 +5540,8 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]):
         #     continue
         id = item.doc_id
         index = item.get('i', '~')
+        index_tup = index.split('/')
+        logger.debug(f"index: {index}")
         summary = item['summary']
         summary = (summary[:width-3].rstrip() +  KONNECT_CHAR) if id in konnect_list else summary
         summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
@@ -5517,7 +5551,6 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]):
                     'index': index,
                     'columns': [item['itemtype'],
                         summary,
-                        # item['summary'],
                         item.doc_id],
                     })
     rows.sort(key=itemgetter('sort'))
@@ -5528,6 +5561,7 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]):
                 f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
                 )
         try:
+            logger.debug(f"path: {path}")
             rdict.add(path, values)
         except:
             logger.error(f"error adding path: {path}, values: {values}")
@@ -5748,20 +5782,16 @@ def summary_pin(text, width, id, pinned_list, link_list, konnected_list):
     if id in konnected_list:
         in_konnected = True
         text = (text[:width-3].rstrip() +  KONNECT_CHAR)
-        logger.debug(f"text: {text}")
     if id in link_list:
         text = (text[:width-3].rstrip() +  LINK_CHAR)
     if id in pinned_list:
         ret = (text[:width-1] + PIN_CHAR).ljust(width-1, ' ')
     else:
         ret = text[:width].ljust(width, ' ')
-        if in_konnected:
-            logger.debug(f"text: {text}; ret: {ret}")
     return ret
 
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnected_list=[]):
-    logger.debug(f"pinned_list: {pinned_list}")
     ampm = settings['ampm']
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
@@ -5804,11 +5834,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             continue
         if item['itemtype'] in "!?":
             continue
-        if item.doc_id in konnected_list:
-            logger.debug(f"calling summary_pin for id: {item.doc_id}")
         summary = summary_pin(item['summary'], summary_width, item.doc_id, pinned_list, link_list, konnected_list)
-        if item.doc_id in konnected_list:
-            logger.debug(f"summary: {summary}")
 
         if 'u' in item:
             used = item.get('u') # this will be a list of @u entries
@@ -5859,7 +5885,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 for dt in item['h']:
                     d.append([dt, summary, item.doc_id, None])
             if 'j' in item:
-                # logger.debug(f"item['j']: {item['j']}")
                 for job in item['j']:
                     job_summary = summary_pin(job.get('summary', ''), summary_width, item.doc_id, pinned_list, link_list, konnected_list)
                     if 'f' in job:
