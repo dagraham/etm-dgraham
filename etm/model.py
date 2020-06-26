@@ -5338,9 +5338,10 @@ def show_konnected(db, pinned_list=[], link_list=[], konnect_list=[], selected_i
 
     width = shutil.get_terminal_size()[0] - 2
     rows = []
-    summary_width = width - 8
+    summary_width = width - 11
     for path, item in relevant:
         id = item.doc_id
+        id_fmt = str(id).rjust(6, ' ')
         itemtype = item['itemtype']
         # modified = item['modified'] if 'modified' in item else item['created']
 
@@ -5360,6 +5361,7 @@ def show_konnected(db, pinned_list=[], link_list=[], konnect_list=[], selected_i
                     'sort': (path, -id),
                     'columns': [itemtype,
                         summary,
+                        id_fmt,
                         id,
                         ]
                 }
@@ -5373,7 +5375,7 @@ def show_konnected(db, pinned_list=[], link_list=[], konnect_list=[], selected_i
         path = row['path']
         values = (
                 f"{row['columns'][0]} {row['columns'][1]}{row['columns'][2]}",
-                row['columns'][2]
+                row['columns'][3]
                 )
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
@@ -5466,22 +5468,26 @@ def show_records(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[])
     """
     width = shutil.get_terminal_size()[0] - 2
     rows = []
+    summary_width = width - 14
     # indices = set([])
     for item in db:
         id = item.doc_id
         if item['itemtype'] != '%':
             continue
+        id_fmt = str(item.doc_id).rjust(6, ' ')
         index = item.get('i', '~')
         summary = item['summary']
-        summary = (summary[:width-3].rstrip() +  KONNECT_CHAR) if id in konnect_list else summary
-        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
-        summary = summary[:width - 11] + PIN_CHAR if id in pinned_list else summary[:width - 10]
+        summary = (summary[:summary_width-3].rstrip() +  KONNECT_CHAR) if id in konnect_list else summary
+        summary = (summary[:summary_width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+        summary = summary[:summary_width - 11] + PIN_CHAR if id in pinned_list else summary[:width - 10]
+        summary = summary.ljust(summary_width, ' ')
         rows.append({
                     # 'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
                     'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
                         summary,
+                        id_fmt,
                         item.doc_id],
                     })
     rows.sort(key=itemgetter('sort'))
@@ -5489,7 +5495,7 @@ def show_records(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[])
     for row in rows:
         path = row['index']
         values = (
-                f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
+                f"{row['columns'][0]} {row['columns'][1]}{row['columns'][2]}", row['columns'][3]
                 )
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
@@ -5534,31 +5540,35 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]):
     All items grouped by index entry
     """
     width = shutil.get_terminal_size()[0] - 2
+    summary_width = width - 14
     rows = []
     for item in db:
         # if item['itemtype'] == '%':
         #     continue
         id = item.doc_id
+        id_fmt = str(id).rjust(6, ' ')
         index = item.get('i', '~')
         index_tup = index.split('/')
         logger.debug(f"index: {index}")
         summary = item['summary']
-        summary = (summary[:width-3].rstrip() +  KONNECT_CHAR) if id in konnect_list else summary
-        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
-        summary = summary[:width - 11] + PIN_CHAR if item.doc_id in pinned_list else summary[:width - 10]
+        summary = (summary[:summary_width-3].rstrip() +  KONNECT_CHAR) if id in konnect_list else summary
+        summary = (summary[:summary_width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
+        summary = summary[:summary_width - 11] + PIN_CHAR if item.doc_id in pinned_list else summary[:width - 10]
+        summary = summary.ljust(summary_width, ' ')
         rows.append({
                     'sort': (index, item['summary']),
                     'index': index,
                     'columns': [item['itemtype'],
                         summary,
-                        item.doc_id],
+                        id_fmt,
+                        id],
                     })
     rows.sort(key=itemgetter('sort'))
     rdict = RDict()
     for row in rows:
         path = row['index']
         values = (
-                f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
+                f"{row['columns'][0]} {row['columns'][1]}{row['columns'][2]}", row['columns'][3],
                 )
         try:
             logger.debug(f"path: {path}")
