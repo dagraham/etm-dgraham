@@ -35,8 +35,15 @@ Please consider joining the etm discussion group at [groups.io](https://groups.i
         -   [editor menu notes](#editor-menu-notes)
         -   [selected menu notes](#selected-menu-notes)
     -   [Installation](#installation)
+        -   [for use in a virtual environment](#for-use-in-a-virtual-environment)
+        -   [for use system wide](#for-use-system-wide)
     -   [Usage](#usage)
+        -   [Terminal size and color](#terminal-size-and-color)
+        -   [Home directory](#home-directory)
+        -   [Using etm+](#etmplus)
     -   [Deinstallation](#deinstallation)
+        -   [From a virtual environment](#from-a-virtual-environment)
+        -   [From a system wide installation](#from-a-system-wide-installation)
 -   [Details](#details)
     -   [Item Types](#item-types)
         -   [event](#event)
@@ -493,12 +500,12 @@ The pinned status of items is retained so long as *etm* is active but cleared wh
 
 Items with @k konnection links either to or from other items are displayed with a dagger, †, appended to their summaries in all views. When such an item is selected and `k` is pressed this view displays all reminders konnected to the selected reminder, organized as follows:
 
-	reminders with links to the selection
-	   the list of items with @k entries which include the id of the selected item
-	the selection
-	   the selected item
-	reminders with links from the selection
-	   the list of items whose ids are included in the @k entries of the selected item
+* reminders with links to the selection
+    * the list of items with @k entries which include the id of the selected item
+* the selection
+    * the selected item
+* reminders with links from the selection
+    * the list of items whose ids are included in the @k entries of the selected item
 
 ### Used Time Views
 
@@ -1154,7 +1161,9 @@ Several options here deserve comment.
 
 <!--  [![etm: installing etm in a virtual environment](http://img.youtube.com/vi/fEPPG82AH7M/0.jpg)](http://www.youtube.com/watch?v=fEPPG82AH7M "installing etm in a virtual environment") -->
 
-Setting up a virtual environment for etm is recommended. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
+### For use in a virtual environment
+
+Setting up a virtual environment for etm is recommended for new users. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
 
 Open a terminal and begin by creating a new directory/folder for the virtual environment, say `etm-pypi` in your home directory:
 
@@ -1181,15 +1190,55 @@ This will install etm and all its requirements in
 
 		./env/lib/python3.x/sitepackages
 
-and will also install an executable called `etm` in `./env/bin`.
+and will also install an executable called `etm` in `./env/bin`.You can then start etm using
 
-By the way, the suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display.
+        (env) $ etm <path to home>
 
-Before you start etm, think about where you would like to keep your personal data and configuration files. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_, e.g.,
+Details about the home directory are in [usage](#usage).
 
-        (env) $ etm ~/Documents/etm
+### For use system wide
 
-Considerations:
+If your system allows you to run `sudo` and you want general access system wide, then you could instead install etm using 
+
+    $ sudo -H python3.x -m pip install -U etm-dgraham
+replacing the `3.x` with the verion of python you want to use, e.g., `3.7`. This would put both etm and etm+ in your path (in the bin directory for python3.7).
+
+Notes:
+* This same command would be used to update *etm* to the latest version.
+* You may or may not need the '-H' argument for sudo. Here is the relevant section from the sudo man page:
+
+        -H, --set-home
+                    Request that the security policy set the
+                    HOME environment variable to the home
+                    directory specified by the target user's
+                    password database entry.  Depending on
+                    the policy, this may be the default
+                    behavior.
+* Invoking pip through python in this way forces the use of the pip that belongs to python3.7. 
+
+You can then open any terminal and start etm using
+
+    $ etm <path to home>
+
+## Usage
+
+### Terminal size and color scheme
+
+The suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display.
+
+The size of the terminal is used when *etm* starts to set various display options so changing the terminal size, especially reducing the width, is best avoided once *etm* is running.
+
+### Home directory
+
+Before you start etm, think about where you would like to keep your personal data and configuration files. This will be your etm *home* directory. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_. 
+
+	$ etm <path to home>
+Finally, if there is an environmental variable, `ETMHOME`, set to this path then you can just enter
+
+	$ etm
+and etm will use `ETMHOME` as its home directory.
+
+Home directory considerations:
 
 * If more than one person will be using etm on the same computer, you might want to have different *home* directories for each user.
 * If you want to use etm on more than one computer and use Dropbox, you might want to use `~/Dropbox/etm` to have access on each of your computers.
@@ -1209,31 +1258,24 @@ Here `cfg.yaml` is your user configuration file and `db.json` contains all your 
 The file `cfg.yaml` can be edited and the options are documented in the file.
 See [configuration](#configuration) for details.
 
-## Usage
+<h3 id="etmplus">
+Using etm+
+</h3>
 
-Once etm is installed, you can start etm by opening a terminal with a width of at least 60 charaters and entering
-
-	$ etm <path to home>
-
-where `<path to home>` is the path to your *home* directory where your data files are kept. Alternatively, if there is an environmental variable, `ETMHOME`, set to this path then you can just enter
-
-	$ etm
-
-and etm will use `ETMHOME` as its home directory.
-
-An added bonus of setting `ETMHOME` is the possibility of using the `etm+` shortcut for creating reminders. E.g., entering
+An added bonus of setting `ETMHOME` to the path of your *home* directory is the possibility of using the `etm+` shortcut for creating reminders. E.g., entering
 
 	$ etm+ '* lunch with Peter @s fri 12p'
 
-would cause the line `* lunch with Peter @s fri 12p` to be appended to the file `inbasket.text`in `ETMHOME`, creating the file if necessary. `etm+` also accepts input piped to it so that
+would append the line `* lunch with Peter @s fri 12p` to the file `inbasket.text`in `ETMHOME`, creating the file if necessary. `etm+` also accepts input piped to it so that
 
 	$ echo '* lunch with Peter @s fri 12p' | etm+
 
 would produce exactly the same result.
 
-Note that the single quotes are necessary to keep the shell from treating "*" as a wildcard to be expanded into the names of all the files in the current working directory. Similarly, without the single quotes, the shell would interpret '$50' as a shell variable because of the dollar sign. The safest policy is to always wrap the entry for etm+ in single quotes.
+Important
+: The single quotes are necessary to keep the shell from expanding the "*" into the names of all the files in the current working directory and other such mischief. 
 
-When `inbasket.text` exists in `ETMHOME`, etm will display an inbasket character, ⓘ , at the right end of its status bar reminding you that inbasket items are available for importing. Just press F5 in etm to import the reminders from this file and, on successful completion, automatically remove the file.
+*etm* checks once every minute for the presence of a file named `inbasket.text`in `ETMHOME` and, if found, will display an inbasket character, ⓘ , at the right end of its status bar reminding you that inbasket items are available for importing. Just press F5 in etm to import the reminders from this file and, on successful completion, automatically remove the file.
 
 Note finally that `etm+` will accept quick notes which are not themselves valid etm reminders such as
 
@@ -1250,11 +1292,20 @@ The addition of the typechar '!' means that after importing the reminder will ap
 
 ## Deinstallation
 
+### From a virtual environment
+
 If you should ever want to deinstall etm, first deactivate the virtual environment, if necessary, by changing to the virtual environment directory and entering
 
         (env) $ deactivate
 
 You can now simply delete the virtual environment directory and, if you have additional *home* directories, delete each of them. One of the many advantages of the virtual environment is that these steps remove every trace.
+
+### From a system wide installation
+
+To remove *etm* installed into, say, python3.7, run
+
+    $ sudo -H python3.7 pip uninstall etm-dgraham
+This will remove *etm* from the python site-packages directory and the *etm* and *etm+* executables from the python bin directory. Then remove any *etm home* directories that you have created.
 
 # Details
 

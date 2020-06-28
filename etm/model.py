@@ -35,7 +35,7 @@ def parse(s, **kwd):
         tz = kwd['tzinfo']
         # logger.debug(f"setting tzinfo: {tz}")
         dt = dt.replace(tzinfo=tz)
-    logger.debug(f"dt: {dt}; type: {type(dt)}")
+    # logger.debug(f"dt: {dt}; type: {type(dt)}")
     return dt
 
 import sys
@@ -559,12 +559,12 @@ class Item(object):
 
     def use_archive(self):
         self.query_mode = "archive table"
-        logger.debug("using archive table")
+        # logger.debug("using archive table")
         self.db = DBARCH
 
     def use_items(self):
         self.query_mode = "items table"
-        logger.debug("using items table")
+        # logger.debug("using items table")
         self.db = DBITEM
 
     def check_goto_link(self, num=5):
@@ -603,7 +603,7 @@ class Item(object):
         return  showing, f"from {starting}:\n  " + "\n  ".join(pairs)
 
     def edit_item(self, doc_id=None, entry=""):
-        logger.debug(f"doc_id: {doc_id}; entry: {entry}")
+        # logger.debug(f"doc_id: {doc_id}; entry: {entry}")
         if not (doc_id and entry):
             return None
         item_hsh = self.db.get(doc_id=doc_id)
@@ -710,10 +710,10 @@ class Item(object):
         else:
             # repeating
             removed_old = False
-            logger.debug(f"adding {new_dt}")
+            # logger.debug(f"adding {new_dt}")
             added_new = self.schedule_new(doc_id, new_dt)
             if added_new:
-                logger.debug(f"removing {old_dt}")
+                # logger.debug(f"removing {old_dt}")
                 removed_old = self.delete_instances(doc_id, old_dt, 0)
             else:
                 logger.warning(f"doc_id: {doc_id}; error adding {new_dt}")
@@ -751,7 +751,7 @@ class Item(object):
             if changed:
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
-                logger.debug(f"replacing {self.item_hsh}")
+                # logger.debug(f"replacing {self.item_hsh}")
 
                 self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
         else: # 1
@@ -946,7 +946,7 @@ class Item(object):
         cur_hsh = {}
         cur_key = None
         msg = []
-        logger.debug(f"pos_hsh: {self.pos_hsh}")
+        # logger.debug(f"pos_hsh: {self.pos_hsh}")
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if not obj:
@@ -1016,7 +1016,7 @@ class Item(object):
             else:
                 # editing an existing item
                 if 'k' in self.item_hsh:
-                    logger.debug(f"adding 'k': {self.item_hsh} to item with doc_id: {self.doc_id}; type: {type(self.doc_id)}")
+                    # logger.debug(f"adding 'k': {self.item_hsh} to item with doc_id: {self.doc_id}; type: {type(self.doc_id)}")
                     if self.doc_id in self.item_hsh['k']:
                         # remove self referential konnections
                         self.item_hsh['k'].remove(self.doc_id)
@@ -1089,10 +1089,10 @@ class Item(object):
             require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in required[itemtype] and k != '?' and k not in already_entered)]
             # allow rr to be entered as r and jj as j
             avail = [x for x in allowed[itemtype] if len(x) == 1 or x in ['rr', 'jj'] ]
-            logger.debug(f"avail: {avail}")
+            # logger.debug(f"avail: {avail}")
             allow = [f"@{k[0]}_({v[0]})" for k, v in self.keys.items() if (k in avail and k not in already_entered)]
             allow.sort()
-            logger.debug(f"allow: {allow}")
+            # logger.debug(f"allow: {allow}")
             prompt = ""
             if require:
                 prompt += wrap(f"required: {', '.join(require)}", 2) + "\n"
@@ -1116,10 +1116,10 @@ class Item(object):
             &c (count), &u (until), &s (set positions)
         """
         keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('r') and k[1] not in 'r?']
-        logger.debug(f"ampr keys: {keys}")
+        # logger.debug(f"ampr keys: {keys}")
         rep = wrap("repetition &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
 
-        logger.debug(f"repetition: {rep}")
+        # logger.debug(f"repetition: {rep}")
         return None, rep
 
 
@@ -1135,9 +1135,9 @@ class Item(object):
             &s (start), &u (used time)
         """
         keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('j') and k[1] not in 'j?']
-        logger.debug(f"ampj keys: {keys}")
+        # logger.debug(f"ampj keys: {keys}")
         rep = wrap("job &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
-        logger.debug(f"jobs: {rep}")
+        # logger.debug(f"jobs: {rep}")
 
         return None, rep
 
@@ -1219,7 +1219,7 @@ class Item(object):
             rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
         else:
             rep = res
-        logger.debug(f"obj: {obj}; rep: {rep}")
+        # logger.debug(f"obj: {obj}; rep: {rep}")
         return obj, rep
 
     def do_datetimes(self, args):
@@ -1355,7 +1355,7 @@ def datetime_calculator(s):
     if not m:
         return f'Could not parse "{s}"'
     x, pm, y = [z.strip() for z in m.groups()]
-    logger.debug(f"x: {x}; pm: {pm}; y: {y}")
+    # logger.debug(f"x: {x}; pm: {pm}; y: {y}")
     xz = 'local'
     nx = timezone_regex.match(x)
     if nx:
@@ -1374,7 +1374,7 @@ def datetime_calculator(s):
             ok, dur = parse_duration(pmy)
             if not ok:
                 return f"error: could not parse '{y}'"
-            logger.debug(f"dur: {dur}")
+            # logger.debug(f"dur: {dur}")
             dt = (dt_x + dur).in_timezone(yz)
             return dt.format(datetime_fmt)
         else:
@@ -1440,7 +1440,7 @@ def parse_datetime(s, z=None):
         return False, '', z
 
     try:
-        logger.debug(f"tzinfo: {tzinfo}")
+        # logger.debug(f"tzinfo: {tzinfo}")
         s = s.strip()
         if s == 'now':
             return True, pendulum.now(tz=tzinfo), z
@@ -1470,12 +1470,12 @@ def parse_datetime(s, z=None):
 
         dur = parse_duration(dur_str)[1] if dur_str else ZERO
         res = dt + dur
-        logger.debug(f"s: {s} -> res: {res}")
+        # logger.debug(f"s: {s} -> res: {res}")
 
     except Exception as e:
         return False, f"'{s}' is incomplete or invalid: {e}", z
     else:
-        logger.debug(f"tzinfo: {tzinfo}; z: {z}")
+        # logger.debug(f"tzinfo: {tzinfo}; z: {z}")
         if tzinfo in ['local', 'float'] and (
             res.hour,
             res.minute,
@@ -1714,11 +1714,11 @@ def parse_duration(s):
             }
 
     m = period_regex.findall(s)
-    logger.debug(f"m: {m}")
+    # logger.debug(f"m: {m}")
     if not m:
         return False, f"Invalid period string '{s}'"
     for g in m:
-        logger.debug(f"processing g: {g}")
+        # logger.debug(f"processing g: {g}")
         if g[3] not in knms:
             return False, f"invalid period argument: {g[3]}"
 
@@ -1793,25 +1793,34 @@ class RDict(dict):
 
 
     def add(self, tkeys, values=()):
+        """
+        We want values always to have 4 components: 1) the combined itemtype and summary, 2) the combined flags, if any, 3) the "rhc" string with a constant length and pre justified and 4) the integer doc_id.
+
+        Leaf output will begin with indent, add a possibly truncated value 1, value 2 and value 3. The lengths of indent, value 2 and value 3 will be subtracted from screen width with the difference the space available for value 1 which will either be truncated or left fill justified accordingly.
+        """
         keys = tkeys.split(self.split_char)
-        logger.debug(f"split_char: {self.split_char}; keys: {keys}")
+        # if len(values) != 4:
+        #     logger.warning(f"values does not have 4 components: {values}" )
+        # logger.debug(f"split_char: {self.split_char}; keys: {keys}")
         for j in range(len(keys)):
             key = keys[j]
             keys_left = keys[j+1:]
-            logger.debug(f"j: {j}; key: {key}; keys_left: {keys_left}")
+            # logger.debug(f"j: {j}; key: {key}; keys_left: {keys_left}")
             if not keys_left:
                 try:
                     self.setdefault(key, []).append(values)
+                    # logger.debug(f"key: {self[key]}; values: {values} ")
                 except Exception as e:
                     logger.warning(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
             if isinstance(self[key], dict):
                 self = self[key]
             elif keys_left:
-                self.setdefault(":".join(keys[j:]), []).append(values)
+                self.setdefault("/".join(keys[j:]), []).append(values)
                 break
 
     def as_tree(self, t={}, depth = 0, level=0):
         """ return an indented tree """
+        # logger.debug(f"t.keys: {t.keys()}")
         for k in t.keys():
             indent = RDict.tab * depth * " "
             self.output.append("%s%s" % (indent,  k))
@@ -1824,8 +1833,10 @@ class RDict(dict):
             if type(t[k]) == RDict:
                 self.as_tree(t[k], depth, level)
             else:
+                # we have a list of leaves
                 for leaf in t[k]:
                     indent = RDict.tab * depth * " "
+                    l_indent = len(indent)
                     self.output.append("%s%s" % (indent, leaf[0]))
                     self.row2id[self.row] = leaf[1]
                     self.row += 1
@@ -1986,7 +1997,7 @@ class DataView(object):
 
             if item['itemtype'] == '%' and item.get('i', None):
                 tmp = f"@k {item['i']} {item['itemtype']} {item['summary']}: {item.doc_id}"
-                logger.debug(f"adding {tmp}")
+                # logger.debug(f"adding {tmp}")
                 completions.add(tmp)
             for x, v in found.items():
                 if isinstance(v, list):
@@ -2007,8 +2018,8 @@ class DataView(object):
 
         found = {x: v for x, v in item.item_hsh.items() if x in self.completion_keys}
         for x, v in found.items():
-            if x == 'k':
-                logger.debug(f"adding completion for k: {v}")
+            # if x == 'k':
+                # logger.debug(f"adding completion for k: {v}")
             if isinstance(v, list):
                 for p in v:
                     completions.add(f"@{x} {p}")
@@ -2024,17 +2035,22 @@ class DataView(object):
         Only change relevant hashes
         """
         # the original @k entries
-        orig = self.konnections_from.get(item.doc_id)
+        # logger.debug(f"update doc_id: {item.doc_id}; konnections_from: {self.konnections_from}; konnections_to: {self.konnections_to}")
+        orig = self.konnections_from.get(item.doc_id, []) if item.doc_id else []
 
         # the new and valid @k entries
-        links = [x for x in item.item_hsh.get('k', []) if self.db.contains(doc_id = x)]
+        # links = [x for x in item.item_hsh.get('k', []) if self.db.contains(doc_id = x)]
+        links = item.item_hsh.get('k', [])
 
         # remove duplicates
         links = list(set(links))
 
         # upate konnections_from to the new, valid,
         # and non-duplicate @k's
-        self.konnections_from[item.doc_id] = links
+        if links:
+            self.konnections_from[item.doc_id] = links
+        elif item.doc_id in self.konnections_from:
+            del self.konnections_from[item.doc_id]
 
         # these @k's were added
         added = [x for x in links if x not in orig]
@@ -2050,6 +2066,7 @@ class DataView(object):
         # now update konnected to reflect the changes
         konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
         self.konnected = list(set(konnected))
+        # logger.debug(f"links: {links}; added: {added}; removed: {removed}; konnected: {self.konnected}")
 
 
 
@@ -2182,7 +2199,7 @@ class DataView(object):
         self.active_view = self.views.get(c, 'agenda')
         if self.active_view != 'query':
             self.use_items()
-        logger.debug(f"active_view: {self.active_view}")
+        # logger.debug(f"active_view: {self.active_view}")
 
 
     def show_active_view(self):
@@ -2378,7 +2395,7 @@ class DataView(object):
         item_id = res[0]
         item = self.db.get(doc_id=item_id)
         if 'doc_id' in item:
-            logger.debug(f"item has 'doc_id': {item['doc_id']}")
+            # logger.debug(f"item has 'doc_id': {item['doc_id']}")
             return item['doc_id']
 
 
@@ -2393,7 +2410,7 @@ class DataView(object):
         item = self.db.get(doc_id=item_id)
         if item:
             item_hsh = item_details(item, edit)
-            logger.debug(f"returning item_id: {item_id}; item_hsh: {item_hsh}")
+            # logger.debug(f"returning item_id: {item_id}; item_hsh: {item_hsh}")
             return item_id, item_hsh
         return None, ''
 
@@ -2543,7 +2560,7 @@ class DataView(object):
             else:
                 if item.doc_id in self.link_list:
                     self.link_list.remove(item_id)
-        logger.debug(f"link_list: {self.link_list}")
+        # logger.debug(f"link_list: {self.link_list}")
 
 
     def possible_archive(self):
@@ -2632,7 +2649,7 @@ class DataView(object):
             return False
         item_id = res[0]
         item = self.db.get(doc_id=item_id)
-        logger.debug(f"moving item_id {item_id} from {self.query_mode}")
+        # logger.debug(f"moving item_id {item_id} from {self.query_mode}")
         try:
             if self.query_mode == "items table":
                 # move to archive
@@ -2656,7 +2673,7 @@ class DataView(object):
         # attendees can have the form "abbrev: emailaddress". Split on the colon and keep the emailaddress.
         addresses = [x.split(':')[-1].strip() for x in attendees]
         email_addresses = [x for x in addresses if not PHONE_REGEX.match(x)]
-        logger.debug(f"email_addresses: {email_addresses}")
+        # logger.debug(f"email_addresses: {email_addresses}")
         smtp = self.settings['smtp']
         smtp_from = smtp.get('from', None)
         smtp_id = smtp.get('id', None)
@@ -2688,7 +2705,7 @@ class DataView(object):
         msg['Date'] = formatdate(localtime=True)
         msg['Subject'] = item['summary']
         msg.attach(MIMEText(message))
-        logger.debug(f"msg: {msg}")
+        # logger.debug(f"msg: {msg}")
         smtp = smtplib.SMTP_SSL(smtp_server)
         smtp.login(smtp_id, smtp_pw)
         smtp.sendmail(smtp_from, attendees, msg.as_string())
@@ -2703,7 +2720,7 @@ class DataView(object):
             return
         addresses = [x.split(':')[-1].strip() for x in attendees]
         phone_numbers = [x for x in addresses if PHONE_REGEX.match(x)]
-        logger.debug(f"phone_numbers: {phone_numbers}")
+        # logger.debug(f"phone_numbers: {phone_numbers}")
 
         from email.utils import COMMASPACE
 
@@ -2736,7 +2753,7 @@ class DataView(object):
         msg["From"] = sms_from
         msg["Subject"] = summary
         msg['To'] = sms_phone
-        logger.debug(f"msg: {msg}")
+        # logger.debug(f"msg: {msg}")
         sms.sendmail(sms_from, sms_phone, msg.as_string())
         sms.quit()
 
@@ -3331,7 +3348,7 @@ def do_konnection(arg):
     konnection_str = "an integer document id"
     m = KONNECT_REGEX.match(arg)
     if m:
-        logger.debug(f"arg: {arg}; m[1]: {m[1]}")
+        # logger.debug(f"arg: {arg}; m[1]: {m[1]}")
         arg = m[1]
 
     if not arg:
@@ -4008,7 +4025,7 @@ def get_next_due(item, done, due):
         using_dates = True
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
         aft = pendulum.datetime(year=aft.year, month=aft.month, day=aft.day, hour=0, minute=0)
-    logger.debug(f'using_dates: {using_dates}; overdue: {overdue}; aft: {aft}; inc: {inc}; dtstart: {dtstart}')
+    # logger.debug(f'using_dates: {using_dates}; overdue: {overdue}; aft: {aft}; inc: {inc}; dtstart: {dtstart}')
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
         kwd['dtstart'] = dtstart
@@ -4026,11 +4043,11 @@ def get_next_due(item, done, due):
         for dt in item['+']:
             rset.rdate(dt)
     nxt_rset = rset.after(aft, inc)
-    logger.debug(f"nxt_rset: {nxt_rset}; aft: {aft}, inc: {inc}")
+    # logger.debug(f"nxt_rset: {nxt_rset}; aft: {aft}, inc: {inc}")
     nxt = pendulum.instance(nxt_rset)
     if using_dates:
         nxt = nxt.date()
-    logger.debug(f"nxt: {nxt}")
+    # logger.debug(f"nxt: {nxt}")
     return nxt
 
 def date_to_datetime(dt):
@@ -4413,7 +4430,7 @@ def jobs(lofh, at_hsh={}):
                 auto = True
                 count = 0
         if auto: # auto mode
-            logger.debug('auto mode')
+            # logger.debug('auto mode')
             if count > 25:
                 count = 0
                 msg.append(
@@ -4432,7 +4449,7 @@ def jobs(lofh, at_hsh={}):
             req[hsh['i']] = deepcopy(hsh['p'])
 
         else:    # manual mode
-            logger.debug('manual mode')
+            # logger.debug('manual mode')
             if 'i' not in hsh:
                 msg.append('error: &i is required for each job in manual mode')
             elif hsh['i'] in req:
@@ -4546,7 +4563,7 @@ def jobs(lofh, at_hsh={}):
         id2hsh[i]['summary'] = "{} {}: {}".format(summary, "/".join([str(x) for x in awf]), id2hsh[i]['j'])
         id2hsh[i]['req'] = req[i]
         id2hsh[i]['i'] = i
-        logger.debug(f"id2hsh[{i}]: {id2hsh[i]}")
+        # logger.debug(f"id2hsh[{i}]: {id2hsh[i]}")
 
     if msg:
         logger.warning(f"{msg}")
@@ -4767,7 +4784,7 @@ def item_details(item, edit=False):
     """
 
     """
-    logger.debug(f"item: {item}; edit: {edit}")
+    # logger.debug(f"item: {item}; edit: {edit}")
     try:
         if edit:
             return jinja_entry_template.render(h=item)
@@ -4949,8 +4966,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 # rset
                 if instance_interval:
                     instances = rset.between(instance_interval[0], instance_interval[1], inc=True)
-                    if instances:
-                        logger.debug(f"instances for {item['summary']}: {instances}")
+                    # if instances:
+                    #     logger.debug(f"instances for {item['summary']}: {instances}")
                     if possible_beginby:
                         for instance in instances:
                             if today + DAY <= instance <= tomorrow + possible_beginby:
@@ -5273,7 +5290,7 @@ def show_review(db, pinned_list=[], link_list=[], konnect_list=[]):
         time = fmt_time(modified)
         dtfmt = f"{monthday} {time}"
         weeks = (pendulum.now() - modified).days // 7
-        logger.debug(f"weeks 0: {weeks == 0}; 1: {weeks == 1}; >1: {weeks > 1}")
+        # logger.debug(f"weeks 0: {weeks == 0}; 1: {weeks == 1}; >1: {weeks > 1}")
         if weeks == 0:
             wkfmt = " This week"
         elif weeks == 1:
@@ -5549,7 +5566,7 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]):
         id_fmt = str(id).rjust(6, ' ')
         index = item.get('i', '~')
         index_tup = index.split('/')
-        logger.debug(f"index: {index}")
+        # logger.debug(f"index: {index}")
         summary = item['summary']
         summary = (summary[:summary_width-3].rstrip() +  KONNECT_CHAR) if id in konnect_list else summary
         summary = (summary[:summary_width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
@@ -5571,7 +5588,7 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]):
                 f"{row['columns'][0]} {row['columns'][1]}{row['columns'][2]}", row['columns'][3],
                 )
         try:
-            logger.debug(f"path: {path}")
+            # logger.debug(f"path: {path}")
             rdict.add(path, values)
         except:
             logger.error(f"error adding path: {path}, values: {values}")
@@ -5621,7 +5638,7 @@ def show_pinned(items, pinned_list=[], link_list=[], konnect_list=[]):
                 )
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
-    logger.debug(f"row2id: {row2id}")
+    # logger.debug(f"row2id: {row2id}")
     return tree, row2id
 
 def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[]):
