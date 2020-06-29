@@ -975,7 +975,7 @@ class Item(object):
                     cur_key = None
                     cur_hsh = {}
                 self.item_hsh[k] = obj
-        for k in ['a', 'k', 't', 'n']:
+        for k in ['k', 't', 'n']:
             # remove duplicates
             # XXX: should 'u' be included?
             if k in self.item_hsh:

@@ -2409,7 +2409,7 @@ def edit_copy(*event):
     default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
 
-@bindings.add('g', filter=is_viewing_or_details & is_item_view)
+@bindings.add('g', filter=is_viewing & is_not_editing)
 def do_goto(*event):
     row = text_area.document.cursor_position_row
     ok, goto = dataview.get_goto(row)
@@ -2422,7 +2422,7 @@ def do_goto(*event):
         show_message("goto", goto, 8)
 
 
-@bindings.add('g', filter=is_editing)
+@bindings.add('c-g', filter=is_editing)
 def check_goto(*event):
     ok, goto = item.check_goto_link()
     if ok:
@@ -2825,6 +2825,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('N) create new item', handler=edit_new),
         MenuItem('-', disabled=True),
         MenuItem('^s) save changes & close', handler=save_changes),
+        MenuItem('^g) test goto link', handler=do_goto),
         MenuItem('^r) show repetitions', handler=is_editing_reps),
         MenuItem('^z) close editor', handler=close_edit),
     ]),
