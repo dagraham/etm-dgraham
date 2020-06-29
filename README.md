@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" />
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" width="200px" />
 
 This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/etm-dgraham) and in [files](https://groups.io/g/etm/files/).
 
