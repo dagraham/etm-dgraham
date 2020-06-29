@@ -1216,7 +1216,10 @@ def do_about(*event):
 
 @bindings.add('f4')
 def do_check_updates(*event):
-    ok, res = check_output("pip search etm-dgraham")
+
+    cmd = f"python{sys.version_info[0]}.{sys.version_info[1]} -m pip search etm-dgraham"
+    logger.debug(f"update cmd: {cmd}")
+    ok, res = check_output(cmd)
 
     lines = res.split('\n')
     msg = []
@@ -1396,7 +1399,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'records', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected']
 
 @Condition
 def is_dated_view():
@@ -1571,7 +1574,7 @@ type2style = {
         '!': 'inbox',
         '<': 'pastdue',
         '>': 'begin',
-        '%': 'record',
+        '%': 'journal',
         '*': 'event',
         '-': 'available',
         '+': 'waiting',
@@ -1600,7 +1603,11 @@ class ETMLexer(Lexer):
             tmp = document.lines[lineno]
             typ = first_char(tmp)
             if typ in type2style:
-                return [(etmstyle[type2style[typ]], tmp)]
+                sty = type2style[typ]
+                if sty in etmstyle:
+                    return [(etmstyle[type2style[typ]], tmp)]
+                else:
+                    logger.debug(f"sty: {sty}; etmstyle.keys: {etmstyle.keys()}")
             if tmp.rstrip().endswith("(Today)"):
                 return [(etmstyle['today'], f"{tmp} ")]
             return [(etmstyle['plain'], tmp)]
@@ -2622,8 +2629,8 @@ def next_view(*event):
     item.use_items()
     set_text(dataview.show_active_view())
 
-@bindings.add('r', filter=is_viewing)
-def records_view(*event):
+@bindings.add('j', filter=is_viewing)
+def journal_view(*event):
     dataview.set_active_view('r')
     item.use_items()
     set_text(dataview.show_active_view())
@@ -2787,9 +2794,9 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('f) forthcoming', handler=forthcoming_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
+        MenuItem('j) journal', handler=journal_view),
         MenuItem('p) pinned', handler=pinned_view),
         MenuItem('q) query', handler=query_view),
-        MenuItem('r) records', handler=records_view),
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),

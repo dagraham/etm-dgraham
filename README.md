@@ -48,7 +48,7 @@ Please consider joining the etm discussion group at [groups.io](https://groups.i
     -   [Item Types](#item-types)
         -   [event](#event)
         -   [task](#task)
-        -   [record](#record)
+        -   [journal](#journal)
         -   [inbox](#inbox)
         -   [status](#status)
             -   [beginning soon](#beginning-soon)
@@ -78,7 +78,7 @@ The 4 types of reminders in etm with their associated type characters:
 
 * task: **-**
 * event: **\***
-* record: **%**
+* journal: **%**
 * inbox: **!**
 
 See [Item Types](#item-types) for details about these item types and [Options](#options) for details about possible attributes.
@@ -94,7 +94,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
         * Lunch with Ed @s tue 12p @e 90m
 
-* A record (**%**): a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
+* A journal entry (**%**): a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
 
         % Give me a pig - Churchill @s 2p @d Dogs look up at
           you. Cats look down at you. Give me a pig - they
@@ -139,7 +139,7 @@ When you want to create a new reminder or edit an exiting one, *etm* opens an ar
 Let's create the election day reminder to illustrate the **timely** part of the process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character and suggests the alternatives.
 
         item type
-        Choose a character from * (event), - (task), % (record)
+        Choose a character from * (event), - (task), % (journal)
         or ! (inbox)
 
         ────────────────────────────────────────────────────────────
@@ -451,10 +451,10 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence
   * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first
   * i: Index: all items grouped hierarchically by index entry
+  * j: Journal: journal entries grouped hierarchically by index entry
   * k: Konnection: items with @k konnection links either to or from the selected item.
   * p: Pinned: items whose pin status is on.
   * q: Query: items matching a user specified query. Enter ? for query usage.
-  * r: Records: records grouped hierarchically by index entry
   * t: Tags: all items with @t tag entries grouped by tag
   * u: Used Time: all items with @u used time entries grouped by month and hierarchically by index
   * U: Used Time Summary: used time aggregates grouped by month and hierarchically by index
@@ -472,7 +472,7 @@ The normal agenda listing for a week day:
 * all day events (events with dates as `@s` entries)
 * datetime items (reminders with datetimes as `@s` entries) by time
 * all day tasks (tasks with dates as `@s` entries)
-* all day records (records with dates as `@s` entries)
+* all day journal enties (journal entries with dates as `@s` entries)
 
 And, on the current day only:
 
@@ -1058,9 +1058,9 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         f) forthcoming
         h) history
         i) index
+        j) journal
         p) pinned
         q) query
-        r) records
         t) tags
         u) used time
         U) used time summary
@@ -1095,7 +1095,8 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         R) reschedule
         S) schedule new
         ---
-        ^g) open goto
+        g) open goto
+        k) show konnections
         ^r) show repetitions
         ^x) toggle archived status
         ---
@@ -1396,15 +1397,15 @@ A task is something that requires action from the user and lasts, so to speak, u
 
 Corresponds to VTODO in the vcalendar specification.
 
-### record
+### journal
 
 Type character: **%**
 
 A record of something that the user wants to remember. The userid and password for a website would be an example. A journal entry for vacation day is another example.
 
-- The `@s` is optional and, if given, is interpreted as the datetime to which the record applies.
-- Records without @s entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime. They are displayed in the *Record* view
-- Records with @s entries associate the record with the datetime given by @s. A vacation log entry, for example, might record the highlights of the day given by @s. They are displayed in the *Agenda* view as well as the *Record* view.
+- The `@s` is optional and, if given, is interpreted as the datetime to which the journal entry applies.
+- Journal entries without @s entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime. They are displayed in the *Journal* view
+- Journal entries with @s entries associate the entry with the datetime given by @s. A vacation log entry, for example, might record the highlights of the day given by @s. They are displayed in *Agenda* view as well as *Journal* view.
 
 Corresponds to VJOURNAL in the vcalendar specification.
 
@@ -1627,7 +1628,7 @@ For use with @r:
 When a reminder is 'archived' in *etm*, it is is moved from the *items* table in the database to the *archive* table. Reminders in the *archive* table can only be viewed by opening *query view* and then beginning the query with 'a' to use the *archive* table. All other views display reminders from the *items* table.
 
 There are two ways to archive a reminder:
-* Automatically. If 'archive_after' in the configuration settings is set to a positive integer, then tasks with finished datetimes and events with last datetimes more than this number of years before the current date will be achived automatically at the beginning of each new day. Note that unfinshed tasks, records and inbox reminders are never automatically archived.
+* Automatically. If 'archive_after' in the configuration settings is set to a positive integer, then tasks with finished datetimes and events with last datetimes more than this number of years before the current date will be achived automatically at the beginning of each new day. Note that unfinshed tasks, journal entries and inbox reminders are never automatically archived.
 * Manually. Select a reminder and press `^x` (control and x) to archive it.
 
 There is only one way to un-archive a reminder. Run a query beginning with 'a' in *query* view to use the archive table, select a reminder and press `^x`. This will un-archive the reminder, i.e., move it back to the *items* table.
@@ -1734,7 +1735,7 @@ Here are the options with their default values from that file. The lines beginni
 	# daily basis.  Archived items are moved from the "items"
 	# table in the database to the "archive" table and will no
 	# longer appear in normal views. Note that unfinished tasks
-	# and records are not archived.
+	# and journal entries are not archived.
 	archive_after: 0
 
 	# num_finished: A non-negative integer. If positive, when
@@ -1865,7 +1866,7 @@ Here are the options with their default values from that file. The lines beginni
 	#     inbox:        inbox reminders
 	#     pastdue:      pasdue task warnings
 	#     begin:        begin by warnings
-	#     record:       record reminders
+	#     journal:      journal reminders
 	#     event:        event reminders
 	#     waiting:      waiting job reminders (unfinished prereqs)
 	#     finished:     finished task/job reminders
@@ -1886,7 +1887,7 @@ Here are the options with their default values from that file. The lines beginni
 	  inbox: Yellow
 	  pastdue: LightSalmon
 	  begin: Gold
-	  record: GoldenRod
+	  journal: GoldenRod
 	  event: LimeGreen
 	  waiting: SlateGrey
 	  finished: DarkGrey
