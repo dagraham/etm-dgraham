@@ -597,7 +597,7 @@ The *used time **summary** view* for the same month begins with:
 				 correspondence: 1.9h
 
 
-This view omits the reminder lines and aggregates the used times heirarchially by index entry.
+This view omits the reminder lines and aggregates the used times hierarchically by index entry.
 
 As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
 ### Query View
@@ -1020,6 +1020,7 @@ As with other etm views, in query view you can enter `/` or `?` to search increm
 
 While the views differ in many respects, they also share some common aspects:
 
+* The display for each reminder shows the itemtype and summary followed by a *flags* column which displays a combination of letters from 'g' (goto), 'k' (connection) and 'p' (pinned) depending on the presence of these attributes in the reminder. This column is sometimes followed on the extreme right by another column whose contents depends on the view. E.g. in index and journal views it would be the 'id' of the reminder. In history view, the last modification timestamp of the reminder is displayed.
 * Press `N` in any view to create a new item.
 * Select a reminder by clicking on it or by using the up and down cursor keys to move the cursor to the line displaying the reminder.
 * With a reminder selected, press `return` to toggle displaying the details.
@@ -1083,6 +1084,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         N) create new item
         ---
         ^s) save changes & close
+        ^g) test goto link
         ^r) show repetitions
         ^z) close editor
     selected
@@ -1095,7 +1097,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         R) reschedule
         S) schedule new
         ---
-        g) open goto
+        g) open goto link
         k) show konnections
         ^r) show repetitions
         ^x) toggle archived status
