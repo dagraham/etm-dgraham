@@ -1478,7 +1478,7 @@ def do_go_to_line(*event):
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('j', filter=is_dated_view)
+@bindings.add('J', filter=is_dated_view)
 def do_jump_to_date(*event):
     def coroutine():
         dialog = TextInputDialog(
@@ -2402,7 +2402,7 @@ def edit_copy(*event):
     default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
 
-@bindings.add('c-g', filter=is_viewing_or_details & is_item_view)
+@bindings.add('g', filter=is_viewing_or_details & is_item_view)
 def do_goto(*event):
     row = text_area.document.cursor_position_row
     ok, goto = dataview.get_goto(row)
@@ -2415,7 +2415,7 @@ def do_goto(*event):
         show_message("goto", goto, 8)
 
 
-@bindings.add('c-g', filter=is_editing)
+@bindings.add('g', filter=is_editing)
 def check_goto(*event):
     ok, goto = item.check_goto_link()
     if ok:
@@ -2804,7 +2804,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('l) go to line number', handler=do_go_to_line),
         MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
         MenuItem('-', disabled=True),
-        MenuItem('j) jump to date in a), b) and c)', handler=do_jump_to_date),
+        MenuItem('J) jump to date in a), b) and c)', handler=do_jump_to_date),
         MenuItem('right) next in a), b), c), u), U) and y)'),
         MenuItem('left) previous in a), b), c), u), U) and y)'),
         MenuItem('space) current in a), b), c), u), U) and y)'),
@@ -2825,7 +2825,8 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('P) toggle pin', handler=toggle_pinned),
         MenuItem('R) reschedule',  handler=do_reschedule),
         MenuItem('S) schedule new', handler=do_schedule_new),
-        MenuItem('^g) open goto link', handler=do_goto),
+        MenuItem('g) open goto link', handler=do_goto),
+        MenuItem('k) show konnections', handler=show_konnections),
         MenuItem('^r) show repetitions', handler=not_editing_reps),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),

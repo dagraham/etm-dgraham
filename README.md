@@ -1075,7 +1075,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         l) go to line number
         ^c) copy active view to clipboars
         ---
-        j) jump to date in a), b) and c)
+        J) jump to date in a), b) and c)
         right) next in a), b), c), u), U) and y)
         left) previous in a), b), c), u), U) and y)
         space) current in a), b), c), u), U) and y)
@@ -1198,7 +1198,7 @@ Details about the home directory are in [usage](#usage).
 
 ### For use system wide
 
-If your system allows you to run `sudo` and you want general access system wide, then you could instead install etm using 
+If your system allows you to run `sudo` and you want general access system wide, then you could instead install etm using
 
     $ sudo -H python3.x -m pip install -U etm-dgraham
 replacing the `3.x` with the verion of python you want to use, e.g., `3.7`. This would put both etm and etm+ in your path (in the bin directory for python3.7).
@@ -1214,7 +1214,7 @@ Notes:
                     password database entry.  Depending on
                     the policy, this may be the default
                     behavior.
-* Invoking pip through python in this way forces the use of the pip that belongs to python3.7. 
+* Invoking pip through python in this way forces the use of the pip that belongs to python3.7.
 
 You can then open any terminal and start etm using
 
@@ -1230,7 +1230,7 @@ The size of the terminal is used when *etm* starts to set various display option
 
 ### Home directory
 
-Before you start etm, think about where you would like to keep your personal data and configuration files. This will be your etm *home* directory. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_. 
+Before you start etm, think about where you would like to keep your personal data and configuration files. This will be your etm *home* directory. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_.
 
 	$ etm <path to home>
 Finally, if there is an environmental variable, `ETMHOME`, set to this path then you can just enter
@@ -1273,7 +1273,7 @@ would append the line `* lunch with Peter @s fri 12p` to the file `inbasket.text
 would produce exactly the same result.
 
 Important
-: The single quotes are necessary to keep the shell from expanding the "*" into the names of all the files in the current working directory and other such mischief. 
+: The single quotes are necessary to keep the shell from expanding the "*" into the names of all the files in the current working directory and other such mischief.
 
 *etm* checks once every minute for the presence of a file named `inbasket.text`in `ETMHOME` and, if found, will display an inbasket character, ⓘ , at the right end of its status bar reminding you that inbasket items are available for importing. Just press F5 in etm to import the reminders from this file and, on successful completion, automatically remove the file.
 
