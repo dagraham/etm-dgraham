@@ -1062,10 +1062,10 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         j) journal
         p) pinned
         q) query
+		r) review
         t) tags
         u) used time
         U) used time summary
-		v) review
         ---
         s) scheduled alerts for today
         y) half yearly calendar

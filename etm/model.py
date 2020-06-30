@@ -2371,7 +2371,7 @@ class DataView(object):
                     self.query_view, self.row2id = show_query_results(self.query_text, self.query_grpby, self.query_items)
                 else:
                     # standard query
-                    self.query_view, self.row2id = show_query_items(self.query_text, self.query_items)
+                    self.query_view, self.row2id = show_query_items(self.query_text, self.query_items, self.pinned_list, self.link_list, self.konnected)
             else:
                 self.query_view = ""
                 self.row2id = {}
@@ -6166,58 +6166,39 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         busy_hsh[week] = busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
-    # row2id = {}
-    # done2id = {}
-    row_num = -1
-    cache = {}
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
-        agenda = []
-        row2id = {}
-        row_num = 0
-        agenda.append("{}".format(fmt_week(week).center(width, ' ')))
-        for day, columns in groupby(items, key=itemgetter('day')):
-            for d in day:
-                if week == yw:
-                    current_day = now.format("ddd MMM D")
-                    if d == current_day:
-                        d += " (Today)"
-                agenda.append(f"  {d}")
-                row_num += 1
-                for i in columns:
-                    # logger.debug(f"day: {day}; columns: {i['columns']}")
-                    summary = i['columns'][1][:summary_width - 1] + ELLIPSiS_CHAR if len(i['columns'][1]) > summary_width else i['columns'][1].ljust(summary_width, ' ')
-                    flags = i['columns'][2]
-                    rhc = i['columns'][3].rjust(rhc_width, ' ')
-                    agenda.append(f"    {i['columns'][0]} {summary} {flags} {rhc}")
-                    row_num += 1
-                    row2id[row_num] = (i['id'], i['instance'], i['job'])
-        agenda_hsh[week] = "\n".join(agenda)
+        rdict = NDict()
+        wk_fmt = fmt_week(week).center(width, ' ')
+        today = now.format("ddd MMM D")
+        for row in items:
+            day = row['day'][0]
+            if day == today:
+                day += " (Today)"
+            path = f"{wk_fmt}/{day}"
+            values = row['columns']
+            rdict.add(path, values)
+        tree, row2id = rdict.as_tree(rdict, level=0)
+        agenda_hsh[week] = tree
         row2id_hsh[week] = row2id
 
     for week, items in groupby(done, key=itemgetter('week')):
         weeks.add(week)
-        done = []
-        done2id = {}
-        row_num = 0
-        done.append("{}".format(fmt_week(week).center(width, ' ')))
-        for day, columns in groupby(items, key=itemgetter('day')):
-            for d in day:
-                if week == yw:
-                    current_day = now.format("ddd MMM D")
-                    if d == current_day:
-                        d += " (Today)"
-                done.append(f"  {d}")
-                row_num += 1
-                for i in columns:
-                    summary = i['columns'][1][:summary_width - 1] + ELLIPSiS_CHAR if len(i['columns'][1]) > summary_width else i['columns'][1].ljust(summary_width, ' ')
-                    rhc = i['columns'][2].rjust(rhc_width, ' ')
-                    done.append(f"    {i['columns'][0]} {summary}{rhc}")
-                    row_num += 1
-                    done2id[row_num] = (i['id'], i['instance'], i['job'])
-        done_hsh[week] = "\n".join(done)
-        done2id_hsh[week] = done2id
+        rdict = NDict()
+        wk_fmt = fmt_week(week).center(width, ' ')
+        today = now.format("ddd MMM D")
+        for row in items:
+            day = row['day'][0]
+            if day == today:
+                day += " (Today)"
+            path = f"{wk_fmt}/{day}"
+            values = row['columns']
+            rdict.add(path, values)
+        tree, row2id = rdict.as_tree(rdict, level=0)
+        done_hsh[week] = tree
+        done2id_hsh[week] = row2id
 
+    cache = {}
     for week in week_numbers:
         tup = []
         # agenda

@@ -2635,7 +2635,7 @@ def journal_view(*event):
     item.use_items()
     set_text(dataview.show_active_view())
 
-@bindings.add('v', filter=is_viewing)
+@bindings.add('r', filter=is_viewing)
 def review_view(*event):
     dataview.set_active_view('v')
     item.use_items()
@@ -2802,10 +2802,10 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('j) journal', handler=journal_view),
         MenuItem('p) pinned', handler=pinned_view),
         MenuItem('q) query', handler=query_view),
+        MenuItem('r) review', handler=review_view),
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
-        MenuItem('v) review', handler=review_view),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
         MenuItem('y) half yearly calendar', handler=yearly_view),
