@@ -35,7 +35,7 @@ def parse(s, **kwd):
         tz = kwd['tzinfo']
         # logger.debug(f"setting tzinfo: {tz}")
         dt = dt.replace(tzinfo=tz)
-    logger.debug(f"dt: {dt}; type: {type(dt)}")
+    # logger.debug(f"dt: {dt}; type: {type(dt)}")
     return dt
 
 import sys
@@ -92,6 +92,7 @@ def sortdt(dt):
 
 
 PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
+KONNECT_REGEX = re.compile(r'^.+:\s+(\d+)\s*$')
 
 # The style sheet for terminal output
 style = Style.from_dict({
@@ -100,7 +101,7 @@ style = Style.from_dict({
     'inbox':        '#ff00ff',
     'pastdue':      '#87ceeb',
     'begin':        '#ffff00',
-    'records':      '#daa520',
+    'journal':      '#daa520',
     'event':        '#90ee90',
     'available':    '#1e90ff',
     'waiting':      '#6495ed',
@@ -111,22 +112,25 @@ type2style = {
         '!': 'class:inbox',
         '<': 'class:pastdue',
         '>': 'class:begin',
-        '%': 'class:record',
+        '%': 'class:journal',
         '*': 'class:event',
         '-': 'class:available',
         '+': 'class:waiting',
         '✓': 'class:finished',
         }
 
-FINISHED_CHAR = '✓'
+# LINK_CHAR = ' 🔗'
 
+FINISHED_CHAR = '✓'
 UPDATE_CHAR = "ⓤ "
 INBASKET_CHAR = 'ⓘ '
-# LINK_CHAR = ' †'
-# LINK_CHAR = ' 🔗'
-LINK_CHAR = ' ‡'
 
-PIN_CHAR = '📌'   # U+1F4CC
+KONNECT_CHAR = 'k' # ' †'
+LINK_CHAR = 'g' # ' ‡'
+# PIN_CHAR = '📌'   # U+1F4CC
+PIN_CHAR = 'p' # '📍'
+
+ELLIPSiS_CHAR = '…'
 
 etmdir = None
 
@@ -146,7 +150,7 @@ type_keys = {
     "*": "event",
     "-": "task",
     "✓": "finished",
-    "%": "record",
+    "%": "journal",
     "!": "inbox",
 }
 
@@ -156,7 +160,7 @@ item_types = """item type characters:\n    """ + """\n    """.join([f"{k}: {v}" 
 
 allowed = {}
 required = {}
-common_methods = [x for x in 'cdgilmnstuxz']
+common_methods = [x for x in 'cdgiklmnstuxz']
 repeating_methods = [x for x in '+-o'] + ['rr', 'rc', 'rm', 'rE', 'rh', 'ri', 'rM', 'rn', 'rs', 'ru', 'rW', 'rw']
 datetime_methods = [x for x in 'abe']
 task_methods = [x for x in 'efhp'] + ['jj', 'ja', 'jb', 'jd', 'je', 'jf', 'ji', 'jl', 'jm', 'jp', 'js', 'ju']
@@ -170,7 +174,7 @@ allowed['*'] = common_methods + datetime_methods + repeating_methods
 required['-'] = []
 allowed['-'] = common_methods + datetime_methods + task_methods + repeating_methods
 
-# record
+# journal
 required['%'] = []
 allowed['%'] = common_methods
 
@@ -480,7 +484,7 @@ class Item(object):
         # Note: datetime(s) require timezone and at requires itemtype
         # all else do not need item_hsh
         self.keys = {
-                'itemtype': ["item type", "character from * (event), - (task), % (record) or ! (inbox)", self.do_itemtype],
+                'itemtype': ["item type", "character from * (event), - (task), % (journal) or ! (inbox)", self.do_itemtype],
                 'summary': ["summary", "brief item description. Append an '@' to add an option.", self.do_summary],
                 '+': ["include", "list of datetimes to include", self.do_datetimes],
                 '-': ["exclude", "list of datetimes to exclude", self.do_datetimes],
@@ -493,6 +497,7 @@ class Item(object):
                 'g': ["goto", "url or filepath", do_string],
                 'h': ["completions", "list of completion datetimes", self.do_datetimes],
                 'i': ["index", "colon delimited string", do_string],
+                'k': ["konnection", "document id", do_konnection],
                 'l': ["location", "location or context, e.g., home, office, errands", do_string],
                 'm': ["mask", "string to be masked", do_mask],
                 'n': ["attendee", "name <email address>", do_string],
@@ -557,12 +562,12 @@ class Item(object):
 
     def use_archive(self):
         self.query_mode = "archive table"
-        logger.debug("using archive table")
+        # logger.debug("using archive table")
         self.db = DBARCH
 
     def use_items(self):
         self.query_mode = "items table"
-        logger.debug("using items table")
+        # logger.debug("using items table")
         self.db = DBITEM
 
     def check_goto_link(self, num=5):
@@ -601,7 +606,7 @@ class Item(object):
         return  showing, f"from {starting}:\n  " + "\n  ".join(pairs)
 
     def edit_item(self, doc_id=None, entry=""):
-        logger.debug(f"doc_id: {doc_id}; entry: {entry}")
+        # logger.debug(f"doc_id: {doc_id}; entry: {entry}")
         if not (doc_id and entry):
             return None
         item_hsh = self.db.get(doc_id=doc_id)
@@ -708,10 +713,10 @@ class Item(object):
         else:
             # repeating
             removed_old = False
-            logger.debug(f"adding {new_dt}")
+            # logger.debug(f"adding {new_dt}")
             added_new = self.schedule_new(doc_id, new_dt)
             if added_new:
-                logger.debug(f"removing {old_dt}")
+                # logger.debug(f"removing {old_dt}")
                 removed_old = self.delete_instances(doc_id, old_dt, 0)
             else:
                 logger.warning(f"doc_id: {doc_id}; error adding {new_dt}")
@@ -749,7 +754,7 @@ class Item(object):
             if changed:
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
-                logger.debug(f"replacing {self.item_hsh}")
+                # logger.debug(f"replacing {self.item_hsh}")
 
                 self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
         else: # 1
@@ -944,13 +949,13 @@ class Item(object):
         cur_hsh = {}
         cur_key = None
         msg = []
-        logger.debug(f"pos_hsh: {self.pos_hsh}")
+        # logger.debug(f"pos_hsh: {self.pos_hsh}")
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if not obj:
                 msg.append(f"bad entry for {k}: {v}")
                 continue
-            if k in ['a', 'u', 'n', 't']:
+            elif k in ['a', 'u', 'n', 't', 'k']:
                 self.item_hsh.setdefault(k, []).append(obj)
             elif k in ['rr', 'jj']:
                 if cur_hsh:
@@ -970,6 +975,11 @@ class Item(object):
                     cur_key = None
                     cur_hsh = {}
                 self.item_hsh[k] = obj
+        for k in ['k', 't', 'n']:
+            # remove duplicates
+            # XXX: should 'u' be included?
+            if k in self.item_hsh:
+                self.item_hsh[k] = list(set(self.item_hsh[k]))
         if cur_key:
             # record the last if necessary
             self.item_hsh.setdefault(cur_key, []).append(cur_hsh)
@@ -989,8 +999,13 @@ class Item(object):
 
         return msg
 
+
     def update_item_hsh(self):
         msg = self.check_item_hsh()
+        links = self.item_hsh.get('k', [])
+        if links:
+            # make sure the doc_id refers to an actual document
+            self.item_hsh['k'] = [x for x in links if self.db.contains(doc_id=x)]
 
         if self.is_modified and not msg:
             now = pendulum.now('local')
@@ -1003,6 +1018,11 @@ class Item(object):
                     self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
             else:
                 # editing an existing item
+                if 'k' in self.item_hsh:
+                    # logger.debug(f"adding 'k': {self.item_hsh} to item with doc_id: {self.doc_id}; type: {type(self.doc_id)}")
+                    if self.doc_id in self.item_hsh['k']:
+                        # remove self referential konnections
+                        self.item_hsh['k'].remove(self.doc_id)
                 self.item_hsh['modified'] = now
                 self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
 
@@ -1072,10 +1092,10 @@ class Item(object):
             require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in required[itemtype] and k != '?' and k not in already_entered)]
             # allow rr to be entered as r and jj as j
             avail = [x for x in allowed[itemtype] if len(x) == 1 or x in ['rr', 'jj'] ]
-            logger.debug(f"avail: {avail}")
+            # logger.debug(f"avail: {avail}")
             allow = [f"@{k[0]}_({v[0]})" for k, v in self.keys.items() if (k in avail and k not in already_entered)]
             allow.sort()
-            logger.debug(f"allow: {allow}")
+            # logger.debug(f"allow: {allow}")
             prompt = ""
             if require:
                 prompt += wrap(f"required: {', '.join(require)}", 2) + "\n"
@@ -1099,10 +1119,10 @@ class Item(object):
             &c (count), &u (until), &s (set positions)
         """
         keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('r') and k[1] not in 'r?']
-        logger.debug(f"ampr keys: {keys}")
+        # logger.debug(f"ampr keys: {keys}")
         rep = wrap("repetition &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
 
-        logger.debug(f"repetition: {rep}")
+        # logger.debug(f"repetition: {rep}")
         return None, rep
 
 
@@ -1118,9 +1138,9 @@ class Item(object):
             &s (start), &u (used time)
         """
         keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('j') and k[1] not in 'j?']
-        logger.debug(f"ampj keys: {keys}")
+        # logger.debug(f"ampj keys: {keys}")
         rep = wrap("job &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
-        logger.debug(f"jobs: {rep}")
+        # logger.debug(f"jobs: {rep}")
 
         return None, rep
 
@@ -1129,9 +1149,9 @@ class Item(object):
         """
         >>> item = Item("")
         >>> item.do_itemtype('')
-        (None, 'Choose a character from * (event), - (task), % (record) or ! (inbox)')
+        (None, 'Choose a character from * (event), - (task), % (journal) or ! (inbox)')
         >>> item.do_itemtype('+')
-        (None, "'+' is invalid. Choose a character from * (event), - (task), % (record) or ! (inbox)")
+        (None, "'+' is invalid. Choose a character from * (event), - (task), % (journal) or ! (inbox)")
         >>> item.do_itemtype('*')
         ('*', '* (event)')
         """
@@ -1202,7 +1222,7 @@ class Item(object):
             rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
         else:
             rep = res
-        logger.debug(f"obj: {obj}; rep: {rep}")
+        # logger.debug(f"obj: {obj}; rep: {rep}")
         return obj, rep
 
     def do_datetimes(self, args):
@@ -1338,7 +1358,7 @@ def datetime_calculator(s):
     if not m:
         return f'Could not parse "{s}"'
     x, pm, y = [z.strip() for z in m.groups()]
-    logger.debug(f"x: {x}; pm: {pm}; y: {y}")
+    # logger.debug(f"x: {x}; pm: {pm}; y: {y}")
     xz = 'local'
     nx = timezone_regex.match(x)
     if nx:
@@ -1357,7 +1377,7 @@ def datetime_calculator(s):
             ok, dur = parse_duration(pmy)
             if not ok:
                 return f"error: could not parse '{y}'"
-            logger.debug(f"dur: {dur}")
+            # logger.debug(f"dur: {dur}")
             dt = (dt_x + dur).in_timezone(yz)
             return dt.format(datetime_fmt)
         else:
@@ -1423,7 +1443,7 @@ def parse_datetime(s, z=None):
         return False, '', z
 
     try:
-        logger.debug(f"tzinfo: {tzinfo}")
+        # logger.debug(f"tzinfo: {tzinfo}")
         s = s.strip()
         if s == 'now':
             return True, pendulum.now(tz=tzinfo), z
@@ -1453,12 +1473,12 @@ def parse_datetime(s, z=None):
 
         dur = parse_duration(dur_str)[1] if dur_str else ZERO
         res = dt + dur
-        logger.debug(f"s: {s} -> res: {res}")
+        # logger.debug(f"s: {s} -> res: {res}")
 
     except Exception as e:
         return False, f"'{s}' is incomplete or invalid: {e}", z
     else:
-        logger.debug(f"tzinfo: {tzinfo}; z: {z}")
+        # logger.debug(f"tzinfo: {tzinfo}; z: {z}")
         if tzinfo in ['local', 'float'] and (
             res.hour,
             res.minute,
@@ -1697,11 +1717,11 @@ def parse_duration(s):
             }
 
     m = period_regex.findall(s)
-    logger.debug(f"m: {m}")
+    # logger.debug(f"m: {m}")
     if not m:
         return False, f"Invalid period string '{s}'"
     for g in m:
-        logger.debug(f"processing g: {g}")
+        # logger.debug(f"processing g: {g}")
         if g[3] not in knms:
             return False, f"invalid period argument: {g[3]}"
 
@@ -1776,23 +1796,34 @@ class RDict(dict):
 
 
     def add(self, tkeys, values=()):
+        """
+        We want values always to have 4 components: 1) the combined itemtype and summary, 2) the combined flags, if any, 3) the "rhc" string with a constant length and pre justified and 4) the integer doc_id.
+
+        Leaf output will begin with indent, add a possibly truncated value 1, value 2 and value 3. The lengths of indent, value 2 and value 3 will be subtracted from screen width with the difference the space available for value 1 which will either be truncated or left fill justified accordingly.
+        """
         keys = tkeys.split(self.split_char)
+        # if len(values) != 4:
+        #     logger.warning(f"values does not have 4 components: {values}" )
+        # logger.debug(f"split_char: {self.split_char}; keys: {keys}")
         for j in range(len(keys)):
             key = keys[j]
             keys_left = keys[j+1:]
+            # logger.debug(f"j: {j}; key: {key}; keys_left: {keys_left}")
             if not keys_left:
                 try:
                     self.setdefault(key, []).append(values)
+                    # logger.debug(f"key: {self[key]};\nvalues: {values} ")
                 except Exception as e:
                     logger.warning(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
             if isinstance(self[key], dict):
                 self = self[key]
             elif keys_left:
-                self.setdefault(":".join(keys[j:]), []).append(values)
+                self.setdefault("/".join(keys[j:]), []).append(values)
                 break
 
     def as_tree(self, t={}, depth = 0, level=0):
         """ return an indented tree """
+        # logger.debug(f"t.keys: {t.keys()}")
         for k in t.keys():
             indent = RDict.tab * depth * " "
             self.output.append("%s%s" % (indent,  k))
@@ -1805,8 +1836,10 @@ class RDict(dict):
             if type(t[k]) == RDict:
                 self.as_tree(t[k], depth, level)
             else:
+                # we have a list of leaves
                 for leaf in t[k]:
                     indent = RDict.tab * depth * " "
+                    l_indent = len(indent)
                     self.output.append("%s%s" % (indent, leaf[0]))
                     self.row2id[self.row] = leaf[1]
                     self.row += 1
@@ -1818,10 +1851,111 @@ class RDict(dict):
             depth -= 1
         return "\n".join(self.output), self.row2id
 
+class NDict(dict):
+    """
+    Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row.
+    """
+
+    # tab = " " * 2
+    tab = 2
+
+    def __init__(self, split_char='/'):
+        self.split_char = split_char
+        self.width = shutil.get_terminal_size()[0] - 2
+        self.row = 0
+        self.row2id = {}
+        self.output = []
+        self.flag_len = 3 # gkp
+
+    def __missing__(self, key):
+        self[key] = NDict()
+        return self[key]
+
+    def as_dict(self):
+        return self
+
+    def leaf_detail(self, detail, depth):
+        dindent = NDict.tab * (depth + 1) * " "
+        paragraphs = detail.split('\n')
+        ret = []
+        for para in paragraphs:
+            ret.extend(textwrap.fill(para, initial_indent=dindent, subsequent_indent=dindent, width=self.width-NDict.tab*(depth-1)).split('\n'))
+        return ret
+
+
+    def add(self, tkeys, values=()):
+        """
+        We want values always to have 4 components:
+            0) itemtype
+            1) summary
+            2) flags3
+            3) rhc (a constant length and pre justified)
+            4) doc_id.
+
+        Leaf output will begin with indent, add a possibly truncated value 1, value 2 and value 3. The lengths of indent, value 2 and value 3 will be subtracted from screen width with the difference the space available for value 1 which will either be truncated or left fill justified accordingly.
+        """
+        keys = tkeys.split(self.split_char)
+        # if len(values) != 4:
+        #     logger.warning(f"values does not have 4 components: {values}" )
+        # logger.debug(f"split_char: {self.split_char}; keys: {keys}")
+        for j in range(len(keys)):
+            key = keys[j]
+            keys_left = keys[j+1:]
+            # logger.debug(f"j: {j}; key: {key}; keys_left: {keys_left}")
+            if not keys_left:
+                try:
+                    self.setdefault(key, []).append(values)
+                    # logger.debug(f"key: {self[key]};\nvalues: {values} ")
+                except Exception as e:
+                    logger.warning(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
+            if isinstance(self[key], dict):
+                self = self[key]
+            elif keys_left:
+                self.setdefault("/".join(keys[j:]), []).append(values)
+                break
+
+    def as_tree(self, t={}, depth = 0, level=0):
+        """ return an indented tree """
+        # logger.debug(f"t.keys: {t.keys()}")
+        for k in t.keys():
+            indent = NDict.tab * depth * " "
+            self.output.append(f"{indent}{k}")
+            self.row += 1
+            depth += 1
+            if level and depth > level:
+                depth -= 1
+                continue
+
+            if type(t[k]) == NDict:
+                self.as_tree(t[k], depth, level)
+            else:
+                # we have a list of leaves
+                for leaf in t[k]:
+                    indent = NDict.tab * depth * " "
+                    l_indent = len(indent)
+                    # width - indent - 2 (type and space) - flags - 1 (space) - rhc
+                    summary_width = self.width - l_indent - 2 - self.flag_len - 2 - len(leaf[3])
+
+                    summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) > summary_width else leaf[1].ljust(summary_width, ' ')
+
+                    tmp = f"{indent}{leaf[0]} {summary} {leaf[2]} {leaf[3]}"
+                    # logger.debug(f"leaf: {leaf}\nsummary_width: {summary_width}; len(summary): {len(summary)}; len(rhc): {len(leaf[3])}\ntmp: {tmp}")
+                    self.output.append(tmp)
+                    self.row2id[self.row] = leaf[4]
+                    self.row += 1
+                    if len(leaf) > 5:
+                        lines = self.leaf_detail(leaf[5], depth)
+                        for line in lines:
+                            self.output.append(line)
+                            self.row += 1
+            depth -= 1
+        return "\n".join(self.output), self.row2id
+
 
 class DataView(object):
 
     def __init__(self, etmdir):
+        self.active_item = None
         self.active_view = 'agenda'
         self.prior_view = 'agenda'
         self.current = []
@@ -1851,6 +1985,9 @@ class DataView(object):
         self.used_details2id = {}
         self.currMonth()
         self.completions = []
+        self.konnections_from = {}
+        self.konnections_to = {}
+        self.konnected = []
         self.timer_status = 0  # 0: stopped, 1: running, 2: paused
         self.timer_time = ZERO
         self.timer_start = None
@@ -1866,9 +2003,10 @@ class DataView(object):
                 'f': 'forthcoming',
                 'h': 'history',
                 'i': 'index',
+                'k': 'konnected',
                 'p': 'pinned',
                 'q': 'query',
-                'r': 'records',
+                'r': 'journal',
                 't': 'tags',
                 'u': 'used time',
                 'v': 'review',
@@ -1877,7 +2015,7 @@ class DataView(object):
                 'y': 'yearly',
                 }
 
-        self.completion_keys = ['c', 'g', 'i', 'l', 'n', 't']
+        self.completion_keys = ['c', 'g', 'i', 'k', 'l', 'n', 't']
         self.edit_item = None
         self.is_showing_details = False
         self.is_showing_query = False
@@ -1885,6 +2023,7 @@ class DataView(object):
         self.is_editing = False
         self.is_showing_items = True
         self.get_completions()
+        self.refresh_konnections()
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
         self.calAdv = pendulum.today().month // 7
@@ -1955,12 +2094,18 @@ class DataView(object):
         """
         Get completions from db items
         """
-        # completion_keys = ['c', 'g', 'l', 'n',  't', 'i']
         completions = set([])
         for item in self.db:
             found = {x: v for x, v in item.items() if x in self.completion_keys}
+
+            if item['itemtype'] == '%' and item.get('i', None):
+                tmp = f"@k {item['i']} {item['itemtype']} {item['summary']}: {item.doc_id}"
+                # logger.debug(f"adding {tmp}")
+                completions.add(tmp)
             for x, v in found.items():
                 if isinstance(v, list):
+                    if x == 'k':
+                        continue
                     for p in v:
                         completions.add(f"@{x} {p}")
                 else:
@@ -1976,6 +2121,8 @@ class DataView(object):
 
         found = {x: v for x, v in item.item_hsh.items() if x in self.completion_keys}
         for x, v in found.items():
+            # if x == 'k':
+                # logger.debug(f"adding completion for k: {v}")
             if isinstance(v, list):
                 for p in v:
                     completions.add(f"@{x} {p}")
@@ -1986,7 +2133,69 @@ class DataView(object):
             self.completions.extend(new)
             self.completions.sort()
 
+    def update_konnections(self, item):
+        """
+        Only change relevant hashes
+        """
+        # the original @k entries
+        # logger.debug(f"update doc_id: {item.doc_id}; konnections_from: {self.konnections_from}; konnections_to: {self.konnections_to}")
+        orig = self.konnections_from.get(item.doc_id, []) if item.doc_id else []
 
+        # the new and valid @k entries
+        # links = [x for x in item.item_hsh.get('k', []) if self.db.contains(doc_id = x)]
+        links = item.item_hsh.get('k', [])
+
+        # remove duplicates
+        links = list(set(links))
+
+        # upate konnections_from to the new, valid,
+        # and non-duplicate @k's
+        if links:
+            self.konnections_from[item.doc_id] = links
+        elif item.doc_id in self.konnections_from:
+            del self.konnections_from[item.doc_id]
+
+        # these @k's were added
+        added = [x for x in links if x not in orig]
+        # these @k's were removed
+        removed = [x for x in orig if x not in links]
+
+        for link in links:
+            if link in added:
+                self.konnections_to.setdefault(link, []).append(item.doc_id)
+            elif link in removed:
+                self.konnections_to[link].remove(item.doc_id)
+
+        # now update konnected to reflect the changes
+        konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
+        self.konnected = list(set(konnected))
+        # logger.debug(f"links: {links}; added: {added}; removed: {removed}; konnected: {self.konnected}")
+
+
+
+    def refresh_konnections(self):
+        """
+        to_hsh: ID -> ids of items with @k ID
+        from_hsh ID -> ids in @k
+        """
+        self.konnections_to = {}
+        self.konnections_from = {}
+        self.konnected = []
+        for item in self.db:
+            # from item to link by @k entry
+            links = [x for x in item.get('k', []) if self.db.contains(doc_id=x)]
+            if links:
+                self.konnections_from[item.doc_id] = links
+                # append the to links
+                for link in links:
+                    self.konnections_to.setdefault(link, []).append(item.doc_id)
+
+        konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
+        self.konnected = list(set(konnected))
+
+    # def refresh_konnected(self):
+    #     konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
+    #     self.konnected = list(set(konnected))
 
     def handle_backups(self):
         removefiles = []
@@ -2084,6 +2293,8 @@ class DataView(object):
     def set_now(self):
         self.now = pendulum.now('local')
 
+    def set_active_item(self, id):
+        self.active_item = id
 
     def set_active_view(self, c):
         self.current_row = None
@@ -2091,7 +2302,7 @@ class DataView(object):
         self.active_view = self.views.get(c, 'agenda')
         if self.active_view != 'query':
             self.use_items()
-        logger.debug(f"active_view: {self.active_view}")
+        # logger.debug(f"active_view: {self.active_view}")
 
 
     def show_active_view(self):
@@ -2111,25 +2322,25 @@ class DataView(object):
             # self.refreshCalendar()
             return self.calendar_view
         if self.active_view == 'history':
-            self.history_view, self.row2id = show_history(self.db, True, self.pinned_list, self.link_list)
+            self.history_view, self.row2id = show_history(self.db, True, self.pinned_list, self.link_list, self.konnected)
             return self.history_view
         if self.active_view == 'forthcoming':
-            self.forthcoming_view, self.row2id = show_forthcoming(self.db, self.id2relevant, self.pinned_list, self.link_list)
+            self.forthcoming_view, self.row2id = show_forthcoming(self.db, self.id2relevant, self.pinned_list, self.link_list, self.konnected)
             return self.forthcoming_view
         if self.active_view == 'do next':
-            self.next_view, self.row2id = show_next(self.db, self.pinned_list, self.link_list)
+            self.next_view, self.row2id = show_next(self.db, self.pinned_list, self.link_list, self.konnected)
             return self.next_view
-        if self.active_view == 'records':
-            self.records_view, self.row2id = show_records(self.db, self.id2relevant, self.pinned_list, self.link_list)
-            return self.records_view
+        if self.active_view == 'journal':
+            self.journal_view, self.row2id = show_journal(self.db, self.id2relevant, self.pinned_list, self.link_list, self.konnected)
+            return self.journal_view
         if self.active_view == 'tags':
-            self.tag_view, self.row2id = show_tags(self.db, self.id2relevant, self.pinned_list, self.link_list)
+            self.tag_view, self.row2id = show_tags(self.db, self.id2relevant, self.pinned_list, self.link_list, self.konnected)
             return self.tag_view
         if self.active_view == 'index':
-            self.index_view, self.row2id = show_index(self.db, self.id2relevant, self.pinned_list, self.link_list)
+            self.index_view, self.row2id = show_index(self.db, self.id2relevant, self.pinned_list, self.link_list, self.konnected)
             return self.index_view
         if self.active_view == 'pinned':
-            self.pinned_view, self.row2id = show_pinned(self.get_pinned(), self.pinned_list, self.link_list)
+            self.pinned_view, self.row2id = show_pinned(self.get_pinned(), self.pinned_list, self.link_list, self.konnected)
             return self.pinned_view
         if self.active_view == 'used time':
             used_details = self.used_details.get(self.active_month)
@@ -2148,8 +2359,11 @@ class DataView(object):
             self.used_summary_view = used_summary
             return self.used_summary_view
         if self.active_view == 'review':
-            self.review_view, self.row2id = show_review(self.db, self.pinned_list, self.link_list)
+            self.review_view, self.row2id = show_review(self.db, self.pinned_list, self.link_list, self.konnected)
             return self.review_view
+        if self.active_view == 'konnected':
+            self.konnected_view, self.row2id = show_konnected(self.db, self.pinned_list, self.link_list, self.konnected, self.active_item, self.konnections_from, self.konnections_to)
+            return self.konnected_view
         if self.active_view == 'query':
             if self.query_text:
                 if len(self.query_text) > 1 and self.query_text[1] == ' ' and self.query_text[0] in ['s', 'u', 'm', 'c']:
@@ -2212,13 +2426,13 @@ class DataView(object):
         """
         self.set_now()
         self.currentYrWk = getWeekNum(self.now)
-        self.current, self.alerts, self.id2relevant = relevant(self.db, self.now, self.pinned_list, self.link_list)
+        self.current, self.alerts, self.id2relevant = relevant(self.db, self.now, self.pinned_list, self.link_list, self.konnected)
         self.refreshCache()
 
 
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
-            self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list))
+            self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list, konnect_list=self.konnected))
         # agenda, done, busy, row2id, done2id
         self.agenda_view, self.done_view, self.busy_view, self.row2id, self.done2id = self.cache[self.activeYrWk]
 
@@ -2244,7 +2458,7 @@ class DataView(object):
             logger.info(f"saved current schedule to {self.currfile}")
 
         if self.nextfile is not None:
-            next_view, row2id = show_next(self.db, self.pinned_list, self.link_list)
+            next_view, row2id = show_next(self.db, self.pinned_list, self.link_list, self.konnected)
             with open(self.nextfile, 'w') as fo:
                 fo.write(next_view)
             logger.info(f"saved do next to {self.nextfile}")
@@ -2284,7 +2498,7 @@ class DataView(object):
         item_id = res[0]
         item = self.db.get(doc_id=item_id)
         if 'doc_id' in item:
-            logger.debug(f"item has 'doc_id': {item['doc_id']}")
+            # logger.debug(f"item has 'doc_id': {item['doc_id']}")
             return item['doc_id']
 
 
@@ -2299,7 +2513,7 @@ class DataView(object):
         item = self.db.get(doc_id=item_id)
         if item:
             item_hsh = item_details(item, edit)
-            logger.debug(f"returning item_id: {item_id}; item_hsh: {item_hsh}")
+            # logger.debug(f"returning item_id: {item_id}; item_hsh: {item_hsh}")
             return item_id, item_hsh
         return None, ''
 
@@ -2434,8 +2648,8 @@ class DataView(object):
 
 
     def refreshCache(self):
-        self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20, self.pinned_list, self.link_list)
-        self.used_details, self.used_details2id, self.used_summary = get_usedtime(self.db)
+        self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20, self.pinned_list, self.link_list, self.konnected)
+        self.used_details, self.used_details2id, self.used_summary = get_usedtime(self.db, self.pinned_list, self.link_list, self.konnected)
 
     def update_links(self):
         """
@@ -2449,13 +2663,13 @@ class DataView(object):
             else:
                 if item.doc_id in self.link_list:
                     self.link_list.remove(item_id)
-        logger.debug(f"link_list: {self.link_list}")
+        # logger.debug(f"link_list: {self.link_list}")
 
 
     def possible_archive(self):
         """
         Collect old finished tasks, (repeating or not), old non-repeating events,
-        and repeating events with old @u entries. Do not collect records.
+        and repeating events with old @u entries. Do not collect journal.
         """
         if not self.archive_after:
             logger.info(f"archive_after: {self.archive_after} - skipping archive")
@@ -2464,7 +2678,7 @@ class DataView(object):
         rows = []
         for item in self.db:
             if item['itemtype'] == '%':
-                # keep records
+                # keep journal
                 continue
             elif 'f' in item:
                 if isinstance(item['f'], pendulum.DateTime):
@@ -2538,7 +2752,7 @@ class DataView(object):
             return False
         item_id = res[0]
         item = self.db.get(doc_id=item_id)
-        logger.debug(f"moving item_id {item_id} from {self.query_mode}")
+        # logger.debug(f"moving item_id {item_id} from {self.query_mode}")
         try:
             if self.query_mode == "items table":
                 # move to archive
@@ -2562,7 +2776,7 @@ class DataView(object):
         # attendees can have the form "abbrev: emailaddress". Split on the colon and keep the emailaddress.
         addresses = [x.split(':')[-1].strip() for x in attendees]
         email_addresses = [x for x in addresses if not PHONE_REGEX.match(x)]
-        logger.debug(f"email_addresses: {email_addresses}")
+        # logger.debug(f"email_addresses: {email_addresses}")
         smtp = self.settings['smtp']
         smtp_from = smtp.get('from', None)
         smtp_id = smtp.get('id', None)
@@ -2594,7 +2808,7 @@ class DataView(object):
         msg['Date'] = formatdate(localtime=True)
         msg['Subject'] = item['summary']
         msg.attach(MIMEText(message))
-        logger.debug(f"msg: {msg}")
+        # logger.debug(f"msg: {msg}")
         smtp = smtplib.SMTP_SSL(smtp_server)
         smtp.login(smtp_id, smtp_pw)
         smtp.sendmail(smtp_from, attendees, msg.as_string())
@@ -2609,7 +2823,7 @@ class DataView(object):
             return
         addresses = [x.split(':')[-1].strip() for x in attendees]
         phone_numbers = [x for x in addresses if PHONE_REGEX.match(x)]
-        logger.debug(f"phone_numbers: {phone_numbers}")
+        # logger.debug(f"phone_numbers: {phone_numbers}")
 
         from email.utils import COMMASPACE
 
@@ -2642,7 +2856,7 @@ class DataView(object):
         msg["From"] = sms_from
         msg["Subject"] = summary
         msg['To'] = sms_phone
-        logger.debug(f"msg: {msg}")
+        # logger.debug(f"msg: {msg}")
         sms.sendmail(sms_from, sms_phone, msg.as_string())
         sms.quit()
 
@@ -3023,6 +3237,9 @@ entry_tmpl = """\
 {%- if 't' in h %}
 {% for x in h['t'] %}{{ "@t {} ".format(x) }}{% endfor %}\
 {% endif %}\
+{%- if 'k' in h %}
+{% for x in h['k'] %}{{ "@k {} ".format(x) }}{% endfor %}\
+{% endif %}\
 {%- if 'n' in h %}
 {% for x in h['n'] %}{{ "@n {} ".format(x) }}{% endfor %}\
 {% endif %}\
@@ -3122,6 +3339,9 @@ display_tmpl = """\
 {% endif %}\
 {%- if 't' in h %}
 {% for x in h['t'] %}{{ "@t {} ".format(x) }}{% endfor %}\
+{% endif %}\
+{%- if 'k' in h %}
+{% for x in h['k'] %}{{ "@k {} ".format(x) }}{% endfor %}\
 {% endif %}\
 {%- if 'n' in h %}
 {% for x in h['n'] %}{{ "@n {} ".format(x) }}{% endfor %}\
@@ -3225,6 +3445,24 @@ def do_beginby(arg):
     else:
         obj = None
         rep = f"'{arg}' is invalid. Beginby requires {beginby_str}."
+    return obj, rep
+
+def do_konnection(arg):
+    konnection_str = "an integer document id"
+    m = KONNECT_REGEX.match(arg)
+    if m:
+        # logger.debug(f"arg: {arg}; m[1]: {m[1]}")
+        arg = m[1]
+
+    if not arg:
+        return None, konnection_str
+    ok, res = integer(arg, 1, None, False)
+    if ok:
+        obj = res
+        rep = arg
+    else:
+        obj = None
+        rep = f"'{arg}' is incomple or invalid. Konnection requires {konnection_str}."
     return obj, rep
 
 
@@ -3890,7 +4128,7 @@ def get_next_due(item, done, due):
         using_dates = True
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
         aft = pendulum.datetime(year=aft.year, month=aft.month, day=aft.day, hour=0, minute=0)
-    logger.debug(f'using_dates: {using_dates}; overdue: {overdue}; aft: {aft}; inc: {inc}; dtstart: {dtstart}')
+    # logger.debug(f'using_dates: {using_dates}; overdue: {overdue}; aft: {aft}; inc: {inc}; dtstart: {dtstart}')
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
         kwd['dtstart'] = dtstart
@@ -3908,11 +4146,11 @@ def get_next_due(item, done, due):
         for dt in item['+']:
             rset.rdate(dt)
     nxt_rset = rset.after(aft, inc)
-    logger.debug(f"nxt_rset: {nxt_rset}; aft: {aft}, inc: {inc}")
+    # logger.debug(f"nxt_rset: {nxt_rset}; aft: {aft}, inc: {inc}")
     nxt = pendulum.instance(nxt_rset)
     if using_dates:
         nxt = nxt.date()
-    logger.debug(f"nxt: {nxt}")
+    # logger.debug(f"nxt: {nxt}")
     return nxt
 
 def date_to_datetime(dt):
@@ -4295,7 +4533,7 @@ def jobs(lofh, at_hsh={}):
                 auto = True
                 count = 0
         if auto: # auto mode
-            logger.debug('auto mode')
+            # logger.debug('auto mode')
             if count > 25:
                 count = 0
                 msg.append(
@@ -4314,7 +4552,7 @@ def jobs(lofh, at_hsh={}):
             req[hsh['i']] = deepcopy(hsh['p'])
 
         else:    # manual mode
-            logger.debug('manual mode')
+            # logger.debug('manual mode')
             if 'i' not in hsh:
                 msg.append('error: &i is required for each job in manual mode')
             elif hsh['i'] in req:
@@ -4428,7 +4666,7 @@ def jobs(lofh, at_hsh={}):
         id2hsh[i]['summary'] = "{} {}: {}".format(summary, "/".join([str(x) for x in awf]), id2hsh[i]['j'])
         id2hsh[i]['req'] = req[i]
         id2hsh[i]['i'] = i
-        logger.debug(f"id2hsh[{i}]: {id2hsh[i]}")
+        # logger.debug(f"id2hsh[{i}]: {id2hsh[i]}")
 
     if msg:
         logger.warning(f"{msg}")
@@ -4649,7 +4887,7 @@ def item_details(item, edit=False):
     """
 
     """
-    logger.debug(f"item: {item}; edit: {edit}")
+    # logger.debug(f"item: {item}; edit: {edit}")
     try:
         if edit:
             return jinja_entry_template.render(h=item)
@@ -4689,7 +4927,7 @@ def get_item(id):
     pass
 
 
-def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[]):
+def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=[]):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
     """
@@ -4730,7 +4968,9 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[]):
             if id in link_list:
                 link_list.remove(id)
 
-        summary = summary_pin(item['summary'], summary_width, item.doc_id, pinned_list, link_list)
+        # summary = summary_pin(item['summary'], summary_width, item.doc_id, pinned_list, link_list, konnect_list)
+        summary = item['summary']
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
         if item['itemtype'] == '!':
             inbox.append([0, summary, item.doc_id, None, None])
             relevant = today
@@ -4831,8 +5071,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[]):
                 # rset
                 if instance_interval:
                     instances = rset.between(instance_interval[0], instance_interval[1], inc=True)
-                    if instances:
-                        logger.debug(f"instances for {item['summary']}: {instances}")
+                    # if instances:
+                    #     logger.debug(f"instances for {item['summary']}: {instances}")
                     if possible_beginby:
                         for instance in instances:
                             if today + DAY <= instance <= tomorrow + possible_beginby:
@@ -4898,7 +5138,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[]):
                 if 'f' in job:
                     continue
                 # adjust job starting time if 's' in job
-                job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list, link_list)
+                # job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list, link_list, konnect_list)
+                job_summary = job.get('summary', '')
                 jobstart = relevant - job.get('s', ZERO)
                 if jobstart.date() < today.date():
                     pastdue_jobs = True
@@ -4925,21 +5166,25 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[]):
     week = today.isocalendar()[:2]
     day = (today.format("ddd MMM D"), )
     for item in inbox:
-        current.append({'id': item[2], 'job': None, 'instance': None, 'sort': (inbox_fmt, 1), 'week': week, 'day': day, 'columns': ['!', item[1], '']})
+        id = item[2]
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
+        current.append({'id': item[2], 'job': None, 'instance': None, 'sort': (inbox_fmt, 1), 'week': week, 'day': day, 'columns': ['!', item[1], flags, '', id]})
 
     for item in pastdue:
-        # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
-        rhc = str(item[0]) + " "*7 if item[0] in item else ""
+        rhc = str(item[0]).center(15, ' ') if item[0] in item else ""
+        id = item[2]
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
         try:
-            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], rhc]})
+            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], flags, rhc, id]})
         except Exception as e:
             logger.warning(f"could not append item: {item}; e: {e}")
 
     for item in beginbys:
-        # rhc = str(item[0]).center(16, ' ') if item[0] in item else ""
-        rhc = str(item[0]) + " "*7 if item[0] in item else ""
+        rhc = str(item[0]).center(15, ' ') if item[0] in item else ""
         # rhc = str(item[0]) if item[0] in item else ""
-        current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begby_fmt, 3, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], rhc]})
+        id = item[2]
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
+        current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begby_fmt, 3, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], flags, rhc, id]})
 
     return current, alerts, id2relevant
 
@@ -4986,7 +5231,7 @@ def insert_db(db, hsh={}):
         logger.error(f"Error updating database:\nid {id}\nold {old}\nhsh {hsh}\ne {repr(e)}")
 
 
-def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[]):
+def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]):
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 19
     rows = []
@@ -5002,10 +5247,13 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[]):
         year = relevant.format("YYYY")
         monthday = relevant.format("MMM D")
         time = fmt_time(relevant)
-        dtfmt = f"{monthday} {time}"
+        rhc = f"{monthday} {time}".ljust(14, ' ')
 
         itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = set_summary(item['summary'], relevant)
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
+
+        summary = (summary[:width-3].rstrip() + KONNECT_CHAR) if id in konnect_list else summary
         summary = (summary[:width-3].rstrip() + LINK_CHAR) if id in link_list else summary
         summary = summary[:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else summary[:summary_width]
         rows.append(
@@ -5013,73 +5261,88 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[]):
                     'id': id,
                     'sort': relevant,
                     'path': year,
-                    'columns': [itemtype,
-                        summary.ljust(summary_width, ' '),
-                        dtfmt,
-                        item.doc_id],
+                    'values': [
+                        itemtype,
+                        summary,
+                        flags,
+                        rhc,
+                        id
+                        ],
                 }
                 )
 
     rows.sort(key=itemgetter('sort'))
-    rdict = RDict()
+    rdict = NDict()
     for row in rows:
         path = row['path']
-        values = (
-                f"{row['columns'][0]} {row['columns'][1]} {row['columns'][2]}", row['columns'][3]
-                )
+        values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
+def get_flags(id, link_list=[], konnect_list=[], pinned_list=[]):
+    """
+    Always length = 3, space or character in each slot
+    """
+    flags = ""
+    if id in link_list:
+        flags += LINK_CHAR
+    else:
+        flags += " "
+    if id in konnect_list:
+        flags += KONNECT_CHAR
+    else:
+        flags += " "
+    if id in pinned_list:
+        flags += PIN_CHAR
+    else:
+        flags += " "
+    return flags
 
-def show_query_items(text, items=[], pinned_list=[], link_list=[]):
-    width = shutil.get_terminal_size()[0] - 7
+def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=[]):
     rows = []
-    # summary_width = width - 6
     if not items or not isinstance(items, list):
         return f"query: {text}\n   none matching", {}
     item_count = f" [{len(items)}]"
-    summary_width = width - 6 - len(item_count)
+    width = shutil.get_terminal_size()[0] - 2
+    summary_width = width - len(item_count) - 7
     for item in items:
         mt = item.get('modified', None)
         if mt is not None:
             dt, label = mt, 'm'
         else:
             dt, label = item.get('created', None), 'c'
-        if dt is not None:
-            id = item.doc_id
-            year = dt.format("YYYY")
-            itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
-            summary = item['summary']
-            summary = (summary[:width-3].rstrip() + LINK_CHAR) if 'g' in item else summary
-            summary = summary[:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else summary[:summary_width]
-            rows.append(
-                    {
-                        'id': id,
-                        'sort': dt,
-                        'path': year,
-                        'columns': [itemtype,
-                            summary.ljust(summary_width, ' '),
-                            id],
-                    }
-                    )
-
-    rdict = RDict()
-    for row in rows:
-        # path = row['path']
-        path = f"query: {text[:summary_width]}{item_count}"
-        values = (
-                f"{row['columns'][0]} {row['columns'][1]} {row['columns'][2]: >6}", row['columns'][2]
+        id = item.doc_id
+        year = dt.format("YYYY")
+        itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
+        summary = item['summary']
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
+        rhc = f"{id: >6}"
+        rows.append(
+                {
+                    'sort': dt,
+                    'path': year,
+                    'values': [
+                        itemtype,
+                        summary,
+                        flags,
+                        rhc,
+                        id],
+                }
                 )
+    rdict = NDict()
+    path = f"query: {text[:summary_width]}{item_count}"
+    for row in rows:
+        values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
 
-def show_history(db, reverse=True, pinned_list=[], link_list=[]):
+def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]):
     width = shutil.get_terminal_size()[0] - 2
     rows = []
-    summary_width = width - 21
+    summary_width = width - 25
     for item in db:
         mt = item.get('modified', None)
         if mt is not None:
@@ -5089,25 +5352,24 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[]):
         if dt is not None:
             id = item.doc_id
             year = dt.format("YYYY")
-            monthday = dt.format("MMM D")
-            time = fmt_time(dt)
-            dtfmt = f"{monthday} {time}"
+            monthday = dt.format("MMM D").ljust(6, ' ')
+            time = fmt_time(dt).rjust(7, ' ')
+            rhc = f"{monthday} {time} {label}"
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item['summary']
-            summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
-            if item.doc_id in pinned_list:
-                summary = (summary[:summary_width - 1] + PIN_CHAR).ljust(summary_width-1, ' ')
-            else:
-                summary = summary[:summary_width].ljust(summary_width, ' ')
+            flags = get_flags(id, link_list, konnect_list, pinned_list)
+
             rows.append(
                     {
-                        'id': id,
                         'sort': dt,
                         'path': year,
-                        'columns': [itemtype,
+                        'values': [
+                            itemtype,
                             summary,
-                            f"{label} {dtfmt}",
-                            item.doc_id],
+                            flags,
+                            rhc,
+                            id
+                            ],
                     }
                     )
 
@@ -5115,18 +5377,16 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[]):
         rows.sort(key=itemgetter('sort'), reverse=reverse)
     except:
         logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
-    rdict = RDict()
+    rdict = NDict()
     for row in rows:
         path = row['path']
-        values = (
-                f"{row['columns'][0]} {row['columns'][1]}{row['columns'][2]}", row['columns'][3]
-                )
+        values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
 
-def show_review(db, pinned_list=[], link_list=[]):
+def show_review(db, pinned_list=[], link_list=[], konnect_list=[]):
     """
     Unfinished, undated tasks and jobs
     """
@@ -5135,40 +5395,31 @@ def show_review(db, pinned_list=[], link_list=[]):
     locations = set([])
     summary_width = width - 18
     for item in db:
-        id = item.doc_id
         if item.get('itemtype', None) not in ['-'] or 's' in item or 'f' in item:
             continue
-        location = item.get('l', '~')[:13]
+        id = item.doc_id
+        rhc = item.get('l', '~')[:10].ljust(10, ' ')
+        itemtype = item['itemtype']
         summary = item['summary']
-        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
-        if item.doc_id in pinned_list:
-            summary = (summary[:summary_width - 1] + PIN_CHAR).ljust(summary_width-1, ' ')
-        else:
-            summary = summary[:summary_width].ljust(summary_width, ' ')
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
         modified = item['modified'] if 'modified' in item else item['created']
 
-        year = modified.format("YYYY")
-        monthday = modified.format("MMM D")
-        time = fmt_time(modified)
-        dtfmt = f"{monthday} {time}"
         weeks = (pendulum.now() - modified).days // 7
-        logger.debug(f"weeks 0: {weeks == 0}; 1: {weeks == 1}; >1: {weeks > 1}")
         if weeks == 0:
-            wkfmt = "this week"
+            wkfmt = " This week"
         elif weeks == 1:
-            wkfmt = "last week"
+            wkfmt = " Last week"
         else:
-            wkfmt = f"{weeks} weeks ago"
+            wkfmt = f" {weeks} weeks ago"
         rows.append(
                 {
-                    'id': item.doc_id,
                     'path': wkfmt,
-                    'job': None,
-                    'instance': None,
-                    'sort': (modified),
-                    'columns': [item['itemtype'],
+                    'sort': modified,
+                    'values': [
+                        itemtype,
                         summary,
-                        location,
+                        flags,
+                        rhc, # location
                         id,
                         ]
                 }
@@ -5177,18 +5428,78 @@ def show_review(db, pinned_list=[], link_list=[]):
         rows.sort(key=itemgetter('sort'), reverse=False)
     except Exception as e:
         logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
-    rdict = RDict()
+    rdict = NDict()
     for row in rows:
         path = row['path']
-        values = (
-                f"{row['columns'][0]} {row['columns'][1]}{row['columns'][2]}", row['columns'][3]
-                )
+        values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
 
-def show_next(db, pinned_list=[], link_list=[]):
+def show_konnected(db, pinned_list=[], link_list=[], konnect_list=[], selected_id=None, from_ids={}, to_ids={}):
+    """
+    konnected view for selected_id
+    """
+    if selected_id is None or not db.contains(doc_id=selected_id):
+        return [], {}
+    selected_item = db.get(doc_id=selected_id)
+    if selected_item is None:
+        return [], {}
+
+    relevant = []
+    relevant.append([' Selection', selected_item])
+
+    for id in from_ids.get(selected_id, []):
+        tmp = db.get(doc_id=id)
+        if tmp:
+            relevant.append([' From the selection', tmp])
+
+    for id in to_ids.get(selected_id, []):
+        tmp = db.get(doc_id=id)
+        if tmp:
+            relevant.append([' To the selection', tmp])
+
+    if len(relevant) < 2:
+        # from and to are empty
+        return [], {}
+
+    width = shutil.get_terminal_size()[0] - 2
+    rows = []
+    summary_width = width - 11
+    for path, item in relevant:
+        id = item.doc_id
+        rhc = str(id).rjust(5, ' ')
+        itemtype = item['itemtype']
+        summary = item['summary']
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
+        rows.append(
+                {
+                    'path': path,
+                    'sort': (path, -id),
+                    'values': [
+                        itemtype,
+                        summary,
+                        flags,
+                        rhc,
+                        id,
+                        ]
+                }
+                )
+    try:
+        rows.sort(key=itemgetter('sort'), reverse=True)
+    except Exception as e:
+        logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
+    rdict = NDict()
+    for row in rows:
+        path = row['path']
+        values = row['values']
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    return tree, row2id
+
+
+def show_next(db, pinned_list=[], link_list=[], konnect_list=[]):
     """
     Unfinished, undated tasks and jobs
     """
@@ -5196,9 +5507,10 @@ def show_next(db, pinned_list=[], link_list=[]):
     rows = []
     locations = set([])
     for item in db:
-        id = item.doc_id
         if item.get('itemtype', None) not in ['-'] or 's' in item or 'f' in item:
             continue
+        id = item.doc_id
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
         if 'j' in item:
             task_location = item.get('l', '~')
             priority = int(item.get('p', 0))
@@ -5212,8 +5524,6 @@ def show_next(db, pinned_list=[], link_list=[]):
                 status = 0 if job.get('status') == '-' else 1
                 # status 1 -> waiting, status 0 -> available
                 summary = job.get('summary')
-                summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
-                summary = summary[:width - 1] + PIN_CHAR if id in pinned_list else summary[:width]
                 job_id = job.get('i', None)
                 job_sort = str(job_id)
                 rows.append(
@@ -5223,9 +5533,12 @@ def show_next(db, pinned_list=[], link_list=[]):
                         'instance': None,
                         'sort': (location, status, sort_priority, job_sort, job.get('summary', '')),
                         'location': location,
-                        'columns': [job.get('status', ''),
+                        'columns': [
+                            job.get('status', ''),
                             summary,
+                            flags,
                             show_priority,
+                            id
                             ]
                     }
                 )
@@ -5235,8 +5548,6 @@ def show_next(db, pinned_list=[], link_list=[]):
             sort_priority = 4 - int(priority)
             show_priority = str(priority) if priority > 0 else ""
             summary = item['summary']
-            summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
-            summary = summary[:width - 1] + PIN_CHAR if id in pinned_list else summary[:width]
             rows.append(
                     {
                         'id': item.doc_id,
@@ -5244,64 +5555,65 @@ def show_next(db, pinned_list=[], link_list=[]):
                         'instance': None,
                         'sort': (location, sort_priority, '', item['summary']),
                         'location': location,
-                        'columns': [item['itemtype'],
+                        'columns': [
+                            item['itemtype'],
                             summary,
+                            flags,
                             show_priority,
+                            id
                             ]
                     }
                     )
     rows.sort(key=itemgetter('sort'))
-
-    row2id = {}
-    next_view = []
-    num = 0
-    for location, items in groupby(rows, key=itemgetter('location')):
-        locations.add(location)
-        num += 1
-        next_view.append(f"{location}")
-        for i in items:
-            row2id[num] = (i['id'], i['instance'], i['job'])
-            num += 1
-            next_view.append(f"  {i['columns'][0]} {i['columns'][1][:width - 8].ljust(width - 8, ' ')}  {i['columns'][2]}")
-    return "\n".join(next_view), row2id
-
-
-def show_records(db, id2relevant, pinned_list=[], link_list=[]):
-    """
-    Records grouped by index entry
-    """
-    width = shutil.get_terminal_size()[0] - 2
-    rows = []
-    # indices = set([])
-    for item in db:
-        id = item.doc_id
-        if item['itemtype'] != '%':
-            continue
-        index = item.get('i', '~')
-        summary = item['summary']
-        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
-        summary = item['summary'][:width - 16] + PIN_CHAR if id in pinned_list else item['summary'][:width - 15]
-        rows.append({
-                    # 'sort': (index, item['summary'], id2relevant.get(item.doc_id)),
-                    'sort': (index, item['summary']),
-                    'index': index,
-                    'columns': [item['itemtype'],
-                        summary,
-                        item.doc_id],
-                    })
-    rows.sort(key=itemgetter('sort'))
-    rdict = RDict()
+    rdict = NDict()
     for row in rows:
-        path = row['index']
-        values = (
-                f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
-                )
+        path = row['location']
+        values = row['columns']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
 
-def show_tags(db, id2relevant, pinned_list=[], link_list=[]):
+def show_journal(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]):
+    """
+    journal grouped by index entry
+    """
+    width = shutil.get_terminal_size()[0] - 2
+    rows = []
+    summary_width = width - 14
+    # indices = set([])
+    for item in db:
+        id = item.doc_id
+        if item['itemtype'] != '%':
+            continue
+        rhc = str(id).rjust(5, ' ')
+        index = item.get('i', '~')
+        itemtype = item['itemtype']
+        summary = item['summary']
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
+
+        rows.append({
+                    'sort': (index, item['summary']),
+                    'path': index,
+                    'values': [
+                        itemtype,
+                        summary,
+                        flags,
+                        rhc,
+                        id
+                        ],
+                    })
+    rows.sort(key=itemgetter('sort'))
+    rdict = NDict()
+    for row in rows:
+        path = row['path']
+        values = row['values']
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    return tree, row2id
+
+
+def show_tags(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]):
     """
     tagged items grouped by tag
     """
@@ -5309,59 +5621,64 @@ def show_tags(db, id2relevant, pinned_list=[], link_list=[]):
     rows = []
     for item in db:
         id = item.doc_id
+        rhc = str(id).rjust(5, ' ')
         tags = item.get('t', [])
+        itemtype = item['itemtype']
         summary = item['summary']
-        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
-        summary = summary[:width - 16] + PIN_CHAR if id in pinned_list else summary[:width - 15]
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
+
         for tag in tags:
             rows.append({
                         'sort': (tag, item['itemtype'], item['summary']),
-                        'tag': tag,
-                        'columns': [item['itemtype'],
-                        summary,
-                            item.doc_id],
+                        'path': tag,
+                        'values': [
+                            itemtype,
+                            summary,
+                            flags,
+                            rhc,
+                            id
+                            ],
                         })
     rows.sort(key=itemgetter('sort'))
-    rdict = RDict()
+    rdict = NDict()
     for row in rows:
-        path = row['tag']
-        values = (
-                f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
-                )
+        path = row['path']
+        values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
 
-def show_index(db, id2relevant, pinned_list=[], link_list=[]):
+def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]):
     """
     All items grouped by index entry
     """
-    width = shutil.get_terminal_size()[0] - 2
     rows = []
     for item in db:
         # if item['itemtype'] == '%':
         #     continue
         id = item.doc_id
+        rhc = str(id).rjust(5, ' ')
         index = item.get('i', '~')
+        itemtype = item['itemtype']
+        # index_tup = index.split('/')
         summary = item['summary']
-        summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
-        summary = summary[:width - 11] + PIN_CHAR if item.doc_id in pinned_list else summary[:width - 10]
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
         rows.append({
                     'sort': (index, item['summary']),
-                    'index': index,
-                    'columns': [item['itemtype'],
+                    'path': index,
+                    'values': [
+                        itemtype,
                         summary,
-                        # item['summary'],
-                        item.doc_id],
+                        flags,
+                        rhc,
+                        id],
                     })
     rows.sort(key=itemgetter('sort'))
-    rdict = RDict()
+    rdict = NDict()
     for row in rows:
-        path = row['index']
-        values = (
-                f"{row['columns'][0]} {row['columns'][1]}", row['columns'][2]
-                )
+        path = row['path']
+        values = row['values']
         try:
             rdict.add(path, values)
         except:
@@ -5370,7 +5687,7 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[]):
     return tree, row2id
 
 
-def show_pinned(items, pinned_list=[], link_list=[]):
+def show_pinned(items, pinned_list=[], link_list=[], konnect_list=[]):
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     summary_width = width - 18
@@ -5386,36 +5703,36 @@ def show_pinned(items, pinned_list=[], link_list=[]):
             monthday = dt.format("MMM D")
             time = fmt_time(dt)
             # dtfmt = f"{monthday} {time}"
-            dtfmt = dt.format("YYYY-MM-DD")
+            rhc = f"{dt.format('YYYY-MM-DD')} {label}"
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item['summary']
-            summary = (summary[:width-3].rstrip() +  LINK_CHAR) if id in link_list else summary
-            summary = summary[:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else summary[:summary_width]
+            flags = get_flags(id, link_list, konnect_list, pinned_list)
+
             rows.append(
                     {
-                        'id': id,
                         'sort': (itemtype, dt),
                         'path': type_keys[itemtype],
-                        'columns': [itemtype,
-                            summary.ljust(summary_width, ' '),
-                            f"{label} {dtfmt}",
-                            item.doc_id],
+                        'values': [
+                            itemtype,
+                            summary,
+                            flags,
+                            rhc,
+                            id
+                            ],
                     }
                     )
 
     rows.sort(key=itemgetter('sort'), reverse=False)
-    rdict = RDict()
+    rdict = NDict()
     for row in rows:
         path = row['path']
-        values = (
-                f"{row['columns'][0]} {row['columns'][1]} {row['columns'][2]}", row['columns'][3]
-                )
+        values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
-    logger.debug(f"row2id: {row2id}")
+    # logger.debug(f"row2id: {row2id}")
     return tree, row2id
 
-def get_usedtime(db):
+def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[]):
     """
     All items with used entries grouped by month, index entry and day
 
@@ -5423,7 +5740,7 @@ def get_usedtime(db):
     UT_MIN = settings.get('usedtime_minutes', 1)
 
     width = shutil.get_terminal_size()[0] - 2
-    summary_width = width - 22
+    summary_width = width - 21
 
     used_details = {}
     used_details2id = {}
@@ -5438,12 +5755,13 @@ def get_usedtime(db):
         if not used:
             continue
         index = item.get('i', '~')
-        description = item.get('d', "")
         id_used = {}
         index_tup = index.split('/')
-        doc_id = item.doc_id
+        id = item.doc_id
         itemtype = item['itemtype']
-        details = f"{itemtype} {item['summary']}"
+        summary = item['summary']
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
+
         for period, dt in used:
             if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
                 dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
@@ -5466,44 +5784,33 @@ def get_usedtime(db):
                 used_time[tuple((month, *index_tup[:i+1]))] += period
         for monthday in id_used:
             month = monthday.format("YYYY-MM")
+            rhc = f"{monthday.format('MMM D')}: {format_hours_and_tenths(id_used[monthday])}".ljust(14, ' ')
             detail_rows.append({
-                        'sort': (month, *index_tup, monthday, details),
+                        'sort': (month, *index_tup, monthday, itemtype, summary),
                         'month': month,
                         'path': f"{monthday.format('MMMM YYYY')}/{index}",
-                        'description': description,
-                        'columns': [
-                            details,
-                            f"{format_hours_and_tenths(id_used[monthday])} {monthday.format('MMM D')}",
-                            doc_id],
+                        'values': [
+                            itemtype,
+                            summary,
+                            flags,
+                            rhc,
+                            id],
                         })
 
     detail_rows.sort(key=itemgetter('sort'))
     for month, items in groupby(detail_rows, key=itemgetter('month')):
         months.add(month)
-        rdict = RDict()
-        ddict = RDict()
+        rdict = NDict()
         for row in items:
-            summary = row['columns'][0][:summary_width]
-            rhc = row['columns'][1]
             path = row['path']
-            description = row['description']
-            values = [f"{summary}: {rhc}", row['columns'][2]
-                    ]
+            values = row['values']
             try:
-                rdict.add(path, tuple(values))
-            except Exception as e:
-                logger.error(f"error adding path: {path}, values: {values}: {e}")
-            if description:
-                values.append(description)
-            try:
-                ddict.add(path, tuple(values))
+                rdict.add(path, values)
             except Exception as e:
                 logger.error(f"error adding path: {path}, values: {values}: {e}")
         tree, row2id = rdict.as_tree(rdict, level=0)
         used_details[month] = tree
         used_details2id[month] = row2id
-        dtree, drow2id = ddict.as_tree(ddict, level=0)
-
 
     keys = [x for x in used_time]
     keys.sort()
@@ -5573,7 +5880,11 @@ def no_busy_periods(week, width):
             h[hour][weekday] = '  .  '
     return busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
-def summary_pin(text, width, id, pinned_list, link_list):
+def summary_pin(text, width, id, pinned_list, link_list, konnected_list):
+    in_konnected = False
+    if id in konnected_list:
+        in_konnected = True
+        text = (text[:width-3].rstrip() +  KONNECT_CHAR)
     if id in link_list:
         text = (text[:width-3].rstrip() +  LINK_CHAR)
     if id in pinned_list:
@@ -5583,8 +5894,7 @@ def summary_pin(text, width, id, pinned_list, link_list):
     return ret
 
 
-def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[]):
-    logger.debug(f"pinned_list: {pinned_list}")
+def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[]):
     ampm = settings['ampm']
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
@@ -5607,7 +5917,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             LL[hour] = ' '.rjust(6, ' ')
 
     width = shutil.get_terminal_size()[0] - 2
-    summary_width = width - 7 - 16
+    # xx:xxam-xx:xxpm
+    rhc_width = 15
+    flag_width = 5
+    indent_to_summary = 6
+    summary_width = width - indent_to_summary - flag_width - rhc_width
 
     d = iso_to_gregorian((yw[0], yw[1], 1))
     dt = pendulum.datetime(d.year, d.month, d.day, 0, 0, 0, tz='local')
@@ -5627,12 +5941,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             continue
         if item['itemtype'] in "!?":
             continue
-        summary = summary_pin(item['summary'], summary_width, item.doc_id, pinned_list, link_list)
-
+        summary = item['summary']
+        id = item.doc_id
+        flags = get_flags(id, link_list, konnect_list, pinned_list)
         if 'u' in item:
             used = item.get('u') # this will be a list of @u entries
             itemtype = item['itemtype']
-            id = item.doc_id
             dates_to_periods = {}
             for period, dt in used:
                 if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
@@ -5649,7 +5963,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 total = ZERO
                 for p in dates_to_periods[dt]:
                     total += p
-                rhc = format_hours_and_tenths(total).center(16, ' ')
+                rhc = format_hours_and_tenths(total).center(rhc_width, ' ')
                 done.append(
                         {
                             'id': id,
@@ -5664,11 +5978,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 ),
                             'columns': [itemtype,
                                 summary,
+                                flags,
                                 rhc,
+                                id
                                 ],
                         }
                         )
-
 
         if item['itemtype'] == '-':
             d = []
@@ -5678,9 +5993,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 for dt in item['h']:
                     d.append([dt, summary, item.doc_id, None])
             if 'j' in item:
-                # logger.debug(f"item['j']: {item['j']}")
                 for job in item['j']:
-                    job_summary = summary_pin(job.get('summary', ''), summary_width, item.doc_id, pinned_list, link_list)
+                    job_summary = job.get('summary', '')
                     if 'f' in job:
                         d.append([job['f'], job_summary, item.doc_id, job['i']])
             if d:
@@ -5708,7 +6022,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                     ),
                                 'columns': [FINISHED_CHAR,
                                     row[1],
-                                    rhc
+                                    flags,
+                                    rhc,
+                                    id
                                     ],
                             }
                             )
@@ -5724,12 +6040,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 for job in item['j']:
                     if 'f' in job:
                         continue
-                    job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list, link_list)
+                    job_summary = job.get('summary', '')
                     jobstart = dt - job.get('s', ZERO)
                     job_id = job.get('i', None)
                     job_sort = str(job_id)
 
-                    rhc = fmt_time(dt).center(16, ' ')
+                    rhc = fmt_time(dt).center(rhc_width, ' ')
                     rows.append(
                         {
                             'id': item.doc_id,
@@ -5744,22 +6060,24 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 ),
                             'columns': [job['status'],
                                 set_summary(job_summary, jobstart),
-                                rhc
+                                flags,
+                                rhc,
+                                id
                                 ]
                         }
                     )
 
             else:
                 if item['itemtype'] == '-':
-                    rhc = fmt_time(dt).center(16, ' ')
+                    rhc = fmt_time(dt).center(rhc_width, ' ')
                 elif 'e' in item:
                     if 'c' in item and item['c'] in omit:
                         et = None
-                        rhc = fmt_time(dt).center(16, ' ')
+                        rhc = fmt_time(dt).center(rhc_width, ' ')
                     else:
-                        rhc = fmt_extent(dt, et).center(16, ' ')
+                        rhc = fmt_extent(dt, et).center(rhc_width, ' ')
                 else:
-                    rhc = fmt_time(dt).center(16, ' ')
+                    rhc = fmt_time(dt).center(rhc_width, ' ')
 
                 sort_dt = dt.format("YYYYMMDDHHmm")
                 if sort_dt.endswith('0000'):
@@ -5785,7 +6103,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 ),
                             'columns': [item['itemtype'],
                                 set_summary(summary, dt),
-                                rhc
+                                flags,
+                                rhc,
+                                id
                                 ]
                         }
                     )
@@ -5846,7 +6166,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         busy_hsh[week] = busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
 
-    row2id = {}
+    # row2id = {}
     # done2id = {}
     row_num = -1
     cache = {}
@@ -5865,9 +6185,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 agenda.append(f"  {d}")
                 row_num += 1
                 for i in columns:
-                    summary = i['columns'][1][:summary_width]
-                    rhc = i['columns'][2].rjust(16, ' ')
-                    agenda.append(f"    {i['columns'][0]} {summary}{rhc}")
+                    # logger.debug(f"day: {day}; columns: {i['columns']}")
+                    summary = i['columns'][1][:summary_width - 1] + ELLIPSiS_CHAR if len(i['columns'][1]) > summary_width else i['columns'][1].ljust(summary_width, ' ')
+                    flags = i['columns'][2]
+                    rhc = i['columns'][3].rjust(rhc_width, ' ')
+                    agenda.append(f"    {i['columns'][0]} {summary} {flags} {rhc}")
                     row_num += 1
                     row2id[row_num] = (i['id'], i['instance'], i['job'])
         agenda_hsh[week] = "\n".join(agenda)
@@ -5888,8 +6210,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 done.append(f"  {d}")
                 row_num += 1
                 for i in columns:
-                    summary = i['columns'][1][:summary_width]
-                    rhc = i['columns'][2].rjust(16, ' ')
+                    summary = i['columns'][1][:summary_width - 1] + ELLIPSiS_CHAR if len(i['columns'][1]) > summary_width else i['columns'][1].ljust(summary_width, ' ')
+                    rhc = i['columns'][2].rjust(rhc_width, ' ')
                     done.append(f"    {i['columns'][0]} {summary}{rhc}")
                     row_num += 1
                     done2id[row_num] = (i['id'], i['instance'], i['job'])

@@ -26,7 +26,7 @@ class Settings():
             'inbox':        'OrangeRed',
             'pastdue':      'LightSalmon',
             'begin':        'Gold',
-            'record':       'GoldenRod',
+            'journal':       'GoldenRod',
             'event':        'LimeGreen',
             'available':    'LightSkyBlue',
             'waiting':      'SlateGrey',
@@ -38,7 +38,7 @@ class Settings():
             'inbox':        'MediumVioletRed',
             'pastdue':      'Red',
             'begin':        'DarkViolet',
-            'record':       'Brown',
+            'journal':      'Brown',
             'event':        'DarkGreen',
             'available':    'DarkBlue',
             'waiting':      'DarkSlateBlue',
@@ -274,7 +274,7 @@ style: dark
 #     inbox:        inbox reminders
 #     pastdue:      pasdue task warnings
 #     begin:        begin by warnings
-#     record:       record reminders
+#     journal:      journal reminders
 #     event:        event reminders
 #     waiting:      waiting job reminders (unfinished prereqs)
 #     finished:     finished task/job reminders
@@ -295,7 +295,7 @@ colors:
     inbox:        'Yellow'
     pastdue:      'LightSalmon'
     begin:        'Gold'
-    record:       'GoldenRod'
+    journal:      'GoldenRod'
     event:        'LimeGreen'
     waiting:      'SlateGrey'
     finished:     'DarkGrey'
@@ -371,16 +371,22 @@ colors:
                 changed.append(f"removed {key}: {self.user[key]}")
             elif key in ['sms', 'smtp', 'colors']:
                 # only allow the specified subfields for these keys
-                ks = new[key] or []
+                ks = tmp[key] or []
                 for k in ks:
                     if k not in self.settings[key]:
                         changed.append(f"removed {key}.{k}: {new[key][k]}")
                         del new[key][k]
         if new['colors']:
-            for k in new['colors']:
+            tmp = deepcopy(new['colors']) # avoid modifying ordered_dict during iteration
+            deleted = False
+            for k in tmp:
                 if k not in default_colors:
+                    deleted = True
                     changed.append(f"removed invalid color entry: {k}")
-                    del new['colors'][k]
+                    del tmp[k]
+            if deleted:
+                new['colors'] = tmp
+
             for k, v in default_colors.items():
                 if k not in new['colors']:
                     changed.append(f"appending missing color entry for {k}. Using default.")

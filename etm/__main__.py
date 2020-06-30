@@ -202,9 +202,9 @@ def inbasket():
     option = '@t etm+'
 
     help = f"""\
-usage: etm+ [text]          use text
+usage: etm+ 'text'          use text
    or: etm+                 get text from stdin
-   or: etm+ ['?'|'help']    print this usage information
+   or: etm+ [?|help]    print this usage information
 
 With the environmental variable ETMHOME set to your etm
 root directory, text either piped to this script or
@@ -244,7 +244,11 @@ later. """
 
     # otherwise, get the input from
     elif len(sys.argv) > 1:
-        input = " ".join(sys.argv[1:])
+        if len(sys.argv) == 2:
+            input = " ".join(sys.argv[1:])
+        else:
+            print("The provided input should be wrapped in single quotes")
+            sys.exit()
 
     else:
         print(help)

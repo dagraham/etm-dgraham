@@ -1,8 +1,6 @@
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" />
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" width="200px" />
 
-This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/etm-dgraham) and in [files](https://groups.io/g/etm/files/).
-
-Please consider joining the etm discussion group at [groups.io](https://groups.io/g/etm).
+This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/etm-dgraham) and in the etm discussion group at [groups.io](https://groups.io/g/etm) - note especially the [files](https://groups.io/g/etm/files/) folder.
 
 # Contents
 -   [Overview](#overview)
@@ -18,6 +16,8 @@ Please consider joining the etm discussion group at [groups.io](https://groups.i
         -   [Weekly Views](#weekly-views)
         -   [Review View](#review-view)
         -   [Pinned View](#pinned-view)
+        -   [Konnection View](#konnection-view)
+        -   [Used Time Views](#used-time-views)
         -   [Query View](#query-view)
             -   [Simple queries](#simple-queries)
             -   [Simple query examples](#simple-query-examples)
@@ -26,7 +26,6 @@ Please consider joining the etm discussion group at [groups.io](https://groups.i
             -   [Complex queries](#complex-queries)
             -   [Command History](#command-history)
             -   [Saved Queries](#saved-queries)
-        -   [Used Time Views](#used-time-views)
         -   [Common Features](#common-features)
     -   [Menus](#menus)
         -   [etm menu notes](#etm-menu-notes)
@@ -34,13 +33,20 @@ Please consider joining the etm discussion group at [groups.io](https://groups.i
         -   [editor menu notes](#editor-menu-notes)
         -   [selected menu notes](#selected-menu-notes)
     -   [Installation](#installation)
+        -   [for use in a virtual environment](#for-use-in-a-virtual-environment)
+        -   [for use system wide](#for-use-system-wide)
     -   [Usage](#usage)
+        -   [Terminal size and color](#terminal-size-and-color)
+        -   [Home directory](#home-directory)
+        -   [Using etm+](#etmplus)
     -   [Deinstallation](#deinstallation)
+        -   [From a virtual environment](#from-a-virtual-environment)
+        -   [From a system wide installation](#from-a-system-wide-installation)
 -   [Details](#details)
     -   [Item Types](#item-types)
         -   [event](#event)
         -   [task](#task)
-        -   [record](#record)
+        -   [journal](#journal)
         -   [inbox](#inbox)
         -   [status](#status)
             -   [beginning soon](#beginning-soon)
@@ -70,7 +76,7 @@ The 4 types of reminders in etm with their associated type characters:
 
 * task: **-**
 * event: **\***
-* record: **%**
+* journal: **%**
 * inbox: **!**
 
 See [Item Types](#item-types) for details about these item types and [Options](#options) for details about possible attributes.
@@ -86,7 +92,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
         * Lunch with Ed @s tue 12p @e 90m
 
-* A record (**%**): a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
+* A journal entry (**%**): a favorite Churchill quotation that you heard at 2pm today with the quote itself as the [d]escription.
 
         % Give me a pig - Churchill @s 2p @d Dogs look up at
           you. Cats look down at you. Give me a pig - they
@@ -131,7 +137,7 @@ When you want to create a new reminder or edit an exiting one, *etm* opens an ar
 Let's create the election day reminder to illustrate the **timely** part of the process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character and suggests the alternatives.
 
         item type
-        Choose a character from * (event), - (task), % (record)
+        Choose a character from * (event), - (task), % (journal)
         or ! (inbox)
 
         ────────────────────────────────────────────────────────────
@@ -432,9 +438,12 @@ When you next create a reminder and enter @n, *etm* will pop up a sorted list of
 
 ## [Views](#overview)
 
+_etm_ has several ways of viewing entries. These are listed below by the shortcut key used to activate the view. E.g., pressing `a` activates _Agenda_ view shown above. In each of the views, the etm menus appear at the top and the status bar at the bottom. The latter displayes the current datetime and the name of the view. The circled-i symbol to the right of view name indicates that inbasket reminders are available to be imported. See [etm menu notes](#etm-menu-notes) for details.
+
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmview_agenda.png" alt="new" title="new entry" width="450px" hspace="20px"/>
 
-_etm_ has several ways of viewing entries. These are listed below by the shortcut key used to activate the view. E.g., pressing `a` activates _Agenda_ view shown above. In each of the views, the etm menus appear at the top and the status bar at the bottom. The latter displayes the current datetime and the name of the view. The circled-i symbol to the right of view name indicates that inbasket reminders are available to be imported. See [etm menu notes](#etm-menu-notes) for details.
+
+The display for each reminder shows the itemtype and summary column on the left followed by a *flags* column which displays a combination of letters from 'g' (goto), 'k' (connection) and 'p' (pinned) reflecting the presence of these attributes in the reminder. This column is sometimes followed on the extreme right by another column whose contents depends on the view. E.g. in index and journal views the 'id' of the reminder is displayed while in history view, the last modification timestamp of the reminder is displayed.
 
   * a: Agenda: dated unfinished tasks and other reminders by year-week and week day
   * b: Busy: a graphical illustration of busy and conflicted times by year-week
@@ -443,9 +452,10 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence
   * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first
   * i: Index: all items grouped hierarchically by index entry
+  * j: Journal: journal entries grouped hierarchically by index entry
+  * k: Konnection: items with @k konnection links either to or from the selected item.
   * p: Pinned: items whose pin status is on.
   * q: Query: items matching a user specified query. Enter ? for query usage.
-  * r: Records: records grouped hierarchically by index entry
   * t: Tags: all items with @t tag entries grouped by tag
   * u: Used Time: all items with @u used time entries grouped by month and hierarchically by index
   * U: Used Time Summary: used time aggregates grouped by month and hierarchically by index
@@ -463,7 +473,7 @@ The normal agenda listing for a week day:
 * all day events (events with dates as `@s` entries)
 * datetime items (reminders with datetimes as `@s` entries) by time
 * all day tasks (tasks with dates as `@s` entries)
-* all day records (records with dates as `@s` entries)
+* all day journal enties (journal entries with dates as `@s` entries)
 
 And, on the current day only:
 
@@ -487,6 +497,110 @@ This view can be used to flag items that need attention in your daily workflow i
 
 The pinned status of items is retained so long as *etm* is active but cleared when *etm* is restarted.
 
+### Konnections View
+
+Items with @k konnection links either to or from other items are displayed with a dagger, †, appended to their summaries in all views. When such an item is selected and `k` is pressed this view displays all reminders konnected to the selected reminder, organized as follows:
+
+* reminders with links to the selection
+    * the list of items with @k entries which include the id of the selected item
+* the selection
+    * the selected item
+* reminders with links from the selection
+    * the list of items whose ids are included in the @k entries of the selected item
+
+### Used Time Views
+
+The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
+
+		* Modi ut sit sed amet sit @s 2019-11-11 10:00am @e
+		   1h30m
+		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
+		@i client A/project a1/correspondence
+		@d Aliquam non sed aliquam eius tempora quisquam dolorem.
+		Neque quiquia labore tempora magnam. Quiquia tempora
+		porro est ut. Ut tempora sed non ut eius neque porro.
+		Sed quaerat consectetur dolor sit.
+
+and the *used time view* for November begins with
+
+		November 2019
+		  client A
+			project a1
+			  correspondence
+				* Modi ut sit sed amet sit: 1.6h Nov 11
+				% Amet modi neque eius adipisci: 2.7h Nov 27
+			  research
+				* Quisquam quiquia velit non: 2.0h Nov 19
+			project a2
+			  correspondence
+				* Consectetur voluptatem dolorem: 1.0h Nov 6
+				* Quaerat etincidunt sed non: 0.9h Nov 13
+				* Consectetur eius est adipisci: 0.5h Nov 25
+				% Magnam labore etincidunt: 1.8h Nov 28
+			  meeting
+				% Adipisci dolor labore quiquia: 0.9h Nov 7
+				% Adipisci eius velit porro: 1.4h Nov 14
+			  research
+				* Non modi non velit eius: 1.0h Nov 20
+		  client B
+			project b1
+			  correspondence
+				* Dolor neque velit dolorem: 0.4h Nov 22
+			  meeting
+				* Ipsum numquam porro consectetur: 0.8h Nov 15
+			  phone
+				- Porro voluptatem aliquam: 1.0h Nov 12
+				% Amet ut dolor velit aliquam: 1.9h Nov 13
+			  research
+				* Quisquam labore ut sit aliquam: 0.7h Nov 5
+				* Quiquia ut quisquam sit: 1.5h Nov 12
+				% Adipisci amet modi sed eius: 2.6h Nov 15
+				- Velit dolor quiquia etincidunt: 1.9h Nov 15
+
+Note that the display is by month and, within the month, heirarchially by index entry and reminder. Note also, that the reported times are aggregates of all `@u` entries in the reminder. The first reminder, for example, has 2 such entries:
+
+		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
+
+Because of
+
+		usedtime_minutes: 6
+
+in `cfg.yaml`, each `@u` timeperiod is first rounded up to the next 6 minutes and then added. Thus 58m becomes 1h, 34m becomes 36m and the sum, 1h36m, is reported in hours and tenths as 1.6h.
+
+The reminder lines are similar to those in other views. With, e.g.,
+
+			* Modi ut sit sed amet sit: 1.6h Nov 11
+
+selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth.
+
+
+The *used time **summary** view* for the same month begins with:
+
+		November 2019: 44.4h
+		   client A: 13.8h
+			  project a1: 6.3h
+				 correspondence: 4.3h
+				 research: 2.0h
+			  project a2: 7.5h
+				 correspondence: 4.2h
+				 meeting: 2.3h
+				 research: 1.0h
+		   client B: 16.6h
+			  project b1: 10.8h
+				 correspondence: 0.4h
+				 meeting: 0.8h
+				 phone: 2.9h
+				 research: 6.7h
+			  project b2: 3.9h
+				 meeting: 1.8h
+				 research: 2.1h
+			  project b3: 1.9h
+				 correspondence: 1.9h
+
+
+This view omits the reminder lines and aggregates the used times hierarchically by index entry.
+
+As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
 ### Query View
 
 In *query view* an entry line at the bottom of the screen is used to submit queries to your data store of reminders. For example, press `q` to open query view, enter
@@ -903,101 +1017,6 @@ to display a list of the saved keys and values.
 As with other etm views, in query view you can enter `/` or `?` to search incrementally forward or backward, resepectively, or press `Ctrl-C` to copy the view to the system clipboard or select a reminder and press `Enter` to display its details, press `E` to edit it and so forth.
 
 
-### Used Time Views
-
-The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
-
-		* Modi ut sit sed amet sit @s 2019-11-11 10:00am @e
-		   1h30m
-		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
-		@i client A/project a1/correspondence
-		@d Aliquam non sed aliquam eius tempora quisquam dolorem.
-		Neque quiquia labore tempora magnam. Quiquia tempora
-		porro est ut. Ut tempora sed non ut eius neque porro.
-		Sed quaerat consectetur dolor sit.
-
-and the *used time view* for November begins with
-
-		November 2019
-		  client A
-			project a1
-			  correspondence
-				* Modi ut sit sed amet sit: 1.6h Nov 11
-				% Amet modi neque eius adipisci: 2.7h Nov 27
-			  research
-				* Quisquam quiquia velit non: 2.0h Nov 19
-			project a2
-			  correspondence
-				* Consectetur voluptatem dolorem: 1.0h Nov 6
-				* Quaerat etincidunt sed non: 0.9h Nov 13
-				* Consectetur eius est adipisci: 0.5h Nov 25
-				% Magnam labore etincidunt: 1.8h Nov 28
-			  meeting
-				% Adipisci dolor labore quiquia: 0.9h Nov 7
-				% Adipisci eius velit porro: 1.4h Nov 14
-			  research
-				* Non modi non velit eius: 1.0h Nov 20
-		  client B
-			project b1
-			  correspondence
-				* Dolor neque velit dolorem: 0.4h Nov 22
-			  meeting
-				* Ipsum numquam porro consectetur: 0.8h Nov 15
-			  phone
-				- Porro voluptatem aliquam: 1.0h Nov 12
-				% Amet ut dolor velit aliquam: 1.9h Nov 13
-			  research
-				* Quisquam labore ut sit aliquam: 0.7h Nov 5
-				* Quiquia ut quisquam sit: 1.5h Nov 12
-				% Adipisci amet modi sed eius: 2.6h Nov 15
-				- Velit dolor quiquia etincidunt: 1.9h Nov 15
-
-Note that the display is by month and, within the month, heirarchially by index entry and reminder. Note also, that the reported times are aggregates of all `@u` entries in the reminder. The first reminder, for example, has 2 such entries:
-
-		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
-
-Because of
-
-		usedtime_minutes: 6
-
-in `cfg.yaml`, each `@u` timeperiod is first rounded up to the next 6 minutes and then added. Thus 58m becomes 1h, 34m becomes 36m and the sum, 1h36m, is reported in hours and tenths as 1.6h.
-
-The reminder lines are similar to those in other views. With, e.g.,
-
-			* Modi ut sit sed amet sit: 1.6h Nov 11
-
-selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth.
-
-
-The *used time **summary** view* for the same month begins with:
-
-		November 2019: 44.4h
-		   client A: 13.8h
-			  project a1: 6.3h
-				 correspondence: 4.3h
-				 research: 2.0h
-			  project a2: 7.5h
-				 correspondence: 4.2h
-				 meeting: 2.3h
-				 research: 1.0h
-		   client B: 16.6h
-			  project b1: 10.8h
-				 correspondence: 0.4h
-				 meeting: 0.8h
-				 phone: 2.9h
-				 research: 6.7h
-			  project b2: 3.9h
-				 meeting: 1.8h
-				 research: 2.1h
-			  project b3: 1.9h
-				 correspondence: 1.9h
-
-
-This view omits the reminder lines and aggregates the used times heirarchially by index entry.
-
-As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
-
-
 ### Common Features
 
 While the views differ in many respects, they also share some common aspects:
@@ -1014,7 +1033,7 @@ While the views differ in many respects, they also share some common aspects:
     * Press “/“ (or "?") and enter an expression to search the view forward (or backward) for a row whose content contains a case-insensitive match for the expression.
 	* While entering the search expression, push the `up` or `down` cursor keys to change the direction of search.
     * After entering the search expression, press “n” to search (cyclically) for other matches in the direction specified.
-	* Once a search is initiated, it remains active in all views with matches highlighted. To remove the highlighting, search for something not likely to be matched such as 3 consecutive commas.
+	* Once a search is initiated, it remains active in all views with matches highlighted. To remove the highlighting, search for something unlikely to be matched, e.g., 3 consecutive commas.
 
 
 ## Menus
@@ -1040,9 +1059,9 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         f) forthcoming
         h) history
         i) index
+        j) journal
         p) pinned
         q) query
-        r) records
         t) tags
         u) used time
         U) used time summary
@@ -1057,7 +1076,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         l) go to line number
         ^c) copy active view to clipboars
         ---
-        j) jump to date in a), b) and c)
+        J) jump to date in a), b) and c)
         right) next in a), b), c), u), U) and y)
         left) previous in a), b), c), u), U) and y)
         space) current in a), b), c), u), U) and y)
@@ -1065,6 +1084,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         N) create new item
         ---
         ^s) save changes & close
+        ^g) test goto link
         ^r) show repetitions
         ^z) close editor
     selected
@@ -1077,7 +1097,8 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         R) reschedule
         S) schedule new
         ---
-        ^g) open goto
+        g) open goto link
+        k) show konnections
         ^r) show repetitions
         ^x) toggle archived status
         ---
@@ -1143,7 +1164,9 @@ Several options here deserve comment.
 
 <!--  [![etm: installing etm in a virtual environment](http://img.youtube.com/vi/fEPPG82AH7M/0.jpg)](http://www.youtube.com/watch?v=fEPPG82AH7M "installing etm in a virtual environment") -->
 
-Setting up a virtual environment for etm is recommended. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
+### For use in a virtual environment
+
+Setting up a virtual environment for etm is recommended for new users. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
 
 Open a terminal and begin by creating a new directory/folder for the virtual environment, say `etm-pypi` in your home directory:
 
@@ -1170,15 +1193,55 @@ This will install etm and all its requirements in
 
 		./env/lib/python3.x/sitepackages
 
-and will also install an executable called `etm` in `./env/bin`.
+and will also install an executable called `etm` in `./env/bin`.You can then start etm using
 
-By the way, the suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display.
+        (env) $ etm <path to home>
 
-Before you start etm, think about where you would like to keep your personal data and configuration files. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_, e.g.,
+Details about the home directory are in [usage](#usage).
 
-        (env) $ etm ~/Documents/etm
+### For use system wide
 
-Considerations:
+If your system allows you to run `sudo` and you want general access system wide, then you could instead install etm using
+
+    $ sudo -H python3.x -m pip install -U etm-dgraham
+replacing the `3.x` with the verion of python you want to use, e.g., `3.7`. This would put both etm and etm+ in your path (in the bin directory for python3.7).
+
+Notes:
+* This same command would be used to update *etm* to the latest version.
+* You may or may not need the '-H' argument for sudo. Here is the relevant section from the sudo man page:
+
+        -H, --set-home
+                    Request that the security policy set the
+                    HOME environment variable to the home
+                    directory specified by the target user's
+                    password database entry.  Depending on
+                    the policy, this may be the default
+                    behavior.
+* Invoking pip through python in this way forces the use of the pip that belongs to python3.7.
+
+You can then open any terminal and start etm using
+
+    $ etm <path to home>
+
+## Usage
+
+### Terminal size and color scheme
+
+The suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display.
+
+The size of the terminal is used when *etm* starts to set various display options so changing the terminal size, especially reducing the width, is best avoided once *etm* is running.
+
+### Home directory
+
+Before you start etm, think about where you would like to keep your personal data and configuration files. This will be your etm *home* directory. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_.
+
+	$ etm <path to home>
+Finally, if there is an environmental variable, `ETMHOME`, set to this path then you can just enter
+
+	$ etm
+and etm will use `ETMHOME` as its home directory.
+
+Home directory considerations:
 
 * If more than one person will be using etm on the same computer, you might want to have different *home* directories for each user.
 * If you want to use etm on more than one computer and use Dropbox, you might want to use `~/Dropbox/etm` to have access on each of your computers.
@@ -1198,31 +1261,28 @@ Here `cfg.yaml` is your user configuration file and `db.json` contains all your 
 The file `cfg.yaml` can be edited and the options are documented in the file.
 See [configuration](#configuration) for details.
 
-## Usage
+<h3 id="etmplus">
+Using etm+
+</h3>
 
-Once etm is installed, you can start etm by opening a terminal with a width of at least 60 charaters and entering
-
-	$ etm <path to home>
-
-where `<path to home>` is the path to your *home* directory where your data files are kept. Alternatively, if there is an environmental variable, `ETMHOME`, set to this path then you can just enter
-
-	$ etm
-
-and etm will use `ETMHOME` as its home directory.
-
-An added bonus of setting `ETMHOME` is the possibility of using the `etm+` shortcut for creating reminders. E.g., entering
+An added bonus of setting `ETMHOME` to the path of your *home* directory is the possibility of using the `etm+` shortcut for creating reminders. E.g., entering
 
 	$ etm+ '* lunch with Peter @s fri 12p'
 
-would cause the line `* lunch with Peter @s fri 12p` to be appended to the file `inbasket.text`in `ETMHOME`, creating the file if necessary. `etm+` also accepts input piped to it so that
+would append the line `* lunch with Peter @s fri 12p` to the file `inbasket.text`in `ETMHOME`, creating the file if necessary. `etm+` also accepts input piped to it so that
 
 	$ echo '* lunch with Peter @s fri 12p' | etm+
 
 would produce exactly the same result.
 
+<<<<<<< HEAD
 Note that the *single* quotes are necessary to keep the shell from expanding "*" as a wildcard. They will similarly prevent the shell from  interpreting, say, '$50' as a shell variable because of the dollar sign. The safest policy is to always wrap the input to etm+ in *single* (not double) quotes.
+=======
+Important
+: The single quotes are necessary to keep the shell from expanding the "*" into the names of all the files in the current working directory and other such mischief.
+>>>>>>> working
 
-When `inbasket.text` exists in `ETMHOME`, etm will display an inbasket character, ⓘ , at the right end of its status bar reminding you that inbasket items are available for importing. Just press F5 in etm to import the reminders from this file and, on successful completion, automatically remove the file.
+*etm* checks once every minute for the presence of a file named `inbasket.text`in `ETMHOME` and, if found, will display an inbasket character, ⓘ , at the right end of its status bar reminding you that inbasket items are available for importing. Just press F5 in etm to import the reminders from this file and, on successful completion, automatically remove the file.
 
 Note finally that `etm+` will accept quick notes which are not themselves valid etm reminders such as
 
@@ -1239,11 +1299,20 @@ The addition of the typechar '!' means that after importing the reminder will ap
 
 ## Deinstallation
 
+### From a virtual environment
+
 If you should ever want to deinstall etm, first deactivate the virtual environment, if necessary, by changing to the virtual environment directory and entering
 
         (env) $ deactivate
 
 You can now simply delete the virtual environment directory and, if you have additional *home* directories, delete each of them. One of the many advantages of the virtual environment is that these steps remove every trace.
+
+### From a system wide installation
+
+To remove *etm* installed into, say, python3.7, run
+
+    $ sudo -H python3.7 pip uninstall etm-dgraham
+This will remove *etm* from the python site-packages directory and the *etm* and *etm+* executables from the python bin directory. Then remove any *etm home* directories that you have created.
 
 # Details
 
@@ -1334,15 +1403,15 @@ A task is something that requires action from the user and lasts, so to speak, u
 
 Corresponds to VTODO in the vcalendar specification.
 
-### record
+### journal
 
 Type character: **%**
 
 A record of something that the user wants to remember. The userid and password for a website would be an example. A journal entry for vacation day is another example.
 
-- The `@s` is optional and, if given, is interpreted as the datetime to which the record applies.
-- Records without @s entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime. They are displayed in the *Record* view
-- Records with @s entries associate the record with the datetime given by @s. A vacation log entry, for example, might record the highlights of the day given by @s. They are displayed in the *Agenda* view as well as the *Record* view.
+- The `@s` is optional and, if given, is interpreted as the datetime to which the journal entry applies.
+- Journal entries without @s entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime. They are displayed in the *Journal* view
+- Journal entries with @s entries associate the entry with the datetime given by @s. A vacation log entry, for example, might record the highlights of the day given by @s. They are displayed in *Agenda* view as well as *Journal* view.
 
 Corresponds to VJOURNAL in the vcalendar specification.
 
@@ -1420,6 +1489,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @h: history. (for repeating tasks, a list of the most recent completion datetimes)
 *  @i: index. forward slash delimited string. E.g., client/project/activity
 *  @j*: job summary. string, optionally followed by job &key entries
+*  @k*: doc_id. connect this reminder to the one corresponding to doc_id.
 *  @l: location/context. string
 *  @m: mask. string stored in obfuscated form
 *  @n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion.
@@ -1564,7 +1634,7 @@ For use with @r:
 When a reminder is 'archived' in *etm*, it is is moved from the *items* table in the database to the *archive* table. Reminders in the *archive* table can only be viewed by opening *query view* and then beginning the query with 'a' to use the *archive* table. All other views display reminders from the *items* table.
 
 There are two ways to archive a reminder:
-* Automatically. If 'archive_after' in the configuration settings is set to a positive integer, then tasks with finished datetimes and events with last datetimes more than this number of years before the current date will be achived automatically at the beginning of each new day. Note that unfinshed tasks, records and inbox reminders are never automatically archived.
+* Automatically. If 'archive_after' in the configuration settings is set to a positive integer, then tasks with finished datetimes and events with last datetimes more than this number of years before the current date will be achived automatically at the beginning of each new day. Note that unfinshed tasks, journal entries and inbox reminders are never automatically archived.
 * Manually. Select a reminder and press `^x` (control and x) to archive it.
 
 There is only one way to un-archive a reminder. Run a query beginning with 'a' in *query* view to use the archive table, select a reminder and press `^x`. This will un-archive the reminder, i.e., move it back to the *items* table.
@@ -1671,7 +1741,7 @@ Here are the options with their default values from that file. The lines beginni
 	# daily basis.  Archived items are moved from the "items"
 	# table in the database to the "archive" table and will no
 	# longer appear in normal views. Note that unfinished tasks
-	# and records are not archived.
+	# and journal entries are not archived.
 	archive_after: 0
 
 	# num_finished: A non-negative integer. If positive, when
@@ -1802,7 +1872,7 @@ Here are the options with their default values from that file. The lines beginni
 	#     inbox:        inbox reminders
 	#     pastdue:      pasdue task warnings
 	#     begin:        begin by warnings
-	#     record:       record reminders
+	#     journal:      journal reminders
 	#     event:        event reminders
 	#     waiting:      waiting job reminders (unfinished prereqs)
 	#     finished:     finished task/job reminders
@@ -1823,7 +1893,7 @@ Here are the options with their default values from that file. The lines beginni
 	  inbox: Yellow
 	  pastdue: LightSalmon
 	  begin: Gold
-	  record: GoldenRod
+	  journal: GoldenRod
 	  event: LimeGreen
 	  waiting: SlateGrey
 	  finished: DarkGrey
