@@ -1,8 +1,6 @@
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" width="200px" />
 
-This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/etm-dgraham) and in [files](https://groups.io/g/etm/files/).
-
-Please consider joining the etm discussion group at [groups.io](https://groups.io/g/etm).
+This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/etm-dgraham) and in the etm discussion group at [groups.io](https://groups.io/g/etm) - note especially the [files](https://groups.io/g/etm/files/) folder.
 
 # Contents
 -   [Overview](#overview)
@@ -440,9 +438,12 @@ When you next create a reminder and enter @n, *etm* will pop up a sorted list of
 
 ## [Views](#overview)
 
+_etm_ has several ways of viewing entries. These are listed below by the shortcut key used to activate the view. E.g., pressing `a` activates _Agenda_ view shown above. In each of the views, the etm menus appear at the top and the status bar at the bottom. The latter displayes the current datetime and the name of the view. The circled-i symbol to the right of view name indicates that inbasket reminders are available to be imported. See [etm menu notes](#etm-menu-notes) for details.
+
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmview_agenda.png" alt="new" title="new entry" width="450px" hspace="20px"/>
 
-_etm_ has several ways of viewing entries. These are listed below by the shortcut key used to activate the view. E.g., pressing `a` activates _Agenda_ view shown above. In each of the views, the etm menus appear at the top and the status bar at the bottom. The latter displayes the current datetime and the name of the view. The circled-i symbol to the right of view name indicates that inbasket reminders are available to be imported. See [etm menu notes](#etm-menu-notes) for details.
+
+The display for each reminder shows the itemtype and summary column on the left followed by a *flags* column which displays a combination of letters from 'g' (goto), 'k' (connection) and 'p' (pinned) reflecting the presence of these attributes in the reminder. This column is sometimes followed on the extreme right by another column whose contents depends on the view. E.g. in index and journal views the 'id' of the reminder is displayed while in history view, the last modification timestamp of the reminder is displayed.
 
   * a: Agenda: dated unfinished tasks and other reminders by year-week and week day
   * b: Busy: a graphical illustration of busy and conflicted times by year-week
@@ -1020,7 +1021,6 @@ As with other etm views, in query view you can enter `/` or `?` to search increm
 
 While the views differ in many respects, they also share some common aspects:
 
-* The display for each reminder shows the itemtype and summary followed by a *flags* column which displays a combination of letters from 'g' (goto), 'k' (connection) and 'p' (pinned) depending on the presence of these attributes in the reminder. This column is sometimes followed on the extreme right by another column whose contents depends on the view. E.g. in index and journal views the 'id' of the reminder is displayed while in history view, the last modification timestamp of the reminder is displayed.
 * Press `N` in any view to create a new item.
 * Select a reminder by clicking on it or by using the up and down cursor keys to move the cursor to the line displaying the reminder.
 * With a reminder selected, press `return` to toggle displaying the details.
