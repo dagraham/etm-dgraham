@@ -2336,7 +2336,7 @@ def do_maybe_record_timer(*event):
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('V', filter=is_viewing_or_details & is_item_view)
+@bindings.add('c-u', filter=is_viewing_or_details & is_item_view)
 def do_touch(*event):
     ok = dataview.touch(text_area.document.cursor_position_row)
     if ok:
@@ -2344,7 +2344,7 @@ def do_touch(*event):
         loop = asyncio.get_event_loop()
         loop.call_later(0, item_changed, loop)
     else:
-        show_message('Update reviewed', "Update last-modified failed")
+        show_message('Update last-modified', "Update last-modified failed")
 
 
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
@@ -2841,6 +2841,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('g) open goto link', handler=do_goto),
         MenuItem('k) show konnections', handler=show_konnections),
         MenuItem('^r) show repetitions', handler=not_editing_reps),
+        MenuItem('^u) update last modified', handler=do_touch),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
         MenuItem('T) begin timer, then toggle paused/running', handler=do_timer_toggle),

@@ -485,7 +485,7 @@ And, on the current day only:
 
 Displays a list of the summaries and location/contexts (@l entries) of undated and unfinished tasks sorted by their (last) modified timestamp and grouped by the number of weeks since last modified.
 
-This view is used for a periodic review of such "todos" with the goal of not letting them 'slip through the cracks'. Either editing a task or pressing "V" with the task selected resets the modified timestamp to the current time and thus moves the task to the "this week" group at the bottom of the list.
+This view is used for a periodic review of such "todos" with the goal of not letting them 'slip through the cracks'. Either editing a task or pressing "^U" with the task selected resets the modified timestamp to the current time and thus moves the task to the "this week" group at the bottom of the list.
 
 A reasonable work flow would be to open this view once every week or so and examine tasks more than a week "old", editing them when necessary and otherwise updating the modified timestamp using "V" so that all tasks are kept within the 'last week' or 'this week' groups.
 
@@ -1100,6 +1100,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         g) open goto link
         k) show konnections
         ^r) show repetitions
+		^u) update last modified
         ^x) toggle archived status
         ---
         T) begin timer, then toggle paused/running
