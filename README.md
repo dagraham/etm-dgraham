@@ -497,9 +497,9 @@ This view can be used to flag items that need attention in your daily workflow i
 
 The pinned status of items is retained so long as *etm* is active but cleared when *etm* is restarted.
 
-### Konnections View
+### Konnected View
 
-Items with @k konnection links either to or from other items are displayed with a dagger, †, appended to their summaries in all views. When such an item is selected and `k` is pressed this view displays all reminders konnected to the selected reminder, organized as follows:
+Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. When such an item is selected and 'k' is pressed this view displays all reminders konnected to the selected reminder, organized as follows:
 
 * reminders with links to the selection
     * the list of items with @k entries which include the id of the selected item
@@ -1152,8 +1152,8 @@ Several options here deserve comment.
 * *finish* applies only to unfinished tasks and will prompt for a datetime to use in creating an `@f` entry for the task with the current datetime as the default. Press
 * *reschedule* will prompt for a datetime. If the reminder is repeating, the provided datetime will replace the datetime of the selected instance. Otherwise it will be used either to replace the current value of `@s` or, if there is no `@s` entry, to create one.
 * *schedule new* will prompt for a datetime and add that instance to any other instances of the reminder.
-* *open goto* will use the system default application to open the file path or url specified in the selected reminders `@g` entry.
-* *toggle pin* toggles the pin status of an item between off and on. Items for which the pin status is on have a map pin symbol, 📌, appended to their summaries in all views and are also displayed in *pinned view*.
+* *open goto* will use the system default application to open the file path or url specified in the selected reminders `@g` entry. Items with goto links are displayed with a 'g' in the *flags* column of normal views.
+* *toggle pin* toggles the pin status of an item between off and on. Items for which the pin status are displayed with a 'p', in the *flags* column of normal views and are also displayed in *pinned view*.
 * *show repetitions* pops up a display showing illustrative repetitions if the item is repeating.
 * *toggle archived status* moves the selected reminder from the items table if it is active to the archive table and vice versa if the archive table is active.
 * *begin timer then toggle paused/running* will create and start an active timer associated with the selected reminder if an active timer does not currently exist and will otherwise toggle the paused or running state of the active timer.
