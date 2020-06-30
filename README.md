@@ -1268,30 +1268,22 @@ Using etm+
 An added bonus of setting `ETMHOME` to the path of your *home* directory is the possibility of using the `etm+` shortcut for creating reminders. E.g., entering
 
 	$ etm+ '* lunch with Peter @s fri 12p'
-
 would append the line `* lunch with Peter @s fri 12p` to the file `inbasket.text`in `ETMHOME`, creating the file if necessary. `etm+` also accepts input piped to it so that
 
 	$ echo '* lunch with Peter @s fri 12p' | etm+
-
 would produce exactly the same result.
 
-<<<<<<< HEAD
-Note that the *single* quotes are necessary to keep the shell from expanding "*" as a wildcard. They will similarly prevent the shell from  interpreting, say, '$50' as a shell variable because of the dollar sign. The safest policy is to always wrap the input to etm+ in *single* (not double) quotes.
-=======
 Important
 : The single quotes are necessary to keep the shell from expanding the "*" into the names of all the files in the current working directory and other such mischief.
->>>>>>> working
 
 *etm* checks once every minute for the presence of a file named `inbasket.text`in `ETMHOME` and, if found, will display an inbasket character, ⓘ , at the right end of its status bar reminding you that inbasket items are available for importing. Just press F5 in etm to import the reminders from this file and, on successful completion, automatically remove the file.
 
 Note finally that `etm+` will accept quick notes which are not themselves valid etm reminders such as
 
 	$ etm+ '123 456-7890 Peter'
-
 This would result in the valid reminder
 
 	! 123 456-7890 Peter @t etm+
-
 being appended to `inbasket.text` - note the added type character, `!` and the tag, `@t etm+`.
 
 The addition of the typechar '!' means that after importing the reminder will appear as an 'inbox' item. These are highlighted in the list for the current day in agenda view, reminding you that they require futher attention. You can thus make quick notes without much thought and know that you will automatically be reminded to sort them out later. An added bonus is that when editing such entries in etm itself, all its completion, fuzzy parsing and verification features are available.
