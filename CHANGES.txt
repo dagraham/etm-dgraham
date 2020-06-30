@@ -1,73 +1,80 @@
-Recent tagged changes as of 2020-06-18T17:42:36.869196-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.5.12) Dan Graham
+Recent tagged changes as of 2020-06-30T09:42:28.398091-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.6.0) Dan Graham
+    97e5684c 2020-06-30 09:42:28 -0400
+    Tagged version 4.6.0. Implemented konnections. Added flags column
+    to normal views. Changed record item type to journal to mirror
+    vcalendar use and changed view name from record to journal.
+    Refactored all views using NDict.
+
+- 12 days ago (tag: 4.5.12) Dan Graham
     1054a7cc 2020-06-18 17:42:36 -0400
     Tagged version 4.5.12. Fully implemented etm+ into the etm
     installation.
 
-- 8 hours ago (tag: 4.5.11) Dan Graham
+- 12 days ago (tag: 4.5.11) Dan Graham
     333b353b 2020-06-18 09:24:19 -0400
     Tagged version 4.5.11. Test addition of etm+ to console_scripts
     entry points.
 
-- 8 hours ago (tag: 4.5.10rc0) Dan Graham
+- 12 days ago (tag: 4.5.10rc0) Dan Graham
     6d762d63 2020-06-18 09:19:31 -0400
     Tagged version 4.5.10rc0. Test addition of etm+ to console_scripts
     entry points.
 
-- 32 hours ago (tag: 4.5.10) Dan Graham
+- 13 days ago (tag: 4.5.10) Dan Graham
     e9b4a08d 2020-06-17 09:35:46 -0400
     Tagged version 4.5.10. In queries, take all but the last argument
     to includes to be fields in which to find matches for the last
     argument.
 
-- 2 days ago (tag: 4.5.9) Dan Graham
+- 2 weeks ago (tag: 4.5.9) Dan Graham
     06dfb1ba 2020-06-16 08:21:04 -0400
     Tagged version 4.5.9. Allow combinations of datetime and/or period
     strings in fields calling for a datetime.
 
-- 3 days ago (tag: 4.5.8) Dan Graham
+- 2 weeks ago (tag: 4.5.8) Dan Graham
     415423bb 2020-06-15 10:21:17 -0400
     Tagged version 4.5.8. Add view for reviewing undated and
     unfinished tasks.
 
-- 4 days ago (tag: 4.5.7) Dan Graham
+- 2 weeks ago (tag: 4.5.7) Dan Graham
     58f15423 2020-06-14 15:41:02 -0400
     Tagged version 4.5.7. Implemented importing inbasket.text from the
     etm directory with an alert to the existence of this file in the
     status bar.
 
-- 6 days ago (tag: 4.5.6) Dan Graham
+- 3 weeks ago (tag: 4.5.6) Dan Graham
     c0e8fc08 2020-06-12 15:12:54 -0400
     Tagged version 4.5.6. Added a link-character to the displayed
     summary of reminders with an @g entry. Report failures when
     activating @g links.
 
-- 8 days ago (tag: 4.5.5) Dan Graham
+- 3 weeks ago (tag: 4.5.5) Dan Graham
     e701c43f 2020-06-10 15:39:12 -0400
     Tagged version 4.5.5. Added option to automatically check for
     updates.
 
-- 10 days ago (tag: 4.5.3) Dan Graham
+- 3 weeks ago (tag: 4.5.3) Dan Graham
     4a6a48a1 2020-06-08 08:53:57 -0400
     Tagged version 4.5.3. Fail gracefully with unsupported locales.
 
-- 11 days ago (tag: 4.5.2) Dan Graham
+- 3 weeks ago (tag: 4.5.2) Dan Graham
     c9d80b6e 2020-06-07 14:07:41 -0400
     Tagged version 4.5.2. Bug fixes.
 
-- 2 weeks ago (tag: 4.5.1) Dan Graham
+- 4 weeks ago (tag: 4.5.1) Dan Graham
     fc10cfd5 2020-06-04 12:52:57 -0400
     Tagged version 4.5.1. Fixed bug in check_output.
 
-- 2 weeks ago (tag: 4.5.0) Dan Graham
+- 4 weeks ago (tag: 4.5.0) Dan Graham
     7e6d06fb 2020-06-03 10:22:04 -0400
     Tagged version 4.5.0. Merged sourcery.ai refactor.
 
-- 2 weeks ago (tag: post_sourcery) Dan Graham
+- 4 weeks ago (tag: post_sourcery) Dan Graham
     89c9d3c3 2020-06-03 09:15:33 -0400
     Merge branch 'sourcery' into working
 
-- 2 weeks ago (tag: pre_sourcery) Dan Graham
+- 4 weeks ago (tag: pre_sourcery) Dan Graham
     3b2f87ca 2020-06-02 16:38:13 -0400
     Squashed commit of the following:
 
@@ -93,25 +100,20 @@ Recent tagged changes as of 2020-06-18T17:42:36.869196-04:00:
 
         Increased number of backups from 5 to 7.
 
-- 3 weeks ago (tag: 4.4.9) Dan Graham
+- 4 weeks ago (tag: 4.4.9) Dan Graham
     d462b39e 2020-05-31 16:47:10 -0400
     Tagged version 4.4.9.
 
-- 3 weeks ago (tag: 4.4.8) Dan Graham
+- 4 weeks ago (tag: 4.4.8) Dan Graham
     c5b204b3 2020-05-31 09:36:28 -0400
     Tagged version 4.4.8. Fixed sorting bug in repeating task
     completions.
 
-- 3 weeks ago (tag: 4.4.7) Dan Graham
+- 5 weeks ago (tag: 4.4.7) Dan Graham
     24fe1b23 2020-05-29 13:09:22 -0400
     Tagged version 4.4.7. Added support for tinydb 4.x update
     operations.
 
-- 3 weeks ago (tag: 4.4.6) Dan Graham
+- 5 weeks ago (tag: 4.4.6) Dan Graham
     218be502 2020-05-27 14:39:30 -0400
     Tagged version 4.4.6. Added support for tinydb 4.x.
-
-- 4 weeks ago (tag: 4.4.5) Dan Graham
-    f2c2a5ec 2020-05-22 12:52:25 -0400
-    Tagged version 4.4.5. Allow auto regeneration of job ids and
-    prereqs by removing the &i and &p entries from the first job.
