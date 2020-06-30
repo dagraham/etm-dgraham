@@ -308,7 +308,7 @@ colors:
             raise ValueError(f"{etmdir} is not a valid directory")
         self.colorst = Settings.colors
         self.settings = yaml.load(Settings.inp)
-        logger.debug(f"settings: {type(self.settings)}; {self.settings}")
+        # logger.debug(f"settings: {type(self.settings)}; {self.settings}")
         self.cfgfile = os.path.normpath(
                 os.path.join(etmdir, 'cfg.yaml'))
         if os.path.exists(self.cfgfile):
@@ -321,7 +321,6 @@ colors:
                     print(error)
                     sys.exit()
 
-                # logger.debug(f"user: {self.user}")
             if self.user and isinstance(self.user, dict):
                 self.changes = self.check_options()
             else:
@@ -343,13 +342,11 @@ colors:
         active_style = new.get('style', self.settings['style'])
         if active_style not in ['dark', 'light']:
             active_style = self.settings['style']
-        # logger.debug(f"active_style: {active_style}")
         default_colors = self.colors[active_style]
         self.settings['colors'] = default_colors
-        # logger.debug(f"default_colors: {default_colors}")
         # add missing default keys
         for key, value in self.settings.items():
-            logger.debug(f"checking {key} {value}")
+            # logger.debug(f"checking {key} {value}")
             if isinstance(self.settings[key], dict):
                 if key not in new or not isinstance(new[key], dict):
                     new[key] = self.settings[key]
@@ -396,7 +393,6 @@ colors:
                     new['colors'][k] = default_colors[k]
         else:
             new['colors'] = default_colors
-        # logger.debug(f"new new colors: {new['colors']}")
 
 
         if not isinstance(new['updates_interval'], int) or new['updates_interval'] < 0:

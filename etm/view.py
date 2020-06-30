@@ -602,7 +602,6 @@ class ETMQuery(object):
         if changed:
             dataview.db.write_back(changed)
             self.changed = True
-        # logger.debug(f"a: {a}; rgx: {rgx}; re;: {rep}; changed: {changed}")
         return changed
 
 
@@ -642,7 +641,6 @@ class ETMQuery(object):
         """
         For items having key 'a', remove the key and value from the item.
         """
-        # logger.debug(f"a: {a}; len(items): {len(items)}")
         changed = []
         for item in items:
             if a in item:
@@ -652,7 +650,6 @@ class ETMQuery(object):
         if changed:
             dataview.db.write_back(changed)
             self.changed = True
-        # logger.debug(f"a: {a}; changed: {changed}")
         return changed
 
     def set(self, a, b, items):
@@ -668,7 +665,6 @@ class ETMQuery(object):
         if changed:
             dataview.db.write_back(changed)
             self.changed = True
-        # logger.debug(f"a: {a}; b: {b}; changed: {changed}")
 
     def provide(self, a, b, items):
         """
@@ -683,7 +679,6 @@ class ETMQuery(object):
         if changed:
             dataview.db.write_back(changed)
             self.changed = True
-        # logger.debug(f"a: {a}; b: {b}; changed: {changed}")
 
 
     def attach(self, a, b, items):
@@ -694,7 +689,6 @@ class ETMQuery(object):
         b = re.sub('\\\s', ' ', b)
         for item in items:
             if a not in item:
-                # logger.debug(f"{a} not in item")
                 item.setdefault(a, []).append(b)
                 item['modified'] = pendulum.now('local')
                 changed.append(item)
@@ -705,7 +699,6 @@ class ETMQuery(object):
         if changed:
             dataview.db.write_back(changed)
             self.changed = True
-        # logger.debug(f"a: {a}; item[{a}]: {item[a]};  b: {b}; changed: {changed}")
 
     def detach(self, a, b, items):
         """
@@ -721,7 +714,6 @@ class ETMQuery(object):
         if changed:
             dataview.db.write_back(changed)
             self.changed = True
-        # logger.debug(f"a: {a}; b: {b}; changed: {changed}")
 
 
     def is_datetime(self, val):
@@ -904,7 +896,6 @@ class ETMQuery(object):
         if len(updt) == 1:
             # get a list with the update command and arguments
             updt = [x.strip() for x in updt[0].split(' ')]
-            # logger.debug(f"updt: {updt}")
         else:
             updt = []
 
@@ -924,7 +915,6 @@ class ETMQuery(object):
 
             if len(part) > 3:
                 if part[0] == 'includes':
-                    # logger.debug(f"0: {part[0]}; 1: {part[1:-1]}; 2: {part[-1]}")
                     if negation:
                         cmnds.append(~ self.filters[part[0]]([x.strip() for x in part[1:-1]], part[-1]))
                     else:
@@ -933,7 +923,6 @@ class ETMQuery(object):
                     if negation:
                         cmnds.append(~ self.filters[part[0]](part[1], [x.strip() for x in part[2:]]))
                     else:
-                        # logger.debug(f"0: {part[0]}; 1: {part[1]}; 2: {part[2:]}")
                         cmnds.append(self.filters[part[0]](part[1], [x.strip() for x in part[2:]]))
             elif len(part) > 2:
                 if negation:
@@ -964,7 +953,6 @@ class ETMQuery(object):
             return False, self.usage
         try:
             ok, test, updt = self.process_query(query)
-            # logger.debug(f"query: {query}; ok: {ok}; test: {test}; updt: {updt}")
             if not ok:
                 return False, test
             if isinstance(test, str):
@@ -1218,7 +1206,6 @@ def do_about(*event):
 def do_check_updates(*event):
 
     cmd = f"python{sys.version_info[0]}.{sys.version_info[1]} -m pip search etm-dgraham"
-    # logger.debug(f"update cmd: {cmd}")
     ok, res = check_output(cmd)
 
     lines = res.split('\n')
@@ -1235,9 +1222,7 @@ def do_check_updates(*event):
 update_status = UpdateStatus()
 
 async def auto_check_loop(loop):
-    # logger.debug("in auto_check_loop")
     ok, res = check_output("pip search etm-dgraham")
-    # logger.debug(f"res: {res}")
     if not ok:
         update_status.set_status("?")
         return
@@ -1248,10 +1233,8 @@ async def auto_check_loop(loop):
         if line.lstrip().startswith('LATEST'):
             new = re.split(":\s+", line)[1]
             break
-    # logger.debug(f"new: {new}")
     status = UPDATE_CHAR if new else FINISHED_CHAR
     status = UPDATE_CHAR if new else ''
-    # logger.debug(f"updating status: '{status}'")
     update_status.set_status(status)
 
 @bindings.add('f3')
@@ -1311,11 +1294,9 @@ def add_usedtime(*event):
     doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
 
     if not doc_id:
-        # logger.debug('no doc_id')
         return
 
     hsh = DBITEM.get(doc_id=doc_id)
-    # logger.debug(f"doc_id: {doc_id}; instance: {instance}; hsh: {hsh}")
 
 
     def coroutine():
@@ -1324,7 +1305,6 @@ def add_usedtime(*event):
             label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\n add usedtime using the format:\n    used timeperiod: ending datetime")
 
         usedtime = yield from show_dialog_as_float(dialog)
-        # logger.debug(f"usedtime: {usedtime}")
 
         if not usedtime:
             # None (cancelled) or null string
@@ -1356,7 +1336,6 @@ def check_output(cmd):
     res = ""
     try:
         res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True, encoding='UTF-8')
-        # logger.debug(f"Success running {cmd}; res: '{res}'")
         return True, res
     except Exception as res:
         logger.warning(f"Error running {cmd}; res: '{res}'")
@@ -1390,10 +1369,8 @@ def menu(event=None):
     " Focus menu. "
     if event:
         if event.app.layout.has_focus(root_container.window):
-            # logger.debug(f"true event.app.layout.has_focus event: {event}")
             focus_previous(event)
         else:
-            # logger.debug(f"false event.app.layout.has_focus event: {event}")
             event.app.layout.focus(root_container.window)
 
 
@@ -1658,7 +1635,6 @@ async def new_day(loop):
     get_app().invalidate()
     dataview.handle_backups()
     dataview.possible_archive()
-    # logger.debug(f"leaving new_day")
     return True
 
 current_datetime = pendulum.now('local')
@@ -1715,19 +1691,15 @@ async def maybe_alerts(now):
             item = dataview.db.get(doc_id=doc_id)
             location = item.get('l', '')
             description = item.get('d', '')
-            # logger.debug(f"command_list: {command_list}")
             if 'e' in command_list:
-                # logger.debug("e alert")
                 command_list.remove('e')
                 dataview.send_mail(doc_id)
             if 't' in command_list:
                 command_list.remove('t')
-                # logger.debug("t alert")
                 dataview.send_text(doc_id)
             commands = [settings['alerts'][x].format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list if x in settings['alerts']]
             for command in commands:
                 if command:
-                    # logger.debug(f"{command} alert")
                     check_output(command)
             if len(commands) < len(command_list):
                 bad.extend([x for x in command_list if x not in settings['alerts']])
@@ -1750,25 +1722,20 @@ async def event_handler():
             asyncio.ensure_future(maybe_alerts(now))
             current_datetime = status_time(now)
             today = now.format("YYYYMMDD")
-            # logger.debug(f"minutes: {minutes}; interval: {interval}")
             wait = 60 - now.second
 
             if interval:
                 if minutes == 0:
                     minutes = 1
-                    # logger.debug("calling auto_check_loop")
                     loop = asyncio.get_event_loop()
                     asyncio.ensure_future(auto_check_loop(loop))
-                    # logger.debug("back from auto_check")
                 else:
                     minutes += 1
                     minutes = minutes % interval
 
             if today != current_today:
-                # logger.debug(f"calling new_day. current_today: {current_today}; today: {today}")
                 loop = asyncio.get_event_loop()
                 asyncio.ensure_future(new_day(loop))
-                # logger.debug(f"back from new_day")
             get_app().invalidate()
             await asyncio.sleep(wait)
     except asyncio.CancelledError:
@@ -1878,7 +1845,6 @@ class AtCompleter(Completer):
         matches = re.findall(AtCompleter.pat, cur_line)
         word = matches[-1] if matches else ""
         if word:
-            # logger.debug(f"get_completions word: {word}")
             word_len = len(word)
             word = word.rstrip()
             for completion in completions:
@@ -1942,7 +1908,6 @@ query_bindings = KeyBindings()
 
 @query_bindings.add('enter', filter=is_querying)
 def accept(buff):
-    # logger.debug('accept triggered')
     set_text('processing query ...')
     if query_window.text:
         text = query_window.text
@@ -2010,7 +1975,6 @@ query_area = HSplit([
 def do_complex_query(text, loop):
     text, *updt = [x.strip() for x in text.split(' | ')]
     updt = f" | {updt[0]}" if updt else ""
-    # logger.debug(f"text: {text}; updt: {updt}")
     if text.startswith('a '):
         text = text[2:]
         dataview.use_archive()
@@ -2023,7 +1987,6 @@ def do_complex_query(text, loop):
         grpby, filters = report.get_grpby_and_filters(text)
         ok, items = query.do_query(filters.get('query') + updt)
         if ok:
-            # logger.debug("calling apply_dates_filter with {len(items)} and {filters}")
             items = report.apply_dates_filter(items, grpby, filters)
             dataview.set_query(text, grpby, items)
             application.layout.focus(text_area)
@@ -2143,13 +2106,11 @@ def do_reschedule(*event):
 
     is_date = (isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime))
 
-    # logger.debug(f"instance: {instance}; type: {type(instance)}")
     date_required = is_date or (instance.hour == 0 and instance.minute == 0)
 
     # instance = pendulum.instance(instance)
 
     instance = instance.date() if date_required and not is_date else instance
-    # logger.debug(f"date_required: {date_required}; instance: {instance}; type: {type(instance)}")
     new = "new date" if date_required else "new datetime"
 
     def coroutine():
@@ -2336,7 +2297,7 @@ def do_maybe_record_timer(*event):
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('V', filter=is_viewing_or_details & is_item_view)
+@bindings.add('c-u', filter=is_viewing_or_details & is_item_view)
 def do_touch(*event):
     ok = dataview.touch(text_area.document.cursor_position_row)
     if ok:
@@ -2344,14 +2305,13 @@ def do_touch(*event):
         loop = asyncio.get_event_loop()
         loop.call_later(0, item_changed, loop)
     else:
-        show_message('Update reviewed', "Update last-modified failed")
+        show_message('Update last-modified', "Update last-modified failed")
 
 
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
 def do_finish(*event):
 
     ok, show, item_id, job_id, due = dataview.maybe_finish(text_area.document.cursor_position_row)
-    # logger.debug(f"ok: {ok}; show: {show}; item_id: {item_id}; job_id: {job_id}; due: {due}")
     ampm = settings['ampm']
     fmt = "ddd M/D h:mmA" if ampm else "ddd M/D H:mm"
 
@@ -2369,11 +2329,9 @@ def do_finish(*event):
         done_str = yield from show_dialog_as_float(dialog)
         if done_str:
             try:
-                # logger.debug(f"done_str: {done_str}")
                 # done = parse_datetime(done_str, tz='local')
                 done = parse_datetime(done_str, z='local')[1]
 
-                # logger.debug(f"done: {done}; {type(done)}")
                 ok = True
             except:
                 ok = False
@@ -2415,7 +2373,6 @@ def do_goto(*event):
     ok, goto = dataview.get_goto(row)
     if ok:
         res = openWithDefault(goto)
-        # logger.debug(f"res: {res}")
         if res:
             show_message("goto", res, 8)
     else:
@@ -2490,7 +2447,6 @@ Enter the path of the file to import:""")
             if ok:
                 etm_dir = os.path.normpath(os.path.expanduser(etmdir))
 
-                # logger.debug(f"dirname {os.path.dirname(file_path)}; etm_dir: {etm_dir}; equal? {os.path.dirname(file_path) == etm_dir}")
                 if os.path.dirname(file_path) == etm_dir:
                     os.remove(file_path)
                     filehome = os.path.join("~", os.path.split(file_path)[1])
@@ -2532,7 +2488,6 @@ def toggle_archived_status(*event):
     else:
         set_text("The reminder has been moved to items table.\nRun the previous query again to update the display")
         text = f"a { dataview.query_text }"
-        # logger.debug(f"calling complex query with text: {text}")
         dataview.use_items()
         item.use_items()
         loop.call_later(0, data_changed, loop)
@@ -2635,7 +2590,7 @@ def journal_view(*event):
     item.use_items()
     set_text(dataview.show_active_view())
 
-@bindings.add('v', filter=is_viewing)
+@bindings.add('r', filter=is_viewing)
 def review_view(*event):
     dataview.set_active_view('v')
     item.use_items()
@@ -2724,11 +2679,9 @@ def show_details(*event):
 @bindings.add('c-z', filter=is_editing, eager=True)
 def close_edit(*event):
     if entry_buffer_changed():
-        # logger.debug(f"item modified - saving")
         save_before_quit()
     else:
         # item.is_modified = False
-        # logger.debug(f"item not modified - closing")
         app = get_app()
         app.editing_mode = EditingMode.EMACS
         dataview.is_editing = False
@@ -2802,10 +2755,10 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('j) journal', handler=journal_view),
         MenuItem('p) pinned', handler=pinned_view),
         MenuItem('q) query', handler=query_view),
+        MenuItem('r) review', handler=review_view),
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used time summary', handler=used_summary_view),
-        MenuItem('v) review', handler=review_view),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
         MenuItem('y) half yearly calendar', handler=yearly_view),
@@ -2841,6 +2794,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('g) open goto link', handler=do_goto),
         MenuItem('k) show konnections', handler=show_konnections),
         MenuItem('^r) show repetitions', handler=not_editing_reps),
+        MenuItem('^u) update last modified', handler=do_touch),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
         MenuItem('T) begin timer, then toggle paused/running', handler=do_timer_toggle),
@@ -2856,11 +2810,9 @@ root_container = MenuContainer(body=body, menu_items=[
 
 
 def set_askreply(_):
-    # logger.debug(f"item.active: {item.active}; item.askreply: {item.askreply}")
     if item.active:
         ask, reply = item.askreply[item.active]
     elif item.askreply.get(('itemtype', '')):
-        # logger.debug(f"got ('itemtype', '')")
         ask, reply = item.askreply[('itemtype', '')]
     else:
         ask, reply = ('', '')

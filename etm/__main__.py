@@ -68,7 +68,7 @@ def main():
 
     from etm.model import about
     from etm.model import import_file
-    from etm.model import RDict
+    # from etm.model import RDict
     from etm.model import item_details
     from etm.model import FINISHED_CHAR
     from etm.model import UPDATE_CHAR
@@ -118,7 +118,7 @@ def main():
     view.settings = settings
     view.cfgfile = cfgfile
     view.model = model
-    view.RDict = RDict
+    # view.RDict = RDict
     # view.TDBLexer = model.TBDLexer
     view.item = item
     view.item_details = item_details
@@ -190,8 +190,6 @@ def main():
         logger.info(f"system info {model.about()[1]}")
         logger.info(f"calling view.main with etmdir: {etmdir}")
         from etm.view import main
-        # sys.stderr.write = logger.error
-        # sys.stdout.write = logger.debug
         import asyncio
         asyncio.run(main(etmdir))
 
