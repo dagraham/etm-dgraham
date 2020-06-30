@@ -308,7 +308,7 @@ colors:
             raise ValueError(f"{etmdir} is not a valid directory")
         self.colorst = Settings.colors
         self.settings = yaml.load(Settings.inp)
-        logger.debug(f"settings: {type(self.settings)}; {self.settings}")
+        # logger.debug(f"settings: {type(self.settings)}; {self.settings}")
         self.cfgfile = os.path.normpath(
                 os.path.join(etmdir, 'cfg.yaml'))
         if os.path.exists(self.cfgfile):
@@ -346,7 +346,7 @@ colors:
         self.settings['colors'] = default_colors
         # add missing default keys
         for key, value in self.settings.items():
-            logger.debug(f"checking {key} {value}")
+            # logger.debug(f"checking {key} {value}")
             if isinstance(self.settings[key], dict):
                 if key not in new or not isinstance(new[key], dict):
                     new[key] = self.settings[key]

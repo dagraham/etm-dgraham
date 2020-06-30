@@ -190,8 +190,6 @@ def main():
         logger.info(f"system info {model.about()[1]}")
         logger.info(f"calling view.main with etmdir: {etmdir}")
         from etm.view import main
-        # sys.stderr.write = logger.error
-        # sys.stdout.write = logger.debug
         import asyncio
         asyncio.run(main(etmdir))
 
