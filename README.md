@@ -1020,7 +1020,7 @@ As with other etm views, in query view you can enter `/` or `?` to search increm
 
 While the views differ in many respects, they also share some common aspects:
 
-* The display for each reminder shows the itemtype and summary followed by a *flags* column which displays a combination of letters from 'g' (goto), 'k' (connection) and 'p' (pinned) depending on the presence of these attributes in the reminder. This column is sometimes followed on the extreme right by another column whose contents depends on the view. E.g. in index and journal views it would be the 'id' of the reminder. In history view, the last modification timestamp of the reminder is displayed.
+* The display for each reminder shows the itemtype and summary followed by a *flags* column which displays a combination of letters from 'g' (goto), 'k' (connection) and 'p' (pinned) depending on the presence of these attributes in the reminder. This column is sometimes followed on the extreme right by another column whose contents depends on the view. E.g. in index and journal views the 'id' of the reminder is displayed while in history view, the last modification timestamp of the reminder is displayed.
 * Press `N` in any view to create a new item.
 * Select a reminder by clicking on it or by using the up and down cursor keys to move the cursor to the line displaying the reminder.
 * With a reminder selected, press `return` to toggle displaying the details.

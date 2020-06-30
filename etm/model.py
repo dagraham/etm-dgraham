@@ -1812,7 +1812,7 @@ class RDict(dict):
             if not keys_left:
                 try:
                     self.setdefault(key, []).append(values)
-                    logger.debug(f"key: {self[key]};\nvalues: {values} ")
+                    # logger.debug(f"key: {self[key]};\nvalues: {values} ")
                 except Exception as e:
                     logger.warning(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
             if isinstance(self[key], dict):
@@ -1905,7 +1905,7 @@ class NDict(dict):
             if not keys_left:
                 try:
                     self.setdefault(key, []).append(values)
-                    logger.debug(f"key: {self[key]};\nvalues: {values} ")
+                    # logger.debug(f"key: {self[key]};\nvalues: {values} ")
                 except Exception as e:
                     logger.warning(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
             if isinstance(self[key], dict):
@@ -1939,7 +1939,7 @@ class NDict(dict):
                     summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) > summary_width else leaf[1].ljust(summary_width, ' ')
 
                     tmp = f"{indent}{leaf[0]} {summary} {leaf[2]} {leaf[3]}"
-                    logger.debug(f"leaf: {leaf}\nsummary_width: {summary_width}; len(summary): {len(summary)}; len(rhc): {len(leaf[3])}\ntmp: {tmp}")
+                    # logger.debug(f"leaf: {leaf}\nsummary_width: {summary_width}; len(summary): {len(summary)}; len(rhc): {len(leaf[3])}\ntmp: {tmp}")
                     self.output.append(tmp)
                     self.row2id[self.row] = leaf[4]
                     self.row += 1
@@ -6185,7 +6185,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 agenda.append(f"  {d}")
                 row_num += 1
                 for i in columns:
-                    logger.debug(f"day: {day}; columns: {i['columns']}")
+                    # logger.debug(f"day: {day}; columns: {i['columns']}")
                     summary = i['columns'][1][:summary_width - 1] + ELLIPSiS_CHAR if len(i['columns'][1]) > summary_width else i['columns'][1].ljust(summary_width, ' ')
                     flags = i['columns'][2]
                     rhc = i['columns'][3].rjust(rhc_width, ' ')

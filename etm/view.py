@@ -1218,7 +1218,7 @@ def do_about(*event):
 def do_check_updates(*event):
 
     cmd = f"python{sys.version_info[0]}.{sys.version_info[1]} -m pip search etm-dgraham"
-    logger.debug(f"update cmd: {cmd}")
+    # logger.debug(f"update cmd: {cmd}")
     ok, res = check_output(cmd)
 
     lines = res.split('\n')
