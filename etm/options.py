@@ -321,7 +321,6 @@ colors:
                     print(error)
                     sys.exit()
 
-                # logger.debug(f"user: {self.user}")
             if self.user and isinstance(self.user, dict):
                 self.changes = self.check_options()
             else:
@@ -343,10 +342,8 @@ colors:
         active_style = new.get('style', self.settings['style'])
         if active_style not in ['dark', 'light']:
             active_style = self.settings['style']
-        # logger.debug(f"active_style: {active_style}")
         default_colors = self.colors[active_style]
         self.settings['colors'] = default_colors
-        # logger.debug(f"default_colors: {default_colors}")
         # add missing default keys
         for key, value in self.settings.items():
             logger.debug(f"checking {key} {value}")
@@ -396,7 +393,6 @@ colors:
                     new['colors'][k] = default_colors[k]
         else:
             new['colors'] = default_colors
-        # logger.debug(f"new new colors: {new['colors']}")
 
 
         if not isinstance(new['updates_interval'], int) or new['updates_interval'] < 0:

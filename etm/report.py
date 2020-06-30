@@ -264,7 +264,6 @@ def apply_dates_filter(items, grpby, filters):
                 tmp['rdt'] = rdt
                 tmp['u'] = [rdt, dt2ut[rdt]]
                 items.append(tmp)
-            # logger.debug(f"ending len(items): {len(items)}")
             return items
 
     elif grpby['report'] == 's':
@@ -295,7 +294,6 @@ def apply_dates_filter(items, grpby, filters):
                 else:
                     # not dated, don't need rdt
                     items.append(tmp)
-            # logger.debug(f"ending len(items): {len(items)}")
             return items
 
     elif grpby['report'] == 'c':
@@ -315,7 +313,6 @@ def apply_dates_filter(items, grpby, filters):
                 else:
                     # not dated, don't need rdt
                     items.append(tmp)
-            # logger.debug(f"ending len(items): {len(items)}")
             return items
 
     elif grpby['report'] == 'm':
@@ -335,7 +332,6 @@ def apply_dates_filter(items, grpby, filters):
                 else:
                     # not dated, don't need rdt
                     items.append(tmp)
-            # logger.debug(f"ending len(items): {len(items)}")
             return items
 
     ok_items = []
@@ -379,13 +375,11 @@ class QDict(dict):
             ret = [dindent + format_hours_and_tenths(detail)]
         elif isinstance(detail, list) and detail:
             if isinstance(detail[0], str):
-                # logger.debug(f"detail list of str: {detail}")
                 ret = [dindent + ", ".join(detail)]
             elif isinstance(detail[0], list):
                 # u, e.g., will be a list of duration, datetime tuples
                 ret = []
                 detail.sort(key=lambda x: sort_dates_times(x[1]))
-                # logger.debug(f"detail list of lists: {detail}")
                 for d in detail:
                     try:
                         tmp = f"{format_hours_and_tenths(d[0])}: {format_datetime(d[1], short=True)[1]}"
@@ -395,7 +389,6 @@ class QDict(dict):
                         ret.append(dindent + repr(d))
             else:
                 ret = []
-                # logger.debug(f"detail list: {detail}")
                 try:
                     tmp = f"{format_datetime(detail[0], short=True)[1]}: {format_hours_and_tenths(detail[1])}"
                     ret.append(dindent + tmp)
@@ -404,7 +397,6 @@ class QDict(dict):
                     ret.append(dindent + repr(detail))
 
         else:
-            # logger.debug(f"detail tyoe: {type(detail)}")
             ret = [dindent + repr(detail)]
         return ret
 
@@ -602,7 +594,6 @@ def get_grpby_and_filters(s, options=None):
         if key == 'a':
             value = [x.strip() for x in part[1:].split(',')]
             also.extend(value)
-            # logger.debug(f"also value: {value}, also: {also}")
         elif key in ['b', 'e']:
             # dt = parse(part[1:], strict=False, tz='local')
             dt = parse_reldt(part[1:])
