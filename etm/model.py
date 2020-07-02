@@ -5825,7 +5825,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 summary,
                                 flags,
                                 rhc,
-                                id
+                                (id, None, None)
                                 ],
                         }
                         )
@@ -5869,7 +5869,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                     row[1],
                                     flags,
                                     rhc,
-                                    id
+                                    (row[2], None, row[3])
                                     ],
                             }
                             )
@@ -5907,7 +5907,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 set_summary(job_summary, jobstart),
                                 flags,
                                 rhc,
-                                id
+                                (item.doc_id, instance, job_id)
                                 ]
                         }
                     )
@@ -5950,7 +5950,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 set_summary(summary, dt),
                                 flags,
                                 rhc,
-                                id
+                                (item.doc_id, instance, None)
                                 ]
                         }
                     )
