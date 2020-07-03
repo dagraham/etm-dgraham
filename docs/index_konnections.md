@@ -1,53 +1,156 @@
-# Organizating with Index and Konnection
-## Preliminary and incomplete
+# Organizating with Index and Konnection[^kon]
 
-Here is a possible use case for organizing relevant reminders based on their  index (@i), and konnection[^kon] (@k), entries.  
+Here is a possible use case for organizing relevant reminders based on their  index (@i), and konnection (@k), entries. The example is based on a user who has clients for whom projects are undertaken and one or more contacts for each client. 
 
-[^kon]: Please forgive the spelling. It is meant to suggest *connection* but the letter *k* is available for use in *etm*, while *c* is not. Konnection entries are available for *etm >= 4.6.0*.
+[^kon]: The term 'konnection' is meant to suggest *connection* but using the letter *k* which is unemployed, instead of *c* which is already in use for *calendar*. Konnection entries are available for *etm >= 4.6.0*.
 
-Imagine a business situation in which your clients are sometimes companies who will be billed for services rendered. The clients who are companies may have employees who are your actual contacts. Clients who are individuals would have no employees and are themselves the contacts. Also, with each client you may have repeated transactions that will be called projects.
 
-For the purposes of this example, I will use names such as *Client A*, *Client B*, *Employee A1* and so forth to clarify the type of entry while in actual practice you would be using their actual names, *ABC, Inc*, *John Smith*, and so forth.
+## Organizing with @i (index) entries
 
-## Organization steps
-1. Create `%` reminders (records) for each client and relevant employee. 
+1. Use @i to organize your client, and contact information with journal entries such as these
 
-        % Client A @i clients
-        % Employee A1 @i employees/Client A
-        % Employee A2 @i employees/Client A
-        % Client B @i clients
-        % Employee B1 @i employees/Client A
-        % Employee B2 @i employees/Client A
-        % Employee B3 @i employees/Client A
-        ...
-    Think of the `@i` entries as putting the record into the specified folder. E.g. the second entry puts the 'Employee A1' record in the folder `employees/Client A`.
+        % ABC, Inc @i clients
+        % Clair Smith - sales @i contacts/ABC, Inc
+        % Bill Zoller - accounting @i contacts/ABC, Inc 
+        % IOU, Ltd @i clients
+        % Hal Burns - CEO @i contacts/IOU, Ltd
 
-    While creating these entries you may want to add useful information to the records. E.g., `@n` entries with the relevant phone numbers. Once entered, they will not only be easily retrieved but they will also be available for auto completion when creating other entries.[^atn] Another example would be an `@g` entry with the URL for the client's website. A final example would be an `@d` entry with any client/employee specific information. Of course, such additions can always be made later.
+   At this point your *index* view in *etm* would look like this:
 
-[^atn]: If you use entries such as  `@n John Smith: 123 456-7890`, the when recording an `@n` in another reminder, typing `@n j` will limit the completions to those starting with `j` and will display the full matching names and numbers.
+        clients
+          % ABC, Inc
+          % IOU, Ltd
+        contacts
+          ABC, Inc
+            % Clair Smith - sales
+            % Bill James - accounting
+          IOU, Ltd
+            % Hal Burns - CEO
 
-2. Add *konnections* from the clients to their employees, if any. You can now use auto completion to add konnections from the clients to the employees. For example, select `% Client A` in, say, *index view* and press `E` to open it for editing. Move to the end of the entry and type `@k` followed by a space. The available completions will include `employees/Client A % Employee A1: id` where `id` is the unique identifier of the record. The id will be an integer, say `967`. Selecting this from the completions will give the entry
+  While creating these entries, you may want to add useful information such as
 
-        % Client A @i Client A @k employees/Client A % Employee A1: 967
-    When this reminder is saved, only the integer id will be retained to establish the konnection from Client A to the employee whose id is 967:
+  * a goto link with the url for ABC, `@g www.abc.com`, in its client record.
+  * the phone number for Clair Smith, `@n Clair Smith: 123 456-7890`, in  her contact record.
+  * personal information for Bill James in his contact record 
 
-        % Client A @i Client A @k 967
+        @d Married to Joan, 3 children John (1985), Frank (1988) 
+           and Sally (1991) 
+    All such information is just a click away and entries for attributes such as `@n` are added to the auto completion list so that typing 
+    `@n c` in another reminder would pop up a list of completions including the one for Clair.
 
-## Workflow steps
+2. As you create client/contact related events, tasks or other journal entries, include an @i entries for the relevant project, here a *sales agreement*:
 
-Now suppose you have a transaction with *Client A* that will be called *Project A1*. As with the other illustrative names, in actual use something more suggestive such as *Probate will* could be used. 
+        * conference call @s 2p fri @i ABC, Inc/sales agreement
+        - prepare contract @i ABC, Inc/sales agreement
+   Note that autocompletion is also available for `@i` entries, so that
+   typing `@i A` in the 'prepare contract' task would pop up a list of completions including those for `ABC, Inc`.
 
-1. A task for this project could be created as:
 
-        - task 1 @i Client A/Project A1 
-    Now enter `@k` followed by a space and, from the completions choose `@k clients/Client A % Client A: 966` where 966 is the id of Client A. This gives
+   Your *index* view would now expand to 
 
-        - task 1 @i Client A/Project A1 @k Client A % Client A: 966
-    which, when saved, becomes
+        clients
+          % ABC, Inc
+          % IOU, Ltd
+        contacts
+          ABC, Inc
+            % Clair Smith - sales
+            % Bill James - accounting
+          IOU, Ltd
+            % Hal Burns - CEO
+        ABC, Inc
+          sales agreement
+            * conference call
+            - prepare contract
 
-        - task 1 @i Client A/Project A1 @k 966
-    thus establishing a konnection between task 1 and Client A. Now suppose that Employee A2 is the relevant contact person for this task. Edit the task, append another @k and select `Client A/employees/Employee A2 % Employee A2: 968` where 968 is the id of Employee A2. After saving this gives:
 
-        - task 1 @i Client A/Project A1 @k 966 @k 968
-    so that task 1 is konnected both to Client A (id 966) and to Employee A1 (id 968).
+   Well, you get the point - @i provides a filing system for your reminders with *index view* as the access point. 
 
+## Adding @k (konnection) entries
+
+As powerful as @i entries are for filing your reminders they are limited by the fact that, like a paper filing system, since each reminder can only have a single @i entry, you can only put a reminder in one folder . Well, you say, it is always possible to make a copy of a piece of paper and put the copy in another folder. @k (konnection) entries serve a similar purpose - they create links between reminders and you can put as many @k entries as you like in any particular reminder.
+
+Let's begin with a simple example. ABC and Clair Smith are related - Clair is the sales contact for ABC - but this is only apparent in the *index view* and, even then, only by inspection: ABC is in the list of clients and Clair is in the list of contacts under ABC. Futhermore, the conference call event appears under ABC so there is a connection between the conference call and ABC as well. But suppose there is also a connection between the conference call and Clair who is, after all, the sales contact. How do we add that connection.  And how do we make all these connections more apparent?
+
+Konnections are just what's needed. Let's go back and add @k konnections from ABC to Clair and from the conference call both to ABC and to Clair. Modify the ABC and conference call records as follows
+
+    % ABC, Inc @i clients @k 123
+    * conference call @s 2p fri @i ABC, Inc/sales agreement @k 27 @k 123 
+
+  where 123 and 27 are the unique id's, respectively, for these records
+
+    % Clair Smith - sales @i contacts/ABC, Inc
+    % ABC, Inc @i clients
+
+  Questions:
+  * How did we obtain these unique ids?
+      * The hard way would be to select each record in *etm*, press *enter* to show the details and then jot down the id displayed at the bottom of the details panel.
+      * The easy way would be to select `% ABC...`, press *E* to edit the record, enter `@k ` at the end of the record and note that pop up completions are offered for every journal record which has an @i entry. Extend the entry to `@k co` and the list will shorten to ones that include 
+
+            @k contacts/ABC, Inc % Clair Smith - sales: 123
+
+        Acccepting this entry and saving it will drop everything from the @k through the colon to leave this as the saved journal entry
+
+            % ABC, Inc @i clients @k 123
+
+        A similar process when editing the conference call event and entering `@k cl` would pop up a list that includes
+
+            @k clients % ABC, Inc: 27
+
+  * What does adding these @k konnections to the records accomplish?
+    * The `@k 123` in the first record directly links ABC to Clair. 
+    * The `@k 27` and `@k 123` in the second record directly link the conference call both to the client ABC and to the contact Clair.
+
+The display of these records now changes to reflect the presence of the connections so that *index* view now appears as 
+
+        clients
+          % ABC, Inc                      k
+          % IOU, Ltd
+        contacts
+          ABC, Inc
+            % Clair Smith - sales         k
+            % Bill James - accounting
+          IOU, Ltd
+            % Hal Burns - CEO
+        ABC, Inc
+          sales agreement
+            * conference call             k
+            - prepare contract
+
+The *k* appearing to the right of some of the original entries indicates that there are konnections either to or from these entries. Selecting an item with the *k* displayed and pressing 'k' opens the konnected view for that selection. Doing this with `% ABC...` selected would display this **konnected** view
+
+        To the selection
+          * conference call               k
+        Selection
+          % ABC, Inc                      k
+        From the selection
+          % Clair Smith - sales           k
+
+Note that unlike *index* view, this is not a simple outline since there can be many branches both to and from the selection.
+
+Now select `* conference call`, press `k` and the display changes to this *konnected* view
+
+        Selection
+          * conference call               k
+        From the selection
+          % Clair Smith - sales           k
+          % ABC, Inc                      k
+
+Similarly, selecting `% Clair Smith - sales` and pressing 'k' would give still a third *konnected* view
+
+
+        To the selection
+          * conference call               k
+          % ABC, Inc                      k
+        Selection
+          % Clair Smith - sales           k
+
+Tbe contents of these sections:
+
+* To the selection
+    * the list of all reminders whose @k entries contain the id of the selection
+* Selection
+    * the selected reminder
+* From the selection
+    * the list of reminders whose ids are among the @k entries of the selection 
+
+In short, everything *konnected to the selection*, the *selection* itself, and everything *konnected from the selection*. 

@@ -501,12 +501,14 @@ The pinned status of items is retained so long as *etm* is active but cleared wh
 
 Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. When such an item is selected and 'k' is pressed this view displays all reminders konnected to the selected reminder, organized as follows:
 
-* reminders with links to the selection
-    * the list of items with @k entries which include the id of the selected item
-* the selection
-    * the selected item
-* reminders with links from the selection
-    * the list of items whose ids are included in the @k entries of the selected item
+reminders with links to the selection
+: the list of items with @k entries which include the id of the selected item
+
+the selection
+: the selected item
+
+reminders with links from the selection
+: the list of items whose ids are included in the @k entries of the selected item
 
 ### Used Time Views
 

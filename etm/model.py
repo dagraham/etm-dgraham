@@ -1768,7 +1768,7 @@ class NDict(dict):
             1) summary
             2) flags3
             3) rhc (a constant length and pre justified)
-            4) doc_id.
+            4) doc_id
 
         Leaf output will begin with indent, add a possibly truncated value 1, value 2 and value 3. The lengths of indent, value 2 and value 3 will be subtracted from screen width with the difference the space available for value 1 which will either be truncated or left fill justified accordingly.
         """
@@ -4917,8 +4917,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 # rset
                 if instance_interval:
                     instances = rset.between(instance_interval[0], instance_interval[1], inc=True)
-                    # if instances:
-                    #     logger.debug(f"instances for {item['summary']}: {instances}")
                     if possible_beginby:
                         for instance in instances:
                             if today + DAY <= instance <= tomorrow + possible_beginby:
