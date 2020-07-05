@@ -1610,6 +1610,8 @@ def status_time(dt):
 
 def item_changed(loop):
     item.update_item_hsh()
+    if dataview.active_view == 'pinned':
+        dataview.pinned_list.append(item.doc_id)
     dataview.update_completions(item)
     dataview.update_konnections(item)
     data_changed(loop)
@@ -2722,6 +2724,7 @@ def maybe_save(item):
     # hsh ok, save changes and close editor
     if item.doc_id in dataview.itemcache:
         del dataview.itemcache[item.doc_id]
+
     app = get_app()
     app.editing_mode = EditingMode.EMACS
     dataview.is_editing = False

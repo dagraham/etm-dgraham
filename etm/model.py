@@ -1864,6 +1864,7 @@ class DataView(object):
         self.timer_start = None
         self.timer_id = None
         self.timer_job = None
+        self.timers = {}
         self.archive_after = 0
         self.set_etmdir(etmdir)
         self.views = {
@@ -2396,7 +2397,8 @@ class DataView(object):
 
 
     def get_pinned(self):
-        items = [self.db.get(doc_id=x) for x in self.pinned_list]
+
+        items = [self.db.get(doc_id=x) for x in self.pinned_list if x]
         return items
 
 
