@@ -5383,7 +5383,7 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[]):
                             summary,
                             flags,
                             show_priority,
-                            id
+                            (id, None, job_id)
                             ]
                     }
                 )
@@ -5405,7 +5405,7 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[]):
                             summary,
                             flags,
                             show_priority,
-                            id
+                            (id, None, None)
                             ]
                     }
                     )
