@@ -4784,14 +4784,12 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
     today = pendulum.today()
     tomorrow = today + DAY
-    # begday_fmt = today.format("YYYYMMDD0000")
     inbox_fmt = today.format("YYYYMMDD24@@")
     pastdue_fmt = today.format("YYYYMMDD24^^")
     begby_fmt = today.format("YYYYMMDD24~~")
 
     id2relevant = {}
     inbox = []
-    # done = []
     pastdue = []
     beginbys = []
     alerts = []
@@ -4814,7 +4812,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             if id in link_list:
                 link_list.remove(id)
 
-        # summary = summary_pin(item['summary'], summary_width, item.doc_id, pinned_list, link_list, konnect_list)
         summary = item['summary']
         flags = get_flags(id, link_list, konnect_list, pinned_list)
         if item['itemtype'] == '!':
@@ -4982,7 +4979,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 if 'f' in job:
                     continue
                 # adjust job starting time if 's' in job
-                # job_summary = summary_pin(job['summary'], summary_width, item.doc_id, pinned_list, link_list, konnect_list)
                 job_summary = job.get('summary', '')
                 jobstart = relevant - job.get('s', ZERO)
                 if jobstart.date() < today.date():
@@ -5010,12 +5006,15 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     week = today.isocalendar()[:2]
     day = (today.format("ddd MMM D"), )
     for item in inbox:
+        item_0 = ' '
+        rhc = item_0.center(15, ' ')
         id = item[2]
         flags = get_flags(id, link_list, konnect_list, pinned_list)
-        current.append({'id': item[2], 'job': None, 'instance': None, 'sort': (inbox_fmt, 1), 'week': week, 'day': day, 'columns': ['!', item[1], flags, '', id]})
+        current.append({'id': item[2], 'job': None, 'instance': None, 'sort': (inbox_fmt, 1), 'week': week, 'day': day, 'columns': ['!', item[1], flags, rhc, id]})
 
     for item in pastdue:
-        rhc = str(item[0]).center(15, ' ') if item[0] in item else ""
+        item_0 = str(item[0]) if item[0] in item else ""
+        rhc = item_0.center(15, ' ')
         id = item[2]
         flags = get_flags(id, link_list, konnect_list, pinned_list)
         try:
@@ -5024,8 +5023,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             logger.warning(f"could not append item: {item}; e: {e}")
 
     for item in beginbys:
-        rhc = str(item[0]).center(15, ' ') if item[0] in item else ""
-        # rhc = str(item[0]) if item[0] in item else ""
+        item_0 = str(item[0]) if item[0] in item else ""
+        rhc = item_0.center(15, ' ')
         id = item[2]
         flags = get_flags(id, link_list, konnect_list, pinned_list)
         current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begby_fmt, 3, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], flags, rhc, id]})
@@ -5546,8 +5545,7 @@ def show_pinned(items, pinned_list=[], link_list=[], konnect_list=[]):
             year = dt.format("YYYY")
             monthday = dt.format("MMM D")
             time = fmt_time(dt)
-            # dtfmt = f"{monthday} {time}"
-            rhc = f"{dt.format('YYYY-MM-DD')} {label}"
+            rhc = f"{str(id).rjust(6)}"
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item['summary']
             flags = get_flags(id, link_list, konnect_list, pinned_list)

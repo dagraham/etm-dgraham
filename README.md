@@ -393,8 +393,7 @@ but after changing dayfirst to true
 
 #### relative datetimes
 
-Relative datetimes can be entered using period strings either instead of or in
-addition to datetimes using the format:
+Relative datetimes can be entered using period strings either instead of or in addition to datetimes using the format:
 
     [datetime] [period string]
 
@@ -412,6 +411,7 @@ Examples supposing it is currently 1:20pm on July 15:
 
 	+1h30m     => 2:50pm on July 15
 	+3d        => July 18
+	-3d        => July 12
 	8a         => 8am on July 15
 	8a +1h30m  => 9:30am on July 15
 	8a +3d     => 8am on July 18
