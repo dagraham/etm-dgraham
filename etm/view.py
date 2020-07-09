@@ -79,7 +79,7 @@ COMMAND_DETAILS = """\
   field begins with a match for the case insensitve
   regular expression RGX.
 
-* includes LST RGX: return items in which the value of
+* in LST RGX: return items in which the value of
   one of the fields in LST includes a match for the case
   insensitive regular expression RGX.
 
@@ -202,13 +202,13 @@ Simple query examples
 Find items where the summary includes a match for
 "waldo":
 
-    query: includes summary waldo
+    query: in summary waldo
 
 Precede a command with `~` to negate it. E.g., find
 reminders where the summary does not include a match for
 "waldo":
 
-    query: ~includes summary waldo
+    query: ~in summary waldo
 
 To enter a list of values for "arg", simply separate the
 components with spaces. E.g.,
@@ -243,7 +243,7 @@ Components can be joined the using "or" or "and". E.g.,
 find reminders where the summary entry contains a match
 for "waldo" but the @d (description) entry does not:
 
-    query: includes summary waldo and ~includes d waldo
+    query: in summary waldo and ~includes d waldo
 
 Archive queries
 ===============
@@ -253,7 +253,7 @@ database. You can preceed any query with 'a ' (the letter
 'a' followed by a space), to search the archive
 table instead. E.g.,
 
-    query: a includes summary waldo or includes d waldo
+    query: a in summary waldo or in d waldo
 
 will search the archive table for reminders with matches
 for 'waldo' in the summary or in the description.
@@ -268,7 +268,7 @@ Queries can not only locate reminders but also update
 them. The update commands act on items returned by a
 query. E.g., this query
 
-    query: includes i john\sdoe | replace i john\sdoe
+    query: in i john\sdoe | replace i john\sdoe
         Jane\sDoe
 
 can be regarded as taking the reminders whose index entry,
@@ -506,7 +506,7 @@ class TDBLexer(RegexLexer):
 
     tokens = {
             'root': [
-                (r'\b(begins|includes|equals|more|less|exists|any|all|one)\b', Keyword),
+                (r'\b(begins|includes|in|equals|more|less|exists|any|all|one)\b', Keyword),
                 (r'\b(replace|remove|archive|delete|set|provide|attach|detach)\b', Keyword),
                 (r'\b(itemtype|summary)\b', Literal),
                 (r'\b(and|or|info)\b', Keyword),
@@ -541,6 +541,7 @@ class ETMQuery(object):
         self.filters = {
                 'begins': self.begins,
                 'includes': self.includes,
+                'in': self.includes,
                 'equals': self.equals,
                 'more': self.more,
                 'less': self.less,
@@ -914,7 +915,7 @@ class ETMQuery(object):
                     return False, wrap(f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed.""")
 
             if len(part) > 3:
-                if part[0] == 'includes':
+                if part[0] in ['in', 'includes']:
                     if negation:
                         cmnds.append(~ self.filters[part[0]]([x.strip() for x in part[1:-1]], part[-1]))
                     else:

@@ -2144,7 +2144,6 @@ class DataView(object):
             period += now - start
             state = 'p'
         else:
-            self.paused_time += now - start
             state = 'r'
         self.timers[self.active_timer] = [state, now, period]
         logger.debug(f"starting {state}, {start}, {period}")
