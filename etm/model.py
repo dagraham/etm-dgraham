@@ -2139,14 +2139,12 @@ class DataView(object):
             return
         now = pendulum.now('local')
         state, start, period = self.timers[self.active_timer]
-        logger.debug(f"starting {state}, {start}, {period}")
         if state == 'r':
             period += now - start
             state = 'p'
         else:
             state = 'r'
         self.timers[self.active_timer] = [state, now, period]
-        logger.debug(f"starting {state}, {start}, {period}")
 
     # bound to T
     def change_timer_state(self, row=None):
@@ -2167,7 +2165,6 @@ class DataView(object):
             (p, n) -> (r, n)
         """
         res = self.get_row_details(row) # item_id, instance, job_id
-        logger.debug(f"row: {row}; res: {res}")
         doc_id = res[0]
         if not doc_id and len(self.timers) == 0:
             return False, None, None
@@ -2216,14 +2213,16 @@ class DataView(object):
         return f"{format_duration(delta, short=True)}:{status}  "
 
 
-    def timer_clear(self):
-        if not self.timer_id:
-            return None, ''
-        self.timer_status = 0  # 0: stopped, 1: running, 2: paused
-        self.timer_time = ZERO
-        self.timer_start = None
-        self.timer_id = None
-        self.timer_job = None
+    def timer_clear(self, doc_id=None):
+        if not doc_id:
+            return
+        if doc_id == self.active_timer:
+            self.active_timer = None
+        if doc_id in self.timers:
+            del self.timers[doc_id]
+        self.show_active_view()
+
+
 
 
     def set_now(self):
@@ -5683,12 +5682,6 @@ def show_pinned(items, pinned_list=[], link_list=[], konnect_list=[], timers={})
             monthday = dt.format("MMM D")
             time = fmt_time(dt)
             rhc = f"{str(id).rjust(6)}"
-            # if id in timers:
-            #     logger.debug(f"id: {id}; timer: {timers[id]}")
-            #     status, started, accumulated = timers[id]
-            #     rhc = f"{format_duration(accumulated)}:{status}".rjust(rhc_width, ' ')
-            # else:
-            #     rhc = rhc_width * ' '
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item['summary']
             flags = get_flags(id, link_list, konnect_list, pinned_list, timers)

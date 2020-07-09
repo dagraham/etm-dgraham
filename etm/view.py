@@ -1298,12 +1298,31 @@ def add_usedtime(*event):
 
     hsh = DBITEM.get(doc_id=doc_id)
 
+    state2fmt = {
+            'i': "inactive",
+            'r': "running",
+            'p': "paused",
+            }
+
+    now = pendulum.now('local')
+    if doc_id in dataview.timers:
+        state, start, elapsed = dataview.timers[doc_id]
+        if state == 'r':
+            elapsed += now - start
+            start = now
+        timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}"
+        entry = f"{format_duration(elapsed, short=True)}: {format_datetime(start, short=True)[1]}"
+    else:
+        state = None
+        timer = "\ntimer: None"
+        entry = " : now"
 
     def coroutine():
         dialog = TextInputDialog(
             title='add usedtime',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\n add usedtime using the format:\n    used timeperiod: ending datetime")
-
+            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}{timer}\n\nadd usedtime using the format:\n    period: datetime\n",
+            default=entry,
+            )
         usedtime = yield from show_dialog_as_float(dialog)
 
         if not usedtime:
@@ -1313,6 +1332,11 @@ def add_usedtime(*event):
         changed = item.add_used(doc_id, usedtime)
 
         if changed:
+            if doc_id in dataview.timers:
+                state, start, elapsed = dataview.timers[doc_id]
+                state = 'p' if state == 'r' else state
+                dataview.timers[doc_id] = [state, pendulum.now('local'), pendulum.Duration()]
+
             if doc_id in dataview.itemcache:
                 del dataview.itemcache[doc_id]
             application.layout.focus(text_area)
@@ -2264,6 +2288,48 @@ def change_timer_state(*event):
                     text_area.buffer.document.translate_row_col_to_index(row, 0)
 
 
+@bindings.add('T', 'T', filter=is_viewing_or_details & is_item_view)
+def maybe_delete_timer(*event):
+    row = text_area.document.cursor_position_row
+    res = dataview.get_row_details(row) # item_id, instance, job_id
+    doc_id = res[0]
+    if not doc_id or doc_id not in dataview.timers:
+        return
+    hsh = DBITEM.get(doc_id=doc_id)
+    state2fmt = {
+            'i': "inactive",
+            'r': "running",
+            'p': "paused",
+            }
+
+
+    state, start, elapsed = dataview.timers[doc_id]
+    if state == 'r':
+        now = pendulum.now('local')
+        elapsed += now - start
+        start = now
+    timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}\n\nAre you sure you want to delete this timer?"
+
+    def coroutine():
+
+        dialog = ConfirmDialog(
+            title='delete timer',
+            text=f"selected: {hsh['itemtype']} {hsh['summary']}{timer}",
+            )
+
+        discard = yield from show_dialog_as_float(dialog)
+        if discard:
+            dataview.timer_clear(doc_id)
+            dataview.refreshRelevant()
+            set_text(dataview.show_active_view())
+            get_app().invalidate()
+        else:
+            return
+
+    asyncio.ensure_future(coroutine())
+
+
+
 @bindings.add('t', 't', filter=is_viewing_or_details & is_item_view)
 def toggle_active_timer(*event):
     dataview.toggle_active_timer(text_area.document.cursor_position_row)
@@ -2289,55 +2355,8 @@ def record_time(*event):
     if not doc_id:
         return
 
-    # if force or not dataview.active_timer:
-    #     add_usedtime()
-    #     return
-
-
-    now = pendulum.now()
-    hsh = DBITEM.get(doc_id=doc_id)
-    item_info = f"{hsh['itemtype']} {hsh['summary']}"
-    if doc_id in dataview.timers:
-        state, start, period = dataview.timers[doc_id]
-        if state == 'r':
-            period += now - start
-
-
-    if dataview.timer_status == 1: #running
-        time = dataview.timer_time + (now - dataview.timer_start)
-    else:
-        time = dataview.timer_time
-    completed = pendulum.now()
-    completed_str = format_datetime(completed)
-    time_str = format_duration(time)
-
-    def coroutine():
-        title = "Timer"
-        text = f"item: {item_info}\nelapsed time: {time_str}\n\nAction?"
-        values =[
-            (0, 'record time and close timer'),
-            (1, 'close timer without recording time'),
-        ]
-
-        dialog = RadioListDialog(
-            title=title,
-            text=text,
-            values=values)
-
-        which = yield from show_dialog_as_float(dialog)
-        # None: do nothing; 0: record and close; 1: close
-        if which is not None:
-            if which == 0:
-                item.record_timer(item_id, job_id, completed, time)
-                if item_id in dataview.itemcache:
-                    del dataview.itemcache[item_id]
-                loop = asyncio.get_event_loop()
-                loop.call_later(0, data_changed, loop)
-            dataview.timer_clear()
-            set_text(dataview.show_active_view())
-            get_app().invalidate()
-
-    asyncio.ensure_future(coroutine())
+    add_usedtime(*event)
+    return
 
 
 @bindings.add('c-u', filter=is_viewing_or_details & is_item_view)
@@ -2413,6 +2432,10 @@ def edit_copy(*event):
 @bindings.add('g', filter=is_viewing & is_not_editing)
 def do_goto(*event):
     row = text_area.document.cursor_position_row
+    res = dataview.get_row_details(row) # item_id, instance, job_id
+    doc_id = res[0]
+    if not doc_id:
+        return
     ok, goto = dataview.get_goto(row)
     if ok:
         res = openWithDefault(goto)
@@ -2848,9 +2871,10 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^u) update last modified', handler=do_touch),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
-        MenuItem('T) toggle timer state for the selected reminder', handler=change_timer_state),
-        MenuItem("^T) record usedtime for the selected reminder", handler=record_time),
-        MenuItem('tt) toggle paused/running for the active timer', handler=toggle_active_timer),
+        MenuItem('T) create timer or toggle timer state ', handler=change_timer_state),
+        MenuItem("^T) record usedtime", handler=record_time),
+        MenuItem('TT) delete timer', handler=maybe_delete_timer),
+        MenuItem('tt) toggle paused/running for active timer', handler=toggle_active_timer),
     ]),
 ], floats=[
     Float(xcursor=True,
