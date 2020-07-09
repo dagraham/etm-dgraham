@@ -966,7 +966,6 @@ class ETMQuery(object):
                         loop = asyncio.get_event_loop()
                         loop.call_later(0, data_changed, loop)
                         self.changed = False
-
                 return True, items
         except Exception as e:
             return False, f"exception processing '{query}':\n{e}"
@@ -1376,7 +1375,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected', 'timers']
 
 @Condition
 def is_dated_view():
@@ -1610,8 +1609,14 @@ def status_time(dt):
 
 def item_changed(loop):
     item.update_item_hsh()
-    if dataview.active_view == 'pinned':
-        dataview.pinned_list.append(item.doc_id)
+    if (dataview.active_view == 'timers'
+            and item.doc_id not in dataview.timers):
+        if dataview.active_timer:
+            state = 'i'
+        else:
+            state = 'r'
+            dataview.active_timer = item.doc_id
+        dataview.timers[item.doc_id] = [state, pendulum.now('local'), pendulum.Duration()]
     dataview.update_completions(item)
     dataview.update_konnections(item)
     data_changed(loop)
@@ -1738,6 +1743,8 @@ async def event_handler():
             if today != current_today:
                 loop = asyncio.get_event_loop()
                 asyncio.ensure_future(new_day(loop))
+            if dataview.active_view == 'timers':
+                set_text(dataview.show_active_view())
             get_app().invalidate()
             await asyncio.sleep(wait)
     except asyncio.CancelledError:
@@ -2247,21 +2254,54 @@ def entry_buffer_changed():
 
 
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
-def do_timer_toggle(*event):
-    dataview.timer_toggle(text_area.document.cursor_position_row)
+def change_timer_state(*event):
+    dataview.change_timer_state(text_area.document.cursor_position_row)
+    row = text_area.document.cursor_position_row
+    dataview.refreshRelevant()
+    set_text(dataview.show_active_view())
+    text_area.buffer.cursor_position = \
+                    text_area.buffer.document.translate_row_col_to_index(row, 0)
 
+
+@bindings.add('t', 't', filter=is_viewing_or_details & is_item_view)
+def toggle_active_timer(*event):
+    dataview.toggle_active_timer(text_area.document.cursor_position_row)
+    row = text_area.document.cursor_position_row
+    dataview.refreshRelevant()
+    set_text(dataview.show_active_view())
+    text_area.buffer.cursor_position = \
+                    text_area.buffer.document.translate_row_col_to_index(row, 0)
 
 @bindings.add('c-t', filter=is_viewing_or_details)
-def do_maybe_record_timer(*event):
-    if not dataview.timer_id:
-        add_usedtime()
+def record_time(*event):
+    """
+    doc_id?
+        timer?
+            prompt for period and ending time with timer period
+                and now as the defaults
+        else
+            prompt for period and ending time w/o defaults
+    """
+    row = text_area.document.cursor_position_row
+    res = dataview.get_row_details(row) # item_id, instance, job_id
+    doc_id = res[0]
+    if not doc_id:
         return
-    item_id = dataview.timer_id
-    job_id = dataview.timer_job
-    hsh = DBITEM.get(doc_id=item_id)
-    item_info = f"{hsh['itemtype']} {hsh['summary']}"
+
+    # if force or not dataview.active_timer:
+    #     add_usedtime()
+    #     return
+
 
     now = pendulum.now()
+    hsh = DBITEM.get(doc_id=doc_id)
+    item_info = f"{hsh['itemtype']} {hsh['summary']}"
+    if doc_id in dataview.timers:
+        state, start, period = dataview.timers[doc_id]
+        if state == 'r':
+            period += now - start
+
+
     if dataview.timer_status == 1: #running
         time = dataview.timer_time + (now - dataview.timer_start)
     else:
@@ -2464,12 +2504,12 @@ Enter the path of the file to import:""")
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('c-p', filter=is_viewing & is_item_view)
+@bindings.add('c-t', 'c-t', filter=is_viewing & is_item_view)
 def do_whatever(*event):
     """
     For testing whatever
     """
-    dataview.handle_backups()
+    logger.debug("t, t")
 
 
 @bindings.add('c-x', filter=is_viewing & is_item_view)
@@ -2564,6 +2604,12 @@ def yearly_view(*event):
 @bindings.add('h', filter=is_viewing)
 def history_view(*event):
     dataview.set_active_view('h')
+    item.use_items()
+    set_text(dataview.show_active_view())
+
+@bindings.add('m', filter=is_viewing)
+def timers_view(*event):
+    dataview.set_active_view('m')
     item.use_items()
     set_text(dataview.show_active_view())
 
@@ -2756,6 +2802,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
         MenuItem('j) journal', handler=journal_view),
+        MenuItem('m) timers', handler=timers_view),
         MenuItem('p) pinned', handler=pinned_view),
         MenuItem('q) query', handler=query_view),
         MenuItem('r) review', handler=review_view),
@@ -2800,8 +2847,9 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^u) update last modified', handler=do_touch),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
-        MenuItem('T) begin timer, then toggle paused/running', handler=do_timer_toggle),
-        MenuItem("^T) record usedtime", handler=do_maybe_record_timer),
+        MenuItem('T) toggle timer state for the selected reminder', handler=change_timer_state),
+        MenuItem("^T) record usedtime for the selected reminder", handler=record_time),
+        MenuItem('tt) toggle paused/running for the active timer', handler=toggle_active_timer),
     ]),
 ], floats=[
     Float(xcursor=True,
