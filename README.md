@@ -1105,8 +1105,10 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
 		^u) update last modified
         ^x) toggle archived status
         ---
-        T) begin timer, then toggle paused/running
-        ^T) record used time
+        T) create timer, then toggle timer state
+        TR) record usedtime
+        TD) delete timer
+        TT) toggle paused/running for active timer
 
 
 ### etm menu notes
@@ -1158,9 +1160,18 @@ Several options here deserve comment.
 * *toggle pin* toggles the pin status of an item between off and on. Items for which the pin status are displayed with a 'p', in the *flags* column of normal views and are also displayed in *pinned view*.
 * *show repetitions* pops up a display showing illustrative repetitions if the item is repeating.
 * *toggle archived status* moves the selected reminder from the items table if it is active to the archive table and vice versa if the archive table is active.
-* *begin timer then toggle paused/running* will create and start an active timer associated with the selected reminder if an active timer does not currently exist and will otherwise toggle the paused or running state of the active timer.
-* When a timer is active, the current status of the timer is displayed in the bottom, status line just to the left of the view name. For example, `3m*` would mean that the timer has 3 minutes of elapsed time and, because of the asterisk, that the timer is running. When the timer is paused, an exclamation point replaces the asterisk.
-* If there is an active timer, *record used time* will create an `@u` entry in the associated reminder using the current elapsed time as the time period and the current datetime as the ending time and then cancel the active timer. If there is no active timer, then *record used time* will prompt for a timeperiod and an ending time and then create an `@u` entry in the selected reminder using those elements.
+* *create timer then toggle timer state*.
+    * possible timer states
+        * inactive
+        * active and
+            * running
+            * paused
+    * action taken
+        * If no timer is currently associated with the reminder, one will be created. If another timer is *active*, the new timer will be *inactive*, otherwise it will be *running*.
+        * If an *inactive* timer is already associated with the reminder. Its state will be changed to *running*. If another timer is *active*, the active timer will be made *inactive* and, if *running*, its elapsed time will be updated.
+        * If an *active* timer is already associated with the reminder, its state will be toggled between *paused* and *running*.
+    * When a timer is active, the current status of the timer is displayed in the bottom, status line just to the left of the view name. For example, `3m:r` would mean that the timer has 3 minutes of elapsed time and, because of the *r*, that the timer is running. When the timer is paused, the *r* is replaced by a *p*.
+* If there is an active timer, *record used time* will create an `@u` entry in the associated reminder using as defaults the current elapsed time as the time period and the last moment the timer was running as the ending time. If there is no active timer, then *record used time* will prompt for a timeperiod and an ending time and then create an `@u` entry in the selected reminder using those elements.
 
 
 ## Installation

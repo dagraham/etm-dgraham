@@ -1879,6 +1879,7 @@ class DataView(object):
         # self.timer_job = None
         self.timers = {}
         self.active_timer = None
+        self.timers_unrecorded = ZERO
         self.archive_after = 0
         self.set_etmdir(etmdir)
         self.views = {
@@ -1897,8 +1898,7 @@ class DataView(object):
                 't': 'tags',
                 'u': 'used time',
                 'v': 'review',
-                'U': 'used time summary',
-                'x': 'used time expanded',
+                'U': 'used summary',
                 'y': 'yearly',
                 }
 
@@ -2204,13 +2204,28 @@ class DataView(object):
 
     # for status bar report
     def timer_report(self):
-        if not self.active_timer:
+        if not self.timers:
             return ''
-        status, started, elapsed = self.timers[self.active_timer]
-        delta = pendulum.now('local') - started
-        if status == 'r': # running
-            delta += elapsed
-        return f"{format_duration(delta, short=True)}:{status}  "
+        active = unrecorded = ""
+        zero = pendulum.Duration()
+        delta = zero
+        if self.active_timer:
+            status, started, elapsed = self.timers[self.active_timer]
+            delta = pendulum.now('local') - started
+            if status == 'r': # running
+                delta += elapsed
+            active = f"{status}:{format_duration(delta, short=True)}"
+        if len(self.timers) > 1:
+            timers = deepcopy(self.timers)
+            del timers[self.active_timer]
+            relevant = [round_minutes(v[2]) for k, v in timers.items() if v[2] > zero]
+            if relevant:
+                total = zero
+                for v in relevant:
+                    total += v
+                unrecorded = f" + i:{format_duration(total, short=True)}"
+        return f"{active}{unrecorded}  "
+
 
 
     def timer_clear(self, doc_id=None):
@@ -2259,7 +2274,7 @@ class DataView(object):
             self.history_view, self.row2id = show_history(self.db, True, self.pinned_list, self.link_list, self.konnected, self.timers)
             return self.history_view
         if self.active_view == 'timers':
-            self.timers_view, self.row2id  = show_timers(self.db, self.pinned_list, self.link_list, self.konnected, self.timers, self.active_timer)
+            self.timers_view, self.row2id, self.timers_unrecorded  = show_timers(self.db, self.pinned_list, self.link_list, self.konnected, self.timers, self.active_timer)
             return self.timers_view
         if self.active_view == 'forthcoming':
             self.forthcoming_view, self.row2id = show_forthcoming(self.db, self.id2relevant, self.pinned_list, self.link_list, self.konnected, self.timers)
@@ -2279,9 +2294,9 @@ class DataView(object):
         if self.active_view == 'pinned':
             self.pinned_view, self.row2id = show_pinned(self.get_pinned(), self.pinned_list, self.link_list, self.konnected, self.timers)
             return self.pinned_view
-        if self.active_view == 'timers':
-            self.timers_view, self.row2id = show_timers(self.get_pinned(), self.pinned_list, self.link_list, self.konnected, self.timers, self.active_timer)
-            return self.timers_view
+        # if self.active_view == 'timers':
+        #     self.timers_view, self.row2id = show_timers(self.get_pinned(), self.pinned_list, self.link_list, self.konnected, self.timers, self.active_timer)
+        #     return self.timers_view
         if self.active_view == 'used time':
             used_details = self.used_details.get(self.active_month)
             if not used_details:
@@ -2290,7 +2305,7 @@ class DataView(object):
             self.used_view = used_details
             self.row2id = self.used_details2id.get(self.active_month)
             return self.used_view
-        if self.active_view == 'used time summary':
+        if self.active_view == 'used summary':
             self.row2id = {}
             used_summary = self.used_summary.get(self.active_month)
             if not used_summary:
@@ -5206,21 +5221,13 @@ def get_flags(id, link_list=[], konnect_list=[], pinned_list=[], timers={}):
     flags = ""
     if id in link_list:
         flags += LINK_CHAR
-    else:
-        flags += " "
     if id in konnect_list:
         flags += KONNECT_CHAR
-    else:
-        flags += " "
     if id in pinned_list:
         flags += PIN_CHAR
-    else:
-        flags += " "
     if id in timers:
         flags += "t"
-    else:
-        flags += " "
-    return flags
+    return flags.rjust(4, ' ')
 
 def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=[], timers={}):
     rows = []
@@ -5413,7 +5420,8 @@ def show_timers(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, ac
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
-    return tree, row2id
+    return tree, row2id, total_time
+
 
 
 def show_konnected(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, selected_id=None, from_ids={}, to_ids={}):

@@ -1400,7 +1400,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected', 'timers']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected', 'timers']
 
 @Condition
 def is_dated_view():
@@ -1428,7 +1428,7 @@ def is_agenda_view():
 
 @Condition
 def is_used_view():
-    return dataview.active_view in ['used time', 'used time summary', 'used time expanded']
+    return dataview.active_view in ['used time', 'used time summary']
 
 @Condition
 def is_query_view():
@@ -1821,7 +1821,7 @@ def get_statusbar_center_text():
         return [ ('class:status',  f' {get_edit_mode()}'), ]
     if dataview.is_showing_query:
         return [ ('class:status',  f' {dataview.query_mode}'), ]
-    return [ ('class:status',  '                      '), ]
+    return [ ('class:status',  14 * ' '), ]
 
 
 def get_statusbar_right_text():
@@ -2066,9 +2066,9 @@ entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 status_area = VSplit([
             Window(FormattedTextControl(get_statusbar_text), style='class:status'),
             Window(FormattedTextControl(get_statusbar_center_text),
-                   style='class:status', width=20, align=WindowAlign.CENTER),
+                   style='class:status', width=14, align=WindowAlign.CENTER),
             Window(FormattedTextControl(get_statusbar_right_text),
-                   style='class:status', width=20, align=WindowAlign.RIGHT),
+                   style='class:status', width=26, align=WindowAlign.RIGHT),
         ], height=1)
 
 
@@ -2288,7 +2288,7 @@ def change_timer_state(*event):
                     text_area.buffer.document.translate_row_col_to_index(row, 0)
 
 
-@bindings.add('T', 'T', filter=is_viewing_or_details & is_item_view)
+@bindings.add('T', 'D', filter=is_viewing_or_details & is_item_view)
 def maybe_delete_timer(*event):
     row = text_area.document.cursor_position_row
     res = dataview.get_row_details(row) # item_id, instance, job_id
@@ -2330,7 +2330,7 @@ def maybe_delete_timer(*event):
 
 
 
-@bindings.add('t', 't', filter=is_viewing_or_details & is_item_view)
+@bindings.add('T', 'T', filter=is_viewing_or_details & is_item_view)
 def toggle_active_timer(*event):
     dataview.toggle_active_timer(text_area.document.cursor_position_row)
     row = text_area.document.cursor_position_row
@@ -2339,7 +2339,7 @@ def toggle_active_timer(*event):
     text_area.buffer.cursor_position = \
                     text_area.buffer.document.translate_row_col_to_index(row, 0)
 
-@bindings.add('c-t', filter=is_viewing_or_details)
+@bindings.add('T', 'R', filter=is_viewing_or_details)
 def record_time(*event):
     """
     doc_id?
@@ -2832,7 +2832,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('r) review', handler=review_view),
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
-        MenuItem('U) used time summary', handler=used_summary_view),
+        MenuItem('U) used summary', handler=used_summary_view),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
         MenuItem('y) half yearly calendar', handler=yearly_view),
@@ -2872,9 +2872,9 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
         MenuItem('T) create timer or toggle timer state ', handler=change_timer_state),
-        MenuItem("^T) record usedtime", handler=record_time),
-        MenuItem('TT) delete timer', handler=maybe_delete_timer),
-        MenuItem('tt) toggle paused/running for active timer', handler=toggle_active_timer),
+        MenuItem("TR) record usedtime", handler=record_time),
+        MenuItem('TD) delete timer', handler=maybe_delete_timer),
+        MenuItem('TT) toggle paused/running for active timer', handler=toggle_active_timer),
     ]),
 ], floats=[
     Float(xcursor=True,
