@@ -79,7 +79,7 @@ COMMAND_DETAILS = """\
   field begins with a match for the case insensitve
   regular expression RGX.
 
-* includes LST RGX: return items in which the value of
+* in LST RGX: return items in which the value of
   one of the fields in LST includes a match for the case
   insensitive regular expression RGX.
 
@@ -202,13 +202,13 @@ Simple query examples
 Find items where the summary includes a match for
 "waldo":
 
-    query: includes summary waldo
+    query: in summary waldo
 
 Precede a command with `~` to negate it. E.g., find
 reminders where the summary does not include a match for
 "waldo":
 
-    query: ~includes summary waldo
+    query: ~in summary waldo
 
 To enter a list of values for "arg", simply separate the
 components with spaces. E.g.,
@@ -243,7 +243,7 @@ Components can be joined the using "or" or "and". E.g.,
 find reminders where the summary entry contains a match
 for "waldo" but the @d (description) entry does not:
 
-    query: includes summary waldo and ~includes d waldo
+    query: in summary waldo and ~includes d waldo
 
 Archive queries
 ===============
@@ -253,7 +253,7 @@ database. You can preceed any query with 'a ' (the letter
 'a' followed by a space), to search the archive
 table instead. E.g.,
 
-    query: a includes summary waldo or includes d waldo
+    query: a in summary waldo or in d waldo
 
 will search the archive table for reminders with matches
 for 'waldo' in the summary or in the description.
@@ -268,7 +268,7 @@ Queries can not only locate reminders but also update
 them. The update commands act on items returned by a
 query. E.g., this query
 
-    query: includes i john\sdoe | replace i john\sdoe
+    query: in i john\sdoe | replace i john\sdoe
         Jane\sDoe
 
 can be regarded as taking the reminders whose index entry,
@@ -506,7 +506,7 @@ class TDBLexer(RegexLexer):
 
     tokens = {
             'root': [
-                (r'\b(begins|includes|equals|more|less|exists|any|all|one)\b', Keyword),
+                (r'\b(begins|includes|in|equals|more|less|exists|any|all|one)\b', Keyword),
                 (r'\b(replace|remove|archive|delete|set|provide|attach|detach)\b', Keyword),
                 (r'\b(itemtype|summary)\b', Literal),
                 (r'\b(and|or|info)\b', Keyword),
@@ -541,6 +541,7 @@ class ETMQuery(object):
         self.filters = {
                 'begins': self.begins,
                 'includes': self.includes,
+                'in': self.includes,
                 'equals': self.equals,
                 'more': self.more,
                 'less': self.less,
@@ -914,7 +915,7 @@ class ETMQuery(object):
                     return False, wrap(f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed.""")
 
             if len(part) > 3:
-                if part[0] == 'includes':
+                if part[0] in ['in', 'includes']:
                     if negation:
                         cmnds.append(~ self.filters[part[0]]([x.strip() for x in part[1:-1]], part[-1]))
                     else:
@@ -966,7 +967,6 @@ class ETMQuery(object):
                         loop = asyncio.get_event_loop()
                         loop.call_later(0, data_changed, loop)
                         self.changed = False
-
                 return True, items
         except Exception as e:
             return False, f"exception processing '{query}':\n{e}"
@@ -1298,12 +1298,31 @@ def add_usedtime(*event):
 
     hsh = DBITEM.get(doc_id=doc_id)
 
+    state2fmt = {
+            'i': "inactive",
+            'r': "running",
+            'p': "paused",
+            }
+
+    now = pendulum.now('local')
+    if doc_id in dataview.timers:
+        state, start, elapsed = dataview.timers[doc_id]
+        if state == 'r':
+            elapsed += now - start
+            start = now
+        timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}"
+        entry = f"{format_duration(elapsed, short=True)}: {format_datetime(start, short=True)[1]}"
+    else:
+        state = None
+        timer = "\ntimer: None"
+        entry = " : now"
 
     def coroutine():
         dialog = TextInputDialog(
             title='add usedtime',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\n add usedtime using the format:\n    used timeperiod: ending datetime")
-
+            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}{timer}\n\nadd usedtime using the format:\n    period: datetime\n",
+            default=entry,
+            )
         usedtime = yield from show_dialog_as_float(dialog)
 
         if not usedtime:
@@ -1313,6 +1332,11 @@ def add_usedtime(*event):
         changed = item.add_used(doc_id, usedtime)
 
         if changed:
+            if doc_id in dataview.timers:
+                state, start, elapsed = dataview.timers[doc_id]
+                state = 'p' if state == 'r' else state
+                dataview.timers[doc_id] = [state, pendulum.now('local'), pendulum.Duration()]
+
             if doc_id in dataview.itemcache:
                 del dataview.itemcache[doc_id]
             application.layout.focus(text_area)
@@ -1376,7 +1400,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'used time expanded',  'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected', 'timers']
 
 @Condition
 def is_dated_view():
@@ -1404,7 +1428,7 @@ def is_agenda_view():
 
 @Condition
 def is_used_view():
-    return dataview.active_view in ['used time', 'used time summary', 'used time expanded']
+    return dataview.active_view in ['used time', 'used time summary']
 
 @Condition
 def is_query_view():
@@ -1610,6 +1634,14 @@ def status_time(dt):
 
 def item_changed(loop):
     item.update_item_hsh()
+    if (dataview.active_view == 'timers'
+            and item.doc_id not in dataview.timers):
+        if dataview.active_timer:
+            state = 'i'
+        else:
+            state = 'r'
+            dataview.active_timer = item.doc_id
+        dataview.timers[item.doc_id] = [state, pendulum.now('local'), pendulum.Duration()]
     dataview.update_completions(item)
     dataview.update_konnections(item)
     data_changed(loop)
@@ -1736,6 +1768,8 @@ async def event_handler():
             if today != current_today:
                 loop = asyncio.get_event_loop()
                 asyncio.ensure_future(new_day(loop))
+            if dataview.active_view == 'timers':
+                set_text(dataview.show_active_view())
             get_app().invalidate()
             await asyncio.sleep(wait)
     except asyncio.CancelledError:
@@ -1787,7 +1821,7 @@ def get_statusbar_center_text():
         return [ ('class:status',  f' {get_edit_mode()}'), ]
     if dataview.is_showing_query:
         return [ ('class:status',  f' {dataview.query_mode}'), ]
-    return [ ('class:status',  '                      '), ]
+    return [ ('class:status',  14 * ' '), ]
 
 
 def get_statusbar_right_text():
@@ -2032,9 +2066,9 @@ entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 status_area = VSplit([
             Window(FormattedTextControl(get_statusbar_text), style='class:status'),
             Window(FormattedTextControl(get_statusbar_center_text),
-                   style='class:status', width=20, align=WindowAlign.CENTER),
+                   style='class:status', width=14, align=WindowAlign.CENTER),
             Window(FormattedTextControl(get_statusbar_right_text),
-                   style='class:status', width=20, align=WindowAlign.RIGHT),
+                   style='class:status', width=26, align=WindowAlign.RIGHT),
         ], height=1)
 
 
@@ -2245,56 +2279,84 @@ def entry_buffer_changed():
 
 
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
-def do_timer_toggle(*event):
-    dataview.timer_toggle(text_area.document.cursor_position_row)
+def next_timer_state(*event):
+    dataview.next_timer_state(text_area.document.cursor_position_row)
+    row = text_area.document.cursor_position_row
+    dataview.refreshRelevant()
+    set_text(dataview.show_active_view())
+    text_area.buffer.cursor_position = \
+                    text_area.buffer.document.translate_row_col_to_index(row, 0)
 
 
-@bindings.add('c-t', filter=is_viewing_or_details)
-def do_maybe_record_timer(*event):
-    if not dataview.timer_id:
-        add_usedtime()
+@bindings.add('T', 'D', filter=is_viewing_or_details & is_item_view)
+def maybe_delete_timer(*event):
+    row = text_area.document.cursor_position_row
+    res = dataview.get_row_details(row) # item_id, instance, job_id
+    doc_id = res[0]
+    if not doc_id or doc_id not in dataview.timers:
         return
-    item_id = dataview.timer_id
-    job_id = dataview.timer_job
-    hsh = DBITEM.get(doc_id=item_id)
-    item_info = f"{hsh['itemtype']} {hsh['summary']}"
+    hsh = DBITEM.get(doc_id=doc_id)
+    state2fmt = {
+            'i': "inactive",
+            'r': "running",
+            'p': "paused",
+            }
 
-    now = pendulum.now()
-    if dataview.timer_status == 1: #running
-        time = dataview.timer_time + (now - dataview.timer_start)
-    else:
-        time = dataview.timer_time
-    completed = pendulum.now()
-    completed_str = format_datetime(completed)
-    time_str = format_duration(time)
+
+    state, start, elapsed = dataview.timers[doc_id]
+    if state == 'r':
+        now = pendulum.now('local')
+        elapsed += now - start
+        start = now
+    timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}\n\nAre you sure you want to delete this timer?"
 
     def coroutine():
-        title = "Timer"
-        text = f"item: {item_info}\nelapsed time: {time_str}\n\nAction?"
-        values =[
-            (0, 'record time and close timer'),
-            (1, 'close timer without recording time'),
-        ]
 
-        dialog = RadioListDialog(
-            title=title,
-            text=text,
-            values=values)
+        dialog = ConfirmDialog(
+            title='delete timer',
+            text=f"selected: {hsh['itemtype']} {hsh['summary']}{timer}",
+            )
 
-        which = yield from show_dialog_as_float(dialog)
-        # None: do nothing; 0: record and close; 1: close
-        if which is not None:
-            if which == 0:
-                item.record_timer(item_id, job_id, completed, time)
-                if item_id in dataview.itemcache:
-                    del dataview.itemcache[item_id]
-                loop = asyncio.get_event_loop()
-                loop.call_later(0, data_changed, loop)
-            dataview.timer_clear()
+        discard = yield from show_dialog_as_float(dialog)
+        if discard:
+            dataview.timer_clear(doc_id)
+            dataview.refreshRelevant()
             set_text(dataview.show_active_view())
             get_app().invalidate()
+        else:
+            return
 
     asyncio.ensure_future(coroutine())
+
+
+
+@bindings.add('T', 'T', filter=is_viewing_or_details & is_item_view)
+def toggle_active_timer(*event):
+    dataview.toggle_active_timer(text_area.document.cursor_position_row)
+    row = text_area.document.cursor_position_row
+    dataview.refreshRelevant()
+    set_text(dataview.show_active_view())
+    text_area.buffer.cursor_position = \
+                    text_area.buffer.document.translate_row_col_to_index(row, 0)
+
+@bindings.add('T', 'R', filter=is_viewing_or_details)
+def record_time(*event):
+    """
+    doc_id?
+        timer?
+            prompt for period and ending time with timer period
+                and now as the defaults
+        else
+            prompt for period and ending time w/o defaults
+    """
+    row = text_area.document.cursor_position_row
+    res = dataview.get_row_details(row) # item_id, instance, job_id
+    doc_id = res[0]
+    if not doc_id:
+        return
+
+    add_usedtime(*event)
+    return
 
 
 @bindings.add('c-u', filter=is_viewing_or_details & is_item_view)
@@ -2370,6 +2432,10 @@ def edit_copy(*event):
 @bindings.add('g', filter=is_viewing & is_not_editing)
 def do_goto(*event):
     row = text_area.document.cursor_position_row
+    res = dataview.get_row_details(row) # item_id, instance, job_id
+    doc_id = res[0]
+    if not doc_id:
+        return
     ok, goto = dataview.get_goto(row)
     if ok:
         res = openWithDefault(goto)
@@ -2462,12 +2528,12 @@ Enter the path of the file to import:""")
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('c-p', filter=is_viewing & is_item_view)
+@bindings.add('c-t', 'c-t', filter=is_viewing & is_item_view)
 def do_whatever(*event):
     """
     For testing whatever
     """
-    dataview.handle_backups()
+    logger.debug("t, t")
 
 
 @bindings.add('c-x', filter=is_viewing & is_item_view)
@@ -2562,6 +2628,12 @@ def yearly_view(*event):
 @bindings.add('h', filter=is_viewing)
 def history_view(*event):
     dataview.set_active_view('h')
+    item.use_items()
+    set_text(dataview.show_active_view())
+
+@bindings.add('m', filter=is_viewing)
+def timers_view(*event):
+    dataview.set_active_view('m')
     item.use_items()
     set_text(dataview.show_active_view())
 
@@ -2722,6 +2794,7 @@ def maybe_save(item):
     # hsh ok, save changes and close editor
     if item.doc_id in dataview.itemcache:
         del dataview.itemcache[item.doc_id]
+
     app = get_app()
     app.editing_mode = EditingMode.EMACS
     dataview.is_editing = False
@@ -2753,12 +2826,13 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
         MenuItem('j) journal', handler=journal_view),
+        MenuItem('m) timers', handler=timers_view),
         MenuItem('p) pinned', handler=pinned_view),
         MenuItem('q) query', handler=query_view),
         MenuItem('r) review', handler=review_view),
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
-        MenuItem('U) used time summary', handler=used_summary_view),
+        MenuItem('U) used summary', handler=used_summary_view),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
         MenuItem('y) half yearly calendar', handler=yearly_view),
@@ -2797,8 +2871,10 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^u) update last modified', handler=do_touch),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
-        MenuItem('T) begin timer, then toggle paused/running', handler=do_timer_toggle),
-        MenuItem("^T) record usedtime", handler=do_maybe_record_timer),
+        MenuItem('T) change timer to next state ', handler=next_timer_state),
+        MenuItem("TR) record usedtime", handler=record_time),
+        MenuItem('TD) delete timer', handler=maybe_delete_timer),
+        MenuItem('TT) toggle paused/running for active timer', handler=toggle_active_timer),
     ]),
 ], floats=[
     Float(xcursor=True,

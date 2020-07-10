@@ -14,6 +14,7 @@ This is the etm user manual. Further information about etm is available at [gith
             -   [tab completion](#tab-completion)
     -   [Views](#views)
         -   [Weekly Views](#weekly-views)
+        -   [Timer View](#timer-view)
         -   [Review View](#review-view)
         -   [Pinned View](#pinned-view)
         -   [Konnection View](#konnection-view)
@@ -393,8 +394,7 @@ but after changing dayfirst to true
 
 #### relative datetimes
 
-Relative datetimes can be entered using period strings either instead of or in
-addition to datetimes using the format:
+Relative datetimes can be entered using period strings either instead of or in addition to datetimes using the format:
 
     [datetime] [period string]
 
@@ -412,6 +412,7 @@ Examples supposing it is currently 1:20pm on July 15:
 
 	+1h30m     => 2:50pm on July 15
 	+3d        => July 18
+	-3d        => July 12
 	8a         => 8am on July 15
 	8a +1h30m  => 9:30am on July 15
 	8a +3d     => 8am on July 18
@@ -454,12 +455,13 @@ The display for each reminder shows the itemtype and summary column on the left 
   * i: Index: all items grouped hierarchically by index entry
   * j: Journal: journal entries grouped hierarchically by index entry
   * k: Konnection: items with @k konnection links either to or from the selected item.
+  * m: Timers: items with timers.
   * p: Pinned: items whose pin status is on.
   * q: Query: items matching a user specified query. Enter ? for query usage.
+  * r: Review: undated tasks sorted by the time since the task was last modified with the most recently modified last.
   * t: Tags: all items with @t tag entries grouped by tag
   * u: Used Time: all items with @u used time entries grouped by month and hierarchically by index
-  * U: Used Time Summary: used time aggregates grouped by month and hierarchically by index
-  * x: Used Time Expanded: similar to Used Time but with @d entries displayed
+  * U: Used Summary: used time aggregates grouped by month and hierarchically by index
   * y: Yearly Planning Calendar: compact monthly calendar by half year.
 
 ### Weekly Views
@@ -480,6 +482,12 @@ And, on the current day only:
 * inbox items
 * *<* pastdue warnings in descending order of the number of days past due
 * *>* beginby warnings in ascending order of the number of days remaining
+
+### Timer view
+
+This view lists all reminders with associated timers sorted by the elapsed time since the timer's *state* was last changed. The display for each reminder shows the itemtype and summary, any applicable *flags* and, in the right hand column, the elapsed time and *state* of the associated timer.
+
+The sort order assures that the reminder with the active timer will always be at the top of the list and followed by the reminders with the most recently modified timers. This makes it easy to switch back and forth between recent timers.
 
 ### Review View
 
@@ -1105,8 +1113,10 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
 		^u) update last modified
         ^x) toggle archived status
         ---
-        T) begin timer, then toggle paused/running
-        ^T) record used time
+        T) create timer, then toggle timer state
+        TR) record usedtime
+        TD) delete timer
+        TT) toggle paused/running for active timer
 
 
 ### etm menu notes
@@ -1158,9 +1168,40 @@ Several options here deserve comment.
 * *toggle pin* toggles the pin status of an item between off and on. Items for which the pin status are displayed with a 'p', in the *flags* column of normal views and are also displayed in *pinned view*.
 * *show repetitions* pops up a display showing illustrative repetitions if the item is repeating.
 * *toggle archived status* moves the selected reminder from the items table if it is active to the archive table and vice versa if the archive table is active.
-* *begin timer then toggle paused/running* will create and start an active timer associated with the selected reminder if an active timer does not currently exist and will otherwise toggle the paused or running state of the active timer.
-* When a timer is active, the current status of the timer is displayed in the bottom, status line just to the left of the view name. For example, `3m*` would mean that the timer has 3 minutes of elapsed time and, because of the asterisk, that the timer is running. When the timer is paused, an exclamation point replaces the asterisk.
-* If there is an active timer, *record used time* will create an `@u` entry in the associated reminder using the current elapsed time as the time period and the current datetime as the ending time and then cancel the active timer. If there is no active timer, then *record used time* will prompt for a timeperiod and an ending time and then create an `@u` entry in the selected reminder using those elements.
+* *change timer to next state*.
+    * these are the states for the timer associated with a reminder and the relevant status of any other timers:
+        * *n* (no timer is associated with this reminder)
+            * *n-*: no other timer is active
+            * *n+*: another timer is active
+        * *i* (a timer is associated with this reminder and it is inactive)
+            * *i-*: no other timer is active
+            * *i+*: another timer is active
+        * *r-*: running (a timer is associated with this reminder and it is running - there cannot be another active timer)
+        * *p-*: paused (a timer is associated with this reminder and it is paused - there cannot be another active timer)
+
+       These are the "next" state transitions associated with this action:
+        * *n+* ⇒ *i+*
+        * *n-* ⇒ *r-*
+        * *i-* ⇒ *r-*
+        * *i+* ⇒ *r-*
+        * *r-* ⇒ *p-*
+        * *p-* ⇒ *r-*
+
+    * Here are the details:
+        * If no timer is currently associated with the reminder, one will be created. If another timer is *active*, the new timer will be *inactive*, otherwise it will be *running*.
+        * If an *inactive* timer is already associated with the reminder. Its state will be changed to *running*. If another timer is *active*, that timer will be changed to *inactive* and, if *running*, its elapsed time will be incremented by the period it has been *running*.
+        * If an *active* timer is already associated with the reminder, its state will be toggled between *paused* and *running*. With a transition from *running* to *paused*, the elapsed time for the timer in increased by the period since the timer's state changed to *running*.
+
+      Additionally, if there is an *active* timer, its state, either *r* (running) or *p* (paused), is displayed in the *etm* status bar together with the relevant time period, either the total elapsed time or how long the timer has been paused. If there are *inactive* timers with non-zero elapsed times, the total of such elapsed times will also be reported in the status bar. E.g., this display in the status bar
+
+            r:4m + i:13m
+
+      would mean that the *active* timer is *running* with 4 minutes of unrecorded elapsed time and that there is an additional 13 minutes of unrecorded elapsed time in *inactive* timers.
+* *record used time* with a reminder selected, will:
+    * If a timer is not currently associated with the reminder, prompt for a timeperiod and ending time to use in adding a usedtime entry to the reminder.
+    * If a timer is currently associated with the reminder, use its elapsed time and the last moment it was running as the defaults in the prompt for a usedtime timeperiod and ending time. If the entry is saved, the elapsed time for the timer will be reset to zero and, additionally, if the timer is currently *running*, its status will be changed to *paused*.
+
+    **Important**: timer data is stored in memory and will be lost if *etm* is stopped. Be sure to record usedtime entries for timers with elapsed times before quitting etm. The status bar will always indicate if there is unrecorded elapsed time.
 
 
 ## Installation
