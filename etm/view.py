@@ -2279,8 +2279,8 @@ def entry_buffer_changed():
 
 
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
-def change_timer_state(*event):
-    dataview.change_timer_state(text_area.document.cursor_position_row)
+def next_timer_state(*event):
+    dataview.next_timer_state(text_area.document.cursor_position_row)
     row = text_area.document.cursor_position_row
     dataview.refreshRelevant()
     set_text(dataview.show_active_view())
@@ -2871,7 +2871,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^u) update last modified', handler=do_touch),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
-        MenuItem('T) create timer or toggle timer state ', handler=change_timer_state),
+        MenuItem('T) change timer to next state ', handler=next_timer_state),
         MenuItem("TR) record usedtime", handler=record_time),
         MenuItem('TD) delete timer', handler=maybe_delete_timer),
         MenuItem('TT) toggle paused/running for active timer', handler=toggle_active_timer),

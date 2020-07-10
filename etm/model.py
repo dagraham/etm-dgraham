@@ -2147,22 +2147,24 @@ class DataView(object):
         self.timers[self.active_timer] = [state, now, period]
 
     # bound to T
-    def change_timer_state(self, row=None):
+    def next_timer_state(self, row=None):
         """
         states for this reminder's timer
-            0: does not exist
+            n: does not exist
             i: inactive
             r: running
             p: paused
         other timers:
-            n: none active
-            a: one is active
+            -: none active
+            +: one is active
 
         transitions:
-            (0, n) -> (r, n)
-            (i, a) -> (r, n)
-            (r, n) -> (p, n)
-            (p, n) -> (r, n)
+            n- -> r-
+            n+ -> i+
+            i- -> r-
+            i+ -> r-
+            r- -> p-
+            p- -> r-
         """
         res = self.get_row_details(row) # item_id, instance, job_id
         doc_id = res[0]
@@ -2217,7 +2219,8 @@ class DataView(object):
             active = f"{status}:{format_duration(delta, short=True)}"
         if len(self.timers) > 1:
             timers = deepcopy(self.timers)
-            del timers[self.active_timer]
+            if self.active_timer in timers:
+                del timers[self.active_timer]
             relevant = [round_minutes(v[2]) for k, v in timers.items() if v[2] > zero]
             if relevant:
                 total = zero
@@ -2274,7 +2277,7 @@ class DataView(object):
             self.history_view, self.row2id = show_history(self.db, True, self.pinned_list, self.link_list, self.konnected, self.timers)
             return self.history_view
         if self.active_view == 'timers':
-            self.timers_view, self.row2id, self.timers_unrecorded  = show_timers(self.db, self.pinned_list, self.link_list, self.konnected, self.timers, self.active_timer)
+            self.timers_view, self.row2id = show_timers(self.db, self.pinned_list, self.link_list, self.konnected, self.timers, self.active_timer)
             return self.timers_view
         if self.active_view == 'forthcoming':
             self.forthcoming_view, self.row2id = show_forthcoming(self.db, self.id2relevant, self.pinned_list, self.link_list, self.konnected, self.timers)
@@ -2294,9 +2297,6 @@ class DataView(object):
         if self.active_view == 'pinned':
             self.pinned_view, self.row2id = show_pinned(self.get_pinned(), self.pinned_list, self.link_list, self.konnected, self.timers)
             return self.pinned_view
-        # if self.active_view == 'timers':
-        #     self.timers_view, self.row2id = show_timers(self.get_pinned(), self.pinned_list, self.link_list, self.konnected, self.timers, self.active_timer)
-        #     return self.timers_view
         if self.active_view == 'used time':
             used_details = self.used_details.get(self.active_month)
             if not used_details:
@@ -5420,9 +5420,7 @@ def show_timers(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, ac
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
-    return tree, row2id, total_time
-
-
+    return tree, row2id
 
 def show_konnected(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, selected_id=None, from_ids={}, to_ids={}):
     """
