@@ -493,7 +493,7 @@ class Item(object):
                 'f': ["finish", "completion datetime", self.do_datetime],
                 'g': ["goto", "url or filepath", do_string],
                 'h': ["completions", "list of completion datetimes", self.do_datetimes],
-                'i': ["index", "colon delimited string", do_string],
+                'i': ["index", "forward slash delimited string", do_string],
                 'k': ["konnection", "document id", do_konnection],
                 'l': ["location", "location or context, e.g., home, office, errands", do_string],
                 'm': ["mask", "string to be masked", do_mask],
