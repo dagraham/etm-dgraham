@@ -493,7 +493,7 @@ class Item(object):
                 'f': ["finish", "completion datetime", self.do_datetime],
                 'g': ["goto", "url or filepath", do_string],
                 'h': ["completions", "list of completion datetimes", self.do_datetimes],
-                'i': ["index", "colon delimited string", do_string],
+                'i': ["index", "forward slash delimited string", do_string],
                 'k': ["konnection", "document id", do_konnection],
                 'l': ["location", "location or context, e.g., home, office, errands", do_string],
                 'm': ["mask", "string to be masked", do_mask],
@@ -2890,25 +2890,51 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
     return "\n".join(tmp)
 
 
-def set_summary(s, dt=pendulum.now()):
-    """
-    Replace the anniversary string in s with the ordinal represenation of the number of years between the anniversary string and dt.
-    >>> set_summary('!1944! birthday', pendulum.date(2017, 11, 19))
-    '73rd birthday'
-    >>> set_summary('!1978! anniversary', pendulum.date(2017, 11, 19))
-    '39th anniversary'
-    """
-    if not dt:
-        dt = pendulum.now()
+# def set_summary(s, dt=pendulum.now()):
+#     """
+#     Replace the anniversary string in s with the ordinal represenation of the number of years between the anniversary string and dt.
+#     >>> set_summary('!1944! birthday', pendulum.date(2017, 11, 19))
+#     '73rd birthday'
+#     >>> set_summary('!1978! anniversary', pendulum.date(2017, 11, 19))
+#     '39th anniversary'
+#     """
+#     if not dt:
+#         dt = pendulum.now()
 
-    mtch = anniversary_regex.search(s)
-    retval = s
-    if mtch:
-        startyear = mtch.group(1)
-        numyrs = anniversary_string(startyear, dt.year)
-        retval = anniversary_regex.sub(numyrs, s)
-    return retval
+#     mtch = anniversary_regex.search(s)
+#     retval = s
+#     if mtch:
+#         startyear = mtch.group(1)
+#         numyrs = anniversary_string(startyear, dt.year)
+#         retval = anniversary_regex.sub(numyrs, s)
+#     return retval
 
+def set_summary(summary='', start=None, relevant=None, freq=''):
+    """
+
+    """
+    if not ('{XXX}' in summary and
+            isinstance(start, pendulum.Date) and
+            isinstance(relevant, pendulum.Date) and
+            freq in ['y', 'm', 'w', 'd']):
+        # return summary unchanged
+        return summary
+    relevant_date = relevant.date() if isinstance(relevant, pendulum.DateTime) else relevant
+    start_date = start.date() if isinstance(start, pendulum.DateTime) else start
+    diff = relevant_date - start_date
+    replacement = 0
+    if freq == 'y':
+        replacement = diff.in_years()
+    elif freq == 'm':
+        replacement = diff.in_months()
+    elif freq == 'w':
+        replacement = diff.in_weeks()
+    elif freq == 'd':
+        replacement = diff.in_days()
+    replacement = ordinal(replacement) if replacement >= 0 else '???'
+    logger.debug(f"replacement: {replacement}")
+    summary = summary.format(XXX=replacement)
+    return summary
 
 def ordinal(num):
     """
@@ -2932,12 +2958,12 @@ def ordinal(num):
     return "{0}{1}".format(str(num), suffix)
 
 
-def anniversary_string(startyear, endyear):
-    """
-    Compute the integer difference between startyear and endyear and
-    append the appropriate English suffix.
-    """
-    return ordinal(int(endyear) - int(startyear))
+# def anniversary_string(startyear, endyear):
+#     """
+#     Compute the integer difference between startyear and endyear and
+#     append the appropriate English suffix.
+#     """
+#     return ordinal(int(endyear) - int(startyear))
 
 
 def one_or_more(s):
@@ -5175,6 +5201,12 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
             continue
 
         id = item.doc_id
+        if 'r' in item:
+            # use the freq from the first recurrence rule
+            freq = item['r'][0].get('r', 'y')
+        else:
+            freq = 'y'
+        logger.debug(f"freq: {freq}; item: {item}")
         relevant = id2relevant[item.doc_id]
         if relevant < today:
             continue
@@ -5184,7 +5216,8 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
         rhc = f"{monthday} {time}".ljust(14, ' ')
 
         itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
-        summary = set_summary(item['summary'], relevant)
+        logger.debug(f"calling new_set_summary with freq: {freq}")
+        summary = set_summary(item['summary'], item.get('s', None), relevant, freq)
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
 
         summary = (summary[:width-3].rstrip() + KONNECT_CHAR) if id in konnect_list else summary
@@ -6017,7 +6050,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         # get the instances
         for dt, et in item_instances(item, aft_dt, bef_dt):
-
+            start_dt = item['s']
+            if 'r' in item:
+                freq = item['r'][0].get('r', 'y')
+            else:
+                freq = 'y'
+            logger.debug(f"freq: {freq}; item: {item}")
             instance = dt if '+' in item or 'r' in item else None
             if 'j' in item:
                 for job in item['j']:
@@ -6042,7 +6080,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 jobstart.format("ddd MMM D"),
                                 ),
                             'columns': [job['status'],
-                                set_summary(job_summary, jobstart),
+                                set_summary(job_summary, start_dt,  jobstart, freq),
                                 flags,
                                 rhc,
                                 (item.doc_id, instance, job_id)
@@ -6051,6 +6089,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     )
 
             else:
+                # if 'r' in item:
+                #     freq = item['r'][0].get('r', 'y')
+                # else:
+                #     freq = 'y'
                 if item['itemtype'] == '-':
                     rhc = fmt_time(dt).center(rhc_width, ' ')
                 elif 'e' in item:
@@ -6085,7 +6127,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 dt.format("ddd MMM D"),
                                 ),
                             'columns': [item['itemtype'],
-                                set_summary(summary, dt),
+                                set_summary(summary, item['s'], dt, freq),
                                 flags,
                                 rhc,
                                 (item.doc_id, instance, None)
