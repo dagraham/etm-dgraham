@@ -601,8 +601,7 @@ class ETMQuery(object):
                     item['modified'] = pendulum.now('local')
                     changed.append(item)
         if changed:
-            dataview.db.write_back(changed)
-            self.changed = True
+            write_back(dataview.db, changed)
         return changed
 
 
@@ -649,7 +648,7 @@ class ETMQuery(object):
                 item['modified'] = pendulum.now('local')
                 changed.append(item)
         if changed:
-            dataview.db.write_back(changed)
+            write_back(dataview.db, changed)
             self.changed = True
         return changed
 
@@ -664,7 +663,7 @@ class ETMQuery(object):
             item['modified'] = pendulum.now('local')
             changed.append(item)
         if changed:
-            dataview.db.write_back(changed)
+            write_back(dataview.db, changed)
             self.changed = True
 
     def provide(self, a, b, items):
@@ -678,7 +677,7 @@ class ETMQuery(object):
             item['modified'] = pendulum.now('local')
             changed.append(item)
         if changed:
-            dataview.db.write_back(changed)
+            write_back(dataview.db, changed)
             self.changed = True
 
 
@@ -698,7 +697,7 @@ class ETMQuery(object):
                 item['modified'] = pendulum.now('local')
                 changed.append(item)
         if changed:
-            dataview.db.write_back(changed)
+            write_back(dataview.db, changed)
             self.changed = True
 
     def detach(self, a, b, items):
@@ -713,7 +712,7 @@ class ETMQuery(object):
                 item['modified'] = pendulum.now('local')
                 changed.append(item)
         if changed:
-            dataview.db.write_back(changed)
+            write_back(dataview.db, changed)
             self.changed = True
 
 

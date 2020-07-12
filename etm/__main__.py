@@ -68,6 +68,7 @@ def main():
 
     from etm.model import about
     from etm.model import import_file
+    from etm.model import write_back
     # from etm.model import RDict
     from etm.model import item_details
     from etm.model import FINISHED_CHAR
@@ -118,6 +119,7 @@ def main():
     view.settings = settings
     view.cfgfile = cfgfile
     view.model = model
+    view.write_back = write_back
     # view.RDict = RDict
     # view.TDBLexer = model.TBDLexer
     view.item = item

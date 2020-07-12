@@ -5176,6 +5176,14 @@ def update_db(db, id, hsh={}):
     except Exception as e:
         logger.error(f"Error updating document corresponding to id {id}\nhsh {hsh}\nexception: {repr(e)}")
 
+def write_back(db, docs):
+    for doc in docs:
+        try:
+            doc_id = docs.doc_id
+            db.update_db(db, doc_id, doc)
+        except Exception as e:
+            logger.error(f"exception: {e}")
+
 
 def insert_db(db, hsh={}):
     """
