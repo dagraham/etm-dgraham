@@ -1,42 +1,47 @@
-Recent tagged changes as of 2020-07-10T12:20:57.732952-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.6.2) Dan Graham
+Recent tagged changes as of 2020-07-13T11:26:04.742856-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.6.3) Dan Graham
+    e8255106 2020-07-13 11:26:04 -0400
+    Tagged version 4.6.3. Updated anniversary substitutions to support
+    monthly, weekly and daily frequences as well as yearly.
+
+- 3 days ago (tag: 4.6.2) Dan Graham
     56b3eb76 2020-07-10 12:20:57 -0400
     Tagged version 4.6.2. Implemented multiple timers with a new timer
     view.
 
-- 7 days ago (tag: 4.6.1) Dan Graham
+- 10 days ago (tag: 4.6.1) Dan Graham
     ff3800d3 2020-07-03 07:25:34 -0400
     Tagged version 4.6.1.
 
-- 10 days ago (tag: 4.6.0) Dan Graham
+- 13 days ago (tag: 4.6.0) Dan Graham
     97e5684c 2020-06-30 09:42:28 -0400
     Tagged version 4.6.0. Implemented konnections. Added flags column
     to normal views. Changed record item type to journal to mirror
     vcalendar use and changed view name from record to journal.
     Refactored all views using NDict.
 
-- 3 weeks ago (tag: 4.5.12) Dan Graham
+- 4 weeks ago (tag: 4.5.12) Dan Graham
     1054a7cc 2020-06-18 17:42:36 -0400
     Tagged version 4.5.12. Fully implemented etm+ into the etm
     installation.
 
-- 3 weeks ago (tag: 4.5.11) Dan Graham
+- 4 weeks ago (tag: 4.5.11) Dan Graham
     333b353b 2020-06-18 09:24:19 -0400
     Tagged version 4.5.11. Test addition of etm+ to console_scripts
     entry points.
 
-- 3 weeks ago (tag: 4.5.10rc0) Dan Graham
+- 4 weeks ago (tag: 4.5.10rc0) Dan Graham
     6d762d63 2020-06-18 09:19:31 -0400
     Tagged version 4.5.10rc0. Test addition of etm+ to console_scripts
     entry points.
 
-- 3 weeks ago (tag: 4.5.10) Dan Graham
+- 4 weeks ago (tag: 4.5.10) Dan Graham
     e9b4a08d 2020-06-17 09:35:46 -0400
     Tagged version 4.5.10. In queries, take all but the last argument
     to includes to be fields in which to find matches for the last
     argument.
 
-- 3 weeks ago (tag: 4.5.9) Dan Graham
+- 4 weeks ago (tag: 4.5.9) Dan Graham
     06dfb1ba 2020-06-16 08:21:04 -0400
     Tagged version 4.5.9. Allow combinations of datetime and/or period
     strings in fields calling for a datetime.
@@ -58,7 +63,7 @@ Recent tagged changes as of 2020-07-10T12:20:57.732952-04:00:
     summary of reminders with an @g entry. Report failures when
     activating @g links.
 
-- 4 weeks ago (tag: 4.5.5) Dan Graham
+- 5 weeks ago (tag: 4.5.5) Dan Graham
     e701c43f 2020-06-10 15:39:12 -0400
     Tagged version 4.5.5. Added option to automatically check for
     updates.
@@ -71,19 +76,19 @@ Recent tagged changes as of 2020-07-10T12:20:57.732952-04:00:
     c9d80b6e 2020-06-07 14:07:41 -0400
     Tagged version 4.5.2. Bug fixes.
 
-- 5 weeks ago (tag: 4.5.1) Dan Graham
+- 6 weeks ago (tag: 4.5.1) Dan Graham
     fc10cfd5 2020-06-04 12:52:57 -0400
     Tagged version 4.5.1. Fixed bug in check_output.
 
-- 5 weeks ago (tag: 4.5.0) Dan Graham
+- 6 weeks ago (tag: 4.5.0) Dan Graham
     7e6d06fb 2020-06-03 10:22:04 -0400
     Tagged version 4.5.0. Merged sourcery.ai refactor.
 
-- 5 weeks ago (tag: post_sourcery) Dan Graham
+- 6 weeks ago (tag: post_sourcery) Dan Graham
     89c9d3c3 2020-06-03 09:15:33 -0400
     Merge branch 'sourcery' into working
 
-- 5 weeks ago (tag: pre_sourcery) Dan Graham
+- 6 weeks ago (tag: pre_sourcery) Dan Graham
     3b2f87ca 2020-06-02 16:38:13 -0400
     Squashed commit of the following:
 
@@ -112,8 +117,3 @@ Recent tagged changes as of 2020-07-10T12:20:57.732952-04:00:
 - 6 weeks ago (tag: 4.4.9) Dan Graham
     d462b39e 2020-05-31 16:47:10 -0400
     Tagged version 4.4.9.
-
-- 6 weeks ago (tag: 4.4.8) Dan Graham
-    c5b204b3 2020-05-31 09:36:28 -0400
-    Tagged version 4.4.8. Fixed sorting bug in repeating task
-    completions.
