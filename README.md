@@ -60,6 +60,8 @@ This is the etm user manual. Further information about etm is available at [gith
     -   [Notes](#notes)
         -   [notices](#notices)
         -   [repetition](#repetition)
+			- [repetition examples](#repetition-examples)
+			- [anniversary substitutions](#anniversary-substitutions)
         -   [archived reminders](#archivedg-reminders)
         -   [configuration](#configuration)
         -   [data storage](#data-storage)
@@ -444,7 +446,7 @@ _etm_ has several ways of viewing entries. These are listed below by the shortcu
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmview_agenda.png" alt="new" title="new entry" width="450px" hspace="20px"/>
 
 
-The display for each reminder shows the itemtype and summary column on the left followed by a *flags* column which displays a combination of letters from 'g' (goto), 'k' (connection) and 'p' (pinned) reflecting the presence of these attributes in the reminder. This column is sometimes followed on the extreme right by another column whose contents depends on the view. E.g. in index and journal views the 'id' of the reminder is displayed while in history view, the last modification timestamp of the reminder is displayed.
+The display for each reminder shows the itemtype and summary column on the left followed by a *flags* column which displays a combination of letters from 'g' (goto), 'k' (connection), 'p' (pinned) and 't' (timer) reflecting the presence of these attributes in the reminder. This column is sometimes followed on the extreme right by another column whose contents depends on the view. E.g. in index and journal views the 'id' of the reminder is displayed while in history view, the last modification timestamp of the reminder is displayed.
 
   * a: Agenda: dated unfinished tasks and other reminders by year-week and week day
   * b: Busy: a graphical illustration of busy and conflicted times by year-week
@@ -1578,7 +1580,7 @@ For use with @r:
 
 ### notices
 
-* A link character, ‡, is appended to the displayed summary of any reminder with an `@g` goto link. Press `^g` with such a reminder selected to have the operating system open the link using the default application. E.g. if the link is a URL, then it would be opened using the default browser.
+* A link character, 'g', is appended to the *flags* column of any reminder with an `@g` goto link. Press `^g` with such a reminder selected to have the operating system open the link using the default application. E.g. if the link is a URL, then it would be opened using the default browser.
 * An in-basket character, ⓘ , is appended to the right end of the status bar when a file named 'inbasket.text' is found in the etm root directory. This file should contain lines containing etm reminder entries - one on each line. It can be imported using the import file command bound to F5.
 * An update available character, ⓤ , is appended to the right end of the status bar when checking for updates is enabled and a later version of etm is available. Details for enabling checking for updates are in [configuration](#configuration).
 * Alerts and beginbys can be added to any reminder with an `@s` start date/time entry. Alerts require a datetime in `@s`; beginbys also allow a date in `@s`.
@@ -1632,38 +1634,73 @@ For use with @r:
     A distinction between using @c and @u is worth noting and can be illustrated with an example. Suppose an item starts at 10am on a Monday and repeats daily using either count, &c 5, or until, &u fri 10a.  Both will create repetitions for 10am on each of the weekdays from Monday through Friday. The distinction arises if you later decide to delete one of the instances, say the one falling on Wednesday, using @-. With *count*, you would then have instances falling on Monday, Tuesday, Thursday, Friday *and Saturday* to satisfy the requirement for a count of five instances. With *until*, you would have only the four instances on Monday, Tuesday, Thursday and Friday to satisfy the requirement that the last instance falls on or before 10am Friday.
 
 
-* @r examples
+#### repetition examples
 
-	* Christmas (an all day event) [r]epating (y)early on Dec 25.
+* Christmas (an all day event) [r]epating (y)early on Dec 25.
 
-			* Christmas @s 2015/12/25 @r y
+        * Christmas @s 2015/12/25 @r y
 
-	* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the last completion date:
+* Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the last completion date:
 
-			- haircut @s 24 @r d &i 14 @o r
+		- haircut @s 24 @r d &i 14 @o r
 
-	* Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the pastdue reminders.
+* Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the pastdue reminders.
 
-			- Take out trash @s mon @r w @o s
+		- Take out trash @s mon @r w @o s
 
-	* A sales meeting (an event) [r]epeating m)onthly on [w]eekdays that are either the first or third Tuesdays in the month.
+* A sales meeting (an event) [r]epeating m)onthly on [w]eekdays that are either the first or third Tuesdays in the month.
 
-			* sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
+		* sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
 
-	* Good Friday each year 2 days before [E]aster Sunday.
+* Good Friday each year 2 days before [E]aster Sunday.
 
-			* Good Friday @s 1/1/2015 @r y @E -2
+		* Good Friday @s 1/1/2015 @r y @E -2
 
-	* Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
+* Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
 
-			* Friday tennis @s 2019-01-01 6a @e 90m
-			  @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
-			  @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
+		* Friday tennis @s 2019-01-01 6a @e 90m
+		  @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
+		  @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
 
-	* Payday on the last week day of each month. The &s -1 part of the entry extracts the last (-1) date which is both a weekday and falls within the last three days of the month):
+* Payday on the last week day of each month. The &s -1 part of the entry extracts the last (-1) date which is both a weekday and falls within the last three days of the month):
 
-			* payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1,
-			  -2, -3 &s -1
+		* payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1,
+		  -2, -3 &s -1
+
+#### anniversary substitutions
+
+Repeating events or tasks can have an anniversary expression, `{XXX}`, in the summary that will be replaced by the appropriat ordinal for the anniversary: 1st, 2nd, 3rd, etc. E.g.,
+
+	* {XXX} of 60 auto payments due @s 2020-06-01 @r m &c 60
+
+would appear in agenda view
+
+*	On July 1 2020
+	   * 1st of 60 auto payments due
+*	On Aug 1 2020
+	   * 2nd of 60 auto payments due
+
+...
+*	On May 1 2025
+	   * 59th of 60 auto payments due
+*	On Jun 1 2025
+	   * 60th of 60 auto payments due
+
+Similarly
+
+	* Will's {XXX} birthday @s 1985-08-23 @r y
+
+would appear in agenda view on Aug 23, 2020 as
+
+* Will's 35th birthday
+
+As a final example, newlyweds might want to celebrate anniversaries initially at monthly intervals
+
+    * Our {XXX} monthly anniversary @s 2020-06-18 @r m
+
+and then eventually change to yearly celebrations by removing the 'monthly' and changing the 'm' to 'y'.
+
+In addition to monthly and yearly frequencies, `d` (daily) and `w` (weekly) are also supported.
 
 ### archived reminders
 

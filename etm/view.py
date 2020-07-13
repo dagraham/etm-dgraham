@@ -2307,7 +2307,7 @@ def maybe_delete_timer(*event):
         now = pendulum.now('local')
         elapsed += now - start
         start = now
-    timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}\n\nAre you sure you want to delete this timer?"
+    timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}\n\nWARNING: The timer's data will be lost.\nAre you sure you want to delete this timer?"
 
     def coroutine():
 
