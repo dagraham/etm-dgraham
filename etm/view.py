@@ -1427,7 +1427,7 @@ def is_agenda_view():
 
 @Condition
 def is_used_view():
-    return dataview.active_view in ['used time', 'used time summary']
+    return dataview.active_view in ['used time', 'used summary']
 
 @Condition
 def is_query_view():
