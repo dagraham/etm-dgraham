@@ -664,7 +664,7 @@ class Item(object):
         self.item_hsh['u'] = used_times
         self.item_hsh['created'] = self.created
         self.item_hsh['modified'] = pendulum.now('local')
-        self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
+        self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
 
         return True
 
@@ -686,7 +686,7 @@ class Item(object):
         if changed:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
+            self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         return changed
 
 
@@ -702,7 +702,7 @@ class Item(object):
             # not repeating
             self.item_hsh['s'] = new_dt
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
+            self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             changed = True
         else:
             # repeating
@@ -747,7 +747,7 @@ class Item(object):
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
 
-                self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
+                self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         else: # 1
             # all instance - delete item
             changed = self.delete_item(doc_id)
@@ -835,7 +835,7 @@ class Item(object):
 
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
+            self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             return True
         return False
 
@@ -863,7 +863,7 @@ class Item(object):
         if save_item:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
+            self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
 
 
     def cursor_changed(self, pos):
@@ -1004,7 +1004,7 @@ class Item(object):
                 if self.doc_id is None:
                     self.doc_id = self.db.insert(self.item_hsh)
                 else:
-                    self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
+                    self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             else:
                 # editing an existing item
                 if 'k' in self.item_hsh:
@@ -1012,7 +1012,7 @@ class Item(object):
                         # remove self referential konnections
                         self.item_hsh['k'].remove(self.doc_id)
                 self.item_hsh['modified'] = now
-                self.db.update(replace(self.item_hsh), doc_ids=[self.doc_id])
+                self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
 
 
     def check_requires(self, key):
@@ -2544,7 +2544,7 @@ class DataView(object):
         now = pendulum.now('local')
         item_hsh = self.db.get(doc_id=doc_id)
         item_hsh['modified'] = pendulum.now('local')
-        self.db.update(replace(item_hsh), doc_ids=[doc_id])
+        self.db.update(db_replace(item_hsh), doc_ids=[doc_id])
         return True
 
 
@@ -5149,7 +5149,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     return current, alerts, id2relevant
 
 
-def replace(new):
+def db_replace(new):
     """
     Used with update to replace the original doc with new.
     """
@@ -5172,15 +5172,15 @@ def update_db(db, id, hsh={}):
         return
     hsh['modified'] = pendulum.now()
     try:
-        db.update(replace(hsh), doc_ids=[id])
+        db.update(db_replace(hsh), doc_ids=[id])
     except Exception as e:
         logger.error(f"Error updating document corresponding to id {id}\nhsh {hsh}\nexception: {repr(e)}")
 
 def write_back(db, docs):
     for doc in docs:
         try:
-            doc_id = docs.doc_id
-            db.update_db(db, doc_id, doc)
+            doc_id = doc.doc_id
+            update_db(db, doc_id, doc)
         except Exception as e:
             logger.error(f"exception: {e}")
 
