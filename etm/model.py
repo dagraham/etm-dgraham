@@ -2932,7 +2932,6 @@ def set_summary(summary='', start=None, relevant=None, freq=''):
     elif freq == 'd':
         replacement = diff.in_days()
     replacement = ordinal(replacement) if replacement >= 0 else '???'
-    logger.debug(f"replacement: {replacement}")
     summary = summary.format(XXX=replacement)
     return summary
 
@@ -4192,8 +4191,9 @@ def item_instances(item, aft_dt, bef_dt=1):
             print('dtstart:', dtstart)
             dtstart = dtstart[0]
 
-    aft_dt = date_to_datetime(aft_dt)
-    bef_dt = date_to_datetime(bef_dt)
+    # all the dateutil instances will be in UTC so these must be as well
+    aft_dt = date_to_datetime(aft_dt).replace(tzinfo='UTC')
+    bef_dt = date_to_datetime(bef_dt).replace(tzinfo='UTC')
 
     if 'r' in item:
         lofh = item['r']
@@ -4205,13 +4205,8 @@ def item_instances(item, aft_dt, bef_dt=1):
             try:
                 rset.rrule(rrule(freq, **kwd))
             except Exception as e:
-                print('Error processing:')
-                print('  ', freq, kwd)
-                print(hsh)
-                print(e)
-                print(item)
+                logger.error(f"exception: {e}")
                 return []
-
         if '-' in item:
             for dt in item['-']:
                 rset.exdate(date_to_datetime(dt))
@@ -5214,7 +5209,6 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
             freq = item['r'][0].get('r', 'y')
         else:
             freq = 'y'
-        logger.debug(f"freq: {freq}; item: {item}")
         relevant = id2relevant[item.doc_id]
         if relevant < today:
             continue
@@ -5224,7 +5218,6 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
         rhc = f"{monthday} {time}".ljust(14, ' ')
 
         itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
-        logger.debug(f"calling new_set_summary with freq: {freq}")
         summary = set_summary(item['summary'], item.get('s', None), relevant, freq)
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
 
@@ -6063,7 +6056,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 freq = item['r'][0].get('r', 'y')
             else:
                 freq = 'y'
-            logger.debug(f"freq: {freq}; item: {item}")
             instance = dt if '+' in item or 'r' in item else None
             if 'j' in item:
                 for job in item['j']:
@@ -6097,10 +6089,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     )
 
             else:
-                # if 'r' in item:
-                #     freq = item['r'][0].get('r', 'y')
-                # else:
-                #     freq = 'y'
                 if item['itemtype'] == '-':
                     rhc = fmt_time(dt).center(rhc_width, ' ')
                 elif 'e' in item:
@@ -6114,7 +6102,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
                 sort_dt = dt.format("YYYYMMDDHHmm")
                 if sort_dt.endswith('0000'):
-                    # all day
                     if item['itemtype'] == '*':
                         sort_dt = sort_dt[:-4] + '$$$$'
                     elif item['itemtype'] in ['-']:
