@@ -1,19 +1,23 @@
-Recent tagged changes as of 2020-07-13T11:26:04.742856-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.6.3) Dan Graham
+Recent tagged changes as of 2020-07-14T09:19:17.208024-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.6.4) Dan Graham
+    9487b203 2020-07-14 09:19:17 -0400
+    Tagged version 4.6.4. Bug fix.
+
+- 22 hours ago (tag: 4.6.3) Dan Graham
     e8255106 2020-07-13 11:26:04 -0400
     Tagged version 4.6.3. Updated anniversary substitutions to support
     monthly, weekly and daily frequences as well as yearly.
 
-- 3 days ago (tag: 4.6.2) Dan Graham
+- 4 days ago (tag: 4.6.2) Dan Graham
     56b3eb76 2020-07-10 12:20:57 -0400
     Tagged version 4.6.2. Implemented multiple timers with a new timer
     view.
 
-- 10 days ago (tag: 4.6.1) Dan Graham
+- 11 days ago (tag: 4.6.1) Dan Graham
     ff3800d3 2020-07-03 07:25:34 -0400
     Tagged version 4.6.1.
 
-- 13 days ago (tag: 4.6.0) Dan Graham
+- 2 weeks ago (tag: 4.6.0) Dan Graham
     97e5684c 2020-06-30 09:42:28 -0400
     Tagged version 4.6.0. Implemented konnections. Added flags column
     to normal views. Changed record item type to journal to mirror
@@ -57,7 +61,7 @@ Recent tagged changes as of 2020-07-13T11:26:04.742856-04:00:
     etm directory with an alert to the existence of this file in the
     status bar.
 
-- 4 weeks ago (tag: 4.5.6) Dan Graham
+- 5 weeks ago (tag: 4.5.6) Dan Graham
     c0e8fc08 2020-06-12 15:12:54 -0400
     Tagged version 4.5.6. Added a link-character to the displayed
     summary of reminders with an @g entry. Report failures when
@@ -113,7 +117,3 @@ Recent tagged changes as of 2020-07-13T11:26:04.742856-04:00:
     <daniel.graham@duke.edu> Date:   Mon Jun 1 11:53:53 2020 -0400
 
         Increased number of backups from 5 to 7.
-
-- 6 weeks ago (tag: 4.4.9) Dan Graham
-    d462b39e 2020-05-31 16:47:10 -0400
-    Tagged version 4.4.9.
