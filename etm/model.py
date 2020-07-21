@@ -4193,7 +4193,7 @@ def item_instances(item, aft_dt, bef_dt=1):
 
     # all the dateutil instances will be in UTC so these must be as well
     aft_dt = date_to_datetime(aft_dt).replace(tzinfo='UTC')
-    bef_dt = date_to_datetime(bef_dt).replace(tzinfo='UTC')
+    bef_dt = bef_dt if isinstance(bef_dt, int) else date_to_datetime(bef_dt).replace(tzinfo='UTC')
 
     if 'r' in item:
         lofh = item['r']

@@ -1669,7 +1669,7 @@ For use with @r:
 
 #### anniversary substitutions
 
-Repeating events or tasks can have an anniversary expression, `{XXX}`, in the summary that will be replaced by the appropriat ordinal for the anniversary: 1st, 2nd, 3rd, etc. E.g.,
+Repeating events or tasks can have an anniversary expression, {XXX}, in the summary that will be replaced by the appropriate ordinal for the anniversary: 1st, 2nd, 3rd, etc. E.g.,
 
 	* {XXX} of 60 auto payments due @s 2020-06-01 @r m &c 60
 
