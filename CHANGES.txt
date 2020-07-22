@@ -1,119 +1,98 @@
-Recent tagged changes as of 2020-07-14T09:19:17.208024-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.6.4) Dan Graham
+Recent tagged changes as of 2020-07-22T15:02:36.980391-04:00:
+- 1 second ago (HEAD -> master, tag: 4.6.5) Dan Graham
+    330ef60e 2020-07-22 15:02:36 -0400
+    Tagged version 4.6.5. Bug fix - allow integer in repetitions
+    bef_dt.
+
+- 8 days ago (tag: 4.6.4) Dan Graham
     9487b203 2020-07-14 09:19:17 -0400
     Tagged version 4.6.4. Bug fix.
 
-- 22 hours ago (tag: 4.6.3) Dan Graham
+- 9 days ago (tag: 4.6.3) Dan Graham
     e8255106 2020-07-13 11:26:04 -0400
     Tagged version 4.6.3. Updated anniversary substitutions to support
     monthly, weekly and daily frequences as well as yearly.
 
-- 4 days ago (tag: 4.6.2) Dan Graham
+- 12 days ago (tag: 4.6.2) Dan Graham
     56b3eb76 2020-07-10 12:20:57 -0400
     Tagged version 4.6.2. Implemented multiple timers with a new timer
     view.
 
-- 11 days ago (tag: 4.6.1) Dan Graham
+- 3 weeks ago (tag: 4.6.1) Dan Graham
     ff3800d3 2020-07-03 07:25:34 -0400
     Tagged version 4.6.1.
 
-- 2 weeks ago (tag: 4.6.0) Dan Graham
+- 3 weeks ago (tag: 4.6.0) Dan Graham
     97e5684c 2020-06-30 09:42:28 -0400
     Tagged version 4.6.0. Implemented konnections. Added flags column
     to normal views. Changed record item type to journal to mirror
     vcalendar use and changed view name from record to journal.
     Refactored all views using NDict.
 
-- 4 weeks ago (tag: 4.5.12) Dan Graham
+- 5 weeks ago (tag: 4.5.12) Dan Graham
     1054a7cc 2020-06-18 17:42:36 -0400
     Tagged version 4.5.12. Fully implemented etm+ into the etm
     installation.
 
-- 4 weeks ago (tag: 4.5.11) Dan Graham
+- 5 weeks ago (tag: 4.5.11) Dan Graham
     333b353b 2020-06-18 09:24:19 -0400
     Tagged version 4.5.11. Test addition of etm+ to console_scripts
     entry points.
 
-- 4 weeks ago (tag: 4.5.10rc0) Dan Graham
+- 5 weeks ago (tag: 4.5.10rc0) Dan Graham
     6d762d63 2020-06-18 09:19:31 -0400
     Tagged version 4.5.10rc0. Test addition of etm+ to console_scripts
     entry points.
 
-- 4 weeks ago (tag: 4.5.10) Dan Graham
+- 5 weeks ago (tag: 4.5.10) Dan Graham
     e9b4a08d 2020-06-17 09:35:46 -0400
     Tagged version 4.5.10. In queries, take all but the last argument
     to includes to be fields in which to find matches for the last
     argument.
 
-- 4 weeks ago (tag: 4.5.9) Dan Graham
+- 5 weeks ago (tag: 4.5.9) Dan Graham
     06dfb1ba 2020-06-16 08:21:04 -0400
     Tagged version 4.5.9. Allow combinations of datetime and/or period
     strings in fields calling for a datetime.
 
-- 4 weeks ago (tag: 4.5.8) Dan Graham
+- 5 weeks ago (tag: 4.5.8) Dan Graham
     415423bb 2020-06-15 10:21:17 -0400
     Tagged version 4.5.8. Add view for reviewing undated and
     unfinished tasks.
 
-- 4 weeks ago (tag: 4.5.7) Dan Graham
+- 5 weeks ago (tag: 4.5.7) Dan Graham
     58f15423 2020-06-14 15:41:02 -0400
     Tagged version 4.5.7. Implemented importing inbasket.text from the
     etm directory with an alert to the existence of this file in the
     status bar.
 
-- 5 weeks ago (tag: 4.5.6) Dan Graham
+- 6 weeks ago (tag: 4.5.6) Dan Graham
     c0e8fc08 2020-06-12 15:12:54 -0400
     Tagged version 4.5.6. Added a link-character to the displayed
     summary of reminders with an @g entry. Report failures when
     activating @g links.
 
-- 5 weeks ago (tag: 4.5.5) Dan Graham
+- 6 weeks ago (tag: 4.5.5) Dan Graham
     e701c43f 2020-06-10 15:39:12 -0400
     Tagged version 4.5.5. Added option to automatically check for
     updates.
 
-- 5 weeks ago (tag: 4.5.3) Dan Graham
+- 6 weeks ago (tag: 4.5.3) Dan Graham
     4a6a48a1 2020-06-08 08:53:57 -0400
     Tagged version 4.5.3. Fail gracefully with unsupported locales.
 
-- 5 weeks ago (tag: 4.5.2) Dan Graham
+- 6 weeks ago (tag: 4.5.2) Dan Graham
     c9d80b6e 2020-06-07 14:07:41 -0400
     Tagged version 4.5.2. Bug fixes.
 
-- 6 weeks ago (tag: 4.5.1) Dan Graham
+- 7 weeks ago (tag: 4.5.1) Dan Graham
     fc10cfd5 2020-06-04 12:52:57 -0400
     Tagged version 4.5.1. Fixed bug in check_output.
 
-- 6 weeks ago (tag: 4.5.0) Dan Graham
+- 7 weeks ago (tag: 4.5.0) Dan Graham
     7e6d06fb 2020-06-03 10:22:04 -0400
     Tagged version 4.5.0. Merged sourcery.ai refactor.
 
-- 6 weeks ago (tag: post_sourcery) Dan Graham
+- 7 weeks ago (tag: post_sourcery) Dan Graham
     89c9d3c3 2020-06-03 09:15:33 -0400
     Merge branch 'sourcery' into working
-
-- 6 weeks ago (tag: pre_sourcery) Dan Graham
-    3b2f87ca 2020-06-02 16:38:13 -0400
-    Squashed commit of the following:
-
-    commit 7cf4ca20c7f0ab023130a8d6da70a15d3cd7fd1a Author: Dan Graham
-    <daniel.graham@duke.edu> Date:   Tue Jun 2 13:15:00 2020 -0400
-
-        Left justify week headings in current.txt. README tweaks.
-
-    commit 29b59a3566bede0c1cb7b8a13edb6790edd78d3f Author: Dan Graham
-    <daniel.graham@duke.edu> Date:   Tue Jun 2 12:43:08 2020 -0400
-
-        Changed keep_current in options from a boolian to an integer
-    number of weeks with 0 equivalent to the original false.
-
-    commit f12763d4ad4d3a952b1e6179b8fc1d817aea53da Author: Dan Graham
-    <daniel.graham@duke.edu> Date:   Tue Jun 2 09:07:41 2020 -0400
-
-        Set MIN_PYTHON = (3,7,3). Increased logging backup count from
-    5 to 7.
-
-    commit edf182b02abcbdf5f814e8e5156506d6ef3116bb Author: Dan Graham
-    <daniel.graham@duke.edu> Date:   Mon Jun 1 11:53:53 2020 -0400
-
-        Increased number of backups from 5 to 7.
