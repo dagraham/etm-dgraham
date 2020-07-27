@@ -410,10 +410,7 @@ colors:
             changed.append(f"retaining default for 'vi_mode': {self.settings['vi_mode']}")
 
         if isinstance(new['keep_current'], bool):
-            if new['keep_current']:
-                new['keep_current'] = 3
-            else:
-                new['keep_current'] = 0
+            new['keep_current'] = 3 if new['keep_current'] else 0
             changed.append(f"Converting 'keep_current' from boolian to integer {new['keep_current']}")
 
         for key in self.settings:

@@ -802,8 +802,8 @@ class ETMQuery(object):
             a = [a]
         res = [where(field).search(b, flags=re.IGNORECASE) for field in a]
         test = res.pop(0)
-        for i in range(len(res)):
-            test = test | res[i]
+        for re in res:
+            test = test | re
         return test
 
     def equals(self, a, b):
@@ -1605,7 +1605,7 @@ class ETMLexer(Lexer):
             if typ in type2style:
                 sty = type2style[typ]
                 if sty in etmstyle:
-                    return [(etmstyle[type2style[typ]], tmp)]
+                    return [(etmstyle[sty], tmp)]
                 else:
                     logger.debug(f"sty: {sty}; etmstyle.keys: {etmstyle.keys()}")
             if tmp.rstrip().endswith("(Today)"):
