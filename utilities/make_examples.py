@@ -71,7 +71,7 @@ for client in clients:
     print(f"% client {client} @i clients @d {lorem.sentence()[:-1]} {tmp}")
 
 konnections = []
-for n in range(num_konnections):
+for _ in range(num_konnections):
     client = random.choice(clients)
     num_contacts = random.randint(1, len(client_contacts[client]))
     # print(client_contacts, num_contacts)
@@ -83,15 +83,12 @@ for n in range(num_konnections):
 
 
 
-for n in range(num_items):
+for _ in range(num_items):
     t = random.choice(types)
     summary = phrase()
     start = random.choice(datetimes)
     date = random.choice(dates)
-    if date:
-        s = start.strftime("%Y-%m-%d")
-    else:
-        s = start.strftime("%Y-%m-%d %I:%M%p")
+    s = start.strftime("%Y-%m-%d") if date else start.strftime("%Y-%m-%d %I:%M%p")
     d = lorem.paragraph()
     i1 = random.choice(clients)
     i2 = random.choice(projects[i1])

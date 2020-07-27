@@ -275,7 +275,7 @@ def apply_dates_filter(items, grpby, filters):
             if 'f' in item:
                 rdt = item['f'] if isinstance(item['f'], pendulum.Date) else item['f'].date()
                 # e_ok = 'e' not in filters or item['f'] <= filters['e']
-                e_ok = not ('e' in filters and later(item['f'], filters['e']))
+                e_ok = 'e' not in filters or not later(item['f'], filters['e'])
                 # b_ok = 'b' not in filters or item['f'] >= filters['b']
                 b_ok = not ('b' in filters and earlier(item['f'], filters['b']))
             elif 's' in item:
@@ -283,7 +283,7 @@ def apply_dates_filter(items, grpby, filters):
                 # e_ok = 'e' not in filters or rdt <= filters['e']
                 e_ok = not ('e' in filters and later(item['s'], filters['e']))
                 # b_ok = 'b' not in filters or rdt >= filters['b']
-                b_ok = not ('b' in filters and earlier(item['s'], filters['b']))
+                b_ok = 'b' not in filters or not earlier(item['s'], filters['b'])
             else:
                 e_ok = b_ok = True
             if e_ok and b_ok:

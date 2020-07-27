@@ -585,7 +585,7 @@ class Item(object):
         self.update_item_hsh()
         item = self.item_hsh
         showing =  "Repetitions"
-        if not ('s' in item and ('r' in item or '+' in item)):
+        if 's' not in item or 'r' not in item and '+' not in item:
             return showing, "not a repeating item"
         relevant = date_to_datetime(item['s'])
 
@@ -1007,10 +1007,9 @@ class Item(object):
                     self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             else:
                 # editing an existing item
-                if 'k' in self.item_hsh:
-                    if self.doc_id in self.item_hsh['k']:
-                        # remove self referential konnections
-                        self.item_hsh['k'].remove(self.doc_id)
+                if 'k' in self.item_hsh and self.doc_id in self.item_hsh['k']:
+                    # remove self referential konnections
+                    self.item_hsh['k'].remove(self.doc_id)
                 self.item_hsh['modified'] = now
                 self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
 
@@ -1943,10 +1942,7 @@ class DataView(object):
                 except:
                     logger.error(f"could not set pendulum locale to {locale_str}")
 
-                if locale_str == "en":
-                    tmp = "en_US"
-                else:
-                    tmp = f"{locale_str}_{locale_str.upper()}"
+                tmp = "en_US" if locale_str == "en" else f"{locale_str}_{locale_str.upper()}"
                 try:
                     locale.setlocale(locale.LC_ALL, f"{tmp}.UTF-8")
                 except:
@@ -2399,7 +2395,7 @@ class DataView(object):
         if self.currfile is not None:
             weeks = []
             this_week = getWeekNum(self.now)
-            for i in range(self.settings['keep_current']):
+            for _ in range(self.settings['keep_current']):
                 weeks.append(this_week)
                 this_week = nextWeek(this_week)
             current = []
@@ -2486,9 +2482,7 @@ class DataView(object):
 
     def get_pinned(self):
 
-        items = [self.db.get(doc_id=x) for x in self.pinned_list if x]
-
-        return items
+        return [self.db.get(doc_id=x) for x in self.pinned_list if x]
 
 
     def get_goto(self, row=None):
@@ -2520,7 +2514,7 @@ class DataView(object):
             return ''
         showing = "Repetitions"
         item = DBITEM.get(doc_id=item_id)
-        if not ('s' in item and ('r' in item or '+' in item)):
+        if 's' not in item or 'r' not in item and '+' not in item:
             return showing, "not a repeating item"
         relevant = self.id2relevant.get(item_id)
         showing =  "Repetitions"
@@ -2923,17 +2917,16 @@ def set_summary(summary='', start=None, relevant=None, freq=''):
     start_date = start.date() if isinstance(start, pendulum.DateTime) else start
     diff = relevant_date - start_date
     replacement = 0
-    if freq == 'y':
-        replacement = diff.in_years()
+    if freq == 'd':
+        replacement = diff.in_days()
     elif freq == 'm':
         replacement = diff.in_months()
     elif freq == 'w':
         replacement = diff.in_weeks()
-    elif freq == 'd':
-        replacement = diff.in_days()
+    elif freq == 'y':
+        replacement = diff.in_years()
     replacement = ordinal(replacement) if replacement >= 0 else '???'
-    summary = summary.format(XXX=replacement)
-    return summary
+    return summary.format(XXX=replacement)
 
 def ordinal(num):
     """
@@ -4178,7 +4171,7 @@ def item_instances(item, aft_dt, bef_dt=1):
     ):
         return []
     # This should not be necessary since the data store decodes dates as datetimes
-    if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
+    if not isinstance(dtstart, pendulum.DateTime):
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
         startdst = None
         using_dates = True
@@ -5062,9 +5055,11 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             else:
                 # 's' but not 'r' or '+'
                 relevant = dtstart
-                if possible_beginby:
-                    if today + DAY <= dtstart <= tomorrow + possible_beginby:
-                        beginbys.append([(relevant.date() - today.date()).days, summary,  item.doc_id, None, None])
+                if (
+                    possible_beginby
+                    and today + DAY <= dtstart <= tomorrow + possible_beginby
+                ):
+                    beginbys.append([(relevant.date() - today.date()).days, summary,  item.doc_id, None, None])
                 if possible_alerts:
                     for possible_alert in possible_alerts:
                         if today <= dtstart - possible_alert[0] <= tomorrow:
