@@ -800,10 +800,10 @@ class ETMQuery(object):
         # the value of one of the fields in 'a' includes the case-insensitive regex 'b'
         if not isinstance(a, list):
             a = [a]
-        res = [where(field).search(b, flags=re.IGNORECASE) for field in a]
-        test = res.pop(0)
-        for re in res:
-            test = test | re
+        results = [where(field).search(b, flags=re.IGNORECASE) for field in a]
+        test = results.pop(0)
+        for res in results:
+            test = test | res
         return test
 
     def equals(self, a, b):
