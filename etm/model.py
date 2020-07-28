@@ -585,7 +585,7 @@ class Item(object):
         self.update_item_hsh()
         item = self.item_hsh
         showing =  "Repetitions"
-        if 's' not in item or 'r' not in item and '+' not in item:
+        if not ('s' in item and ('r' in item or '+' in item)):
             return showing, "not a repeating item"
         relevant = date_to_datetime(item['s'])
 
@@ -2514,7 +2514,7 @@ class DataView(object):
             return ''
         showing = "Repetitions"
         item = DBITEM.get(doc_id=item_id)
-        if 's' not in item or 'r' not in item and '+' not in item:
+        if not ('s' in item and ('r' in item or '+' in item)):
             return showing, "not a repeating item"
         relevant = self.id2relevant.get(item_id)
         showing =  "Repetitions"
@@ -2917,14 +2917,14 @@ def set_summary(summary='', start=None, relevant=None, freq=''):
     start_date = start.date() if isinstance(start, pendulum.DateTime) else start
     diff = relevant_date - start_date
     replacement = 0
-    if freq == 'd':
-        replacement = diff.in_days()
+    if freq == 'y':
+        replacement = diff.in_years()
     elif freq == 'm':
         replacement = diff.in_months()
     elif freq == 'w':
         replacement = diff.in_weeks()
-    elif freq == 'y':
-        replacement = diff.in_years()
+    elif freq == 'd':
+        replacement = diff.in_days()
     replacement = ordinal(replacement) if replacement >= 0 else '???'
     return summary.format(XXX=replacement)
 
