@@ -1274,7 +1274,7 @@ def do_show_help(*event):
 
 def save_before_quit(*event):
     def coroutine():
-        dialog = ConfirmDialog("unsaved changes", "discard changes and close editor?")
+        dialog = ConfirmDialog("unsaved changes", "discard changes and close the editor?")
 
         discard = yield from show_dialog_as_float(dialog)
         if discard:
@@ -1287,6 +1287,18 @@ def save_before_quit(*event):
             return
 
     asyncio.ensure_future(coroutine())
+
+def discard_changes(event, prompt=''):
+    def coroutine(prompt):
+        dialog = ConfirmDialog("unsaved information", prompt)
+
+        discard = yield from show_dialog_as_float(dialog)
+        if discard:
+            application.exit()
+        else:
+            return
+
+    asyncio.ensure_future(coroutine(prompt))
 
 def add_usedtime(*event):
 
@@ -2563,7 +2575,16 @@ def toggle_archived_status(*event):
 
 @bindings.add('c-q')
 def exit(*event):
-    application.exit()
+    tmp = []
+    if is_editing() and entry_buffer_changed():
+        tmp.append('unsaved edits')
+    if dataview.unsaved_timers():
+        tmp.append('unrecorded timers')
+    if tmp:
+        prompt = f"There are {' and '.join(tmp)}.\nClose etm anyway?"
+        discard_changes(event, prompt)
+    else:
+        application.exit()
 
 
 @bindings.add('c-c', filter=is_viewing)

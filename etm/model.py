@@ -1871,11 +1871,6 @@ class DataView(object):
         self.konnections_from = {}
         self.konnections_to = {}
         self.konnected = []
-        # self.timer_status = 0  # 0: stopped, 1: running, 2: paused
-        # self.timer_time = ZERO
-        # self.timer_start = None
-        # self.timer_id = None
-        # self.timer_job = None
         self.timers = {}
         self.active_timer = None
         self.timers_unrecorded = ZERO
@@ -2142,6 +2137,7 @@ class DataView(object):
             state = 'r'
         self.timers[self.active_timer] = [state, now, period]
 
+
     # bound to T
     def next_timer_state(self, row=None):
         """
@@ -2226,6 +2222,10 @@ class DataView(object):
         return f"{active}{unrecorded}  "
 
 
+    def unsaved_timers(self):
+        return len(self.timers)
+
+
 
     def timer_clear(self, doc_id=None):
         if not doc_id:
@@ -2235,8 +2235,6 @@ class DataView(object):
         if doc_id in self.timers:
             del self.timers[doc_id]
         self.show_active_view()
-
-
 
 
     def set_now(self):
