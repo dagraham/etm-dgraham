@@ -1781,6 +1781,7 @@ async def event_handler():
                 asyncio.ensure_future(new_day(loop))
             if dataview.active_view == 'timers':
                 set_text(dataview.show_active_view())
+            dataview.save_timers()
             get_app().invalidate()
             await asyncio.sleep(wait)
     except asyncio.CancelledError:
