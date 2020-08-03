@@ -21,7 +21,8 @@ from dateutil import __version__ as dateutil_version
 from dateutil.parser import parse as dateutil_parse
 from dateutil.tz import gettz
 
-
+# for saving timers
+import pickle
 
 from warnings import filterwarnings
 def parse(s, **kwd):
@@ -541,7 +542,6 @@ class Item(object):
 
 
     def set_dbfile(self, dbfile=None):
-        # FIXME: this should be based on the etmdir or, better, the json file
         self.settings = settings if settings else {}
         if dbfile is None:
             self.db = ETMDB
@@ -1871,9 +1871,17 @@ class DataView(object):
         self.konnections_from = {}
         self.konnections_to = {}
         self.konnected = []
-        self.timers = {}
-        self.active_timer = None
-        self.timers_unrecorded = ZERO
+        if os.path.exists(timers_file):
+            with open(timers_file, 'rb') as fn:
+                self.timers = pickle.load(fn)
+            self.active_timer = None
+            for x in self.timers:
+                if self.timers[x][0] == 'p':
+                    self.active_timer = x
+                    break
+        else:
+            self.timers = {}
+            self.active_timer = None
         self.archive_after = 0
         self.set_etmdir(etmdir)
         self.views = {
@@ -2124,6 +2132,20 @@ class DataView(object):
                 os.remove(f)
         return True
 
+    def save_timers(self):
+        # if not self.timers:
+        #     return ''
+        timers = deepcopy(self.timers)
+        if self.active_timer:
+            state, start, period = timers[self.active_timer]
+            if state == 'r':
+                now = pendulum.now('local')
+                period += now - start
+                state = 'p'
+                timers[self.active_timer] = [state, now, period]
+        with open(timers_file, 'wb') as fn:
+            pickle.dump(timers, fn)
+
     # bound to tt
     def toggle_active_timer(self, row=None):
         if not self.active_timer:
@@ -2136,6 +2158,7 @@ class DataView(object):
         else:
             state = 'r'
         self.timers[self.active_timer] = [state, now, period]
+        self.save_timers()
 
 
     # bound to T
@@ -2192,7 +2215,7 @@ class DataView(object):
                 state = 'p' if state == 'r' else 'r'
             self.active_timer = doc_id
             self.timers[doc_id] = state, now, period
-
+        self.save_timers()
         return True, doc_id, active
 
 
@@ -2226,7 +2249,6 @@ class DataView(object):
         return len(self.timers)
 
 
-
     def timer_clear(self, doc_id=None):
         if not doc_id:
             return
@@ -2234,6 +2256,7 @@ class DataView(object):
             self.active_timer = None
         if doc_id in self.timers:
             del self.timers[doc_id]
+        self.save_timers()
         self.show_active_view()
 
 
@@ -2738,10 +2761,8 @@ class DataView(object):
         # All the necessary ingredients are in place
         import smtplib
         from email.mime.multipart import MIMEMultipart
-        # from email.mime.base import MIMEBase
         from email.mime.text import MIMEText
         from email.utils import COMMASPACE, formatdate
-        # from email import encoders as Encoders
         assert type(email_addresses) == list
         msg = MIMEMultipart()
         msg['From'] = smtp_from

@@ -62,9 +62,9 @@ def main():
     logger.debug(f"using dbfile: {dbfile}")
     cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
     ETMDB = data.initialize_tinydb(dbfile)
-    logger.debug(f"created ETMDB: {ETMDB}")
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
+    logger.debug(f"ETMDB: {ETMDB}")
 
     from etm.model import about
     from etm.model import import_file
@@ -87,6 +87,8 @@ def main():
     model.DBARCH = DBARCH
     model.settings = settings
     model.logger = logger
+    # model.edit_file = os.path.join(etmdir, 'edit.text')
+    model.timers_file = os.path.join(etmdir, 'timers.pkl')
     userhome = os.path.expanduser('~')
     etmhome = os.path.join('~', os.path.relpath(etmdir, userhome)) if etmdir.startswith(userhome) else etmdir
     model.etmhome = etmhome
