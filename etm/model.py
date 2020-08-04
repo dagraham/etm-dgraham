@@ -5235,9 +5235,6 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
         summary = set_summary(item['summary'], item.get('s', None), relevant, freq)
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
 
-        summary = (summary[:width-3].rstrip() + KONNECT_CHAR) if id in konnect_list else summary
-        summary = (summary[:width-3].rstrip() + LINK_CHAR) if id in link_list else summary
-        summary = summary[:summary_width - 1] + PIN_CHAR if item.doc_id in pinned_list else summary[:summary_width]
         rows.append(
                 {
                     'id': id,
