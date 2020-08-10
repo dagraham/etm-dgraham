@@ -585,7 +585,7 @@ class Item(object):
         self.update_item_hsh()
         item = self.item_hsh
         showing =  "Repetitions"
-        if not ('s' in item and ('r' in item or '+' in item)):
+        if 's' not in item or 'r' not in item and '+' not in item:
             return showing, "not a repeating item"
         relevant = date_to_datetime(item['s'])
 
@@ -1871,17 +1871,16 @@ class DataView(object):
         self.konnections_from = {}
         self.konnections_to = {}
         self.konnected = []
+        self.active_timer = None
         if os.path.exists(timers_file):
             with open(timers_file, 'rb') as fn:
                 self.timers = pickle.load(fn)
-            self.active_timer = None
             for x in self.timers:
                 if self.timers[x][0] == 'p':
                     self.active_timer = x
                     break
         else:
             self.timers = {}
-            self.active_timer = None
         self.archive_after = 0
         self.set_etmdir(etmdir)
         self.views = {
@@ -2535,7 +2534,7 @@ class DataView(object):
             return ''
         showing = "Repetitions"
         item = DBITEM.get(doc_id=item_id)
-        if not ('s' in item and ('r' in item or '+' in item)):
+        if 's' not in item or 'r' not in item and '+' not in item:
             return showing, "not a repeating item"
         relevant = self.id2relevant.get(item_id)
         showing =  "Repetitions"
@@ -4191,7 +4190,7 @@ def item_instances(item, aft_dt, bef_dt=1):
     ):
         return []
     # This should not be necessary since the data store decodes dates as datetimes
-    if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
+    if not isinstance(dtstart, pendulum.DateTime):
         dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
         startdst = None
         using_dates = True
@@ -5057,11 +5056,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 tmp.sort()
                 aft = [x for x in tmp if x >= today]
                 bef = [x for x in tmp if x < today]
-                if aft:
-                    relevant = aft[0]
-                else:
-                    relevant = bef[-1]
-
+                relevant = aft[0] if aft else bef[-1]
                 if possible_beginby:
                     for instance in aft:
                         if today + DAY <= instance <= tomorrow + possible_beginby:
