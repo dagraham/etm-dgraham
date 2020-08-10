@@ -2833,6 +2833,7 @@ class DataView(object):
         try:
 
             c = calendar.LocaleTextCalendar(0, self.cal_locale)
+            c.formatmonth(1970, 0)
         except:
             logger.warning(f"error using locale {self.cal_locale}")
             c = calendar.LocaleTextCalendar(0)
