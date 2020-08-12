@@ -1232,7 +1232,6 @@ async def auto_check_loop(loop):
         if line.lstrip().startswith('LATEST'):
             new = re.split(":\s+", line)[1]
             break
-    status = UPDATE_CHAR if new else FINISHED_CHAR
     status = UPDATE_CHAR if new else ''
     update_status.set_status(status)
 

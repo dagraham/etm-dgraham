@@ -118,17 +118,13 @@ type2style = {
         '✓': 'class:finished',
         }
 
-# LINK_CHAR = ' 🔗'
 
 FINISHED_CHAR = '✓'
-UPDATE_CHAR = "ⓤ "
-INBASKET_CHAR = 'ⓘ '
-
-KONNECT_CHAR = 'k' # ' †'
-LINK_CHAR = 'g' # ' ‡'
-# PIN_CHAR = '📌'   # U+1F4CC
-PIN_CHAR = 'p' # '📍'
-
+UPDATE_CHAR = "𝕦"
+INBASKET_CHAR = "𝕚"
+KONNECT_CHAR = 'k'
+LINK_CHAR = 'g'
+PIN_CHAR = 'p'
 ELLIPSiS_CHAR = '…'
 
 etmdir = None
