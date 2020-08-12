@@ -1941,7 +1941,9 @@ class DataView(object):
                 except:
                     logger.error(f"could not set pendulum locale to {locale_str}")
 
-                tmp = "en_US" if locale_str == "en" else f"{locale_str}_{locale_str.upper()}"
+                # locale_str should be either 2 or 5 characters, e.g.
+                # "en" or "en_US"
+                tmp = locale_str
                 try:
                     locale.setlocale(locale.LC_ALL, f"{tmp}.UTF-8")
                 except:

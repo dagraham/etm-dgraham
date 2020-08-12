@@ -1769,8 +1769,8 @@ Here are the options with their default values from that file. The lines beginni
 	# as, for example, when there is no internet connection.
 	updates_interval: 0
 
-	# locale: A two character locale abbreviation. E.g., "fr" for
-	# French.
+	# locale: A locale abbreviation. E.g., "en" for English or
+	# "en_US" for English (United States).
 	locale: en
 
 	# vi_mode: true or false. Use vi keybindings for editing if
