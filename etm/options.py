@@ -89,10 +89,9 @@ dayfirst: false
 # updates_interval: a non-negative integer. If positive,
 # automatically check for updates every 'updates_interval'
 # minutes. If zero, do not automatically check for updates.
-# When enabled, a circled u symbol, ⓤ, will be displayed at
-# the right end of status bar when an update is available,
-# a check mark symbol, ✓, when the latest version is installed
-# and a question mark, ?, when the check cannot be completed
+# When enabled, a blackboard u symbol, 𝕦, will be displayed at
+# the right end of status bar when an update is available
+# or a question mark when the check cannot be completed
 # as, for example, when there is no internet connection.
 updates_interval: 0
 
@@ -329,7 +328,7 @@ colors:
             self.changes = [f'missing {self.cfgfile} - using defaults']
 
         if self.changes:
-            with open(self.cfgfile, 'w') as fn:
+            with open(self.cfgfile, 'w', encoding='utf-8') as fn:
                 yaml.dump(self.settings, fn)
             logger.info(f"updated {self.cfgfile}: {', '.join(self.changes)}")
         else:

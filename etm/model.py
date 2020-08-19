@@ -118,7 +118,6 @@ type2style = {
         '✓': 'class:finished',
         }
 
-
 FINISHED_CHAR = '✓'
 UPDATE_CHAR = "𝕦"
 INBASKET_CHAR = "𝕚"
@@ -2141,7 +2140,7 @@ class DataView(object):
                 period += now - start
                 state = 'p'
                 timers[self.active_timer] = [state, now, period]
-        with open(timers_file, 'wb') as fn:
+        with open(timers_file, 'wb', encoding='utf-8') as fn:
             pickle.dump(timers, fn)
 
     # bound to tt
@@ -2423,13 +2422,13 @@ class DataView(object):
                     self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list= self.link_list))
                 agenda, done, busy, num2id, row2id = self.cache[week]
                 current.append(agenda)
-            with open(self.currfile, 'w') as fo:
+            with open(self.currfile, 'w', encoding='utf-8') as fo:
                 fo.write("\n\n".join([x.lstrip() for x in current]))
             logger.info(f"saved current schedule to {self.currfile}")
 
         if self.nextfile is not None:
             next_view, row2id = show_next(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
-            with open(self.nextfile, 'w') as fo:
+            with open(self.nextfile, 'w', encoding='utf-8') as fo:
                 fo.write(next_view)
             logger.info(f"saved do next to {self.nextfile}")
 
