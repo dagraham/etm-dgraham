@@ -3,6 +3,7 @@ def main():
     import sys
     import logging
     import logging.config
+    logging.getLogger('asyncio').setLevel(logging.WARNING)
     logger = logging.getLogger()
     MIN_PYTHON = (3, 7, 3)
     if sys.version_info < MIN_PYTHON:
@@ -42,13 +43,8 @@ def main():
     secret = settings.get('secret')
     queries = settings.get('queries')
     import pendulum
-    locale_str = settings.get('locale', None)
-    if locale_str:
-        try:
-            pendulum.set_locale(locale_str)
-        except:
-            logger.error(f"could not set_locale for pendulum to {locale_str} ")
     today = pendulum.today()
+    # We want 2 char 'en' weekday abbreviations regardless of the actual locale
     day = today.end_of('week')  # Sunday
     WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
 

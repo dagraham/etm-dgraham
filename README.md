@@ -1763,11 +1763,12 @@ Here are the options with their default values from that file. The lines beginni
 	# updates_interval: a non-negative integer. If positive,
 	# automatically check for updates every 'updates_interval'
 	# minutes. If zero, do not automatically check for updates.
-	# When enabled, a circled u symbol, ⓤ, will be displayed at
+	# When enabled, a blackboard u symbol, 𝕦, will be displayed at
 	# the right end of status bar when an update is available
-	# or a question mark, ?, when the check cannot be completed
+	# or a question mark when the check cannot be completed
 	# as, for example, when there is no internet connection.
 	updates_interval: 0
+
 
 	# locale: A locale abbreviation. E.g., "en" for English or
 	# "en_US" for English (United States).

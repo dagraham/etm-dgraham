@@ -118,7 +118,6 @@ type2style = {
         '✓': 'class:finished',
         }
 
-
 FINISHED_CHAR = '✓'
 UPDATE_CHAR = "𝕦"
 INBASKET_CHAR = "𝕚"
@@ -1592,7 +1591,7 @@ def round_minutes(obj):
     otherwise, minutes and seconds
     """
     seconds = 60 if obj.remaining_seconds >= 30 else obj.remaining_seconds
-    return pendulum.duration(weeks=obj.weeks, days=obj.days, hours=obj.hours, minutes=obj.minutes, seconds=seconds)
+    return pendulum.duration(weeks=obj.weeks, days=obj.remaining_days, hours=obj.hours, minutes=obj.minutes, seconds=seconds)
 
 
 
@@ -1630,8 +1629,7 @@ def format_duration(obj, short=False):
             until.append("0m")
         return "".join(until)
     except Exception as e:
-        print('format_duration', e)
-        print(obj)
+        logger.error(f"{obj}: {e}")
         return None
 
 
@@ -1639,8 +1637,7 @@ def format_duration_list(obj_lst):
     try:
         return ", ".join([format_duration(x) for x in obj_lst])
     except Exception as e:
-        print('format_duration_list', e)
-        print(obj_lst)
+        logger.error(f"{obj_lst}: {e}")
 
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhmM]))+?')
@@ -1935,24 +1932,24 @@ class DataView(object):
 
         if 'locale' in self.settings:
             locale_str = settings['locale']
+            # locale_str should have the format "en_US"
             if locale_str:
                 try:
-                    pendulum.set_locale(locale_str)
+                    locale.setlocale(locale.LC_ALL, f"{locale_str}.UTF-8")
+                    self.cal_locale = [locale_str, "UTF-8"]
                 except:
-                    logger.error(f"could not set pendulum locale to {locale_str}")
+                    logger.error(f"could not set python locale to {locale_str}.UTF-8")
+                else:
+                    logger.info(f"Using python locale: '{locale_str}.UTF-8'")
 
-                # locale_str should be either 2 or 5 characters, e.g.
-                # "en" or "en_US"
-                tmp = locale_str
+                tmp = locale_str[:2]
                 try:
-                    locale.setlocale(locale.LC_ALL, f"{tmp}.UTF-8")
+                    # pendulum needs 2 char abbreviations
+                    pendulum.set_locale(tmp)
                 except:
-                    logger.error(f"could not set locale to {tmp}.UTF-8")
-
-                try:
-                    self.cal_locale = [tmp, "UTF-8"]
-                except:
-                    logger.error(f"could not set cal_locale to {tmp} UTF-8")
+                    logger.error(f"could not set locale for pendulum to {tmp}")
+                else:
+                    logger.info(f"Using pendulum locale: '{tmp}'")
 
         if 'archive_after' in self.settings:
             try:
@@ -2131,8 +2128,8 @@ class DataView(object):
         return True
 
     def save_timers(self):
-        # if not self.timers:
-        #     return ''
+        if not self.timers:
+            return
         timers = deepcopy(self.timers)
         if self.active_timer:
             state, start, period = timers[self.active_timer]
@@ -2423,13 +2420,13 @@ class DataView(object):
                     self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list= self.link_list))
                 agenda, done, busy, num2id, row2id = self.cache[week]
                 current.append(agenda)
-            with open(self.currfile, 'w') as fo:
+            with open(self.currfile, 'w', encoding='utf-8') as fo:
                 fo.write("\n\n".join([x.lstrip() for x in current]))
             logger.info(f"saved current schedule to {self.currfile}")
 
         if self.nextfile is not None:
             next_view, row2id = show_next(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
-            with open(self.nextfile, 'w') as fo:
+            with open(self.nextfile, 'w', encoding='utf-8') as fo:
                 fo.write(next_view)
             logger.info(f"saved do next to {self.nextfile}")
 
