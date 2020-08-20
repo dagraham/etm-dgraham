@@ -1,101 +1,105 @@
-Recent tagged changes as of 2020-08-03T13:59:29.450394-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.6.7) Dan Graham
+Recent tagged changes as of 2020-08-20T12:08:15.578445-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.6.8) Dan Graham
+    a62920ef 2020-08-20 12:08:15 -0400
+    Tagged version 4.6.8. Changed default locale from en to en_US.
+    Require locale setting in this format from
+    https://www.tutorialspoint.com/abbreviations/abbreviations_locale.htm.
+    Added utf-8 encoding to open write statements to avoid encoding
+    issues in Windows. Various bug fixes.
+
+- 2 weeks ago (tag: 4.6.7) Dan Graham
     f218067b 2020-08-03 13:59:29 -0400
     Tagged version 4.6.7. Automatically save timer status at least
     once every minute and, on restart, restore the last saved timer
     state.
 
-- 28 hours ago (tag: 4.6.6) Dan Graham
+- 3 weeks ago (tag: 4.6.6) Dan Graham
     34bc8fb3 2020-08-02 10:15:13 -0400
     Tagged version 4.6.6. Confirm quitting etm with either unrecorded
     timers or unsaved editor changes.
 
-- 12 days ago (tag: 4.6.5) Dan Graham
+- 4 weeks ago (tag: 4.6.5) Dan Graham
     330ef60e 2020-07-22 15:02:36 -0400
     Tagged version 4.6.5. Bug fix - allow integer in repetitions
     bef_dt.
 
-- 3 weeks ago (tag: 4.6.4) Dan Graham
+- 5 weeks ago (tag: 4.6.4) Dan Graham
     9487b203 2020-07-14 09:19:17 -0400
     Tagged version 4.6.4. Bug fix.
 
-- 3 weeks ago (tag: 4.6.3) Dan Graham
+- 5 weeks ago (tag: 4.6.3) Dan Graham
     e8255106 2020-07-13 11:26:04 -0400
     Tagged version 4.6.3. Updated anniversary substitutions to support
     monthly, weekly and daily frequences as well as yearly.
 
-- 3 weeks ago (tag: 4.6.2) Dan Graham
+- 6 weeks ago (tag: 4.6.2) Dan Graham
     56b3eb76 2020-07-10 12:20:57 -0400
     Tagged version 4.6.2. Implemented multiple timers with a new timer
     view.
 
-- 4 weeks ago (tag: 4.6.1) Dan Graham
+- 7 weeks ago (tag: 4.6.1) Dan Graham
     ff3800d3 2020-07-03 07:25:34 -0400
     Tagged version 4.6.1.
 
-- 5 weeks ago (tag: 4.6.0) Dan Graham
+- 7 weeks ago (tag: 4.6.0) Dan Graham
     97e5684c 2020-06-30 09:42:28 -0400
     Tagged version 4.6.0. Implemented konnections. Added flags column
     to normal views. Changed record item type to journal to mirror
     vcalendar use and changed view name from record to journal.
     Refactored all views using NDict.
 
-- 7 weeks ago (tag: 4.5.12) Dan Graham
+- 9 weeks ago (tag: 4.5.12) Dan Graham
     1054a7cc 2020-06-18 17:42:36 -0400
     Tagged version 4.5.12. Fully implemented etm+ into the etm
     installation.
 
-- 7 weeks ago (tag: 4.5.11) Dan Graham
+- 9 weeks ago (tag: 4.5.11) Dan Graham
     333b353b 2020-06-18 09:24:19 -0400
     Tagged version 4.5.11. Test addition of etm+ to console_scripts
     entry points.
 
-- 7 weeks ago (tag: 4.5.10rc0) Dan Graham
+- 9 weeks ago (tag: 4.5.10rc0) Dan Graham
     6d762d63 2020-06-18 09:19:31 -0400
     Tagged version 4.5.10rc0. Test addition of etm+ to console_scripts
     entry points.
 
-- 7 weeks ago (tag: 4.5.10) Dan Graham
+- 9 weeks ago (tag: 4.5.10) Dan Graham
     e9b4a08d 2020-06-17 09:35:46 -0400
     Tagged version 4.5.10. In queries, take all but the last argument
     to includes to be fields in which to find matches for the last
     argument.
 
-- 7 weeks ago (tag: 4.5.9) Dan Graham
+- 9 weeks ago (tag: 4.5.9) Dan Graham
     06dfb1ba 2020-06-16 08:21:04 -0400
     Tagged version 4.5.9. Allow combinations of datetime and/or period
     strings in fields calling for a datetime.
 
-- 7 weeks ago (tag: 4.5.8) Dan Graham
+- 9 weeks ago (tag: 4.5.8) Dan Graham
     415423bb 2020-06-15 10:21:17 -0400
     Tagged version 4.5.8. Add view for reviewing undated and
     unfinished tasks.
 
-- 7 weeks ago (tag: 4.5.7) Dan Graham
+- 10 weeks ago (tag: 4.5.7) Dan Graham
     58f15423 2020-06-14 15:41:02 -0400
     Tagged version 4.5.7. Implemented importing inbasket.text from the
     etm directory with an alert to the existence of this file in the
     status bar.
 
-- 7 weeks ago (tag: 4.5.6) Dan Graham
+- 10 weeks ago (tag: 4.5.6) Dan Graham
     c0e8fc08 2020-06-12 15:12:54 -0400
     Tagged version 4.5.6. Added a link-character to the displayed
     summary of reminders with an @g entry. Report failures when
     activating @g links.
 
-- 8 weeks ago (tag: 4.5.5) Dan Graham
+- 2 months ago (tag: 4.5.5) Dan Graham
     e701c43f 2020-06-10 15:39:12 -0400
     Tagged version 4.5.5. Added option to automatically check for
     updates.
 
-- 8 weeks ago (tag: 4.5.3) Dan Graham
+- 2 months ago (tag: 4.5.3) Dan Graham
     4a6a48a1 2020-06-08 08:53:57 -0400
     Tagged version 4.5.3. Fail gracefully with unsupported locales.
 
-- 8 weeks ago (tag: 4.5.2) Dan Graham
+- 2 months ago (tag: 4.5.2) Dan Graham
     c9d80b6e 2020-06-07 14:07:41 -0400
     Tagged version 4.5.2. Bug fixes.
-
-- 9 weeks ago (tag: 4.5.1) Dan Graham
-    fc10cfd5 2020-06-04 12:52:57 -0400
-    Tagged version 4.5.1. Fixed bug in check_output.
