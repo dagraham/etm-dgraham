@@ -1666,7 +1666,6 @@ def data_changed(loop):
     get_app().invalidate()
 
 async def new_day(loop):
-    logger.info(f"new_day currentYrWk: {dataview.currentYrWk}")
     dataview.refreshRelevant()
     dataview.activeYrWk = dataview.currentYrWk
     dataview.refreshAgenda()
@@ -1677,6 +1676,7 @@ async def new_day(loop):
     get_app().invalidate()
     dataview.handle_backups()
     dataview.possible_archive()
+    logger.info(f"new_day currentYrWk: {dataview.currentYrWk}")
     return True
 
 current_datetime = pendulum.now('local')

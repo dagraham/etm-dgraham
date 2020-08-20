@@ -7,9 +7,12 @@ import logging.config
 logger = logging.getLogger()
 import string
 import random
+import re
+import locale
 from copy import deepcopy
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 
+locale_regex = re.compile(r'[a-z]{2}_[A-Z]{2}')
 
 def randomString(stringLength=10):
     """Generate a random string with the combination of lowercase and uppercase letters and digits """
@@ -95,9 +98,11 @@ dayfirst: false
 # as, for example, when there is no internet connection.
 updates_interval: 0
 
-# locale: A locale abbreviation. E.g., "en" for English or
-# "en_US" for English (United States).
-locale: en
+# locale: A locale abbreviation. E.g., "en_AU" for English
+# (Australia), "en_US" for English (United States), "fr_FR"
+# for French (France) and so forth. Google "python locale
+# abbreviatons" for a complete list."
+locale: en_US
 
 # vi_mode: true or false. Use vi keybindings for editing if
 # true else use emacs style keybindings.
@@ -392,6 +397,11 @@ colors:
                     new['colors'][k] = default_colors[k]
         else:
             new['colors'] = default_colors
+
+        if not locale_regex.match(new['locale']):
+            tmp = new['locale']
+            new['locale'] = self.settings['locale']
+            changed.append(f"retaining default for 'locale': {self.settings['locale']}. The provided setting, {tmp}, does have the required format.")
 
 
         if not isinstance(new['updates_interval'], int) or new['updates_interval'] < 0:
