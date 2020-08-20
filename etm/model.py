@@ -2128,8 +2128,8 @@ class DataView(object):
         return True
 
     def save_timers(self):
-        # if not self.timers:
-        #     return ''
+        if not self.timers:
+            return
         timers = deepcopy(self.timers)
         if self.active_timer:
             state, start, period = timers[self.active_timer]
@@ -2138,7 +2138,7 @@ class DataView(object):
                 period += now - start
                 state = 'p'
                 timers[self.active_timer] = [state, now, period]
-        with open(timers_file, 'wb', encoding='utf-8') as fn:
+        with open(timers_file, 'wb') as fn:
             pickle.dump(timers, fn)
 
     # bound to tt

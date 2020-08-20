@@ -3,6 +3,7 @@ def main():
     import sys
     import logging
     import logging.config
+    logging.getLogger('asyncio').setLevel(logging.WARNING)
     logger = logging.getLogger()
     MIN_PYTHON = (3, 7, 3)
     if sys.version_info < MIN_PYTHON:
