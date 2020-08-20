@@ -1116,7 +1116,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         ^x) toggle archived status
         ---
         T) change timer to next state
-        TR) record usedtime
+        TR) record usedtime and delete timer
         TD) delete timer
         TT) toggle paused/running for active timer
 

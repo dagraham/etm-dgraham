@@ -1343,9 +1343,10 @@ def add_usedtime(*event):
 
         if changed:
             if doc_id in dataview.timers:
-                state, start, elapsed = dataview.timers[doc_id]
-                state = 'p' if state == 'r' else state
-                dataview.timers[doc_id] = [state, pendulum.now('local'), pendulum.Duration()]
+                del dataview.timers[doc_id]
+                # state, start, elapsed = dataview.timers[doc_id]
+                # state = 'p' if state == 'r' else state
+                # dataview.timers[doc_id] = [state, pendulum.now('local'), pendulum.Duration()]
 
             if doc_id in dataview.itemcache:
                 del dataview.itemcache[doc_id]
@@ -2892,7 +2893,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
         MenuItem('T) change timer to next state ', handler=next_timer_state),
-        MenuItem("TR) record usedtime", handler=record_time),
+        MenuItem("TR) record usedtime and delete timer", handler=record_time),
         MenuItem('TD) delete timer', handler=maybe_delete_timer),
         MenuItem('TT) toggle paused/running for active timer', handler=toggle_active_timer),
     ]),
