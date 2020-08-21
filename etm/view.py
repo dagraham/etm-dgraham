@@ -1342,11 +1342,7 @@ def add_usedtime(*event):
         changed = item.add_used(doc_id, usedtime)
 
         if changed:
-            if doc_id in dataview.timers:
-                del dataview.timers[doc_id]
-                # state, start, elapsed = dataview.timers[doc_id]
-                # state = 'p' if state == 'r' else state
-                # dataview.timers[doc_id] = [state, pendulum.now('local'), pendulum.Duration()]
+            dataview.timer_clear(doc_id)
 
             if doc_id in dataview.itemcache:
                 del dataview.itemcache[doc_id]
@@ -1682,6 +1678,9 @@ async def new_day(loop):
 
 current_datetime = pendulum.now('local')
 
+async def save_timers(loop):
+    dataview.save_timers()
+    return True
 
 def alerts():
     alerts = []
@@ -1781,7 +1780,8 @@ async def event_handler():
                 asyncio.ensure_future(new_day(loop))
             if dataview.active_view == 'timers':
                 set_text(dataview.show_active_view())
-            dataview.save_timers()
+            asyncio.ensure_future(save_timers(loop))
+            logger.debug(f"sleeping for {wait} seconds in event_handler loop")
             get_app().invalidate()
             await asyncio.sleep(wait)
     except asyncio.CancelledError:
@@ -2199,15 +2199,19 @@ def do_maybe_delete(*event):
         return
 
     hsh = DBITEM.get(doc_id=doc_id)
+    has_timer = doc_id in dataview.timers
+    timer_warning = " and\nits associated timer" if has_timer else ""
 
     if not instance:
         # not repeating
         def coroutine():
             dialog = ConfirmDialog("Delete",
-                    f"Selected: {hsh['itemtype']} {hsh['summary']}\n\nAre you sure you want to delete this item?\nThis would remove the item from the database\nand cannot be undone.")
+                    f"Selected: {hsh['itemtype']} {hsh['summary']}\n\nAre you sure you want to delete this item{timer_warning}?\nThis action cannot be undone.")
 
             delete = yield from show_dialog_as_float(dialog)
             if delete:
+                if has_timer:
+                    dataview.timer_clear(doc_id)
                 item.delete_item(doc_id)
                 if doc_id in dataview.itemcache:
                     del dataview.itemcache[doc_id]

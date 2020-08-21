@@ -2129,7 +2129,7 @@ class DataView(object):
 
     def save_timers(self):
         timers = deepcopy(self.timers)
-        if self.active_timer:
+        if self.active_timer and self.active_timer in timers:
             state, start, period = timers[self.active_timer]
             if state == 'r':
                 now = pendulum.now('local')
@@ -2137,11 +2137,11 @@ class DataView(object):
                 state = 'p'
                 timers[self.active_timer] = [state, now, period]
         if timers:
-            # logger.debug(f"dumping timers to {timers_file}")
+            logger.debug(f"dumping timers to {timers_file}")
             with open(timers_file, 'wb') as fn:
                 pickle.dump(timers, fn)
-        else:
-            # logger.debug(f"removing {timers_file}")
+        elif os.path.exists(timers_file):
+            logger.debug(f"removing {timers_file}")
             os.remove(timers_file)
         # this return is necessary to avoid blocking event_handler
         return
