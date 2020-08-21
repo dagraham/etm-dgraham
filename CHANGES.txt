@@ -1,5 +1,11 @@
-Recent tagged changes as of 2020-08-20T12:08:15.578445-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.6.8) Dan Graham
+Recent tagged changes as of 2020-08-21T12:14:57.217643-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.6.9) Dan Graham
+    b204f5eb 2020-08-21 12:14:57 -0400
+    Tagged version 4.6.9. Remove timer after recording. Remove timers
+    file when no timers remain. When deleting an item with a timer,
+    first remove the timer.
+
+- 24 hours ago (tag: 4.6.8) Dan Graham
     a62920ef 2020-08-20 12:08:15 -0400
     Tagged version 4.6.8. Changed default locale from en to en_US.
     Require locale setting in this format from
@@ -7,7 +13,7 @@ Recent tagged changes as of 2020-08-20T12:08:15.578445-04:00:
     Added utf-8 encoding to open write statements to avoid encoding
     issues in Windows. Various bug fixes.
 
-- 2 weeks ago (tag: 4.6.7) Dan Graham
+- 3 weeks ago (tag: 4.6.7) Dan Graham
     f218067b 2020-08-03 13:59:29 -0400
     Tagged version 4.6.7. Automatically save timer status at least
     once every minute and, on restart, restore the last saved timer
@@ -27,7 +33,7 @@ Recent tagged changes as of 2020-08-20T12:08:15.578445-04:00:
     9487b203 2020-07-14 09:19:17 -0400
     Tagged version 4.6.4. Bug fix.
 
-- 5 weeks ago (tag: 4.6.3) Dan Graham
+- 6 weeks ago (tag: 4.6.3) Dan Graham
     e8255106 2020-07-13 11:26:04 -0400
     Tagged version 4.6.3. Updated anniversary substitutions to support
     monthly, weekly and daily frequences as well as yearly.
@@ -74,7 +80,7 @@ Recent tagged changes as of 2020-08-20T12:08:15.578445-04:00:
     Tagged version 4.5.9. Allow combinations of datetime and/or period
     strings in fields calling for a datetime.
 
-- 9 weeks ago (tag: 4.5.8) Dan Graham
+- 10 weeks ago (tag: 4.5.8) Dan Graham
     415423bb 2020-06-15 10:21:17 -0400
     Tagged version 4.5.8. Add view for reviewing undated and
     unfinished tasks.
@@ -85,7 +91,7 @@ Recent tagged changes as of 2020-08-20T12:08:15.578445-04:00:
     etm directory with an alert to the existence of this file in the
     status bar.
 
-- 10 weeks ago (tag: 4.5.6) Dan Graham
+- 2 months ago (tag: 4.5.6) Dan Graham
     c0e8fc08 2020-06-12 15:12:54 -0400
     Tagged version 4.5.6. Added a link-character to the displayed
     summary of reminders with an @g entry. Report failures when
@@ -99,7 +105,3 @@ Recent tagged changes as of 2020-08-20T12:08:15.578445-04:00:
 - 2 months ago (tag: 4.5.3) Dan Graham
     4a6a48a1 2020-06-08 08:53:57 -0400
     Tagged version 4.5.3. Fail gracefully with unsupported locales.
-
-- 2 months ago (tag: 4.5.2) Dan Graham
-    c9d80b6e 2020-06-07 14:07:41 -0400
-    Tagged version 4.5.2. Bug fixes.
