@@ -2191,14 +2191,14 @@ class DataView(object):
             del other_timers[doc_id]
         active = [x for x, v in other_timers.items() if v[0] in ['r', 'p']]
         if len(active) > 1:
-            logger.warning(f"more than one active timer: {[self.timers[x] for x in active]}")
+            logger.warning(f"more than one active timer: {active}")
         now = pendulum.now('local')
         if doc_id in self.timers:
             # there is already a timer for this item
             if active:
                 # another timer is active - update time if needed and make inactive
                 for x in active:
-                    active_state, active_start, active_period in self.timers[x]
+                    active_state, active_start, active_period = self.timers[x]
                     active_period = active_period + now - active_start if active_state == 'r' else active_period
                     self.timers[x] = ['i', now, active_period]
             state, start, period = self.timers[doc_id]
