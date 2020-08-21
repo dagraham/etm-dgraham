@@ -2128,18 +2128,24 @@ class DataView(object):
         return True
 
     def save_timers(self):
-        if not self.timers:
-            return
         timers = deepcopy(self.timers)
-        if self.active_timer:
+        if self.active_timer and self.active_timer in timers:
             state, start, period = timers[self.active_timer]
             if state == 'r':
                 now = pendulum.now('local')
                 period += now - start
                 state = 'p'
                 timers[self.active_timer] = [state, now, period]
-        with open(timers_file, 'wb') as fn:
-            pickle.dump(timers, fn)
+        if timers:
+            logger.debug(f"dumping timers to {timers_file}")
+            with open(timers_file, 'wb') as fn:
+                pickle.dump(timers, fn)
+        elif os.path.exists(timers_file):
+            logger.debug(f"removing {timers_file}")
+            os.remove(timers_file)
+        # this return is necessary to avoid blocking event_handler
+        return
+
 
     # bound to tt
     def toggle_active_timer(self, row=None):
@@ -2183,33 +2189,42 @@ class DataView(object):
         other_timers = deepcopy(self.timers)
         if doc_id in other_timers:
             del other_timers[doc_id]
-        active = None
-        for x in other_timers:
-            if other_timers[x][0] in ['r', 'p']:
-                active = x
-                break
+        active = [x for x, v in other_timers.items() if v[0] in ['r', 'p']]
+        if len(active) > 1:
+            logger.warning(f"more than one active timer: {[self.timers[x] for x in active]}")
         now = pendulum.now('local')
-        if doc_id not in self.timers:
-            # create the timer and start it if none other is active
+        if doc_id in self.timers:
+            # there is already a timer for this item
             if active:
-                state = 'i'
-            else:
-                state = 'r'
-                self.active_timer = doc_id
-            self.timers[doc_id] = [state, now, ZERO]
-        else:
+                # another timer is active - update time if needed and make inactive
+                for x in active:
+                    active_state, active_start, active_period in self.timers[x]
+                    active_period = active_period + now - active_start if active_state == 'r' else active_period
+                    self.timers[x] = ['i', now, active_period]
             state, start, period = self.timers[doc_id]
             if state == 'i':
-                if active:
-                    active_state, active_start, active_period = self.timers[active]
-                    active_period = active_period + now - active_start if active_state == 'r' else active_period
-                    self.timers[active] = ['i', now, active_period]
+                # the timer for this item is inactive
+                # start the timer for this item
                 state = 'r'
             else:
+                # the timer for this item is active
+                # update the period if running
                 period = period + now - start if state == 'r' else period
+                # toggle the state
                 state = 'p' if state == 'r' else 'r'
             self.active_timer = doc_id
             self.timers[doc_id] = state, now, period
+        else:
+            # there is no timer for this item
+            # create the timer
+            if active:
+                state = 'i'
+            else:
+                # no other timer is active so start this timer
+                state = 'r'
+                self.active_timer = doc_id
+            self.timers[doc_id] = [state, now, ZERO]
+
         self.save_timers()
         return True, doc_id, active
 
