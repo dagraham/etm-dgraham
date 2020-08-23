@@ -1678,7 +1678,7 @@ async def new_day(loop):
 
 current_datetime = pendulum.now('local')
 
-async def save_timers(loop):
+async def save_timers():
     dataview.save_timers()
     return True
 
@@ -1765,7 +1765,6 @@ async def event_handler():
             current_datetime = status_time(now)
             today = now.format("YYYYMMDD")
             wait = 60 - now.second
-
             if interval:
                 if minutes == 0:
                     minutes = 1
@@ -1780,7 +1779,7 @@ async def event_handler():
                 asyncio.ensure_future(new_day(loop))
             if dataview.active_view == 'timers':
                 set_text(dataview.show_active_view())
-            asyncio.ensure_future(save_timers(loop))
+            asyncio.ensure_future(save_timers())
             logger.debug(f"sleeping for {wait} seconds in event_handler loop")
             get_app().invalidate()
             await asyncio.sleep(wait)
@@ -2296,7 +2295,12 @@ def entry_buffer_changed():
 
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
 def next_timer_state(*event):
-    dataview.next_timer_state(text_area.document.cursor_position_row)
+    row = text_area.document.cursor_position_row
+    res = dataview.get_row_details(row) # item_id, instance, job_id
+    doc_id = res[0]
+    if not doc_id:
+        return
+    dataview.next_timer_state(doc_id)
     row = text_area.document.cursor_position_row
     dataview.refreshRelevant()
     set_text(dataview.show_active_view())

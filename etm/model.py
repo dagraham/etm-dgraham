@@ -1875,6 +1875,7 @@ class DataView(object):
         else:
             self.timers = {}
             self.active_timer = None
+        self.saved_timers = deepcopy(self.timers)
         self.archive_after = 0
         self.set_etmdir(etmdir)
         self.views = {
@@ -2137,9 +2138,13 @@ class DataView(object):
                 state = 'p'
                 timers[self.active_timer] = [state, now, period]
         if timers:
-            logger.debug(f"dumping timers to {timers_file}")
-            with open(timers_file, 'wb') as fn:
-                pickle.dump(timers, fn)
+            if timers != self.saved_timers:
+                logger.debug(f"timers changed - dumping to {timers_file}")
+                with open(timers_file, 'wb') as fn:
+                    pickle.dump(timers, fn)
+                self.saved_timers = timers
+            else:
+                logger.debug(f"timers unchanged - skipping dump to {timers_file}")
         elif os.path.exists(timers_file):
             logger.debug(f"removing {timers_file}")
             os.remove(timers_file)
@@ -2163,7 +2168,7 @@ class DataView(object):
 
 
     # bound to T
-    def next_timer_state(self, row=None):
+    def next_timer_state(self, doc_id=None):
         """
         states for this reminder's timer
             n: does not exist
@@ -2182,10 +2187,8 @@ class DataView(object):
             r- -> p-
             p- -> r-
         """
-        res = self.get_row_details(row) # item_id, instance, job_id
-        doc_id = res[0]
-        if not doc_id and len(self.timers) == 0:
-            return False, None, None
+        if not doc_id:
+            return
         other_timers = deepcopy(self.timers)
         if doc_id in other_timers:
             del other_timers[doc_id]
@@ -2214,7 +2217,7 @@ class DataView(object):
                 state = 'p' if state == 'r' else 'r'
             self.active_timer = doc_id
             self.timers[doc_id] = state, now, period
-        else:
+        elif doc_id:
             # there is no timer for this item
             # create the timer
             if active:
@@ -2225,6 +2228,7 @@ class DataView(object):
                 self.active_timer = doc_id
             self.timers[doc_id] = [state, now, ZERO]
 
+        logger.debug(f"next timer state for doc_id {doc_id}: {self.timers[doc_id]}")
         self.save_timers()
         return True, doc_id, active
 
