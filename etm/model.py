@@ -1909,10 +1909,10 @@ class DataView(object):
                 'm': 'timers',
                 'p': 'pinned',
                 'q': 'query',
-                'r': 'journal',
+                'j': 'journal',
                 't': 'tags',
                 'u': 'used time',
-                'v': 'review',
+                'r': 'review',
                 'U': 'used summary',
                 'y': 'yearly',
                 }

@@ -2686,13 +2686,13 @@ def next_view(*event):
 
 @bindings.add('j', filter=is_viewing)
 def journal_view(*event):
-    dataview.set_active_view('r')
+    dataview.set_active_view('j')
     item.use_items()
     set_text(dataview.show_active_view())
 
 @bindings.add('r', filter=is_viewing)
 def review_view(*event):
-    dataview.set_active_view('v')
+    dataview.set_active_view('r')
     item.use_items()
     set_text(dataview.show_active_view())
 
