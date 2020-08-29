@@ -1871,7 +1871,6 @@ text_area = TextArea(
     lexer=ETMLexer()
     )
 
-
 # completions will come from prior database entries
 completions = [
         ]
@@ -2708,6 +2707,9 @@ def show_konnections(*event):
 
 @bindings.add('t', filter=is_viewing)
 def tag_view(*event):
+    selected_id = dataview.get_details(text_area.document.cursor_position_row)[0]
+    if selected_id:
+        search_field.search_buffer.text = str(selected_id)
     dataview.set_active_view('t')
     item.use_items()
     set_text(dataview.show_active_view())

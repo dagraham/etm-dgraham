@@ -64,7 +64,7 @@ developer = "dnlgrhm@gmail.com"
 import shutil
 
 from operator import itemgetter
-from itertools import groupby
+from itertools import groupby, combinations
 
 from prompt_toolkit.styles import Style
 from prompt_toolkit import __version__ as prompt_toolkit_version
@@ -219,6 +219,25 @@ busy_template = """{week}
          _____  _____  _____  _____  _____  _____  _____
 {t[0]}   {t[1]}  {t[2]}  {t[3]}  {t[4]}  {t[5]}  {t[6]}  {t[7]}
 """
+
+def subsets(l):
+    """
+    Return a list of the possible subsets of the list of strings, l, together with the size of the subset. E.g., if l = ('blue', 'green', 'red'), return [(1, 'blue'), (1, 'green'), (1, 'red'), (2, 'blue & green'), (2, 'blue & red'), (2, 'green & red'), (3, 'blue & green & red')]
+    """
+    l.sort()
+    ret = [(1, x) for x in l]
+    if len(l) > 1:
+        # add an element for the list of all elements of l
+        ret.append((len(l), ' & '.join(l)))
+    if len(l) > 2:
+        for i in range(2, len(l)):
+            # add an element for each subset of length i of l
+            tmp = list(combinations(l, i))
+            for tup in tmp:
+                ret.append((i, ' & '.join(list(tup))))
+    return ret
+
+
 
 def busy_conf_minutes(lofp):
     """
@@ -5671,10 +5690,10 @@ def show_tags(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], ti
         summary = item['summary']
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
 
-        for tag in tags:
+        for tag in subsets(tags):
             rows.append({
                         'sort': (tag, item['itemtype'], item['summary']),
-                        'path': tag,
+                        'path': tag[1],
                         'values': [
                             itemtype,
                             summary,
