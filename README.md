@@ -457,6 +457,7 @@ The display for each reminder shows the itemtype and summary column on the left 
   * i: Index: all items grouped hierarchically by index entry
   * j: Journal: journal entries grouped hierarchically by index entry
   * k: Konnection: items with @k konnection links either to or from the selected item.
+  * l: Location: items grouped hierarchically by location entry
   * m: Timers: items with timers.
   * p: Pinned: items whose pin status is on.
   * q: Query: items matching a user specified query. Enter ? for query usage.
@@ -1072,6 +1073,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         h) history
         i) index
         j) journal
+        l) location
         p) pinned
         q) query
 		r) review
@@ -1085,7 +1087,8 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         /) search forward
         ?) search backward
         n) next incrementally in search
-        l) go to line number
+        ^l) prompt for and jump to line number
+        ^p) jump to next pinned item
         ^c) copy active view to clipboars
         ---
         J) jump to date in a), b) and c)
@@ -1098,7 +1101,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         ^s) save changes & close
         ^g) test goto link
         ^r) show repetitions
-        ^z) close editor
+        ^z) discard changes and close
     selected
         Enter) toggle showing details
         E) edit
@@ -1108,7 +1111,6 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         P) toggle pin
         R) reschedule
         S) schedule new
-        ---
         g) open goto link
         k) show konnections
         ^r) show repetitions

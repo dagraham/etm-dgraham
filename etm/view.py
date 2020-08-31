@@ -1407,7 +1407,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected', 'timers']
+    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected', 'timers', 'location']
 
 @Condition
 def is_dated_view():
@@ -2612,42 +2612,30 @@ def set_text(txt, row=0):
 
 @bindings.add('a', filter=is_viewing)
 def agenda_view(*event):
-    dataview.set_active_view('a')
-    item.use_items()
-    set_text(dataview.show_active_view())
-
-@bindings.add('c', filter=is_viewing)
-def completed_view(*event):
-    dataview.set_active_view('c')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('a')
 
 @bindings.add('b', filter=is_viewing)
 def busy_view(*event):
-    dataview.set_active_view('b')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('b')
+
+@bindings.add('c', filter=is_viewing)
+def completed_view(*event):
+    set_view('c')
 
 @bindings.add('q', filter=is_viewing)
 def query_view(*event):
-    # ask_buffer.text = "Submit '?' for help or 'l' for a list of stored queries"
     ask_buffer.text = "Submit '?' for help or 'l' for a list of stored queries"
-    dataview.set_active_view('q')
+    set_view('q')
     dataview.show_query()
-    set_text(dataview.show_active_view())
     application.layout.focus(query_area)
 
 @bindings.add('u', filter=is_viewing)
 def used_view(*event):
-    dataview.set_active_view('u')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('u')
 
 @bindings.add('U', filter=is_viewing)
 def used_summary_view(*event):
-    dataview.set_active_view('U')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('U')
 
 @bindings.add('y', filter=is_viewing)
 def yearly_view(*event):
@@ -2656,70 +2644,51 @@ def yearly_view(*event):
 
 @bindings.add('h', filter=is_viewing)
 def history_view(*event):
-    dataview.set_active_view('h')
-    item.use_items()
-    set_text(dataview.show_active_view())
-
+    set_view('h')
 
 @bindings.add('m', filter=is_viewing)
 def timers_view(*event):
-    dataview.set_active_view('m')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('m')
 
 @bindings.add('p', filter=is_viewing)
 def pinned_view(*event):
-    dataview.set_active_view('p')
-    item.use_items()
-    set_text(dataview.show_active_view())
-
+    set_view('p')
 
 @bindings.add('f', filter=is_viewing)
 def forthcoming_view(*event):
-    dataview.set_active_view('f')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('f')
 
 @bindings.add('d', filter=is_viewing)
 def next_view(*event):
-    dataview.set_active_view('d')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('d')
 
 @bindings.add('j', filter=is_viewing)
 def journal_view(*event):
-    dataview.set_active_view('j')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('j')
 
 @bindings.add('r', filter=is_viewing)
 def review_view(*event):
-    dataview.set_active_view('r')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('r')
 
 @bindings.add('k', filter=is_viewing)
 def show_konnections(*event):
     selected_id = dataview.get_details(text_area.document.cursor_position_row)[0]
     if selected_id in dataview.konnected:
         dataview.set_active_item(selected_id)
-        dataview.set_active_view('k')
-        item.use_items()
-        set_text(dataview.show_active_view())
+        set_view('k')
 
 @bindings.add('t', filter=is_viewing)
 def tag_view(*event):
-    dataview.set_active_view('t')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('t')
 
 @bindings.add('i', filter=is_viewing)
 def index_view(*event):
-    dataview.set_active_view('i')
-    item.use_items()
-    set_text(dataview.show_active_view())
+    set_view('i')
 
-# TODO
+@bindings.add('l', filter=is_viewing)
+def location_view(*event):
+    set_view('l')
+
 def set_view(view):
     dataview.set_active_view(view)
     item.use_items()
@@ -2895,6 +2864,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
         MenuItem('j) journal', handler=journal_view),
+        MenuItem('l) location', handler=location_view),
         MenuItem('m) timers', handler=timers_view),
         MenuItem('p) pinned', handler=pinned_view),
         MenuItem('q) query', handler=query_view),

@@ -225,16 +225,18 @@ def subsets(l):
     Return a list of the possible subsets of the list of strings, l, together with the size of the subset. E.g., if l = ('blue', 'green', 'red'), return [(1, 'blue'), (1, 'green'), (1, 'red'), (2, 'blue & green'), (2, 'blue & red'), (2, 'green & red'), (3, 'blue & green & red')]
     """
     l.sort()
-    ret = [(1, x) for x in l]
+    ret = [('1', x) for x in l]
     if len(l) > 1:
         # add an element for the list of all elements of l
-        ret.append((len(l), ' & '.join(l)))
+        ret.append((str(len(l)), ' & '.join(l)))
     if len(l) > 2:
         for i in range(2, len(l)):
             # add an element for each subset of length i of l
             tmp = list(combinations(l, i))
             for tup in tmp:
-                ret.append((i, ' & '.join(list(tup))))
+                ret.append((str(i), ' & '.join(list(tup))))
+    else:
+        ret.append(('~', '~'))
     return ret
 
 
@@ -1905,6 +1907,7 @@ class DataView(object):
                 'h': 'history',
                 'i': 'index',
                 'k': 'konnected',
+                'l': 'location',
                 'm': 'timers',
                 'p': 'pinned',
                 'q': 'query',
@@ -2342,6 +2345,9 @@ class DataView(object):
             return self.tag_view
         if self.active_view == 'index':
             self.index_view, self.row2id = show_index(self.db, self.id2relevant, self.pinned_list, self.link_list, self.konnected, self.timers)
+            return self.index_view
+        if self.active_view == 'location':
+            self.index_view, self.row2id = show_location(self.db, self.id2relevant, self.pinned_list, self.link_list, self.konnected, self.timers)
             return self.index_view
         if self.active_view == 'pinned':
             self.pinned_view, self.row2id = show_pinned(self.get_pinned(), self.pinned_list, self.link_list, self.konnected, self.timers)
@@ -5701,6 +5707,41 @@ def show_tags(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], ti
                             id
                             ],
                         })
+    rows.sort(key=itemgetter('sort'))
+    rdict = NDict()
+    for row in rows:
+        path = row['path']
+        values = row['values']
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict, level=0)
+    return tree, row2id
+
+
+def show_location(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], timers={}):
+    """
+    items with location entries grouped by location
+    """
+    width = shutil.get_terminal_size()[0] - 2
+    rows = []
+    for item in db:
+        id = item.doc_id
+        rhc = str(id).rjust(5, ' ')
+        location = item.get('l', '~')
+        itemtype = item['itemtype']
+        summary = item['summary']
+        flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
+
+        rows.append({
+                    'sort': (location, item['itemtype'], item['summary']),
+                    'path': location,
+                    'values': [
+                        itemtype,
+                        summary,
+                        flags,
+                        rhc,
+                        id
+                        ],
+                    })
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
     for row in rows:
