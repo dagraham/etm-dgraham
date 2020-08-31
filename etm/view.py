@@ -1465,7 +1465,7 @@ bindings.add('s-tab', filter=is_not_editing)(focus_previous)
 def do_alerts(*event):
     show_message("today's scheduled alerts", alerts(), 2)
 
-@bindings.add('l', filter=is_viewing)
+@bindings.add('c-l', filter=is_viewing)
 def do_go_to_line(*event):
     def coroutine():
         default = ''
@@ -1506,6 +1506,7 @@ def do_jump_to_date(*event):
             else:
                 set_text(dataview.show_active_view())
     asyncio.ensure_future(coroutine())
+
 
 terminal_style = None
 
@@ -2659,6 +2660,7 @@ def history_view(*event):
     item.use_items()
     set_text(dataview.show_active_view())
 
+
 @bindings.add('m', filter=is_viewing)
 def timers_view(*event):
     dataview.set_active_view('m')
@@ -2707,9 +2709,6 @@ def show_konnections(*event):
 
 @bindings.add('t', filter=is_viewing)
 def tag_view(*event):
-    selected_id = dataview.get_details(text_area.document.cursor_position_row)[0]
-    if selected_id:
-        search_field.search_buffer.text = str(selected_id)
     dataview.set_active_view('t')
     item.use_items()
     set_text(dataview.show_active_view())
@@ -2719,6 +2718,45 @@ def index_view(*event):
     dataview.set_active_view('i')
     item.use_items()
     set_text(dataview.show_active_view())
+
+# TODO
+def set_view(view):
+    dataview.set_active_view(view)
+    item.use_items()
+    set_text(dataview.show_active_view())
+
+@bindings.add('c-p', filter=is_viewing)
+def next_pinned(*event):
+    """
+    Move the cursor to the next row corresponding to a pinned id if there is such a row and to row 0 otherwise.
+    """
+    pinned = dataview.pinned_list
+    if not pinned:
+        return
+    rows = [(k, v) for k, v in dataview.row2id.items() if v in pinned]
+    if not rows:
+        return
+    rows.sort()
+    cur_row = text_area.document.cursor_position_row
+    nxt = 0
+    for k, v in rows:
+        logger.debug(f"k: {k}; v: {v}")
+        if k > cur_row:
+            nxt = k
+            logger.debug(f"found row: {nxt} for id:  {v}")
+            break
+    text_area.buffer.cursor_position = \
+        text_area.buffer.document.translate_row_col_to_index(nxt, 0)
+
+
+@bindings.add('Z', filter=is_viewing)
+def toggle_goto_id(*event):
+    """
+    If goto id is set, remove it. Else set it to the id of the selected item.
+    """
+    dataview.goto_id = None if dataview.goto_id else dataview.get_details(text_area.document.cursor_position_row)[0]
+
+
 
 @bindings.add('right', filter=is_agenda_view & is_viewing)
 def nextweek(*event):
@@ -2871,7 +2909,8 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
         MenuItem('n) next incrementally in search'),
-        MenuItem('l) go to line number', handler=do_go_to_line),
+        MenuItem('^l) prompt for and jump to line number', handler=do_go_to_line),
+        MenuItem('^p) jump to next pinned item', handler=next_pinned),
         MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
         MenuItem('-', disabled=True),
         MenuItem('J) jump to date in a), b) and c)', handler=do_jump_to_date),
@@ -2885,7 +2924,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^s) save changes & close', handler=save_changes),
         MenuItem('^g) test goto link', handler=do_goto),
         MenuItem('^r) show repetitions', handler=is_editing_reps),
-        MenuItem('^z) close editor', handler=close_edit),
+        MenuItem('^z) discard changes & close', handler=close_edit),
     ]),
     MenuItem('selected', children=[
         MenuItem('Enter) toggle showing details', handler=show_details),

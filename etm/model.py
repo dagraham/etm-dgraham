@@ -238,7 +238,6 @@ def subsets(l):
     return ret
 
 
-
 def busy_conf_minutes(lofp):
     """
     lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi < ei. By sort, bi <= bi+1.
