@@ -911,7 +911,7 @@ class ETMQuery(object):
                     # drop the ~
                     part[0] = part[0][1:]
                 if self.filters.get(part[0], None) is None:
-                    return False, wrap(f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed.""")
+                    return False, wrap(f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed."""), updt
 
             if len(part) > 3:
                 if part[0] in ['in', 'includes']:
