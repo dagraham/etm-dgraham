@@ -1460,6 +1460,9 @@ def is_showing_details():
 bindings.add('tab', filter=is_not_editing)(focus_next)
 bindings.add('s-tab', filter=is_not_editing)(focus_previous)
 
+@bindings.add('c-s', filter=is_not_editing)
+def do_nothing(*event):
+    pass
 
 @bindings.add('s', filter=is_viewing)
 def do_alerts(*event):
