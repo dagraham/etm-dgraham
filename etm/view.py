@@ -911,7 +911,7 @@ class ETMQuery(object):
                     # drop the ~
                     part[0] = part[0][1:]
                 if self.filters.get(part[0], None) is None:
-                    return False, wrap(f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed.""")
+                    return False, wrap(f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed."""), updt
 
             if len(part) > 3:
                 if part[0] in ['in', 'includes']:
@@ -1330,7 +1330,7 @@ def add_usedtime(*event):
     def coroutine():
         dialog = TextInputDialog(
             title='add usedtime',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}{timer}\n\nadd usedtime using the format:\n    period: datetime\n",
+            label_text=f"selected:\n  {hsh['itemtype']} {hsh['summary']}\n  @i {hsh.get('i', '~')}{timer}\n\nadd usedtime using the format:\n    period: datetime\n",
             default=entry,
             )
         usedtime = yield from show_dialog_as_float(dialog)
@@ -1460,6 +1460,9 @@ def is_showing_details():
 bindings.add('tab', filter=is_not_editing)(focus_next)
 bindings.add('s-tab', filter=is_not_editing)(focus_previous)
 
+@bindings.add('c-s', filter=is_not_editing)
+def do_nothing(*event):
+    pass
 
 @bindings.add('s', filter=is_viewing)
 def do_alerts(*event):
