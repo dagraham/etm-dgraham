@@ -1330,7 +1330,7 @@ def add_usedtime(*event):
     def coroutine():
         dialog = TextInputDialog(
             title='add usedtime',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}{timer}\n\nadd usedtime using the format:\n    period: datetime\n",
+            label_text=f"selected:\n  {hsh['itemtype']} {hsh['summary']}\n  @i {hsh.get('i', '~')}{timer}\n\nadd usedtime using the format:\n    period: datetime\n",
             default=entry,
             )
         usedtime = yield from show_dialog_as_float(dialog)
