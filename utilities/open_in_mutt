@@ -1,0 +1,8 @@
+#! /bin/bash
+# assumes message_id passed as $1 and neomutt is in path
+MSGID=$1
+ncmd="<get-message>$MSGID<enter>"
+# konsole -e neomutt -e "$ncmd" &
+# konsole -e neomutt -e "push l~i$gMSGID\n<enter>"
+konsole -e neomutt -e "<get-message>$MSGID\n"
+

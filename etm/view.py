@@ -1844,16 +1844,23 @@ def get_statusbar_right_text():
     return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
 
 def openWithDefault(path):
-    sys_platform = platform.system()
-    windoz = sys_platform in ('Windows', 'Microsoft')
-    mac =  sys_platform == 'Darwin'
-    if windoz:
-        os.startfile(path)
-        return()
-
-    cmd = 'open' + f" {path}" if mac else 'xdg-open' + f" {path}"
-    # show_message('goto', f"attempting to open '{path}'")
-    ok, res = check_output(cmd)
+    parts = [x.strip() for x in path.split(" ")]
+    logger.debug(f"path: {path}")
+    if len(parts) > 1:
+        cmd = f"{parts[0]}" + f" {' '.join(parts[1:])}"
+        # cmd = f"/usr/bin/konsole -e \"neomutt -e \'push l~i{parts[1]}\'\""
+        logger.debug(f"cmd: {cmd}")
+        ok, res = check_output(cmd)
+    else:
+        sys_platform = platform.system()
+        windoz = sys_platform in ('Windows', 'Microsoft')
+        mac =  sys_platform == 'Darwin'
+        if windoz:
+            os.startfile(path)
+            return()
+        cmd = 'open' + f" {path}" if mac else 'xdg-open' + f" {path}"
+        # show_message('goto', f"attempting to open '{path}'")
+        ok, res = check_output(cmd)
     # res will be '' on success and failure otherwise
     if ok:
         logger.debug(f"ok True; res: '{res}'")
