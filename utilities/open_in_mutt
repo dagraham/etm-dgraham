@@ -1,8 +1,13 @@
 #! /bin/bash
-# assumes message_id passed as $1 and neomutt is in path
+# Install this script somewhere in your path as "open_in_mutt"
+# and make it executable (chmod +x open_in_path). This script
+# assumes that message_id is passed as $1 and that neomutt
+# is also in your path.
 MSGID=$1
-ncmd="<get-message>$MSGID<enter>"
-# konsole -e neomutt -e "$ncmd" &
-# konsole -e neomutt -e "push l~i$gMSGID\n<enter>"
-konsole -e neomutt -e "<get-message>$MSGID\n"
-
+# Using the gmail website, "Settings/See all settings/Labels"
+# make sure that "Show in Imap" is checked for "All Mail".
+# This script opens neomutt in the "All Mail" folder with
+# the list filtered to the message that matches the given
+# MSGID and displays that message.
+konsole -e neomutt -f "+[Gmail]/All%20Mail" -e "push l~i$MSGID\"\n<enter>"
+# neomutt -f "+[Gmail]/All%20Mail" -e "push l~i$MSGID\"\n<enter>"

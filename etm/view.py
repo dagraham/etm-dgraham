@@ -1847,10 +1847,8 @@ def openWithDefault(path):
     parts = [x.strip() for x in path.split(" ")]
     logger.debug(f"path: {path}")
     if len(parts) > 1:
-        cmd = f"{parts[0]}" + f" {' '.join(parts[1:])}"
-        # cmd = f"/usr/bin/konsole -e \"neomutt -e \'push l~i{parts[1]}\'\""
-        logger.debug(f"cmd: {cmd}")
-        ok, res = check_output(cmd)
+        res =subprocess.Popen([parts[0], ' '.join(parts[1:])], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        ok = True if res else False
     else:
         sys_platform = platform.system()
         windoz = sys_platform in ('Windows', 'Microsoft')
