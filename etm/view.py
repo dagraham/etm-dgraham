@@ -1844,16 +1844,21 @@ def get_statusbar_right_text():
     return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
 
 def openWithDefault(path):
-    sys_platform = platform.system()
-    windoz = sys_platform in ('Windows', 'Microsoft')
-    mac =  sys_platform == 'Darwin'
-    if windoz:
-        os.startfile(path)
-        return()
-
-    cmd = 'open' + f" {path}" if mac else 'xdg-open' + f" {path}"
-    # show_message('goto', f"attempting to open '{path}'")
-    ok, res = check_output(cmd)
+    parts = [x.strip() for x in path.split(" ")]
+    logger.debug(f"path: {path}")
+    if len(parts) > 1:
+        res =subprocess.Popen([parts[0], ' '.join(parts[1:])], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        ok = True if res else False
+    else:
+        sys_platform = platform.system()
+        windoz = sys_platform in ('Windows', 'Microsoft')
+        mac =  sys_platform == 'Darwin'
+        if windoz:
+            os.startfile(path)
+            return()
+        cmd = 'open' + f" {path}" if mac else 'xdg-open' + f" {path}"
+        # show_message('goto', f"attempting to open '{path}'")
+        ok, res = check_output(cmd)
     # res will be '' on success and failure otherwise
     if ok:
         logger.debug(f"ok True; res: '{res}'")

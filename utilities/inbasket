@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+# To invoke this script in neomutt with a message selected
+# 1) add the following macro to neomuttrc:
+#
+# macro index,pager Ce ";<pipe-message>inbasket<enter>" "pipe mail to etm inbasket"
+#
+# 2) install this script somewhere in your path as "inbasket"
+# and make it executable (chmod +x inbasket). Invoking this
+# script with a message selected in neomutt by pressing 'Ce'
+# will then append a line to 'inbasket.text' in your etm
+# directory with this format:
+#
+#   ! <subject of message> @g open_in_mutt <message_id>
+#
+# When 'inbasket.text' is imported into etm, this reminder
+# will appear as an inbox item in agenda view for the current
+# day where it can be selected and, optionally, edited.
+# Pressing 'g' with the item selected in etm will invoke the
+# 'open_in_mutt' script and open neomutt in the 'All Mail' folder with the relevant message displayed.
+
+import sys, os
+import email
+import subprocess
+import urllib.parse
+
+# muttrc macro to pipe message to this script:
+
+etmhome = os.environ.get("ETMHOME")
+if not etmhome:
+    print("The environmental variable 'ETMHOME' is missing but required.")
+    sys.exit()
+elif not os.path.isdir(etmhome):
+    print(f"The environmental variable 'ETMHOME={etmhome}' is not a valid directory.")
+    sys.exit()
+
+inbasket = os.path.join(etmhome, 'inbasket.text')
+
+# Parse the email from standard input
+message_bytes = sys.stdin.buffer.read()
+message = email.message_from_bytes(message_bytes)
+
+# Grab the relevant message headers
+print(message['message-id'])
+# message_id = urllib.parse.quote(message['message-id'][1:-1])
+message_id = message['message-id'][1:-1]
+subject = message['subject']
+
+reminder = f"! {subject} @g open_in_mutt {message_id}"
+
+with open(inbasket, 'a') as fo:
+    fo.write(f"{reminder}\n")
+print(f"appended:\n   '{reminder}'\nto {inbasket}")
