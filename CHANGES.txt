@@ -1,26 +1,31 @@
-Recent tagged changes as of 2020-10-06T14:19:16.459548-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.6.12) Dan Graham
+Recent tagged changes as of 2020-10-14T18:14:46.877198-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.6.13) Dan Graham
+    60ace7f8 2020-10-14 18:14:46 -0400
+    Tagged version 4.6.13. Added inbasket and open_in_mutt scripts to
+    utilities and implemented multi-arg processing for goto links.
+
+- 8 days ago (tag: 4.6.12) Dan Graham
     ec074f0d 2020-10-06 14:19:16 -0400
     Tagged version 4.6.12. Added display of index entry when recording
     a timer
 
-- 5 weeks ago (tag: 4.6.11) Dan Graham
+- 6 weeks ago (tag: 4.6.11) Dan Graham
     91a91386 2020-08-31 14:10:55 -0400
     Tagged version 4.6.11. Added locations view. Modified tags view to
     also show groups of tags. Added command to jump cyclically to the
     next pinned item in any view."
 
-- 6 weeks ago (tag: 4.6.10) Dan Graham
+- 7 weeks ago (tag: 4.6.10) Dan Graham
     773eca79 2020-08-23 10:39:17 -0400
     Tagged version 4.6.10. Fixed bugs in creating and saving timers.
 
-- 7 weeks ago (tag: 4.6.9) Dan Graham
+- 8 weeks ago (tag: 4.6.9) Dan Graham
     b204f5eb 2020-08-21 12:14:57 -0400
     Tagged version 4.6.9. Remove timer after recording. Remove timers
     file when no timers remain. When deleting an item with a timer,
     first remove the timer.
 
-- 7 weeks ago (tag: 4.6.8) Dan Graham
+- 8 weeks ago (tag: 4.6.8) Dan Graham
     a62920ef 2020-08-20 12:08:15 -0400
     Tagged version 4.6.8. Changed default locale from en to en_US.
     Require locale setting in this format from
@@ -28,13 +33,13 @@ Recent tagged changes as of 2020-10-06T14:19:16.459548-04:00:
     Added utf-8 encoding to open write statements to avoid encoding
     issues in Windows. Various bug fixes.
 
-- 9 weeks ago (tag: 4.6.7) Dan Graham
+- 2 months ago (tag: 4.6.7) Dan Graham
     f218067b 2020-08-03 13:59:29 -0400
     Tagged version 4.6.7. Automatically save timer status at least
     once every minute and, on restart, restore the last saved timer
     state.
 
-- 9 weeks ago (tag: 4.6.6) Dan Graham
+- 2 months ago (tag: 4.6.6) Dan Graham
     34bc8fb3 2020-08-02 10:15:13 -0400
     Tagged version 4.6.6. Confirm quitting etm with either unrecorded
     timers or unsaved editor changes.
@@ -62,7 +67,7 @@ Recent tagged changes as of 2020-10-06T14:19:16.459548-04:00:
     ff3800d3 2020-07-03 07:25:34 -0400
     Tagged version 4.6.1.
 
-- 3 months ago (tag: 4.6.0) Dan Graham
+- 4 months ago (tag: 4.6.0) Dan Graham
     97e5684c 2020-06-30 09:42:28 -0400
     Tagged version 4.6.0. Implemented konnections. Added flags column
     to normal views. Changed record item type to journal to mirror
@@ -99,9 +104,3 @@ Recent tagged changes as of 2020-10-06T14:19:16.459548-04:00:
     415423bb 2020-06-15 10:21:17 -0400
     Tagged version 4.5.8. Add view for reviewing undated and
     unfinished tasks.
-
-- 4 months ago (tag: 4.5.7) Dan Graham
-    58f15423 2020-06-14 15:41:02 -0400
-    Tagged version 4.5.7. Implemented importing inbasket.text from the
-    etm directory with an alert to the existence of this file in the
-    status bar.
