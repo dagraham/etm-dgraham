@@ -1685,6 +1685,7 @@ def format_duration_list(obj_lst):
 
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhmM]))+?')
+expanded_period_regex = re.compile(r'(([+-]?)(\d+)\s(week|day|hour|minute|month)s?)+?')
 relative_regex = re.compile(r'(([+-])(\d+)([wdhmM]))+?')
 threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
@@ -1718,10 +1719,20 @@ def parse_duration(s):
 
     knms = {
             'M': 'months',
+            'month': 'months',
+            'months': 'months',
             'w': 'weeks',
+            'week': 'weeks',
+            'weeks': 'weeks',
             'd': 'days',
+            'day': 'days',
+            'days': 'days',
             'h': 'hours',
+            'hour': 'hours',
+            'hours': 'hours',
             'm': 'minutes',
+            'minute': 'minutes',
+            'minutes': 'minutes',
             }
 
     kwds = {
@@ -1732,9 +1743,11 @@ def parse_duration(s):
             'minutes': 0
             }
 
-    m = period_regex.findall(s)
+    m = period_regex.findall(str(s))
     if not m:
-        return False, f"Invalid period string '{s}'"
+        m = expanded_period_regex.findall(str(s))
+        if not m:
+            return False, f"Invalid period string '{s}'"
     for g in m:
         if g[3] not in knms:
             return False, f"invalid period argument: {g[3]}"
@@ -5598,6 +5611,19 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     width = shutil.get_terminal_size()[0] - 2
     rows = []
     locations = set([])
+    group_names = []
+    groups = settings.get('locations', {})
+    logger.debug(f"groups: {groups}")
+    using_groups = True if groups else False
+    if using_groups:
+        group_names = groups.keys()
+        location2groups = {'~': ['OTHER']}
+        for group, locations in groups.items():
+            for location in locations:
+                logger.debug(f"location: {location}")
+                location2groups.setdefault(location, []).append(group)
+        logger.debug(f"group_names: {group_names}; location2groups: {location2groups}")
+
     for item in db:
         if item.get('itemtype', None) not in ['-'] or 's' in item or 'f' in item:
             continue
@@ -5613,8 +5639,11 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                     # show completed jobs only in completed view
                     continue
                 location = job.get('l', task_location)
+                extent = job.get('e', '')
+                extent = format_duration(extent) if extent else ''
                 status = 0 if job.get('status') == '-' else 1
                 # status 1 -> waiting, status 0 -> available
+                rhc = " ".join([show_priority, extent]).center(7, ' ')
                 summary = job.get('summary')
                 job_id = job.get('i', None)
                 job_sort = str(job_id)
@@ -5629,7 +5658,7 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                             job.get('status', ''),
                             summary,
                             flags,
-                            show_priority,
+                            rhc,
                             (id, None, job_id)
                             ]
                     }
@@ -5637,21 +5666,24 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
         else:
             location = item.get('l', '~')
             priority = int(item.get('p', 0))
+            extent = item.get('e', '')
+            extent = format_duration(extent) if extent else ""
             sort_priority = 4 - int(priority)
             show_priority = str(priority) if priority > 0 else ""
+            rhc = " ".join([show_priority, extent]).center(7, ' ')
             summary = item['summary']
             rows.append(
                     {
                         'id': item.doc_id,
                         'job': None,
                         'instance': None,
-                        'sort': (location, sort_priority, '', item['summary']),
+                        'sort': (location, sort_priority, extent, item['summary']),
                         'location': location,
                         'columns': [
                             item['itemtype'],
                             summary,
                             flags,
-                            show_priority,
+                            rhc,
                             (id, None, None)
                             ]
                     }
@@ -5659,9 +5691,16 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
     for row in rows:
-        path = row['location']
-        values = row['columns']
-        rdict.add(path, values)
+        if using_groups:
+            groups = location2groups.get(row['location'], ['OTHER'])
+            for group in groups:
+                path = f"{group}/{row['location']}"
+                values = row['columns']
+                rdict.add(path, values)
+        else:
+            path = row['location']
+            values = row['columns']
+            rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 

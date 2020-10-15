@@ -2951,10 +2951,8 @@ async def main(etmdir=""):
     etmstyle = settings['colors']
     if terminal_style == "dark":
         style = dark_style
-        # etmstyle = dark_etmstyle
     else:
         style = light_style
-        # etmstyle = light_etmstyle
     agenda_view()
 
     application = Application(

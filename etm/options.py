@@ -305,6 +305,19 @@ colors:
     finished:     'DarkGrey'
     available:    'LightSkyBlue'
 
+# locations: a dictionary with location group names and
+# corresponding lists of locations. When given, do next
+# view will group items first by the location group name
+# and then by the location within that group. Note that
+# locations can appear under more than one group name. E.g.,
+# locations:
+#    HOME: [home, garage, yard, phone, computer]
+#    WORK: [work, phone, computer, copier, fax]
+# Items with a location entru that does not belong to one
+# of these location groups will be listed under 'OTHER' and
+# items without a location entry under 'OTHER' and then '~'.
+locations:
+
 """ % secret
 
     def __init__(self, etmdir):
