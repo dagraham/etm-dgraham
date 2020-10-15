@@ -1,26 +1,9 @@
-Recent tagged changes as of 2020-10-15T16:27:34.162552-04:00:
-- 3 minutes ago (HEAD -> master, tag: 4.7.0) Dan Graham
-    a3aafcf4 2020-10-15 16:24:20 -0400
-    Squashed commit of the following:
-
-    commit f8304777d3e58d2aa18144ce8eac6901fc333776 Author: Dan Graham
-    <daniel.graham@duke.edu> Date:   Thu Oct 15 16:23:43 2020 -0400
-
-        Added a 'locations' option to cfg.yaml. When given the 'do
-    next' view will use the location groups specified by this option
-    to display tasks.
-
-    commit e8dd4786e796ee6de74deb0c3a9bef459979ea7d Author: Dan Graham
-    <daniel.graham@duke.edu> Date:   Thu Oct 15 14:08:32 2020 -0400
-
-        Added extent to rhc display in do next view. Sort by priority
-    and then extent.
-
-    commit 7dd2fa00183e304951758d8951142891497e8e59 Author: Dan Graham
-    <daniel.graham@duke.edu> Date:   Thu Oct 15 13:40:08 2020 -0400
-
-        Fixed bug in parse_duration that would fail if passed an
-    expanded string, e.g., 2 days instead of 2d.
+Recent tagged changes as of 2020-10-15T16:33:04.577603-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.7.0) Dan Graham
+    5096a645 2020-10-15 16:33:04 -0400
+    Tagged version 4.7.0. Added a locations option to cfg.yaml. When
+    given, the do next view will use the location groups specified by
+    this option to display tasks.
 
 - 22 hours ago (tag: 4.6.13) Dan Graham
     60ace7f8 2020-10-14 18:14:46 -0400
