@@ -1685,6 +1685,7 @@ def format_duration_list(obj_lst):
 
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhmM]))+?')
+expanded_period_regex = re.compile(r'(([+-]?)(\d+)\s(week|day|hour|minute|month)s?)+?')
 relative_regex = re.compile(r'(([+-])(\d+)([wdhmM]))+?')
 threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
@@ -1718,10 +1719,20 @@ def parse_duration(s):
 
     knms = {
             'M': 'months',
+            'month': 'months',
+            'months': 'months',
             'w': 'weeks',
+            'week': 'weeks',
+            'weeks': 'weeks',
             'd': 'days',
+            'day': 'days',
+            'days': 'days',
             'h': 'hours',
+            'hour': 'hours',
+            'hours': 'hours',
             'm': 'minutes',
+            'minute': 'minutes',
+            'minutes': 'minutes',
             }
 
     kwds = {
@@ -1732,9 +1743,11 @@ def parse_duration(s):
             'minutes': 0
             }
 
-    m = period_regex.findall(s)
+    m = period_regex.findall(str(s))
     if not m:
-        return False, f"Invalid period string '{s}'"
+        m = expanded_period_regex.findall(str(s))
+        if not m:
+            return False, f"Invalid period string '{s}'"
     for g in m:
         if g[3] not in knms:
             return False, f"invalid period argument: {g[3]}"
