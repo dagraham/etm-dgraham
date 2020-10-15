@@ -5626,8 +5626,11 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                     # show completed jobs only in completed view
                     continue
                 location = job.get('l', task_location)
+                extent = job.get('e', '')
+                extent = format_duration(extent) if extent else ''
                 status = 0 if job.get('status') == '-' else 1
                 # status 1 -> waiting, status 0 -> available
+                rhc = " ".join([show_priority, extent])
                 summary = job.get('summary')
                 job_id = job.get('i', None)
                 job_sort = str(job_id)
@@ -5642,7 +5645,7 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                             job.get('status', ''),
                             summary,
                             flags,
-                            show_priority,
+                            rhc,
                             (id, None, job_id)
                             ]
                     }
@@ -5650,21 +5653,24 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
         else:
             location = item.get('l', '~')
             priority = int(item.get('p', 0))
+            extent = item.get('e', '')
+            extent = format_duration(extent) if extent else ""
             sort_priority = 4 - int(priority)
             show_priority = str(priority) if priority > 0 else ""
+            rhc = " ".join([show_priority, extent])
             summary = item['summary']
             rows.append(
                     {
                         'id': item.doc_id,
                         'job': None,
                         'instance': None,
-                        'sort': (location, sort_priority, '', item['summary']),
+                        'sort': (location, sort_priority, extent, item['summary']),
                         'location': location,
                         'columns': [
                             item['itemtype'],
                             summary,
                             flags,
-                            show_priority,
+                            rhc,
                             (id, None, None)
                             ]
                     }
