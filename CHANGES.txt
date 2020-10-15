@@ -1,10 +1,33 @@
-Recent tagged changes as of 2020-10-14T18:14:46.877198-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.6.13) Dan Graham
+Recent tagged changes as of 2020-10-15T16:27:34.162552-04:00:
+- 3 minutes ago (HEAD -> master, tag: 4.7.0) Dan Graham
+    a3aafcf4 2020-10-15 16:24:20 -0400
+    Squashed commit of the following:
+
+    commit f8304777d3e58d2aa18144ce8eac6901fc333776 Author: Dan Graham
+    <daniel.graham@duke.edu> Date:   Thu Oct 15 16:23:43 2020 -0400
+
+        Added a 'locations' option to cfg.yaml. When given the 'do
+    next' view will use the location groups specified by this option
+    to display tasks.
+
+    commit e8dd4786e796ee6de74deb0c3a9bef459979ea7d Author: Dan Graham
+    <daniel.graham@duke.edu> Date:   Thu Oct 15 14:08:32 2020 -0400
+
+        Added extent to rhc display in do next view. Sort by priority
+    and then extent.
+
+    commit 7dd2fa00183e304951758d8951142891497e8e59 Author: Dan Graham
+    <daniel.graham@duke.edu> Date:   Thu Oct 15 13:40:08 2020 -0400
+
+        Fixed bug in parse_duration that would fail if passed an
+    expanded string, e.g., 2 days instead of 2d.
+
+- 22 hours ago (tag: 4.6.13) Dan Graham
     60ace7f8 2020-10-14 18:14:46 -0400
     Tagged version 4.6.13. Added inbasket and open_in_mutt scripts to
     utilities and implemented multi-arg processing for goto links.
 
-- 8 days ago (tag: 4.6.12) Dan Graham
+- 9 days ago (tag: 4.6.12) Dan Graham
     ec074f0d 2020-10-06 14:19:16 -0400
     Tagged version 4.6.12. Added display of index entry when recording
     a timer
@@ -15,7 +38,7 @@ Recent tagged changes as of 2020-10-14T18:14:46.877198-04:00:
     also show groups of tags. Added command to jump cyclically to the
     next pinned item in any view."
 
-- 7 weeks ago (tag: 4.6.10) Dan Graham
+- 8 weeks ago (tag: 4.6.10) Dan Graham
     773eca79 2020-08-23 10:39:17 -0400
     Tagged version 4.6.10. Fixed bugs in creating and saving timers.
 
@@ -99,8 +122,3 @@ Recent tagged changes as of 2020-10-14T18:14:46.877198-04:00:
     06dfb1ba 2020-06-16 08:21:04 -0400
     Tagged version 4.5.9. Allow combinations of datetime and/or period
     strings in fields calling for a datetime.
-
-- 4 months ago (tag: 4.5.8) Dan Graham
-    415423bb 2020-06-15 10:21:17 -0400
-    Tagged version 4.5.8. Add view for reviewing undated and
-    unfinished tasks.
