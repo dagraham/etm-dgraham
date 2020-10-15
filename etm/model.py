@@ -1516,6 +1516,30 @@ def format_time(obj):
         res = res.replace('PM', 'pm')
     return True, res
 
+def fivechar_datetime(obj):
+    """
+    Return a 5 character representation of datetime obj using
+    the format XX<sep>YY. Examples when today is 2020/10/15
+    1:15pm today -> 13:15
+    today -> 00:00
+    2p on Nov 7 of this year -> 11/07
+    11a on Jan 17 of 2012 -> 12.01
+    """
+    if type(obj) != pendulum.DateTime:
+        obj = pendulum.instance(obj)
+    now = pendulum.now('local')
+
+    if obj.year == now.year:
+        if obj.month == now.month:
+            if obj.day == now.day:
+                return obj.format("HH:mm")
+            else:
+                return obj.format("MM/DD")
+        else:
+            return obj.format("MM/DD")
+    else:
+        return obj.format("YY.MM")
+
 
 def format_datetime(obj, short=False):
     """
@@ -5366,16 +5390,17 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
             id = item.doc_id
             year = dt.format("YYYY")
             monthday = dt.format("MMM D").ljust(6, ' ')
-            time = fmt_time(dt).rjust(7, ' ')
-            rhc = f"{monthday} {time} {label}"
+            c5dt = fivechar_datetime(dt)
+            # time = fmt_time(dt).rjust(7, ' ')
+            rhc = f"{c5dt} {label}"
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item['summary']
             flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
-
+            path = '    m: last modified; c: created; most recent first'
             rows.append(
                     {
                         'sort': dt,
-                        'path': year,
+                        'path': path,
                         'values': [
                             itemtype,
                             summary,
@@ -5385,7 +5410,6 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
                             ],
                     }
                     )
-
     try:
         rows.sort(key=itemgetter('sort'), reverse=reverse)
     except:

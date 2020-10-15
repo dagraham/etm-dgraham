@@ -454,7 +454,7 @@ The display for each reminder shows the itemtype and summary column on the left 
   * c: Completed: finished tasks and jobs and used time entries by year-week and week day
   * d: Do Next: undated tasks grouped by location
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence
-  * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first
+  * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first. Datetimes are displayed using a 5 character format where, e.g., 1:15pm today would be displayed as 13:15, November 7 of the current year as 11/17 and January 15 of 2012 as 12.01.
   * i: Index: all items grouped hierarchically by index entry
   * j: Journal: journal entries grouped hierarchically by index entry
   * k: Konnection: items with @k konnection links either to or from the selected item.
@@ -1583,7 +1583,7 @@ For use with @r:
 
 ### notices
 
-* A link character, 'g', is appended to the *flags* column of any reminder with an `@g` goto link. Press `^g` with such a reminder selected to have the operating system open the link using the default application. E.g. if the link is a URL, then it would be opened using the default browser.
+* A link character, 'g', is appended to the *flags* column of any reminder with an `@g` goto link. Press `^g` with such a reminder selected to have the operating system open the link using the default application if the link can be interpreted as a file path or a url. E.g. if the link is a URL, then it would be opened using the default browser. If link can be interpreted as a shell command followed by arguments, then the command would be executed with the arguments.
 * An in-basket character, ⓘ , is appended to the right end of the status bar when a file named 'inbasket.text' is found in the etm root directory. This file should contain lines containing etm reminder entries - one on each line. It can be imported using the import file command bound to F5.
 * An update available character, 𝕦, is appended to the right end of the status bar when checking for updates is enabled and a later version of etm is available. Details for enabling checking for updates are in [configuration](#configuration).
 * Alerts and beginbys can be added to any reminder with an `@s` start date/time entry. Alerts require a datetime in `@s`; beginbys also allow a date in `@s`.
