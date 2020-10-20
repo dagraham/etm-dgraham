@@ -16,7 +16,8 @@
 # will appear as an inbox item in agenda view for the current
 # day where it can be selected and, optionally, edited.
 # Pressing 'g' with the item selected in etm will invoke the
-# 'open_in_mutt' script and open neomutt in the 'All Mail' folder with the relevant message displayed.
+# 'open_in_mutt' script and open neomutt in the 'All Mail'
+# folder with the relevant message displayed.
 
 import sys, os
 import email

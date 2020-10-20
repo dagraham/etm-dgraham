@@ -1,6 +1,6 @@
 #! /bin/bash
 # Install this script somewhere in your path as "open_in_mutt"
-# and make it executable (chmod +x open_in_path). This script
+# and make it executable (chmod +x open_in_mutt). This script
 # assumes that message_id is passed as $1 and that neomutt
 # is also in your path.
 MSGID=$1
