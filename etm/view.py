@@ -1851,15 +1851,17 @@ def openWithDefault(path):
         ok = True if res else False
     else:
         sys_platform = platform.system()
-        windoz = sys_platform in ('Windows', 'Microsoft')
-        mac =  sys_platform == 'Darwin'
-        if windoz:
-            os.startfile(path)
-            return()
-        cmd = 'open' + f" {path}" if mac else 'xdg-open' + f" {path}"
-        # show_message('goto', f"attempting to open '{path}'")
-        ok, res = check_output(cmd)
-    # res will be '' on success and failure otherwise
+        if platform.system() == 'Darwin':       # macOS
+            res = subprocess.run(('open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        elif platform.system() == 'Windows':    # Windows
+            res = os.startfile(path)
+        else:                                   # linux
+            res = subprocess.run(('xdg-open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        # res = subprocess.run([cmd, path], check=True)
+        ret_code = res.returncode
+        ok = ret_code == 0
+        logger.debug(f"res: {res}; ret_code: {ret_code}")
     if ok:
         logger.debug(f"ok True; res: '{res}'")
     else:

@@ -6460,34 +6460,47 @@ def import_ics(import_file=None):
 
 
 def import_text(import_file=None):
-    import tempfile
-
     docs = []
     with open(import_file, 'r') as fo:
         results = []
         good = []
         bad = 0
+        reminders = []
+        reminder = []
         for line in fo:
-            ok = True
             s = line.strip()
-            if not s: continue
-            item = Item()  # used ETMDB by default
-            item.new_item()
-            item.text_changed(s, 1)
-            if item.item_hsh.get('itemtype', None) is None:
-                ok = False
+            if s and s[0] in ['!', '*', '+', '%']:
+                if reminder:
+                    # append it to reminders and reset it
+                    reminders.append(reminder)
+                    reminder = []
+                reminder = [s]
+            else:
+                # append to the existing reminder
+                reminder.append(s)
+        if reminder:
+            reminders.append(reminder)
+    for reminder in reminders:
+        ok = True
+        s = "\n".join(reminder)
+        if not s: continue
+        item = Item()  # use ETMDB by default
+        item.new_item()
+        item.text_changed(s, 1)
+        if item.item_hsh.get('itemtype', None) is None:
+            ok = False
 
-            if item.item_hsh.get('summary', None) is None:
-                ok = False
+        if item.item_hsh.get('summary', None) is None:
+            ok = False
 
-            if not ok:
-                bad += 1
-                results.append(f"   {s}")
-                continue
+        if not ok:
+            bad += 1
+            results.append(f"   {s}")
+            continue
 
-            # update_item_hsh stores the item in ETMDB
-            item.update_item_hsh()
-            good.append(f"{item.doc_id}")
+        # update_item_hsh stores the item in ETMDB
+        item.update_item_hsh()
+        good.append(f"{item.doc_id}")
 
     res = f"imported {len(good)} items"
     if good:

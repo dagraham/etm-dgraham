@@ -2,23 +2,10 @@
 # To invoke this script in neomutt with a message selected
 # 1) add the following macro to neomuttrc:
 #
-# macro index,pager Ce ";<pipe-message>inbasket<enter>" "pipe mail to
-# inbasket"
+#   macro index,pager Ce ";<pipe-message>inbasket<enter>" "pipe to inbasket"
 #
 # 2) install this script somewhere in your path as "inbasket"
-# and make it executable (chmod +x inbasket). Invoking this
-# script with a message selected in neomutt by pressing 'Ce'
-# will then append a line to 'inbasket.text' in your etm
-# directory with this format:
-#
-#   ! <subject of message> @g open_in_mutt <message_id>
-#
-# When 'inbasket.text' is imported into etm, this reminder
-# will appear as an inbox item in agenda view for the current
-# day where it can be selected and, optionally, edited.
-# Pressing 'g' with the item selected in etm will invoke the
-# 'open_in_mutt' script and open neomutt in the 'All Mail'
-# folder with the relevant message displayed.
+# and make it executable (chmod +x inbasket).
 
 import sys, os, re
 import email
@@ -26,8 +13,6 @@ from email.parser import BytesParser
 import subprocess
 import urllib.parse
 
-typechar = '!' # inbasket
-option = '@t etm+'
 
 etmhome = os.environ.get("ETMHOME")
 if not etmhome:
@@ -80,7 +65,14 @@ if not sys.stdin.isatty():
         not_email = False
         try:
             message = email.message_from_bytes(std_in)
-            message_id = message['message-id'][1:-1]
+            message_id = message['message-id'][1:-1].strip()
+            if message_id.startswith('<'):
+                # outlook prepends a '<' to the actual message_id
+                message_id = message_id[1:]
+            # This will open the relevant email/thread in your gmail.
+            # {message_id} will # be replaced by the actual message_id.
+            # Edit this if you don't use gmail.
+            email_link = f" @g https://mail.google.com/mail/u/0/#search/rfc822msgid:<{message_id}>" if message_id else ""
         except Exception as e:
             not_email = True
 
@@ -92,8 +84,9 @@ if not sys.stdin.isatty():
             subject = message['subject']
             sender = message['from']
             date = message['date']
-            date = f"\n@s {date} " if date else ""
-            date = date.split('+')[0] + "@z UTC"
+            date = f" @s {date} " if date else ""
+            date = re.sub('\+0000', '@z UTC', date)
+            date = re.sub(' [+-]\d{4}', '', date)
             print(f"date: {date};  {type(date)}")
             email_message = {
                 part.get_content_type(): part.get_payload(decode=True)
@@ -109,8 +102,8 @@ if not sys.stdin.isatty():
             # try to omit the parts south of From: or wrote:
             body = re.split(r'\nFrom: |\n.* wrote:\s*\n', nosig)[0]
 
-            description = f"\n@d {body.strip()}" if body else ""
-            reminder = f"! {subject}{date}\n@n {sender}{description}\n@g open_in_mutt {message_id}"
+            description = f" @d {body.strip()}" if body else ""
+            reminder = f"! {subject}{date} @n {sender}{description}{email_link}"
 
 elif len(sys.argv) > 1:
     if sys.argv[1].startswith('help') or sys.argv[1].startswith('?'):

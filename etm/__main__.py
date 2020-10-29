@@ -247,7 +247,6 @@ later. """
         else:
             print("The provided input should be wrapped in single quotes")
             sys.exit()
-
     else:
         print(help)
         sys.exit()
