@@ -1345,7 +1345,7 @@ def datetime_calculator(s):
     """
     date_calc_regex = re.compile(r'^\s*(.+)\s+([+-])\s+(.+)\s*$')
     timezone_regex = re.compile(r'^(.+)\s+([A-Za-z]+/[A-Za-z]+)$')
-    period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmM])+\s*$)')
+    period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmMy])+\s*$)')
 
     ampm = settings.get('ampm', True)
     datetime_fmt = "ddd MMM D YYYY h:mmA zz" if ampm else "ddd MMM D YYYY H:mm zz"
@@ -1684,9 +1684,9 @@ def format_duration_list(obj_lst):
         logger.error(f"{obj_lst}: {e}")
 
 
-period_regex = re.compile(r'(([+-]?)(\d+)([wdhmM]))+?')
-expanded_period_regex = re.compile(r'(([+-]?)(\d+)\s(week|day|hour|minute|month)s?)+?')
-relative_regex = re.compile(r'(([+-])(\d+)([wdhmM]))+?')
+period_regex = re.compile(r'(([+-]?)(\d+)([wdhmMy]))+?')
+expanded_period_regex = re.compile(r'(([+-]?)(\d+)\s(week|day|hour|minute|month|year)s?)+?')
+relative_regex = re.compile(r'(([+-])(\d+)([wdhmMy]))+?')
 threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
 
@@ -1699,6 +1699,7 @@ def parse_duration(s):
         parse_duration('1h30m') = Duration(hours=1, minutes=30)
         parse_duration('-10m') = Duration(minutes=10)
     where:
+        y: years
         M: months
         w: weeks
         d: days
@@ -1718,6 +1719,7 @@ def parse_duration(s):
     """
 
     knms = {
+            'y': 'years',
             'M': 'months',
             'month': 'months',
             'months': 'months',
@@ -1736,6 +1738,7 @@ def parse_duration(s):
             }
 
     kwds = {
+            'years': 0,
             'months': 0,
             'weeks': 0,
             'days': 0,
@@ -3001,11 +3004,12 @@ def set_summary(summary='', start=None, relevant=None, freq=''):
     """
 
     """
+    # logger.debug(f"summary: {summary}; start: {start}; relevant: {relevant}; freq: {freq}")
     if not ('{XXX}' in summary and
             isinstance(start, pendulum.Date) and
             isinstance(relevant, pendulum.Date) and
             freq in ['y', 'm', 'w', 'd']):
-        # return summary unchanged
+        # return unchanged summary
         return summary
     relevant_date = relevant.date() if isinstance(relevant, pendulum.DateTime) else relevant
     start_date = start.date() if isinstance(start, pendulum.DateTime) else start
@@ -3020,6 +3024,7 @@ def set_summary(summary='', start=None, relevant=None, freq=''):
     elif freq == 'd':
         replacement = diff.in_days()
     replacement = ordinal(replacement) if replacement >= 0 else '???'
+    logger.debug(f"replacement: {replacement}")
     return summary.format(XXX=replacement)
 
 def ordinal(num):
@@ -5116,6 +5121,16 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                     if possible_beginby:
                         for instance in instances:
                             if today + DAY <= instance <= tomorrow + possible_beginby:
+                                id = item.doc_id
+                                if 'r' in item:
+                                    # use the freq from the first recurrence rule
+                                    freq = item['r'][0].get('r', 'y')
+                                else:
+                                    freq = 'y'
+                                # relevant = id2relevant[id]
+                                # summary = set_summary(item['summary'], item.get('s', None), relevant, freq)
+                                summary = set_summary(summary, item.get('s', None), pendulum.instance(instance).date(), freq)
+                                logger.debug(f"item: {item}; instance: {instance}; s: {item.get('s', None)}; type(s): {type(item.get('s'))};   instance_date: {instance.date()}; type(instance.date): {type(instance.date())}; summary: {summary}")
                                 beginbys.append([(instance.date() - today.date()).days, summary, item.doc_id, None, instance])
                     if possible_alerts:
                         for instance in instances:
