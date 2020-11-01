@@ -1,37 +1,42 @@
-Recent tagged changes as of 2020-10-15T16:33:04.577603-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.7.0) Dan Graham
+Recent tagged changes as of 2020-11-01T10:30:44.110799-05:00:
+- 0 seconds ago (HEAD -> master, tag: 4.7.1) Dan Graham
+    71cbea69 2020-11-01 10:30:44 -0500
+    Tagged version 4.7.1. Added years to period string parsing. Handle
+    anniversary regex expressions in beginbys.
+
+- 2 weeks ago (tag: 4.7.0) Dan Graham
     5096a645 2020-10-15 16:33:04 -0400
     Tagged version 4.7.0. Added a locations option to cfg.yaml. When
     given, the do next view will use the location groups specified by
     this option to display tasks.
 
-- 22 hours ago (tag: 4.6.13) Dan Graham
+- 3 weeks ago (tag: 4.6.13) Dan Graham
     60ace7f8 2020-10-14 18:14:46 -0400
     Tagged version 4.6.13. Added inbasket and open_in_mutt scripts to
     utilities and implemented multi-arg processing for goto links.
 
-- 9 days ago (tag: 4.6.12) Dan Graham
+- 4 weeks ago (tag: 4.6.12) Dan Graham
     ec074f0d 2020-10-06 14:19:16 -0400
     Tagged version 4.6.12. Added display of index entry when recording
     a timer
 
-- 6 weeks ago (tag: 4.6.11) Dan Graham
+- 9 weeks ago (tag: 4.6.11) Dan Graham
     91a91386 2020-08-31 14:10:55 -0400
     Tagged version 4.6.11. Added locations view. Modified tags view to
     also show groups of tags. Added command to jump cyclically to the
     next pinned item in any view."
 
-- 8 weeks ago (tag: 4.6.10) Dan Graham
+- 2 months ago (tag: 4.6.10) Dan Graham
     773eca79 2020-08-23 10:39:17 -0400
     Tagged version 4.6.10. Fixed bugs in creating and saving timers.
 
-- 8 weeks ago (tag: 4.6.9) Dan Graham
+- 2 months ago (tag: 4.6.9) Dan Graham
     b204f5eb 2020-08-21 12:14:57 -0400
     Tagged version 4.6.9. Remove timer after recording. Remove timers
     file when no timers remain. When deleting an item with a timer,
     first remove the timer.
 
-- 8 weeks ago (tag: 4.6.8) Dan Graham
+- 2 months ago (tag: 4.6.8) Dan Graham
     a62920ef 2020-08-20 12:08:15 -0400
     Tagged version 4.6.8. Changed default locale from en to en_US.
     Require locale setting in this format from
@@ -39,13 +44,13 @@ Recent tagged changes as of 2020-10-15T16:33:04.577603-04:00:
     Added utf-8 encoding to open write statements to avoid encoding
     issues in Windows. Various bug fixes.
 
-- 2 months ago (tag: 4.6.7) Dan Graham
+- 3 months ago (tag: 4.6.7) Dan Graham
     f218067b 2020-08-03 13:59:29 -0400
     Tagged version 4.6.7. Automatically save timer status at least
     once every minute and, on restart, restore the last saved timer
     state.
 
-- 2 months ago (tag: 4.6.6) Dan Graham
+- 3 months ago (tag: 4.6.6) Dan Graham
     34bc8fb3 2020-08-02 10:15:13 -0400
     Tagged version 4.6.6. Confirm quitting etm with either unrecorded
     timers or unsaved editor changes.
@@ -55,21 +60,21 @@ Recent tagged changes as of 2020-10-15T16:33:04.577603-04:00:
     Tagged version 4.6.5. Bug fix - allow integer in repetitions
     bef_dt.
 
-- 3 months ago (tag: 4.6.4) Dan Graham
+- 4 months ago (tag: 4.6.4) Dan Graham
     9487b203 2020-07-14 09:19:17 -0400
     Tagged version 4.6.4. Bug fix.
 
-- 3 months ago (tag: 4.6.3) Dan Graham
+- 4 months ago (tag: 4.6.3) Dan Graham
     e8255106 2020-07-13 11:26:04 -0400
     Tagged version 4.6.3. Updated anniversary substitutions to support
     monthly, weekly and daily frequences as well as yearly.
 
-- 3 months ago (tag: 4.6.2) Dan Graham
+- 4 months ago (tag: 4.6.2) Dan Graham
     56b3eb76 2020-07-10 12:20:57 -0400
     Tagged version 4.6.2. Implemented multiple timers with a new timer
     view.
 
-- 3 months ago (tag: 4.6.1) Dan Graham
+- 4 months ago (tag: 4.6.1) Dan Graham
     ff3800d3 2020-07-03 07:25:34 -0400
     Tagged version 4.6.1.
 
@@ -80,28 +85,23 @@ Recent tagged changes as of 2020-10-15T16:33:04.577603-04:00:
     vcalendar use and changed view name from record to journal.
     Refactored all views using NDict.
 
-- 4 months ago (tag: 4.5.12) Dan Graham
+- 5 months ago (tag: 4.5.12) Dan Graham
     1054a7cc 2020-06-18 17:42:36 -0400
     Tagged version 4.5.12. Fully implemented etm+ into the etm
     installation.
 
-- 4 months ago (tag: 4.5.11) Dan Graham
+- 5 months ago (tag: 4.5.11) Dan Graham
     333b353b 2020-06-18 09:24:19 -0400
     Tagged version 4.5.11. Test addition of etm+ to console_scripts
     entry points.
 
-- 4 months ago (tag: 4.5.10rc0) Dan Graham
+- 5 months ago (tag: 4.5.10rc0) Dan Graham
     6d762d63 2020-06-18 09:19:31 -0400
     Tagged version 4.5.10rc0. Test addition of etm+ to console_scripts
     entry points.
 
-- 4 months ago (tag: 4.5.10) Dan Graham
+- 5 months ago (tag: 4.5.10) Dan Graham
     e9b4a08d 2020-06-17 09:35:46 -0400
     Tagged version 4.5.10. In queries, take all but the last argument
     to includes to be fields in which to find matches for the last
     argument.
-
-- 4 months ago (tag: 4.5.9) Dan Graham
-    06dfb1ba 2020-06-16 08:21:04 -0400
-    Tagged version 4.5.9. Allow combinations of datetime and/or period
-    strings in fields calling for a datetime.
