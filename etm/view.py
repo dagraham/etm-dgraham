@@ -1845,11 +1845,13 @@ def get_statusbar_right_text():
 
 def openWithDefault(path):
     parts = [x.strip() for x in path.split(" ")]
-    logger.debug(f"path: {path}")
     if len(parts) > 1:
+        logger.debug(f"path: {path}")
         res =subprocess.Popen([parts[0], ' '.join(parts[1:])], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         ok = True if res else False
     else:
+        path = os.path.normpath(os.path.expanduser(path))
+        logger.debug(f"path: {path}")
         sys_platform = platform.system()
         if platform.system() == 'Darwin':       # macOS
             res = subprocess.run(('open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

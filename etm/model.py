@@ -3004,7 +3004,6 @@ def set_summary(summary='', start=None, relevant=None, freq=''):
     """
 
     """
-    # logger.debug(f"summary: {summary}; start: {start}; relevant: {relevant}; freq: {freq}")
     if not ('{XXX}' in summary and
             isinstance(start, pendulum.Date) and
             isinstance(relevant, pendulum.Date) and
@@ -3024,7 +3023,6 @@ def set_summary(summary='', start=None, relevant=None, freq=''):
     elif freq == 'd':
         replacement = diff.in_days()
     replacement = ordinal(replacement) if replacement >= 0 else '???'
-    logger.debug(f"replacement: {replacement}")
     return summary.format(XXX=replacement)
 
 def ordinal(num):
@@ -5130,7 +5128,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                                 # relevant = id2relevant[id]
                                 # summary = set_summary(item['summary'], item.get('s', None), relevant, freq)
                                 summary = set_summary(summary, item.get('s', None), pendulum.instance(instance).date(), freq)
-                                logger.debug(f"item: {item}; instance: {instance}; s: {item.get('s', None)}; type(s): {type(item.get('s'))};   instance_date: {instance.date()}; type(instance.date): {type(instance.date())}; summary: {summary}")
                                 beginbys.append([(instance.date() - today.date()).days, summary, item.doc_id, None, instance])
                     if possible_alerts:
                         for instance in instances:
@@ -5628,16 +5625,16 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     locations = set([])
     group_names = []
     groups = settings.get('locations', {})
-    logger.debug(f"groups: {groups}")
+    # logger.debug(f"groups: {groups}")
     using_groups = True if groups else False
     if using_groups:
         group_names = groups.keys()
         location2groups = {'~': ['OTHER']}
         for group, locations in groups.items():
             for location in locations:
-                logger.debug(f"location: {location}")
+                # logger.debug(f"location: {location}")
                 location2groups.setdefault(location, []).append(group)
-        logger.debug(f"group_names: {group_names}; location2groups: {location2groups}")
+        # logger.debug(f"group_names: {group_names}; location2groups: {location2groups}")
 
     for item in db:
         if item.get('itemtype', None) not in ['-'] or 's' in item or 'f' in item:
