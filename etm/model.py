@@ -6251,7 +6251,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 if item['itemtype'] == '-':
                     rhc = fmt_time(dt).center(rhc_width, ' ')
                 elif 'e' in item:
-                    if 'c' in item and item['c'] in omit:
+                    if omit and 'c' in item and item['c'] in omit:
                         et = None
                         rhc = fmt_time(dt).center(rhc_width, ' ')
                     else:

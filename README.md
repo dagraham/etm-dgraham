@@ -63,7 +63,7 @@ This is the etm user manual. Further information about etm is available at [gith
         -   [repetition](#repetition)
 			- [repetition examples](#repetition-examples)
 			- [anniversary substitutions](#anniversary-substitutions)
-        -   [archived reminders](#archivedg-reminders)
+        -   [archived reminders](#archived-reminders)
         -   [configuration](#configuration)
         -   [data storage](#data-storage)
 
