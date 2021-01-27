@@ -34,6 +34,7 @@ REQUIRED = [
         "pytz>=2018.9",
         "pytzdata>=2018.9",
         "ruamel.yaml>=0.15.88",
+        "requests>=2.25.1",
         "six>=1.11.0",
         "style>=1.1.6",
         "tinydb>=3.12.2",

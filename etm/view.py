@@ -37,6 +37,7 @@ from prompt_toolkit.widgets import Dialog, Label, Button
 
 import shutil
 
+import requests
 import asyncio
 
 import pendulum
@@ -1203,36 +1204,39 @@ def do_about(*event):
 
 @bindings.add('f4')
 def do_check_updates(*event):
+    status, res = check_update()
+    msg = wrap(res)
+    show_message("version information", msg, 2)
 
-    cmd = f"python{sys.version_info[0]}.{sys.version_info[1]} -m pip search etm-dgraham"
-    ok, res = check_output(cmd)
 
-    lines = res.split('\n')
-    msg = []
-    for line in lines:
-        if line.lstrip().startswith('etm-dgraham'):
-            msg.append('etm-dgraham')
-        elif line.lstrip().startswith('INSTALLED'):
-            msg.append(line)
-        elif line.lstrip().startswith('LATEST'):
-            msg.append(line)
-    show_message("version information", "\n".join(msg), 2)
+def check_update():
+    url = "https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etm/__version__.py"
+    try:
+        r = requests.get(url)
+        t = r.text.strip()
+        # t will be something like "version = '4.7.2'"
+        url_version = t.split(' ')[-1][1:-1]
+        # split(' ')[-1] will give "'4.7.2'" and url_version will then be '4.7.2'
+    except:
+        url_version = None
+    if url_version is None:
+        res = "update information is unavailable"
+        status_char = "?"
+    else:
+        if url_version > etm_version:
+            status_char = UPDATE_CHAR
+            res = f"an update is available to {url_version}"
+        else:
+            status_char = ''
+            res = f"the installed version, {etm_version}, is the latest available"
+
+    return status_char, res
+
 
 update_status = UpdateStatus()
 
 async def auto_check_loop(loop):
-    ok, res = check_output("pip search etm-dgraham")
-    if not ok:
-        update_status.set_status("?")
-        return
-
-    lines = res.split('\n')
-    new = False
-    for line in lines:
-        if line.lstrip().startswith('LATEST'):
-            new = re.split(":\s+", line)[1]
-            break
-    status = UPDATE_CHAR if new else ''
+    status, res = check_update()
     update_status.set_status(status)
 
 @bindings.add('f3')
@@ -1368,9 +1372,11 @@ def check_output(cmd):
     try:
         res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True, encoding='UTF-8')
         return True, res
-    except Exception as res:
-        logger.warning(f"Error running {cmd}; res: '{res}'")
-        return False, res
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Error running {cmd}\n'{e.output}'")
+        lines = e.output.strip().split('\n')
+        msg = lines[-1]
+        return False, msg
 
 editing = False
 

@@ -137,6 +137,7 @@ def main():
     view.ETMDB = ETMDB
     view.DBITEM = DBITEM
     view.DBARCH = DBARCH
+    view.etm_version = etm_version
 
     view.dataview = dataview
     view.completions = completions
