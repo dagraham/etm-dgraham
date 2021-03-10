@@ -776,6 +776,7 @@ class Item(object):
         self.item_hsh = self.db.get(doc_id=item_id)
         self.doc_id = item_id
         self.created = self.item_hsh['created']
+        logger.debug(f"completed: {completed_datetime}; due: {due_datetime}")
         if job_id:
             j = 0
             for job in self.item_hsh['j']:
@@ -791,7 +792,14 @@ class Item(object):
                 self.item_hsh['j'] = jbs
                 if last:
                     nxt = get_next_due(self.item_hsh, last, due_datetime)
+                    logger.debug(f"nxt: {nxt}")
                     if nxt:
+                        if 'r' in self.item_hsh:
+                            for i in range(len(self.item_hsh['r'])):
+                                if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
+                                    logger.debug(f"item_hsh[i]: {self.item_hsh['r'][i]}")
+                                    self.item_hsh['r'][i]['c'] -= 1
+                                    break
                         self.item_hsh['s'] = nxt
                         self.item_hsh.setdefault('h', []).append(completed_datetime)
                         save_item = True
@@ -804,7 +812,13 @@ class Item(object):
             if 's' in self.item_hsh:
                 if 'r' in self.item_hsh:
                     nxt = get_next_due(self.item_hsh, completed_datetime, due_datetime)
+                    logger.debug(f"nxt: {nxt}")
                     if nxt:
+                        for i in range(len(self.item_hsh['r'])):
+                            if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
+                                logger.debug(f"item_hsh[i]: {self.item_hsh['r'][i]}")
+                                self.item_hsh['r'][i]['c'] -= 1
+                                break
                         self.item_hsh['s'] = nxt
                         self.item_hsh.setdefault('h', []).append(completed_datetime)
                         save_item = True
@@ -4190,6 +4204,7 @@ def get_next_due(item, done, due):
         aft = pendulum.datetime(year=aft.year, month=aft.month, day=aft.day, hour=0, minute=0)
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
+        logger.debug(f"freq: {freq}; kwd: {kwd}")
         kwd['dtstart'] = dtstart
         try:
             rset.rrule(rrule(freq, **kwd))
@@ -4205,9 +4220,13 @@ def get_next_due(item, done, due):
         for dt in item['+']:
             rset.rdate(dt)
     nxt_rset = rset.after(aft, inc)
-    nxt = pendulum.instance(nxt_rset)
-    if using_dates:
-        nxt = nxt.date()
+    logger.debug(f"nxt_rset: {nxt_rset}")
+    if nxt_rset:
+        nxt = pendulum.instance(nxt_rset)
+        if using_dates:
+            nxt = nxt.date()
+    else:
+        nxt = None
     return nxt
 
 def date_to_datetime(dt):
