@@ -2055,19 +2055,26 @@ class DataView(object):
         for item in self.db:
             found = {x: v for x, v in item.items() if x in self.completion_keys}
 
-            if item['itemtype'] == '%' and item.get('i', None):
-                tmp = f"@k {item['i']} {item['itemtype']} {item['summary']}: {item.doc_id}"
-                completions.add(tmp)
             for x, v in found.items():
                 if isinstance(v, list):
-                    if x == 'k':
+                    if x == "k":
                         continue
                     for p in v:
                         completions.add(f"@{x} {p}")
                 else:
-                    completions.add(f"@{x} {v}")
+                    if x == "i":
+                        i, t, s, d = (
+                            item["i"],
+                            item["itemtype"],
+                            item["summary"],
+                            item.doc_id,
+                        )
+                        completions.add(f"@k {i} {t} {s}: {d}")
+                    else:
+                        completions.add(f"@{x} {v}")
         self.completions = list(completions)
         self.completions.sort()
+
 
     def update_completions(self, item):
         """
@@ -2082,11 +2089,21 @@ class DataView(object):
                 for p in v:
                     completions.add(f"@{x} {p}")
             else:
-                completions.add(f"@{x} {v}")
+                if x == "i":
+                    i, t, s, d = (
+                        v,
+                        item.item_hsh.get("itemtype", None),
+                        item.item_hsh.get("summary", None),
+                        item.doc_id,
+                    )
+                    completions.add(f"@k {i} {t} {s}: {d}")
+                else:
+                    completions.add(f"@{x} {v}")
         new = [x for x in list(completions) if x not in self.completions]
         if new:
             self.completions.extend(new)
             self.completions.sort()
+
 
     def update_konnections(self, item):
         """
@@ -5785,7 +5802,7 @@ def show_tags(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], ti
         id = item.doc_id
         rhc = str(id).rjust(5, ' ')
         tags = item.get('t', [])
-        itemtype = item['itemtype']
+        itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
 
@@ -5821,7 +5838,7 @@ def show_location(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]
         id = item.doc_id
         rhc = str(id).rjust(5, ' ')
         location = item.get('l', '~')
-        itemtype = item['itemtype']
+        itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
 
@@ -5857,8 +5874,7 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], t
         id = item.doc_id
         rhc = str(id).rjust(5, ' ')
         index = item.get('i', '~')
-        itemtype = item['itemtype']
-        # index_tup = index.split('/')
+        itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
         rows.append({

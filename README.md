@@ -452,7 +452,7 @@ The display for each reminder shows the itemtype and summary column on the left 
   * a: Agenda: dated unfinished tasks and other reminders by year-week and week day
   * b: Busy: a graphical illustration of busy and conflicted times by year-week
   * c: Completed: finished tasks and jobs and used time entries by year-week and week day
-  * d: Do Next: undated tasks grouped by location
+  * d: Do Next: undated tasks grouped by location and order by priority (highest first) and extent (least first)
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence
   * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first. Datetimes are displayed using a 5 character format where, e.g., 1:15pm today would be displayed as 13:15, November 7 of the current year as 11/17 and January 15 of 2012 as 12.01.
   * i: Index: all items grouped hierarchically by index entry
