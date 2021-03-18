@@ -4221,7 +4221,6 @@ def get_next_due(item, done, due):
         aft = pendulum.datetime(year=aft.year, month=aft.month, day=aft.day, hour=0, minute=0)
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
-        logger.debug(f"freq: {freq}; kwd: {kwd}")
         kwd['dtstart'] = dtstart
         try:
             rset.rrule(rrule(freq, **kwd))
@@ -4237,7 +4236,6 @@ def get_next_due(item, done, due):
         for dt in item['+']:
             rset.rdate(dt)
     nxt_rset = rset.after(aft, inc)
-    logger.debug(f"nxt_rset: {nxt_rset}")
     if nxt_rset:
         nxt = pendulum.instance(nxt_rset)
         if using_dates:
@@ -5661,16 +5659,13 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     locations = set([])
     group_names = []
     groups = settings.get('locations', {})
-    # logger.debug(f"groups: {groups}")
     using_groups = True if groups else False
     if using_groups:
         group_names = groups.keys()
         location2groups = {'~': ['OTHER']}
         for group, locations in groups.items():
             for location in locations:
-                # logger.debug(f"location: {location}")
                 location2groups.setdefault(location, []).append(group)
-        # logger.debug(f"group_names: {group_names}; location2groups: {location2groups}")
 
     for item in db:
         if item.get('itemtype', None) not in ['-'] or 's' in item or 'f' in item:

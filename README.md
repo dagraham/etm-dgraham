@@ -1352,7 +1352,7 @@ You can now simply delete the virtual environment directory and, if you have add
 
 To remove *etm* installed into, say, python3.7, run
 
-    $ sudo -H python3.7 pip uninstall etm-dgraham
+    $ sudo -H python3.7 -m pip uninstall etm-dgraham
 This will remove *etm* from the python site-packages directory and the *etm* and *etm+* executables from the python bin directory. Then remove any *etm home* directories that you have created.
 
 # Details
