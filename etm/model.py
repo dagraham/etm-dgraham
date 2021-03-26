@@ -5994,7 +5994,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
             month = monthday.format("YYYY-MM")
             rhc = f"{monthday.format('MMM D')}: {format_hours_and_tenths(id_used[monthday])}".ljust(14, ' ')
             detail_rows.append({
-                        'sort': (month, *index_tup, monthday, itemtype, summary),
+                        'sort': (month, index_tup, monthday, itemtype, summary),
                         'month': month,
                         'path': f"{monthday.format('MMMM YYYY')}/{index}",
                         'values': [
@@ -6008,7 +6008,8 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     try:
         detail_rows.sort(key=itemgetter('sort'))
     except Exception as e:
-        logger.error(f"error sorting detail_rows: f{e}\ndetail_rows: {detail_rows}")
+        # report the components of sort other than the last, the summary
+        logger.error(f"error sorting detail_rows: f{e}\nsort: {[x['sort'][:-1] for x in detail_rows]}")
         return used_details, used_details2id, used_summary
 
 
