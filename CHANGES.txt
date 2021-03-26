@@ -1,18 +1,22 @@
-Recent tagged changes as of 2021-03-14T16:55:35.268113-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.7.4) Dan Graham
+Recent tagged changes as of 2021-03-26T13:20:25.506248-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.7.5) Dan Graham
+    6f29c7b7 2021-03-26 13:20:25 -0400
+    Tagged version 4.7.5.
+
+- 12 days ago (tag: 4.7.4) Dan Graham
     13eec67c 2021-03-14 16:55:35 -0400
     Tagged version 4.7.4.
 
-- 7 weeks ago (tag: 4.7.3) Dan Graham
+- 8 weeks ago (tag: 4.7.3) Dan Graham
     3af362bb 2021-01-27 10:00:46 -0500
     Tagged version 4.7.3. Use requests to check version info from
     github instead of pip search which is currently disabled.
 
-- 4 months ago (tag: 4.7.2) Dan Graham
+- 5 months ago (tag: 4.7.2) Dan Graham
     8569c2cd 2020-11-04 14:03:14 -0500
     Tagged version 4.7.2. Bug fix in openWithDefault path expansion.
 
-- 4 months ago (tag: 4.7.1) Dan Graham
+- 5 months ago (tag: 4.7.1) Dan Graham
     71cbea69 2020-11-01 10:30:44 -0500
     Tagged version 4.7.1. Added years to period string parsing. Handle
     anniversary regex expressions in beginbys.
@@ -28,7 +32,7 @@ Recent tagged changes as of 2021-03-14T16:55:35.268113-04:00:
     Tagged version 4.6.13. Added inbasket and open_in_mutt scripts to
     utilities and implemented multi-arg processing for goto links.
 
-- 5 months ago (tag: 4.6.12) Dan Graham
+- 6 months ago (tag: 4.6.12) Dan Graham
     ec074f0d 2020-10-06 14:19:16 -0400
     Tagged version 4.6.12. Added display of index entry when recording
     a timer
@@ -57,13 +61,13 @@ Recent tagged changes as of 2021-03-14T16:55:35.268113-04:00:
     Added utf-8 encoding to open write statements to avoid encoding
     issues in Windows. Various bug fixes.
 
-- 7 months ago (tag: 4.6.7) Dan Graham
+- 8 months ago (tag: 4.6.7) Dan Graham
     f218067b 2020-08-03 13:59:29 -0400
     Tagged version 4.6.7. Automatically save timer status at least
     once every minute and, on restart, restore the last saved timer
     state.
 
-- 7 months ago (tag: 4.6.6) Dan Graham
+- 8 months ago (tag: 4.6.6) Dan Graham
     34bc8fb3 2020-08-02 10:15:13 -0400
     Tagged version 4.6.6. Confirm quitting etm with either unrecorded
     timers or unsaved editor changes.
@@ -73,21 +77,21 @@ Recent tagged changes as of 2021-03-14T16:55:35.268113-04:00:
     Tagged version 4.6.5. Bug fix - allow integer in repetitions
     bef_dt.
 
-- 8 months ago (tag: 4.6.4) Dan Graham
+- 9 months ago (tag: 4.6.4) Dan Graham
     9487b203 2020-07-14 09:19:17 -0400
     Tagged version 4.6.4. Bug fix.
 
-- 8 months ago (tag: 4.6.3) Dan Graham
+- 9 months ago (tag: 4.6.3) Dan Graham
     e8255106 2020-07-13 11:26:04 -0400
     Tagged version 4.6.3. Updated anniversary substitutions to support
     monthly, weekly and daily frequences as well as yearly.
 
-- 8 months ago (tag: 4.6.2) Dan Graham
+- 9 months ago (tag: 4.6.2) Dan Graham
     56b3eb76 2020-07-10 12:20:57 -0400
     Tagged version 4.6.2. Implemented multiple timers with a new timer
     view.
 
-- 8 months ago (tag: 4.6.1) Dan Graham
+- 9 months ago (tag: 4.6.1) Dan Graham
     ff3800d3 2020-07-03 07:25:34 -0400
     Tagged version 4.6.1.
 
@@ -97,8 +101,3 @@ Recent tagged changes as of 2021-03-14T16:55:35.268113-04:00:
     to normal views. Changed record item type to journal to mirror
     vcalendar use and changed view name from record to journal.
     Refactored all views using NDict.
-
-- 9 months ago (tag: 4.5.12) Dan Graham
-    1054a7cc 2020-06-18 17:42:36 -0400
-    Tagged version 4.5.12. Fully implemented etm+ into the etm
-    installation.
