@@ -1010,6 +1010,8 @@ class Item(object):
                 self.item_hsh['j'] = res
                 if last:
                     self.item_hsh['f'] = last
+            else:
+                msg.extend(res)
         if self.item_hsh.get('z', None) not in [None, 'float']:
             del self.item_hsh['z']
         if msg:
@@ -2060,9 +2062,13 @@ class DataView(object):
                     if x == "k":
                         continue
                     for p in v:
+                        logger.debug(f"adding completion @{x} {p}")
                         completions.add(f"@{x} {p}")
                 else:
+                    logger.debug(f" addting completion @{x} {v}")
+                    completions.add(f"@{x} {v}")
                     if x == "i":
+                        # make a "k" completion for the "i" entry
                         i, t, s, d = (
                             item["i"],
                             item["itemtype"],
@@ -2070,8 +2076,6 @@ class DataView(object):
                             item.doc_id,
                         )
                         completions.add(f"@k {i} {t} {s}: {d}")
-                    else:
-                        completions.add(f"@{x} {v}")
         self.completions = list(completions)
         self.completions.sort()
 
@@ -2089,7 +2093,10 @@ class DataView(object):
                 for p in v:
                     completions.add(f"@{x} {p}")
             else:
+                logger.debug(f" addting completion @{x} {v}")
+                completions.add(f"@{x} {v}")
                 if x == "i":
+                    # make a "k" completion for the "i" entry
                     i, t, s, d = (
                         v,
                         item.item_hsh.get("itemtype", None),
@@ -2097,8 +2104,6 @@ class DataView(object):
                         item.doc_id,
                     )
                     completions.add(f"@k {i} {t} {s}: {d}")
-                else:
-                    completions.add(f"@{x} {v}")
         new = [x for x in list(completions) if x not in self.completions]
         if new:
             self.completions.extend(new)
@@ -4612,24 +4617,20 @@ def jobs(lofh, at_hsh={}):
         if first:
             # only do this once - for the first job
             first = False
-            # set auto mode True if both i and p are missing from the first job,
-            # otherwise set auto mode False <=> manual mode
-            if  'i' in hsh or 'p' in hsh:
-                auto = False
-            else:
-                auto = True
-                count = 0
+            count = 0
+            # set auto mode True if i is missing from the first job, otherwise set auto mode
+            auto = 'i' not in hsh
         if auto: # auto mode
             if count > 25:
                 count = 0
                 msg.append(
                     "error: at most 26 jobs are allowed in auto mode")
-            # if 'i' in hsh:
-            #     msg.append(
-            #         "error: &i should not be specified in auto mode")
-            # if 'p' in hsh:
-            #     msg.append(
-            #         "error: &p should not be specified in auto mode")
+            if 'i' in hsh:
+                msg.append(
+                    "error: &i should not be specified in auto mode")
+            if 'p' in hsh:
+                msg.append(
+                    "error: &p should not be specified in auto mode")
             # auto generate simple sequence for i: a, b, c, ... and
             # for p: a requires nothing, b requires a, c requires b, ...
             hsh['i'] = LOWERCASE[count]
@@ -4754,6 +4755,7 @@ def jobs(lofh, at_hsh={}):
 
     if msg:
         logger.warning(f"{msg}")
+        return False, msg, None
     return True, [id2hsh[i] for i in ids], last_completion
 
 #######################
@@ -6003,7 +6005,13 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                             id],
                         })
 
-    detail_rows.sort(key=itemgetter('sort'))
+    try:
+        detail_rows.sort(key=itemgetter('sort'))
+    except Exception as e:
+        logger.error(f"error sorting detail_rows: f{e}\ndetail_rows: {detail_rows}")
+        return used_details, used_details2id, used_summary
+
+
     for month, items in groupby(detail_rows, key=itemgetter('month')):
         months.add(month)
         rdict = NDict()
