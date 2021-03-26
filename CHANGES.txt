@@ -1,5 +1,9 @@
-Recent tagged changes as of 2021-03-26T13:20:25.506248-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.7.5) Dan Graham
+Recent tagged changes as of 2021-03-26T18:55:48.190282-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.7.6) Dan Graham
+    6bf4cc82 2021-03-26 18:55:48 -0400
+    Tagged version 4.7.6. "Fixed sorting bug in get_usedtime routine."
+
+- 6 hours ago (tag: 4.7.5) Dan Graham
     6f29c7b7 2021-03-26 13:20:25 -0400
     Tagged version 4.7.5.
 
@@ -94,10 +98,3 @@ Recent tagged changes as of 2021-03-26T13:20:25.506248-04:00:
 - 9 months ago (tag: 4.6.1) Dan Graham
     ff3800d3 2020-07-03 07:25:34 -0400
     Tagged version 4.6.1.
-
-- 9 months ago (tag: 4.6.0) Dan Graham
-    97e5684c 2020-06-30 09:42:28 -0400
-    Tagged version 4.6.0. Implemented konnections. Added flags column
-    to normal views. Changed record item type to journal to mirror
-    vcalendar use and changed view name from record to journal.
-    Refactored all views using NDict.
