@@ -1659,7 +1659,8 @@ def item_changed(loop):
             state = 'r'
             dataview.active_timer = item.doc_id
         dataview.timers[item.doc_id] = [state, pendulum.now('local'), pendulum.Duration()]
-    dataview.update_completions(item)
+    # dataview.update_completions(item)
+    dataview.get_completions()
     dataview.update_konnections(item)
     data_changed(loop)
 
@@ -1891,8 +1892,7 @@ text_area = TextArea(
     )
 
 # completions will come from prior database entries
-completions = [
-        ]
+# completions = []
 
 # expansions will come from cfg.yaml
 expansions = {
@@ -1903,6 +1903,7 @@ class AtCompleter(Completer):
     # pat = re.compile(r'@[cgilntxz]\s?\S*')
     pat = re.compile(r'@[cgiklntxz]\s?[^@&]*')
 
+
     def get_completions(self, document, complete_event):
         cur_line = document.current_line_before_cursor
         matches = re.findall(AtCompleter.pat, cur_line)
@@ -1910,7 +1911,7 @@ class AtCompleter(Completer):
         if word:
             word_len = len(word)
             word = word.rstrip()
-            for completion in completions:
+            for completion in dataview.completions:
                 if word.startswith('@x') and completion.startswith(word):
                     if completion == word:
                         replacement = expansions.get(word[3:], completion)

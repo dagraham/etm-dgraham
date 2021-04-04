@@ -2054,6 +2054,8 @@ class DataView(object):
         Get completions from db items
         """
         completions = set([])
+        self.completions = list(completions)
+
         for item in self.db:
             found = {x: v for x, v in item.items() if x in self.completion_keys}
 
@@ -2065,7 +2067,7 @@ class DataView(object):
                         logger.debug(f"adding completion @{x} {p}")
                         completions.add(f"@{x} {p}")
                 else:
-                    logger.debug(f" addting completion @{x} {v}")
+                    logger.debug(f" adding completion @{x} {v}")
                     completions.add(f"@{x} {v}")
                     if x == "i":
                         # make a "k" completion for the "i" entry
@@ -2078,36 +2080,37 @@ class DataView(object):
                         completions.add(f"@k {i} {t} {s}: {d}")
         self.completions = list(completions)
         self.completions.sort()
+        logger.debug(f"all completions: {self.completions}")
 
 
-    def update_completions(self, item):
-        """
-        update self.completions, if necessary, for the @keys in item
-        """
-        completions = set([])
+    # def update_completions(self, item):
+    #     """
+    #     update self.completions, if necessary, for the @keys in item
+    #     """
+    #     completions = set([])
 
-        found = {x: v for x, v in item.item_hsh.items() if x in self.completion_keys}
-        for x, v in found.items():
-            # if x == 'k':
-            if isinstance(v, list):
-                for p in v:
-                    completions.add(f"@{x} {p}")
-            else:
-                logger.debug(f" addting completion @{x} {v}")
-                completions.add(f"@{x} {v}")
-                if x == "i":
-                    # make a "k" completion for the "i" entry
-                    i, t, s, d = (
-                        v,
-                        item.item_hsh.get("itemtype", None),
-                        item.item_hsh.get("summary", None),
-                        item.doc_id,
-                    )
-                    completions.add(f"@k {i} {t} {s}: {d}")
-        new = [x for x in list(completions) if x not in self.completions]
-        if new:
-            self.completions.extend(new)
-            self.completions.sort()
+    #     found = {x: v for x, v in item.item_hsh.items() if x in self.completion_keys}
+    #     for x, v in found.items():
+    #         # if x == 'k':
+    #         if isinstance(v, list):
+    #             for p in v:
+    #                 completions.add(f"@{x} {p}")
+    #         else:
+    #             logger.debug(f" adding completion @{x} {v}")
+    #             completions.add(f"@{x} {v}")
+    #             if x == "i":
+    #                 # make a "k" completion for the "i" entry
+    #                 i, t, s, d = (
+    #                     v,
+    #                     item.item_hsh.get("itemtype", None),
+    #                     item.item_hsh.get("summary", None),
+    #                     item.doc_id,
+    #                 )
+    #                 completions.add(f"@k {i} {t} {s}: {d}")
+    #     new = [x for x in list(completions) if x not in self.completions]
+    #     if new:
+    #         self.completions.extend(new)
+    #         self.completions.sort()
 
 
     def update_konnections(self, item):
