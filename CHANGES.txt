@@ -1,17 +1,23 @@
-Recent tagged changes as of 2021-03-26T18:55:48.190282-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.7.6) Dan Graham
+Recent tagged changes as of 2021-04-04T12:30:19.634382-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.7.7) Dan Graham
+    8fdfeda1 2021-04-04 12:30:19 -0400
+    Tagged version 4.7.7. Replaced call in item_changed from
+    update_completions to get_completions to insure that completions
+    are always consistent with the current data."
+
+- 9 days ago (tag: 4.7.6) Dan Graham
     6bf4cc82 2021-03-26 18:55:48 -0400
     Tagged version 4.7.6. "Fixed sorting bug in get_usedtime routine."
 
-- 6 hours ago (tag: 4.7.5) Dan Graham
+- 9 days ago (tag: 4.7.5) Dan Graham
     6f29c7b7 2021-03-26 13:20:25 -0400
     Tagged version 4.7.5.
 
-- 12 days ago (tag: 4.7.4) Dan Graham
+- 3 weeks ago (tag: 4.7.4) Dan Graham
     13eec67c 2021-03-14 16:55:35 -0400
     Tagged version 4.7.4.
 
-- 8 weeks ago (tag: 4.7.3) Dan Graham
+- 10 weeks ago (tag: 4.7.3) Dan Graham
     3af362bb 2021-01-27 10:00:46 -0500
     Tagged version 4.7.3. Use requests to check version info from
     github instead of pip search which is currently disabled.
@@ -25,13 +31,13 @@ Recent tagged changes as of 2021-03-26T18:55:48.190282-04:00:
     Tagged version 4.7.1. Added years to period string parsing. Handle
     anniversary regex expressions in beginbys.
 
-- 5 months ago (tag: 4.7.0) Dan Graham
+- 6 months ago (tag: 4.7.0) Dan Graham
     5096a645 2020-10-15 16:33:04 -0400
     Tagged version 4.7.0. Added a locations option to cfg.yaml. When
     given, the do next view will use the location groups specified by
     this option to display tasks.
 
-- 5 months ago (tag: 4.6.13) Dan Graham
+- 6 months ago (tag: 4.6.13) Dan Graham
     60ace7f8 2020-10-14 18:14:46 -0400
     Tagged version 4.6.13. Added inbasket and open_in_mutt scripts to
     utilities and implemented multi-arg processing for goto links.
@@ -51,13 +57,13 @@ Recent tagged changes as of 2021-03-26T18:55:48.190282-04:00:
     773eca79 2020-08-23 10:39:17 -0400
     Tagged version 4.6.10. Fixed bugs in creating and saving timers.
 
-- 7 months ago (tag: 4.6.9) Dan Graham
+- 8 months ago (tag: 4.6.9) Dan Graham
     b204f5eb 2020-08-21 12:14:57 -0400
     Tagged version 4.6.9. Remove timer after recording. Remove timers
     file when no timers remain. When deleting an item with a timer,
     first remove the timer.
 
-- 7 months ago (tag: 4.6.8) Dan Graham
+- 8 months ago (tag: 4.6.8) Dan Graham
     a62920ef 2020-08-20 12:08:15 -0400
     Tagged version 4.6.8. Changed default locale from en to en_US.
     Require locale setting in this format from
@@ -76,7 +82,7 @@ Recent tagged changes as of 2021-03-26T18:55:48.190282-04:00:
     Tagged version 4.6.6. Confirm quitting etm with either unrecorded
     timers or unsaved editor changes.
 
-- 8 months ago (tag: 4.6.5) Dan Graham
+- 9 months ago (tag: 4.6.5) Dan Graham
     330ef60e 2020-07-22 15:02:36 -0400
     Tagged version 4.6.5. Bug fix - allow integer in repetitions
     bef_dt.
@@ -94,7 +100,3 @@ Recent tagged changes as of 2021-03-26T18:55:48.190282-04:00:
     56b3eb76 2020-07-10 12:20:57 -0400
     Tagged version 4.6.2. Implemented multiple timers with a new timer
     view.
-
-- 9 months ago (tag: 4.6.1) Dan Graham
-    ff3800d3 2020-07-03 07:25:34 -0400
-    Tagged version 4.6.1.
