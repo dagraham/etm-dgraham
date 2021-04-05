@@ -1217,7 +1217,7 @@ Several options here deserve comment.
 
 Setting up a virtual environment for etm is recommended for new users. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
 
-Open a terminal and begin by creating a new directory/folder for the virtual environment, say `etm-pypi` in your home directory:
+Open a terminal and begin by creating a new directory/folder for the virtual environment, say `etm-pypi`, in your home directory:
 
         $ mkdir ~/etm-pypi
         $ cd ~/etm-pypi
@@ -1253,6 +1253,7 @@ Details about the home directory are in [usage](#usage).
 If your system allows you to run `sudo` and you want general access system wide, then you could instead install etm using
 
     $ sudo -H python3.x -m pip install -U etm-dgraham
+
 replacing the `3.x` with the verion of python you want to use, e.g., `3.7`. This would put both etm and etm+ in your path (in the bin directory for python3.7).
 
 Notes:
@@ -1266,6 +1267,7 @@ Notes:
                     password database entry.  Depending on
                     the policy, this may be the default
                     behavior.
+
 * Invoking pip through python in this way forces the use of the pip that belongs to python3.7.
 
 You can then open any terminal and start etm using
