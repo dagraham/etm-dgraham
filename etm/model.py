@@ -170,7 +170,7 @@ allowed['-'] = common_methods + datetime_methods + task_methods + repeating_meth
 
 # journal
 required['%'] = []
-allowed['%'] = common_methods
+allowed['%'] = common_methods + ['+']
 
 # inbox
 required['!'] = []

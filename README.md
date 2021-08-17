@@ -1455,6 +1455,7 @@ A record of something that the user wants to remember. The userid and password f
 - The `@s` is optional and, if given, is interpreted as the datetime to which the journal entry applies.
 - Journal entries without @s entries might be used to record personal information such as account numbers, recipies or other such information not associated with a particular datetime. They are displayed in the *Journal* view
 - Journal entries with @s entries associate the entry with the datetime given by @s. A vacation log entry, for example, might record the highlights of the day given by @s. They are displayed in *Agenda* view as well as *Journal* view.
+- While Journal entries do not support repetition using `@r` entries, they do support the use of `@+` entries to add additional dates or datetimes to that provided by the `@s` entry.
 
 Corresponds to VJOURNAL in the vcalendar specification.
 
