@@ -13,7 +13,7 @@ import etm.options as options
 
 
 setup_logging = options.setup_logging
-setup_logging(1, '~/etm-mv')
+setup_logging(1, '~/etm-dgraham')
 view.logger = logger
 
 
