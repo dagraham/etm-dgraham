@@ -2904,6 +2904,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('/) search forward'),
         MenuItem('?) search backward'),
         MenuItem('n) next incrementally in search'),
+        MenuItem(',,) clear search'),
         MenuItem('^l) prompt for and jump to line number', handler=do_go_to_line),
         MenuItem('^p) jump to next pinned item', handler=next_pinned),
         MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
