@@ -1198,6 +1198,7 @@ def show_confirm_as_float(dialog):
 # Key bindings.
 bindings = KeyBindings()
 
+
 @bindings.add('f2')
 def do_about(*event):
     show_message('etm information', about(2)[0], 0)
@@ -1400,6 +1401,11 @@ def is_querying():
 def is_items_table():
     return dataview.query_mode == "items table"
 
+@bindings.add(',', ',', filter=is_viewing)
+def _(event):
+    search_state = get_app().current_search_state
+    text = search_state.text
+    search_state.text = ''
 
 @bindings.add('f1')
 def menu(event=None):
