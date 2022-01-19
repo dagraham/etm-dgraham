@@ -1,7 +1,9 @@
 import os
 import sys
-from ruamel.yaml import YAML
-yaml = YAML()
+
+import ruamel.yaml
+yaml = ruamel.yaml.YAML()
+
 import logging
 import logging.config
 logger = logging.getLogger()
@@ -324,7 +326,8 @@ locations:
         if not os.path.isdir(etmdir):
             raise ValueError(f"{etmdir} is not a valid directory")
         self.colorst = Settings.colors
-        self.settings = yaml.load(Settings.inp)
+        # self.settings = yaml.load(Settings.inp)
+        self.settings = ruamel.yaml.load(Settings.inp, ruamel.yaml.RoundTripLoader)
         # logger.debug(f"settings: {type(self.settings)}; {self.settings}")
         self.cfgfile = os.path.normpath(
                 os.path.join(etmdir, 'cfg.yaml'))
