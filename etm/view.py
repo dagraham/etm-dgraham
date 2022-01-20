@@ -1632,7 +1632,7 @@ class ETMLexer(Lexer):
                     return [(etmstyle[sty], tmp)]
                 else:
                     logger.debug(f"sty: {sty}; etmstyle.keys: {etmstyle.keys()}")
-            if tmp.rstrip().endswith("(Today)"):
+            if tmp.rstrip().endswith("(Today)") or tmp.rstrip().endswith("(Tomorrow)"):
                 return [(etmstyle['today'], f"{tmp} ")]
             return [(etmstyle['plain'], tmp)]
             # return [(etmstyle[type2style.get(typ, 'plain')], tmp)]

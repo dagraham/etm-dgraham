@@ -6392,10 +6392,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         rdict = NDict()
         wk_fmt = fmt_week(week).center(width, ' ')
         today = now.format("ddd MMM D")
+        tomorrow = (now + 1*DAY).format("ddd MMM D")
         for row in items:
             day = row['day'][0]
             if day == today:
                 day += " (Today)"
+            elif day == tomorrow:
+                day += " (Tomorrow)"
             path = f"{wk_fmt}/{day}"
             values = row['columns']
             rdict.add(path, values)
