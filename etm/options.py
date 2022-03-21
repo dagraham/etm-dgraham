@@ -2,7 +2,7 @@ import os
 import sys
 
 import ruamel.yaml
-yaml = ruamel.yaml.YAML()
+yaml = ruamel.yaml.YAML(typ='unsafe', pure=True)
 
 import logging
 import logging.config

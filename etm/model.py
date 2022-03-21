@@ -1575,7 +1575,12 @@ def format_datetime(obj, short=False):
     (True, 'Thu Jan 31 2019 5:30pm EST')
     """
     ampm = settings.get('ampm', True)
-    date_fmt = "YYYY-MM-DD" if short else "ddd MMM D YYYY"
+    dayfirst = settings.get('dayfirst', False)
+    yearfirst = settings.get('yearfirst', False)
+    md = "DD-MM" if dayfirst else "MM-DD"
+    ymd = f"YYYY-{md}" if yearfirst else f"{md}-YYYY"
+
+    date_fmt = ymd if short else "ddd MMM D YYYY"
     time_fmt = "h:mmA" if ampm else "H:mm"
 
 
