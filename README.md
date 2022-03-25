@@ -1650,6 +1650,10 @@ For use with @r:
 
 		- haircut @s 24 @r d &i 14 @o r
 
+* Reconcile accounts (a task) on the 2nd day of the current month and then [r]epeatedly at (m)onthly intervals on the second day of the month (&m 2) at midnight (&h 0 &n 0). *etm* will treat midnight as a date rather than a datetime. [o]n completion, (r)restart from the last completion datetime:
+
+        - reconcile accounts @s 2 @r m &m 2 &h 0 &n 0 @o r
+
 * Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the pastdue reminders.
 
 		- Take out trash @s mon @r w @o s
