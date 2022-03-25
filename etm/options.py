@@ -88,7 +88,7 @@ ampm: true
 #       DD-MM-YY
 #       MM-DD-YY
 #
-yearfirst: false
+yearfirst: true
 dayfirst: false
 
 # updates_interval: a non-negative integer. If positive,

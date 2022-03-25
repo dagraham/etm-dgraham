@@ -6531,7 +6531,7 @@ def import_text(import_file=None):
         reminder = []
         for line in fo:
             s = line.strip()
-            if s and s[0] in ['!', '*', '+', '%']:
+            if s and s[0] in ['!', '*', '-', '%']:
                 if reminder:
                     # append it to reminders and reset it
                     reminders.append(reminder)
@@ -6543,6 +6543,7 @@ def import_text(import_file=None):
         if reminder:
             reminders.append(reminder)
     for reminder in reminders:
+        logger.debug(f"processing {reminder}")
         ok = True
         s = "\n".join(reminder)
         if not s: continue
@@ -6561,6 +6562,7 @@ def import_text(import_file=None):
             continue
 
         # update_item_hsh stores the item in ETMDB
+        logger.debug(f"updating {item}")
         item.update_item_hsh()
         good.append(f"{item.doc_id}")
 
