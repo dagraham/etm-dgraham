@@ -1950,10 +1950,10 @@ entry_buffer = Buffer(multiline=True, completer=at_completer, complete_while_typ
 
 reply_buffer = Buffer(multiline=True)
 
-reply_dimension = 2
-entry_dimension = 10
-# reply_dimension = Dimension(min=2, weight=2)
-# entry_dimension = Dimension(min=3, weight=2)
+# reply_dimension = 2
+# entry_dimension = 10
+reply_dimension = Dimension(min=1, weight=1)
+entry_dimension = Dimension(min=2, weight=3)
 
 entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
 ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
