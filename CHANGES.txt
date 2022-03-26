@@ -1,9 +1,14 @@
-Recent tagged changes as of 2022-03-25T10:09:24.619038-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.7.11) Daniel Graham
+Recent tagged changes as of 2022-03-26T08:15:09.927566-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.7.12) Daniel Graham
+    5593f57b 2022-03-26 08:15:09 -0400
+    Tagged version 4.7.12. Made reply and entry areas expandable.
+    README repetition example addition.
+
+- 22 hours ago (tag: 4.7.11) Daniel Graham
     9d551f2b 2022-03-25 10:09:24 -0400
     Tagged version 4.7.11.
 
-- 4 days ago (tag: 4.7.10) Daniel Graham
+- 5 days ago (tag: 4.7.10) Daniel Graham
     e3c7b39b 2022-03-21 11:32:08 -0400
     Tagged version 4.7.10.
 
@@ -21,11 +26,11 @@ Recent tagged changes as of 2022-03-25T10:09:24.619038-04:00:
     update_completions to get_completions to insure that completions
     are always consistent with the current data."
 
-- 12 months ago (tag: 4.7.6) Dan Graham
+- 1 year ago (tag: 4.7.6) Dan Graham
     6bf4cc82 2021-03-26 18:55:48 -0400
     Tagged version 4.7.6. "Fixed sorting bug in get_usedtime routine."
 
-- 12 months ago (tag: 4.7.5) Dan Graham
+- 1 year ago (tag: 4.7.5) Dan Graham
     6f29c7b7 2021-03-26 13:20:25 -0400
     Tagged version 4.7.5.
 
@@ -92,8 +97,3 @@ Recent tagged changes as of 2022-03-25T10:09:24.619038-04:00:
     Tagged version 4.6.7. Automatically save timer status at least
     once every minute and, on restart, restore the last saved timer
     state.
-
-- 1 year, 8 months ago (tag: 4.6.6) Dan Graham
-    34bc8fb3 2020-08-02 10:15:13 -0400
-    Tagged version 4.6.6. Confirm quitting etm with either unrecorded
-    timers or unsaved editor changes.
