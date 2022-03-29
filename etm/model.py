@@ -2548,13 +2548,15 @@ class DataView(object):
                 agenda, done, busy, num2id, row2id = self.cache[week]
                 current.append(agenda)
             with open(self.currfile, 'w', encoding='utf-8') as fo:
-                fo.write("\n\n".join([x.lstrip() for x in current]))
+                fo.write("\n\n".join([re.sub(' {5,}', ' ', x.strip()) for x in current]))
+                # fo.write("\n\n".join([x.lstrip() for x in current]))
             logger.info(f"saved current schedule to {self.currfile}")
 
         if self.nextfile is not None:
             next_view, row2id = show_next(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
             with open(self.nextfile, 'w', encoding='utf-8') as fo:
-                fo.write(next_view)
+                fo.write(re.sub(' {3,}', ' ', next_view))
+                # fo.write(next_view)
             logger.info(f"saved do next to {self.nextfile}")
 
 
