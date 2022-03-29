@@ -1,18 +1,23 @@
-Recent tagged changes as of 2022-03-26T08:15:09.927566-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.7.12) Daniel Graham
+Recent tagged changes as of 2022-03-29T12:12:12.226062-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.7.13) Daniel Graham
+    13e69aba 2022-03-29 12:12:12 -0400
+    Tagged version 4.7.13. Compress output for current.txt and
+    next.txt to improve display in mobile devices.
+
+- 3 days ago (tag: 4.7.12) Daniel Graham
     5593f57b 2022-03-26 08:15:09 -0400
     Tagged version 4.7.12. Made reply and entry areas expandable.
     README repetition example addition.
 
-- 22 hours ago (tag: 4.7.11) Daniel Graham
+- 4 days ago (tag: 4.7.11) Daniel Graham
     9d551f2b 2022-03-25 10:09:24 -0400
     Tagged version 4.7.11.
 
-- 5 days ago (tag: 4.7.10) Daniel Graham
+- 8 days ago (tag: 4.7.10) Daniel Graham
     e3c7b39b 2022-03-21 11:32:08 -0400
     Tagged version 4.7.10.
 
-- 2 months ago (tag: 4.7.9) Daniel Graham
+- 3 months ago (tag: 4.7.9) Daniel Graham
     ad32bdfd 2022-01-11 18:35:40 -0500
     Tagged version 4.7.9.
 
@@ -91,9 +96,3 @@ Recent tagged changes as of 2022-03-26T08:15:09.927566-04:00:
     https://www.tutorialspoint.com/abbreviations/abbreviations_locale.htm.
     Added utf-8 encoding to open write statements to avoid encoding
     issues in Windows. Various bug fixes.
-
-- 1 year, 8 months ago (tag: 4.6.7) Dan Graham
-    f218067b 2020-08-03 13:59:29 -0400
-    Tagged version 4.6.7. Automatically save timer status at least
-    once every minute and, on restart, restore the last saved timer
-    state.
