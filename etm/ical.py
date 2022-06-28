@@ -38,7 +38,11 @@ def pen_from_fmt(s, z='local'):
         dt = pendulum.from_format(s, "YYYYMMDD", z)
         return dt.date()
     else:
-        dt = pendulum.from_format(s, "YYYYMMDDTHHmmss", z)
+        if s[-1] == 'Z':
+            # UTC - ignore z and drop the trailing Z
+            dt = pendulum.from_format(s[:-1], "YYYYMMDDTHHmmss")
+        else:
+            dt = pendulum.from_format(s, "YYYYMMDDTHHmmss", z)
         if z in ['local', 'Factory'] and dt.hour == dt.minute == 0:
             dt = dt.date()
         return dt
@@ -160,7 +164,7 @@ item_types = {
 # RRULE:FREQ=DAILY;COUNT=4
 # END:VEVENT
 # END:VCALENDAR
- 
+
 
 def ics_to_items(ics_file=None):
     """
@@ -444,7 +448,7 @@ def item_to_ics(item):
     itemtype = item.get('itemtype')
     if not itemtype:
         return False, None
-    element = item_types.get(itemtype) 
+    element = item_types.get(itemtype)
     if not element:
         return False, None
     summary = item['summary']
@@ -643,7 +647,7 @@ def export_active_to_ics(file2uuids, uuid2hash, ics_file, calendars=None):
 
 if __name__ == '__main__':
     import sys
-    import pprint 
+    import pprint
     pp = pprint.PrettyPrinter(indent=3)
     if len(sys.argv) > 1:
         try:

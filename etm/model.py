@@ -5060,7 +5060,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             if id in link_list:
                 link_list.remove(id)
 
-        summary = item['summary']
+        summary = item.get('summary', "~")
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
         if item['itemtype'] == '!':
             inbox.append([0, summary, item.doc_id, None, None])
@@ -5465,7 +5465,7 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
             # time = fmt_time(dt).rjust(7, ' ')
             rhc = f"{c5dt} {label}"
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
-            summary = item['summary']
+            summary = item.get('summary', "~")
             flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
             path = '    m: last modified; c: created; most recent first'
             rows.append(
@@ -6166,7 +6166,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             continue
         if item['itemtype'] in "!?":
             continue
-        summary = item['summary']
+        summary = item.get('summary', "~")
         id = item.doc_id
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
         if 'u' in item:
