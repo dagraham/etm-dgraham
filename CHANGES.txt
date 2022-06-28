@@ -1,98 +1,95 @@
-Recent tagged changes as of 2022-03-29T12:12:12.226062-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.7.13) Daniel Graham
+Recent tagged changes as of 2022-06-28T12:10:03.578555-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.7.14) Daniel Graham
+    c47de41b 2022-06-28 12:10:03 -0400
+    Tagged version 4.7.14. Handle missing summaries and UTC datetimes
+    in ics imports.
+
+- 3 months ago (tag: 4.7.13) Daniel Graham
     13e69aba 2022-03-29 12:12:12 -0400
     Tagged version 4.7.13. Compress output for current.txt and
     next.txt to improve display in mobile devices.
 
-- 3 days ago (tag: 4.7.12) Daniel Graham
+- 3 months ago (tag: 4.7.12) Daniel Graham
     5593f57b 2022-03-26 08:15:09 -0400
     Tagged version 4.7.12. Made reply and entry areas expandable.
     README repetition example addition.
 
-- 4 days ago (tag: 4.7.11) Daniel Graham
+- 3 months ago (tag: 4.7.11) Daniel Graham
     9d551f2b 2022-03-25 10:09:24 -0400
     Tagged version 4.7.11.
 
-- 8 days ago (tag: 4.7.10) Daniel Graham
+- 3 months ago (tag: 4.7.10) Daniel Graham
     e3c7b39b 2022-03-21 11:32:08 -0400
     Tagged version 4.7.10.
 
-- 3 months ago (tag: 4.7.9) Daniel Graham
+- 6 months ago (tag: 4.7.9) Daniel Graham
     ad32bdfd 2022-01-11 18:35:40 -0500
     Tagged version 4.7.9.
 
-- 7 months ago (tag: 4.7.8) Dan Graham
+- 10 months ago (tag: 4.7.8) Dan Graham
     a182b971 2021-08-18 10:13:15 -0400
     Tagged version 4.7.8. Allow @+ entries in journal records.
 
-- 12 months ago (tag: 4.7.7) Dan Graham
+- 1 year, 3 months ago (tag: 4.7.7) Dan Graham
     8fdfeda1 2021-04-04 12:30:19 -0400
     Tagged version 4.7.7. Replaced call in item_changed from
     update_completions to get_completions to insure that completions
     are always consistent with the current data."
 
-- 1 year ago (tag: 4.7.6) Dan Graham
+- 1 year, 3 months ago (tag: 4.7.6) Dan Graham
     6bf4cc82 2021-03-26 18:55:48 -0400
     Tagged version 4.7.6. "Fixed sorting bug in get_usedtime routine."
 
-- 1 year ago (tag: 4.7.5) Dan Graham
+- 1 year, 3 months ago (tag: 4.7.5) Dan Graham
     6f29c7b7 2021-03-26 13:20:25 -0400
     Tagged version 4.7.5.
 
-- 1 year ago (tag: 4.7.4) Dan Graham
+- 1 year, 3 months ago (tag: 4.7.4) Dan Graham
     13eec67c 2021-03-14 16:55:35 -0400
     Tagged version 4.7.4.
 
-- 1 year, 2 months ago (tag: 4.7.3) Dan Graham
+- 1 year, 5 months ago (tag: 4.7.3) Dan Graham
     3af362bb 2021-01-27 10:00:46 -0500
     Tagged version 4.7.3. Use requests to check version info from
     github instead of pip search which is currently disabled.
 
-- 1 year, 5 months ago (tag: 4.7.2) Dan Graham
+- 1 year, 8 months ago (tag: 4.7.2) Dan Graham
     8569c2cd 2020-11-04 14:03:14 -0500
     Tagged version 4.7.2. Bug fix in openWithDefault path expansion.
 
-- 1 year, 5 months ago (tag: 4.7.1) Dan Graham
+- 1 year, 8 months ago (tag: 4.7.1) Dan Graham
     71cbea69 2020-11-01 10:30:44 -0500
     Tagged version 4.7.1. Added years to period string parsing. Handle
     anniversary regex expressions in beginbys.
 
-- 1 year, 5 months ago (tag: 4.7.0) Dan Graham
+- 1 year, 8 months ago (tag: 4.7.0) Dan Graham
     5096a645 2020-10-15 16:33:04 -0400
     Tagged version 4.7.0. Added a locations option to cfg.yaml. When
     given, the do next view will use the location groups specified by
     this option to display tasks.
 
-- 1 year, 5 months ago (tag: 4.6.13) Dan Graham
+- 1 year, 8 months ago (tag: 4.6.13) Dan Graham
     60ace7f8 2020-10-14 18:14:46 -0400
     Tagged version 4.6.13. Added inbasket and open_in_mutt scripts to
     utilities and implemented multi-arg processing for goto links.
 
-- 1 year, 6 months ago (tag: 4.6.12) Dan Graham
+- 1 year, 9 months ago (tag: 4.6.12) Dan Graham
     ec074f0d 2020-10-06 14:19:16 -0400
     Tagged version 4.6.12. Added display of index entry when recording
     a timer
 
-- 1 year, 7 months ago (tag: 4.6.11) Dan Graham
+- 1 year, 10 months ago (tag: 4.6.11) Dan Graham
     91a91386 2020-08-31 14:10:55 -0400
     Tagged version 4.6.11. Added locations view. Modified tags view to
     also show groups of tags. Added command to jump cyclically to the
     next pinned item in any view."
 
-- 1 year, 7 months ago (tag: 4.6.10) Dan Graham
+- 1 year, 10 months ago (tag: 4.6.10) Dan Graham
     773eca79 2020-08-23 10:39:17 -0400
     Tagged version 4.6.10. Fixed bugs in creating and saving timers.
 
-- 1 year, 7 months ago (tag: 4.6.9) Dan Graham
+- 1 year, 10 months ago (tag: 4.6.9) Dan Graham
     b204f5eb 2020-08-21 12:14:57 -0400
     Tagged version 4.6.9. Remove timer after recording. Remove timers
     file when no timers remain. When deleting an item with a timer,
     first remove the timer.
-
-- 1 year, 7 months ago (tag: 4.6.8) Dan Graham
-    a62920ef 2020-08-20 12:08:15 -0400
-    Tagged version 4.6.8. Changed default locale from en to en_US.
-    Require locale setting in this format from
-    https://www.tutorialspoint.com/abbreviations/abbreviations_locale.htm.
-    Added utf-8 encoding to open write statements to avoid encoding
-    issues in Windows. Various bug fixes.
