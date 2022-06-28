@@ -1,5 +1,9 @@
-Recent tagged changes as of 2022-06-28T12:10:03.578555-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.7.14) Daniel Graham
+Recent tagged changes as of 2022-06-28T12:52:48.422124-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.7.15) Daniel Graham
+    f449fc6d 2022-06-28 12:52:48 -0400
+    Tagged version 4.7.15.
+
+- 43 minutes ago (tag: 4.7.14) Daniel Graham
     c47de41b 2022-06-28 12:10:03 -0400
     Tagged version 4.7.14. Handle missing summaries and UTC datetimes
     in ics imports.
@@ -87,9 +91,3 @@ Recent tagged changes as of 2022-06-28T12:10:03.578555-04:00:
 - 1 year, 10 months ago (tag: 4.6.10) Dan Graham
     773eca79 2020-08-23 10:39:17 -0400
     Tagged version 4.6.10. Fixed bugs in creating and saving timers.
-
-- 1 year, 10 months ago (tag: 4.6.9) Dan Graham
-    b204f5eb 2020-08-21 12:14:57 -0400
-    Tagged version 4.6.9. Remove timer after recording. Remove timers
-    file when no timers remain. When deleting an item with a timer,
-    first remove the timer.
