@@ -1786,14 +1786,11 @@ def parse_duration(s):
 
 sys_platform = platform.system()
 mac = sys.platform == 'darwin'
-if sys_platform in ('Windows', 'Microsoft'):
-    windoz = True
-    from time import clock as timer
-else:
-    windoz = False
-    from time import time as timer
+windoz = sys_platform in ('Windows', 'Microsoft')
 
+from time import perf_counter as timer
 
+# FIXME: is this still used?
 class TimeIt(object):
     def __init__(self, loglevel=1, label=""):
         self.loglevel = loglevel
