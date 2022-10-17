@@ -1,5 +1,9 @@
-Recent tagged changes as of 2022-10-14T11:14:51.248365-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.7.16) Daniel Graham
+Recent tagged changes as of 2022-10-17T08:03:21.665370-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.7.17) Daniel Graham
+    475d89a9 2022-10-17 08:03:21 -0400
+    Tagged version 4.7.17.
+
+- 3 days ago (tag: 4.7.16) Daniel Graham
     90083942 2022-10-14 11:14:51 -0400
     Tagged version 4.7.16.
 
@@ -65,7 +69,7 @@ Recent tagged changes as of 2022-10-14T11:14:51.248365-04:00:
     8569c2cd 2020-11-04 14:03:14 -0500
     Tagged version 4.7.2. Bug fix in openWithDefault path expansion.
 
-- 1 year, 11 months ago (tag: 4.7.1) Dan Graham
+- 2 years ago (tag: 4.7.1) Dan Graham
     71cbea69 2020-11-01 10:30:44 -0500
     Tagged version 4.7.1. Added years to period string parsing. Handle
     anniversary regex expressions in beginbys.
@@ -85,9 +89,3 @@ Recent tagged changes as of 2022-10-14T11:14:51.248365-04:00:
     ec074f0d 2020-10-06 14:19:16 -0400
     Tagged version 4.6.12. Added display of index entry when recording
     a timer
-
-- 2 years, 1 month ago (tag: 4.6.11) Dan Graham
-    91a91386 2020-08-31 14:10:55 -0400
-    Tagged version 4.6.11. Added locations view. Modified tags view to
-    also show groups of tags. Added command to jump cyclically to the
-    next pinned item in any view."
