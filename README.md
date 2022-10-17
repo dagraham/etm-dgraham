@@ -1534,10 +1534,10 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @i: index. forward slash delimited string. E.g., client/project/activity
 *  @j*: job summary. string, optionally followed by job &key entries
 *  @k*: doc_id. connect this reminder to the one corresponding to doc_id.
-*  @l: location/context. string
+*  @l: location (aka context). forward slash delimited string. E.g., home/maintenance
 *  @m: mask. string stored in obfuscated form
 *  @n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion.
-*  @o: overdue. character from (r) restart, (s) skip or (k) keep
+*  @o: overdue. character from (r) restart, (s) skip, (k) keep, (p) preserve
 *  @p: priority. integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
 *  @r*: repetition frequency, a character from (y)early, (m)onthly, (w)eekly,
   (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &key entries
