@@ -4209,7 +4209,7 @@ def get_next_due(item, done, due):
     if not lofh:
         return ''
     rset = rruleset()
-    overdue = item.get('o', 'k')
+    overdue = item.get('o', 'k') # make 'k' the default for 'o'
     dtstart = item['s']
     if overdue == 'k':
         aft = due
