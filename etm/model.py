@@ -1606,8 +1606,8 @@ def format_datetime(obj, short=False):
     ampm = settings.get('ampm', True)
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    md = "DD-MM" if dayfirst else "MM-DD"
-    ymd = f"YYYY-{md}" if yearfirst else f"{md}-YYYY"
+    md = "D/M" if dayfirst else "M/D"
+    ymd = f"YY/{md}" if yearfirst else f"{md}/YY"
 
     date_fmt = ymd if short else "ddd MMM D YYYY"
     time_fmt = "h:mmA" if ampm else "H:mm"
@@ -5190,49 +5190,52 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                                 item['s'] = pendulum.instance(relevant)
                                 update_db(db, item.doc_id, item)
                     elif item.get('o', 'k') == 'p':
+                        # this is the first instance after 12am today
                         relevant = rset.after(today, inc=True)
+                        # these are the instances to be preserved
+                        using_datetimes = isinstance(item['s'], pendulum.DateTime)
+                        # make sure we have a starting datetime for between
+                        start = item['s'] if using_datetimes else pendulum.datetime(
+                                item['s'].year, item['s'].month, item['s'].day)
+                        between = rset.between(start, today - ONEMIN, inc=True)
+                        if relevant and not between:
+                            # shouldn't happen
+                            logger.debug(f"relevant, {relevant}, but not between for {item}")
+                        summary = item['summary']
 
-                        # need to repeat this as long as item['s'] < today
+                        if relevant and item['s'].format('YYYYMMDD') < today.format('YYYYMMDD'):
+                            # the due date for the repeating version of the item needs to be reset
+                            # keep a copy with the original @s for the instances to be preserved
+                            orig_id = item.doc_id
+                            hsh_copy = deepcopy(item)
+                            # remove @r and @o from the copy
+                            hsh_copy.pop('r')
+                            hsh_copy.pop('o')
+                            hsh_copy.setdefault('k', []).append(orig_id)
+                            hsh_copy['created'] = pendulum.now()
 
-                        if relevant:
-                            if item['s'].format('YYYYMMDD') < today.format('YYYYMMDD'):
-                                logger.debug("pastdue")
-                                # make a copy with the original @s
-                                hsh_copy = deepcopy(item)
-                                # remove @r and @o from the copy
-                                hsh_copy.pop('r')
-                                hsh_copy.pop('o')
-                                hsh_copy['created'] = pendulum.now()
+                            # update @s for the repeating item
+                            item['s'] = pendulum.instance(relevant)
+                            # update the repeating item in the db
+                            update_db(db, orig_id, item)
 
-                                # update @s for the repeating item
-                                item['s'] = pendulum.instance(relevant)
+                        for dt in between:
+                            pdt = pendulum.instance(dt)
+                            hsh_copy['s'] = pdt
 
-                                orig_id = item.doc_id
-
-                                # update the original item in the db
-                                update_db(db, item.doc_id, item)
-
-                                # create the new, non-repeating item
-                                # add the original due date/time to the summary
-                                # and the konnection to the original itme
-                                if isinstance(hsh_copy['s'], pendulum.DateTime):
-                                    logger.debug(f"datetime: {hsh_copy['s']}")
-                                    hsh_copy['summary'] = f"{hsh_copy['summary']} ({hsh_copy['s'].format('YY/M/D H:mm')})"
-                                else:
-                                    logger.debug(f"date: {hsh_copy['s']}")
-                                    hsh_copy['summary'] = f"{hsh_copy['summary']} ({hsh_copy['s'].format('YY/M/D')})"
-                                hsh_copy.setdefault('k', []).append(orig_id)
-                                # set the new id to avoid a conflict
-                                new_id = db._get_next_id()
-                                # add the modified copy to the db
-                                logger.debug(f"adding: new_id {new_id}  {hsh_copy}")
-                                db.insert(Document(hsh_copy, doc_id=new_id))
-                                dirty = True
+                            if using_datetimes:
+                                # hsh_copy['summary'] = f"{summary} ({pdt.format('YY/M/D H:mm')})"
+                                hsh_copy['summary'] = f"{summary} ({format_datetime(pdt, short=True)[1]})"
                             else:
-                                # last instance, update to @s not needed
-                                pass
-                        else:
-                            relevant = dtstart
+                                # hsh_copy['summary'] = f"{summary} ({pdt.format('YY/M/D')})"
+                                hsh_copy['summary'] = f"{summary} ({format_datetime(pdt, short=True)[1]})"
+
+                            # set the new id to avoid a conflict
+                            new_id = db._get_next_id()
+                            logger.debug(f"inserting: {new_id}:  {hsh_copy}")
+                            db.insert(Document(hsh_copy, doc_id=new_id))
+                            dirty = True
+
                     else:
                         # for a restart or keep task, relevant is dtstart
                         relevant = dtstart
