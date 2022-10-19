@@ -41,6 +41,7 @@ import sys
 import re
 
 from tinydb import __version__ as tinydb_version
+from tinydb.table import Document
 
 from jinja2 import Template
 from jinja2 import __version__ as jinja2_version
@@ -468,7 +469,7 @@ def active_from_pos(pos_hsh, pos):
     return p, v
 
 
-class Item(object):
+class Item(dict):
     """
 
     """
@@ -555,6 +556,13 @@ class Item(object):
         if not self.entry:
             self.text_changed('', 0, False)
 
+    def __repr__(self):
+        return f"""
+doc_id:      {self.doc_id}
+is_new:      {self.is_new}
+is_modified: {self.is_modified}
+item_hsh:    {self.item_hsh}
+                """
 
     def set_dbfile(self, dbfile=None):
         self.settings = settings if settings else {}
@@ -962,7 +970,11 @@ class Item(object):
             display_key = f"@{key}" if len(key) == 1 else f"&{key[-1]}"
             self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
 
+    # def set_item_hsh(self, hsh={}):
+    #     self.item_hsh = hsh
+
     def check_item_hsh(self):
+        logger.debug(f"item_hsh: {self.item_hsh}")
         created = self.item_hsh.get('created', None)
         self.item_hsh = {'created': created}
         cur_hsh = {}
@@ -1022,17 +1034,20 @@ class Item(object):
 
     def update_item_hsh(self):
         msg = self.check_item_hsh()
+
         links = self.item_hsh.get('k', [])
         if links:
             # make sure the doc_id refers to an actual document
             self.item_hsh['k'] = [x for x in links if self.db.contains(doc_id=x)]
 
         if self.is_modified and not msg:
+            logger.debug(f"{repr(self)}")
             now = pendulum.now('local')
             if self.is_new:
                 # creating a new item or editing a copy of an existing item
                 self.item_hsh['created'] = now
                 if self.doc_id is None:
+                    logger.debug(f"inserting: {self.item_hsh}")
                     self.doc_id = self.db.insert(self.item_hsh)
                 else:
                     self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
@@ -1043,6 +1058,20 @@ class Item(object):
                     self.item_hsh['k'].remove(self.doc_id)
                 self.item_hsh['modified'] = now
                 self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+
+
+    # def insert_item_hsh(self):
+    #     # assume new and hsh is valid
+    #     self.item_hsh['created'] = pendulum.now('local')
+
+    #     # self.item_hsh.pop('modified')
+
+    #     logger.debug(f"inserting: {self.item_hsh}")
+    #     try:
+    #         new_id = self.db.insert(self.item_hsh)
+    #         logger.debug(f"new_id: {new_id}")
+    #     except Exception as e:
+    #         logger.error(f"error: {repr(e)}")
 
 
     def check_requires(self, key):
@@ -1812,6 +1841,7 @@ class TimeIt(object):
         elif self.loglevel == 3:
             logger.warning(msg)
 
+
 class NDict(dict):
     """
     Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row.
@@ -2515,9 +2545,15 @@ class DataView(object):
         """
         Called to set the relevant items for the current date and to change the currentYrWk and activeYrWk to that containing the current date.
         """
+        logger.debug(f"in refreshRelevant")
         self.set_now()
         self.currentYrWk = getWeekNum(self.now)
-        self.current, self.alerts, self.id2relevant = relevant(self.db, self.now, self.pinned_list, self.link_list, self.konnected, self.timers)
+        dirty = True
+        while dirty:
+            self.current, self.alerts, self.id2relevant, dirty = relevant(self.db, self.now, self.pinned_list, self.link_list, self.konnected, self.timers)
+            if dirty:
+                self.refresh_konnections()
+
         self.refreshCache()
 
 
@@ -2607,6 +2643,16 @@ class DataView(object):
             item_hsh = item_details(item, edit)
             return item_id, item_hsh
         return None, ''
+
+    # # for @o p use
+    # def get_details_from_id(self, item_id=None):
+    #     if not (item_id):
+    #         return None, ''
+    #     item = self.db.get(doc_id=item_id)
+    #     if item:
+    #         item_hsh = item_details(item, edit)
+    #         return item_id, item_hsh
+    #     return None, ''
 
     def toggle_pinned(self, row=None):
         res = self.get_row_details(row)
@@ -3680,10 +3726,10 @@ def do_period(arg):
 
 
 def do_overdue(arg):
-    ovrstr = "overdue: character from (r)estart, (s)kip or (k)eep"
+    ovrstr = "overdue: character from (r)estart, (s)kip, (k)eep or (p)reserve"
 
     if arg:
-        ok = arg in ('k', 'r', 's')
+        ok = arg in ('k', 'r', 's', 'p')
         if ok:
             return arg, f"overdue: {arg}"
         else:
@@ -5022,8 +5068,10 @@ def get_item(id):
 def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=[], timers={}):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
+    Called by dataview.refreshRelevant
     """
     # These need to be local times since all times from the datastore and rrule will be local times
+    dirty = False
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 7 - 16
 
@@ -5041,6 +5089,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     current = []
 
     for item in db:
+        logger.debug(f"in relevant loop. item: {item.doc_id} ")
         instance_interval = []
         possible_beginby = None
         possible_alerts = []
@@ -5140,6 +5189,48 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                             if item['s'] != pendulum.instance(relevant):
                                 item['s'] = pendulum.instance(relevant)
                                 update_db(db, item.doc_id, item)
+                    elif item.get('o', 'k') == 'p':
+                        relevant = rset.after(today, inc=True)
+
+                        # need to repeat this as long as item['s'] < today
+
+                        if relevant:
+                            if item['s'].format('YYYYMMDD') < today.format('YYYYMMDD'):
+                                logger.debug("pastdue")
+                                # make a copy with the original @s
+                                hsh_copy = deepcopy(item)
+                                # remove @r and @o from the copy
+                                hsh_copy.pop('r')
+                                hsh_copy.pop('o')
+                                hsh_copy['created'] = pendulum.now()
+
+                                # update @s for the repeating item
+                                item['s'] = pendulum.instance(relevant)
+
+                                orig_id = item.doc_id
+
+                                # update the original item in the db
+                                update_db(db, item.doc_id, item)
+
+                                # create the new, non-repeating item
+                                # add the original due date/time to the summary
+                                # and the konnection to the original itme
+                                if isinstance(hsh_copy['s'], pendulum.DateTime):
+                                    logger.debug(f"datetime: {hsh_copy['s']}")
+                                    hsh_copy['summary'] = f"{hsh_copy['summary']} ({hsh_copy['s'].format('YY/M/D H:mm')})"
+                                else:
+                                    logger.debug(f"date: {hsh_copy['s']}")
+                                    hsh_copy['summary'] = f"{hsh_copy['summary']} ({hsh_copy['s'].format('YY/M/D')})"
+                                hsh_copy.setdefault('k', []).append(orig_id)
+                                # set the new id to avoid a conflict
+                                new_id = db._get_next_id()
+                                # add the modified copy to the db
+                                logger.debug(f"adding: new_id {new_id}  {hsh_copy}")
+                                db.insert(Document(hsh_copy, doc_id=new_id))
+                                dirty = True
+                            else:
+                                # last instance, update to @s not needed
+                                pass
                         else:
                             relevant = dtstart
                     else:
@@ -5285,7 +5376,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
         current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begby_fmt, 3, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], flags, rhc, id]})
 
-    return current, alerts, id2relevant
+    return current, alerts, id2relevant, dirty
 
 
 def db_replace(new):
@@ -5335,7 +5426,7 @@ def insert_db(db, hsh={}):
     try:
         db.insert(hsh)
     except Exception as e:
-        logger.error(f"Error updating database:\nid {id}\nold {old}\nhsh {hsh}\ne {repr(e)}")
+        logger.error(f"Error updating database:\nhsh {hsh}\ne {repr(e)}")
 
 
 def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], timers={}):
