@@ -515,7 +515,7 @@ class Item(dict):
                 'l': ["location", "location or context, e.g., home, office, errands", do_string],
                 'm': ["mask", "string to be masked", do_mask],
                 'n': ["attendee", "name <email address>", do_string],
-                'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", do_overdue],
+                'o': ["overdue", "character from (r)estart, (s)kip, (k)eep or (p)reserve", do_overdue],
                 'p': ["priority", "priority from 0 (none) to 4 (urgent)", do_priority],
                 's': ["start", "starting date or datetime", self.do_datetime],
                 't': ["tag", "tag", do_string],
@@ -2644,15 +2644,6 @@ class DataView(object):
             return item_id, item_hsh
         return None, ''
 
-    # # for @o p use
-    # def get_details_from_id(self, item_id=None):
-    #     if not (item_id):
-    #         return None, ''
-    #     item = self.db.get(doc_id=item_id)
-    #     if item:
-    #         item_hsh = item_details(item, edit)
-    #         return item_id, item_hsh
-    #     return None, ''
 
     def toggle_pinned(self, row=None):
         res = self.get_row_details(row)
@@ -5213,6 +5204,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                             hsh_copy.pop('o')
                             hsh_copy.setdefault('k', []).append(orig_id)
                             hsh_copy['created'] = pendulum.now()
+                            if 'modified' in hsh_copy:
+                                hsh_copy.pop('modified')
 
                             # update @s for the repeating item
                             item['s'] = pendulum.instance(relevant)

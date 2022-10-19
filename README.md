@@ -484,7 +484,7 @@ The normal agenda listing for a week day:
 And, on the current day only:
 
 * inbox items
-* *<* pastdue warnings in descending order of the number of days past due
+* *<* past due warnings in descending order of the number of days past due
 * *>* beginby warnings in ascending order of the number of days remaining
 
 ### Timer view
@@ -1380,14 +1380,15 @@ Type character: **-**
 A task is something that requires action from the user and lasts, so to speak, until the task is completed and marked finished. Filing a tax return, for example, is a task.
 
 - The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is due.
-    - Tasks with an `@s` datetime entry are regarded as pastdue after the datetime and are displayed in *Agenda View* on the relevant date according to the starting time.
-    - Tasks with `@s` date entry are regarded as pastdue after the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
-    - Tasks that are pastdue are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
+    - Tasks with an `@s` datetime entry are regarded as past due after the datetime and are displayed in *Agenda View* on the relevant date according to the starting time.
+    - Tasks with `@s` date entry are regarded as past due after the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
+    - Tasks that are past due are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Do Next* view grouped by @l (location/context).
 - Tasks with an `@r` (repeat) entry can have an `@o` (overdue) setting.
-	- `@o k`: keep. Whenever completed, the next instance is due at the datetime specified in the recurrance rule even if that datetime has already passed. E.g. mortage payments to be made on the 1st of the month are due for each prior month in which they have not been made. With this option, many instances can be past due. This is the default when no `@o` entry is given.
+	- `@o k`: keep. Whenever completed, the next instance is due at the datetime specified in the recurrance rule even if that datetime has already passed. E.g. mortage payments to be made on the 1st of the month are due for each prior month in which they have not been made. With this option, many instances can be past due. Whenever a payment is sent, it applies to the oldest, past due one. This is the default when no `@o` entry is given.
+    - `@o p`: preserve. When an instance becomes past due, a new, non-repeating copy is created with the past due datetime as the `@s` entry and with an `@k` containing the document_id of the original item. Suppose, for example, that minutes are kept for a weekly meeting to be sent to the attendees after each meeting. Creating a task that repeats weekly with `@o p`recognizes the distinction between sending the minutes for `22/10/8` and `22/10/15` and, should both become past due, permits finishing the tasks in any convenient order.
 	- `@o r`: reset. Whenever completed, the next instance is due at the first datetime from the recurrance rule that falls after the current datetime. E.g., getting a haircut every 14 days is due 14 days after the last haircut. With this option, at most one instance can be past due.
-	- `@o s`: skip. Like 'keep' and 'reset' combined with the addition that pastdue instances are ignored. E.g., taking out the trash every Monday morning for pickup is due every Monday morning but, if a Monday passes without taking out the trash, the instance is better regarded as irrelevant than past due. With this option, an instance can never be past due.
+	- `@o s`: skip. Like 'keep' and 'reset' combined with the addition that past due instances are ignored. E.g., taking out the trash every Monday morning for pickup is due every Monday morning but, if a Monday passes without taking out the trash, the instance is better regarded as irrelevant than past due. With this option, an instance can never be past due.
 - Jobs
     - Tasks, both with and without @s entries can have component jobs using @j entries.
     - For tasks with an @s entry, jobs can have an &s entry to set the due date/datetime for the job. It is entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task. Zero minutes is the default when &s is not entered.
@@ -1602,7 +1603,7 @@ For use with @r:
 	would invoke the shell commands associated with `v` and `w`, one day *before* and again 1 hour *after* the datetime specified in the reminder's `@s` entry.
 * Reminders can have more than one `@a` alert entries. Different alerts could, for example, be used to trigger their commands at different times.
 * With an email, `e`, or text alert, `t`, the item summary is used as the subject and an email or text message is sent to each attendee listed in @n entries. The content of the body of the emails/messages are options that can be set in the user's configuration file.
-* Alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, pastdue notices for repeating tasks are only triggered for the first unfinished instance.
+* Alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, past due notices for repeating tasks are only triggered for the first unfinished instance.
 
 ### repetition
 
@@ -1654,7 +1655,7 @@ For use with @r:
 
         - reconcile accounts @s 2 @r m &m 2 &h 0 &n 0 @o r
 
-* Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the pastdue reminders.
+* Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the past due reminders.
 
 		- Take out trash @s mon @r w @o s
 
