@@ -1,14 +1,18 @@
-Recent tagged changes as of 2022-10-19T13:46:52.931990-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.8.0) Daniel Graham
+Recent tagged changes as of 2022-10-20T16:53:19.641796-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.8.1) Daniel Graham
+    e3e182ae 2022-10-20 16:53:19 -0400
+    Tagged version 4.8.1.
+
+- 27 hours ago (tag: 4.8.0) Daniel Graham
     7420832f 2022-10-19 13:46:52 -0400
     Tagged version 4.8.0. Added preserve as an overdue option for
     repeating tasks.
 
-- 2 days ago (tag: 4.7.17) Daniel Graham
+- 3 days ago (tag: 4.7.17) Daniel Graham
     475d89a9 2022-10-17 08:03:21 -0400
     Tagged version 4.7.17.
 
-- 5 days ago (tag: 4.7.16) Daniel Graham
+- 6 days ago (tag: 4.7.16) Daniel Graham
     90083942 2022-10-14 11:14:51 -0400
     Tagged version 4.7.16.
 
@@ -70,7 +74,7 @@ Recent tagged changes as of 2022-10-19T13:46:52.931990-04:00:
     Tagged version 4.7.3. Use requests to check version info from
     github instead of pip search which is currently disabled.
 
-- 1 year, 11 months ago (tag: 4.7.2) Dan Graham
+- 2 years ago (tag: 4.7.2) Dan Graham
     8569c2cd 2020-11-04 14:03:14 -0500
     Tagged version 4.7.2. Bug fix in openWithDefault path expansion.
 
@@ -84,8 +88,3 @@ Recent tagged changes as of 2022-10-19T13:46:52.931990-04:00:
     Tagged version 4.7.0. Added a locations option to cfg.yaml. When
     given, the do next view will use the location groups specified by
     this option to display tasks.
-
-- 2 years ago (tag: 4.6.13) Dan Graham
-    60ace7f8 2020-10-14 18:14:46 -0400
-    Tagged version 4.6.13. Added inbasket and open_in_mutt scripts to
-    utilities and implemented multi-arg processing for goto links.
