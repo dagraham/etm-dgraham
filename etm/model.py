@@ -4988,6 +4988,8 @@ def beg_ends(starting_dt, extent_duration, z=None):
     [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 3, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 3, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 4, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 4, 11, 20, 0, tzinfo=Timezone('UTC')))]
     >>> beg_ends(starting, parse_duration('8h20m')[1])
     [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 17, 20, 0, tzinfo=Timezone('UTC')))]
+    >>> beg_ends(parse('2022-12-29 12am'), parse_duration('1d')[1])
+    [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 17, 20, 0, tzinfo=Timezone('UTC')))]
     """
 
     pairs = []
@@ -4997,7 +4999,10 @@ def beg_ends(starting_dt, extent_duration, z=None):
         end = beg.end_of('day')
         pairs.append((beg, end))
         beg = beg.start_of('day').add(days=1)
-    pairs.append((beg, ending))
+    if beg == ending:
+        pass
+    else:
+        pairs.append((beg, ending))
     return pairs
 
 
