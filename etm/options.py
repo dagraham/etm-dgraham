@@ -2,7 +2,8 @@ import os
 import sys
 
 import ruamel.yaml
-yaml = ruamel.yaml.YAML(typ='unsafe', pure=True)
+# yaml = ruamel.yaml.YAML(typ='unsafe', pure=True)
+yaml = ruamel.yaml.YAML()
 
 import logging
 import logging.config
@@ -157,6 +158,14 @@ archive_after: 0
 # not infinitely repeating, save all completions.
 num_finished: 0
 
+# limit_skip_display: true or false. If true, only the first
+# instance of a task with "@o s" (overdue skip) will be
+# displayed. For a task with an "@s" entry that is a date this
+# will be the first instance that falls on or after the current
+# date. Otherwise, when the "@s" entry is a datetime, this will
+# be the first instance that falls on or after the current time.
+limit_skip_display: true
+
 # usedtime_minutes: Round used times up to the nearest
 # usedtime_minutes in used time views. Possible choices are 1,
 # 6, 12, 30 and 60. With 1, no rounding is done and times are
@@ -246,28 +255,18 @@ smtp:
     pw:
     server:
 
-# queries: A dictionary with short query "keys" and
-# corresponding "query" values. Each "query" must be one
-# that could be entered as the command in query view. Keys
-# can be any short string other than 'a', 'u', 'c' or 'l'
-# which are already in use.
-queries:
-  # unfinished tasks ordered by location
-    td: m l -q equals itemtype - and ~exists f
-  # usedtimes by i[:1], month and i[1:2] with d
-    ui: u i[:1]; MMM YYYY; i[1:2] -a d
-  # usedtimes by week and day for the past and current week
-    uw: u WWW; ddd D -b weekbeg - 1w -e weekend
-  # finished|start by i[:1], month and i[1:2] with u and d
-    si: s i[:1]; MMM YYYY; i[1:2] -a u, d
-  # items with u but missing the needed i
-    mi: exists u and ~exists i
-  # all archived items
-    arch: a exists itemtype
-  # items in which either the summary or the @d description
-  # contains a match for a RGX (to be appended when executing
-  # the query)
-    find: includes summary d
+# locations: a dictionary with location group names and
+# corresponding lists of locations. When given, do next
+# view will group items first by the location group name
+# and then by the location within that group. Note that
+# locations can appear under more than one group name. E.g.,
+# locations:
+#    home: [home, garage, yard, phone, computer]
+#    work: [work, phone, computer, copier, fax]
+# Items with a location entry that does not belong to one
+# of these location groups will be listed under 'OTHER' and
+# items without a location entry under 'OTHER' and then tilde.
+locations:
 
 # style: dark or light. Designed for, respectively, dark or
 # light terminal backgounds. Some output may not be visible
@@ -275,16 +274,16 @@ queries:
 style: dark
 
 # colors: a 'namedcolor' entry for each of the following items:
+#     available:    available task/job reminders
+#     begin:        begin by warnings
+#     event:        event reminders
+#     finished:     finished task/job reminders
+#     inbox:        inbox reminders
+#     journal:      journal reminders
+#     pastdue:      pasdue task warnings
 #     plain:        headings such as outline branches
 #     today:        the current date heading in agenda view
-#     inbox:        inbox reminders
-#     pastdue:      pasdue task warnings
-#     begin:        begin by warnings
-#     journal:      journal reminders
-#     event:        event reminders
 #     waiting:      waiting job reminders (unfinished prereqs)
-#     finished:     finished task/job reminders
-#     available:    available task/job reminders
 # The default entries are suitable for the style "dark" given
 # above. Note that the color names are case sensitive.
 # To restore the default colors for whichever "style" you have
@@ -296,30 +295,31 @@ style: dark
 #    python3 <path to namedcolors.py>
 # at the command prompt.
 colors:
+    available:    'LightSkyBlue'
+    begin:        'Gold'
+    event:        'LimeGreen'
+    finished:     'DarkGrey'
+    inbox:        'Yellow'
+    journal:      'GoldenRod'
+    pastdue:      'LightSalmon'
     plain:        'Ivory'
     today:        'Ivory bold'
-    inbox:        'Yellow'
-    pastdue:      'LightSalmon'
-    begin:        'Gold'
-    journal:      'GoldenRod'
-    event:        'LimeGreen'
     waiting:      'SlateGrey'
-    finished:     'DarkGrey'
-    available:    'LightSkyBlue'
 
-# locations: a dictionary with location group names and
-# corresponding lists of locations. When given, do next
-# view will group items first by the location group name
-# and then by the location within that group. Note that
-# locations can appear under more than one group name. E.g.,
-# locations:
-#    HOME: [home, garage, yard, phone, computer]
-#    WORK: [work, phone, computer, copier, fax]
-# Items with a location entru that does not belong to one
-# of these location groups will be listed under 'OTHER' and
-# items without a location entry under 'OTHER' and then '~'.
-locations:
+# queries: A dictionary with short query "keys" and
+# corresponding "query" values. Each "query" must be one
+# that could be entered as the command in query view. Keys
+# can be any short string other than 'a', 'u', 'c' or 'l'
+# which are already in use.
+# queries:
+#    td: m l -q equals itemtype - and ~exists f  # unfinished tasks by l
+#    mi: exists u and ~exists i                  # items with u but missing i
+#    arch: a exists itemtype                     # all archived items
+queries:
 
+#########################################################
+# This concludes cfg.yaml
+#########################################################
 """ % secret
 
     def __init__(self, etmdir):

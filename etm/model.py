@@ -1060,20 +1060,6 @@ item_hsh:    {self.item_hsh}
                 self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
 
 
-    # def insert_item_hsh(self):
-    #     # assume new and hsh is valid
-    #     self.item_hsh['created'] = pendulum.now('local')
-
-    #     # self.item_hsh.pop('modified')
-
-    #     logger.debug(f"inserting: {self.item_hsh}")
-    #     try:
-    #         new_id = self.db.insert(self.item_hsh)
-    #         logger.debug(f"new_id: {new_id}")
-    #     except Exception as e:
-    #         logger.error(f"error: {repr(e)}")
-
-
     def check_requires(self, key):
         """
         Check that key has the prerequisite entries.
@@ -2113,36 +2099,6 @@ class DataView(object):
         self.completions = list(completions)
         self.completions.sort()
         logger.debug(f"all completions: {self.completions}")
-
-
-    # def update_completions(self, item):
-    #     """
-    #     update self.completions, if necessary, for the @keys in item
-    #     """
-    #     completions = set([])
-
-    #     found = {x: v for x, v in item.item_hsh.items() if x in self.completion_keys}
-    #     for x, v in found.items():
-    #         # if x == 'k':
-    #         if isinstance(v, list):
-    #             for p in v:
-    #                 completions.add(f"@{x} {p}")
-    #         else:
-    #             logger.debug(f" adding completion @{x} {v}")
-    #             completions.add(f"@{x} {v}")
-    #             if x == "i":
-    #                 # make a "k" completion for the "i" entry
-    #                 i, t, s, d = (
-    #                     v,
-    #                     item.item_hsh.get("itemtype", None),
-    #                     item.item_hsh.get("summary", None),
-    #                     item.doc_id,
-    #                 )
-    #                 completions.add(f"@k {i} {t} {s}: {d}")
-    #     new = [x for x in list(completions) if x not in self.completions]
-    #     if new:
-    #         self.completions.extend(new)
-    #         self.completions.sort()
 
 
     def update_konnections(self, item):
@@ -4428,11 +4384,17 @@ def item_instances(item, aft_dt, bef_dt=1):
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                 pairs.append(pair)
         elif item['itemtype'] == "-" and item.get('o', 'k') == 's':
-            # keep skip instances if they fall during or after the current day.
+            if pairs and settings['limit_skip_display']:
+                # only keep the first instance that falls during or after today/now
+                break
             if isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime) and instance >= pendulum.now().date():
                 pairs.append((instance, None))
-            elif instance.replace(hour=23, minute=59, second=59) >= pendulum.now(tz=item.get('z', None)):
+                logger.debug(f"appended overdue skip date instance: {instance}")
+            # elif instance.replace(hour=23, minute=59, second=59) >= pendulum.now(tz=item.get('z', None)):
+            elif instance >= pendulum.now(tz=item.get('z', None)):
                 pairs.append((instance, None))
+                logger.debug(f"appended overdue skip datetime instance: {instance}")
+                logger.debug(f"overdue skip datetime pairs: {pairs}")
         else:
             pairs.append((instance, None))
     pairs.sort()
@@ -5000,6 +4962,7 @@ def beg_ends(starting_dt, extent_duration, z=None):
         pairs.append((beg, end))
         beg = beg.start_of('day').add(days=1)
     if beg == ending:
+        # don't include zero-extent "tails"
         pass
     else:
         pairs.append((beg, ending))
@@ -5085,7 +5048,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     current = []
 
     for item in db:
-        logger.debug(f"in relevant loop. item: {item.doc_id} ")
         instance_interval = []
         possible_beginby = None
         possible_alerts = []
