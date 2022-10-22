@@ -166,6 +166,10 @@ num_finished: 0
 # be the first instance that falls on or after the current time.
 limit_skip_display: true
 
+# connecting_dots: true or false. If true, display dots connecting
+# the item summary and the right-hand details columns in tree views.
+connecting_dots: false
+
 # usedtime_minutes: Round used times up to the nearest
 # usedtime_minutes in used time views. Possible choices are 1,
 # 6, 12, 30 and 60. With 1, no rounding is done and times are

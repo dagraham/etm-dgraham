@@ -47,7 +47,6 @@ from jinja2 import Template
 from jinja2 import __version__ as jinja2_version
 
 import textwrap
-
 import os
 import platform
 
@@ -126,6 +125,7 @@ KONNECT_CHAR = 'k'
 LINK_CHAR = 'g'
 PIN_CHAR = 'p'
 ELLIPSiS_CHAR = '…'
+LINEDOT = ' ᐧ '
 
 etmdir = None
 
@@ -1906,10 +1906,22 @@ class NDict(dict):
                     l_indent = len(indent)
                     # width - indent - 2 (type and space) - flags - 1 (space) - rhc
                     summary_width = self.width - l_indent - 2 - self.flag_len - 2 - len(leaf[3])
+                    if settings['connecting_dots']:
+                        times = leaf[3].rstrip() if leaf[3].strip() else ' '*(len(leaf[3]) )
+                        details = f"  {leaf[2]}{times}".replace('   ', LINEDOT)
+                        fill = summary_width - len(leaf[1])
+                        if fill < 0:
+                            summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR
+                        elif fill >= 3:
+                            pad = ' '*(fill%3) if fill%3 else ''
+                            summary = f"{leaf[1][:summary_width - 1]}{pad}{LINEDOT*(fill//3)}"
+                        else:
+                            summary = leaf[1][:summary_width - 1].ljust(summary_width, ' ')
+                        tmp = f"{indent}{leaf[0]} {summary}{details}"
+                    else:
+                        summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) > summary_width else leaf[1].ljust(summary_width-1, ' ')
+                        tmp = f"{indent}{leaf[0]} {summary} {leaf[2]} {leaf[3]}"
 
-                    summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) > summary_width else leaf[1].ljust(summary_width, ' ')
-
-                    tmp = f"{indent}{leaf[0]} {summary} {leaf[2]} {leaf[3]}"
                     self.output.append(tmp)
                     self.row2id[self.row] = leaf[4]
                     self.row += 1
@@ -3016,25 +3028,6 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
         tmp.append(textwrap.fill(p, initial_indent=initial_indent, subsequent_indent=' '*indent, width=width-indent-1))
     return "\n".join(tmp)
 
-
-# def set_summary(s, dt=pendulum.now()):
-#     """
-#     Replace the anniversary string in s with the ordinal represenation of the number of years between the anniversary string and dt.
-#     >>> set_summary('!1944! birthday', pendulum.date(2017, 11, 19))
-#     '73rd birthday'
-#     >>> set_summary('!1978! anniversary', pendulum.date(2017, 11, 19))
-#     '39th anniversary'
-#     """
-#     if not dt:
-#         dt = pendulum.now()
-
-#     mtch = anniversary_regex.search(s)
-#     retval = s
-#     if mtch:
-#         startyear = mtch.group(1)
-#         numyrs = anniversary_string(startyear, dt.year)
-#         retval = anniversary_regex.sub(numyrs, s)
-#     return retval
 
 def set_summary(summary='', start=None, relevant=None, freq=''):
     """

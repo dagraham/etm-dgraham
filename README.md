@@ -1389,6 +1389,13 @@ A task is something that requires action from the user and lasts, so to speak, u
     - `@o p`: preserve. When an instance becomes past due, a new, non-repeating copy is created with the past due datetime as the `@s` entry and with an `@k` containing the document_id of the original item. Suppose, for example, that minutes are kept for a weekly meeting to be sent to the attendees after each meeting. Creating a task that repeats weekly with `@o p`recognizes the distinction between sending the minutes for `22/10/8` and `22/10/15` and, should both become past due, permits finishing the tasks in any convenient order.
 	- `@o r`: reset. Whenever completed, the next instance is due at the first datetime from the recurrance rule that falls after the current datetime. E.g., getting a haircut every 14 days is due 14 days after the last haircut. With this option, at most one instance can be past due.
 	- `@o s`: skip. Like 'keep' and 'reset' combined with the addition that past due instances are ignored. E.g., taking out the trash every Monday morning for pickup is due every Monday morning but, if a Monday passes without taking out the trash, the instance is better regarded as irrelevant than past due. With this option, an instance can never be past due.
+
+	    Furthermore, if the options setting `limit_skip_display` were true, then only the first instance of such a task would be displayed in agenda view. E.g., with the `limit_skip_display` setting true, then for the task
+
+			- meds @s +0d @r d &h 8,14,20 @o s
+
+		agenda view at 10am today would only display the first, 2pm (14h) instance of this task. If, on the other hand, this setting were false, then agenda view would display not only the 2pm instance but also the 8pm (20h) instances and all three instances on every future date.
+
 - Jobs
     - Tasks, both with and without @s entries can have component jobs using @j entries.
     - For tasks with an @s entry, jobs can have an &s entry to set the due date/datetime for the job. It is entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task. Zero minutes is the default when &s is not entered.
@@ -1729,278 +1736,282 @@ Configuration settings for *etm* are specified in the file `cfg.yaml` located in
 
 Here are the options with their default values from that file. The lines beginning with `#` are comments that describe the settings.
 
-    ###################### IMPORTANT ########################
-    #
-    # Changes to this file only take effect when etm is next
-    # restarted.
-    #
-    #########################################################
+	###################### IMPORTANT ########################
+	#
+	# Changes to this file only take effect when etm is next
+	# restarted.
+	#
+	#########################################################
 
-    # ampm: true or false. Use AM/PM format for datetimes if true
-    # else use 24 hour format.
-    ampm: true
+	# ampm: true or false. Use AM/PM format for datetimes if true
+	# else use 24 hour format.
+	ampm: true
 
-    # yearfirst and dayfirst. Each true or false. Whenever an
-    # ambiguous date is parsed, the dayfirst and yearfirst
-    # parameters control how the information is processed.
-    # Here is the precedence in each case:
-    #
-    #   If dayfirst is False and yearfirst is False:
-    #       MM-DD-YY
-    #       DD-MM-YY
-    #       YY-MM-DD
-    #
-    #   If dayfirst is True and yearfirst is False:
-    #       DD-MM-YY
-    #       MM-DD-YY
-    #       YY-MM-DD
-    #
-    #   If dayfirst is False and yearfirst is True:
-    #       YY-MM-DD
-    #       MM-DD-YY
-    #       DD-MM-YY
-    #
-    #   If dayfirst is True and yearfirst is True:
-    #       YY-MM-DD
-    #       DD-MM-YY
-    #       MM-DD-YY
-    #
-    yearfirst: false
-    dayfirst: false
+	# yearfirst and dayfirst. Each true or false. Whenever an
+	# ambiguous date is parsed, the dayfirst and yearfirst
+	# parameters control how the information is processed.
+	# Here is the precedence in each case:
+	#
+	#   If dayfirst is False and yearfirst is False:
+	#       MM-DD-YY
+	#       DD-MM-YY
+	#       YY-MM-DD
+	#
+	#   If dayfirst is True and yearfirst is False:
+	#       DD-MM-YY
+	#       MM-DD-YY
+	#       YY-MM-DD
+	#
+	#   If dayfirst is False and yearfirst is True:
+	#       YY-MM-DD
+	#       MM-DD-YY
+	#       DD-MM-YY
+	#
+	#   If dayfirst is True and yearfirst is True:
+	#       YY-MM-DD
+	#       DD-MM-YY
+	#       MM-DD-YY
+	#
+	yearfirst: true
+	dayfirst: false
 
-    # updates_interval: a non-negative integer. If positive,
-    # automatically check for updates every 'updates_interval'
-    # minutes. If zero, do not automatically check for updates.
-    # When enabled, a blackboard u symbol, 𝕦, will be displayed at
-    # the right end of status bar when an update is available
-    # or a question mark when the check cannot be completed
-    # as, for example, when there is no internet connection.
-    updates_interval: 0
+	# updates_interval: a non-negative integer. If positive,
+	# automatically check for updates every 'updates_interval'
+	# minutes. If zero, do not automatically check for updates.
+	# When enabled, a blackboard u symbol, 𝕦, will be displayed at
+	# the right end of status bar when an update is available
+	# or a question mark when the check cannot be completed
+	# as, for example, when there is no internet connection.
+	updates_interval: 0
 
-    # locale: A locale abbreviation. E.g., "en_AU" for English
-    # (Australia), "en_US" for English (United States), "fr_FR"
-    # for French (France) and so forth. Google "python locale
-    # abbreviatons" for a complete list."
-    locale: en_US
+	# locale: A locale abbreviation. E.g., "en_AU" for English
+	# (Australia), "en_US" for English (United States), "fr_FR"
+	# for French (France) and so forth. Google "python locale
+	# abbreviatons" for a complete list."
+	locale: en_US
 
-    # vi_mode: true or false. Use vi keybindings for editing if
-    # true else use emacs style keybindings.
-    vi_mode: false
+	# vi_mode: true or false. Use vi keybindings for editing if
+	# true else use emacs style keybindings.
+	vi_mode: false
 
-    # secret: A string to use as the secret_key for @m masked
-    # entries. In etm versions after 4.0.21, the default string
-    # is randomly generated when this file is created or when
-    # the secret value is removed and etm is restarted. WARNING:
-    # if this key is changed, any @m entries that were made before
-    # the change will be unreadable after the change.
-    secret: %s
+	# secret: A string to use as the secret_key for @m masked
+	# entries. In etm versions after 4.0.21, the default string
+	# is randomly generated when this file is created or when
+	# the secret value is removed and etm is restarted. WARNING:
+	# if this key is changed, any @m entries that were made before
+	# the change will be unreadable after the change.
+	secret: %s
 
-    # omit_extent: A list of calendar names with each name
-    # indented on a separate line. Events with @c entries
-    # belonging to this list will only have their starting times
-    # displayed in agenda view and will neither appear nor cause
-    # conflicts in busy view.
-    omit_extent:
+	# omit_extent: A list of calendar names with each name
+	# indented on a separate line. Events with @c entries
+	# belonging to this list will only have their starting times
+	# displayed in agenda view and will neither appear nor cause
+	# conflicts in busy view.
+	omit_extent:
 
-    # keep_current: non-negative integer. If positive, the agenda
-    # for that integer number of weeks starting with the current
-    # week will be written to "current.txt" in your etm home
-    # directory and updated when necessary. You could, for
-    # example, create a link to this file in a pCloud or DropBox
-    # folder and have access to your current schedule on your
-    # mobile device.
-    keep_current: 0
+	# keep_current: non-negative integer. If positive, the agenda
+	# for that integer number of weeks starting with the current
+	# week will be written to "current.txt" in your etm home
+	# directory and updated when necessary. You could, for
+	# example, create a link to this file in a pCloud or DropBox
+	# folder and have access to your current schedule on your
+	# mobile device.
+	keep_current: 0
 
-    # keep_next: true or false. If true, the 'do next' view will
-    # be written to "next.txt" in your etm home directory. As with
-    # "current.txt", a link to this file could be created in a
-    # pCloud or DropBox folder for access from your mobile device.
-    keep_next: false
+	# keep_next: true or false. If true, the 'do next' view will
+	# be written to "next.txt" in your etm home directory. As with
+	# "current.txt", a link to this file could be created in a
+	# pCloud or DropBox folder for access from your mobile device.
+	keep_next: false
 
-    # archive_after: A non-negative integer. If zero, do not
-    # archive items. If positive, finished tasks and events with
-    # last datetimes falling more than this number of years
-    # before the current date will automatically be archived on a
-    # daily basis.  Archived items are moved from the "items"
-    # table in the database to the "archive" table and will no
-    # longer appear in normal views. Note that unfinished tasks
-    # and records are not archived.
-    archive_after: 0
+	# archive_after: A non-negative integer. If zero, do not
+	# archive items. If positive, finished tasks and events with
+	# last datetimes falling more than this number of years
+	# before the current date will automatically be archived on a
+	# daily basis.  Archived items are moved from the "items"
+	# table in the database to the "archive" table and will no
+	# longer appear in normal views. Note that unfinished tasks
+	# and records are not archived.
+	archive_after: 0
 
-    # num_finished: A non-negative integer. If positive, when
-    # saving retain only the most recent 'num_finished'
-    # completions of an infinitely repeating task, i.e., repeating
-    # without an "&c" count or an "&u" until attribute. If zero or
-    # not infinitely repeating, save all completions.
-    num_finished: 0
+	# num_finished: A non-negative integer. If positive, when
+	# saving retain only the most recent 'num_finished'
+	# completions of an infinitely repeating task, i.e., repeating
+	# without an "&c" count or an "&u" until attribute. If zero or
+	# not infinitely repeating, save all completions.
+	num_finished: 0
 
-    # usedtime_minutes: Round used times up to the nearest
-    # usedtime_minutes in used time views. Possible choices are 1,
-    # 6, 12, 30 and 60. With 1, no rounding is done and times are
-    # reported as hours and minutes. Otherwise, the prescribed
-    # rounding is done and times are reported as floating point
-    # hours. Note that each "@u" timeperiod is rounded before
-    # aggregation.
-    usedtime_minutes: 1
+	# limit_skip_display: true or false. If true, only the first
+	# instance of a task with "@o s" (overdue skip) will be
+	# displayed. For a task with an "@s" entry that is a date this
+	# will be the first instance that falls on or after the current
+	# date. Otherwise, when the "@s" entry is a datetime, this will
+	# be the first instance that falls on or after the current time.
+	limit_skip_display: true
 
-    # alerts: A dictionary with single-character, "alert" keys and
-    # corresponding "system command" values. Note that characters
-    # "t" (text message) and "e" (email) are already used.  The
-    # "system command" string should be a comand with any
-    # applicable arguments that could be run in a terminal.
-    # Properties of the item triggering the alert can be included
-    # in the command arguments using the syntax '{property}', e.g.,
-    # {summary} in the command string would be replaced by the
-    # summary of the item. Similarly {start} by the starting time,
-    # {when} by the time remaining until the starting time,
-    # {location} by the @l entry and {description} by the @d entry.
-    # E.g., If the event "* sales meeting @s 2019-02-12 3p"
-    # triggered an alert 30 minutes before the starting time the
-    # string "{summary} {when}" would expand to "sales meeting in
-    # 30 minutes". E.g. on my macbook
-    #
-    #    alerts:
-    #        v:   /usr/bin/say -v "Alex" "{summary}, {when}"
-    #        ...
-    #
-    # would make the alert 'v' use the builtin text to speech sytem
-    # to speak the item's summary followed by a slight pause
-    # (the comma) and then the time remaining until the starting
-    # time, e.g., "sales meeting, in 20 minutes" would be triggered
-    # by including "@a 20m: v" in the reminder.
-    alerts:
+    # connecting_dots: true or false. If true, display dots connecting
+    # the item summary and the right-hand details columns in tree views.
+    connecting_dots: false
 
-    # expansions: A dictionary with 'expansion name' keys and
-    # corresponding 'replacement string' values. E.g. with
-    #
-    #    expansions:
-    #        tennis: "@e 1h30m @a 30m: d @i personal:exercise"
-    #        ...
-    #
-    # then when "@x tennis" is entered the popup completions for
-    # "@x tennis" would offer replacement by the corresponding
-    # "@e 1h30m @a 30m: d @i personal:exercise".
-    expansions:
+	# usedtime_minutes: Round used times up to the nearest
+	# usedtime_minutes in used time views. Possible choices are 1,
+	# 6, 12, 30 and 60. With 1, no rounding is done and times are
+	# reported as hours and minutes. Otherwise, the prescribed
+	# rounding is done and times are reported as floating point
+	# hours. Note that each "@u" timeperiod is rounded before
+	# aggregation.
+	usedtime_minutes: 1
 
-    # sms: Settings to send "t" (sms text message) alerts to the
-    # list of phone numbers from the item's @n attendee
-    # entries using the item's summary and the body as specified
-    # in the template below as the message. E.g., suppose you
-    # have a gmail account with email address "who457@gmail.com"
-    # and want to text alerts to Verizon moble phone (123)
-    # 456-7890. Then your sms entries should be
-    #     from:   who457@gmail.com
-    #     pw:     your gmail password
-    #     server: smtp.gmail.com:587
-    # and your item should include the following attendee entry
-    #     @n 1234567890@vzwpix.com
-    # In the illustrative phone number, @vzwpix.com is the mms
-    # gateway for Verizon. Other common mms gateways are
-    #     AT&T:     @mms.att.net
-    #     Sprint:   @pm.sprint.com
-    #     T-Mobile: @tmomail.net
-    # Note. Google "mms gateway listing" for other alternatives.
-    sms:
-        body:   "{location} {when}"
-        from:
-        pw:
-        server:
+	# alerts: A dictionary with single-character, "alert" keys and
+	# corresponding "system command" values. Note that characters
+	# "t" (text message) and "e" (email) are already used.  The
+	# "system command" string should be a comand with any
+	# applicable arguments that could be run in a terminal.
+	# Properties of the item triggering the alert can be included
+	# in the command arguments using the syntax '{property}', e.g.,
+	# {summary} in the command string would be replaced by the
+	# summary of the item. Similarly {start} by the starting time,
+	# {when} by the time remaining until the starting time,
+	# {location} by the @l entry and {description} by the @d entry.
+	# E.g., If the event "* sales meeting @s 2019-02-12 3p"
+	# triggered an alert 30 minutes before the starting time the
+	# string "{summary} {when}" would expand to "sales meeting in
+	# 30 minutes". E.g. on my macbook
+	#
+	#    alerts:
+	#        v:   /usr/bin/say -v "Alex" "{summary}, {when}"
+	#        ...
+	#
+	# would make the alert 'v' use the builtin text to speech sytem
+	# to speak the item's summary followed by a slight pause
+	# (the comma) and then the time remaining until the starting
+	# time, e.g., "sales meeting, in 20 minutes" would be triggered
+	# by including "@a 20m: v" in the reminder.
+	alerts:
 
-    # smtp: Settings to send "e" (email message) alerts to the
-    # list of email addresses from the item's @n attendee
-    # entries using the item's summary as the subject and body as
-    # the message. E.g., if you have a gmail account with email
-    # address "whatever457@gmail.com", then your entries should
-    # be
-    #     from: whatever457@gmail.com
-    #     id: whatever457
-    #     pw: your gmail password
-    #     server: smtp.gmail.com
-    smtp:
-        body: "{location} {when}\\n{description}"
-        from:
-        id:
-        pw:
-        server:
+	# expansions: A dictionary with 'expansion name' keys and
+	# corresponding 'replacement string' values. E.g. with
+	#
+	#    expansions:
+	#        tennis: "@e 1h30m @a 30m: d @i personal:exercise"
+	#        ...
+	#
+	# then when "@x tennis" is entered the popup completions for
+	# "@x tennis" would offer replacement by the corresponding
+	# "@e 1h30m @a 30m: d @i personal:exercise".
+	expansions:
 
-    # queries: A dictionary with short query "keys" and
-    # corresponding "query" values. Each "query" must be one
-    # that could be entered as the command in query view. Keys
-    # can be any short string other than 'a', 'u', 'c' or 'l'
-    # which are already in use.
-    queries:
-    # unfinished tasks ordered by location
-        td: m l -q equals itemtype - and ~exists f
-    # usedtimes by i[:1], month and i[1:2] with d
-        ui: u i[:1]; MMM YYYY; i[1:2] -a d
-    # usedtimes by week and day for the past and current week
-        uw: u WWW; ddd D -b weekbeg - 1w -e weekend
-    # finished|start by i[:1], month and i[1:2] with u and d
-        si: s i[:1]; MMM YYYY; i[1:2] -a u, d
-    # items with u but missing the needed i
-        mi: exists u and ~exists i
-    # all archived items
-        arch: a exists itemtype
-    # items in which either the summary or the @d description
-    # contains a match for a RGX (to be appended when executing
-    # the query)
-        find: includes summary d
+	# sms: Settings to send "t" (sms text message) alerts to the
+	# list of phone numbers from the item's @n attendee
+	# entries using the item's summary and the body as specified
+	# in the template below as the message. E.g., suppose you
+	# have a gmail account with email address "who457@gmail.com"
+	# and want to text alerts to Verizon moble phone (123)
+	# 456-7890. Then your sms entries should be
+	#     from:   who457@gmail.com
+	#     pw:     your gmail password
+	#     server: smtp.gmail.com:587
+	# and your item should include the following attendee entry
+	#     @n 1234567890@vzwpix.com
+	# In the illustrative phone number, @vzwpix.com is the mms
+	# gateway for Verizon. Other common mms gateways are
+	#     AT&T:     @mms.att.net
+	#     Sprint:   @pm.sprint.com
+	#     T-Mobile: @tmomail.net
+	# Note. Google "mms gateway listing" for other alternatives.
+	sms:
+		body:   "{location} {when}"
+		from:
+		pw:
+		server:
 
-    # style: dark or light. Designed for, respectively, dark or
-    # light terminal backgounds. Some output may not be visible
-    # unless this is set correctly for your display.
-    style: dark
+	# smtp: Settings to send "e" (email message) alerts to the
+	# list of email addresses from the item's @n attendee
+	# entries using the item's summary as the subject and body as
+	# the message. E.g., if you have a gmail account with email
+	# address "whatever457@gmail.com", then your entries should
+	# be
+	#     from: whatever457@gmail.com
+	#     id: whatever457
+	#     pw: your gmail password
+	#     server: smtp.gmail.com
+	smtp:
+		body: "{location} {when}\\n{description}"
+		from:
+		id:
+		pw:
+		server:
 
-    # colors: a 'namedcolor' entry for each of the following items:
-    #     plain:        headings such as outline branches
-    #     today:        the current date heading in agenda view
-    #     inbox:        inbox reminders
-    #     pastdue:      pasdue task warnings
-    #     begin:        begin by warnings
-    #     journal:      journal reminders
-    #     event:        event reminders
-    #     waiting:      waiting job reminders (unfinished prereqs)
-    #     finished:     finished task/job reminders
-    #     available:    available task/job reminders
-    # The default entries are suitable for the style "dark" given
-    # above. Note that the color names are case sensitive.
-    # To restore the default colors for whichever "style" you have
-    # set above, remove the color name for each of the items you
-    # want to restore and restart etm.
-    # To preview the namedcolors, download "namedcolors.py" from
-    #    "https://github.com/dagraham/etm-dgraham",
-    # open a terminal with your chosen background color and run
-    #    python3 <path to namedcolors.py>
-    # at the command prompt.
-    colors:
-        plain:        'Ivory'
-        today:        'Ivory bold'
-        inbox:        'Yellow'
-        pastdue:      'LightSalmon'
-        begin:        'Gold'
-        journal:      'GoldenRod'
-        event:        'LimeGreen'
-        waiting:      'SlateGrey'
-        finished:     'DarkGrey'
-        available:    'LightSkyBlue'
+	# locations: a dictionary with location group names and
+	# corresponding lists of locations. When given, do next
+	# view will group items first by the location group name
+	# and then by the location within that group. Note that
+	# locations can appear under more than one group name. E.g.,
+	# locations:
+	#    home: [home, garage, yard, phone, computer]
+	#    work: [work, phone, computer, copier, fax]
+	# Items with a location entry that does not belong to one
+	# of these location groups will be listed under 'OTHER' and
+	# items without a location entry under 'OTHER' and then tilde.
+	locations:
 
-    # locations: a dictionary with location group names and
-    # corresponding lists of locations. When given, do next
-    # view will group items first by the location group name
-    # and then by the location within that group. Note that
-    # locations can appear under more than one group name. E.g.,
-    # locations:
-    #    HOME: [home, garage, yard, phone, computer]
-    #    WORK: [work, phone, computer, copier, fax]
-    # Items with a location entru that does not belong to one
-    # of these location groups will be listed under 'OTHER' and
-    # items without a location entry under 'OTHER' and then '~'.
-    locations:
+	# style: dark or light. Designed for, respectively, dark or
+	# light terminal backgounds. Some output may not be visible
+	# unless this is set correctly for your display.
+	style: dark
+
+	# colors: a 'namedcolor' entry for each of the following items:
+	#     available:    available task/job reminders
+	#     begin:        begin by warnings
+	#     event:        event reminders
+	#     finished:     finished task/job reminders
+	#     inbox:        inbox reminders
+	#     journal:      journal reminders
+	#     pastdue:      pasdue task warnings
+	#     plain:        headings such as outline branches
+	#     today:        the current date heading in agenda view
+	#     waiting:      waiting job reminders (unfinished prereqs)
+	# The default entries are suitable for the style "dark" given
+	# above. Note that the color names are case sensitive.
+	# To restore the default colors for whichever "style" you have
+	# set above, remove the color name for each of the items you
+	# want to restore and restart etm.
+	# To preview the namedcolors, download "namedcolors.py" from
+	#    "https://github.com/dagraham/etm-dgraham",
+	# open a terminal with your chosen background color and run
+	#    python3 <path to namedcolors.py>
+	# at the command prompt.
+	colors:
+		available:    'LightSkyBlue'
+		begin:        'Gold'
+		event:        'LimeGreen'
+		finished:     'DarkGrey'
+		inbox:        'Yellow'
+		journal:      'GoldenRod'
+		pastdue:      'LightSalmon'
+		plain:        'Ivory'
+		today:        'Ivory bold'
+		waiting:      'SlateGrey'
+
+	# queries: A dictionary with short query "keys" and
+	# corresponding "query" values. Each "query" must be one
+	# that could be entered as the command in query view. Keys
+	# can be any short string other than 'a', 'u', 'c' or 'l'
+	# which are already in use.
+	# queries:
+	#    td: m l -q equals itemtype - and ~exists f  # unfinished tasks by l
+	#    mi: exists u and ~exists i                  # items with u but missing i
+	#    arch: a exists itemtype                     # all archived items
+	queries:
+
+	#########################################################
+	# This concludes cfg.yaml
+	#########################################################
 
 
 
 
-Note that in the 'dictionary' entries above, the components must be indented. E.g., the illustrative alert entry would be:
+Note that in the 'dictionary' entries above, the components must be indented (using spaces not tabs). E.g., the illustrative alert entry would be:
 
 	alerts:
 		v: /usr/bin/say -v "Alex" "{summary}, {when}"
