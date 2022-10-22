@@ -1,18 +1,22 @@
-Recent tagged changes as of 2022-10-20T16:53:19.641796-04:00:
-- 0 seconds ago (HEAD -> master, tag: 4.8.1) Daniel Graham
+Recent tagged changes as of 2022-10-21T21:54:58.690474-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.8.2) Daniel Graham
+    416bd7cd 2022-10-21 21:54:58 -0400
+    Tagged version 4.8.2.
+
+- 29 hours ago (tag: 4.8.1) Daniel Graham
     e3e182ae 2022-10-20 16:53:19 -0400
     Tagged version 4.8.1.
 
-- 27 hours ago (tag: 4.8.0) Daniel Graham
+- 2 days ago (tag: 4.8.0) Daniel Graham
     7420832f 2022-10-19 13:46:52 -0400
     Tagged version 4.8.0. Added preserve as an overdue option for
     repeating tasks.
 
-- 3 days ago (tag: 4.7.17) Daniel Graham
+- 5 days ago (tag: 4.7.17) Daniel Graham
     475d89a9 2022-10-17 08:03:21 -0400
     Tagged version 4.7.17.
 
-- 6 days ago (tag: 4.7.16) Daniel Graham
+- 7 days ago (tag: 4.7.16) Daniel Graham
     90083942 2022-10-14 11:14:51 -0400
     Tagged version 4.7.16.
 
@@ -82,9 +86,3 @@ Recent tagged changes as of 2022-10-20T16:53:19.641796-04:00:
     71cbea69 2020-11-01 10:30:44 -0500
     Tagged version 4.7.1. Added years to period string parsing. Handle
     anniversary regex expressions in beginbys.
-
-- 2 years ago (tag: 4.7.0) Dan Graham
-    5096a645 2020-10-15 16:33:04 -0400
-    Tagged version 4.7.0. Added a locations option to cfg.yaml. When
-    given, the do next view will use the location groups specified by
-    this option to display tasks.
