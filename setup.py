@@ -118,8 +118,8 @@ class UploadCommand(Command):
             print("error removing dist tree:", e)
 
         self.status('Building Source and Wheel (universal) distribution…')
-        # os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
-        os.system('{0} setup.py sdist'.format(sys.executable))
+        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+        # os.system('{0} setup.py sdist'.format(sys.executable))
 
         self.status('Uploading the package to PyPI via Twine…')
         os.system('twine upload --verbose --repository-url https://upload.pypi.org/legacy/ dist/*')
