@@ -1906,8 +1906,8 @@ class NDict(dict):
                     l_indent = len(indent)
                     # width - indent - 2 (type and space) - flags - 1 (space) - rhc
                     summary_width = self.width - l_indent - 2 - self.flag_len - 2 - len(leaf[3])
-                    if settings['connecting_dots']:
-                        times = leaf[3].rstrip() if leaf[3].strip() else ' '*(len(leaf[3]) )
+                    if settings['connecting_dots'] and (leaf[2].strip() or leaf[3].strip()):
+                        times = leaf[3].rstrip() if leaf[3].strip() else ''
                         details = f"  {leaf[2]}{times}".replace('   ', LINEDOT)
                         fill = summary_width - len(leaf[1])
                         if fill < 0:
@@ -3616,7 +3616,6 @@ def do_alert(arg):
     rep = arg
     parts = arg.split(':')
     periods = parts.pop(0)
-    logger.info(f"parts: {parts}")
     command = parts[0] if parts and parts[0] else None
     commands = [x.strip() for x in command.split(',')] if command else []
     if periods:

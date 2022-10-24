@@ -1722,6 +1722,10 @@ def alerts():
 
 async def maybe_alerts(now):
     global current_datetime
+    dataview.refreshRelevant()
+    dataview.refreshAgenda()
+    set_text(dataview.show_active_view())
+    dataview.refreshCurrent()
     if dataview.alerts and not ('alerts' in settings and settings['alerts']):
         logger.warning("alerts have not been configured")
         return
@@ -1897,8 +1901,6 @@ text_area = TextArea(
     lexer=ETMLexer()
     )
 
-# completions will come from prior database entries
-# completions = []
 
 # expansions will come from cfg.yaml
 expansions = {
