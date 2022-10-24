@@ -1,5 +1,10 @@
-Recent tagged changes as of 2022-10-24T16:52:54.226770-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.8.3) Daniel Graham
+Recent tagged changes as of 2022-10-24T17:25:49.423954-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.8.4) Daniel Graham
+    70d0f98e 2022-10-24 17:25:49 -0400
+    Tagged version 4.8.4. Building both sdist and bdist_wheel for
+    upload
+
+- 33 minutes ago (tag: 4.8.3) Daniel Graham
     7e304d59 2022-10-24 16:52:54 -0400
     Tagged version 4.8.3.
 
@@ -81,7 +86,3 @@ Recent tagged changes as of 2022-10-24T16:52:54.226770-04:00:
     3af362bb 2021-01-27 10:00:46 -0500
     Tagged version 4.7.3. Use requests to check version info from
     github instead of pip search which is currently disabled.
-
-- 2 years ago (tag: 4.7.2) Dan Graham
-    8569c2cd 2020-11-04 14:03:14 -0500
-    Tagged version 4.7.2. Bug fix in openWithDefault path expansion.
