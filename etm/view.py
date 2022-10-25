@@ -1525,74 +1525,77 @@ def do_jump_to_date(*event):
 
 terminal_style = None
 
-# bggrey = "bg:#437070" # 2 shades lighter darkslategrey
-# tagrey = "bg:#264040" # 1 shade darker of darkslategrey
+grey1 = "#396060" # 1 shade lighter of darkslategrey for status and menubar background
+grey2 = "#1d3030" # 2 shades darker of darkslategrey for textarea background
 
-bggrey = "bg:#396060" # 1 shade lighter of darkslategrey for status and menubar background
-tagrey = "bg:#1d3030" # 2 shades darker of darkslategrey for textarea background
+def get_colors(bg='', fg='', attr=''):
+    # background and foreground colors from NAMED_COLORS if possible
+    bg = f"bg:{NAMED_COLORS.get(bg, bg)}" if bg else ""
+    fg = f"{NAMED_COLORS.get(fg, fg)}" if fg else ""
+    return f"{bg} {fg} {attr}".rstrip()
 
-dark_style = Style.from_dict({
-    'dialog':                f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
-    'frame.label':           f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
-    'button.focused':        f"bg:{NAMED_COLORS['DarkGreen']} {NAMED_COLORS['White']}",
-    'dialog.body label':     f"{NAMED_COLORS['White']}",
-    'dialog.body':           f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
-    'dialog shadow':         'bg:#444444',
-    'text-area':             f"{tagrey} {NAMED_COLORS['Ivory']}",
+dark_dict = {
+        'ask':                     [grey2, 'Lime', 'bold'],
+        'button.focused':          ['DarkGreen', 'White'],
+        'details':                 ['', 'Ivory'],
+        'dialog shadow':           ['#444444', ''],
+        'dialog':                  ['DarkSlateGrey', 'White'],
+        'dialog-entry':            ['White', 'Black'],
+        'dialog-output':           ['DarkSlateGrey', 'Lime'],
+        'dialog.body label':       ['', 'White'],
+        'dialog.body':             ['DarkSlateGrey', 'White'],
+        'entry':                   [grey2, 'LightGoldenRodYellow'],
+        'frame.label':             ['DarkSlateGrey', 'White'],
+        'menu':                    ['DarkSlateGrey', 'White'],
+        'menu-bar':                [grey1, 'White'],
+        'menu-bar.selected-item':  ['#ffffff', '#000000'],
+        'menu.border':             ['', '#aaaaaa'],
+        'not-searching':           ['', '#222222'],
+        'query':                   ['', 'Ivory'],
+        'reply':                   [grey2, 'DeepSkyBlue'],
+        'shadow':                  ['#222222', ''],
+        'status':                  [grey1, 'White'],
+        'status.key':              ['', '#ffaa00'],
+        'status.position':         ['', '#aaaa00'],
+        'text-area':               [grey2, 'Ivory'],
+        'window.border shadow':    ['', '#444444'],
+        'window.border':           ['', '#888888'],
+        }
 
-    'dialog-output':         f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['Lime']}",
-    'dialog-entry':          f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
-    'status':                f"{bggrey} {NAMED_COLORS['White']}",
-    'query':                 f"{NAMED_COLORS['Ivory']}",
-    'details':               f"{NAMED_COLORS['Ivory']}",
-    'status.position':       '#aaaa00',
-    'status.key':            '#ffaa00',
-    'not-searching':         '#222222',
-    'entry':                 f"{tagrey} {NAMED_COLORS['LightGoldenRodYellow']}",
-    'ask':                   f"{tagrey} {NAMED_COLORS['Lime']} bold",
-    'reply':                 f"{tagrey} {NAMED_COLORS['DeepSkyBlue']}",
+light_dict = {
+        'ask':                     ['Cornsilk', 'Lime', 'bold'],
+        'button.focused':          ['DarkGreen', 'White'],
+        'details':                 ['', 'Black'],
+        'dialog shadow':           ['#444444', ''],
+        'dialog':                  ['DimGrey', 'White'],
+        'dialog-entry':            ['White', 'Black'],
+        'dialog-output':           ['DimGrey', 'Lime'],
+        'dialog.body label':       ['', 'White'],
+        'dialog.body':             ['DimGrey', 'White'],
+        'entry':                   ['Cornsilk', 'LightGoldenRodYellow'],
+        'frame.label':             ['DimGrey', 'White'],
+        'menu':                    ['DimGrey', 'White'],
+        'menu-bar':                [grey1, 'White'],
+        'menu-bar.selected-item':  ['#ffffff', '#000000'],
+        'menu.border':             ['', '#aaaaaa'],
+        'not-searching':           ['', '#777777'],
+        'query':                   ['', 'Black'],
+        'reply':                   ['Cornsilk', 'DeepSkyBlue'],
+        'shadow':                  ['#222222', ''],
+        'status':                  [grey1, 'White'],
+        'status.key':              ['', '#ffaa00'],
+        'status.position':         ['', '#aaaa00'],
+        'text-area':               ['Cornsilk', 'Black'],
+        'window.border shadow':    ['', '#444444'],
+        'window.border':           ['', '#888888'],
+        }
 
-    'window.border':         '#888888',
-    'shadow':                'bg:#222222',
 
-    'menu-bar':              f"{bggrey} {NAMED_COLORS['White']}",
-    'menu-bar.selected-item':'bg:#ffffff #000000',
-    'menu':                  f"bg:{NAMED_COLORS['DarkSlateGrey']} {NAMED_COLORS['White']}",
-    'menu.border':           '#aaaaaa',
-    'window.border shadow':  '#444444',
-
-    })
-
-light_style = Style.from_dict({
-    'dialog':             f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'frame.label':       f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'button.focused':   f"bg:{NAMED_COLORS['DarkGreen']} {NAMED_COLORS['White']}",
-    'dialog.body label': f"{NAMED_COLORS['White']}",
-    'dialog.body':        f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'dialog shadow':      'bg:#444444',
-    'text-area': f"bg:{NAMED_COLORS['Cornsilk']} {NAMED_COLORS['Black']}",
-
-    'dialog-entry':     f"bg:{NAMED_COLORS['White']} {NAMED_COLORS['Black']}",
-    'status':     f"{bggrey} {NAMED_COLORS['White']}",
-    'query':   f"{NAMED_COLORS['Black']}",
-    'details': f"{NAMED_COLORS['Black']}",
-    'status.position': '#aaaa00',
-    'status.key': '#ffaa00',
-    'not-searching': '#777777',
-    'entry': f"bg:{NAMED_COLORS['Cornsilk']} {NAMED_COLORS['Black']}",
-    'ask':   f"bg:{NAMED_COLORS['Cornsilk']} {NAMED_COLORS['DarkGreen']} bold",
-    'reply': f"bg:{NAMED_COLORS['Cornsilk']} {NAMED_COLORS['Blue']}",
-
-    'window.border': '#888888',
-    'shadow': 'bg:#222222',
-
-    'menu-bar': f"{bggrey} {NAMED_COLORS['White']}",
-    'menu-bar.selected-item': 'bg:#ffffff #000000',
-    'menu': f"bg:{NAMED_COLORS['DimGrey']} {NAMED_COLORS['White']}",
-    'menu.border': '#aaaaaa',
-    'window.border shadow': '#444444',
-    })
-
+def get_style(style): # dark or light
+    style_dict = dark_dict if style == 'dark' else light_dict
+    if settings['style_modifications']:
+        style_dict.update(settings['style_modifications'])
+    return Style.from_dict({k: get_colors(*v) for k, v in style_dict.items()})
 
 type2style = {
         '!': 'inbox',
@@ -2967,10 +2970,7 @@ async def main(etmdir=""):
     ampm = settings['ampm']
     terminal_style = settings['style']
     etmstyle = settings['colors']
-    if terminal_style == "dark":
-        style = dark_style
-    else:
-        style = light_style
+    style = get_style(terminal_style)
     agenda_view()
 
     application = Application(

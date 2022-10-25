@@ -310,6 +310,29 @@ colors:
     today:        'Ivory bold'
     waiting:      'SlateGrey'
 
+# style_modifications: a dictionary with style component keys and
+# corresponding lists of
+#    [background, foreground, attribute]
+# components. background and foreground can either be named colors,
+# e.g., 'Ivory', hex colors, or ''. Attribute is an optional font
+# attribute such as 'bold'. These are the possible
+# style components:
+#     'dialog', 'frame.label', 'button.focused', 'dialog.body label',
+#     'dialog.body', 'dialog shadow', 'text-area', 'dialog-output',
+#     'dialog-entry', 'status', 'query', 'details','status.position',
+#     'status.key', 'not-searching', 'entry', 'ask', 'reply',
+#     'window.border', 'shadow', 'menu-bar', 'menu-bar.selected-item',
+#     'menu', 'menu.border', 'window.border shadow'
+# Each of these sytle components is set by the choice of 'dark' or
+# 'light' style. Setting one or more of these components here overrides
+# the corresponding component from 'style'. E.g.
+# style_customization:
+#     dialog: [DarkSlateGrey, Ivory]
+# would override the 'text-area' setting from style to use the named-color
+# 'DarkSlateGrey' as the background color and the named-color 'Ivory' as
+# the foreground color.
+style_modifications:
+
 # queries: A dictionary with short query "keys" and
 # corresponding "query" values. Each "query" must be one
 # that could be entered as the command in query view. Keys

@@ -39,7 +39,7 @@ This is the etm user manual. etm itself is available from [PyPi](https://pypi.or
         -   [for use system wide](#for-use-system-wide)
     -   [Usage](#usage)
         -   [Terminal size and color](#terminal-size-and-color)
-        -   [Home directory](#home-directory)
+        -   [Home directory](#home directory)
         -   [Using etm+](#etmplus)
     -   [Deinstallation](#deinstallation)
         -   [From a virtual environment](#from-a-virtual-environment)
@@ -83,7 +83,7 @@ The 4 types of reminders in etm with their associated type characters:
 * journal: **%**
 * inbox: **!**
 
-See [Item Types](#item-types) for details about these item types and [Options](#options) for details about possible attributes.
+See [Item Types](#Item Types) for details about these item types and [Options](#options) for details about possible attributes.
 
 
 ### examples
@@ -1211,11 +1211,23 @@ Several options here deserve comment.
 
 ## Installation
 
+### For personal use
+
+The easiest way to install *etm* for personal use is to use *pip*:
+
+	$ python3 -m pip install -U etm-dgraham
+
+This will install *etm* with all the needed python supporting modules. You can then start *etm* with
+
+	$ etm <path to home>
+
+See [Home Directory](#Home Directory) for details about `<path to home>`.
+
 <!--  [![etm: installing etm in a virtual environment](http://img.youtube.com/vi/fEPPG82AH7M/0.jpg)](http://www.youtube.com/watch?v=fEPPG82AH7M "installing etm in a virtual environment") -->
 
 ### For use in a virtual environment
 
-Setting up a virtual environment for etm is recommended for new users. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
+Setting up a virtual environment for etm is an slightly more complicated alternative. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
 
 Open a terminal and begin by creating a new directory/folder for the virtual environment, say `etm-pypi`, in your home directory:
 
@@ -1273,6 +1285,8 @@ Notes:
 You can then open any terminal and start etm using
 
     $ etm <path to home>
+
+See [home directory](#Home-directory) for details about `<path to home>`.
 
 ## Usage
 
