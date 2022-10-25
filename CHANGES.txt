@@ -1,31 +1,35 @@
-Recent tagged changes as of 2022-10-24T17:25:49.423954-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.8.4) Daniel Graham
+Recent tagged changes as of 2022-10-25T13:25:14.158062-04:00:
+- 0 seconds ago (HEAD -> master, tag: 4.8.5) Daniel Graham
+    322ebcf6 2022-10-25 13:25:14 -0400
+    Tagged version 4.8.5.
+
+- 20 hours ago (tag: 4.8.4) Daniel Graham
     70d0f98e 2022-10-24 17:25:49 -0400
     Tagged version 4.8.4. Building both sdist and bdist_wheel for
     upload
 
-- 33 minutes ago (tag: 4.8.3) Daniel Graham
+- 21 hours ago (tag: 4.8.3) Daniel Graham
     7e304d59 2022-10-24 16:52:54 -0400
     Tagged version 4.8.3.
 
-- 3 days ago (tag: 4.8.2) Daniel Graham
+- 4 days ago (tag: 4.8.2) Daniel Graham
     416bd7cd 2022-10-21 21:54:58 -0400
     Tagged version 4.8.2.
 
-- 4 days ago (tag: 4.8.1) Daniel Graham
+- 5 days ago (tag: 4.8.1) Daniel Graham
     e3e182ae 2022-10-20 16:53:19 -0400
     Tagged version 4.8.1.
 
-- 5 days ago (tag: 4.8.0) Daniel Graham
+- 6 days ago (tag: 4.8.0) Daniel Graham
     7420832f 2022-10-19 13:46:52 -0400
     Tagged version 4.8.0. Added preserve as an overdue option for
     repeating tasks.
 
-- 7 days ago (tag: 4.7.17) Daniel Graham
+- 8 days ago (tag: 4.7.17) Daniel Graham
     475d89a9 2022-10-17 08:03:21 -0400
     Tagged version 4.7.17.
 
-- 10 days ago (tag: 4.7.16) Daniel Graham
+- 11 days ago (tag: 4.7.16) Daniel Graham
     90083942 2022-10-14 11:14:51 -0400
     Tagged version 4.7.16.
 
@@ -81,8 +85,3 @@ Recent tagged changes as of 2022-10-24T17:25:49.423954-04:00:
 - 1 year, 7 months ago (tag: 4.7.4) Dan Graham
     13eec67c 2021-03-14 16:55:35 -0400
     Tagged version 4.7.4.
-
-- 1 year, 9 months ago (tag: 4.7.3) Dan Graham
-    3af362bb 2021-01-27 10:00:46 -0500
-    Tagged version 4.7.3. Use requests to check version info from
-    github instead of pip search which is currently disabled.
