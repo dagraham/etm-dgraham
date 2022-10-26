@@ -5506,7 +5506,7 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
             monthday = dt.format("MMM D").ljust(6, ' ')
             c5dt = fivechar_datetime(dt)
             # time = fmt_time(dt).rjust(7, ' ')
-            rhc = f"{c5dt} {label}"
+            rhc = f" {c5dt} {label}"
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item.get('summary', "~")
             flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
@@ -5676,7 +5676,7 @@ def show_konnected(db, pinned_list=[], link_list=[], konnect_list=[], timers={},
     for path, item in relevant:
         id = item.doc_id
         rhc = str(id).rjust(5, ' ')
-        itemtype = item['itemtype']
+        itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
         rows.append(

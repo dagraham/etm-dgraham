@@ -53,7 +53,7 @@ class Settings():
     }
     secret = randomString(10)
     inp = """\
-###################### IMPORTANT ########################
+###################### cfg.yaml #########################
 #
 # Changes to this file only take effect when etm is next
 # restarted.
@@ -272,11 +272,6 @@ smtp:
 # items without a location entry under 'OTHER' and then tilde.
 locations:
 
-# style: dark or light. Designed for, respectively, dark or
-# light terminal backgounds. Some output may not be visible
-# unless this is set correctly for your display.
-style: dark
-
 # colors: a 'namedcolor' entry for each of the following items:
 #     available:    available task/job reminders
 #     begin:        begin by warnings
@@ -289,7 +284,7 @@ style: dark
 #     today:        the current date heading in agenda view
 #     waiting:      waiting job reminders (unfinished prereqs)
 # The default entries are suitable for the style "dark" given
-# above. Note that the color names are case sensitive.
+# below. Note that the color names are case sensitive.
 # To restore the default colors for whichever "style" you have
 # set above, remove the color name for each of the items you
 # want to restore and restart etm.
@@ -310,27 +305,57 @@ colors:
     today:        'Ivory bold'
     waiting:      'SlateGrey'
 
+# style: dark or light. Designed for, respectively, dark or
+# light terminal backgounds. Some output may not be visible
+# unless this is set correctly for your display.
+style: dark
+
+# The 'style' choice determines whether the 'dark' or 'light' column below is used:
+#
+#                                          dark                           light
+#                              =============================   ================================
+#    ask:                     ([grey2, Lime, bold],            [Cornsilk, Lime, bold]),
+#    button.focused:          ([DarkGreen, White],             [DarkGreen, White]),
+#    details:                 ([, Ivory],                      [, Black]),
+#    dialog shadow:           ([#444444, ],                    [#444444, ]),
+#    dialog:                  ([DarkSlateGrey, White],         [DimGrey, White]),
+#    dialog-entry:            ([White, Black],                 [White, Black]),
+#    dialog-output:           ([DarkSlateGrey, Lime],          [DimGrey, Lime]),
+#    dialog.body label:       ([, White],                      [, White]),
+#    dialog.body:             ([DarkSlateGrey, White],         [DimGrey, White]),
+#    entry:                   ([grey2, LightGoldenRodYellow],  [Cornsilk, LightGoldenRodYellow]),
+#    frame.label:             ([DarkSlateGrey, White],         [DimGrey, White]),
+#    menu:                    ([DarkSlateGrey, White],         [DimGrey, White]),
+#    menu-bar:                ([grey1, White],                 [grey1, White]),
+#    menu-bar.selected-item:  ([#ffffff, #000000],             [#ffffff, #000000]),
+#    menu.border:             ([, #aaaaaa],                    [, #aaaaaa]),
+#    not-searching:           ([, #222222],                    [, #777777]),
+#    query:                   ([, Ivory],                      [, Black]),
+#    reply:                   ([grey2, DeepSkyBlue],           [Cornsilk, DeepSkyBlue]),
+#    shadow:                  ([#222222, ],                    [#222222, ]),
+#    status:                  ([grey1, White],                 [grey1, White]),
+#    status.key:              ([, #ffaa00],                    [, #ffaa00]),
+#    status.position:         ([, #aaaa00],                    [, #aaaa00]),
+#    text-area:               ([grey2, Ivory],                 [Cornsilk, Black]),
+#    window.border shadow:    ([, #444444],                    [, #444444]),
+#    window.border:           ([, #888888],                    [, #888888]),
+#
+#
+
+
 # style_modifications: a dictionary with style component keys and
 # corresponding lists of
 #    [background, foreground, attribute]
 # components. background and foreground can either be named colors,
-# e.g., 'Ivory', hex colors, or ''. Attribute is an optional font
-# attribute such as 'bold'. These are the possible
-# style components:
-#     'dialog', 'frame.label', 'button.focused', 'dialog.body label',
-#     'dialog.body', 'dialog shadow', 'text-area', 'dialog-output',
-#     'dialog-entry', 'status', 'query', 'details','status.position',
-#     'status.key', 'not-searching', 'entry', 'ask', 'reply',
-#     'window.border', 'shadow', 'menu-bar', 'menu-bar.selected-item',
-#     'menu', 'menu.border', 'window.border shadow'
-# Each of these sytle components is set by the choice of 'dark' or
-# 'light' style. Setting one or more of these components here overrides
-# the corresponding component from 'style'. E.g.
-# style_customization:
-#     dialog: [DarkSlateGrey, Ivory]
-# would override the 'text-area' setting from style to use the named-color
-# 'DarkSlateGrey' as the background color and the named-color 'Ivory' as
-# the foreground color.
+# hex colors, or ''. Attribute is an optional font attribute such
+# as 'bold' which must, of course, be supported by the font used in
+# your terminal. Any of the style attributes above can be modified,
+# e.g.,
+# style_modifications:
+#     dialog: [Black, White]
+# would change the 'text-area' setting
+# 'Black' as the background color and the named-color 'White' as the
+# foreground color.
 style_modifications:
 
 # queries: A dictionary with short query "keys" and

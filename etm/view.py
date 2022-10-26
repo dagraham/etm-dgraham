@@ -1525,77 +1525,120 @@ def do_jump_to_date(*event):
 
 terminal_style = None
 
-grey1 = "#396060" # 1 shade lighter of darkslategrey for status and menubar background
-grey2 = "#1d3030" # 2 shades darker of darkslategrey for textarea background
+grey_colors = {
+        'grey1': '#396060', # 1 shade lighter of darkslategrey for status and menubar background
+        'grey2': '#1d3030', # 2 shades darker of darkslategrey for textarea background
+    }
+
+
 
 def get_colors(bg='', fg='', attr=''):
-    # background and foreground colors from NAMED_COLORS if possible
-    bg = f"bg:{NAMED_COLORS.get(bg, bg)}" if bg else ""
-    fg = f"{NAMED_COLORS.get(fg, fg)}" if fg else ""
+    if bg and bg in grey_colors:
+        bg = f"bg:{grey_colors[bg]}"
+    else:
+        # background colors from NAMED_COLORS if possible
+        bg = f"bg:{NAMED_COLORS.get(bg, bg)}" if bg else ""
+    if fg in grey_colors:
+        fg = grey_colors[fg]
+    else:
+        # foreground colors from NAMED_COLORS if possible
+        fg = f"{NAMED_COLORS.get(fg, fg)}" if fg else ""
     return f"{bg} {fg} {attr}".rstrip()
 
-dark_dict = {
-        'ask':                     [grey2, 'Lime', 'bold'],
-        'button.focused':          ['DarkGreen', 'White'],
-        'details':                 ['', 'Ivory'],
-        'dialog shadow':           ['#444444', ''],
-        'dialog':                  ['DarkSlateGrey', 'White'],
-        'dialog-entry':            ['White', 'Black'],
-        'dialog-output':           ['DarkSlateGrey', 'Lime'],
-        'dialog.body label':       ['', 'White'],
-        'dialog.body':             ['DarkSlateGrey', 'White'],
-        'entry':                   [grey2, 'LightGoldenRodYellow'],
-        'frame.label':             ['DarkSlateGrey', 'White'],
-        'menu':                    ['DarkSlateGrey', 'White'],
-        'menu-bar':                [grey1, 'White'],
-        'menu-bar.selected-item':  ['#ffffff', '#000000'],
-        'menu.border':             ['', '#aaaaaa'],
-        'not-searching':           ['', '#222222'],
-        'query':                   ['', 'Ivory'],
-        'reply':                   [grey2, 'DeepSkyBlue'],
-        'shadow':                  ['#222222', ''],
-        'status':                  [grey1, 'White'],
-        'status.key':              ['', '#ffaa00'],
-        'status.position':         ['', '#aaaa00'],
-        'text-area':               [grey2, 'Ivory'],
-        'window.border shadow':    ['', '#444444'],
-        'window.border':           ['', '#888888'],
-        }
+# dark_dict = {
+#         'ask':                     [grey2, 'Lime', 'bold'],
+#         'button.focused':          ['DarkGreen', 'White'],
+#         'details':                 ['', 'Ivory'],
+#         'dialog shadow':           ['#444444', ''],
+#         'dialog':                  ['DarkSlateGrey', 'White'],
+#         'dialog-entry':            ['White', 'Black'],
+#         'dialog-output':           ['DarkSlateGrey', 'Lime'],
+#         'dialog.body label':       ['', 'White'],
+#         'dialog.body':             ['DarkSlateGrey', 'White'],
+#         'entry':                   [grey2, 'LightGoldenRodYellow'],
+#         'frame.label':             ['DarkSlateGrey', 'White'],
+#         'menu':                    ['DarkSlateGrey', 'White'],
+#         'menu-bar':                [grey1, 'White'],
+#         'menu-bar.selected-item':  ['#ffffff', '#000000'],
+#         'menu.border':             ['', '#aaaaaa'],
+#         'not-searching':           ['', '#222222'],
+#         'query':                   ['', 'Ivory'],
+#         'reply':                   [grey2, 'DeepSkyBlue'],
+#         'shadow':                  ['#222222', ''],
+#         'status':                  [grey1, 'White'],
+#         'status.key':              ['', '#ffaa00'],
+#         'status.position':         ['', '#aaaa00'],
+#         'text-area':               [grey2, 'Ivory'],
+#         'window.border shadow':    ['', '#444444'],
+#         'window.border':           ['', '#888888'],
+#         }
 
-light_dict = {
-        'ask':                     ['Cornsilk', 'Lime', 'bold'],
-        'button.focused':          ['DarkGreen', 'White'],
-        'details':                 ['', 'Black'],
-        'dialog shadow':           ['#444444', ''],
-        'dialog':                  ['DimGrey', 'White'],
-        'dialog-entry':            ['White', 'Black'],
-        'dialog-output':           ['DimGrey', 'Lime'],
-        'dialog.body label':       ['', 'White'],
-        'dialog.body':             ['DimGrey', 'White'],
-        'entry':                   ['Cornsilk', 'LightGoldenRodYellow'],
-        'frame.label':             ['DimGrey', 'White'],
-        'menu':                    ['DimGrey', 'White'],
-        'menu-bar':                [grey1, 'White'],
-        'menu-bar.selected-item':  ['#ffffff', '#000000'],
-        'menu.border':             ['', '#aaaaaa'],
-        'not-searching':           ['', '#777777'],
-        'query':                   ['', 'Black'],
-        'reply':                   ['Cornsilk', 'DeepSkyBlue'],
-        'shadow':                  ['#222222', ''],
-        'status':                  [grey1, 'White'],
-        'status.key':              ['', '#ffaa00'],
-        'status.position':         ['', '#aaaa00'],
-        'text-area':               ['Cornsilk', 'Black'],
-        'window.border shadow':    ['', '#444444'],
-        'window.border':           ['', '#888888'],
+# light_dict = {
+#         'ask':                     ['Cornsilk', 'Lime', 'bold'],
+#         'button.focused':          ['DarkGreen', 'White'],
+#         'details':                 ['', 'Black'],
+#         'dialog shadow':           ['#444444', ''],
+#         'dialog':                  ['DimGrey', 'White'],
+#         'dialog-entry':            ['White', 'Black'],
+#         'dialog-output':           ['DimGrey', 'Lime'],
+#         'dialog.body label':       ['', 'White'],
+#         'dialog.body':             ['DimGrey', 'White'],
+#         'entry':                   ['Cornsilk', 'LightGoldenRodYellow'],
+#         'frame.label':             ['DimGrey', 'White'],
+#         'menu':                    ['DimGrey', 'White'],
+#         'menu-bar':                ['grey1', 'White'],
+#         'menu-bar.selected-item':  ['#ffffff', '#000000'],
+#         'menu.border':             ['', '#aaaaaa'],
+#         'not-searching':           ['', '#777777'],
+#         'query':                   ['', 'Black'],
+#         'reply':                   ['Cornsilk', 'DeepSkyBlue'],
+#         'shadow':                  ['#222222', ''],
+#         'status':                  ['grey1', 'White'],
+#         'status.key':              ['', '#ffaa00'],
+#         'status.position':         ['', '#aaaa00'],
+#         'text-area':               ['Cornsilk', 'Black'],
+#         'window.border shadow':    ['', '#444444'],
+#         'window.border':           ['', '#888888'],
+#         }
+
+color_dict = {
+        'ask':                     (['grey2', 'Lime', 'bold'],          ['Cornsilk', 'Lime', 'bold']),
+        'button.focused':          (['DarkGreen', 'White'],             ['DarkGreen', 'White']),
+        'details':                 (['', 'Ivory'],                      ['', 'Black']),
+        'dialog shadow':           (['#444444', ''],                    ['#444444', '']),
+        'dialog':                  (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
+        'dialog-entry':            (['White', 'Black'],                 ['White', 'Black']),
+        'dialog-output':           (['DarkSlateGrey', 'Lime'],          ['DimGrey', 'Lime']),
+        'dialog.body label':       (['', 'White'],                      ['', 'White']),
+        'dialog.body':             (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
+        'entry':                   (['grey2', 'LightGoldenRodYellow'],  ['Cornsilk', 'LightGoldenRodYellow']),
+        'frame.label':             (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
+        'menu':                    (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
+        'menu-bar':                (['grey1', 'White'],                 ['grey1', 'White']),
+        'menu-bar.selected-item':  (['#ffffff', '#000000'],             ['#ffffff', '#000000']),
+        'menu.border':             (['', '#aaaaaa'],                    ['', '#aaaaaa']),
+        'not-searching':           (['', '#222222'],                    ['', '#777777']),
+        'query':                   (['', 'Ivory'],                      ['', 'Black']),
+        'reply':                   (['grey2', 'DeepSkyBlue'],           ['Cornsilk', 'DeepSkyBlue']),
+        'shadow':                  (['#222222', ''],                    ['#222222', '']),
+        'status':                  (['grey1', 'White'],                 ['grey1', 'White']),
+        'status.key':              (['', '#ffaa00'],                    ['', '#ffaa00']),
+        'status.position':         (['', '#aaaa00'],                    ['', '#aaaa00']),
+        'text-area':               (['grey2', 'Ivory'],                 ['Cornsilk', 'Black']),
+        'window.border shadow':    (['', '#444444'],                    ['', '#444444']),
+        'window.border':           (['', '#888888'],                    ['', '#888888']),
         }
 
 
 def get_style(style): # dark or light
-    style_dict = dark_dict if style == 'dark' else light_dict
+    col = 0 if style == 'dark' else 1
+    style_dict = {k: v[col] for k, v in color_dict.items()}
+    # style_dict = dark_dict if style == 'dark' else light_dict
     if settings['style_modifications']:
         style_dict.update(settings['style_modifications'])
-    return Style.from_dict({k: get_colors(*v) for k, v in style_dict.items()})
+    colors = {k: get_colors(*v) for k, v in style_dict.items()}
+    logger.debug(f"colors: {colors}")
+    return Style.from_dict(colors)
 
 type2style = {
         '!': 'inbox',

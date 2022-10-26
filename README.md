@@ -35,11 +35,12 @@ This is the etm user manual. etm itself is available from [PyPi](https://pypi.or
         -   [editor menu notes](#editor-menu-notes)
         -   [selected menu notes](#selected-menu-notes)
     -   [Installation](#installation)
+        -   [For personal use](#for-personal-use)
         -   [for use in a virtual environment](#for-use-in-a-virtual-environment)
         -   [for use system wide](#for-use-system-wide)
     -   [Usage](#usage)
         -   [Terminal size and color](#terminal-size-and-color)
-        -   [Home directory](#home directory)
+        -   [Home directory](#home-directory)
         -   [Using etm+](#etmplus)
     -   [Deinstallation](#deinstallation)
         -   [From a virtual environment](#from-a-virtual-environment)
@@ -136,7 +137,7 @@ When you want to create a new reminder or edit an exiting one, *etm* opens an ar
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/new.png" alt="new" title="new entry" width="600px" hspace="20px"/>
 
-#### just in time entry prompts and feedback
+#### just in time entry prompts and feedback {#just-in-time-entry-prompts-and-feedback}
 
 Let's create the election day reminder to illustrate the **timely** part of the process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character and suggests the alternatives.
 
@@ -1211,7 +1212,7 @@ Several options here deserve comment.
 
 ## Installation
 
-### For personal use
+### For personal use {#for-personal-use}
 
 The easiest way to install *etm* for personal use is to use *pip*:
 
@@ -1221,13 +1222,13 @@ This will install *etm* with all the needed python supporting modules. You can t
 
 	$ etm <path to home>
 
-See [Home Directory](#Home Directory) for details about `<path to home>`.
+See [Home directory](#home-directory) for details about `<path to home>`.
 
 <!--  [![etm: installing etm in a virtual environment](http://img.youtube.com/vi/fEPPG82AH7M/0.jpg)](http://www.youtube.com/watch?v=fEPPG82AH7M "installing etm in a virtual environment") -->
 
 ### For use in a virtual environment
 
-Setting up a virtual environment for etm is an slightly more complicated alternative. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
+Setting up a virtual environment for etm is only slightly more complicated. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
 
 Open a terminal and begin by creating a new directory/folder for the virtual environment, say `etm-pypi`, in your home directory:
 
@@ -1258,15 +1259,15 @@ and will also install an executable called `etm` in `./env/bin`.You can then sta
 
         (env) $ etm <path to home>
 
-Details about the home directory are in [usage](#usage).
+Details about `<path to home>` are in [Home directory](#home-directory).
 
 ### For use system wide
 
 If your system allows you to run `sudo` and you want general access system wide, then you could instead install etm using
 
-    $ sudo -H python3.x -m pip install -U etm-dgraham
+    $ sudo -H python3 -m pip install -U etm-dgraham
 
-replacing the `3.x` with the verion of python you want to use, e.g., `3.7`. This would put both etm and etm+ in your path (in the bin directory for python3.7).
+This would put both etm and etm+ in your path (in the bin directory for python3).
 
 Notes:
 * This same command would be used to update *etm* to the latest version.
@@ -1280,13 +1281,13 @@ Notes:
                     the policy, this may be the default
                     behavior.
 
-* Invoking pip through python in this way forces the use of the pip that belongs to python3.7.
+* Invoking pip through python in this way forces the use of the pip that belongs to python3.
 
 You can then open any terminal and start etm using
 
     $ etm <path to home>
 
-See [home directory](#Home-directory) for details about `<path to home>`.
+See [home directory](#home-directory) for details about `<path to home>`.
 
 ## Usage
 
@@ -1296,7 +1297,7 @@ The suggested terminal size for etm is 60 (columns) by 32 or more (rows). The de
 
 The size of the terminal is used when *etm* starts to set various display options so changing the terminal size, especially reducing the width, is best avoided once *etm* is running.
 
-### Home directory
+### Home directory {#home-directory}
 
 Before you start etm, think about where you would like to keep your personal data and configuration files. This will be your etm *home* directory. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_.
 
@@ -1355,6 +1356,14 @@ The addition of the typechar '!' means that after importing the reminder will ap
 
 
 ## Deinstallation
+
+### From a personal installation
+
+To remove *etm* installed into, say, python3, run
+
+    $ python3 -m pip uninstall etm-dgraham
+
+This will remove *etm* from the python site-packages directory and the *etm* and *etm+* executables from the python bin directory. Then remove any *etm home* directories that you have created.
 
 ### From a virtual environment
 
