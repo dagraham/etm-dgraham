@@ -272,7 +272,18 @@ smtp:
 # items without a location entry under 'OTHER' and then tilde.
 locations:
 
-# colors: a 'namedcolor' entry for each of the following items:
+# queries: A dictionary with short query "keys" and
+# corresponding "query" values. Each "query" must be one
+# that could be entered as the command in query view. Keys
+# can be any short string other than 'a', 'u', 'c' or 'l'
+# which are already in use.
+# queries:
+#    td: m l -q equals itemtype - and ~exists f  # unfinished tasks by l
+#    mi: exists u and ~exists i                  # items with u but missing i
+#    arch: a exists itemtype                     # all archived items
+queries:
+
+# colors: a 'named' foreground color for each of the following items:
 #     available:    available task/job reminders
 #     begin:        begin by warnings
 #     event:        event reminders
@@ -312,36 +323,36 @@ style: dark
 
 # The 'style' choice determines whether the 'dark' or 'light' column below is used:
 #
-#                                          dark                           light
-#                              =============================   ================================
-#    ask:                     ([grey2, Lime, bold],            [Cornsilk, Lime, bold]),
-#    button.focused:          ([DarkGreen, White],             [DarkGreen, White]),
-#    details:                 ([, Ivory],                      [, Black]),
-#    dialog shadow:           ([#444444, ],                    [#444444, ]),
-#    dialog:                  ([DarkSlateGrey, White],         [DimGrey, White]),
-#    dialog-entry:            ([White, Black],                 [White, Black]),
-#    dialog-output:           ([DarkSlateGrey, Lime],          [DimGrey, Lime]),
-#    dialog.body label:       ([, White],                      [, White]),
-#    dialog.body:             ([DarkSlateGrey, White],         [DimGrey, White]),
-#    entry:                   ([grey2, LightGoldenRodYellow],  [Cornsilk, LightGoldenRodYellow]),
-#    frame.label:             ([DarkSlateGrey, White],         [DimGrey, White]),
-#    menu:                    ([DarkSlateGrey, White],         [DimGrey, White]),
-#    menu-bar:                ([grey1, White],                 [grey1, White]),
-#    menu-bar.selected-item:  ([#ffffff, #000000],             [#ffffff, #000000]),
-#    menu.border:             ([, #aaaaaa],                    [, #aaaaaa]),
-#    not-searching:           ([, #222222],                    [, #777777]),
-#    query:                   ([, Ivory],                      [, Black]),
-#    reply:                   ([grey2, DeepSkyBlue],           [Cornsilk, DeepSkyBlue]),
-#    shadow:                  ([#222222, ],                    [#222222, ]),
-#    status:                  ([grey1, White],                 [grey1, White]),
-#    status.key:              ([, #ffaa00],                    [, #ffaa00]),
-#    status.position:         ([, #aaaa00],                    [, #aaaa00]),
-#    text-area:               ([grey2, Ivory],                 [Cornsilk, Black]),
-#    window.border shadow:    ([, #444444],                    [, #444444]),
-#    window.border:           ([, #888888],                    [, #888888]),
+#                                       dark                           light
+#                            =============================  =============================
+#   ask:                    ([grey2, Lime, bold],           [Cornsilk, Lime, bold]),
+#   button.focused:         ([DarkGreen, White],            [DarkGreen, White]),
+#   details:                ([, Ivory],                     [, Black]),
+#   dialog shadow:          ([#444444, ],                   [#444444, ]),
+#   dialog:                 ([DarkSlateGrey, White],        [DimGrey, White]),
+#   dialog-entry:           ([White, Black],                [White, Black]),
+#   dialog-output:          ([DarkSlateGrey, Lime],         [DimGrey, Lime]),
+#   dialog.body label:      ([, White],                     [, White]),
+#   dialog.body:            ([DarkSlateGrey, White],        [DimGrey, White]),
+#   entry:                  ([grey2, LightGoldenRodYellow], [Cornsilk, LightGoldenRodYellow]),
+#   frame.label:            ([DarkSlateGrey, White],        [DimGrey, White]),
+#   menu:                   ([DarkSlateGrey, White],        [DimGrey, White]),
+#   menu-bar:               ([grey1, White],                [grey1, White]),
+#   menu-bar.selected-item: ([#ffffff, #000000],            [#ffffff, #000000]),
+#   menu.border:            ([, #aaaaaa],                   [, #aaaaaa]),
+#   not-searching:          ([, #222222],                   [, #777777]),
+#   query:                  ([, Ivory],                     [, Black]),
+#   reply:                  ([grey2, DeepSkyBlue],          [Cornsilk, DeepSkyBlue]),
+#   shadow:                 ([#222222, ],                   [#222222, ]),
+#   status:                 ([grey1, White],                [grey1, White]),
+#   status.key:             ([, #ffaa00],                   [, #ffaa00]),
+#   status.position:        ([, #aaaa00],                   [, #aaaa00]),
+#   text-area:              ([grey2, Ivory],                [Cornsilk, Black]),
+#   window.border shadow:   ([, #444444],                   [, #444444]),
+#   window.border:          ([, #888888],                   [, #888888]),
 #
-#
-
+# Note that 'grey1' (#396060) and 'grey2' (#1d3030) are colors named within etm itself.
+# They are, respectively, one shade lighter and two shades darker than DarkSlateGrey.
 
 # style_modifications: a dictionary with style component keys and
 # corresponding lists of
@@ -352,22 +363,10 @@ style: dark
 # your terminal. Any of the style attributes above can be modified,
 # e.g.,
 # style_modifications:
-#     dialog: [Black, White]
-# would change the 'text-area' setting
-# 'Black' as the background color and the named-color 'White' as the
-# foreground color.
+#     text-area: [Black, White]
+# would change the 'text-area' setting to 'Black' as the background
+# color and 'White' as the foreground color.
 style_modifications:
-
-# queries: A dictionary with short query "keys" and
-# corresponding "query" values. Each "query" must be one
-# that could be entered as the command in query view. Keys
-# can be any short string other than 'a', 'u', 'c' or 'l'
-# which are already in use.
-# queries:
-#    td: m l -q equals itemtype - and ~exists f  # unfinished tasks by l
-#    mi: exists u and ~exists i                  # items with u but missing i
-#    arch: a exists itemtype                     # all archived items
-queries:
 
 #########################################################
 # This concludes cfg.yaml
@@ -384,7 +383,7 @@ queries:
         self.cfgfile = os.path.normpath(
                 os.path.join(etmdir, 'cfg.yaml'))
         if os.path.exists(self.cfgfile):
-            with open(self.cfgfile, 'r') as fn:
+            with open(self.cfgfile, 'rb') as fn:
                 try:
                     self.user = yaml.load(fn)
                 except Exception as e:
@@ -401,7 +400,7 @@ queries:
             self.changes = [f'missing {self.cfgfile} - using defaults']
 
         if self.changes:
-            with open(self.cfgfile, 'w', encoding='utf-8') as fn:
+            with open(self.cfgfile, 'wb') as fn:
                 yaml.dump(self.settings, fn)
             logger.info(f"updated {self.cfgfile}: {', '.join(self.changes)}")
         else:
