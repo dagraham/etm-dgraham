@@ -323,33 +323,33 @@ style: dark
 
 # The 'style' choice determines whether the 'dark' or 'light' column below is used:
 #
-#                                       dark                           light
-#                            =============================  =============================
-#   ask:                    ([grey2, Lime, bold],           [Cornsilk, Lime, bold]),
-#   button.focused:         ([DarkGreen, White],            [DarkGreen, White]),
-#   details:                ([, Ivory],                     [, Black]),
-#   dialog shadow:          ([#444444, ],                   [#444444, ]),
-#   dialog:                 ([DarkSlateGrey, White],        [DimGrey, White]),
-#   dialog-entry:           ([White, Black],                [White, Black]),
-#   dialog-output:          ([DarkSlateGrey, Lime],         [DimGrey, Lime]),
-#   dialog.body label:      ([, White],                     [, White]),
-#   dialog.body:            ([DarkSlateGrey, White],        [DimGrey, White]),
-#   entry:                  ([grey2, LightGoldenRodYellow], [Cornsilk, LightGoldenRodYellow]),
-#   frame.label:            ([DarkSlateGrey, White],        [DimGrey, White]),
-#   menu:                   ([DarkSlateGrey, White],        [DimGrey, White]),
-#   menu-bar:               ([grey1, White],                [grey1, White]),
-#   menu-bar.selected-item: ([#ffffff, #000000],            [#ffffff, #000000]),
-#   menu.border:            ([, #aaaaaa],                   [, #aaaaaa]),
-#   not-searching:          ([, #222222],                   [, #777777]),
-#   query:                  ([, Ivory],                     [, Black]),
-#   reply:                  ([grey2, DeepSkyBlue],          [Cornsilk, DeepSkyBlue]),
-#   shadow:                 ([#222222, ],                   [#222222, ]),
-#   status:                 ([grey1, White],                [grey1, White]),
-#   status.key:             ([, #ffaa00],                   [, #ffaa00]),
-#   status.position:        ([, #aaaa00],                   [, #aaaa00]),
-#   text-area:              ([grey2, Ivory],                [Cornsilk, Black]),
-#   window.border shadow:   ([, #444444],                   [, #444444]),
-#   window.border:          ([, #888888],                   [, #888888]),
+#                                     dark                           light
+#                        -----------------------------  -----------------------------
+# ask:                    [grey2, Lime, bold]           [Cornsilk, Lime, bold]
+# button.focused:         [DarkGreen, White]            [DarkGreen, White]
+# details:                [, Ivory]                     [, Black]
+# dialog shadow:          [#444444, ]                   [#444444, ]
+# dialog:                 [DarkSlateGrey, White]        [DimGrey, White]
+# dialog-entry:           [White, Black]                [White, Black]
+# dialog-output:          [DarkSlateGrey, Lime]         [DimGrey, Lime]
+# dialog.body label:      [, White]                     [, White]
+# dialog.body:            [DarkSlateGrey, White]        [DimGrey, White]
+# entry:                  [grey2, LightGoldenRodYellow] [Cornsilk, LightGoldenRodYellow]
+# frame.label:            [DarkSlateGrey, White]        [DimGrey, White]
+# menu:                   [DarkSlateGrey, White]        [DimGrey, White]
+# menu-bar:               [grey1, White]                [grey1, White]
+# menu-bar.selected-item: [#ffffff, #000000]            [#ffffff, #000000]
+# menu.border:            [, #aaaaaa]                   [, #aaaaaa]
+# not-searching:          [, #222222]                   [, #777777]
+# query:                  [, Ivory]                     [, Black]
+# reply:                  [grey2, DeepSkyBlue]          [Cornsilk, DeepSkyBlue]
+# shadow:                 [#222222, ]                   [#222222, ]
+# status:                 [grey1, White]                [grey1, White]
+# status.key:             [, #ffaa00]                   [, #ffaa00]
+# status.position:        [, #aaaa00]                   [, #aaaa00]
+# text-area:              [grey2, Ivory]                [Cornsilk, Black]
+# window.border shadow:   [, #444444]                   [, #444444]
+# window.border:          [, #888888]                   [, #888888]
 #
 # Note that 'grey1' (#396060) and 'grey2' (#1d3030) are colors named within etm itself.
 # They are, respectively, one shade lighter and two shades darker than DarkSlateGrey.
