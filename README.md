@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" width="200px" />
 
-This is the etm user manual. etm itself is available from [PyPi](https://pypi.org/project/etm-dgraham/) and [GitHub](https://github.com/dagraham/etm-dgraham) and further information from the etm discussion group at [groups.io](https://groups.io/g/etm) - note especially the [files](https://groups.io/g/etm/files/) folder. Brief how-to videos are available at [youtube](https://www.youtube.com/playlist?list=PLN2WQIqrwSxxh2eNY_YczO6YC-icpKWeG).
+This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.github.io/etm-dgraham/) where all the internal, contents links work correctly. etm itself is available from [PyPi](https://pypi.org/project/etm-dgraham/) and [GitHub](https://github.com/dagraham/etm-dgraham) and further information from the etm discussion group at [groups.io](https://groups.io/g/etm) - note especially the [files](https://groups.io/g/etm/files/) folder. Brief how-to videos are available at [youtube](https://www.youtube.com/playlist?list=PLN2WQIqrwSxxh2eNY_YczO6YC-icpKWeG).
 
 
 # Contents {#contents}
@@ -2217,3 +2217,5 @@ Consider the entry `2019-12-23` for `@s`. To *etm* this is a pendulum date objec
 As another example, When the reminder is created by *etm* the `created` timestamp is handed to *TinyDB* as an aware pendulum datetime object with US/Eastern as the timezone. *TinyDB* recognizes this and, because it is an aware datetime, first converts it to Universal time and then encodes/serializes it as `"{T}:20191221T1526A"`. The `{T}` indicates that it is a datetime object and the appended `A` indicates that it is aware and thus has been converted to Universal time. When *etm* retrieves this record, *TinyDB* recognizes from the `{T}` and the `A` that this is an aware datetime object, decodes it as an aware datetime object and, because it is aware, converts it from Universal time to whatever the current local timezone happens to be before returning it. Had this been a naive datetime, an `N` would have been appended to the serialization and no conversion would have been done either way.
 
 These **date** and **datetime** serializations are extensions of *TinyDB* provided by *etm*. Three further extensions are also provided: **interval** for *pendulum duration* objects using the tag `{I}`, **weekday** for  *dateutil* weekday objects using the tag `{W}` and **mask** using the tag `{M}` for encoding/serializing *etm* strings in a masked or obfuscated manner.
+
+[↺ contents](#contents)
