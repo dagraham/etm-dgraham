@@ -91,7 +91,7 @@ updates_interval: 0             # non-negative integer
 # or a question mark when the check cannot be completed
 # as, for example, when there is no internet connection.
 
-locale: en_US                   # A locale abbreviation
+locale: en_US                   # locale abbreviation
 # E.g., "en_AU" for English (Australia), "en_US" for English
 # (United States), "fr_FR" for French (France) and so forth.
 # Google "python locale abbreviatons" for a complete list."
