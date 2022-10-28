@@ -1,39 +1,43 @@
-Recent tagged changes as of 2022-10-26T15:25:24.283518-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.8.6) Daniel Graham
+Recent tagged changes as of 2022-10-28T14:28:41.292227-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.8.7) Daniel Graham
+    65af25ae 2022-10-28 14:28:41 -0400
+    Tagged version 4.8.7.
+
+- 2 days ago (tag: 4.8.6) Daniel Graham
     71f82dcd 2022-10-26 15:25:24 -0400
     Tagged version 4.8.6.
 
-- 26 hours ago (tag: 4.8.5) Daniel Graham
+- 3 days ago (tag: 4.8.5) Daniel Graham
     322ebcf6 2022-10-25 13:25:14 -0400
     Tagged version 4.8.5.
 
-- 2 days ago (tag: 4.8.4) Daniel Graham
+- 4 days ago (tag: 4.8.4) Daniel Graham
     70d0f98e 2022-10-24 17:25:49 -0400
     Tagged version 4.8.4. Building both sdist and bdist_wheel for
     upload
 
-- 2 days ago (tag: 4.8.3) Daniel Graham
+- 4 days ago (tag: 4.8.3) Daniel Graham
     7e304d59 2022-10-24 16:52:54 -0400
     Tagged version 4.8.3.
 
-- 5 days ago (tag: 4.8.2) Daniel Graham
+- 7 days ago (tag: 4.8.2) Daniel Graham
     416bd7cd 2022-10-21 21:54:58 -0400
     Tagged version 4.8.2.
 
-- 6 days ago (tag: 4.8.1) Daniel Graham
+- 8 days ago (tag: 4.8.1) Daniel Graham
     e3e182ae 2022-10-20 16:53:19 -0400
     Tagged version 4.8.1.
 
-- 7 days ago (tag: 4.8.0) Daniel Graham
+- 9 days ago (tag: 4.8.0) Daniel Graham
     7420832f 2022-10-19 13:46:52 -0400
     Tagged version 4.8.0. Added preserve as an overdue option for
     repeating tasks.
 
-- 9 days ago (tag: 4.7.17) Daniel Graham
+- 11 days ago (tag: 4.7.17) Daniel Graham
     475d89a9 2022-10-17 08:03:21 -0400
     Tagged version 4.7.17.
 
-- 12 days ago (tag: 4.7.16) Daniel Graham
+- 2 weeks ago (tag: 4.7.16) Daniel Graham
     90083942 2022-10-14 11:14:51 -0400
     Tagged version 4.7.16.
 
@@ -81,7 +85,3 @@ Recent tagged changes as of 2022-10-26T15:25:24.283518-04:00:
 - 1 year, 7 months ago (tag: 4.7.6) Dan Graham
     6bf4cc82 2021-03-26 18:55:48 -0400
     Tagged version 4.7.6. "Fixed sorting bug in get_usedtime routine."
-
-- 1 year, 7 months ago (tag: 4.7.5) Dan Graham
-    6f29c7b7 2021-03-26 13:20:25 -0400
-    Tagged version 4.7.5.
