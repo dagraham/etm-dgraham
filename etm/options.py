@@ -53,21 +53,14 @@ class Settings():
     }
     secret = randomString(10)
     inp = """\
-###################### cfg.yaml #########################
-#
-# Changes to this file only take effect when etm is next
-# restarted.
-#
-#########################################################
+ampm: true                      # true or false
+# Use AM/PM format for datetimes if true else use 24 hour format.
 
-# ampm: true or false. Use AM/PM format for datetimes if true
-# else use 24 hour format.
-ampm: true
-
-# yearfirst and dayfirst. Each true or false. Whenever an
-# ambiguous date is parsed, the dayfirst and yearfirst
-# parameters control how the information is processed.
-# Here is the precedence in each case:
+yearfirst: true                 # true or false
+dayfirst: false                 # true or false
+# Whenever an ambiguous date is parsed, dayfirst and yearfirst
+# parameters control how the information is processed using
+# this precedence:
 #
 #   If dayfirst is False and yearfirst is False:
 #       MM-DD-YY
@@ -88,98 +81,89 @@ ampm: true
 #       YY-MM-DD
 #       DD-MM-YY
 #       MM-DD-YY
-#
-yearfirst: true
-dayfirst: false
 
-# updates_interval: a non-negative integer. If positive,
-# automatically check for updates every 'updates_interval'
-# minutes. If zero, do not automatically check for updates.
+updates_interval: 0             # non-negative integer
+# If positive,  automatically check for updates every
+# 'updates_interval' minutes. If zero, do not automatically
+# check for updates.
 # When enabled, a blackboard u symbol, 𝕦, will be displayed at
 # the right end of status bar when an update is available
 # or a question mark when the check cannot be completed
 # as, for example, when there is no internet connection.
-updates_interval: 0
 
-# locale: A locale abbreviation. E.g., "en_AU" for English
-# (Australia), "en_US" for English (United States), "fr_FR"
-# for French (France) and so forth. Google "python locale
-# abbreviatons" for a complete list."
-locale: en_US
+locale: en_US                   # A locale abbreviation
+# E.g., "en_AU" for English (Australia), "en_US" for English
+# (United States), "fr_FR" for French (France) and so forth.
+# Google "python locale abbreviatons" for a complete list."
 
-# vi_mode: true or false. Use vi keybindings for editing if
-# true else use emacs style keybindings.
-vi_mode: false
+vi_mode: false                  # true or false
+# Use vi keybindings for editing if true else use emacs style
+# keybindings.
 
-# secret: A string to use as the secret_key for @m masked
-# entries. In etm versions after 4.0.21, the default string
-# is randomly generated when this file is created or when
+secret: %s                      # string
+# A string to use as the secret_key for @m masked entries.
+# In etm versions after 4.0.21, the default string is
+# randomly generated when this file is created or when
 # the secret value is removed and etm is restarted. WARNING:
 # if this key is changed, any @m entries that were made before
 # the change will be unreadable after the change.
-secret: %s
 
-# omit_extent: A list of calendar names with each name
-# indented on a separate line. Events with @c entries
-# belonging to this list will only have their starting times
-# displayed in agenda view and will neither appear nor cause
-# conflicts in busy view.
-omit_extent:
+omit_extent: []                 # A list of calendar names
+# Events with @c entries belonging to this list will only have
+# their starting times displayed in agenda view and will neither
+# appear nor cause conflicts in busy view.
 
-# keep_current: non-negative integer. If positive, the agenda
-# for that integer number of weeks starting with the current
-# week will be written to "current.txt" in your etm home
-# directory and updated when necessary. You could, for
-# example, create a link to this file in a pCloud or DropBox
-# folder and have access to your current schedule on your
-# mobile device.
-keep_current: 0
+keep_current: 0                 # non-negative integer
+# If positive, the agenda for that integer number of weeks
+# starting with the current week will be written to
+# "current.txt" in your etm home directory and updated when
+# necessary. You could, for example, create a link to this file
+# in a pCloud or DropBox folder and have access to your current
+# schedule on your mobile device.
 
-# keep_next: true or false. If true, the 'do next' view will
-# be written to "next.txt" in your etm home directory. As with
-# "current.txt", a link to this file could be created in a
-# pCloud or DropBox folder for access from your mobile device.
-keep_next: false
+keep_next: false                # true or false
+# If true, the 'do next' view will be written to "next.txt" in
+# your etm home directory. As with "current.txt", a link to this
+# file could be created in a pCloud or DropBox folder for access
+# from your mobile device.
 
-# archive_after: A non-negative integer. If zero, do not
-# archive items. If positive, finished tasks and events with
-# last datetimes falling more than this number of years
-# before the current date will automatically be archived on a
-# daily basis.  Archived items are moved from the "items"
+archive_after: 0                # non-negative integer
+# If zero, do not archive items. If positive, finished tasks and
+# events with last datetimes falling more than this number of
+# years before the current date will automatically be archived
+# on a daily basis.  Archived items are moved from the "items"
 # table in the database to the "archive" table and will no
-# longer appear in normal views. Note that unfinished tasks
-# and records are not archived.
-archive_after: 0
+# longer appear in normal views. Note that unfinished tasks and
+# records are not archived.
 
-# num_finished: A non-negative integer. If positive, when
-# saving retain only the most recent 'num_finished'
-# completions of an infinitely repeating task, i.e., repeating
-# without an "&c" count or an "&u" until attribute. If zero or
-# not infinitely repeating, save all completions.
-num_finished: 0
+num_finished: 0                 # non-negative integer
+# If positive, when saving retain only the most recent
+# "num_finished" completions of an infinitely repeating task,
+# i.e., repeating without an "&c" count or an "&u" until
+# attribute. If zero or not infinitely repeating, save all
+# completions.
 
-# limit_skip_display: true or false. If true, only the first
-# instance of a task with "@o s" (overdue skip) will be
-# displayed. For a task with an "@s" entry that is a date this
-# will be the first instance that falls on or after the current
-# date. Otherwise, when the "@s" entry is a datetime, this will
-# be the first instance that falls on or after the current time.
-limit_skip_display: true
+limit_skip_display: true        # true or false
+# If true, only the first instance of a task with "@o s"
+# (overdue skip) will be displayed. For a task with an "@s"
+# entry that is a date this will be the first instance that
+# falls on or after the current date. Otherwise, when the "@s"
+# entry is a datetime, this will be the first instance that
+# falls on or after the current time.
 
-# connecting_dots: true or false. If true, display dots connecting
-# the item summary and the right-hand details columns in tree views.
-connecting_dots: false
+connecting_dots: false          # true or false
+# If true, display dots connecting the item summary and the
+# right-hand details columns in tree views.
 
-# usedtime_minutes: Round used times up to the nearest
-# usedtime_minutes in used time views. Possible choices are 1,
-# 6, 12, 30 and 60. With 1, no rounding is done and times are
-# reported as hours and minutes. Otherwise, the prescribed
-# rounding is done and times are reported as floating point
-# hours. Note that each "@u" timeperiod is rounded before
-# aggregation.
-usedtime_minutes: 1
+usedtime_minutes: 1             # 1, 6, 12, 30 or 60
+# Round used times up to the nearest usedtime_minutes in used
+# time views. With 1, no rounding is done and times are reported
+# as hours and minutes. Otherwise, the prescribed rounding is
+# done and times are reported as floating point hours. Note that
+# each "@u" timeperiod is rounded before aggregation.
 
-# alerts: A dictionary with single-character, "alert" keys and
+alerts:                         # dictionary
+# A dictionary with single-character, "alert" keys and
 # corresponding "system command" values. Note that characters
 # "t" (text message) and "e" (email) are already used.  The
 # "system command" string should be a comand with any
@@ -204,10 +188,10 @@ usedtime_minutes: 1
 # (the comma) and then the time remaining until the starting
 # time, e.g., "sales meeting, in 20 minutes" would be triggered
 # by including "@a 20m: v" in the reminder.
-alerts:
 
-# expansions: A dictionary with 'expansion name' keys and
-# corresponding 'replacement string' values. E.g. with
+expansions:                     # dictionary
+# A dictionary with 'expansion name' keys and corresponding
+# 'replacement string' values. E.g. with
 #
 #    expansions:
 #        tennis: "@e 1h30m @a 30m: d @i personal:exercise"
@@ -216,9 +200,13 @@ alerts:
 # then when "@x tennis" is entered the popup completions for
 # "@x tennis" would offer replacement by the corresponding
 # "@e 1h30m @a 30m: d @i personal:exercise".
-expansions:
 
-# sms: Settings to send "t" (sms text message) alerts to the
+sms:
+    body:   "{location} {when}"
+    from:
+    pw:
+    server:
+# Settings to send "t" (sms text message) alerts to the
 # list of phone numbers from the item's @n attendee
 # entries using the item's summary and the body as specified
 # in the template below as the message. E.g., suppose you
@@ -236,12 +224,13 @@ expansions:
 #     Sprint:   @pm.sprint.com
 #     T-Mobile: @tmomail.net
 # Note. Google "mms gateway listing" for other alternatives.
-sms:
-    body:   "{location} {when}"
+
+smtp:
+    body: "{location} {when}\\n{description}"
     from:
+    id:
     pw:
     server:
-
 # smtp: Settings to send "e" (email message) alerts to the
 # list of email addresses from the item's @n attendee
 # entries using the item's summary as the subject and body as
@@ -252,17 +241,12 @@ sms:
 #     id: whatever457
 #     pw: your gmail password
 #     server: smtp.gmail.com
-smtp:
-    body: "{location} {when}\\n{description}"
-    from:
-    id:
-    pw:
-    server:
 
-# locations: a dictionary with location group names and
-# corresponding lists of locations. When given, do next
-# view will group items first by the location group name
-# and then by the location within that group. Note that
+locations:                      # dictionary
+# A dictionary with location group names as keys and
+# corresponding lists of locations as values. When given,
+# do next view will group items first by the location group
+# name and then by the location within that group. Note that
 # locations can appear under more than one group name. E.g.,
 # locations:
 #    home: [home, garage, yard, phone, computer]
@@ -270,20 +254,30 @@ smtp:
 # Items with a location entry that does not belong to one
 # of these location groups will be listed under 'OTHER' and
 # items without a location entry under 'OTHER' and then tilde.
-locations:
 
-# queries: A dictionary with short query "keys" and
-# corresponding "query" values. Each "query" must be one
-# that could be entered as the command in query view. Keys
-# can be any short string other than 'a', 'u', 'c' or 'l'
-# which are already in use.
+queries:                        # dictionary
+# A dictionary with short query "keys" and corresponding "query"
+# values. Each "query" must be one that could be entered as the
+# command in query view. Keys can be any short string other than
+# 'a', 'u', 'c' or 'l' which are already in use.
 # queries:
-#    td: m l -q equals itemtype - and ~exists f  # unfinished tasks by l
-#    mi: exists u and ~exists i                  # items with u but missing i
-#    arch: a exists itemtype                     # all archived items
-queries:
+#    td: m l -q equals itemtype - and ~exists f
+#    mi: exists u and ~exists i
+#    arch: a exists itemtype
 
-# colors: a 'named' foreground color for each of the following items:
+colors:
+    available:    'LightSkyBlue'
+    begin:        'Gold'
+    event:        'LimeGreen'
+    finished:     'DarkGrey'
+    inbox:        'Yellow'
+    journal:      'GoldenRod'
+    pastdue:      'LightSalmon'
+    plain:        'Ivory'
+    today:        'Ivory bold'
+    waiting:      'SlateGrey'
+# A dictionary with a 'named' foreground color as the value
+# for each of the following keys:
 #     available:    available task/job reminders
 #     begin:        begin by warnings
 #     event:        event reminders
@@ -296,32 +290,20 @@ queries:
 #     waiting:      waiting job reminders (unfinished prereqs)
 # The default entries are suitable for the style "dark" given
 # below. Note that the color names are case sensitive.
-# To restore the default colors for whichever "style" you have
-# set above, remove the color name for each of the items you
-# want to restore and restart etm.
+# To restore the default colors for whichever "style" you set
+# below, remove the color name for each of the items you want to
+# restore and restart etm.
+#
 # To preview the namedcolors, download "namedcolors.py" from
 #    "https://github.com/dagraham/etm-dgraham",
 # open a terminal with your chosen background color and run
 #    python3 <path to namedcolors.py>
 # at the command prompt.
-colors:
-    available:    'LightSkyBlue'
-    begin:        'Gold'
-    event:        'LimeGreen'
-    finished:     'DarkGrey'
-    inbox:        'Yellow'
-    journal:      'GoldenRod'
-    pastdue:      'LightSalmon'
-    plain:        'Ivory'
-    today:        'Ivory bold'
-    waiting:      'SlateGrey'
 
-# style: dark or light. Designed for, respectively, dark or
-# light terminal backgounds. Some output may not be visible
-# unless this is set correctly for your display.
-style: dark
-
-# The 'style' choice determines whether the 'dark' or 'light' column below is used:
+style: dark                     # 'dark' or 'light'
+# Set the defaults for dark or light terminal backgounds. Some
+# output may not be visible unless this is set correctly for your
+# display. # The 'dark' and 'light' defaults are given below:
 #
 #                                     dark                           light
 #                        -----------------------------  -----------------------------
@@ -354,8 +336,8 @@ style: dark
 # Note that 'grey1' (#396060) and 'grey2' (#1d3030) are colors named within etm itself.
 # They are, respectively, one shade lighter and two shades darker than DarkSlateGrey.
 
-# style_modifications: a dictionary with style component keys and
-# corresponding lists of
+style_modifications:            # dictionary
+# A dictionary with style component keys and corresponding lists of
 #    [background, foreground, attribute]
 # components. background and foreground can either be named colors,
 # hex colors, or ''. Attribute is an optional font attribute such
@@ -366,20 +348,16 @@ style: dark
 #     text-area: [Black, White]
 # would change the 'text-area' setting to 'Black' as the background
 # color and 'White' as the foreground color.
-style_modifications:
-
-#########################################################
-# This concludes cfg.yaml
-#########################################################
 """ % secret
 
     def __init__(self, etmdir):
         if not os.path.isdir(etmdir):
             raise ValueError(f"{etmdir} is not a valid directory")
         self.colorst = Settings.colors
-        # self.settings = yaml.load(Settings.inp)
+        nort_settings = yaml.load(Settings.inp)
+        logger.debug(f"nort_settings: {type(nort_settings)}; {nort_settings}")
         self.settings = ruamel.yaml.load(Settings.inp, ruamel.yaml.RoundTripLoader)
-        # logger.debug(f"settings: {type(self.settings)}; {self.settings}")
+        logger.debug(f"settings: {type(self.settings)}; {self.settings}")
         self.cfgfile = os.path.normpath(
                 os.path.join(etmdir, 'cfg.yaml'))
         if os.path.exists(self.cfgfile):

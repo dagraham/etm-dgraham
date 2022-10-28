@@ -3,7 +3,7 @@
 This is the etm user manual. etm itself is available from [PyPi](https://pypi.org/project/etm-dgraham/) and [GitHub](https://github.com/dagraham/etm-dgraham) and further information from the etm discussion group at [groups.io](https://groups.io/g/etm) - note especially the [files](https://groups.io/g/etm/files/) folder. Brief how-to videos are available at [youtube](https://www.youtube.com/playlist?list=PLN2WQIqrwSxxh2eNY_YczO6YC-icpKWeG).
 
 
-# [Contents](#contents)
+# Contents {#contents}
 -   [Overview](#overview)
     -   [Reminders](#reminders)
         -   [examples](#examples)
@@ -71,9 +71,7 @@ This is the etm user manual. etm itself is available from [PyPi](https://pypi.or
 # Overview [↺](#contents)
 {#overview}
 
-
-## Reminders [↺](#contents)
-{#reminders}
+## Reminders {#reminders}
 
 *etm* offers a simple way to manage your events, tasks and other reminders.
 
@@ -86,11 +84,10 @@ The 4 types of reminders in etm with their associated type characters:
 * journal: **%**
 * inbox: **!**
 
-See [Item Types](#item-types) for details about these item types and [Options](#options) for details about possible attributes.
+See [Item Types](#item-types) for details about these item types and [Options](#options) for details about possible attributes. [↺](#contents)
 
 
-### examples [↺](#contents)
-{#examples}
+### examples {#examples}
 
 * A task (**-**): pick up milk.
 
@@ -123,6 +120,8 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
         * dental exam and cleaning @s 2p feb 5 2019 @e 45m
           @+ 9am Sep 3 2019
+
+[↺ contents](#contents)
 
 
 ### text entry versus forms [↺](#contents)
@@ -303,7 +302,7 @@ General observations:
 
    The `@s` and `@r` entries provide attributes of the event itself and the `&i`, `&M`, `&m` and `&w` entries provide attributes of the `@r` entry. More than one `@r` entry can be provided and each can have its own set of `&-key` entries.
 * *@-keys* can generally be entered in any order provided that `@s` is entered before any options that require it. *&-keys* can also be entered in any order.
-* The prompts provide "just in time" information relevant to the entry you are typing and need only be consulted if you are uncertain about your entry. With a little experience, most reminders can be completed without a glance at the prompt.
+* The prompts provide "just in time" information relevant to the entry you are typing and need only be consulted if you are uncertain about your entry. With a little experience, most reminders can be completed without a glance at the prompt. [↺](#contents)
 
 
 #### fuzzy parsing of datetimes [↺](#contents)
@@ -484,7 +483,7 @@ The display for each reminder shows the itemtype and summary column on the left 
   * y: Yearly Planning Calendar: compact monthly calendar by half year.
 
 ### Weekly Views [↺](#contents)
-{#Weekly-Views}
+{#weekly-views}
 
 The _weekly_ agenda, busy and completed views display one week at a time and are *synchronized* so that all three views always display the same week. Left or right cursor keys go backward or forward a week at a time and the pressing the space bar jumps to the week containing the current day. You can also press "J" and enter a date to jump to the week containing the date.
 
@@ -504,14 +503,14 @@ And, on the current day only:
 * *>* beginby warnings in ascending order of the number of days remaining
 
 ### Timer view [↺](#contents)
-{#Timer-view}
+{#timer-view}
 
 This view lists all reminders with associated timers sorted by the elapsed time since the timer's *state* was last changed. The display for each reminder shows the itemtype and summary, any applicable *flags* and, in the right hand column, the elapsed time and *state* of the associated timer.
 
 The sort order assures that the reminder with the active timer will always be at the top of the list and followed by the reminders with the most recently modified timers. This makes it easy to switch back and forth between recent timers.
 
 ### Review View [↺](#contents)
-{#Review-View}
+{#review-view}
 
 Displays a list of the summaries and location/contexts (@l entries) of undated and unfinished tasks sorted by their (last) modified timestamp and grouped by the number of weeks since last modified.
 
@@ -520,7 +519,7 @@ This view is used for a periodic review of such "todos" with the goal of not let
 A reasonable work flow would be to open this view once every week or so and examine tasks more than a week "old", editing them when necessary and otherwise updating the modified timestamp using "V" so that all tasks are kept within the 'last week' or 'this week' groups.
 
 ### Pinned View [↺](#contents)
-{#Pinned-View}
+{#pinned-view}
 
 Items that have been "pinned" (have their pin status toggled on) are displayed in *pinned view* grouped by itemtype and sorted by the created/modified datetime.
 
@@ -543,7 +542,7 @@ reminders with links from the selection
 : the list of items whose ids are included in the @k entries of the selected item
 
 ### Used Time Views [↺](#contents)
-{#Used-Time-Views}
+{#used-time-views}
 
 The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
 
@@ -637,7 +636,7 @@ This view omits the reminder lines and aggregates the used times hierarchically 
 
 As with other dated views, the left and right cursor keys go backwards and forwards a month at a time and the space bar returns to the current month. Also, pressing `^C` copies the contents of the view to the system clipboard.
 ### Query View [↺](#contents)
-{#Query-View}
+{#query-view}
 
 In *query view* an entry line at the bottom of the screen is used to submit queries to your data store of reminders. For example, press `q` to open query view, enter
 
@@ -652,7 +651,7 @@ would display reminders with an @u element but not an @i element.
 Simple queries of this type produce a list of matching items with the itemtype, summary and id displayed and sorted by id, i.e., by the order created. It is also possible to create more complex queries in which the output is displayed heirarchially using a format determined by the query parameters. Enter `?` or `help` at the prompt to get this detailed usage information:
 
 #### Simple queries [↺](#contents)
-{#Simple-queries}
+{#simple-queries}
 
 Return a list of items displaying the itemtype, summary
 and id, and sorted by id, (order created) using commands
@@ -732,7 +731,7 @@ at all, '', to close the entry area and return to the
 previous display.
 
 #### Simple query examples [↺](#contents)
-{#Simple-query-examples}
+{#simple-query-examples}
 
 Find items where the summary includes a match for
 "waldo":
@@ -786,7 +785,7 @@ for "waldo" but the @d (description) entry does not:
     query: includes summary waldo and ~includes d waldo
 
 #### Archive queries [↺](#contents)
-{#Archive-queries}
+{#archive-queries}
 
 Queries, by default, search the items table in the etm
 database. You can preceed any query with 'a ' (the letter
@@ -802,7 +801,7 @@ Queries beginning with 'a ' are, in fact, the only way
 to see archived items from within etm itself.
 
 #### Update queries [↺](#contents)
-{#Update queries}
+{#update-queries}
 
 Queries can not only locate reminders but also update
 them. The update commands act on items returned by a
@@ -865,7 +864,7 @@ ALL YOUR REMINDERS:
 
 
 #### Complex queries [↺](#contents)
-{#Complex-queries}
+{#complex-queries}
 
 Return a formatted, heirarchial display of items. Both the
 format and the items displayed are determined by the type
@@ -1006,7 +1005,7 @@ w (week), d (day), h (hour) and m (minute). E.g.:
 * `monthend + 1M` (the end of the following month)
 
 #### Command History [↺](#contents)
-{#Command-History}
+{#command-history}
 
 Any query entered at the 'query:' prompt and submitted by
 pressing 'Enter' is added to the command history. These
@@ -1020,7 +1019,7 @@ of queries accessible by shortcuts. See 'Saved Queries'
 below.
 
 #### Saved Queries [↺](#contents)
-{#Saved-Queries}
+{#saved-queries}
 
 Commonly used queries can be specified in the "queries"
 section of `cfg.yaml` in your etm home directory along
@@ -1300,7 +1299,7 @@ and will also install an executable called `etm` in `./env/bin`.You can then sta
 Details about `<path to home>` are in [Home directory](#home-directory).
 
 ### For use system wide [↺](#contents)
-{#For use system wide}
+{#for-use-system-wide}
 
 If your system allows you to run `sudo` and you want general access system wide, then you could instead install etm using
 
@@ -1332,7 +1331,7 @@ See [home directory](#home-directory) for details about `<path to home>`.
 {#usage}
 
 ### Terminal size and color scheme [↺](#contents)
-{#Terminal-size-and-color-scheme}
+{#terminal-size-and-color-scheme}
 
 The suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display.
 
@@ -1369,9 +1368,8 @@ Here `cfg.yaml` is your user configuration file and `db.json` contains all your 
 The file `cfg.yaml` can be edited and the options are documented in the file.
 See [configuration](#configuration) for details.
 
-<h3 id="etmplus">
-Using etm+
-</h3>
+### Using etm+ [↺](#contents)
+{#etmplus}
 
 An added bonus of setting `ETMHOME` to the path of your *home* directory is the possibility of using the `etm+` shortcut for creating reminders. E.g., entering
 
@@ -1401,7 +1399,7 @@ The addition of the typechar '!' means that after importing the reminder will ap
 {#deinstallation}
 
 ### From a personal installation [↺](#contents)
-{#From-a-personal-installation}
+{#from-a-personal-installation}
 
 To remove *etm* installed into, say, python3, run
 
@@ -1410,7 +1408,7 @@ To remove *etm* installed into, say, python3, run
 This will remove *etm* from the python site-packages directory and the *etm* and *etm+* executables from the python bin directory. Then remove any *etm home* directories that you have created.
 
 ### From a virtual environment [↺](#contents)
-{#From-a-virtual-environment}
+{#from-a-virtual-environment}
 
 If you should ever want to deinstall etm, first deactivate the virtual environment, if necessary, by changing to the virtual environment directory and entering
 
@@ -1419,7 +1417,7 @@ If you should ever want to deinstall etm, first deactivate the virtual environme
 You can now simply delete the virtual environment directory and, if you have additional *home* directories, delete each of them. One of the many advantages of the virtual environment is that these steps remove every trace.
 
 ### From a system wide installation [↺](#contents)
-{#From-a-system-wide-installation}
+{#from-a-system-wide-installation}
 
 To remove *etm* installed into, say, python3.7, run
 
