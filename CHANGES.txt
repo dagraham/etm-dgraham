@@ -1,5 +1,9 @@
-Recent tagged changes as of 2022-10-28T14:28:41.292227-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.8.7) Daniel Graham
+Recent tagged changes as of 2022-10-28T14:40:36.071716-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.8.8) Daniel Graham
+    f26fee1d 2022-10-28 14:40:36 -0400
+    Tagged version 4.8.8.
+
+- 12 minutes ago (tag: 4.8.7) Daniel Graham
     65af25ae 2022-10-28 14:28:41 -0400
     Tagged version 4.8.7.
 
@@ -81,7 +85,3 @@ Recent tagged changes as of 2022-10-28T14:28:41.292227-04:00:
     Tagged version 4.7.7. Replaced call in item_changed from
     update_completions to get_completions to insure that completions
     are always consistent with the current data."
-
-- 1 year, 7 months ago (tag: 4.7.6) Dan Graham
-    6bf4cc82 2021-03-26 18:55:48 -0400
-    Tagged version 4.7.6. "Fixed sorting bug in get_usedtime routine."
