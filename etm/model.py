@@ -125,8 +125,7 @@ KONNECT_CHAR = 'k'
 LINK_CHAR = 'g'
 PIN_CHAR = 'p'
 ELLIPSiS_CHAR = '…'
-# LINEDOT = ' ᐧ '  # ᐧ U+1427
-LINEDOT = ' · '  # ܁ U+00B7
+LINEDOT = ' · '  # ܁ U+00B7 (middle dot)
 
 etmdir = None
 

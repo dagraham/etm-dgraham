@@ -265,7 +265,7 @@ queries:                        # dictionary
 #    mi: exists u and ~exists i
 #    arch: a exists itemtype
 
-colors:
+colors:                         # dictionary
     available:    'LightSkyBlue'
     begin:        'Gold'
     event:        'LimeGreen'
@@ -300,7 +300,7 @@ colors:
 #    python3 <path to namedcolors.py>
 # at the command prompt.
 
-style: dark                     # 'dark' or 'light'
+style: dark                     # dark or light
 # Set the defaults for dark or light terminal backgounds. Some
 # output may not be visible unless this is set correctly for your
 # display. # The 'dark' and 'light' defaults are given below:
