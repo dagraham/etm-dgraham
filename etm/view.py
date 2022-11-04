@@ -61,7 +61,7 @@ logger = None
 dataview = None
 item = None
 style = None
-etmstyle = None
+type_colors = None
 application = None
 
 ############ begin query ###############################
@@ -574,7 +574,7 @@ class ETMQuery(object):
         self.changed = False
 
         self.lexer = PygmentsLexer(TDBLexer)
-        self.style = etmstyle
+        self.style = type_colors
         self.Item = Query()
 
         self.allowed_commands = ", ".join([x for x in self.filters])
@@ -1523,7 +1523,7 @@ def do_jump_to_date(*event):
     asyncio.ensure_future(coroutine())
 
 
-terminal_style = None
+window_colors = None
 
 grey_colors = {
         'grey1': '#396060', # 1 shade lighter of darkslategrey for status and menubar background
@@ -1544,41 +1544,41 @@ def get_colors(bg='', fg='', attr=''):
     return f"{bg} {fg} {attr}".rstrip()
 
 
-color_dict = {
-        'ask':                     (['grey2', 'Lime', 'bold'],          ['Cornsilk', 'Lime', 'bold']),
-        'button.focused':          (['DarkGreen', 'White'],             ['DarkGreen', 'White']),
-        'details':                 (['', 'Ivory'],                      ['', 'Black']),
-        'dialog shadow':           (['#444444', ''],                    ['#444444', '']),
-        'dialog':                  (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
-        'dialog-entry':            (['White', 'Black'],                 ['White', 'Black']),
-        'dialog-output':           (['DarkSlateGrey', 'Lime'],          ['DimGrey', 'Lime']),
-        'dialog.body label':       (['', 'White'],                      ['', 'White']),
-        'dialog.body':             (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
-        'entry':                   (['grey2', 'LightGoldenRodYellow'],  ['Cornsilk', 'LightGoldenRodYellow']),
-        'frame.label':             (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
-        'menu':                    (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
-        'menu-bar':                (['grey1', 'White'],                 ['grey1', 'White']),
-        'menu-bar.selected-item':  (['#ffffff', '#000000'],             ['#ffffff', '#000000']),
-        'menu.border':             (['', '#aaaaaa'],                    ['', '#aaaaaa']),
-        'not-searching':           (['', '#222222'],                    ['', '#777777']),
-        'query':                   (['', 'Ivory'],                      ['', 'Black']),
-        'reply':                   (['grey2', 'DeepSkyBlue'],           ['Cornsilk', 'DeepSkyBlue']),
-        'shadow':                  (['#222222', ''],                    ['#222222', '']),
-        'status':                  (['grey1', 'White'],                 ['grey1', 'White']),
-        'status.key':              (['', '#ffaa00'],                    ['', '#ffaa00']),
-        'status.position':         (['', '#aaaa00'],                    ['', '#aaaa00']),
-        'text-area':               (['grey2', 'Ivory'],                 ['Cornsilk', 'Black']),
-        'window.border shadow':    (['', '#444444'],                    ['', '#444444']),
-        'window.border':           (['', '#888888'],                    ['', '#888888']),
-        }
+# color_dict = {
+#         'ask':                     (['grey2', 'Lime', 'bold'],          ['Cornsilk', 'Lime', 'bold']),
+#         'button.focused':          (['DarkGreen', 'White'],             ['DarkGreen', 'White']),
+#         'details':                 (['', 'Ivory'],                      ['', 'Black']),
+#         'dialog shadow':           (['#444444', ''],                    ['#444444', '']),
+#         'dialog':                  (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
+#         'dialog-entry':            (['White', 'Black'],                 ['White', 'Black']),
+#         'dialog-output':           (['DarkSlateGrey', 'Lime'],          ['DimGrey', 'Lime']),
+#         'dialog.body label':       (['', 'White'],                      ['', 'White']),
+#         'dialog.body':             (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
+#         'entry':                   (['grey2', 'LightGoldenRodYellow'],  ['Cornsilk', 'LightGoldenRodYellow']),
+#         'frame.label':             (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
+#         'menu':                    (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
+#         'menu-bar':                (['grey1', 'White'],                 ['grey1', 'White']),
+#         'menu-bar.selected-item':  (['#ffffff', '#000000'],             ['#ffffff', '#000000']),
+#         'menu.border':             (['', '#aaaaaa'],                    ['', '#aaaaaa']),
+#         'not-searching':           (['', '#222222'],                    ['', '#777777']),
+#         'query':                   (['', 'Ivory'],                      ['', 'Black']),
+#         'reply':                   (['grey2', 'DeepSkyBlue'],           ['Cornsilk', 'DeepSkyBlue']),
+#         'shadow':                  (['#222222', ''],                    ['#222222', '']),
+#         'status':                  (['grey1', 'White'],                 ['grey1', 'White']),
+#         'status.key':              (['', '#ffaa00'],                    ['', '#ffaa00']),
+#         'status.position':         (['', '#aaaa00'],                    ['', '#aaaa00']),
+#         'text-area':               (['grey2', 'Ivory'],                 ['Cornsilk', 'Black']),
+#         'window.border shadow':    (['', '#444444'],                    ['', '#444444']),
+#         'window.border':           (['', '#888888'],                    ['', '#888888']),
+#         }
 
 
-def get_style(style): # dark or light
-    col = 0 if style == 'dark' else 1
-    style_dict = {k: v[col] for k, v in color_dict.items()}
+def get_style(style_dict):
+    # col = 0 if style == 'dark' else 1
+    # style_dict = {k: v[col] for k, v in color_dict.items()}
     # style_dict = dark_dict if style == 'dark' else light_dict
-    if settings['style_modifications']:
-        style_dict.update(settings['style_modifications'])
+    # if settings['window_colors']:
+    #     style_dict.update(settings['style_modifications'])
     colors = {k: get_colors(*v) for k, v in style_dict.items()}
     logger.debug(f"colors: {colors}")
     return Style.from_dict(colors)
@@ -1611,20 +1611,21 @@ def first_char(s):
 # Create one text buffer for the main content.
 class ETMLexer(Lexer):
     def lex_document(self, document):
+        logger.debug(f"type_colors: {type_colors}")
 
         def get_line(lineno):
             tmp = document.lines[lineno]
             typ = first_char(tmp)
             if typ in type2style:
                 sty = type2style[typ]
-                if sty in etmstyle:
-                    return [(etmstyle[sty], tmp)]
+                if sty in type_colors:
+                    return [(type_colors[sty], tmp)]
                 else:
-                    logger.debug(f"sty: {sty}; etmstyle.keys: {etmstyle.keys()}")
+                    logger.debug(f"sty: {sty}; type_colors.keys: {type_colors.keys()}")
             if tmp.rstrip().endswith("(Today)") or tmp.rstrip().endswith("(Tomorrow)"):
-                return [(etmstyle['today'], f"{tmp} ")]
-            return [(etmstyle['plain'], tmp)]
-            # return [(etmstyle[type2style.get(typ, 'plain')], tmp)]
+                return [(type_colors['today'], f"{tmp} ")]
+            return [(type_colors['plain'], tmp)]
+            # return [(type_colors[type2style.get(typ, 'plain')], tmp)]
 
         return get_line
 
@@ -2952,11 +2953,12 @@ def set_askreply(_):
 
 
 async def main(etmdir=""):
-    global item, settings, ampm, style, etmstyle, application
+    global item, settings, ampm, style, type_colors, application
     ampm = settings['ampm']
-    terminal_style = settings['style']
-    etmstyle = settings['colors']
-    style = get_style(terminal_style)
+    type_colors = settings['type_colors']
+    window_colors = settings['window_colors']
+    logger.debug(f"view main settings: {settings}")
+    style = get_style(window_colors)
     agenda_view()
 
     application = Application(

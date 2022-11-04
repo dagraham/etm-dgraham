@@ -1908,7 +1908,7 @@ class NDict(dict):
                     summary_width = self.width - l_indent - 2 - self.flag_len - 2 - len(leaf[3])
                     if settings['connecting_dots'] and (leaf[2].strip() or leaf[3].strip()):
                         times = leaf[3].rstrip() if leaf[3].strip() else ''
-                        details = f"  {leaf[2]}{times}".replace('   ', LINEDOT)
+                        details = f" {leaf[2]} {times}".replace('   ', LINEDOT)
                         fill = summary_width - len(leaf[1])
                         if fill < 0:
                             summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR
@@ -6045,7 +6045,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 used_time[tuple((month, *index_tup[:i+1]))] += period
         for monthday in id_used:
             month = monthday.format("YYYY-MM")
-            rhc = f"{monthday.format('MMM D')}: {format_hours_and_tenths(id_used[monthday])}".ljust(14, ' ')
+            rhc = f"{monthday.format('M/DD')}: {format_hours_and_tenths(id_used[monthday])}".ljust(14, ' ')
             detail_rows.append({
                         'sort': (month, index_tup, monthday, itemtype, summary),
                         'month': month,
