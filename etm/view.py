@@ -1579,9 +1579,9 @@ def get_style(style_dict):
     # style_dict = dark_dict if style == 'dark' else light_dict
     # if settings['window_colors']:
     #     style_dict.update(settings['style_modifications'])
-    colors = {k: get_colors(*v) for k, v in style_dict.items()}
-    logger.debug(f"colors: {colors}")
-    return Style.from_dict(colors)
+    window_colors = {k: get_colors(*v) for k, v in style_dict.items()}
+    logger.debug(f"window_colors: {window_colors}")
+    return Style.from_dict(window_colors)
 
 type2style = {
         '!': 'inbox',

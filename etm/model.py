@@ -2094,10 +2094,8 @@ class DataView(object):
                     if x == "k":
                         continue
                     for p in v:
-                        logger.debug(f"adding completion @{x} {p}")
                         completions.add(f"@{x} {p}")
                 else:
-                    logger.debug(f" adding completion @{x} {v}")
                     completions.add(f"@{x} {v}")
                     if x == "i":
                         # make a "k" completion for the "i" entry
@@ -2110,7 +2108,6 @@ class DataView(object):
                         completions.add(f"@k {i} {t} {s}: {d}")
         self.completions = list(completions)
         self.completions.sort()
-        logger.debug(f"all completions: {self.completions}")
 
 
     def update_konnections(self, item):

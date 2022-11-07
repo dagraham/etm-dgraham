@@ -29,8 +29,42 @@ def randomString(stringLength=10):
 grey1 = '#396060', # 1 shade lighter of darkslategrey for status and menubar background
 grey2 = '#1d3030', # 2 shades darker of darkslategrey for textarea background
 
+def dict2yaml(d):
+    logger.debug(f"processing {type(d)}: {d}")
+    if not d or not type(d) == dict:
+        return ""
+    rows = [""" """]
+    for k, v in d.items():
+        if type(v) != list:
+            v = repr(v)
+            v = str2yaml(v)
+        rows.append(f"""  {k}: {v}""")
+    ret = "\n".join(rows)
+    logger.debug(f"returning: {ret}")
+    return "\n".join(rows)
+
+def str2yaml(s):
+    ret = ""
+    logger.debug(f"processing {type(s)}: {s}")
+    if type(s) == bool:
+        ret = 'true' if s else 'false'
+    elif s is None or s == 'None':
+        ret = ''
+    else:
+        ret = s
+    logger.debug(f"returning: {ret}")
+    return ret
 
 class Settings():
+    """
+    'settings' stores the defaults for all settings. 'settings_hsh' stores the settings that
+    are user adjustable, e.g., ampm, type_colors and window_colors and is initially populated
+    with the default values from settings.
+    When cfg.yaml exists and is not empty, yaml (no-round-trip) is used to load its values which
+    are then checked for validity and, if valid, update the settings in 'settings_hsh' and settings.
+    If any changes have been made to 'settings_hsh', then f-string formatting is used to update
+    the content which is then written (writelines, not dump) to cfg.yaml.
+    """
 
     default_type_colors = {
         'dark': {
@@ -133,6 +167,8 @@ class Settings():
     usedtime_minutes = 1
     alerts = ""
     expansions = ""
+    sms = {"body": r'"{location} {when}"', "from": "", "server": "", "pw": ""}
+    smtp = {"body": r'"{location} {when}\n{description}"', "from": "", "server": "", "id": "", "pw": ""}
     locations = ""
     queries = ""
     style = "dark"
@@ -141,45 +177,36 @@ class Settings():
 
     # use these to format the template
     settings_hsh = {
-"ampm" : "true",
-"yearfirst" : "true",
-"dayfirst" : "false",
-"updates_interval" : 0,
-"locale" : "en_US",
-"vi_mode" : "false",
-"secret" : randomString(10),
-"omit_extent" : "",
-"keep_current" : 0,
-"keep_next" : "false",
-"archive_after" : 0,
-"num_finished" : 0,
-"limit_skip_display" : "true",
-"connecting_dots" : "false",
-"usedtime_minutes" : 1,
-"alerts" : "",
-"expansions" : "",
-"sms" : {
-    "body": "{location} {when}",
-    "from": "",
-    "server": "",
-    "pw": "",
-},
-"smtp" : {
-    "body": "{location} {when}\n{description}",
-    "from": "",
-    "server": "",
-    "id": "",
-    "pw": "",
-},
-"locations" : locations,
-"queries" : queries,
-"style" : "dark",
-"type_colors" : type_colors,        # user modifications only
-"window_colors" : window_colors,    # user modifications only
+        "ampm" : ampm,
+        "yearfirst" : yearfirst,
+        "dayfirst" : dayfirst,
+        "updates_interval" : updates_interval,
+        "locale" : locale,
+        "vi_mode" : vi_mode,
+        "secret" : secret,
+        "omit_extent" : omit_extent,
+        "keep_current" : keep_current,
+        "keep_next" : keep_next,
+        "archive_after" : archive_after,
+        "num_finished" : num_finished,
+        "limit_skip_display" : limit_skip_display,
+        "connecting_dots" : connecting_dots,
+        "usedtime_minutes" : usedtime_minutes,
+        "alerts" : dict2yaml(alerts),
+        "expansions" : dict2yaml(expansions),
+        "sms": dict2yaml(sms),
+        "smtp": dict2yaml(smtp),
+        "locations": dict2yaml(locations),
+        "queries": dict2yaml(queries),
+        "style" : style,
+        "type_colors" : dict2yaml(type_colors),        # user modifications only
+        "window_colors" : dict2yaml(window_colors),    # user modifications only
 }
 
 
-    template = """
+    template = """\
+#### begin cfg.yaml ####
+
 ampm: {ampm}
 # true or false. Use AM/PM format for datetimes if true else
 # use 24 hour format.
@@ -477,25 +504,36 @@ window_colors: {window_colors}
 # would change the 'text-area' setting to 'Black' as the background color
 # and 'White' as the foreground color while leaving the other style settings
 # unchanged.
+
+#### end cfg.yaml ####\
 """
 
     def __init__(self, etmdir):
         if not os.path.isdir(etmdir):
             raise ValueError(f"{etmdir} is not a valid directory")
-        # self.colorst = Settings.colors
+        self.settings = {}
+        logger.debug(f"settings_hsh: {self.settings_hsh}")
         default_template = Settings.template.format(**Settings.settings_hsh)
+        self.settings.update(self.settings_hsh)
         logger.debug(f"default template: {default_template}")
-        self.settings = yaml_nort.load(default_template) # uses RoundTripLoader (comments)
+        # self.settings = yaml_nort.load(default_template) # uses RoundTripLoader (comments)
         # yaml = YAML(typ='safe', pure=True)
-        self.settings['type_colors']
-        logger.debug(f"settings from template: {type(self.settings)};\n{self.settings}")
+        # load defaults
+        active_style = self.settings_hsh['style']
+        default_type_colors = self.default_type_colors[active_style]
+        default_window_colors = self.default_window_colors[active_style]
+        # override the settings_hsh values for type_colors and window_colors so that
+        # settings will have all the possible keys
+        self.settings['type_colors'] = default_type_colors
+        self.settings['window_colors'] = default_window_colors
+        logger.debug(f"default settings: {type(self.settings)};\n{self.settings}")
         self.cfgfile = os.path.normpath(
                 os.path.join(etmdir, 'cfg.yaml'))
         if os.path.exists(self.cfgfile):
             with open(self.cfgfile, 'rb') as fn:
                 try:
                     self.user = yaml_nort.load(fn) # not RoundTripLoader (no comments)
-                    logger.debug(f"settings from user: {type(self.user)};\n{self.user}")
+                    logger.debug(f"settings from cfg.yaml: {type(self.user)};\n{self.user}")
                 except Exception as e:
                     error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {self.cfgfile} and restart etm.\n"
                     logger.critical(error)
@@ -503,21 +541,27 @@ window_colors: {window_colors}
                     sys.exit()
 
             if self.user and isinstance(self.user, dict):
-                self.changes = self.check_options()
+                logger.debug(f"self.user: {self.user}")
             else:
-                self.changes = [f'invalid settings from {self.cfgfile} - using defaults']
+                self.user = {}
         else:
-            self.changes = [f'missing {self.cfgfile} - using defaults']
+            self.user = {}
 
-        logger.debug(f"settings_hsh after check_options:\n{self.settings_hsh}")
+        if self.user:
+            # we have user settings that need to be checked
+            self.changes = self.check_options()
+        else:
+            # we need to populate cfg.yaml
+            self.changes = None
+            with open(self.cfgfile, 'w') as fn:
+                fn.writelines(default_template)
 
         if self.changes:
-            updated_template = Settings.template.format(**Settings.settings_hsh)
+            logger.debug(f"updating template with {self.settings_hsh}")
+            updated_template = Settings.template.format(**self.settings_hsh)
             logger.debug(f"template updated: {updated_template}")
-            self.settings = yaml.load(updated_template)
-            # self.settings = yaml.load(Settings.template.format(**Settings.settings_hsh)) # uses RoundTripLoader by default
-            with open(self.cfgfile, 'wb') as fn:
-                yaml.dump(self.settings, fn)
+            with open(self.cfgfile, 'w') as fn:
+                fn.writelines(updated_template)
             logger.info(f"updated {self.cfgfile}: {', '.join(self.changes)}")
         else:
             logger.info(f"using settings from {self.cfgfile}")
@@ -526,24 +570,21 @@ window_colors: {window_colors}
     def check_options(self):
         changed = []
         new = deepcopy(self.user)
+        logger.debug(f"got here with new: {new}")
         active_style = new.get('style', self.settings_hsh['style'])
         if active_style not in ['dark', 'light']:
             active_style = self.settings_hsh['style']
         default_type_colors = self.default_type_colors[active_style]
         default_window_colors = self.default_window_colors[active_style]
 
-        # we will update these later with any provided user settings
-        self.settings['type_colors'] = default_type_colors
-        self.settings['window_colors'] = default_window_colors
-
         cfg = deepcopy(self.settings_hsh)
         logger.debug(f"cfg copied from settings_hsh: {cfg}")
         # add missing default keys
         logger.debug(f"self.settings_hsh: {type(self.settings_hsh)}")
         for key, value in self.settings_hsh.items():
-            # if key in ["summary", "prop", "start", "when", "location", "description", "etm_version"]:
-            #     continue
-            logger.debug(f"checking {key} {value}")
+            if key in ["colors", "type_colors", "window_colors"]:
+                continue
+            logger.debug(f"1checking {key} {value}")
             if isinstance(self.settings_hsh[key], dict):
                 if key not in new or not isinstance(new[key], dict):
                     new[key] = self.settings_hsh[key]
@@ -555,7 +596,7 @@ window_colors: {window_colors}
                             changed.append(f"retaining default {key}.{k}: {self.settings_hsh[key][k]}")
             elif key not in new:
                 new[key] = self.settings_hsh[key]
-                changed.append(f"retaining default {key}: {self.settings[key]}")
+                changed.append(f"retaining default {key}: {self.settings_hsh[key]}")
         # remove invalid user keys/values
         tmp = deepcopy(new) # avoid modifying ordered_dict during iteration
         logger.debug(f"copy of new: {type(tmp)}; {tmp}")
@@ -566,12 +607,12 @@ window_colors: {window_colors}
                 # not a valid option
                 del new[key]
                 changed.append(f"removed {key}: {self.user[key]}")
-            elif key in ['sms', 'smtp', 'color_modifications']:
+            elif key in ['type_colors', 'window_colors']:
                 # only allow the specified subfields for these keys
                 ks = tmp[key] or []
-                logger.debug(f"checking {key}: {type(tmp[key])}")
+                logger.debug(f"2checking {key}: {type(tmp[key])}")
                 for k in ks:
-                    if k not in self.settings_hsh[key]:
+                    if k not in self.settings[key]:
                         changed.append(f"removed {key}.{k}: {new[key][k]}")
                         del new[key][k]
 
@@ -586,7 +627,7 @@ window_colors: {window_colors}
             logger.debug(f"copy of new['type_colors']: {type(tmp)}; {tmp}")
             deleted = False
             for k in tmp:
-                if k not in default_type_colors:
+                if k not in self.settings['type_colors']:
                     deleted = True
                     changed.append(f"removed invalid type_colors entry: {k}")
                     del tmp[k]
@@ -594,7 +635,7 @@ window_colors: {window_colors}
                 new['type_colors'] = tmp
 
             if new['type_colors']:
-                self.settings_hsh['type_colors'] = new['type_colors']
+                self.settings_hsh['type_colors'] = dict2yaml(new['type_colors'])
                 self.settings['type_colors'].update(new['type_colors'])
 
         logger.debug(f"self.settings[type_colors]: {self.settings['type_colors']}")
@@ -605,10 +646,10 @@ window_colors: {window_colors}
 
         if new['window_colors']:
             tmp = deepcopy(new['window_colors'])
-            logger.debug(f"tmp window_colors: {tmp}")
+            logger.debug(f"tmp window_colors: {tmp}\ndefault_window_colors: {default_window_colors}")
             deleted = False
             for k in tmp:
-                if k not in default_window_colors:
+                if k not in self.settings['window_colors']:
                     deleted = True
                     changed.append(f"removed invalid window_colors entry: {k}")
                     del tmp[k]
@@ -616,7 +657,8 @@ window_colors: {window_colors}
                 new['window_colors'] = tmp
 
             if new['window_colors']:
-                self.settings_hsh['window_colors'] = new['window_colors']
+                logger.debug(f"updating window_colors\nfrom {self.settings_hsh['window_colors']}\nto {new['window_colors']}")
+                self.settings_hsh['window_colors'] = dict2yaml(new['window_colors'])
                 self.settings['window_colors'].update(new['window_colors'])
 
         logger.debug(f"self.settings[window_colors]: {self.settings['window_colors']}")
@@ -649,9 +691,14 @@ window_colors: {window_colors}
             if key in ['type_colors', 'window_colors']:
                 # already processed these
                 continue
-            self.settings_hsh[key] = new.get(key, None)
-            logger.debug(f"updating settings: {key}: {new.get(key, None)}")
-            self.settings[key] = new.get(key, None)
+            new_value = new.get(key, '')
+            if new_value != self.settings_hsh[key]:
+                logger.debug(f"updating settings: {key}\nfrom {self.settings_hsh[key]}\nto {new_value}")
+                if type(new_value) == dict:
+                    self.settings_hsh[key] = dict2yaml(new_value)
+                else:
+                    self.settings_hsh[key] = str2yaml(new_value)
+                self.settings[key] = new_value
 
         return changed
 
