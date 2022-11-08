@@ -1592,6 +1592,7 @@ def format_datetime(obj, short=False):
     ampm = settings.get('ampm', True)
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
+    logger.debug(f"model dayfirst: {dayfirst}; yearfirst: {yearfirst}")
     md = "D/M" if dayfirst else "M/D"
     ymd = f"YY/{md}" if yearfirst else f"{md}/YY"
 

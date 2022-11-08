@@ -2176,11 +2176,6 @@ Here are the options with their default values from that file. The lines beginni
 
     #### end cfg.yaml ####
 
-
-
-
-
-
 Note that in the 'dictionary' entries above, the components must be indented (using spaces not tabs). E.g., the illustrative alert entry would be:
 
 	alerts:

@@ -30,30 +30,32 @@ grey1 = '#396060', # 1 shade lighter of darkslategrey for status and menubar bac
 grey2 = '#1d3030', # 2 shades darker of darkslategrey for textarea background
 
 def dict2yaml(d):
-    logger.debug(f"processing {type(d)}: {d}")
     if not d or not type(d) == dict:
         return ""
     rows = [""" """]
     for k, v in d.items():
-        if type(v) != list:
+        if v and type(v) != list:
             v = repr(v)
             v = str2yaml(v)
         rows.append(f"""  {k}: {v}""")
     ret = "\n".join(rows)
-    logger.debug(f"returning: {ret}")
     return "\n".join(rows)
 
 def str2yaml(s):
     ret = ""
-    logger.debug(f"processing {type(s)}: {s}")
+    logger.debug(f"processing: {s}")
     if type(s) == bool:
         ret = 'true' if s else 'false'
     elif s is None or s == 'None':
-        ret = ''
+        ret = ""
+    elif type(s) == str:
+        ret = re.sub(r'\\+\\n', r'\\n', s)
     else:
         ret = s
-    logger.debug(f"returning: {ret}")
-    return ret
+    if ret:
+        return ret
+    else:
+        return
 
 class Settings():
     """
@@ -167,8 +169,8 @@ class Settings():
     usedtime_minutes = 1
     alerts = ""
     expansions = ""
-    sms = {"body": r'"{location} {when}"', "from": "", "server": "", "pw": ""}
-    smtp = {"body": r'"{location} {when}\n{description}"', "from": "", "server": "", "id": "", "pw": ""}
+    sms = {"body": "{location} {when}", "from": "", "server": "", "pw": ""}
+    smtp = {"body": "{location} {when}\n{description}", "from": "", "server": "", "id": "", "pw": ""}
     locations = ""
     queries = ""
     style = "dark"
@@ -178,8 +180,8 @@ class Settings():
     # use these to format the template
     settings_hsh = {
         "ampm" : ampm,
-        "yearfirst" : yearfirst,
         "dayfirst" : dayfirst,
+        "yearfirst" : yearfirst,
         "updates_interval" : updates_interval,
         "locale" : locale,
         "vi_mode" : vi_mode,
@@ -211,9 +213,9 @@ ampm: {ampm}
 # true or false. Use AM/PM format for datetimes if true else
 # use 24 hour format.
 
+dayfirst:  {dayfirst}
 yearfirst: {yearfirst}
-dayfirst:  {yearfirst}
-# true or false. Whenever an ambiguous date is parsed, dayfirst
+# each true or false. Whenever an ambiguous date is parsed, dayfirst
 # and yearfirst parameters control how the information is processed
 # using this precedence:
 #
@@ -692,12 +694,14 @@ window_colors: {window_colors}
                 # already processed these
                 continue
             new_value = new.get(key, '')
-            if new_value != self.settings_hsh[key]:
-                logger.debug(f"updating settings: {key}\nfrom {self.settings_hsh[key]}\nto {new_value}")
+            logger.debug(f"about to update {key}\nnew_value: {new_value}")
+            if new_value is not None and new_value != self.settings_hsh.get(key, ''):
+                tmp = self.settings_hsh[key]
                 if type(new_value) == dict:
                     self.settings_hsh[key] = dict2yaml(new_value)
                 else:
                     self.settings_hsh[key] = str2yaml(new_value)
+                logger.debug(f"updating settings: {key}\nfrom {tmp}\nto {new_value}")
                 self.settings[key] = new_value
 
         return changed
