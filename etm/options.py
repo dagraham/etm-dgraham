@@ -416,9 +416,9 @@ style: {style}
 # correctly for your display.
 
 type_colors: {type_colors}
-# A dictionary with item component keys and corresponding named-color
-# or hex-color values. The default colors are determined by the 'dark'
-# or 'light' style setting as follows:
+# A dictionary with type keys and corresponding named-color or hex
+# values. The default colors are determined by the 'dark' or 'light'
+# style setting as follows:
 #
 #     key           dark default        light default
 #  -----------    -----------------   -----------------
@@ -467,7 +467,7 @@ window_colors: {window_colors}
 # your terminal. The default settings are determined by the 'dark'
 # or 'light' style setting as follows:
 #
-#    key                           dark                        light
+#    key                       dark default                  light default
 # -------------------    -----------------------------  -----------------------------
 # ask:                    [grey2, Lime, bold]           [Cornsilk, Lime, bold]
 # button.focused:         [DarkGreen, White]            [DarkGreen, White]

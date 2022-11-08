@@ -1871,8 +1871,8 @@ Here are the options with their default values from that file. The lines beginni
     # true or false. Use AM/PM format for datetimes if true else
     # use 24 hour format.
 
-    yearfirst: true
     dayfirst:  true
+    yearfirst: true
     # true or false. Whenever an ambiguous date is parsed, dayfirst
     # and yearfirst parameters control how the information is processed
     # using this precedence:
@@ -2083,9 +2083,9 @@ Here are the options with their default values from that file. The lines beginni
     # correctly for your display.
 
     type_colors:
-    # A dictionary with item component keys and corresponding named-color
-    # or hex-color values. The default colors are determined by the 'dark'
-    # or 'light' style setting as follows:
+    # A dictionary with type keys and corresponding named-color or hex
+    # values. The default colors are determined by the 'dark' or 'light'
+    # style setting as follows:
     #
     #     key           dark default        light default
     #  -----------    -----------------   -----------------
