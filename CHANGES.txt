@@ -1,47 +1,61 @@
-Recent tagged changes as of 2022-10-28T14:40:36.071716-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.8.8) Daniel Graham
+Recent tagged changes as of 2022-11-08T11:07:56.395416-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.9.0) Daniel Graham
+    2c7f3656 2022-11-08 11:07:56 -0500
+    Tagged version 4.9.0. Backwards incompatible changes have been
+    made to cfg.yaml which will automatically be implemented the first
+    time etm is run after this update. The setting for style (dark or
+    light) now sets the background defaults for new  type_colors and
+    window_colors settings. The cfg.yaml settings for these variables
+    are empty by default and are only used to override one or more of
+    the background defaults. The previously used settings for colors
+    and style_modifications have thus been replaced. Additionally,
+    changes that require updating cfg.yaml, e.g., when a setting has
+    been removed and must be replaced with the default value, a new
+    process is used to better preserve the embedded comments.
+
+- 11 days ago (tag: 4.8.8) Daniel Graham
     f26fee1d 2022-10-28 14:40:36 -0400
     Tagged version 4.8.8.
 
-- 12 minutes ago (tag: 4.8.7) Daniel Graham
+- 11 days ago (tag: 4.8.7) Daniel Graham
     65af25ae 2022-10-28 14:28:41 -0400
     Tagged version 4.8.7.
 
-- 2 days ago (tag: 4.8.6) Daniel Graham
+- 13 days ago (tag: 4.8.6) Daniel Graham
     71f82dcd 2022-10-26 15:25:24 -0400
     Tagged version 4.8.6.
 
-- 3 days ago (tag: 4.8.5) Daniel Graham
+- 2 weeks ago (tag: 4.8.5) Daniel Graham
     322ebcf6 2022-10-25 13:25:14 -0400
     Tagged version 4.8.5.
 
-- 4 days ago (tag: 4.8.4) Daniel Graham
+- 2 weeks ago (tag: 4.8.4) Daniel Graham
     70d0f98e 2022-10-24 17:25:49 -0400
     Tagged version 4.8.4. Building both sdist and bdist_wheel for
     upload
 
-- 4 days ago (tag: 4.8.3) Daniel Graham
+- 2 weeks ago (tag: 4.8.3) Daniel Graham
     7e304d59 2022-10-24 16:52:54 -0400
     Tagged version 4.8.3.
 
-- 7 days ago (tag: 4.8.2) Daniel Graham
+- 3 weeks ago (tag: 4.8.2) Daniel Graham
     416bd7cd 2022-10-21 21:54:58 -0400
     Tagged version 4.8.2.
 
-- 8 days ago (tag: 4.8.1) Daniel Graham
+- 3 weeks ago (tag: 4.8.1) Daniel Graham
     e3e182ae 2022-10-20 16:53:19 -0400
     Tagged version 4.8.1.
 
-- 9 days ago (tag: 4.8.0) Daniel Graham
+- 3 weeks ago (tag: 4.8.0) Daniel Graham
     7420832f 2022-10-19 13:46:52 -0400
     Tagged version 4.8.0. Added preserve as an overdue option for
     repeating tasks.
 
-- 11 days ago (tag: 4.7.17) Daniel Graham
+- 3 weeks ago (tag: 4.7.17) Daniel Graham
     475d89a9 2022-10-17 08:03:21 -0400
     Tagged version 4.7.17.
 
-- 2 weeks ago (tag: 4.7.16) Daniel Graham
+- 4 weeks ago (tag: 4.7.16) Daniel Graham
     90083942 2022-10-14 11:14:51 -0400
     Tagged version 4.7.16.
 
@@ -59,16 +73,16 @@ Recent tagged changes as of 2022-10-28T14:40:36.071716-04:00:
     Tagged version 4.7.13. Compress output for current.txt and
     next.txt to improve display in mobile devices.
 
-- 7 months ago (tag: 4.7.12) Daniel Graham
+- 8 months ago (tag: 4.7.12) Daniel Graham
     5593f57b 2022-03-26 08:15:09 -0400
     Tagged version 4.7.12. Made reply and entry areas expandable.
     README repetition example addition.
 
-- 7 months ago (tag: 4.7.11) Daniel Graham
+- 8 months ago (tag: 4.7.11) Daniel Graham
     9d551f2b 2022-03-25 10:09:24 -0400
     Tagged version 4.7.11.
 
-- 7 months ago (tag: 4.7.10) Daniel Graham
+- 8 months ago (tag: 4.7.10) Daniel Graham
     e3c7b39b 2022-03-21 11:32:08 -0400
     Tagged version 4.7.10.
 
@@ -76,12 +90,6 @@ Recent tagged changes as of 2022-10-28T14:40:36.071716-04:00:
     ad32bdfd 2022-01-11 18:35:40 -0500
     Tagged version 4.7.9.
 
-- 1 year, 2 months ago (tag: 4.7.8) Dan Graham
+- 1 year, 3 months ago (tag: 4.7.8) Dan Graham
     a182b971 2021-08-18 10:13:15 -0400
     Tagged version 4.7.8. Allow @+ entries in journal records.
-
-- 1 year, 7 months ago (tag: 4.7.7) Dan Graham
-    8fdfeda1 2021-04-04 12:30:19 -0400
-    Tagged version 4.7.7. Replaced call in item_changed from
-    update_completions to get_completions to insure that completions
-    are always consistent with the current data."
