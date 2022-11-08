@@ -621,7 +621,7 @@ window_colors: {window_colors}
             new['type_colors'] = new['colors']
             del new['colors']
 
-        if new['type_colors']:
+        if 'type_colors' in new and new['type_colors']:
             # avoid modifying ordered_dict during iteration
             tmp = deepcopy(new['type_colors'])
             logger.debug(f"copy of new['type_colors']: {type(tmp)}; {tmp}")
@@ -644,7 +644,7 @@ window_colors: {window_colors}
             new['window_colors'] = new['style_modifications']
             del new['style_modifications']
 
-        if new['window_colors']:
+        if 'window_colors' in new and new['window_colors']:
             tmp = deepcopy(new['window_colors'])
             logger.debug(f"tmp window_colors: {tmp}\ndefault_window_colors: {default_window_colors}")
             deleted = False
