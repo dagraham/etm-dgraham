@@ -203,11 +203,15 @@ class Settings():
         "style" : style,
         "type_colors" : dict2yaml(type_colors),        # user modifications only
         "window_colors" : dict2yaml(window_colors),    # user modifications only
+        "etmversion": etm_version
 }
 
 
     template = """\
 #### begin cfg.yaml ####
+version: {etmversion}
+# The current version of etm and this file. DO NOT EDIT. This is
+# automatically updated when a new version of etm is installed.
 
 ampm: {ampm}
 # true or false. Use AM/PM format for datetimes if true else
@@ -506,7 +510,6 @@ window_colors: {window_colors}
 # would change the 'text-area' setting to 'Black' as the background color
 # and 'White' as the foreground color while leaving the other style settings
 # unchanged.
-
 #### end cfg.yaml ####\
 """
 

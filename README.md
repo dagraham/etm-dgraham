@@ -1487,7 +1487,7 @@ A task is something that requires action from the user and lasts, so to speak, u
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Do Next* view grouped by @l (location/context).
 - Tasks with an `@r` (repeat) entry can have an `@o` (overdue) setting.
 	- `@o k`: keep. Whenever completed, the next instance is due at the datetime specified in the recurrance rule even if that datetime has already passed. E.g. mortage payments to be made on the 1st of the month are due for each prior month in which they have not been made. With this option, many instances can be past due. Whenever a payment is sent, it applies to the oldest, past due one. This is the default when no `@o` entry is given.
-    - `@o p`: preserve. When an instance becomes past due, a new, non-repeating copy is created with the past due datetime as the `@s` entry and with an `@k` containing the document_id of the original item. Suppose, for example, that minutes are kept for a weekly meeting to be sent to the attendees after each meeting. Creating a task that repeats weekly with `@o p`recognizes the distinction between sending the minutes for `22/10/8` and `22/10/15` and, should both become past due, permits finishing the tasks in any convenient order.
+    - `@o p`: preserve. When an instance becomes past due, a new, non-repeating copy is created with the past due datetime as the `@s` entry and with an `@k` containing the document_id of the original item. Suppose, for example, that minutes are kept for a weekly meeting to be sent to the attendees after each meeting. Creating a task that repeats weekly with `@o p` recognizes the distinction between sending the minutes for `22/10/8` and `22/10/15` and, should both become past due, permits finishing the tasks in any convenient order.
 	- `@o r`: reset. Whenever completed, the next instance is due at the first datetime from the recurrance rule that falls after the current datetime. E.g., getting a haircut every 14 days is due 14 days after the last haircut. With this option, at most one instance can be past due.
 	- `@o s`: skip. Like 'keep' and 'reset' combined with the addition that past due instances are ignored. E.g., taking out the trash every Monday morning for pickup is due every Monday morning but, if a Monday passes without taking out the trash, the instance is better regarded as irrelevant than past due. With this option, an instance can never be past due.
 
@@ -1866,6 +1866,9 @@ Configuration settings for *etm* are specified in the file `cfg.yaml` located in
 Here are the options with their default values from that file. The lines beginning with `#` are comments that describe the settings.
 
     #### begin cfg.yaml ####
+	version: 4.9.1
+	# The current version of etm and this file. DO NOT EDIT. This is
+	# automatically updated when a new version of etm is installed.
 
     ampm: true
     # true or false. Use AM/PM format for datetimes if true else
@@ -2173,10 +2176,9 @@ Here are the options with their default values from that file. The lines beginni
     # would change the 'text-area' setting to 'Black' as the background color
     # and 'White' as the foreground color while leaving the other style settings
     # unchanged.
+	#### end cfg.yaml ####
 
-    #### end cfg.yaml ####
-
-Note that in the 'dictionary' entries above, the components must be indented (using spaces not tabs). E.g., the illustrative alert entry would be:
+Note that in the 'dictionary' entries above, the components must be indented (using 2 spaces not tabs). E.g., the illustrative alert entry would be:
 
 	alerts:
 		v: /usr/bin/say -v "Alex" "{summary}, {when}"
