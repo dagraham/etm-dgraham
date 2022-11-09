@@ -1,5 +1,9 @@
-Recent tagged changes as of 2022-11-08T11:07:56.395416-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.9.0) Daniel Graham
+Recent tagged changes as of 2022-11-09T15:33:49.479706-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.9.1) Daniel Graham
+    25f5f057 2022-11-09 15:33:49 -0500
+    Tagged version 4.9.1.
+
+- 28 hours ago (tag: 4.9.0) Daniel Graham
     2c7f3656 2022-11-08 11:07:56 -0500
     Tagged version 4.9.0. Backwards incompatible changes have been
     made to cfg.yaml which will automatically be implemented the first
@@ -13,15 +17,15 @@ Recent tagged changes as of 2022-11-08T11:07:56.395416-05:00:
     been removed and must be replaced with the default value, a new
     process is used to better preserve the embedded comments.
 
-- 11 days ago (tag: 4.8.8) Daniel Graham
+- 12 days ago (tag: 4.8.8) Daniel Graham
     f26fee1d 2022-10-28 14:40:36 -0400
     Tagged version 4.8.8.
 
-- 11 days ago (tag: 4.8.7) Daniel Graham
+- 12 days ago (tag: 4.8.7) Daniel Graham
     65af25ae 2022-10-28 14:28:41 -0400
     Tagged version 4.8.7.
 
-- 13 days ago (tag: 4.8.6) Daniel Graham
+- 2 weeks ago (tag: 4.8.6) Daniel Graham
     71f82dcd 2022-10-26 15:25:24 -0400
     Tagged version 4.8.6.
 
@@ -68,7 +72,7 @@ Recent tagged changes as of 2022-11-08T11:07:56.395416-05:00:
     Tagged version 4.7.14. Handle missing summaries and UTC datetimes
     in ics imports.
 
-- 7 months ago (tag: 4.7.13) Daniel Graham
+- 8 months ago (tag: 4.7.13) Daniel Graham
     13e69aba 2022-03-29 12:12:12 -0400
     Tagged version 4.7.13. Compress output for current.txt and
     next.txt to improve display in mobile devices.
@@ -89,7 +93,3 @@ Recent tagged changes as of 2022-11-08T11:07:56.395416-05:00:
 - 10 months ago (tag: 4.7.9) Daniel Graham
     ad32bdfd 2022-01-11 18:35:40 -0500
     Tagged version 4.7.9.
-
-- 1 year, 3 months ago (tag: 4.7.8) Dan Graham
-    a182b971 2021-08-18 10:13:15 -0400
-    Tagged version 4.7.8. Allow @+ entries in journal records.
