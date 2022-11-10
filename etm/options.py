@@ -43,7 +43,6 @@ def dict2yaml(d):
 
 def str2yaml(s):
     ret = ""
-    logger.debug(f"processing: {s}")
     if type(s) == bool:
         ret = 'true' if s else 'false'
     elif s is None or s == 'None':
@@ -517,10 +516,8 @@ window_colors: {window_colors}
         if not os.path.isdir(etmdir):
             raise ValueError(f"{etmdir} is not a valid directory")
         self.settings = {}
-        logger.debug(f"settings_hsh: {self.settings_hsh}")
         default_template = Settings.template.format(**Settings.settings_hsh)
         self.settings.update(self.settings_hsh)
-        logger.debug(f"default template: {default_template}")
         # self.settings = yaml_nort.load(default_template) # uses RoundTripLoader (comments)
         # yaml = YAML(typ='safe', pure=True)
         # load defaults
@@ -531,14 +528,12 @@ window_colors: {window_colors}
         # settings will have all the possible keys
         self.settings['type_colors'] = default_type_colors
         self.settings['window_colors'] = default_window_colors
-        logger.debug(f"default settings: {type(self.settings)};\n{self.settings}")
         self.cfgfile = os.path.normpath(
                 os.path.join(etmdir, 'cfg.yaml'))
         if os.path.exists(self.cfgfile):
             with open(self.cfgfile, 'rb') as fn:
                 try:
                     self.user = yaml_nort.load(fn) # not RoundTripLoader (no comments)
-                    logger.debug(f"settings from cfg.yaml: {type(self.user)};\n{self.user}")
                 except Exception as e:
                     error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {self.cfgfile} and restart etm.\n"
                     logger.critical(error)
@@ -562,9 +557,7 @@ window_colors: {window_colors}
                 fn.writelines(default_template)
 
         if self.changes:
-            logger.debug(f"updating template with {self.settings_hsh}")
             updated_template = Settings.template.format(**self.settings_hsh)
-            logger.debug(f"template updated: {updated_template}")
             with open(self.cfgfile, 'w') as fn:
                 fn.writelines(updated_template)
             logger.info(f"updated {self.cfgfile}: {', '.join(self.changes)}")
@@ -575,7 +568,6 @@ window_colors: {window_colors}
     def check_options(self):
         changed = []
         new = deepcopy(self.user)
-        logger.debug(f"got here with new: {new}")
         active_style = new.get('style', self.settings_hsh['style'])
         if active_style not in ['dark', 'light']:
             active_style = self.settings_hsh['style']
@@ -583,13 +575,10 @@ window_colors: {window_colors}
         default_window_colors = self.default_window_colors[active_style]
 
         cfg = deepcopy(self.settings_hsh)
-        logger.debug(f"cfg copied from settings_hsh: {cfg}")
         # add missing default keys
-        logger.debug(f"self.settings_hsh: {type(self.settings_hsh)}")
         for key, value in self.settings_hsh.items():
             if key in ["colors", "type_colors", "window_colors"]:
                 continue
-            logger.debug(f"1checking {key} {value}")
             if isinstance(self.settings_hsh[key], dict):
                 if key not in new or not isinstance(new[key], dict):
                     new[key] = self.settings_hsh[key]
@@ -604,7 +593,6 @@ window_colors: {window_colors}
                 changed.append(f"retaining default {key}: {self.settings_hsh[key]}")
         # remove invalid user keys/values
         tmp = deepcopy(new) # avoid modifying ordered_dict during iteration
-        logger.debug(f"copy of new: {type(tmp)}; {tmp}")
         for key in tmp:
             # if key in ["summary", "prop", "start", "when", "location", "description", "etm_version"]:
             #     continue
@@ -615,7 +603,6 @@ window_colors: {window_colors}
             elif key in ['type_colors', 'window_colors']:
                 # only allow the specified subfields for these keys
                 ks = tmp[key] or []
-                logger.debug(f"2checking {key}: {type(tmp[key])}")
                 for k in ks:
                     if k not in self.settings[key]:
                         changed.append(f"removed {key}.{k}: {new[key][k]}")
@@ -629,7 +616,6 @@ window_colors: {window_colors}
         if 'type_colors' in new and new['type_colors']:
             # avoid modifying ordered_dict during iteration
             tmp = deepcopy(new['type_colors'])
-            logger.debug(f"copy of new['type_colors']: {type(tmp)}; {tmp}")
             deleted = False
             for k in tmp:
                 if k not in self.settings['type_colors']:
@@ -643,7 +629,6 @@ window_colors: {window_colors}
                 self.settings_hsh['type_colors'] = dict2yaml(new['type_colors'])
                 self.settings['type_colors'].update(new['type_colors'])
 
-        logger.debug(f"self.settings[type_colors]: {self.settings['type_colors']}")
 
         if 'style_modifications' in new and new['style_modifications']:
             new['window_colors'] = new['style_modifications']
@@ -651,7 +636,6 @@ window_colors: {window_colors}
 
         if 'window_colors' in new and new['window_colors']:
             tmp = deepcopy(new['window_colors'])
-            logger.debug(f"tmp window_colors: {tmp}\ndefault_window_colors: {default_window_colors}")
             deleted = False
             for k in tmp:
                 if k not in self.settings['window_colors']:
@@ -662,11 +646,9 @@ window_colors: {window_colors}
                 new['window_colors'] = tmp
 
             if new['window_colors']:
-                logger.debug(f"updating window_colors\nfrom {self.settings_hsh['window_colors']}\nto {new['window_colors']}")
                 self.settings_hsh['window_colors'] = dict2yaml(new['window_colors'])
                 self.settings['window_colors'].update(new['window_colors'])
 
-        logger.debug(f"self.settings[window_colors]: {self.settings['window_colors']}")
 
         if not locale_regex.match(new['locale']):
             tmp = new['locale']
@@ -697,14 +679,12 @@ window_colors: {window_colors}
                 # already processed these
                 continue
             new_value = new.get(key, '')
-            logger.debug(f"about to update {key}\nnew_value: {new_value}")
             if new_value is not None and new_value != self.settings_hsh.get(key, ''):
                 tmp = self.settings_hsh[key]
                 if type(new_value) == dict:
                     self.settings_hsh[key] = dict2yaml(new_value)
                 else:
                     self.settings_hsh[key] = str2yaml(new_value)
-                logger.debug(f"updating settings: {key}\nfrom {tmp}\nto {new_value}")
                 self.settings[key] = new_value
 
         return changed

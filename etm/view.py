@@ -1580,7 +1580,6 @@ def get_style(style_dict):
     # if settings['window_colors']:
     #     style_dict.update(settings['style_modifications'])
     window_colors = {k: get_colors(*v) for k, v in style_dict.items()}
-    logger.debug(f"window_colors: {window_colors}")
     return Style.from_dict(window_colors)
 
 type2style = {
@@ -1611,7 +1610,6 @@ def first_char(s):
 # Create one text buffer for the main content.
 class ETMLexer(Lexer):
     def lex_document(self, document):
-        logger.debug(f"type_colors: {type_colors}")
 
         def get_line(lineno):
             tmp = document.lines[lineno]
@@ -2957,7 +2955,6 @@ async def main(etmdir=""):
     ampm = settings['ampm']
     type_colors = settings['type_colors']
     window_colors = settings['window_colors']
-    logger.debug(f"view main settings: {settings}")
     style = get_style(window_colors)
     agenda_view()
 

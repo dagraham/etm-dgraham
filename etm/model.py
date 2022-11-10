@@ -160,9 +160,11 @@ repeating_methods = [x for x in '+-o'] + ['rr', 'rc', 'rm', 'rE', 'rh', 'ri', 'r
 datetime_methods = [x for x in 'abe']
 task_methods = [x for x in 'efhp'] + ['jj', 'ja', 'jb', 'jd', 'je', 'jf', 'ji', 'jl', 'jm', 'jp', 'js', 'ju']
 
+wrap_methods = ['w']
+
 # event
 required['*'] = ['s']
-allowed['*'] = common_methods + datetime_methods + repeating_methods
+allowed['*'] = common_methods + datetime_methods + repeating_methods + wrap_methods
 
 
 # task
@@ -507,6 +509,7 @@ class Item(dict):
                 'c': ["calendar", "calendar", do_string],
                 'd': ["description", "item details", do_paragraph],
                 'e': ["extent", "timeperiod", do_period],
+                'w': ["wrap", "list of two timeperiods", do_two_periods],
                 'f': ["finish", "completion datetime", self.do_datetime],
                 'g': ["goto", "url or filepath", do_string],
                 'h': ["completions", "list of completion datetimes", self.do_datetimes],
@@ -3294,6 +3297,7 @@ entry_tmpl = """\
 {{ h.itemtype }} {{ h.summary }}\
 {% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %}\
 {%- if 'e' in h %}{{ " @e {}".format(in2str(h['e'])) }}{% endif %}\
+{%- if 'w' in h %}{{ " @w {}".format(inlst2str(h['w'])) }}{% endif %}\
 {%- if 'b' in h %}{{ " @b {}".format(h['b']) }}{% endif %}\
 {%- if 'z' in h %}{{ " @z {}".format(h['z']) }}{% endif %}\
 {%- endset %}\
@@ -3397,6 +3401,7 @@ display_tmpl = """\
 {{ h.itemtype }} {{ h.summary }}\
 {% if 's' in h %}{{ " @s {}".format(dt2str(h['s'])[1]) }}{% endif %}\
 {%- if 'e' in h %}{{ " @e {}".format(in2str(h['e'])) }}{% endif %}\
+{%- if 'w' in h %}{{ " @w {}".format(inlst2str(h['w'])) }}{% endif %}\
 {%- if 'b' in h %}{{ " @b {}".format(h['b']) }}{% endif %}\
 {%- if 'z' in h %}{{ " @z {}".format(h['z']) }}{% endif %}\
 {%- endset %}\
@@ -3659,6 +3664,36 @@ def do_period(arg):
     else:
         obj = None
         rep = f"incomplete or invalid period: {arg}"
+    return obj, rep
+
+
+def do_two_periods(arg):
+    if not arg:
+        return None, f"two time periods"
+    if arg:
+        periods = [x.strip() for x in arg.split(',')]
+        if len(periods) != 2:
+            obj = None
+            rep = f"got {len(periods)} but exactly two periods are requred"
+        else:
+            # we have 2 periods
+            obj_periods = []
+            good_periods = []
+            bad_periods = []
+            for period in periods:
+                ok, res = parse_duration(period)
+                if ok:
+                    obj_periods.append(res)
+                    good_periods.append(format_duration(res))
+                else:
+                    bad_periods.append(period)
+            rep = f"{', '.join(good_periods)}"
+            if bad_periods:
+                obj = None
+                rep += f"\nincomplete or invalid periods: {', '.join(bad_periods)}"
+            else:
+                # we have 2 good periods since none were bad
+                obj = obj_periods
     return obj, rep
 
 
@@ -4975,6 +5010,7 @@ def item_details(item, edit=False):
     """
 
     """
+    logger.debug(f"item: {item}, entry: {jinja_entry_template.render(h=item)}")
     try:
         if edit:
             return jinja_entry_template.render(h=item)
@@ -6653,6 +6689,9 @@ def import_json(import_file=None):
             item_hsh['-'] = [pen_from_fmt(x, z) for x in item_hsh['-'] ]
         if 'e' in item_hsh:
             item_hsh['e'] = parse_duration(item_hsh['e'])[1]
+        if 'w' in item_hsh:
+            wrps = [parse_duration(x)[1] for x in item_hsh['w']]
+            item_hsh['w'] = wrps
         if 'a' in item_hsh:
             alerts = []
             for alert in item_hsh['a']:

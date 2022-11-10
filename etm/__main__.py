@@ -39,7 +39,6 @@ def main():
     settings = options.Settings(etmdir).settings
     type_colors = settings['type_colors']
     window_colors = settings['window_colors']
-    logger.debug(f"options settings: {settings}\ntype_colors: {type_colors}\nwindow_colors: {window_colors}")
 
     logger.info(f"running in a virtual environment: {IS_VENV}")
 
