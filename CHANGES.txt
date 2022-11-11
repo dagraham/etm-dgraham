@@ -1,9 +1,16 @@
-Recent tagged changes as of 2022-11-09T15:33:49.479706-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.9.1) Daniel Graham
+Recent tagged changes as of 2022-11-11T12:42:45.513758-05:00:
+- 0 seconds ago (HEAD -> wrap, tag: 4.9.2) Daniel Graham
+    ee9c2a6a 2022-11-11 12:42:45 -0500
+    Tagged version 4.9.2. Added @w (wrap) as an event option to
+    specify two durations to wrap the event with busy periods before
+    and/or after for, say, travel time to and from the location of the
+    event.
+
+- 2 days ago (tag: 4.9.1) Daniel Graham
     25f5f057 2022-11-09 15:33:49 -0500
     Tagged version 4.9.1.
 
-- 28 hours ago (tag: 4.9.0) Daniel Graham
+- 3 days ago (tag: 4.9.0) Daniel Graham
     2c7f3656 2022-11-08 11:07:56 -0500
     Tagged version 4.9.0. Backwards incompatible changes have been
     made to cfg.yaml which will automatically be implemented the first
@@ -17,11 +24,11 @@ Recent tagged changes as of 2022-11-09T15:33:49.479706-05:00:
     been removed and must be replaced with the default value, a new
     process is used to better preserve the embedded comments.
 
-- 12 days ago (tag: 4.8.8) Daniel Graham
+- 2 weeks ago (tag: 4.8.8) Daniel Graham
     f26fee1d 2022-10-28 14:40:36 -0400
     Tagged version 4.8.8.
 
-- 12 days ago (tag: 4.8.7) Daniel Graham
+- 2 weeks ago (tag: 4.8.7) Daniel Graham
     65af25ae 2022-10-28 14:28:41 -0400
     Tagged version 4.8.7.
 
@@ -33,12 +40,12 @@ Recent tagged changes as of 2022-11-09T15:33:49.479706-05:00:
     322ebcf6 2022-10-25 13:25:14 -0400
     Tagged version 4.8.5.
 
-- 2 weeks ago (tag: 4.8.4) Daniel Graham
+- 3 weeks ago (tag: 4.8.4) Daniel Graham
     70d0f98e 2022-10-24 17:25:49 -0400
     Tagged version 4.8.4. Building both sdist and bdist_wheel for
     upload
 
-- 2 weeks ago (tag: 4.8.3) Daniel Graham
+- 3 weeks ago (tag: 4.8.3) Daniel Graham
     7e304d59 2022-10-24 16:52:54 -0400
     Tagged version 4.8.3.
 
@@ -55,7 +62,7 @@ Recent tagged changes as of 2022-11-09T15:33:49.479706-05:00:
     Tagged version 4.8.0. Added preserve as an overdue option for
     repeating tasks.
 
-- 3 weeks ago (tag: 4.7.17) Daniel Graham
+- 4 weeks ago (tag: 4.7.17) Daniel Graham
     475d89a9 2022-10-17 08:03:21 -0400
     Tagged version 4.7.17.
 
@@ -63,11 +70,11 @@ Recent tagged changes as of 2022-11-09T15:33:49.479706-05:00:
     90083942 2022-10-14 11:14:51 -0400
     Tagged version 4.7.16.
 
-- 4 months ago (tag: 4.7.15) Daniel Graham
+- 5 months ago (tag: 4.7.15) Daniel Graham
     f449fc6d 2022-06-28 12:52:48 -0400
     Tagged version 4.7.15.
 
-- 4 months ago (tag: 4.7.14) Daniel Graham
+- 5 months ago (tag: 4.7.14) Daniel Graham
     c47de41b 2022-06-28 12:10:03 -0400
     Tagged version 4.7.14. Handle missing summaries and UTC datetimes
     in ics imports.
@@ -89,7 +96,3 @@ Recent tagged changes as of 2022-11-09T15:33:49.479706-05:00:
 - 8 months ago (tag: 4.7.10) Daniel Graham
     e3c7b39b 2022-03-21 11:32:08 -0400
     Tagged version 4.7.10.
-
-- 10 months ago (tag: 4.7.9) Daniel Graham
-    ad32bdfd 2022-01-11 18:35:40 -0500
-    Tagged version 4.7.9.
