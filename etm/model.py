@@ -147,6 +147,7 @@ type_keys = {
     "✓": "finished",
     "%": "journal",
     "!": "inbox",
+    "~": "wrap",
 }
 
 type_prompt = u"item type character:"
@@ -182,7 +183,6 @@ allowed['!'] = common_methods + datetime_methods + task_methods + repeating_meth
 requires = {
         'a': ['s'],
         'b': ['s'],
-        # 'u': ['i'],
         '+': ['s'],
         '-': ['rr'],
         'o': ['rr'],
@@ -6394,6 +6394,38 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     elif item['itemtype'] in ['%']:
                         sort_dt = sort_dt[:-4] + '24%%'
 
+
+                dtb = None
+                dta = None
+
+                if item['itemtype'] == '*' and 'w' in item:
+                    itemtype = "~"
+                    b, a = item['w']
+                    dtb = dt - b if b else None
+                    if dtb:
+                        sort_b = dtb.format("YYYYMMDDHHmm")
+                        rhb = fmt_time(dtb).ljust(rhc_width, ' ')
+                        rows.append(
+                                {
+                                    'id': item.doc_id,
+                                    'job': None,
+                                    'instance': instance,
+                                    'sort': (sort_dt, 0),
+                                    'week': (
+                                        dtb.isocalendar()[:2]
+                                        ),
+                                    'day': (
+                                        dtb.format("ddd MMM D"),
+                                        ),
+                                    'columns': [itemtype,
+                                        set_summary("", item['s'], dtb, freq),
+                                        "   ",
+                                        rhb,
+                                        (item.doc_id, instance, None)
+                                        ]
+                                }
+                            )
+
                 rows.append(
                         {
                             'id': item.doc_id,
@@ -6414,9 +6446,35 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 ]
                         }
                     )
+
+                if item['itemtype'] == '*' and 'w' in item:
+                    dta = dt + item['e'] + a if a else None
+                    if dta:
+                        sort_a = dta.format("YYYYMMDDHHmm")
+                        rha = fmt_time(dta).rjust(rhc_width, ' ')
+                        rows.append(
+                                {
+                                    'id': item.doc_id,
+                                    'job': None,
+                                    'instance': instance,
+                                    'sort': (sort_a, 0),
+                                    'week': (
+                                        dta.isocalendar()[:2]
+                                        ),
+                                    'day': (
+                                        dta.format("ddd MMM D"),
+                                        ),
+                                    'columns': [itemtype,
+                                        set_summary("", item['s'], dta, freq),
+                                        "   ",
+                                        rha,
+                                        (item.doc_id, instance, None)
+                                        ]
+                                }
+                            )
             if et:
-                beg_min = dt.hour * 60 + dt.minute
-                end_min = et.hour * 60 + et.minute
+                beg_min = dtb.hour * 60 + dtb.minute if dtb else dt.hour * 60 + dt.minute
+                end_min = dta.hour * 60 + dta.minute if dta else et.hour * 60 + et.minute
                 y, w, d = dt.isocalendar()
                 #             x[0] x[1]  x[2]     x[3]
                 busy.append({'sort': dt.format("YYYYMMDDHHmm"), 'week': (y, w), 'day': d, 'period': (beg_min, end_min)})

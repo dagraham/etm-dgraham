@@ -1669,7 +1669,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @s: start. date or datetime
 *  @t*: tag. string
 *  @u*: usedtime. string using "timeperiod spent: ending datetime" format
-*  @w: wrap. A pair of before and after timeperiods to extend the busy period for an event, e.g., for travel time to and/or from the location of the event.
+*  @w: wrap. A pair of before and after timeperiods to extend the busy period for an event, e.g., for travel time to and/or from the location of the event. This entry is ignored for all day events, i.e., when  @e is either missing or specifies zero duration.
 *  @x*: expansion. string
 *  @z: timezone. string. A timezone specification, such as 'US/Eastern' or 'Europe/Paris' for aware datetimes or 'float', to indicate a naive or floating datetime. Datetime entries in the item are interpreted as belonging to the specified timezone when the entry is saved. The current timezone is the default when @z is not specified. Aware datetimes are converted to UTC (coordinated universal time) when stored and the @z entry, now irrelevant, is discarded.
 
@@ -1731,6 +1731,15 @@ For use with @r:
 * Reminders can have more than one `@a` alert entries. Different alerts could, for example, be used to trigger their commands at different times.
 * With an email, `e`, or text alert, `t`, the item summary is used as the subject and an email or text message is sent to each attendee listed in @n entries. The content of the body of the emails/messages are options that can be set in the user's configuration file.
 * Alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, past due notices for repeating tasks are only triggered for the first unfinished instance.
+* Events with `@w <before>, <after>` *wrap* entries have 'busy periods' that extend from `<before>` (a time period) before the beginning of the event until `<after>` (another time period) after the end of the event. An entry such as `@w 30m, 0m` could be used, for example, to block out 30 minutes before a meeting to review your notes or, as another example, `@w 30m, 20m` to block out 30 minutes before and 20 minutes after an event to allow for travel time to and from the event's location. The additional busy time is displayed in *busy view* as well as in *event view* where the event
+
+		* sales meeting @s 22/11/15 3p @e 1h30m @w 30m, 20m
+
+    would appear as
+
+		~   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·   2:30pm
+		* sales meeting ·  ·  ·  ·  ·  ·  ·  ·  ·  3-4:30pm
+		~   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·   4:50pm
 
 [↺ contents](#contents)
 

@@ -79,6 +79,7 @@ class Settings():
             'plain':        'Ivory',
             'today':        'Ivory bold',
             'waiting':      'SlateGrey',
+            'wrap':         'SlateGrey',
             },
         'light': {
             'available':    'DarkBlue',
@@ -91,6 +92,7 @@ class Settings():
             'plain':        'Black',
             'today':        'Black bold',
             'waiting':      'DarkSlateBlue',
+            'wrap':         'DarkSlateBlue',
             },
     }
 
@@ -435,6 +437,7 @@ type_colors: {type_colors}
 #  plain           'Ivory',            'Black',
 #  today           'Ivory bold',       'Black bold',
 #  waiting         'SlateGrey',        'DarkSlateBlue',
+#  wrap            'SlateGrey',        'DarkSlateBlue',
 #
 # Explanations for the key names:
 #     available:    available task/job reminders
@@ -447,6 +450,8 @@ type_colors: {type_colors}
 #     plain:        headings such as outline branches
 #     today:        the current and following agenda date headings
 #     waiting:      waiting job reminders (jobs with unfinished prereqs)
+#     wrap:         before and after rows for events in agenda view with
+#                   @w entries
 #
 # E.g., with style 'dark', the default color for 'available' is
 # 'LightSkyBlue'. This entry
