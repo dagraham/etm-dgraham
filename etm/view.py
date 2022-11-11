@@ -2955,7 +2955,9 @@ async def main(etmdir=""):
     global item, settings, ampm, style, type_colors, application
     ampm = settings['ampm']
     type_colors = settings['type_colors']
+    logger.debug(f"main type_colors: {type_colors}")
     window_colors = settings['window_colors']
+    logger.debug(f"main window_colors: {window_colors}")
     style = get_style(window_colors)
     agenda_view()
 

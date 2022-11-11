@@ -36,9 +36,13 @@ def main():
     setup_logging = options.setup_logging
     setup_logging(loglevel, logdir)
     options.logger = logger
-    settings = options.Settings(etmdir).settings
+    Settings = options.Settings(etmdir)
+
+    settings = Settings.settings
     type_colors = settings['type_colors']
+    logger.debug(f"__main__ type_colors: {type_colors}")
     window_colors = settings['window_colors']
+    logger.debug(f"__main__ window_colors: {window_colors}")
 
     logger.info(f"running in a virtual environment: {IS_VENV}")
 

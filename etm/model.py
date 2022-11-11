@@ -5059,6 +5059,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     dirty = False
     width = shutil.get_terminal_size()[0] - 2
     summary_width = width - 7 - 16
+    ampm = settings['ampm']
+    rhc_width = 15 if ampm else 11
 
     today = pendulum.today()
     tomorrow = today + DAY
@@ -5343,14 +5345,14 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     day = (today.format("ddd MMM D"), )
     for item in inbox:
         item_0 = ' '
-        rhc = item_0.center(15, ' ')
+        rhc = item_0.center(rhc_width, ' ')
         id = item[2]
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
         current.append({'id': item[2], 'job': None, 'instance': None, 'sort': (inbox_fmt, 1), 'week': week, 'day': day, 'columns': ['!', item[1], flags, rhc, id]})
 
     for item in pastdue:
         item_0 = str(item[0]) if item[0] in item else ""
-        rhc = item_0.center(15, ' ')
+        rhc = item_0.center(rhc_width, ' ')
         id = item[2]
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
         try:
@@ -5360,7 +5362,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
     for item in beginbys:
         item_0 = str(item[0]) if item[0] in item else ""
-        rhc = item_0.center(15, ' ')
+        rhc = item_0.center(rhc_width, ' ')
         id = item[2]
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
         current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begby_fmt, 3, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], flags, rhc, id]})
@@ -5471,7 +5473,7 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
 
 def get_flags(id, link_list=[], konnect_list=[], pinned_list=[], timers={}):
     """
-    Always length = 3, space or character in each slot
+    Always length = 4, space or character in each slot
     """
     flags = ""
     if id in link_list:
@@ -6220,7 +6222,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
     width = shutil.get_terminal_size()[0] - 2
     # xx:xxam-xx:xxpm
-    rhc_width = 15
+    rhc_width = 15 if ampm else 11
     flag_width = 6
     indent_to_summary = 6
     summary_width = width - indent_to_summary - flag_width - rhc_width
@@ -6419,7 +6421,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                         ),
                                     'columns': [itemtype,
                                         set_summary("", item['s'], dtb, freq),
-                                        "   ",
+                                        " "*4,
                                         rhb,
                                         (item.doc_id, instance, None)
                                         ]
@@ -6466,7 +6468,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                         ),
                                     'columns': [itemtype,
                                         set_summary("", item['s'], dta, freq),
-                                        "   ",
+                                        " "*4,
                                         rha,
                                         (item.doc_id, instance, None)
                                         ]

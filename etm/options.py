@@ -79,12 +79,12 @@ class Settings():
             'plain':        'Ivory',
             'today':        'Ivory bold',
             'waiting':      'SlateGrey',
-            'wrap':         'SlateGrey',
+            'wrap':         'ForestGreen',
             },
         'light': {
             'available':    'DarkBlue',
             'begin':        'DarkViolet',
-            'event':        'DarkGreen',
+            'event':        'Green',
             'finished':     'LightSlateGrey',
             'inbox':        'MediumVioletRed',
             'journal':      'Brown',
@@ -92,7 +92,7 @@ class Settings():
             'plain':        'Black',
             'today':        'Black bold',
             'waiting':      'DarkSlateBlue',
-            'wrap':         'DarkSlateBlue',
+            'wrap':         'LightGrey',
             },
     }
 
@@ -134,7 +134,7 @@ class Settings():
             'dialog-output':           ['DimGrey', 'Lime'],
             'dialog.body label':       ['', 'White'],
             'dialog.body':             ['DimGrey', 'White'],
-            'entry':                   ['Cornsilk', 'LightGoldenRodYellow'],
+            'entry':                   ['Cornsilk', 'Black'],
             'frame.label':             ['DimGrey', 'White'],
             'menu':                    ['DimGrey', 'White'],
             'menu-bar':                ['grey1', 'White'],
@@ -527,8 +527,11 @@ window_colors: {window_colors}
         # yaml = YAML(typ='safe', pure=True)
         # load defaults
         active_style = self.settings_hsh['style']
+        logger.debug(f"default style: {active_style}")
         default_type_colors = self.default_type_colors[active_style]
+        logger.debug(f"default type_colors: {default_type_colors}")
         default_window_colors = self.default_window_colors[active_style]
+        logger.debug(f"default window_colors: {default_window_colors}")
         # override the settings_hsh values for type_colors and window_colors so that
         # settings will have all the possible keys
         self.settings['type_colors'] = default_type_colors
@@ -554,6 +557,7 @@ window_colors: {window_colors}
 
         if self.user:
             # we have user settings that need to be checked
+            logger.debug("calling check_options")
             self.changes = self.check_options()
         else:
             # we need to populate cfg.yaml
@@ -576,8 +580,11 @@ window_colors: {window_colors}
         active_style = new.get('style', self.settings_hsh['style'])
         if active_style not in ['dark', 'light']:
             active_style = self.settings_hsh['style']
-        default_type_colors = self.default_type_colors[active_style]
-        default_window_colors = self.default_window_colors[active_style]
+        logger.debug(f"active style: {active_style}")
+        self.settings['type_colors'] = self.default_type_colors[active_style]
+        logger.debug(f"active type_colors: {self.settings['type_colors']}")
+        self.settings['window_colors'] = self.default_window_colors[active_style]
+        logger.debug(f"active window_colors: {self.settings['window_colors']}")
 
         cfg = deepcopy(self.settings_hsh)
         # add missing default keys
