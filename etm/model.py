@@ -6280,14 +6280,15 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                             'day': (
                                 dt.format("ddd MMM D"),
                                 ),
-                            'columns': [itemtype,
+                            'columns': [
+                                itemtype,
                                 summary,
                                 flags,
                                 rhc,
                                 (id, None, None)
-                                ],
+                            ],
                         }
-                        )
+                    )
 
         if item['itemtype'] == '-':
             d = []
