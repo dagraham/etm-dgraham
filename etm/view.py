@@ -1708,16 +1708,25 @@ def alerts():
     else:
         return "There are no alerts for today."
 
+def get_row_col():
+    row_number = text_area.document.cursor_position_row
+    col_number = text_area.document.cursor_position_col
+    return row_number, col_number
+
+def restore_row_col(row_number, col_number):
+    text_area.buffer.cursor_position = \
+                    text_area.buffer.document.translate_row_col_to_index(row_number, col_number)
+
+
 
 async def maybe_alerts(now):
     global current_datetime
-    line_number = text_area.document.cursor_position_row
+    row, col = get_row_col()
     dataview.refreshRelevant()
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
     dataview.refreshCurrent()
-    text_area.buffer.cursor_position = \
-                    text_area.buffer.document.translate_row_col_to_index(line_number, 0)
+    restore_row_col(row, col)
     if dataview.alerts and not ('alerts' in settings and settings['alerts']):
         logger.warning("alerts have not been configured")
         return
@@ -2293,6 +2302,7 @@ def edit_new(*event):
 def edit_existing(*event):
     global item
     global starting_buffer_text
+    global text_area
     app = get_app()
     app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
     if dataview.is_showing_details:
@@ -2300,6 +2310,7 @@ def edit_existing(*event):
         dataview.hide_details()
     dataview.is_editing = True
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
+    row, col = get_row_col()
     item.edit_item(doc_id, entry)
     entry_buffer.text = item.entry
     starting_buffer_text = item.entry
@@ -2806,6 +2817,8 @@ def show_details(*event):
 
 @bindings.add('c-z', filter=is_editing, eager=True)
 def close_edit(*event):
+    global text_area
+    row, col = get_row_col()
     if entry_buffer_changed():
         save_before_quit()
     else:
@@ -2815,6 +2828,7 @@ def close_edit(*event):
         dataview.is_editing = False
         application.layout.focus(text_area)
         set_text(dataview.show_active_view())
+    restore_row_col(row, col)
 
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):
@@ -2831,6 +2845,7 @@ def save_changes(*event):
 
 def maybe_save(item):
     # check hsh
+    global text_area
     msg = item.check_item_hsh()
     if msg:
         show_message('Error', ", ".join(msg))
@@ -2851,6 +2866,7 @@ def maybe_save(item):
     if item.doc_id in dataview.itemcache:
         del dataview.itemcache[item.doc_id]
 
+    row, col = get_row_col()
     app = get_app()
     app.editing_mode = EditingMode.EMACS
     dataview.is_editing = False
