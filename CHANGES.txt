@@ -1,9 +1,14 @@
-Recent tagged changes as of 2022-11-12T09:40:52.675147-05:00:
-- 0 seconds ago (HEAD -> master, tag: 4.9.3) Daniel Graham
+Recent tagged changes as of 2022-11-12T12:10:39.119226-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.9.4) Daniel Graham
+    c71d75c2 2022-11-12 12:10:39 -0500
+    Tagged version 4.9.4. Restore cursor position after auto refresh
+    and item edit.
+
+- 3 hours ago (tag: 4.9.3) Daniel Graham
     98de70b1 2022-11-12 09:40:52 -0500
     Tagged version 4.9.3. Avoid scrolling display with auto refresh.
 
-- 21 hours ago (tag: 4.9.2) Daniel Graham
+- 23 hours ago (tag: 4.9.2) Daniel Graham
     ee9c2a6a 2022-11-11 12:42:45 -0500
     Tagged version 4.9.2. Added @w (wrap) as an event option to
     specify two durations to wrap the event with busy periods before
@@ -92,7 +97,3 @@ Recent tagged changes as of 2022-11-12T09:40:52.675147-05:00:
     5593f57b 2022-03-26 08:15:09 -0400
     Tagged version 4.7.12. Made reply and entry areas expandable.
     README repetition example addition.
-
-- 8 months ago (tag: 4.7.11) Daniel Graham
-    9d551f2b 2022-03-25 10:09:24 -0400
-    Tagged version 4.7.11.
