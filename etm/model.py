@@ -6451,7 +6451,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     )
 
                 if item['itemtype'] == '*' and 'w' in item:
-                    dta = dt + item['e'] + a if a else None
+                    if 'e' in item:
+                        dta = dt + item['e'] + a if a else None
+                    else:
+                        dta = dt + a if a else None
+
                     if dta:
                         sort_a = dta.format("YYYYMMDDHHmm")
                         rha = fmt_time(dta).rjust(rhc_width, ' ')

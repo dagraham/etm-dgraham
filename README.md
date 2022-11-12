@@ -1669,7 +1669,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @s: start. date or datetime
 *  @t*: tag. string
 *  @u*: usedtime. string using "timeperiod spent: ending datetime" format
-*  @w: wrap. A pair of before and after timeperiods to extend the busy period for an event, e.g., for travel time to and/or from the location of the event. This entry is ignored for all day events, i.e., when  @e is either missing or specifies zero duration.
+*  @w: wrap. A pair of before and after timeperiods to extend the busy period for an event, e.g., for travel time to and/or from the location of the event. Use `0m` as one of the timeperiods to avoid a wrap in that direction.
 *  @x*: expansion. string
 *  @z: timezone. string. A timezone specification, such as 'US/Eastern' or 'Europe/Paris' for aware datetimes or 'float', to indicate a naive or floating datetime. Datetime entries in the item are interpreted as belonging to the specified timezone when the entry is saved. The current timezone is the default when @z is not specified. Aware datetimes are converted to UTC (coordinated universal time) when stored and the @z entry, now irrelevant, is discarded.
 
@@ -2112,6 +2112,7 @@ Here are the options with their default values from that file. The lines beginni
     #  plain           'Ivory',            'Black',
     #  today           'Ivory bold',       'Black bold',
     #  waiting         'SlateGrey',        'DarkSlateBlue',
+	#  wrap            'SlateGrey',        'DarkSlateBlue',
     #
     # Explanations for the key names:
     #     available:    available task/job reminders
@@ -2124,6 +2125,8 @@ Here are the options with their default values from that file. The lines beginni
     #     plain:        headings such as outline branches
     #     today:        the current and following agenda date headings
     #     waiting:      waiting job reminders (jobs with unfinished prereqs)
+	#     wrap:         before and after rows for events in agenda view with
+	#                   @w entries
     #
     # E.g., with style 'dark', the default color for 'available' is
     # 'LightSkyBlue'. This entry

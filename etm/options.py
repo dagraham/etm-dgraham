@@ -437,7 +437,7 @@ type_colors: {type_colors}
 #  plain           'Ivory',            'Black',
 #  today           'Ivory bold',       'Black bold',
 #  waiting         'SlateGrey',        'DarkSlateBlue',
-#  wrap            'SlateGrey',        'DarkSlateBlue',
+#  wrap            'ForestGreen',      'LightGrey',
 #
 # Explanations for the key names:
 #     available:    available task/job reminders

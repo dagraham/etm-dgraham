@@ -1711,10 +1711,13 @@ def alerts():
 
 async def maybe_alerts(now):
     global current_datetime
+    line_number = text_area.document.cursor_position_row
     dataview.refreshRelevant()
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
     dataview.refreshCurrent()
+    text_area.buffer.cursor_position = \
+                    text_area.buffer.document.translate_row_col_to_index(line_number, 0)
     if dataview.alerts and not ('alerts' in settings and settings['alerts']):
         logger.warning("alerts have not been configured")
         return
@@ -1764,7 +1767,6 @@ async def maybe_alerts(now):
 async def event_handler():
     global current_datetime
     # check for updates every interval minutes
-
     interval = settings.get('updates_interval', 0)
     minutes = 0
     try:
