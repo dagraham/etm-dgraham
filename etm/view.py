@@ -1984,28 +1984,48 @@ def accept(buff):
     if query_window.text:
         text = query_window.text
         queries = settings.get('queries')
-        if text == 'l' and queries:
+        if text == 'l':
+            if queries:
+                query_str = "\n  ".join([f"{k}: {v}" for k, v in queries.items()])
+            else:
+                query_str = "None listed"
             tmp = """\
 Stored queries are listed as <key>: <query> below. Enter
 <key> at the prompt and press 'enter' to replace <key>
 with <query>. Submit this query as is or edit it first
 and then submit.
 
-  """ + "\n  ".join([f"{k}: {v}" for k, v in queries.items()])
+  """ + query_str
             set_text(tmp)
             return False
-        if queries and text in queries:
-            set_text("")
-            text = queries[text]
-            query_window.text = text
-            # don't reset the query area buffer we just set
-            return True
         if text.strip() in ['quit', 'exit']:
             # quitting
             dataview.active_view = dataview.prior_view
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
             return False
+        parts = [x.strip() for x in text.split(' ')]
+        if queries and parts[0] in queries:
+            ret = True # editing expansion is the default
+            set_text("")
+            text = queries[parts.pop(0)]
+            if '{}' in text:
+                # make the substitutions
+                num_replacments = text.count('{}')
+                try:
+                    text = text.format(*parts)
+                    query_window.text = text
+                except IndexError as e:
+                    tmp = f"""\
+Error processing {text}: {e}
+
+"""
+                    set_text(tmp)
+                    return True
+            else:
+                query_window.text = text
+                # don't reset the query area buffer we just set
+                return True
 
         loop = asyncio.get_event_loop()
         loop.call_later(0, do_show_processing, loop)
