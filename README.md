@@ -883,29 +883,14 @@ ALL YOUR REMINDERS:
 
 #### Complex queries {#complex-queries}
 
-Return a formatted, heirarchial display of items. Both the
-format and the items displayed are determined by the type
-of the query and the arguments provided. Since these
-queries can group and sort by date/times, these queries
-must begin by specifying which of the possible datetimes
-to use. There are four types of datetime specifications:
+Return a formatted, heirarchial display of items. Both the format and the items displayed are determined by the type of the query and the arguments provided. Since these queries can group and sort by date/times, these queries must begin by specifying which of the possible datetimes to use. There are four types of datetime specifications:
 
-* u: sort and group by datetimes in '@u' (used time)
-  entries. Also report aggregates of times spent in these
-  entries. Only items with '@u' entries will be reported.
-* s: sort and group by datetimes in '@f' entries in
-  finished tasks and otherwise by '@s' entries. Only items
-  with '@f' or '@s' entries will be reported.
-* c: sort and group by the 'created' datetime. All items
-  will be reported.
-* m: sort and group by the 'modified' datetime if given
-  else by the 'created' datetime. All items will be
-  reported.
+* u: sort and group by datetimes in '@u' (used time) entries. Also report aggregates of times spent in these entries. Only items with '@u' entries will be reported.
+* s: sort and group by datetimes in '@f' entries in finished tasks and otherwise by '@s' entries. Only items with '@f' or '@s' entries will be reported.
+* c: sort and group by the 'created' datetime. All items will be reported.
+* m: sort and group by the 'modified' datetime if given else by the 'created' datetime. All items will be reported.
 
-Complex queries follow the datetime specifier with a
-required group/sort specification consisting of a
-semicolon separated list with at least one of the
-following components:
+Complex queries follow the datetime specifier with a required group/sort specification consisting of a semicolon separated list with at least one of the following components:
 
 * index specification such as i, i[1:2] or i[1:]
 
@@ -923,25 +908,15 @@ following components:
         i[2:]  = ['C']
         i[3:4] = i[3:] = []
 
-    Note: using slices such as i[1:2] rather than i[1]
-    avoids 'list index out of range errors' for index
-    entries missing the indicated position and is
-    strongly recommended.
+    Note: using slices such as i[1:2] rather than i[1] avoids 'list index out of range errors' for index entries missing the indicated position and is strongly recommended.
 
-    When an index specification returns an empty list,
-    '~' is used for the missing entry. Items without an
-    '@i' entry are given a default entry of '~' and
-    included by default. Include 'exists i' in '-q'
-    (discussed below) to overrule this default.
+    When an index specification returns an empty list, '~' is used for the missing entry. Items without an '@i' entry are given a default entry of '~' and included by default. Include 'exists i' in '-q' (discussed below) to overrule this default.
 
 * field specification:
     l: location
     c: calendar
 
-    Note: items without the specified field are given a
-    default entry of '~' and included by default. Include
-    'exists l' or 'exists c' in '-q' (discussed below)
-    to overrule these defaults.
+    Note: items without the specified field are given a default entry of '~' and included by default. Include 'exists l' or 'exists c' in '-q' (discussed below) to overrule these defaults.
 
 * date specification:
   * year:
@@ -963,50 +938,29 @@ following components:
 	* ddd: locale abbreviated week day: Mon - Sun
 	* dddd: locale week day: Monday - Sunday
 
-Note: when a date specification is given, the datetime
-used depends upon the report type.
-* u: the value of the datetime component of the @u
-           entry. Items without @u entries are omitted.
-* s: the value of @f when it exists and, otherwise,
-           the value of @s. Items lacking both @f and @s
-           entries are omitted.
+Note: when a date specification is given, the datetime used depends upon the report type.
+* u: the value of the datetime component of the @u entry. Items without @u entries are omitted.
+* s: the value of @f when it exists and, otherwise, the value of @s. Items lacking both @f and @s entries are omitted.
 * c: the created datetime.
-* m: the modified datetime if it exists, else the created
-          datetime.
+* m: the modified datetime if it exists, else the created datetime.
 
 E.g.
 
     query: u i[:1]; MMM YYYY; i[1:]; ddd D
 
-would create a usedtime query grouped (and sorted) by
-the first component of the index entry, the month and
-year, the remaining components of the index entry and
-finally the month day.
+would create a usedtime query grouped (and sorted) by the first component of the index entry, the month and year, the remaining components of the index entry and finally the month day.
 
-Sorting note: Specifications using weeks are all sorted
-and grouped by by (YYYY, W). Specifications involving
-months are all sorted by (YYYY, M). Specifications
-involving days are all sorted by (D).
+Sorting note: Specifications using weeks are all sorted and grouped by by (YYYY, W). Specifications involving months are all sorted by (YYYY, M). Specifications involving days are all sorted by (D).
 
-The group/sort specification can be followed, optionally,
-by any of the following:
+The group/sort specification can be followed, optionally, by any of the following:
 
 -b begin date/datetime: omit items with earlier datetimes
 
 -e end date/datetime: omit items with later datetimes
 
--q query: exclude items not satisfying this simple query.
-    Anything that could be used in a simple query
-    described above could be used here. E.g., "-q exists
-    f" would display only items with an "@f" entry, i.e.,
-    finished tasks. Similarly "-q equals itemtype - and
-    ~exists f" would limit the display to unfinished
-    tasks.
+-q query: exclude items not satisfying this simple query. Anything that could be used in a simple query described above could be used here. E.g., "-q exists f" would display only items with an "@f" entry, i.e., finished tasks. Similarly "-q equals itemtype - and ~exists f" would limit the display to unfinished tasks.
 
--a append: append the contents of this comma separated
-    list of @key characters to the formatted output.
-    E.g., "-a d, l" would append the item description and
-    location to the display of each item.
+-a append: append the contents of this comma separated list of @key characters to the formatted output. E.g., "-a d, l" would append the item description and location to the display of each item.
 
 Note: -b and -e accept shortcuts:
 * daybeg: 12am on the current day
@@ -1025,57 +979,88 @@ w (week), d (day), h (hour) and m (minute). E.g.:
 
 #### Command History {#command-history}
 
-Any query entered at the 'query:' prompt and submitted by
-pressing 'Enter' is added to the command history. These
-queries are kept as long as 'etm' is running and can be
-accessed using the up and down cursor keys in the query
-field. This means you can enter a query, check the result,
-press 'q' to reopen the query prompt, press the up cursor
-and you will have your previous query ready to modify and
-submit again. It is also possible to keep a permanent list
-of queries accessible by shortcuts. See 'Saved Queries'
-below.
+Any query entered at the 'query:' prompt and submitted by pressing 'Enter' is added to the command history. These queries are kept as long as 'etm' is running and can be accessed using the up and down cursor keys in the query field. This means you can enter a query, check the result, press 'q' to reopen the query prompt, press the up cursor and you will have your previous query ready to modify and submit again. It is also possible to keep a permanent list of queries accessible by shortcuts. See 'Saved Queries' below.
 
 [↺ contents](#contents)
 
 #### Saved Queries {#saved-queries}
 
-Commonly used queries can be specified in the "queries"
-section of `cfg.yaml` in your etm home directory along
-with shortcuts for their use. E.g. with the default entry
+Commonly used queries can be specified in the "queries" section of `cfg.yaml` in your etm home directory along with shortcuts for their use. These saved queries support positional replacements. E.g. with
 
     queries:
-        # unfinished tasks by location and modified datetime
-        md: m l -q equals itemtype - and ~exists f
-        # usedtimes by i[:1], month and i[1:2] with d
-        ut: u i[:1]; MMM YYYY; i[1:2] -a d
-        # finish/start by i[:1], month and i[1:2] with u and d
-        st: s i[:1]; MMM YYYY; i[1:2] -a u, d
-        # items with an "@u" but missing the needed "@i"
-        mi: exists u and ~exists i
+        ...
+        find: includes summary d {}
 
-entering
+the expectation would be that 'find' will be followed by a single argument to replace the '{}'. E.g.,
 
-    query: ut
+    query: find waldo
 
-and pressing 'enter' would result in the 'ut' being
-replaced by its corresponding value to give
+Entering this at the query prompt would create and then, without further input, execute the query
 
-    query: u i[:1]; MMM YYYY; i[1:2] -a d
+    includes summary d waldo
 
-This query can now be submitted as is or first edited to
-add, say, `-b` and `-e` options and then submitted. As
-with other queries, the submitted form of the query is
-added to the command history.
+thus identifying all items in which either the summary or the description (d) contains
+'waldo'.
 
-Enter
+Arguments provided to saved queries are separated by spaces. This means that
 
-    query: l
+    query: find John Smith
 
-to display a list of the saved keys and values.
+would raise an error because two arguments, 'John' and 'Smith', have been provided but there is only one '{}' placeholder. To fix this, replace each unwanted space with an '\s'. E.g.,
 
+    query: find John\sSmith
 
-As with other etm views, in query view you can enter `/` or `?` to search incrementally forward or backward, resepectively, or press `Ctrl-C` to copy the view to the system clipboard or select a reminder and press `Enter` to display its details, press `E` to edit it and so forth.
+As another example consider 's-d' (summary but not description):
+
+    queries:
+        ...
+        s-d: includes summary {0} and ~includes d {0}
+
+Here the '{0}' placeholders mean that only one argument is expected and it will be used to replace both of the placeholders. This entry
+
+    query: s-d waldo
+
+would then expand to
+
+    includes summary waldo and ~includes d waldo
+
+which identifies items with 'waldo' in the summary but not in the description.
+
+As a final example, suppose you use one of the tags, 'unbilled', 'billed' or 'paid', to track billing and you want to find items that have an @i entry that contains a client name that you will specify and have @t entries that contain a tag that you will also specify. Consider this specification for 'status':
+
+    queries:
+        ...
+        status: includes i {} and any t {}
+
+with '{}' placeholders for the client and the tag. Then
+
+    query: status IOU paid
+
+would expand to
+
+    includes i IOU and any t paid
+
+which would identify items for the client 'IOU' which have been tagged 'paid'. Similarly
+
+    query: status IOU unbilled
+
+would identify items for the same client that have been tagged 'unbilled' instead of 'paid'.
+
+Saved queries need not, of course, take arguments. With
+
+    queries:
+        ...
+        unbilled: exists u and ~any t billed paid
+
+the query
+
+    query: unbilled
+
+would identify all items with an @u (used time) entry and thus presumably billable but without either a 'billed' or 'paid' tag.
+
+Note: To see a list of all your saved queries, just enter '`l`' (lower case '`L`') at the query prompt.
+
+        query: l
 
 
 [↺ contents](#contents)

@@ -75,418 +75,6 @@ from pygments.token import Comment
 from prompt_toolkit.styles import Style
 from prompt_toolkit.lexers import PygmentsLexer
 
-COMMAND_DETAILS = """\
-* begins field RGX: return items in which the value of
-  field begins with a match for the case insensitve
-  regular expression RGX.
-
-* in LST RGX: return items in which the value of
-  one of the fields in LST includes a match for the case
-  insensitive regular expression RGX.
-
-* equals field VAL: return items in which the value of
-  field == VAL
-
-* more field VAL: return items in which the value of
-  field >= VAL. The value of field and VAL must be
-  comparable, i.e., both strings or both numbers
-
-* less field VAL: return items in which the value of
-  field <= VAL. The value of field and VAL must be
-  comparable, i.e., both strings or both numbers
-
-* exists field: return items in which field exists
-
-* any field LST: return items in which the value of field
-  is a list and at least one element of field is an
-  element of LST
-
-* all field LST: return items in which the value of field
-  is a list and the elements of field contain all the
-  elements of LST
-
-* one field LST: return items in which the value of
-  field is one of the elements of LST
-
-* info ID: return the details of the item whose
-  document id equals the integer ID
-
-* dt field EXP: return items in which the value of field
-  is a date if EXP = '? date' or a datetime if EXP = '?
-  time'. Else if EXP begins with  '>', '=' or '<' followed
-  by a string following the format 'yyyy-mm-dd-HH-MM' then
-  return items where the datetime of the field value bears
-  the specified relation to the string, with hours and
-  minutes ignored when the value of field is a date. E.g.,
-
-        dt s < 2020-1-17
-
-  would return items with @s date/times whose year <=
-  2020, month <= 1 and month day <= 17.
-
-  Alternatively,
-
-        dt s ? date and equals itemtype *
-
-  would return events with @s date/times that are dates,
-  i.e., all day events or occasions."""
-
-
-UPDATE_DETAILS = """\
-* archive: if the items table is active, move the
-  reminders from the items table to the archive table,
-  else vice versa
-
-* remove: remove the reminders from the database
-
-* replace field RGX VAL: in the value of 'field', replace
-  matches for RGX with VAL. If the value of 'field' is a
-  list, do this for each element of the list. Remember to
-  replace spaces in in both RGX and VAL with '\s'
-
-* delete field: if the reminder has an entry for 'field',
-  delete the entry
-
-* set field VAL: set the value of 'field' to VAL
-  overriding the current value if it exists
-
-* provide field VAL: set the value of 'field' to VAL if
-  there is no existing entry for 'field'
-
-* attach field VAL: if the value of 'field' is intended to
-  be a list and if VAL is not in this list, then add VAL
-  to the list, creating the entry if necessary
-
-* detach field VAL: if the value of 'field' is a list and
-  this list contains VAL, then remove VAL from the list"""
-
-USAGE = f"""\
-Contents:
-  Simple queries
-  Simple query examples
-  Archive queries
-  Update queries
-  Complex queries
-  Command history
-  Saved queries
-
-Press '/' or '?' to search incrementally forward or
-backward, respectively.
-
-Simple queries
-==============
-Return a list of items displaying the itemtype, summary
-and id, and sorted by id, (order created) using commands
-with the format:
-
-    command field [args]
-
-where "field" is either 'itemtype', 'summary' or one of
-the '@-keys' such as 'l' or 's', and "command" is one of
-those listed below (see Simple Query Examples below for
-examples):
-
-{COMMAND_DETAILS}
-
-Enter the command at the 'query:' prompt and press 'enter'
-to submit the query and display the results. Press 'q' to
-reopen the entry area to submit another query. Use up and
-down cursor keys to choose from the command history (see
-Command History below), submit '?' or 'help' to show this
-display, submit 'l' to see a list of stored queries (see
-Saved queries below) or submit 'quit', 'exit' or nothing
-at all, '', to close the entry area and return to the
-previous display.
-
-Simple query examples
-=====================
-Find items where the summary includes a match for
-"waldo":
-
-    query: in summary waldo
-
-Precede a command with `~` to negate it. E.g., find
-reminders where the summary does not include a match for
-"waldo":
-
-    query: ~in summary waldo
-
-To enter a list of values for "arg", simply separate the
-components with spaces. E.g.,
-
-    query: all t blue green
-
-would return items with both blue and green tags or
-
-    query: any t blue green
-
-would return items with either a blue or a green tag. As
-a last example
-
-    query: one itemtype - *
-
-would return items in which the item type is either '-'
-or '*', i.e., either a task or an event.
-
-Conversely, to enter a regex with a space and avoid its
-being interpreted as a list, replace the space with '\s'.
-E.g.,
-
-    query: matches i john\sdoe
-
-would return items with '@i' (index) entries such as
-"John Doe/...".
-
-Note: in the world of regular expressions '\s' matches
-any white space character, including a space.
-
-Components can be joined the using "or" or "and". E.g.,
-find reminders where the summary entry contains a match
-for "waldo" but the @d (description) entry does not:
-
-    query: in summary waldo and ~includes d waldo
-
-Archive queries
-===============
-
-Queries, by default, search the items table in the etm
-database. You can preceed any query with 'a ' (the letter
-'a' followed by a space), to search the archive
-table instead. E.g.,
-
-    query: a in summary waldo or in d waldo
-
-will search the archive table for reminders with matches
-for 'waldo' in the summary or in the description.
-
-Queries beginning with 'a ' are, in fact, the only way
-to see archived items from within etm itself.
-
-Update queries
-==============
-
-Queries can not only locate reminders but also update
-them. The update commands act on items returned by a
-query. E.g., this query
-
-    query: in i john\sdoe | replace i john\sdoe
-        Jane\sDoe
-
-can be regarded as taking the reminders whose index entry,
-'i', includes a match for 'john doe' and feeding them to
-the 'replace' command which then takes the index entry of
-each reminder and replaces each match for 'john doe' with
-'Jane Doe'.
-
-All of the update commands work the same way: a query that
-returns a list of reminders is followed by a pipe symbol
-surrounded by spaces, ' | ', and an update command with
-its arguments. Here is the complete list of these
-update commands:
-
-{UPDATE_DETAILS}
-
-The recommended workflow for updating reminders is first
-to perfect the query to be certain that it lists just the
-items you want to update. Then press 'q' and the 'up'
-cursor key to restore the previous query, add ' | ' and
-the update command you want with its arguments.
-
-WARNING: Since the results may not be reversible, consider
-backing up your 'db.json' database before using update
-commands. This simple command, e.g., would PERMANENTLY
-DELETE ALL YOUR REMINDERS:
-
-    query: exists itemtype | remove
-
-Complex queries
-===============
-Return a formatted, heirarchial display of items. Both the
-format and the items displayed are determined by the type
-of the query and the arguments provided. Since these
-queries can group and sort by date/times, these queries
-must begin by specifying which of the possible datetimes
-to use. There are four types of datetime specifications:
-
-* u: sort and group by datetimes in '@u' (used time)
-  entries. Also report aggregates of times spent in these
-  entries. Only items with '@u' entries will be reported.
-* s: sort and group by datetimes in '@f' entries in
-  finished tasks and otherwise by '@s' entries. Only items
-  with '@f' or '@s' entries will be reported.
-* c: sort and group by the 'created' datetime. All items
-  will be reported.
-* m: sort and group by the 'modified' datetime if given
-  else by the 'created' datetime. All items will be
-  reported.
-
-Complex queries follow the datetime specifier with a
-required group/sort specification consisting of a
-semicolon separated list with at least one of the
-following components:
-
-* index specification such as i, i[1:2] or i[1:]
-
-    E.g. for an item with index entry '@i A/B/C':
-        i      = ['A','B','C']
-        i[0]   = 'A'
-        i[1]   = 'B'
-        i[2]   = 'C'
-        i[3]   => error, list index out of range
-        i[0:]  = ['A','B','C']
-        i[:1]  = ['A']
-        i[1:]  = ['B','C']
-        i[1:2] = ['B']
-        i[:2]  = ['A','B']
-        i[2:]  = ['C']
-        i[3:4] = i[3:] = []
-
-    Note: using slices such as i[1:2] rather than i[1]
-    avoids 'list index out of range errors' for index
-    entries missing the indicated position and is
-    strongly recommended.
-
-    When an index specification returns an empty list,
-    '~' is used for the missing entry. Items without an
-    '@i' entry are given a default entry of '~' and
-    included by default. Include 'exists i' in '-q'
-    (discussed below) to overrule this default.
-
-* field specification:
-    l: location
-    c: calendar
-
-    Note: items without the specified field are given a
-    default entry of '~' and included by default. Include
-    'exists l' or 'exists c' in '-q' (discussed below)
-    to overrule these defaults.
-
-* date specification:
-    year:
-      YY: 2-digit year
-      YYYY: 4-digit year
-    month:
-      M: month: 1 - 12
-      MM: month: 01 - 12
-      MMM: locale abbreviated month name: Jan - Dec
-      MMMM: locale month name: January - December
-    week: (examples based on 2020 iso week number 3):
-      W: week number: 3
-      WW: month days interval for week: Jan 13 - 19
-      WWW: interval and year: Jan 13 - 19, 2020
-      WWWW: interval, year and week number: Jan 13 - 19, 2020 #3
-    day:
-      D: month day: 1 - 31
-      DD: month day: 01 - 31
-      ddd: locale abbreviated week day: Mon - Sun
-      dddd: locale week day: Monday - Sunday
-
-    Note: when a date specification is given, the datetime
-    used depends upon the report type.
-        u: the value of the datetime component of the @u
-           entry. Items without @u entries are omitted.
-        s: the value of @f when it exists and, otherwise,
-           the value of @s. Items lacking both @f and @s
-           entries are omitted.
-        c: the created datetime.
-        m: the modified datetime if it exists, else the created
-           datetime.
-
-  E.g.
-
-        query: u i[:1]; MMM YYYY; i[1:]; ddd D
-
-  would create a usedtime query grouped (and sorted) by
-  the first component of the index entry, the month and
-  year, the remaining components of the index entry and
-  finally the month day.
-
-  Sorting note: Specifications using weeks are all sorted
-  and grouped by by (YYYY, W). Specifications involving
-  months are all sorted by (YYYY, M). Specifications
-  involving days are all sorted by (D).
-
-The group/sort specification can be followed, optionally,
-by any of the following:
-
--b begin date/datetime: omit items with earlier datetimes
-
--e end date/datetime: omit items with later datetimes
-
--q query: exclude items not satisfying this simple query.
-    Anything that could be used in a simple query
-    described above could be used here. E.g., "-q exists
-    f" would display only items with an "@f" entry, i.e.,
-    finished tasks. Similarly "-q equals itemtype - and
-    ~exists f" would limit the display to unfinished
-    tasks.
-
--a append: append the contents of this comma separated
-    list of @key characters to the formatted output.
-    E.g., "-a d, l" would append the item description and
-    location to the display of each item.
-
-Note: -b and -e accept shortcuts:
-    daybeg: 12am on the current day
-    dayend: 12am on the following day
-    weekbeg: 12am on Monday of the current week
-    weekend: 12am on Monday of the following week
-    monthbeg: 12am on the 1st of the current month
-    monthend: 12am on the 1st of the following month
-and can be combined with period strings using M (month),
-w (week), d (day), h (hour) and m (minute). E.g.:
-    weekbeg - 1w (the beginning of the previous week)
-    monthend + 1M (the end of the following month)
-
-Command History
-===============
-Any query entered at the 'query:' prompt and submitted by
-pressing 'Enter' is added to the command history. These
-queries are kept as long as 'etm' is running and can be
-accessed using the up and down cursor keys in the query
-field. This means you can enter a query, check the result,
-press 'q' to reopen the query prompt, press the up cursor
-and you will have your previous query ready to modify and
-submit again. It is also possible to keep a permanent list
-of queries accessible by shortcuts. See 'Saved Queries'
-below.
-
-Saved Queries
-=============
-Commonly used queries can be specified in the "queries"
-section of `cfg.yaml` in your etm home directory along
-with shortcuts for their use. E.g. with the default entry
-
-  queries:
-    # unfinished tasks by location and modified datetime
-    md: m l -q equals itemtype - and ~exists f
-    # usedtimes by i[:1], month and i[1:2] with d
-    ut: u i[:1]; MMM YYYY; i[1:2] -a d
-    # finish/start by i[:1], month and i[1:2] with u and d
-    st: s i[:1]; MMM YYYY; i[1:2] -a u, d
-    # items with an "@u" but missing the needed "@i"
-    mi: exists u and ~exists i
-
-entering
-
-    query: ut
-
-and pressing 'enter' would result in the 'ut' being
-replaced by its corresponding value to give
-
-    query: u i[:1]; MMM YYYY; i[1:2] -a d
-
-This query can now be submitted as is or first edited to
-add, say, `-b` and `-e` options and then submitted. As
-with other queries, the submitted form of the query is
-added to the command history.
-
-Enter
-
-    query: l
-
-to display a list of the saved keys and values.
-"""
 
 class UpdateStatus():
     def __init__(self, new=""):
@@ -579,7 +167,6 @@ class ETMQuery(object):
 
         self.allowed_commands = ", ".join([x for x in self.filters])
 
-        self.usage = USAGE
 
     def replace(self, a, rgx, rep, items):
         """
@@ -951,7 +538,9 @@ class ETMQuery(object):
         """
         """
         if query in ["?", "help"]:
-            return False, self.usage
+            query_help = "https://dagraham.github.io/etm-dgraham/#query-view"
+            openWithDefault(query_help)
+            return False, "opened query help using default browser"
         try:
             ok, test, updt = self.process_query(query)
             if not ok:
@@ -1990,13 +1579,15 @@ def accept(buff):
             else:
                 query_str = "None listed"
             tmp = """\
-Stored queries are listed as <key>: <query> below. Enter
-<key> at the prompt and press 'enter' to replace <key>
-with <query>. Submit this query as is or edit it first
-and then submit.
+Stored queries are listed as <key>: <query> below.
+Enter <key> at the prompt and press 'enter' to
+replace <key> with <query>. Submit this query as
+is or edit it first and then submit.
 
   """ + query_str
-            set_text(tmp)
+
+            show_message('query information', tmp)
+            # set_text(tmp)
             return False
         if text.strip() in ['quit', 'exit']:
             # quitting
@@ -2006,21 +1597,37 @@ and then submit.
             return False
         parts = [x.strip() for x in text.split(' ')]
         if queries and parts[0] in queries:
-            ret = True # editing expansion is the default
             set_text("")
             text = queries[parts.pop(0)]
-            if '{}' in text:
+            # if '{}' in text:
+            m =  re.search('{\d*}', text)
+            if m:
                 # make the substitutions
-                num_replacments = text.count('{}')
+                num_needed = text.count('{}')
+                num_given = len(parts)
+                if num_needed and num_given != num_needed:
+                    tmp = f"""\
+The query
+    {text}
+needs {num_needed} argument(s) to replace the '{{}}' but
+{num_given} were actually provided:
+    {", ".join(parts)}
+Please correct and resubmit.
+                            """
+                    show_message('query error', tmp)
+                    # set_text(tmp)
+                    return False
                 try:
                     text = text.format(*parts)
+                    text = text.replace('\s', ' ')
                     query_window.text = text
                 except IndexError as e:
                     tmp = f"""\
-Error processing {text}: {e}
-
+Error processing {text}:
+{e}
 """
-                    set_text(tmp)
+                    show_message('query error', tmp)
+                    # set_text(tmp)
                     return True
             else:
                 query_window.text = text
