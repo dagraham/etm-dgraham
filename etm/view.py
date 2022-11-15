@@ -1619,7 +1619,7 @@ Please correct and resubmit.
                     return False
                 try:
                     text = text.format(*parts)
-                    text = text.replace('\s', ' ')
+                    # text = text.replace('\s', ' ')
                     query_window.text = text
                 except IndexError as e:
                     tmp = f"""\
