@@ -1,9 +1,13 @@
-Recent tagged changes as of 2022-11-15T08:40:16.307569-05:00:
-- 0 seconds ago (HEAD -> busy, tag: 4.9.6) Daniel Graham
+Recent tagged changes as of 2022-11-15T13:18:07.400974-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.9.7) Daniel Graham
+    bac93a8f 2022-11-15 13:18:07 -0500
+    Tagged version 4.9.7.
+
+- 5 hours ago (tag: 4.9.6) Daniel Graham
     6015ec88 2022-11-15 08:40:16 -0500
     Tagged version 4.9.6.
 
-- 12 hours ago (tag: 4.9.5) Daniel Graham
+- 17 hours ago (tag: 4.9.5) Daniel Graham
     250004cc 2022-11-14 20:36:44 -0500
     Tagged version 4.9.5. Added support for argument replacements in
     saved queries.
@@ -91,8 +95,3 @@ Recent tagged changes as of 2022-11-15T08:40:16.307569-05:00:
 - 5 months ago (tag: 4.7.15) Daniel Graham
     f449fc6d 2022-06-28 12:52:48 -0400
     Tagged version 4.7.15.
-
-- 5 months ago (tag: 4.7.14) Daniel Graham
-    c47de41b 2022-06-28 12:10:03 -0400
-    Tagged version 4.7.14. Handle missing summaries and UTC datetimes
-    in ics imports.
