@@ -1,25 +1,30 @@
-Recent tagged changes as of 2022-11-12T12:10:39.119226-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.9.4) Daniel Graham
+Recent tagged changes as of 2022-11-14T20:36:45.033525-05:00:
+- 1 second ago (HEAD -> working, tag: 4.9.5) Daniel Graham
+    250004cc 2022-11-14 20:36:44 -0500
+    Tagged version 4.9.5. Added support for argument replacements in
+    saved queries.
+
+- 2 days ago (tag: 4.9.4) Daniel Graham
     c71d75c2 2022-11-12 12:10:39 -0500
     Tagged version 4.9.4. Restore cursor position after auto refresh
     and item edit.
 
-- 3 hours ago (tag: 4.9.3) Daniel Graham
+- 2 days ago (tag: 4.9.3) Daniel Graham
     98de70b1 2022-11-12 09:40:52 -0500
     Tagged version 4.9.3. Avoid scrolling display with auto refresh.
 
-- 23 hours ago (tag: 4.9.2) Daniel Graham
+- 3 days ago (tag: 4.9.2) Daniel Graham
     ee9c2a6a 2022-11-11 12:42:45 -0500
     Tagged version 4.9.2. Added @w (wrap) as an event option to
     specify two durations to wrap the event with busy periods before
     and/or after for, say, travel time to and from the location of the
     event.
 
-- 3 days ago (tag: 4.9.1) Daniel Graham
+- 5 days ago (tag: 4.9.1) Daniel Graham
     25f5f057 2022-11-09 15:33:49 -0500
     Tagged version 4.9.1.
 
-- 4 days ago (tag: 4.9.0) Daniel Graham
+- 6 days ago (tag: 4.9.0) Daniel Graham
     2c7f3656 2022-11-08 11:07:56 -0500
     Tagged version 4.9.0. Backwards incompatible changes have been
     made to cfg.yaml which will automatically be implemented the first
@@ -41,7 +46,7 @@ Recent tagged changes as of 2022-11-12T12:10:39.119226-05:00:
     65af25ae 2022-10-28 14:28:41 -0400
     Tagged version 4.8.7.
 
-- 2 weeks ago (tag: 4.8.6) Daniel Graham
+- 3 weeks ago (tag: 4.8.6) Daniel Graham
     71f82dcd 2022-10-26 15:25:24 -0400
     Tagged version 4.8.6.
 
@@ -62,11 +67,11 @@ Recent tagged changes as of 2022-11-12T12:10:39.119226-05:00:
     416bd7cd 2022-10-21 21:54:58 -0400
     Tagged version 4.8.2.
 
-- 3 weeks ago (tag: 4.8.1) Daniel Graham
+- 4 weeks ago (tag: 4.8.1) Daniel Graham
     e3e182ae 2022-10-20 16:53:19 -0400
     Tagged version 4.8.1.
 
-- 3 weeks ago (tag: 4.8.0) Daniel Graham
+- 4 weeks ago (tag: 4.8.0) Daniel Graham
     7420832f 2022-10-19 13:46:52 -0400
     Tagged version 4.8.0. Added preserve as an overdue option for
     repeating tasks.
@@ -92,8 +97,3 @@ Recent tagged changes as of 2022-11-12T12:10:39.119226-05:00:
     13e69aba 2022-03-29 12:12:12 -0400
     Tagged version 4.7.13. Compress output for current.txt and
     next.txt to improve display in mobile devices.
-
-- 8 months ago (tag: 4.7.12) Daniel Graham
-    5593f57b 2022-03-26 08:15:09 -0400
-    Tagged version 4.7.12. Made reply and entry areas expandable.
-    README repetition example addition.
