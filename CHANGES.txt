@@ -1,5 +1,9 @@
-Recent tagged changes as of 2022-11-15T13:18:07.400974-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.9.7) Daniel Graham
+Recent tagged changes as of 2022-11-15T13:20:24.980400-05:00:
+- 1 second ago (HEAD -> working, tag: 4.9.8) Daniel Graham
+    3e3e5c77 2022-11-15 13:20:24 -0500
+    Tagged version 4.9.8.
+
+- 2 minutes ago (tag: 4.9.7) Daniel Graham
     bac93a8f 2022-11-15 13:18:07 -0500
     Tagged version 4.9.7.
 
@@ -91,7 +95,3 @@ Recent tagged changes as of 2022-11-15T13:18:07.400974-05:00:
 - 5 weeks ago (tag: 4.7.16) Daniel Graham
     90083942 2022-10-14 11:14:51 -0400
     Tagged version 4.7.16.
-
-- 5 months ago (tag: 4.7.15) Daniel Graham
-    f449fc6d 2022-06-28 12:52:48 -0400
-    Tagged version 4.7.15.
