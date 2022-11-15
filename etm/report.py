@@ -548,6 +548,8 @@ def get_grpby_and_filters(s, options=None):
     grpby['sort'] = []
     include = {'W', 'Y', 'M', 'D'}
     if groupbylst:
+        if grpby['dated'] or grpby['report'] in ['u', 'm', 'c']:
+            grpby['sort'].append(f"item['rdt'].format('YYYYMMDD')")
         for group in groupbylst:
             logger.debug(f"group: {group}")
             if groupdate_regex.search(group):
@@ -586,8 +588,6 @@ def get_grpby_and_filters(s, options=None):
                 grpby['path'].append("item['%s']" % group.strip())
                 grpby['sort'].append(f"item['{group.strip()}']")
 
-        if grpby['dated'] or grpby['report'] in ['u', 'm', 'c']:
-            grpby['sort'].append(f"item['rdt'].format('YYYYMMDD')")
     also = []
     for part in parts:
         key = part[0]
