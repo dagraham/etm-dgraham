@@ -1,30 +1,34 @@
-Recent tagged changes as of 2022-11-14T20:36:45.033525-05:00:
-- 1 second ago (HEAD -> working, tag: 4.9.5) Daniel Graham
+Recent tagged changes as of 2022-11-15T08:40:16.307569-05:00:
+- 0 seconds ago (HEAD -> busy, tag: 4.9.6) Daniel Graham
+    6015ec88 2022-11-15 08:40:16 -0500
+    Tagged version 4.9.6.
+
+- 12 hours ago (tag: 4.9.5) Daniel Graham
     250004cc 2022-11-14 20:36:44 -0500
     Tagged version 4.9.5. Added support for argument replacements in
     saved queries.
 
-- 2 days ago (tag: 4.9.4) Daniel Graham
+- 3 days ago (tag: 4.9.4) Daniel Graham
     c71d75c2 2022-11-12 12:10:39 -0500
     Tagged version 4.9.4. Restore cursor position after auto refresh
     and item edit.
 
-- 2 days ago (tag: 4.9.3) Daniel Graham
+- 3 days ago (tag: 4.9.3) Daniel Graham
     98de70b1 2022-11-12 09:40:52 -0500
     Tagged version 4.9.3. Avoid scrolling display with auto refresh.
 
-- 3 days ago (tag: 4.9.2) Daniel Graham
+- 4 days ago (tag: 4.9.2) Daniel Graham
     ee9c2a6a 2022-11-11 12:42:45 -0500
     Tagged version 4.9.2. Added @w (wrap) as an event option to
     specify two durations to wrap the event with busy periods before
     and/or after for, say, travel time to and from the location of the
     event.
 
-- 5 days ago (tag: 4.9.1) Daniel Graham
+- 6 days ago (tag: 4.9.1) Daniel Graham
     25f5f057 2022-11-09 15:33:49 -0500
     Tagged version 4.9.1.
 
-- 6 days ago (tag: 4.9.0) Daniel Graham
+- 7 days ago (tag: 4.9.0) Daniel Graham
     2c7f3656 2022-11-08 11:07:56 -0500
     Tagged version 4.9.0. Backwards incompatible changes have been
     made to cfg.yaml which will automatically be implemented the first
@@ -38,11 +42,11 @@ Recent tagged changes as of 2022-11-14T20:36:45.033525-05:00:
     been removed and must be replaced with the default value, a new
     process is used to better preserve the embedded comments.
 
-- 2 weeks ago (tag: 4.8.8) Daniel Graham
+- 3 weeks ago (tag: 4.8.8) Daniel Graham
     f26fee1d 2022-10-28 14:40:36 -0400
     Tagged version 4.8.8.
 
-- 2 weeks ago (tag: 4.8.7) Daniel Graham
+- 3 weeks ago (tag: 4.8.7) Daniel Graham
     65af25ae 2022-10-28 14:28:41 -0400
     Tagged version 4.8.7.
 
@@ -63,7 +67,7 @@ Recent tagged changes as of 2022-11-14T20:36:45.033525-05:00:
     7e304d59 2022-10-24 16:52:54 -0400
     Tagged version 4.8.3.
 
-- 3 weeks ago (tag: 4.8.2) Daniel Graham
+- 4 weeks ago (tag: 4.8.2) Daniel Graham
     416bd7cd 2022-10-21 21:54:58 -0400
     Tagged version 4.8.2.
 
@@ -80,7 +84,7 @@ Recent tagged changes as of 2022-11-14T20:36:45.033525-05:00:
     475d89a9 2022-10-17 08:03:21 -0400
     Tagged version 4.7.17.
 
-- 4 weeks ago (tag: 4.7.16) Daniel Graham
+- 5 weeks ago (tag: 4.7.16) Daniel Graham
     90083942 2022-10-14 11:14:51 -0400
     Tagged version 4.7.16.
 
@@ -92,8 +96,3 @@ Recent tagged changes as of 2022-11-14T20:36:45.033525-05:00:
     c47de41b 2022-06-28 12:10:03 -0400
     Tagged version 4.7.14. Handle missing summaries and UTC datetimes
     in ics imports.
-
-- 8 months ago (tag: 4.7.13) Daniel Graham
-    13e69aba 2022-03-29 12:12:12 -0400
-    Tagged version 4.7.13. Compress output for current.txt and
-    next.txt to improve display in mobile devices.
