@@ -107,17 +107,6 @@ style = Style.from_dict({
     'finished':     '#191970',
 })
 
-# type2style = {
-#         '!': 'class:inbox',
-#         '<': 'class:pastdue',
-#         '>': 'class:begin',
-#         '%': 'class:journal',
-#         '*': 'class:event',
-#         '-': 'class:available',
-#         '+': 'class:waiting',
-#         '✓': 'class:finished',
-#         }
-
 FINISHED_CHAR = '✓'
 UPDATE_CHAR = "𝕦"
 INBASKET_CHAR = "𝕚"
