@@ -128,7 +128,7 @@ if new_version:
     check_output(f"git commit -a --amend -m '{tmsg}'")
 
     ans = input("switch to master, merge working and push to origin? [yN] ")
-    if ans.lower() != y:
+    if ans.lower() != 'y':
         print('cancelled')
         sys.exit()
     ok, res = check_output(f"git checkout master && get merge working && git push && git checkout working")
