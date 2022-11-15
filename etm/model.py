@@ -6402,10 +6402,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 dta = None
 
                 if item['itemtype'] == '*' and 'w' in item:
-                    itemtype = "~"
                     b, a = item['w']
                     dtb = dt - b if b else None
                     if dtb:
+                        itemtype = "↱"
                         sort_b = dtb.format("YYYYMMDDHHmm")
                         rhb = fmt_time(dtb).ljust(rhc_width, ' ')
                         rows.append(
@@ -6457,6 +6457,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         dta = dt + a if a else None
 
                     if dta:
+                        itemtype = "↳"
                         sort_a = dta.format("YYYYMMDDHHmm")
                         rha = fmt_time(dta).rjust(rhc_width, ' ')
                         rows.append(

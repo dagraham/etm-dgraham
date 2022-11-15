@@ -1180,7 +1180,9 @@ type2style = {
         '-': 'available',
         '+': 'waiting',
         '✓': 'finished',
-        '~': 'wrap',
+        '~': 'missing',
+        '↱': 'wrap',
+        '↳': 'wrap',
         }
 
 def first_char(s):
