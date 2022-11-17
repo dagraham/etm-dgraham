@@ -39,6 +39,7 @@ def main():
     Settings = options.Settings(etmdir)
 
     settings = Settings.settings
+    beginbusy = settings['beginbusy']
     type_colors = settings['type_colors']
     logger.debug(f"__main__ type_colors: {type_colors}")
     window_colors = settings['window_colors']
@@ -53,6 +54,15 @@ def main():
     # We want 2 char 'en' weekday abbreviations regardless of the actual locale
     day = today.end_of('week')  # Sunday
     WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
+    midnight = pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    beginbusy = settings.get('beginbusy', 7)
+    ampm = settings.get('ampm', True)
+    hour = pendulum.duration(hours=1)
+    fmt = "hA" if ampm else "H"
+    # busyhours = [(midnight + i*hour).format(fmt).lower for i in range(beginbusy, beginbusy + 14, 2)]
+    busyhours = [(midnight + i*hour).format('hA').lower() for i in range(beginbusy, beginbusy + 15, 2)]
+    HB = "".join([f"{h : <8}" for h in busyhours]).rstrip()
+    # "".join([f"{h : <10}" for h in busyhours]).rstrip()
 
 
     import etm.ical as ical
@@ -84,9 +94,11 @@ def main():
     model.ical = ical
     model.Mask = Mask
     model.WA = WA
+    model.HB = HB
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
+    model.beginbusy = beginbusy
     model.settings = settings
     model.logger = logger
     # model.edit_file = os.path.join(etmdir, 'edit.text')
@@ -116,11 +128,13 @@ def main():
 
 
     import etm.view as view
+    view.beginbusy = beginbusy
     view.FINISHED_CHAR = FINISHED_CHAR
     view.UPDATE_CHAR = UPDATE_CHAR
     view.PIN_CHAR = PIN_CHAR
     view.INBASKET_CHAR = INBASKET_CHAR
     view.settings = settings
+    view.type_colors = type_colors
     view.cfgfile = cfgfile
     view.model = model
     view.write_back = write_back

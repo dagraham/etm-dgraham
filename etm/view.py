@@ -61,7 +61,6 @@ logger = None
 dataview = None
 item = None
 style = None
-type_colors = None
 application = None
 
 ############ begin query ###############################
@@ -86,6 +85,16 @@ class UpdateStatus():
     def get_status(self):
         return self.status
 
+# For busy view
+VLINE  =    '⏐' # U+23D0  this will be a de-emphasized color
+HLINE  =    '─' # U+2500  this will be a de-emphasized color
+HDOT   =    '·' # U+2500  this will be a de-emphasized color
+BUSY   =    '■' # U+25A0 this will be busy color
+CONFLICT =  '▦' # U+25A6 this will be conflict color
+# BEFORE =    '◀' # U+25C0 this will be busy color
+# AFTER  =    '▶' # U+25B6 this will be busy color
+
+
 class TDBLexer(RegexLexer):
 
     name = 'TDB'
@@ -101,6 +110,7 @@ class TDBLexer(RegexLexer):
                 (r'\b(and|or|info)\b', Keyword),
                 ],
             }
+
 
 def format_week(dt, fmt="WWW"):
     """
@@ -162,7 +172,7 @@ class ETMQuery(object):
         self.changed = False
 
         self.lexer = PygmentsLexer(TDBLexer)
-        self.style = type_colors
+        # self.style = type_colors
         self.Item = Query()
 
         self.allowed_commands = ", ".join([x for x in self.filters])
@@ -1201,6 +1211,7 @@ def first_char(s):
 
 # Create one text buffer for the main content.
 class ETMLexer(Lexer):
+
     def lex_document(self, document):
 
         def get_line(lineno):
@@ -1214,10 +1225,39 @@ class ETMLexer(Lexer):
                     logger.debug(f"sty: {sty}; type_colors.keys: {type_colors.keys()}")
             if tmp.rstrip().endswith("(Today)") or tmp.rstrip().endswith("(Tomorrow)"):
                 return [(type_colors['today'], f"{tmp} ")]
-            return [(type_colors['plain'], tmp)]
-            # return [(type_colors[type2style.get(typ, 'plain')], tmp)]
+
+            return [
+                # (colors[i % len(colors)], c)
+                (busy_colors.get(c, type_colors['plain']), c)
+                for i, c in enumerate(document.lines[lineno])
+            ]
+
+            # return [(type_colors['plain'], tmp)]
 
         return get_line
+
+
+# class BusyLexer(Lexer):
+#     def lex_document(self, document):
+#         """
+#             How enumerate works:
+#             >>> s = "now is the time"
+#             >>> [i, c for x in enumerate(s)]
+#             [(0, 'n'), (1, 'o'), (2, 'w'), (3, ' '), (4, 'i'), (5, 's'), (6, ' '), (7, 't'), (8, 'h'), (9, 'e'), (10, ' '), (11, 't'), (12, 'i'), (13, 'm'), (14, 'e')]
+#             >>> h = {'a': 2, 'b': 3}
+#             >>> list(sorted(h, key=h.get))
+#             ['a', 'b']
+#         """
+
+#         def get_line(lineno):
+#             return [
+#                 # (colors[i % len(colors)], c)
+#                 (busy_colors.get(c, type_colors['plain']), c)
+#                 for i, c in enumerate(document.lines[lineno])
+#             ]
+
+#         return get_line
+
 
 def status_time(dt):
     """
@@ -1297,7 +1337,7 @@ def alerts():
     if alerts:
         return "\n".join(alerts)
     else:
-        return "There are no alerts for today."
+        return "There are no alerts for to/ampmday."
 
 def get_row_col():
     row_number = text_area.document.cursor_position_row
@@ -1483,13 +1523,14 @@ search_field = SearchToolbar(text_if_not_searching=[
     ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
 
 content = ""
+etmlexer = ETMLexer()
 text_area = TextArea(
     text="",
     read_only=True,
     scrollbar=True,
     search_field=search_field,
     focus_on_click=True,
-    lexer=ETMLexer()
+    lexer=etmlexer
     )
 
 
@@ -2599,12 +2640,22 @@ def set_askreply(_):
 
 
 async def main(etmdir=""):
-    global item, settings, ampm, style, type_colors, application
+    global item, settings, ampm, style, type_colors, application, busy_colors
     ampm = settings['ampm']
-    type_colors = settings['type_colors']
-    logger.debug(f"main type_colors: {type_colors}")
     window_colors = settings['window_colors']
-    logger.debug(f"main window_colors: {window_colors}")
+    type_colors = settings['type_colors']
+    window_colors = settings['window_colors']
+    logger.debug(f"view main window_colors: {window_colors}")
+    logger.debug(f"view main type_colors: {type_colors}")
+    busy_colors = {
+            VLINE    : type_colors['wrap'],
+            HLINE    : type_colors['wrap'],
+            HDOT     : type_colors['wrap'],
+            BUSY     : type_colors['event'],
+            CONFLICT : type_colors['inbox'],
+            }
+    logger.debug(f"view main busy_colors: {busy_colors}")
+    # query = ETMQuery()
     style = get_style(window_colors)
     agenda_view()
 

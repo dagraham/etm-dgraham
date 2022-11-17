@@ -181,8 +181,9 @@ requires = {
         'jb': ['s'],
         }
 
+
 busy_template = """{week}
-         {WA[1]} {DD[1]}  {WA[2]} {DD[2]}  {WA[3]} {DD[3]}  {WA[4]} {DD[4]}  {WA[5]} {DD[5]}  {WA[6]} {DD[6]}  {WA[7]} {DD[7]}
+         {DD[1]}  {DD[2]}  {DD[3]}  {DD[4]}  {DD[5]}  {DD[6]}  {DD[7]}
          _____  _____  _____  _____  _____  _____  _____
 {l[0]}   {h[0][1]}  {h[0][2]}  {h[0][3]}  {h[0][4]}  {h[0][5]}  {h[0][6]}  {h[0][7]}
 {l[1]}   {h[1][1]}  {h[1][2]}  {h[1][3]}  {h[1][4]}  {h[1][5]}  {h[1][6]}  {h[1][7]}
@@ -208,8 +209,6 @@ busy_template = """{week}
 {l[21]}   {h[21][1]}  {h[21][2]}  {h[21][3]}  {h[21][4]}  {h[21][5]}  {h[21][6]}  {h[21][7]}
 {l[22]}   {h[22][1]}  {h[22][2]}  {h[22][3]}  {h[22][4]}  {h[22][5]}  {h[22][6]}  {h[22][7]}
 {l[23]}   {h[23][1]}  {h[23][2]}  {h[23][3]}  {h[23][4]}  {h[23][5]}  {h[23][6]}  {h[23][7]}
-         _____  _____  _____  _____  _____  _____  _____
-{t[0]}   {t[1]}  {t[2]}  {t[3]}  {t[4]}  {t[5]}  {t[6]}  {t[7]}
 """
 
 def subsets(l):
@@ -248,10 +247,10 @@ def busy_conf_minutes(lofp):
     busy_minutes = []
     conf_minutes = []
     if not lofp:
-        return ([], [], 0)
-    (b, e) = lofp.pop(0)
+        return ([], [])
+    (b, e, doc_id) = lofp.pop(0)
     while lofp:
-        (B, E) = lofp.pop(0)
+        (B, E, doc_id) = lofp.pop(0)
         if e <= B:  # no conflict
             busy_minutes.append((b, e))
             b = B
@@ -267,8 +266,8 @@ def busy_conf_minutes(lofp):
                 b = E
                 e = e
     busy_minutes.append((b, e))
-    total_minutes = sum(e - b for (b, e) in busy_minutes + conf_minutes)
-    return busy_minutes, conf_minutes, total_minutes
+    logger.debug(f"3)busy_conf_minutes lofp: {lofp};\nbusy_minutes: {busy_minutes};\nconf_minutes: {conf_minutes}")
+    return busy_minutes, conf_minutes
 
 def busy_conf_day(lofp):
     """
@@ -285,36 +284,72 @@ def busy_conf_day(lofp):
     >>> busy_conf_day([(0, 1439)])
     {0: '  #  ', 'total': 1439, 1: '  #  ', 2: '  #  ', 3: '  #  ', 4: '  #  ', 5: '  #  ', 6: '  #  ', 7: '  #  ', 8: '  #  ', 9: '  #  ', 10: '  #  ', 11: '  #  ', 12: '  #  ', 13: '  #  ', 14: '  #  ', 15: '  #  ', 16: '  #  ', 17: '  #  ', 18: '  #  ', 19: '  #  ', 20: '  #  ', 21: '  #  ', 22: '  #  ', 23: '  #  '}
     """
+    VLINE  =    '⏐' # U+23D0  this will be a de-emphasized color
+    HDOT   =    '·' # U+2500  this will be a de-emphasized color
+    HLINE  =    '─' # U+2500  this will be a de-emphasized color
+    HDOT   =    '·' # U+2500  this will be a de-emphasized color
+    BUSY   =    '■' # U+25A0 this will be busy color
+    CONFLICT =  '▦' # U+25A6 this will be conflict color
 
-    busy_ranges, conf_ranges, total = busy_conf_minutes(lofp)
-    busy_hours = []
-    conf_hours = []
+    busy_ranges, conf_ranges = busy_conf_minutes(lofp)
+    logger.debug(f"2)busy_conf_day lofp: {lofp};\nbusy_ranges: {busy_ranges};\nconf_ranges: {conf_ranges}")
+    busy_quarters = []
+    conf_quarters = []
+    first_quarter = beginbusy*4
+    last_quarter = first_quarter + 14*4 + 1
 
     for (b, e) in conf_ranges:
-        h_b = b // 60
-        h_e = e // 60
-        if e % 60: h_e += 1
+        h_b = b // 15
+        h_e = e // 15
+        if e % 15: h_e += 1
         for i in range(h_b, h_e):
-            if i not in conf_hours:
-                conf_hours.append(i)
+            if i not in conf_quarters:
+                conf_quarters.append(i)
 
     for (b, e) in busy_ranges:
-        h_b = b // 60
-        h_e = e // 60
-        if e % 60: h_e += 1
+        h_b = b // 15
+        h_e = e // 15
+        if e % 15: h_e += 1
         for i in range(h_b, h_e):
-            if i not in conf_hours and i not in busy_hours:
-                busy_hours.append(i)
+            if i not in conf_quarters and i not in busy_quarters:
+                busy_quarters.append(i)
     h = {}
-    for i in range(24):
-        if i in busy_hours:
-            h[i] = '#'.center(5, ' ')
-        elif i in conf_hours:
-            h[i] = '###'.center(5, ' ')
-        # else:
-        #     h[i] = '.'.center(3, ' ')
-        h['total'] = total
-    return h
+    h[0] = '  '
+    h[58] = '  '
+    for i in range(1, 58):
+        h[i] = ' ' if (i-1) % 4 else VLINE
+    empty = "".join([h[i] for i in range(59)])
+    for i in range(1, 58):
+        h[i] = HDOT if (i-1) % 4 else VLINE
+
+    logger.debug(f"busy_quarters: {busy_quarters}; conf_quarters: {conf_quarters}")
+
+    # quarters: 1 before start + 1 after start + 56 + 1 between = 59 slots 0, ... 58
+    conflict = False
+    busy = False
+    for i in range(first_quarter):
+        if i in conf_quarters:
+            conflict = True
+        if i in busy_quarters:
+            busy = True
+        h[0] = CONFLICT + ' ' if conflict else BUSY + ' ' if busy else '  '
+    conflict = False
+    busy = False
+    for i in range(last_quarter, 24*4):
+        if i in conf_quarters:
+            conflict = True
+        elif i in busy_quarters:
+            busy = True
+        h[58] = ' ' + CONFLICT  if conflict else ' ' + BUSY if busy else '  '
+    for i in range(first_quarter, last_quarter):
+        if i in conf_quarters:
+            h[i-first_quarter+1] = CONFLICT
+        elif i in busy_quarters:
+            h[i-first_quarter+1] = BUSY
+    res = f"\n{empty}\n{''.join([h[i] for i in range(59)])}"
+    full = "".join([h[i] for i in range(59)])
+    # logger.debug(f"empty: {empty}")
+    return empty, full
 
 def process_entry(s, settings={}):
     """
@@ -6171,7 +6206,7 @@ def no_busy_periods(week, width):
         h.setdefault(hour, {})
         for weekday in range(1, 8):
             h[hour][weekday] = '  .  '
-    return busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
+    return busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '),  DD=DD, t=t, h=h, l=LL)
 
 def summary_pin(text, width, id, pinned_list, link_list, konnected_list):
     in_konnected = False
@@ -6473,8 +6508,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 beg_min = dtb.hour * 60 + dtb.minute if dtb else dt.hour * 60 + dt.minute
                 end_min = dta.hour * 60 + dta.minute if dta else et.hour * 60 + et.minute
                 y, w, d = dt.isocalendar()
-                #             x[0] x[1]  x[2]     x[3]
-                busy.append({'sort': dt.format("YYYYMMDDHHmm"), 'week': (y, w), 'day': d, 'period': (beg_min, end_min)})
+                #             x[0]          x[1]  x[2]             x[3]
+                busy.append({'sort': dt.format("YYYYMMDDHHmm"), 'week': (y, w), 'day': d, 'period': (beg_min, end_min, item.doc_id)})
     if yw == getWeekNum(now):
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
@@ -6490,41 +6525,66 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     weeks = set([])
 
     for week, items in groupby(busy, key=itemgetter('week')):
+        logger.debug(f"### schedule week: {week}")
         weeks.add(week)
         busy_tups = []
         for day, period in groupby(items, key=itemgetter('day')):
             for p in period:
                 busy_tups.append([day, p['period']])
         busy_tups.sort()
+        logger.debug(f"1)schedule busy_tups: {busy_tups}")
         h = {}
         busy = {}
-        t = {0: 'total'.rjust(6, ' ')}
 
+        # list:       2                   +56         +3         = 61 chars
+        # supposing begin_busy is 7, the busy extends another 14 hours to 9p
+        #     12-7a          14 hours          9-9:15p  9:15-12p
+        # bar = ['  '] + 14*['|', '─', '─', '─'] + ['|', '  ']
+        # 7 more chars for " Mo 30 " + 61 for bar = 68 char width for line in busy view
+
+
+        # The weekday 2-char abbreviation and the month day
         monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
         DD = {}
-        for i in range(7):
-            DD[i+1] = monday.add(days=i).format("D").ljust(2, ' ')
+        for i in range(1, 8):
+            # row_date = monday.add(days=i)
+            DD[i] = f"{WA[i]} {monday.add(days=i-1).format('D')}".ljust(5, ' ')
 
-        for weekday in range(1, 8):
-            t[weekday] = '0'.center(5, ' ')
+        # logger.debug(f"DD: {DD}")
 
-        for hour in range(24):
-            h.setdefault(hour, {})
-            for weekday in range(1, 8):
-                h[hour][weekday] = '  .  '
+        # for hour in range(24):
+        #     h.setdefault(hour, {})
+        #     for weekday in range(1, 8):
+        #         h[hour][weekday] = '  .  '
 
         for tup in busy_tups:
             #                 d             (beg_min, end_min)
             busy.setdefault(tup[0], []).append(tup[1])
+        # busy_hsh[weekday] = ""
+        logger.debug(f"1a)schedule busy: {busy}")
+        busy_hsh[0] = f"""\
+{fmt_week(week) : ^76}
+{8*' '}{HB}
+"""
         for weekday in range(1, 8):
+            logger.debug(f"1b)schedule {week} weekday: {weekday}")
             lofp = busy.get(weekday, [])
-            hours = busy_conf_day(lofp)
-            t[weekday] = str(hours['total']).center(5, ' ')
-            for hour in range(24):
-                if hour in hours:
-                    h[hour][weekday] = hours[hour]
+            logger.debug(f"1c)schedule calling busy_conf_day with lofp: {lofp}")
+            empty, full = busy_conf_day(lofp)
+            logger.debug(f"1c)schedule back from busy_conf_day with\nempty/full:\n{empty}\n{full}")
+            busy_hsh[weekday] = f"""\
+{7*' '}{empty}
+ {DD[weekday] : <6}{full}
+"""
+            #       0*   1          2*             58
+            # h[weekday] = bar
+            # bar = [' ', ' '] + 14*['|', '─', '─', '─'] + ['|', ' ', ' ']
+            # for quarter in range(59):
+            #     if quarter in quarters:
+            #         h[weekday] = "".join(quarters[quarter])
+        busy_hsh[week] = "".join([busy_hsh[i] for i in range(0, 8)])
 
-        busy_hsh[week] = busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, t=t, h=h, l=LL)
+        # busy_hsh[week] = busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, h=h, l=LL)
 
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)

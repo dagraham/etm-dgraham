@@ -156,6 +156,7 @@ class Settings():
     ampm = "true"
     yearfirst = "true"
     dayfirst = "false"
+    beginbusy = 7
     updates_interval = 0
     locale = "en_US"
     vi_mode = "false"
@@ -183,6 +184,7 @@ class Settings():
         "ampm" : ampm,
         "dayfirst" : dayfirst,
         "yearfirst" : yearfirst,
+        'beginbusy' : beginbusy,
         "updates_interval" : updates_interval,
         "locale" : locale,
         "vi_mode" : vi_mode,
@@ -243,6 +245,12 @@ yearfirst: {yearfirst}
 #       YY-MM-DD
 #       DD-MM-YY
 #       MM-DD-YY
+
+beginbusy: {beginbusy}
+# non-negative integer. The number of hours after midnight to begin the
+# busy view display of busy times for each day. The display continues
+# for 14 hours after the begin_busy hour. E.g. with 'begin_busy: 7' the
+# display would show busy times from 7am (7h) until 9pm (21h).
 
 updates_interval: {updates_interval}
 # non-negative integer. If positive,  automatically check for updates
