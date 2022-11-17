@@ -284,10 +284,10 @@ def busy_conf_day(lofp):
     >>> busy_conf_day([(0, 1439)])
     {0: '  #  ', 'total': 1439, 1: '  #  ', 2: '  #  ', 3: '  #  ', 4: '  #  ', 5: '  #  ', 6: '  #  ', 7: '  #  ', 8: '  #  ', 9: '  #  ', 10: '  #  ', 11: '  #  ', 12: '  #  ', 13: '  #  ', 14: '  #  ', 15: '  #  ', 16: '  #  ', 17: '  #  ', 18: '  #  ', 19: '  #  ', 20: '  #  ', 21: '  #  ', 22: '  #  ', 23: '  #  '}
     """
-    VLINE  =    '⏐' # U+23D0  this will be a de-emphasized color
-    HDOT   =    '·' # U+2500  this will be a de-emphasized color
-    HLINE  =    '─' # U+2500  this will be a de-emphasized color
-    HDOT   =    '·' # U+2500  this will be a de-emphasized color
+    VSEP  =    '⏐' # U+23D0  this will be a de-emphasized color
+    HSEP   =    '·' # U+2500  this will be a de-emphasized color
+    # HSEP  =    '─' # U+2500  this will be a de-emphasized color
+    HSEP   =    '·' # U+2500  this will be a de-emphasized color
     BUSY   =    '■' # U+25A0 this will be busy color
     CONFLICT =  '▦' # U+25A6 this will be conflict color
 
@@ -317,10 +317,10 @@ def busy_conf_day(lofp):
     h[0] = '  '
     h[58] = '  '
     for i in range(1, 58):
-        h[i] = ' ' if (i-1) % 4 else VLINE
+        h[i] = ' ' if (i-1) % 4 else VSEP
     empty = "".join([h[i] for i in range(59)])
     for i in range(1, 58):
-        h[i] = HDOT if (i-1) % 4 else VLINE
+        h[i] = HSEP if (i-1) % 4 else VSEP
 
     logger.debug(f"busy_quarters: {busy_quarters}; conf_quarters: {conf_quarters}")
 
@@ -6174,39 +6174,36 @@ def fmt_class(txt, cls=None, plain=False):
 
 
 def no_busy_periods(week, width):
-    ampm = settings['ampm']
-    LL = {}
-    for hour in range(24):
-        if hour % 6 == 0:
-            if ampm:
-                suffix = 'am' if hour < 12 else 'pm'
-                if hour == 0:
-                    hr = 12
-                elif hour <= 12:
-                    hr = hour
-                elif hour > 12:
-                    hr = hour - 12
-                LL[hour] = f"{hr}{suffix}".rjust(6, ' ')
-            else:
-                LL[hour] = f"{hour}h".rjust(6, ' ')
-        else:
-            LL[hour] = ' '.rjust(6, ' ')
 
+    # The weekday 2-char abbreviation and the month day
     monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
     DD = {}
+    for i in range(1, 8):
+        # row_date = monday.add(days=i)
+        DD[i] = f"{WA[i]} {monday.add(days=i-1).format('D')}".ljust(5, ' ')
+
     h = {}
-    t = {0: 'total'.rjust(6, ' ')}
-    for i in range(7):
-        DD[i+1] = monday.add(days=i).format("D").ljust(2, ' ')
+    h[0] = '  '
+    h[58] = '  '
+    for i in range(1, 58):
+        h[i] = ' ' if (i-1) % 4 else VSEP
+    empty = "".join([h[i] for i in range(59)])
+    for i in range(1, 58):
+        h[i] = HSEP if (i-1) % 4 else VSEP
+    full = "".join([h[i] for i in range(59)])
 
+    busy_hsh = {}
+    busy_hsh[0] = f"""\
+{fmt_week(week) : ^76}
+{8*' '}{HB}
+"""
     for weekday in range(1, 8):
-        t[weekday] = '0'.center(5, ' ')
+        busy_hsh[weekday] = f"""\
+{7*' '}{empty}
+ {DD[weekday] : <6}{full}
+"""
+    return  "".join([busy_hsh[i] for i in range(0, 8)])
 
-    for hour in range(24):
-        h.setdefault(hour, {})
-        for weekday in range(1, 8):
-            h[hour][weekday] = '  .  '
-    return busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '),  DD=DD, t=t, h=h, l=LL)
 
 def summary_pin(text, width, id, pinned_list, link_list, konnected_list):
     in_konnected = False
@@ -6536,13 +6533,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         h = {}
         busy = {}
 
-        # list:       2                   +56         +3         = 61 chars
-        # supposing begin_busy is 7, the busy extends another 14 hours to 9p
-        #     12-7a          14 hours          9-9:15p  9:15-12p
-        # bar = ['  '] + 14*['|', '─', '─', '─'] + ['|', '  ']
-        # 7 more chars for " Mo 30 " + 61 for bar = 68 char width for line in busy view
-
-
         # The weekday 2-char abbreviation and the month day
         monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
         DD = {}
@@ -6550,17 +6540,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             # row_date = monday.add(days=i)
             DD[i] = f"{WA[i]} {monday.add(days=i-1).format('D')}".ljust(5, ' ')
 
-        # logger.debug(f"DD: {DD}")
-
-        # for hour in range(24):
-        #     h.setdefault(hour, {})
-        #     for weekday in range(1, 8):
-        #         h[hour][weekday] = '  .  '
-
         for tup in busy_tups:
             #                 d             (beg_min, end_min)
             busy.setdefault(tup[0], []).append(tup[1])
-        # busy_hsh[weekday] = ""
         logger.debug(f"1a)schedule busy: {busy}")
         busy_hsh[0] = f"""\
 {fmt_week(week) : ^76}
@@ -6576,15 +6558,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 {7*' '}{empty}
  {DD[weekday] : <6}{full}
 """
-            #       0*   1          2*             58
-            # h[weekday] = bar
-            # bar = [' ', ' '] + 14*['|', '─', '─', '─'] + ['|', ' ', ' ']
-            # for quarter in range(59):
-            #     if quarter in quarters:
-            #         h[weekday] = "".join(quarters[quarter])
         busy_hsh[week] = "".join([busy_hsh[i] for i in range(0, 8)])
 
-        # busy_hsh[week] = busy_template.format(week = 8 * ' ' + fmt_week(week).center(47, ' '), WA=WA, DD=DD, h=h, l=LL)
 
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)

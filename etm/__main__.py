@@ -64,6 +64,12 @@ def main():
     HB = "".join([f"{h : <8}" for h in busyhours]).rstrip()
     # "".join([f"{h : <10}" for h in busyhours]).rstrip()
 
+    VSEP  =    '⏐' # U+23D0  this will be a de-emphasized color
+    HSEP   =    '·' # U+2500  this will be a de-emphasized color
+    # HSEP  =    '─' # U+2500  this will be a de-emphasized color
+    BUSY   =    '■' # U+25A0 this will be busy color
+    CONF =  '▦' # U+25A6 this will be conflict color
+
 
     import etm.ical as ical
     ical.logger = logger
@@ -95,6 +101,10 @@ def main():
     model.Mask = Mask
     model.WA = WA
     model.HB = HB
+    model.VSEP = VSEP
+    model.HSEP = HSEP
+    model.BUSY = BUSY
+    model.CONF = CONF
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
