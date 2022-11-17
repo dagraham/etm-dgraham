@@ -182,35 +182,6 @@ requires = {
         }
 
 
-busy_template = """{week}
-         {DD[1]}  {DD[2]}  {DD[3]}  {DD[4]}  {DD[5]}  {DD[6]}  {DD[7]}
-         _____  _____  _____  _____  _____  _____  _____
-{l[0]}   {h[0][1]}  {h[0][2]}  {h[0][3]}  {h[0][4]}  {h[0][5]}  {h[0][6]}  {h[0][7]}
-{l[1]}   {h[1][1]}  {h[1][2]}  {h[1][3]}  {h[1][4]}  {h[1][5]}  {h[1][6]}  {h[1][7]}
-{l[2]}   {h[2][1]}  {h[2][2]}  {h[2][3]}  {h[2][4]}  {h[2][5]}  {h[2][6]}  {h[2][7]}
-{l[3]}   {h[3][1]}  {h[3][2]}  {h[3][3]}  {h[3][4]}  {h[3][5]}  {h[3][6]}  {h[3][7]}
-{l[4]}   {h[4][1]}  {h[4][2]}  {h[4][3]}  {h[4][4]}  {h[4][5]}  {h[4][6]}  {h[4][7]}
-{l[5]}   {h[5][1]}  {h[5][2]}  {h[5][3]}  {h[5][4]}  {h[5][5]}  {h[5][6]}  {h[5][7]}
-{l[6]}   {h[6][1]}  {h[6][2]}  {h[6][3]}  {h[6][4]}  {h[6][5]}  {h[6][6]}  {h[6][7]}
-{l[7]}   {h[7][1]}  {h[7][2]}  {h[7][3]}  {h[7][4]}  {h[7][5]}  {h[7][6]}  {h[7][7]}
-{l[8]}   {h[8][1]}  {h[8][2]}  {h[8][3]}  {h[8][4]}  {h[8][5]}  {h[8][6]}  {h[8][7]}
-{l[9]}   {h[9][1]}  {h[9][2]}  {h[9][3]}  {h[9][4]}  {h[9][5]}  {h[9][6]}  {h[9][7]}
-{l[10]}   {h[10][1]}  {h[10][2]}  {h[10][3]}  {h[10][4]}  {h[10][5]}  {h[10][6]}  {h[10][7]}
-{l[11]}   {h[11][1]}  {h[11][2]}  {h[11][3]}  {h[11][4]}  {h[11][5]}  {h[11][6]}  {h[11][7]}
-{l[12]}   {h[12][1]}  {h[12][2]}  {h[12][3]}  {h[12][4]}  {h[12][5]}  {h[12][6]}  {h[12][7]}
-{l[13]}   {h[13][1]}  {h[13][2]}  {h[13][3]}  {h[13][4]}  {h[13][5]}  {h[13][6]}  {h[13][7]}
-{l[14]}   {h[14][1]}  {h[14][2]}  {h[14][3]}  {h[14][4]}  {h[14][5]}  {h[14][6]}  {h[14][7]}
-{l[15]}   {h[15][1]}  {h[15][2]}  {h[15][3]}  {h[15][4]}  {h[15][5]}  {h[15][6]}  {h[15][7]}
-{l[16]}   {h[16][1]}  {h[16][2]}  {h[16][3]}  {h[16][4]}  {h[16][5]}  {h[16][6]}  {h[16][7]}
-{l[17]}   {h[17][1]}  {h[17][2]}  {h[17][3]}  {h[17][4]}  {h[17][5]}  {h[17][6]}  {h[17][7]}
-{l[18]}   {h[18][1]}  {h[18][2]}  {h[18][3]}  {h[18][4]}  {h[18][5]}  {h[18][6]}  {h[18][7]}
-{l[19]}   {h[19][1]}  {h[19][2]}  {h[19][3]}  {h[19][4]}  {h[19][5]}  {h[19][6]}  {h[19][7]}
-{l[20]}   {h[20][1]}  {h[20][2]}  {h[20][3]}  {h[20][4]}  {h[20][5]}  {h[20][6]}  {h[20][7]}
-{l[21]}   {h[21][1]}  {h[21][2]}  {h[21][3]}  {h[21][4]}  {h[21][5]}  {h[21][6]}  {h[21][7]}
-{l[22]}   {h[22][1]}  {h[22][2]}  {h[22][3]}  {h[22][4]}  {h[22][5]}  {h[22][6]}  {h[22][7]}
-{l[23]}   {h[23][1]}  {h[23][2]}  {h[23][3]}  {h[23][4]}  {h[23][5]}  {h[23][6]}  {h[23][7]}
-"""
-
 def subsets(l):
     """
     Return a list of the possible subsets of the list of strings, l, together with the size of the subset. E.g., if l = ('blue', 'green', 'red'), return [(1, 'blue'), (1, 'green'), (1, 'red'), (2, 'blue & green'), (2, 'blue & red'), (2, 'green & red'), (3, 'blue & green & red')]
@@ -266,7 +237,6 @@ def busy_conf_minutes(lofp):
                 b = E
                 e = e
     busy_minutes.append((b, e))
-    logger.debug(f"3)busy_conf_minutes lofp: {lofp};\nbusy_minutes: {busy_minutes};\nconf_minutes: {conf_minutes}")
     return busy_minutes, conf_minutes
 
 def busy_conf_day(lofp):
@@ -292,7 +262,6 @@ def busy_conf_day(lofp):
     CONFLICT =  '▦' # U+25A6 this will be conflict color
 
     busy_ranges, conf_ranges = busy_conf_minutes(lofp)
-    logger.debug(f"2)busy_conf_day lofp: {lofp};\nbusy_ranges: {busy_ranges};\nconf_ranges: {conf_ranges}")
     busy_quarters = []
     conf_quarters = []
     first_quarter = beginbusy*4
@@ -322,8 +291,6 @@ def busy_conf_day(lofp):
     for i in range(1, 58):
         h[i] = HSEP if (i-1) % 4 else VSEP
 
-    logger.debug(f"busy_quarters: {busy_quarters}; conf_quarters: {conf_quarters}")
-
     # quarters: 1 before start + 1 after start + 56 + 1 between = 59 slots 0, ... 58
     conflict = False
     busy = False
@@ -348,7 +315,6 @@ def busy_conf_day(lofp):
             h[i-first_quarter+1] = BUSY
     res = f"\n{empty}\n{''.join([h[i] for i in range(59)])}"
     full = "".join([h[i] for i in range(59)])
-    # logger.debug(f"empty: {empty}")
     return empty, full
 
 def process_entry(s, settings={}):
@@ -811,7 +777,6 @@ item_hsh:    {self.item_hsh}
         self.item_hsh = self.db.get(doc_id=item_id)
         self.doc_id = item_id
         self.created = self.item_hsh['created']
-        logger.debug(f"completed: {completed_datetime}; due: {due_datetime}")
         if job_id:
             j = 0
             for job in self.item_hsh['j']:
@@ -827,12 +792,10 @@ item_hsh:    {self.item_hsh}
                 self.item_hsh['j'] = jbs
                 if last:
                     nxt = get_next_due(self.item_hsh, last, due_datetime)
-                    logger.debug(f"nxt: {nxt}")
                     if nxt:
                         if 'r' in self.item_hsh:
                             for i in range(len(self.item_hsh['r'])):
                                 if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
-                                    logger.debug(f"item_hsh[i]: {self.item_hsh['r'][i]}")
                                     self.item_hsh['r'][i]['c'] -= 1
                                     break
                         self.item_hsh['s'] = nxt
@@ -847,11 +810,9 @@ item_hsh:    {self.item_hsh}
             if 's' in self.item_hsh:
                 if 'r' in self.item_hsh:
                     nxt = get_next_due(self.item_hsh, completed_datetime, due_datetime)
-                    logger.debug(f"nxt: {nxt}")
                     if nxt:
                         for i in range(len(self.item_hsh['r'])):
                             if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
-                                logger.debug(f"item_hsh[i]: {self.item_hsh['r'][i]}")
                                 self.item_hsh['r'][i]['c'] -= 1
                                 break
                         self.item_hsh['s'] = nxt
@@ -997,11 +958,8 @@ item_hsh:    {self.item_hsh}
             display_key = f"@{key}" if len(key) == 1 else f"&{key[-1]}"
             self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
 
-    # def set_item_hsh(self, hsh={}):
-    #     self.item_hsh = hsh
 
     def check_item_hsh(self):
-        logger.debug(f"item_hsh: {self.item_hsh}")
         created = self.item_hsh.get('created', None)
         self.item_hsh = {'created': created}
         cur_hsh = {}
@@ -1068,13 +1026,11 @@ item_hsh:    {self.item_hsh}
             self.item_hsh['k'] = [x for x in links if self.db.contains(doc_id=x)]
 
         if self.is_modified and not msg:
-            logger.debug(f"{repr(self)}")
             now = pendulum.now('local')
             if self.is_new:
                 # creating a new item or editing a copy of an existing item
                 self.item_hsh['created'] = now
                 if self.doc_id is None:
-                    logger.debug(f"inserting: {self.item_hsh}")
                     self.doc_id = self.db.insert(self.item_hsh)
                 else:
                     self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
@@ -1619,7 +1575,6 @@ def format_datetime(obj, short=False):
     ampm = settings.get('ampm', True)
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    logger.debug(f"model dayfirst: {dayfirst}; yearfirst: {yearfirst}")
     md = "D/M" if dayfirst else "M/D"
     ymd = f"YY/{md}" if yearfirst else f"{md}/YY"
 
@@ -2538,7 +2493,6 @@ class DataView(object):
         """
         Called to set the relevant items for the current date and to change the currentYrWk and activeYrWk to that containing the current date.
         """
-        logger.debug(f"in refreshRelevant")
         self.set_now()
         self.currentYrWk = getWeekNum(self.now)
         dirty = True
@@ -5244,7 +5198,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
                             # set the new id to avoid a conflict
                             new_id = db._get_next_id()
-                            logger.debug(f"inserting: {new_id}:  {hsh_copy}")
                             db.insert(Document(hsh_copy, doc_id=new_id))
                             dirty = True
 
@@ -6192,17 +6145,20 @@ def no_busy_periods(week, width):
         h[i] = HSEP if (i-1) % 4 else VSEP
     full = "".join([h[i] for i in range(59)])
 
-    busy_hsh = {}
-    busy_hsh[0] = f"""\
-{fmt_week(week) : ^76}
+    empty_hsh = {}
+    wk_fmt = fmt_week(week).center(width, ' ')
+    # formatted_week = f"{fmt_week(week) : ^70}".rstrip()
+    empty_hsh[0] = f"""\
+{wk_fmt}
+
 {8*' '}{HB}
 """
     for weekday in range(1, 8):
-        busy_hsh[weekday] = f"""\
+        empty_hsh[weekday] = f"""\
 {7*' '}{empty}
  {DD[weekday] : <6}{full}
 """
-    return  "".join([busy_hsh[i] for i in range(0, 8)])
+    return  "".join([empty_hsh[i] for i in range(0, 8)])
 
 
 def summary_pin(text, width, id, pinned_list, link_list, konnected_list):
@@ -6520,16 +6476,15 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     row2id_hsh = {}     # yw -> row2id
     done2id_hsh = {}     # yw -> row2id
     weeks = set([])
+    day2rows = {}
 
     for week, items in groupby(busy, key=itemgetter('week')):
-        logger.debug(f"### schedule week: {week}")
         weeks.add(week)
         busy_tups = []
         for day, period in groupby(items, key=itemgetter('day')):
             for p in period:
                 busy_tups.append([day, p['period']])
         busy_tups.sort()
-        logger.debug(f"1)schedule busy_tups: {busy_tups}")
         h = {}
         busy = {}
 
@@ -6543,23 +6498,23 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         for tup in busy_tups:
             #                 d             (beg_min, end_min)
             busy.setdefault(tup[0], []).append(tup[1])
-        logger.debug(f"1a)schedule busy: {busy}")
+        # formatted_week = f"{fmt_week(week) : ^width}".rstrip()
+        wk_fmt = fmt_week(week).center(width, ' ')
         busy_hsh[0] = f"""\
-{fmt_week(week) : ^76}
+{wk_fmt}
+
 {8*' '}{HB}
 """
         for weekday in range(1, 8):
-            logger.debug(f"1b)schedule {week} weekday: {weekday}")
             lofp = busy.get(weekday, [])
-            logger.debug(f"1c)schedule calling busy_conf_day with lofp: {lofp}")
             empty, full = busy_conf_day(lofp)
-            logger.debug(f"1c)schedule back from busy_conf_day with\nempty/full:\n{empty}\n{full}")
             busy_hsh[weekday] = f"""\
 {7*' '}{empty}
  {DD[weekday] : <6}{full}
 """
         busy_hsh[week] = "".join([busy_hsh[i] for i in range(0, 8)])
 
+    # TODO: maybe append items that contribute busy times below the busy display
 
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
@@ -6579,6 +6534,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         tree, row2id = rdict.as_tree(rdict, level=0)
         agenda_hsh[week] = tree
         row2id_hsh[week] = row2id
+
 
     for week, items in groupby(done, key=itemgetter('week')):
         weeks.add(week)
@@ -6712,7 +6668,6 @@ def import_text(import_file=None):
         if reminder:
             reminders.append(reminder)
     for reminder in reminders:
-        logger.debug(f"processing {reminder}")
         ok = True
         s = "\n".join(reminder)
         if not s: continue
@@ -6731,7 +6686,6 @@ def import_text(import_file=None):
             continue
 
         # update_item_hsh stores the item in ETMDB
-        logger.debug(f"updating {item}")
         item.update_item_hsh()
         good.append(f"{item.doc_id}")
 

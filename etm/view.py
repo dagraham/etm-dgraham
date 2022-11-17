@@ -2648,11 +2648,10 @@ async def main(etmdir=""):
     logger.debug(f"view main window_colors: {window_colors}")
     logger.debug(f"view main type_colors: {type_colors}")
     busy_colors = {
-            VLINE    : type_colors['wrap'],
-            HLINE    : type_colors['wrap'],
-            HDOT     : type_colors['wrap'],
-            BUSY     : type_colors['event'],
-            CONFLICT : type_colors['inbox'],
+            VSEP    : type_colors['wrap'],
+            HSEP    : type_colors['wrap'],
+            BUSY    : type_colors['event'],
+            CONF    : type_colors['inbox'],
             }
     logger.debug(f"view main busy_colors: {busy_colors}")
     # query = ETMQuery()

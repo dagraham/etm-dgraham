@@ -143,6 +143,10 @@ def main():
     view.UPDATE_CHAR = UPDATE_CHAR
     view.PIN_CHAR = PIN_CHAR
     view.INBASKET_CHAR = INBASKET_CHAR
+    view.VSEP = VSEP
+    view.HSEP = HSEP
+    view.BUSY = BUSY
+    view.CONF = CONF
     view.settings = settings
     view.type_colors = type_colors
     view.cfgfile = cfgfile
