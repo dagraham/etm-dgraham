@@ -254,12 +254,12 @@ def busy_conf_day(lofp):
     >>> busy_conf_day([(0, 1439)])
     {0: '  #  ', 'total': 1439, 1: '  #  ', 2: '  #  ', 3: '  #  ', 4: '  #  ', 5: '  #  ', 6: '  #  ', 7: '  #  ', 8: '  #  ', 9: '  #  ', 10: '  #  ', 11: '  #  ', 12: '  #  ', 13: '  #  ', 14: '  #  ', 15: '  #  ', 16: '  #  ', 17: '  #  ', 18: '  #  ', 19: '  #  ', 20: '  #  ', 21: '  #  ', 22: '  #  ', 23: '  #  '}
     """
-    VSEP  =    '⏐' # U+23D0  this will be a de-emphasized color
-    HSEP   =    '·' # U+2500  this will be a de-emphasized color
-    # HSEP  =    '─' # U+2500  this will be a de-emphasized color
-    HSEP   =    '·' # U+2500  this will be a de-emphasized color
-    BUSY   =    '■' # U+25A0 this will be busy color
-    CONFLICT =  '▦' # U+25A6 this will be conflict color
+    # VSEP  =    '⏐' # U+23D0  this will be a de-emphasized color
+    # HSEP   =    '·' # U+2500  this will be a de-emphasized color
+    # # HSEP  =    '─' # U+2500  this will be a de-emphasized color
+    # HSEP   =    '·' # U+2500  this will be a de-emphasized color
+    # BUSY   =    '■' # U+25A0 this will be busy color
+    # CONFLICT =  '▦' # U+25A6 this will be conflict color
 
     busy_ranges, conf_ranges = busy_conf_minutes(lofp)
     busy_quarters = []
@@ -299,7 +299,7 @@ def busy_conf_day(lofp):
             conflict = True
         if i in busy_quarters:
             busy = True
-        h[0] = CONFLICT + ' ' if conflict else BUSY + ' ' if busy else '  '
+        h[0] = CONF+ ' ' if conflict else BUSY + ' ' if busy else '  '
     conflict = False
     busy = False
     for i in range(last_quarter, 24*4):
@@ -307,10 +307,10 @@ def busy_conf_day(lofp):
             conflict = True
         elif i in busy_quarters:
             busy = True
-        h[58] = ' ' + CONFLICT  if conflict else ' ' + BUSY if busy else '  '
+        h[58] = ' ' + CONF if conflict else ' ' + BUSY if busy else '  '
     for i in range(first_quarter, last_quarter):
         if i in conf_quarters:
-            h[i-first_quarter+1] = CONFLICT
+            h[i-first_quarter+1] = CONF
         elif i in busy_quarters:
             h[i-first_quarter+1] = BUSY
     res = f"\n{empty}\n{''.join([h[i] for i in range(59)])}"
@@ -2932,7 +2932,7 @@ class DataView(object):
         the future if n > 0 or the past if n < 0.
         """
         width = shutil.get_terminal_size()[0]
-        indent = int((width - 45)/2) * " "
+        indent = int((width - 67)/2) * " "
         today = pendulum.today()
         y = today.year
         try:
@@ -2942,22 +2942,22 @@ class DataView(object):
             logger.warning(f"error using locale {self.cal_locale}")
             c = calendar.LocaleTextCalendar(0)
         cal = []
-        m = 1
-        m += 6 * self.calAdv
+        m = 0
+        m += 12 * self.calAdv
         y += m // 12
         m %= 12
-        for i in range(6): # months in the half year
-            cal.append(c.formatmonth(y, m+i, w=2).split('\n'))
+        for i in range(12): # months in the half year
+            cal.append(c.formatmonth(y, 1+i, w=2).split('\n'))
         ret = ['']
-        for r in range(0, 6, 2):  # 6 months in columns of 2 months
-            l = max(len(cal[r]), len(cal[r + 1]))
-            for i in range(2):
+        for r in range(0, 12, 3):  # 12 months in columns of 3 months
+            l = max(len(cal[r]), len(cal[r + 1]), len(cal[r+2]))
+            for i in range(3):
                 if len(cal[r + i]) < l:
-                    for _ in range(len(cal[r + i]), l + 1):
+                    for _ in range(len(cal[r + i]), l + 2):
                         cal[r + i].append('')
             for j in range(l):  # rows from each of the 2 months
-                ret.append((u'%-20s     %-20s ' % (cal[r][j], cal[r +
-                    1][j])))
+                ret.append((u'%-20s   %-20s   %-20s ' % (cal[r][j], cal[r +
+                    1][j], cal[r + 2][j])))
 
         ret_lines = [f"{indent}{line}" for line in ret]
         ret_str = "\n".join(ret_lines)
@@ -2975,7 +2975,7 @@ class DataView(object):
 
 
     def currcal(self):
-        self.calAdv = pendulum.today().month // 7
+        self.calAdv = pendulum.today().month // 13
         self.refreshCalendar()
 
 def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
@@ -6129,6 +6129,8 @@ def fmt_class(txt, cls=None, plain=False):
 def no_busy_periods(week, width):
 
     # The weekday 2-char abbreviation and the month day
+    width = shutil.get_terminal_size()[0]
+    dent = int((width - 69)/2) * " "
     monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
     DD = {}
     for i in range(1, 8):
@@ -6146,17 +6148,16 @@ def no_busy_periods(week, width):
     full = "".join([h[i] for i in range(59)])
 
     empty_hsh = {}
-    wk_fmt = fmt_week(week).center(width, ' ')
-    # formatted_week = f"{fmt_week(week) : ^70}".rstrip()
+    wk_fmt = fmt_week(week).center(width, ' ').rstrip()
     empty_hsh[0] = f"""\
 {wk_fmt}
 
-{8*' '}{HB}
+{dent}{8*' '}{HB}
 """
     for weekday in range(1, 8):
         empty_hsh[weekday] = f"""\
-{7*' '}{empty}
- {DD[weekday] : <6}{full}
+{dent}{7*' '}{empty}
+{dent} {DD[weekday] : <6}{full}
 """
     return  "".join([empty_hsh[i] for i in range(0, 8)])
 
@@ -6478,6 +6479,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     weeks = set([])
     day2rows = {}
 
+    width = shutil.get_terminal_size()[0]
+    dent = int((width - 69)/2) * " "
     for week, items in groupby(busy, key=itemgetter('week')):
         weeks.add(week)
         busy_tups = []
@@ -6498,19 +6501,18 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         for tup in busy_tups:
             #                 d             (beg_min, end_min)
             busy.setdefault(tup[0], []).append(tup[1])
-        # formatted_week = f"{fmt_week(week) : ^width}".rstrip()
-        wk_fmt = fmt_week(week).center(width, ' ')
+        wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         busy_hsh[0] = f"""\
 {wk_fmt}
 
-{8*' '}{HB}
+{dent}{8*' '}{HB}
 """
         for weekday in range(1, 8):
             lofp = busy.get(weekday, [])
             empty, full = busy_conf_day(lofp)
             busy_hsh[weekday] = f"""\
-{7*' '}{empty}
- {DD[weekday] : <6}{full}
+{dent}{7*' '}{empty}
+{dent} {DD[weekday] : <6}{full}
 """
         busy_hsh[week] = "".join([busy_hsh[i] for i in range(0, 8)])
 
@@ -6519,7 +6521,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
         rdict = NDict()
-        wk_fmt = fmt_week(week).center(width, ' ')
+        wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         today = now.format("ddd MMM D")
         tomorrow = (now + 1*DAY).format("ddd MMM D")
         for row in items:
@@ -6539,7 +6541,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     for week, items in groupby(done, key=itemgetter('week')):
         weeks.add(week)
         rdict = NDict()
-        wk_fmt = fmt_week(week).center(width, ' ')
+        wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         today = now.format("ddd MMM D")
         for row in items:
             day = row['day'][0]
@@ -6559,12 +6561,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         if week in agenda_hsh:
             tup.append(agenda_hsh[week])
         else:
-            tup.append("{}\n   Nothing scheduled".format(fmt_week(week).center(width, ' ')))
+            tup.append("{}\n   Nothing scheduled".format(fmt_week(week).center(width, ' ').rstrip()))
         # done
         if week in done_hsh:
             tup.append(done_hsh[week])
         else:
-            tup.append("{}\n   Nothing completed".format(fmt_week(week).center(width, ' ')))
+            tup.append("{}\n   Nothing completed".format(fmt_week(week).center(width, ' ').rstrip()))
         # busy
         if week in busy_hsh:
             tup.append(busy_hsh[week])
