@@ -139,6 +139,9 @@ type_keys = {
     "~": "wrap",
 }
 
+wrapbefore = "↱"
+wrapafter = "↳"
+
 type_prompt = u"item type character:"
 
 item_types = """item type characters:\n    """ + """\n    """.join([f"{k}: {v}" for k, v in type_keys.items()])
@@ -1927,6 +1930,8 @@ class DataView(object):
         self.alerts = []
         self.row2id = []
         self.id2relevant = {}
+        self.wkday2busy_details = {}
+        self.busy_row = 0
         self.link_list = []
         self.pinned_list = []
         self.current_row = 0
@@ -2468,6 +2473,8 @@ class DataView(object):
         self.currentYrWk = self.activeYrWk = getWeekNum(self.now)
         self.refreshAgenda()
 
+    # def getYrWk(self):
+    #     return self.activeYrWk
 
     def dtYrWk(self, dtstr):
         dt = pendulum.parse(dtstr, strict=False)
@@ -2508,7 +2515,7 @@ class DataView(object):
         if self.activeYrWk not in self.cache:
             self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list, konnect_list=self.konnected, timers=self.timers))
         # agenda, done, busy, row2id, done2id
-        self.agenda_view, self.done_view, self.busy_view, self.row2id, self.done2id = self.cache[self.activeYrWk]
+        self.agenda_view, self.done_view, self.busy_view, self.row2id, self.done2id, self.busy_details = self.cache[self.activeYrWk]
 
 
     def refreshCurrent(self):
@@ -2525,7 +2532,7 @@ class DataView(object):
             for week in weeks:
                 if week not in self.cache:
                     self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list= self.link_list))
-                agenda, done, busy, num2id, row2id = self.cache[week]
+                agenda, done, busy, num2id, row2id, busy_details = self.cache[week]
                 current.append(agenda)
             with open(self.currfile, 'w', encoding='utf-8') as fo:
                 fo.write("\n\n".join([re.sub(' {5,}', ' ', x.strip()) for x in current]))
@@ -6175,6 +6182,10 @@ def summary_pin(text, width, id, pinned_list, link_list, konnected_list):
         ret = text[:width].ljust(width, ' ')
     return ret
 
+def wkday2row(wkday):
+    # week day number in 1, ..., 7 to row number in busy view
+    # 1 -> 5, ..., 6 -> 15, 0 -> 17  (pendulum thinks Sunday is first)
+    return 3+ 2*wkday if wkday else 17
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     ampm = settings['ampm']
@@ -6376,14 +6387,17 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         sort_dt = sort_dt[:-4] + '24%%'
 
 
-                dtb = None
-                dta = None
+                dtb = dt
+                dta = dt
+                if item.get('e', None):
+                    dta += item['e']
 
                 if item['itemtype'] == '*' and 'w' in item:
                     b, a = item['w']
-                    dtb = dt - b if b else None
-                    if dtb:
-                        itemtype = "↱"
+                    # dtb = dt - b if b > ZERO else None
+                    dtb = dt - b
+                    if b > ZERO:
+                        itemtype = wrapbefore #  "↱"
                         sort_b = dtb.format("YYYYMMDDHHmm")
                         rhb = fmt_time(dtb).ljust(rhc_width, ' ')
                         rows.append(
@@ -6406,6 +6420,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                         ]
                                 }
                             )
+                        logger.debug(f"appended: {rows[-1]}")
 
                 rows.append(
                         {
@@ -6430,12 +6445,14 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
                 if item['itemtype'] == '*' and 'w' in item:
                     if 'e' in item:
-                        dta = dt + item['e'] + a if a else None
+                        # dta = dt + item['e'] + a if a > ZERO else None
+                        dta = dt + item['e'] + a
                     else:
-                        dta = dt + a if a else None
+                        # dta = dt + a if a else None
+                        dta = dt + a
 
-                    if dta:
-                        itemtype = "↳"
+                    if a > ZERO:
+                        itemtype = wrapafter  # "↳"
                         sort_a = dta.format("YYYYMMDDHHmm")
                         rha = fmt_time(dta).rjust(rhc_width, ' ')
                         rows.append(
@@ -6458,12 +6475,16 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                         ]
                                 }
                             )
-            if et:
-                beg_min = dtb.hour * 60 + dtb.minute if dtb else dt.hour * 60 + dt.minute
-                end_min = dta.hour * 60 + dta.minute if dta else et.hour * 60 + et.minute
+                        logger.debug(f"appended: {rows[-1]}")
+            if dta > dtb:
+                # beg_min = dtb.hour * 60 + dtb.minute if dtb else dt.hour * 60 + dt.minute
+                beg_min = dtb.hour * 60 + dtb.minute
+                # end_min = dta.hour * 60 + dta.minute if dta else et.hour * 60 + et.minute
+                end_min = dta.hour * 60 + dta.minute
                 y, w, d = dt.isocalendar()
                 #             x[0]          x[1]  x[2]             x[3]
                 busy.append({'sort': dt.format("YYYYMMDDHHmm"), 'week': (y, w), 'day': d, 'period': (beg_min, end_min, item.doc_id)})
+                logger.debug(f"appended: {busy[-1]}")
     if yw == getWeekNum(now):
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
@@ -6477,7 +6498,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     row2id_hsh = {}     # yw -> row2id
     done2id_hsh = {}     # yw -> row2id
     weeks = set([])
-    day2rows = {}
+
+    # week & day gives (year, weeknum, daynum) and thus date
+    # p
+    busy_details = {}
 
     width = shutil.get_terminal_size()[0]
     dent = int((width - 69)/2) * " "
@@ -6486,6 +6510,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         busy_tups = []
         for day, period in groupby(items, key=itemgetter('day')):
             for p in period:
+                # wkday_details.setdefault((week, day), []).append(p['period'])
                 busy_tups.append([day, p['period']])
         busy_tups.sort()
         h = {}
@@ -6519,23 +6544,56 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     # TODO: maybe append items that contribute busy times below the busy display
 
     for week, items in groupby(rows, key=itemgetter('week')):
+        logger.debug(f"#### {week} ####")
         weeks.add(week)
         rdict = NDict()
+        busy_details.setdefault(week, {})
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         today = now.format("ddd MMM D")
         tomorrow = (now + 1*DAY).format("ddd MMM D")
         for row in items:
+            doc_id = row['id']
+            logger.debug(f"{week}; doc_id: {doc_id}")
             day = row['day'][0]
+            dayofweek = pendulum.from_format(f"{day} {week[0]}", "ddd MMM D YYYY").day_of_week
+            # logger.debug(f"{week} day {day} -> {dayofweek}")
             if day == today:
                 day += " (Today)"
             elif day == tomorrow:
                 day += " (Tomorrow)"
             path = f"{wk_fmt}/{day}"
             values = row['columns']
+
+            item = db.get(doc_id=doc_id)
+            if values[0] == "*" and ('e' in item or 'w' in item):
+                wrap = ""
+                wraps = [format_duration(x) for x in item.get('w', [])]
+                if wraps:
+                    wraps[0] = f"{wrapbefore}{wraps[0]}"
+                    wraps[1] = f"{wrapafter}{wraps[1]}"
+                    wrap = f"\n{22*' '}+ {', '.join(wraps)}"
+                    logger.debug(f"w: {item['w']} {wrap}")
+
+                row = wkday2row(dayofweek)
+                logger.debug(f"week {week} dayofweek {dayofweek} -> row {row}")
+                busy_details[week].setdefault(row, [f" {day}"]).append(
+                        f"   {values[3] : ^7} {values[1]}{wrap} "
+                        )
+
+                # logger.debug(f"### {week},{day}: {row['columns']}")
             rdict.add(path, values)
+            # if len(busy_details[week].keys()) > 1:
+            #     busy_details[week][row].append("""
+# Press Control + B to cycle though the details of other
+# days with busy periods.""")
+
+        for d, v in busy_details[week].items():
+            busy_details[week][d] = "\n".join([x.rstrip() for x in v])
         tree, row2id = rdict.as_tree(rdict, level=0)
         agenda_hsh[week] = tree
         row2id_hsh[week] = row2id
+    # busy_details = {k: "\n".join(v) for k, v in busy_details.items()}
+    # logger.debug(f"busy_details: {busy_details}")
 
 
     for week, items in groupby(done, key=itemgetter('week')):
@@ -6580,6 +6638,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         # done2id
         if week in done2id_hsh:
             tup.append(done2id_hsh[week])
+        else:
+            tup.append({})
+        if week in busy_details:
+            tup.append(busy_details[week])
         else:
             tup.append({})
         # agenda, done, busy, row2id, done2id

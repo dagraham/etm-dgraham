@@ -64,11 +64,11 @@ def main():
     HB = "".join([f"{h : <8}" for h in busyhours]).rstrip()
     # "".join([f"{h : <10}" for h in busyhours]).rstrip()
 
-    VSEP  =    '⏐' # U+23D0  this will be a de-emphasized color
-    HSEP   =    '·' # U+2500  this will be a de-emphasized color
     # HSEP  =    '─' # U+2500  this will be a de-emphasized color
+    VSEP   =    '⏐' # U+23D0  this will be a de-emphasized color
+    HSEP   =    '·' # U+2500  this will be a de-emphasized color
     BUSY   =    '■' # U+25A0 this will be busy color
-    CONF =  '▦' # U+25A6 this will be conflict color
+    CONF   =    '▦' # U+25A6 this will be conflict color
 
 
     import etm.ical as ical
