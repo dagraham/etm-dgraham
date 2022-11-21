@@ -838,7 +838,6 @@ def check_update():
 update_status = UpdateStatus()
 
 async def auto_check_loop(loop):
-    logger.debug("auto check loop")
     status, res = check_update()
     update_status.set_status(status)
 
@@ -1339,10 +1338,10 @@ def restore_row_col(row_number, col_number):
 async def maybe_alerts(now):
     global current_datetime
     row, col = get_row_col()
-    dataview.refreshRelevant()
-    dataview.refreshAgenda()
+    # dataview.refreshRelevant()
+    # dataview.refreshAgenda()
     set_text(dataview.show_active_view())
-    dataview.refreshCurrent()
+    # dataview.refreshCurrent()
     restore_row_col(row, col)
     if dataview.alerts and not ('alerts' in settings and settings['alerts']):
         logger.warning("alerts have not been configured")
@@ -2261,6 +2260,8 @@ def do_whatever(*event):
     For testing whatever
     """
     logger.debug("t, t")
+    # to test new day
+    dataview.now = dataview.now - pendulum.duration(days=1)
 
 
 @bindings.add('c-x', filter=is_viewing & is_item_view)
@@ -2420,7 +2421,6 @@ def next_busy(*event):
     current_row = text_area.document.cursor_position_row + 1
     # next_row = rows[0]
     next_row = 1
-    logger.debug(f"current_row: {current_row}; rows: {rows}; busy_details: {busy_details}")
     for r in rows:
         if r > current_row:
             next_row = r
@@ -2447,10 +2447,8 @@ def next_pinned(*event):
     cur_row = text_area.document.cursor_position_row
     nxt = 0
     for k, v in rows:
-        logger.debug(f"k: {k}; v: {v}")
         if k > cur_row:
             nxt = k
-            logger.debug(f"found row: {nxt} for id:  {v}")
             break
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(nxt, 0)
@@ -2703,15 +2701,12 @@ async def main(etmdir=""):
     window_colors = settings['window_colors']
     type_colors = settings['type_colors']
     window_colors = settings['window_colors']
-    logger.debug(f"view main window_colors: {window_colors}")
-    logger.debug(f"view main type_colors: {type_colors}")
     busy_colors = {
             VSEP    : type_colors['wrap'],
             HSEP    : type_colors['wrap'],
             BUSY    : type_colors['event'],
             CONF    : type_colors['inbox'],
             }
-    logger.debug(f"view main busy_colors: {busy_colors}")
     # query = ETMQuery()
     style = get_style(window_colors)
     agenda_view()
