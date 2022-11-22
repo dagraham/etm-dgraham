@@ -1,42 +1,48 @@
-Recent tagged changes as of 2022-11-15T13:34:13.719827-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.9.7) Daniel Graham
+Recent tagged changes as of 2022-11-22T15:13:06.301646-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.10.0) Daniel Graham
+    8458a58d 2022-11-22 15:13:06 -0500
+    Tagged version 4.10.0. Update busy view to horizontal days and
+    vertical times with 15 minute resolution and the ability to jump
+    between the days and display the busy time details for that day.
+
+- 7 days ago (tag: 4.9.7) Daniel Graham
     b4f22a66 2022-11-15 13:34:13 -0500
     Tagged version 4.9.7.
 
-- 14 minutes ago (tag: 4.9.8) Daniel Graham
+- 7 days ago (tag: 4.9.8) Daniel Graham
     3e3e5c77 2022-11-15 13:20:24 -0500
     Tagged version 4.9.8.
 
-- 5 hours ago (tag: 4.9.6) Daniel Graham
+- 7 days ago (tag: 4.9.6) Daniel Graham
     6015ec88 2022-11-15 08:40:16 -0500
     Tagged version 4.9.6.
 
-- 17 hours ago (tag: 4.9.5) Daniel Graham
+- 8 days ago (tag: 4.9.5) Daniel Graham
     250004cc 2022-11-14 20:36:44 -0500
     Tagged version 4.9.5. Added support for argument replacements in
     saved queries.
 
-- 3 days ago (tag: 4.9.4) Daniel Graham
+- 10 days ago (tag: 4.9.4) Daniel Graham
     c71d75c2 2022-11-12 12:10:39 -0500
     Tagged version 4.9.4. Restore cursor position after auto refresh
     and item edit.
 
-- 3 days ago (tag: 4.9.3) Daniel Graham
+- 10 days ago (tag: 4.9.3) Daniel Graham
     98de70b1 2022-11-12 09:40:52 -0500
     Tagged version 4.9.3. Avoid scrolling display with auto refresh.
 
-- 4 days ago (tag: 4.9.2) Daniel Graham
+- 11 days ago (tag: 4.9.2) Daniel Graham
     ee9c2a6a 2022-11-11 12:42:45 -0500
     Tagged version 4.9.2. Added @w (wrap) as an event option to
     specify two durations to wrap the event with busy periods before
     and/or after for, say, travel time to and from the location of the
     event.
 
-- 6 days ago (tag: 4.9.1) Daniel Graham
+- 13 days ago (tag: 4.9.1) Daniel Graham
     25f5f057 2022-11-09 15:33:49 -0500
     Tagged version 4.9.1.
 
-- 7 days ago (tag: 4.9.0) Daniel Graham
+- 2 weeks ago (tag: 4.9.0) Daniel Graham
     2c7f3656 2022-11-08 11:07:56 -0500
     Tagged version 4.9.0. Backwards incompatible changes have been
     made to cfg.yaml which will automatically be implemented the first
@@ -50,48 +56,44 @@ Recent tagged changes as of 2022-11-15T13:34:13.719827-05:00:
     been removed and must be replaced with the default value, a new
     process is used to better preserve the embedded comments.
 
-- 3 weeks ago (tag: 4.8.8) Daniel Graham
+- 4 weeks ago (tag: 4.8.8) Daniel Graham
     f26fee1d 2022-10-28 14:40:36 -0400
     Tagged version 4.8.8.
 
-- 3 weeks ago (tag: 4.8.7) Daniel Graham
+- 4 weeks ago (tag: 4.8.7) Daniel Graham
     65af25ae 2022-10-28 14:28:41 -0400
     Tagged version 4.8.7.
 
-- 3 weeks ago (tag: 4.8.6) Daniel Graham
+- 4 weeks ago (tag: 4.8.6) Daniel Graham
     71f82dcd 2022-10-26 15:25:24 -0400
     Tagged version 4.8.6.
 
-- 3 weeks ago (tag: 4.8.5) Daniel Graham
+- 4 weeks ago (tag: 4.8.5) Daniel Graham
     322ebcf6 2022-10-25 13:25:14 -0400
     Tagged version 4.8.5.
 
-- 3 weeks ago (tag: 4.8.4) Daniel Graham
+- 4 weeks ago (tag: 4.8.4) Daniel Graham
     70d0f98e 2022-10-24 17:25:49 -0400
     Tagged version 4.8.4. Building both sdist and bdist_wheel for
     upload
 
-- 3 weeks ago (tag: 4.8.3) Daniel Graham
+- 4 weeks ago (tag: 4.8.3) Daniel Graham
     7e304d59 2022-10-24 16:52:54 -0400
     Tagged version 4.8.3.
 
-- 4 weeks ago (tag: 4.8.2) Daniel Graham
+- 5 weeks ago (tag: 4.8.2) Daniel Graham
     416bd7cd 2022-10-21 21:54:58 -0400
     Tagged version 4.8.2.
 
-- 4 weeks ago (tag: 4.8.1) Daniel Graham
+- 5 weeks ago (tag: 4.8.1) Daniel Graham
     e3e182ae 2022-10-20 16:53:19 -0400
     Tagged version 4.8.1.
 
-- 4 weeks ago (tag: 4.8.0) Daniel Graham
+- 5 weeks ago (tag: 4.8.0) Daniel Graham
     7420832f 2022-10-19 13:46:52 -0400
     Tagged version 4.8.0. Added preserve as an overdue option for
     repeating tasks.
 
-- 4 weeks ago (tag: 4.7.17) Daniel Graham
+- 5 weeks ago (tag: 4.7.17) Daniel Graham
     475d89a9 2022-10-17 08:03:21 -0400
     Tagged version 4.7.17.
-
-- 5 weeks ago (tag: 4.7.16) Daniel Graham
-    90083942 2022-10-14 11:14:51 -0400
-    Tagged version 4.7.16.
