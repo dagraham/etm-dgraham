@@ -1795,10 +1795,10 @@ from time import perf_counter as timer
 
 # FIXME: is this still used?
 class TimeIt(object):
-    def __init__(self, loglevel=1, label=""):
+    def __init__(self, label=""):
         self.loglevel = loglevel
         self.label = label
-        msg = "{0} timer started; loglevel: {1}".format(self.label, self.loglevel)
+        msg = "timer {0} started; loglevel: {1}".format(self.label, self.loglevel)
         if self.loglevel in [1, 2]:
             logger.debug(msg)
         elif self.loglevel == 3:
@@ -1809,7 +1809,7 @@ class TimeIt(object):
         self.end = timer()
         self.secs = self.end - self.start
         self.msecs = self.secs * 1000  # millisecs
-        msg = "{0} timer stopped; elapsed time: {1} milliseconds".format(self.label, self.msecs)
+        msg = "timer {0} stopped; elapsed time: {1} milliseconds".format(self.label, self.msecs)
         if self.loglevel in [1, 2]:
             logger.debug(msg)
         elif self.loglevel == 3:
@@ -2819,8 +2819,8 @@ class DataView(object):
 
         try:
             self.dbarch.insert_multiple(add_items)
-        except:
-            logger.error(f"archive failed for doc_ids: {rem_ids}")
+        except Exception as e:
+            logger.error(f"archive failed for doc_ids: {rem_ids}\n{e}")
         else:
             self.db.remove(doc_ids=rem_ids)
 
@@ -6186,7 +6186,7 @@ def wkday2row(wkday):
     return 3+ 2*wkday if wkday else 17
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}):
-    timer1 = TimeIt(1, 1)
+    timer1 = TimeIt(1)
     ampm = settings['ampm']
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
@@ -6239,7 +6239,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     week2day2busy = {}
 
     #XXX main loop begins
-    timer2 = TimeIt(1, 2)
+    timer2 = TimeIt(2)
     for item in db:
         if item.get('itemtype', None) == None:
             logger.error(f"itemtype missing from {item}")
@@ -6365,11 +6365,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 day += " (Tomorrow)"
             week2day2busy.setdefault(week, {})
             week2day2busy[week].setdefault(dayofweek, [])
-            busy_details.setdefault(week, {})
-            busy_details[week][dayofweek] = []
-            busy_details[week][dayofweek].append(f"Busy periods for {day}")
-
-            logger.debug(f"day: {day}; busy_details: {busy_details}")
 
             if 'r' in item:
                 freq = item['r'][0].get('r', 'y')
@@ -6536,15 +6531,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 ]
                 path = f"{wk_fmt}/{day}"
 
-                # if wrapper:
-                #     # row = wkday2row(dayofweek)
-                #     busy_details[week][dayofweek].append(
-                #             f"   {rhc.strip() : ^7} {summary}{wrapper} "
-                #             )
-                #     logger.debug(f"busy_details[{week}][{dayofweek}]: {busy_details[week][dayofweek]}")
-
                 rdict.add(path, columns)
-
 
                 rows.append(
                         {
@@ -6577,17 +6564,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 if after:
                     rows.append(after)
 
-                # path = f"{wk_fmt}/{day}"
-                # values = row['columns']
-
-        # for d, v in busy_details[week].items():
-        #     vjoined = '\n'.join([x.rstrip() for x in v])
-        #     logger.debug(f"busy_details[week][d]:\n{busy_details[week][d]}")
-        #     logger.debug(f"busy_details[week][d]:\nvjoined: {vjoined}")
-        #     busy_details[week][d] = v
-        # tree, row2id = rdict.as_tree(rdict, level=0)
-        # agenda_hsh[week] = tree
-        # row2id_hsh[week] = row2id
     timer2.stop()
 
     if yw == getWeekNum(now):
@@ -6611,10 +6587,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     dent = int((width - 69)/2) * " "
 
     ### item/agenda loop 2
-    timer3 = TimeIt(1, 3)
+    timer3 = TimeIt(3)
     for week, items in groupby(rows, key=itemgetter('week')):
-        timer3a = TimeIt(1, "3a")
-        week2day2busy.setdefault(week, {})
         weeks.add(week)
         rdict = NDict()
         busy_details.setdefault(week, {})
@@ -6624,9 +6598,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         for row in items:
             doc_id = row['id']
             day = row['day'][0]
-            # dayofweek = pendulum.from_format(f"{day} {week[0]}", "ddd MMM D YYYY").day_of_week
             dayofweek = row.get('dayofweek', 1)
-            week2day2busy[week].setdefault(dayofweek, [])
             if day == today:
                 day += " (Today)"
             elif day == tomorrow:
@@ -6637,7 +6609,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 # item = db.get(doc_id=doc_id)
                 busyperiod = row.get('busyperiod', "")
                 if busyperiod:
-                    # week2day2busy[week][dayofweek].append(busyperiod)
                     wrap = row.get('wrap', [])
                     wraps = [format_duration(x) for x in wrap] if wrap else ""
                     if wraps:
@@ -6646,8 +6617,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         wrapper = f"\n{22*' '}+ {', '.join(wraps)}"
                     else:
                         wrapper = ""
-
-
                     row = wkday2row(dayofweek)
                     busy_details[week].setdefault(row, [f"Busy times for {day}"]).append(
                             f"   {values[3] : ^7} {values[1]}{wrapper} "
@@ -6660,15 +6629,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         agenda_hsh[week] = tree
         row2id_hsh[week] = row2id
 
-        timer3a.stop()
-
-    # timer3.stop()
-
     # busy_tup: [[1, (780, 814, 96)], [5, (600, 634, 111)], [7, (1080, 1090, 65)]]
     # (2022, 46): {3: [[1140, 1320]], 4: [[300, 390], [360, 450]], 5: [[780, 870], [840, 910], [900, 1010]], 6: [[885, 1040]], 7: [[540, 630], [840, 900]], 1: []}
 
     busy = {}
-    timer4 = TimeIt(1, 4)
+    timer4 = TimeIt(4)
     for week, dayhsh in week2day2busy.items():
         busy_tuples = []
         days = [d for d in dayhsh.keys()]
@@ -6704,7 +6669,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         busy_hsh[week] = "".join([busy_hsh[i] for i in range(0, 8)])
     timer4.stop()
 
-    timer5 = TimeIt(1, 5)
+    timer5 = TimeIt(5)
     for week, items in groupby(done, key=itemgetter('week')):
         weeks.add(week)
         rdict = NDict()

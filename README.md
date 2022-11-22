@@ -508,21 +508,18 @@ And, on the current day only:
 * *<* past due warnings in descending order of the number of days past due
 * *>* beginby warnings in ascending order of the number of days remaining
 
-Busy view requires a little explanation. Here is screen shot for an illustrative week
+Busy view requires a little explanation. Here is screen shot of agenda view for an illustrative week
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/agenda.png" alt="new" title="agenda view" width="600px" hspace="20px"/>
 
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/busy.png" alt="new" title="new entry" width="600px" hspace="20px"/>
+along with one of busy view for the same week
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/busy.png" alt="new" title="busy view" width="600px" hspace="20px"/>
 
-along with one of agenda view for the same week
+The first thing to notice in busy view is that busy times are displayed each week day for the period between 7am and 9pm. This period is determined by the *beginbusy* setting in `cfg.yaml` which sets the number of hours after midnight that the display is to begin each day. The period ends 14 hours after *beginbusy*. In this case, it runs from 7 hours after midnight (*beginbusy*) to 7+14=21 hours after midnight or from 7am until 9pm. The resolution is 15 minute periods for each character *slot* so that, for example, the row for *Fr 2* shows a busy period with using 4 green (busy) characters for 10-10:15am, 10:15-10:30am, 10:30-10:45am and 10:45-11am. Now you might notice that this implies that the 4 character slots that begin at 8pm end just before the 9pm slot and that the 9pm slot actually corresponds to the interval 9-9:15pm. Since the actual display includes this last slot, it actually extends for 14 hours plus 15 minutes and thus actually ends at 9:15pm.
 
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/agenda.png" alt="new" title="new entry" width="600px" hspace="20px"/>
+The second thing to notice is the red, conflict bar in the display for *Mo 28*. Since the details for this day are displayed in the "busy times" panel at the bottom as well as in the agenda view, you will notice that the conflict corresponds to the overlap between the 6-8am event and the 7-9:30am event. This conflict from 7-8am is illustrated by the 4 red (conflict) characters. Notice also that the period for the first event extends from 6-7am before the period displayed begins at 7am. The single green character to the left of 7am indicates that there were busy times before the displayed period begins. Similarly, the green character to the right of 9-9:15pm on *We 30* indicates that there were busy times after 9:15pm on that day. This corresponds to the 8-10:30pm event shown in agenda view for Wednesday that extends from 9:15-10:30pm after the displayed period.
 
-The first thing to notice in busy view is that busy times are displayed each week day for the period between 7am and 9pm. This period is determined by the *beginbusy* setting in `cfg.yaml` which sets the number of hours after midnight that the display is to begin each day. The period ends 14 hours after *beginbusy*. In this case, it runs from 7 hours after midnight to 7+14=21 hours after midnight or from 7am until 9pm. The resolution is 15 minute periods for each character *slot* so that, for example, the row for *Fr 2* shows a busy period with using 4 green characters for 10-10:15am, 10:15-10:30am, 10:30-10:45am and 10:45-11am. Now you might notice that this implies that the 4 character slots that begin at 8pm end just before the 9pm slot which corresponds to the interval 9-9:15pm. Thus the actual display includes this last slot, it actually extends for 14 hours and 15 minutes and thus ends at 9:15pm.
+As you might expect, if a conflict occurred either before or after the displayed period then the corresponding *before* or *after* character would be red instead of green.
 
-The second thing to notice is the red, conflict bar in the display for *Mo 28*. Since the details for this day are displayed in the "busy times" panel at the bottom as well as in the agenda view, you will notice that the conflict corresponds to the overlap between the 6-8am event and the 7-9:30am event. This conflict from 7-8am is illustrated by the 4 red characters. Notice also that the period for the first event extends from 6-7am before the period displayed begins at 7am. The single green character to the left of 7am indicates that there were busy times before the displayed period begins. Similarly, the green character to the right of 9-9:15pm on *We 30* indicates that there were busy times after 9:15pm on that day. This correpsonds to the 8-10:30pm event shown in agenda view for Wednesday that extends from 9:15-10:30pm after the displayed period.
-
-As you might expect, if a confict occured either before or after the displayed period then the corresponding *before* or *after* character would be red instead of green.
-
-Note finally that pressing 'shift' and either the 'right' or 'left' cursor keys at the same time jumps, respectively, to the next or previous day with busy times. As with the other weekly views, pressing 'right' or 'left' cursor keys without pressing 'shift' at the same time shifts the week displayed  forward or backward, respectively, by one week.
 
 [↺ contents](#contents)
 

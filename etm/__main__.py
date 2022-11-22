@@ -94,6 +94,7 @@ def main():
     from etm.model import PIN_CHAR
     from etm.model import INBASKET_CHAR
     import etm.model as model
+    model.loglevel = loglevel
     model.etm_version = etm_version
     model.secret = secret
     model.data = data
