@@ -9,10 +9,10 @@ def parse(s, **kwd):
     # logger.debug(f"parse: {s} {kwd}")
     return pendulum.parse(s, strict=False, **kwd)
 
-num_items = 160
-num_konnections = 40
-start = parse('9a 1') - pendulum.duration(months=2)
-until = parse('9a 1') + pendulum.duration(months=3)
+num_items = 300
+num_konnections = 20
+start = parse('9a 1') - pendulum.duration(months=1)
+until = parse('9a 1') + pendulum.duration(months=2)
 now = parse('9a') - pendulum.duration(days=7)
 
 def phrase(minlen=24):
@@ -25,7 +25,7 @@ def phrase(minlen=24):
 
     return tmp.strip()
 
-datetimes = list(rrule(DAILY, byweekday=range(7), byhour=range(8, 20), dtstart=start, until=until))
+datetimes = list(rrule(DAILY, byweekday=range(7), byhour=range(6, 22), dtstart=start, until=until))
 
 types = ['-', '*', '%', '-']
 # clients = ['A', 'B', 'C', 'D', 'E']
@@ -47,9 +47,9 @@ activities = {
 locations = ['errands', 'home', 'office', 'shop']
 tags = ['red', 'green', 'blue']
 dates = [0, 0, 1, 0, 0] # dates 1/5 of the time
-minutes = range(10, 90, 6)
+minutes = range(12, 96, 6) # for used times
 days = range(7)
-extent = range(30, 120, 30)
+extent = range(60, 180, 30)
 
 client_contacts = {}
 client_id = {}
@@ -83,6 +83,8 @@ for _ in range(num_konnections):
 
 
 
+print("! IMPORTANT: To delete these examples @d quit etm, delete db.json and restart etm")
+
 for _ in range(num_items):
     t = random.choice(types)
     summary = phrase()
@@ -93,6 +95,7 @@ for _ in range(num_items):
     i1 = random.choice(clients)
     i2 = random.choice(projects[i1])
     i3 = random.choice(activities[i1])
+    begin = random.choice(range(1, 15))
     used = ""
     konnect = random.choice(konnections) if random.randint(1, 10) <= 4 else ""
     for i in range(random.randint(1,2)):
@@ -107,13 +110,13 @@ for _ in range(num_items):
         if date:      # an event
             print(f"{t} {summary} @s {s} @t {random.choice(tags)} {konnect}")
         else:
-            x = random.choice(minutes)
+            x = random.choice(extent)
             print(f"{t} {summary} @s {s} @e {x}m @i client {i1}/{i2}/{i3} {used} @d {d} @t {random.choice(tags)} {konnect}")
     elif t == '-' and random.choice(['h', 't']) == 'h':
         if start < now:
             print(f"{t} {summary} @s {s} @i client {i1}/{i2}/{i3} @f {s} {used} @d {d} {konnect}")
         else:
-            print(f"{t} {summary} @s {s} @i client {i1}/{i2}/{i3} {used} @d {d} @b 21 {konnect}")
+            print(f"{t} {summary} @s {s} @i client {i1}/{i2}/{i3} {used} @d {d} @b {begin} {konnect}")
 
     else:
         print(f"{t} {summary} @i client {i1}/{i2}/{i3} {used} @d {d} @l {random.choice(locations)} @t {random.choice(tags)}")

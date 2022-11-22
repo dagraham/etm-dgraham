@@ -94,8 +94,6 @@ CONFLICT =  '▦' # U+25A6 this will be conflict color
 # BEFORE =    '◀' # U+25C0 this will be busy color
 # AFTER  =    '▶' # U+25B6 this will be busy color
 
-busy_times = "Press 'enter' to cycle though details for days with busy times"
-no_busy_times = "No busy times for this week"
 
 class TDBLexer(RegexLexer):
 
@@ -1515,7 +1513,7 @@ text_area = TextArea(
     scrollbar=True,
     search_field=search_field,
     focus_on_click=True,
-    lexer=etmlexer
+    lexer=etmlexer,
     )
 
 
@@ -1593,12 +1591,29 @@ details_area = TextArea(
     search_field=search_field,
     )
 
+
 busy_area = TextArea(
     text="",
     style='class:details',
     read_only=True,
     search_field=search_field,
     )
+
+
+width = shutil.get_terminal_size()[0] - 2
+# busy_times = "Use '⇧ ⇾' and '⇧ ⇽' to jump among the days with busy times.".center(width, ' ')
+busy_times = "Use 'shift' with 'left' or 'right' to jump among days with busy times.".center(width, ' ')
+no_busy_times = "There are no days with busy periods in this week.".center(width, ' ')
+
+def get_busy_text():
+    return busy_times if dataview.busy_details else no_busy_times
+
+
+busy_container = HSplit([
+    # Window(FormattedTextControl('Press "q" to quit.'), height=1, style='reverse'),
+    busy_area,
+    Window(FormattedTextControl(get_busy_text), height=1),
+    ], style='class:entry')
 
 query_bindings = KeyBindings()
 
@@ -1706,12 +1721,12 @@ query_area = HSplit([
     query_window,
     ], style='class:entry')
 
-busy_area = TextArea(
-    text="",
-    style='class:details',
-    read_only=True,
-    search_field=search_field,
-    )
+# busy_area = TextArea(
+#     text="",
+#     style='class:details',
+#     read_only=True,
+#     search_field=search_field,
+#     )
 
 # busy_area = HSplit([
 #     ask_window,
@@ -1791,7 +1806,7 @@ body = HSplit([
         content=details_area,
         filter=is_showing_details & is_not_busy_view),
     ConditionalContainer(
-        content=busy_area,
+        content=busy_container,
         filter=is_busy_view),
     ConditionalContainer(
         content=query_area,
@@ -2326,11 +2341,11 @@ def agenda_view(*event):
 def busy_view(*event):
     set_view('b')
     busy_details = dataview.busy_details
-    if not busy_area.text:
-        if busy_details:
-            busy_area.text = busy_times
-        else:
-            busy_area.text = no_busy_times
+    # if not busy_area.text:
+    #     if busy_details:
+    #         busy_area.text = busy_times
+    #     else:
+    #         busy_area.text = no_busy_times
     if dataview.busy_row:
         text_area.buffer.cursor_position = \
             text_area.buffer.document.translate_row_col_to_index(dataview.busy_row-1, 0)
@@ -2411,7 +2426,7 @@ def set_view(view):
     item.use_items()
     set_text(dataview.show_active_view())
 
-@bindings.add('enter', filter=is_busy_view & is_viewing)
+@bindings.add('s-right', filter=is_busy_view & is_viewing)
 def next_busy(*event):
     busy_details = dataview.busy_details
     if not busy_details:
@@ -2420,16 +2435,35 @@ def next_busy(*event):
     rows.sort()
     current_row = text_area.document.cursor_position_row + 1
     # next_row = rows[0]
-    next_row = 1
+    next_row = rows[-1]
     for r in rows:
         if r > current_row:
             next_row = r
             break
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(next_row-1, 0)
-    busy_area.text = busy_details.get(next_row, busy_times)
+    busy_area.text = busy_details.get(next_row, '')
     dataview.busy_row = next_row
 
+@bindings.add('s-left', filter=is_busy_view & is_viewing)
+def previous_busy(*event):
+    busy_details = dataview.busy_details
+    if not busy_details:
+        return
+    rows = [x for x in busy_details.keys()]
+    rows.sort(reverse=True)
+    current_row = text_area.document.cursor_position_row + 1
+    # next_row = rows[0]
+    # next_row = rows[-1]
+    next_row = 1
+    for r in rows:
+        if r < current_row:
+            next_row = r
+            break
+    text_area.buffer.cursor_position = \
+        text_area.buffer.document.translate_row_col_to_index(next_row-1, 0)
+    busy_area.text = busy_details.get(next_row, '')
+    dataview.busy_row = next_row
 
 
 @bindings.add('c-p', filter=is_viewing)
@@ -2468,10 +2502,11 @@ def nextweek(*event):
     dataview.nextYrWk()
     dataview.busy_row = 0
     busy_details = dataview.busy_details
-    if busy_details:
-        busy_area.text = busy_times
-    else:
-        busy_area.text = no_busy_times
+    busy_area.text = ""
+    # if busy_details:
+    #     busy_area.text = busy_times
+    # else:
+    #     busy_area.text = no_busy_times
     set_text(dataview.show_active_view())
 
 
@@ -2480,10 +2515,11 @@ def prevweek(*event):
     dataview.prevYrWk()
     dataview.busy_row = 0
     busy_details = dataview.busy_details
-    if busy_details:
-        busy_area.text = busy_times
-    else:
-        busy_area.text = no_busy_times
+    busy_area.text = ""
+    # if busy_details:
+    #     busy_area.text = busy_times
+    # else:
+    #     busy_area.text = no_busy_times
     set_text(dataview.show_active_view())
 
 @bindings.add('space', filter=is_agenda_view & is_viewing)
@@ -2491,10 +2527,11 @@ def currweek(*event):
     dataview.currYrWk()
     dataview.busy_row = 0
     busy_details = dataview.busy_details
-    if busy_details:
-        busy_area.text = busy_times
-    else:
-        busy_area.text = no_busy_times
+    busy_area.text = ""
+    # if busy_details:
+    #     busy_area.text = busy_times
+    # else:
+    #     busy_area.text = no_busy_times
     set_text(dataview.show_active_view())
 
 @bindings.add('right', filter=is_yearly_view & is_viewing)
