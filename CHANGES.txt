@@ -1,13 +1,17 @@
-Recent tagged changes as of 2022-11-23T09:04:51.953476-05:00:
-- 1 second ago (HEAD -> working, tag: 4.10.2) Daniel Graham
+Recent tagged changes as of 2022-11-23T09:52:56.701674-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.10.3) Daniel Graham
+    fe34c6e6 2022-11-23 09:52:56 -0500
+    Tagged version 4.10.3.
+
+- 48 minutes ago (tag: 4.10.2) Daniel Graham
     8f009561 2022-11-23 09:04:51 -0500
     Tagged version 4.10.2.
 
-- 15 hours ago (tag: 4.10.1) Daniel Graham
+- 16 hours ago (tag: 4.10.1) Daniel Graham
     b3107f20 2022-11-22 17:54:42 -0500
     Tagged version 4.10.1.
 
-- 18 hours ago (tag: 4.10.0) Daniel Graham
+- 19 hours ago (tag: 4.10.0) Daniel Graham
     8458a58d 2022-11-22 15:13:06 -0500
     Tagged version 4.10.0. Update busy view to horizontal days and
     vertical times with 15 minute resolution and the ability to jump
@@ -92,7 +96,3 @@ Recent tagged changes as of 2022-11-23T09:04:51.953476-05:00:
 - 5 weeks ago (tag: 4.8.2) Daniel Graham
     416bd7cd 2022-10-21 21:54:58 -0400
     Tagged version 4.8.2.
-
-- 5 weeks ago (tag: 4.8.1) Daniel Graham
-    e3e182ae 2022-10-20 16:53:19 -0400
-    Tagged version 4.8.1.
