@@ -2464,7 +2464,7 @@ def previous_busy(*event):
     dataview.busy_row = next_row
 
 
-@bindings.add('down', filter=is_not_busy_view & is_viewing)
+@bindings.add('down', filter=is_not_busy_view & is_not_yearly_view & is_viewing)
 def next_id(*event):
     row2id = dataview.row2id
     if not row2id:
@@ -2482,7 +2482,7 @@ def next_id(*event):
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
 
 
-@bindings.add('up', filter=is_not_busy_view & is_viewing)
+@bindings.add('up', filter=is_not_busy_view & is_not_yearly_view & is_viewing)
 def previous_id(*event):
     row2id = dataview.row2id
     if not row2id:

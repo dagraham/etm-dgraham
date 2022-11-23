@@ -6607,7 +6607,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     else:
                         wrapper = ""
                     row = wkday2row(dayofweek)
-                    busy_details[week].setdefault(row, [f"Busy times for {day}"]).append(
+                    busy_details[week].setdefault(row, [f"Busy periods for {day}"]).append(
                             f"   {values[3] : ^7} {values[1]}{wrapper} "
                             )
             rdict.add(path, values)
