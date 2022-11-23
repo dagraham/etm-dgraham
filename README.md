@@ -1359,7 +1359,7 @@ See [home directory](#home-directory) for details about `<path to home>`.
 
 ### Terminal size and color scheme {#terminal-size-and-color-scheme}
 
-The suggested terminal size for etm is 60 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display.
+The suggested terminal size for etm is 70 (columns) by 32 or more (rows). The default color scheme is best with a dark terminal background. A scheme better suited to light backgrounds can be set using `style: light` in `cfg.yaml` in your home directory. Some of the *etm* display may not be visible unless `style` is set correctly for your display.
 
 The size of the terminal is used when *etm* starts to set various display options so changing the terminal size, especially reducing the width, is best avoided once *etm* is running.
 
