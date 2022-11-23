@@ -493,7 +493,7 @@ The display for each reminder shows the itemtype and summary column on the left 
 
 The _weekly_ agenda, busy and completed views display one week at a time and are *synchronized* so that all three views always display the same week. Left or right cursor keys go backward or forward a week at a time and the pressing the space bar jumps to the week containing the current day. You can also press "J" and enter a date to jump to the week containing the date.
 
-In both agenda and completed views, only days with scheduled reminders are listed. If nothing is scheduled for the entire week, then "Nothing scheduled" is displayed. In busy view, only days that have events with busy times (@e and/or @w entries) are displayed. Use "shift" with "right" or "left" to jump forward or backward among the days with busy times.
+In both agenda and completed views, only days with scheduled reminders are listed. If nothing is scheduled for the entire week, then "Nothing scheduled" is displayed. In busy view, only days that have events with busy times (@e and/or @w entries) are displayed. Use the "down" and "up" cursor keys to jump among the days with busy times.
 
 The normal agenda listing for a week day:
 

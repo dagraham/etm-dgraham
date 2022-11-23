@@ -1602,7 +1602,7 @@ busy_area = TextArea(
 
 width = shutil.get_terminal_size()[0] - 2
 # busy_times = "Use '⇧ ⇾' and '⇧ ⇽' to jump among the days with busy times.".center(width, ' ')
-busy_times = "Use 'shift' with 'left' or 'right' to jump among days with busy times.".center(width, ' ')
+busy_times = "The 'down' and 'up' cursor keys jump among days with busy periods.".center(width, ' ')
 no_busy_times = "There are no days with busy periods in this week.".center(width, ' ')
 
 def get_busy_text():
@@ -1610,9 +1610,8 @@ def get_busy_text():
 
 
 busy_container = HSplit([
-    # Window(FormattedTextControl('Press "q" to quit.'), height=1, style='reverse'),
     busy_area,
-    Window(FormattedTextControl(get_busy_text), height=1),
+    Window(FormattedTextControl(get_busy_text), style='class:status', height=1),
     ], style='class:entry')
 
 query_bindings = KeyBindings()
@@ -2426,7 +2425,8 @@ def set_view(view):
     item.use_items()
     set_text(dataview.show_active_view())
 
-@bindings.add('s-right', filter=is_busy_view & is_viewing)
+
+@bindings.add('down', filter=is_busy_view & is_viewing)
 def next_busy(*event):
     busy_details = dataview.busy_details
     if not busy_details:
@@ -2434,7 +2434,6 @@ def next_busy(*event):
     rows = [x for x in busy_details.keys()]
     rows.sort()
     current_row = text_area.document.cursor_position_row + 1
-    # next_row = rows[0]
     next_row = rows[-1]
     for r in rows:
         if r > current_row:
@@ -2445,7 +2444,8 @@ def next_busy(*event):
     busy_area.text = busy_details.get(next_row, '')
     dataview.busy_row = next_row
 
-@bindings.add('s-left', filter=is_busy_view & is_viewing)
+
+@bindings.add('up', filter=is_busy_view & is_viewing)
 def previous_busy(*event):
     busy_details = dataview.busy_details
     if not busy_details:
@@ -2453,8 +2453,6 @@ def previous_busy(*event):
     rows = [x for x in busy_details.keys()]
     rows.sort(reverse=True)
     current_row = text_area.document.cursor_position_row + 1
-    # next_row = rows[0]
-    # next_row = rows[-1]
     next_row = 1
     for r in rows:
         if r < current_row:
@@ -2464,6 +2462,42 @@ def previous_busy(*event):
         text_area.buffer.document.translate_row_col_to_index(next_row-1, 0)
     busy_area.text = busy_details.get(next_row, '')
     dataview.busy_row = next_row
+
+
+@bindings.add('down', filter=is_not_busy_view & is_viewing)
+def next_id(*event):
+    row2id = dataview.row2id
+    if not row2id:
+        return
+    rows = [x for x in row2id.keys()]
+    rows.sort()
+    current_row = text_area.document.cursor_position_row
+    # logger.debug(f"rows: {rows}; current_row: {current_row}")
+    next_row = rows[-1]
+    for r in rows:
+        if r > current_row:
+            next_row = r
+            break
+    text_area.buffer.cursor_position = \
+        text_area.buffer.document.translate_row_col_to_index(next_row, 0)
+
+
+@bindings.add('up', filter=is_not_busy_view & is_viewing)
+def previous_id(*event):
+    row2id = dataview.row2id
+    if not row2id:
+        return
+    rows = [x for x in row2id.keys()]
+    rows.sort(reverse=True)
+    current_row = text_area.document.cursor_position_row
+    # logger.debug(f"rows: {rows}; current_row: {current_row}")
+    next_row = 1
+    for r in rows:
+        if r < current_row:
+            next_row = r
+            break
+    text_area.buffer.cursor_position = \
+        text_area.buffer.document.translate_row_col_to_index(next_row, 0)
 
 
 @bindings.add('c-p', filter=is_viewing)

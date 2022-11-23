@@ -6570,18 +6570,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
     done.sort(key=itemgetter('sort'))
-    # busy.sort(key=itemgetter('sort'))
 
-    # for the individual weeks
-    # agenda_hsh = {}     # yw -> agenda_view
-    # done_hsh = {}       # yw -> done_view
-    # busy_hsh = {}       # yw -> busy_view
-    # row2id_hsh = {}     # yw -> row2id
-    # done2id_hsh = {}     # yw -> row2id
-    # weeks = set([])
-
-    # week & day gives (year, weeknum, daynum) and thus date
-    # p
     busy_details = {}
     width = shutil.get_terminal_size()[0]
     dent = int((width - 69)/2) * " "
