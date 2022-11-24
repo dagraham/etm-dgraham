@@ -82,7 +82,6 @@ for _ in range(num_konnections):
     konnections.append(f"@k {client_id[client]} {tmp}")
 
 
-
 print("! IMPORTANT: To delete these examples @d quit etm, delete db.json and restart etm")
 
 for _ in range(num_items):

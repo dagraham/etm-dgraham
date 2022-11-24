@@ -473,7 +473,7 @@ class ETMQuery(object):
     def info(self, a):
         # field 'a' exists
         item = dataview.db.get(doc_id=int(a))
-        return  f"{item_details(item, False)}"
+        return  item if item else f"doc_id {a} not found"
 
 
     def dt(self, a, b):
@@ -556,7 +556,6 @@ class ETMQuery(object):
             if not ok:
                 return False, test
             if isinstance(test, str):
-                # info
                 return False, test
             else:
                 items = dataview.db.search(test)
@@ -1415,7 +1414,7 @@ async def event_handler():
             if dataview.active_view == 'timers':
                 set_text(dataview.show_active_view())
             asyncio.ensure_future(save_timers())
-            logger.debug(f"sleeping for {wait} seconds in event_handler loop")
+            # logger.debug(f"sleeping for {wait} seconds in event_handler loop")
             get_app().invalidate()
             await asyncio.sleep(wait)
     except asyncio.CancelledError:
@@ -1477,12 +1476,12 @@ def get_statusbar_right_text():
 def openWithDefault(path):
     parts = [x.strip() for x in path.split(" ")]
     if len(parts) > 1:
-        logger.debug(f"path: {path}")
+        # logger.debug(f"path: {path}")
         res =subprocess.Popen([parts[0], ' '.join(parts[1:])], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         ok = True if res else False
     else:
         path = os.path.normpath(os.path.expanduser(path))
-        logger.debug(f"path: {path}")
+        # logger.debug(f"path: {path}")
         sys_platform = platform.system()
         if platform.system() == 'Darwin':       # macOS
             res = subprocess.run(('open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -1494,7 +1493,7 @@ def openWithDefault(path):
         # res = subprocess.run([cmd, path], check=True)
         ret_code = res.returncode
         ok = ret_code == 0
-        logger.debug(f"res: {res}; ret_code: {ret_code}")
+        # logger.debug(f"res: {res}; ret_code: {ret_code}")
     if ok:
         logger.debug(f"ok True; res: '{res}'")
     else:
@@ -1602,16 +1601,41 @@ busy_area = TextArea(
 
 width = shutil.get_terminal_size()[0] - 2
 # busy_times = "Use '⇧ ⇾' and '⇧ ⇽' to jump among the days with busy times.".center(width, ' ')
-busy_times = "The 'down' and 'up' cursor keys jump among days with busy periods.".center(width, ' ')
-no_busy_times = "There are no days with busy periods in this week.".center(width, ' ')
+# busy_times = "The 'down' and 'up' cursor keys jump among days with busy periods.".center(width, ' ')
 
 def get_busy_text():
-    return busy_times if dataview.busy_details else no_busy_times
+    return get_busy_text_and_keys(0)
+
+def get_busy_keys():
+    return get_busy_text_and_keys(1)
+
+def get_busy_text_and_keys(n):
+
+    weekdays = {
+            5:  f"1→{WA[1]}",
+            7:  f"2→{WA[2]}",
+            9:  f"3→{WA[3]}",
+            11: f"4→{WA[4]}",
+            13: f"5→{WA[5]}",
+            15: f"6→{WA[6]}",
+            17: f"7→{WA[7]}",
+            }
+    busy_details = dataview.busy_details
+    active_days = "  ".join([v for k, v in weekdays.items() if k in busy_details.keys()])
+    no_busy_times = "There are no days with busy periods this week.".center(width, ' ')
+    busy_times = wrap(f"Press the number of a weekday, [{weekdays[5]}, ..., {weekdays[17]}], to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.", indent=0)
+    # active_keys = f"active keys: {active_days}, ⬆  ▲ and ⬇ ".center(width, ' ')
+    active_keys = f"{active_days}  ▼→next  ▲→previous".center(width, ' ')
+
+    if n == 0: # text
+        return busy_times if dataview.busy_details else ""
+    else: # n=1, keys
+        return active_keys if dataview.busy_details else no_busy_times
 
 
 busy_container = HSplit([
     busy_area,
-    Window(FormattedTextControl(get_busy_text), style='class:status', height=1),
+    Window(FormattedTextControl(get_busy_keys), style='class:status', height=1),
     ], style='class:entry')
 
 query_bindings = KeyBindings()
@@ -2348,6 +2372,8 @@ def busy_view(*event):
     if dataview.busy_row:
         text_area.buffer.cursor_position = \
             text_area.buffer.document.translate_row_col_to_index(dataview.busy_row-1, 0)
+    else:
+        busy_area.text = get_busy_text()
 
 @bindings.add('c', filter=is_viewing)
 def completed_view(*event):
@@ -2425,6 +2451,53 @@ def set_view(view):
     item.use_items()
     set_text(dataview.show_active_view())
 
+def get_busy_day(d):
+    busy_details = dataview.busy_details
+    # logger.debug(f"d: {d}; {busy_details.keys()}")
+    r = 5 + 2*(d-1)
+    if not r in busy_details.keys():
+        return
+    # logger.debug(f"details: {d}->{r} {busy_details.get(r, '')}")
+    text_area.buffer.cursor_position = \
+        text_area.buffer.document.translate_row_col_to_index(r-1, 0)
+    busy_area.text = busy_details.get(r, get_busy_text())
+    dataview.busy_row = r
+
+
+@bindings.add('1', filter=is_busy_view & is_viewing)
+def get_busy_1(*event):
+    get_busy_day(1)
+
+
+@bindings.add('2', filter=is_busy_view & is_viewing)
+def get_busy_1(*event):
+    get_busy_day(2)
+
+
+@bindings.add('3', filter=is_busy_view & is_viewing)
+def get_busy_1(*event):
+    get_busy_day(3)
+
+
+@bindings.add('4', filter=is_busy_view & is_viewing)
+def get_busy_1(*event):
+    get_busy_day(4)
+
+
+@bindings.add('5', filter=is_busy_view & is_viewing)
+def get_busy_1(*event):
+    get_busy_day(5)
+
+
+@bindings.add('6', filter=is_busy_view & is_viewing)
+def get_busy_1(*event):
+    get_busy_day(6)
+
+
+@bindings.add('7', filter=is_busy_view & is_viewing)
+def get_busy_1(*event):
+    get_busy_day(7)
+
 
 @bindings.add('down', filter=is_busy_view & is_viewing)
 def next_busy(*event):
@@ -2441,7 +2514,7 @@ def next_busy(*event):
             break
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(next_row-1, 0)
-    busy_area.text = busy_details.get(next_row, '')
+    busy_area.text = busy_details.get(next_row, get_busy_text())
     dataview.busy_row = next_row
 
 
@@ -2460,7 +2533,7 @@ def previous_busy(*event):
             break
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(next_row-1, 0)
-    busy_area.text = busy_details.get(next_row, '')
+    busy_area.text = busy_details.get(next_row, "")
     dataview.busy_row = next_row
 
 
@@ -2536,7 +2609,7 @@ def nextweek(*event):
     dataview.nextYrWk()
     dataview.busy_row = 0
     busy_details = dataview.busy_details
-    busy_area.text = ""
+    busy_area.text = '' # get_busy_text()
     # if busy_details:
     #     busy_area.text = busy_times
     # else:
@@ -2549,7 +2622,7 @@ def prevweek(*event):
     dataview.prevYrWk()
     dataview.busy_row = 0
     busy_details = dataview.busy_details
-    busy_area.text = ""
+    busy_area.text = '' # get_busy_text()
     # if busy_details:
     #     busy_area.text = busy_times
     # else:

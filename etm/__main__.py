@@ -85,6 +85,7 @@ def main():
     logger.debug(f"ETMDB: {ETMDB}")
 
     from etm.model import about
+    from etm.model import wrap
     from etm.model import import_file
     from etm.model import write_back
     # from etm.model import RDict
@@ -139,6 +140,8 @@ def main():
 
 
     import etm.view as view
+    view.wrap = wrap
+    view.WA = WA
     view.beginbusy = beginbusy
     view.FINISHED_CHAR = FINISHED_CHAR
     view.UPDATE_CHAR = UPDATE_CHAR
@@ -164,7 +167,6 @@ def main():
     view.etmhome = etmhome
     view.datetime_calculator = datetime_calculator
     view.about = about
-    view.wrap = model.wrap
     view.format_time = format_time
     view.format_datetime = format_datetime
     view.format_duration = format_duration
