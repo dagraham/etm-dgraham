@@ -1,49 +1,53 @@
-Recent tagged changes as of 2022-11-23T09:52:56.701674-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.10.3) Daniel Graham
+Recent tagged changes as of 2022-11-24T11:13:27.421390-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.10.4) Daniel Graham
+    e99eecf3 2022-11-24 11:13:27 -0500
+    Tagged version 4.10.4.
+
+- 25 hours ago (tag: 4.10.3) Daniel Graham
     fe34c6e6 2022-11-23 09:52:56 -0500
     Tagged version 4.10.3.
 
-- 48 minutes ago (tag: 4.10.2) Daniel Graham
+- 26 hours ago (tag: 4.10.2) Daniel Graham
     8f009561 2022-11-23 09:04:51 -0500
     Tagged version 4.10.2.
 
-- 16 hours ago (tag: 4.10.1) Daniel Graham
+- 2 days ago (tag: 4.10.1) Daniel Graham
     b3107f20 2022-11-22 17:54:42 -0500
     Tagged version 4.10.1.
 
-- 19 hours ago (tag: 4.10.0) Daniel Graham
+- 2 days ago (tag: 4.10.0) Daniel Graham
     8458a58d 2022-11-22 15:13:06 -0500
     Tagged version 4.10.0. Update busy view to horizontal days and
     vertical times with 15 minute resolution and the ability to jump
     between the days and display the busy time details for that day.
 
-- 8 days ago (tag: 4.9.7) Daniel Graham
+- 9 days ago (tag: 4.9.7) Daniel Graham
     b4f22a66 2022-11-15 13:34:13 -0500
     Tagged version 4.9.7.
 
-- 8 days ago (tag: 4.9.8) Daniel Graham
+- 9 days ago (tag: 4.9.8) Daniel Graham
     3e3e5c77 2022-11-15 13:20:24 -0500
     Tagged version 4.9.8.
 
-- 8 days ago (tag: 4.9.6) Daniel Graham
+- 9 days ago (tag: 4.9.6) Daniel Graham
     6015ec88 2022-11-15 08:40:16 -0500
     Tagged version 4.9.6.
 
-- 9 days ago (tag: 4.9.5) Daniel Graham
+- 10 days ago (tag: 4.9.5) Daniel Graham
     250004cc 2022-11-14 20:36:44 -0500
     Tagged version 4.9.5. Added support for argument replacements in
     saved queries.
 
-- 11 days ago (tag: 4.9.4) Daniel Graham
+- 12 days ago (tag: 4.9.4) Daniel Graham
     c71d75c2 2022-11-12 12:10:39 -0500
     Tagged version 4.9.4. Restore cursor position after auto refresh
     and item edit.
 
-- 11 days ago (tag: 4.9.3) Daniel Graham
+- 12 days ago (tag: 4.9.3) Daniel Graham
     98de70b1 2022-11-12 09:40:52 -0500
     Tagged version 4.9.3. Avoid scrolling display with auto refresh.
 
-- 12 days ago (tag: 4.9.2) Daniel Graham
+- 13 days ago (tag: 4.9.2) Daniel Graham
     ee9c2a6a 2022-11-11 12:42:45 -0500
     Tagged version 4.9.2. Added @w (wrap) as an event option to
     specify two durations to wrap the event with busy periods before
@@ -92,7 +96,3 @@ Recent tagged changes as of 2022-11-23T09:52:56.701674-05:00:
 - 4 weeks ago (tag: 4.8.3) Daniel Graham
     7e304d59 2022-10-24 16:52:54 -0400
     Tagged version 4.8.3.
-
-- 5 weeks ago (tag: 4.8.2) Daniel Graham
-    416bd7cd 2022-10-21 21:54:58 -0400
-    Tagged version 4.8.2.
