@@ -484,7 +484,7 @@ The display for each reminder shows the itemtype and summary column on the left 
   * t: Tags: all items with @t tag entries grouped by tag
   * u: Used Time: all items with @u used time entries grouped by month and hierarchically by index
   * U: Used Summary: used time aggregates grouped by month and hierarchically by index
-  * y: Yearly Planning Calendar: compact monthly calendar by half year.
+  * y: Yearly Planning Calendar: compact monthly calendar.
 
 
 [↺ contents](#contents)
@@ -1135,7 +1135,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         U) used time summary
         ---
         s) scheduled alerts for today
-        y) half yearly calendar
+        y) yearly calendar
         ---
         /) search forward
         ?) search backward

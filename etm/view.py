@@ -2778,7 +2778,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('U) used summary', handler=used_summary_view),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
-        MenuItem('y) half yearly calendar', handler=yearly_view),
+        MenuItem('y) yearly calendar', handler=yearly_view),
         MenuItem('-', disabled=True),
         MenuItem('/|?|,,) search forward|backward|clear search'),
         MenuItem('n) next incrementally in search'),
