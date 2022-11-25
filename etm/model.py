@@ -2810,19 +2810,25 @@ class DataView(object):
                         continue
             else:
                 continue
-        logger.info(f"items to archive {len(rows)}: {[item.doc_id for item in rows]}")
-        add_items = []
-        rem_ids = []
-        for item in rows:
-            rem_ids.append(item.doc_id)
-            add_items.append(item)
 
-        try:
-            self.dbarch.insert_multiple(add_items)
-        except Exception as e:
-            logger.error(f"archive failed for doc_ids: {rem_ids}\n{e}")
-        else:
-            self.db.remove(doc_ids=rem_ids)
+        # one at a time
+        archive_ids = [item.doc_id for item in rows]
+        failed_ids = []
+        rem_ids = []
+        logger.info(f"items to archive {len(archive_ids)}: {archive_ids}")
+        for item in rows:
+            try:
+                self.dbarch.insert(item)
+            except Exception as e:
+                failed_ids.append(f"{item.doc_id}; {e}")
+            else:
+                self.db.remove(doc_ids=[item.doc_id])
+                rem_ids.append(item.doc_id)
+        if rem_ids:
+            logger.info(f"archived doc_ids: {rem_ids}")
+        if failed_ids:
+            logger.error(f"archive failed for doc_ids: {failed_ids}")
+
 
         return rows
 
@@ -5047,9 +5053,9 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
     today = pendulum.today()
     tomorrow = today + DAY
-    inbox_fmt = today.format("YYYYMMDD24@@")
-    pastdue_fmt = today.format("YYYYMMDD24^^")
-    begby_fmt = today.format("YYYYMMDD24~~")
+    inbox_fmt = today.format("YYYYMMDD$$$$")
+    pastdue_fmt = today.format("YYYYMMDD^^^^")
+    begby_fmt = today.format("YYYYMMDD~~~~")
 
     id2relevant = {}
     inbox = []

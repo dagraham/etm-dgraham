@@ -41,9 +41,9 @@ def main():
     settings = Settings.settings
     beginbusy = settings['beginbusy']
     type_colors = settings['type_colors']
-    logger.debug(f"__main__ type_colors: {type_colors}")
+    # logger.debug(f"__main__ type_colors: {type_colors}")
     window_colors = settings['window_colors']
-    logger.debug(f"__main__ window_colors: {window_colors}")
+    # logger.debug(f"__main__ window_colors: {window_colors}")
 
     logger.info(f"running in a virtual environment: {IS_VENV}")
 
@@ -82,7 +82,12 @@ def main():
     ETMDB = data.initialize_tinydb(dbfile)
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
-    logger.debug(f"ETMDB: {ETMDB}")
+    logger.debug(f"ETMDB: {ETMDB}, number of items: {len(ETMDB)}")
+    egfile = os.path.normpath(os.path.join(etmdir, 'examples.text'))
+    if not os.path.exists(egfile):
+        logger.debug("egfile does not exist")
+        from etm.make_examples import make_examples
+        make_examples(egfile, len(ETMDB)+1, logger)
 
     from etm.model import about
     from etm.model import wrap
