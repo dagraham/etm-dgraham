@@ -41,6 +41,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
     -   [Usage](#usage)
         -   [Terminal size and color](#terminal-size-and-color)
         -   [Home directory](#home-directory)
+        -   [lorem examples](#loremexamples)
         -   [Using etm+](#etmplus)
     -   [Deinstallation](#deinstallation)
         -   [From a virtual environment](#from-a-virtual-environment)
@@ -493,9 +494,11 @@ The display for each reminder shows the itemtype and summary column on the left 
 
 The _weekly_ agenda, busy and completed views display one week at a time and are *synchronized* so that all three views always display the same week. Press the ▶ (right) or ◀ (left) cursor keys go forward or backward a week at a time or press the space bar to jump to the week containing the current day. You can also press "J" and enter a date to jump to the week containing the date.
 
-In both agenda and completed views, only days with scheduled reminders are listed. If nothing is scheduled for the entire week, then "Nothing scheduled" is displayed.
+In agenda view, only days with scheduled reminders are listed. If nothing is scheduled for the entire week, then "Nothing scheduled" is displayed.
 
 In busy view, only days that have events with busy times (@e and/or @w entries) are displayed. Press the number of the weekday, [1→Mon, ..., 7→Sun], to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.
+
+Completed view shows instances of completed tasks and reminders with used time entries.
 
 The normal agenda listing for a week day:
 
@@ -1396,6 +1399,14 @@ Here `cfg.yaml` is your user configuration file and `db.json` contains all your 
 
 The file `cfg.yaml` can be edited and the options are documented in the file.
 See [configuration](#configuration) for details.
+
+[↺ contents](#contents)
+
+### *lorem* examples {#loremexamples}
+
+If you are new to *etm*, you might find it very useful to install the *lorem* examples. If you press `F5`, enter `lorem` at the prompt and press `return`, *etm* will generate a series of reminders all of which are tagged 'lorem'. These fall within a three month period including the month in which they were created as well as the previous and subsequent months. The examples are designed to illustrate nearly all of the etm views and features. You can play around with the examples as long as you wish and then remove them all at once by pressing `q` to open query view, entering the query 'any t lorem | remove' and pressing `return`.
+
+These examples are named for and depend upon the python package *lorem* that can generate random words, phrases, sentences and paragraphs in 'lorem ipsum' text. E.g., "Lorem ipsum dolor sit amet, consectetur adipiscing elit ...". This is "a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content."
 
 [↺ contents](#contents)
 

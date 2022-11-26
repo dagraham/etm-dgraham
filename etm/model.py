@@ -5053,9 +5053,9 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
     today = pendulum.today()
     tomorrow = today + DAY
-    inbox_fmt = today.format("YYYYMMDD$$$$")
-    pastdue_fmt = today.format("YYYYMMDD^^^^")
-    begby_fmt = today.format("YYYYMMDD~~~~")
+    inbox_fmt = today.format("YYYYMMDD    ")   # first
+    pastdue_fmt = today.format("YYYYMMDD^^^^") # after all day and timed
+    begby_fmt = today.format("YYYYMMDD~~~~")   # after past due
 
     id2relevant = {}
     inbox = []
@@ -6429,7 +6429,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 sort_dt = dt.format("YYYYMMDDHHmm")
                 if sort_dt.endswith('0000'):
                     if item['itemtype'] == '*':
-                        sort_dt = sort_dt[:-4] + '$$$$'
+                        sort_dt = sort_dt[:-4] + '00$$'
                     elif item['itemtype'] in ['-']:
                         sort_dt = sort_dt[:-4] + '24$$'
                     elif item['itemtype'] in ['%']:
@@ -6724,6 +6724,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 def import_file(import_file=None):
     if not import_file:
         return False, ""
+    import_file = import_file.strip()
+    if import_file.lower() == 'lorem':
+        return True, import_examples()
+
     import_file = os.path.normpath(os.path.expanduser(import_file))
     if not os.path.exists(import_file):
         return False, f"could not locate: {import_file}"
@@ -6779,6 +6783,50 @@ def import_ics(import_file=None):
     if dups:
         msg += f"\n  rejected {dups} items as duplicates"
     return msg
+
+
+def import_examples():
+    docs = []
+    logger.debug("calling make_examples")
+    examples = make_examples()
+
+    results = []
+    good = []
+    bad = 0
+    reminders = []
+    reminder = []
+
+    for s in examples:
+        logger.debug(f"adding: {s}")
+        ok = True
+        if not s: continue
+        item = Item()  # use ETMDB by default
+        item.new_item()
+        item.text_changed(s, 1)
+        logger.debug(f"item: {item}")
+        if item.item_hsh.get('itemtype', None) is None:
+            ok = False
+
+        if item.item_hsh.get('summary', None) is None:
+            ok = False
+
+        if not ok:
+            bad += 1
+            results.append(f"   {s}")
+            continue
+
+        # update_item_hsh stores the item in ETMDB
+        item.update_item_hsh()
+        good.append(f"{item.doc_id}")
+
+    res = f"imported {len(good)} items"
+    if good:
+        # ids = ETMDB.insert_multiple(docs)
+        res += f"\n  ids: {good[0]} - {good[-1]}"
+    if bad:
+        res += f"\nrejected {bad} items:\n  "
+        res += "\n  ".join(results)
+    return res
 
 
 def import_text(import_file=None):

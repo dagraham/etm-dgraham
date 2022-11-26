@@ -36,6 +36,7 @@ from prompt_toolkit.layout import Float
 from prompt_toolkit.widgets import Dialog, Label, Button
 
 import shutil
+import time
 
 import requests
 import asyncio
@@ -634,6 +635,9 @@ class TextInputDialog(object):
             return True
 
         def accept():
+            self.set_label('\nworking ...\n')
+            get_app().invalidate()
+            time.sleep(.1)
             self.future.set_result(self.text_area.text)
 
         def cancel():
@@ -647,19 +651,26 @@ class TextInputDialog(object):
             width=D(preferred=shutil.get_terminal_size()[0]-padding),
             accept_handler=accept_text)
 
+        self.label = Label(
+                text=label_text
+                )
+
         ok_button = Button(text='OK', handler=accept)
         cancel_button = Button(text='Cancel', handler=cancel)
 
         self.dialog = Dialog(
             title=title,
             body=HSplit([
-                Label(text=label_text),
+                self.label,
                 self.text_area
             ]),
             buttons=[ok_button, cancel_button],
             # buttons=[ok_button],
             width=D(preferred=shutil.get_terminal_size()[0]-10),
             modal=True)
+
+    def set_label(self, txt):
+        self.label.text = txt
 
     def __pt_container__(self):
         return self.dialog
@@ -2258,36 +2269,60 @@ def do_import_file(*event):
             completer=PathCompleter(expanduser=True),
             default=default,
             label_text=f"""\
-It is possible to import data from files with
-one of the following extensions:
+It is possible to import data from files with one
+of the following extensions:
   .json  a json file exported from etm 3.2.x
   .text  a text file with etm entries as lines
   .ics   an iCalendar file
+or a collection of internally generated examples
+by entering the single word:
+   lorem
+Each of the examples is tagged 'lorem' and thus
+can easily be removed with a single query:
+   any t lorem | remove
 
-Warning: files imported from the directory
+Files imported from the etm home directory
    {etmhome}
-will be removed after importing.
+will be removed after importing to avoid possible
+duplications.
 
-Enter the path of the file to import:""")
+Enter the full path of the file to import or
+'lorem':
+""")
 
         file_path = yield from show_dialog_as_float(dialog)
-        if file_path:
-            file_path = os.path.normpath(os.path.expanduser(file_path))
-            ok, msg = import_file(file_path)
+        if not file_path:
+           return
+        if file_path.strip().lower() == 'lorem':
+            logger.debug(f"calling import_file")
+            ok, msg = import_file('lorem')
             if ok:
-                etm_dir = os.path.normpath(os.path.expanduser(etmdir))
-
-                if os.path.dirname(file_path) == etm_dir:
-                    os.remove(file_path)
-                    filehome = os.path.join("~", os.path.split(file_path)[1])
-                    msg += f"\n and removed {filehome}"
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
                 dataview.refresh_konnections()
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
-            show_message('import file', msg)
+            show_message('import lorem', msg)
+
+        else:
+            if file_path:
+                file_path = os.path.normpath(os.path.expanduser(file_path))
+                ok, msg = import_file(file_path)
+                if ok:
+                    etm_dir = os.path.normpath(os.path.expanduser(etmdir))
+
+                    if os.path.dirname(file_path) == etm_dir:
+                        os.remove(file_path)
+                        filehome = os.path.join("~", os.path.split(file_path)[1])
+                        msg += f"\n and removed {filehome}"
+                    dataview.refreshRelevant()
+                    dataview.refreshAgenda()
+                    dataview.refreshCurrent()
+                    dataview.refresh_konnections()
+                    loop = asyncio.get_event_loop()
+                    loop.call_later(0, data_changed, loop)
+                show_message('import file', msg)
 
     asyncio.ensure_future(coroutine())
 

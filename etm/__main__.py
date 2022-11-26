@@ -83,15 +83,17 @@ def main():
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
     logger.debug(f"ETMDB: {ETMDB}, number of items: {len(ETMDB)}")
-    egfile = os.path.normpath(os.path.join(etmdir, 'examples.text'))
-    if not os.path.exists(egfile):
-        logger.debug("egfile does not exist")
-        from etm.make_examples import make_examples
-        make_examples(egfile, len(ETMDB)+1, logger)
+    # egfile = os.path.normpath(os.path.join(etmdir, 'examples.text'))
+    # if not os.path.exists(egfile):
+    #     logger.debug("egfile does not exist")
+    #     from etm.make_examples import make_examples
+    #     make_examples(egfile, len(ETMDB)+1, logger)
 
+    from etm.make_examples import make_examples
     from etm.model import about
     from etm.model import wrap
     from etm.model import import_file
+    from etm.model import import_examples
     from etm.model import write_back
     # from etm.model import RDict
     from etm.model import item_details
@@ -118,6 +120,7 @@ def main():
     model.beginbusy = beginbusy
     model.settings = settings
     model.logger = logger
+    model.make_examples = make_examples
     # model.edit_file = os.path.join(etmdir, 'edit.text')
     model.timers_file = os.path.join(etmdir, 'timers.pkl')
     userhome = os.path.expanduser('~')
@@ -167,6 +170,7 @@ def main():
     view.item_details = item_details
     view.logger = logger
     view.import_file = import_file
+    view.import_examples = import_examples
     view.etmdir = etmdir
     view.inbasket_file = os.path.join(etmdir, 'inbasket.text')
     view.etmhome = etmhome
@@ -185,6 +189,7 @@ def main():
     view.completions = completions
     view.expansions = expansions
     view.terminal_style = style
+    view.make_examples = make_examples
     from etm.view import ETMQuery
 
     import etm.report as report
