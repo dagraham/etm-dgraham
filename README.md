@@ -1404,7 +1404,7 @@ See [configuration](#configuration) for details.
 
 ### *lorem* examples {#loremexamples}
 
-If you are new to *etm*, you might find it very useful to install the *lorem* examples. If you press `F5`, enter `lorem` at the prompt and press `return`, *etm* will generate a series of reminders all of which are tagged 'lorem'. These fall within a three month period including the month in which they were created as well as the previous and subsequent months. The examples are designed to illustrate nearly all of the etm views and features. You can play around with the examples as long as you wish and then remove them all at once by pressing `q` to open query view, entering the query 'any t lorem \| remove' and pressing `return`.
+If you are new to *etm*, you might find it very useful to install the *lorem* examples. If you press `F5`, enter 'lorem' at the prompt and press `return`, *etm* will generate a series of reminders all of which are tagged 'lorem'. These fall within a three month period including the month in which they were created as well as the previous and subsequent months. The examples are designed to illustrate nearly all of the etm views and features. You can play around with the examples as long as you wish and then remove them all at once by pressing `q` to open query view, entering the query 'any t lorem \| remove' and pressing `return`.
 
 These examples are named for and depend upon the python package *lorem* that can generate random words, phrases, sentences and paragraphs in 'lorem ipsum' text. E.g., "Lorem ipsum dolor sit amet, consectetur adipiscing elit ...". This is "a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content."
 
