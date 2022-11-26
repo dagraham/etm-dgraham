@@ -1,5 +1,9 @@
-Recent tagged changes as of 2022-11-26T14:18:25.613111-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.10.5) Daniel Graham
+Recent tagged changes as of 2022-11-26T16:43:53.203416-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.10.6) Daniel Graham
+    1289ae01 2022-11-26 16:43:53 -0500
+    Tagged version 4.10.6. Added requirement for lorem to setup.py
+
+- 2 hours ago (tag: 4.10.5) Daniel Graham
     26459e81 2022-11-26 14:18:25 -0500
     Tagged version 4.10.5.
 
@@ -91,8 +95,3 @@ Recent tagged changes as of 2022-11-26T14:18:25.613111-05:00:
 - 5 weeks ago (tag: 4.8.5) Daniel Graham
     322ebcf6 2022-10-25 13:25:14 -0400
     Tagged version 4.8.5.
-
-- 5 weeks ago (tag: 4.8.4) Daniel Graham
-    70d0f98e 2022-10-24 17:25:49 -0400
-    Tagged version 4.8.4. Building both sdist and bdist_wheel for
-    upload
