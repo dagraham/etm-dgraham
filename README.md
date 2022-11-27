@@ -529,6 +529,7 @@ As you might expect, if a conflict occurred either before or after the displayed
 #### Current View {#current-view}
 
 This is a view created by *etm* but not displayed within *etm* itself. The setting for `keep_current` in `cfg.yaml` specifies two non-negative integers for `weeks` and `width`.  If weeks is positive, the agenda for that integer number of weeks starting with the current week will be scaled to fit `width`, written to `current.txt` in your etm home directory and then updated whenever necessary. With a link to `current.txt` in my GoogleDrive folder and `keep_current: 3, 50` in `cfg.yaml`, here is a illustrative screen shot from my iPhone:
+
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/current_on_iphone.png" alt="new" title="current view" width="300px" hspace="20px"/>
 
 In this way, you can always have a current version of your schedule with you on your mobile device.
