@@ -15,6 +15,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
             -   [tab completion](#tab-completion)
     -   [Views](#views)
         -   [Weekly Views](#weekly-views)
+			-   [Current View](#current-view)
         -   [Timer View](#timer-view)
         -   [Review View](#review-view)
         -   [Pinned View](#pinned-view)
@@ -516,7 +517,7 @@ And, on the current day only:
 Busy view requires a little explanation. Here is screen shot of agenda view for an illustrative week
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/agenda.png" alt="new" title="agenda view" width="600px" hspace="20px"/>
 
-along with one of busy view for the same week
+along with one of busy view for the same weeek
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/busy.png" alt="new" title="busy view" width="600px" hspace="20px"/>
 
 The first thing to notice in busy view is that busy times are displayed each week day for the period between 7am and 9pm. This period is determined by the *beginbusy* setting in `cfg.yaml` which sets the number of hours after midnight that the display is to begin each day. The period ends 14 hours after *beginbusy*. In this case, it runs from 7 hours after midnight (*beginbusy*) to 7+14=21 hours after midnight or from 7am until 9pm. The resolution is 15 minute periods for each character *slot* so that, for example, the row for *Fr 2* shows a busy period with using 4 green (busy) characters for 10-10:15am, 10:15-10:30am, 10:30-10:45am and 10:45-11am. Now you might notice that this implies that the 4 character slots that begin at 8pm end just before the 9pm slot and that the 9pm slot actually corresponds to the interval 9-9:15pm. Since the actual display includes this last slot, it actually extends for 14 hours plus 15 minutes and thus actually ends at 9:15pm.
@@ -525,10 +526,17 @@ The second thing to notice is the red, conflict bar in the display for *Mo 28*. 
 
 As you might expect, if a conflict occurred either before or after the displayed period then the corresponding *before* or *after* character would be red instead of green.
 
+#### Current View {#current-view}
+
+This is a view created by *etm* but not displayed within *etm* itself. The setting for 'keep_current' in 'cfg.yaml' specifies two non-negative integers for 'weeks' and 'width'.  If weeks is positive, the agenda for that integer number of weeks starting with the current week will be scaled to fit 'width', written to 'current.txt' in your etm home directory and then updated whenever necessary. With a link to 'current.txt' in my GoogleDrive folder and 'keep_current: 3, 50' in 'cfg.yaml', here is a illustrative screen shot from my iPhone:
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/current_on_iphone.png" alt="new" title="busy view" width="200px" hspace="20px"/>
+
+In this way, you can always have a current version of your schedule with you on your mobile device.
+
 
 [↺ contents](#contents)
 
-### Timer view {#timer-view}
+### Timer View {#timer-view}
 
 This view lists all reminders with associated timers sorted by the elapsed time since the timer's *state* was last changed. The display for each reminder shows the itemtype and summary, any applicable *flags* and, in the right hand column, the elapsed time and *state* of the associated timer.
 
@@ -1952,13 +1960,15 @@ Here are the options with their default values from that file. The lines beginni
     # list will only have their starting times displayed in agenda view
     # and will neither appear nor cause conflicts in busy view.
 
-    keep_current: 0
-    # non-negative integer. If positive, the agenda for that integer
-    # number of weeks starting with the current week will be written to
-    # "current.txt" in your etm home directory and updated when necessary.
-    # You could, for example, create a link to this file in a pCloud or
-    # DropBox folder and have access to your current schedule on your
-    # mobile device.
+	keep_current: 0, 50
+	# A list of two, non-negative integers for "weeks" and "width". If
+	# weeks is positive, the agenda for that integer number of weeks
+	# starting with the current week will be written to "current.txt" in
+	# your etm home directory and updated when necessary. The format will
+	# be scaled to fit "width". A width of 50, e.g, fits an iPhone display
+	# in portrait mode. You could, for example, create a link to
+	# "current.txt" in a pCloud or DropBox folder and always have access
+	# to your current schedule on your mobile device.
 
     keep_next: false
     # true or false. If true, the 'do next' view will be written to

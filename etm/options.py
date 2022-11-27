@@ -162,7 +162,7 @@ class Settings():
     vi_mode = "false"
     secret = randomString(10)
     omit_extent = ""
-    keep_current = 0
+    keep_current = [0, 50]
     keep_next = "false"
     archive_after = 0
     num_finished = 0
@@ -283,12 +283,14 @@ omit_extent: {omit_extent}
 # and will neither appear nor cause conflicts in busy view.
 
 keep_current: {keep_current}
-# non-negative integer. If positive, the agenda for that integer
-# number of weeks starting with the current week will be written to
-# "current.txt" in your etm home directory and updated when necessary.
-# You could, for example, create a link to this file in a pCloud or
-# DropBox folder and have access to your current schedule on your
-# mobile device.
+# A list of two, non-negative integers for "weeks" and "width". If
+# weeks is positive, the agenda for that integer number of weeks
+# starting with the current week will be written to "current.txt" in
+# your etm home directory and updated when necessary. The format will
+# be scaled to fit "width". A width of 50, e.g, fits an iPhone display
+# in portrait mode. You could, for example, create a link to
+# "current.txt" in a pCloud or GoogleDrive folder and always have access
+# to your current agenda on your mobile device.
 
 keep_next: {keep_next}
 # true or false. If true, the 'do next' view will be written to
@@ -669,6 +671,15 @@ window_colors: {window_colors}
                 self.settings_hsh['window_colors'] = dict2yaml(new['window_colors'])
                 self.settings['window_colors'].update(new['window_colors'])
 
+        if 'keep_current' in new and not isinstance(new['keep_current'], list):
+            if isinstance(new['keep_current'], int):
+                weeks = new['keep_current']
+            elif isinstance(new['keep_current'], bool):
+                weeks = 3 if new['keep_current'] else 0
+            else:
+                weeks = 0
+            changed.append(f"Converting 'keep_current' from {new['keep_current']} to [{weeks}, 50]")
+            new['keep_current'] = [weeks, 50]
 
         if not locale_regex.match(new['locale']):
             tmp = new['locale']
@@ -689,10 +700,6 @@ window_colors: {window_colors}
         if  not isinstance(new['vi_mode'], bool):
             new['vi_mode'] = self.settings['vi_mode']
             changed.append(f"retaining default for 'vi_mode': {self.settings['vi_mode']}")
-
-        if isinstance(new['keep_current'], bool):
-            new['keep_current'] = 3 if new['keep_current'] else 0
-            changed.append(f"Converting 'keep_current' from boolian to integer {new['keep_current']}")
 
         for key in self.settings_hsh:
             if key in ['type_colors', 'window_colors']:

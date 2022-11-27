@@ -1793,7 +1793,6 @@ windoz = sys_platform in ('Windows', 'Microsoft')
 
 from time import perf_counter as timer
 
-# FIXME: is this still used?
 class TimeIt(object):
     def __init__(self, label=""):
         self.loglevel = loglevel
@@ -1824,10 +1823,11 @@ class NDict(dict):
     # tab = " " * 2
     tab = 2
 
-    def __init__(self, split_char='/'):
+    def __init__(self, split_char='/', width=shutil.get_terminal_size()[0]-2, compact=False):
         self.split_char = split_char
-        self.width = shutil.get_terminal_size()[0] - 2
+        self.width = width
         self.row = 0
+        self.compact = compact
         self.row2id = {}
         self.output = []
         self.flag_len = 4 # gkptp
@@ -1893,10 +1893,17 @@ class NDict(dict):
                     indent = NDict.tab * depth * " "
                     l_indent = len(indent)
                     # width - indent - 2 (type and space) - flags - 1 (space) - rhc
-                    summary_width = self.width - l_indent - 2 - self.flag_len - 2 - len(leaf[3])
+                    # summary_width = self.width - l_indent - 2 - self.flag_len - 2 - len(leaf[3])
+                    if self.compact:
+                        summary_width = self.width - l_indent - 2 - len(leaf[3])
+                    else:
+                        summary_width = self.width - l_indent - 2 - len(leaf[2]) - 2 - len(leaf[3])
                     if settings['connecting_dots'] and (leaf[2].strip() or leaf[3].strip()):
                         times = leaf[3].rstrip() if leaf[3].strip() else ''
-                        details = f" {leaf[2]} {times}".replace('   ', LINEDOT)
+                        if self.compact:
+                            details = f" {times}".replace('   ', LINEDOT)
+                        else:
+                            details = f" {leaf[2]} {times}".replace('   ', LINEDOT)
                         fill = summary_width - len(leaf[1])
                         if fill < 0:
                             summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR
@@ -1908,7 +1915,10 @@ class NDict(dict):
                         tmp = f"{indent}{leaf[0]} {summary}{details}"
                     else:
                         summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) > summary_width else leaf[1].ljust(summary_width-1, ' ')
-                        tmp = f"{indent}{leaf[0]} {summary} {leaf[2]} {leaf[3]}"
+                        if self.compact:
+                            tmp = f"{indent}{leaf[0]} {summary} {leaf[3]}"
+                        else:
+                            tmp = f"{indent}{leaf[0]} {summary} {leaf[2]} {leaf[3]}"
 
                     self.output.append(tmp)
                     self.row2id[self.row] = leaf[4]
@@ -2522,22 +2532,23 @@ class DataView(object):
 
     def refreshCurrent(self):
         """
-        Agenda for the current and following 2 weeks
+        Agenda for the current and following 'keep_current' weeks
         """
         if self.currfile is not None:
             weeks = []
             this_week = getWeekNum(self.now)
-            for _ in range(self.settings['keep_current']):
+            for _ in range(self.settings['keep_current'][0]):
                 weeks.append(this_week)
                 this_week = nextWeek(this_week)
             current = []
+            tmp_cache = schedule(self.db, yw=self.activeYrWk, current=self.current, mk_current=True)
             for week in weeks:
-                if week not in self.cache:
-                    self.cache.update(schedule(self.db, yw=week, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list= self.link_list))
-                agenda, done, busy, num2id, row2id, busy_details = self.cache[week]
-                current.append(agenda)
+                agenda, done, busy, num2id, row2id, busy_details = tmp_cache.get(week, [])
+                if agenda:
+                    current.append(agenda)
             with open(self.currfile, 'w', encoding='utf-8') as fo:
-                fo.write("\n\n".join([re.sub(' {5,}', ' ', x.strip()) for x in current]))
+                # fo.write("\n\n".join([re.sub(' {5,}', ' ', x.strip()) for x in current]))
+                fo.write("\n\n".join([x.strip() for x in current]))
                 # fo.write("\n\n".join([x.lstrip() for x in current]))
             logger.info(f"saved current schedule to {self.currfile}")
 
@@ -5349,7 +5360,11 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             logger.warning(f"could not append item: {item}; e: {e}")
 
     for item in beginbys:
-        item_0 = str(item[0]) if item[0] in item else ""
+        if item[0] in item:
+            item_0 = str(item[0]) if item[0] <= 0 else f"+{item[0]}"
+        else:
+            item_0 = ""
+        # item_0 = str(item[0]) if item[0] in item else ""
         rhc = item_0.center(rhc_width, ' ')
         id = item[2]
         flags = get_flags(id, link_list, konnect_list, pinned_list, timers)
@@ -6191,8 +6206,15 @@ def wkday2row(wkday):
     # 1 -> 5, ..., 6 -> 15, 0 -> 17  (pendulum thinks Sunday is first)
     return 3+ 2*wkday if wkday else 17
 
-def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}):
+def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}, mk_current=False):
     timer1 = TimeIt(1)
+    if mk_current:
+        weeks_after = settings['keep_current'][0]
+        width = settings['keep_current'][1]-1
+        compact = True
+    else:
+        width = shutil.get_terminal_size()[0]-1
+        compact = False
     ampm = settings['ampm']
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
@@ -6214,12 +6236,16 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         else:
             LL[hour] = ' '.rjust(6, ' ')
 
-    width = shutil.get_terminal_size()[0] - 2
+    # width = shutil.get_terminal_size()[0] - 2
     # xx:xxam-xx:xxpm
     rhc_width = 15 if ampm else 11
     flag_width = 6
     indent_to_summary = 6
-    summary_width = width - indent_to_summary - flag_width - rhc_width
+    if mk_current:
+        summary_width = width - indent_to_summary - rhc_width
+    else:
+        summary_width = width - indent_to_summary - flag_width - rhc_width
+    logger.debug(f"using summary_width: {summary_width}")
 
     d = iso_to_gregorian((yw[0], yw[1], 1))
     dt = pendulum.datetime(d.year, d.month, d.day, 0, 0, 0, tz='local')
@@ -6578,14 +6604,15 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     done.sort(key=itemgetter('sort'))
 
     busy_details = {}
-    width = shutil.get_terminal_size()[0]
+    # width = shutil.get_terminal_size()[0]
     dent = int((width - 69)/2) * " "
 
     ### item/agenda loop 2
     timer3 = TimeIt(3)
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
-        rdict = NDict()
+        rdict = NDict(width=width, compact=compact)
+        logger.debug(f"usind rdict.width: {rdict.width}")
         busy_details.setdefault(week, {})
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         today = now.format("ddd MMM D")
@@ -6601,7 +6628,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             path = f"{wk_fmt}/{day}"
             values = row['columns']
             if values[0] == "*":
-                # item = db.get(doc_id=doc_id)
                 busyperiod = row.get('busyperiod', "")
                 if busyperiod:
                     wrap = row.get('wrap', [])
