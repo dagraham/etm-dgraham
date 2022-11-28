@@ -2112,6 +2112,11 @@ Here are the options with their default values from that file. The lines beginni
     #    td: m l -q equals itemtype - and ~exists f
     #    mi: exists u and ~exists i
     #    arch: a exists itemtype
+    #    find: includes summary d {}
+	# The latter would allow you to enter, e.g., `find waldo` and have
+	# it expand to `includes summary d waldo` and thus locate all
+	# reminders with `waldo` either in the summary or d (the description).
+
 
     style: dark
     # dark or light. Set the defaults for dark or light terminal
@@ -2213,6 +2218,8 @@ Here are the options with their default values from that file. The lines beginni
     # and 'White' as the foreground color while leaving the other style settings
     # unchanged.
 	#### end cfg.yaml ####
+
+See [Saved Queries](#saved-queries) for more information about queries that allow for replaceable parameters.
 
 Note that in the 'dictionary' entries above, the components must be indented (using 2 spaces not tabs). E.g., the illustrative alert entry would be:
 

@@ -424,6 +424,10 @@ queries: {queries}
 #    td: m l -q equals itemtype - and ~exists f
 #    mi: exists u and ~exists i
 #    arch: a exists itemtype
+#    find: includes summary d {{}}
+# The latter would allow you to enter, e.g., `find waldo` and have
+# it expand to `includes summary d waldo` and thus locate all
+# reminders with `waldo` either in the summary or d (the description).
 
 style: {style}
 # dark or light. Set the defaults for dark or light terminal
