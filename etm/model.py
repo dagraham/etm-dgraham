@@ -2543,9 +2543,8 @@ class DataView(object):
             current = []
             tmp_cache = schedule(self.db, yw=self.activeYrWk, current=self.current, mk_current=True)
             for week in weeks:
-                agenda, done, busy, num2id, row2id, busy_details = tmp_cache.get(week, [])
-                if agenda:
-                    current.append(agenda)
+                if week in tmp_cache:
+                    current.append(tmp_cache[week][0])
             with open(self.currfile, 'w', encoding='utf-8') as fo:
                 # fo.write("\n\n".join([re.sub(' {5,}', ' ', x.strip()) for x in current]))
                 fo.write("\n\n".join([x.strip() for x in current]))
