@@ -16,7 +16,7 @@ import locale
 from copy import deepcopy
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 import etm.__version__ as version
-etm_version = version.version
+etmversion = version.version
 
 locale_regex = re.compile(r'[a-z]{2}_[A-Z]{2}')
 
@@ -206,13 +206,13 @@ class Settings():
         "style" : style,
         "type_colors" : dict2yaml(type_colors),        # user modifications only
         "window_colors" : dict2yaml(window_colors),    # user modifications only
-        "etmversion": etm_version
+        "etmversion": etmversion
 }
 
 
     template = """\
 #### begin cfg.yaml ####
-version: {etmversion}
+etmversion: {etmversion}
 # The current version of etm and this file. DO NOT EDIT. This is
 # automatically updated when a new version of etm is installed.
 
@@ -541,11 +541,11 @@ window_colors: {window_colors}
         # yaml = YAML(typ='safe', pure=True)
         # load defaults
         active_style = self.settings_hsh['style']
-        logger.debug(f"default style: {active_style}")
+        # logger.debug(f"default style: {active_style}")
         default_type_colors = self.default_type_colors[active_style]
-        logger.debug(f"default type_colors: {default_type_colors}")
+        # logger.debug(f"default type_colors: {default_type_colors}")
         default_window_colors = self.default_window_colors[active_style]
-        logger.debug(f"default window_colors: {default_window_colors}")
+        # logger.debug(f"default window_colors: {default_window_colors}")
         # override the settings_hsh values for type_colors and window_colors so that
         # settings will have all the possible keys
         self.settings['type_colors'] = default_type_colors
@@ -571,7 +571,7 @@ window_colors: {window_colors}
 
         if self.user:
             # we have user settings that need to be checked
-            logger.debug("calling check_options")
+            # logger.debug("calling check_options")
             self.changes = self.check_options()
         else:
             # we need to populate cfg.yaml
@@ -594,11 +594,11 @@ window_colors: {window_colors}
         active_style = new.get('style', self.settings_hsh['style'])
         if active_style not in ['dark', 'light']:
             active_style = self.settings_hsh['style']
-        logger.debug(f"active style: {active_style}")
+        # logger.debug(f"active style: {active_style}")
         self.settings['type_colors'] = self.default_type_colors[active_style]
-        logger.debug(f"active type_colors: {self.settings['type_colors']}")
+        # logger.debug(f"active type_colors: {self.settings['type_colors']}")
         self.settings['window_colors'] = self.default_window_colors[active_style]
-        logger.debug(f"active window_colors: {self.settings['window_colors']}")
+        # logger.debug(f"active window_colors: {self.settings['window_colors']}")
 
         cfg = deepcopy(self.settings_hsh)
         # add missing default keys
@@ -620,12 +620,12 @@ window_colors: {window_colors}
         # remove invalid user keys/values
         tmp = deepcopy(new) # avoid modifying ordered_dict during iteration
         for key in tmp:
-            # if key in ["summary", "prop", "start", "when", "location", "description", "etm_version"]:
+            # if key in ["summary", "prop", "start", "when", "location", "description", "etmversion"]:
             #     continue
             if key not in self.settings_hsh:
                 # not a valid option
                 del new[key]
-                changed.append(f"removed {key}: {self.user[key]}")
+                changed.append(f"removed {key}: {self.user[key]} - not in settings_hsh")
             elif key in ['type_colors', 'window_colors']:
                 # only allow the specified subfields for these keys
                 ks = tmp[key] or []

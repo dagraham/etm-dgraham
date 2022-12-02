@@ -1795,22 +1795,32 @@ from time import perf_counter as timer
 
 class TimeIt(object):
     def __init__(self, label=""):
+        self.active = False # use this to turn off all TimeIt timers
+        # self.active = True # use this to turn on all TimeIt timers
+        if not self.active:
+            return
         self.loglevel = loglevel
         self.label = label
         msg = "timer {0} started; loglevel: {1}".format(self.label, self.loglevel)
-        if self.loglevel in [1, 2]:
+        if self.loglevel == 1:
             logger.debug(msg)
+        elif self.loglevel == 2:
+            logger.info(msg)
         elif self.loglevel == 3:
             logger.warning(msg)
         self.start = timer()
 
     def stop(self, *args):
+        if not self.active:
+            return
         self.end = timer()
         self.secs = self.end - self.start
         self.msecs = self.secs * 1000  # millisecs
         msg = "timer {0} stopped; elapsed time: {1} milliseconds".format(self.label, self.msecs)
-        if self.loglevel in [1, 2]:
+        if self.loglevel == 1:
             logger.debug(msg)
+        elif self.loglevel == 2:
+            logger.info(msg)
         elif self.loglevel == 3:
             logger.warning(msg)
 
@@ -2016,8 +2026,6 @@ class DataView(object):
         self.refresh_konnections()
         self.refreshRelevant()
         self.activeYrWk = self.currentYrWk
-        self.calAdv = pendulum.today().month // 7
-
         self.refreshAgenda()
         self.refreshCurrent()
         self.currcal()
@@ -2534,21 +2542,28 @@ class DataView(object):
         """
         Agenda for the current and following 'keep_current' weeks
         """
+        # schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}, mk_current=False):
         if self.currfile is not None:
             weeks = []
+            self.set_now()
+            # logger.debug(f"now: {self.now}\ncurrent: {self.current}")
+            curr_lines = []
             this_week = getWeekNum(self.now)
-            for _ in range(self.settings['keep_current'][0]):
+            num_weeks = self.settings['keep_current'][0]
+            for _ in range(num_weeks):
+                # weeks corresponding to 0, ..., num_weeks-1
                 weeks.append(this_week)
                 this_week = nextWeek(this_week)
-            current = []
-            tmp_cache = schedule(self.db, yw=self.activeYrWk, current=self.current, mk_current=True)
+            tmp_cache = schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list, konnect_list=self.konnected, timers=self.timers, mk_current=True)
+            logger.debug(f"tmp_cache weeks: {[x for x in tmp_cache.keys()]}")
             for week in weeks:
                 if week in tmp_cache:
-                    current.append(tmp_cache[week][0])
+                    # append the agenda component
+                    curr_lines.append(tmp_cache[week][0])
+                else:
+                    logger.debug(f"week {week} missing from tmp_cache")
             with open(self.currfile, 'w', encoding='utf-8') as fo:
-                # fo.write("\n\n".join([re.sub(' {5,}', ' ', x.strip()) for x in current]))
-                fo.write("\n\n".join([x.strip() for x in current]))
-                # fo.write("\n\n".join([x.lstrip() for x in current]))
+                fo.write("\n\n".join([x.strip() for x in curr_lines]))
             logger.info(f"saved current schedule to {self.currfile}")
 
         if self.nextfile is not None:
@@ -6271,6 +6286,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
     #XXX main loop begins
     timer2 = TimeIt(2)
+    todayYMD = now.format("YYYYMMDD")
+    tomorrowYMD = (now + 1*DAY).format("YYYYMMDD")
+    logger.debug(f"instances todayYMD: {todayYMD}; tomorrowYMD: {tomorrowYMD}")
     for item in db:
         if item.get('itemtype', None) == None:
             logger.error(f"itemtype missing from {item}")
@@ -6381,19 +6399,18 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         # XXX INSTANCES
         for dt, et in item_instances(item, aft_dt, bef_dt):
 
-            # FIXME should this be based on dtb?
-            rdict = NDict()
+            # rdict = NDict()
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
             wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-            today = now.format("YYYYMMDD")
-            tomorrow = (now + 1*DAY).format("YYYYMMDD")
             itemday = dt.format("YYYYMMDD")
-            day = dt.format("ddd MMM D")
-            if itemday == today:
-                day += " (Today)"
-            elif itemday == tomorrow:
-                day += " (Tomorrow)"
+            dayDM = dt.format("ddd MMM D")
+            if itemday == todayYMD:
+                logger.debug(f"itemday: {itemday}; todayYMD: *{todayYMD}*; tomorrowYMD: {tomorrowYMD}")
+                dayDM += " (Today)"
+            elif itemday == tomorrowYMD:
+                logger.debug(f"itemday: {itemday}; todayYMD: {todayYMD}; tomorrowYMD: *{tomorrowYMD}*")
+                dayDM += " (Tomorrow)"
             week2day2busy.setdefault(week, {})
             week2day2busy[week].setdefault(dayofweek, [])
 
@@ -6560,9 +6577,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 rhc,
                                 (doc_id, instance, None)
                                 ]
-                path = f"{wk_fmt}/{day}"
+                path = f"{wk_fmt}/{dayDM}**"
 
-                rdict.add(path, columns)
+                # rdict.add(path, columns)
 
                 rows.append(
                         {
@@ -6608,23 +6625,23 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
     ### item/agenda loop 2
     timer3 = TimeIt(3)
+    today = now.format("ddd MMM D")
+    tomorrow = (now + 1*DAY).format("ddd MMM D")
+    logger.debug(f"busy loop today: {today}; tomorrow: {tomorrow}")
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
         rdict = NDict(width=width, compact=compact)
-        logger.debug(f"usind rdict.width: {rdict.width}")
         busy_details.setdefault(week, {})
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-        today = now.format("ddd MMM D")
-        tomorrow = (now + 1*DAY).format("ddd MMM D")
         for row in items:
             doc_id = row['id']
-            day = row['day'][0]
+            day_ = row['day'][0]
             dayofweek = row.get('dayofweek', 1)
-            if day == today:
-                day += " (Today)"
-            elif day == tomorrow:
-                day += " (Tomorrow)"
-            path = f"{wk_fmt}/{day}"
+            if day_ == today:
+                day_ += " (Today)"
+            elif day_ == tomorrow:
+                day_ += " (Tomorrow)"
+            path = f"{wk_fmt}/{day_}"
             values = row['columns']
             if values[0] == "*":
                 busyperiod = row.get('busyperiod', "")
@@ -6638,7 +6655,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     else:
                         wrapper = ""
                     row = wkday2row(dayofweek)
-                    busy_details[week].setdefault(row, [f"Busy periods for {day}"]).append(
+                    busy_details[week].setdefault(row, [f"Busy periods for {day_}"]).append(
                             f"   {values[3] : ^7} {values[1]}{wrapper} "
                             )
             rdict.add(path, values)
@@ -6694,12 +6711,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         weeks.add(week)
         rdict = NDict()
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-        today = now.format("ddd MMM D")
         for row in items:
-            day = row['day'][0]
-            if day == today:
-                day += " (Today)"
-            path = f"{wk_fmt}/{day}"
+            day_ = row['day'][0]
+            if day_ == today:
+                day_ += " (Today)"
+            elif day_ == tomorrow:
+                day_ += " (Tomorrow)"
+            path = f"{wk_fmt}/{day_}"
             values = row['columns']
             rdict.add(path, values)
         tree, row2id = rdict.as_tree(rdict, level=0)
@@ -6812,7 +6830,7 @@ def import_ics(import_file=None):
 
 def import_examples():
     docs = []
-    logger.debug("calling make_examples")
+    # logger.debug("calling make_examples")
     examples = make_examples()
 
     results = []
@@ -6822,13 +6840,13 @@ def import_examples():
     reminder = []
 
     for s in examples:
-        logger.debug(f"adding: {s}")
+        # logger.debug(f"adding: {s}")
         ok = True
         if not s: continue
         item = Item()  # use ETMDB by default
         item.new_item()
         item.text_changed(s, 1)
-        logger.debug(f"item: {item}")
+        # logger.debug(f"item: {item}")
         if item.item_hsh.get('itemtype', None) is None:
             ok = False
 

@@ -1293,13 +1293,12 @@ def data_changed(loop):
 
 async def new_day(loop):
     logger.debug("### new day ###")
-    dataview.refreshRelevant()
-    dataview.activeYrWk = dataview.currentYrWk
+    dataview.refreshRelevant()  # sets now, currentYrWk, current
     dataview.refreshAgenda()
-    dataview.refreshCurrent()
-    dataview.currcal()
     dataview.set_active_view('a')
     set_text(dataview.show_active_view())
+    dataview.refreshCurrent()
+    dataview.currcal()
     get_app().invalidate()
     dataview.handle_backups()
     dataview.possible_archive()
