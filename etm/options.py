@@ -162,7 +162,7 @@ class Settings():
     vi_mode = "false"
     secret = randomString(10)
     omit_extent = ""
-    keep_current = [0, 50]
+    keep_current = [0, 47]
     keep_next = "false"
     archive_after = 0
     num_finished = 0

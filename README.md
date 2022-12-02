@@ -1961,12 +1961,12 @@ Here are the options with their default values from that file. The lines beginni
     # list will only have their starting times displayed in agenda view
     # and will neither appear nor cause conflicts in busy view.
 
-	keep_current: 0, 50
+	keep_current: 0, 47
 	# A list of two, non-negative integers for "weeks" and "width". If
 	# weeks is positive, the agenda for that integer number of weeks
 	# starting with the current week will be written to "current.txt" in
 	# your etm home directory and updated when necessary. The format will
-	# be scaled to fit "width". A width of 50, e.g, fits an iPhone display
+	# be scaled to fit "width". A width of 47, e.g, fits an iPhone display
 	# in portrait mode. You could, for example, create a link to
 	# "current.txt" in a pCloud or DropBox folder and always have access
 	# to your current schedule on your mobile device.
