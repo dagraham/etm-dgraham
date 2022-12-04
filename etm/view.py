@@ -1609,7 +1609,7 @@ busy_area = TextArea(
     )
 
 
-width = shutil.get_terminal_size()[0] - 2
+width = shutil.get_terminal_size()[0] - 4
 # busy_times = "Use '⇧ ⇾' and '⇧ ⇽' to jump among the days with busy times.".center(width, ' ')
 # busy_times = "The 'down' and 'up' cursor keys jump among days with busy periods.".center(width, ' ')
 

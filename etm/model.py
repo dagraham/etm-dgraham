@@ -1900,7 +1900,7 @@ class NDict(dict):
             else:
                 # we have a list of leaves
                 for leaf in t[k]:
-                    logger.debug(f"leaf[:4]: {leaf[:4]}")
+                    # logger.debug(f"leaf[:4]: {leaf[:4]}")
                     indent = NDict.tab * depth * " "
                     l_indent = len(indent)
                     # width - indent - 2 (type and space) - flags - 1 (space) - rhc
@@ -5072,7 +5072,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     """
     # These need to be local times since all times from the datastore and rrule will be local times
     dirty = False
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     summary_width = width - 7 - 16
     ampm = settings['ampm']
     rhc_width = 15 if ampm else 11
@@ -5109,7 +5109,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
         summary = item.get('summary', "~")
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
-        logger.debug(f"flags for {doc_id}: {flags}; {link_list}, {konnect_list}, {pinned_list}, {timers}")
+        # logger.debug(f"flags for {doc_id}: {flags}; {link_list}, {konnect_list}, {pinned_list}, {timers}")
         if item['itemtype'] == '!':
             inbox.append([0, summary, item.doc_id, None, None])
             relevant = today
@@ -5440,7 +5440,7 @@ def insert_db(db, hsh={}):
 
 
 def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], timers={}):
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     summary_width = width - 19
     rows = []
     today = pendulum.today()
@@ -5503,7 +5503,7 @@ def get_flags(doc_id, link_list=[], konnect_list=[], pinned_list=[], timers={}):
         flags += PIN_CHAR
     if doc_id in timers:
         flags += "t"
-    logger.debug(f"get_flags returning: {flags} for {doc_id}")
+    # logger.debug(f"get_flags returning: {flags} for {doc_id}")
     return flags.rjust(4, ' ')
 
 def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=[], timers={}):
@@ -5511,7 +5511,7 @@ def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=
     if not items or not isinstance(items, list):
         return f"query: {text}\n   none matching", {}
     item_count = f" [{len(items)}]"
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     summary_width = width - len(item_count) - 7
     for item in items:
         mt = item.get('modified', None)
@@ -5547,7 +5547,7 @@ def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=
 
 
 def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[], timers={}):
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     rows = []
     summary_width = width - 25
     for item in db:
@@ -5597,7 +5597,7 @@ def show_review(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     """
     Unfinished, undated tasks and jobs
     """
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     rows = []
     locations = set([])
     summary_width = width - 18
@@ -5647,7 +5647,7 @@ def show_timers(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, ac
     """
     timers
     """
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     rows = []
     locations = set([])
     summary_width = width - 18
@@ -5726,7 +5726,7 @@ def show_konnected(db, pinned_list=[], link_list=[], konnect_list=[], timers={},
         # from and to are empty
         return [], {}
 
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     rows = []
     summary_width = width - 11
     for path, item in relevant:
@@ -5765,7 +5765,7 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     """
     Unfinished, undated tasks and jobs
     """
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     rows = []
     locations = set([])
     group_names = []
@@ -5863,7 +5863,7 @@ def show_journal(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[],
     """
     journal grouped by index entry
     """
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     rows = []
     summary_width = width - 14
     # indices = set([])
@@ -5902,7 +5902,7 @@ def show_tags(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], ti
     """
     tagged items grouped by tag
     """
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     rows = []
     for item in db:
         doc_id = item.doc_id
@@ -5938,7 +5938,7 @@ def show_location(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]
     """
     items with location entries grouped by location
     """
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     rows = []
     for item in db:
         doc_id = item.doc_id
@@ -6007,7 +6007,7 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], t
 
 
 def show_pinned(items, pinned_list=[], link_list=[], konnect_list=[], timers={}):
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     rows = []
     rhc_width = 8
     for item in items:
@@ -6056,7 +6056,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     """
     UT_MIN = settings.get('usedtime_minutes', 1)
 
-    width = shutil.get_terminal_size()[0] - 2
+    width = shutil.get_terminal_size()[0] - 3
     summary_width = width - 21
 
     used_details = {}
@@ -6230,9 +6230,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         width = settings['keep_current'][1]-1
         compact = True
     else:
-        width = shutil.get_terminal_size()[0]-1
+        width = shutil.get_terminal_size()[0]-3
         compact = False
-    logger.debug(f"konnect_list: {konnect_list}")
+    # logger.debug(f"konnect_list: {konnect_list}")
     ampm = settings['ampm']
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
@@ -6263,7 +6263,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         summary_width = width - indent_to_summary - rhc_width
     else:
         summary_width = width - indent_to_summary - flag_width - rhc_width
-    logger.debug(f"using summary_width: {summary_width}")
+    # logger.debug(f"using summary_width: {summary_width}")
 
     d = iso_to_gregorian((yw[0], yw[1], 1))
     dt = pendulum.datetime(d.year, d.month, d.day, 0, 0, 0, tz='local')
@@ -6292,7 +6292,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     timer2 = TimeIt(2)
     todayYMD = now.format("YYYYMMDD")
     tomorrowYMD = (now + 1*DAY).format("YYYYMMDD")
-    logger.debug(f"instances todayYMD: {todayYMD}; tomorrowYMD: {tomorrowYMD}")
+    # logger.debug(f"instances todayYMD: {todayYMD}; tomorrowYMD: {tomorrowYMD}")
     for item in db:
         if item.get('itemtype', None) == None:
             logger.error(f"itemtype missing from {item}")
@@ -6307,10 +6307,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         extent = item.get('e', None)
         wraps = item.get('w', [])
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
-        if flags.strip():
-            logger.debug(f"flags: {itemtype} {summary} {flags} {start}")
-        else:
-            logger.debug(f"NO flags: {itemtype} {summary} {flags} {start}")
+        # if flags.strip():
+        #     logger.debug(f"flags: {itemtype} {summary} {flags} {start}")
+        # else:
+        #     logger.debug(f"NO flags: {itemtype} {summary} {flags} {start}")
         used = item.get('u', None)
         finished = item.get('f', None)
         history = item.get('h', None)
@@ -6414,10 +6414,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             itemday = dt.format("YYYYMMDD")
             dayDM = dt.format("ddd MMM D")
             if itemday == todayYMD:
-                logger.debug(f"itemday: {itemday}; todayYMD: *{todayYMD}*; tomorrowYMD: {tomorrowYMD}")
+                # logger.debug(f"itemday: {itemday}; todayYMD: *{todayYMD}*; tomorrowYMD: {tomorrowYMD}")
                 dayDM += " (Today)"
             elif itemday == tomorrowYMD:
-                logger.debug(f"itemday: {itemday}; todayYMD: {todayYMD}; tomorrowYMD: *{tomorrowYMD}*")
+                # logger.debug(f"itemday: {itemday}; todayYMD: {todayYMD}; tomorrowYMD: *{tomorrowYMD}*")
                 dayDM += " (Tomorrow)"
             week2day2busy.setdefault(week, {})
             week2day2busy[week].setdefault(dayofweek, [])
@@ -6635,14 +6635,14 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     timer3 = TimeIt(3)
     today = now.format("ddd MMM D")
     tomorrow = (now + 1*DAY).format("ddd MMM D")
-    logger.debug(f"busy loop today: {today}; tomorrow: {tomorrow}")
+    # logger.debug(f"busy loop today: {today}; tomorrow: {tomorrow}")
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
         rdict = NDict(width=width, compact=compact)
         busy_details.setdefault(week, {})
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         for row in items:
-            logger.debug(f"row: {row}")
+            # logger.debug(f"row: {row}")
             doc_id = row['id']
             day_ = row['day'][0]
             dayofweek = row.get('dayofweek', 1)
