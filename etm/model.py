@@ -1630,7 +1630,7 @@ def format_hours_and_tenths(obj):
         return None
     usedtime_minutes = settings.get('usedtime_minutes', 1)
     try:
-        if usedtime_minutes == 1:
+        if usedtime_minutes <= 1:
             return format_duration(obj, short=True)
         minutes = 0
         if obj.weeks:
@@ -1672,7 +1672,8 @@ def format_duration(obj, short=False):
     """
     if not isinstance(obj, pendulum.Duration):
         return None
-    obj = round_minutes(obj)
+    if UT_MIN > 0:
+        obj = round_minutes(obj)
     hours = obj.hours
     try:
         until =[]
@@ -1688,11 +1689,17 @@ def format_duration(obj, short=False):
             else:
                 until.append(f"{obj.remaining_days}d")
         minutes = obj.minutes
-
+        seconds = obj.remaining_seconds
+        # if UT_MIN > 0 and seconds:
+        #     minutes += 1
+        #     seconds = 0
         if hours:
             until.append(f"{hours}h")
         if minutes:
             until.append(f"{minutes}m")
+        if seconds:
+            # seconds > 0 => UT_MIN == 0
+            until.append(f"{seconds}s")
         if not until:
             until.append("0m")
         return "".join(until)
@@ -1708,9 +1715,9 @@ def format_duration_list(obj_lst):
         logger.error(f"{obj_lst}: {e}")
 
 
-period_regex = re.compile(r'(([+-]?)(\d+)([wdhmMy]))+?')
+period_regex = re.compile(r'(([+-]?)(\d+)([wdhmMys]))+?')
 expanded_period_regex = re.compile(r'(([+-]?)(\d+)\s(week|day|hour|minute|month|year)s?)+?')
-relative_regex = re.compile(r'(([+-])(\d+)([wdhmMy]))+?')
+relative_regex = re.compile(r'(([+-])(\d+)([wdhmMys]))+?')
 threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
 
@@ -1729,6 +1736,7 @@ def parse_duration(s):
         d: days
         h: hours
         m: minutes
+        s: seconds
 
     >>> 3*60*60+5*60
     11100
@@ -1759,6 +1767,9 @@ def parse_duration(s):
             'm': 'minutes',
             'minute': 'minutes',
             'minutes': 'minutes',
+            's': 'seconds',
+            'second': 'seconds',
+            'seconds': 'seconds'
             }
 
     kwds = {
@@ -1767,7 +1778,8 @@ def parse_duration(s):
             'weeks': 0,
             'days': 0,
             'hours': 0,
-            'minutes': 0
+            'minutes': 0,
+            'seconds': 0
             }
 
     m = period_regex.findall(str(s))
@@ -2227,6 +2239,25 @@ class DataView(object):
         else:
             logger.info(f"{self.cfgfile} unchanged - skipping backup")
 
+        if os.path.exists(self.currfile):
+            currtime = os.path.getctime(self.currfile)
+            currfiles = [x for x in filelist if x.startswith('curr')]
+            currfiles.sort(reverse=True)
+            if currfiles:
+                lastcurrtime = os.path.getctime(os.path.join(self.backupdir, currfiles[0]))
+            else:
+                lastcurrtime = None
+            if lastcurrtime is None or currtime > lastcfgtime:
+                backupfile = os.path.join(self.backupdir, f"curr-{timestamp}.txt")
+                shutil.copy2(self.currfile, backupfile)
+                logger.info(f"backed up {self.currfile} to {backupfile}")
+                currfiles.insert(0, f"curr-{timestamp}.yaml")
+                currfiles.sort(reverse=True)
+                removefiles.extend([os.path.join(self.backupdir, x) for x in
+                    currfiles[7:]])
+            else:
+                logger.info(f"{self.currfile} unchanged - skipping backup")
+
         # maybe delete older backups
         if removefiles:
             logger.info(f"removing old files: {removefiles}")
@@ -2547,7 +2578,7 @@ class DataView(object):
         if self.currfile is not None:
             weeks = []
             self.set_now()
-            # logger.debug(f"now: {self.now}\ncurrent: {self.current}")
+            logger.debug(f"now: {self.now}\ncurrent: {self.current}")
             curr_lines = []
             this_week = getWeekNum(self.now)
             num_weeks = self.settings['keep_current'][0]
@@ -6084,10 +6115,13 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
                 dt.set(hour=23, minute=59, second=59)
             # for id2used
-            if UT_MIN != 1:
-                res = period.minutes % UT_MIN
+            seconds = period.remaining_seconds
+            if UT_MIN > 1:
+                res = period.in_minutes() % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
+            # elif UT_MIN == 0:
+
 
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
@@ -6323,17 +6357,21 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     pass
                 else:
                     dt = dt.date()
-                if UT_MIN != 1:
+                if UT_MIN > 1:
                     # round up minutes
                     res = period.minutes % UT_MIN
                     if res:
                         period += (UT_MIN - res) * ONEMIN
+
                 dates_to_periods.setdefault(dt, []).append(period)
             for dt in dates_to_periods:
                 total = ZERO
                 for p in dates_to_periods[dt]:
                     total += p
-                rhc = format_hours_and_tenths(total).center(rhc_width, ' ')
+                if total is not None:
+                    rhc = format_hours_and_tenths(total).center(rhc_width, ' ')
+                else:
+                    rhc = ''
                 done.append(
                         {
                             'id': doc_id,

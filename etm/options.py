@@ -328,11 +328,15 @@ connecting_dots: {connecting_dots}
 # the right-hand details columns in tree views.
 
 usedtime_minutes: {usedtime_minutes}
-# 1, 6, 12, 30 or 60. Round used times up to the nearest
-# usedtime_minutes in used time views. With 1, no rounding is done and
-# times are reported as hours and minutes. Otherwise, the prescribed
-# rounding is done and times are reported as floating point hours.
-# Note that each "@u" timeperiod is rounded before aggregation.
+# 0, 1, 6, 12, 30 or 60. Round off used times. With 0, no rounding is done
+# and times are reported in hours, minutes and seconds. With 1, after
+# rounding up to the next minute, times are reported as hours and minutes.
+# Otherwise, rounding is up to the specified integer and times are reported
+# as floating point hours. E.g., with usedtime_minutes = 6, 1 minute would
+# be rounded up to 6 minutes and reported as 0.1 hours. Similarly 13
+# minutes would be rounded up to 18 minutes and reported as 0.3 hours. Note
+# that when rounding is specified, each "@u" timeperiod is rounded before
+# aggregation.
 
 alerts: {alerts}
 # A dictionary with single-character, "alert" keys and corresponding
@@ -695,7 +699,7 @@ window_colors: {window_colors}
             new['updates_interval'] = self.settings['updates_interval']
             changed.append(f"retaining default for 'updates_interval': {self.settings['updates_interval']}")
 
-        if new['usedtime_minutes'] not in [1, 6, 12, 30, 60]:
+        if new['usedtime_minutes'] not in [0, 1, 6, 12, 30, 60]:
             changed.append(f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 1.")
             new['usedtime_minutes'] = 1
         if  new['style'] not in ['dark', 'light']:

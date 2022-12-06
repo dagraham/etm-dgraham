@@ -49,6 +49,7 @@ def main():
 
     secret = settings.get('secret')
     queries = settings.get('queries')
+    UT_MIN = settings.get('usedtime_minutes', 1)
     import pendulum
     today = pendulum.today()
     # We want 2 char 'en' weekday abbreviations regardless of the actual locale
@@ -75,6 +76,7 @@ def main():
     ical.logger = logger
     import etm.data as data
     data.secret = secret
+    data.logger = logger
     from etm.data import Mask
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
     logger.debug(f"using dbfile: {dbfile}")
@@ -117,6 +119,7 @@ def main():
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
+    model.UT_MIN = UT_MIN
     model.beginbusy = beginbusy
     model.settings = settings
     model.logger = logger
@@ -209,7 +212,7 @@ def main():
     report.format_duration = format_duration
     report.format_hours_and_tenths = format_hours_and_tenths
     report.logger = logger
-    report.UT_MIN = settings.get('usedtime_minutes', 1)
+    report.UT_MIN = UT_MIN
 
     logger.info(f"setting terminal_style: {style}")
 

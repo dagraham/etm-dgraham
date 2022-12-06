@@ -250,6 +250,8 @@ def format_duration(obj):
             until.append(f"{obj.hours}h")
         if obj.minutes:
             until.append(f"{obj.minutes}m")
+        if obj.remaining_seconds:
+            until.append(f"{obj.remaining_seconds}s")
         if not until:
             until.append("0m")
         ret = "".join(until)
@@ -267,12 +269,13 @@ def format_duration_list(obj_lst):
         print(obj_lst)
 
 
-period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
+period_regex = re.compile(r'(([+-]?)(\d+)([wdhms]))+?')
 threeday_regex = re.compile(r'(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
 
 period_hsh = dict(
     z=pendulum.duration(seconds=0),
+    s=pendulum.duration(seconds=1),
     m=pendulum.duration(minutes=1),
     h=pendulum.duration(hours=1),
     d=pendulum.duration(days=1),
@@ -308,9 +311,11 @@ def parse_duration(s):
     m = period_regex.findall(s)
     if not m:
         return False, "Invalid period '{0}'".format(s)
+    # logger.debug(f"m: {[x for x in m]}")
     for g in m:
         num = -int(g[2]) if g[1] == '-' else int(g[2])
         td += num * period_hsh[g[3]]
+    # logger.debug(f"{s} -> {td}")
     return True, td
 
 WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
