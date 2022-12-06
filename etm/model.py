@@ -1655,6 +1655,8 @@ def dt2minutes(obj):
 
 
 def round_minutes(obj):
+    if UT_MIN == 0:
+        return obj
     seconds = obj.remaining_seconds
     if seconds >= 30:
         # round up
@@ -1673,8 +1675,8 @@ def format_duration(obj, short=False):
     """
     if not isinstance(obj, pendulum.Duration):
         return None
-    if UT_MIN > 0:
-        obj = round_minutes(obj)
+    # if UT_MIN > 0:
+    obj = round_minutes(obj)
     hours = obj.hours
     try:
         until =[]
@@ -1696,13 +1698,75 @@ def format_duration(obj, short=False):
         if minutes:
             until.append(f"{minutes}m")
         if seconds:
-            # not here unless UT_MIN == 0
+            # getting here means UT_MIN == 0
             until.append(f"{seconds}s")
         if not until:
             until.append("0m")
         return "".join(until)
     except Exception as e:
         logger.error(f"{obj}: {e}")
+        return None
+
+
+def status_duration(obj):
+    """
+    hours, minutes and tenths of minutes for display in the status bar
+    """
+    if not isinstance(obj, pendulum.Duration):
+        return None
+    hours = obj.hours
+    try:
+        until =[]
+        if obj.weeks:
+            hours += obj.weeks * 7 * 24
+
+        if obj.remaining_days:
+            hours += obj.remaining_days * 24
+
+        if hours:
+            until.append(f"{hours}h")
+
+        minutes = obj.minutes
+        seconds = obj.remaining_seconds
+        if seconds:
+            until.append(f"{minutes}.{seconds//6}m")
+        elif minutes:
+            until.append(f"{minutes}m")
+        if not until:
+            until.append("0m")
+        return "".join(until)
+    except Exception as e:
+        logger.error(f"{obj}: {e}")
+        return None
+
+def fmt_dur(obj):
+    """
+    From data.py - no rounding
+    >>> td = pendulum.duration(weeks=1, days=2, hours=3, minutes=27)
+    >>> format_duration(td)
+    '1w2d3h27m'
+    """
+    if not isinstance(obj, pendulum.Duration):
+        return None
+    try:
+        until =[]
+        if obj.weeks:
+            until.append(f"{obj.weeks}w")
+        if obj.remaining_days:
+            until.append(f"{obj.remaining_days}d")
+        if obj.hours:
+            until.append(f"{obj.hours}h")
+        if obj.minutes:
+            until.append(f"{obj.minutes}m")
+        if obj.remaining_seconds:
+            until.append(f"{obj.remaining_seconds}s")
+        if not until:
+            until.append("0m")
+        ret = "".join(until)
+        return "".join(until)
+    except Exception as e:
+        print('format_duration', e)
+        print(obj)
         return None
 
 
@@ -1804,8 +1868,8 @@ windoz = sys_platform in ('Windows', 'Microsoft')
 from time import perf_counter as timer
 
 class TimeIt(object):
-    def __init__(self, label=""):
-        self.active = False # use this to turn off all TimeIt timers
+    def __init__(self, label="", active=False):
+        self.active = active # use this to turn off all TimeIt timers
         # self.active = True # use this to turn on all TimeIt timers
         if not self.active:
             return
@@ -2380,17 +2444,18 @@ class DataView(object):
             delta = pendulum.now('local') - started
             if status == 'r': # running
                 delta += elapsed
-            active = f"{status}:{format_duration(delta, short=True)}"
+            active = f"{status}:{status_duration(delta)}"
         if len(self.timers) > 1:
             timers = deepcopy(self.timers)
             if self.active_timer in timers:
                 del timers[self.active_timer]
-            relevant = [round_minutes(v[2]) for k, v in timers.items() if v[2] > zero]
+            # relevant = [round_minutes(v[2]) for k, v in timers.items() if v[2] > zero]
+            relevant = [v[2] for k, v in timers.items() if v[2] > zero]
             if relevant:
                 total = zero
                 for v in relevant:
                     total += v
-                unrecorded = f" + i:{format_duration(total, short=True)}"
+                unrecorded = f" + i:{status_duration(total)}"
         return f"{active}{unrecorded}  "
 
 
@@ -3558,7 +3623,7 @@ display_tmpl = """\
 
 jinja_entry_template = Template(entry_tmpl)
 jinja_entry_template.globals['dt2str'] = plain_datetime
-jinja_entry_template.globals['in2str'] = format_duration
+jinja_entry_template.globals['in2str'] = fmt_dur
 jinja_entry_template.globals['dtlst2str'] = plain_datetime_list
 jinja_entry_template.globals['inlst2str'] = format_duration_list
 jinja_entry_template.globals['one_or_more'] = one_or_more
@@ -3567,7 +3632,7 @@ jinja_entry_template.globals['nowrap'] = nowrap
 
 jinja_display_template = Template(display_tmpl)
 jinja_display_template.globals['dt2str'] = plain_datetime
-jinja_display_template.globals['in2str'] = format_duration
+jinja_display_template.globals['in2str'] = fmt_dur
 jinja_display_template.globals['dtlst2str'] = format_datetime_list
 jinja_display_template.globals['inlst2str'] = format_duration_list
 jinja_display_template.globals['one_or_more'] = one_or_more
@@ -3624,7 +3689,7 @@ def do_usedtime(arg):
         ok, res = parse_duration(period)
         if ok:
             obj_period = res
-            rep_period = format_duration(res)
+            rep_period = fmt_dur(res)
             got_period = True
         else:
             rep_period = res
@@ -3633,7 +3698,7 @@ def do_usedtime(arg):
         ok, res, z = parse_datetime(dt)
         if ok:
             obj_datetime = res
-            rep_datetime = format_datetime(res, short=True)[1]
+            rep_datetime = fmt_dur(res, short=True)[1]
             got_datetime = True
         else:
             rep_datetime = res
@@ -5695,11 +5760,11 @@ def show_timers(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, ac
             continue
         state, start, elapsed = timers[doc_id]
         if state == 'r':
-            elapsed += round_minutes(now - start)
+            elapsed += now - start
         num_timers += 1
         total_time += elapsed
         sort = state2sort[state]
-        rhc = f"{format_duration(elapsed, short=True)}  {state}".rjust(10, ' ')
+        rhc = f"{status_duration(elapsed)}  {state}".rjust(10, ' ')
         itemtype = item['itemtype']
         summary = item['summary']
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
@@ -5721,7 +5786,7 @@ def show_timers(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, ac
         logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
     rdict = NDict()
     timers_fmt = "timers" if num_timers > 1 else "timer"
-    path = f"{num_timers} {timers_fmt}: {format_duration(total_time, short=True)}".center(width, ' ')
+    path = f"{num_timers} {timers_fmt}: {status_duration(total_time)}".center(width, ' ')
     for row in rows:
         values = row['values']
         rdict.add(path, values)

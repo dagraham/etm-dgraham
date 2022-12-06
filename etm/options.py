@@ -330,7 +330,7 @@ connecting_dots: {connecting_dots}
 usedtime_minutes: {usedtime_minutes}
 # 0, 1, 6, 12, 30 or 60. Round off used times. With 0, no rounding is done
 # and times are reported in hours, minutes and seconds. With 1, after
-# rounding up to the next minute, times are reported as hours and minutes.
+# rounding off to the nearestt minute, times are reported as hours and minutes.
 # Otherwise, rounding is up to the specified integer and times are reported
 # as floating point hours. E.g., with usedtime_minutes = 6, 1 minute would
 # be rounded up to 6 minutes and reported as 0.1 hours. Similarly 13

@@ -78,6 +78,7 @@ def main():
     data.secret = secret
     data.logger = logger
     from etm.data import Mask
+
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
     logger.debug(f"using dbfile: {dbfile}")
     cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
@@ -103,6 +104,7 @@ def main():
     from etm.model import UPDATE_CHAR
     from etm.model import PIN_CHAR
     from etm.model import INBASKET_CHAR
+    from etm.model import TimeIt
     import etm.model as model
     model.loglevel = loglevel
     model.etm_version = etm_version
@@ -151,6 +153,7 @@ def main():
 
 
     import etm.view as view
+    view.TimeIt = TimeIt
     view.wrap = wrap
     view.WA = WA
     view.beginbusy = beginbusy

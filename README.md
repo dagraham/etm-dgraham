@@ -42,6 +42,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
     -   [Usage](#usage)
         -   [Terminal size and color](#terminal-size-and-color)
         -   [Home directory](#home-directory)
+        -   [Timers](#timers)
         -   [lorem examples](#loremexamples)
         -   [Using etm+](#etmplus)
     -   [Deinstallation](#deinstallation)
@@ -582,7 +583,9 @@ reminders with links from the selection
 
 ### Used Time Views {#used-time-views}
 
-The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders grouped by year-month and then heirarchially by `@i` entries. I have a file of reminders with `@i` and `@u` entries such as
+The *used time* and *used time summary* views are bound to `u` and `U` respectively. They report `@u` (used time) entries in your reminders, rounded up according to the `usedtime_minutes` setting in your `cfg.yaml` file and grouped by year-month and then heirarchially by `@i` entries.
+
+I have a file of reminders with `@i` and `@u` entries such as
 
 		* Modi ut sit sed amet sit @s 2019-11-11 10:00am @e
 		   1h30m
@@ -593,7 +596,7 @@ The *used time* and *used time summary* views are bound to `u` and `U` respectiv
 		porro est ut. Ut tempora sed non ut eius neque porro.
 		Sed quaerat consectetur dolor sit.
 
-and the *used time view* for November begins with
+With `usedtime_minutes: 6`, the *used time view* for November begins with
 
 		November 2019
 		  client A
@@ -1411,6 +1414,44 @@ See [configuration](#configuration) for details.
 
 [↺ contents](#contents)
 
+### Timers {#timers}
+
+For tracking time spent, *etm* supports the use of one or more timers. Each timer is associated with a particular reminder and, if a timer is recorded, a used time entry will be added to the associated reminder using this format:
+
+        @u <time spent>: <datetime recorded>
+
+The timer itself records seconds, but the used time entry for `<time spent>` depends upon the `usedtime_minutes` setting in `cfg.yaml` as follows:
+
+- 0: time is recorded in seconds after rounding to the nearest second
+- 1: time is recorded in minutes after rounding off to the nearest minute, e.g., 1m29s => 1m; 1m30s => 2m
+- 6: time is rounded up to the next one-tenth of an hour for reporting but recorded in minutes
+- 12: time is rounded up to the next two-tenths of an hour for reporting but recorded in minutes
+- 30: time is rounded up to the next half hour for reporting but recorded in minutes
+- 60: time is rounded up to the next hour for reporting but recorded in minutes
+
+The [Used Time Views](#used-time-views) show aggregations of these reported times by month and index entry. Note that any rounding up is done before aggregating.
+
+Used time entries can be recorded directly by editing the relevant reminder and adding one or more `@u` entries. It is also possible to use *etm* to create timers *attached* to particular reminders and control them with hotkeys.
+
+- T: with a reminder selected
+    - if a timer has not already been associated with this reminder, then create a new timer and associate it with this reminder. If no other timer is currently active (running or paused), then also start this timer.
+    - if a timer is already associated with this reminder and no other timer is currently active (running or paused), then toggle the running/paused state for this timer
+- TR: if a reminder is selected with an associated timer
+    - open a dialog to record a used time entry with the current value of the timer and the current datetime
+    - if, after possible editing, recording is confirmed then add the used time entry and delete the timer
+- TD: if a reminder is selected with an associated timer
+    - open a dialog to confirm deleting the timer without recording the used time
+    - if deletion is confirmed then delete the timer
+- TT: with an active timer
+    - toggle the paused/running state for the active timer
+    - note: if there are one or more timers, exactly one of them will be the active timer, i.e., either running or paused. The others, if any, will be inactive. The reminder associated with the active timer need not be selected.
+
+[Timer View](#timer-view), bound to `m`, provides a convenient way of manipulating multiple timers. It lists each existing timer with the active timer first and followed by the other timers in the order of most recently active. Pausing/running the active timer can be done from any view by pressing `TT`. To switch to another timer, change to timer view, press `TT` if necessary to pause the active timer, select the timer you want to start and press 'T' to change its state from 'inactive' to 'running'. It will move to the top of the list and the other timers will move down by one row.
+
+When there is an active timer, its status is always displayed in the status bar. E.g., `r:6.3m + i:1h3.2` would mean that the active timer is running with 6.3m of elapsed time and there are other, inactive timers with a total of 1h3.2m of elapsed time.
+
+[↺ contents](#contents)
+
 ### *lorem* examples {#loremexamples}
 
 If you are new to *etm*, you might find it very useful to install the *lorem* examples. If you press `F5`, enter 'lorem' at the prompt and press `return`, *etm* will generate a series of reminders all of which are tagged 'lorem'. These fall within a three month period including the month in which they were created as well as the previous and subsequent months. The examples are designed to illustrate nearly all of the etm views and features. You can play around with the examples as long as you wish and then remove them all at once by pressing `q` to open query view, entering the query 'any t lorem \| remove' and pressing `return`.
@@ -2006,12 +2047,16 @@ Here are the options with their default values from that file. The lines beginni
     # true or false. If true, display dots connecting the item summary and
     # the right-hand details columns in tree views.
 
-    usedtime_minutes: 1
-    # 1, 6, 12, 30 or 60. Round used times up to the nearest
-    # usedtime_minutes in used time views. With 1, no rounding is done and
-    # times are reported as hours and minutes. Otherwise, the prescribed
-    # rounding is done and times are reported as floating point hours.
-    # Note that each "@u" timeperiod is rounded before aggregation.
+    usedtime_minutes: {usedtime_minutes}
+    # 0, 1, 6, 12, 30 or 60. Round off used times. With 0, no rounding is done
+    # and times are reported in hours, minutes and seconds. With 1, after
+    # rounding off to the nearest minute, times are reported as hours and minutes.
+    # Otherwise, rounding is up to the specified integer and times are reported
+    # as floating point hours. E.g., with usedtime_minutes = 6, 1 minute would
+    # be rounded up to 6 minutes and reported as 0.1 hours. Similarly 13
+    # minutes would be rounded up to 18 minutes and reported as 0.3 hours. Note
+    # that when rounding is specified, each "@u" timeperiod is rounded before
+    # aggregation.
 
     alerts:
     # A dictionary with single-character, "alert" keys and corresponding

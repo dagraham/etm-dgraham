@@ -1236,6 +1236,7 @@ class ETMLexer(Lexer):
                 if sty in type_colors:
                     return [(type_colors[sty], tmp)]
                 else:
+                    logger.debug(f"problem with typ {typ} from {tmp}")
                     logger.debug(f"sty: {sty}; type_colors.keys: {type_colors.keys()}")
             if tmp.rstrip().endswith("(Today)") or tmp.rstrip().endswith("(Tomorrow)"):
                 return [(type_colors['today'], f"{tmp} ")]
@@ -1404,26 +1405,33 @@ async def event_handler():
     try:
         while True:
             now = pendulum.now()
-            current_today = dataview.now.format("YYYYMMDD")
-            asyncio.ensure_future(maybe_alerts(now))
-            current_datetime = status_time(now)
-            today = now.format("YYYYMMDD")
-            wait = 60 - now.second
-            if interval:
-                if minutes == 0:
-                    minutes = 1
-                    loop = asyncio.get_event_loop()
-                    asyncio.ensure_future(auto_check_loop(loop))
-                else:
-                    minutes += 1
-                    minutes = minutes % interval
+            # wait = 60 - now.second
+            tenths = now.second // 6 # tenths
+            wait = 6 - now.second % 6 # residual
+            if now.second < 6:
+                current_today = dataview.now.format("YYYYMMDD")
+                asyncio.ensure_future(maybe_alerts(now))
+                current_datetime = status_time(now)
+                today = now.format("YYYYMMDD")
 
-            if today != current_today:
-                loop = asyncio.get_event_loop()
-                asyncio.ensure_future(new_day(loop))
-            if dataview.active_view == 'timers':
-                set_text(dataview.show_active_view())
+                if interval:
+                    if minutes == 0:
+                        minutes = 1
+                        loop = asyncio.get_event_loop()
+                        asyncio.ensure_future(auto_check_loop(loop))
+                    else:
+                        minutes += 1
+                        minutes = minutes % interval
+
+                if today != current_today:
+                    loop = asyncio.get_event_loop()
+                    asyncio.ensure_future(new_day(loop))
+
             asyncio.ensure_future(save_timers())
+            if dataview.active_view == 'timers':
+                row, col = get_row_col()
+                set_text(dataview.show_active_view())
+                restore_row_col(row, col)
             # logger.debug(f"sleeping for {wait} seconds in event_handler loop")
             get_app().invalidate()
             await asyncio.sleep(wait)
@@ -2848,10 +2856,10 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^u) update last modified', handler=do_touch),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
-        MenuItem('T) change timer to next state ', handler=next_timer_state),
+        MenuItem('T) activate timer if none active ', handler=next_timer_state),
         MenuItem("TR) record usedtime and delete timer", handler=record_time),
         MenuItem('TD) delete timer', handler=maybe_delete_timer),
-        MenuItem('TT) toggle paused/running for active timer', handler=toggle_active_timer),
+        MenuItem('TT) toggle paused/running for the active timer', handler=toggle_active_timer),
     ]),
 ], floats=[
     Float(xcursor=True,
