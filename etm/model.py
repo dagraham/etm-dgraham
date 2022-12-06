@@ -1655,12 +1655,13 @@ def dt2minutes(obj):
 
 
 def round_minutes(obj):
-    """
-    if hours, show hours and minutes
-    otherwise, minutes and seconds
-    """
-    seconds = 60 if obj.remaining_seconds >= 30 else obj.remaining_seconds
-    return pendulum.duration(weeks=obj.weeks, days=obj.remaining_days, hours=obj.hours, minutes=obj.minutes, seconds=seconds)
+    seconds = obj.remaining_seconds
+    if seconds >= 30:
+        # round up
+        return obj + pendulum.duration(seconds = 60-seconds)
+    else:
+        # round down
+        return obj - pendulum.duration(seconds = seconds)
 
 
 def format_duration(obj, short=False):
@@ -1695,7 +1696,7 @@ def format_duration(obj, short=False):
         if minutes:
             until.append(f"{minutes}m")
         if seconds:
-            # seconds > 0 => UT_MIN == 0
+            # not here unless UT_MIN == 0
             until.append(f"{seconds}s")
         if not until:
             until.append("0m")
@@ -6113,12 +6114,13 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 dt.set(hour=23, minute=59, second=59)
             # for id2used
             seconds = period.remaining_seconds
+
+            rhc_cols = 17 if UT_MIN == 0 else 14
+
             if UT_MIN > 1:
                 res = period.in_minutes() % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
-            # elif UT_MIN == 0:
-
 
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
@@ -6132,7 +6134,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 used_time[tuple((month, *index_tup[:i+1]))] += period
         for monthday in id_used:
             month = monthday.format("YYYY-MM")
-            rhc = f"{monthday.format('M/DD')}: {format_hours_and_tenths(id_used[monthday])}".ljust(17, ' ')
+            rhc = f"{monthday.format('M/DD')}: {format_hours_and_tenths(id_used[monthday])}".ljust(rhc_cols, ' ')
             detail_rows.append({
                         'sort': (month, index_tup, monthday, itemtype, summary),
                         'month': month,
