@@ -1690,9 +1690,6 @@ def format_duration(obj, short=False):
                 until.append(f"{obj.remaining_days}d")
         minutes = obj.minutes
         seconds = obj.remaining_seconds
-        # if UT_MIN > 0 and seconds:
-        #     minutes += 1
-        #     seconds = 0
         if hours:
             until.append(f"{hours}h")
         if minutes:
@@ -6135,7 +6132,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 used_time[tuple((month, *index_tup[:i+1]))] += period
         for monthday in id_used:
             month = monthday.format("YYYY-MM")
-            rhc = f"{monthday.format('M/DD')}: {format_hours_and_tenths(id_used[monthday])}".ljust(14, ' ')
+            rhc = f"{monthday.format('M/DD')}: {format_hours_and_tenths(id_used[monthday])}".ljust(17, ' ')
             detail_rows.append({
                         'sort': (month, index_tup, monthday, itemtype, summary),
                         'month': month,

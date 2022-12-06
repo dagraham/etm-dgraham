@@ -199,7 +199,7 @@ def maybe_round(obj):
     if not isinstance(obj, pendulum.Duration):
         return None
     try:
-        if UT_MIN == 1:
+        if UT_MIN <= 1:
             return obj
         minutes = 0
         if obj.weeks:
