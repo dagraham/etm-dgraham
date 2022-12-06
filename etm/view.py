@@ -1405,6 +1405,7 @@ async def event_handler():
     try:
         while True:
             now = pendulum.now()
+            current_datetime = status_time(now)
             # wait = 60 - now.second
             tenths = now.second // 6 # tenths
             wait = 6 - now.second % 6 # residual
