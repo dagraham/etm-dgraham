@@ -1,5 +1,9 @@
-Recent tagged changes as of 2022-12-06T17:09:17.829834-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.10.12) Daniel Graham
+Recent tagged changes as of 2022-12-06T17:23:45.724650-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.10.13) Daniel Graham
+    e0ec0323 2022-12-06 17:23:45 -0500
+    Tagged version 4.10.13.
+
+- 14 minutes ago (tag: 4.10.12) Daniel Graham
     2290407d 2022-12-06 17:09:17 -0500
     Tagged version 4.10.12.
 
@@ -78,10 +82,3 @@ Recent tagged changes as of 2022-12-06T17:09:17.829834-05:00:
 - 3 weeks ago (tag: 4.9.3) Daniel Graham
     98de70b1 2022-11-12 09:40:52 -0500
     Tagged version 4.9.3. Avoid scrolling display with auto refresh.
-
-- 4 weeks ago (tag: 4.9.2) Daniel Graham
-    ee9c2a6a 2022-11-11 12:42:45 -0500
-    Tagged version 4.9.2. Added @w (wrap) as an event option to
-    specify two durations to wrap the event with busy periods before
-    and/or after for, say, travel time to and from the location of the
-    event.
