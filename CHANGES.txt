@@ -1,5 +1,9 @@
-Recent tagged changes as of 2022-12-07T08:56:07.321591-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.10.14) Daniel Graham
+Recent tagged changes as of 2022-12-07T09:21:46.205607-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.10.15) Daniel Graham
+    8674daaf 2022-12-07 09:21:46 -0500
+    Tagged version 4.10.15.
+
+- 26 minutes ago (tag: 4.10.14) Daniel Graham
     4a169ea0 2022-12-07 08:56:07 -0500
     Tagged version 4.10.14.
 
@@ -77,8 +81,3 @@ Recent tagged changes as of 2022-12-07T08:56:07.321591-05:00:
     250004cc 2022-11-14 20:36:44 -0500
     Tagged version 4.9.5. Added support for argument replacements in
     saved queries.
-
-- 4 weeks ago (tag: 4.9.4) Daniel Graham
-    c71d75c2 2022-11-12 12:10:39 -0500
-    Tagged version 4.9.4. Restore cursor position after auto refresh
-    and item edit.
