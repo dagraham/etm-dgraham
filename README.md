@@ -1470,6 +1470,12 @@ would append the line `* lunch with Peter @s fri 12p` to the file `inbasket.text
 	$ echo '* lunch with Peter @s fri 12p' | etm+
 would produce exactly the same result.
 
+Finally, if `{T}` is included, it will be replaced with a time stamp corresponding to the moment the script was invoked. E.g.,
+
+	$ echo '% got the test result at {T}' | etm+
+
+would append something like `% got the test result at 2022-12-07 9:13:55 EST`.
+
 Important
 : The single quotes are necessary to keep the shell from expanding the "*" into the names of all the files in the current working directory and other such mischief.
 

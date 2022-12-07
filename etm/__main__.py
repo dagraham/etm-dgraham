@@ -278,7 +278,12 @@ the reminder will appear as an 'inbox' item requiring your
 attention in the list for the current day in agenda view.
 This may be especially useful in composing quick notes with
 the assurance that you will be reminded to sort them out
-later. """
+later.
+
+If '{T}' is used anywhere in the input, it will be replaced
+with a timestamp corresponding to the moment this script was
+invoked.
+"""
 
     etmhome = os.environ.get("ETMHOME")
     if not etmhome:
