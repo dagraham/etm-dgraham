@@ -3698,7 +3698,7 @@ def do_usedtime(arg):
         ok, res, z = parse_datetime(dt)
         if ok:
             obj_datetime = res
-            rep_datetime = fmt_dur(res, short=True)[1]
+            rep_datetime = fmt_dur(res)
             got_datetime = True
         else:
             rep_datetime = res

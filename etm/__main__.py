@@ -1,4 +1,6 @@
 #! ./env/bin/python
+import pendulum
+
 def main():
     import sys
     import logging
@@ -50,7 +52,6 @@ def main():
     secret = settings.get('secret')
     queries = settings.get('queries')
     UT_MIN = settings.get('usedtime_minutes', 1)
-    import pendulum
     today = pendulum.today()
     # We want 2 char 'en' weekday abbreviations regardless of the actual locale
     day = today.end_of('week')  # Sunday
@@ -313,6 +314,10 @@ later. """
     # if input does not begins with an itemtype character, prepend typechar .
     input = input if input[0] in "!*-%" else f"{typechar} {input}"
     input = input if '@' in input else f"{input} {option}"
+    if '{T}' in input:
+        # expand the timestamp
+        hsh = {'T': pendulum.now().in_tz('local').format('YYYY-MM-DD HH:mm:ss zz')}
+        input = input.format(**hsh)
 
     with open(inbasket, 'a') as fo:
         fo.write(f"{input}\n")
