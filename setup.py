@@ -42,7 +42,8 @@ REQUIRED = [
         "tinydb-serialization>=1.0.4",
         "tinydb-smartcache>=1.0.2",
         "tzlocal>=1.5.1",
-        "wcwidth>=0.1.7"
+        "wcwidth>=0.1.7",
+        "packaging>=22.0"
 ]
 
 # What packages are optional?

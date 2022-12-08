@@ -34,6 +34,7 @@ from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 from prompt_toolkit.layout import Float
 from prompt_toolkit.widgets import Dialog, Label, Button
+from packaging.version import parse as parse_version
 
 import shutil
 import time
@@ -833,7 +834,10 @@ def check_update():
         res = "update information is unavailable"
         status_char = "?"
     else:
-        if url_version > etm_version:
+        # kluge for purely numeric versions
+        # if [int(x) for x in url_version.split('.')] > [int(x) for x in etm_version.split('.')]:
+        # from packaging.version parse
+        if parse_version(url_version) > parse_version(etm_version):
             status_char = UPDATE_CHAR
             res = f"an update is available to {url_version}"
         else:
