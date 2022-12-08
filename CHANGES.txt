@@ -1,49 +1,53 @@
-Recent tagged changes as of 2022-12-07T09:21:46.205607-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.10.15) Daniel Graham
+Recent tagged changes as of 2022-12-08T15:49:21.498748-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.10.16) Daniel Graham
+    1959693a 2022-12-08 15:49:21 -0500
+    Tagged version 4.10.16.
+
+- 30 hours ago (tag: 4.10.15) Daniel Graham
     8674daaf 2022-12-07 09:21:46 -0500
     Tagged version 4.10.15.
 
-- 26 minutes ago (tag: 4.10.14) Daniel Graham
+- 31 hours ago (tag: 4.10.14) Daniel Graham
     4a169ea0 2022-12-07 08:56:07 -0500
     Tagged version 4.10.14.
 
-- 16 hours ago (tag: 4.10.13) Daniel Graham
+- 2 days ago (tag: 4.10.13) Daniel Graham
     e0ec0323 2022-12-06 17:23:45 -0500
     Tagged version 4.10.13.
 
-- 16 hours ago (tag: 4.10.12) Daniel Graham
+- 2 days ago (tag: 4.10.12) Daniel Graham
     2290407d 2022-12-06 17:09:17 -0500
     Tagged version 4.10.12.
 
-- 4 days ago (tag: 4.10.11) Daniel Graham
+- 5 days ago (tag: 4.10.11) Daniel Graham
     99e14b26 2022-12-03 19:51:13 -0500
     Tagged version 4.10.11.
 
-- 5 days ago (tag: 4.10.10) Daniel Graham
+- 6 days ago (tag: 4.10.10) Daniel Graham
     fd4e0b36 2022-12-02 08:38:16 -0500
     Tagged version 4.10.10.
 
-- 9 days ago (tag: 4.10.9) Daniel Graham
+- 10 days ago (tag: 4.10.9) Daniel Graham
     09972a1f 2022-11-28 16:10:56 -0500
     Tagged version 4.10.9.
 
-- 9 days ago (tag: 4.10.8) Daniel Graham
+- 10 days ago (tag: 4.10.8) Daniel Graham
     074bf8a1 2022-11-28 11:26:31 -0500
     Tagged version 4.10.8.
 
-- 10 days ago (tag: 4.10.7) Daniel Graham
+- 11 days ago (tag: 4.10.7) Daniel Graham
     185bf618 2022-11-27 14:01:32 -0500
     Tagged version 4.10.7.
 
-- 11 days ago (tag: 4.10.6) Daniel Graham
+- 12 days ago (tag: 4.10.6) Daniel Graham
     1289ae01 2022-11-26 16:43:53 -0500
     Tagged version 4.10.6. Added requirement for lorem to setup.py
 
-- 11 days ago (tag: 4.10.5) Daniel Graham
+- 12 days ago (tag: 4.10.5) Daniel Graham
     26459e81 2022-11-26 14:18:25 -0500
     Tagged version 4.10.5.
 
-- 13 days ago (tag: 4.10.4) Daniel Graham
+- 2 weeks ago (tag: 4.10.4) Daniel Graham
     e99eecf3 2022-11-24 11:13:27 -0500
     Tagged version 4.10.4.
 
@@ -76,8 +80,3 @@ Recent tagged changes as of 2022-12-07T09:21:46.205607-05:00:
 - 3 weeks ago (tag: 4.9.6) Daniel Graham
     6015ec88 2022-11-15 08:40:16 -0500
     Tagged version 4.9.6.
-
-- 3 weeks ago (tag: 4.9.5) Daniel Graham
-    250004cc 2022-11-14 20:36:44 -0500
-    Tagged version 4.9.5. Added support for argument replacements in
-    saved queries.
