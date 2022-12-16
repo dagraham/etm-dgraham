@@ -808,7 +808,6 @@ def show_confirm_as_float(dialog):
 # Key bindings.
 bindings = KeyBindings()
 
-
 @bindings.add('f2')
 def do_about(*event):
     show_message('etm information', about(2)[0], 0)
@@ -2544,6 +2543,19 @@ def get_busy_1(*event):
 @bindings.add('7', filter=is_busy_view & is_viewing)
 def get_busy_1(*event):
     get_busy_day(7)
+
+
+
+@bindings.add('enter', filter=is_busy_view & is_viewing)
+def curr_busy(*event):
+    busy_details = dataview.busy_details
+    if not busy_details:
+        return
+    current_row = text_area.document.cursor_position_row + 1
+    # text_area.buffer.cursor_position = \
+    #     text_area.buffer.document.translate_row_col_to_index(next_row-1, 0)
+    busy_area.text = busy_details.get(current_row, get_busy_text())
+    # dataview.busy_row = next_row
 
 
 @bindings.add('down', filter=is_busy_view & is_viewing)

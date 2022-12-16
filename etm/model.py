@@ -2099,10 +2099,10 @@ class DataView(object):
         self.is_showing_items = True
         self.get_completions()
         self.refresh_konnections()
-        self.refreshRelevant()
-        self.activeYrWk = self.currentYrWk
-        self.refreshAgenda()
+        self.currYrWk()
         self.refreshCurrent()
+        self.refreshRelevant()
+        self.refreshAgenda()
         self.currcal()
 
     def set_etmdir(self, etmdir):
@@ -3151,7 +3151,6 @@ def set_summary(summary='', start=None, relevant=None, freq=''):
             isinstance(start, pendulum.Date) and
             isinstance(relevant, pendulum.Date) and
             freq in ['y', 'm', 'w', 'd']):
-        # return unchanged summary
         return summary
     relevant_date = relevant.date() if isinstance(relevant, pendulum.DateTime) else relevant
     start_date = start.date() if isinstance(start, pendulum.DateTime) else start
@@ -5359,8 +5358,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                                     freq = item['r'][0].get('r', 'y')
                                 else:
                                     freq = 'y'
-                                # relevant = id2relevant[doc_id]
-                                # summary = set_summary(item['summary'], item.get('s', None), relevant, freq)
                                 summary = set_summary(summary, item.get('s', None), pendulum.instance(instance).date(), freq)
                                 beginbys.append([(instance.date() - today.date()).days, summary, item.doc_id, None, instance])
                     if possible_alerts:
@@ -6679,10 +6676,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 else:
                     busyperiod = None
 
-                summary = set_summary(summary, item['s'], dt, freq)
+                tmp_summary = set_summary(summary, item['s'], dt, freq)
 
                 columns = [item['itemtype'],
-                                summary,
+                                tmp_summary,
                                 flags,
                                 rhc,
                                 (doc_id, instance, None)
