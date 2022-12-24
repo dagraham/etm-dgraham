@@ -1,82 +1,82 @@
-Recent tagged changes as of 2022-12-16T16:09:55.139329-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.10.17) Daniel Graham
+Recent tagged changes as of 2022-12-24T07:53:48.054594-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.10.18) Daniel Graham
+    f5e34741 2022-12-24 07:53:48 -0500
+    Tagged version 4.10.18.
+
+- 8 days ago (tag: 4.10.17) Daniel Graham
     585d6e80 2022-12-16 16:09:55 -0500
     Tagged version 4.10.17.
 
-- 8 days ago (tag: 4.10.16) Daniel Graham
+- 2 weeks ago (tag: 4.10.16) Daniel Graham
     1959693a 2022-12-08 15:49:21 -0500
     Tagged version 4.10.16.
 
-- 9 days ago (tag: 4.10.15) Daniel Graham
+- 2 weeks ago (tag: 4.10.15) Daniel Graham
     8674daaf 2022-12-07 09:21:46 -0500
     Tagged version 4.10.15.
 
-- 9 days ago (tag: 4.10.14) Daniel Graham
+- 2 weeks ago (tag: 4.10.14) Daniel Graham
     4a169ea0 2022-12-07 08:56:07 -0500
     Tagged version 4.10.14.
 
-- 10 days ago (tag: 4.10.13) Daniel Graham
+- 3 weeks ago (tag: 4.10.13) Daniel Graham
     e0ec0323 2022-12-06 17:23:45 -0500
     Tagged version 4.10.13.
 
-- 10 days ago (tag: 4.10.12) Daniel Graham
+- 3 weeks ago (tag: 4.10.12) Daniel Graham
     2290407d 2022-12-06 17:09:17 -0500
     Tagged version 4.10.12.
 
-- 13 days ago (tag: 4.10.11) Daniel Graham
+- 3 weeks ago (tag: 4.10.11) Daniel Graham
     99e14b26 2022-12-03 19:51:13 -0500
     Tagged version 4.10.11.
 
-- 2 weeks ago (tag: 4.10.10) Daniel Graham
+- 3 weeks ago (tag: 4.10.10) Daniel Graham
     fd4e0b36 2022-12-02 08:38:16 -0500
     Tagged version 4.10.10.
 
-- 3 weeks ago (tag: 4.10.9) Daniel Graham
+- 4 weeks ago (tag: 4.10.9) Daniel Graham
     09972a1f 2022-11-28 16:10:56 -0500
     Tagged version 4.10.9.
 
-- 3 weeks ago (tag: 4.10.8) Daniel Graham
+- 4 weeks ago (tag: 4.10.8) Daniel Graham
     074bf8a1 2022-11-28 11:26:31 -0500
     Tagged version 4.10.8.
 
-- 3 weeks ago (tag: 4.10.7) Daniel Graham
+- 4 weeks ago (tag: 4.10.7) Daniel Graham
     185bf618 2022-11-27 14:01:32 -0500
     Tagged version 4.10.7.
 
-- 3 weeks ago (tag: 4.10.6) Daniel Graham
+- 4 weeks ago (tag: 4.10.6) Daniel Graham
     1289ae01 2022-11-26 16:43:53 -0500
     Tagged version 4.10.6. Added requirement for lorem to setup.py
 
-- 3 weeks ago (tag: 4.10.5) Daniel Graham
+- 4 weeks ago (tag: 4.10.5) Daniel Graham
     26459e81 2022-11-26 14:18:25 -0500
     Tagged version 4.10.5.
 
-- 3 weeks ago (tag: 4.10.4) Daniel Graham
+- 4 weeks ago (tag: 4.10.4) Daniel Graham
     e99eecf3 2022-11-24 11:13:27 -0500
     Tagged version 4.10.4.
 
-- 3 weeks ago (tag: 4.10.3) Daniel Graham
+- 4 weeks ago (tag: 4.10.3) Daniel Graham
     fe34c6e6 2022-11-23 09:52:56 -0500
     Tagged version 4.10.3.
 
-- 3 weeks ago (tag: 4.10.2) Daniel Graham
+- 4 weeks ago (tag: 4.10.2) Daniel Graham
     8f009561 2022-11-23 09:04:51 -0500
     Tagged version 4.10.2.
 
-- 3 weeks ago (tag: 4.10.1) Daniel Graham
+- 5 weeks ago (tag: 4.10.1) Daniel Graham
     b3107f20 2022-11-22 17:54:42 -0500
     Tagged version 4.10.1.
 
-- 3 weeks ago (tag: 4.10.0) Daniel Graham
+- 5 weeks ago (tag: 4.10.0) Daniel Graham
     8458a58d 2022-11-22 15:13:06 -0500
     Tagged version 4.10.0. Update busy view to horizontal days and
     vertical times with 15 minute resolution and the ability to jump
     between the days and display the busy time details for that day.
 
-- 4 weeks ago (tag: 4.9.7) Daniel Graham
+- 6 weeks ago (tag: 4.9.7) Daniel Graham
     b4f22a66 2022-11-15 13:34:13 -0500
     Tagged version 4.9.7.
-
-- 4 weeks ago (tag: 4.9.8) Daniel Graham
-    3e3e5c77 2022-11-15 13:20:24 -0500
-    Tagged version 4.9.8.
