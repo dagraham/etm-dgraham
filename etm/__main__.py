@@ -59,6 +59,7 @@ def main():
     midnight = pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)
     beginbusy = settings.get('beginbusy', 7)
     ampm = settings.get('ampm', True)
+    show_minutes = settings.get('show_minutes', False)
     hour = pendulum.duration(hours=1)
     fmt = "hA" if ampm else "H"
     # busyhours = [(midnight + i*hour).format(fmt).lower for i in range(beginbusy, beginbusy + 14, 2)]

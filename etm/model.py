@@ -70,6 +70,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit import __version__ as prompt_toolkit_version
 
 settings = {'ampm': True}
+settings = {'minutes': False}
 # These are set in _main_
 DBITEM = None
 DBARCH = None
@@ -5026,16 +5027,23 @@ def drop_zero_minutes(dt):
     '2:45'
     """
     ampm = settings['ampm']
-    if dt.minute == 0:
-        if ampm:
-            return dt.format("h")
-        else:
-            return dt.format("H")
-    else:
+    show_minutes = settings['show_minutes']
+    if show_minutes:
         if ampm:
             return dt.format("h:mm")
         else:
             return dt.format("H:mm")
+    else:
+        if dt.minute == 0:
+            if ampm:
+                return dt.format("h")
+            else:
+                return dt.format("H")
+        else:
+            if ampm:
+                return dt.format("h:mm")
+            else:
+                return dt.format("H:mm")
 
 
 def fmt_extent(beg_dt, end_dt):
@@ -5070,9 +5078,11 @@ def fmt_extent(beg_dt, end_dt):
 
 def fmt_time(dt, ignore_midnight=True):
     ampm = settings['ampm']
+    show_minutes = settings['show_minutes']
     if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0:
         return ""
     suffix = dt.format("A").lower() if ampm else ""
+
     dt_fmt = drop_zero_minutes(dt)
     return f"{dt_fmt}{suffix}"
 

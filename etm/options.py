@@ -154,6 +154,7 @@ class Settings():
         }
 
     ampm = "true"
+    show_minutes = "false"
     yearfirst = "true"
     dayfirst = "false"
     beginbusy = 7
@@ -182,6 +183,7 @@ class Settings():
     # use these to format the template
     settings_hsh = {
         "ampm" : ampm,
+        "show_minutes": show_minutes,
         "dayfirst" : dayfirst,
         "yearfirst" : yearfirst,
         'beginbusy' : beginbusy,
@@ -219,6 +221,11 @@ etmversion: {etmversion}
 ampm: {ampm}
 # true or false. Use AM/PM format for datetimes if true else
 # use 24 hour format.
+
+show_minutes: {show_minutes}
+# true or false. If true show ":00" in agenda and forthcoming views
+# when displaying times with zero minutes else suppress zero minutes
+# from being displayed. E.g., "9:00-10:30" if true else "9-10:30".
 
 dayfirst:  {dayfirst}
 yearfirst: {yearfirst}

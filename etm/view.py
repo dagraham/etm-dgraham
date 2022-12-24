@@ -1333,7 +1333,7 @@ def alerts():
     if alerts:
         return "\n".join(alerts)
     else:
-        return "There are no alerts for to/ampmday."
+        return "There are no alerts for today."
 
 def get_row_col():
     row_number = text_area.document.cursor_position_row
