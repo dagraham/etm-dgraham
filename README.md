@@ -1952,6 +1952,11 @@ Here are the options with their default values from that file. The lines beginni
     # true or false. Use AM/PM format for datetimes if true else
     # use 24 hour format.
 
+    show_minutes: {show_minutes}
+    # true or false. If true show ":00" in agenda and forthcoming views
+    # when displaying times with zero minutes else suppress zero minutes
+    # from being displayed. E.g., "9:00-10:30" if true else "9-10:30".
+
     dayfirst:  true
     yearfirst: true
     # true or false. Whenever an ambiguous date is parsed, dayfirst
