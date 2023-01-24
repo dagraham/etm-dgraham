@@ -1387,9 +1387,11 @@ The size of the terminal is used when *etm* starts to set various display option
 Before you start etm, think about where you would like to keep your personal data and configuration files. This will be your etm *home* directory. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_.
 
 	$ etm <path to home>
+
 Finally, if there is an environmental variable, `ETMHOME`, set to this path then you can just enter
 
 	$ etm
+
 and etm will use `ETMHOME` as its home directory.
 
 Home directory considerations:

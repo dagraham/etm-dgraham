@@ -1824,16 +1824,17 @@ def default_buffer_changed(_):
     """
     item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
 
+
 def default_cursor_position_changed(_):
     """
     """
     item.cursor_changed(entry_buffer.cursor_position)
     set_askreply('_')
 
+
 # This is slick - add a call to default_buffer_changed
 entry_buffer.on_text_changed += default_buffer_changed
 entry_buffer.on_cursor_position_changed += default_cursor_position_changed
-
 
 status_area = VSplit([
             Window(FormattedTextControl(get_statusbar_text), style='class:status'),
@@ -2223,6 +2224,7 @@ def do_goto(*event):
     if not doc_id:
         return
     ok, goto = dataview.get_goto(row)
+    logger.debug(f"calling do_goto on row {row} with doc_id {res[0]} - goto entry: {ok}")
     if ok:
         res = openWithDefault(goto)
         if res:
@@ -2604,12 +2606,12 @@ def next_id(*event):
     rows = [x for x in row2id.keys()]
     rows.sort()
     current_row = text_area.document.cursor_position_row
-    # logger.debug(f"rows: {rows}; current_row: {current_row}")
     next_row = rows[-1]
     for r in rows:
         if r > current_row:
             next_row = r
             break
+    logger.debug(f"moving down from row: {current_row} to {next_row} in {rows} ")
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
 
@@ -2622,12 +2624,12 @@ def previous_id(*event):
     rows = [x for x in row2id.keys()]
     rows.sort(reverse=True)
     current_row = text_area.document.cursor_position_row
-    # logger.debug(f"rows: {rows}; current_row: {current_row}")
     next_row = 1
     for r in rows:
         if r < current_row:
             next_row = r
             break
+    logger.debug(f"moving up from row: {current_row} to {next_row} in {rows} ")
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
 
