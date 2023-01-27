@@ -2694,6 +2694,7 @@ class DataView(object):
             item_id = id_tup
             instance = None
             job = None
+        logger.debug(f"row: {row}, item_id: {item_id}")
         return (item_id, instance, job)
 
 
