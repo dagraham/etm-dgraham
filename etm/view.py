@@ -2611,7 +2611,11 @@ def next_id(*event):
         if r > current_row:
             next_row = r
             break
-    logger.debug(f"moving down from row: {current_row} to {next_row} in {rows} ")
+    if next_row in rows:
+        next_id = row2id[next_row][0] if isinstance(row2id[next_row], tuple) else row2id[next_row]
+    else:
+        next_id = "?"
+    logger.debug(f"moving down from row {current_row} to row {next_row} (doc_id {next_id})")
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
 
@@ -2629,7 +2633,11 @@ def previous_id(*event):
         if r < current_row:
             next_row = r
             break
-    logger.debug(f"moving up from row: {current_row} to {next_row} in {rows} ")
+    if next_row in rows:
+        next_id = row2id[next_row][0] if isinstance(row2id[next_row], tuple) else row2id[next_row]
+    else:
+        next_id = "?"
+    logger.debug(f"moving up from row {current_row} to row {next_row} (doc_id {next_id})")
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
 
