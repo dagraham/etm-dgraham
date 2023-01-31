@@ -1488,6 +1488,14 @@ def get_statusbar_center_text():
         return [ ('class:status',  f' {get_edit_mode()}'), ]
     if dataview.is_showing_query:
         return [ ('class:status',  f' {dataview.query_mode}'), ]
+    if loglevel == 1:
+        # show current row number and associated id in the status bar
+        current_row = text_area.document.cursor_position_row
+        current_id = dataview.row2id.get(current_row, "?")
+        if isinstance(current_id, tuple):
+            current_id = current_id[0]
+        return [ ('class:status',  f'{current_row}: {current_id}'), ]
+
     return [ ('class:status',  14 * ' '), ]
 
 
@@ -2345,9 +2353,7 @@ def do_whatever(*event):
     """
     For testing whatever
     """
-    logger.debug("t, t")
-    # to test new day
-    dataview.now = dataview.now - pendulum.duration(days=1)
+    logger.debug(f"row2id: {dataview.row2id}")
 
 
 @bindings.add('c-x', filter=is_viewing & is_item_view)
@@ -2618,6 +2624,8 @@ def next_id(*event):
     logger.debug(f"moving down from row {current_row} to row {next_row} (doc_id {next_id})")
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
+
+    logger.debug(f"cursor_position: {text_area.buffer.cursor_position}")
 
 
 @bindings.add('up', filter=is_not_busy_view & is_not_yearly_view & is_viewing)

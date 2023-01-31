@@ -155,6 +155,7 @@ def main():
 
 
     import etm.view as view
+    view.loglevel = loglevel
     view.TimeIt = TimeIt
     view.wrap = wrap
     view.WA = WA

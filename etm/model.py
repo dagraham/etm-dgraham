@@ -1963,7 +1963,9 @@ class NDict(dict):
         """ return an indented tree """
         for k in t.keys():
             indent = NDict.tab * depth * " "
-            self.output.append(f"{indent}{k}")
+            # replace any newlines in the title with spaces
+            K = re.sub(' *\n+ *', ' ', k)
+            self.output.append(f"{indent}{K}")
             self.row += 1
             depth += 1
             if level and depth > level:
@@ -1978,8 +1980,9 @@ class NDict(dict):
                     # logger.debug(f"leaf[:4]: {leaf[:4]}")
                     indent = NDict.tab * depth * " "
                     l_indent = len(indent)
-                    # width - indent - 2 (type and space) - flags - 1 (space) - rhc
-                    # summary_width = self.width - l_indent - 2 - self.flag_len - 2 - len(leaf[3])
+                    # replace any newlines in the summary with spaces
+                    leaf[0] = re.sub(' *\n+ *', ' ', leaf[0])
+                    leaf[1] = re.sub(' *\n+ *', ' ', leaf[1])
                     if self.compact:
                         summary_width = self.width - l_indent - 2 - len(leaf[3])
                     else:
