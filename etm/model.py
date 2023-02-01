@@ -4520,9 +4520,12 @@ def item_instances(item, aft_dt, bef_dt=1):
             instances = [dtstart] if aft_dt <= dtstart <= bef_dt else []
 
     pairs = []
-    for instance in instances: # FIXME: task don't get item['e']
+    for instance in instances:
         # multidays only for events
-        if item['itemtype'] == "*" and 'e' in item:
+        if item['itemtype'] in ["*"] and 'e' in item:
+            for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
+                pairs.append(pair)
+        elif item['itemtype'] in ["-"] and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                 pairs.append(pair)
         elif item['itemtype'] == "-" and item.get('o', 'k') == 's':
@@ -6578,25 +6581,30 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     )
 
             else:
-                if item['itemtype'] == '-':
-                    rhc = fmt_time(dt).center(rhc_width, ' ')
-                elif 'e' in item:
-                    if omit and 'c' in item and item['c'] in omit:
-                        et = None
-                        rhc = fmt_time(dt).center(rhc_width, ' ')
-                    else:
-                        rhc = fmt_extent(dt, et).center(rhc_width, ' ')
-                else:
-                    rhc = fmt_time(dt).center(rhc_width, ' ')
-
+                dateonly = False
                 sort_dt = dt.format("YYYYMMDDHHmm")
                 if sort_dt.endswith('0000'):
+                    dateonly = True
                     if item['itemtype'] == '*':
                         sort_dt = sort_dt[:-4] + '00$$'
                     elif item['itemtype'] in ['-']:
                         sort_dt = sort_dt[:-4] + '24$$'
                     elif item['itemtype'] in ['%']:
                         sort_dt = sort_dt[:-4] + '24%%'
+
+                # if item['itemtype'] == '-':
+                #     rhc = fmt_time(dt).center(rhc_width, ' ')
+                if 'e' in item:
+                    if omit and 'c' in item and item['c'] in omit:
+                        et = None
+                        rhc = fmt_time(dt).center(rhc_width, ' ')
+                    else:
+                        if item['itemtype'] == '-' and dateonly:
+                            rhc = fmt_dur(et-dt).center(rhc_width, ' ')
+                        else:
+                            rhc = fmt_extent(dt, et).center(rhc_width, ' ')
+                else:
+                    rhc = fmt_time(dt).center(rhc_width, ' ')
 
                 dtb = dt
                 dta = dt
@@ -6606,7 +6614,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 # temp - just for this item
                 wrap = []
                 before = after = {}
-
+                wrapped = ""
                 if 'w' in item:
                     # adjust for wrap
                     b, a = item['w']
@@ -6614,6 +6622,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         dtb -= b
                     if a:
                         dta += a
+                    wrapped = fmt_extent(dtb, dta).center(rhc_width, ' ')
+
                     wrap = item['w']
                     wraps = [format_duration(x) for x in wrap] if wrap else ""
                     if wraps:
@@ -6677,7 +6687,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 }
 
                 else:
-                    wrapper = ""
+                    # wrapped = fmt_extent(dtb, dta).center(rhc_width, ' ')
+                    wrapped = rhc
 
                 if before:
                     rows.append(before)
@@ -6726,6 +6737,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                             'wrap': (
                                 wrap
                                 ),
+                            'wrapped': wrapped,
                             'columns': columns
                         }
                     )
@@ -6765,21 +6777,27 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 day_ += " (Tomorrow)"
             path = f"{wk_fmt}/{day_}"
             values = row['columns']
-            if values[0] == "*":
+            if values[0] in ["*", "-"]:
                 values[1] = re.sub(' *\n+ *', ' ', values[1])
                 busyperiod = row.get('busyperiod', "")
                 if busyperiod:
                     wrap = row.get('wrap', [])
-                    wraps = [format_duration(x) for x in wrap] if wrap else ""
-                    if wraps:
-                        wraps[0] = f"{wrapbefore}{wraps[0]}"
-                        wraps[1] = f"{wrapafter}{wraps[1]}"
-                        wrapper = f"\n{22*' '}+ {', '.join(wraps)}"
-                    else:
-                        wrapper = ""
+                    wrapped = row.get('wrapped', "")
+                    # wraps = [format_duration(x) for x in wrap] if wrap else ""
+                    # if wraps:
+                    #     wraps[0] = f"{wrapbefore}{wraps[0]}"
+                    #     wraps[1] = f"{wrapafter}{wraps[1]}"
+                    #     wrapper = f"\n{22*' '}+ {', '.join(wraps)}"
+                    # else:
+                    #     wrapper = ""
+                    # if wrapped:
+                    #     values[3] = wrapped
+                    # else:
+                    #     wrapper = ""
+
                     row = wkday2row(dayofweek)
                     busy_details[week].setdefault(row, [f"Busy periods for {day_}"]).append(
-                            f"   {values[3] : ^7} {values[1]}{wrapper} "
+                            f"   {wrapped : ^7} {values[0]} {values[1]}"
                             )
             rdict.add(path, values)
 
