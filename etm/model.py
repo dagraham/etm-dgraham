@@ -6766,6 +6766,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             path = f"{wk_fmt}/{day_}"
             values = row['columns']
             if values[0] == "*":
+                values[1] = re.sub(' *\n+ *', ' ', values[1])
                 busyperiod = row.get('busyperiod', "")
                 if busyperiod:
                     wrap = row.get('wrap', [])
