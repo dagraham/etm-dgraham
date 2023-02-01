@@ -4525,14 +4525,15 @@ def item_instances(item, aft_dt, bef_dt=1):
         if item['itemtype'] in ["*"] and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                 pairs.append(pair)
-        elif item['itemtype'] in ["-"] and 'e' in item:
-            for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
-                pairs.append(pair)
-        elif item['itemtype'] == "-" and item.get('o', 'k') == 's':
-            if pairs and settings['limit_skip_display']:
-                # only keep the first instance that falls during or after today/now
-                break
-            if isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime) and instance >= pendulum.now().date():
+        elif item['itemtype'] in ["-"]:
+            if item.get('o', 'k') == 's':
+                if pairs and settings['limit_skip_display']:
+                    # only keep the first instance that falls during or after today/now
+                    break
+            if 'e' in item:
+                for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
+                    pairs.append(pair)
+            elif isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime) and instance >= pendulum.now().date():
                 pairs.append((instance, None))
             # elif instance.replace(hour=23, minute=59, second=59) >= pendulum.now(tz=item.get('z', None)):
             elif instance >= pendulum.now(tz=item.get('z', None)):
