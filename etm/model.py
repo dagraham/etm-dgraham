@@ -1977,7 +1977,6 @@ class NDict(dict):
             else:
                 # we have a list of leaves
                 for leaf in t[k]:
-                    # logger.debug(f"leaf[:4]: {leaf[:4]}")
                     indent = NDict.tab * depth * " "
                     l_indent = len(indent)
                     # replace any newlines in the summary with spaces
@@ -4527,34 +4526,23 @@ def item_instances(item, aft_dt, bef_dt=1):
                 pairs.append(pair)
         elif item['itemtype'] == "-":
             if item.get('o', 'k') == 's':
-                logger.debug(f"instances for {item['summary']}")
                 if pairs and settings['limit_skip_display']:
                     # only keep the first instance that falls during or after today/now
-                    # pairs.append((instance, None))
-                    logger.debug('--- break ---')
                     break
-                # elif isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime) and instance >= pendulum.now().date():
-                #     pairs.append((instance, None))
-                #     logger.debug(f"appended None for DATE instance {instance}")
-                # elif instance.replace(hour=23, minute=59, second=59) >= pendulum.now(tz=item.get('z', None)):
                 elif instance >= pendulum.today(tz=item.get('z', None)):
                     if 'e' in item:
                         for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                             pairs.append(pair)
                     else:
                         pairs.append((instance, None))
-                        logger.debug(f"appended None for DATETIME instance {instance}")
             elif 'e' in item:
-                logger.debug(f"{item['summary']}, @e {item['e']}  instance: {instance}")
                 for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                     pairs.append(pair)
 
-                # pairs.append((instance, instance+item['e']))
 
 
         else:
             pairs.append((instance, None))
-    # logger.debug(f"pairs: {pairs}")
     pairs.sort(key = itemgetter(0))
 
 
@@ -5236,7 +5224,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
         summary = item.get('summary', "~")
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
-        # logger.debug(f"flags for {doc_id}: {flags}; {link_list}, {konnect_list}, {pinned_list}, {timers}")
         if item['itemtype'] == '!':
             inbox.append([0, summary, item.doc_id, None, None])
             relevant = today
@@ -5628,7 +5615,6 @@ def get_flags(doc_id, link_list=[], konnect_list=[], pinned_list=[], timers={}):
         flags += PIN_CHAR
     if doc_id in timers:
         flags += "t"
-    # logger.debug(f"get_flags returning: {flags} for {doc_id}")
     return flags.rjust(4, ' ')
 
 def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=[], timers={}):
@@ -6361,7 +6347,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     else:
         width = shutil.get_terminal_size()[0]-3
         compact = False
-    # logger.debug(f"konnect_list: {konnect_list}")
     ampm = settings['ampm']
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
@@ -6392,7 +6377,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         summary_width = width - indent_to_summary - rhc_width
     else:
         summary_width = width - indent_to_summary - flag_width - rhc_width
-    # logger.debug(f"using summary_width: {summary_width}")
 
     d = iso_to_gregorian((yw[0], yw[1], 1))
     dt = pendulum.datetime(d.year, d.month, d.day, 0, 0, 0, tz='local')
@@ -6421,7 +6405,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     timer2 = TimeIt(2)
     todayYMD = now.format("YYYYMMDD")
     tomorrowYMD = (now + 1*DAY).format("YYYYMMDD")
-    # logger.debug(f"instances todayYMD: {todayYMD}; tomorrowYMD: {tomorrowYMD}")
     for item in db:
         if item.get('itemtype', None) == None:
             logger.error(f"itemtype missing from {item}")
@@ -6436,10 +6419,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         extent = item.get('e', None)
         wraps = item.get('w', [])
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
-        # if flags.strip():
-        #     logger.debug(f"flags: {itemtype} {summary} {flags} {start}")
-        # else:
-        #     logger.debug(f"NO flags: {itemtype} {summary} {flags} {start}")
         used = item.get('u', None)
         finished = item.get('f', None)
         history = item.get('h', None)
@@ -6547,10 +6526,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             itemday = dt.format("YYYYMMDD")
             dayDM = dt.format("ddd MMM D")
             if itemday == todayYMD:
-                # logger.debug(f"itemday: {itemday}; todayYMD: *{todayYMD}*; tomorrowYMD: {tomorrowYMD}")
                 dayDM += " (Today)"
             elif itemday == tomorrowYMD:
-                # logger.debug(f"itemday: {itemday}; todayYMD: {todayYMD}; tomorrowYMD: *{tomorrowYMD}*")
                 dayDM += " (Tomorrow)"
             week2day2busy.setdefault(week, {})
             week2day2busy[week].setdefault(dayofweek, [])
@@ -6615,7 +6592,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         rhc = fmt_time(dt).center(rhc_width, ' ')
                     else:
                         if item['itemtype'] == '-' and dateonly:
-                            logger.debug(f"@e {item['e']}, dt: {dt}, et: {et}")
                             rhc = fmt_dur(item['e']).center(rhc_width, ' ')
                         else:
                             rhc = fmt_extent(dt, et).center(rhc_width, ' ')
@@ -6714,6 +6690,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 elif dta > dtb:
                     busyperiod = (dt2minutes(dtb), dt2minutes(dta))
                     if not dateonly:
+                        # FIXME: maybe add itemtype (* or -) here
                         week2day2busy[week][dayofweek].append(busyperiod)
                 else:
                     busyperiod = None
@@ -6777,14 +6754,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     timer3 = TimeIt(3)
     today = now.format("ddd MMM D")
     tomorrow = (now + 1*DAY).format("ddd MMM D")
-    # logger.debug(f"busy loop today: {today}; tomorrow: {tomorrow}")
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
         rdict = NDict(width=width, compact=compact)
         busy_details.setdefault(week, {})
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         for row in items:
-            # logger.debug(f"row: {row}")
             doc_id = row['id']
             day_ = row['day'][0]
             dayofweek = row.get('dayofweek', 1)
@@ -6988,7 +6963,6 @@ def import_ics(import_file=None):
 
 def import_examples():
     docs = []
-    # logger.debug("calling make_examples")
     examples = make_examples()
 
     results = []
@@ -6998,13 +6972,11 @@ def import_examples():
     reminder = []
 
     for s in examples:
-        # logger.debug(f"adding: {s}")
         ok = True
         if not s: continue
         item = Item()  # use ETMDB by default
         item.new_item()
         item.text_changed(s, 1)
-        # logger.debug(f"item: {item}")
         if item.item_hsh.get('itemtype', None) is None:
             ok = False
 
