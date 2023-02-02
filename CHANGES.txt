@@ -1,9 +1,14 @@
-Recent tagged changes as of 2023-01-31T10:22:35.596550-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.10.19) Daniel Graham
+Recent tagged changes as of 2023-02-02T12:48:11.298381-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.10.20) Daniel Graham
+    d615361e 2023-02-02 12:48:11 -0500
+    Tagged version 4.10.20. Alpha release of new busy view display
+    with display for tasks including date-only floating times
+
+- 2 days ago (tag: 4.10.19) Daniel Graham
     68d2a068 2023-01-31 10:22:35 -0500
     Tagged version 4.10.19.
 
-- 5 weeks ago (tag: 4.10.18) Daniel Graham
+- 6 weeks ago (tag: 4.10.18) Daniel Graham
     f5e34741 2022-12-24 07:53:48 -0500
     Tagged version 4.10.18.
 
@@ -31,7 +36,7 @@ Recent tagged changes as of 2023-01-31T10:22:35.596550-05:00:
     2290407d 2022-12-06 17:09:17 -0500
     Tagged version 4.10.12.
 
-- 8 weeks ago (tag: 4.10.11) Daniel Graham
+- 9 weeks ago (tag: 4.10.11) Daniel Graham
     99e14b26 2022-12-03 19:51:13 -0500
     Tagged version 4.10.11.
 
@@ -47,36 +52,30 @@ Recent tagged changes as of 2023-01-31T10:22:35.596550-05:00:
     074bf8a1 2022-11-28 11:26:31 -0500
     Tagged version 4.10.8.
 
-- 9 weeks ago (tag: 4.10.7) Daniel Graham
+- 10 weeks ago (tag: 4.10.7) Daniel Graham
     185bf618 2022-11-27 14:01:32 -0500
     Tagged version 4.10.7.
 
-- 9 weeks ago (tag: 4.10.6) Daniel Graham
+- 10 weeks ago (tag: 4.10.6) Daniel Graham
     1289ae01 2022-11-26 16:43:53 -0500
     Tagged version 4.10.6. Added requirement for lorem to setup.py
 
-- 9 weeks ago (tag: 4.10.5) Daniel Graham
+- 10 weeks ago (tag: 4.10.5) Daniel Graham
     26459e81 2022-11-26 14:18:25 -0500
     Tagged version 4.10.5.
 
-- 10 weeks ago (tag: 4.10.4) Daniel Graham
+- 2 months ago (tag: 4.10.4) Daniel Graham
     e99eecf3 2022-11-24 11:13:27 -0500
     Tagged version 4.10.4.
 
-- 10 weeks ago (tag: 4.10.3) Daniel Graham
+- 2 months ago (tag: 4.10.3) Daniel Graham
     fe34c6e6 2022-11-23 09:52:56 -0500
     Tagged version 4.10.3.
 
-- 10 weeks ago (tag: 4.10.2) Daniel Graham
+- 2 months ago (tag: 4.10.2) Daniel Graham
     8f009561 2022-11-23 09:04:51 -0500
     Tagged version 4.10.2.
 
 - 2 months ago (tag: 4.10.1) Daniel Graham
     b3107f20 2022-11-22 17:54:42 -0500
     Tagged version 4.10.1.
-
-- 2 months ago (tag: 4.10.0) Daniel Graham
-    8458a58d 2022-11-22 15:13:06 -0500
-    Tagged version 4.10.0. Update busy view to horizontal days and
-    vertical times with 15 minute resolution and the ability to jump
-    between the days and display the busy time details for that day.
