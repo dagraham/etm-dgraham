@@ -70,8 +70,9 @@ def main():
     # HSEP  =    '─' # U+2500  this will be a de-emphasized color
     VSEP   =    '⏐' # U+23D0  this will be a de-emphasized color
     HSEP   =    '·' # U+2500  this will be a de-emphasized color
-    BUSY   =    '■' # U+25A0 this will be busy color
+    BUSY   =    '■' # U+25A0 this will be busy (event) color
     CONF   =    '▦' # U+25A6 this will be conflict color
+    TASK   =    '▩' # U+25A9 this will be busy (task) color
 
 
     import etm.ical as ical
@@ -168,6 +169,7 @@ def main():
     view.HSEP = HSEP
     view.BUSY = BUSY
     view.CONF = CONF
+    view.TASK = TASK
     view.settings = settings
     view.type_colors = type_colors
     view.cfgfile = cfgfile

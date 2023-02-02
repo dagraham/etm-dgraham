@@ -4522,25 +4522,41 @@ def item_instances(item, aft_dt, bef_dt=1):
     pairs = []
     for instance in instances:
         # multidays only for events
-        if item['itemtype'] in ["*"] and 'e' in item:
+        if item['itemtype'] == "*" and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                 pairs.append(pair)
-        elif item['itemtype'] in ["-"]:
+        elif item['itemtype'] == "-":
             if item.get('o', 'k') == 's':
+                logger.debug(f"instances for {item['summary']}")
                 if pairs and settings['limit_skip_display']:
                     # only keep the first instance that falls during or after today/now
+                    # pairs.append((instance, None))
+                    logger.debug('--- break ---')
                     break
-            if 'e' in item:
+                # elif isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime) and instance >= pendulum.now().date():
+                #     pairs.append((instance, None))
+                #     logger.debug(f"appended None for DATE instance {instance}")
+                # elif instance.replace(hour=23, minute=59, second=59) >= pendulum.now(tz=item.get('z', None)):
+                elif instance >= pendulum.today(tz=item.get('z', None)):
+                    if 'e' in item:
+                        for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
+                            pairs.append(pair)
+                    else:
+                        pairs.append((instance, None))
+                        logger.debug(f"appended None for DATETIME instance {instance}")
+            elif 'e' in item:
+                logger.debug(f"{item['summary']}, @e {item['e']}  instance: {instance}")
                 for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                     pairs.append(pair)
-            elif isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime) and instance >= pendulum.now().date():
-                pairs.append((instance, None))
-            # elif instance.replace(hour=23, minute=59, second=59) >= pendulum.now(tz=item.get('z', None)):
-            elif instance >= pendulum.now(tz=item.get('z', None)):
-                pairs.append((instance, None))
+
+                # pairs.append((instance, instance+item['e']))
+
+
         else:
             pairs.append((instance, None))
-    pairs.sort()
+    # logger.debug(f"pairs: {pairs}")
+    pairs.sort(key = itemgetter(0))
+
 
     return pairs
 
@@ -6599,7 +6615,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         rhc = fmt_time(dt).center(rhc_width, ' ')
                     else:
                         if item['itemtype'] == '-' and dateonly:
-                            rhc = fmt_dur(et-dt).center(rhc_width, ' ')
+                            logger.debug(f"@e {item['e']}, dt: {dt}, et: {et}")
+                            rhc = fmt_dur(item['e']).center(rhc_width, ' ')
                         else:
                             rhc = fmt_extent(dt, et).center(rhc_width, ' ')
                 else:

@@ -88,11 +88,12 @@ class UpdateStatus():
         return self.status
 
 # For busy view
-VLINE  =    '⏐' # U+23D0  this will be a de-emphasized color
-HLINE  =    '─' # U+2500  this will be a de-emphasized color
-HDOT   =    '·' # U+2500  this will be a de-emphasized color
-BUSY   =    '■' # U+25A0 this will be busy color
-CONFLICT =  '▦' # U+25A6 this will be conflict color
+# VLINE  =    '⏐' # U+23D0  this will be a de-emphasized color
+# HLINE  =    '─' # U+2500  this will be a de-emphasized color
+# HDOT   =    '·' # U+2500  this will be a de-emphasized color
+# BUSY   =    '■' # U+25A0 this will be busy color
+# CONFLICT =  '▦' # U+25A6 this will be conflict color
+# TASK =      '▩' # U+25A9 this will be task color
 # BEFORE =    '◀' # U+25C0 this will be busy color
 # AFTER  =    '▶' # U+25B6 this will be busy color
 
