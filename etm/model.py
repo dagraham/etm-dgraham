@@ -6593,8 +6593,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     elif item['itemtype'] in ['%']:
                         sort_dt = sort_dt[:-4] + '24%%'
 
-                # if item['itemtype'] == '-':
-                #     rhc = fmt_time(dt).center(rhc_width, ' ')
                 if 'e' in item:
                     if omit and 'c' in item and item['c'] in omit:
                         et = None
@@ -6698,7 +6696,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     busyperiod = None
                 elif dta > dtb:
                     busyperiod = (dt2minutes(dtb), dt2minutes(dta))
-                    week2day2busy[week][dayofweek].append(busyperiod)
+                    if not dateonly:
+                        week2day2busy[week][dayofweek].append(busyperiod)
                 else:
                     busyperiod = None
 
