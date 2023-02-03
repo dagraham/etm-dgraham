@@ -4520,27 +4520,26 @@ def item_instances(item, aft_dt, bef_dt=1):
 
     pairs = []
     for instance in instances:
-        # multidays only for events
         if item['itemtype'] == "*" and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                 pairs.append(pair)
         elif item['itemtype'] == "-":
+            # handle tasks repeating or not, extent or not and overdue skip or not
             if item.get('o', 'k') == 's':
-                if pairs and settings['limit_skip_display']:
-                    # only keep the first instance that falls during or after today/now
-                    break
-                elif instance >= pendulum.today(tz=item.get('z', None)):
+                if instance >= pendulum.today(tz=item.get('z', None)):
                     if 'e' in item:
                         for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                             pairs.append(pair)
                     else:
                         pairs.append((instance, None))
+                    if pairs and settings['limit_skip_display']:
+                        # only keep the first instance that falls during or after today/now
+                        break
             elif 'e' in item:
                 for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                     pairs.append(pair)
-
-
-
+            else:
+                pairs.append((instance, None))
         else:
             pairs.append((instance, None))
     pairs.sort(key = itemgetter(0))
@@ -6775,18 +6774,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 if busyperiod:
                     wrap = row.get('wrap', [])
                     wrapped = row.get('wrapped', "")
-                    # wraps = [format_duration(x) for x in wrap] if wrap else ""
-                    # if wraps:
-                    #     wraps[0] = f"{wrapbefore}{wraps[0]}"
-                    #     wraps[1] = f"{wrapafter}{wraps[1]}"
-                    #     wrapper = f"\n{22*' '}+ {', '.join(wraps)}"
-                    # else:
-                    #     wrapper = ""
-                    # if wrapped:
-                    #     values[3] = wrapped
-                    # else:
-                    #     wrapper = ""
-
                     row = wkday2row(dayofweek)
                     busy_details[week].setdefault(row, [f"Busy periods for {day_}"]).append(
                             f"   {wrapped : ^7} {values[0]} {values[1]}"
