@@ -6892,8 +6892,10 @@ def import_file(import_file=None):
         return True, import_examples()
 
     import_file = os.path.normpath(os.path.expanduser(import_file))
-    if not os.path.exists(import_file):
-        return False, f"could not locate: {import_file}"
+    # if not os.path.exists(import_file):
+    #     return False, f"could not locate {import_file}"
+    if not os.path.isfile(import_file):
+        return False, f'"{import_file}"\n   either does not exist or is not a regular file'
     filename, extension = os.path.splitext(import_file)
     if extension == '.json':
         return True, import_json(import_file)
