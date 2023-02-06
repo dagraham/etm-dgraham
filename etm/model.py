@@ -4519,6 +4519,7 @@ def item_instances(item, aft_dt, bef_dt=1):
             instances = [dtstart] if aft_dt <= dtstart <= bef_dt else []
 
     pairs = []
+    today = pendulum.today(tz=item.get('z', None))
     for instance in instances:
         if item['itemtype'] == "*" and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
@@ -4526,7 +4527,7 @@ def item_instances(item, aft_dt, bef_dt=1):
         elif item['itemtype'] == "-":
             # handle tasks repeating or not, extent or not and overdue skip or not
             if item.get('o', 'k') == 's':
-                if instance >= pendulum.today(tz=item.get('z', None)):
+                if (instance.year, instance.month, instance.day) >= (today.year, today.month, today.day):
                     if 'e' in item:
                         for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                             pairs.append(pair)
@@ -4543,7 +4544,6 @@ def item_instances(item, aft_dt, bef_dt=1):
         else:
             pairs.append((instance, None))
     pairs.sort(key = itemgetter(0))
-
 
     return pairs
 
@@ -6776,7 +6776,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     wrapped = row.get('wrapped', "")
                     row = wkday2row(dayofweek)
                     busy_details[week].setdefault(row, [f"Busy periods for {day_}"]).append(
-                            f"   {wrapped : ^7} {values[0]} {values[1]}"
+                            f"  {wrapped : ^15} {values[0]} {values[1]}"
                             )
             rdict.add(path, values)
 
