@@ -106,6 +106,8 @@ See [Item Types](#item-types) for details about these item types and [Options](#
           you. Cats look down at you. Give me a pig - they
           look you in the eye and treat you as an equal.
 
+	The *summary*, "Give me a pig - Churchill", is meant to be brief - similar to the subject of an email. The *description* following the "@d" is meant to be more expansive - similar to the body of an email.
+
 * A task (**-**): build a dog house, with component [j]obs.
 
         - Build dog house @j pick up materials @j cut pieces
