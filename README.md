@@ -106,20 +106,18 @@ See [Item Types](#item-types) for details about these item types and [Options](#
           you. Cats look down at you. Give me a pig - they
           look you in the eye and treat you as an equal.
 
-	The *summary*, "Give me a pig - Churchill", is meant to be brief - similar to the subject of an email. The *description* following the "@d" is meant to be more expansive - similar to the body of an email.
+	The *summary*, "Give me a pig - Churchill" in this example, follows the type character and is meant to be brief - analagous to the subject of an email. The optional *description* follows the "@d" and is meant to be more expansive - analagous to the body of an email.
 
 * A task (**-**): build a dog house, with component [j]obs.
 
         - Build dog house @j pick up materials @j cut pieces
           @j assemble @j sand @j paint
 
-* Inbox (**!**): meet Alex for coffee Friday. This can be
-  changed to an event when the time is confirmed by
-  replacing the **!** with an **\*** and adding the time to `@s`.
+* Inbox (**!**): meet Alex for coffee Friday.
 
         ! Coffee with Alex @s fri @e 1h
 
-    This inbox entry will appear on the current day in *agenda view* until you make the changes.
+	This can be changed to an event when the time is confirmed by replacing the **!** with an **\*** and adding the time to `@s`.  Inbox entries appear on the current day in *agenda view* until you make the changes.
 
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
