@@ -2270,7 +2270,7 @@ Here are the options with their default values from that file. The lines beginni
     #
     # Any of the style attributes above can be modified. E.g., with style
     # 'dark', the default for 'text-area' is [grey2, Ivory]. This entry
-    #   style_modifications:
+    #   window_colors:
     #       text-area: [Black, White]
     # would change the 'text-area' setting to 'Black' as the background color
     # and 'White' as the foreground color while leaving the other style settings
