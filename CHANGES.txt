@@ -1,32 +1,36 @@
-Recent tagged changes as of 2023-02-06T08:32:30.082552-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.11.1) Daniel Graham
+Recent tagged changes as of 2023-02-09T14:06:14.789461-05:00:
+- 0 seconds ago (HEAD -> working, tag: 4.11.2) Daniel Graham
+    0f14c1bf 2023-02-09 14:06:14 -0500
+    Tagged version 4.11.2.
+
+- 3 days ago (tag: 4.11.1) Daniel Graham
     c17a0ec2 2023-02-06 08:32:30 -0500
     Tagged version 4.11.1.
 
-- 3 days ago (tag: 4.11.0) Daniel Graham
+- 6 days ago (tag: 4.11.0) Daniel Graham
     9d78393b 2023-02-03 14:12:39 -0500
     Tagged version 4.11.0. Display busy times for tasks with dates or
     datetimes in agenda and busy views
 
-- 3 days ago (tag: 4.10.21) Daniel Graham
+- 6 days ago (tag: 4.10.21) Daniel Graham
     99db425e 2023-02-03 08:46:14 -0500
     Tagged version 4.10.21. Beta version of displaying tasks with
     extents in agenda and busy views
 
-- 4 days ago (tag: 4.10.20) Daniel Graham
+- 7 days ago (tag: 4.10.20) Daniel Graham
     d615361e 2023-02-02 12:48:11 -0500
     Tagged version 4.10.20. Alpha release of new busy view display
     with display for tasks including date-only floating times
 
-- 6 days ago (tag: 4.10.19) Daniel Graham
+- 9 days ago (tag: 4.10.19) Daniel Graham
     68d2a068 2023-01-31 10:22:35 -0500
     Tagged version 4.10.19.
 
-- 6 weeks ago (tag: 4.10.18) Daniel Graham
+- 7 weeks ago (tag: 4.10.18) Daniel Graham
     f5e34741 2022-12-24 07:53:48 -0500
     Tagged version 4.10.18.
 
-- 7 weeks ago (tag: 4.10.17) Daniel Graham
+- 8 weeks ago (tag: 4.10.17) Daniel Graham
     585d6e80 2022-12-16 16:09:55 -0500
     Tagged version 4.10.17.
 
@@ -50,11 +54,11 @@ Recent tagged changes as of 2023-02-06T08:32:30.082552-05:00:
     2290407d 2022-12-06 17:09:17 -0500
     Tagged version 4.10.12.
 
-- 9 weeks ago (tag: 4.10.11) Daniel Graham
+- 10 weeks ago (tag: 4.10.11) Daniel Graham
     99e14b26 2022-12-03 19:51:13 -0500
     Tagged version 4.10.11.
 
-- 9 weeks ago (tag: 4.10.10) Daniel Graham
+- 10 weeks ago (tag: 4.10.10) Daniel Graham
     fd4e0b36 2022-12-02 08:38:16 -0500
     Tagged version 4.10.10.
 
@@ -70,14 +74,10 @@ Recent tagged changes as of 2023-02-06T08:32:30.082552-05:00:
     185bf618 2022-11-27 14:01:32 -0500
     Tagged version 4.10.7.
 
-- 2 months ago (tag: 4.10.6) Daniel Graham
+- 3 months ago (tag: 4.10.6) Daniel Graham
     1289ae01 2022-11-26 16:43:53 -0500
     Tagged version 4.10.6. Added requirement for lorem to setup.py
 
-- 2 months ago (tag: 4.10.5) Daniel Graham
+- 3 months ago (tag: 4.10.5) Daniel Graham
     26459e81 2022-11-26 14:18:25 -0500
     Tagged version 4.10.5.
-
-- 2 months ago (tag: 4.10.4) Daniel Graham
-    e99eecf3 2022-11-24 11:13:27 -0500
-    Tagged version 4.10.4.
