@@ -1515,21 +1515,12 @@ def openWithDefault(path):
         # logger.debug(f"path: {path}")
         sys_platform = platform.system()
         if platform.system() == 'Darwin':       # macOS
-            res = subprocess.run(('open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(('open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         elif platform.system() == 'Windows':    # Windows
-            res = os.startfile(path)
+            os.startfile(path)
         else:                                   # linux
-            res = subprocess.run(('xdg-open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(('xdg-open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        # res = subprocess.run([cmd, path], check=True)
-        ret_code = res.returncode
-        ok = ret_code == 0
-        # logger.debug(f"res: {res}; ret_code: {ret_code}")
-    if ok:
-        logger.debug(f"ok True; res: '{res}'")
-    else:
-        logger.debug(f"ok False; res: '{res}'")
-        show_message('goto', f"failed to open '{path}'")
     return
 
 search_field = SearchToolbar(text_if_not_searching=[

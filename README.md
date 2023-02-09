@@ -117,7 +117,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
         ! Coffee with Alex @s fri @e 1h
 
-	This can be changed to an event when the time is confirmed by replacing the **!** with an **\*** and adding the time to `@s`.  Inbox entries appear on the current day in *agenda view* until you make the changes.
+	This can be changed to an event when the time is confirmed by replacing the **!** with an **\*** and adding the time to `@s`.  This inbox entry will appear on the current day in *agenda view* until you make the changes.
 
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
