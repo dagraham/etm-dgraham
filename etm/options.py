@@ -631,7 +631,7 @@ window_colors: {window_colors}
                 changed.append(f"retaining default {key}: {self.settings_hsh[key]}")
         if "etmversion" not in new or new["etmversion"] != etmversion:
             new['etmversion'] = etmversion
-            changed.append(f"reset etmversion to {etmversion}")
+            changed.append(f"set etmversion {etmversion}")
         # remove invalid user keys/values
         tmp = deepcopy(new) # avoid modifying ordered_dict during iteration
         for key in tmp:
