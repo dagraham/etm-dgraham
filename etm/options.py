@@ -594,7 +594,8 @@ window_colors: {window_colors}
             updated_template = Settings.template.format(**self.settings_hsh)
             with open(self.cfgfile, 'w') as fn:
                 fn.writelines(updated_template)
-            logger.info(f"updated {self.cfgfile}: {', '.join(self.changes)}")
+            changes = "\n    - ".join(self.changes)
+            logger.info(f"updated {self.cfgfile}:\n    - {changes}")
         else:
             logger.info(f"using settings from {self.cfgfile}")
 
@@ -628,6 +629,9 @@ window_colors: {window_colors}
             elif key not in new:
                 new[key] = self.settings_hsh[key]
                 changed.append(f"retaining default {key}: {self.settings_hsh[key]}")
+        if "etmversion" not in new or new["etmversion"] != etmversion:
+            new['etmversion'] = etmversion
+            changed.append(f"reset etmversion to {etmversion}")
         # remove invalid user keys/values
         tmp = deepcopy(new) # avoid modifying ordered_dict during iteration
         for key in tmp:
