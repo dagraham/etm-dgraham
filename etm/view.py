@@ -2223,10 +2223,11 @@ def do_goto(*event):
         logger.debug(f"do_goto failed to return a row for cursor position {cursor_position_row}")
         return
     res = dataview.get_row_details(row) # item_id, instance, job_id
-    doc_id = res[0]
-    if not doc_id:
+    if res:
         logger.debug(f"get_row_details for row {row} returned {res} ")
+    else:
         return
+    doc_id = res[0]
     # we have a row and a doc_id
     ok, goto = dataview.get_goto(row)
     logger.debug(f"calling get_goto on row {row} with doc_id {res[0]} - returned: {ok}, {goto}")
