@@ -1508,8 +1508,11 @@ def openWithDefault(path):
     parts = [x.strip() for x in path.split(" ")]
     if len(parts) > 1:
         # logger.debug(f"path: {path}")
-        res =subprocess.Popen([parts[0], ' '.join(parts[1:])], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        ok = True if res else False
+        try:
+            subprocess.Popen([parts[0], ' '.join(parts[1:])], shell=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, close_fds=True)
+        except Exception as e:
+            logger.error(f"exception {e} running: {parts}")
+
     else:
         path = os.path.normpath(os.path.expanduser(path))
         # logger.debug(f"path: {path}")
