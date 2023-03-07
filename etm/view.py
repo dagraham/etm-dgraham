@@ -1505,17 +1505,20 @@ def get_statusbar_right_text():
     return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
 
 def openWithDefault(path):
-    parts = [x.strip() for x in path.split(" ")]
-    if len(parts) > 1:
-        # logger.debug(f"path: {path}")
-        try:
-            subprocess.Popen([parts[0], ' '.join(parts[1:])], shell=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, close_fds=True)
-        except Exception as e:
-            logger.error(f"exception {e} running: {parts}")
+    # parts = [x.strip() for x in path.split(" ")]
+    if " " in path:
+        parts = re.findall('"([^"]*)"', path)
+        logger.debug(f"path: {path}; parts: {parts}")
+        if parts:
+            try:
+                # the pid business is evidently needed to avoid waiting
+                pid = subprocess.Popen(parts, stdin=None, stdout=None, stderr=None).pid
+            except ValueError as e:
+                logger.error(f"exception {e} running: {parts}")
 
     else:
         path = os.path.normpath(os.path.expanduser(path))
-        # logger.debug(f"path: {path}")
+        logger.debug(f"path: {path}")
         sys_platform = platform.system()
         if platform.system() == 'Darwin':       # macOS
             subprocess.run(('open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
