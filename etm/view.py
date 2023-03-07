@@ -37,6 +37,7 @@ from prompt_toolkit.widgets import Dialog, Label, Button
 from packaging.version import parse as parse_version
 
 import shutil
+from shlex import split as qsplit
 import time
 
 import requests
@@ -1507,7 +1508,8 @@ def get_statusbar_right_text():
 def openWithDefault(path):
     # parts = [x.strip() for x in path.split(" ")]
     if " " in path:
-        parts = re.findall('"([^"]*)"', path)
+        # parts = re.findall('"([^"]*)"', path)
+        parts = qsplit(path)
         logger.debug(f"path: {path}; parts: {parts}")
         if parts:
             try:
