@@ -1514,8 +1514,8 @@ def openWithDefault(path):
         if parts:
             try:
                 # the pid business is evidently needed to avoid waiting
-                pid = subprocess.Popen(parts, stdin=None, stdout=None, stderr=None).pid
-            except ValueError as e:
+                pid = subprocess.Popen(parts, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
+            except Exception as e:
                 logger.error(f"exception {e} running: {parts}")
 
     else:

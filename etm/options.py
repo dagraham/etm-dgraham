@@ -232,26 +232,13 @@ yearfirst: {yearfirst}
 # each true or false. Whenever an ambiguous date is parsed, dayfirst
 # and yearfirst parameters control how the information is processed
 # using this precedence:
-#
-#   If dayfirst is False and yearfirst is False:
-#       MM-DD-YY
-#       DD-MM-YY
-#       YY-MM-DD
-#
-#   If dayfirst is True and yearfirst is False:
-#       DD-MM-YY
-#       MM-DD-YY
-#       YY-MM-DD
-#
-#   If dayfirst is False and yearfirst is True:
-#       YY-MM-DD
-#       MM-DD-YY
-#       DD-MM-YY
-#
-#   If dayfirst is True and yearfirst is True:
-#       YY-MM-DD
-#       DD-MM-YY
-#       MM-DD-YY
+# yearfirst: true
+# 	dayfirst: true  => YDM
+#   dayfirst: false => YMD
+# yearfirst: false
+# 	dayfirst: true  => DMY
+#   dayfirst: false => MDY
+# E.g., with both true, 3/4/5 would be interpreted as May 4, 2003
 
 beginbusy: {beginbusy}
 # non-negative integer. The number of hours after midnight to begin the
