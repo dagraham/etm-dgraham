@@ -1511,7 +1511,7 @@ def openWithDefault(path):
     if " " in path:
         # parts = re.findall('"([^"]*)"', path)
         parts = qsplit(path)
-        logger.debug(f"path: {path}; parts: {parts}")
+        logger.debug(f"path: {path}\n    Popen args: {parts}")
         if parts:
             # try:
             #     # the pid business is evidently needed to avoid waiting
