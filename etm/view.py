@@ -56,6 +56,7 @@ import subprocess # for check_output
 # for openWithDefault
 import platform
 import os
+import contextlib, io
 
 import pyperclip
 # set in __main__
@@ -1512,11 +1513,18 @@ def openWithDefault(path):
         parts = qsplit(path)
         logger.debug(f"path: {path}; parts: {parts}")
         if parts:
-            try:
-                # the pid business is evidently needed to avoid waiting
+            # try:
+            #     # the pid business is evidently needed to avoid waiting
+            #     pid = subprocess.Popen(parts, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
+            # except Exception as e:
+            #     logger.error(f"exception {e} running: {parts}")
+
+            # wrapper approach
+            output = io.StringIO()
+            with contextlib.redirect_stderr(output):
                 pid = subprocess.Popen(parts, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
-            except Exception as e:
-                logger.error(f"exception {e} running: {parts}")
+                logger.debug(f"stderr: '{output.getvalue()}'")
+
 
     else:
         path = os.path.normpath(os.path.expanduser(path))
