@@ -1513,17 +1513,14 @@ def openWithDefault(path):
         parts = qsplit(path)
         logger.debug(f"path: {path}\n    Popen args: {parts}")
         if parts:
-            # try:
-            #     # the pid business is evidently needed to avoid waiting
-            #     pid = subprocess.Popen(parts, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
-            # except Exception as e:
-            #     logger.error(f"exception {e} running: {parts}")
-
-            # wrapper approach
+            # wrapper to catch 'Exception Ignored' messages
             output = io.StringIO()
             with contextlib.redirect_stderr(output):
+                # the pid business is evidently needed to avoid waiting
                 pid = subprocess.Popen(parts, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
-                logger.debug(f"stderr: '{output.getvalue()}'")
+                res = output.getvalue()
+                if res:
+                    logger.error(f"caught by contextlib:\n'{res}'")
 
 
     else:
