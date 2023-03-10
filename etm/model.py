@@ -69,8 +69,8 @@ from itertools import groupby, combinations
 from prompt_toolkit.styles import Style
 from prompt_toolkit import __version__ as prompt_toolkit_version
 
-settings = {'ampm': True}
-settings = {'minutes': False}
+# settings = {'ampm': True}
+# settings = {'minutes': False}
 # These are set in _main_
 DBITEM = None
 DBARCH = None
@@ -79,6 +79,8 @@ data = None
 # NOTE: view.main() will override ampm using the configuration setting
 ampm = True
 logger = None
+
+# wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
 
 def sortdt(dt):
     # assumes dt is either a date or a datetime
@@ -1366,7 +1368,8 @@ def datetime_calculator(s):
     period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmMy])+\s*$)')
 
     ampm = settings.get('ampm', True)
-    datetime_fmt = "ddd MMM D YYYY h:mmA zz" if ampm else "ddd MMM D YYYY H:mm zz"
+    wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
+    datetime_fmt = "{wkday_fmt} YYYY h:mmA zz" if ampm else "{wkday_fmt} YYYY H:mm zz"
     m = date_calc_regex.match(s)
     if not m:
         return f'Could not parse "{s}"'
@@ -1547,16 +1550,19 @@ def fivechar_datetime(obj):
         obj = pendulum.instance(obj)
     now = pendulum.now('local')
 
+    md_fmt = "DD/MM" if settings['dayfirst'] else "MM/DD"
+    ym_fmt = "YY.MM" if settings['yearfirst'] else f"MM.YY"
+
     if obj.year == now.year:
         if obj.month == now.month:
             if obj.day == now.day:
                 return obj.format("HH:mm")
             else:
-                return obj.format("MM/DD")
+                return obj.format(md_fmt)
         else:
-            return obj.format("MM/DD")
+            return obj.format(md_fmt)
     else:
-        return obj.format("YY.MM")
+        return obj.format(ym_fmt)
 
 
 def format_datetime(obj, short=False):
@@ -1580,9 +1586,13 @@ def format_datetime(obj, short=False):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
     md = "D/M" if dayfirst else "M/D"
-    ymd = f"YY/{md}" if yearfirst else f"{md}/YY"
+    if short:
+        md = "D/M" if dayfirst else "M/D"
+        date_fmt = f"YY/{md}" if yearfirst else f"{md}/YY"
+    else:
+        md = "ddd D MMM" if dayfirst else "ddd MMM D"
+        date_fmt = f"{md}, YYYY" if yearfirst else f"{md} YYYY"
 
-    date_fmt = ymd if short else "ddd MMM D YYYY"
     time_fmt = "h:mmA" if ampm else "H:mm"
 
 
@@ -5043,7 +5053,7 @@ def drop_zero_minutes(dt):
         if ampm:
             return dt.format("h:mm")
         else:
-            return dt.format("H:mm")
+            return dt.format("HH:mm")
     else:
         if dt.minute == 0:
             if ampm:
@@ -5054,7 +5064,7 @@ def drop_zero_minutes(dt):
             if ampm:
                 return dt.format("h:mm")
             else:
-                return dt.format("H:mm")
+                return dt.format("HH:mm")
 
 
 def fmt_extent(beg_dt, end_dt):
@@ -5163,11 +5173,18 @@ def fmt_week(yrwk):
     # year_week = f"{dt_year} Week {dt_week}"
     wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
     wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
-    week_begin = wkbeg.format("MMM D")
-    if wkbeg.month == wkend.month:
-        week_end = wkend.format("D")
+    if settings['dayfirst']:
+        week_end = wkend.format("D MMM")
+        week_begin = wkbeg.format("D") if wkbeg.month == wkend.month else wkbeg.format("D MMM")
     else:
-        week_end = wkend.format("MMM D")
+        week_end = wkend.format("D") if wkbeg.month == wkend.month else wkend.format("MMM D")
+        week_begin = wkbeg.format("MMM D")
+
+#     week_begin = wkbeg.format("MMM D")
+#     if wkbeg.month == wkend.month:
+#         week_end = wkend.format("D")
+#     else:
+#         week_end = wkend.format("MMM D")
     # return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
     return f"{week_begin} - {week_end}, {dt_year} #{dt_week}"
 
@@ -5184,7 +5201,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
     Called by dataview.refreshRelevant
     """
-    # These need to be local times since all times from the datastore and rrule will be local times
+
+    wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
     dirty = False
     width = shutil.get_terminal_size()[0] - 3
     summary_width = width - 7 - 16
@@ -5468,7 +5486,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     beginbys.sort()
     alerts.sort()
     week = today.isocalendar()[:2]
-    day = (today.format("ddd MMM D"), )
+    day = (today.format(wkday_fmt), )
     for item in inbox:
         item_0 = ' '
         rhc = item_0.center(rhc_width, ' ')
@@ -5555,6 +5573,7 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
     summary_width = width - 19
     rows = []
     today = pendulum.today()
+    md_fmt = "DD/MM" if settings['dayfirst'] else "MM/DD"
     for item in db:
         if item.doc_id not in id2relevant:
             continue
@@ -5569,9 +5588,9 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
         if relevant < today:
             continue
         year = relevant.format("YYYY")
-        monthday = relevant.format("MMM D")
+        monthday = relevant.format(md_fmt)
         time = fmt_time(relevant)
-        rhc = f"{monthday} {time}".ljust(14, ' ')
+        rhc = f"{monthday:>6} {time:^7}".ljust(14, ' ')
 
         itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = set_summary(item['summary'], item.get('s', None), relevant, freq)
@@ -5657,6 +5676,10 @@ def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=
 
 
 def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[], timers={}):
+    md_fmt = "DD/MM" if settings['dayfirst'] else "MM/DD"
+    ymd_fmt = f"YY/{md_fmt}" if settings['yearfirst'] else f"{md_fmt}/YY"
+    # md = "dd/mm" if settings['dayfirst'] else "mm/dd"
+    # ymd = f"yy/{md}" if settings['yearfirst'] else f"{md}/yy"
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     summary_width = width - 25
@@ -5668,11 +5691,8 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
             dt, label = item.get('created', None), 'c'
         if dt is not None:
             doc_id = item.doc_id
-            year = dt.format("YYYY")
-            monthday = dt.format("MMM D").ljust(6, ' ')
-            c5dt = fivechar_datetime(dt)
-            # time = fmt_time(dt).rjust(7, ' ')
-            rhc = f" {c5dt} {label}"
+            ymd = dt.format(ymd_fmt)
+            rhc = f" {ymd} {label}"
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item.get('summary', "~")
             flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
@@ -5692,7 +5712,7 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
                     )
     try:
         rows.sort(key=itemgetter('sort'), reverse=reverse)
-    except:
+    except Exception as e:
         logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
     rdict = NDict()
     for row in rows:
@@ -6120,6 +6140,8 @@ def show_pinned(items, pinned_list=[], link_list=[], konnect_list=[], timers={})
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     rhc_width = 8
+    md_fmt = "D MMM" if settings['dayfirst'] else "MMM D"
+
     for item in items:
         mt = item.get('modified', None)
         if mt is not None:
@@ -6129,7 +6151,7 @@ def show_pinned(items, pinned_list=[], link_list=[], konnect_list=[], timers={})
         if dt is not None:
             doc_id = item.doc_id
             year = dt.format("YYYY")
-            monthday = dt.format("MMM D")
+            monthday = dt.format(md_fmt)
             time = fmt_time(dt)
             rhc = f"{str(doc_id).rjust(6)}"
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
@@ -6338,6 +6360,7 @@ def wkday2row(wkday):
     return 3+ 2*wkday if wkday else 17
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}, mk_current=False):
+    wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
     timer1 = TimeIt(1)
     if mk_current:
         weeks_after = settings['keep_current'][0]
@@ -6455,7 +6478,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 dt.isocalendar()[:2]
                                 ),
                             'day': (
-                                dt.format("ddd MMM D"),
+                                dt.format(wkday_fmt),
                                 ),
                             'columns': [
                                 itemtype,
@@ -6501,7 +6524,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                     dt.isocalendar()[:2]
                                     ),
                                 'day': (
-                                    dt.format("ddd MMM D"),
+                                    dt.format(wkday_fmt),
                                     ),
                                 'columns': [FINISHED_CHAR,
                                     row[1],
@@ -6523,7 +6546,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             week = (yr, wk)
             wk_fmt = fmt_week(week).center(width, ' ').rstrip()
             itemday = dt.format("YYYYMMDD")
-            dayDM = dt.format("ddd MMM D")
+            dayDM = dt.format(wkday_fmt)
             if itemday == todayYMD:
                 dayDM += " (Today)"
             elif itemday == tomorrowYMD:
@@ -6562,7 +6585,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 dayofweek
                                 ),
                             'day': (
-                                jobstart.format("ddd MMM D"),
+                                jobstart.format(wkday_fmt),
                                 ),
                             'columns': [job['status'],
                                 set_summary(job_summary, start,  jobstart, freq),
@@ -6628,7 +6651,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     if b and b > ZERO:
                         itemtype = wrapbefore #  "↱"
                         sort_b = dtb.format("YYYYMMDDHHmm")
-                        rhb = fmt_time(dtb).ljust(rhc_width, ' ')
+                        rhb = fmt_time(dtb).center(rhc_width, ' ')
                         before = {
                                     'id': doc_id,
                                     'job': None,
@@ -6641,7 +6664,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                         dtb.isocalendar()[-1]
                                         ),
                                     'day': (
-                                        dtb.format("ddd MMM D"),
+                                        dtb.format(wkday_fmt),
                                         ),
                                     'columns': [itemtype,
                                         set_summary("", item['s'], dtb, freq),
@@ -6654,7 +6677,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     if a and a > ZERO:
                         itemtype = wrapafter  # "↳"
                         sort_a = dta.format("YYYYMMDDHHmm")
-                        rha = fmt_time(dta).rjust(rhc_width, ' ')
+                        rha = fmt_time(dta).center(rhc_width, ' ')
                         after = {
                                     'id': doc_id,
                                     'job': None,
@@ -6667,7 +6690,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                         dta.isocalendar()[-1]
                                         ),
                                     'day': (
-                                        dta.format("ddd MMM D"),
+                                        dta.format(wkday_fmt),
                                         ),
                                     'columns': [itemtype,
                                         set_summary("", item['s'], dta, freq),
@@ -6722,7 +6745,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 dayofweek
                                 ),
                             'day': (
-                                dt.format("ddd MMM D"),
+                                dt.format(wkday_fmt),
                                 ),
                             'busyperiod': (
                                 busyperiod
@@ -6751,8 +6774,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
     ### item/agenda loop 2
     timer3 = TimeIt(3)
-    today = now.format("ddd MMM D")
-    tomorrow = (now + 1*DAY).format("ddd MMM D")
+    today = now.format(wkday_fmt)
+    tomorrow = (now + 1*DAY).format(wkday_fmt)
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
         rdict = NDict(width=width, compact=compact)

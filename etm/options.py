@@ -212,7 +212,7 @@ class Settings():
 }
 
 
-    template = """\
+    template = """\d
 #### begin cfg.yaml ####
 etmversion: {etmversion}
 # The current version of etm and this file. DO NOT EDIT. This is
@@ -220,12 +220,14 @@ etmversion: {etmversion}
 
 ampm: {ampm}
 # true or false. Use AM/PM format for datetimes if true else
-# use 24 hour format.
+# use 24 hour format. See also the show_minutes setting.
 
 show_minutes: {show_minutes}
 # true or false. If true show ":00" in agenda and forthcoming views
 # when displaying times with zero minutes else suppress zero minutes
 # from being displayed. E.g., "9:00-10:30" if true else "9-10:30".
+# When ampm if false and show_minutes is true, hours will be displayed
+# with leading zeros applicable.
 
 dayfirst:  {dayfirst}
 yearfirst: {yearfirst}
@@ -238,7 +240,11 @@ yearfirst: {yearfirst}
 # yearfirst: false
 # 	dayfirst: true  => DMY
 #   dayfirst: false => MDY
-# E.g., with both true, 3/4/5 would be interpreted as May 4, 2003
+# E.g., with both true, 3/4/5 would be interpreted as May 4, 2003.
+# When possible, dates will also be displayed respecting these settings.
+# I.e., the year will generally be displayed first when yearfirst is
+# true and last otherwise. Similarly, the day will generally be displayed
+# before the month when dayfirst is true and after the month otherwise.
 
 beginbusy: {beginbusy}
 # non-negative integer. The number of hours after midnight to begin the

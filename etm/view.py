@@ -1266,7 +1266,10 @@ def status_time(dt):
     '2:45pm Wed Mar 7'
     """
     ampm = settings['ampm']
-    d_fmt = dt.format("ddd MMM D")
+    if settings['dayfirst']:
+        d_fmt = dt.format("ddd D MMM")
+    else:
+        d_fmt = dt.format("ddd MMM D")
     suffix = dt.format("A").lower() if ampm else ""
     if dt.minute == 0:
         t_fmt = dt.format("h") if ampm else dt.format("H")
