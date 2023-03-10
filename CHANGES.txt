@@ -1,5 +1,9 @@
-Recent tagged changes as of 2023-03-09T10:57:15.271663-05:00:
-- 0 seconds ago (HEAD -> working, tag: 4.11.4) Daniel Graham
+Recent tagged changes as of 2023-03-10T08:21:17.959184-05:00:
+- 1 second ago (HEAD -> working, tag: 4.11.5) Daniel Graham
+    3555619a 2023-03-10 08:21:17 -0500
+    Tagged version 4.11.5.
+
+- 21 hours ago (tag: 4.11.4) Daniel Graham
     db38ff0b 2023-03-09 10:57:15 -0500
     Tagged version 4.11.4.
 
@@ -11,7 +15,7 @@ Recent tagged changes as of 2023-03-09T10:57:15.271663-05:00:
     0f14c1bf 2023-02-09 14:06:14 -0500
     Tagged version 4.11.2.
 
-- 4 weeks ago (tag: 4.11.1) Daniel Graham
+- 5 weeks ago (tag: 4.11.1) Daniel Graham
     c17a0ec2 2023-02-06 08:32:30 -0500
     Tagged version 4.11.1.
 
@@ -77,7 +81,3 @@ Recent tagged changes as of 2023-03-09T10:57:15.271663-05:00:
 - 3 months ago (tag: 4.10.8) Daniel Graham
     074bf8a1 2022-11-28 11:26:31 -0500
     Tagged version 4.10.8.
-
-- 3 months ago (tag: 4.10.7) Daniel Graham
-    185bf618 2022-11-27 14:01:32 -0500
-    Tagged version 4.10.7.
