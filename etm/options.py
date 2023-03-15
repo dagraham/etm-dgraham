@@ -346,12 +346,13 @@ alerts: {alerts}
 # terminal. Properties of the item triggering the alert can be
 # included in the command arguments using the syntax {{prop}}, e.g.,
 # {{summary}} in the command string would be replaced by the summary of
-# the item. Similarly {{start}} by the starting time, {{when}} by the time
-# remaining until the starting time, {{location}} by the @l entry and
-# {{description}} by the @d entry. E.g., If the event "* sales meeting
-# @s 2019-02-12 3p" triggered an alert 30 minutes before the starting
-# time the string "{{summary}} {{when}}" would expand to "sales meeting in
-# 30 minutes". E.g. on my macbook
+# the item. Similarly {{start}} by the starting datetime, {{time}} by the
+# starting time (omits the date for the current date), {{when}} by the time
+# remaining until the starting datetime, {{now}} by the current time,
+# {{location}} by the @l entry and {{description}} by the @d entry. E.g., If
+# the event "* sales meeting @s 2019-02-12 3p" triggered an alert 30 minutes
+# before the starting time the string "{{summary}} {{when}}" would expand to
+# "sales meeting in 30 minutes". E.g. on my macbook
 #
 #    alerts:
 #        v:   /usr/bin/say -v "Alex" "{{summary}}, {{when}}"

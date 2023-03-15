@@ -1382,6 +1382,8 @@ async def maybe_alerts(now):
             else:
                 when = f"{(alertdt-startdt).in_words()} ago"
             start = format_datetime(startdt)[1]
+            # time = format_datetime(startdt, short=True)[1] if startdt.date() != today.date() else format_time(startdt)[1]
+            time = format_time(startdt)[1] if startdt.date() == today.date() else format_datetime(startdt, short=True)[1]
             summary = alert[3]
             doc_id = alert[4]
             command_list = alert[2]
@@ -1394,7 +1396,7 @@ async def maybe_alerts(now):
             if 't' in command_list:
                 command_list.remove('t')
                 dataview.send_text(doc_id)
-            commands = [settings['alerts'][x].format(start=start, when=when, summary=summary, location=location, description=description) for x in command_list if x in settings['alerts']]
+            commands = [settings['alerts'][x].format(start=start, time=time, when=when, now=format_time(now)[1], summary=summary, location=location, description=description) for x in command_list if x in settings['alerts']]
             for command in commands:
                 if command:
                     check_output(command)
