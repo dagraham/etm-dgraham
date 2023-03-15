@@ -212,7 +212,7 @@ class Settings():
 }
 
 
-    template = """
+    template = """\
 #### begin cfg.yaml ####
 etmversion: {etmversion}
 # The current version of etm and this file. DO NOT EDIT. This is
