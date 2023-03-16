@@ -1369,7 +1369,7 @@ def datetime_calculator(s):
 
     ampm = settings.get('ampm', True)
     wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
-    datetime_fmt = "{wkday_fmt} YYYY h:mmA zz" if ampm else "{wkday_fmt} YYYY H:mm zz"
+    datetime_fmt = f"{wkday_fmt} YYYY h:mmA zz" if ampm else f"{wkday_fmt} YYYY H:mm zz"
     m = date_calc_regex.match(s)
     if not m:
         return f'Could not parse "{s}"'
