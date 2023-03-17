@@ -5402,7 +5402,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         for instance in instances:
                             for possible_alert in possible_alerts:
                                 if today <= instance - possible_alert[0] <= tomorrow:
-                                    alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['summary'], item.doc_id])
+                                    alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['itemtype'],item['summary'], item.doc_id])
 
             elif '+' in item:
                 # no @r but @+ => simple repetition
@@ -5425,7 +5425,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                     for instance in aft + bef:
                         for possible_alert in possible_alerts:
                             if today <= instance - possible_alert[0] <= tomorrow:
-                                alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['summary'], item.doc_id])
+                                alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['itemtype'], item['summary'], item.doc_id])
 
             else:
                 # 's' but not 'r' or '+'
@@ -5438,7 +5438,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 if possible_alerts:
                     for possible_alert in possible_alerts:
                         if today <= dtstart - possible_alert[0] <= tomorrow:
-                            alerts.append([dtstart - possible_alert[0], dtstart, possible_alert[1], item['summary'], item.doc_id])
+                            alerts.append([dtstart - possible_alert[0], dtstart, possible_alert[1], item['itemtype'], item['summary'], item.doc_id])
         else:
             # no 's', no 'f'
             relevant = None
@@ -5474,7 +5474,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                     for alert in job['a']:
                         for td in alert[0]:
                             if today <= jobstart - td <= tomorrow:
-                                alerts.append([dtstart - td, dtstart, alert[1],  job['summary'], item.doc_id, job_id, None])
+                                alerts.append([dtstart - td, dtstart, alert[1], '-', job['summary'], item.doc_id, job_id, None])
 
         id2relevant[item.doc_id] = relevant
 
@@ -5485,6 +5485,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     pastdue.sort()
     beginbys.sort()
     alerts.sort()
+    logger.debug(f"alerts: {alerts}")
+    # alerts: alert datetime, start datetime, commands, summary, doc_id
     week = today.isocalendar()[:2]
     day = (today.format(wkday_fmt), )
     for item in inbox:

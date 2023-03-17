@@ -1322,8 +1322,11 @@ async def save_timers():
     return True
 
 def alerts():
-    alerts = []
+    # alerts = []
+    alert_hsh = {}
     now = pendulum.now('local')
+    #            0            1         2          3         4       5
+    # alerts: alert time, start time, commands, itemtype, summary, doc_id
     for alert in dataview.alerts:
         trigger_time = pendulum.instance(alert[0])
         start_time = pendulum.instance(alert[1])
@@ -1333,11 +1336,26 @@ def alerts():
             start = format_datetime(start_time, short=True)[1]
         trigger = format_time(trigger_time)[1]
         command = ", ".join(alert[2])
-        summary = alert[3]
-        prefix = '#' if trigger_time < now else ' '
-        alerts.append(f"{prefix} {trigger} ({command}) {summary} {start}")
+        itemtype = alert[3]
+        summary = alert[4]
+        doc_id = alert[5]
+        prefix = '✓' if trigger_time < now else '•' # '⧖'
+        # alerts.append(f"{prefix} {trigger} ({command}) {summary} {start}")
+        alert_hsh.setdefault((alert[5], itemtype, summary), []).append([prefix, trigger, start, command])
     if alerts:
-        return "\n".join(alerts)
+        # return "\n".join(alerts)
+        output = []
+        for key, values in alert_hsh.items():
+            output.append(f"{key[1]} {key[2]}")
+            for value in values:
+                output.append(f"  {value[0]} {value[1]:>7} ⭢  {value[2]:>7}:  {value[3]}")
+        output.append('')
+        # output.append('---')
+        output.append('✓ already activated')
+        output.append('• not yet activated')
+        logger.debug(f"output: {output}")
+        return "\n".join(output)
+
     else:
         return "There are no alerts for today."
 
@@ -1355,10 +1373,9 @@ def restore_row_col(row_number, col_number):
 async def maybe_alerts(now):
     global current_datetime
     row, col = get_row_col()
-    # dataview.refreshRelevant()
-    # dataview.refreshAgenda()
     set_text(dataview.show_active_view())
-    # dataview.refreshCurrent()
+    #            0            1         2          3         4       5
+    # alerts: alert time, start time, commands, itemtype, summary, doc_id
     restore_row_col(row, col)
     if dataview.alerts and not ('alerts' in settings and settings['alerts']):
         logger.warning("alerts have not been configured")
@@ -1384,8 +1401,8 @@ async def maybe_alerts(now):
             start = format_datetime(startdt)[1]
             # time = format_datetime(startdt, short=True)[1] if startdt.date() != today.date() else format_time(startdt)[1]
             time = format_time(startdt)[1] if startdt.date() == today.date() else format_datetime(startdt, short=True)[1]
-            summary = alert[3]
-            doc_id = alert[4]
+            summary = alert[4]
+            doc_id = alert[5]
             command_list = alert[2]
             item = dataview.db.get(doc_id=doc_id)
             location = item.get('l', '')
