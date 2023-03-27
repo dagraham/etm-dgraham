@@ -2246,7 +2246,7 @@ def edit_copy(*event):
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
     item.edit_copy(doc_id, entry)
     entry_buffer.text = item.entry
-    starting_buffer_text = ""
+    starting_buffer_text = item.entry
     default_buffer_changed(event)
     default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
