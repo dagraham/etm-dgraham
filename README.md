@@ -1431,22 +1431,26 @@ The timer itself records seconds, but the used time entry for `<time spent>` dep
 - 30: time is rounded up to the next half hour for reporting but recorded in minutes
 - 60: time is rounded up to the next hour for reporting but recorded in minutes
 
-The [Used Time Views](#used-time-views) show aggregations of these reported times by month and index entry. Note that any rounding up is done before aggregating.
+The [Used Time Views](#used-time-views) show aggregations of these reported times by month and index entry. Any rounding up is done before aggregating.
 
 Used time entries can be recorded directly by editing the relevant reminder and adding one or more `@u` entries. It is also possible to use *etm* to create timers *attached* to particular reminders and control them with hotkeys.
 
 - T: with a reminder selected
-    - if a timer has not already been associated with this reminder, then create a new timer and associate it with this reminder. If no other timer is currently active (running or paused), then also start this timer.
-    - if a timer is already associated with this reminder and no other timer is currently active (running or paused), then toggle the running/paused state for this timer
+    - If a timer is not already associated with this reminder, then create a new timer and associate it with this reminder
+        - if another timer is active, make this timer inactive
+        - otherwise make this timer active and paused
+    - If a timer is already associated with this reminder
+        - if the timer is inactive, make it active and running
+        - otherwise toggle the state of the timer between paused and running
 - TR: if a reminder is selected with an associated timer
     - open a dialog to record a used time entry with the current value of the timer and the current datetime
     - if, after possible editing, recording is confirmed then add the used time entry and delete the timer
 - TD: if a reminder is selected with an associated timer
     - open a dialog to confirm deleting the timer without recording the used time
     - if deletion is confirmed then delete the timer
-- TT: with an active timer
-    - toggle the paused/running state for the active timer
-    - note: if there are one or more timers, exactly one of them will be the active timer, i.e., either running or paused. The others, if any, will be inactive. The reminder associated with the active timer need not be selected.
+- TT: if there is an active timer
+    - toggle the paused/running state for the active timer. Note that the reminder associated with the active timer *need not be selected*.
+    - Note that if there are one or more timers, *exactly one of them will be the active timer*, i.e., either running or paused. The others, if any, will be inactive.
 
 [Timer View](#timer-view), bound to `m`, provides a convenient way of manipulating multiple timers. It lists each existing timer with the active timer first and followed by the other timers in the order of most recently active. Pausing/running the active timer can be done from any view by pressing `TT`. To switch to another timer, change to timer view, press `TT` if necessary to pause the active timer, select the timer you want to start and press 'T' to change its state from 'inactive' to 'running'. It will move to the top of the list and the other timers will move down by one row.
 

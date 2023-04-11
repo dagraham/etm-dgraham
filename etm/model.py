@@ -2389,15 +2389,15 @@ class DataView(object):
             p: paused
         other timers:
             -: none active
-            +: one is active
+            +: one is active (running or paused)
 
         transitions:
-            n- -> r-
-            n+ -> i+
-            i- -> r-
-            i+ -> r-
-            r- -> p-
-            p- -> r-
+            n- -> r-   n- -> p-
+            n+ -> i+   n+ -> i+
+            i- -> r-   i- -> r-
+            i+ -> r-   i+ -> r-
+            r- -> p-   r- -> p-
+            p- -> r-   p- -> r-
         """
         if not doc_id:
             return
@@ -2431,12 +2431,12 @@ class DataView(object):
             self.timers[doc_id] = state, now, period
         elif doc_id:
             # there is no timer for this item
-            # create the timer
+            # create the timer but don't start it
             if active:
                 state = 'i'
             else:
-                # no other timer is active so start this timer
-                state = 'r'
+                # no other timer is active so make this timer's state paused
+                state = 'p'
                 self.active_timer = doc_id
             self.timers[doc_id] = [state, now, ZERO]
 
