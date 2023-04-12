@@ -194,7 +194,7 @@ def subsets(l):
     """
     l.sort()
     ret = [('1', x) for x in l]
-    if len(l) > 1:
+    if len(l) >= 1:
         # add an element for the list of all elements of l
         ret.append((str(len(l)), ' & '.join(l)))
     if len(l) > 2:
@@ -203,7 +203,7 @@ def subsets(l):
             tmp = list(combinations(l, i))
             for tup in tmp:
                 ret.append((str(i), ' & '.join(list(tup))))
-    else:
+    if len(l) == 0:
         ret.append(('~', '~'))
     return ret
 
