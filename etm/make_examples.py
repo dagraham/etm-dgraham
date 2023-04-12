@@ -22,12 +22,13 @@ def phrase(minlen=24):
 def make_examples(egfile=None):
     num_items = 300
     num_konnections = 0
-    # include 3 months - the previous, current and next months
-    start = parse('9a 1') - pendulum.duration(months=1)
+    # include 4 months - 2 previous, current and following months
+    start = parse('9a 1') - pendulum.duration(months=2)
     until = parse('9a 1') + pendulum.duration(months=2) - pendulum.duration(days=1)
-    now = parse('9a') - pendulum.duration(days=7)
+    now = parse('9a Sun') - pendulum.duration(days=6)
 
     datetimes = list(rrule(DAILY, byweekday=range(7), byhour=range(6, 22), dtstart=start, until=until))
+    past_datetimes = [x for x in datetimes if x <= now]
 
     types = ['-', '*', '%', '-']
     # clients = ['A', 'B', 'C', 'D', 'E']
@@ -98,7 +99,7 @@ def make_examples(egfile=None):
         d = lorem.paragraph()
         i1 = random.choice(clients)
         i2 = random.choice(projects[i1])
-        i3 = random.choice(activities[i1])
+        # i3 = random.choice(activities[i1])
         begin = random.choice(range(1, 15))
         used = ""
         # konnect = random.choice(konnections) if konnections and random.randint(1, 10) <= 4 else ""
@@ -108,22 +109,23 @@ def make_examples(egfile=None):
                 e = start.strftime("%Y-%m-%d")
             else:
                 e = (start + pendulum.duration(minutes=u)).strftime("%Y-%m-%d %I:%M%p")
-            used += f"@u {u}m: {e} "
+            if start < now:
+                used += f"@u {u}m: {e} "
 
         if t == '*':
             if date:      # an event
                 examples.append(f"{t} {summary} @s {s} @t {random.choice(tags)} @t lorem")
             else:
                 x = random.choice(extent)
-                examples.append(f"{t} {summary} @s {s} @e {x}m @i client {i1}/{i2}/{i3} {used} @d {d} @t {random.choice(tags)} @t lorem")
+                examples.append(f"{t} {summary} @s {s} @e {x}m @i client {i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem")
         elif t == '-' and random.choice(['h', 't']) == 'h':
             if start < now:
-                examples.append(f"{t} {summary} @s {s} @i client {i1}/{i2}/{i3} @f {s} {used} @d {d} @t lorem")
+                examples.append(f"{t} {summary} @s {s} @i client {i1}/{i2} @f {s} {used} @d {d} @t lorem")
             else:
-                examples.append(f"{t} {summary} @s {s} @i client {i1}/{i2}/{i3} {used} @d {d} @b {begin} @t lorem")
+                examples.append(f"{t} {summary} @s {s} @i client {i1}/{i2} @d {d} @b {begin} @t lorem")
 
         else:
-            examples.append(f"{t} {summary} @i client {i1}/{i2}/{i3} {used} @d {d} @l {random.choice(locations)} @t {random.choice(tags)} @t lorem")
+            examples.append(f"{t} {summary} @i client {i1}/{i2} @d {d} @l {random.choice(locations)} @t {random.choice(tags)} @t lorem")
 
     if egfile:
         with open(egfile, 'w') as fo:

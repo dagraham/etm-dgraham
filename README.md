@@ -1454,7 +1454,7 @@ Used time entries can be recorded directly by editing the relevant reminder and 
 
 [Timer View](#timer-view), bound to `m`, provides a convenient way of manipulating multiple timers. It lists each existing timer with the active timer first and followed by the other timers in the order of most recently active. Pausing/running the active timer can be done from any view by pressing `TT`. To switch to another timer, change to timer view, press `TT` if necessary to pause the active timer, select the timer you want to start and press 'T' to change its state from 'inactive' to 'running'. It will move to the top of the list and the other timers will move down by one row.
 
-When there is an active timer, its status is always displayed in the status bar. E.g., `r:6.3m + i:1h3.2` would mean that the active timer is running with 6.3m of elapsed time and there are other, inactive timers with a total of 1h3.2m of elapsed time.
+When there are one or more timers, their status is always displayed in the status bar. E.g., `r:6.3m + i:1h3.2` would mean that the active timer is running with 6.3m of elapsed time and there are other, inactive timers with a total of 1h3.2m of elapsed time.
 
 [↺ contents](#contents)
 
