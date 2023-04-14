@@ -4515,11 +4515,11 @@ def item_instances(item, aft_dt, bef_dt=1):
         # no @r but @+ => simple repetition
         s_hour = dtstart.hour
         s_minute = dtstart.minute
-        logger.debug(f"s_hour: {s_hour}; s_minute: {s_minute} +: {item['+']}")
-        tmp = [dtstart, *item['+']]
-        tmp = [date_to_datetime(x, s_hour, s_minute) for x in tmp]
+        # tmp = [dtstart, *item['+']]
+        # use hours and minutes from @s - they will be 0 if it is a date
+        tmp = [date_to_datetime(x, s_hour, s_minute) for x in item['+']]
+        tmp.append(dtstart)
         tmp.sort()
-        logger.debug(f"tmp: {tmp}")
         if isinstance(bef_dt, int):
             instances = [x for x in tmp if (x >= aft_dt)][:bef_dt]
         else:
