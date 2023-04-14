@@ -3709,9 +3709,10 @@ def do_usedtime(arg):
     if parts:
         dt = parts.pop(0)
         ok, res, z = parse_datetime(dt)
+        logger.debug(f"ok: {ok}; res: {res}")
         if ok:
             obj_datetime = res
-            rep_datetime = fmt_dur(res)
+            rep_datetime = format_datetime(res, short=True)[1]
             got_datetime = True
         else:
             rep_datetime = res
@@ -4515,7 +4516,6 @@ def item_instances(item, aft_dt, bef_dt=1):
         # no @r but @+ => simple repetition
         s_hour = dtstart.hour
         s_minute = dtstart.minute
-        # tmp = [dtstart, *item['+']]
         # use hours and minutes from @s - they will be 0 if it is a date
         tmp = [date_to_datetime(x, s_hour, s_minute) for x in item['+']]
         tmp.append(dtstart)
