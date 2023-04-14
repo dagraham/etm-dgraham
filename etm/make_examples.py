@@ -25,7 +25,8 @@ def make_examples(egfile=None):
     # include 4 months - 2 previous, current and following months
     start = parse('9a 1') - pendulum.duration(months=2)
     until = parse('9a 1') + pendulum.duration(months=2) - pendulum.duration(days=1)
-    now = parse('9a Sun') - pendulum.duration(days=6)
+    # now = parse('9a Sun') - pendulum.duration(days=6)
+    now = parse('8a')
 
     datetimes = list(rrule(DAILY, byweekday=range(7), byhour=range(6, 22), dtstart=start, until=until))
     past_datetimes = [x for x in datetimes if x <= now]
@@ -58,7 +59,7 @@ def make_examples(egfile=None):
     client_id = {}
     examples = []
 
-    examples.append("! the lorem examples @t lorem @d 1) This inbox item and each of the other internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'. 2). The examples are generated to fit within a three month period including the month they were generated together with the previous and subsequent months. You can remove and regenerate them whenever you like to keep them current.")
+    examples.append("! the lorem examples @t lorem @d 1) This inbox item and each of the other internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'. 2). The examples are generated to fit within a four month period including the month they were generated together with one subsequent and two previous months. You can remove and regenerate them whenever you like to keep them current.")
 
     # for client in clients:
     #     # client records

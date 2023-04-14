@@ -4400,9 +4400,9 @@ def get_next_due(item, done, due):
         nxt = None
     return nxt
 
-def date_to_datetime(dt):
+def date_to_datetime(dt, hour=0, minute=0):
     if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
-        dt= pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
+        dt= pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=hour, minute=minute, tz='local')
     return dt
 
 
@@ -4513,9 +4513,13 @@ def item_instances(item, aft_dt, bef_dt=1):
 
     elif '+' in item:
         # no @r but @+ => simple repetition
+        s_hour = dtstart.hour
+        s_minute = dtstart.minute
+        logger.debug(f"s_hour: {s_hour}; s_minute: {s_minute} +: {item['+']}")
         tmp = [dtstart, *item['+']]
-        tmp = [date_to_datetime(x) for x in tmp]
+        tmp = [date_to_datetime(x, s_hour, s_minute) for x in tmp]
         tmp.sort()
+        logger.debug(f"tmp: {tmp}")
         if isinstance(bef_dt, int):
             instances = [x for x in tmp if (x >= aft_dt)][:bef_dt]
         else:
