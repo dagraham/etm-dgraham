@@ -2388,6 +2388,27 @@ def do_whatever(*event):
     """
     logger.debug(f"row2id: {dataview.row2id}")
 
+@bindings.add('c-t', filter=is_viewing & is_item_view)
+def quick_timer(*event):
+    now = format_datetime(pendulum.now(), short=True)[1]
+    item_hsh = {
+            'itemtype': '!',
+            'summary': now,
+            'created': pendulum.now('UTC')
+            }
+
+    doc_id = ETMDB.insert(item_hsh)
+    if doc_id:
+        dataview.next_timer_state(doc_id)
+        dataview.next_timer_state(doc_id)
+
+        dataview.refreshRelevant()
+        dataview.refreshAgenda()
+        dataview.refreshCurrent()
+        dataview.refresh_konnections()
+        loop = asyncio.get_event_loop()
+        loop.call_later(0, data_changed, loop)
+
 
 @bindings.add('c-x', filter=is_viewing & is_item_view)
 def toggle_archived_status(*event):
@@ -2895,6 +2916,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^l) prompt for and jump to line number', handler=do_go_to_line),
         MenuItem('^p) jump to next pinned item', handler=next_pinned),
         MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
+        MenuItem('^t) start quick timer', handler=quick_timer),
         MenuItem('-', disabled=True),
         MenuItem('J) jump to date in a), b) and c)', handler=do_jump_to_date),
         MenuItem('right) next in a), b), c), u), U) and y)'),

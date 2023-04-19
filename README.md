@@ -1157,7 +1157,8 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         n) next incrementally in search
         ^l) prompt for and jump to line number
         ^p) jump to next pinned item
-        ^c) copy active view to clipboars
+        ^c) copy active view to clipboard
+        ^t) start quick timer
         ---
         J) jump to date in a), b) and c)
         right) next in a), b), c), u), U) and y)
@@ -1221,6 +1222,7 @@ Many of the entries are obvious but a few deserve comment.
 
 The *view* menu provides access to all the *etm* views with the shortcut keys for these views. E.g., press `a` to open *agenda view*.
 
+The *start quick timer* option creates a new, inbox reminder with the current datetime as the subject, associates a timer with reminder and starts the timer. If another timer is active, it will be paused if necessary and made inactive. Subsequent invocations repeat this process.
 
 The entries here are pretty obvious and the views themselves are descibed elsewhere.
 
@@ -1249,7 +1251,7 @@ Several options here deserve comment.
 * *show repetitions* pops up a display showing illustrative repetitions if the item is repeating.
 * *toggle archived status* moves the selected reminder from the items table if it is active to the archive table and vice versa if the archive table is active.
 * *change timer to next state*.
-    * these are the states for the timer associated with a reminder and the relevant status of any other timers:
+    * These are the states for the timer associated with a reminder and the relevant status of any other timers:
         * *n* (no timer is associated with this reminder)
             * *n-*: no other timer is active
             * *n+*: another timer is active
@@ -1259,16 +1261,16 @@ Several options here deserve comment.
         * *r-*: running (a timer is associated with this reminder and it is running - there cannot be another active timer)
         * *p-*: paused (a timer is associated with this reminder and it is paused - there cannot be another active timer)
 
-       These are the "next" state transitions associated with this action:
+    * These are the "next" state transitions associated with this action:
         * *n+* ⇒ *i+*
-        * *n-* ⇒ *r-*
+        * *n-* ⇒ *p-*
         * *i-* ⇒ *r-*
         * *i+* ⇒ *r-*
         * *r-* ⇒ *p-*
         * *p-* ⇒ *r-*
 
     * Here are the details:
-        * If no timer is currently associated with the reminder, one will be created. If another timer is *active*, the new timer will be *inactive*, otherwise it will be *running*.
+        * If no timer is currently associated with the reminder, one will be created. If another timer is *active*, the new timer will be *inactive*, otherwise it will be *active* and *paused*.
         * If an *inactive* timer is already associated with the reminder. Its state will be changed to *running*. If another timer is *active*, that timer will be changed to *inactive* and, if *running*, its elapsed time will be incremented by the period it has been *running*.
         * If an *active* timer is already associated with the reminder, its state will be toggled between *paused* and *running*. With a transition from *running* to *paused*, the elapsed time for the timer in increased by the period since the timer's state changed to *running*.
 
@@ -1277,6 +1279,7 @@ Several options here deserve comment.
             r:4m + i:13m
 
       would mean that the *active* timer is *running* with 4 minutes of unrecorded elapsed time and that there is an additional 13 minutes of unrecorded elapsed time in *inactive* timers.
+
 * *record used time* with a reminder selected, will:
     * If a timer is not currently associated with the reminder, prompt for a timeperiod and ending time to use in adding a usedtime entry to the reminder.
     * If a timer is currently associated with the reminder, use its elapsed time and the last moment it was running as the defaults in the prompt for a usedtime timeperiod and ending time. If the entry is saved, the elapsed time for the timer will be reset to zero and, additionally, if the timer is currently *running*, its status will be changed to *paused*.
