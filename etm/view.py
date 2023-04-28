@@ -1526,7 +1526,15 @@ def get_statusbar_center_text():
 
 def get_statusbar_right_text():
     inbasket = INBASKET_CHAR if os.path.exists(inbasket_file) else ""
-    return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
+    active, inactive = dataview.timer_report()
+    if active:
+        active_part = (type_colors['running'], active) if active.startswith('r') else (type_colors['paused'], active)
+        inactive_part = ('class:status', f"{inactive}  ")
+    else:
+        active_part = inactive_part = ('class:status', "")
+
+    return [ active_part, inactive_part,  ('class:status',  f"{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
+    # return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
 
 def openWithDefault(path):
     # parts = [x.strip() for x in path.split(" ")]

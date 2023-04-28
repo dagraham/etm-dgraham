@@ -77,7 +77,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
 
 *etm* offers a simple way to manage your events, tasks and other reminders.
 
-Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used. Each reminder in *etm* begins with a *type character* followed by a brief *summary* of the item and then, perhaps, by one or more *@key value* pairs to specify other attributes of the reminder. Mnemonics are used to make the keys easy to remember, e.g, @s for starting datetime, @l for location, @d for description and so forth.
+Rather than filling out fields in a form to create or edit reminders, a simple text-based format is used. Each reminder in *etm* begins with a *type character* followed by a brief *summary* of the item and then, perhaps, by one or more *@key value* pairs to specify other attributes of the reminder. Mnemonics are used to make the keys easy to remember, e.g, @s for scheduled datetime, @l for location, @d for description and so forth.
 
 The 4 types of reminders in etm with their associated type characters:
 
@@ -170,27 +170,27 @@ Notice that you don't have to search for the part of the form in which you speci
 Enter the summary followed by an `@` and *etm* will automatically display the required and available `@-keys`.
 
         @-key
-        required: @s (start)
+        required: @s (scheduled)
         available: @+ (include), @- (exclude), @a (alerts),
         @b (beginby), @c (calendar), @d (description),
         @e (extent), @g (goto), @i (index), @l (location),
         @m (mask), @n (attendee), @o (overdue),
-        @r (repetition frequency), @s (start), @t (tag),
+        @r (repetition frequency), @s (scheduled), @t (tag),
         @u (used time), @x (expansion), @z (timezone)
         ────────────────────────────────────────────────────────────
         * Presidential election day @_
 
-You see that `@s` is required, so add the `s` and *etm* will prompt you for the value for the start option and describe the type of input required.
+You see that `@s` is required, so add the `s` and *etm* will prompt you for the value for the scheduled option and describe the type of input required.
 
-        start
-        starting date or datetime
+        scheduled
+        scheduled date or datetime
 
         ────────────────────────────────────────────────────────────
         * Presidential election day @s_
 
 As you enter the datetime, *etm* will display its interpretation of your entry.
 
-        start
+        scheduled
         Sun Nov 1 2020
 
         ────────────────────────────────────────────────────────────
@@ -287,7 +287,7 @@ We want a Tuesday, so add `tu` to complete the entry. To check the entry, press 
             │                                  │
             └──────────────────────────────────┘
 
-These are the first 5 repetitions on or after Nov 1 2020. Notice that the start value of Nov 1 2020 is not one of the repetitions since it doesn't satisfy the requirements. These appear correct, so press ^S to save the reminder.
+These are the first 5 repetitions on or after Nov 1 2020. Notice that the scheduled value of Nov 1 2020 is not one of the repetitions since it doesn't satisfy the requirements. These appear correct, so press ^S to save the reminder.
 
 
 General observations:
@@ -312,17 +312,17 @@ General observations:
 
 #### fuzzy parsing of datetimes {#fuzzy-parsing-of-datetimes}
 
-Whenever *etm* expects a datetime entry as, for example, when you are entering an `@s` starting datetime, it applies fuzzy parsing to your entry.  Suppose it is Dec 17 2019, your computer is in the Eastern timezone and you have just entered `@s` for your lunch event
+Whenever *etm* expects a datetime entry as, for example, when you are entering an `@s` scheduled datetime, it applies fuzzy parsing to your entry.  Suppose it is Dec 17 2019, your computer is in the Eastern timezone and you have just entered `@s` for your lunch event
 
-        start
-        starting date or datetime
+        scheduled
+        scheduled date or datetime
 
         ────────────────────────────────────────────────────────────
         * lunch @s_
 
 If you enter `1`, *etm* will interpret it as 1am on the current date in the local timezone.
 
-        start
+        scheduled
         Tue Dec 17 2019 1:00am EST
 
         ────────────────────────────────────────────────────────────
@@ -330,7 +330,7 @@ If you enter `1`, *etm* will interpret it as 1am on the current date in the loca
 
 Adding `p` changes the interpretation to 1pm.
 
-        start
+        scheduled
         Tue Dec 17 2019 1:00pm EST
 
         ────────────────────────────────────────────────────────────
@@ -338,7 +338,7 @@ Adding `p` changes the interpretation to 1pm.
 
 Now start adding 'fri' by appending an 'f'.
 
-        start
+        scheduled
         '1p f' is incomplete or invalid
 
         ────────────────────────────────────────────────────────────
@@ -346,7 +346,7 @@ Now start adding 'fri' by appending an 'f'.
 
 and *etm* will complain that the entry is now either incomplete or invalid. Add the remaining 'ri'.
 
-        start
+        scheduled
         Fri Dec 20 2019 1:00pm EST
 
         ────────────────────────────────────────────────────────────
@@ -354,7 +354,7 @@ and *etm* will complain that the entry is now either incomplete or invalid. Add 
 
 and *etm* understands that you want the coming Friday, Dec 20. Now suppose that you will be in California on Friday and you want Pacific, not Eastern time. Then add an entry for `@z`.
 
-        start
+        scheduled
         local datetime: Fri Dec 20 2019 4:00pm EST
 
         ────────────────────────────────────────────────────────────
@@ -364,7 +364,7 @@ Note that `local datetime` is now prepended to the result which is still display
 
 What if you had entered the 'fri' first?
 
-        start
+        scheduled
         Fri Dec 20 2019
 
         ────────────────────────────────────────────────────────────
@@ -383,7 +383,7 @@ As a final illustration, suppose you want to be reminded of lunch at 1pm in what
 
 and note that supplying 'float' as the timezone does the trick.
 
-        start
+        scheduled
         Fri Dec 20 2019 1:00pm
 
         ────────────────────────────────────────────────────────────
@@ -1543,7 +1543,7 @@ Type character: **\***
 
 An event is something that happens at a particular date or datetime without any action from the user. Christmas, for example, is an event that happens whether or not the user does anything about it.
 
-- The `@s` entry is required and can be specified either as a date or as a datetime. It is interpreted as the starting date or datetime of the event.
+- The `@s` entry is required and can be specified either as a date or as a datetime. It is interpreted as the scheduled date or datetime at which the event begins.
 - If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date.
 - If `@s` is a datetime, an `@e` entry is allowed and is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.
 
@@ -1557,8 +1557,8 @@ Type character: **-**
 
 A task is something that requires action from the user and lasts, so to speak, until the task is completed and marked finished. Filing a tax return, for example, is a task.
 
-- The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is due.
-    - Tasks with an `@s` datetime entry are regarded as past due after the datetime and are displayed in *Agenda View* on the relevant date according to the starting time.
+- The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is scheduled to be completed.
+    - Tasks with an `@s` datetime entry are regarded as past due after the datetime and are displayed in *Agenda View* on the relevant date according to the scheduled time.
     - Tasks with `@s` date entry are regarded as past due after the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
     - Tasks that are past due are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Do Next* view grouped by @l (location/context).
@@ -1576,8 +1576,8 @@ A task is something that requires action from the user and lasts, so to speak, u
 
 - Jobs
     - Tasks, both with and without @s entries can have component jobs using @j entries.
-    - For tasks with an @s entry, jobs can have an &s entry to set the due date/datetime for the job. It is entered as a timeperiod relative to  the starting datetime (+ before or - after) for the task. Zero minutes is the default when &s is not entered.
-    - For tasks with an @s entry, jobs can also have &a, alert, and &b, beginning soon, notices. The entry for &a is given as a time period relative to &s (+ before or - after) and the entry for &b is a positive integer number of days before the starting date/time to begin displaying "beginning soon" notices. The entry for @s in the task becomes the default for &s in each job.  E.g., with
+    - For tasks with an @s entry, jobs can have an &s entry to set the due date/datetime for the job. It is entered as a timeperiod relative to  the scheduled datetime (+ before or - after) for the task. Zero minutes is the default when &s is not entered.
+    - For tasks with an @s entry, jobs can also have &a, alert, and &b, beginning soon, notices. The entry for &a is given as a time period relative to &s (+ before or - after) and the entry for &b is a positive integer number of days before the scheduled date/time to begin displaying "beginning soon" notices. The entry for @s in the task becomes the default for &s in each job.  E.g., with
 
             - beginning soon example @s 1/30/2018
                 @j job A &s 5d &b 10
@@ -1653,7 +1653,7 @@ Corresponds to VJOURNAL in the vcalendar specification.
 
 Type character: **!**
 
-An inbox item can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using **!** instead of **\*** and the entry  will appear highlighted in the agenda view on the current date until you confirm the starting time.
+An inbox item can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using **!** instead of **\*** and the entry  will appear highlighted in the agenda view on the current date until you confirm the scheduled time.
 
 Corresponds to VTODO in the vcalendar specification.
 
@@ -1669,7 +1669,7 @@ These type characters are generated automatically by *etm* to display the status
 
 Type character: **>**
 
-For unfinished tasks and other items with `@b` entries, when the starting date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining until the current date.
+For unfinished tasks and other items with `@b` entries, when the scheduled date given by `@s` is within `@b` days of the current date, a warning that the item is beginning soon appears on the current date together with the item summary and the number of days remaining until the current date.
 
 [↺ contents](#contents)
 
@@ -1721,7 +1721,7 @@ Notes:
 
             @s mon 9a
 
-would specify the the starting datetime for the item is 9am on the Monday following the current date.
+would specify the the scheduled datetime for the item is 9am on the Monday following the current date.
 
 *  @+: include. list of datetimes to include
 *  @-: exclude. list of datetimes to exclude
@@ -1743,7 +1743,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 *  @p: priority. integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
 *  @r*: repetition frequency, a character from (y)early, (m)onthly, (w)eekly,
   (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &key entries
-*  @s: start. date or datetime
+*  @s: scheduled date or datetime
 *  @t*: tag. string
 *  @u*: usedtime. string using "timeperiod spent: ending datetime" format
 *  @w: wrap. A pair of before and after timeperiods to extend the busy period for an event, e.g., for travel time to and/or from the location of the event. Use `0m` as one of the timeperiods to avoid a wrap in that direction.
@@ -1758,7 +1758,7 @@ would specify the the starting datetime for the item is 9am on the Monday follow
 
 For use with @j:
 
-*  &s: start/due: period relative to @s entry (default 0m)
+*  &s: scheduled: period relative to @s entry (default 0m) at which job is scheduled to be completed
 *  &a: alert: list of + (before) or - (after) periods relative to &s: list of cmd names from the users configuration file
 *  &b: beginby. integer number of days before &s
 *  &d: description. string
@@ -1794,8 +1794,8 @@ For use with @r:
 * A link character, 'g', is appended to the *flags* column of any reminder with an `@g` goto link. Press `^g` with such a reminder selected to have the operating system open the link using the default application if the link can be interpreted as a file path or a url. E.g. if the link is a URL, then it would be opened using the default browser. If link can be interpreted as a shell command followed by arguments, then the command would be executed with the arguments.
 * An in-basket character, ⓘ , is appended to the right end of the status bar when a file named 'inbasket.text' is found in the etm root directory. This file should contain lines containing etm reminder entries - one on each line. It can be imported using the import file command bound to F5.
 * An update available character, 𝕦, is appended to the right end of the status bar when checking for updates is enabled and a later version of etm is available. Details for enabling checking for updates are in [configuration](#configuration).
-* Alerts and beginbys can be added to any reminder with an `@s` start date/time entry. Alerts require a datetime in `@s`; beginbys also allow a date in `@s`.
-* A beginby is specified by adding `@b n` to a reminder where `n` is a positive integer and is interpreted as a number of days. A reminder with such an entry will be displayed in *agenda view* on the current date provided that the current date is no more than `n` days before the start date/time of the reminder. Such a warning will appear n days before, n-1 days before and so forth until 1 day before the starting date/time of the reminder. The warning displays the type character `>`, the summary of the reminder and the number of days remaining.
+* Alerts and beginbys can be added to any reminder with an `@s` scheduled date/time entry. Alerts require a datetime in `@s`; beginbys also allow a date in `@s`.
+* A beginby is specified by adding `@b n` to a reminder where `n` is a positive integer and is interpreted as a number of days. A reminder with such an entry will be displayed in *agenda view* on the current date provided that the current date is no more than `n` days before the scheduled date/time of the reminder. Such a warning will appear n days before, n-1 days before and so forth until 1 day before the scheduled date/time of the reminder. The warning displays the type character `>`, the summary of the reminder and the number of days remaining.
 * An alert is specified by adding `@a <list of time periods>: <list of commands>` to a reminder. The time periods must be given in the usual etm format, e.g., `1h13m` for one hour and 13 minutes. The commands are single alphabetic characters, e.g., `a`, `b` and such. The commands used must either be `e` (email) or `t` (text) or be specified in the `alerts` section of the `cfg.yaml` file in your etm home directory. See [configuration](#configuration) for details about this file. Basically, it associates a command, such as `v` with a shell command to be invoked when an alert that includes `v` is triggered. E.g., the alert
 
 			@a 20m: v
@@ -2019,7 +2019,7 @@ Here are the options with their default values from that file. The lines beginni
 
     omit_extent:
     # A list of calendar names. Events with @c entries belonging to this
-    # list will only have their starting times displayed in agenda view
+    # list will only have their scheduled times displayed in agenda view
     # and will neither appear nor cause conflicts in busy view.
 
 	keep_current: 0, 47

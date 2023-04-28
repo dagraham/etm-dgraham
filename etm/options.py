@@ -80,6 +80,8 @@ class Settings():
             'today':        'Ivory bold',
             'waiting':      'SlateGrey',
             'wrap':         'ForestGreen',
+            'running':      'OrangeRed',
+            'paused':       'Gold',
             },
         'light': {
             'available':    'DarkBlue',
@@ -93,6 +95,8 @@ class Settings():
             'today':        'Black bold',
             'waiting':      'DarkSlateBlue',
             'wrap':         'LightGrey',
+            'running':      'MediumVioletRed',
+            'paused':       'DarkViolet',
             },
     }
 
@@ -457,7 +461,8 @@ type_colors: {type_colors}
 #  today           'Ivory bold',       'Black bold',
 #  waiting         'SlateGrey',        'DarkSlateBlue',
 #  wrap            'ForestGreen',      'LightGrey',
-#
+#  running         'OrangeRed',        'Gold',
+#  paused          'MediumVioletRed',   'DarkViolet',
 # Explanations for the key names:
 #     available:    available task/job reminders
 #     begin:        begin by warnings
@@ -471,6 +476,8 @@ type_colors: {type_colors}
 #     waiting:      waiting job reminders (jobs with unfinished prereqs)
 #     wrap:         before and after rows for events in agenda view with
 #                   @w entries
+#     running:      status bar color for 'r', running timer
+#     paused:       status bar color for 'p', paused timer
 #
 # E.g., with style 'dark', the default color for 'available' is
 # 'LightSkyBlue'. This entry

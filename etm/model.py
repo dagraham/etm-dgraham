@@ -516,7 +516,7 @@ class Item(dict):
                 'n': ["attendee", "name <email address>", do_string],
                 'o': ["overdue", "character from (r)estart, (s)kip, (k)eep or (p)reserve", do_overdue],
                 'p': ["priority", "priority from 0 (none) to 4 (urgent)", do_priority],
-                's': ["start", "starting date or datetime", self.do_datetime],
+                's': ["scheduled", "starting date or datetime", self.do_datetime],
                 't': ["tag", "tag", do_string],
                 'u': ["used time", "timeperiod: datetime", do_usedtime],
                 # 'w': ['who', 'who is responsible for this item', do_string],
@@ -539,7 +539,7 @@ class Item(dict):
                 'r?': ["repetition &-key", "enter &-key", self.do_ampr],
 
                 'jj': ["summary", "job summary. Append an '&' to add a job option.", do_string],
-                'ja': ["alert", "list of timeperiod before task start followed by a colon and a list of command", do_alert],
+                'ja': ["alert", "list of timeperiod before job is scheduled followed by a colon and a list of command", do_alert],
                 'jb': ["beginby", " integer number of days", do_beginby],
                 'jd': ["description", " string", do_paragraph],
                 'je': ["extent", " timeperiod", do_period],
@@ -548,7 +548,7 @@ class Item(dict):
                 'jl': ["location", " string", do_string],
                 'jm': ["mask", "string to be masked", do_mask],
                 'jp': ["prerequisite ids", "list of ids of immediate prereqs", do_stringlist],
-                'js': ["start", "timeperiod before task start when job is due", do_period],
+                'js': ["scheduled", "timeperiod before task scheduled when job is scheduled", do_period],
                 'ju': ["used time", "timeperiod: datetime", do_usedtime],
                 'j?': ["job &-key", "enter &-key", self.do_ampj],
                 }
@@ -2449,7 +2449,7 @@ class DataView(object):
     def timer_report(self):
         if not self.timers:
             return ''
-        active = unrecorded = ""
+        active = unrecorded = status = ""
         zero = pendulum.Duration()
         delta = zero
         if self.active_timer:
@@ -2458,6 +2458,7 @@ class DataView(object):
             if status == 'r': # running
                 delta += elapsed
             active = f"{status}:{status_duration(delta)}"
+            # active = f"{status_duration(delta)}"
         if len(self.timers) > 1:
             timers = deepcopy(self.timers)
             if self.active_timer in timers:
@@ -2468,8 +2469,9 @@ class DataView(object):
                 total = zero
                 for v in relevant:
                     total += v
-                unrecorded = f" + i:{status_duration(total)}"
-        return f"{active}{unrecorded}  "
+                unrecorded = f" i:{status_duration(total)}"
+        # return status, f":{active}{unrecorded}  "
+        return active, unrecorded
 
 
     def unsaved_timers(self):
