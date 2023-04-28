@@ -1,50 +1,54 @@
-Recent tagged changes as of 2023-04-19T10:39:48.027355-04:00:
-- 2 minutes ago (HEAD -> working, tag: 4.11.12, quicktimer) Daniel Graham
+Recent tagged changes as of 2023-04-28T08:14:27.039213-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.11.13) Daniel Graham
+    4c474835 2023-04-28 08:14:27 -0400
+    Tagged version 4.11.13.
+
+- 9 days ago (tag: 4.11.12, origin/master, origin/HEAD, quicktimer, master) Daniel Graham
     d16eba67 2023-04-19 10:37:55 -0400
     Implemented 'start quick timer'
 
-- 5 days ago (tag: 4.11.11) Daniel Graham
+- 2 weeks ago (tag: 4.11.11) Daniel Graham
     24d267a2 2023-04-14 11:37:11 -0400
     Tagged version 4.11.11.
 
-- 5 days ago (tag: 4.11.10) Daniel Graham
+- 2 weeks ago (tag: 4.11.10) Daniel Graham
     38689532 2023-04-14 09:40:23 -0400
     Tagged version 4.11.10.
 
-- 8 days ago (tag: 4.11.9) Daniel Graham
+- 2 weeks ago (tag: 4.11.9) Daniel Graham
     98bd7bde 2023-04-11 15:55:36 -0400
     Tagged version 4.11.9.
 
-- 5 weeks ago (tag: 4.11.8) Daniel Graham
+- 6 weeks ago (tag: 4.11.8) Daniel Graham
     beb19662 2023-03-17 12:55:47 -0400
     Tagged version 4.11.8.
 
-- 5 weeks ago (tag: 4.11.7) Daniel Graham
+- 7 weeks ago (tag: 4.11.7) Daniel Graham
     405cb3af 2023-03-12 21:10:57 -0400
     Tagged version 4.11.7.
 
-- 6 weeks ago (tag: 4.11.6) Daniel Graham
+- 7 weeks ago (tag: 4.11.6) Daniel Graham
     d5922115 2023-03-10 14:17:23 -0500
     Tagged version 4.11.6. Display dates respecting yearfirst and
     dayfirst settings when possible.
 
-- 6 weeks ago (tag: 4.11.5) Daniel Graham
+- 7 weeks ago (tag: 4.11.5) Daniel Graham
     3555619a 2023-03-10 08:21:17 -0500
     Tagged version 4.11.5.
 
-- 6 weeks ago (tag: 4.11.4) Daniel Graham
+- 7 weeks ago (tag: 4.11.4) Daniel Graham
     db38ff0b 2023-03-09 10:57:15 -0500
     Tagged version 4.11.4.
 
-- 10 weeks ago (tag: 4.11.3) Daniel Graham
+- 3 months ago (tag: 4.11.3) Daniel Graham
     3269def7 2023-02-11 08:40:58 -0500
     Tagged version 4.11.3.
 
-- 10 weeks ago (tag: 4.11.2) Daniel Graham
+- 3 months ago (tag: 4.11.2) Daniel Graham
     0f14c1bf 2023-02-09 14:06:14 -0500
     Tagged version 4.11.2.
 
-- 2 months ago (tag: 4.11.1) Daniel Graham
+- 3 months ago (tag: 4.11.1) Daniel Graham
     c17a0ec2 2023-02-06 08:32:30 -0500
     Tagged version 4.11.1.
 
@@ -75,10 +79,6 @@ Recent tagged changes as of 2023-04-19T10:39:48.027355-04:00:
     585d6e80 2022-12-16 16:09:55 -0500
     Tagged version 4.10.17.
 
-- 4 months ago (tag: 4.10.16) Daniel Graham
+- 5 months ago (tag: 4.10.16) Daniel Graham
     1959693a 2022-12-08 15:49:21 -0500
     Tagged version 4.10.16.
-
-- 4 months ago (tag: 4.10.15) Daniel Graham
-    8674daaf 2022-12-07 09:21:46 -0500
-    Tagged version 4.10.15.
