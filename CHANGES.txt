@@ -1,9 +1,13 @@
-Recent tagged changes as of 2023-04-28T08:14:27.039213-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.11.13) Daniel Graham
+Recent tagged changes as of 2023-04-28T08:24:55.891872-04:00:
+- 1 second ago (HEAD -> working, tag: 4.11.14) Daniel Graham
+    b437f7ba 2023-04-28 08:24:55 -0400
+    Tagged version 4.11.14.
+
+- 10 minutes ago (tag: 4.11.13) Daniel Graham
     4c474835 2023-04-28 08:14:27 -0400
     Tagged version 4.11.13.
 
-- 9 days ago (tag: 4.11.12, origin/master, origin/HEAD, quicktimer, master) Daniel Graham
+- 9 days ago (tag: 4.11.12, quicktimer) Daniel Graham
     d16eba67 2023-04-19 10:37:55 -0400
     Implemented 'start quick timer'
 
@@ -78,7 +82,3 @@ Recent tagged changes as of 2023-04-28T08:14:27.039213-04:00:
 - 4 months ago (tag: 4.10.17) Daniel Graham
     585d6e80 2022-12-16 16:09:55 -0500
     Tagged version 4.10.17.
-
-- 5 months ago (tag: 4.10.16) Daniel Graham
-    1959693a 2022-12-08 15:49:21 -0500
-    Tagged version 4.10.16.
