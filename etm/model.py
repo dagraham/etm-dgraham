@@ -2448,8 +2448,8 @@ class DataView(object):
     # for status bar report
     def timer_report(self):
         if not self.timers:
-            return ''
-        active = unrecorded = status = ""
+            return '', ''
+        active = inactive = status = ""
         zero = pendulum.Duration()
         delta = zero
         if self.active_timer:
@@ -2469,9 +2469,8 @@ class DataView(object):
                 total = zero
                 for v in relevant:
                     total += v
-                unrecorded = f" i:{status_duration(total)}"
-        # return status, f":{active}{unrecorded}  "
-        return active, unrecorded
+                inactive = f" i:{status_duration(total)}"
+        return active, inactive
 
 
     def unsaved_timers(self):
