@@ -2906,6 +2906,31 @@ class DataView(object):
                         # toss old finished tasks including repeating ones
                         rows.append(item)
                         continue
+            elif '+' in item:
+                toss = True
+                logger.debug(f"old: {old}")
+                for dt in item['+']:
+                    if isinstance(dt, pendulum.Date):
+                        # could be date or datetime
+                        if isinstance(dt, pendulum.DateTime):
+                            # datetime
+                            logger.debug(f"datetime: {dt}")
+                            if dt.date() >= old.date():
+                                toss = False
+                                break
+                        else:
+                            # date
+                            logger.debug(f"date: {dt}")
+                            if dt >= old.date():
+                                toss = False
+                                break
+                        logger.debug(f"toss: {toss}")
+                    else:
+                        prov = dt
+                    # FIXME: complicated whether or not to archive other repeating items with 't' so keep them
+                if toss:
+                    rows.append(item)
+                    continue
             elif 'r' in item:
                 toss = True
                 for rr in item['r']:
@@ -2931,6 +2956,7 @@ class DataView(object):
                 if toss:
                     rows.append(item)
                     continue
+
             elif item['itemtype'] == '*':
                 start = item.get('s', None)
                 if isinstance(start, pendulum.DateTime):
