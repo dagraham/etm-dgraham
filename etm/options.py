@@ -183,6 +183,7 @@ class Settings():
     style = "dark"
     type_colors = ""
     window_colors = ""
+    journal_name = "daily"
 
     # use these to format the template
     settings_hsh = {
@@ -212,6 +213,7 @@ class Settings():
         "style" : style,
         "type_colors" : dict2yaml(type_colors),        # user modifications only
         "window_colors" : dict2yaml(window_colors),    # user modifications only
+        "journal_name": journal_name,
         "etmversion": etmversion
 }
 
@@ -341,6 +343,17 @@ usedtime_minutes: {usedtime_minutes}
 # minutes would be rounded up to 18 minutes and reported as 0.3 hours. Note
 # that when rounding is specified, each "@u" timeperiod is rounded before
 # aggregation.
+
+journal_name: {journal_name}
+# Journal items with this index entry and with an @s entry will have the
+# year and month appended to the index. E.g., with the setting
+#   journal_name: daily
+# this journal entry
+#   % visited Yellowstone @s 22/6/24 @i daily
+# would be displayed in journal view as if the index entry were
+#   @i daily/2022/ 6
+# thus organizing such entries by the year and month of their scheduled dates.
+# Within each month, entries will be also ordered by the month day.
 
 alerts: {alerts}
 # A dictionary with single-character, "alert" keys and corresponding

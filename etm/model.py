@@ -1564,6 +1564,16 @@ def fivechar_datetime(obj):
     else:
         return obj.format(ym_fmt)
 
+def format_date(obj):
+    dayfirst = settings.get('dayfirst', False)
+    yearfirst = settings.get('yearfirst', False)
+    md = "D/M" if dayfirst else "M/D"
+    date_fmt = f"YY/{md}" if yearfirst else f"{md}/YY"
+    if type(obj) != pendulum.Date and type(obj) != pendulum.DateTime:
+        return False, ""
+    else:
+        return True, obj.format(date_fmt)
+
 
 def format_datetime(obj, short=False):
     """
@@ -6029,19 +6039,30 @@ def show_journal(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[],
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     summary_width = width - 14
-    # indices = set([])
     for item in db:
         doc_id = item.doc_id
         if item['itemtype'] != '%':
             continue
-        rhc = str(doc_id).rjust(5, ' ')
+        s = item.get('s', None)
+        if s:
+            rhc = format_date(s)[1]
+            ymd = s.format("YYYY/M/D").split('/')
+            year = ymd.pop(0)
+            month, day = [f"{x: >2}" for x in ymd]
+            ss = f"{year}/{month}/{day}"
+        else:
+            rhc = ""
+            ss = ""
+            year = month = day = ""
         index = item.get('i', '~')
+        if index == settings['journal_name'] and year:
+            index = f"{index}/{year}/{month}"
         itemtype = item['itemtype']
         summary = item['summary']
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
 
         rows.append({
-                    'sort': (index, item['summary']),
+                    'sort': (index, ss, item['summary']),
                     'path': index,
                     'values': [
                         itemtype,
@@ -6138,14 +6159,16 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], t
     """
     rows = []
     for item in db:
-        # if item['itemtype'] == '%':
-        #     continue
         doc_id = item.doc_id
-        rhc = str(doc_id).rjust(5, ' ')
         index = item.get('i', '~')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
+        s = item.get('s', None)
+        if s:
+            rhc = format_date(s)[1]
+        else:
+            rhc = ""
         rows.append({
                     'sort': (index, item['summary']),
                     'path': index,
