@@ -6051,14 +6051,15 @@ def show_journal(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[],
             month, day = [f"{x: >2}" for x in ymd]
             ss = f"{year}/{month}/{day}"
         else:
-            rhc = ""
+            rhc = " "
             ss = ""
             year = month = day = ""
+        rhc = f"{rhc: ^8}"
         index = item.get('i', '~')
         if index == settings['journal_name'] and year:
             index = f"{index}/{year}/{month}"
         itemtype = item['itemtype']
-        summary = item['summary']
+        summary = item['summary'][:summary_width]
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
 
         rows.append({
@@ -6158,17 +6159,20 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], t
     All items grouped by index entry
     """
     rows = []
+    width = shutil.get_terminal_size()[0] - 3
+    summary_width = width - 14
     for item in db:
         doc_id = item.doc_id
         index = item.get('i', '~')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
-        summary = item['summary']
+        summary = item['summary'][:summary_width]
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
         s = item.get('s', None)
         if s:
             rhc = format_date(s)[1]
         else:
-            rhc = ""
+            rhc = " "
+        rhc = f"{rhc: ^8}"
         rows.append({
                     'sort': (index, item['summary']),
                     'path': index,
