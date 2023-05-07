@@ -2078,6 +2078,17 @@ Here are the options with their default values from that file. The lines beginni
     # that when rounding is specified, each "@u" timeperiod is rounded before
     # aggregation.
 
+    journal_name: daily
+    # Journal items with this index entry and with an @s entry will have the
+    # year and month appended to the index. E.g., with the setting
+    #   journal_name: daily
+    # this journal entry
+    #   % visited Yellowstone @s 22/6/24 @i daily
+    # would be displayed in journal view as if the index entry were
+    #   @i daily/2022/ 6
+    # thus organizing such entries by the year and month of their scheduled dates.
+    # Within each month, entries will be also ordered by the month day.
+
     alerts: {alerts}
     # A dictionary with single-character, "alert" keys and corresponding
     # "system command" values. Note that characters "t" (text message) and
