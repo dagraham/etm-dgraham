@@ -2681,15 +2681,17 @@ class DataView(object):
                     curr_lines.append(tmp_cache[week][0])
                 else:
                     logger.debug(f"week {week} missing from tmp_cache")
-            with open(self.currfile, 'w', encoding='utf-8') as fo:
-                fo.write("\n\n".join([x.strip() for x in curr_lines]))
-            logger.info(f"saved current schedule to {self.currfile}")
+            if curr_lines:
+                with open(self.currfile, 'w', encoding='utf-8') as fo:
+                    fo.write("\n\n".join([x.strip() for x in curr_lines]))
+                logger.info(f"saved {len(curr_lines)} in current schedule to {self.currfile}")
+            else:
+                logger.info("current schedule empty - did not save")
 
         if self.nextfile is not None:
             next_view, row2id = show_next(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
             with open(self.nextfile, 'w', encoding='utf-8') as fo:
                 fo.write(re.sub(' {3,}', ' ', next_view))
-                # fo.write(next_view)
             logger.info(f"saved do next to {self.nextfile}")
 
 
