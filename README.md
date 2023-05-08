@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" width="200px" />
 
-This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.github.io/etm-dgraham/) where all the internal, contents links work correctly. etm itself is available from [PyPi](https://pypi.org/project/etm-dgraham/) and [GitHub](https://github.com/dagraham/etm-dgraham) and further information from the etm discussion group at [groups.io](https://groups.io/g/etm-dgraham). Brief how-to videos are available at [youtube](https://www.youtube.com/playlist?list=PLN2WQIqrwSxzMAegJKKTot6MEkDHwjS8Z).
+This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.github.io/etm-dgraham/) where all the internal, contents links work correctly. etm itself is available from [PyPi](https://pypi.org/project/etm-dgraham/) and [GitHub](https://github.com/dagraham/etm-dgraham) and further information from the etm discussion group at [groups.io](https://groups.io/g/etm-dgraham). Brief how-to videos are available at [youtube](https://www.youtube.com/@etm-dgraham).
 
 
 # Contents {#contents}
