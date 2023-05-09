@@ -2399,23 +2399,33 @@ def do_whatever(*event):
 @bindings.add('c-t', filter=is_viewing & is_item_view)
 def quick_timer(*event):
     now = format_datetime(pendulum.now(), short=True)[1]
-    item_hsh = {
-            'itemtype': '!',
-            'summary': now,
-            'created': pendulum.now('UTC')
-            }
+    def coroutine():
+        dialog = TextInputDialog(
+            title='Quick timer summary',
+            label_text='summary:',
+            default=now)
 
-    doc_id = ETMDB.insert(item_hsh)
-    if doc_id:
-        dataview.next_timer_state(doc_id)
-        dataview.next_timer_state(doc_id)
+        summary = yield from show_dialog_as_float(dialog)
 
-        dataview.refreshRelevant()
-        dataview.refreshAgenda()
-        dataview.refreshCurrent()
-        dataview.refresh_konnections()
-        loop = asyncio.get_event_loop()
-        loop.call_later(0, data_changed, loop)
+        if summary:
+            item_hsh = {
+                    'itemtype': '!',
+                    'summary': summary,
+                    'created': pendulum.now('UTC')
+                    }
+
+            doc_id = ETMDB.insert(item_hsh)
+            if doc_id:
+                dataview.next_timer_state(doc_id)
+                dataview.next_timer_state(doc_id)
+
+                dataview.refreshRelevant()
+                dataview.refreshAgenda()
+                dataview.refreshCurrent()
+                dataview.refresh_konnections()
+                loop = asyncio.get_event_loop()
+                loop.call_later(0, data_changed, loop)
+    asyncio.ensure_future(coroutine())
 
 
 @bindings.add('c-x', filter=is_viewing & is_item_view)
