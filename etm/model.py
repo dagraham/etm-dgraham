@@ -1675,9 +1675,8 @@ def dt2minutes(obj):
     return obj.hour * 60 + obj.minute
 
 
+# not used - record used times without rounding
 def round_minutes(obj):
-    if UT_MIN == 0:
-        return obj
     seconds = obj.remaining_seconds
     if seconds >= 30:
         # round up
@@ -1696,8 +1695,6 @@ def format_duration(obj, short=False):
     """
     if not isinstance(obj, pendulum.Duration):
         return None
-    # if UT_MIN > 0:
-    obj = round_minutes(obj)
     hours = obj.hours
     try:
         until =[]
@@ -1719,7 +1716,6 @@ def format_duration(obj, short=False):
         if minutes:
             until.append(f"{minutes}m")
         if seconds:
-            # getting here means UT_MIN == 0
             until.append(f"{seconds}s")
         if not until:
             until.append("0m")
@@ -2473,7 +2469,6 @@ class DataView(object):
             timers = deepcopy(self.timers)
             if self.active_timer in timers:
                 del timers[self.active_timer]
-            # relevant = [round_minutes(v[2]) for k, v in timers.items() if v[2] > zero]
             relevant = [v[2] for k, v in timers.items() if v[2] > zero]
             if relevant:
                 total = zero
@@ -6282,7 +6277,12 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
 
             rhc_cols = 17 if UT_MIN == 0 else 14
 
-            if UT_MIN > 1:
+            if UT_MIN > 0:
+                # round up to the nearest integer multiple of UT_MIN
+                if seconds:
+                    # x minutes + y seconds => (x+1) minutes
+                    # seconds will be discarded in the next step
+                    period += ONEMIN
                 res = period.in_minutes() % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
@@ -6515,8 +6515,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     pass
                 else:
                     dt = dt.date()
-                if UT_MIN > 1:
+                if UT_MIN > 0:
                     # round up minutes
+                    if period.remaining_seconds:
+                        # x minutes + y seconds => (x+1) minutes
+                        # seconds will be discarded in the next step
+                        period += ONEMIN
                     res = period.minutes % UT_MIN
                     if res:
                         period += (UT_MIN - res) * ONEMIN
