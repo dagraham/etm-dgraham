@@ -1649,9 +1649,12 @@ def format_hours_and_tenths(obj):
     """
     if not isinstance(obj, pendulum.Duration):
         return None
-    usedtime_minutes = settings.get('usedtime_minutes', 1)
+    UT_MIN = settings.get('usedtime_minutes', 1)
+    if UT_MIN >= 1:
+        obj = round_minutes(obj)
     try:
-        if usedtime_minutes <= 1:
+        if UT_MIN <= 1:
+            # hours, minutes and seconds if not rounded up
             return format_duration(obj, short=True)
         minutes = 0
         if obj.weeks:
@@ -1663,27 +1666,25 @@ def format_hours_and_tenths(obj):
         if obj.minutes:
             minutes += obj.minutes
         if minutes:
-            return f"{math.ceil(minutes/usedtime_minutes)/(60/usedtime_minutes)}h"
+            return f"{math.ceil(minutes/UT_MIN)/(60/UT_MIN)}h"
         else:
             return "0m"
 
     except Exception as e:
         logger.error(f"error: {e} formatting {obj}")
-        return None
+        return obj
 
 def dt2minutes(obj):
     return obj.hour * 60 + obj.minute
 
 
-# not used - record used times without rounding
 def round_minutes(obj):
     seconds = obj.remaining_seconds
-    if seconds >= 30:
-        # round up
+    # round up
+    if seconds:
         return obj + pendulum.duration(seconds = 60-seconds)
     else:
-        # round down
-        return obj - pendulum.duration(seconds = seconds)
+        return obj
 
 
 def format_duration(obj, short=False):
@@ -6272,17 +6273,14 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
             if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
                 dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
                 dt.set(hour=23, minute=59, second=59)
-            # for id2used
-            seconds = period.remaining_seconds
 
             rhc_cols = 17 if UT_MIN == 0 else 14
 
             if UT_MIN > 0:
-                # round up to the nearest integer multiple of UT_MIN
+                seconds = period.remaining_seconds
                 if seconds:
-                    # x minutes + y seconds => (x+1) minutes
-                    # seconds will be discarded in the next step
-                    period += ONEMIN
+                    # round up to the next minute
+                    period = period + pendulum.duration(seconds = 60-seconds)
                 res = period.in_minutes() % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
@@ -6290,7 +6288,6 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
             id_used[monthday] += period
-            # for used_time
             month = dt.format("YYYY-MM")
             used_time.setdefault(tuple((month,)), ZERO)
             used_time[tuple((month, ))] += period

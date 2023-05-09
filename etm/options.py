@@ -334,15 +334,15 @@ connecting_dots: {connecting_dots}
 # the right-hand details columns in tree views.
 
 usedtime_minutes: {usedtime_minutes}
-# 0, 1, 6, 12, 30 or 60. Round off used times. With 0, no rounding is done
+# 0, 1, 6, 12, 30 or 60. Round up used times. With 0, no rounding is done
 # and times are reported in hours, minutes and seconds. With 1, after
 # rounding up to the nearest minute, times are reported as hours and minutes.
-# Otherwise, rounding is up to the specified integer and times are reported
-# as floating point hours. E.g., with usedtime_minutes = 6, 1 minute would
-# be rounded up to 6 minutes and reported as 0.1 hours. Similarly 13
-# minutes would be rounded up to 18 minutes and reported as 0.3 hours. Note
-# that when rounding is specified, each "@u" timeperiod is rounded before
-# aggregation.
+# Otherwise, rounding is up to the nearest integer multiple of
+# usedtime_minutes and times are reported as floating point hours. E.g.,
+# with usedtime_minutes = 6, 1 minute would be rounded up to 6 minutes and
+# reported as 0.1 hours. Similarly 13 minutes would be rounded up to 18
+# minutes and reported as 0.3 hours. Note that when rounding is specified,
+# each "@u" timeperiod is rounded before aggregation.
 
 journal_name: {journal_name}
 # Journal items with this index entry and with an @s entry will have the
