@@ -73,6 +73,8 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
 
 # Overview {#overview}
 
+*etm* began life in 2013 as *etm-qt* sporting a gui based on *Qt*. The name changed to *etmtk* in 2014 when *Tk* replaced *Qt*. Development of *etmtk* continued until 2019 when name changed to *etm-dgraham*, to honor the PyPi naming convention, and the interface changed to a terminal based one based on *promt_toolkit*. Features have changed over the years but the text based interface and basic format of the reminders has changed very little. The goal has always been to be the Swiss Army Knife of tools for managing reminders.
+
 ## Reminders {#reminders}
 
 *etm* offers a simple way to manage your events, tasks and other reminders.
@@ -117,7 +119,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
         ! Coffee with Alex @s fri @e 1h
 
-	This can be changed to an event when the time is confirmed by replacing the **!** with an **\*** and adding the time to `@s`.  This inbox entry will appear on the current day in *agenda view* until you make the changes.
+	This can be changed to an event when the details are confirmed by replacing the **!** with an **\*** and adding the time to `@s`.  This inbox entry will appear on the current day in *agenda view* until you make the changes.
 
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
@@ -129,7 +131,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 ### text entry versus forms {#text-entry-versus-forms}
 
 * Text entry removes the need to hunt for and click in the relevant entry box and allows you to keep your fingers on the keyboard.
-* Text entry supports the full flexibility of the superb Python *dateutil* package. Consider, for example, creating a reminder for Presidential election day which repeats every 4 years on the first Tuesday after a Monday in November (a monthday falling between 2 and 8). In *etm*, this event would be
+* Text entry supports the full flexibility of the superb Python *dateutil* package. Consider, for example, creating a reminder to vote for President election day which repeats every 4 years on the first Tuesday after a Monday in November (a Tuesday whose monthday falls between 2 and 8). In *etm*, this event would be
 
         * Presidential election day @s nov 1 2020 @r y &i 4 &M 11
           &m 2, 3, 4, 5, 6, 7, 8 &w tu
