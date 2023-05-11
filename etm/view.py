@@ -1303,11 +1303,12 @@ def data_changed(loop):
 
 async def new_day(loop):
     logger.debug("### new day ###")
+    dataview.currYrWk()
+    dataview.refreshCurrent()
     dataview.refreshRelevant()  # sets now, currentYrWk, current
     dataview.refreshAgenda()
     dataview.set_active_view('a')
     set_text(dataview.show_active_view())
-    dataview.refreshCurrent()
     dataview.currcal()
     get_app().invalidate()
     dataview.handle_backups()
@@ -2394,7 +2395,8 @@ def do_whatever(*event):
     """
     For testing whatever
     """
-    logger.debug(f"row2id: {dataview.row2id}")
+    dataview.refreshCurrent()
+    # logger.debug(f"row2id: {dataview.row2id}")
 
 @bindings.add('c-t', filter=is_viewing & is_item_view)
 def quick_timer(*event):

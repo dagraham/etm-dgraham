@@ -6252,7 +6252,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     used_details = {}
     used_details2id = {}
     used_summary = {}
-
+    effort_details = {}
     month_rows = {}
     used_time = {}
     detail_rows = []
@@ -6284,6 +6284,13 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 res = period.in_minutes() % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
+
+            yr, wk, dayofweek = dt.isocalendar()
+            week = (yr, wk)
+            row = wkday2row(dayofweek)
+            effort_details.setdefault(week, {})
+            effort_details[week].setdefault(row, ZERO)
+            effort_details[week][row] += period
 
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)

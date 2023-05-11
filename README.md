@@ -37,7 +37,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
         -   [selected menu notes](#selected-menu-notes)
     -   [Installation](#installation)
         -   [For personal use](#for-personal-use)
-        -   [for use in a virtual environment](#for-use-in-a-virtual-environment)
+        -   [for use in an isolated environment](#for-use-in-an-isolated-environment)
         -   [for use system wide](#for-use-system-wide)
     -   [Usage](#usage)
         -   [Terminal size and color](#terminal-size-and-color)
@@ -1298,48 +1298,33 @@ The easiest way to install *etm* for personal use is to use *pip*:
 
 	$ python3 -m pip install -U etm-dgraham
 
-This will install *etm* with all the needed python supporting modules. You can then start *etm* with
+(This same command can be used to update *etm* when a new version is released.) This will install *etm* with all the needed python supporting modules. You can then start *etm* with
 
 	$ etm <path to home>
 
+
 See [Home directory](#home-directory) for details about `<path to home>`.
 
-<!--  [![etm: installing etm in a virtual environment](http://img.youtube.com/vi/fEPPG82AH7M/0.jpg)](http://www.youtube.com/watch?v=fEPPG82AH7M "installing etm in a virtual environment") -->
 
 [↺ contents](#contents)
 
-### For use in a virtual environment {#For-use-in-a-virtual-environment}
+### For use in an isolated environment {#For-use-in-an-isolated-environment}
 
-Setting up a virtual environment for etm is only slightly more complicated. The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
+Installing etm in an isolated or virtual environment (sandbox) is only slightly more complicated. Begin by using *pip* to install *pipx*:
 
-Open a terminal and begin by creating a new directory/folder for the virtual environment, say `etm-pypi`, in your home directory:
+    $ python3 -m pip install -U pipx
 
-        $ mkdir ~/etm-pypi
-        $ cd ~/etm-pypi
+Now run:
 
-Now continue by creating the virtual environment (python >= 3.7.4 is required for etm):
+    $ pipx ensurepath
 
-        $ python3 -m venv env
+to ensure that directories necessary for *pipx* operation are in your PATH environment variable and finally to install *etm* itself:
 
-After a few seconds you will have an `./env` directory. Now activate the virtual environment:
+    $ pipx install etm-dgraham
 
-        $ source env/bin/activate
+(To upgrade *etm* when a new version becomes available, simply replace "install" in this command with "upgrade".) You can then start *etm* as before with
 
-The prompt will now change to something containing `(env)` to indicate that the virtual environment is active. Updating pip is now recommended:
-
-        (env) $ pip install -U pip
-
-Note that this invokes `./env/bin/pip`. Once this is finished, use pip to install etm:
-
-        (env) $ pip install -U etm-dgraham
-
-This will install etm and all its requirements in
-
-		./env/lib/python3.x/sitepackages
-
-and will also install an executable called `etm` in `./env/bin`.You can then start etm using
-
-        (env) $ etm <path to home>
+    $ etm <path to home>
 
 Details about `<path to home>` are in [Home directory](#home-directory).
 
