@@ -2054,6 +2054,7 @@ class DataView(object):
         self.current_row = 0
         self.agenda_view = ""
         self.done_view = ""
+        self.engaged_view = ""
         self.busy_view = ""
         self.calendar_view = ""
         self.query_view = ""
@@ -2094,6 +2095,7 @@ class DataView(object):
                 'b': 'busy',
                 'c': 'completed',
                 'd': 'do next',
+                'e': 'engaged',
                 'f': 'forthcoming',
                 'h': 'history',
                 'i': 'index',
@@ -2518,6 +2520,10 @@ class DataView(object):
             self.refreshAgenda()
             self.row2id = self.done2id
             return self.done_view
+        if self.active_view == 'engaged':
+            self.refreshAgenda()
+            self.row2id = self.engaged2id
+            return self.engaged_view
         if self.active_view == 'busy':
             self.refreshAgenda()
             return self.busy_view
@@ -2650,7 +2656,7 @@ class DataView(object):
         if self.activeYrWk not in self.cache:
             self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list, konnect_list=self.konnected, timers=self.timers))
         # agenda, done, busy, row2id, done2id
-        self.agenda_view, self.done_view, self.busy_view, self.row2id, self.done2id, self.busy_details = self.cache[self.activeYrWk]
+        self.agenda_view, self.done_view, self.engaged_view, self.busy_view, self.row2id, self.done2id, self.engaged2id, self.busy_details = self.cache[self.activeYrWk]
 
 
     def refreshCurrent(self):
@@ -6259,7 +6265,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     months = set([])
     for item in db:
         used = item.get('u') # this will be a list of 'period, datetime' tuples
-        if not used:
+        if item['itemtype'] == '!' or not used:
             continue
         index = item.get('i', '~')
         id_used = {}
@@ -6477,12 +6483,15 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     # for the individual weeks
     agenda_hsh = {}     # yw -> agenda_view
     done_hsh = {}       # yw -> done_view
+    engaged_hsh = {}       # yw -> engaged_view
     busy_hsh = {}       # yw -> busy_view
     row2id_hsh = {}     # yw -> row2id
     done2id_hsh = {}     # yw -> row2id
+    engaged2id_hsh = {}     # yw -> row2id
     weeks = set([])
     rows = []
     done = []
+    engaged = []
     # busy = []
 
     #XXX year, week -> dayofweek -> list of [time interval, summary, period]
@@ -6521,10 +6530,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     dt = dt.date()
                 if UT_MIN > 0:
                     # round up minutes
-                    if period.remaining_seconds:
+                    seconds = period.remaining_seconds
+                    if seconds:
                         # x minutes + y seconds => (x+1) minutes
                         # seconds will be discarded in the next step
-                        period += ONEMIN
+                        period = period + pendulum.duration(seconds = 60-seconds)
                     res = period.minutes % UT_MIN
                     if res:
                         period += (UT_MIN - res) * ONEMIN
@@ -6538,7 +6548,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     rhc = format_hours_and_tenths(total).center(rhc_width, ' ')
                 else:
                     rhc = ''
-                done.append(
+                # FIXME
+                engaged.append(
                         {
                             'id': doc_id,
                             'job': None,
@@ -6837,6 +6848,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
     done.sort(key=itemgetter('sort'))
+    engaged.sort(key=itemgetter('sort'))
 
     busy_details = {}
     # width = shutil.get_terminal_size()[0]
@@ -6938,6 +6950,25 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         done2id_hsh[week] = row2id
     timer5.stop()
 
+    timer6 = TimeIt(6)
+    for week, items in groupby(engaged, key=itemgetter('week')):
+        weeks.add(week)
+        rdict = NDict()
+        wk_fmt = fmt_week(week).center(width, ' ').rstrip()
+        for row in items:
+            day_ = row['day'][0]
+            if day_ == today:
+                day_ += " (Today)"
+            elif day_ == tomorrow:
+                day_ += " (Tomorrow)"
+            path = f"{wk_fmt}/{day_}"
+            values = row['columns']
+            rdict.add(path, values)
+        tree, row2id = rdict.as_tree(rdict, level=0)
+        engaged_hsh[week] = tree
+        engaged2id_hsh[week] = row2id
+    timer6.stop()
+
     cache = {}
     for week in week_numbers:
         tup = []
@@ -6951,6 +6982,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             tup.append(done_hsh[week])
         else:
             tup.append("{}\n   Nothing completed".format(fmt_week(week).center(width, ' ').rstrip()))
+        # engaged
+        if week in engaged_hsh:
+            tup.append(engaged_hsh[week])
+        else:
+            tup.append("{}\n   No used times recorded".format(fmt_week(week).center(width, ' ').rstrip()))
+
         # busy
         if week in busy_hsh:
             tup.append(busy_hsh[week])
@@ -6966,11 +7003,17 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             tup.append(done2id_hsh[week])
         else:
             tup.append({})
+        # engaged2id
+        if week in engaged2id_hsh:
+            tup.append(engaged2id_hsh[week])
+        else:
+            tup.append({})
+
         if week in busy_details:
             tup.append(busy_details[week])
         else:
             tup.append({})
-        # agenda, done, busy, row2id, done2id
+        # agenda, done, engaged, busy, row2id, done2id, engaged2id
         cache[week] = tup
 
     timer1.stop()

@@ -48,9 +48,7 @@ from pendulum import parse as pendulum_parse
 def parse(s, **kwd):
     return pendulum_parse(s, strict=False, **kwd)
 
-
 import re
-
 import subprocess # for check_output
 
 # for openWithDefault
@@ -1034,7 +1032,7 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected', 'timers', 'location']
+    return dataview.active_view in ['agenda', 'completed', 'engaged', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected', 'timers', 'location']
 
 @Condition
 def is_dated_view():
@@ -1062,7 +1060,7 @@ def is_not_busy_view():
 
 @Condition
 def is_agenda_view():
-    return dataview.active_view in ['agenda', 'busy', 'completed']
+    return dataview.active_view in ['agenda', 'busy', 'completed', 'engaged']
 
 @Condition
 def is_used_view():
@@ -2547,6 +2545,10 @@ def forthcoming_view(*event):
 def next_view(*event):
     set_view('d')
 
+@bindings.add('e', filter=is_viewing)
+def next_view(*event):
+    set_view('e')
+
 @bindings.add('j', filter=is_viewing)
 def journal_view(*event):
     set_view('j')
@@ -2915,6 +2917,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('b) busy', handler=busy_view),
         MenuItem('c) completed', handler=completed_view),
         MenuItem('d) do next', handler=next_view),
+        MenuItem('e) engaged', handler=next_view),
         MenuItem('f) forthcoming', handler=forthcoming_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),

@@ -502,7 +502,9 @@ In agenda view, only days with scheduled reminders are listed. If nothing is sch
 
 In busy view, only days that have events with busy times (@e and/or @w entries) are displayed. Press the number of the weekday, [1→Mon, ..., 7→Sun], to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.
 
-Completed view shows instances of completed tasks and reminders with used time entries.
+Completed view shows instances of completed tasks.
+
+Engaged view shows instances of reminders with used time entries.
 
 The normal agenda listing for a week day:
 
