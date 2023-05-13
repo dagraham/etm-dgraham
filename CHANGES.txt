@@ -1,25 +1,29 @@
-Recent tagged changes as of 2023-05-11T12:20:48.843962-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.11.18) Daniel Graham
+Recent tagged changes as of 2023-05-13T12:46:39.049333-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.12.0) Daniel Graham
+    ce2ab095 2023-05-13 12:46:39 -0400
+    Tagged version 4.12.0. Added engaged view
+
+- 2 days ago (tag: 4.11.18) Daniel Graham
     cd5482ac 2023-05-11 12:20:48 -0400
     Tagged version 4.11.18.
 
-- 2 days ago (tag: 4.11.17) Daniel Graham
+- 4 days ago (tag: 4.11.17) Daniel Graham
     8a025151 2023-05-09 10:14:28 -0400
     Tagged version 4.11.17.
 
-- 10 days ago (tag: 4.11.16) Daniel Graham
+- 12 days ago (tag: 4.11.16) Daniel Graham
     b2310cee 2023-05-01 14:43:18 -0400
     Tagged version 4.11.16.
 
-- 10 days ago (tag: 4.11.15) Daniel Graham
+- 12 days ago (tag: 4.11.15) Daniel Graham
     96aff420 2023-05-01 14:12:10 -0400
     Tagged version 4.11.15.
 
-- 13 days ago (tag: 4.11.14) Daniel Graham
+- 2 weeks ago (tag: 4.11.14) Daniel Graham
     b437f7ba 2023-04-28 08:24:55 -0400
     Tagged version 4.11.14.
 
-- 13 days ago (tag: 4.11.13) Daniel Graham
+- 2 weeks ago (tag: 4.11.13) Daniel Graham
     4c474835 2023-04-28 08:14:27 -0400
     Tagged version 4.11.13.
 
@@ -35,7 +39,7 @@ Recent tagged changes as of 2023-05-11T12:20:48.843962-04:00:
     38689532 2023-04-14 09:40:23 -0400
     Tagged version 4.11.10.
 
-- 4 weeks ago (tag: 4.11.9) Daniel Graham
+- 5 weeks ago (tag: 4.11.9) Daniel Graham
     98bd7bde 2023-04-11 15:55:36 -0400
     Tagged version 4.11.9.
 
@@ -76,8 +80,3 @@ Recent tagged changes as of 2023-05-11T12:20:48.843962-04:00:
     9d78393b 2023-02-03 14:12:39 -0500
     Tagged version 4.11.0. Display busy times for tasks with dates or
     datetimes in agenda and busy views
-
-- 3 months ago (tag: 4.10.21) Daniel Graham
-    99db425e 2023-02-03 08:46:14 -0500
-    Tagged version 4.10.21. Beta version of displaying tasks with
-    extents in agenda and busy views
