@@ -15,7 +15,6 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
             -   [tab completion](#tab-completion)
     -   [Views](#views)
         -   [Weekly Views](#weekly-views)
-			-   [Current View](#current-view)
         -   [Timer View](#timer-view)
         -   [Review View](#review-view)
         -   [Pinned View](#pinned-view)
@@ -30,6 +29,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
             -   [Command History](#command-history)
             -   [Saved Queries](#saved-queries)
         -   [Common Features](#common-features)
+    -   [Mobile Access to your reminders](#mobile)
     -   [Menus](#menus)
         -   [etm menu notes](#etm-menu-notes)
         -   [view menu notes](#view-menu-notes)
@@ -476,6 +476,7 @@ The display for each reminder shows the itemtype and summary column on the left 
   * b: Busy: a graphical illustration of busy and conflicted times by year-week
   * c: Completed: finished tasks and jobs and used time entries by year-week and week day
   * d: Do Next: undated tasks grouped by location/context and ordered by priority (highest first) and extent (least first)
+  * e: Engaged: instances of reminders with used time entries with daily totals displayed graphically
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence
   * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first. Datetimes are displayed using a 5 character format where, e.g., 1:15pm today would be displayed as 13:15, November 7 of the current year as 11/17 and January 15 of 2012 as 12.01.
   * i: Index: all items grouped hierarchically by index entry
@@ -496,15 +497,16 @@ The display for each reminder shows the itemtype and summary column on the left 
 
 ### Weekly Views {#weekly-views}
 
-The _weekly_ agenda, busy and completed views display one week at a time and are *synchronized* so that all three views always display the same week. Press the ▶ (right) or ◀ (left) cursor keys go forward or backward a week at a time or press the space bar to jump to the week containing the current day. You can also press "J" and enter a date to jump to the week containing the date.
+The _agenda_, _busy_, _completed_ and _engaged_ views display one week at a time and are *synchronized* so that all four views always display the same week. Press the ▶ (right) or ◀ (left) cursor keys go forward or backward a week at a time or press the space bar to jump to the week containing the current day. You can also press "J" and enter a date to jump to the week containing the date.
 
-In agenda view, only days with scheduled reminders are listed. If nothing is scheduled for the entire week, then "Nothing scheduled" is displayed.
+In _agenda_ view, only days with scheduled reminders are listed. If nothing is scheduled for the entire week, then "Nothing scheduled" is displayed.
 
-In busy view, only days that have events with busy times (@e and/or @w entries) are displayed. Press the number of the weekday, [1→Mon, ..., 7→Sun], to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.
 
-Completed view shows instances of completed tasks.
+In _busy_ view, only days that have events with busy times (@e and/or @w entries) are displayed. Press the number of the weekday, [1→Mon, ..., 7→Sun], to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.
 
-Engaged view shows instances of reminders with used time entries.
+_Completed_ view shows instances of completed tasks.
+
+_Engaged_ view shows instances of reminders with used time entries with daily totals displayed graphically.
 
 The normal agenda listing for a week day:
 
@@ -522,7 +524,7 @@ And, on the current day only:
 Busy view requires a little explanation. Here is screen shot of agenda view for an illustrative week
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/agenda.png" alt="new" title="agenda view" width="600px" hspace="20px"/>
 
-along with one of busy view for the same weeek
+along with one of busy view for the same week
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/busy.png" alt="new" title="busy view" width="600px" hspace="20px"/>
 
 The first thing to notice in busy view is that busy times are displayed each week day for the period between 7am and 9pm. This period is determined by the *beginbusy* setting in `cfg.yaml` which sets the number of hours after midnight that the display is to begin each day. The period ends 14 hours after *beginbusy*. In this case, it runs from 7 hours after midnight (*beginbusy*) to 7+14=21 hours after midnight or from 7am until 9pm. The resolution is 15 minute periods for each character *slot* so that, for example, the row for *Fr 2* shows a busy period with using 4 green (busy) characters for 10-10:15am, 10:15-10:30am, 10:30-10:45am and 10:45-11am. Now you might notice that this implies that the 4 character slots that begin at 8pm end just before the 9pm slot and that the 9pm slot actually corresponds to the interval 9-9:15pm. Since the actual display includes this last slot, it actually extends for 14 hours plus 15 minutes and thus actually ends at 9:15pm.
@@ -530,15 +532,6 @@ The first thing to notice in busy view is that busy times are displayed each wee
 The second thing to notice is the red, conflict bar in the display for *Mo 28*. Since the details for this day are displayed in the "busy times" panel at the bottom as well as in the agenda view, you will notice that the conflict corresponds to the overlap between the 6-8am event and the 7-9:30am event. This conflict from 7-8am is illustrated by the 4 red (conflict) characters. Notice also that the period for the first event extends from 6-7am before the period displayed begins at 7am. The single green character to the left of 7am indicates that there were busy times before the displayed period begins. Similarly, the green character to the right of 9-9:15pm on *We 30* indicates that there were busy times after 9:15pm on that day. This corresponds to the 8-10:30pm event shown in agenda view for Wednesday that extends from 9:15-10:30pm after the displayed period.
 
 As you might expect, if a conflict occurred either before or after the displayed period then the corresponding *before* or *after* character would be red instead of green.
-
-#### Current View {#current-view}
-
-This is a view created by *etm* but not displayed within *etm* itself. The setting for `keep_current` in `cfg.yaml` specifies two non-negative integers for `weeks` and `width`.  If weeks is positive, the agenda for that integer number of weeks starting with the current week will be scaled to fit `width`, written to `current.txt` in your etm home directory and then updated whenever necessary. With a link to `current.txt` in my GoogleDrive folder and `keep_current: 3, 50` in `cfg.yaml`, here is a illustrative screen shot from my iPhone:
-
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/current_on_iphone.png" alt="new" title="current view" width="300px" hspace="20px"/>
-
-In this way, you can always have a current version of your schedule with you on your mobile device.
-
 
 [↺ contents](#contents)
 
@@ -1010,6 +1003,7 @@ w (week), d (day), h (hour) and m (minute). E.g.:
 * `weekbeg - 1w`  (the beginning of the previous week)
 * `monthend + 1M` (the end of the following month)
 
+
 [↺ contents](#contents)
 
 #### Command History {#command-history}
@@ -1121,6 +1115,23 @@ While the views differ in many respects, they also share some common aspects:
 
 [↺ contents](#contents)
 
+## Mobile access to your reminders {#mobile}
+
+The files `current.txt` and `next.txt` in your etm home directory are created by *etm* but not displayed within *etm* itself. Whether or not these files are created depends on two settings in your `cfg.yaml`:
+
+* `keep_current`:  non-negative integers for `weeks` and `width`.  If `weeks` is positive, the agenda for that integer number of weeks starting with the current week will be scaled to fit `width` and written to `current.txt` and updated whenever necessary.
+
+* `keep_next`: true or false. If `true`, the contents of *do next* view will be written to `next.txt` in your etm home directory and updated whenever necessary.
+
+By creating links to these files in, e.g., a GoogleDrive folder, you can have access to your current schedule and tasks on your mobile device.
+
+Here is a screen shot from an iPhone of an illustrative `current.txt`:
+
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/current_on_iphone.png" alt="new" title="current view" width="300px" hspace="20px"/>
+
+
+[↺ contents](#contents)
+
 ## Menus {#menus}
 
 Pressing F1 toggles the *etm* menu display - opening it if it is closed and closing it if it is open. There are four menu tabs labeled *etm*, *view*, *editor* and *selected* with the options listed below:
@@ -1141,6 +1152,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         b) busy
         c) completed
         d) do next
+        e) engaged
         f) forthcoming
         h) history
         i) index
@@ -1942,44 +1954,43 @@ Configuration settings for *etm* are specified in the file `cfg.yaml` located in
 Here are the options with their default values from that file. The lines beginning with `#` are comments that describe the settings.
 
     #### begin cfg.yaml ####
-	version: 4.9.1
-	# The current version of etm and this file. DO NOT EDIT. This is
-	# automatically updated when a new version of etm is installed.
+    etmversion: 4.11.18
+    # The current version of etm and this file. DO NOT EDIT. This is
+    # automatically updated when a new version of etm is installed.
 
     ampm: true
     # true or false. Use AM/PM format for datetimes if true else
-    # use 24 hour format.
+    # use 24 hour format. See also the show_minutes setting.
 
-    show_minutes: {show_minutes}
+    show_minutes: false
     # true or false. If true show ":00" in agenda and forthcoming views
     # when displaying times with zero minutes else suppress zero minutes
     # from being displayed. E.g., "9:00-10:30" if true else "9-10:30".
+    # When ampm if false and show_minutes is true, hours will be displayed
+    # with leading zeros applicable.
 
-    dayfirst:  true
+    dayfirst:  false
     yearfirst: true
-    # true or false. Whenever an ambiguous date is parsed, dayfirst
+    # each true or false. Whenever an ambiguous date is parsed, dayfirst
     # and yearfirst parameters control how the information is processed
     # using this precedence:
-    #
-    #   If dayfirst is False and yearfirst is False:
-    #       MM-DD-YY
-    #       DD-MM-YY
-    #       YY-MM-DD
-    #
-    #   If dayfirst is True and yearfirst is False:
-    #       DD-MM-YY
-    #       MM-DD-YY
-    #       YY-MM-DD
-    #
-    #   If dayfirst is False and yearfirst is True:
-    #       YY-MM-DD
-    #       MM-DD-YY
-    #       DD-MM-YY
-    #
-    #   If dayfirst is True and yearfirst is True:
-    #       YY-MM-DD
-    #       DD-MM-YY
-    #       MM-DD-YY
+    # yearfirst: true
+    # 	dayfirst: true  => YDM
+    #   dayfirst: false => YMD
+    # yearfirst: false
+    # 	dayfirst: true  => DMY
+    #   dayfirst: false => MDY
+    # E.g., with both true, 3/4/5 would be interpreted as May 4, 2003.
+    # When possible, dates will also be displayed respecting these settings.
+    # I.e., the year will generally be displayed first when yearfirst is
+    # true and last otherwise. Similarly, the day will generally be displayed
+    # before the month when dayfirst is true and after the month otherwise.
+
+    beginbusy: 7
+    # non-negative integer. The number of hours after midnight to begin the
+    # busy view display of busy times for each day. The display continues
+    # for 14 hours after the begin_busy hour. E.g. with 'begin_busy: 7' the
+    # display would show busy times from 7am (7h) until 9pm (21h).
 
     updates_interval: 0
     # non-negative integer. If positive,  automatically check for updates
@@ -1998,7 +2009,7 @@ Here are the options with their default values from that file. The lines beginni
     # true or false. Use vi keybindings for editing if true else use emacs
     # style keybindings.
 
-    secret: KFI9R2AAaw
+    secret: HIr13FiYj3
     # string to use as the secret_key for @m masked entries. E.g.
     # 'X6i2SGWu6m'. In etm versions after 4.0.21, the default string is
     # randomly generated when this file is created or when the secret
@@ -2008,18 +2019,18 @@ Here are the options with their default values from that file. The lines beginni
 
     omit_extent:
     # A list of calendar names. Events with @c entries belonging to this
-    # list will only have their scheduled times displayed in agenda view
+    # list will only have their starting times displayed in agenda view
     # and will neither appear nor cause conflicts in busy view.
 
-	keep_current: 0, 47
-	# A list of two, non-negative integers for "weeks" and "width". If
-	# weeks is positive, the agenda for that integer number of weeks
-	# starting with the current week will be written to "current.txt" in
-	# your etm home directory and updated when necessary. The format will
-	# be scaled to fit "width". A width of 47, e.g, fits an iPhone display
-	# in portrait mode. You could, for example, create a link to
-	# "current.txt" in a pCloud or DropBox folder and always have access
-	# to your current schedule on your mobile device.
+    keep_current: [0, 47]
+    # A list of two, non-negative integers for "weeks" and "width". If
+    # weeks is positive, the agenda for that integer number of weeks
+    # starting with the current week will be written to "current.txt" in
+    # your etm home directory and updated when necessary. The format will
+    # be scaled to fit "width". A width of 50, e.g, fits an iPhone display
+    # in portrait mode. You could, for example, create a link to
+    # "current.txt" in a pCloud or GoogleDrive folder and always have access
+    # to your current agenda on your mobile device.
 
     keep_next: false
     # true or false. If true, the 'do next' view will be written to
@@ -2056,16 +2067,22 @@ Here are the options with their default values from that file. The lines beginni
     # true or false. If true, display dots connecting the item summary and
     # the right-hand details columns in tree views.
 
-    usedtime_minutes: {usedtime_minutes}
-    # 0, 1, 6, 12, 30 or 60. Round off used times. With 0, no rounding is done
+    usedtime_minutes: 1
+    # 0, 1, 6, 12, 30 or 60. Round up used times. With 0, no rounding is done
     # and times are reported in hours, minutes and seconds. With 1, after
-    # rounding off to the nearest minute, times are reported as hours and minutes.
-    # Otherwise, rounding is up to the specified integer and times are reported
-    # as floating point hours. E.g., with usedtime_minutes = 6, 1 minute would
-    # be rounded up to 6 minutes and reported as 0.1 hours. Similarly 13
-    # minutes would be rounded up to 18 minutes and reported as 0.3 hours. Note
-    # that when rounding is specified, each "@u" timeperiod is rounded before
-    # aggregation.
+    # rounding up to the nearest minute, times are reported as hours and minutes.
+    # Otherwise, rounding is up to the nearest integer multiple of
+    # usedtime_minutes and times are reported as floating point hours. E.g.,
+    # with usedtime_minutes = 6, 1 minute would be rounded up to 6 minutes and
+    # reported as 0.1 hours. Similarly 13 minutes would be rounded up to 18
+    # minutes and reported as 0.3 hours. Note that when rounding is specified,
+    # each "@u" timeperiod is rounded before aggregation.
+
+    usedtime_hours: 6
+    # 0, 1, 2, ..., 24. The daily goal for used time. This is used in engaged
+    # view to control the display of the daily used time bars. The goal is to
+    # to maximize the granularity of the bar when displaying this number of hours
+    # in the space allowed by the terminal width.
 
     journal_name: daily
     # Journal items with this index entry and with an @s entry will have the
@@ -2078,24 +2095,24 @@ Here are the options with their default values from that file. The lines beginni
     # thus organizing such entries by the year and month of their scheduled dates.
     # Within each month, entries will be also ordered by the month day.
 
-    alerts: {alerts}
+    alerts:
     # A dictionary with single-character, "alert" keys and corresponding
     # "system command" values. Note that characters "t" (text message) and
     # "e" (email) are already used.  The "system command" string should be
     # a comand with any applicable arguments that could be run in a
     # terminal. Properties of the item triggering the alert can be
-    # included in the command arguments using the syntax {{prop}}, e.g.,
-    # {{summary}} in the command string would be replaced by the summary of
-    # the item. Similarly {{start}} by the starting datetime, {{time}} by the
-    # starting time (omits the date for the current date), {{when}} by the time
-    # remaining until the starting datetime, {{now}} by the current time,
-    # {{location}} by the @l entry and {{description}} by the @d entry. E.g., If
+    # included in the command arguments using the syntax {prop}, e.g.,
+    # {summary} in the command string would be replaced by the summary of
+    # the item. Similarly {start} by the starting datetime, {time} by the
+    # starting time (omits the date for the current date), {when} by the time
+    # remaining until the starting datetime, {now} by the current time,
+    # {location} by the @l entry and {description} by the @d entry. E.g., If
     # the event "* sales meeting @s 2019-02-12 3p" triggered an alert 30 minutes
-    # before the starting time the string "{{summary}} {{when}}" would expand to
+    # before the starting time the string "{summary} {when}" would expand to
     # "sales meeting in 30 minutes". E.g. on my macbook
     #
     #    alerts:
-    #        v:   /usr/bin/say -v "Alex" "{{summary}}, {{when}}"
+    #        v:   /usr/bin/say -v "Alex" "{summary}, {when}"
     #        ...
     #
     # would make the alert 'v' use the builtin text to speech sytem
@@ -2117,10 +2134,10 @@ Here are the options with their default values from that file. The lines beginni
     # "@e 1h30m @a 30m: d @i personal:exercise".
 
     sms:
-      body: "{location} {when}"
-      from:
-      server:
-      pw:
+    body: '{location} {when}'
+    from:
+    server:
+    pw:
     # Settings to send "t" (sms text message) alerts to the
     # list of phone numbers from the item's @n attendee
     # entries using the item's summary and the body as specified
@@ -2141,11 +2158,11 @@ Here are the options with their default values from that file. The lines beginni
     # Note. Google "mms gateway listing" for other alternatives.
 
     smtp:
-      body: "{location} {when}\n{description}"
-      from:
-      server:
-      id:
-      pw:
+    body: '{location} {when}\n{description}'
+    from:
+    server:
+    id:
+    pw:
     # Settings to send "e" (email message) alerts to the list of email
     # addresses from the item's @n attendee entries using the item's
     # summary as the subject and body as the message. E.g., if you have a
@@ -2179,10 +2196,9 @@ Here are the options with their default values from that file. The lines beginni
     #    mi: exists u and ~exists i
     #    arch: a exists itemtype
     #    find: includes summary d {}
-	# The latter would allow you to enter, e.g., `find waldo` and have
-	# it expand to `includes summary d waldo` and thus locate all
-	# reminders with `waldo` either in the summary or d (the description).
-
+    # The latter would allow you to enter, e.g., `find waldo` and have
+    # it expand to `includes summary d waldo` and thus locate all
+    # reminders with `waldo` either in the summary or d (the description).
 
     style: dark
     # dark or light. Set the defaults for dark or light terminal
@@ -2205,9 +2221,11 @@ Here are the options with their default values from that file. The lines beginni
     #  pastdue         'LightSalmon',      'Red',
     #  plain           'Ivory',            'Black',
     #  today           'Ivory bold',       'Black bold',
+    #  used            'Khaki',            'DodgerBlue',
     #  waiting         'SlateGrey',        'DarkSlateBlue',
-	#  wrap            'SlateGrey',        'DarkSlateBlue',
-    #
+    #  wrap            'ForestGreen',      'LightGrey',
+    #  running         'OrangeRed',        'Gold',
+    #  paused          'MediumVioletRed',   'DarkViolet',
     # Explanations for the key names:
     #     available:    available task/job reminders
     #     begin:        begin by warnings
@@ -2218,9 +2236,12 @@ Here are the options with their default values from that file. The lines beginni
     #     pastdue:      pasdue task warnings
     #     plain:        headings such as outline branches
     #     today:        the current and following agenda date headings
+    #     used:         used time rows in engaged and used time views
     #     waiting:      waiting job reminders (jobs with unfinished prereqs)
-	#     wrap:         before and after rows for events in agenda view with
-	#                   @w entries
+    #     wrap:         before and after rows for events in agenda view with
+    #                   @w entries
+    #     running:      status bar color for 'r', running timer
+    #     paused:       status bar color for 'p', paused timer
     #
     # E.g., with style 'dark', the default color for 'available' is
     # 'LightSkyBlue'. This entry
@@ -2244,7 +2265,7 @@ Here are the options with their default values from that file. The lines beginni
     # your terminal. The default settings are determined by the 'dark'
     # or 'light' style setting as follows:
     #
-    #    key                           dark                        light
+    #    key                       dark default                  light default
     # -------------------    -----------------------------  -----------------------------
     # ask:                    [grey2, Lime, bold]           [Cornsilk, Lime, bold]
     # button.focused:         [DarkGreen, White]            [DarkGreen, White]
@@ -2283,7 +2304,8 @@ Here are the options with their default values from that file. The lines beginni
     # would change the 'text-area' setting to 'Black' as the background color
     # and 'White' as the foreground color while leaving the other style settings
     # unchanged.
-	#### end cfg.yaml ####
+    #### end cfg.yaml ####
+
 
 See [Saved Queries](#saved-queries) for more information about queries that allow for replaceable parameters.
 

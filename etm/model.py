@@ -1686,6 +1686,25 @@ def round_minutes(obj):
     else:
         return obj
 
+def usedminutes2bar(minutes):
+    # leave room for indent and weekday
+    # chars = 50
+    chars = shutil.get_terminal_size()[0] - 18
+    # goal in hours to minutes
+    used_minutes = int(minutes)
+    used_fmt = format_duration(used_minutes*ONEMIN, short=True)
+    if usedtime_hours:
+        goal_minutes = int(usedtime_hours) * 60
+        numchars = math.ceil((used_minutes/goal_minutes)/(1/chars))
+        if numchars <= chars:
+            bar = f"{numchars*BUSY:<50}"
+        else:
+            bar = f"{chars*BUSY}{CONF}"
+        return used_fmt, bar
+    else:
+        return used_fmt, ""
+
+
 
 def format_duration(obj, short=False):
     """
@@ -2071,6 +2090,7 @@ class DataView(object):
         self.used_summary = {}
         self.used_details = {}
         self.used_details2id = {}
+        self.effort_details = {}
         self.currMonth()
         self.completions = []
         self.konnections_from = {}
@@ -2879,7 +2899,7 @@ class DataView(object):
 
     def refreshCache(self):
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20, self.pinned_list, self.link_list, self.konnected, self.timers)
-        self.used_details, self.used_details2id, self.used_summary = get_usedtime(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
+        self.used_details, self.used_details2id, self.used_summary, self.effort_details = get_usedtime(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
 
     def update_links(self):
         """
@@ -6295,8 +6315,8 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
             week = (yr, wk)
             row = wkday2row(dayofweek)
             effort_details.setdefault(week, {})
-            effort_details[week].setdefault(row, ZERO)
-            effort_details[week][row] += period
+            effort_details[week].setdefault(dayofweek, ZERO)
+            effort_details[week][dayofweek] += period
 
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
@@ -6309,14 +6329,14 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 used_time[tuple((month, *index_tup[:i+1]))] += period
         for monthday in id_used:
             month = monthday.format("YYYY-MM")
-            rhc = f"{monthday.format('M/DD')}: {format_hours_and_tenths(id_used[monthday])}".ljust(rhc_cols, ' ')
+            rhc = f"{monthday.format('M/DD')} {format_hours_and_tenths(id_used[monthday])}".ljust(rhc_cols, ' ')
             detail_rows.append({
                         'sort': (month, index_tup, monthday, itemtype, summary),
                         'month': month,
                         'path': f"{monthday.format('MMMM YYYY')}/{index}",
                         'values': [
-                            itemtype,
-                            summary,
+                            '⏱',
+                            f"{itemtype} {summary}",
                             flags,
                             rhc,
                             doc_id],
@@ -6367,7 +6387,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     for key, val in month_rows.items():
         used_summary[key] = "\n".join(val)
 
-    return used_details, used_details2id, used_summary
+    return used_details, used_details2id, used_summary, effort_details
 
 
 def fmt_class(txt, cls=None, plain=False):
@@ -6483,11 +6503,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     # for the individual weeks
     agenda_hsh = {}     # yw -> agenda_view
     done_hsh = {}       # yw -> done_view
-    engaged_hsh = {}       # yw -> engaged_view
     busy_hsh = {}       # yw -> busy_view
     row2id_hsh = {}     # yw -> row2id
     done2id_hsh = {}     # yw -> row2id
+    engaged_hsh = {}
     engaged2id_hsh = {}     # yw -> row2id
+    week2day2engaged = {}   # year, week -> dayofweek -> period total for day
     weeks = set([])
     rows = []
     done = []
@@ -6529,26 +6550,27 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 else:
                     dt = dt.date()
                 if UT_MIN > 0:
-                    # round up minutes
                     seconds = period.remaining_seconds
                     if seconds:
-                        # x minutes + y seconds => (x+1) minutes
-                        # seconds will be discarded in the next step
+                        # round up minutes - consistent with used time views
                         period = period + pendulum.duration(seconds = 60-seconds)
-                    res = period.minutes % UT_MIN
-                    if res:
-                        period += (UT_MIN - res) * ONEMIN
 
                 dates_to_periods.setdefault(dt, []).append(period)
             for dt in dates_to_periods:
+                # yr, wk, weekday = dt.isocalendar()
+                week = dt.isocalendar()[:2]
+                weekday = dt.format(wkday_fmt)
+                week2day2engaged.setdefault(week, {})
+                week2day2engaged[week].setdefault(weekday, ZERO)
                 total = ZERO
                 for p in dates_to_periods[dt]:
                     total += p
                 if total is not None:
-                    rhc = format_hours_and_tenths(total).center(rhc_width, ' ')
+                    week2day2engaged[week][weekday] += total
+                    used = format_duration(total, short=True)
+                    # rhc = format_hours_and_tenths(total).center(rhc_width, ' ')
                 else:
-                    rhc = ''
-                # FIXME
+                    used = ''
                 engaged.append(
                         {
                             'id': doc_id,
@@ -6556,16 +6578,17 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                             'instance': None,
                             'sort': (dt.format("YYYYMMDD"), 1),
                             'week': (
-                                dt.isocalendar()[:2]
+                                week
                                 ),
                             'day': (
-                                dt.format(wkday_fmt),
+                                weekday,
                                 ),
                             'columns': [
-                                itemtype,
-                                summary,
+                                '⏱',
+                                # '~',
+                                f'{used:<6} {itemtype} {summary}',
                                 flags,
-                                rhc,
+                                '',
                                 (doc_id, None, None)
                             ],
                         }
@@ -6955,18 +6978,51 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         weeks.add(week)
         rdict = NDict()
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
+        if week in week2day2engaged:
+            logger.debug(f"{week}: {week2day2engaged[week]}")
         for row in items:
             day_ = row['day'][0]
+            total = (week2day2engaged[week][day_] if day_ in week2day2engaged[week] else ZERO).in_minutes()
+            used_fmt = bar_fmt = ""
+            if total:
+                used, bar = usedminutes2bar(total)
+                if usedtime_hours:
+                    bar_fmt = f" {bar.ljust(width-12, ' ')} "
+                    used_fmt = used.center(6, ' ').rstrip()
+                else:
+                    bar_fmt = " "
+                    used_fmt = used
+            # path = f"{wk_fmt}/{day_:<10}{bar_fmt}{used_fmt}"
             if day_ == today:
                 day_ += " (Today)"
             elif day_ == tomorrow:
                 day_ += " (Tomorrow)"
-            path = f"{wk_fmt}/{day_}"
+            path = f"{wk_fmt}/{day_}/{bar_fmt}{used_fmt}"
             values = row['columns']
             rdict.add(path, values)
         tree, row2id = rdict.as_tree(rdict, level=0)
         engaged_hsh[week] = tree
         engaged2id_hsh[week] = row2id
+
+    # for week, dayhsh in week2day2engaged.items():
+    #     days = [d for d in dayhsh.keys()]
+    #     days.sort()
+    #     weeks.add(week)
+    #     rdict = NDict()
+    #     wk_fmt = fmt_week(week).center(width, ' ').rstrip()
+    #     for row in items:
+    #         logger.debug(f"row: {row}; day: {row['day']}")
+    #         day_ = row['day'][0]
+    #         if day_ == today:
+    #             day_ += " (Today)"
+    #         elif day_ == tomorrow:
+    #             day_ += " (Tomorrow)"
+    #         path = f"{wk_fmt}/{day_}"
+    #         values = row['columns']
+    #         rdict.add(path, values)
+    #     tree, row2id = rdict.as_tree(rdict, level=0)
+    #     engaged_hsh[week] = tree
+    #     engaged2id_hsh[week] = row2id
     timer6.stop()
 
     cache = {}
@@ -6982,6 +7038,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             tup.append(done_hsh[week])
         else:
             tup.append("{}\n   Nothing completed".format(fmt_week(week).center(width, ' ').rstrip()))
+
         # engaged
         if week in engaged_hsh:
             tup.append(engaged_hsh[week])
@@ -7008,12 +7065,17 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             tup.append(engaged2id_hsh[week])
         else:
             tup.append({})
+        # engaged_totals
+        # if week in week2day2engaged:
+        #     tup.append(week2day2engaged[week])
+        # else:
+        #     tup.append({})
 
         if week in busy_details:
             tup.append(busy_details[week])
         else:
             tup.append({})
-        # agenda, done, engaged, busy, row2id, done2id, engaged2id
+        # agenda, done, engaged, busy, row2id, done2id, engaged2id, busy_details
         cache[week] = tup
 
     timer1.stop()

@@ -1209,6 +1209,7 @@ type2style = {
         '+': 'waiting',
         '✓': 'finished',
         '~': 'missing',
+        '⏱': 'used',
         '↱': 'wrap',
         '↳': 'wrap',
         }

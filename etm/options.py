@@ -74,10 +74,11 @@ class Settings():
             'event':        'LimeGreen',
             'finished':     'DarkGrey',
             'inbox':        'OrangeRed',
-            'journal':       'GoldenRod',
+            'journal':      'GoldenRod',
             'pastdue':      'LightSalmon',
             'plain':        'Ivory',
             'today':        'Ivory bold',
+            'used':         'Khaki',
             'waiting':      'SlateGrey',
             'wrap':         'ForestGreen',
             'running':      'OrangeRed',
@@ -93,6 +94,7 @@ class Settings():
             'pastdue':      'Red',
             'plain':        'Black',
             'today':        'Black bold',
+            'used':         'DodgerBlue',
             'waiting':      'DarkSlateBlue',
             'wrap':         'LightGrey',
             'running':      'MediumVioletRed',
@@ -174,7 +176,7 @@ class Settings():
     limit_skip_display = "true"
     connecting_dots = "false"
     usedtime_minutes = 1
-    usedtime_dailygoal = 6
+    usedtime_hours = 6
     alerts = ""
     expansions = ""
     sms = {"body": "{location} {when}", "from": "", "server": "", "pw": ""}
@@ -205,7 +207,7 @@ class Settings():
         "limit_skip_display" : limit_skip_display,
         "connecting_dots" : connecting_dots,
         "usedtime_minutes" : usedtime_minutes,
-        "usedtime_dailygoal" : usedtime_dailygoal,
+        "usedtime_hours" : usedtime_hours,
         "alerts" : dict2yaml(alerts),
         "expansions" : dict2yaml(expansions),
         "sms": dict2yaml(sms),
@@ -346,12 +348,11 @@ usedtime_minutes: {usedtime_minutes}
 # minutes and reported as 0.3 hours. Note that when rounding is specified,
 # each "@u" timeperiod is rounded before aggregation.
 
-usedtime_dailygoal: {usedtime_dailygoal}
+usedtime_hours: {usedtime_hours}
 # 0, 1, 2, ..., 24. The daily goal for used time. This is used in engaged
-# view to set the number of minutes per character in the 60-character daily
-# used time bars. E.g., with the default setting of 6 hours, each character
-# would represent 6 minutes of used time recorded. With a setting of 0,
-# used time bars are not displayed.
+# view to control the display of the daily used time bars. The goal is to
+# to maximize the granularity of the bar when displaying this number of hours
+# in the space allowed by the terminal width.
 
 journal_name: {journal_name}
 # Journal items with this index entry and with an @s entry will have the
@@ -481,6 +482,7 @@ type_colors: {type_colors}
 #  pastdue         'LightSalmon',      'Red',
 #  plain           'Ivory',            'Black',
 #  today           'Ivory bold',       'Black bold',
+#  used            'Khaki',            'DodgerBlue',
 #  waiting         'SlateGrey',        'DarkSlateBlue',
 #  wrap            'ForestGreen',      'LightGrey',
 #  running         'OrangeRed',        'Gold',
@@ -495,6 +497,7 @@ type_colors: {type_colors}
 #     pastdue:      pasdue task warnings
 #     plain:        headings such as outline branches
 #     today:        the current and following agenda date headings
+#     used:         used time rows in engaged and used time views
 #     waiting:      waiting job reminders (jobs with unfinished prereqs)
 #     wrap:         before and after rows for events in agenda view with
 #                   @w entries
@@ -736,9 +739,9 @@ window_colors: {window_colors}
         if new['usedtime_minutes'] not in [0, 1, 6, 12, 30, 60]:
             changed.append(f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 1.")
             new['usedtime_minutes'] = 1
-        if new['usedtime_dailygoal'] not in [x for x in range(0, 25)]:
-            changed.append(f"{new['usedtime_dailygoal']} is invalid for usedtime_minute. Using default value: 6.")
-            new['usedtime_dailygoal'] = 6
+        if new['usedtime_hours'] not in [x for x in range(0, 25)]:
+            changed.append(f"{new['usedtime_hours']} is invalid for usedtime_minute. Using default value: 6.")
+            new['usedtime_hours'] = 6
         if  new['style'] not in ['dark', 'light']:
             new['style'] = self.settings['style']
             changed.append(f"retaining default for 'style': {self.settings['style']}")
