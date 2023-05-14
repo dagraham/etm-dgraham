@@ -3006,6 +3006,7 @@ async def main(etmdir=""):
             HSEP    : type_colors['wrap'],
             BUSY    : type_colors['event'],
             CONF    : type_colors['inbox'],
+            ADAY    : type_colors['wrap'],
             }
     # query = ETMQuery()
     style = get_style(window_colors)
