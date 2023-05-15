@@ -1720,14 +1720,14 @@ def usedminutes2bar(minutes):
     chars = shutil.get_terminal_size()[0] - 18
     # goal in hours to minutes
     used_minutes = int(minutes)
-    used_fmt = format_duration(used_minutes*ONEMIN, short=True)
+    used_fmt = format_duration(used_minutes*ONEMIN, short=True).center(6, ' ')
     if usedtime_hours:
         goal_minutes = int(usedtime_hours) * 60
         numchars = math.ceil((used_minutes/goal_minutes)/(1/chars))
         if numchars <= chars:
             bar = f"{numchars*BUSY:<50}"
         else:
-            bar = f"{chars*BUSY}{CONF}"
+            bar = f"{chars*BUSY} {CONF}"
         return used_fmt, bar
     else:
         return used_fmt, ""
@@ -6967,7 +6967,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 row = wkday2row(dayofweek)
                 week2day2heading[week][row] = lst.pop(0)
                 day_ = row
-                allday_details[week][row] = f"\n{18*' '}".join([f"{x}" for x in lst])
+                allday_details[week][row] = f"\n  ".join([f"{x}" for x in lst])
 
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
@@ -6994,8 +6994,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     wrapped = row.get('wrapped', "")
                     row = wkday2row(dayofweek)
                     week2day2heading[week][row] = day_
+                    summary = values[1].ljust(width-20, ' ')
+                    busy_row = f"{values[0]} {summary} {wrapped:^15}".rstrip()
+                    if settings['connecting_dots']:
+                        busy_row = f"  {busy_row}".replace('   ', LINEDOT)
+
                     busy_details[week].setdefault(row, [f"Busy periods"]).append(
-                            f"  {wrapped : ^15} {values[0]} {values[1]}"
+                            busy_row
                             )
 
             rdict.add(path, values)
@@ -7148,8 +7153,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             if total:
                 used, bar = usedminutes2bar(total)
                 if usedtime_hours:
-                    bar_fmt = f" {bar.ljust(width-12, ' ')} "
-                    used_fmt = used.center(6, ' ').rstrip()
+                    bar_fmt = f"{bar.ljust(width-12, ' ')}"
+                    used_fmt = used.center(6, ' ')
                 else:
                     bar_fmt = " "
                     used_fmt = used
@@ -7158,7 +7163,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 day_ += " (Today)"
             elif day_ == tomorrow:
                 day_ += " (Tomorrow)"
-            path = f"{wk_fmt}/{day_}/{bar_fmt}{used_fmt}"
+            path = f"{wk_fmt}/{day_}/{used_fmt} {bar_fmt}"
             values = row['columns']
             rdict.add(path, values)
         tree, row2id = rdict.as_tree(rdict, level=0)
