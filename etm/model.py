@@ -1697,6 +1697,8 @@ def datetimes2busy(dta, dtb):
         else:
             # when dta ends
             end_min = dt2minutes(dta)
+        if end_min < beg_min:
+            logger.debug(f"XXX {begin_week}, {begin_day}: {beg_min}, {end_min}")
         ret.append((begin_week, begin_day, (beg_min, end_min)))
         if count >= 5:
             logger.debug(f"ret: {ret}")
@@ -3796,7 +3798,6 @@ def do_usedtime(arg):
     if parts:
         dt = parts.pop(0)
         ok, res, z = parse_datetime(dt)
-        logger.debug(f"ok: {ok}; res: {res}")
         if ok:
             obj_datetime = res
             rep_datetime = format_datetime(res, short=True)[1]
@@ -5576,7 +5577,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     pastdue.sort()
     beginbys.sort()
     alerts.sort()
-    logger.debug(f"alerts: {alerts}")
     # alerts: alert datetime, start datetime, commands, summary, doc_id
     week = today.isocalendar()[:2]
     day = (today.format(wkday_fmt), )
@@ -6575,14 +6575,14 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
                 dt.set(hour=0, minute=0, second=1)
 
-            if (dt + extent).date() > dt.date():
-                # catch events that span more than one day
-                busyperiods = datetimes2busy(dt + extent, dt)
-                for week, weekday, periods in busyperiods:
-                    week2day2busy.setdefault(week, {})
-                    week2day2busy[week].setdefault(weekday, [])
-                    logger.debug(f"periods: {periods}, week: {week}, weekday: {weekday}")
-                    week2day2busy[week][weekday].append(periods)
+            # if (dt + extent).date() > dt.date():
+            #     # catch events that span more than one day
+            #     busyperiods = datetimes2busy(dt + extent, dt)
+            #     for week, weekday, periods in busyperiods:
+            #         week2day2busy.setdefault(week, {})
+            #         week2day2busy[week].setdefault(weekday, [])
+            #         logger.debug(f"periods: {periods}, week: {week}, weekday: {weekday}")
+            #         week2day2busy[week][weekday].append(periods)
 
 
         if used:
@@ -6701,7 +6701,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             week2day2busy.setdefault(week, {})
             week2day2busy[week].setdefault(dayofweek, [])
             week2day2allday.setdefault(week, {})
-            week2day2allday[week].setdefault(dayofweek, [False, [f"All day items for {dayDM}"]])
+            week2day2allday[week].setdefault(dayofweek, [False, [f"  All day items for {dayDM}"]])
             logger.debug(f"{item['summary']} dayofweek: {dayofweek}")
 
             # if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
@@ -6872,11 +6872,30 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     busyperiod = None
                 elif dta > dtb:
                     # a for after, b for before
+                    busyperiod = None
                     dtad = dta.date()
                     dtbd = dtb.date()
-                    busyperiod = (dt2minutes(dtb), dt2minutes(dta))
-                    week2day2busy[week][dayofweek].append(busyperiod)
-                    logger.debug(f"summary: {summary}, dta: {dta}, dtb: {dtb}, dta>dtb: {dta > dtb}, busyperiod: {busyperiod}")
+                    if dtad > dtbd:
+                        busyperiods = datetimes2busy(dta, dtb)
+                        # week2day2busy[week][dayofweek].append(busyperiod)
+                        more = True
+                        for w, wd, periods in busyperiods:
+                            if more and w == week and wd == dayofweek:
+                                busyperiod = periods
+                                week2day2busy[week][dayofweek].append(busyperiod)
+                                logger.debug(f"{summary}: added {busyperiod} for {week}, {dayofweek} from {busyperiods}")
+                                more = False
+                                break
+
+
+                            # week2day2busy.setdefault(week, {})
+                            # week2day2busy[week].setdefault(weekday, [])
+                            # logger.debug(f"periods: {periods}, week: {week}, weekday: {weekday}")
+                            # week2day2busy[week][weekday].append(periods)
+                    else:
+                        busyperiod = (dt2minutes(dtb), dt2minutes(dta))
+                        week2day2busy[week][dayofweek].append(busyperiod)
+                        logger.debug(f"{summary}: added {busyperiod} for {week}, {dayofweek}")
                 else:
                     busyperiod = None
 
@@ -6977,7 +6996,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     wrap = row.get('wrap', [])
                     wrapped = row.get('wrapped', "")
                     row = wkday2row(dayofweek)
-                    busy_details[week].setdefault(row, [f"Busy periods for {day_}"]).append(
+                    busy_details[week].setdefault(row, [f"  Busy periods for {day_}"]).append(
                             f"  {wrapped : ^15} {values[0]} {values[1]}"
                             )
 
@@ -7082,6 +7101,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         for weekday in range(1, 8):
             lofp = busy.get(weekday, [])
             alldayitems = ""
+            allday = False
             if week in week2day2allday and weekday in week2day2allday[week]:
                 allday, lst = week2day2allday[week][weekday]
                 if allday:
