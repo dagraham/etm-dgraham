@@ -291,13 +291,14 @@ def busy_conf_day(lofp, allday=False):
     h[0] = '  '
     h[58] = '  '
     for i in range(1, 58):
-        if allday:
-            h[i] = ADAY
-        else:
-            h[i] = ' ' if (i-1) % 4 else VSEP
+        h[i] = ' ' if (i-1) % 4 else VSEP
     empty = "".join([h[i] for i in range(59)])
     for i in range(1, 58):
-        h[i] = HSEP if (i-1) % 4 else VSEP
+        if allday:
+            h[i] = ADAY # if (i-1) % 4 else VSEP
+        else:
+            h[i] = HSEP if (i-1) % 4 else VSEP
+        # h[i] = HSEP if (i-1) % 4 else VSEP
 
     # quarters: 1 before start + 1 after start + 56 + 1 between = 59 slots 0, ... 58
     conflict = False
@@ -6700,9 +6701,17 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             week2day2busy.setdefault(week, {})
             week2day2busy[week].setdefault(dayofweek, [])
             week2day2allday.setdefault(week, {})
-            allday = isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime)
-            week2day2allday[week][dayofweek] = allday
-            logger.debug(f"week2day2allday[{week}][{dayofweek}]: {week2day2allday[week][dayofweek]}")
+            week2day2allday[week].setdefault(dayofweek, [False, [f"All day items for {dayDM}"]])
+            logger.debug(f"{item['summary']} dayofweek: {dayofweek}")
+
+            # if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
+            if item['itemtype'] == '*' and dt.hour == 0 and dt.minute == 0 and 'e' not in item:
+                # (tf, lst) = week2day2allday[week][dayofweek]
+                week2day2allday[week][dayofweek][0] = True
+                week2day2allday[week][dayofweek][1].append(f"{item['itemtype']} {item['summary']}")
+                # lst.append(f"{item['itemtype']} {item['summary']}")
+                # week2day2allday[week][dayofweek] = (True, lst)
+                logger.debug(f"{item['summary']} week2day2allday[{week}][{dayofweek}]: {week2day2allday[week][dayofweek]}")
 
 
             if 'r' in item:
@@ -6924,6 +6933,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     engaged.sort(key=itemgetter('sort'))
 
     busy_details = {}
+    allday_details = {}
     # width = shutil.get_terminal_size()[0]
     dent = int((width - 69)/2) * " "
 
@@ -6933,6 +6943,16 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     tomorrow = (now + 1*DAY).format(wkday_fmt)
 
 
+    for week in week2day2allday:
+        weeks.add(week)
+        allday_details.setdefault(week, {})
+        for dayofweek in week2day2allday[week]:
+            allday, lst = week2day2allday[week][dayofweek]
+            if allday and lst:
+                # lst.sort()
+                row = wkday2row(dayofweek)
+                day_ = row
+                allday_details[week][row] = "\n       ".join([f"{x}" for x in lst])
 
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
@@ -6949,6 +6969,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 day_ += " (Tomorrow)"
             path = f"{wk_fmt}/{day_}"
             values = row['columns']
+            heading = f"Busy periods for {day_}"
             if values[0] in ["*", "-"]:
                 values[1] = re.sub(' *\n+ *', ' ', values[1])
                 busyperiod = row.get('busyperiod', "")
@@ -6959,14 +6980,32 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     busy_details[week].setdefault(row, [f"Busy periods for {day_}"]).append(
                             f"  {wrapped : ^15} {values[0]} {values[1]}"
                             )
+
             rdict.add(path, values)
 
         for d, v in busy_details[week].items():
             busy_details[week][d] = "\n".join([x.rstrip() for x in v])
+
+
         tree, row2id = rdict.as_tree(rdict, level=0)
         agenda_hsh[week] = tree
         row2id_hsh[week] = row2id
 
+    busyday_details = {}
+    for week in busy_details:
+        busyday_details.setdefault(week, {})
+        for day in busy_details[week]:
+            busyday_details[week].setdefault(day, []).append(busy_details[week][day])
+    for week in allday_details:
+        busyday_details.setdefault(week, {})
+        for day in allday_details[week]:
+            busyday_details[week].setdefault(day, []).append(allday_details[week][day])
+
+    for week in busyday_details:
+        for row in busyday_details[week]:
+            busyday_details[week][row] = "\n".join(busyday_details[week][row])
+
+    logger.debug(f"busyday_details: {busyday_details}")
     # busy_tup: [[1, (780, 814, 96)], [5, (600, 634, 111)], [7, (1080, 1090, 65)]]
     # (2022, 46): {3: [[1140, 1320]], 4: [[300, 390], [360, 450]], 5: [[780, 870], [840, 910], [900, 1010]], 6: [[885, 1040]], 7: [[540, 630], [840, 900]], 1: []}
 
@@ -7042,7 +7081,17 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 """
         for weekday in range(1, 8):
             lofp = busy.get(weekday, [])
-            empty, full = busy_conf_day(lofp, week2day2allday[week].get(weekday, False))
+            alldayitems = ""
+            if week in week2day2allday and weekday in week2day2allday[week]:
+                allday, lst = week2day2allday[week][weekday]
+                if allday:
+                    lst.sort()
+                    alldayitems = "\n".join([f"{dent}{7*' '}{x}" for x in lst])
+                    # busy_details[week].setdefault(weekday, '')
+                    # busy_details[week][weekday] += alldayitems
+
+
+            empty, full = busy_conf_day(lofp, allday)
             busy_hsh[weekday] = f"""\
 {dent}{7*' '}{empty}
 {dent} {DD[weekday] : <6}{full}
@@ -7167,8 +7216,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         # else:
         #     tup.append({})
 
-        if week in busy_details:
-            tup.append(busy_details[week])
+        if week in busyday_details:
+            tup.append(busyday_details[week])
         else:
             tup.append({})
         # agenda, done, engaged, busy, row2id, done2id, engaged2id, busy_details
