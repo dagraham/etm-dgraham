@@ -6535,6 +6535,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     engaged_hsh = {}
     engaged2id_hsh = {}     # yw -> row2id
     week2day2engaged = {}   # year, week -> dayofweek -> period total for day
+    week2day2heading = {}
     weeks = set([])
     rows = []
     done = []
@@ -6701,18 +6702,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             week2day2busy.setdefault(week, {})
             week2day2busy[week].setdefault(dayofweek, [])
             week2day2allday.setdefault(week, {})
-            week2day2allday[week].setdefault(dayofweek, [False, [f"  All day items for {dayDM}"]])
+            week2day2allday[week].setdefault(dayofweek, [False, [f"{dayDM}", f"All day items"]])
             logger.debug(f"{item['summary']} dayofweek: {dayofweek}")
 
-            # if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
             if item['itemtype'] == '*' and dt.hour == 0 and dt.minute == 0 and 'e' not in item:
-                # (tf, lst) = week2day2allday[week][dayofweek]
                 week2day2allday[week][dayofweek][0] = True
                 week2day2allday[week][dayofweek][1].append(f"{item['itemtype']} {item['summary']}")
-                # lst.append(f"{item['itemtype']} {item['summary']}")
-                # week2day2allday[week][dayofweek] = (True, lst)
-                logger.debug(f"{item['summary']} week2day2allday[{week}][{dayofweek}]: {week2day2allday[week][dayofweek]}")
-
 
             if 'r' in item:
                 freq = item['r'][0].get('r', 'y')
@@ -6961,8 +6956,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     today = now.format(wkday_fmt)
     tomorrow = (now + 1*DAY).format(wkday_fmt)
 
-
     for week in week2day2allday:
+        week2day2heading.setdefault(week, {})
         weeks.add(week)
         allday_details.setdefault(week, {})
         for dayofweek in week2day2allday[week]:
@@ -6970,11 +6965,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             if allday and lst:
                 # lst.sort()
                 row = wkday2row(dayofweek)
+                week2day2heading[week][row] = lst.pop(0)
                 day_ = row
-                allday_details[week][row] = "\n       ".join([f"{x}" for x in lst])
+                allday_details[week][row] = f"\n{18*' '}".join([f"{x}" for x in lst])
 
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
+        week2day2heading.setdefault(week, {})
         rdict = NDict(width=width, compact=compact)
         busy_details.setdefault(week, {})
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
@@ -6996,7 +6993,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     wrap = row.get('wrap', [])
                     wrapped = row.get('wrapped', "")
                     row = wkday2row(dayofweek)
-                    busy_details[week].setdefault(row, [f"  Busy periods for {day_}"]).append(
+                    week2day2heading[week][row] = day_
+                    busy_details[week].setdefault(row, [f"Busy periods"]).append(
                             f"  {wrapped : ^15} {values[0]} {values[1]}"
                             )
 
@@ -7014,15 +7012,19 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     for week in busy_details:
         busyday_details.setdefault(week, {})
         for day in busy_details[week]:
-            busyday_details[week].setdefault(day, []).append(busy_details[week][day])
+            busyday_details[week].setdefault(day, []).append(busy_details[week][day].rstrip())
     for week in allday_details:
         busyday_details.setdefault(week, {})
         for day in allday_details[week]:
             busyday_details[week].setdefault(day, []).append(allday_details[week][day])
 
+    logger.debug(f"week2day2heading: {week2day2heading}")
     for week in busyday_details:
         for row in busyday_details[week]:
-            busyday_details[week][row] = "\n".join(busyday_details[week][row])
+            lst = [week2day2heading[week].get(row, f"{week} {row}").center(width, ' ').rstrip(),]
+            lst += [x for x in busyday_details[week][row] if x.strip()]
+            logger.debug(f"lst: {lst}")
+            busyday_details[week][row] = "\n".join(lst)
 
     logger.debug(f"busyday_details: {busyday_details}")
     # busy_tup: [[1, (780, 814, 96)], [5, (600, 634, 111)], [7, (1080, 1090, 65)]]
@@ -7104,12 +7106,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             allday = False
             if week in week2day2allday and weekday in week2day2allday[week]:
                 allday, lst = week2day2allday[week][weekday]
-                if allday:
-                    lst.sort()
-                    alldayitems = "\n".join([f"{dent}{7*' '}{x}" for x in lst])
-                    # busy_details[week].setdefault(weekday, '')
-                    # busy_details[week][weekday] += alldayitems
-
 
             empty, full = busy_conf_day(lofp, allday)
             busy_hsh[weekday] = f"""\
