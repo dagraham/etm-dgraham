@@ -2543,7 +2543,7 @@ def next_view(*event):
     set_view('d')
 
 @bindings.add('e', filter=is_viewing)
-def next_view(*event):
+def engaged_view(*event):
     set_view('e')
 
 @bindings.add('j', filter=is_viewing)
@@ -2912,7 +2912,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('b) busy', handler=busy_view),
         MenuItem('c) completed', handler=completed_view),
         MenuItem('d) do next', handler=next_view),
-        MenuItem('e) engaged', handler=next_view),
+        MenuItem('e) engaged', handler=engaged_view),
         MenuItem('f) forthcoming', handler=forthcoming_view),
         MenuItem('h) history', handler=history_view),
         MenuItem('i) index', handler=index_view),
