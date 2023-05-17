@@ -1697,11 +1697,7 @@ def datetimes2busy(dta, dtb):
         else:
             # when dta ends
             end_min = dt2minutes(dta)
-        if end_min < beg_min:
-            logger.debug(f"XXX {begin_week}, {begin_day}: {beg_min}, {end_min}")
         ret.append((begin_week, begin_day, (beg_min, end_min)))
-        if count >= 5:
-            logger.debug(f"ret: {ret}")
         beg_dt = beg_dt + pendulum.duration(minutes=end_min - beg_min + 1)
     return ret
 
@@ -6576,16 +6572,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
                 dt.set(hour=0, minute=0, second=1)
 
-            # if (dt + extent).date() > dt.date():
-            #     # catch events that span more than one day
-            #     busyperiods = datetimes2busy(dt + extent, dt)
-            #     for week, weekday, periods in busyperiods:
-            #         week2day2busy.setdefault(week, {})
-            #         week2day2busy[week].setdefault(weekday, [])
-            #         logger.debug(f"periods: {periods}, week: {week}, weekday: {weekday}")
-            #         week2day2busy[week][weekday].append(periods)
-
-
         if used:
             dates_to_periods = {}
             for period, dt in used:
@@ -6708,7 +6694,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             week2day2busy[week].setdefault(dayofweek, [])
             week2day2allday.setdefault(week, {})
             week2day2allday[week].setdefault(dayofweek, [False, [f"{dayDM}", f"All day events"]])
-            logger.debug(f"{item['summary']} dayofweek: {dayofweek}")
 
             if item['itemtype'] == '*' and dt.hour == 0 and dt.minute == 0 and 'e' not in item:
                 week2day2allday[week][dayofweek][0] = True
@@ -6783,13 +6768,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 dtb = dt
 
                 # this is the overlap problem
-                logger.debug(f"{summary}: beginning problem with dtb: {dtb} and end_dt: {end_dt}")
                 if not end_dt:
                     if item.get('e', None):
                         end_dt = dtb + item['e']
                     else:
                         end_dt = None
-                    logger.debug(f"starting end_dt: {end_dt}")
 
                 if end_dt:
                     if dtb.date() == end_dt.date():
@@ -6798,7 +6781,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                         dta = dtb.replace(hour=23, minute=59, second=0, microsecond=0)
                 else:
                     dta = None
-                logger.debug(f"{summary}: ending dta: {dta}")
 
 
                 start_dtadtb = (dta, dtb)
@@ -6896,18 +6878,15 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     if dtad == dtbd:
                         busyperiod = (dt2minutes(dtb), dt2minutes(dta))
                         week2day2busy[week][dayofweek].append(busyperiod)
-                        logger.debug(f"{summary}: added {busyperiod} for {week}, {dayofweek} using dtb: {dtb} and dta: {dta}")
                     elif dtad > dtbd:
                         busyperiods = datetimes2busy(dta, dtb)
                         for w, wd, periods in busyperiods:
                             if w == week and wd == dayofweek:
                                 busyperiod = periods
                                 week2day2busy[week][dayofweek].append(busyperiod)
-                                logger.debug(f"{summary}: added {busyperiod} for {week}, {dayofweek} from {busyperiods}")
                                 break
                 else:
                     busyperiod = None
-                logger.debug(f"XXX {summary}: busyperiod: {busyperiod} from dta: {dta} and dtb: {dtb}; start_dtadtb: {start_dtadtb}")
 
                 tmp_summary = set_summary(summary, item['s'], dt, freq)
 
@@ -7038,59 +7017,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         for day in allday_details[week]:
             busyday_details[week].setdefault(day, []).append(allday_details[week][day])
 
-    logger.debug(f"week2day2heading: {week2day2heading}")
     for week in busyday_details:
         for row in busyday_details[week]:
             lst = [week2day2heading[week].get(row, f"{week} {row}").center(width, ' ').rstrip(),]
             lst += [x for x in busyday_details[week][row] if x.strip()]
-            logger.debug(f"lst: {lst}")
             busyday_details[week][row] = "\n".join(lst)
-
-    logger.debug(f"busyday_details: {busyday_details}")
-    # busy_tup: [[1, (780, 814, 96)], [5, (600, 634, 111)], [7, (1080, 1090, 65)]]
-    # (2022, 46): {3: [[1140, 1320]], 4: [[300, 390], [360, 450]], 5: [[780, 870], [840, 910], [900, 1010]], 6: [[885, 1040]], 7: [[540, 630], [840, 900]], 1: []}
-
-    # timer4 = TimeIt(4)
-    # busy = {}
-    # for week in week2day2busy:
-    #     weeks.add(week)
-    #     rdict = NDict(width, compact=compact)
-    #     busy_details.setdefault(week, {})
-    #     wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-    #     busy_tuples = []
-    #     days = [x for x in week2day2busy[week].keys()]
-    #     days.sort()
-    #     for day in days:
-    #         periods = week2day2busy[week][day]
-    #         periods.sort()
-    #         busy_tuples.append([day, periods])
-
-    #     monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
-    #     DD = {}
-    #     for i in range(1, 8):
-    #         # row_date = monday.add(days=i)
-    #         DD[i] = f"{WA[i]} {monday.add(days=i-1).format('D')}".ljust(5, ' ')
-
-    #     for tup in busy_tuples:
-    #         #                 d             (beg_min, end_min)
-    #         # busy.setdefault(tup[0], []).append(tup[1])
-    #         busy[tup[0]] = tup[1]
-    #     wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-    #     busy_hsh[0] = f"""\
-# {wk_fmt}
-
-# {dent}{8*' '}{HB}
-# """
-    #     for weekday in range(1, 8):
-    #         lofp = busy.get(weekday, [])
-    #         empty, full = busy_conf_day(lofp)
-    #         busy_hsh[weekday] = f"""\
-# {dent}{7*' '}{empty}
-# {dent} {DD[weekday] : <6}{full}
-# """
-    #     busy_hsh[week] = "".join([busy_hsh[i] for i in range(0, 8)])
-    # timer4.stop()
-
 
     busy = {}
     timer4 = TimeIt(4)
@@ -7102,7 +7033,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             periods = dayhsh[day]
             periods.sort()
             busy_tuples.append([day, periods])
-        logger.debug(f"week: {week}, day: {day},  busy_tuples: {busy_tuples}")
 
         monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
         DD = {}
@@ -7112,7 +7042,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         for tup in busy_tuples:
             #                 d             (beg_min, end_min)
-            # busy.setdefault(tup[0], []).append(tup[1])
             busy[tup[0]] = tup[1]
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         busy_hsh[0] = f"""\
@@ -7159,8 +7088,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         weeks.add(week)
         rdict = NDict()
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-        if week in week2day2engaged:
-            logger.debug(f"{week}: {week2day2engaged[week]}")
         for row in items:
             day_ = row['day'][0]
             total = (week2day2engaged[week][day_] if day_ in week2day2engaged[week] else ZERO).in_minutes()
@@ -7173,7 +7100,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 else:
                     bar_fmt = " "
                     used_fmt = used
-            # path = f"{wk_fmt}/{day_:<10}{bar_fmt}{used_fmt}"
             if day_ == today:
                 day_ += " (Today)"
             elif day_ == tomorrow:
@@ -7185,25 +7111,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         engaged_hsh[week] = tree
         engaged2id_hsh[week] = row2id
 
-    # for week, dayhsh in week2day2engaged.items():
-    #     days = [d for d in dayhsh.keys()]
-    #     days.sort()
-    #     weeks.add(week)
-    #     rdict = NDict()
-    #     wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-    #     for row in items:
-    #         logger.debug(f"row: {row}; day: {row['day']}")
-    #         day_ = row['day'][0]
-    #         if day_ == today:
-    #             day_ += " (Today)"
-    #         elif day_ == tomorrow:
-    #             day_ += " (Tomorrow)"
-    #         path = f"{wk_fmt}/{day_}"
-    #         values = row['columns']
-    #         rdict.add(path, values)
-    #     tree, row2id = rdict.as_tree(rdict, level=0)
-    #     engaged_hsh[week] = tree
-    #     engaged2id_hsh[week] = row2id
     timer6.stop()
 
     cache = {}

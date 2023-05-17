@@ -1461,7 +1461,6 @@ async def event_handler():
                 row, col = get_row_col()
                 set_text(dataview.show_active_view())
                 restore_row_col(row, col)
-            # logger.debug(f"sleeping for {wait} seconds in event_handler loop")
             get_app().invalidate()
             await asyncio.sleep(wait)
     except asyncio.CancelledError:
@@ -1537,9 +1536,7 @@ def get_statusbar_right_text():
     # return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
 
 def openWithDefault(path):
-    # parts = [x.strip() for x in path.split(" ")]
     if " " in path:
-        # parts = re.findall('"([^"]*)"', path)
         parts = qsplit(path)
         logger.debug(f"path: {path}\n    Popen args: {parts}")
         if parts:
@@ -2395,7 +2392,6 @@ def do_whatever(*event):
     For testing whatever
     """
     dataview.refreshCurrent()
-    # logger.debug(f"row2id: {dataview.row2id}")
 
 @bindings.add('c-t', filter=is_viewing & is_item_view)
 def quick_timer(*event):
@@ -2584,11 +2580,9 @@ def set_view(view):
 
 def get_busy_day(d):
     busy_details = dataview.busy_details
-    # logger.debug(f"d: {d}; {busy_details.keys()}")
     r = 5 + 2*(d-1)
     if not r in busy_details.keys():
         return
-    # logger.debug(f"details: {d}->{r} {busy_details.get(r, '')}")
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(r-1, 0)
     busy_area.text = busy_details.get(r, get_busy_text())
