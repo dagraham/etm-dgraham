@@ -6697,7 +6697,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
             if item['itemtype'] == '*' and dt.hour == 0 and dt.minute == 0 and 'e' not in item:
                 week2day2allday[week][dayofweek][0] = True
-                week2day2allday[week][dayofweek][1].append(f"{item['itemtype']} {item['summary']}")
+                if 'r' in item:
+                    freq = item['r'][0].get('r', 'y')
+                else:
+                    freq = 'y'
+                tmp_summary = set_summary(item['summary'], item['s'], dt, freq)
+                week2day2allday[week][dayofweek][1].append(f"{item['itemtype']} {tmp_summary}")
 
             if 'r' in item:
                 freq = item['r'][0].get('r', 'y')
@@ -6767,23 +6772,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
                 dtb = dt
 
-                # this is the overlap problem
-                if not end_dt:
-                    if item.get('e', None):
-                        end_dt = dtb + item['e']
-                    else:
-                        end_dt = None
-
-                if end_dt:
-                    if dtb.date() == end_dt.date():
-                        dta = end_dt
-                    else:
-                        dta = dtb.replace(hour=23, minute=59, second=0, microsecond=0)
-                else:
-                    dta = None
-
-
-                start_dtadtb = (dta, dtb)
+                dta = et if et else None
 
                 # temp - just for this item
                 wrap = []
@@ -6896,6 +6885,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 rhc,
                                 (doc_id, instance, None)
                                 ]
+
                 path = f"{wk_fmt}/{dayDM}**"
 
                 # rdict.add(path, columns)
