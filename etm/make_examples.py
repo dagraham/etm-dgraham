@@ -50,10 +50,10 @@ def make_examples(egfile=None):
             }
     locations = ['errands', 'home', 'office', 'shop']
     tags = ['red', 'green', 'blue']
-    dates = [0, 0, 1, 0, 0] # dates 1/5 of the time
+    dates = [0, 0, 0, 1, 0, 0, 0] # dates 1/7 of the time
     minutes = range(12, 96, 6) # for used times
     days = range(7)
-    extent = range(60, 180, 30)
+    extent = 4*[x for x in range(60, 210, 15)] + [60*x for x in range(12, 72, 6)]
 
     client_contacts = {}
     client_id = {}

@@ -1727,7 +1727,7 @@ def usedminutes2bar(minutes):
         if numchars <= chars:
             bar = f"{numchars*BUSY:<50}"
         else:
-            bar = f"{chars*BUSY} {CONF}"
+            bar = f"{chars*BUSY} {BUSY}"
         return used_fmt, bar
     else:
         return used_fmt, ""
@@ -6687,7 +6687,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             continue
 
         # XXX INSTANCES
+
+        # keep these for reference for this item
+        end_dt = None
+
         for dt, et in item_instances(item, aft_dt, bef_dt):
+
 
             # rdict = NDict()
             yr, wk, dayofweek = dt.isocalendar()
@@ -6702,7 +6707,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             week2day2busy.setdefault(week, {})
             week2day2busy[week].setdefault(dayofweek, [])
             week2day2allday.setdefault(week, {})
-            week2day2allday[week].setdefault(dayofweek, [False, [f"{dayDM}", f"All day items"]])
+            week2day2allday[week].setdefault(dayofweek, [False, [f"{dayDM}", f"All day events"]])
             logger.debug(f"{item['summary']} dayofweek: {dayofweek}")
 
             if item['itemtype'] == '*' and dt.hour == 0 and dt.minute == 0 and 'e' not in item:
@@ -6776,9 +6781,27 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     rhc = fmt_time(dt).center(rhc_width, ' ')
 
                 dtb = dt
-                dta = dt
-                if item.get('e', None):
-                    dta += item['e']
+
+                # this is the overlap problem
+                logger.debug(f"{summary}: beginning problem with dtb: {dtb} and end_dt: {end_dt}")
+                if not end_dt:
+                    if item.get('e', None):
+                        end_dt = dtb + item['e']
+                    else:
+                        end_dt = None
+                    logger.debug(f"starting end_dt: {end_dt}")
+
+                if end_dt:
+                    if dtb.date() == end_dt.date():
+                        dta = end_dt
+                    else:
+                        dta = dtb.replace(hour=23, minute=59, second=0, microsecond=0)
+                else:
+                    dta = None
+                logger.debug(f"{summary}: ending dta: {dta}")
+
+
+                start_dtadtb = (dta, dtb)
 
                 # temp - just for this item
                 wrap = []
@@ -6865,34 +6888,26 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
                 if omit and 'c' in item and item['c'] in omit:
                     busyperiod = None
-                elif dta > dtb:
+                elif dta and dta > dtb:
                     # a for after, b for before
                     busyperiod = None
                     dtad = dta.date()
                     dtbd = dtb.date()
-                    if dtad > dtbd:
+                    if dtad == dtbd:
+                        busyperiod = (dt2minutes(dtb), dt2minutes(dta))
+                        week2day2busy[week][dayofweek].append(busyperiod)
+                        logger.debug(f"{summary}: added {busyperiod} for {week}, {dayofweek} using dtb: {dtb} and dta: {dta}")
+                    elif dtad > dtbd:
                         busyperiods = datetimes2busy(dta, dtb)
-                        # week2day2busy[week][dayofweek].append(busyperiod)
-                        more = True
                         for w, wd, periods in busyperiods:
-                            if more and w == week and wd == dayofweek:
+                            if w == week and wd == dayofweek:
                                 busyperiod = periods
                                 week2day2busy[week][dayofweek].append(busyperiod)
                                 logger.debug(f"{summary}: added {busyperiod} for {week}, {dayofweek} from {busyperiods}")
-                                more = False
                                 break
-
-
-                            # week2day2busy.setdefault(week, {})
-                            # week2day2busy[week].setdefault(weekday, [])
-                            # logger.debug(f"periods: {periods}, week: {week}, weekday: {weekday}")
-                            # week2day2busy[week][weekday].append(periods)
-                    else:
-                        busyperiod = (dt2minutes(dtb), dt2minutes(dta))
-                        week2day2busy[week][dayofweek].append(busyperiod)
-                        logger.debug(f"{summary}: added {busyperiod} for {week}, {dayofweek}")
                 else:
                     busyperiod = None
+                logger.debug(f"XXX {summary}: busyperiod: {busyperiod} from dta: {dta} and dtb: {dtb}; start_dtadtb: {start_dtadtb}")
 
                 tmp_summary = set_summary(summary, item['s'], dt, freq)
 
