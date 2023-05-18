@@ -934,6 +934,7 @@ def add_usedtime(*event):
 
     now = pendulum.now('local')
     if doc_id in dataview.timers:
+        title = 'active timer - record used time and end timer'
         state, start, elapsed = dataview.timers[doc_id]
         if state == 'r':
             elapsed += now - start
@@ -941,14 +942,15 @@ def add_usedtime(*event):
         timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}"
         entry = f"{format_duration(elapsed, short=True)}: {format_datetime(start, short=True)[1]}"
     else:
+        title = 'no active timer - add used time entry'
         state = None
         timer = "\ntimer: None"
         entry = " : now"
 
     def coroutine():
         dialog = TextInputDialog(
-            title='add usedtime',
-            label_text=f"selected:\n  {hsh['itemtype']} {hsh['summary']}\n  @i {hsh.get('i', '~')}{timer}\n\nadd usedtime using the format:\n    period: datetime\n",
+            title=title,
+            label_text=f"selected:\n  {hsh['itemtype']} {hsh['summary']}\n  @i {hsh.get('i', '~')}{timer}\n\nused time format:\n    period: datetime\n",
             default=entry,
             )
         usedtime = yield from show_dialog_as_float(dialog)
@@ -969,7 +971,7 @@ def add_usedtime(*event):
             loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
         else:
-            show_message('add usedtime', f"Cancelled, '{usedtime}' is invalid.\nThe required entry format is:\n   used timeperiod: ending datetime")
+            show_message('add used time', f"Cancelled, '{usedtime}' is invalid.\nThe required entry format is:\n   period: datetime")
 
 
     asyncio.ensure_future(coroutine())
@@ -2965,7 +2967,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
         MenuItem('-', disabled=True),
         MenuItem('T) activate timer if none active ', handler=next_timer_state),
-        MenuItem("TR) record usedtime and delete timer", handler=record_time),
+        MenuItem("TR) add usedtime / record usedtime and end timer", handler=record_time),
         MenuItem('TD) delete timer', handler=maybe_delete_timer),
         MenuItem('TT) toggle paused/running for the active timer', handler=toggle_active_timer),
     ]),

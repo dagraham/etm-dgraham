@@ -1203,8 +1203,9 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         ^x) toggle archived status
         ---
         T) change timer to next state
-        TR) record usedtime and delete timer
+        TR) record usedtime and end timer or add usedtime
         TD) delete timer
+        ---
         TT) toggle paused/running for active timer
 
 
@@ -1299,8 +1300,6 @@ Several options here deserve comment.
 * *record used time* with a reminder selected, will:
     * If a timer is not currently associated with the reminder, prompt for a timeperiod and ending time to use in adding a usedtime entry to the reminder.
     * If a timer is currently associated with the reminder, use its elapsed time and the last moment it was running as the defaults in the prompt for a usedtime timeperiod and ending time. If the entry is saved, the elapsed time for the timer will be reset to zero and, additionally, if the timer is currently *running*, its status will be changed to *paused*.
-
-    **Important**: timer data is stored in memory and will be lost if *etm* is stopped. Be sure to record usedtime entries for timers with elapsed times before quitting etm. The status bar will always indicate if there is unrecorded elapsed time.
 
 
 [↺ contents](#contents)
