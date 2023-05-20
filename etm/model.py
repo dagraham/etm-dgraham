@@ -1034,6 +1034,7 @@ item_hsh:    {self.item_hsh}
             # make sure the doc_id refers to an actual document
             self.item_hsh['k'] = [x for x in links if self.db.contains(doc_id=x)]
 
+        timer8 = TimeIt(8)
         if self.is_modified and not msg:
             now = pendulum.now('local')
             if self.is_new:
@@ -1050,6 +1051,7 @@ item_hsh:    {self.item_hsh}
                     self.item_hsh['k'].remove(self.doc_id)
                 self.item_hsh['modified'] = now
                 self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+        timer8.stop()
 
 
     def check_requires(self, key):
@@ -1930,6 +1932,7 @@ from time import perf_counter as timer
 
 class TimeIt(object):
     def __init__(self, label="", active=False):
+        #NOTE Toggle for all timers:
         self.active = active # use this to turn off all TimeIt timers
         # self.active = True # use this to turn on all TimeIt timers
         if not self.active:
@@ -7012,6 +7015,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             lst = [week2day2heading[week].get(row, f"{week} {row}").center(width, ' ').rstrip(),]
             lst += [x for x in busyday_details[week][row] if x.strip()]
             busyday_details[week][row] = "\n".join(lst)
+
+    timer3.stop()
 
     busy = {}
     timer4 = TimeIt(4)
