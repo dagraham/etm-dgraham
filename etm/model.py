@@ -6799,13 +6799,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
                     if b and b > ZERO:
                         itemtype = wrapbefore #  "↱"
-                        sort_b = dtb.format("YYYYMMDDHHmm")
+                        sort_b = (dt-ONEMIN).format("YYYYMMDDHHmm")
                         rhb = fmt_time(dtb).center(rhc_width, ' ')
                         before = {
                                     'id': doc_id,
                                     'job': None,
                                     'instance': instance,
-                                    'sort': (sort_dt, 0),
+                                    'sort': (sort_b, 0),
                                     'week': (
                                         dtb.isocalendar()[:2]
                                         ),
@@ -6825,7 +6825,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
                     if a and a > ZERO:
                         itemtype = wrapafter  # "↳"
-                        sort_a = dta.format("YYYYMMDDHHmm")
+                        sort_a = (dt+ONEMIN).format("YYYYMMDDHHmm")
                         rha = fmt_time(dta).center(rhc_width, ' ')
                         after = {
                                     'id': doc_id,
