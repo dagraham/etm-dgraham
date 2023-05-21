@@ -53,6 +53,7 @@ def main():
     queries = settings.get('queries')
     UT_MIN = settings.get('usedtime_minutes', 1)
     usedtime_hours = settings.get('usedtime_hours', 6)
+    refresh_interval = settings.get('refresh_interval', 60)
     today = pendulum.today()
     # We want 2 char 'en' weekday abbreviations regardless of the actual locale
     day = today.end_of('week')  # Sunday
@@ -129,6 +130,7 @@ def main():
     model.DBARCH = DBARCH
     model.UT_MIN = UT_MIN
     model.usedtime_hours = usedtime_hours
+    model.refresh_interval = refresh_interval
     model.beginbusy = beginbusy
     model.settings = settings
     model.logger = logger

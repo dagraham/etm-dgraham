@@ -1431,14 +1431,15 @@ async def event_handler():
     global current_datetime
     # check for updates every interval minutes
     interval = settings.get('updates_interval', 0)
+    refresh_interval = settings.get('refresh_interval', 60)
     minutes = 0
     try:
         while True:
             now = pendulum.now()
             current_datetime = status_time(now)
             # wait = 60 - now.second
-            tenths = now.second // 6 # tenths
-            wait = 6 - now.second % 6 # residual
+            wait = refresh_interval - now.second % refresh_interval # residual
+            logger.debug(f"refresh_interval: {refresh_interval}; wait: {wait}")
             if now.second < 6:
                 current_today = dataview.now.format("YYYYMMDD")
                 asyncio.ensure_future(maybe_alerts(now))
@@ -1517,7 +1518,7 @@ def get_statusbar_center_text():
     if loglevel == 1:
         # show current row number and associated id in the status bar
         current_row = text_area.document.cursor_position_row
-        current_id = dataview.row2id.get(current_row, "?")
+        current_id = dataview.row2id.get(current_row, '~')
         if isinstance(current_id, tuple):
             current_id = current_id[0]
         return [ ('class:status',  f'{current_row}: {current_id}'), ]

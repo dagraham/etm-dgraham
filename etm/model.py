@@ -1792,7 +1792,10 @@ def status_duration(obj):
         minutes = obj.minutes
         seconds = obj.remaining_seconds
         if seconds:
-            until.append(f"{minutes}.{seconds//6}m")
+            if refresh_interval == 6:
+                until.append(f"{minutes}.{seconds//6}m")
+            else:
+                until.append(f"{minutes}m")
         elif minutes:
             until.append(f"{minutes}m")
         if not until:

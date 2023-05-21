@@ -172,6 +172,7 @@ class Settings():
     keep_current = [0, 47]
     keep_next = "false"
     archive_after = 0
+    refresh_interval = 60
     num_finished = 0
     limit_skip_display = "true"
     connecting_dots = "false"
@@ -203,6 +204,7 @@ class Settings():
         "keep_current" : keep_current,
         "keep_next" : keep_next,
         "archive_after" : archive_after,
+        "refresh_interval" : refresh_interval,
         "num_finished" : num_finished,
         "limit_skip_display" : limit_skip_display,
         "connecting_dots" : connecting_dots,
@@ -315,7 +317,12 @@ archive_after: {archive_after}
 # archived on a daily basis.  Archived items are moved from the
 # "items" table in the database to the "archive" table and will no
 # longer appear in normal views. Note that unfinished tasks and
-# records are not archived.
+# journal entries are not archived.
+
+refresh_interval: {refresh_interval}
+# 6, 12, 30 or 60. The event loop responsible for refreshing
+# etm caches, updating alerts, timers and so forth, repeats once
+# every refresh_interval seconds.
 
 num_finished: {num_finished}
 # non-negative integer
@@ -736,6 +743,9 @@ window_colors: {window_colors}
             new['updates_interval'] = self.settings['updates_interval']
             changed.append(f"retaining default for 'updates_interval': {self.settings['updates_interval']}")
 
+        if new['refresh_interval'] not in [6, 12, 30, 60]:
+            changed.append(f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 60.")
+            new['refresh_interval'] = 60
         if new['usedtime_minutes'] not in [0, 1, 6, 12, 30, 60]:
             changed.append(f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 1.")
             new['usedtime_minutes'] = 1
