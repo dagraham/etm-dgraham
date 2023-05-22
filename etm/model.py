@@ -1936,8 +1936,8 @@ from time import perf_counter as timer
 class TimeIt(object):
     def __init__(self, label="", active=False):
         #NOTE Toggle for all timers:
-        self.active = active # use this to turn off all TimeIt timers
-        # self.active = True # use this to turn on all TimeIt timers
+        # self.active = active # use this to turn off all TimeIt timers
+        self.active = True # use this to turn on all TimeIt timers
         if not self.active:
             return
         self.loglevel = loglevel
@@ -2163,6 +2163,7 @@ class DataView(object):
                 }
 
         self.completion_keys = ['c', 'g', 'i', 'k', 'l', 'n', 't']
+        logger.debug("XX 1 ##")
         self.edit_item = None
         self.is_showing_details = False
         self.is_showing_query = False
@@ -2171,10 +2172,14 @@ class DataView(object):
         self.is_showing_items = True
         self.get_completions()
         self.refresh_konnections()
+        logger.debug("XX 2 ##")
+        logger.debug("XX 3 ##")
         self.currYrWk()
-        self.refreshCurrent()
+        self.refreshCache()
         self.refreshRelevant()
+        self.refreshCurrent()
         self.refreshAgenda()
+        self.possible_archive()
         self.currcal()
 
     def set_etmdir(self, etmdir):
@@ -2223,7 +2228,6 @@ class DataView(object):
         self.db = DBITEM
         self.dbarch = DBARCH
         logger.info(f"items: {len(DBITEM)}; archive: {len(DBARCH)}")
-        self.possible_archive()
         self.update_links()
 
     def use_archive(self):
@@ -2410,12 +2414,12 @@ class DataView(object):
                 timers[self.active_timer] = [state, now, period]
         if timers:
             if timers != self.saved_timers:
-                logger.debug(f"timers changed - dumping to {timers_file}")
+                # logger.debug(f"timers changed - dumping to {timers_file}")
                 with open(timers_file, 'wb') as fn:
                     pickle.dump(timers, fn)
                 self.saved_timers = timers
-            else:
-                logger.debug(f"timers unchanged - skipping dump to {timers_file}")
+
+            #     logger.debug(f"timers unchanged - skipping dump to {timers_file}")
         elif os.path.exists(timers_file):
             logger.debug(f"removing {timers_file}")
             os.remove(timers_file)
@@ -2564,18 +2568,18 @@ class DataView(object):
         if self.active_view != 'query':
             self.hide_query()
         if self.active_view == 'agenda':
-            self.refreshAgenda()
+            # self.refreshAgenda()
             return self.agenda_view
         if self.active_view == 'completed':
-            self.refreshAgenda()
+            # self.refreshAgenda()
             self.row2id = self.done2id
             return self.done_view
         if self.active_view == 'engaged':
-            self.refreshAgenda()
+            # self.refreshAgenda()
             self.row2id = self.engaged2id
             return self.engaged_view
         if self.active_view == 'busy':
-            self.refreshAgenda()
+            # self.refreshAgenda()
             return self.busy_view
         if self.active_view == 'yearly':
             # self.refreshCalendar()
@@ -2699,11 +2703,13 @@ class DataView(object):
             if dirty:
                 self.refresh_konnections()
 
-        self.refreshCache()
+
+        # self.refreshCache()
 
 
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
+            logger.debug(f"XX {self.activeYrWk} missing - calling cache.update Schedule XX")
             self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list, konnect_list=self.konnected, timers=self.timers))
         # agenda, done, busy, row2id, done2id
         self.agenda_view, self.done_view, self.engaged_view, self.busy_view, self.row2id, self.done2id, self.engaged2id, self.busy_details = self.cache[self.activeYrWk]
@@ -2713,7 +2719,6 @@ class DataView(object):
         """
         Agenda for the current and following 'keep_current' weeks
         """
-        # schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}, mk_current=False):
         if self.currfile is not None:
             weeks = []
             self.set_now()
@@ -2725,14 +2730,17 @@ class DataView(object):
                 # weeks corresponding to 0, ..., num_weeks-1
                 weeks.append(this_week)
                 this_week = nextWeek(this_week)
-            tmp_cache = schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list, konnect_list=self.konnected, timers=self.timers, mk_current=True)
-            logger.debug(f"tmp_cache weeks: {[x for x in tmp_cache.keys()]}")
+
+            # logger.debug("XX Calling Schedule XX")
+            # tmp_cache = schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list, konnect_list=self.konnected, timers=self.timers, mk_current=True)
+            tmp_cache = self.cache
+            logger.debug(f"current weeks: {[weeks]}")
             for week in weeks:
-                if week in tmp_cache:
+                if week in self.cache:
                     # append the agenda component
-                    curr_lines.append(tmp_cache[week][0])
+                    curr_lines.append(self.cache[week][0])
                 else:
-                    logger.debug(f"week {week} missing from tmp_cache")
+                    logger.debug(f"week {week} missing from cache")
             if curr_lines:
                 with open(self.currfile, 'w', encoding='utf-8') as fo:
                     fo.write("\n\n".join([x.strip() for x in curr_lines]))
@@ -2928,6 +2936,7 @@ class DataView(object):
 
 
     def refreshCache(self):
+        logger.debug("XX refreshCache - calling Schedule XX")
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20, self.pinned_list, self.link_list, self.konnected, self.timers)
         self.used_details, self.used_details2id, self.used_summary, self.effort_details = get_usedtime(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
 
@@ -3053,8 +3062,6 @@ class DataView(object):
             logger.info(f"archived doc_ids: {rem_ids}")
         if failed_ids:
             logger.error(f"archive failed for doc_ids: {failed_ids}")
-
-
         return rows
 
     def move_item(self, row=None):
@@ -6480,6 +6487,7 @@ def wkday2row(wkday):
     return 3+ 2*wkday if wkday else 17
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}, mk_current=False):
+    logger.debug("### schedule called ###")
     wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
     timer1 = TimeIt(1)
     if mk_current:

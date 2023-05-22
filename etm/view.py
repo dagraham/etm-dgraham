@@ -1294,6 +1294,7 @@ def item_changed(loop):
     data_changed(loop)
 
 def data_changed(loop):
+    dataview.refreshCache()
     dataview.refreshRelevant()
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
@@ -1303,8 +1304,9 @@ def data_changed(loop):
     get_app().invalidate()
 
 async def new_day(loop):
-    logger.debug("### new day ###")
+    logger.debug("XXX new day XXX")
     dataview.currYrWk()
+    dataview.refreshCache()
     dataview.refreshCurrent()
     dataview.refreshRelevant()  # sets now, currentYrWk, current
     dataview.refreshAgenda()
@@ -1355,7 +1357,7 @@ def alerts():
         # output.append('---')
         output.append('✓ already activated')
         output.append('• not yet activated')
-        logger.debug(f"output: {output}")
+        # logger.debug(f"output: {output}")
         return "\n".join(output)
 
     else:
@@ -1439,7 +1441,7 @@ async def event_handler():
             current_datetime = status_time(now)
             # wait = 60 - now.second
             wait = refresh_interval - now.second % refresh_interval # residual
-            logger.debug(f"refresh_interval: {refresh_interval}; wait: {wait}")
+            # logger.debug(f"refresh_interval: {refresh_interval}; wait: {wait}")
             if now.second < 6:
                 current_today = dataview.now.format("YYYYMMDD")
                 asyncio.ensure_future(maybe_alerts(now))
@@ -2359,6 +2361,7 @@ Enter the full path of the file to import or
             logger.debug(f"calling import_file")
             ok, msg = import_file('lorem')
             if ok:
+                dataview.refreshCache()
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
@@ -2378,6 +2381,7 @@ Enter the full path of the file to import or
                         os.remove(file_path)
                         filehome = os.path.join("~", os.path.split(file_path)[1])
                         msg += f"\n and removed {filehome}"
+                    dataview.refreshCache()
                     dataview.refreshRelevant()
                     dataview.refreshAgenda()
                     dataview.refreshCurrent()
@@ -2418,7 +2422,7 @@ def quick_timer(*event):
             if doc_id:
                 dataview.next_timer_state(doc_id)
                 dataview.next_timer_state(doc_id)
-
+                dataview.refreshCache()
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
@@ -2695,11 +2699,9 @@ def next_id(*event):
         next_id = row2id[next_row][0] if isinstance(row2id[next_row], tuple) else row2id[next_row]
     else:
         next_id = "?"
-    logger.debug(f"moving down from row {current_row} to row {next_row} (doc_id {next_id})")
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
 
-    logger.debug(f"cursor_position: {text_area.buffer.cursor_position}")
 
 
 @bindings.add('up', filter=is_not_busy_view & is_not_yearly_view & is_viewing)
@@ -2719,7 +2721,6 @@ def previous_id(*event):
         next_id = row2id[next_row][0] if isinstance(row2id[next_row], tuple) else row2id[next_row]
     else:
         next_id = "?"
-    logger.debug(f"moving up from row {current_row} to row {next_row} (doc_id {next_id})")
     text_area.buffer.cursor_position = \
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
 

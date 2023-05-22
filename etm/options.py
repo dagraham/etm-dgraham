@@ -352,8 +352,13 @@ usedtime_minutes: {usedtime_minutes}
 # usedtime_minutes and times are reported as floating point hours. E.g.,
 # with usedtime_minutes = 6, 1 minute would be rounded up to 6 minutes and
 # reported as 0.1 hours. Similarly 13 minutes would be rounded up to 18
-# minutes and reported as 0.3 hours. Note that when rounding is specified,
-# each "@u" timeperiod is rounded before aggregation.
+# minutes and reported as 0.3 hours. The numbers 6, 12, 30 and 60 are
+# characterized by the fact that each is an integer multiple of 6 and 60 is
+# evenly divisible by each. This allows reported times to be expressed as
+# hours and tenths of an hour for each. Note that when rounding is specified,
+# each "@u" timeperiod is rounded before aggregation. Whatever the setting,
+# a used time record created using the timer is accurate to the nearest
+# second.
 
 usedtime_hours: {usedtime_hours}
 # 0, 1, 2, ..., 24. The daily goal for used time. This is used in engaged

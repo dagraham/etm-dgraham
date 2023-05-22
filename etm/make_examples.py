@@ -6,6 +6,8 @@ from datetime import *
 import pendulum
 import sys, os
 
+make_many = True
+
 def parse(s, **kwd):
     return pendulum.parse(s, strict=False, **kwd)
 
@@ -20,11 +22,13 @@ def phrase(minlen=24):
     return tmp.strip()
 
 def make_examples(egfile=None):
-    num_items = 300
+    num_items = 3000 if make_many else 300
     num_konnections = 0
-    # include 4 months - 2 previous, current and following months
-    start = parse('9a 1') - pendulum.duration(months=2)
-    until = parse('9a 1') + pendulum.duration(months=2) - pendulum.duration(days=1)
+    # if make_many include 8 months - 6 previous, current and following months
+    # else 4 months - 2 previous, current and following months
+    months = (6, 2) if make_many else (2, 2)
+    start = parse('9a 1') - pendulum.duration(months=months[0])
+    until = parse('9a 1') + pendulum.duration(months=months[1]) - pendulum.duration(days=1)
     # now = parse('9a Sun') - pendulum.duration(days=6)
     now = parse('8a')
 
