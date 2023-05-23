@@ -6,7 +6,8 @@ from datetime import *
 import pendulum
 import sys, os
 
-make_many = True
+num_items = 800
+# num_items = 300
 
 def parse(s, **kwd):
     return pendulum.parse(s, strict=False, **kwd)
@@ -22,13 +23,13 @@ def phrase(minlen=24):
     return tmp.strip()
 
 def make_examples(egfile=None):
-    num_items = 3000 if make_many else 300
+    # num_items = 3000 if make_many else 500
     num_konnections = 0
     # if make_many include 8 months - 6 previous, current and following months
     # else 4 months - 2 previous, current and following months
-    months = (6, 2) if make_many else (2, 2)
-    start = parse('9a 1') - pendulum.duration(months=months[0])
-    until = parse('9a 1') + pendulum.duration(months=months[1]) - pendulum.duration(days=1)
+    months = num_items//200
+    start = parse('9a 1') - pendulum.duration(months=months)
+    until = parse('9a 1') + pendulum.duration(months=2) - pendulum.duration(days=1)
     # now = parse('9a Sun') - pendulum.duration(days=6)
     now = parse('8a')
 
@@ -57,7 +58,7 @@ def make_examples(egfile=None):
     dates = [0, 0, 0, 1, 0, 0, 0] # dates 1/7 of the time
     minutes = range(12, 96, 6) # for used times
     days = range(7)
-    extent = 4*[x for x in range(60, 210, 15)] + [60*x for x in range(12, 72, 6)]
+    extent = [x for x in range(30, 210, 15)]
 
     client_contacts = {}
     client_id = {}
@@ -65,35 +66,6 @@ def make_examples(egfile=None):
 
     examples.append("! the lorem examples @t lorem @d 1) This inbox item and each of the other internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'. 2). The examples are generated to fit within a four month period including the month they were generated together with one subsequent and two previous months. You can remove and regenerate them whenever you like to keep them current.")
 
-    # for client in clients:
-    #     # client records
-    #     num_contacts = random.randint(1, 4)
-    #     client_contacts[client] = contact_ids
-    #     # add links from client to contacts
-    #     for i in range(len(contact_ids)):
-    #         doc_id += 1
-    #         # add contact records
-    #         examples.append(f"% contact {client}{i+1} @i contact/client {client} @d {lorem.sentence()[:-1]} @t lorem")
-    #     doc_id += 1
-    #     client_id[client] = doc_id
-    #     if num_konnections:
-    #         # add clients with links from client to contacts
-    #         tmp = ' '.join([f'@k {x}' for x in contact_ids])
-    #     else:
-    #         tmp = ''
-    #     examples.append(f"% client {client} @i clients @d {lorem.sentence()[:-1]} {tmp} @t lorem")
-
-    # konnections = []
-    # if num_konnections:
-    #     for _ in range(num_konnections):
-    #         client = random.choice(clients)
-    #         num_contacts = random.randint(1, len(client_contacts[client]))
-    #         # examples.append(client_contacts, num_contacts)
-    #         contacts = random.sample(client_contacts[client], k=num_contacts)
-    #         contacts.sort()
-    #         tmp = ' '.join([f'@k {x}' for x in contacts])
-
-    #         konnections.append(f"@k {client_id[client]} {tmp}")
 
     for _ in range(num_items):
         t = random.choice(types)

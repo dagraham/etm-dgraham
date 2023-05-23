@@ -69,8 +69,6 @@ from itertools import groupby, combinations
 from prompt_toolkit.styles import Style
 from prompt_toolkit import __version__ as prompt_toolkit_version
 
-# settings = {'ampm': True}
-# settings = {'minutes': False}
 # These are set in _main_
 DBITEM = None
 DBARCH = None
@@ -79,8 +77,6 @@ data = None
 # NOTE: view.main() will override ampm using the configuration setting
 ampm = True
 logger = None
-
-# wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
 
 def sortdt(dt):
     # assumes dt is either a date or a datetime
@@ -126,7 +122,6 @@ ZERO = pendulum.duration(minutes=0)
 ONEMIN = pendulum.duration(minutes=1)
 DAY = pendulum.duration(days=1)
 
-# finished_char = u"\u2713"  #  ✓
 
 WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
 WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4']}
@@ -260,11 +255,6 @@ def busy_conf_day(lofp, allday=False):
     >>> busy_conf_day([(0, 1439)])
     {0: '  #  ', 'total': 1439, 1: '  #  ', 2: '  #  ', 3: '  #  ', 4: '  #  ', 5: '  #  ', 6: '  #  ', 7: '  #  ', 8: '  #  ', 9: '  #  ', 10: '  #  ', 11: '  #  ', 12: '  #  ', 13: '  #  ', 14: '  #  ', 15: '  #  ', 16: '  #  ', 17: '  #  ', 18: '  #  ', 19: '  #  ', 20: '  #  ', 21: '  #  ', 22: '  #  ', 23: '  #  '}
     """
-    # VSEP  =    '⏐' # U+23D0  this will be a de-emphasized color
-    # HSEP  =    '·' # U+2500  this will be a de-emphasized color
-    # BUSY  =    '■' # U+25A0 this will be busy color
-    # CONF  =    '▦' # U+25A6 this will be conflict color
-    # ADAY  =    '┉' # U+25AC for all day events
 
     busy_ranges, conf_ranges = busy_conf_minutes(lofp)
     busy_quarters = []
@@ -298,7 +288,6 @@ def busy_conf_day(lofp, allday=False):
             h[i] = ADAY # if (i-1) % 4 else VSEP
         else:
             h[i] = HSEP if (i-1) % 4 else VSEP
-        # h[i] = HSEP if (i-1) % 4 else VSEP
 
     # quarters: 1 before start + 1 after start + 56 + 1 between = 59 slots 0, ... 58
     conflict = False
@@ -420,7 +409,6 @@ def process_entry(s, settings={}):
             pos_hsh[tuple([beg, end])] = (f"{key[-1]}{key[-1]}", value)
             adding = key[-1]
         elif key in ['@a', '@u']:
-            # pos_hsh[tuple((beg, end))] = (key[-1], value)
             pos_hsh[tuple((beg, end))] = (key[-1], value)
             adding = None
         elif key.startswith('&'):
@@ -522,7 +510,6 @@ class Item(dict):
                 's': ["scheduled", "starting date or datetime", self.do_datetime],
                 't': ["tag", "tag", do_string],
                 'u': ["used time", "timeperiod: datetime", do_usedtime],
-                # 'w': ['who', 'who is responsible for this item', do_string],
                 'x': ["expansion", "expansion key", do_string],
                 'z': ["timezone", "a timezone entry such as 'US/Eastern' or 'Europe/Paris' or 'float' to specify a naive/floating datetime", self.do_timezone],
                 '?': ["@-key", "", self.do_at],
@@ -629,7 +616,6 @@ item_hsh:    {self.item_hsh}
         if not (doc_id and entry):
             return None
         item_hsh = self.db.get(doc_id=doc_id)
-        # item_hsh = self.dbquery.get(doc_id=doc_id)
         self.init_entry = entry
         if item_hsh:
             self.doc_id = doc_id
@@ -668,8 +654,6 @@ item_hsh:    {self.item_hsh}
 
 
     def add_used(self, doc_id, usedtime):
-        # usedtime = "period_str: datetime_str"
-
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
@@ -1034,7 +1018,6 @@ item_hsh:    {self.item_hsh}
             # make sure the doc_id refers to an actual document
             self.item_hsh['k'] = [x for x in links if self.db.contains(doc_id=x)]
 
-        timer8 = TimeIt(8)
         if self.is_modified and not msg:
             now = pendulum.now('local')
             if self.is_new:
@@ -1051,7 +1034,6 @@ item_hsh:    {self.item_hsh}
                     self.item_hsh['k'].remove(self.doc_id)
                 self.item_hsh['modified'] = now
                 self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
-        timer8.stop()
 
 
     def check_requires(self, key):
@@ -1714,7 +1696,6 @@ def round_minutes(obj):
 
 def usedminutes2bar(minutes):
     # leave room for indent and weekday
-    # chars = 50
     chars = shutil.get_terminal_size()[0] - 18
     # goal in hours to minutes
     used_minutes = int(minutes)
@@ -1934,36 +1915,21 @@ windoz = sys_platform in ('Windows', 'Microsoft')
 from time import perf_counter as timer
 
 class TimeIt(object):
-    def __init__(self, label="", active=False):
-        #NOTE Toggle for all timers:
-        # self.active = active # use this to turn off all TimeIt timers
-        self.active = True # use this to turn on all TimeIt timers
-        if not self.active:
-            return
+    def __init__(self, label=""):
         self.loglevel = loglevel
         self.label = label
-        msg = "timer {0} started; loglevel: {1}".format(self.label, self.loglevel)
         if self.loglevel == 1:
+            msg = "timer {0} started; loglevel: {1}".format(self.label, self.loglevel)
             logger.debug(msg)
-        elif self.loglevel == 2:
-            logger.info(msg)
-        elif self.loglevel == 3:
-            logger.warning(msg)
-        self.start = timer()
+            self.start = timer()
 
     def stop(self, *args):
-        if not self.active:
-            return
-        self.end = timer()
-        self.secs = self.end - self.start
-        self.msecs = self.secs * 1000  # millisecs
-        msg = "timer {0} stopped; elapsed time: {1} milliseconds".format(self.label, self.msecs)
         if self.loglevel == 1:
+            self.end = timer()
+            self.secs = self.end - self.start
+            self.msecs = self.secs * 1000  # millisecs
+            msg = "timer {0} stopped; elapsed time: {1} milliseconds".format(self.label, self.msecs)
             logger.debug(msg)
-        elif self.loglevel == 2:
-            logger.info(msg)
-        elif self.loglevel == 3:
-            logger.warning(msg)
 
 
 class NDict(dict):
@@ -1971,7 +1937,6 @@ class NDict(dict):
     Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row.
     """
 
-    # tab = " " * 2
     tab = 2
 
     def __init__(self, split_char='/', width=shutil.get_terminal_size()[0]-2, compact=False):
@@ -2089,6 +2054,7 @@ class NDict(dict):
 class DataView(object):
 
     def __init__(self, etmdir):
+        logger.debug("XX initializing DB XX")
         self.active_item = None
         self.active_view = 'agenda'
         self.prior_view = 'agenda'
@@ -2139,7 +2105,10 @@ class DataView(object):
             self.active_timer = None
         self.saved_timers = deepcopy(self.timers)
         self.archive_after = 0
+
+        logger.debug("XX calling set_etmdir XX")
         self.set_etmdir(etmdir)
+        logger.debug("XX finished set_etmdir XX")
         self.views = {
                 'a': 'agenda',
                 'b': 'busy',
@@ -2163,7 +2132,6 @@ class DataView(object):
                 }
 
         self.completion_keys = ['c', 'g', 'i', 'k', 'l', 'n', 't']
-        logger.debug("XX 1 ##")
         self.edit_item = None
         self.is_showing_details = False
         self.is_showing_query = False
@@ -2172,15 +2140,16 @@ class DataView(object):
         self.is_showing_items = True
         self.get_completions()
         self.refresh_konnections()
-        logger.debug("XX 2 ##")
-        logger.debug("XX 3 ##")
         self.currYrWk()
-        self.refreshCache()
+        logger.debug("XX calling refreshRelevant XX")
         self.refreshRelevant()
+        logger.debug("XX calling refreshCurrent XX")
         self.refreshCurrent()
+        logger.debug("XX calling refreshAgenda XX")
         self.refreshAgenda()
         self.possible_archive()
         self.currcal()
+        logger.debug("XX finished initializing DB XX")
 
     def set_etmdir(self, etmdir):
         self.etmdir = etmdir
@@ -2327,9 +2296,6 @@ class DataView(object):
         konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
         self.konnected = list(set(konnected))
 
-    # def refresh_konnected(self):
-    #     konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
-    #     self.konnected = list(set(konnected))
 
     def handle_backups(self):
         removefiles = []
@@ -2414,12 +2380,10 @@ class DataView(object):
                 timers[self.active_timer] = [state, now, period]
         if timers:
             if timers != self.saved_timers:
-                # logger.debug(f"timers changed - dumping to {timers_file}")
                 with open(timers_file, 'wb') as fn:
                     pickle.dump(timers, fn)
                 self.saved_timers = timers
 
-            #     logger.debug(f"timers unchanged - skipping dump to {timers_file}")
         elif os.path.exists(timers_file):
             logger.debug(f"removing {timers_file}")
             os.remove(timers_file)
@@ -2568,21 +2532,21 @@ class DataView(object):
         if self.active_view != 'query':
             self.hide_query()
         if self.active_view == 'agenda':
-            # self.refreshAgenda()
+            self.refreshAgenda()
             return self.agenda_view
         if self.active_view == 'completed':
-            # self.refreshAgenda()
+            self.refreshAgenda()
             self.row2id = self.done2id
             return self.done_view
         if self.active_view == 'engaged':
-            # self.refreshAgenda()
+            self.refreshAgenda()
             self.row2id = self.engaged2id
             return self.engaged_view
         if self.active_view == 'busy':
-            # self.refreshAgenda()
+            self.refreshAgenda()
             return self.busy_view
         if self.active_view == 'yearly':
-            # self.refreshCalendar()
+            self.refreshCalendar()
             return self.calendar_view
         if self.active_view == 'history':
             self.history_view, self.row2id = show_history(self.db, True, self.pinned_list, self.link_list, self.konnected, self.timers)
@@ -2666,10 +2630,6 @@ class DataView(object):
         """Set the active week to one containing today."""
         self.set_now()
         self.currentYrWk = self.activeYrWk = getWeekNum(self.now)
-        self.refreshAgenda()
-
-    # def getYrWk(self):
-    #     return self.activeYrWk
 
     def dtYrWk(self, dtstr):
         dt = pendulum.parse(dtstr, strict=False)
@@ -2695,6 +2655,7 @@ class DataView(object):
         """
         Called to set the relevant items for the current date and to change the currentYrWk and activeYrWk to that containing the current date.
         """
+        logger.debug("XX refreshRelevant XX")
         self.set_now()
         self.currentYrWk = getWeekNum(self.now)
         dirty = True
@@ -2702,12 +2663,11 @@ class DataView(object):
             self.current, self.alerts, self.id2relevant, dirty = relevant(self.db, self.now, self.pinned_list, self.link_list, self.konnected, self.timers)
             if dirty:
                 self.refresh_konnections()
-
-
-        # self.refreshCache()
+        self.refreshCache()
 
 
     def refreshAgenda(self):
+        logger.debug("XX refreshAgenda XX")
         if self.activeYrWk not in self.cache:
             logger.debug(f"XX {self.activeYrWk} missing - calling cache.update Schedule XX")
             self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list, konnect_list=self.konnected, timers=self.timers))
@@ -2719,6 +2679,7 @@ class DataView(object):
         """
         Agenda for the current and following 'keep_current' weeks
         """
+        logger.debug("XX refreshCurrent XX")
         if self.currfile is not None:
             weeks = []
             self.set_now()
@@ -2731,8 +2692,6 @@ class DataView(object):
                 weeks.append(this_week)
                 this_week = nextWeek(this_week)
 
-            # logger.debug("XX Calling Schedule XX")
-            # tmp_cache = schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list, konnect_list=self.konnected, timers=self.timers, mk_current=True)
             tmp_cache = self.cache
             logger.debug(f"current weeks: {[weeks]}")
             for week in weeks:
@@ -2744,7 +2703,7 @@ class DataView(object):
             if curr_lines:
                 with open(self.currfile, 'w', encoding='utf-8') as fo:
                     fo.write("\n\n".join([x.strip() for x in curr_lines]))
-                logger.info(f"saved {len(curr_lines)} in current schedule to {self.currfile}")
+                logger.info(f"saved {len(curr_lines)} weeks from current schedule to {self.currfile}")
             else:
                 logger.info("current schedule empty - did not save")
 
@@ -3299,14 +3258,6 @@ def ordinal(num):
     else:
         suffix = SUFFIXES[0]
     return "{0}{1}".format(str(num), suffix)
-
-
-# def anniversary_string(startyear, endyear):
-#     """
-#     Compute the integer difference between startyear and endyear and
-#     append the appropriate English suffix.
-#     """
-#     return ordinal(int(endyear) - int(startyear))
 
 
 def one_or_more(s):
@@ -5281,12 +5232,6 @@ def fmt_week(yrwk):
         week_end = wkend.format("D") if wkbeg.month == wkend.month else wkend.format("MMM D")
         week_begin = wkbeg.format("MMM D")
 
-#     week_begin = wkbeg.format("MMM D")
-#     if wkbeg.month == wkend.month:
-#         week_end = wkend.format("D")
-#     else:
-#         week_end = wkend.format("MMM D")
-    # return f"{dt_year} Week {dt_week}: {week_begin} - {week_end}"
     return f"{week_begin} - {week_end}, {dt_year} #{dt_week}"
 
 
@@ -5611,7 +5556,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             item_0 = str(item[0]) if item[0] <= 0 else f"+{item[0]}"
         else:
             item_0 = ""
-        # item_0 = str(item[0]) if item[0] in item else ""
         rhc = item_0.center(rhc_width, ' ')
         doc_id = item[2]
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
@@ -5780,8 +5724,6 @@ def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=
 def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     md_fmt = "DD/MM" if settings['dayfirst'] else "MM/DD"
     ymd_fmt = f"YY/{md_fmt}" if settings['yearfirst'] else f"{md_fmt}/YY"
-    # md = "dd/mm" if settings['dayfirst'] else "mm/dd"
-    # ymd = f"yy/{md}" if settings['yearfirst'] else f"{md}/yy"
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     summary_width = width - 25
@@ -6370,7 +6312,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                         'month': month,
                         'path': f"{monthday.format('MMMM YYYY')}/{index}",
                         'values': [
-                            '⏱',
+                            '◦',
                             f"{itemtype} {summary}",
                             flags,
                             rhc,
@@ -6440,7 +6382,6 @@ def no_busy_periods(week, width):
     monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
     DD = {}
     for i in range(1, 8):
-        # row_date = monday.add(days=i)
         DD[i] = f"{WA[i]} {monday.add(days=i-1).format('D')}".ljust(5, ' ')
 
     h = {}
@@ -6487,7 +6428,7 @@ def wkday2row(wkday):
     return 3+ 2*wkday if wkday else 17
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}, mk_current=False):
-    logger.debug("### schedule called ###")
+    logger.debug("XXX schedule called XXX")
     wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
     timer1 = TimeIt(1)
     if mk_current:
@@ -6518,7 +6459,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         else:
             LL[hour] = ' '.rjust(6, ' ')
 
-    # width = shutil.get_terminal_size()[0] - 2
     # xx:xxam-xx:xxpm
     rhc_width = 15 if ampm else 11
     flag_width = 6
@@ -6601,7 +6541,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
                 dates_to_periods.setdefault(dt, []).append(period)
             for dt in dates_to_periods:
-                # yr, wk, weekday = dt.isocalendar()
                 week = dt.isocalendar()[:2]
                 weekday = dt.format(wkday_fmt)
                 week2day2engaged.setdefault(week, {})
@@ -6612,7 +6551,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 if total is not None:
                     week2day2engaged[week][weekday] += total
                     used = format_duration(total, short=True)
-                    # rhc = format_hours_and_tenths(total).center(rhc_width, ' ')
                 else:
                     used = ''
                 engaged.append(
@@ -6628,7 +6566,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 weekday,
                                 ),
                             'columns': [
-                                '⏱',
+                                USED,
                                 # '~',
                                 f'{used:<6} {itemtype} {summary}',
                                 flags,
@@ -6692,9 +6630,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         end_dt = None
 
         for dt, et in item_instances(item, aft_dt, bef_dt):
-
-
-            # rdict = NDict()
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
             wk_fmt = fmt_week(week).center(width, ' ').rstrip()
@@ -6707,7 +6642,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             week2day2busy.setdefault(week, {})
             week2day2busy[week].setdefault(dayofweek, [])
             week2day2allday.setdefault(week, {})
-            week2day2allday[week].setdefault(dayofweek, [False, [f"{dayDM}", f"All day events"]])
+            week2day2allday[week].setdefault(dayofweek, [False, [f"{dayDM}", f"All day"]])
 
             if item['itemtype'] == '*' and dt.hour == 0 and dt.minute == 0 and 'e' not in item:
                 week2day2allday[week][dayofweek][0] = True
@@ -6792,7 +6727,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 wrap = []
                 before = after = {}
                 wrapped = ""
-                if 'w' in item:
+                if 'w' in item and dta and dtb:
                     # adjust for wrap
                     b, a = item['w']
                     if b:
@@ -6864,7 +6799,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 }
 
                 else:
-                    # wrapped = fmt_extent(dtb, dta).center(rhc_width, ' ')
                     wrapped = rhc
 
                 if before:
@@ -6901,8 +6835,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 ]
 
                 path = f"{wk_fmt}/{dayDM}**"
-
-                # rdict.add(path, columns)
 
                 rows.append(
                         {
@@ -6946,7 +6878,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
     busy_details = {}
     allday_details = {}
-    # width = shutil.get_terminal_size()[0]
     dent = int((width - 69)/2) * " "
 
     ### item/agenda loop 2
@@ -6961,7 +6892,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         for dayofweek in week2day2allday[week]:
             allday, lst = week2day2allday[week][dayofweek]
             if allday and lst:
-                # lst.sort()
                 row = wkday2row(dayofweek)
                 week2day2heading[week][row] = lst.pop(0)
                 day_ = row
@@ -6983,7 +6913,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 day_ += " (Tomorrow)"
             path = f"{wk_fmt}/{day_}"
             values = row['columns']
-            heading = f"Busy periods for {day_}"
+            # heading = f"Busy periods for {day_}"
             if values[0] in ["*", "-"]:
                 values[1] = re.sub(' *\n+ *', ' ', values[1])
                 busyperiod = row.get('busyperiod', "")
@@ -6997,7 +6927,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     if settings['connecting_dots']:
                         busy_row = f"  {busy_row}".replace('   ', LINEDOT)
 
-                    busy_details[week].setdefault(row, [f"Busy periods"]).append(
+                    busy_details[week].setdefault(row, [f"Busy"]).append(
                             busy_row
                             )
 
@@ -7012,14 +6942,14 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         row2id_hsh[week] = row2id
 
     busyday_details = {}
-    for week in busy_details:
-        busyday_details.setdefault(week, {})
-        for day in busy_details[week]:
-            busyday_details[week].setdefault(day, []).append(busy_details[week][day].rstrip())
     for week in allday_details:
         busyday_details.setdefault(week, {})
         for day in allday_details[week]:
             busyday_details[week].setdefault(day, []).append(allday_details[week][day])
+    for week in busy_details:
+        busyday_details.setdefault(week, {})
+        for day in busy_details[week]:
+            busyday_details[week].setdefault(day, []).append(busy_details[week][day].rstrip())
 
     for week in busyday_details:
         for row in busyday_details[week]:
@@ -7043,7 +6973,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
         DD = {}
         for i in range(1, 8):
-            # row_date = monday.add(days=i)
             DD[i] = f"{WA[i]} {monday.add(days=i-1).format('D')}".ljust(5, ' ')
 
         for tup in busy_tuples:
@@ -7159,11 +7088,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             tup.append(engaged2id_hsh[week])
         else:
             tup.append({})
-        # engaged_totals
-        # if week in week2day2engaged:
-        #     tup.append(week2day2engaged[week])
-        # else:
-        #     tup.append({})
 
         if week in busyday_details:
             tup.append(busyday_details[week])
@@ -7184,8 +7108,6 @@ def import_file(import_file=None):
         return True, import_examples()
 
     import_file = os.path.normpath(os.path.expanduser(import_file))
-    # if not os.path.exists(import_file):
-    #     return False, f"could not locate {import_file}"
     if not os.path.isfile(import_file):
         return False, f'"{import_file}"\n   either does not exist or is not a regular file'
     filename, extension = os.path.splitext(import_file)
@@ -7248,12 +7170,14 @@ def import_examples():
 
     results = []
     good = []
-    bad = 0
-    reminders = []
-    reminder = []
+    bad = []
+    items = []
 
+    num_examples = len(examples)
+    count = 0
     for s in examples:
         ok = True
+        count += 1
         if not s: continue
         item = Item()  # use ETMDB by default
         item.new_item()
@@ -7264,18 +7188,16 @@ def import_examples():
         if item.item_hsh.get('summary', None) is None:
             ok = False
 
-        if not ok:
-            bad += 1
-            results.append(f"   {s}")
-            continue
-
-        # update_item_hsh stores the item in ETMDB
-        item.update_item_hsh()
-        good.append(f"{item.doc_id}")
+        if ok:
+            item.update_item_hsh()
+            good.append(f"{item.doc_id}")
+            logger.debug(f"adding #{count}/{num_examples}")
+        else:
+            bad.append(s)
+            logger.debug(f"rejected #{count}/{num_examples}")
 
     res = f"imported {len(good)} items"
     if good:
-        # ids = ETMDB.insert_multiple(docs)
         res += f"\n  ids: {good[0]} - {good[-1]}"
     if bad:
         res += f"\nrejected {bad} items:\n  "
@@ -7328,7 +7250,6 @@ def import_text(import_file=None):
 
     res = f"imported {len(good)} items"
     if good:
-        # ids = ETMDB.insert_multiple(docs)
         res += f"\n  ids: {good[0]} - {good[-1]}"
     if bad:
         res += f"\nrejected {bad} items:\n  "
@@ -7356,7 +7277,6 @@ def import_json(import_file=None):
         bad_keys = [x for x in item_hsh if not item_hsh[x]]
         for key in bad_keys:
             del item_hsh[key]
-        # z = item_hsh.get('z')
         if 's' in item_hsh:
             item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
         if 'f' in item_hsh:
@@ -7461,7 +7381,6 @@ def import_json(import_file=None):
                     'itemtype': x.get('itemtype'),
                     'summary': x.get('summary'),
                     's': x.get('s'),
-                    # 'f': x.get('f')
                     })
     i = 0
     for x in docs:
@@ -7470,7 +7389,6 @@ def import_json(import_file=None):
                     'itemtype': x.get('itemtype'),
                     'summary': x.get('summary'),
                     's': x.get('s'),
-                    # 'f': x.get('f')
                     }
         if exst and y in exst:
             dups += 1

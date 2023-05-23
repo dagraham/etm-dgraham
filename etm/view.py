@@ -87,16 +87,6 @@ class UpdateStatus():
     def get_status(self):
         return self.status
 
-# For busy view
-# VLINE  =    '⏐' # U+23D0  this will be a de-emphasized color
-# HLINE  =    '─' # U+2500  this will be a de-emphasized color
-# HDOT   =    '·' # U+2500  this will be a de-emphasized color
-# BUSY   =    '■' # U+25A0 this will be busy color
-# CONFLICT =  '▦' # U+25A6 this will be conflict color
-# TASK =      '▩' # U+25A9 this will be task color
-# BEFORE =    '◀' # U+25C0 this will be busy color
-# AFTER  =    '▶' # U+25B6 this will be busy color
-
 
 class TDBLexer(RegexLexer):
 
@@ -707,7 +697,6 @@ class RadioListDialog(object):
                 Label(text=text),
                 Frame(title=label, body=self.radios)
             ]),
-            # body= Frame(title=label, body=self.radios),
             buttons=[ok_button, cancel_button],
             width=D(preferred=shutil.get_terminal_size()[0]-10),
             modal=True)
@@ -1163,41 +1152,7 @@ def get_colors(bg='', fg='', attr=''):
     return f"{bg} {fg} {attr}".rstrip()
 
 
-# color_dict = {
-#         'ask':                     (['grey2', 'Lime', 'bold'],          ['Cornsilk', 'Lime', 'bold']),
-#         'button.focused':          (['DarkGreen', 'White'],             ['DarkGreen', 'White']),
-#         'details':                 (['', 'Ivory'],                      ['', 'Black']),
-#         'dialog shadow':           (['#444444', ''],                    ['#444444', '']),
-#         'dialog':                  (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
-#         'dialog-entry':            (['White', 'Black'],                 ['White', 'Black']),
-#         'dialog-output':           (['DarkSlateGrey', 'Lime'],          ['DimGrey', 'Lime']),
-#         'dialog.body label':       (['', 'White'],                      ['', 'White']),
-#         'dialog.body':             (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
-#         'entry':                   (['grey2', 'LightGoldenRodYellow'],  ['Cornsilk', 'LightGoldenRodYellow']),
-#         'frame.label':             (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
-#         'menu':                    (['DarkSlateGrey', 'White'],         ['DimGrey', 'White']),
-#         'menu-bar':                (['grey1', 'White'],                 ['grey1', 'White']),
-#         'menu-bar.selected-item':  (['#ffffff', '#000000'],             ['#ffffff', '#000000']),
-#         'menu.border':             (['', '#aaaaaa'],                    ['', '#aaaaaa']),
-#         'not-searching':           (['', '#222222'],                    ['', '#777777']),
-#         'query':                   (['', 'Ivory'],                      ['', 'Black']),
-#         'reply':                   (['grey2', 'DeepSkyBlue'],           ['Cornsilk', 'DeepSkyBlue']),
-#         'shadow':                  (['#222222', ''],                    ['#222222', '']),
-#         'status':                  (['grey1', 'White'],                 ['grey1', 'White']),
-#         'status.key':              (['', '#ffaa00'],                    ['', '#ffaa00']),
-#         'status.position':         (['', '#aaaa00'],                    ['', '#aaaa00']),
-#         'text-area':               (['grey2', 'Ivory'],                 ['Cornsilk', 'Black']),
-#         'window.border shadow':    (['', '#444444'],                    ['', '#444444']),
-#         'window.border':           (['', '#888888'],                    ['', '#888888']),
-#         }
-
-
 def get_style(style_dict):
-    # col = 0 if style == 'dark' else 1
-    # style_dict = {k: v[col] for k, v in color_dict.items()}
-    # style_dict = dark_dict if style == 'dark' else light_dict
-    # if settings['window_colors']:
-    #     style_dict.update(settings['style_modifications'])
     window_colors = {k: get_colors(*v) for k, v in style_dict.items()}
     return Style.from_dict(window_colors)
 
@@ -1211,7 +1166,7 @@ type2style = {
         '+': 'waiting',
         '✓': 'finished',
         '~': 'missing',
-        '⏱': 'used',
+        '◦': 'used',
         '↱': 'wrap',
         '↳': 'wrap',
         }
@@ -1249,12 +1204,10 @@ class ETMLexer(Lexer):
                 return [(type_colors['today'], f"{tmp} ")]
 
             return [
-                # (colors[i % len(colors)], c)
                 (busy_colors.get(c, type_colors['plain']), c)
                 for i, c in enumerate(document.lines[lineno])
             ]
 
-            # return [(type_colors['plain'], tmp)]
 
         return get_line
 
@@ -1288,13 +1241,11 @@ def item_changed(loop):
             state = 'r'
             dataview.active_timer = item.doc_id
         dataview.timers[item.doc_id] = [state, pendulum.now('local'), pendulum.Duration()]
-    # dataview.update_completions(item)
     dataview.get_completions()
     dataview.update_konnections(item)
     data_changed(loop)
 
 def data_changed(loop):
-    dataview.refreshCache()
     dataview.refreshRelevant()
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
@@ -1306,10 +1257,9 @@ def data_changed(loop):
 async def new_day(loop):
     logger.debug("XXX new day XXX")
     dataview.currYrWk()
-    dataview.refreshCache()
-    dataview.refreshCurrent()
     dataview.refreshRelevant()  # sets now, currentYrWk, current
     dataview.refreshAgenda()
+    dataview.refreshCurrent()
     dataview.set_active_view('a')
     set_text(dataview.show_active_view())
     dataview.currcal()
@@ -1344,20 +1294,16 @@ def alerts():
         summary = alert[4]
         doc_id = alert[5]
         prefix = '✓' if trigger_time < now else '•' # '⧖'
-        # alerts.append(f"{prefix} {trigger} ({command}) {summary} {start}")
         alert_hsh.setdefault((alert[5], itemtype, summary), []).append([prefix, trigger, start, command])
     if alerts:
-        # return "\n".join(alerts)
         output = []
         for key, values in alert_hsh.items():
             output.append(f"{key[1]} {key[2]}")
             for value in values:
                 output.append(f"  {value[0]} {value[1]:>7} ⭢  {value[2]:>7}:  {value[3]}")
         output.append('')
-        # output.append('---')
         output.append('✓ already activated')
         output.append('• not yet activated')
-        # logger.debug(f"output: {output}")
         return "\n".join(output)
 
     else:
@@ -1403,7 +1349,6 @@ async def maybe_alerts(now):
             else:
                 when = f"{(alertdt-startdt).in_words()} ago"
             start = format_datetime(startdt)[1]
-            # time = format_datetime(startdt, short=True)[1] if startdt.date() != today.date() else format_time(startdt)[1]
             time = format_time(startdt)[1] if startdt.date() == today.date() else format_datetime(startdt, short=True)[1]
             summary = alert[4]
             doc_id = alert[5]
@@ -1426,7 +1371,6 @@ async def maybe_alerts(now):
 
     if bad:
         logger.error(f"unrecognized alert commands: {bad}")
-        # show_message(f"unrecognized alert commands", f"{bad}", 0)
 
 
 async def event_handler():
@@ -1439,9 +1383,8 @@ async def event_handler():
         while True:
             now = pendulum.now()
             current_datetime = status_time(now)
-            # wait = 60 - now.second
             wait = refresh_interval - now.second % refresh_interval # residual
-            # logger.debug(f"refresh_interval: {refresh_interval}; wait: {wait}")
+            logger.debug(f"refresh_interval: {refresh_interval}; wait: {wait}")
             if now.second < 6:
                 current_today = dataview.now.format("YYYYMMDD")
                 asyncio.ensure_future(maybe_alerts(now))
@@ -1538,7 +1481,6 @@ def get_statusbar_right_text():
         active_part = inactive_part = ('class:status', "")
 
     return [ active_part, inactive_part,  ('class:status',  f"{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
-    # return [ ('class:status',  f"{dataview.timer_report()}{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
 
 def openWithDefault(path):
     if " " in path:
@@ -1582,7 +1524,6 @@ text_area = TextArea(
     lexer=etmlexer,
     )
 
-
 # expansions will come from cfg.yaml
 expansions = {
         }
@@ -1591,7 +1532,6 @@ expansions = {
 class AtCompleter(Completer):
     # pat = re.compile(r'@[cgilntxz]\s?\S*')
     pat = re.compile(r'@[cgiklntxz]\s?[^@&]*')
-
 
     def get_completions(self, document, complete_event):
         cur_line = document.current_line_before_cursor
@@ -1633,8 +1573,6 @@ entry_buffer = Buffer(multiline=True, completer=at_completer, complete_while_typ
 
 reply_buffer = Buffer(multiline=True)
 
-# reply_dimension = 2
-# entry_dimension = 10
 reply_dimension = Dimension(min=1, weight=1)
 entry_dimension = Dimension(min=2, weight=3)
 
@@ -1667,8 +1605,6 @@ busy_area = TextArea(
 
 
 width = shutil.get_terminal_size()[0] - 4
-# busy_times = "Use '⇧ ⇾' and '⇧ ⇽' to jump among the days with busy times.".center(width, ' ')
-# busy_times = "The 'down' and 'up' cursor keys jump among days with busy periods.".center(width, ' ')
 
 def get_busy_text():
     return get_busy_text_and_keys(0)
@@ -1691,7 +1627,6 @@ def get_busy_text_and_keys(n):
     active_days = "  ".join([v for k, v in weekdays.items() if k in busy_details.keys()])
     no_busy_times = "There are no days with busy periods this week.".center(width, ' ')
     busy_times = wrap(f"Press the number of a weekday, [{weekdays[5]}, ..., {weekdays[17]}], to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.", indent=0)
-    # active_keys = f"active keys: {active_days}, ⬆  ▲ and ⬇ ".center(width, ' ')
     active_keys = f"{active_days}  ▼→next  ▲→previous".center(width, ' ')
 
     if n == 0: # text
@@ -1727,7 +1662,6 @@ is or edit it first and then submit.
   """ + query_str
 
             show_message('query information', tmp)
-            # set_text(tmp)
             return False
         if text.strip() in ['quit', 'exit']:
             # quitting
@@ -1739,7 +1673,6 @@ is or edit it first and then submit.
         if queries and parts[0] in queries:
             set_text("")
             text = queries[parts.pop(0)]
-            # if '{}' in text:
             m =  re.search('{\d*}', text)
             if m:
                 # make the substitutions
@@ -1755,11 +1688,9 @@ needs {num_needed} argument(s) to replace the '{{}}' but
 Please correct and resubmit.
                             """
                     show_message('query error', tmp)
-                    # set_text(tmp)
                     return False
                 try:
                     text = text.format(*parts)
-                    # text = text.replace('\s', ' ')
                     query_window.text = text
                 except IndexError as e:
                     tmp = f"""\
@@ -1767,7 +1698,6 @@ Error processing {text}:
 {e}
 """
                     show_message('query error', tmp)
-                    # set_text(tmp)
                     return True
             else:
                 query_window.text = text
@@ -1790,8 +1720,6 @@ Error processing {text}:
 query = ETMQuery()
 
 query_buffer = Buffer(multiline=False, completer=None, complete_while_typing=False, accept_handler=accept)
-# query_window = Window(BufferControl(buffer=query_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=reply_dimension, wrap_lines=True, style='class:query')
-
 
 
 query_window = TextArea(
@@ -1811,17 +1739,6 @@ query_area = HSplit([
     query_window,
     ], style='class:entry')
 
-# busy_area = TextArea(
-#     text="",
-#     style='class:details',
-#     read_only=True,
-#     search_field=search_field,
-#     )
-
-# busy_area = HSplit([
-#     ask_window,
-#     busy_window,
-#     ], style='class:entry')
 
 def do_complex_query(text, loop):
     text, *updt = [x.strip() for x in text.split(' | ')]
@@ -1962,8 +1879,6 @@ def do_reschedule(*event):
     is_date = (isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime))
 
     date_required = is_date or (instance.hour == 0 and instance.minute == 0)
-
-    # instance = pendulum.instance(instance)
 
     instance = instance.date() if date_required and not is_date else instance
     new = "new date" if date_required else "new datetime"
@@ -2223,7 +2138,6 @@ def do_finish(*event):
         done_str = yield from show_dialog_as_float(dialog)
         if done_str:
             try:
-                # done = parse_datetime(done_str, tz='local')
                 done = parse_datetime(done_str, z='local')[1]
 
                 ok = True
@@ -2232,7 +2146,6 @@ def do_finish(*event):
             if ok:
                 # valid done
                 res = item.finish_item(item_id, job_id, done, due)
-                # dataview.itemcache[item.doc_id] = {}
                 if res:
                     if item_id in dataview.itemcache:
                         del dataview.itemcache[item_id]
@@ -2324,7 +2237,6 @@ def toggle_pinned(*event):
 def do_import_file(*event):
     inbasket = os.path.join(etmhome, "inbasket.text")
     default = inbasket if os.path.exists(os.path.expanduser(inbasket)) else etmhome
-    # default = inbasket
     msg = ""
     def coroutine():
         global msg
@@ -2361,7 +2273,6 @@ Enter the full path of the file to import or
             logger.debug(f"calling import_file")
             ok, msg = import_file('lorem')
             if ok:
-                dataview.refreshCache()
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
@@ -2381,7 +2292,6 @@ Enter the full path of the file to import or
                         os.remove(file_path)
                         filehome = os.path.join("~", os.path.split(file_path)[1])
                         msg += f"\n and removed {filehome}"
-                    dataview.refreshCache()
                     dataview.refreshRelevant()
                     dataview.refreshAgenda()
                     dataview.refreshCurrent()
@@ -2422,7 +2332,6 @@ def quick_timer(*event):
             if doc_id:
                 dataview.next_timer_state(doc_id)
                 dataview.next_timer_state(doc_id)
-                dataview.refreshCache()
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 dataview.refreshCurrent()
@@ -2437,8 +2346,6 @@ def toggle_archived_status(*event):
     """
     If using items table move the selected item to the archive table and vice versa.
     """
-    # row = text_area.document.cursor_position_row
-    # dataview.get_arch_id(text_area.document.cursor_position_row)
     res = dataview.move_item(text_area.document.cursor_position_row)
     if not res:
         return
@@ -2453,7 +2360,6 @@ def toggle_archived_status(*event):
         dataview.use_items()
         item.use_items()
         loop.call_later(0, data_changed, loop)
-        # loop.call_later(0, do_show_processing, loop)
         loop.call_later(.1, do_complex_query, text, loop)
     return
 
@@ -2494,11 +2400,6 @@ def agenda_view(*event):
 def busy_view(*event):
     set_view('b')
     busy_details = dataview.busy_details
-    # if not busy_area.text:
-    #     if busy_details:
-    #         busy_area.text = busy_times
-    #     else:
-    #         busy_area.text = no_busy_times
     if dataview.busy_row:
         text_area.buffer.cursor_position = \
             text_area.buffer.document.translate_row_col_to_index(dataview.busy_row-1, 0)
@@ -2638,10 +2539,7 @@ def curr_busy(*event):
     if not busy_details:
         return
     current_row = text_area.document.cursor_position_row + 1
-    # text_area.buffer.cursor_position = \
-    #     text_area.buffer.document.translate_row_col_to_index(next_row-1, 0)
     busy_area.text = busy_details.get(current_row, get_busy_text())
-    # dataview.busy_row = next_row
 
 
 @bindings.add('down', filter=is_busy_view & is_viewing)
@@ -2762,10 +2660,6 @@ def nextweek(*event):
     dataview.busy_row = 0
     busy_details = dataview.busy_details
     busy_area.text = '' # get_busy_text()
-    # if busy_details:
-    #     busy_area.text = busy_times
-    # else:
-    #     busy_area.text = no_busy_times
     set_text(dataview.show_active_view())
 
 
@@ -2775,10 +2669,6 @@ def prevweek(*event):
     dataview.busy_row = 0
     busy_details = dataview.busy_details
     busy_area.text = '' # get_busy_text()
-    # if busy_details:
-    #     busy_area.text = busy_times
-    # else:
-    #     busy_area.text = no_busy_times
     set_text(dataview.show_active_view())
 
 @bindings.add('space', filter=is_agenda_view & is_viewing)
@@ -2787,10 +2677,6 @@ def currweek(*event):
     dataview.busy_row = 0
     busy_details = dataview.busy_details
     busy_area.text = ""
-    # if busy_details:
-    #     busy_area.text = busy_times
-    # else:
-    #     busy_area.text = no_busy_times
     set_text(dataview.show_active_view())
 
 @bindings.add('right', filter=is_yearly_view & is_viewing)
@@ -2844,7 +2730,6 @@ def close_edit(*event):
     if entry_buffer_changed():
         save_before_quit()
     else:
-        # item.is_modified = False
         app = get_app()
         app.editing_mode = EditingMode.EMACS
         dataview.is_editing = False
@@ -3021,6 +2906,7 @@ async def main(etmdir=""):
         mouse_support=True,
         style=style,
         full_screen=True)
+    logger.debug("XX starting event_handler")
     background_task = asyncio.create_task(event_handler())
     try:
         await application.run_async()

@@ -75,7 +75,9 @@ def main():
     BUSY   =    '■' # U+25A0 this will be busy (event) color
     CONF   =    '▦' # U+25A6 this will be conflict color
     TASK   =    '▩' # U+25A9 this will be busy (task) color
-    ADAY   =    '▬' # U+25AC for all day events
+    # ADAY   =    '▬' # U+25AC for all day events
+    ADAY   =    '━' # U+2501 for all day events ━
+    USED   =    '◦' # U+25E6 for used time
 
 
     import etm.ical as ical
@@ -125,6 +127,7 @@ def main():
     model.BUSY = BUSY
     model.CONF = CONF
     model.ADAY = ADAY
+    model.USED = USED
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
@@ -177,6 +180,7 @@ def main():
     view.CONF = CONF
     view.TASK = TASK
     view.ADAY = ADAY
+    view.USED = USED
     view.settings = settings
     view.type_colors = type_colors
     view.cfgfile = cfgfile
