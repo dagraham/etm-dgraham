@@ -1939,9 +1939,9 @@ class NDict(dict):
 
     tab = 2
 
-    def __init__(self, split_char='/', width=shutil.get_terminal_size()[0]-2, compact=False):
+    def __init__(self, split_char='/', compact=False):
         self.split_char = split_char
-        self.width = width
+        self.width = shutil.get_terminal_size()[0]-2
         self.row = 0
         self.compact = compact
         self.row2id = {}
@@ -2054,7 +2054,7 @@ class NDict(dict):
 class DataView(object):
 
     def __init__(self, etmdir):
-        logger.debug("XX initializing DB XX")
+        timer_database = TimeIt('***DATABASE***')
         self.active_item = None
         self.active_view = 'agenda'
         self.prior_view = 'agenda'
@@ -2106,9 +2106,7 @@ class DataView(object):
         self.saved_timers = deepcopy(self.timers)
         self.archive_after = 0
 
-        logger.debug("XX calling set_etmdir XX")
         self.set_etmdir(etmdir)
-        logger.debug("XX finished set_etmdir XX")
         self.views = {
                 'a': 'agenda',
                 'b': 'busy',
@@ -2141,15 +2139,12 @@ class DataView(object):
         self.get_completions()
         self.refresh_konnections()
         self.currYrWk()
-        logger.debug("XX calling refreshRelevant XX")
         self.refreshRelevant()
-        logger.debug("XX calling refreshCurrent XX")
         self.refreshCurrent()
-        logger.debug("XX calling refreshAgenda XX")
         self.refreshAgenda()
         self.possible_archive()
         self.currcal()
-        logger.debug("XX finished initializing DB XX")
+        timer_database.stop()
 
     def set_etmdir(self, etmdir):
         self.etmdir = etmdir
@@ -2655,7 +2650,6 @@ class DataView(object):
         """
         Called to set the relevant items for the current date and to change the currentYrWk and activeYrWk to that containing the current date.
         """
-        logger.debug("XX refreshRelevant XX")
         self.set_now()
         self.currentYrWk = getWeekNum(self.now)
         dirty = True
@@ -2667,9 +2661,7 @@ class DataView(object):
 
 
     def refreshAgenda(self):
-        logger.debug("XX refreshAgenda XX")
         if self.activeYrWk not in self.cache:
-            logger.debug(f"XX {self.activeYrWk} missing - calling cache.update Schedule XX")
             self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, pinned_list=self.pinned_list, link_list=self.link_list, konnect_list=self.konnected, timers=self.timers))
         # agenda, done, busy, row2id, done2id
         self.agenda_view, self.done_view, self.engaged_view, self.busy_view, self.row2id, self.done2id, self.engaged2id, self.busy_details = self.cache[self.activeYrWk]
@@ -2679,11 +2671,9 @@ class DataView(object):
         """
         Agenda for the current and following 'keep_current' weeks
         """
-        logger.debug("XX refreshCurrent XX")
         if self.currfile is not None:
             weeks = []
             self.set_now()
-            logger.debug(f"now: {self.now}\ncurrent: {self.current}")
             curr_lines = []
             this_week = getWeekNum(self.now)
             num_weeks = self.settings['keep_current'][0]
@@ -2693,7 +2683,6 @@ class DataView(object):
                 this_week = nextWeek(this_week)
 
             tmp_cache = self.cache
-            logger.debug(f"current weeks: {[weeks]}")
             for week in weeks:
                 if week in self.cache:
                     # append the agenda component
@@ -2895,7 +2884,6 @@ class DataView(object):
 
 
     def refreshCache(self):
-        logger.debug("XX refreshCache - calling Schedule XX")
         self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20, self.pinned_list, self.link_list, self.konnected, self.timers)
         self.used_details, self.used_details2id, self.used_summary, self.effort_details = get_usedtime(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
 
@@ -6428,9 +6416,8 @@ def wkday2row(wkday):
     return 3+ 2*wkday if wkday else 17
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}, mk_current=False):
-    logger.debug("XXX schedule called XXX")
     wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
-    timer1 = TimeIt(1)
+    timer_schedule = TimeIt('***SCHEDULE***')
     if mk_current:
         weeks_after = settings['keep_current'][0]
         width = settings['keep_current'][1]-1
@@ -6498,7 +6485,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     week2day2allday = {}
 
     #XXX main loop begins
-    timer2 = TimeIt(2)
     todayYMD = now.format("YYYYMMDD")
     tomorrowYMD = (now + 1*DAY).format("YYYYMMDD")
     for item in db:
@@ -6804,7 +6790,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 if before:
                     rows.append(before)
 
-
                 if omit and 'c' in item and item['c'] in omit:
                     busyperiod = None
                 elif dta and dta > dtb:
@@ -6868,8 +6853,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 if after:
                     rows.append(after)
 
-    timer2.stop()
-
     if yw == getWeekNum(now):
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
@@ -6881,7 +6864,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     dent = int((width - 69)/2) * " "
 
     ### item/agenda loop 2
-    timer3 = TimeIt(3)
     today = now.format(wkday_fmt)
     tomorrow = (now + 1*DAY).format(wkday_fmt)
 
@@ -6900,7 +6882,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
         week2day2heading.setdefault(week, {})
-        rdict = NDict(width=width, compact=compact)
+        rdict = NDict(compact=compact)
         busy_details.setdefault(week, {})
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         for row in items:
@@ -6957,10 +6939,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             lst += [x for x in busyday_details[week][row] if x.strip()]
             busyday_details[week][row] = "\n".join(lst)
 
-    timer3.stop()
 
     busy = {}
-    timer4 = TimeIt(4)
     for week, dayhsh in week2day2busy.items():
         busy_tuples = []
         days = [d for d in dayhsh.keys()]
@@ -6997,9 +6977,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 {dent} {DD[weekday] : <6}{full}
 """
         busy_hsh[week] = "".join([busy_hsh[i] for i in range(0, 8)])
-    timer4.stop()
 
-    timer5 = TimeIt(5)
     for week, items in groupby(done, key=itemgetter('week')):
         weeks.add(week)
         rdict = NDict()
@@ -7016,9 +6994,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         tree, row2id = rdict.as_tree(rdict, level=0)
         done_hsh[week] = tree
         done2id_hsh[week] = row2id
-    timer5.stop()
 
-    timer6 = TimeIt(6)
     for week, items in groupby(engaged, key=itemgetter('week')):
         weeks.add(week)
         rdict = NDict()
@@ -7046,7 +7022,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         engaged_hsh[week] = tree
         engaged2id_hsh[week] = row2id
 
-    timer6.stop()
 
     cache = {}
     for week in week_numbers:
@@ -7096,7 +7071,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         # agenda, done, engaged, busy, row2id, done2id, engaged2id, busy_details
         cache[week] = tup
 
-    timer1.stop()
+    timer_schedule.stop()
     return cache
 
 
@@ -7226,6 +7201,7 @@ def import_text(import_file=None):
                 reminder.append(s)
         if reminder:
             reminders.append(reminder)
+    logger.debug(f"processing {len(reminders)} reminders")
     for reminder in reminders:
         ok = True
         s = "\n".join(reminder)

@@ -55,6 +55,7 @@ def main():
     usedtime_hours = settings.get('usedtime_hours', 6)
     refresh_interval = settings.get('refresh_interval', 60)
     today = pendulum.today()
+    now = pendulum.now('local')
     # We want 2 char 'en' weekday abbreviations regardless of the actual locale
     day = today.end_of('week')  # Sunday
     WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
@@ -75,7 +76,6 @@ def main():
     BUSY   =    '■' # U+25A0 this will be busy (event) color
     CONF   =    '▦' # U+25A6 this will be conflict color
     TASK   =    '▩' # U+25A9 this will be busy (task) color
-    # ADAY   =    '▬' # U+25AC for all day events
     ADAY   =    '━' # U+2501 for all day events ━
     USED   =    '◦' # U+25E6 for used time
 
@@ -88,17 +88,12 @@ def main():
     from etm.data import Mask
 
     dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
-    logger.debug(f"using dbfile: {dbfile}")
     cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
     ETMDB = data.initialize_tinydb(dbfile)
+    logger.info(f"initialized TinyDB using {dbfile}")
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
     logger.debug(f"ETMDB: {ETMDB}, number of items: {len(ETMDB)}")
-    # egfile = os.path.normpath(os.path.join(etmdir, 'examples.text'))
-    # if not os.path.exists(egfile):
-    #     logger.debug("egfile does not exist")
-    #     from etm.make_examples import make_examples
-    #     make_examples(egfile, len(ETMDB)+1, logger)
 
     from etm.make_examples import make_examples
     from etm.model import about
@@ -138,7 +133,6 @@ def main():
     model.settings = settings
     model.logger = logger
     model.make_examples = make_examples
-    # model.edit_file = os.path.join(etmdir, 'edit.text')
     model.timers_file = os.path.join(etmdir, 'timers.pkl')
     userhome = os.path.expanduser('~')
     etmhome = os.path.join('~', os.path.relpath(etmdir, userhome)) if etmdir.startswith(userhome) else etmdir
@@ -161,7 +155,6 @@ def main():
     parse_datetime = model.parse_datetime
     parse_duration = model.parse_duration
 
-    logger.info(f"initialized TinyDB using {dbfile}")
 
 
     import etm.view as view

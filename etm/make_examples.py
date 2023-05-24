@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#! /usr/bin/env python3
 import random
 import lorem
 from dateutil.rrule import *
@@ -7,7 +7,6 @@ import pendulum
 import sys, os
 
 num_items = 800
-# num_items = 300
 
 def parse(s, **kwd):
     return pendulum.parse(s, strict=False, **kwd)
@@ -22,9 +21,9 @@ def phrase(minlen=24):
 
     return tmp.strip()
 
-def make_examples(egfile=None):
-    # num_items = 3000 if make_many else 500
+def make_examples(egfile=None, num_items=num_items):
     num_konnections = 0
+    num_items = int(num_items)
     # if make_many include 8 months - 6 previous, current and following months
     # else 4 months - 2 previous, current and following months
     months = num_items//200
@@ -64,7 +63,7 @@ def make_examples(egfile=None):
     client_id = {}
     examples = []
 
-    examples.append("! the lorem examples @t lorem @d 1) This inbox item and each of the other internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'. 2). The examples are generated to fit within a four month period including the month they were generated together with one subsequent and two previous months. You can remove and regenerate them whenever you like to keep them current.")
+    examples.append(f"! the lorem examples @t lorem @d 1) This inbox item and each of the other {num_items} internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'. 2). The examples are generated to fit within a period including the month they were generated together with one subsequent and {months} previous months. You can remove and regenerate them whenever you like to keep them current.")
 
 
     for _ in range(num_items):
@@ -111,9 +110,13 @@ def make_examples(egfile=None):
         return examples
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 2:
         egfile = sys.argv.pop(1)
+        numitems = sys.argv.pop(1)
+    elif len(sys.argv) > 1:
+        egfile = sys.argv.pop(1)
+        numitems = num_items
     else:
         egfile = None
-    make_examples(egfile)
+    make_examples(egfile, numitems)
 

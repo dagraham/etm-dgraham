@@ -1321,7 +1321,7 @@ def restore_row_col(row_number, col_number):
 
 
 async def maybe_alerts(now):
-    global current_datetime
+    # global current_datetime
     row, col = get_row_col()
     set_text(dataview.show_active_view())
     #            0            1         2          3         4       5
@@ -1375,16 +1375,17 @@ async def maybe_alerts(now):
 
 async def event_handler():
     global current_datetime
+    logger.debug(f"current_datetime: {current_datetime}")
     # check for updates every interval minutes
     interval = settings.get('updates_interval', 0)
     refresh_interval = settings.get('refresh_interval', 60)
     minutes = 0
     try:
         while True:
-            now = pendulum.now()
+            now = pendulum.now('local')
             current_datetime = status_time(now)
             wait = refresh_interval - now.second % refresh_interval # residual
-            logger.debug(f"refresh_interval: {refresh_interval}; wait: {wait}")
+            # handle_resize()
             if now.second < 6:
                 current_today = dataview.now.format("YYYYMMDD")
                 asyncio.ensure_future(maybe_alerts(now))
@@ -2877,9 +2878,32 @@ def set_askreply(_):
     ask_buffer.text = ask
     reply_buffer.text = wrap(reply, 0)
 
+# class Resize(object):
+#     def __init__(self):
+#         self.size = shutil.get_terminal_size()
+
+#     def changed(self):
+#         current_size = shutil.get_terminal_size()
+#         if self.size != current_size:
+#             # update the size
+#             self.size = current_size
+#             return True, self.size
+#         else:
+#             return False, self.size
+
+
+# def handle_resize():
+#     # Get the current terminal size
+#     changed, (width, height) = term_size.changed()
+#     # Handle the resize event
+#     if changed:
+#         logger.debug(f"Terminal resized to {width} columns and {height} rows")
+#         refreshAgenda(True)
+
 
 async def main(etmdir=""):
     global item, settings, ampm, style, type_colors, application, busy_colors
+    # timer_view = TimeIt('***VIEW***')
     ampm = settings['ampm']
     window_colors = settings['window_colors']
     type_colors = settings['type_colors']
@@ -2906,8 +2930,9 @@ async def main(etmdir=""):
         mouse_support=True,
         style=style,
         full_screen=True)
-    logger.debug("XX starting event_handler")
+    logger.debug("XX starting event_handler XX")
     background_task = asyncio.create_task(event_handler())
+    # timer_view.stop()
     try:
         await application.run_async()
     finally:
