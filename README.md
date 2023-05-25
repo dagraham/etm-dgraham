@@ -1164,6 +1164,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         t) tags
         u) used time
         U) used time summary
+        v) refresh views to fit resized terminal
         ---
         s) scheduled alerts for today
         y) yearly calendar

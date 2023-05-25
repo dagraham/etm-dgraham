@@ -1385,7 +1385,6 @@ async def event_handler():
             now = pendulum.now('local')
             current_datetime = status_time(now)
             wait = refresh_interval - now.second % refresh_interval # residual
-            # handle_resize()
             if now.second < 6:
                 current_today = dataview.now.format("YYYYMMDD")
                 asyncio.ensure_future(maybe_alerts(now))
@@ -2313,13 +2312,14 @@ def do_whatever(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('v', filter=is_viewing & is_item_view)
+@bindings.add('v')
 def refresh_views(*event):
     """
     Refresh all views to fit current window dimensions and redraw the active view
     """
     dataview.refreshCache()
     set_text(dataview.show_active_view())
+    return True
 
 
 @bindings.add('c-t', filter=is_viewing & is_item_view)
@@ -2752,7 +2752,9 @@ def close_edit(*event):
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):
     if entry_buffer_changed():
+        timer_save = TimeIt('***SAVE***')
         maybe_save(item)
+        timer_save.stop()
     else:
         # no changes to save - close editor
         dataview.is_editing = False
@@ -2826,7 +2828,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used summary', handler=used_summary_view),
-        MenuItem('v) refresh views', handler=refresh_views),
+        MenuItem('v) refresh views to fit resized terminal', handler=refresh_views),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
         MenuItem('y) yearly calendar', handler=yearly_view),
@@ -2890,32 +2892,10 @@ def set_askreply(_):
     ask_buffer.text = ask
     reply_buffer.text = wrap(reply, 0)
 
-# class Resize(object):
-#     def __init__(self):
-#         self.size = shutil.get_terminal_size()
-
-#     def changed(self):
-#         current_size = shutil.get_terminal_size()
-#         if self.size != current_size:
-#             # update the size
-#             self.size = current_size
-#             return True, self.size
-#         else:
-#             return False, self.size
-
-
-# def handle_resize():
-#     # Get the current terminal size
-#     changed, (width, height) = term_size.changed()
-#     # Handle the resize event
-#     if changed:
-#         logger.debug(f"Terminal resized to {width} columns and {height} rows")
-#         refreshAgenda(True)
-
 
 async def main(etmdir=""):
     global item, settings, ampm, style, type_colors, application, busy_colors
-    # timer_view = TimeIt('***VIEW***')
+    timer_view = TimeIt('***VIEW***')
     ampm = settings['ampm']
     window_colors = settings['window_colors']
     type_colors = settings['type_colors']
@@ -2944,7 +2924,7 @@ async def main(etmdir=""):
         full_screen=True)
     logger.debug("XX starting event_handler XX")
     background_task = asyncio.create_task(event_handler())
-    # timer_view.stop()
+    timer_view.stop()
     try:
         await application.run_async()
     finally:
