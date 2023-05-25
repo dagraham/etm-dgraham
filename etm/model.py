@@ -1992,6 +1992,7 @@ class NDict(dict):
 
     def as_tree(self, t={}, depth = 0, level=0):
         """ return an indented tree """
+        self.width = shutil.get_terminal_size()[0]-2
         for k in t.keys():
             indent = NDict.tab * depth * " "
             # replace any newlines in the title with spaces
@@ -2519,6 +2520,7 @@ class DataView(object):
         self.current_row = None
         self.prior_view = self.active_view
         self.active_view = self.views.get(c, 'agenda')
+        logger.debug(f"setting active view from c {c}: {self.active_view}")
         if self.active_view != 'query':
             self.use_items()
 

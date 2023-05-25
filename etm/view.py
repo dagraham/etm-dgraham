@@ -2309,7 +2309,18 @@ def do_whatever(*event):
     """
     For testing whatever
     """
-    dataview.refreshCurrent()
+    dataview.refreshCache()
+    set_text(dataview.show_active_view())
+
+
+@bindings.add('v', filter=is_viewing & is_item_view)
+def refresh_views(*event):
+    """
+    Refresh all views to fit current window dimensions and redraw the active view
+    """
+    dataview.refreshCache()
+    set_text(dataview.show_active_view())
+
 
 @bindings.add('c-t', filter=is_viewing & is_item_view)
 def quick_timer(*event):
@@ -2815,6 +2826,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('t) tags', handler=tag_view),
         MenuItem('u) used time', handler=used_view),
         MenuItem('U) used summary', handler=used_summary_view),
+        MenuItem('v) refresh views', handler=refresh_views),
         MenuItem('-', disabled=True),
         MenuItem("s) scheduled alerts for today", handler=do_alerts),
         MenuItem('y) yearly calendar', handler=yearly_view),
