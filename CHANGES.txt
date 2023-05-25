@@ -1,82 +1,81 @@
-Recent tagged changes as of 2023-05-23T14:01:37.136502-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.12.6) Daniel Graham
-    3da73327 2023-05-23 14:01:37 -0400
+Recent tagged changes as of 2023-05-25T13:53:52.858425-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.12.7) Daniel Graham
+    442ff98 2023-05-25 13:53:52 -0400
+    Tagged version 4.12.7.
+
+- 2 days ago (tag: 4.12.6) Daniel Graham
+    3da7332 2023-05-23 14:01:37 -0400
     Tagged version 4.12.6.
 
-- 2 days ago (tag: 4.12.5) Daniel Graham
-    f0c24d89 2023-05-21 15:08:06 -0400
+- 4 days ago (tag: 4.12.5) Daniel Graham
+    f0c24d8 2023-05-21 15:08:06 -0400
     Tagged version 4.12.5.
 
-- 3 days ago (tag: 4.12.4) Daniel Graham
-    15b33337 2023-05-20 14:33:40 -0400
+- 5 days ago (tag: 4.12.4) Daniel Graham
+    15b3333 2023-05-20 14:33:40 -0400
     Tagged version 4.12.4.
 
-- 6 days ago (tag: 4.12.3) Daniel Graham
-    dd49fda7 2023-05-17 12:24:12 -0400
+- 8 days ago (tag: 4.12.3) Daniel Graham
+    dd49fda 2023-05-17 12:24:12 -0400
     Tagged version 4.12.3.
 
-- 6 days ago (tag: 4.12.2) Daniel Graham
-    2a304a39 2023-05-17 09:34:05 -0400
+- 8 days ago (tag: 4.12.2) Daniel Graham
+    2a304a3 2023-05-17 09:34:05 -0400
     Tagged version 4.12.2.
 
-- 8 days ago (tag: 4.12.1) Daniel Graham
-    68005b74 2023-05-15 14:20:25 -0400
+- 10 days ago (tag: 4.12.1) Daniel Graham
+    68005b7 2023-05-15 14:20:25 -0400
     Tagged version 4.12.1. Added display for all-day events to busy
     view
 
-- 10 days ago (tag: 4.12.0) Daniel Graham
-    ce2ab095 2023-05-13 12:46:39 -0400
+- 12 days ago (tag: 4.12.0) Daniel Graham
+    ce2ab09 2023-05-13 12:46:39 -0400
     Tagged version 4.12.0. Added engaged view
 
-- 12 days ago (tag: 4.11.18) Daniel Graham
-    cd5482ac 2023-05-11 12:20:48 -0400
+- 2 weeks ago (tag: 4.11.18) Daniel Graham
+    cd5482a 2023-05-11 12:20:48 -0400
     Tagged version 4.11.18.
 
 - 2 weeks ago (tag: 4.11.17) Daniel Graham
-    8a025151 2023-05-09 10:14:28 -0400
+    8a02515 2023-05-09 10:14:28 -0400
     Tagged version 4.11.17.
 
 - 3 weeks ago (tag: 4.11.16) Daniel Graham
-    b2310cee 2023-05-01 14:43:18 -0400
+    b2310ce 2023-05-01 14:43:18 -0400
     Tagged version 4.11.16.
 
 - 3 weeks ago (tag: 4.11.15) Daniel Graham
-    96aff420 2023-05-01 14:12:10 -0400
+    96aff42 2023-05-01 14:12:10 -0400
     Tagged version 4.11.15.
 
 - 4 weeks ago (tag: 4.11.14) Daniel Graham
-    b437f7ba 2023-04-28 08:24:55 -0400
+    b437f7b 2023-04-28 08:24:55 -0400
     Tagged version 4.11.14.
 
 - 4 weeks ago (tag: 4.11.13) Daniel Graham
-    4c474835 2023-04-28 08:14:27 -0400
+    4c47483 2023-04-28 08:14:27 -0400
     Tagged version 4.11.13.
 
 - 5 weeks ago (tag: 4.11.12) Daniel Graham
-    d16eba67 2023-04-19 10:37:55 -0400
+    d16eba6 2023-04-19 10:37:55 -0400
     Implemented 'start quick timer'
 
 - 6 weeks ago (tag: 4.11.11) Daniel Graham
-    24d267a2 2023-04-14 11:37:11 -0400
+    24d267a 2023-04-14 11:37:11 -0400
     Tagged version 4.11.11.
 
 - 6 weeks ago (tag: 4.11.10) Daniel Graham
-    38689532 2023-04-14 09:40:23 -0400
+    3868953 2023-04-14 09:40:23 -0400
     Tagged version 4.11.10.
 
 - 6 weeks ago (tag: 4.11.9) Daniel Graham
-    98bd7bde 2023-04-11 15:55:36 -0400
+    98bd7bd 2023-04-11 15:55:36 -0400
     Tagged version 4.11.9.
 
 - 10 weeks ago (tag: 4.11.8) Daniel Graham
-    beb19662 2023-03-17 12:55:47 -0400
+    beb1966 2023-03-17 12:55:47 -0400
     Tagged version 4.11.8.
 
 - 2 months ago (tag: 4.11.7) Daniel Graham
-    405cb3af 2023-03-12 21:10:57 -0400
+    405cb3a 2023-03-12 21:10:57 -0400
     Tagged version 4.11.7.
-
-- 2 months ago (tag: 4.11.6) Daniel Graham
-    d5922115 2023-03-10 14:17:23 -0500
-    Tagged version 4.11.6. Display dates respecting yearfirst and
-    dayfirst settings when possible.
