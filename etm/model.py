@@ -612,6 +612,12 @@ item_hsh:    {self.item_hsh}
             showing = "No repetitions"
         return  showing, f"from {starting}:\n  " + "\n  ".join(pairs)
 
+    def do_update(self):
+        timer_update = TimeIt('***UPDATE***')
+        self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+        timer_update.stop()
+
+
     def edit_item(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
@@ -673,7 +679,8 @@ item_hsh:    {self.item_hsh}
         self.item_hsh['u'] = used_times
         self.item_hsh['created'] = self.created
         self.item_hsh['modified'] = pendulum.now('local')
-        self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+        # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+        self.do_update()
 
         return True
 
@@ -695,7 +702,8 @@ item_hsh:    {self.item_hsh}
         if changed:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+            # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+            self.do_update()
         return changed
 
 
@@ -711,7 +719,8 @@ item_hsh:    {self.item_hsh}
             # not repeating
             self.item_hsh['s'] = new_dt
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+            # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+            self.do_update()
             changed = True
         else:
             # repeating
@@ -756,7 +765,8 @@ item_hsh:    {self.item_hsh}
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
 
-                self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+                # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+                self.do_update()
         else: # 1
             # all instance - delete item
             changed = self.delete_item(doc_id)
@@ -853,7 +863,8 @@ item_hsh:    {self.item_hsh}
 
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+            # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+            self.do_update()
             return True
         return False
 
@@ -881,7 +892,8 @@ item_hsh:    {self.item_hsh}
         if save_item:
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = pendulum.now('local')
-            self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+            # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+            self.do_update()
 
 
     def cursor_changed(self, pos):
@@ -1026,14 +1038,16 @@ item_hsh:    {self.item_hsh}
                 if self.doc_id is None:
                     self.doc_id = self.db.insert(self.item_hsh)
                 else:
-                    self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+                    # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+                    self.do_update()
             else:
                 # editing an existing item
                 if 'k' in self.item_hsh and self.doc_id in self.item_hsh['k']:
                     # remove self referential konnections
                     self.item_hsh['k'].remove(self.doc_id)
                 self.item_hsh['modified'] = now
-                self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+                # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+                self.do_update()
 
 
     def check_requires(self, key):
@@ -2830,7 +2844,8 @@ class DataView(object):
         now = pendulum.now('local')
         item_hsh = self.db.get(doc_id=doc_id)
         item_hsh['modified'] = pendulum.now('local')
-        self.db.update(db_replace(item_hsh), doc_ids=[doc_id])
+        # self.db.update(db_replace(item_hsh), doc_ids=[doc_id])
+        self.do_update()
         return True
 
 
