@@ -2312,7 +2312,7 @@ def do_whatever(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('v')
+@bindings.add('v', filter=is_viewing)
 def refresh_views(*event):
     """
     Refresh all views to fit current window dimensions and redraw the active view

@@ -1845,6 +1845,23 @@ threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IG
 anniversary_regex = re.compile(r'!(\d{4})!')
 
 
+def parse_durations(s):
+    periods = [x.strip() for x in s.split('+')]
+    total = ZERO
+    bad = []
+    for d in periods:
+        ok, p = parse_duration(d)
+        if ok:
+            total += p
+        else:
+            bad.append(d)
+    if bad:
+        return False, bad
+    else:
+        return True, total
+
+
+
 def parse_duration(s):
     """\
     Take a period string and return a corresponding pendulum.duration.
@@ -3753,7 +3770,7 @@ def do_usedtime(arg):
     parts = arg.split(': ')
     period = parts.pop(0)
     if period:
-        ok, res = parse_duration(period)
+        ok, res = parse_durations(period)
         if ok:
             obj_period = res
             rep_period = fmt_dur(res)
@@ -5375,45 +5392,44 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                                 update_db(db, item.doc_id, item)
                     elif item.get('o', 'k') == 'p':
                         # this is the first instance after 12am today
+                        # it will be the @s entry for the updated repeating item
                         relevant = rset.after(today, inc=True)
-                        # these are the instances to be preserved
                         using_datetimes = isinstance(item['s'], pendulum.DateTime)
                         # make sure we have a starting datetime for between
                         start = item['s'] if using_datetimes else pendulum.datetime(
                                 item['s'].year, item['s'].month, item['s'].day)
-                        between = rset.between(start, today - ONEMIN, inc=True)
-                        if relevant and not between:
-                            # shouldn't happen
-                            logger.debug(f"relevant, {relevant}, but not between for {item}")
-                        summary = item['summary']
+                        # these are @s entries for the instances to be preserved
+                        between = rset.between(start, today-ONEMIN, inc=True)
+                        logger.debug(f"""\
+                                relevant: {relevant};
+                                start: {start},
+                                today: {today},
+                                between: {between}""")
 
-                        if relevant and item['s'].format('YYYYMMDD') < today.format('YYYYMMDD'):
+                        summary = item['summary']
+                        if between and item['s'].format('YYYYMMDD') < today.format('YYYYMMDD'):
                             # the due date for the repeating version of the item needs to be reset
-                            # keep a copy with the original @s for the instances to be preserved
+                            # to relevant (the first instance after today)
                             orig_id = item.doc_id
                             hsh_copy = deepcopy(item)
                             # remove @r and @o from the copy
                             hsh_copy.pop('r')
                             hsh_copy.pop('o')
                             hsh_copy.setdefault('k', []).append(orig_id)
-                            hsh_copy['created'] = pendulum.now()
-                            if 'modified' in hsh_copy:
-                                hsh_copy.pop('modified')
-
-                            # update @s for the repeating item
+                            hsh_copy['modified'] = pendulum.now()
+                            # update @s for the repeating item to 'relevant'
                             item['s'] = pendulum.instance(relevant)
                             # update the repeating item in the db
                             update_db(db, orig_id, item)
 
                         for dt in between:
+                            # add items for the past due instances to the database
                             pdt = pendulum.instance(dt)
                             hsh_copy['s'] = pdt
 
                             if using_datetimes:
-                                # hsh_copy['summary'] = f"{summary} ({pdt.format('YY/M/D H:mm')})"
                                 hsh_copy['summary'] = f"{summary} ({format_datetime(pdt, short=True)[1]})"
                             else:
-                                # hsh_copy['summary'] = f"{summary} ({pdt.format('YY/M/D')})"
                                 hsh_copy['summary'] = f"{summary} ({format_datetime(pdt, short=True)[1]})"
 
                             # set the new id to avoid a conflict
