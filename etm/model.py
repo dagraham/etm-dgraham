@@ -2169,12 +2169,22 @@ class DataView(object):
         self.is_editing = False
         self.is_showing_items = True
         self.get_completions()
+        timer_konnections = TimeIt('***KONNECTIONS***')
         self.refresh_konnections()
+        timer_konnections.stop()
         self.currYrWk()
+        timer_relevant = TimeIt('***RELEVANT***')
         self.refreshRelevant()
+        timer_relevant.stop()
+        timer_current = TimeIt('***CURRENT***')
         self.refreshCurrent()
+        timer_current.stop()
+        timer_agenda = TimeIt('***AGENDA***')
         self.refreshAgenda()
+        timer_agenda.stop()
+        timer_archive = TimeIt('***ARCHIVE***')
         self.possible_archive()
+        timer_archive.stop()
         self.currcal()
         timer_database.stop()
 
