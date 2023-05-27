@@ -1,38 +1,42 @@
-Recent tagged changes as of 2023-05-26T13:50:15.826308-04:00:
-- 0 seconds ago (HEAD -> working, tag: 4.12.8) Daniel Graham
+Recent tagged changes as of 2023-05-27T13:45:19.896170-04:00:
+- 0 seconds ago (HEAD -> working, tag: 4.12.9) Daniel Graham
+    b8fbc47 2023-05-27 13:45:19 -0400
+    Tagged version 4.12.9.
+
+- 24 hours ago (tag: 4.12.8) Daniel Graham
     b0316d5 2023-05-26 13:50:15 -0400
     Tagged version 4.12.8.
 
-- 24 hours ago (tag: 4.12.7) Daniel Graham
+- 2 days ago (tag: 4.12.7) Daniel Graham
     442ff98 2023-05-25 13:53:52 -0400
     Tagged version 4.12.7.
 
-- 3 days ago (tag: 4.12.6) Daniel Graham
+- 4 days ago (tag: 4.12.6) Daniel Graham
     3da7332 2023-05-23 14:01:37 -0400
     Tagged version 4.12.6.
 
-- 5 days ago (tag: 4.12.5) Daniel Graham
+- 6 days ago (tag: 4.12.5) Daniel Graham
     f0c24d8 2023-05-21 15:08:06 -0400
     Tagged version 4.12.5.
 
-- 6 days ago (tag: 4.12.4) Daniel Graham
+- 7 days ago (tag: 4.12.4) Daniel Graham
     15b3333 2023-05-20 14:33:40 -0400
     Tagged version 4.12.4.
 
-- 9 days ago (tag: 4.12.3) Daniel Graham
+- 10 days ago (tag: 4.12.3) Daniel Graham
     dd49fda 2023-05-17 12:24:12 -0400
     Tagged version 4.12.3.
 
-- 9 days ago (tag: 4.12.2) Daniel Graham
+- 10 days ago (tag: 4.12.2) Daniel Graham
     2a304a3 2023-05-17 09:34:05 -0400
     Tagged version 4.12.2.
 
-- 11 days ago (tag: 4.12.1) Daniel Graham
+- 12 days ago (tag: 4.12.1) Daniel Graham
     68005b7 2023-05-15 14:20:25 -0400
     Tagged version 4.12.1. Added display for all-day events to busy
     view
 
-- 13 days ago (tag: 4.12.0) Daniel Graham
+- 2 weeks ago (tag: 4.12.0) Daniel Graham
     ce2ab09 2023-05-13 12:46:39 -0400
     Tagged version 4.12.0. Added engaged view
 
@@ -40,7 +44,7 @@ Recent tagged changes as of 2023-05-26T13:50:15.826308-04:00:
     cd5482a 2023-05-11 12:20:48 -0400
     Tagged version 4.11.18.
 
-- 2 weeks ago (tag: 4.11.17) Daniel Graham
+- 3 weeks ago (tag: 4.11.17) Daniel Graham
     8a02515 2023-05-09 10:14:28 -0400
     Tagged version 4.11.17.
 
@@ -72,10 +76,6 @@ Recent tagged changes as of 2023-05-26T13:50:15.826308-04:00:
     3868953 2023-04-14 09:40:23 -0400
     Tagged version 4.11.10.
 
-- 6 weeks ago (tag: 4.11.9) Daniel Graham
+- 7 weeks ago (tag: 4.11.9) Daniel Graham
     98bd7bd 2023-04-11 15:55:36 -0400
     Tagged version 4.11.9.
-
-- 2 months ago (tag: 4.11.8) Daniel Graham
-    beb1966 2023-03-17 12:55:47 -0400
-    Tagged version 4.11.8.
