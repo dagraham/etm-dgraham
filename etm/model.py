@@ -2170,7 +2170,7 @@ class DataView(object):
         self.is_showing_items = True
         self.get_completions()
         timer_konnections = TimeIt('***KONNECTIONS***')
-        self.refresh_konnections()
+        self.refreshKonnections()
         timer_konnections.stop()
         self.currYrWk()
         timer_relevant = TimeIt('***RELEVANT***')
@@ -2312,8 +2312,7 @@ class DataView(object):
         self.konnected = list(set(konnected))
 
 
-
-    def refresh_konnections(self):
+    def refreshKonnections(self):
         """
         to_hsh: ID -> ids of items with @k ID
         from_hsh ID -> ids in @k
@@ -2321,14 +2320,25 @@ class DataView(object):
         self.konnections_to = {}
         self.konnections_from = {}
         self.konnected = []
+        ids = []
+        ids_with_k = []
+
         for item in self.db:
+            doc_id = item.doc_id
+            ids.append(doc_id)
+            if 'k' in item:
+                ids_with_k.append(doc_id)
+
+        for item_id in ids_with_k:
             # from item to link by @k entry
-            links = [x for x in item.get('k', []) if self.db.contains(doc_id=x)]
+            item = self.db.get(doc_id=item_id)
+            links = [x for x in item.get('k', []) if x in ids]
+
             if links:
-                self.konnections_from[item.doc_id] = links
+                self.konnections_from[item_id] = links
                 # append the to links
                 for link in links:
-                    self.konnections_to.setdefault(link, []).append(item.doc_id)
+                    self.konnections_to.setdefault(link, []).append(item_id)
 
         konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
         self.konnected = list(set(konnected))
@@ -2699,7 +2709,7 @@ class DataView(object):
         while dirty:
             self.current, self.alerts, self.id2relevant, dirty = relevant(self.db, self.now, self.pinned_list, self.link_list, self.konnected, self.timers)
             if dirty:
-                self.refresh_konnections()
+                self.refreshKonnections()
         self.refreshCache()
 
 
@@ -5401,23 +5411,25 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                                 item['s'] = pendulum.instance(relevant)
                                 update_db(db, item.doc_id, item)
                     elif item.get('o', 'k') == 'p':
-                        # this is the first instance after 12am today
-                        # it will be the @s entry for the updated repeating item
+                        logger.debug(f"processing 'p' for doc_id: {item.doc_id}")
                         relevant = rset.after(today, inc=True)
+                        # relevant will be the first instance after 12am today
+                        # it will be the @s entry for the updated repeating item
                         using_datetimes = isinstance(item['s'], pendulum.DateTime)
                         # make sure we have a starting datetime for between
                         start = item['s'] if using_datetimes else pendulum.datetime(
                                 item['s'].year, item['s'].month, item['s'].day)
                         # these are @s entries for the instances to be preserved
                         between = rset.between(start, today-ONEMIN, inc=True)
-                        logger.debug(f"""\
-                                relevant: {relevant};
-                                start: {start},
-                                today: {today},
-                                between: {between}""")
+                        # once instances have been created, between will be empty until
+                        # the current date falls after item['s'] and relevant is reset
 
                         summary = item['summary']
                         if between and item['s'].format('YYYYMMDD') < today.format('YYYYMMDD'):
+                            logger.debug(f"""relevant: {relevant};
+                                    start: {start},
+                                    today: {today},
+                                    between: {between}""")
                             # the due date for the repeating version of the item needs to be reset
                             # to relevant (the first instance after today)
                             orig_id = item.doc_id
@@ -5432,20 +5444,21 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                             # update the repeating item in the db
                             update_db(db, orig_id, item)
 
-                        for dt in between:
-                            # add items for the past due instances to the database
-                            pdt = pendulum.instance(dt)
-                            hsh_copy['s'] = pdt
+                            for dt in between:
+                                # add items for the past due instances to the database
+                                pdt = pendulum.instance(dt)
+                                hsh_copy['s'] = pdt
 
-                            if using_datetimes:
-                                hsh_copy['summary'] = f"{summary} ({format_datetime(pdt, short=True)[1]})"
-                            else:
-                                hsh_copy['summary'] = f"{summary} ({format_datetime(pdt, short=True)[1]})"
+                                if using_datetimes:
+                                    hsh_copy['summary'] = f"{summary} ({format_datetime(pdt, short=True)[1]})"
+                                else:
+                                    hsh_copy['summary'] = f"{summary} ({format_datetime(pdt, short=True)[1]})"
 
-                            # set the new id to avoid a conflict
-                            new_id = db._get_next_id()
-                            db.insert(Document(hsh_copy, doc_id=new_id))
-                            dirty = True
+                                # set the new id to avoid a conflict
+                                new_id = db._get_next_id()
+                                logger.debug(f"adding doc_id: {new_id}")
+                                db.insert(Document(hsh_copy, doc_id=new_id))
+                                dirty = True
 
                     else:
                         # for a restart or keep task, relevant is dtstart

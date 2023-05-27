@@ -1,5 +1,25 @@
 #! ./env/bin/python
 import pendulum
+from prompt_toolkit import prompt
+from prompt_toolkit.validation import Validator, ValidationError
+
+
+class ConfirmationValidator(Validator):
+    def validate(self, document):
+        if document.text.lower() not in ('y', 'n'):
+            raise ValidationError(message='Please enter either "y" or "n"', cursor_position=len(document.text))
+
+
+def ask_for_confirmation(prompt_message):
+    while True:
+        response = prompt(f'{prompt_message} [y/n]: ', validator=ConfirmationValidator())
+        if response.lower() == 'y':
+            return True
+        elif response.lower() == 'n':
+            return False
+
+
+# Example usage
 
 def main():
     import sys
@@ -23,14 +43,57 @@ def main():
     log_levels = [str(x) for x in range(1, 6)]
     if len(sys.argv) > 1 and sys.argv[1] in log_levels:
         loglevel = int(sys.argv.pop(1))
-    if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
+    if len(sys.argv) > 1:
+        # use the directory being provided
         etmdir = sys.argv.pop(1)
+        etmdir = os.getcwd() if etmdir == '.' else os.path.normpath(etmdir)
+
+
+
+    print(f"using {etmdir}")
+    created_etmdir = False
+    # if not (os.path.exists(etmdir) and os.path.isdir(etmdir)):
+    if not os.path.isdir(etmdir):
+        print(f"""
+The provided directory
+    {etmdir}
+does not exist and will need to be created.
+              """)
+        if ask_for_confirmation("Do you want to continue?"):
+            print("Continuing...")
+            os.makedirs(etmdir)
+            created_etmdir = True
+            print(f'created {etmdir}')
+        else:
+            print("Exiting...")
+            sys.exit()
+
 
     logdir = os.path.normpath(os.path.join(etmdir, 'logs'))
+    backdir = os.path.normpath(os.path.join(etmdir, 'backups'))
+    db = os.path.normpath(os.path.join(etmdir, 'db.json'))
+    condition = created_etmdir or (os.path.exists(logdir) and os.path.exists(backdir) and os.path.exists(db))
+
+    if not condition:
+        print(f"""\
+etm will apparently be using the directory
+     {etmdir}
+for the first time and need to create the directories
+    {logdir}
+    {backdir}
+and the database file
+    {db}
+""")
+        if ask_for_confirmation("Do you want to continue?"):
+            print("Continuing...")
+        else:
+            print("Exiting...")
+            sys.exit()
+
+
     if not os.path.isdir(logdir):
         os.makedirs(logdir)
 
-    backdir = os.path.normpath(os.path.join(etmdir, 'backups'))
     if not os.path.isdir(backdir):
         os.makedirs(backdir)
 
