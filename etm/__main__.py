@@ -50,12 +50,12 @@ def main():
 
 
 
-    print(f"using {etmdir}")
+    print(f"using etmdir {etmdir}")
     created_etmdir = False
     # if not (os.path.exists(etmdir) and os.path.isdir(etmdir)):
     if not os.path.isdir(etmdir):
         print(f"""
-The provided directory
+The provided directory to use for etm
     {etmdir}
 does not exist and will need to be created.
               """)
@@ -72,17 +72,22 @@ does not exist and will need to be created.
     logdir = os.path.normpath(os.path.join(etmdir, 'logs'))
     backdir = os.path.normpath(os.path.join(etmdir, 'backups'))
     db = os.path.normpath(os.path.join(etmdir, 'db.json'))
-    condition = created_etmdir or (os.path.exists(logdir) and os.path.exists(backdir) and os.path.exists(db))
+    missing = []
+    for p in [logdir, backdir, db]:
+        if not os.path.exists(p):
+            missing.append(p)
+    missing = "\n    ".join(missing) if missing else ""
 
-    if not condition:
+    # condition = created_etmdir or (os.path.exists(logdir) and os.path.exists(backdir) and os.path.exists(db))
+    condition = not created_etmdir and missing
+
+    if condition:
         print(f"""\
-etm will apparently be using the directory
+The etm directory
      {etmdir}
-for the first time and need to create the directories
-    {logdir}
-    {backdir}
-and the database file
-    {db}
+is missing
+    {missing}
+which will need to be created.
 """)
         if ask_for_confirmation("Do you want to continue?"):
             print("Continuing...")

@@ -1038,7 +1038,6 @@ item_hsh:    {self.item_hsh}
                 if self.doc_id is None:
                     self.doc_id = self.db.insert(self.item_hsh)
                 else:
-                    # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
                     self.do_update()
             else:
                 # editing an existing item
@@ -1046,7 +1045,6 @@ item_hsh:    {self.item_hsh}
                     # remove self referential konnections
                     self.item_hsh['k'].remove(self.doc_id)
                 self.item_hsh['modified'] = now
-                # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
                 self.do_update()
 
 
@@ -7279,6 +7277,7 @@ def import_text(import_file=None):
         # update_item_hsh stores the item in ETMDB
         item.update_item_hsh()
         good.append(f"{item.doc_id}")
+
 
     res = f"imported {len(good)} items"
     if good:
