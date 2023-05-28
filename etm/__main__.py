@@ -19,7 +19,19 @@ def ask_for_confirmation(prompt_message):
             return False
 
 
-# Example usage
+def print_usage():
+
+    print("""\
+Usage: etm [options]
+Options:
+    -h, --help   Show this help message and exit
+    [n] [path]   Set logging level 'n' where n = 1, 2, 3
+                    or, if omitted, use logging level 2
+                 Use 'path' as the etm home directory
+                    or, if omitted, use the environmental
+                    variable ETMHOME if set and the current
+                    working directory otherwise."""
+                )
 
 def main():
     import sys
@@ -27,6 +39,11 @@ def main():
     import logging.config
     logging.getLogger('asyncio').setLevel(logging.WARNING)
     logger = logging.getLogger()
+
+    if "-h" in sys.argv or "--help" in sys.argv:
+        print_usage()
+        sys.exit()
+
     MIN_PYTHON = (3, 7, 3)
     if sys.version_info < MIN_PYTHON:
         mv = ".".join([str(x) for x in MIN_PYTHON])

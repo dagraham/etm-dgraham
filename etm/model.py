@@ -2321,12 +2321,15 @@ class DataView(object):
         ids = []
         ids_with_k = []
 
+        kon1 = TimeIt('konnections1')
         for item in self.db:
             doc_id = item.doc_id
             ids.append(doc_id)
             if 'k' in item:
                 ids_with_k.append(doc_id)
+        kon1.stop()
 
+        kon2 = TimeIt('konnections2')
         for item_id in ids_with_k:
             # from item to link by @k entry
             item = self.db.get(doc_id=item_id)
@@ -2337,9 +2340,13 @@ class DataView(object):
                 # append the to links
                 for link in links:
                     self.konnections_to.setdefault(link, []).append(item_id)
+        kon2.stop()
 
+
+        kon3 = TimeIt('konnections3')
         konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
         self.konnected = list(set(konnected))
+        kon3.stop()
 
 
     def handle_backups(self):
