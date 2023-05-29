@@ -175,7 +175,7 @@ requires = {
         'b': ['s'],
         '+': ['s'],
         '-': ['rr'],
-        'o': ['rr'],
+        # 'o': ['rr'],
         'rr': ['s'],
         'js': ['s'],
         'ja': ['s'],
@@ -5409,65 +5409,23 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         rset.rdate(dt)
 
                 if item['itemtype'] == '-':
-                    if item.get('o', 'k') == 's':
-                        relevant = rset.after(today, inc=True)
-                        if relevant:
-                            if item['s'] != pendulum.instance(relevant):
-                                item['s'] = pendulum.instance(relevant)
-                                update_db(db, item.doc_id, item)
-                    elif item.get('o', 'k') == 'p':
-                        logger.debug(f"processing 'p' for doc_id: {item.doc_id}")
+                    switch = item.get('o', 'k')
+                    relevant = rset.after(today, inc=True)
+                    if switch == 's':
+                        if relevant and item['s'] != pendulum.instance(relevant):
+                            item['s'] = pendulum.instance(relevant)
+                            update_db(db, item.doc_id, item)
+                    else: # k or p
+                        logger.debug(f"processing 'k' or 'p' for doc_id: {item.doc_id}")
                         relevant = rset.after(today, inc=True)
                         # relevant will be the first instance after 12am today
                         # it will be the @s entry for the updated repeating item
-                        using_datetimes = isinstance(item['s'], pendulum.DateTime)
-                        # make sure we have a starting datetime for between
-                        start = item['s'] if using_datetimes else pendulum.datetime(
-                                item['s'].year, item['s'].month, item['s'].day)
                         # these are @s entries for the instances to be preserved
-                        between = rset.between(start, today-ONEMIN, inc=True)
+                        between = rset.between(dtstart, today-ONEMIN, inc=True)
                         # once instances have been created, between will be empty until
                         # the current date falls after item['s'] and relevant is reset
-
-                        summary = item['summary']
-                        if between and item['s'].format('YYYYMMDD') < today.format('YYYYMMDD'):
-                            logger.debug(f"""relevant: {relevant};
-                                    start: {start},
-                                    today: {today},
-                                    between: {between}""")
-                            # the due date for the repeating version of the item needs to be reset
-                            # to relevant (the first instance after today)
-                            orig_id = item.doc_id
-                            hsh_copy = deepcopy(item)
-                            # remove @r and @o from the copy
-                            hsh_copy.pop('r')
-                            hsh_copy.pop('o')
-                            hsh_copy.setdefault('k', []).append(orig_id)
-                            hsh_copy['modified'] = pendulum.now()
-                            # update @s for the repeating item to 'relevant'
-                            item['s'] = pendulum.instance(relevant)
-                            # update the repeating item in the db
-                            update_db(db, orig_id, item)
-
-                            for dt in between:
-                                # add items for the past due instances to the database
-                                pdt = pendulum.instance(dt)
-                                hsh_copy['s'] = pdt
-
-                                if using_datetimes:
-                                    hsh_copy['summary'] = f"{summary} ({format_datetime(pdt, short=True)[1]})"
-                                else:
-                                    hsh_copy['summary'] = f"{summary} ({format_datetime(pdt, short=True)[1]})"
-
-                                # set the new id to avoid a conflict
-                                new_id = db._get_next_id()
-                                logger.debug(f"adding doc_id: {new_id}")
-                                db.insert(Document(hsh_copy, doc_id=new_id))
-                                dirty = True
-
-                    else:
-                        # for a restart or keep task, relevant is dtstart
-                        relevant = dtstart
+                        summary = f"{item['summary']} ({len(between)})"
+                        pastdue.append([(dtstart.date() - today.date()).days, summary, item.doc_id, None, None])
                 else:
                     # get the first instance after today
                     try:

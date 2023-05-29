@@ -667,6 +667,33 @@ class TextInputDialog(object):
     def __pt_container__(self):
         return self.dialog
 
+class RadioListTextInputDialog(object):
+    def __init__(self, title='', text='', label='', values=[], padding=4, completer=None):
+        self.future = asyncio.Future()
+
+        self.radios = RadioList(values=values)
+
+        # Create the text input widget
+        self.text_input = TextArea()
+
+        # Create a layout for the dialog
+        layout = Layout(
+            Box(Label("Select an option:")),
+            Box(radio_list, style="bg:#ffffff"),
+            Box(Label("Enter text:")),
+            Box(text_input, style="bg:#ffffff"),
+            focused_element=radio_list,
+        )
+
+        # Create a dialog with the layout
+        dialog = Dialog(
+            title="Dialog Example",
+            body=layout,
+            buttons=[Button(text="OK"), Button(text="Cancel")],
+            with_background=True,
+        )
+
+
 class RadioListDialog(object):
     def __init__(self, title='', text='', label='', values=[], padding=4, completer=None):
         self.future = asyncio.Future()
@@ -2119,40 +2146,99 @@ def do_touch(*event):
 
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
 def do_finish(*event):
+    """
 
-    ok, show, item_id, job_id, due = dataview.maybe_finish(text_area.document.cursor_position_row)
-    ampm = settings['ampm']
-    fmt = "ddd M/D h:mmA" if ampm else "ddd M/D H:mm"
+    Item has @r and/or @+ and
+        Today with < selected
+            # pastdue - at least 1 from the <
+            1  : @s
+            >1 : select from all past due with the oldest/first on list the default
 
-    if not ok:
+        Instance selected is pastdue
+            oldest/first : @s
+            not oldest : choose between oldest and this instance (the default)
+
+        Instance selected is not pastdue
+
+
+
+    """
+    doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+    if not doc_id:
         return
 
-    def coroutine():
+    hsh = DBITEM.get(doc_id=doc_id)
+    has_timer = doc_id in dataview.timers
+    timer_warning = " and\nits associated timer" if has_timer else ""
 
-        dialog = TextInputDialog(
-            title='finish task/job',
-            label_text=f"selected: {show}\ndatetime completed:",
-            default='now'
-            )
+    repeating = 'r' in hsh or '+' in hsh
 
-        done_str = yield from show_dialog_as_float(dialog)
-        if done_str:
-            try:
-                done = parse_datetime(done_str, z='local')[1]
+    if instance:
+        # repeating
 
-                ok = True
-            except:
-                ok = False
-            if ok:
-                # valid done
-                res = item.finish_item(item_id, job_id, done, due)
-                if res:
-                    if item_id in dataview.itemcache:
-                        del dataview.itemcache[item_id]
+        def coroutine():
+
+            # radios.current_value will contain the first component of the selected tuple
+            # selected_instance = format_datetime(instance)[1]
+            # starting_instance = format_datetime(hsh['s'])[1]
+            title = "Finish"
+            text = f"Selected: {hsh['itemtype']} {hsh['summary']}\nInstance: {format_datetime(instance)[1]}\n\nFinish which instance?"
+            values =[
+                    (0, f"selected: {format_datetime(instance)[1]}"),
+                    (1, f"starting: {format_datetime(hsh['s'])[1]}"),
+            ]
+
+            dialog = RadioListDialog(
+                title=title,
+                text=text,
+                values=values)
+
+            which = yield from show_dialog_as_float(dialog)
+            if which is not None:
+                changed = item.delete_instances(doc_id, instance, which)
+                if changed:
+                    if doc_id in dataview.itemcache:
+                        del dataview.itemcache[doc_id]
+                    application.layout.focus(text_area)
+                    set_text(dataview.show_active_view())
                     loop = asyncio.get_event_loop()
                     loop.call_later(0, data_changed, loop)
-            else:
-                show_message('Finish task/job?', f"Invalid finished datetime: {done_str}")
+
+    else:
+
+        ok, show, item_id, job_id, due = dataview.maybe_finish(text_area.document.cursor_position_row)
+        ampm = settings['ampm']
+        fmt = "ddd M/D h:mmA" if ampm else "ddd M/D H:mm"
+
+        if not ok:
+            return
+
+        def coroutine():
+
+            dialog = TextInputDialog(
+                title='Finish',
+                label_text=f"selected: {show}\n{repeating} datetime completed:",
+                default='now'
+                )
+
+            done_str = yield from show_dialog_as_float(dialog)
+            if done_str:
+                try:
+                    done = parse_datetime(done_str, z='local')[1]
+
+                    ok = True
+                except:
+                    ok = False
+                if ok:
+                    # valid done
+                    res = item.finish_item(item_id, job_id, done, due)
+                    if res:
+                        if item_id in dataview.itemcache:
+                            del dataview.itemcache[item_id]
+                        loop = asyncio.get_event_loop()
+                        loop.call_later(0, data_changed, loop)
+                else:
+                    show_message('Finish task/job?', f"Invalid finished datetime: {done_str}")
 
     asyncio.ensure_future(coroutine())
 
