@@ -22,15 +22,15 @@ def ask_for_confirmation(prompt_message):
 def print_usage():
 
     print("""\
-Usage: etm [options]
-Options:
-    -h, --help   Show this help message and exit
-    [n] [path]   Set logging level 'n' where n = 1, 2, 3
-                    or, if omitted, use logging level 2
-                 Use 'path' as the etm home directory
-                    or, if omitted, use the environmental
-                    variable ETMHOME if set and the current
-                    working directory otherwise."""
+    Usage: etm [options]
+    Options:
+      -h, --help   Show this help message and exit
+      [n] [path]   Set logging level 'n' where n = 1, 2, 3
+                       or, if omitted, use logging level 2
+                   Use 'path' as the etm home directory
+                       or, if omitted, use the environmental
+                       variable ETMHOME if set and the current
+                       working directory otherwise."""
                 )
 
 def main():
@@ -42,6 +42,14 @@ def main():
 
     if "-h" in sys.argv or "--help" in sys.argv:
         print_usage()
+        sys.exit()
+
+    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--h', '-help', '--help']:
+        print("""
+Usage:
+    etm <
+
+              """)
         sys.exit()
 
     MIN_PYTHON = (3, 7, 3)
@@ -56,10 +64,37 @@ def main():
     etmhome = os.environ.get("ETMHOME")
     etmdir = etmhome if etmhome else os.getcwd()
 
+    import etm.data as data
+    import etm.view as view
+    from etm.view import ETMQuery
+    import etm.model as model
+    import etm.report as report
+    report.ETMQuery = ETMQuery
+
     loglevel = 2 # info
     log_levels = [str(x) for x in range(1, 6)]
     if len(sys.argv) > 1 and sys.argv[1] in log_levels:
         loglevel = int(sys.argv.pop(1))
+    if len(sys.argv) > 1 and sys.argv[1] in ['model', 'view', 'data', 'rep']:
+        if sys.argv[1] == 'model':
+            logger.info(f"calling model doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            import doctest
+            doctest.testmod(model)
+        elif sys.argv[1] == 'view':
+            logger.info(f"calling view doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            import doctest
+            doctest.testmod(view)
+        elif sys.argv[1] == 'data':
+            logger.info(f"calling data doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            import doctest
+            doctest.testmod(data)
+        elif sys.argv[1] == 'rep':
+            logger.info(f"calling report.main with etmdir: {etmdir}, argv: {sys.argv}")
+            report.main(etmdir, sys.argv)
+        sys.exit()
+        # else:
+        #     logger.info(f"calling model.main with etmdir: {etmdir}, argv: {sys.argv}")
+        #     model.main(etmdir, sys.argv)
     if len(sys.argv) > 1:
         # use the directory being provided
         etmdir = sys.argv.pop(1)
@@ -167,7 +202,6 @@ which will need to be created.
 
     import etm.ical as ical
     ical.logger = logger
-    import etm.data as data
     data.secret = secret
     data.logger = logger
     from etm.data import Mask
@@ -193,7 +227,6 @@ which will need to be created.
     from etm.model import PIN_CHAR
     from etm.model import INBASKET_CHAR
     from etm.model import TimeIt
-    import etm.model as model
     model.loglevel = loglevel
     model.etm_version = etm_version
     model.secret = secret
@@ -242,7 +275,6 @@ which will need to be created.
 
 
 
-    import etm.view as view
     view.loglevel = loglevel
     view.TimeIt = TimeIt
     view.wrap = wrap
@@ -290,9 +322,7 @@ which will need to be created.
     view.expansions = expansions
     view.terminal_style = style
     view.make_examples = make_examples
-    from etm.view import ETMQuery
 
-    import etm.report as report
     view.report = report
     show_query_results = report.show_query_results
     view.show_query_results = show_query_results

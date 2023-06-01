@@ -495,11 +495,11 @@ class Item(dict):
                 'b': ["beginby", "number of days for beginby notices", do_beginby],
                 'c': ["calendar", "calendar", do_string],
                 'd': ["description", "item details", do_paragraph],
-                'e': ["extent", "timeperiod", do_period],
+                'e': ["extent", "timeperiod", do_duration],
                 'w': ["wrap", "list of two timeperiods", do_two_periods],
-                'f': ["finish", "completion datetime", self.do_datetime],
+                'f': ["finish", "completion datetime", self.do_completion],
                 'g': ["goto", "url or filepath", do_string],
-                'h': ["completions", "list of completion datetimes", self.do_datetimes],
+                'h': ["completions", "list of completion datetimes", self.do_completions],
                 'i': ["index", "forward slash delimited string", do_string],
                 'k': ["konnection", "document id", do_konnection],
                 'l': ["location", "location or context, e.g., home, office, errands", do_string],
@@ -532,13 +532,13 @@ class Item(dict):
                 'ja': ["alert", "list of timeperiod before job is scheduled followed by a colon and a list of command", do_alert],
                 'jb': ["beginby", " integer number of days", do_beginby],
                 'jd': ["description", " string", do_paragraph],
-                'je': ["extent", " timeperiod", do_period],
+                'je': ["extent", " timeperiod", do_duration],
                 'jf': ["finished", " datetime", self.do_datetime],
                 'ji': ["unique id", " integer or string", do_string],
                 'jl': ["location", " string", do_string],
                 'jm': ["mask", "string to be masked", do_mask],
                 'jp': ["prerequisite ids", "list of ids of immediate prereqs", do_stringlist],
-                'js': ["scheduled", "timeperiod before task scheduled when job is scheduled", do_period],
+                'js': ["scheduled", "timeperiod before task scheduled when job is scheduled", do_duration],
                 'ju': ["used time", "timeperiod: datetime", do_usedtime],
                 'j?': ["job &-key", "enter &-key", self.do_ampj],
                 }
@@ -612,8 +612,10 @@ item_hsh:    {self.item_hsh}
             showing = "No repetitions"
         return  showing, f"from {starting}:\n  " + "\n  ".join(pairs)
 
+
     def do_update(self):
         timer_update = TimeIt('***UPDATE***')
+        logger.debug(f"updating {self.doc_id} with {self.item_hsh}")
         self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         timer_update.stop()
 
@@ -776,15 +778,28 @@ item_hsh:    {self.item_hsh}
 
     def finish_item(self, item_id, job_id, completed_datetime, due_datetime):
         # item_id and job_id should have come from dataview.hsh ok, maybe_finish and thus be valid
+
+        # 23/5/29 FIXME with a repeating item either r or +, finishing an
+        # instance other than the oldest requires besides adding the instance to @h either
+        # deleting an @+ or adding an @- NOT changing @s!
+
+        # What to do about history? Make history a hash with done keys and
+        # lists of (done-due) or ZERO periods as values. Show competed on due
+        # date with period.days in right hand column if 2nd component is not
+        # ZERO. Why list of period values? done's resolution is one minute so
+        # more than one completion might be attributed to the same minute.
+
         save_item = False
         self.item_hsh = self.db.get(doc_id=item_id)
         self.doc_id = item_id
         self.created = self.item_hsh['created']
+        completion_entry = pendulum.period(completed_datetime, due_datetime) if due_datetime else pendulum.period(completed_datetime, completed_datetime)
+        logger.debug(f"completion_entry: {completion_entry}")
         if job_id:
             j = 0
             for job in self.item_hsh['j']:
                 if job['i'] == job_id:
-                    self.item_hsh['j'][j]['f'] = completed_datetime
+                    self.item_hsh['j'][j]['f'] = completion_entry
                     save_item = True
                     break
                 else:
@@ -794,7 +809,7 @@ item_hsh:    {self.item_hsh}
             if ok:
                 self.item_hsh['j'] = jbs
                 if last:
-                    nxt = get_next_due(self.item_hsh, last, due_datetime)
+                    nxt = get_next_due(self.item_hsh, last, completion_entry.end)
                     if nxt:
                         if 'r' in self.item_hsh:
                             for i in range(len(self.item_hsh['r'])):
@@ -802,27 +817,28 @@ item_hsh:    {self.item_hsh}
                                     self.item_hsh['r'][i]['c'] -= 1
                                     break
                         self.item_hsh['s'] = nxt
-                        self.item_hsh.setdefault('h', []).append(completed_datetime)
+                        self.item_hsh.setdefault('h', []).append(completion_entry)
                         save_item = True
                     else:  # finished last instance
-                        self.item_hsh['f'] = completed_datetime
+                        self.item_hsh['f'] = completion_entry
                         save_item = True
 
         else:
             # no jobs
             if 's' in self.item_hsh:
                 if 'r' in self.item_hsh:
-                    nxt = get_next_due(self.item_hsh, completed_datetime, due_datetime)
+                    nxt = get_next_due(self.item_hsh, completed_datetime, completion_entry.end)
                     if nxt:
                         for i in range(len(self.item_hsh['r'])):
                             if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
                                 self.item_hsh['r'][i]['c'] -= 1
                                 break
                         self.item_hsh['s'] = nxt
-                        self.item_hsh.setdefault('h', []).append(completed_datetime)
+
+                        self.item_hsh.setdefault('h', []).append(completion_entry)
                         save_item = True
                     else:  # finished last instance
-                        self.item_hsh['f'] = completed_datetime
+                        self.item_hsh['f'] = completion_entry
                         save_item = True
 
                 elif '+' in self.item_hsh:
@@ -834,21 +850,23 @@ item_hsh:    {self.item_hsh}
                         self.item_hsh['s'] = tmp.pop(0)
                     if tmp:
                         self.item_hsh['+'] = tmp
-                        self.item_hsh.setdefault('h', []).append(completed_datetime)
+                        self.item_hsh.setdefault('h', []).append(completion_entry)
                         save_item = True
                     else:
                         del self.item_hsh['+']
-                        self.item_hsh['f'] = completed_datetime
+                        self.item_hsh['f'] = completion_entry
                         save_item = True
                 else:
-                    self.item_hsh['f'] = completed_datetime
+                    self.item_hsh['f'] = completion_entry
                     save_item = True
             else:
-                self.item_hsh['f'] = completed_datetime
+                self.item_hsh['f'] = completion_entry
                 save_item = True
 
         if save_item:
             num_finished = settings.get('num_finished', 0)
+
+
             if 'h' in self.item_hsh and num_finished:
                 ok = True
                 # only truncate completions for infinitely repeating tasks
@@ -1251,7 +1269,8 @@ item_hsh:    {self.item_hsh}
         rep = args
         obj = None
         tz = self.item_hsh.get('z', None)
-        args = [x.strip() for x in args.split(',')]
+        if not isinstance(args, list):
+            args = [x.strip() for x in args.split(',')]
         obj = []
         rep = []
         bad = []
@@ -1271,6 +1290,84 @@ item_hsh:    {self.item_hsh}
         if bad:
             rep += f"\nincomplete or invalid datetimes:  {', '.join(bad)}"
         return obj, rep
+
+    def do_completions(self, args):
+        tz = self.item_hsh.get('z', None)
+        args = [x.strip() for x in args.split(',')]
+        all_ok = True
+        obj_lst = []
+        rep_lst = []
+        bad_lst = []
+        completions = []
+        logger.debug(f"args: {args}")
+        # arg_lst will be a list of pendulum periods
+        for arg in args:
+            if not arg:
+                continue
+            obj, rep  = self.do_completion(arg)
+            if obj:
+                obj_lst.append(obj)
+                rep_lst.append(rep)
+            else:
+                all_ok = False
+                bad_lst.append(arg)
+
+            # try:
+            #     start, end = [x.strip() for x in arg.split('->')]
+            # except Exception as e:
+            #     logger.debug(f"Error processing '{arg}: {e}'")
+            #     continue
+            # if not (arg and len(arg) > 1):
+            #     continue
+
+            # start_ok, start_dt, tz = parse_datetime(start, tz)
+            # end_ok, end_dt, tz = parse_datetime(end, tz)
+            # if start_ok and end_ok:
+            #     obj.append(pendulum.period(start_dt, end_dt))
+            #     rep.append(f"{format_datetime(start, short=True)} -> {format_datetime(end, short=True)}")
+            # else:
+            #     all_ok = False
+            #     bad.append(arg)
+
+        obj = obj_lst if all_ok else None
+        rep = f"local datetimes: {', '.join(rep)}" if (tz is not None and tz != 'float') else f"datetimes: {', '.join(rep)}"
+        if bad_lst:
+            rep += f"\nincomplete or invalid completions: {', '.join(bad_lst)}"
+
+        return obj, rep
+
+
+    def do_completion(self, arg):
+        obj = None
+        tz = self.item_hsh.get('z', None)
+        args = [x.strip() for x in arg.split('->')]
+        obj, rep = self.do_datetimes(args)
+        parts = [x for x in obj if x is not None] if obj else []
+        if len(parts) > 1:
+            start_dt, end_dt = parts[:2]
+            obj = pendulum.period(parts[0], parts[1])
+            rep = f"{format_datetime(start_dt, short=True)[1]} -> {format_datetime(end_dt, short=True)[1]}"
+        else:
+            obj = None
+            rep = f"\nincomplete or invalid completion: {rep}"
+
+
+
+#         for arg in args:
+#         if len(args) > 1:
+
+#             return None, f"Incomplete period string: {arg}"
+#         start_ok, start_dt, tz = parse_datetime(start, tz)
+#         end_ok, end_dt, tz = parse_datetime(end, tz)
+#         ok = start_ok and end_ok
+#         if ok:
+#             obj = pendulum.period(start_dt, end_dt)
+#             rep = f"{format_datetime(start_dt, short=True)[1]} -> {format_datetime(end_dt, short=True)[1]}"
+#         else:
+#             obj = None
+#             rep = arg
+        return obj, rep
+
 
     def do_timezone(self, arg=None):
         """
@@ -1608,11 +1705,11 @@ def format_datetime(obj, short=False):
     if type(obj) == pendulum.Date:
         return True, obj.format(date_fmt)
 
-    if type(obj) != pendulum.DateTime:
+    if not isinstance(obj, pendulum.DateTime):
         try:
             obj = pendulum.instance(obj)
-        except:
-            return False, "a pendulum date or datetime."
+        except Exception as e:
+            return False, f"Error: {e}"
 
     # we want all-day events to display as dates
     if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
@@ -1633,6 +1730,20 @@ def format_datetime(obj, short=False):
         res = res.replace('AM', 'am')
         res = res.replace('PM', 'pm')
     return True, res
+
+def format_period(obj):
+    if not isinstance(obj, pendulum.Period):
+        logger.debug(f"obj: {obj}")
+        return obj
+    start = obj.start
+    end = obj.end
+    return f"{format_datetime(start, short=True)[1]} -> {format_datetime(end, short=True)[1]}"
+
+def format_period_list(obj_lst):
+    if not isinstance(obj_lst, list):
+        obj_lst = [obj_lst]
+    logger.debug(f"obj_lst: {obj_lst}")
+    return ", ".join([format_period(x) for x in obj_lst if x])
 
 
 def format_datetime_list(obj_lst):
@@ -2166,6 +2277,9 @@ class DataView(object):
         self.is_showing_help = False
         self.is_editing = False
         self.is_showing_items = True
+        timer_update = TimeIt('***UPDATE***')
+        self.possible_update()
+        timer_update.stop()
         self.get_completions()
         timer_konnections = TimeIt('***KONNECTIONS***')
         self.refreshKonnections()
@@ -2959,6 +3073,30 @@ class DataView(object):
                 if item.doc_id in self.link_list:
                     self.link_list.remove(item_id)
 
+    def possible_update(self):
+        """
+        For items with 'h' entries, make sure entry is a list of tuples.
+        """
+        updated_items = []
+        for item in self.db:
+            if item['itemtype'] == '-' and 'h' in item:
+                # deal with old to new history format
+                curr_hist = item.get('h', [])
+                new_hist = []
+                changed = False
+                for x in curr_hist:
+                    if isinstance(x, pendulum.Period):
+                        new_hist.append(x)
+                    else:
+                        new_hist.append( pendulum.period(x, x) )
+                        changed = True
+                if changed:
+                    item['h'] = new_hist
+                    logger.debug(f"new item: {item}")
+                    update_db(self.db, item.doc_id, item)
+                    updated_items.append(item.doc_id)
+        logger.info(f"updated history for doc_ids: {updated_items}")
+
 
     def possible_archive(self):
         """
@@ -3034,7 +3172,6 @@ class DataView(object):
                 # got here so 'u' item with u < datetime
                 if toss:
                     rows.append(item)
-                    continue
 
             elif item['itemtype'] == '*':
                 start = item.get('s', None)
@@ -3525,7 +3662,7 @@ entry_tmpl = """\
 {%- endset %}\
 {{ nowrap(title) }} \
 {% if 'f' in h %}\
-{{ "@f {} ".format(dt2str(h['f'])[1]) }} \
+{{ "@f {} ".format(prd2str(h['f'])) }} \
 {% endif -%}\
 {% if 'a' in h %}\
 {%- set alerts %}\
@@ -3557,6 +3694,9 @@ entry_tmpl = """\
 {%- if 'n' in h %}
 {% for x in h['n'] %}{{ "@n {} ".format(x) }}{% endfor %}\
 {% endif %}\
+{% if 'h' in h and h['h'] %}
+@h {{ nowrap(prdlst2str(h['h'])) }} \
+{%- endif %}\
 {%- set ls = namespace(found=false) -%}\
 {%- set location -%}\
 {%- for k in ['l', 'm', 'g', 'x', 'p'] -%}\
@@ -3571,7 +3711,7 @@ entry_tmpl = """\
 {%- if 'r' in x and x['r'] -%}\
 {%- set rrule %}\
 {{ x['r'] }}\
-{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'h', 'E', 'c'] -%}
+{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'E', 'c'] -%}
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
@@ -3582,7 +3722,7 @@ entry_tmpl = """\
 {% if 'o' in h %}\
 @o {{ h['o'] }}{% endif %} \
 {% endif %}\
-{% for k in ['+', '-', 'h'] %}\
+{% for k in ['+', '-'] %}\
 {% if k in h and h[k] %}
 @{{ k }} {{ nowrap(dtlst2str(h[k])) }} \
 {%- endif %}\
@@ -3609,7 +3749,7 @@ entry_tmpl = """\
 {% endset %}
 {{ nowrap(used) }} \
 {% endif %}\
-{% if 'f' in x %}{{ " &f {}".format(dt2str(x['f'])[1]) }}{% endif %}\
+{% if 'f' in x %}{{ " &f {}".format(prd2str(x['f'])[1]) }}{% endif %}\
 {%- endset %}
 @j {{ nowrap(job) }} \
 {%- endfor %}\
@@ -3629,7 +3769,7 @@ display_tmpl = """\
 {%- endset %}\
 {{ wrap(title) }} \
 {% if 'f' in h %}\
-{{ "@f {} ".format(dt2str(h['f'])[1]) }} \
+{{ "@f {} ".format(prd2str(h['f'])) }} \
 {% endif -%}\
 {% if 'a' in h %}\
 {%- set alerts %}\
@@ -3661,6 +3801,9 @@ display_tmpl = """\
 {%- if 'n' in h %}
 {% for x in h['n'] %}{{ "@n {} ".format(x) }}{% endfor %}\
 {% endif %}\
+{% if 'h' in h and h['h'] %}
+@h {{ prdlst2str(h['h']) }} \
+{%- endif %}\
 {%- set ls = namespace(found=false) -%}\
 {%- set location -%}\
 {%- for k in ['l', 'm', 'g', 'x', 'p'] -%}\
@@ -3675,7 +3818,7 @@ display_tmpl = """\
 {%- if 'r' in x and x['r'] -%}\
 {%- set rrule %}\
 {{ x['r'] }}\
-{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'h', 'E', 'c'] -%}
+{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'E', 'c'] -%}
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
@@ -3686,7 +3829,7 @@ display_tmpl = """\
 {% if 'o' in h %}\
 @o {{ h['o'] }}{% endif %} \
 {% endif %}\
-{% for k in ['+', '-', 'h'] %}\
+{% for k in ['+', '-'] %}\
 {% if k in h and h[k] %}
 @{{ k }} {{ wrap(dtlst2str(h[k])) }} \
 {%- endif %}\
@@ -3713,7 +3856,7 @@ display_tmpl = """\
 {% endset %}\
 {{ wrap(used) }} \
 {% endif %}\
-{% if 'f' in x %}{{ " &f {}".format(dt2str(x['f'])[1]) }}{% endif %}\
+{% if 'f' in x %}{{ " &f {}".format(prd2str(x['f'])[1]) }}{% endif %}\
 {%- endset %}
 @j {{ wrap(job) }} \
 {%- endfor %}\
@@ -3735,6 +3878,8 @@ jinja_entry_template.globals['dt2str'] = plain_datetime
 jinja_entry_template.globals['in2str'] = fmt_dur
 jinja_entry_template.globals['dtlst2str'] = plain_datetime_list
 jinja_entry_template.globals['inlst2str'] = format_duration_list
+jinja_entry_template.globals['prd2str'] = format_period
+jinja_entry_template.globals['prdlst2str'] = format_period_list
 jinja_entry_template.globals['one_or_more'] = one_or_more
 jinja_entry_template.globals['isinstance'] = isinstance
 jinja_entry_template.globals['nowrap'] = nowrap
@@ -3744,9 +3889,12 @@ jinja_display_template.globals['dt2str'] = plain_datetime
 jinja_display_template.globals['in2str'] = fmt_dur
 jinja_display_template.globals['dtlst2str'] = format_datetime_list
 jinja_display_template.globals['inlst2str'] = format_duration_list
+jinja_display_template.globals['prd2str'] = format_period
+jinja_display_template.globals['prdlst2str'] = format_period_list
 jinja_display_template.globals['one_or_more'] = one_or_more
 jinja_display_template.globals['isinstance'] = isinstance
 jinja_display_template.globals['wrap'] = wrap
+
 
 
 def do_beginby(arg):
@@ -3868,13 +4016,13 @@ def do_alert(arg):
     return obj, rep
 
 
-def do_period(arg):
+def do_duration(arg):
     """
-    >>> do_period('')
+    >>> do_duration('')
     (None, 'time period')
-    >>> do_period('90')
+    >>> do_duration('90')
     (None, 'incomplete or invalid period: 90')
-    >>> do_period('90m')
+    >>> do_duration('90m')
     (Duration(hours=1, minutes=30), '1h30m')
     """
     if not arg:
@@ -4451,6 +4599,7 @@ def get_next_due(item, done, due):
     rset = rruleset()
     overdue = item.get('o', 'k') # make 'k' the default for 'o'
     dtstart = item['s']
+    due = item['s'] if not due else due
     if overdue == 'k':
         aft = due
         inc = False
@@ -5125,6 +5274,13 @@ def getWeekNumbers(dt=pendulum.now(), bef=3, after=9):
 ### end week/month ###
 ######################
 
+def period_from_fmt(s, z='local'):
+    """
+    """
+    logger.debug(f"s: {s}")
+    start, end = [pendulum.from_format(x.strip(), "YYYYMMDDTHHmm", z) for x in s.split('->')]
+    return pendulum.period(start, end)
+
 def pen_from_fmt(s, z='local'):
     """
     >>> pen_from_fmt("20120622T0000")
@@ -5339,9 +5495,10 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             relevant = today
 
         elif 'f' in item:
-            relevant = item['f']
+            relevant = item['f'].end
             if isinstance(relevant, pendulum.Date) and not isinstance(relevant, pendulum.DateTime):
                 relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0, tz='local')
+            logger.debug(f"f: {item['f']}; relevant: {relevant}")
 
         elif 's' in item:
             dtstart = item['s']
@@ -5380,8 +5537,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             if all_tds:
                 instance_interval = [today + min(all_tds), tomorrow + max(all_tds)]
 
-            if 'r' in item:
-                lofh = item['r']
+            if 'r' in item or '+' in item:
+                lofh = item.get('r', [])
                 rset = rruleset()
 
                 for hsh in lofh:
@@ -5412,7 +5569,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                     switch = item.get('o', 'k')
                     relevant = rset.after(today, inc=True)
                     if switch == 's':
-                        if relevant and item['s'] != pendulum.instance(relevant):
+                        if relevant and item['s'] != pendulum.instance(relevant.end):
                             item['s'] = pendulum.instance(relevant)
                             update_db(db, item.doc_id, item)
                     else: # k or p
@@ -5425,7 +5582,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         # once instances have been created, between will be empty until
                         # the current date falls after item['s'] and relevant is reset
                         summary = f"{item['summary']} ({len(between)})"
-                        pastdue.append([(dtstart.date() - today.date()).days, summary, item.doc_id, None, None])
+                        if dtstart.date() < today.date():
+                            pastdue.append([(dtstart.date() - today.date()).days, summary, item.doc_id, None, None])
                 else:
                     # get the first instance after today
                     try:
@@ -6524,6 +6682,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         finished = item.get('f', None)
         history = item.get('h', None)
         jobs = item.get('j', None)
+        logger.debug(f"{summary} finished: {finished}")
 
         if itemtype == "*" and start and extent and 'r' not in item:
             dt = start
@@ -6584,24 +6743,30 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         if itemtype == '-':
             d = []
-            if finished:
-                d.append([finished, summary, doc_id, None])
+            logger.debug(f"task {summary} finished: {finished}")
+            if isinstance(finished, pendulum.Period):
+                # finished will be false if the period is ZERO
+                logger.debug(f"appending finished: {summary} {finished}")
+                d.append([finished.start, summary, doc_id, format_date(finished.end)[1]])
             if history:
                 for dt in history:
-                    d.append([dt, summary, doc_id, None])
+                    logger.debug(f"dt: {dt}")
+                    d.append([dt.start, summary, doc_id, format_date(dt.end)[1]])
             if jobs:
                 for job in jobs:
                     job_summary = job.get('summary', '')
                     if 'f' in job:
-                        d.append([job['f'], job_summary, doc_id, job['i']])
+                        # FIXME
+                        d.append([job['f'][0], job_summary, doc_id, job['i']])
             if d:
+                logger.debug(f"d: {d}")
                 for row in d:
                     dt = row[0]
                     if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
                         dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
                         dt.set(hour=23, minute=59, second=59)
 
-                    rhc = ''
+                    rhc = str(row[3]) if len(row) > 3 else ""
                     if dt < aft_dt or dt > bef_dt:
                         continue
 
@@ -6626,7 +6791,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                             }
                             )
 
-        if not start or finished:
+        if not start or finished is not None:
             continue
 
         # XXX INSTANCES
@@ -7276,10 +7441,10 @@ def import_json(import_file=None):
         if 's' in item_hsh:
             item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
         if 'f' in item_hsh:
-            item_hsh['f'] = pen_from_fmt(item_hsh['f'], z)
+            item_hsh['f'] = period_from_fmt(item_hsh['f'], z)
         item_hsh['created'] = pendulum.now('UTC')
         if 'h' in item_hsh:
-            item_hsh['h'] = [pen_from_fmt(x, z) for x in item_hsh['h']]
+            item_hsh['h'] = [period_from_fmt(x, z) for x in item_hsh['h']]
         if '+' in item_hsh:
             item_hsh['+'] = [pen_from_fmt(x, z) for x in item_hsh['+'] ]
         if '-' in item_hsh:

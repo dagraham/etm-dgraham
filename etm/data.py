@@ -59,6 +59,64 @@ class PendulumDateTimeSerializer(Serializer):
             return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm').naive().in_timezone('local')
 
 
+class PendulumPeriodSerializer(Serializer):
+    """
+    This class handles both aware and 'factory' pendulum objects.
+
+    Encoding: If obj.tzinfo.abbrev is '-00' (tz=Factory), it is interpreted as naive, serialized without conversion and an 'N' is appended. Otherwise it is interpreted as aware, converted to UTC and an 'A' is appended.
+    Decoding: If the serialization ends with 'A', the pendulum object is treated as 'UTC' and converted to localtime. Otherwise, the object is treated as 'Factory' and no conversion is performed.
+
+    This serialization discards both seconds and microseconds but preserves hours and minutes.
+
+    """
+
+    OBJ_CLASS = pendulum.Period
+
+    def encode_datetime(self, obj):
+        if obj.format('Z') == '':
+            return obj.format('YYYYMMDDTHHmm[N]')
+        else:
+            return obj.in_tz('UTC').format('YYYYMMDDTHHmm[A]')
+
+    def decode_datetime(self, s):
+        if s[-1] == 'A':
+            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm', 'UTC').in_timezone('local')
+        else:
+            return pendulum.from_format(s[:-1], 'YYYYMMDDTHHmm').naive().in_timezone('local')
+
+
+    def encode(self, obj):
+        """
+        Serialize naive objects (Z == '') without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
+        >>> ps = PendulumPeriodSerializer()
+        >>> ps.encode(pendulum.period(pendulum.datetime(2018,7,30,10,45).naive(), pendulum.datetime(2018,7,25,10,27).naive()))
+        '20180730T1045N -> 20180725T1027N'
+        >>> ps.encode(pendulum.period(pendulum.datetime(2018,7,30,10,45,tz='US/Eastern'), pendulum.datetime(2018,7,25,10,27,tz='US/Pacific')))
+        '20180730T1445A -> 20180725T1727A'
+        """
+        logger.debug(f"encoding {obj}")
+        start_fmt = self.encode_datetime(obj.start)
+        end_fmt = self.encode_datetime(obj.end)
+        return f"{start_fmt} -> {end_fmt}"
+
+
+    def decode(self, s):
+        """
+        Return the serialization as a period object. If the serializaton ends with 'A',  first converting to localtime and returning an aware datetime object in the local timezone. If the serialization ends with 'N', returning without conversion as an aware datetime object in the local timezone.
+        >>> ps = PendulumPeriodSerializer()
+        >>> ps.decode('20180730T1045N -> 20180725T1027N')
+        <Period [2018-07-30T10:45:00-04:00 -> 2018-07-25T10:27:00-04:00]>
+        >>> ps.decode('20180730T1445A -> 20180725T1727A')
+        <Period [2018-07-30T10:45:00-04:00 -> 2018-07-25T13:27:00-04:00]>
+        """
+
+        logger.debug(f"decoding {s}")
+        start, end = [x.strip() for x in s.split('->')]
+        start_enc = self.decode_datetime(start)
+        end_enc = self.decode_datetime(end)
+        return pendulum.period(start_enc, end_enc)
+
+
 class PendulumDateSerializer(Serializer):
     """
     This class handles pendulum date objects. Encode as date string and decode as a midnight datetime without conversion in the local timezone.
@@ -106,6 +164,7 @@ class PendulumDurationSerializer(Serializer):
         Return the serialization as a timedelta object.
         """
         return parse_duration(s)[1]
+
 
 class PendulumWeekdaySerializer(Serializer):
     """
@@ -188,12 +247,6 @@ class Mask():
 
 class MaskSerializer(Serializer):
     """
-    This class handles pendulum.duration (timedelta) objects.
-    >>> mask = MaskSerializer()
-    >>> mask.encode(Mask("when to the sessions")) # doctest: +NORMALIZE_WHITESPACE
-    'w5zDnMOSwo7CicOnwo_Cl8Ojw5bDicKFw6XDi8Oow5_CisOUw6LDoA=='
-    >>> mask.decode('    w5zDnMOSwo7CicOnwo_Cl8Ojw5bDicKFw6XDi8Oow5_CisOUw6LDoA==') # doctest: +NORMALIZE_WHITESPACE
-    when to the sessions
     """
     OBJ_CLASS = Mask
 
@@ -219,6 +272,7 @@ def initialize_tinydb(dbfile):
     serialization = SerializationMiddleware()
     serialization.register_serializer(PendulumDateTimeSerializer(), 'T') # Time
     serialization.register_serializer(PendulumDateSerializer(), 'D')     # Date
+    serialization.register_serializer(PendulumPeriodSerializer(), 'P')   # Period
     serialization.register_serializer(PendulumDurationSerializer(), 'I') # Interval
     serialization.register_serializer(PendulumWeekdaySerializer(), 'W')  # Wkday
     serialization.register_serializer(MaskSerializer(), 'M')             # Mask
