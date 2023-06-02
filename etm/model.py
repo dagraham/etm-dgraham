@@ -4602,6 +4602,10 @@ def get_next_due(item, done, due):
     rset = rruleset()
     overdue = item.get('o', 'k') # make 'k' the default for 'o'
     dtstart = item['s']
+    if due > item['s']:
+        # we've finished a between instance
+        return item['s']
+    # we're finishing the oldest instance
     due = item['s'] if not due else due
     if overdue == 'k':
         aft = due
@@ -5578,13 +5582,16 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                     else: # k or p
                         logger.debug(f"processing 'k' or 'p' for doc_id: {item.doc_id}")
                         relevant = rset.after(today, inc=True)
+                        already_done = [x.end for x in item.get('h', [])]
                         # relevant will be the first instance after 12am today
                         # it will be the @s entry for the updated repeating item
                         # these are @s entries for the instances to be preserved
                         between = rset.between(dtstart, today-ONEMIN, inc=True)
+                        remaining = [x for x in between if x not in already_done]
                         # once instances have been created, between will be empty until
                         # the current date falls after item['s'] and relevant is reset
-                        summary = f"{item['summary']} ({len(between)})"
+                        logger.debug(f"remaining: {remaining}")
+                        summary = f"{item['summary']} ({len(remaining)})"
                         if dtstart.date() < today.date():
                             pastdue.append([(dtstart.date() - today.date()).days, summary, item.doc_id, None, None])
                 else:
@@ -6745,7 +6752,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
 
         if itemtype == '-':
-            d = []
+            d = [] # d for done
             logger.debug(f"task {summary} finished: {finished}")
             if isinstance(finished, pendulum.Period):
                 # finished will be false if the period is ZERO

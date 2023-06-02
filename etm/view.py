@@ -2164,8 +2164,9 @@ number : datetime\
 
 
     elif repeating:
+        already_done = [x.end for x in hsh.get('h', [])]
         need = 2
-        between = [x[0] for x in model.item_instances(hsh, hsh['s'], pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0))]
+        between = [x[0] for x in model.item_instances(hsh, hsh['s'], pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
         logger.debug(f"between: {between}")
         values_list = []
         # values.append( (0, format_datetime(between[0][0])[1]) )
@@ -2230,6 +2231,8 @@ Enter <completion datetime>
         elif num_parts == 1:
             done = parse_datetime(done_parts[0], z='local')[1]
             due = done
+
+        done = model.date_to_datetime(done)
 
         logger.debug(f"doc_id: {doc_id}; job: {job}; done: {done}; due: {due}")
 
