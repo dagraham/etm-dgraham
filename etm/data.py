@@ -94,7 +94,6 @@ class PendulumPeriodSerializer(Serializer):
         >>> ps.encode(pendulum.period(pendulum.datetime(2018,7,30,10,45,tz='US/Eastern'), pendulum.datetime(2018,7,25,10,27,tz='US/Pacific')))
         '20180730T1445A -> 20180725T1727A'
         """
-        logger.debug(f"encoding {obj}")
         start_fmt = self.encode_datetime(obj.start)
         end_fmt = self.encode_datetime(obj.end)
         return f"{start_fmt} -> {end_fmt}"
@@ -110,7 +109,6 @@ class PendulumPeriodSerializer(Serializer):
         <Period [2018-07-30T10:45:00-04:00 -> 2018-07-25T13:27:00-04:00]>
         """
 
-        logger.debug(f"decoding {s}")
         start, end = [x.strip() for x in s.split('->')]
         start_enc = self.decode_datetime(start)
         end_enc = self.decode_datetime(end)
@@ -365,11 +363,9 @@ def parse_duration(s):
     m = period_regex.findall(s)
     if not m:
         return False, "Invalid period '{0}'".format(s)
-    # logger.debug(f"m: {[x for x in m]}")
     for g in m:
         num = -int(g[2]) if g[1] == '-' else int(g[2])
         td += num * period_hsh[g[3]]
-    # logger.debug(f"{s} -> {td}")
     return True, td
 
 WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}

@@ -533,7 +533,7 @@ class Item(dict):
                 'jb': ["beginby", " integer number of days", do_beginby],
                 'jd': ["description", " string", do_paragraph],
                 'je': ["extent", " timeperiod", do_duration],
-                'jf': ["finished", " datetime", self.do_datetime],
+                'jf': ["finish", " datetime", self.do_completion],
                 'ji': ["unique id", " integer or string", do_string],
                 'jl': ["location", " string", do_string],
                 'jm': ["mask", "string to be masked", do_mask],
@@ -794,7 +794,6 @@ item_hsh:    {self.item_hsh}
         self.doc_id = item_id
         self.created = self.item_hsh['created']
         completion_entry = pendulum.period(completed_datetime, due_datetime) if due_datetime else pendulum.period(completed_datetime, completed_datetime)
-        logger.debug(f"completion_entry: {completion_entry}")
         if job_id:
             j = 0
             for job in self.item_hsh['j']:
@@ -1029,6 +1028,7 @@ item_hsh:    {self.item_hsh}
             if ok:
                 self.item_hsh['j'] = res
                 if last:
+                    #FIXME
                     self.item_hsh['f'] = last
             else:
                 msg.extend(res)
@@ -1299,7 +1299,6 @@ item_hsh:    {self.item_hsh}
         rep_lst = []
         bad_lst = []
         completions = []
-        logger.debug(f"args: {args}")
         # arg_lst will be a list of pendulum periods
         for arg in args:
             if not arg:
@@ -1312,25 +1311,8 @@ item_hsh:    {self.item_hsh}
                 all_ok = False
                 bad_lst.append(arg)
 
-            # try:
-            #     start, end = [x.strip() for x in arg.split('->')]
-            # except Exception as e:
-            #     logger.debug(f"Error processing '{arg}: {e}'")
-            #     continue
-            # if not (arg and len(arg) > 1):
-            #     continue
-
-            # start_ok, start_dt, tz = parse_datetime(start, tz)
-            # end_ok, end_dt, tz = parse_datetime(end, tz)
-            # if start_ok and end_ok:
-            #     obj.append(pendulum.period(start_dt, end_dt))
-            #     rep.append(f"{format_datetime(start, short=True)} -> {format_datetime(end, short=True)}")
-            # else:
-            #     all_ok = False
-            #     bad.append(arg)
 
         obj = obj_lst if all_ok else None
-        # rep = f"local datetimes: {', '.join(rep)}" if (tz is not None and tz != 'float') else f"periods: {', '.join(rep)}"
         rep = f"periods: {', '.join(rep_lst)}"
         if bad_lst:
             rep += f"\nincomplete or invalid completions: {', '.join(bad_lst)}"
@@ -1344,7 +1326,6 @@ item_hsh:    {self.item_hsh}
         args = [x.strip() for x in arg.split('->')]
         obj, rep = self.do_datetimes(args)
         parts = [x for x in obj] if obj else []
-        logger.debug(f"completion parts: {parts} from arg {arg} and args {args}")
         if len(parts) > 1:
             start_dt, end_dt = parts[:2]
             obj = pendulum.period(parts[0], parts[1])
@@ -1352,22 +1333,6 @@ item_hsh:    {self.item_hsh}
         else:
             obj = None
             rep = f"\nincomplete or invalid completion: {rep}"
-
-
-
-#         for arg in args:
-#         if len(args) > 1:
-
-#             return None, f"Incomplete period string: {arg}"
-#         start_ok, start_dt, tz = parse_datetime(start, tz)
-#         end_ok, end_dt, tz = parse_datetime(end, tz)
-#         ok = start_ok and end_ok
-#         if ok:
-#             obj = pendulum.period(start_dt, end_dt)
-#             rep = f"{format_datetime(start_dt, short=True)[1]} -> {format_datetime(end_dt, short=True)[1]}"
-#         else:
-#             obj = None
-#             rep = arg
         return obj, rep
 
 
@@ -1742,10 +1707,8 @@ def format_period(obj):
     return f"{format_datetime(start, short=True)[1]} -> {format_datetime(end, short=True)[1]}"
 
 def format_period_list(obj_lst):
-    logger.debug(f"obj_lst: {obj_lst}")
     if not isinstance(obj_lst, list):
         obj_lst = [obj_lst]
-    logger.debug(f"obj_lst formatted: {[format_period(x) for x in obj_lst if x]}")
     return ", ".join([format_period(x) for x in obj_lst if x])
 
 
@@ -2281,7 +2244,7 @@ class DataView(object):
         self.is_editing = False
         self.is_showing_items = True
         timer_update = TimeIt('***UPDATE***')
-        self.possible_update()
+        self.update_datetimes_to_periods()
         timer_update.stop()
         self.get_completions()
         timer_konnections = TimeIt('***KONNECTIONS***')
@@ -2438,15 +2401,12 @@ class DataView(object):
         ids = []
         ids_with_k = []
 
-        kon1 = TimeIt('konnections1')
         for item in self.db:
             doc_id = item.doc_id
             ids.append(doc_id)
             if 'k' in item:
                 ids_with_k.append(doc_id)
-        kon1.stop()
 
-        kon2 = TimeIt('konnections2')
         for item_id in ids_with_k:
             # from item to link by @k entry
             item = self.db.get(doc_id=item_id)
@@ -2457,13 +2417,8 @@ class DataView(object):
                 # append the to links
                 for link in links:
                     self.konnections_to.setdefault(link, []).append(item_id)
-        kon2.stop()
-
-
-        kon3 = TimeIt('konnections3')
         konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
         self.konnected = list(set(konnected))
-        kon3.stop()
 
 
     def handle_backups(self):
@@ -2636,7 +2591,6 @@ class DataView(object):
                 self.active_timer = doc_id
             self.timers[doc_id] = [state, now, ZERO]
 
-        logger.debug(f"next timer state for doc_id {doc_id}: {self.timers[doc_id]}")
         self.save_timers()
         return True, doc_id, active
 
@@ -2902,7 +2856,6 @@ class DataView(object):
             item_id = id_tup
             instance = None
             job = None
-        logger.debug(f"row: {row}, item_id: {item_id}")
         return (item_id, instance, job)
 
 
@@ -3076,26 +3029,56 @@ class DataView(object):
                 if item.doc_id in self.link_list:
                     self.link_list.remove(item_id)
 
-    def possible_update(self):
+    def update_datetimes_to_periods(self):
         """
-        For items with 'h' entries, make sure entry is a list of tuples.
+        For items with 'h' and/or 'f' entries, make sure entry is a pendulum period.
         """
         updated_items = []
         for item in self.db:
-            if item['itemtype'] == '-' and 'h' in item:
-                # deal with old to new history format
-                curr_hist = item.get('h', [])
-                new_hist = []
+            if item['itemtype'] == '-':
                 changed = False
-                for x in curr_hist:
-                    if isinstance(x, pendulum.Period):
-                        new_hist.append(x)
-                    else:
-                        new_hist.append( pendulum.period(x, x) )
+                if 'f' in item:
+                    if not isinstance(item['f'], pendulum.Period):
+                        dt = date_to_datetime(item['f'])
+                        item['f'] = pendulum.period(dt, dt)
                         changed = True
+
+                h_changed = False
+                if 'h' in item:
+                # deal with old to new history format
+                    curr_hist = item.get('h', [])
+                    new_hist = []
+                    h_changed = False
+                    for x in curr_hist:
+                        if isinstance(x, pendulum.Period):
+                            new_hist.append(x)
+                        else:
+                            x = date_to_datetime(x)
+                            new_hist.append( pendulum.period(x, x) )
+                            h_changed = True
+
+                    if h_changed:
+                        item['h'] = new_hist
+                        changed = True
+                if 'j' in item:
+                    j_changed = False
+                    new_jobs = []
+                    for job in item.get('j', []):
+                        if 'f' not in job:
+                            new_jobs.append(job)
+                        elif isinstance(job['f'], pendulum.Period):
+                            new_jobs.append(job)
+                        else:
+                            dt = date_to_datetime(job['f'])
+                            job['f'] = pendulum.period(dt, dt)
+                            new_jobs.append(job)
+                            j_changed = True
+                    if j_changed:
+                        item['j'] = new_jobs
+                        changed = True
+
                 if changed:
-                    item['h'] = new_hist
-                    logger.debug(f"new item: {item}")
+                    logger.debug(f"updated item: {item}")
                     update_db(self.db, item.doc_id, item)
                     updated_items.append(item.doc_id)
         logger.info(f"updated history for doc_ids: {updated_items}")
@@ -3116,35 +3099,31 @@ class DataView(object):
                 # keep journal
                 continue
             elif 'f' in item:
-                if isinstance(item['f'], pendulum.DateTime):
-                    if item['f'] < old:
+                if isinstance(item['f'], pendulum.Period):
+                    if item['f'].start < old and item['f'].end < old:
                         # toss old finished tasks including repeating ones
                         rows.append(item)
                         continue
-                elif isinstance(item['f'], pendulum.Date):
-                    if item['f'] < old.date():
-                        # toss old finished tasks including repeating ones
-                        rows.append(item)
-                        continue
+                # elif isinstance(item['f'], pendulum.Date):
+                #     if item['f'] < old.date():
+                #         # toss old finished tasks including repeating ones
+                #         rows.append(item)
+                #         continue
             elif '+' in item:
                 toss = True
-                logger.debug(f"old: {old}")
                 for dt in item['+']:
                     if isinstance(dt, pendulum.Date):
                         # could be date or datetime
                         if isinstance(dt, pendulum.DateTime):
                             # datetime
-                            logger.debug(f"datetime: {dt}")
                             if dt.date() >= old.date():
                                 toss = False
                                 break
                         else:
                             # date
-                            logger.debug(f"date: {dt}")
                             if dt >= old.date():
                                 toss = False
                                 break
-                        logger.debug(f"toss: {toss}")
                     else:
                         prov = dt
                     # FIXME: complicated whether or not to archive other repeating items with 't' so keep them
@@ -3752,7 +3731,7 @@ entry_tmpl = """\
 {% endset %}
 {{ nowrap(used) }} \
 {% endif %}\
-{% if 'f' in x %}{{ " &f {}".format(prd2str(x['f'])[1]) }}{% endif %}\
+{% if 'f' in x %}{{ " &f {}".format(prd2str(x['f'])) }}{% endif %}\
 {%- endset %}
 @j {{ nowrap(job) }} \
 {%- endfor %}\
@@ -3859,7 +3838,7 @@ display_tmpl = """\
 {% endset %}\
 {{ wrap(used) }} \
 {% endif %}\
-{% if 'f' in x %}{{ " &f {}".format(prd2str(x['f'])[1]) }}{% endif %}\
+{% if 'f' in x %}{{ " &f {}".format(prd2str(x['f'])) }}{% endif %}\
 {%- endset %}
 @j {{ wrap(job) }} \
 {%- endfor %}\
@@ -5284,7 +5263,6 @@ def getWeekNumbers(dt=pendulum.now(), bef=3, after=9):
 def period_from_fmt(s, z='local'):
     """
     """
-    logger.debug(f"s: {s}")
     start, end = [pendulum.from_format(x.strip(), "YYYYMMDDTHHmm", z) for x in s.split('->')]
     return pendulum.period(start, end)
 
@@ -5505,7 +5483,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             relevant = item['f'].end
             if isinstance(relevant, pendulum.Date) and not isinstance(relevant, pendulum.DateTime):
                 relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0, tz='local')
-            logger.debug(f"f: {item['f']}; relevant: {relevant}")
 
         elif 's' in item:
             dtstart = item['s']
@@ -5576,11 +5553,10 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                     switch = item.get('o', 'k')
                     relevant = rset.after(today, inc=True)
                     if switch == 's':
-                        if relevant and item['s'] != pendulum.instance(relevant.end):
+                        if relevant and item['s'] != pendulum.instance(relevant):
                             item['s'] = pendulum.instance(relevant)
                             update_db(db, item.doc_id, item)
                     else: # k or p
-                        logger.debug(f"processing 'k' or 'p' for doc_id: {item.doc_id}")
                         relevant = rset.after(today, inc=True)
                         already_done = [x.end for x in item.get('h', [])]
                         # relevant will be the first instance after 12am today
@@ -5590,7 +5566,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         remaining = [x for x in between if x not in already_done]
                         # once instances have been created, between will be empty until
                         # the current date falls after item['s'] and relevant is reset
-                        logger.debug(f"remaining: {remaining}")
                         summary = f"{item['summary']} ({len(remaining)})"
                         if dtstart.date() < today.date():
                             pastdue.append([(dtstart.date() - today.date()).days, summary, item.doc_id, None, None])
@@ -6692,7 +6667,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         finished = item.get('f', None)
         history = item.get('h', None)
         jobs = item.get('j', None)
-        logger.debug(f"{summary} finished: {finished}")
 
         if itemtype == "*" and start and extent and 'r' not in item:
             dt = start
@@ -6753,23 +6727,19 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         if itemtype == '-':
             d = [] # d for done
-            logger.debug(f"task {summary} finished: {finished}")
             if isinstance(finished, pendulum.Period):
                 # finished will be false if the period is ZERO
-                logger.debug(f"appending finished: {summary} {finished}")
                 d.append([finished.start, summary, doc_id, format_date(finished.end)[1]])
             if history:
                 for dt in history:
-                    logger.debug(f"dt: {dt}")
                     d.append([dt.start, summary, doc_id, format_date(dt.end)[1]])
             if jobs:
                 for job in jobs:
                     job_summary = job.get('summary', '')
                     if 'f' in job:
                         # FIXME
-                        d.append([job['f'][0], job_summary, doc_id, job['i']])
+                        d.append([job['f'].start, job_summary, doc_id, job['i']])
             if d:
-                logger.debug(f"d: {d}")
                 for row in d:
                     dt = row[0]
                     if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
@@ -7360,10 +7330,8 @@ def import_examples():
         if ok:
             item.update_item_hsh()
             good.append(f"{item.doc_id}")
-            logger.debug(f"adding #{count}/{num_examples}")
         else:
             bad.append(s)
-            logger.debug(f"rejected #{count}/{num_examples}")
 
     res = f"imported {len(good)} items"
     if good:
@@ -7395,7 +7363,6 @@ def import_text(import_file=None):
                 reminder.append(s)
         if reminder:
             reminders.append(reminder)
-    logger.debug(f"processing {len(reminders)} reminders")
     for reminder in reminders:
         ok = True
         s = "\n".join(reminder)

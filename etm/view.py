@@ -2403,7 +2403,7 @@ def do_whatever(*event):
     """
     For testing whatever
     """
-    dataview.refreshCache()
+    dataview.update_datetimes_to_periods()
     set_text(dataview.show_active_view())
 
 
