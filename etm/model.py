@@ -1330,7 +1330,8 @@ item_hsh:    {self.item_hsh}
             #     bad.append(arg)
 
         obj = obj_lst if all_ok else None
-        rep = f"local datetimes: {', '.join(rep)}" if (tz is not None and tz != 'float') else f"datetimes: {', '.join(rep)}"
+        # rep = f"local datetimes: {', '.join(rep)}" if (tz is not None and tz != 'float') else f"periods: {', '.join(rep)}"
+        rep = f"periods: {', '.join(rep_lst)}"
         if bad_lst:
             rep += f"\nincomplete or invalid completions: {', '.join(bad_lst)}"
 
@@ -1342,7 +1343,8 @@ item_hsh:    {self.item_hsh}
         tz = self.item_hsh.get('z', None)
         args = [x.strip() for x in arg.split('->')]
         obj, rep = self.do_datetimes(args)
-        parts = [x for x in obj if x is not None] if obj else []
+        parts = [x for x in obj] if obj else []
+        logger.debug(f"completion parts: {parts} from arg {arg} and args {args}")
         if len(parts) > 1:
             start_dt, end_dt = parts[:2]
             obj = pendulum.period(parts[0], parts[1])
@@ -1740,9 +1742,10 @@ def format_period(obj):
     return f"{format_datetime(start, short=True)[1]} -> {format_datetime(end, short=True)[1]}"
 
 def format_period_list(obj_lst):
+    logger.debug(f"obj_lst: {obj_lst}")
     if not isinstance(obj_lst, list):
         obj_lst = [obj_lst]
-    logger.debug(f"obj_lst: {obj_lst}")
+    logger.debug(f"obj_lst formatted: {[format_period(x) for x in obj_lst if x]}")
     return ", ".join([format_period(x) for x in obj_lst if x])
 
 
