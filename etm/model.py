@@ -2243,9 +2243,10 @@ class DataView(object):
         self.is_showing_help = False
         self.is_editing = False
         self.is_showing_items = True
-        timer_update = TimeIt('***UPDATE***')
-        self.update_datetimes_to_periods()
-        timer_update.stop()
+        if needs_update:
+            timer_update = TimeIt('***UPDATE***')
+            self.update_datetimes_to_periods()
+            timer_update.stop()
         self.get_completions()
         timer_konnections = TimeIt('***KONNECTIONS***')
         self.refreshKonnections()
@@ -3032,8 +3033,10 @@ class DataView(object):
     def update_datetimes_to_periods(self):
         """
         For items with 'h' and/or 'f' entries, make sure entry is a pendulum period.
+        if db.json exists and etm.json does not, then copy db.json to etm.json and run this script
+        using etm.json.
         """
-        updated_items = []
+        items_to_update = []
         for item in self.db:
             if item['itemtype'] == '-':
                 changed = False
@@ -3078,10 +3081,14 @@ class DataView(object):
                         changed = True
 
                 if changed:
-                    logger.debug(f"updated item: {item}")
-                    update_db(self.db, item.doc_id, item)
-                    updated_items.append(item.doc_id)
-        logger.info(f"updated history for doc_ids: {updated_items}")
+                    items_to_update.append(item)
+        if items_to_update:
+            # backup db
+            updated_items = []
+            for item in items_to_update:
+                update_db(self.db, item.doc_id, item)
+                updated_items.append(item.doc_id)
+            logger.info(f"updated datetimes to periods for {len(updated_items)} items with these doc_ids:\n  {updated_items}")
 
 
     def possible_archive(self):

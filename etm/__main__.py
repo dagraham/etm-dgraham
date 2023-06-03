@@ -123,9 +123,10 @@ does not exist and will need to be created.
 
     logdir = os.path.normpath(os.path.join(etmdir, 'logs'))
     backdir = os.path.normpath(os.path.join(etmdir, 'backups'))
-    db = os.path.normpath(os.path.join(etmdir, 'db.json'))
+    cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
+    dbfile = os.path.normpath(os.path.join(etmdir, 'etm.json'))
     missing = []
-    for p in [logdir, backdir, db]:
+    for p in [logdir, backdir, cfgfile, dbfile]:
         if not os.path.exists(p):
             missing.append(p)
     missing = "\n    ".join(missing) if missing else ""
@@ -147,6 +148,12 @@ which will need to be created.
             print("Exiting...")
             sys.exit()
 
+    olddb = os.path.normpath(os.path.join(etmdir, 'db.json'))
+    needs_update = False
+    if os.path.exists(olddb) and not os.path.exists(dbfile):
+        import shutil
+        shutil.copy(olddb, dbfile)
+        needs_update = True
 
     if not os.path.isdir(logdir):
         os.makedirs(logdir)
@@ -206,8 +213,8 @@ which will need to be created.
     data.logger = logger
     from etm.data import Mask
 
-    dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
-    cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
+    # dbfile = os.path.normpath(os.path.join(etmdir, 'etm.json'))
+    # cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
     ETMDB = data.initialize_tinydb(dbfile)
     logger.info(f"initialized TinyDB using {dbfile}")
     DBITEM = ETMDB.table('items', cache_size=None)
@@ -251,6 +258,7 @@ which will need to be created.
     model.settings = settings
     model.logger = logger
     model.make_examples = make_examples
+    model.needs_update = needs_update
     model.timers_file = os.path.join(etmdir, 'timers.pkl')
     userhome = os.path.expanduser('~')
     etmhome = os.path.join('~', os.path.relpath(etmdir, userhome)) if etmdir.startswith(userhome) else etmdir
@@ -273,6 +281,10 @@ which will need to be created.
     parse_datetime = model.parse_datetime
     parse_duration = model.parse_duration
 
+    # if needs_update:
+    #     timer_update = TimeIt('***UPDATE***')
+    #     dataview.update_datetimes_to_periods()
+    #     timer_update.stop()
 
 
     view.loglevel = loglevel
