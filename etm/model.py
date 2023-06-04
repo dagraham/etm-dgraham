@@ -1708,7 +1708,7 @@ def format_period(obj):
 def format_period_list(obj_lst):
     if not isinstance(obj_lst, list):
         obj_lst = [obj_lst]
-    return ", ".join([format_period(x) for x in obj_lst if x])
+    return ", ".join([format_period(x) for x in obj_lst])
 
 
 def format_datetime_list(obj_lst):
