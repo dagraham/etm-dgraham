@@ -73,7 +73,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
 
 # Overview {#overview}
 
-*etm* began life in 2013 as *etm-qt* sporting a gui based on *Qt*. The intent was to provide an app supporting GTD (David Allen's Getting Things Done) and exploiting the power of python-dateutil. The name changed to *etmtk* in 2014 when *Tk* replaced *Qt*. Development of *etmtk* continued until 2019 when name changed to *etm-dgraham*, to honor the PyPi naming convention, and the interface changed to a terminal based one based on *promt_toolkit*. Features have changed over the years but the text based interface and basic format of the reminders has changed very little. The goal has always been to be the Swiss Army Knife of tools for managing reminders.
+*etm* began life in 2013 as *etm-qt* sporting a gui based on *Qt*. The intent was to provide an app supporting GTD (David Allen's Getting Things Done) and exploiting the power of python-dateutil. The name changed to *etmtk* in 2014 when *Tk* replaced *Qt*. Development of *etmtk* continued until 2019 when name changed to *etm-dgraham*, to honor the PyPi naming convention, and the interface changed to a terminal based one based on *prompt_toolkit*. Features have changed over the years but the text based interface and basic format of the reminders has changed very little. The goal has always been to be the Swiss Army Knife of tools for managing reminders.
 
 ## Reminders {#reminders}
 
