@@ -175,7 +175,6 @@ requires = {
         'b': ['s'],
         '+': ['s'],
         '-': ['rr'],
-        # 'o': ['rr'],
         'rr': ['s'],
         'js': ['s'],
         'ja': ['s'],
@@ -505,7 +504,7 @@ class Item(dict):
                 'l': ["location", "location or context, e.g., home, office, errands", do_string],
                 'm': ["mask", "string to be masked", do_mask],
                 'n': ["attendee", "name <email address>", do_string],
-                'o': ["overdue", "character from (r)estart, (s)kip, (k)eep or (p)reserve", do_overdue],
+                'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", do_overdue],
                 'p': ["priority", "priority from 0 (none) to 4 (urgent)", do_priority],
                 's': ["scheduled", "starting date or datetime", self.do_datetime],
                 't': ["tag", "tag", do_string],
@@ -3032,21 +3031,41 @@ class DataView(object):
 
     def update_datetimes_to_periods(self):
         """
-        For items with 'h' and/or 'f' entries, make sure entry is a pendulum period.
+        For items with 'h' and/or 'f' entries, make sure entry is a pendulum period. Also for clones
+        created because of @o p, remove @k entries doc_ids that do not exist and remove @h entries.
         if db.json exists and etm.json does not, then copy db.json to etm.json and run this script
         using etm.json.
         """
         items_to_update = []
+        old_parent = {}       # doc_id of parent -> parent item for items with @o p entries
+        possible_clones = []  # items with @k entries
+        doc_ids = []
         for item in self.db:
+            doc_ids.append(item.doc_id)
             if item['itemtype'] == '-':
                 changed = False
                 if 'f' in item:
                     if not isinstance(item['f'], pendulum.Period):
-                        dt = date_to_datetime(item['f'])
-                        item['f'] = pendulum.period(dt, dt)
+                        start = date_to_datetime(item['f'])
+                        end = date_to_datetime(item.get('s', item['f']))
+                        item['f'] = pendulum.period(start, end)
                         changed = True
 
+                if 'o' in item:
+                    if item['o'] == 'p':
+                        item['o'] = 'k'
+                        old_parent[item.doc_id] = item
+                        changed = True
+
+                if 'k' in item:
+                    possible_clones.append(item)
+
                 h_changed = False
+                if 'h' in item and not ('r' in item or '+' in item):
+                    # not repeating - should not have an @h
+                    del item['h']
+                    changed = True
+
                 if 'h' in item:
                 # deal with old to new history format
                     curr_hist = item.get('h', [])
@@ -3063,6 +3082,8 @@ class DataView(object):
                     if h_changed:
                         item['h'] = new_hist
                         changed = True
+
+
                 if 'j' in item:
                     j_changed = False
                     new_jobs = []
@@ -3082,6 +3103,8 @@ class DataView(object):
 
                 if changed:
                     items_to_update.append(item)
+
+
         if items_to_update:
             # backup db
             updated_items = []
@@ -3089,6 +3112,56 @@ class DataView(object):
                 update_db(self.db, item.doc_id, item)
                 updated_items.append(item.doc_id)
             logger.info(f"updated datetimes to periods for {len(updated_items)} items with these doc_ids:\n  {updated_items}")
+
+        items_to_update = []
+        items_to_remove = []
+        items_with_bad_links = []
+
+        for item in possible_clones:
+            for link in item.get('k', []):
+                if link in doc_ids:
+                    # the item corresponding to the link exists in the database
+                    if link in old_parent and item['summary'].startswith(old_parent[link]['summary']):
+                        # we have a clone - the summary of the clone begins with the summary from the possible parent
+                        parent = old_parent[link]
+                        if 'f' in item:
+                            # clone finished - add completion to parent
+                            if isinstance(item['f'], pendulum.Period):
+                                completion = item['f']
+                            else:
+                                start = date_to_datetime(item['f'])
+                                end = date_to_datetime(item.get('s', item['f']))
+                                completion = pendulum.period(start, end)
+                            parent.setdefault('h', []).append(completion)
+                            items_to_update.append(parent)
+                        elif 's' in item:
+                            # clone unfinished - add datetime to parent
+                            parent.setdefault('+', []).append(item['s'])
+                            items_to_update.append(parent)
+                        # remove the clone
+                        items_to_remove.append(item)
+                else:
+                    # dead link
+                    item['k'].remove(link)
+                    items_to_update.append(item)
+            if 'k' in item and not item['k']:
+                del item['k']
+
+        if items_to_update:
+            # backup db
+            updated_items = []
+            for item in items_to_update:
+                update_db(self.db, item.doc_id, item)
+                updated_items.append(item.doc_id)
+            logger.info(f"updated parents of clones for {len(updated_items)} items with these doc_ids:\n  {updated_items}")
+
+        if items_to_remove:
+            # backup db
+            removed_ids = []
+            for item in items_to_remove:
+                self.db.remove(doc_ids=[item.doc_id])
+                removed_ids.append(item.doc_id)
+            logger.info(f"removed clones for {len(removed_ids)} items with these doc_ids:\n  {removed_ids}")
 
 
     def possible_archive(self):
@@ -4587,12 +4660,13 @@ def get_next_due(item, done, due):
         return ''
     rset = rruleset()
     overdue = item.get('o', 'k') # make 'k' the default for 'o'
-    dtstart = item['s']
-    if due > item['s']:
+    start = item['s']
+    dtstart = date_to_datetime(item['s'])
+    if due > startdt:
         # we've finished a between instance
-        return item['s']
+        return dtstart
     # we're finishing the oldest instance
-    due = item['s'] if not due else due
+    due = dtstart if not due else due
     if overdue == 'k':
         aft = due
         inc = False
@@ -4609,10 +4683,9 @@ def get_next_due(item, done, due):
             aft = due
             inc = False
     using_dates = False
-    if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
+    if isinstance(start, pendulum.Date) and not isinstance(start, pendulum.DateTime):
         using_dates = True
-        dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
-        aft = pendulum.datetime(year=aft.year, month=aft.month, day=aft.day, hour=0, minute=0)
+        aft = date_to_datetime(aft)
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
         kwd['dtstart'] = dtstart
