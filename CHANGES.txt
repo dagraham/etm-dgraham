@@ -1,13 +1,17 @@
-Recent tagged changes as of 2023-06-04T13:26:17.876639-04:00:
-- 0 seconds ago (HEAD -> working, tag: 5.0.2) Daniel Graham
+Recent tagged changes as of 2023-06-04T16:44:49.898199-04:00:
+- 0 seconds ago (HEAD -> working, tag: 5.0.3) Daniel Graham
+    e0a0d9e 2023-06-04 16:44:49 -0400
+    Tagged version 5.0.3.
+
+- 3 hours ago (tag: 5.0.2) Daniel Graham
     4c5d4bb 2023-06-04 13:26:17 -0400
     Tagged version 5.0.2.
 
-- 39 minutes ago (tag: 5.0.1) Daniel Graham
+- 4 hours ago (tag: 5.0.1) Daniel Graham
     b30f0ed 2023-06-04 12:47:15 -0400
     Tagged version 5.0.1.
 
-- 30 hours ago (tag: 5.0.0) Daniel Graham
+- 33 hours ago (tag: 5.0.0) Daniel Graham
     7bc8090 2023-06-03 07:21:38 -0400
     Tagged version 5.0.0. Use pendulum periods for f and elements of h
     instead of datetimes.
@@ -76,7 +80,3 @@ Recent tagged changes as of 2023-06-04T13:26:17.876639-04:00:
 - 5 weeks ago (tag: 4.11.13) Daniel Graham
     4c47483 2023-04-28 08:14:27 -0400
     Tagged version 4.11.13.
-
-- 7 weeks ago (tag: 4.11.12) Daniel Graham
-    d16eba6 2023-04-19 10:37:55 -0400
-    Implemented 'start quick timer'
