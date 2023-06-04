@@ -2133,6 +2133,7 @@ def do_finish(*event):
     repeating = 'r' in hsh or '+' in hsh
 
     between = []
+    due = ""
 
     title = "Finish"
     if instance:
@@ -2161,6 +2162,7 @@ the completion datetime to use?
 number : datetime\
         """
         entry = "1 : now"
+        due = ""
 
 
     elif repeating:
@@ -2188,22 +2190,23 @@ number : datetime\
         """
 
         entry = "0 : now"
+        due = ""
 
     else:
         need = 1
+        between = [hsh.get('s', None)]
         entry =  "now"
-
-        due = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
+        due = hsh.get('s', "")
+        start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
 
         text= f"""\
-Selected: {hsh['itemtype']} {hsh['summary']}{due}
+Selected: {hsh['itemtype']} {hsh['summary']}{start}
 
 Enter <completion datetime>
         """
 
-    logger.debug(f"between: {between}")
-
     def coroutine():
+        global hsh
         dialog = TextInputDialog(
             title=title,
             label_text=text,
@@ -2229,12 +2232,11 @@ Enter <completion datetime>
             due = between[num]
             done = parse_datetime(done_parts[1], z='local')[1]
         elif num_parts == 1:
-            done = parse_datetime(done_parts[0], z='local')[1]
-            due = done
+            done = parse_datetime(done_str, z='local')[1]
+            due = between[0] if between[0] else done
 
         done = model.date_to_datetime(done)
 
-        logger.debug(f"doc_id: {doc_id}; job: {job}; done: {done}; due: {due}")
 
         changed = item.finish_item(doc_id, job, done, due)
 

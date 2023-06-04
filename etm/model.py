@@ -1324,7 +1324,7 @@ item_hsh:    {self.item_hsh}
         tz = self.item_hsh.get('z', None)
         args = [x.strip() for x in arg.split('->')]
         obj, rep = self.do_datetimes(args)
-        parts = [x for x in obj] if obj else []
+        parts = [date_to_datetime(x) for x in obj] if obj else []
         if len(parts) > 1:
             start_dt, end_dt = parts[:2]
             obj = pendulum.period(parts[0], parts[1])
@@ -4662,7 +4662,7 @@ def get_next_due(item, done, due):
     overdue = item.get('o', 'k') # make 'k' the default for 'o'
     start = item['s']
     dtstart = date_to_datetime(item['s'])
-    if due > startdt:
+    if due > dtstart:
         # we've finished a between instance
         return dtstart
     # we're finishing the oldest instance

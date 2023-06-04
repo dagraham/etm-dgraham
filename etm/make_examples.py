@@ -70,8 +70,10 @@ def make_examples(egfile=None, num_items=num_items):
         t = random.choice(types)
         summary = phrase()
         start = random.choice(datetimes)
+        end = random.choice(datetimes)
         date = random.choice(dates)
         s = start.strftime("%Y-%m-%d") if date else start.strftime("%Y-%m-%d %I:%M%p")
+        end = end.strftime("%Y-%m-%d") if date else start.strftime("%Y-%m-%d %I:%M%p")
         d = lorem.paragraph()
         i1 = random.choice(clients)
         i2 = random.choice(projects[i1])
@@ -96,7 +98,9 @@ def make_examples(egfile=None, num_items=num_items):
                 examples.append(f"{t} {summary} @s {s} @e {x}m @i client {i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem")
         elif t == '-' and random.choice(['h', 't']) == 'h':
             if start < now:
-                examples.append(f"{t} {summary} @s {s} @i client {i1}/{i2} @f {s} {used} @d {d} @t lorem")
+
+                f = f" @f {s} -> {end} " if random.choice(['h', 't']) == 't' else ""
+                examples.append(f"{t} {summary} @s {s} @i client {i1}/{i2} {f}{used} @d {d} @t lorem")
             else:
                 examples.append(f"{t} {summary} @s {s} @i client {i1}/{i2} @d {d} @b {begin} @t lorem")
 
