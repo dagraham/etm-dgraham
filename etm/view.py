@@ -945,10 +945,29 @@ def add_usedtime(*event):
 
         if not usedtime:
             # None (cancelled) or null string
+            return None
+
+        msg = []
+        ut = [x.strip() for x in usedtime.split(': ')]
+        if len(ut) != 2:
+            ok = False
+            msg.append(f"The entry '{usedtime}' is invalid")
+
+        else:
+            ok, per = model.parse_duration(ut[0])
+            if not ok:
+                msg.append(f"The entry '{ut[0]}' is not a valid period")
+
+            ok, dt, z = model.parse_datetime(ut[1])
+            if not ok:
+                msg.append(f"The entry '{ut[1]}' is not a valid datetime"
+                           )
+        if msg:
+            msg = "\n   ".join(msg)
+            show_message('add used time', f"Cancelled,\n   {msg}")
             return
 
-        changed = item.add_used(doc_id, usedtime)
-
+        changed, msg = item.add_used(doc_id, per, dt)
         if changed:
             dataview.timer_clear(doc_id)
 
@@ -959,7 +978,7 @@ def add_usedtime(*event):
             loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
         else:
-            show_message('add used time', f"Cancelled, '{usedtime}' is invalid.\nThe required entry format is:\n   period: datetime")
+            show_message('add used time', f"Cancelled, {msg}")
 
 
     asyncio.ensure_future(coroutine())

@@ -660,30 +660,30 @@ item_hsh:    {self.item_hsh}
             return False
 
 
-    def add_used(self, doc_id, usedtime):
+    def add_used(self, doc_id, period, dt):
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
-        ut = [x.strip() for x in usedtime.split(': ')]
-        if len(ut) != 2:
-            return False
+        # ut = [x.strip() for x in usedtime.split(': ')]
+        # if len(ut) != 2:
+        #     return False, f"The entry '{usedtime}' is invalid"
 
-        per_ok, per = parse_duration(ut[0])
-        if not per_ok:
-            return False
-        dt_ok, dt, z = parse_datetime(ut[1])
-        if not dt_ok:
-            return False
+        # per_ok, per = parse_duration(ut[0])
+        # if not per_ok:
+        #     return False, f"The entry '{ut[0]}' is not a valid period"
+        # dt_ok, dt, z = parse_datetime(ut[1])
+        # if not dt_ok:
+        #     return False, f"The entry '{ut[1]}' is not a valid datetime"
 
         used_times = self.item_hsh.get("u", [])
-        used_times.append([per, dt])
+        used_times.append([period, dt])
         self.item_hsh['u'] = used_times
         self.item_hsh['created'] = self.created
         self.item_hsh['modified'] = pendulum.now('local')
         # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         self.do_update()
 
-        return True
+        return True, ""
 
 
 
@@ -5622,14 +5622,16 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
                 if '-' in item:
                     for dt in item['-']:
-                        if type(dt) == pendulum.Date:
-                            dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
+                        dt = date_to_datetime(dt)
+                        # if type(dt) == pendulum.Date:
+                        #     dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
                         rset.exdate(dt)
 
                 if '+' in item:
                     for dt in item['+']:
-                        if type(dt) == pendulum.Date:
-                            dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
+                        dt = date_to_datetime(dt)
+                        # if type(dt) == pendulum.Date:
+                        #     dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
                         rset.rdate(dt)
 
                 if item['itemtype'] == '-':
