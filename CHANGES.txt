@@ -1,34 +1,38 @@
-Recent tagged changes as of 2023-06-04T16:44:49.898199-04:00:
-- 0 seconds ago (HEAD -> working, tag: 5.0.3) Daniel Graham
+Recent tagged changes as of 2023-06-05T06:02:56.173684-04:00:
+- 0 seconds ago (HEAD -> working, tag: 5.0.4) Daniel Graham
+    ea199ac 2023-06-05 06:02:56 -0400
+    Tagged version 5.0.4.
+
+- 13 hours ago (tag: 5.0.3) Daniel Graham
     e0a0d9e 2023-06-04 16:44:49 -0400
     Tagged version 5.0.3.
 
-- 3 hours ago (tag: 5.0.2) Daniel Graham
+- 17 hours ago (tag: 5.0.2) Daniel Graham
     4c5d4bb 2023-06-04 13:26:17 -0400
     Tagged version 5.0.2.
 
-- 4 hours ago (tag: 5.0.1) Daniel Graham
+- 17 hours ago (tag: 5.0.1) Daniel Graham
     b30f0ed 2023-06-04 12:47:15 -0400
     Tagged version 5.0.1.
 
-- 33 hours ago (tag: 5.0.0) Daniel Graham
+- 2 days ago (tag: 5.0.0) Daniel Graham
     7bc8090 2023-06-03 07:21:38 -0400
     Tagged version 5.0.0. Use pendulum periods for f and elements of h
     instead of datetimes.
 
-- 8 days ago (tag: 4.12.9) Daniel Graham
+- 9 days ago (tag: 4.12.9) Daniel Graham
     b8fbc47 2023-05-27 13:45:19 -0400
     Tagged version 4.12.9.
 
-- 9 days ago (tag: 4.12.8) Daniel Graham
+- 10 days ago (tag: 4.12.8) Daniel Graham
     b0316d5 2023-05-26 13:50:15 -0400
     Tagged version 4.12.8.
 
-- 10 days ago (tag: 4.12.7) Daniel Graham
+- 11 days ago (tag: 4.12.7) Daniel Graham
     442ff98 2023-05-25 13:53:52 -0400
     Tagged version 4.12.7.
 
-- 12 days ago (tag: 4.12.6) Daniel Graham
+- 13 days ago (tag: 4.12.6) Daniel Graham
     3da7332 2023-05-23 14:01:37 -0400
     Tagged version 4.12.6.
 
@@ -57,7 +61,7 @@ Recent tagged changes as of 2023-06-04T16:44:49.898199-04:00:
     ce2ab09 2023-05-13 12:46:39 -0400
     Tagged version 4.12.0. Added engaged view
 
-- 3 weeks ago (tag: 4.11.18) Daniel Graham
+- 4 weeks ago (tag: 4.11.18) Daniel Graham
     cd5482a 2023-05-11 12:20:48 -0400
     Tagged version 4.11.18.
 
@@ -76,7 +80,3 @@ Recent tagged changes as of 2023-06-04T16:44:49.898199-04:00:
 - 5 weeks ago (tag: 4.11.14) Daniel Graham
     b437f7b 2023-04-28 08:24:55 -0400
     Tagged version 4.11.14.
-
-- 5 weeks ago (tag: 4.11.13) Daniel Graham
-    4c47483 2023-04-28 08:14:27 -0400
-    Tagged version 4.11.13.
