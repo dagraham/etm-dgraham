@@ -2270,7 +2270,7 @@ class DataView(object):
         self.etmdir = etmdir
         self.backupdir = os.path.join(self.etmdir, 'backups')
         # need these files for backups
-        self.dbfile = os.path.normpath(os.path.join(etmdir, 'db.json'))
+        self.dbfile = os.path.normpath(os.path.join(etmdir, 'etm.json'))
         self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
         self.settings = settings
         if 'keep_current' in self.settings and self.settings['keep_current']:
@@ -2425,7 +2425,7 @@ class DataView(object):
         removefiles = []
         timestamp = pendulum.now('UTC').format("YYYY-MM-DD")
         filelist = os.listdir(self.backupdir)
-        # deal with db.json
+        # deal with etm.json
         dbmtime = os.path.getctime(self.dbfile)
         zipfiles = [x for x in filelist if x.startswith('db')]
         zipfiles.sort(reverse=True)
@@ -2435,14 +2435,14 @@ class DataView(object):
             lastdbtime = None
 
         if lastdbtime is None or dbmtime > lastdbtime:
-            backupfile = os.path.join(self.backupdir, f"db-{timestamp}.json")
-            zipfile = os.path.join(self.backupdir, f"db-{timestamp}.zip")
+            backupfile = os.path.join(self.backupdir, f"etm-{timestamp}.json")
+            zipfile = os.path.join(self.backupdir, f"etm-{timestamp}.zip")
             shutil.copy2(self.dbfile, backupfile)
             with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
                 zip.write(backupfile, os.path.basename(backupfile))
             os.remove(backupfile)
             logger.info(f"backed up {self.dbfile} to {zipfile}")
-            zipfiles.insert(0, f"db-{timestamp}.zip")
+            zipfiles.insert(0, f"etm-{timestamp}.zip")
             zipfiles.sort(reverse=True)
             removefiles.extend([os.path.join(self.backupdir, x) for x in zipfiles[7:]])
         else:

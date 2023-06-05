@@ -2406,7 +2406,7 @@ def do_whatever(*event):
     """
     For testing whatever
     """
-    dataview.update_datetimes_to_periods()
+    dataview.handle_backups()
     set_text(dataview.show_active_view())
 
 
