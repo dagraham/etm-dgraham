@@ -1405,6 +1405,9 @@ def is_duplicate(import_hsh, existing_hsh, ignore=[]):
     return mpr == xst
 
 
+def completion_evaluator(s):
+    return f"got {s}"
+
 def datetime_calculator(s):
     """
     s has the format:

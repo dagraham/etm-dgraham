@@ -627,9 +627,7 @@ class TextInputDialog(object):
             return True
 
         def accept():
-            self.set_label('\nworking ...\n')
             get_app().invalidate()
-            time.sleep(.1)
             self.future.set_result(self.text_area.text)
 
         def cancel():
@@ -2215,33 +2213,50 @@ Enter <completion datetime>
         done_str = yield from show_dialog_as_float(dialog)
 
         if not done_str:
-            # None (cancelled) or null string
-            return
+            # show_message('Finish', 'Cancelled')
+            return None
 
         done_parts = [x.strip() for x in done_str.split(':')]
 
+        msg = ""
         num_parts = len(done_parts)
         if num_parts != need:
-            show_message('finish 1', f"Cancelled, {done_str} is invalid")
-            return
+            ok = False
+            msg = f"Cancelled, the entry, {done_str}, is invalid"
 
         elif num_parts == 2:
             num = int(done_parts[0])
             # only return due for instance other than the oldest
             # due = between[num] if num else ""
-            due = between[num]
-            done = parse_datetime(done_parts[1], z='local')[1]
+            if num in range(len(between)):
+                due = between[num]
+            else:
+                msg = f"Cancelled, '{num}' is not in [{', '.join([str(x) for x in range(len(between))])}]"
+
+            ok, res, z = parse_datetime(done_parts[1], z='local')
+            if ok:
+                done = res
+            else:
+                msg = f"Cancelled, '{done_parts[1]}' is not a valid datetime"
+
         elif num_parts == 1:
-            done = parse_datetime(done_str, z='local')[1]
+            ok, res, z = parse_datetime(done_str, z='local')
+            if ok:
+                done = res
+            else:
+                msg = f"Cancelled, '{done_str}' is not a valid datetime"
             due = between[0] if between[0] else done
+
+        if msg:
+            show_message('Finish', msg)
+            return
 
         done = model.date_to_datetime(done)
         due = model.date_to_datetime(due)
 
-
         changed = item.finish_item(doc_id, job, done, due)
 
-        if changed:
+        if not msg and changed:
             if doc_id in dataview.itemcache:
                 del dataview.itemcache[doc_id]
             application.layout.focus(text_area)
