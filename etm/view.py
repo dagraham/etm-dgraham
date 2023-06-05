@@ -2168,7 +2168,7 @@ number : datetime\
     elif repeating:
         already_done = [x.end for x in hsh.get('h', [])]
         need = 2
-        between = [x[0] for x in model.item_instances(hsh, hsh['s'], pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
+        between = [x[0] for x in model.item_instances(hsh, model.date_to_datetime(hsh['s']), pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
         logger.debug(f"between: {between}")
         values_list = []
         # values.append( (0, format_datetime(between[0][0])[1]) )
@@ -2196,7 +2196,7 @@ number : datetime\
         need = 1
         between = [hsh.get('s', None)]
         entry =  "now"
-        due = hsh.get('s', "")
+        # due = hsh.get('s', "")
         start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
 
         text= f"""\
@@ -2236,6 +2236,7 @@ Enter <completion datetime>
             due = between[0] if between[0] else done
 
         done = model.date_to_datetime(done)
+        due = model.date_to_datetime(due)
 
 
         changed = item.finish_item(doc_id, job, done, due)
