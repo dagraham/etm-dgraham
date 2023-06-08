@@ -2407,7 +2407,8 @@ Enter the full path of the file to import or
             if ok:
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
-                dataview.refreshCurrent()
+                if dataview.mk_current:
+                    dataview.refreshCurrent()
                 dataview.refreshKonnections()
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
@@ -2426,7 +2427,8 @@ Enter the full path of the file to import or
                         msg += f"\n and removed {filehome}"
                     dataview.refreshRelevant()
                     dataview.refreshAgenda()
-                    dataview.refreshCurrent()
+                    if dataview.mk_current:
+                        dataview.refreshCurrent()
                     dataview.refreshKonnections()
                     loop = asyncio.get_event_loop()
                     loop.call_later(0, data_changed, loop)

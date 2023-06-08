@@ -2047,17 +2047,17 @@ class NDict(dict):
 
     tab = 2
 
-    def __init__(self, split_char='/', compact=False):
-        self.split_char = split_char
-        self.width = shutil.get_terminal_size()[0]-2
-        self.row = 0
+    def __init__(self, split_char='/', compact=False, width=None):
         self.compact = compact
+        self.width = width if width else shutil.get_terminal_size()[0]-2
+        self.split_char = split_char
+        self.row = 0
         self.row2id = {}
         self.output = []
         self.flag_len = 4 # gkptp
 
     def __missing__(self, key):
-        self[key] = NDict()
+        self[key] = NDict(compact=self.compact, width=self.width)
         return self[key]
 
     def as_dict(self):
@@ -2100,7 +2100,7 @@ class NDict(dict):
 
     def as_tree(self, t={}, depth = 0, level=0):
         """ return an indented tree """
-        self.width = shutil.get_terminal_size()[0]-2
+        # self.width = shutil.get_terminal_size()[0]-2
         for k in t.keys():
             indent = NDict.tab * depth * " "
             # replace any newlines in the title with spaces
@@ -2192,6 +2192,7 @@ class DataView(object):
         self.history_view = ""
         self.cache = {}
         self.itemcache = {}
+        self.current_hsh = {}
         self.used_summary = {}
         self.used_details = {}
         self.used_details2id = {}
@@ -2276,11 +2277,16 @@ class DataView(object):
         self.dbfile = os.path.normpath(os.path.join(etmdir, 'etm.json'))
         self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
         self.settings = settings
-        if 'keep_current' in self.settings and self.settings['keep_current']:
+        # if 'keep_current' in self.settings and self.settings['keep_current']:
+        if 'keep_current' in self.settings and self.settings['keep_current'][0]:
+            # weeks is not zero
+            self.mk_current = True
             self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
         else:
             self.currfile = None
+            self.mk_current = False
         if 'keep_next' in self.settings and self.settings['keep_next']:
+            # keep_next is true
             self.nextfile = os.path.normpath(os.path.join(etmdir, 'next.txt'))
         else:
             self.nextfile = None
@@ -2803,7 +2809,7 @@ class DataView(object):
         """
         Agenda for the current and following 'keep_current' weeks
         """
-        if self.currfile is not None:
+        if self.mk_current and self.currfile is not None:
             weeks = []
             self.set_now()
             curr_lines = []
@@ -2814,11 +2820,11 @@ class DataView(object):
                 weeks.append(this_week)
                 this_week = nextWeek(this_week)
 
-            tmp_cache = self.cache
+            # tmp_cache = self.cache
             for week in weeks:
-                if week in self.cache:
+                if week in current_hsh:
                     # append the agenda component
-                    curr_lines.append(self.cache[week][0])
+                    curr_lines.append(current_hsh[week])
                 else:
                     logger.debug(f"week {week} missing from cache")
             if curr_lines:
@@ -5604,6 +5610,11 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             if all_tds:
                 instance_interval = [today + min(all_tds), tomorrow + max(all_tds)]
 
+            # FIXME
+            # r and +      :
+            # r but not +  :
+            # + but not r  :
+
             if 'r' in item or '+' in item:
                 lofh = item.get('r', [])
                 rset = rruleset()
@@ -5628,6 +5639,16 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         rset.exdate(dt)
 
                 if '+' in item:
+                    # tmp = [dtstart]
+                    # tmp.extend(item['+'])
+                    # tmp = [date_to_datetime(x) for x in tmp]
+                    # tmp.sort()
+                    # aft = [x for x in tmp if x >= today]
+                    # bef = [x for x in tmp if x < today]
+                    # if aft:
+                    #     relevant = aft[0]
+                    # else:
+                    #     relevant = bef[-1]
                     for dt in item['+']:
                         dt = date_to_datetime(dt)
                         # if type(dt) == pendulum.Date:
@@ -6662,16 +6683,26 @@ def wkday2row(wkday):
     # 1 -> 5, ..., 6 -> 15, 0 -> 17  (pendulum thinks Sunday is first)
     return 3+ 2*wkday if wkday else 17
 
-def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}, mk_current=False):
+def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}):
+    global current_hsh
     wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
     timer_schedule = TimeIt('***SCHEDULE***')
-    if mk_current:
-        weeks_after = settings['keep_current'][0]
-        width = settings['keep_current'][1]-1
-        compact = True
-    else:
-        width = shutil.get_terminal_size()[0]-3
-        compact = False
+    #
+
+    width = shutil.get_terminal_size()[0]-3
+    compact = False
+    weeks_after = settings['keep_current'][0]
+    mk_current = weeks_after > 0
+    current_width = settings['keep_current'][1] - 1
+    current_hsh = {}
+
+    # if weeks_after > 0:
+    #     width = settings['keep_current'][1]-1
+    #     compact = True
+    # else:
+    #     width = shutil.get_terminal_size()[0]-3
+    #     compact = False
+
     ampm = settings['ampm']
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
@@ -6697,10 +6728,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     rhc_width = 15 if ampm else 11
     flag_width = 6
     indent_to_summary = 6
-    if mk_current:
-        summary_width = width - indent_to_summary - rhc_width
-    else:
-        summary_width = width - indent_to_summary - flag_width - rhc_width
+    current_summary_width = current_width - indent_to_summary - rhc_width
+    summary_width = width - indent_to_summary - flag_width - rhc_width
 
     d = iso_to_gregorian((yw[0], yw[1], 1))
     dt = pendulum.datetime(d.year, d.month, d.day, 0, 0, 0, tz='local')
@@ -7131,7 +7160,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
         week2day2heading.setdefault(week, {})
-        rdict = NDict(compact=compact)
+        rdict = NDict(compact=False)
         busy_details.setdefault(week, {})
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         for row in items:
@@ -7161,9 +7190,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                     busy_details[week].setdefault(row, [f"Busy"]).append(
                             busy_row
                             )
-
             rdict.add(path, values)
-
         for d, v in busy_details[week].items():
             busy_details[week][d] = "\n".join([x.rstrip() for x in v])
 
@@ -7171,6 +7198,39 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         tree, row2id = rdict.as_tree(rdict, level=0)
         agenda_hsh[week] = tree
         row2id_hsh[week] = row2id
+
+    if mk_current:
+        cweeks = set([])
+        for week, items in groupby(rows, key=itemgetter('week')):
+            cweeks.add(week)
+            week2day2heading.setdefault(week, {})
+            cdict = NDict(compact=True, width=settings['keep_current'][1])
+            wk_fmt = fmt_week(week).center(width, ' ').rstrip()
+            for row in items:
+                doc_id = row['id']
+                day_ = row['day'][0]
+                dayofweek = row.get('dayofweek', 1)
+                if day_ == today:
+                    day_ += " (Today)"
+                elif day_ == tomorrow:
+                    day_ += " (Tomorrow)"
+                path = f"{wk_fmt}/{day_}"
+                values = row['columns']
+                # heading = f"Busy periods for {day_}"
+                if values[0] in ["*", "-"]:
+                    values[1] = re.sub(' *\n+ *', ' ', values[1])
+                    # busyperiod = row.get('busyperiod', "")
+                    # if busyperiod:
+                    #     wrap = row.get('wrap', [])
+                    #     wrapped = row.get('wrapped', "")
+                    #     row = wkday2row(dayofweek)
+                    #     week2day2heading[week][row] = day_
+                    #     summary = values[1].ljust(current_summary_width-20, ' ')
+                    #     busy_row = f"{values[0]} {summary} {wrapped:^15}".rstrip()
+                cdict.add(path, values)
+
+            ctree, crow2id = cdict.as_tree(cdict, level=0)
+            current_hsh[week] = ctree
 
     busyday_details = {}
     for week in allday_details:
