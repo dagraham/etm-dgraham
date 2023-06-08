@@ -299,7 +299,7 @@ keep_current: {keep_current}
 # weeks is positive, the agenda for that integer number of weeks
 # starting with the current week will be written to "current.txt" in
 # your etm home directory and updated when necessary. The format will
-# be scaled to fit "width". A width of 50, e.g, fits an iPhone display
+# be scaled to fit "width". A width of 46, e.g, fits an iPhone display
 # in portrait mode. You could, for example, create a link to
 # "current.txt" in a pCloud or GoogleDrive folder and always have access
 # to your current agenda on your mobile device.
