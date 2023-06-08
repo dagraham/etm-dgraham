@@ -900,7 +900,7 @@ cursor key to restore the previous query, add ' | ' and
 the update command you want with its arguments.
 
 WARNING: Since the results may not be reversible, consider
-backing up your 'db.json' database before using update
+backing up your 'etm.json' database before using update
 commands. This simple query, e.g., would PERMANENTLY DELETE
 ALL YOUR REMINDERS:
 
@@ -1119,7 +1119,7 @@ While the views differ in many respects, they also share some common aspects:
 
 The files `current.txt` and `next.txt` in your etm home directory are created by *etm* but not displayed within *etm* itself. Whether or not these files are created depends on two settings in your `cfg.yaml`:
 
-* `keep_current`:  non-negative integers for `weeks` and `width`.  If `weeks` is positive, the agenda for that integer number of weeks starting with the current week will be scaled to fit `width` and written to `current.txt` and updated whenever necessary.
+* `keep_current`:  non-negative integers for `weeks` and `width`.  If `weeks` is positive, the agenda for that integer number of weeks starting with the current week will be scaled to fit `width` and written to `current.txt` and updated whenever necessary. A width of 46, for example, works well for an iPhone in portrait mode.
 
 * `keep_next`: true or false. If `true`, the contents of *do next* view will be written to `next.txt` in your etm home directory and updated whenever necessary.
 
@@ -1411,9 +1411,9 @@ Whatever *home* directory you choose, running etm for the first time will add th
             backups/
             logs/
             cfg.yaml
-            db.json
+            etm.json
 
-Here `cfg.yaml` is your user configuration file and `db.json` contains all your etm reminders. The folders `backups/` contains the 7 most recent daily backups of your `db.json` and `cfg.yaml` files. The folder `logs` contains the current `etm.log` file and the 7 most recent daily backups. Note that backup files are only created when the relevant file has been modified since the last backup.
+Here `cfg.yaml` is your user configuration file and `etm.json` contains all your etm reminders. The folders `backups/` contains the 7 most recent daily backups of your `etm.json` and `cfg.yaml` files. The folder `logs` contains the current `etm.log` file and the 7 most recent daily backups. Note that backup files are only created when the relevant file has been modified since the last backup.
 
 The file `cfg.yaml` can be edited and the options are documented in the file.
 See [configuration](#configuration) for details.
@@ -1564,7 +1564,7 @@ A task is something that requires action from the user and lasts, so to speak, u
     - Tasks that are past due are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Do Next* view grouped by @l (location/context).
 - Tasks with an `@r` (repeat) or an `@+` entry can have an `@o` (overdue) setting.
-	- `@o k`: keep. Whenever completed, the next instance is due at the datetime specified in the recurrance rule even if that datetime has already passed. E.g. minutes from a monthly meeting to be made on the 1st of the month are due for each prior month in which they have not been made. With this option, many instances can be past due. By default, a completion applies to the oldest, past due one, though other instances can be selected. This is the default when no `@o` entry is given.
+	- `@o k`: keep. Whenever completed, the next instance is due at the datetime specified in the recurrance rule even if that datetime has already passed. E.g. minutes from a monthly meeting to be made on the 1st of the month are due for each prior month in which they have not been made. With this option, many instances can be past due. By default, a completion applies to the oldest, past due one, though other instances can be selected. The default when no `@o` entry is given is `@o k`.
 	- `@o r`: reset. Whenever completed, the next instance is due at the first datetime that falls after the current datetime. E.g., getting a haircut every 14 days is due 14 days after the last haircut. With this option, at most one instance can be past due.
 	- `@o s`: skip. Like 'keep' with the addition that past due instances are ignored. E.g., taking out the trash every Monday morning for pickup is due every Monday morning but, if a Monday passes without taking out the trash, the instance is better regarded as irrelevant than past due. With this option, an instance can never be past due.
 
@@ -1739,7 +1739,7 @@ would specify the the scheduled datetime for the item is 9am on the Monday follo
 *  @l: location (aka context). forward slash delimited string. E.g., home/maintenance
 *  @m: mask. string stored in obfuscated form
 *  @n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion.
-*  @o: overdue. character from (r) restart, (s) skip, (k) keep, (p) preserve
+*  @o: overdue. character from (r) restart, (s) skip, (k) keep. Defaults to (k) keep.
 *  @p: priority. integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
 *  @r*: repetition frequency, a character from (y)early, (m)onthly, (w)eekly,
   (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &key entries
@@ -2318,15 +2318,14 @@ Note that in the 'dictionary' entries above, the components must be indented (us
 
 ### data storage {#data-storage}
 
-All *etm* reminders are stored in the text file `db.json` in your etm home directory using the wonderful *TinyDB* package. This *json* file is human readable but not easily editable. When you start *etm* for the first time, this file will have no entries:
+All *etm* reminders are stored in the text file `etm.json` in your etm home directory using the wonderful *TinyDB* package. [Prior to etm 5.0.0, the data storage file was named `db.json`. The format and name changed slightly with that version.] This *json* file is human readable but not easily editable. When you start *etm* for the first time, this file will have no entries:
 
 	{
 	"items": {},
 	"archive": {}
 	}
 
-Note that to *json* this is a hash/dictionary with two keys: "items" and "archive". Both have empty hashes/dictionaries as values.
-
+To *json* this is a hash/dictionary with two keys: "items" and "archive". Both have empty hashes/dictionaries as values.
 Add a first reminder to take out the trash on Mondays
 
 	- trash @s 2019-12-21 @r w &w mo
