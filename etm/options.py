@@ -169,7 +169,7 @@ class Settings():
     vi_mode = "false"
     secret = randomString(10)
     omit_extent = ""
-    keep_current = [0, 47]
+    keep_current = [0, 46]
     keep_next = "false"
     archive_after = 0
     refresh_interval = 60
@@ -729,14 +729,16 @@ window_colors: {window_colors}
                 self.settings['window_colors'].update(new['window_colors'])
 
         if 'keep_current' in new and not isinstance(new['keep_current'], list):
+            weeks, width = self.settings['keep_current']
             if isinstance(new['keep_current'], int):
                 weeks = new['keep_current']
-            elif isinstance(new['keep_current'], bool):
-                weeks = 3 if new['keep_current'] else 0
+            elif isinstance(new['keep_current'], bool) and not new['keep_current']:
+                weeks = 0
             else:
                 weeks = 0
-            changed.append(f"Converting 'keep_current' from {new['keep_current']} to [{weeks}, 50]")
-            new['keep_current'] = [weeks, 50]
+            # use default width
+            changed.append(f"Converting 'keep_current' from {new['keep_current']} to [{weeks}, {width}]")
+            new['keep_current'] = [weeks, width]
 
         if not locale_regex.match(new['locale']):
             tmp = new['locale']
