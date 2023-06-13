@@ -2153,13 +2153,15 @@ def do_finish(*event):
     due = ""
 
     title = "Finish"
-    if instance:
+    logger.debug(f"instance: {instance}; hsh['s']: {hsh['s']}; equal? {instance == model.date_to_datetime(hsh['s'])}")
+    if instance and instance != model.date_to_datetime(hsh['s']):
         need = 2
         between = [hsh['s'], instance]
-        values = [
-            f"{format_datetime(hsh['s'])[1]} (oldest)",
-            f"{format_datetime(instance)[1]} (selected)",
-            ]
+        if instance != hsh['s']:
+            values = [
+                f"{format_datetime(hsh['s'])[1]} (oldest)",
+                f"{format_datetime(instance)[1]} (selected)",
+                ]
 
         values_list = []
         count = -1
@@ -2182,7 +2184,7 @@ number : datetime\
         due = ""
 
 
-    elif repeating:
+    elif repeating and between:
         already_done = [x.end for x in hsh.get('h', [])]
         need = 2
         between = [x[0] for x in model.item_instances(hsh, model.date_to_datetime(hsh['s']), pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
@@ -2239,6 +2241,7 @@ Enter <completion datetime>
 
         msg = ""
         num_parts = len(done_parts)
+        logger.debug(f"done_parts: {done_parts}; num_parts: {num_parts}")
         if num_parts != need:
             ok = False
             msg = f"Cancelled, the entry, {done_str}, is invalid"

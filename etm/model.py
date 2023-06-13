@@ -78,14 +78,25 @@ data = None
 ampm = True
 logger = None
 
-def sortdt(dt):
-    # assumes dt is either a date or a datetime
-    try:
-        # this works if dt is a datetime
-        return dt.format("YYYYMMDDHHmm")
-    except:
-        # this works if dt is a date by providing 00 for HH and mm
-        return dt.format("YYYYMMDD0000")
+# def sortdt(dt):
+#     # assumes dt is either a date or a datetime
+#     if isinstance(dt, pendulum.Date):
+#         dt = date_to_datetime(dt)
+#     elif isinstance(dt, pendulum.Period):
+#         dt = dt.end
+#     try:
+#         # this works if dt is a datetime
+#         return dt.format("YYYYMMDDHHmm")
+#     except:
+#         # this works if dt is a date by providing 00 for HH and mm
+#         return dt.format("YYYYMMDD0000")
+
+def sortprd(prd, start=True):
+    # assumes prd is a pendulum.Period
+    if start:
+        return prd.start.format("YYYYMMDDHHmm")
+    else:
+        return prd.end.format("YYYYMMDDHHmm")
 
 
 
@@ -826,6 +837,7 @@ item_hsh:    {self.item_hsh}
             if 's' in self.item_hsh:
                 if 'r' in self.item_hsh:
                     nxt = get_next_due(self.item_hsh, completed_datetime, completion_entry.end)
+                    logger.debug(f"completed_datetime: {completed_datetime}; completion_entry.end: {completion_entry.end}; nxt: {nxt}")
                     if nxt:
                         for i in range(len(self.item_hsh['r'])):
                             if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
@@ -874,7 +886,7 @@ item_hsh:    {self.item_hsh}
                         ok = False
                 if ok:
                     sh = self.item_hsh['h']
-                    sh.sort(key=sortdt)
+                    sh.sort(key=sortprd)
                     self.item_hsh['h'] = sh[-num_finished:]
 
             self.item_hsh['created'] = self.created
@@ -1579,6 +1591,8 @@ def timestamp(arg):
         return True, arg
     elif isinstance(arg, pendulum.Date):
         return True, date_to_datetime(arg)
+    elif isinstance(arg, pendulum.Period):
+        return True, arg
     try:
         # res = parse(arg).strftime(ETMFMT)
         res = parse(arg)
@@ -3771,7 +3785,7 @@ entry_tmpl = """\
 {%- set ls = namespace(found=false) -%}\
 {%- set location -%}\
 {%- for k in ['l', 'm', 'g', 'x', 'p'] -%}\
-{%- if k in h %}@{{ k }} {{ h[k] }}{% set ls.found = true %} {% endif -%}\
+{%- if k in h %} @{{ k }} {{ h[k] }}{% set ls.found = true %} {% endif -%}\
 {%- endfor -%}\
 {%- endset -%}\
 {%- if ls.found -%}\
@@ -3878,7 +3892,7 @@ display_tmpl = """\
 {%- set ls = namespace(found=false) -%}\
 {%- set location -%}\
 {%- for k in ['l', 'm', 'g', 'x', 'p'] -%}\
-{%- if k in h %}@{{ k }} {{ h[k] }}{% set ls.found = true %} {% endif -%}\
+{%- if k in h %} @{{ k }} {{ h[k] }}{% set ls.found = true %} {% endif -%}\
 {%- endfor -%}\
 {%- endset -%}\
 {%- if ls.found -%}\
@@ -4779,7 +4793,7 @@ def item_instances(item, aft_dt, bef_dt=1):
         return []
     # This should not be necessary since the data store decodes dates as datetimes
     if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
-        dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0)
+        dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0, tz='local')
         startdst = None
         using_dates = True
     else:
@@ -5240,7 +5254,9 @@ def jobs(lofh, at_hsh={}):
 
     if msg:
         logger.warning(f"{msg}")
+        logger.debug(f"returning False, {msg} and None")
         return False, msg, None
+    logger.debug(f"returning True, {[id2hsh[i] for i in ids]}, {last_completion}")
     return True, [id2hsh[i] for i in ids], last_completion
 
 #######################
@@ -5531,6 +5547,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     summary_width = width - 7 - 16
     ampm = settings['ampm']
     rhc_width = 15 if ampm else 11
+    num_remaining = ""
 
     today = pendulum.today()
     tomorrow = today + DAY
@@ -5669,11 +5686,14 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         # it will be the @s entry for the updated repeating item
                         # these are @s entries for the instances to be preserved
                         between = rset.between(dtstart, today-ONEMIN, inc=True)
-                        remaining = [x for x in between if x not in already_done]
+                        remaining = [x for x in between if x not in already_done and x != dtstart]
                         # once instances have been created, between will be empty until
                         # the current date falls after item['s'] and relevant is reset
-                        summary = f"{item['summary']} ({len(remaining)})"
-                        if dtstart.date() < today.date():
+                        num_remaining = f"({len(remaining)})" if remaining else ""
+                        logger.debug(f"remaining: {remaining} {len(remaining)} {num_remaining}")
+                        sum_abbr = item['summary'][:summary_width]
+                        summary = f"{sum_abbr} {num_remaining}"
+                        if dtstart.date() < today.date() and 'j' not in item:
                             pastdue.append([(dtstart.date() - today.date()).days, summary, item.doc_id, None, None])
                 else:
                     # get the first instance after today
@@ -5763,11 +5783,14 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 if 'f' in job:
                     continue
                 # adjust job starting time if 's' in job
-                job_summary = job.get('summary', '')
-                jobstart = relevant - job.get('s', ZERO)
-                if jobstart.date() < today.date():
+                job_summary = f"{job.get('summary', '')[:summary_width]} {num_remaining}"
+                jobstart = dtstart - job.get('s', ZERO)
+                logger.debug(f"jobstart: {jobstart}")
+                if jobstart.date() < today.date() and job.get('status', None) == '-':
+                    logger.debug(f"available and pastdue job: {job}")
                     pastdue_jobs = True
                     pastdue.append([(jobstart.date() - today.date()).days, job_summary, item.doc_id, job_id, None])
+                    logger.debug(f"pastdue[-1]: {pastdue[-1]}")
                 if 'b' in job:
                     days = int(job['b']) * DAY
                     if today + DAY <= jobstart <= tomorrow + days:
@@ -5780,7 +5803,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
         id2relevant[item.doc_id] = relevant
 
-        if item['itemtype'] == '-' and 'f' not in item and not pastdue_jobs and relevant.date() < today.date():
+        # if item['itemtype'] == '-' and 'f' not in item and relevant.date() < today.date():
+        if item['itemtype'] == '-' and 'f' not in item and 'j' not in item and relevant.date() < today.date():
             pastdue.append([(relevant.date() - today.date()).days, summary, item.doc_id, None, None])
 
     inbox.sort()
@@ -5801,9 +5825,10 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
         item_0 = str(item[0]) if item[0] in item else ""
         rhc = item_0.center(rhc_width, ' ')
         doc_id = item[2]
+        job_id = item[3] if item[3] else ""
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
         try:
-            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], flags, rhc, doc_id]})
+            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], flags, rhc, (doc_id, item[4], item[3])]})
         except Exception as e:
             logger.warning(f"could not append item: {item}; e: {e}")
 
@@ -6857,8 +6882,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 for row in d:
                     dt = row[0]
                     if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
-                        dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
-                        dt.set(hour=23, minute=59, second=59)
+                        # dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
+                        dt = pendulum.datetime(dt.year, dt.month, dt.day, tz='local')
+                        # dt.set(hour=23, minute=59, second=59)
 
                     rhc = str(row[3]) if len(row) > 3 else ""
                     if dt < aft_dt or dt > bef_dt:
