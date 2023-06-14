@@ -1393,7 +1393,6 @@ async def maybe_alerts(now):
 
 async def event_handler():
     global current_datetime
-    logger.debug(f"current_datetime: {current_datetime}")
     # check for updates every interval minutes
     interval = settings.get('updates_interval', 0)
     refresh_interval = settings.get('refresh_interval', 60)
@@ -1503,7 +1502,6 @@ def get_statusbar_right_text():
 def openWithDefault(path):
     if " " in path:
         parts = qsplit(path)
-        logger.debug(f"path: {path}\n    Popen args: {parts}")
         if parts:
             # wrapper to catch 'Exception Ignored' messages
             output = io.StringIO()
@@ -1517,7 +1515,6 @@ def openWithDefault(path):
 
     else:
         path = os.path.normpath(os.path.expanduser(path))
-        logger.debug(f"path: {path}")
         sys_platform = platform.system()
         if platform.system() == 'Darwin':       # macOS
             subprocess.run(('open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -2142,8 +2139,6 @@ def do_finish(*event):
     if not doc_id:
         return
 
-    logger.debug(f"doc_id: {doc_id}; instance: {instance}; job: {job}")
-
     hsh = DBITEM.get(doc_id=doc_id)
     has_timer = doc_id in dataview.timers
     timer_warning = " and\nits associated timer" if has_timer else ""
@@ -2153,7 +2148,6 @@ def do_finish(*event):
     due = ""
 
     title = "Finish"
-    logger.debug(f"instance: {instance}; hsh['s']: {hsh['s']}; equal? {instance == model.date_to_datetime(hsh['s'])}")
     if instance and instance != model.date_to_datetime(hsh['s']):
         need = 2
         between = [hsh['s'], instance]
@@ -2188,7 +2182,6 @@ number : datetime\
         already_done = [x.end for x in hsh.get('h', [])]
         need = 2
         between = [x[0] for x in model.item_instances(hsh, model.date_to_datetime(hsh['s']), pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
-        logger.debug(f"between: {between}")
         values_list = []
         # values.append( (0, format_datetime(between[0][0])[1]) )
         count = -1
@@ -2241,7 +2234,6 @@ Enter <completion datetime>
 
         msg = ""
         num_parts = len(done_parts)
-        logger.debug(f"done_parts: {done_parts}; num_parts: {num_parts}")
         if num_parts != need:
             ok = False
             msg = f"Cancelled, the entry, {done_str}, is invalid"

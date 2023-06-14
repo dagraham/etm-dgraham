@@ -843,7 +843,6 @@ item_hsh:    {self.item_hsh}
             if 's' in self.item_hsh:
                 if 'r' in self.item_hsh:
                     nxt = get_next_due(self.item_hsh, completed_datetime, completion_entry.end)
-                    logger.debug(f"completed_datetime: {completed_datetime}; completion_entry.end: {completion_entry.end}; nxt: {nxt}")
                     if nxt:
                         for i in range(len(self.item_hsh['r'])):
                             if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
@@ -5264,9 +5263,7 @@ def jobs(lofh, at_hsh={}):
 
     if msg:
         logger.warning(f"{msg}")
-        logger.debug(f"returning False, {msg} and None")
         return False, msg, None
-    logger.debug(f"returning True, {[id2hsh[i] for i in ids]}, {last_completion}")
     return True, [id2hsh[i] for i in ids], last_completion
 
 #######################
@@ -5700,7 +5697,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         # once instances have been created, between will be empty until
                         # the current date falls after item['s'] and relevant is reset
                         num_remaining = f"({len(remaining)})" if remaining else ""
-                        logger.debug(f"remaining: {remaining} {len(remaining)} {num_remaining}")
                         sum_abbr = item['summary'][:summary_width]
                         summary = f"{sum_abbr} {num_remaining}"
                         if dtstart.date() < today.date() and 'j' not in item:
@@ -5795,12 +5791,9 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 # adjust job starting time if 's' in job
                 job_summary = f"{job.get('summary', '')[:summary_width]} {num_remaining}"
                 jobstart = dtstart - job.get('s', ZERO)
-                logger.debug(f"jobstart: {jobstart}")
                 if jobstart.date() < today.date() and job.get('status', None) == '-':
-                    logger.debug(f"available and pastdue job: {job}")
                     pastdue_jobs = True
                     pastdue.append([(jobstart.date() - today.date()).days, job_summary, item.doc_id, job_id, None])
-                    logger.debug(f"pastdue[-1]: {pastdue[-1]}")
                 if 'b' in job:
                     days = int(job['b']) * DAY
                     if today + DAY <= jobstart <= tomorrow + days:
@@ -6969,7 +6962,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 # repeating task with jobs
 
                 if instance:
-                    logger.debug(f"instance {instance} for {doc_id}. active_tasks: {active_tasks}")
                     if doc_id in active_tasks and active_tasks[doc_id] != instance:
                             continue
 
