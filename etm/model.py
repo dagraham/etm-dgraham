@@ -78,6 +78,8 @@ data = None
 ampm = True
 logger = None
 
+active_tasks = {}
+
 # def sortdt(dt):
 #     # assumes dt is either a date or a datetime
 #     if isinstance(dt, pendulum.Date):
@@ -798,6 +800,7 @@ item_hsh:    {self.item_hsh}
         # date with period.days in right hand column if 2nd component is not
         # ZERO. Why list of period values? done's resolution is one minute so
         # more than one completion might be attributed to the same minute.
+        global active_tasks
 
         save_item = False
         self.item_hsh = self.db.get(doc_id=item_id)
@@ -827,6 +830,9 @@ item_hsh:    {self.item_hsh}
                                     break
                         self.item_hsh['s'] = nxt
                         self.item_hsh.setdefault('h', []).append(completion_entry)
+                        if self.doc_id in active_tasks:
+                            del active_tasks[self.doc_id]
+
                         save_item = True
                     else:  # finished last instance
                         self.item_hsh['f'] = completion_entry
@@ -2216,6 +2222,10 @@ class DataView(object):
         self.konnections_from = {}
         self.konnections_to = {}
         self.konnected = []
+
+        # for repeating tasks with jobs - only one can be active
+        # self.active_tasks = [] # ids of repeating tasks with jobs
+
         if os.path.exists(timers_file):
             with open(timers_file, 'rb') as fn:
                 self.timers = pickle.load(fn)
@@ -6709,7 +6719,7 @@ def wkday2row(wkday):
     return 3+ 2*wkday if wkday else 17
 
 def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}):
-    global current_hsh
+    global current_hsh, active_tasks
     wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
     timer_schedule = TimeIt('***SCHEDULE***')
     #
@@ -6788,6 +6798,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     #XXX main loop begins
     todayYMD = now.format("YYYYMMDD")
     tomorrowYMD = (now + 1*DAY).format("YYYYMMDD")
+
+    # Only display one active instance of a repeating task with jobs
+    repeating_with_jobs_ids = []
+
     for item in db:
         if item.get('itemtype', None) == None:
             logger.error(f"itemtype missing from {item}")
@@ -6947,8 +6961,23 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 freq = item['r'][0].get('r', 'y')
             else:
                 freq = 'y'
+
             instance = dt if '+' in item or 'r' in item else None
+
             if 'j' in item:
+
+                # repeating task with jobs
+
+                if instance:
+                    logger.debug(f"instance {instance} for {doc_id}. active_tasks: {active_tasks}")
+                    if doc_id in active_tasks and active_tasks[doc_id] != instance:
+                            continue
+
+
+                    else:
+                        active_tasks[doc_id] = instance
+
+
                 for job in item['j']:
                     if 'f' in job:
                         continue
