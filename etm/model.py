@@ -5693,7 +5693,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         # it will be the @s entry for the updated repeating item
                         # these are @s entries for the instances to be preserved
                         between = rset.between(dtstart, today-ONEMIN, inc=True)
-                        remaining = [x for x in between if x not in already_done and x != dtstart]
+                        # remaining = [x for x in between if x not in already_done and x != dtstart]
+                        remaining = [x for x in between if x not in already_done]
                         # once instances have been created, between will be empty until
                         # the current date falls after item['s'] and relevant is reset
                         num_remaining = f"({len(remaining)})" if remaining else ""
@@ -6792,9 +6793,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     todayYMD = now.format("YYYYMMDD")
     tomorrowYMD = (now + 1*DAY).format("YYYYMMDD")
 
-    # Only display one active instance of a repeating task with jobs
-    repeating_with_jobs_ids = []
-
     for item in db:
         if item.get('itemtype', None) == None:
             logger.error(f"itemtype missing from {item}")
@@ -6873,12 +6871,15 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         if itemtype == '-':
             d = [] # d for done
+            c = [] # c for completed
             if isinstance(finished, pendulum.Period):
                 # finished will be false if the period is ZERO
                 d.append([finished.start, summary, doc_id, format_date(finished.end)[1]])
+                c.append([finished.end, summary, doc_id, format_date(finished.start)[1]])
             if history:
                 for dt in history:
                     d.append([dt.start, summary, doc_id, format_date(dt.end)[1]])
+                    c.append([dt.end, summary, doc_id, format_date(dt.start)[1]])
             if jobs:
                 for job in jobs:
                     job_summary = job.get('summary', '')
@@ -6964,8 +6965,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 if instance:
                     if doc_id in active_tasks and active_tasks[doc_id] != instance:
                             continue
-
-
                     else:
                         active_tasks[doc_id] = instance
 
