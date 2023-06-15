@@ -509,7 +509,7 @@ class Item(dict):
                 'd': ["description", "item details", do_paragraph],
                 'e': ["extent", "timeperiod", do_duration],
                 'w': ["wrap", "list of two timeperiods", do_two_periods],
-                'f': ["finish", "completion datetime", self.do_completion],
+                'f': ["finish", "completion done -> due", self.do_completion],
                 'g': ["goto", "url or filepath", do_string],
                 'h': ["completions", "list of completion datetimes", self.do_completions],
                 'i': ["index", "forward slash delimited string", do_string],
@@ -541,11 +541,11 @@ class Item(dict):
                 'r?': ["repetition &-key", "enter &-key", self.do_ampr],
 
                 'jj': ["summary", "job summary. Append an '&' to add a job option.", do_string],
-                'ja': ["alert", "list of timeperiod before job is scheduled followed by a colon and a list of command", do_alert],
+                'ja': ["alert", "list of timeperiods before job is scheduled followed by a colon and a list of commands", do_alert],
                 'jb': ["beginby", " integer number of days", do_beginby],
                 'jd': ["description", " string", do_paragraph],
                 'je': ["extent", " timeperiod", do_duration],
-                'jf': ["finish", " datetime", self.do_completion],
+                'jf': ["finish", " completion done -> due", self.do_completion],
                 'ji': ["unique id", " integer or string", do_string],
                 'jl': ["location", " string", do_string],
                 'jm': ["mask", "string to be masked", do_mask],
@@ -837,6 +837,9 @@ item_hsh:    {self.item_hsh}
                     else:  # finished last instance
                         self.item_hsh['f'] = completion_entry
                         save_item = True
+                # else:
+                #     # FIXME This is the undated task with jobs branch
+                #     save_item = True
 
         else:
             # no jobs
@@ -970,6 +973,8 @@ item_hsh:    {self.item_hsh}
         """
         key, val = kv
 
+        condition = 'f' in key
+
         if key in self.keys:
             a, r, do = self.keys[key]
             ask = a
@@ -986,7 +991,7 @@ item_hsh:    {self.item_hsh}
                     # call the appropriate do for the key
                     obj, rep = do(val)
                     reply = rep if rep else r
-                    if obj:
+                    if obj is not None:
                         self.object_hsh[kv] = obj
                     else:
                         if kv in self.object_hsh:
@@ -1005,9 +1010,10 @@ item_hsh:    {self.item_hsh}
         msg = []
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
-            if not obj:
+            if obj is None:
                 msg.append(f"bad entry for {k}: {v}")
-                continue
+                return msg
+                # continue
             elif k in ['a', 'u', 'n', 't', 'k']:
                 self.item_hsh.setdefault(k, []).append(obj)
             elif k in ['rr', 'jj']:
@@ -1337,18 +1343,18 @@ item_hsh:    {self.item_hsh}
 
 
     def do_completion(self, arg):
-        obj = None
+        # obj = None
         tz = self.item_hsh.get('z', None)
         args = [x.strip() for x in arg.split('->')]
         obj, rep = self.do_datetimes(args)
         parts = [date_to_datetime(x) for x in obj] if obj else []
         if len(parts) > 1:
             start_dt, end_dt = parts[:2]
-            obj = pendulum.period(parts[0], parts[1])
+            obj = pendulum.period(start_dt, end_dt)
             rep = f"{format_datetime(start_dt, short=True)[1]} -> {format_datetime(end_dt, short=True)[1]}"
         else:
             obj = None
-            rep = f"\nincomplete or invalid completion: {rep}"
+            rep = f"\nincomplete or invalid completion: {arg}"
         return obj, rep
 
 
@@ -5235,7 +5241,7 @@ def jobs(lofh, at_hsh={}):
             del id2hsh[i]['f']
         else:
             # remove finished jobs from the requirements
-            if id2hsh[i].get('f', None):
+            if id2hsh[i].get('f', None) is not None:
                 # i is finished so remove it from the requirements for any
                 # other jobs
                 for j in ids:
@@ -5246,7 +5252,7 @@ def jobs(lofh, at_hsh={}):
     awf = [0, 0, 0]
     # set the job status for each job - f) finished, a) available or w) waiting
     for i in ids:
-        if id2hsh[i].get('f', None): # i is finished
+        if id2hsh[i].get('f', None) is not None: # i is finished
             id2hsh[i]['status'] = FINISHED_CHAR
             awf[2] += 1
         elif req[i]: # there are unfinished requirements for i
@@ -6248,7 +6254,7 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
             sort_priority = 4 - int(priority)
             show_priority = str(priority) if priority > 0 else ""
             for job in item['j']:
-                if job.get('f'):
+                if job.get('f', None) is not None:
                     # show completed jobs only in completed view
                     continue
                 location = job.get('l', task_location)
@@ -6781,6 +6787,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     weeks = set([])
     rows = []
     done = []
+    completed = []
     engaged = []
     # busy = []
 
@@ -6871,21 +6878,26 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         if itemtype == '-':
             d = [] # d for done
-            c = [] # c for completed
+            # c = [] # c for completed
             if isinstance(finished, pendulum.Period):
                 # finished will be false if the period is ZERO
+                # we need details of when completed (start and end) for completed view
                 d.append([finished.start, summary, doc_id, format_date(finished.end)[1]])
-                c.append([finished.end, summary, doc_id, format_date(finished.start)[1]])
+                # to skip completed instances we only need the completed (end) instance
+                completed.append(finished.end)
+                # ditto below for history
             if history:
                 for dt in history:
                     d.append([dt.start, summary, doc_id, format_date(dt.end)[1]])
-                    c.append([dt.end, summary, doc_id, format_date(dt.start)[1]])
+                    completed.append(dt.end)
             if jobs:
                 for job in jobs:
                     job_summary = job.get('summary', '')
                     if 'f' in job:
                         # FIXME
-                        d.append([job['f'].start, job_summary, doc_id, job['i']])
+                        # d.append([job['f'].start, job_summary, doc_id, format_date(job['f'].end)[1]])
+                        d.append([job['f'].start, job_summary, doc_id, ""])
+                        completed.append(job['f'].end)
             if d:
                 for row in d:
                     dt = row[0]
@@ -6919,7 +6931,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                             }
                             )
 
-        if not start or finished is not None:
+        startdt = date_to_datetime(start)
+        if not start or finished is not None or startdt in completed:
             continue
 
         # XXX INSTANCES
@@ -6957,6 +6970,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 freq = 'y'
 
             instance = dt if '+' in item or 'r' in item else None
+
+            if instance in completed:
+                continue
 
             if 'j' in item:
 

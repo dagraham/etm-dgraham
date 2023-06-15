@@ -2148,14 +2148,45 @@ def do_finish(*event):
     due = ""
 
     title = "Finish"
-    if instance and instance != model.date_to_datetime(hsh['s']):
+
+    if job:
+        # only a completion date needed - either undated or finishing the oldest instance
+        need = 1
+        between = [hsh.get('s', None)]
+        entry =  "now"
+        # due = hsh.get('s', "")
+        start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
+
+        text= f"""\
+Selected: {hsh['itemtype']} {hsh['summary']}\nJob: {job}{start}
+
+Enter <completion datetime>
+        """
+
+
+    elif instance and instance == model.date_to_datetime(hsh['s']):
+        # the oldest instance is selected
+        need = 1
+        between = [hsh.get('s', None)]
+        entry =  "now"
+        # due = hsh.get('s', "")
+        start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
+
+        text= f"""\
+Selected: {hsh['itemtype']} {hsh['summary']}{start}
+
+Enter <completion datetime>
+        """
+
+    elif instance:
+        # either the instance or the oldest
         need = 2
         between = [hsh['s'], instance]
-        if instance != hsh['s']:
-            values = [
-                f"{format_datetime(hsh['s'])[1]} (oldest)",
-                f"{format_datetime(instance)[1]} (selected)",
-                ]
+        # if instance != hsh['s']:
+        values = [
+            f"{format_datetime(hsh['s'])[1]} (oldest)",
+            f"{format_datetime(instance)[1]} (selected)",
+            ]
 
         values_list = []
         count = -1
@@ -2177,8 +2208,8 @@ number : datetime\
         entry = "1 : now"
         due = ""
 
-
-    elif repeating and between:
+    elif repeating:
+        # must be selected from today's pastdue
         already_done = [x.end for x in hsh.get('h', [])]
         need = 2
         between = [x[0] for x in model.item_instances(hsh, model.date_to_datetime(hsh['s']), pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
