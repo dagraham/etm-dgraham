@@ -5270,6 +5270,7 @@ def jobs(lofh, at_hsh={}):
     if msg:
         logger.warning(f"{msg}")
         return False, msg, None
+    # logger.debug(f"returning True, {[id2hsh[i] for i in ids]}, {last_completion}")
     return True, [id2hsh[i] for i in ids], last_completion
 
 #######################
