@@ -5755,7 +5755,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         for instance in instances:
                             # logger.debug(f"{(instance.date()-today.date()) <= possible_beginby}")
                             logger.debug(f"beginby today+DAY: {today+DAY}, instance: {instance}, tomorrow+: {tomorrow+possible_beginby}")
-                            if instance.date()-today.date() <= possible_beginby:
+                            if ZERO < instance.date()-today.date() <= possible_beginby:
                                 doc_id = item.doc_id
                                 if 'r' in item:
                                     # use the freq from the first recurrence rule
@@ -5786,7 +5786,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 if possible_beginby:
                     for instance in aft:
                         # if today + DAY <= instance <= tomorrow + possible_beginby:
-                        if instance.date()-today.date() <= possible_beginby:
+                        if ZERO < instance.date()-today.date() <= possible_beginby:
                             beginbys.append([(instance.date() - today.date()).days, summary, item.doc_id, None, instance])
                 if possible_alerts:
                     for instance in aft + bef:
@@ -5797,7 +5797,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             else:
                 # 's' but not 'r' or '+'
                 relevant = dtstart
-                if possible_beginby and relevant.date()-today.date() <= possible_beginby:
+                if possible_beginby and ZERO < relevant.date()-today.date() <= possible_beginby:
                     beginbys.append([(relevant.date() - today.date()).days, summary,  item.doc_id, None, None])
                 if possible_alerts:
                     for possible_alert in possible_alerts:
