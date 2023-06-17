@@ -606,14 +606,17 @@ item_hsh:    {self.item_hsh}
         Called while editing, we won't have a row or doc_id and can use '@s'
         as aft_dt
         """
-        self.update_item_hsh()
+        logger.debug(f"{self.item_hsh}")
+        # self.update_item_hsh()
         item = self.item_hsh
+        logger.debug(f"{item}")
         showing =  "Repetitions"
         if not ('s' in item and ('r' in item or '+' in item)):
+            logger.debug(f"'s' in item: {'s' in item}, 'r' in item: {'r' in item}, '+' in item: {'+' in item}\n{item}")
             return showing, "not a repeating item"
         relevant = date_to_datetime(item['s'])
 
-        pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
+        pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1, False)]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
             showing = f"First {num} repetitions"
@@ -627,7 +630,7 @@ item_hsh:    {self.item_hsh}
 
     def do_update(self):
         timer_update = TimeIt('***UPDATE***')
-        logger.debug(f"updating {self.doc_id} with {self.item_hsh}")
+        # logger.debug(f"updating {self.doc_id} with {self.item_hsh}")
         self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         timer_update.stop()
 
@@ -862,6 +865,7 @@ item_hsh:    {self.item_hsh}
                 elif '+' in self.item_hsh:
                     # simple repetition
                     tmp = [self.item_hsh['s']] + self.item_hsh['+']
+                    tmp = [date_to_datetime(x) for x in tmp]
                     tmp.sort()
                     due = tmp.pop(0)
                     if tmp:
@@ -2971,13 +2975,14 @@ class DataView(object):
         showing = "Repetitions"
         item = DBITEM.get(doc_id=item_id)
         if not ('s' in item and ('r' in item or '+' in item)):
+            logger.debug(f"'s' in item: {'s' in item}, 'r' in item: {'r' in item}, '+' in item: {'+' in item}\n{item}")
             return showing, "not a repeating item"
         relevant = self.id2relevant.get(item_id)
         showing =  "Repetitions"
         details = f"{item['itemtype']} {item['summary']}"
         if not relevant:
             return "Repetitons", details + "none"
-        pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
+        pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1, False)]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
             showing = f"First {num} repetitions"
@@ -4782,7 +4787,7 @@ def date_to_datetime(dt, hour=0, minute=0):
     return dt
 
 
-def item_instances(item, aft_dt, bef_dt=1):
+def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
     """
     Dates and datetimes decoded from the data store will all be aware and in the local timezone. aft_dt and bef_dt must therefore also be aware and in the local timezone.
     In dateutil, the starting datetime (dtstart) is not the first recurrence instance, unless it does fit in the specified rules.  Notice that you can easily get the original behavior by using a rruleset and adding the dtstart as an rdate recurrence.
@@ -4924,7 +4929,7 @@ def item_instances(item, aft_dt, bef_dt=1):
                     else:
                         pairs.append((instance, None))
                     # logger.debug(f"pairs for {item.doc_id}: {pairs}")
-                    if pairs and settings['limit_skip_display']:
+                    if pairs and honor_skip and settings['limit_skip_display']:
                         # only keep the first instance that falls during or after today/now
                         break
             elif 'e' in item:
@@ -5610,7 +5615,10 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
         possible_beginby = None
         possible_alerts = []
         all_tds = []
+        relevant = None
+        dtstart = None
         doc_id = item.doc_id
+        rset = rruleset()
         if 'itemtype' not in item:
             logger.warning(f"no itemtype: {item}")
             item['itemtype'] = '?'
@@ -5707,9 +5715,16 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                     switch = item.get('o', 'k')
                     relevant = rset.after(today, inc=True)
                     if switch == 's':
+                        logger.debug(f"{item.doc_id} has @o s. relevant: {relevant}, item['s']: {item['s']}")
                         if relevant and date_to_datetime(item['s']) < today:
-                            # logger.debug(f"updating @o s:  item['s']: {item['s']} to relevant: {relevant}; ")
-                            item['s'] = pendulum.instance(relevant)
+                            cur = date_to_datetime(item['s'])
+                            while cur < today:
+                                item.setdefault('h', []).append(pendulum.period(cur, cur))
+                                cur = rset.after(cur, inc=False)
+
+                            logger.debug(f"updating @o s:  item['s']: {item['s']} to relevant: {relevant}; ")
+                            # item.setdefault('h', []).append(pendulum.period(date_to_datetime(item['s']), date_to_datetime(item['s'])))
+                            item['s'] = pendulum.instance(cur)
                             update_db(db, item.doc_id, item)
                     else: # k or p
                         relevant = rset.after(today, inc=True)
@@ -6803,8 +6818,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     week2day2heading = {}
     weeks = set([])
     rows = []
-    done = []
-    completed = []
+    # done = []
+    # completed = []
     engaged = []
     # busy = []
 
@@ -6818,6 +6833,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     tomorrowYMD = (now + 1*DAY).format("YYYYMMDD")
 
     for item in db:
+        completed = []
+        done = []
         if item.get('itemtype', None) == None:
             logger.error(f"itemtype missing from {item}")
             continue
