@@ -1,5 +1,9 @@
-Recent tagged changes as of 2023-06-17T05:05:32.226964-04:00:
-- 0 seconds ago (HEAD -> working, tag: 5.0.10) Daniel Graham
+Recent tagged changes as of 2023-06-17T05:19:31.252292-04:00:
+- 0 seconds ago (HEAD -> working, tag: 5.0.11) Daniel Graham
+    e9228d2 2023-06-17 05:19:31 -0400
+    Tagged version 5.0.11.
+
+- 14 minutes ago (tag: 5.0.10) Daniel Graham
     2e1f579 2023-06-17 05:05:32 -0400
     Tagged version 5.0.10.
 
@@ -76,8 +80,3 @@ Recent tagged changes as of 2023-06-17T05:05:32.226964-04:00:
 - 4 weeks ago (tag: 4.12.2) Daniel Graham
     2a304a3 2023-05-17 09:34:05 -0400
     Tagged version 4.12.2.
-
-- 5 weeks ago (tag: 4.12.1) Daniel Graham
-    68005b7 2023-05-15 14:20:25 -0400
-    Tagged version 4.12.1. Added display for all-day events to busy
-    view
