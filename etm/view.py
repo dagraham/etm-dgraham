@@ -2140,6 +2140,12 @@ def do_finish(*event):
         return
 
     hsh = DBITEM.get(doc_id=doc_id)
+    msg = ""
+    if hsh['itemtype'] != '-' or 'f' in hsh:
+        show_message('Finish', "Only an unfinished task can be finished.")
+        return
+
+    logger.debug(f"doc_id: {doc_id}, instance: {instance}, job: {job}, hsh: {hsh}")
     has_timer = doc_id in dataview.timers
     timer_warning = " and\nits associated timer" if has_timer else ""
     repeating = 'r' in hsh or '+' in hsh
@@ -2209,20 +2215,22 @@ number : datetime\
         due = ""
 
     elif repeating:
-        # must be selected from today's pastdue
+        # must be selected from today's pastdue or beginby
         already_done = [x.end for x in hsh.get('h', [])]
-        need = 2
         between = [x[0] for x in model.item_instances(hsh, model.date_to_datetime(hsh['s']), pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
-        values_list = []
-        # values.append( (0, format_datetime(between[0][0])[1]) )
-        count = -1
-        for x in between:
-            count += 1
-            values_list.append(f"   {count}: {format_datetime(x)[1]}")
+        if between:
+            # show_message('Finish', "There is nothing to complete.")
+            need = 2
+            values_list = []
+            # values.append( (0, format_datetime(between[0][0])[1]) )
+            count = -1
+            for x in between:
+                count += 1
+                values_list.append(f"   {count}: {format_datetime(x)[1]}")
 
-        values_str = "\n".join(values_list)
+            values_str = "\n".join(values_list)
 
-        text= f"""\
+            text= f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}
 
 {values_str}
@@ -2230,10 +2238,24 @@ Selected: {hsh['itemtype']} {hsh['summary']}
 The number of the instance to finish and
 the completion datetime to use?
 number : datetime\
-        """
+            """
 
-        entry = "0 : now"
-        due = ""
+            entry = "0 : now"
+            due = ""
+        else:
+            # beginby
+
+            need = 1
+            between = [hsh.get('s', None)]
+            entry =  "now"
+            # due = hsh.get('s', "")
+            start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
+
+            text= f"""\
+Selected: {hsh['itemtype']} {hsh['summary']}{start}
+
+Enter <completion datetime>
+        """
 
     else:
         need = 1

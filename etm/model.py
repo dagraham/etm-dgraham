@@ -2986,6 +2986,33 @@ class DataView(object):
             showing = f"All repetitions"
         return  showing, f"from {starting} for\n{details}:\n  " + "\n  ".join(pairs)
 
+    def get_history(self, row=None, num=5):
+        """
+        For tasks with "@o s".  Get a list of the completed 'ends' from @h and prepend finish marks to them. Add due datetimes from the rrule starting from the first @h entry and continuing until today and prepend 'X' to them - these presumably were skipped. Sort the list by datetimes and take the num most recent as the relevant list.
+        """
+        res = self.get_row_details(row)
+        if not res:
+            return None, ''
+        item_id = res[0]
+
+        if not (item_id and item_id in self.id2relevant):
+            return ''
+        showing = "History"
+        item = DBITEM.get(doc_id=item_id)
+
+        if item['itemtype'] != '-' or 'r' not in item or 'o' not in item or item['o'] != 's' or 'h' not in item:
+            return showing, "not a repeating task with '@o s' and a history of completions"
+        relevant = item['h'][0]
+        details = f"{item['itemtype']} {item['summary']}"
+        pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
+        starting = format_datetime(relevant.date())[1]
+        if len(pairs) > num:
+            showing = f"First {num} repetitions"
+            pairs = pairs[:num]
+        else:
+            showing = f"All repetitions"
+        return  showing, f"from {starting} for\n{details}:\n  " + "\n  ".join(pairs)
+
     def touch(self, row):
         res = self.get_row_details(row)
         if not res:
@@ -5724,8 +5751,11 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 if instance_interval:
                     instances = rset.between(instance_interval[0], instance_interval[1], inc=True)
                     if possible_beginby:
+                        logger.debug(f"item: {item.doc_id}, possible_beginby: {possible_beginby}, {possible_beginby.days}")
                         for instance in instances:
-                            if today + DAY <= instance <= tomorrow + possible_beginby:
+                            # logger.debug(f"{(instance.date()-today.date()) <= possible_beginby}")
+                            logger.debug(f"beginby today+DAY: {today+DAY}, instance: {instance}, tomorrow+: {tomorrow+possible_beginby}")
+                            if instance.date()-today.date() <= possible_beginby:
                                 doc_id = item.doc_id
                                 if 'r' in item:
                                     # use the freq from the first recurrence rule
@@ -5755,7 +5785,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
                 if possible_beginby:
                     for instance in aft:
-                        if today + DAY <= instance <= tomorrow + possible_beginby:
+                        # if today + DAY <= instance <= tomorrow + possible_beginby:
+                        if instance.date()-today.date() <= possible_beginby:
                             beginbys.append([(instance.date() - today.date()).days, summary, item.doc_id, None, instance])
                 if possible_alerts:
                     for instance in aft + bef:
@@ -5766,10 +5797,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
             else:
                 # 's' but not 'r' or '+'
                 relevant = dtstart
-                if (
-                    possible_beginby
-                    and today + DAY <= dtstart <= tomorrow + possible_beginby
-                ):
+                if possible_beginby and relevant.date()-today.date() <= possible_beginby:
                     beginbys.append([(relevant.date() - today.date()).days, summary,  item.doc_id, None, None])
                 if possible_alerts:
                     for possible_alert in possible_alerts:
@@ -7075,7 +7103,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
                     if b and b > ZERO:
                         itemtype = wrapbefore #  "↱"
-                        sort_b = (dt-ONEMIN).format("YYYYMMDDHHmm")
+                        # sort_b = (dt-ONEMIN).format("YYYYMMDDHHmm")
+                        sort_b = (dt).format("YYYYMMDDHHmm")
                         rhb = fmt_time(dtb).center(rhc_width, ' ')
                         before = {
                                     'id': doc_id,
