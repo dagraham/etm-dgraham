@@ -4916,12 +4916,14 @@ def item_instances(item, aft_dt, bef_dt=1):
         elif item['itemtype'] == "-":
             # handle tasks repeating or not, extent or not and overdue skip or not
             if item.get('o', 'k') == 's':
+                # logger.debug(f"skip for item: {item.doc_id} {instance.year}, {instance.month}, {instance.day} >=? {today.year}, {today.month}, {today.day}")
                 if (instance.year, instance.month, instance.day) >= (today.year, today.month, today.day):
                     if 'e' in item:
                         for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                             pairs.append(pair)
                     else:
                         pairs.append((instance, None))
+                    # logger.debug(f"pairs for {item.doc_id}: {pairs}")
                     if pairs and settings['limit_skip_display']:
                         # only keep the first instance that falls during or after today/now
                         break
@@ -5697,27 +5699,16 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         rset.exdate(dt)
 
                 if '+' in item:
-                    # tmp = [dtstart]
-                    # tmp.extend(item['+'])
-                    # tmp = [date_to_datetime(x) for x in tmp]
-                    # tmp.sort()
-                    # aft = [x for x in tmp if x >= today]
-                    # bef = [x for x in tmp if x < today]
-                    # if aft:
-                    #     relevant = aft[0]
-                    # else:
-                    #     relevant = bef[-1]
                     for dt in item['+']:
                         dt = date_to_datetime(dt)
-                        # if type(dt) == pendulum.Date:
-                        #     dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
                         rset.rdate(dt)
 
                 if item['itemtype'] == '-':
                     switch = item.get('o', 'k')
                     relevant = rset.after(today, inc=True)
                     if switch == 's':
-                        if relevant and item['s'] != pendulum.instance(relevant):
+                        if relevant and date_to_datetime(item['s']) < today:
+                            # logger.debug(f"updating @o s:  item['s']: {item['s']} to relevant: {relevant}; ")
                             item['s'] = pendulum.instance(relevant)
                             update_db(db, item.doc_id, item)
                     else: # k or p
@@ -5751,10 +5742,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 if instance_interval:
                     instances = rset.between(instance_interval[0], instance_interval[1], inc=True)
                     if possible_beginby:
-                        logger.debug(f"item: {item.doc_id}, possible_beginby: {possible_beginby}, {possible_beginby.days}")
                         for instance in instances:
-                            # logger.debug(f"{(instance.date()-today.date()) <= possible_beginby}")
-                            logger.debug(f"beginby today+DAY: {today+DAY}, instance: {instance}, tomorrow+: {tomorrow+possible_beginby}")
                             if ZERO < instance.date()-today.date() <= possible_beginby:
                                 doc_id = item.doc_id
                                 if 'r' in item:
