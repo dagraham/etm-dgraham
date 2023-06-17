@@ -1,42 +1,46 @@
-Recent tagged changes as of 2023-06-15T10:14:19.986207-04:00:
-- 1 second ago (HEAD -> working, tag: 5.0.9) Daniel Graham
+Recent tagged changes as of 2023-06-17T05:05:32.226964-04:00:
+- 0 seconds ago (HEAD -> working, tag: 5.0.10) Daniel Graham
+    2e1f579 2023-06-17 05:05:32 -0400
+    Tagged version 5.0.10.
+
+- 2 days ago (tag: 5.0.9) Daniel Graham
     7f30e8b 2023-06-15 10:14:19 -0400
     Tagged version 5.0.9.
 
-- 2 days ago (tag: 5.0.8) Daniel Graham
+- 3 days ago (tag: 5.0.8) Daniel Graham
     1f587d1 2023-06-13 20:17:48 -0400
     Tagged version 5.0.8. Only display and allow completion of jthe
     jobs of the oldest unfinished instance of a repeating task.
 
-- 7 days ago (tag: 5.0.7) Daniel Graham
+- 9 days ago (tag: 5.0.7) Daniel Graham
     b9eccc6 2023-06-08 08:38:27 -0400
     Tagged version 5.0.7.
 
-- 10 days ago (tag: 5.0.6) Daniel Graham
+- 12 days ago (tag: 5.0.6) Daniel Graham
     345ca4e 2023-06-05 12:41:31 -0400
     Tagged version 5.0.6.
 
-- 10 days ago (tag: 5.0.5) Daniel Graham
+- 12 days ago (tag: 5.0.5) Daniel Graham
     9273685 2023-06-05 06:28:25 -0400
     Tagged version 5.0.5.
 
-- 10 days ago (tag: 5.0.4) Daniel Graham
+- 12 days ago (tag: 5.0.4) Daniel Graham
     ea199ac 2023-06-05 06:02:56 -0400
     Tagged version 5.0.4.
 
-- 11 days ago (tag: 5.0.3) Daniel Graham
+- 13 days ago (tag: 5.0.3) Daniel Graham
     e0a0d9e 2023-06-04 16:44:49 -0400
     Tagged version 5.0.3.
 
-- 11 days ago (tag: 5.0.2) Daniel Graham
+- 13 days ago (tag: 5.0.2) Daniel Graham
     4c5d4bb 2023-06-04 13:26:17 -0400
     Tagged version 5.0.2.
 
-- 11 days ago (tag: 5.0.1) Daniel Graham
+- 13 days ago (tag: 5.0.1) Daniel Graham
     b30f0ed 2023-06-04 12:47:15 -0400
     Tagged version 5.0.1.
 
-- 12 days ago (tag: 5.0.0) Daniel Graham
+- 2 weeks ago (tag: 5.0.0) Daniel Graham
     7bc8090 2023-06-03 07:21:38 -0400
     Tagged version 5.0.0. Use pendulum periods for f and elements of h
     instead of datetimes.
@@ -53,7 +57,7 @@ Recent tagged changes as of 2023-06-15T10:14:19.986207-04:00:
     442ff98 2023-05-25 13:53:52 -0400
     Tagged version 4.12.7.
 
-- 3 weeks ago (tag: 4.12.6) Daniel Graham
+- 4 weeks ago (tag: 4.12.6) Daniel Graham
     3da7332 2023-05-23 14:01:37 -0400
     Tagged version 4.12.6.
 
@@ -73,11 +77,7 @@ Recent tagged changes as of 2023-06-15T10:14:19.986207-04:00:
     2a304a3 2023-05-17 09:34:05 -0400
     Tagged version 4.12.2.
 
-- 4 weeks ago (tag: 4.12.1) Daniel Graham
+- 5 weeks ago (tag: 4.12.1) Daniel Graham
     68005b7 2023-05-15 14:20:25 -0400
     Tagged version 4.12.1. Added display for all-day events to busy
     view
-
-- 5 weeks ago (tag: 4.12.0) Daniel Graham
-    ce2ab09 2023-05-13 12:46:39 -0400
-    Tagged version 4.12.0. Added engaged view
