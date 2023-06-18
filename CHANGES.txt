@@ -1,18 +1,22 @@
-Recent tagged changes as of 2023-06-18T07:28:25.718710-04:00:
-- 0 seconds ago (HEAD -> working, tag: 5.1.0) Daniel Graham
+Recent tagged changes as of 2023-06-18T08:29:16.450280-04:00:
+- 0 seconds ago (HEAD -> working, tag: 5.1.1) Daniel Graham
+    d0c733f 2023-06-18 08:29:16 -0400
+    Tagged version 5.1.1.
+
+- 61 minutes ago (tag: 5.1.0) Daniel Graham
     ece86e8 2023-06-18 07:28:25 -0400
     Tagged version 5.1.0. Added ability to display completion history
     for tasks including skipped instead of finished instances.
 
-- 23 hours ago (tag: 5.0.12) Daniel Graham
+- 24 hours ago (tag: 5.0.12) Daniel Graham
     c42576c 2023-06-17 08:57:03 -0400
     Tagged version 5.0.12.
 
-- 26 hours ago (tag: 5.0.11) Daniel Graham
+- 27 hours ago (tag: 5.0.11) Daniel Graham
     e9228d2 2023-06-17 05:19:31 -0400
     Tagged version 5.0.11.
 
-- 26 hours ago (tag: 5.0.10) Daniel Graham
+- 27 hours ago (tag: 5.0.10) Daniel Graham
     2e1f579 2023-06-17 05:05:32 -0400
     Tagged version 5.0.10.
 
@@ -20,7 +24,7 @@ Recent tagged changes as of 2023-06-18T07:28:25.718710-04:00:
     7f30e8b 2023-06-15 10:14:19 -0400
     Tagged version 5.0.9.
 
-- 4 days ago (tag: 5.0.8) Daniel Graham
+- 5 days ago (tag: 5.0.8) Daniel Graham
     1f587d1 2023-06-13 20:17:48 -0400
     Tagged version 5.0.8. Only display and allow completion of jthe
     jobs of the oldest unfinished instance of a repeating task.
@@ -77,7 +81,3 @@ Recent tagged changes as of 2023-06-18T07:28:25.718710-04:00:
 - 4 weeks ago (tag: 4.12.5) Daniel Graham
     f0c24d8 2023-05-21 15:08:06 -0400
     Tagged version 4.12.5.
-
-- 4 weeks ago (tag: 4.12.4) Daniel Graham
-    15b3333 2023-05-20 14:33:40 -0400
-    Tagged version 4.12.4.
