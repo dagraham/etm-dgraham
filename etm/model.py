@@ -93,13 +93,13 @@ active_tasks = {}
 #         # this works if dt is a date by providing 00 for HH and mm
 #         return dt.format("YYYYMMDD0000")
 
-def sortprd(prd, start=True):
+def sortprd(prd):
     # assumes prd is a pendulum.Period
-    if start:
-        return prd.start.format("YYYYMMDDHHmm")
-    else:
-        return prd.end.format("YYYYMMDDHHmm")
+    return prd.start.format("YYYYMMDDHHmm")
 
+# def sortend(prd):
+#     # assumes prd is a (pendulum.Datetime, symbol) tuple
+#     return prd[0].format("YYYYMMDDHHmm")
 
 
 PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
@@ -606,20 +606,17 @@ item_hsh:    {self.item_hsh}
         Called while editing, we won't have a row or doc_id and can use '@s'
         as aft_dt
         """
-        logger.debug(f"{self.item_hsh}")
         # self.update_item_hsh()
         item = self.item_hsh
-        logger.debug(f"{item}")
         showing =  "Repetitions"
         if not ('s' in item and ('r' in item or '+' in item)):
-            logger.debug(f"'s' in item: {'s' in item}, 'r' in item: {'r' in item}, '+' in item: {'+' in item}\n{item}")
             return showing, "not a repeating item"
         relevant = date_to_datetime(item['s'])
 
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1, False)]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
-            showing = f"First {num} repetitions"
+            showing = f"Next {num} repetitions"
             pairs = pairs[:num]
         elif pairs:
             showing = "All repetitions"
@@ -630,7 +627,6 @@ item_hsh:    {self.item_hsh}
 
     def do_update(self):
         timer_update = TimeIt('***UPDATE***')
-        # logger.debug(f"updating {self.doc_id} with {self.item_hsh}")
         self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         timer_update.stop()
 
@@ -2958,13 +2954,14 @@ class DataView(object):
             return False, f"The item\n   {item['itemtype']} {item['summary']}\n does not have an @g goto entry."
 
 
-    def get_repetitions(self, row=None, num=5):
+    def get_repetitions(self, row=None):
         """
         Called with a row, we should have an doc_id and can use relevant
         as aft_dt.
         Called while editing, we won't have a row or doc_id and can use '@s'
         as aft_dt
         """
+        num = self.settings['num_repetitions']
         res = self.get_row_details(row)
         if not res:
             return None, ''
@@ -2975,7 +2972,6 @@ class DataView(object):
         showing = "Repetitions"
         item = DBITEM.get(doc_id=item_id)
         if not ('s' in item and ('r' in item or '+' in item)):
-            logger.debug(f"'s' in item: {'s' in item}, 'r' in item: {'r' in item}, '+' in item: {'+' in item}\n{item}")
             return showing, "not a repeating item"
         relevant = self.id2relevant.get(item_id)
         showing =  "Repetitions"
@@ -2985,16 +2981,19 @@ class DataView(object):
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1, False)]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
-            showing = f"First {num} repetitions"
+            showing = f"Next {num} repetitions"
             pairs = pairs[:num]
         else:
             showing = f"All repetitions"
         return  showing, f"from {starting} for\n{details}:\n  " + "\n  ".join(pairs)
 
-    def get_history(self, row=None, num=5):
+
+    def get_history(self, row=None):
         """
-        For tasks with "@o s".  Get a list of the completed 'ends' from @h and prepend finish marks to them. Add due datetimes from the rrule starting from the first @h entry and continuing until today and prepend 'X' to them - these presumably were skipped. Sort the list by datetimes and take the num most recent as the relevant list.
+        For repeating tasks, show up to num_repetitions of the due datetimes from the completion history. For
+        those with '@o s', additionally show those that were skipped.
         """
+        num = self.settings['num_repetitions']
         res = self.get_row_details(row)
         if not res:
             return None, ''
@@ -3005,18 +3004,32 @@ class DataView(object):
         showing = "History"
         item = DBITEM.get(doc_id=item_id)
 
-        if item['itemtype'] != '-' or 'r' not in item or 'o' not in item or item['o'] != 's' or 'h' not in item:
-            return showing, "not a repeating task with '@o s' and a history of completions"
-        relevant = item['h'][0]
-        details = f"{item['itemtype']} {item['summary']}"
-        pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1)]
-        starting = format_datetime(relevant.date())[1]
-        if len(pairs) > num:
-            showing = f"First {num} repetitions"
-            pairs = pairs[:num]
+        if not (item['itemtype'] == '-' and ('r' in item or '+' in item)):
+            return showing, "not a repeating task"
+        if 'h' not in item:
+            return showing, "there is no history of completions"
+
+        relevant = self.id2relevant.get(item_id)
+        res = []
+        skip = item.get('o', 'k') == 's'
+        for c in item['h']:
+            if skip and c.start == c.end:
+                res.append((c.end, ' '))
+            else:
+                res.append((c.end, FINISHED_CHAR))
+        res.sort() # pendulum.DateTime obj as first component
+        if len(res) > num:
+            showing = f"Completion History: last {num} of {len(res)}"
+            res = res[-num:]
         else:
-            showing = f"All repetitions"
-        return  showing, f"from {starting} for\n{details}:\n  " + "\n  ".join(pairs)
+            showing = f"Completion History"
+        relevant = res[-1][0]
+        details = f"{item['itemtype']} {item['summary']}"
+
+        pairs = [f"{x[1]} {format_datetime(x[0])[1]}" for x in res]
+        starting = format_datetime(relevant.date())[1]
+
+        return  showing, f"through {starting} for\n{details}:\n  " + "\n  ".join(pairs)
 
     def touch(self, row):
         res = self.get_row_details(row)
@@ -4921,14 +4934,12 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
         elif item['itemtype'] == "-":
             # handle tasks repeating or not, extent or not and overdue skip or not
             if item.get('o', 'k') == 's':
-                # logger.debug(f"skip for item: {item.doc_id} {instance.year}, {instance.month}, {instance.day} >=? {today.year}, {today.month}, {today.day}")
                 if (instance.year, instance.month, instance.day) >= (today.year, today.month, today.day):
                     if 'e' in item:
                         for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                             pairs.append(pair)
                     else:
                         pairs.append((instance, None))
-                    # logger.debug(f"pairs for {item.doc_id}: {pairs}")
                     if pairs and honor_skip and settings['limit_skip_display']:
                         # only keep the first instance that falls during or after today/now
                         break
@@ -5304,7 +5315,6 @@ def jobs(lofh, at_hsh={}):
     if msg:
         logger.warning(f"{msg}")
         return False, msg, None
-    # logger.debug(f"returning True, {[id2hsh[i] for i in ids]}, {last_completion}")
     return True, [id2hsh[i] for i in ids], last_completion
 
 #######################
@@ -5715,15 +5725,12 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                     switch = item.get('o', 'k')
                     relevant = rset.after(today, inc=True)
                     if switch == 's':
-                        logger.debug(f"{item.doc_id} has @o s. relevant: {relevant}, item['s']: {item['s']}")
                         if relevant and date_to_datetime(item['s']) < today:
                             cur = date_to_datetime(item['s'])
                             while cur < today:
                                 item.setdefault('h', []).append(pendulum.period(cur, cur))
                                 cur = rset.after(cur, inc=False)
 
-                            logger.debug(f"updating @o s:  item['s']: {item['s']} to relevant: {relevant}; ")
-                            # item.setdefault('h', []).append(pendulum.period(date_to_datetime(item['s']), date_to_datetime(item['s'])))
                             item['s'] = pendulum.instance(cur)
                             update_db(db, item.doc_id, item)
                     else: # k or p

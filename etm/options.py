@@ -174,6 +174,7 @@ class Settings():
     archive_after = 0
     refresh_interval = 60
     num_finished = 0
+    num_repetitions = 10
     limit_skip_display = "true"
     connecting_dots = "false"
     usedtime_minutes = 1
@@ -206,6 +207,7 @@ class Settings():
         "archive_after" : archive_after,
         "refresh_interval" : refresh_interval,
         "num_finished" : num_finished,
+        "num_repetitions" : num_repetitions,
         "limit_skip_display" : limit_skip_display,
         "connecting_dots" : connecting_dots,
         "usedtime_minutes" : usedtime_minutes,
@@ -326,11 +328,20 @@ refresh_interval: {refresh_interval}
 
 num_finished: {num_finished}
 # non-negative integer
-# If positive, when saving retain only the most recent
-# "num_finished" completions of an infinitely repeating task,
-# i.e., repeating without an "&c" count or an "&u" until
-# attribute. If zero or not infinitely repeating, save all
-# completions.
+# If positive, when saving retain only the most recent "num_finished"
+# completions of an infinitely repeating task, i.e., repeating without
+# an "&c" count or an "&u" until attribute. If zero or not infinitely
+# repeating, save all completions.
+
+num_repetitions: {num_repetitions}
+# positive integer
+# Show at most this number of repetitions when showing repetitions
+# with (^r) or when showing completion history (^h). In the former
+# case these are instances for the selected item (repeating of any
+# item type) starting from date of the selected item and in the latter
+# case these are the completion instances (task item type). Note that
+# the num_finished setting can affect the number available for display
+# for the completion history.
 
 limit_skip_display: {limit_skip_display}
 # true or false. If true, only the first instance of a task with "@o

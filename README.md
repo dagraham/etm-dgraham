@@ -1199,6 +1199,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         S) schedule new
         g) open goto link
         k) show konnections
+        ^h) show completion history
         ^r) show repetitions
 		^u) update last modified
         ^x) toggle archived status
@@ -1952,358 +1953,386 @@ Configuration settings for *etm* are specified in the file `cfg.yaml` located in
 
 Here are the options with their default values from that file. The lines beginning with `#` are comments that describe the settings.
 
-    #### begin cfg.yaml ####
-    etmversion: 4.11.18
-    # The current version of etm and this file. DO NOT EDIT. This is
-    # automatically updated when a new version of etm is installed.
+        #### begin cfg.yaml ####
+        etmversion: 5.0.12
+        # The current version of etm and this file. DO NOT EDIT. This is
+        # automatically updated when a new version of etm is installed.
 
-    ampm: true
-    # true or false. Use AM/PM format for datetimes if true else
-    # use 24 hour format. See also the show_minutes setting.
+        ampm: true
+        # true or false. Use AM/PM format for datetimes if true else
+        # use 24 hour format. See also the show_minutes setting.
 
-    show_minutes: false
-    # true or false. If true show ":00" in agenda and forthcoming views
-    # when displaying times with zero minutes else suppress zero minutes
-    # from being displayed. E.g., "9:00-10:30" if true else "9-10:30".
-    # When ampm if false and show_minutes is true, hours will be displayed
-    # with leading zeros applicable.
+        show_minutes: false
+        # true or false. If true show ":00" in agenda and forthcoming views
+        # when displaying times with zero minutes else suppress zero minutes
+        # from being displayed. E.g., "9:00-10:30" if true else "9-10:30".
+        # When ampm if false and show_minutes is true, hours will be displayed
+        # with leading zeros applicable.
 
-    dayfirst:  false
-    yearfirst: true
-    # each true or false. Whenever an ambiguous date is parsed, dayfirst
-    # and yearfirst parameters control how the information is processed
-    # using this precedence:
-    # yearfirst: true
-    # 	dayfirst: true  => YDM
-    #   dayfirst: false => YMD
-    # yearfirst: false
-    # 	dayfirst: true  => DMY
-    #   dayfirst: false => MDY
-    # E.g., with both true, 3/4/5 would be interpreted as May 4, 2003.
-    # When possible, dates will also be displayed respecting these settings.
-    # I.e., the year will generally be displayed first when yearfirst is
-    # true and last otherwise. Similarly, the day will generally be displayed
-    # before the month when dayfirst is true and after the month otherwise.
+        dayfirst:  false
+        yearfirst: true
+        # each true or false. Whenever an ambiguous date is parsed, dayfirst
+        # and yearfirst parameters control how the information is processed
+        # using this precedence:
+        # yearfirst: true
+        # 	dayfirst: true  => YDM
+        #   dayfirst: false => YMD
+        # yearfirst: false
+        # 	dayfirst: true  => DMY
+        #   dayfirst: false => MDY
+        # E.g., with both true, 3/4/5 would be interpreted as May 4, 2003.
+        # When possible, dates will also be displayed respecting these settings.
+        # I.e., the year will generally be displayed first when yearfirst is
+        # true and last otherwise. Similarly, the day will generally be displayed
+        # before the month when dayfirst is true and after the month otherwise.
 
-    beginbusy: 7
-    # non-negative integer. The number of hours after midnight to begin the
-    # busy view display of busy times for each day. The display continues
-    # for 14 hours after the begin_busy hour. E.g. with 'begin_busy: 7' the
-    # display would show busy times from 7am (7h) until 9pm (21h).
+        beginbusy: 7
+        # non-negative integer. The number of hours after midnight to begin the
+        # busy view display of busy times for each day. The display continues
+        # for 14 hours after the begin_busy hour. E.g. with 'begin_busy: 7' the
+        # display would show busy times from 7am (7h) until 9pm (21h).
 
-    updates_interval: 0
-    # non-negative integer. If positive,  automatically check for updates
-    # every 'updates_interval' minutes. If zero, do not automatically
-    # check for updates. When enabled, a blackboard u symbol, 𝕦, will be
-    # displayed at the right end of status bar when an update is available
-    # or a question mark when the check cannot be completed as, for
-    # example, when there is no internet connection.
+        updates_interval: 0
+        # non-negative integer. If positive,  automatically check for updates
+        # every 'updates_interval' minutes. If zero, do not automatically
+        # check for updates. When enabled, a blackboard u symbol, 𝕦, will be
+        # displayed at the right end of status bar when an update is available
+        # or a question mark when the check cannot be completed as, for
+        # example, when there is no internet connection.
 
-    locale: en_US
-    # locale abbreviation. E.g., "en_AU" for English (Australia), "en_US"
-    # for English (United States), "fr_FR" for French (France) and so
-    # forth. Google "python locale abbreviatons" for a complete list."
+        locale: en_US
+        # locale abbreviation. E.g., "en_AU" for English (Australia), "en_US"
+        # for English (United States), "fr_FR" for French (France) and so
+        # forth. Google "python locale abbreviatons" for a complete list."
 
-    vi_mode: false
-    # true or false. Use vi keybindings for editing if true else use emacs
-    # style keybindings.
+        vi_mode: true
+        # true or false. Use vi keybindings for editing if true else use emacs
+        # style keybindings.
 
-    secret: HIr13FiYj3
-    # string to use as the secret_key for @m masked entries. E.g.
-    # 'X6i2SGWu6m'. In etm versions after 4.0.21, the default string is
-    # randomly generated when this file is created or when the secret
-    # value is removed and etm is restarted. WARNING: if this key is
-    # changed, any @m entries that were made before the change will be
-    # unreadable after the change.
+        secret: HIr13FiYj3
+        # string to use as the secret_key for @m masked entries. E.g.
+        # 'X6i2SGWu6m'. In etm versions after 4.0.21, the default string is
+        # randomly generated when this file is created or when the secret
+        # value is removed and etm is restarted. WARNING: if this key is
+        # changed, any @m entries that were made before the change will be
+        # unreadable after the change.
 
-    omit_extent:
-    # A list of calendar names. Events with @c entries belonging to this
-    # list will only have their starting times displayed in agenda view
-    # and will neither appear nor cause conflicts in busy view.
+        omit_extent:
+        # A list of calendar names. Events with @c entries belonging to this
+        # list will only have their starting times displayed in agenda view
+        # and will neither appear nor cause conflicts in busy view.
 
-    keep_current: [0, 46]
-    # A list of two, non-negative integers for "weeks" and "width". If
-    # weeks is positive, the agenda for that integer number of weeks
-    # starting with the current week will be written to "current.txt" in
-    # your etm home directory and updated when necessary. The format will
-    # be scaled to fit "width". A width of 46, e.g, fits an iPhone display
-    # in portrait mode. You could, for example, create a link to
-    # "current.txt" in a pCloud or GoogleDrive folder and always have access
-    # to your current agenda on your mobile device.
+        keep_current: [3, 46]
+        # A list of two, non-negative integers for "weeks" and "width". If
+        # weeks is positive, the agenda for that integer number of weeks
+        # starting with the current week will be written to "current.txt" in
+        # your etm home directory and updated when necessary. The format will
+        # be scaled to fit "width". A width of 46, e.g, fits an iPhone display
+        # in portrait mode. You could, for example, create a link to
+        # "current.txt" in a pCloud or GoogleDrive folder and always have access
+        # to your current agenda on your mobile device.
 
-    keep_next: false
-    # true or false. If true, the 'do next' view will be written to
-    # "next.txt" in your etm home directory. As with "current.txt", a link
-    # to this file could be created in a pCloud or DropBox folder for
-    # access from your mobile device.
+        keep_next: true
+        # true or false. If true, the 'do next' view will be written to
+        # "next.txt" in your etm home directory. As with "current.txt", a link
+        # to this file could be created in a pCloud or DropBox folder for
+        # access from your mobile device.
 
-    archive_after: 0
-    # non-negative integer. If zero, do not archive items. If positive,
-    # finished tasks and events with last datetimes falling more than this
-    # number of years before the current date will automatically be
-    # archived on a daily basis.  Archived items are moved from the
-    # "items" table in the database to the "archive" table and will no
-    # longer appear in normal views. Note that unfinished tasks and
-    # records are not archived.
+        archive_after: 0
+        # non-negative integer. If zero, do not archive items. If positive,
+        # finished tasks and events with last datetimes falling more than this
+        # number of years before the current date will automatically be
+        # archived on a daily basis.  Archived items are moved from the
+        # "items" table in the database to the "archive" table and will no
+        # longer appear in normal views. Note that unfinished tasks and
+        # journal entries are not archived.
 
-    num_finished: 0
-    # non-negative integer
-    # If positive, when saving retain only the most recent
-    # "num_finished" completions of an infinitely repeating task,
-    # i.e., repeating without an "&c" count or an "&u" until
-    # attribute. If zero or not infinitely repeating, save all
-    # completions.
+        refresh_interval: 6
+        # 6, 12, 30 or 60. The event loop responsible for refreshing
+        # etm caches, updating alerts, timers and so forth, repeats once
+        # every refresh_interval seconds.
 
-    limit_skip_display: true
-    # true or false. If true, only the first instance of a task with "@o
-    # s" (overdue skip) will be displayed. For a task with an "@s" entry
-    # that is a date this will be the first instance that falls on or
-    # after the current date. Otherwise, when the "@s" entry is a
-    # datetime, this will be the first instance that falls on or after the
-    # current time.
+        num_finished: 0
+        # non-negative integer
+        # If positive, when saving retain only the most recent "num_finished"
+        # completions of an infinitely repeating task, i.e., repeating without
+        # an "&c" count or an "&u" until attribute. If zero or not infinitely
+        # repeating, save all completions.
 
-    connecting_dots: false
-    # true or false. If true, display dots connecting the item summary and
-    # the right-hand details columns in tree views.
+        num_repetitions: 10
+        # positive integer
+        # Show at most this number of repetitions when showing repetitions
+        # with (^r) or when showing completion history (^h). In the former
+        # case these are instances for the selected item (repeating of any
+        # item type) starting from date of the selected item and in the latter
+        # case these are the completion instances (task item type). Note that
+        # the num_finished setting can affect the number available for display
+        # for the completion history.
 
-    usedtime_minutes: 1
-    # 0, 1, 6, 12, 30 or 60. Round up used times. With 0, no rounding is done
-    # and times are reported in hours, minutes and seconds. With 1, after
-    # rounding up to the nearest minute, times are reported as hours and minutes.
-    # Otherwise, rounding is up to the nearest integer multiple of
-    # usedtime_minutes and times are reported as floating point hours. E.g.,
-    # with usedtime_minutes = 6, 1 minute would be rounded up to 6 minutes and
-    # reported as 0.1 hours. Similarly 13 minutes would be rounded up to 18
-    # minutes and reported as 0.3 hours. Note that when rounding is specified,
-    # each "@u" timeperiod is rounded before aggregation.
+        limit_skip_display: false
+        # true or false. If true, only the first instance of a task with "@o
+        # s" (overdue skip) will be displayed. For a task with an "@s" entry
+        # that is a date this will be the first instance that falls on or
+        # after the current date. Otherwise, when the "@s" entry is a
+        # datetime, this will be the first instance that falls on or after the
+        # current time.
 
-    usedtime_hours: 6
-    # 0, 1, 2, ..., 24. The daily goal for used time. This is used in engaged
-    # view to control the display of the daily used time bars. The goal is to
-    # to maximize the granularity of the bar when displaying this number of hours
-    # in the space allowed by the terminal width.
+        connecting_dots: true
+        # true or false. If true, display dots connecting the item summary and
+        # the right-hand details columns in tree views.
 
-    journal_name: daily
-    # Journal items with this index entry and with an @s entry will have the
-    # year and month appended to the index. E.g., with the setting
-    #   journal_name: daily
-    # this journal entry
-    #   % visited Yellowstone @s 22/6/24 @i daily
-    # would be displayed in journal view as if the index entry were
-    #   @i daily/2022/ 6
-    # thus organizing such entries by the year and month of their scheduled dates.
-    # Within each month, entries will be also ordered by the month day.
+        usedtime_minutes: 6
+        # 0, 1, 6, 12, 30 or 60. Round up used times. With 0, no rounding is done
+        # and times are reported in hours, minutes and seconds. With 1, after
+        # rounding up to the nearest minute, times are reported as hours and minutes.
+        # Otherwise, rounding is up to the nearest integer multiple of
+        # usedtime_minutes and times are reported as floating point hours. E.g.,
+        # with usedtime_minutes = 6, 1 minute would be rounded up to 6 minutes and
+        # reported as 0.1 hours. Similarly 13 minutes would be rounded up to 18
+        # minutes and reported as 0.3 hours. The numbers 6, 12, 30 and 60 are
+        # characterized by the fact that each is an integer multiple of 6 and 60 is
+        # evenly divisible by each. This allows reported times to be expressed as
+        # hours and tenths of an hour for each. Note that when rounding is specified,
+        # each "@u" timeperiod is rounded before aggregation. Whatever the setting,
+        # a used time record created using the timer is accurate to the nearest
+        # second.
 
-    alerts:
-    # A dictionary with single-character, "alert" keys and corresponding
-    # "system command" values. Note that characters "t" (text message) and
-    # "e" (email) are already used.  The "system command" string should be
-    # a comand with any applicable arguments that could be run in a
-    # terminal. Properties of the item triggering the alert can be
-    # included in the command arguments using the syntax {prop}, e.g.,
-    # {summary} in the command string would be replaced by the summary of
-    # the item. Similarly {start} by the starting datetime, {time} by the
-    # starting time (omits the date for the current date), {when} by the time
-    # remaining until the starting datetime, {now} by the current time,
-    # {location} by the @l entry and {description} by the @d entry. E.g., If
-    # the event "* sales meeting @s 2019-02-12 3p" triggered an alert 30 minutes
-    # before the starting time the string "{summary} {when}" would expand to
-    # "sales meeting in 30 minutes". E.g. on my macbook
-    #
-    #    alerts:
-    #        v:   /usr/bin/say -v "Alex" "{summary}, {when}"
-    #        ...
-    #
-    # would make the alert 'v' use the builtin text to speech sytem
-    # to speak the item's summary followed by a slight pause
-    # (the comma) and then the time remaining until the starting
-    # time, e.g., "sales meeting, in 20 minutes" would be triggered
-    # by including "@a 20m: v" in the reminder.
+        usedtime_hours: 6
+        # 0, 1, 2, ..., 24. The daily goal for used time. This is used in engaged
+        # view to control the display of the daily used time bars. The goal is to
+        # to maximize the granularity of the bar when displaying this number of hours
+        # in the space allowed by the terminal width.
 
-    expansions:
-    # A dictionary with 'expansion name' keys and corresponding
-    # 'replacement string' values. E.g. with
-    #
-    #    expansions:
-    #        tennis: "@e 1h30m @a 30m: d @i personal:exercise"
-    #        ...
-    #
-    # then when "@x tennis" is entered the popup completions for
-    # "@x tennis" would offer replacement by the corresponding
-    # "@e 1h30m @a 30m: d @i personal:exercise".
+        journal_name: daily
+        # Journal items with this index entry and with an @s entry will have the
+        # year and month appended to the index. E.g., with the setting
+        #   journal_name: daily
+        # this journal entry
+        #   % visited Yellowstone @s 22/6/24 @i daily
+        # would be displayed in journal view as if the index entry were
+        #   @i daily/2022/ 6
+        # thus organizing such entries by the year and month of their scheduled dates.
+        # Within each month, entries will be also ordered by the month day.
 
-    sms:
-    body: '{location} {when}'
-    from:
-    server:
-    pw:
-    # Settings to send "t" (sms text message) alerts to the
-    # list of phone numbers from the item's @n attendee
-    # entries using the item's summary and the body as specified
-    # in the template below as the message. E.g., suppose you
-    # have a gmail account with email address "who457@gmail.com"
-    # and want to text alerts to Verizon moble phone (123)
-    # 456-7890. Then your sms entries should be
-    #     from:   who457@gmail.com
-    #     pw:     your gmail password
-    #     server: smtp.gmail.com:587
-    # and your item should include the following attendee entry
-    #     @n 1234567890@vzwpix.com
-    # In the illustrative phone number, @vzwpix.com is the mms
-    # gateway for Verizon. Other common mms gateways are
-    #     AT&T:     @mms.att.net
-    #     Sprint:   @pm.sprint.com
-    #     T-Mobile: @tmomail.net
-    # Note. Google "mms gateway listing" for other alternatives.
+        alerts:
+        # A dictionary with single-character, "alert" keys and corresponding
+        # "system command" values. Note that characters "t" (text message) and
+        # "e" (email) are already used.  The "system command" string should be
+        # a comand with any applicable arguments that could be run in a
+        # terminal. Properties of the item triggering the alert can be
+        # included in the command arguments using the syntax {prop}, e.g.,
+        # {summary} in the command string would be replaced by the summary of
+        # the item. Similarly {start} by the starting datetime, {time} by the
+        # starting time (omits the date for the current date), {when} by the time
+        # remaining until the starting datetime, {now} by the current time,
+        # {location} by the @l entry and {description} by the @d entry. E.g., If
+        # the event "* sales meeting @s 2019-02-12 3p" triggered an alert 30 minutes
+        # before the starting time the string "{summary} {when}" would expand to
+        # "sales meeting in 30 minutes". E.g. on my macbook
+        #
+        #    alerts:
+        #        v:   /usr/bin/say -v "Alex" "{summary}, {when}"
+        #        ...
+        #
+        # would make the alert 'v' use the builtin text to speech sytem
+        # to speak the item's summary followed by a slight pause
+        # (the comma) and then the time remaining until the starting
+        # time, e.g., "sales meeting, in 20 minutes" would be triggered
+        # by including "@a 20m: v" in the reminder.
 
-    smtp:
-    body: '{location} {when}\n{description}'
-    from:
-    server:
-    id:
-    pw:
-    # Settings to send "e" (email message) alerts to the list of email
-    # addresses from the item's @n attendee entries using the item's
-    # summary as the subject and body as the message. E.g., if you have a
-    # gmail account with email address "whatever457@gmail.com", then your
-    # entries should be
-    #     from: whatever457@gmail.com
-    #     id: whatever457
-    #     pw: your gmail password
-    #     server: smtp.gmail.com
+        expansions:
+        # A dictionary with 'expansion name' keys and corresponding
+        # 'replacement string' values. E.g. with
+        #
+        #    expansions:
+        #        tennis: "@e 1h30m @a 30m: d @i personal:exercise"
+        #        ...
+        #
+        # then when "@x tennis" is entered the popup completions for
+        # "@x tennis" would offer replacement by the corresponding
+        # "@e 1h30m @a 30m: d @i personal:exercise".
 
-    locations:
-    # A dictionary with location group names as keys and corresponding
-    # lists of locations as values. When given, do next view will group
-    # items first by the location group name and then by the location
-    # within that group. Note that locations can appear under more than
-    # one group name. E.g.,
-    # locations:
-    #    home: [home, garage, yard, phone, computer]
-    #    work: [work, phone, computer, copier, fax]
-    # Items with a location entry that does not belong to one of these
-    # location groups will be listed under 'OTHER' and items without a
-    # location entry under 'OTHER' and then tilde.
+        sms:
+        body: '{location} {when}'
+        from: 'None'
+        server: 'None'
+        pw: 'None'
+        # Settings to send "t" (sms text message) alerts to the
+        # list of phone numbers from the item's @n attendee
+        # entries using the item's summary and the body as specified
+        # in the template below as the message. E.g., suppose you
+        # have a gmail account with email address "who457@gmail.com"
+        # and want to text alerts to Verizon moble phone (123)
+        # 456-7890. Then your sms entries should be
+        #     from:   who457@gmail.com
+        #     pw:     your gmail password
+        #     server: smtp.gmail.com:587
+        # and your item should include the following attendee entry
+        #     @n 1234567890@vzwpix.com
+        # In the illustrative phone number, @vzwpix.com is the mms
+        # gateway for Verizon. Other common mms gateways are
+        #     AT&T:     @mms.att.net
+        #     Sprint:   @pm.sprint.com
+        #     T-Mobile: @tmomail.net
+        # Note. Google "mms gateway listing" for other alternatives.
 
-    queries:
-    # A dictionary with short query "keys" and corresponding "query"
-    # values. Each "query" must be one that could be entered as the
-    # command in query view. Keys can be any short string other than
-    # 'a', 'u', 'c' or 'l' which are already in use.
-    # queries:
-    #    td: m l -q equals itemtype - and ~exists f
-    #    mi: exists u and ~exists i
-    #    arch: a exists itemtype
-    #    find: includes summary d {}
-    # The latter would allow you to enter, e.g., `find waldo` and have
-    # it expand to `includes summary d waldo` and thus locate all
-    # reminders with `waldo` either in the summary or d (the description).
+        smtp:
+        body: '{location} {when}\n{description}'
+        from: 'None'
+        server: 'None'
+        id: 'None'
+        pw: 'None'
+        # Settings to send "e" (email message) alerts to the list of email
+        # addresses from the item's @n attendee entries using the item's
+        # summary as the subject and body as the message. E.g., if you have a
+        # gmail account with email address "whatever457@gmail.com", then your
+        # entries should be
+        #     from: whatever457@gmail.com
+        #     id: whatever457
+        #     pw: your gmail password
+        #     server: smtp.gmail.com
 
-    style: dark
-    # dark or light. Set the defaults for dark or light terminal
-    # backgounds. Some output may not be visible unless this is set
-    # correctly for your display.
+        locations:
+        # A dictionary with location group names as keys and corresponding
+        # lists of locations as values. When given, do next view will group
+        # items first by the location group name and then by the location
+        # within that group. Note that locations can appear under more than
+        # one group name. E.g.,
+        # locations:
+        #    home: [home, garage, yard, phone, computer]
+        #    work: [work, phone, computer, copier, fax]
+        # Items with a location entry that does not belong to one of these
+        # location groups will be listed under 'OTHER' and items without a
+        # location entry under 'OTHER' and then tilde.
 
-    type_colors:
-    # A dictionary with type keys and corresponding named-color or hex
-    # values. The default colors are determined by the 'dark' or 'light'
-    # style setting as follows:
-    #
-    #     key           dark default        light default
-    #  -----------    -----------------   -----------------
-    #  available       'LightSkyBlue',     'DarkBlue',
-    #  begin           'Gold',             'DarkViolet',
-    #  event           'LimeGreen',        'DarkGreen',
-    #  finished        'DarkGrey',         'LightSlateGrey',
-    #  inbox           'OrangeRed',        'MediumVioletRed',
-    #  journal         'GoldenRod',        'Brown',
-    #  pastdue         'LightSalmon',      'Red',
-    #  plain           'Ivory',            'Black',
-    #  today           'Ivory bold',       'Black bold',
-    #  used            'Khaki',            'DodgerBlue',
-    #  waiting         'SlateGrey',        'DarkSlateBlue',
-    #  wrap            'ForestGreen',      'LightGrey',
-    #  running         'OrangeRed',        'Gold',
-    #  paused          'MediumVioletRed',   'DarkViolet',
-    # Explanations for the key names:
-    #     available:    available task/job reminders
-    #     begin:        begin by warnings
-    #     event:        event reminders
-    #     finished:     finished task/job reminders
-    #     inbox:        inbox reminders
-    #     journal:      journal reminders
-    #     pastdue:      pasdue task warnings
-    #     plain:        headings such as outline branches
-    #     today:        the current and following agenda date headings
-    #     used:         used time rows in engaged and used time views
-    #     waiting:      waiting job reminders (jobs with unfinished prereqs)
-    #     wrap:         before and after rows for events in agenda view with
-    #                   @w entries
-    #     running:      status bar color for 'r', running timer
-    #     paused:       status bar color for 'p', paused timer
-    #
-    # E.g., with style 'dark', the default color for 'available' is
-    # 'LightSkyBlue'. This entry
-    #   colors:
-    #       available: CornFlowerBlue
-    # would change the 'available' color to 'CornflowerBlue' while leaving
-    # the other 'dark' colors unchanged.
-    #
-    # To preview the namedcolors, download "namedcolors.py" from
-    #    "https://github.com/dagraham/etm-dgraham",
-    # open a terminal with your chosen background color and run
-    #    python3 <path to namedcolors.py>
-    # at the command prompt.
+        queries:
+        td: 'm l -q equals itemtype - and ~exists f'
+        ui: 'u i[:1]; MMM YYYY; i[1:2] -a d'
+        si: 's i[:1]; MMM YYYY; i[1:2] -a u, d'
+        mi: 'exists u and ~exists i'
+        arch: 'a exists itemtype'
+        uw: 'u WWW; ddd D -b weekbeg - 1w -e weekend'
+        find: 'includes summary d {}'
+        f: 'includes summary d {}'
+        index: 's MMM YYYY; ddd D -q in i {}'
+        # A dictionary with short query "keys" and corresponding "query"
+        # values. Each "query" must be one that could be entered as the
+        # command in query view. Keys can be any short string other than
+        # 'a', 'u', 'c' or 'l' which are already in use.
+        # queries:
+        #    td: m l -q equals itemtype - and ~exists f
+        #    mi: exists u and ~exists i
+        #    arch: a exists itemtype
+        #    find: includes summary d {}
+        # The latter would allow you to enter, e.g., `find waldo` and have
+        # it expand to `includes summary d waldo` and thus locate all
+        # reminders with `waldo` either in the summary or d (the description).
 
-    window_colors:
-    # A dictionary with style component keys and corresponding lists of
-    #    [background, foreground, attribute]
-    # components. background and foreground can either be named colors,
-    # hex colors, or ''. Attribute is an optional font attribute such
-    # as 'bold' which must, of course, be supported by the font used in
-    # your terminal. The default settings are determined by the 'dark'
-    # or 'light' style setting as follows:
-    #
-    #    key                       dark default                  light default
-    # -------------------    -----------------------------  -----------------------------
-    # ask:                    [grey2, Lime, bold]           [Cornsilk, Lime, bold]
-    # button.focused:         [DarkGreen, White]            [DarkGreen, White]
-    # details:                [, Ivory]                     [, Black]
-    # dialog shadow:          [#444444, ]                   [#444444, ]
-    # dialog:                 [DarkSlateGrey, White]        [DimGrey, White]
-    # dialog-entry:           [White, Black]                [White, Black]
-    # dialog-output:          [DarkSlateGrey, Lime]         [DimGrey, Lime]
-    # dialog.body label:      [, White]                     [, White]
-    # dialog.body:            [DarkSlateGrey, White]        [DimGrey, White]
-    # entry:                  [grey2, LightGoldenRodYellow] [Cornsilk, LightGoldenRodYellow]
-    # frame.label:            [DarkSlateGrey, White]        [DimGrey, White]
-    # menu:                   [DarkSlateGrey, White]        [DimGrey, White]
-    # menu-bar:               [grey1, White]                [grey1, White]
-    # menu-bar.selected-item: [#ffffff, #000000]            [#ffffff, #000000]
-    # menu.border:            [, #aaaaaa]                   [, #aaaaaa]
-    # not-searching:          [, #222222]                   [, #777777]
-    # query:                  [, Ivory]                     [, Black]
-    # reply:                  [grey2, DeepSkyBlue]          [Cornsilk, DeepSkyBlue]
-    # shadow:                 [#222222, ]                   [#222222, ]
-    # status:                 [grey1, White]                [grey1, White]
-    # status.key:             [, #ffaa00]                   [, #ffaa00]
-    # status.position:        [, #aaaa00]                   [, #aaaa00]
-    # text-area:              [grey2, Ivory]                [Cornsilk, Black]
-    # window.border shadow:   [, #444444]                   [, #444444]
-    # window.border:          [, #888888]                   [, #888888]
-    #
-    # Note that 'grey1' (#396060) and 'grey2' (#1d3030) are colors named
-    # within etm itself. They are, respectively, one shade lighter and two
-    # shades darker than DarkSlateGrey.
-    #
-    # Any of the style attributes above can be modified. E.g., with style
-    # 'dark', the default for 'text-area' is [grey2, Ivory]. This entry
-    #   window_colors:
-    #       text-area: [Black, White]
-    # would change the 'text-area' setting to 'Black' as the background color
-    # and 'White' as the foreground color while leaving the other style settings
-    # unchanged.
-    #### end cfg.yaml ####
+        style: dark
+        # dark or light. Set the defaults for dark or light terminal
+        # backgounds. Some output may not be visible unless this is set
+        # correctly for your display.
+
+        type_colors:
+        # A dictionary with type keys and corresponding named-color or hex
+        # values. The default colors are determined by the 'dark' or 'light'
+        # style setting as follows:
+        #
+        #     key           dark default        light default
+        #  -----------    -----------------   -----------------
+        #  available       'LightSkyBlue',     'DarkBlue',
+        #  begin           'Gold',             'DarkViolet',
+        #  event           'LimeGreen',        'DarkGreen',
+        #  finished        'DarkGrey',         'LightSlateGrey',
+        #  inbox           'OrangeRed',        'MediumVioletRed',
+        #  journal         'GoldenRod',        'Brown',
+        #  pastdue         'LightSalmon',      'Red',
+        #  plain           'Ivory',            'Black',
+        #  today           'Ivory bold',       'Black bold',
+        #  used            'Khaki',            'DodgerBlue',
+        #  waiting         'SlateGrey',        'DarkSlateBlue',
+        #  wrap            'ForestGreen',      'LightGrey',
+        #  running         'OrangeRed',        'Gold',
+        #  paused          'MediumVioletRed',   'DarkViolet',
+        # Explanations for the key names:
+        #     available:    available task/job reminders
+        #     begin:        begin by warnings
+        #     event:        event reminders
+        #     finished:     finished task/job reminders
+        #     inbox:        inbox reminders
+        #     journal:      journal reminders
+        #     pastdue:      pasdue task warnings
+        #     plain:        headings such as outline branches
+        #     today:        the current and following agenda date headings
+        #     used:         used time rows in engaged and used time views
+        #     waiting:      waiting job reminders (jobs with unfinished prereqs)
+        #     wrap:         before and after rows for events in agenda view with
+        #                   @w entries
+        #     running:      status bar color for 'r', running timer
+        #     paused:       status bar color for 'p', paused timer
+        #
+        # E.g., with style 'dark', the default color for 'available' is
+        # 'LightSkyBlue'. This entry
+        #   colors:
+        #       available: CornFlowerBlue
+        # would change the 'available' color to 'CornflowerBlue' while leaving
+        # the other 'dark' colors unchanged.
+        #
+        # To preview the namedcolors, download "namedcolors.py" from
+        #    "https://github.com/dagraham/etm-dgraham",
+        # open a terminal with your chosen background color and run
+        #    python3 <path to namedcolors.py>
+        # at the command prompt.
+
+        window_colors:
+        # A dictionary with style component keys and corresponding lists of
+        #    [background, foreground, attribute]
+        # components. background and foreground can either be named colors,
+        # hex colors, or ''. Attribute is an optional font attribute such
+        # as 'bold' which must, of course, be supported by the font used in
+        # your terminal. The default settings are determined by the 'dark'
+        # or 'light' style setting as follows:
+        #
+        #    key                       dark default                  light default
+        # -------------------    -----------------------------  -----------------------------
+        # ask:                    [grey2, Lime, bold]           [Cornsilk, Lime, bold]
+        # button.focused:         [DarkGreen, White]            [DarkGreen, White]
+        # details:                [, Ivory]                     [, Black]
+        # dialog shadow:          [#444444, ]                   [#444444, ]
+        # dialog:                 [DarkSlateGrey, White]        [DimGrey, White]
+        # dialog-entry:           [White, Black]                [White, Black]
+        # dialog-output:          [DarkSlateGrey, Lime]         [DimGrey, Lime]
+        # dialog.body label:      [, White]                     [, White]
+        # dialog.body:            [DarkSlateGrey, White]        [DimGrey, White]
+        # entry:                  [grey2, LightGoldenRodYellow] [Cornsilk, LightGoldenRodYellow]
+        # frame.label:            [DarkSlateGrey, White]        [DimGrey, White]
+        # menu:                   [DarkSlateGrey, White]        [DimGrey, White]
+        # menu-bar:               [grey1, White]                [grey1, White]
+        # menu-bar.selected-item: [#ffffff, #000000]            [#ffffff, #000000]
+        # menu.border:            [, #aaaaaa]                   [, #aaaaaa]
+        # not-searching:          [, #222222]                   [, #777777]
+        # query:                  [, Ivory]                     [, Black]
+        # reply:                  [grey2, DeepSkyBlue]          [Cornsilk, DeepSkyBlue]
+        # shadow:                 [#222222, ]                   [#222222, ]
+        # status:                 [grey1, White]                [grey1, White]
+        # status.key:             [, #ffaa00]                   [, #ffaa00]
+        # status.position:        [, #aaaa00]                   [, #aaaa00]
+        # text-area:              [grey2, Ivory]                [Cornsilk, Black]
+        # window.border shadow:   [, #444444]                   [, #444444]
+        # window.border:          [, #888888]                   [, #888888]
+        #
+        # Note that 'grey1' (#396060) and 'grey2' (#1d3030) are colors named
+        # within etm itself. They are, respectively, one shade lighter and two
+        # shades darker than DarkSlateGrey.
+        #
+        # Any of the style attributes above can be modified. E.g., with style
+        # 'dark', the default for 'text-area' is [grey2, Ivory]. This entry
+        #   window_colors:
+        #       text-area: [Black, White]
+        # would change the 'text-area' setting to 'Black' as the background color
+        # and 'White' as the foreground color while leaving the other style settings
+        # unchanged.
+        #### end cfg.yaml ####
 
 
 See [Saved Queries](#saved-queries) for more information about queries that allow for replaceable parameters.

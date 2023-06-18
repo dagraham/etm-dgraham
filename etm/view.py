@@ -2390,7 +2390,16 @@ def check_goto(*event):
 @bindings.add('c-r', filter=is_viewing_or_details & is_item_view)
 def not_editing_reps(*event):
     row = text_area.document.cursor_position_row
-    res = dataview.get_repetitions(row, 5)
+    res = dataview.get_repetitions(row)
+    if not res:
+        return
+    showing, reps = res
+    show_message(showing, reps, 24)
+
+@bindings.add('c-h', filter=is_viewing_or_details & is_item_view)
+def not_editing_history(*event):
+    row = text_area.document.cursor_position_row
+    res = dataview.get_history(row)
     if not res:
         return
     showing, reps = res
@@ -3046,6 +3055,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('S) schedule new', handler=do_schedule_new),
         MenuItem('g) open goto link', handler=do_goto),
         MenuItem('k) show konnections', handler=show_konnections),
+        MenuItem('^h) show completion history', handler=not_editing_history),
         MenuItem('^r) show repetitions', handler=not_editing_reps),
         MenuItem('^u) update last modified', handler=do_touch),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
