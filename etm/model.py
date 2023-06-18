@@ -3001,7 +3001,7 @@ class DataView(object):
 
         if not (item_id and item_id in self.id2relevant):
             return ''
-        showing = "History"
+        showing = "Completion History"
         item = DBITEM.get(doc_id=item_id)
 
         if not (item['itemtype'] == '-' and ('r' in item or '+' in item)):
@@ -6825,10 +6825,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     week2day2heading = {}
     weeks = set([])
     rows = []
-    # done = []
-    # completed = []
+    done = []
     engaged = []
-    # busy = []
 
     #XXX year, week -> dayofweek -> list of [time interval, summary, period]
     busy_details = {}
@@ -6841,7 +6839,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
     for item in db:
         completed = []
-        done = []
         if item.get('itemtype', None) == None:
             logger.error(f"itemtype missing from {item}")
             continue
