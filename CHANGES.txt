@@ -1,17 +1,22 @@
-Recent tagged changes as of 2023-06-17T08:57:03.174734-04:00:
-- 0 seconds ago (HEAD -> working, tag: 5.0.12) Daniel Graham
+Recent tagged changes as of 2023-06-18T07:28:25.718710-04:00:
+- 0 seconds ago (HEAD -> working, tag: 5.1.0) Daniel Graham
+    ece86e8 2023-06-18 07:28:25 -0400
+    Tagged version 5.1.0. Added ability to display completion history
+    for tasks including skipped instead of finished instances.
+
+- 23 hours ago (tag: 5.0.12) Daniel Graham
     c42576c 2023-06-17 08:57:03 -0400
     Tagged version 5.0.12.
 
-- 4 hours ago (tag: 5.0.11) Daniel Graham
+- 26 hours ago (tag: 5.0.11) Daniel Graham
     e9228d2 2023-06-17 05:19:31 -0400
     Tagged version 5.0.11.
 
-- 4 hours ago (tag: 5.0.10) Daniel Graham
+- 26 hours ago (tag: 5.0.10) Daniel Graham
     2e1f579 2023-06-17 05:05:32 -0400
     Tagged version 5.0.10.
 
-- 2 days ago (tag: 5.0.9) Daniel Graham
+- 3 days ago (tag: 5.0.9) Daniel Graham
     7f30e8b 2023-06-15 10:14:19 -0400
     Tagged version 5.0.9.
 
@@ -20,31 +25,31 @@ Recent tagged changes as of 2023-06-17T08:57:03.174734-04:00:
     Tagged version 5.0.8. Only display and allow completion of jthe
     jobs of the oldest unfinished instance of a repeating task.
 
-- 9 days ago (tag: 5.0.7) Daniel Graham
+- 10 days ago (tag: 5.0.7) Daniel Graham
     b9eccc6 2023-06-08 08:38:27 -0400
     Tagged version 5.0.7.
 
-- 12 days ago (tag: 5.0.6) Daniel Graham
+- 13 days ago (tag: 5.0.6) Daniel Graham
     345ca4e 2023-06-05 12:41:31 -0400
     Tagged version 5.0.6.
 
-- 12 days ago (tag: 5.0.5) Daniel Graham
+- 13 days ago (tag: 5.0.5) Daniel Graham
     9273685 2023-06-05 06:28:25 -0400
     Tagged version 5.0.5.
 
-- 12 days ago (tag: 5.0.4) Daniel Graham
+- 13 days ago (tag: 5.0.4) Daniel Graham
     ea199ac 2023-06-05 06:02:56 -0400
     Tagged version 5.0.4.
 
-- 13 days ago (tag: 5.0.3) Daniel Graham
+- 2 weeks ago (tag: 5.0.3) Daniel Graham
     e0a0d9e 2023-06-04 16:44:49 -0400
     Tagged version 5.0.3.
 
-- 13 days ago (tag: 5.0.2) Daniel Graham
+- 2 weeks ago (tag: 5.0.2) Daniel Graham
     4c5d4bb 2023-06-04 13:26:17 -0400
     Tagged version 5.0.2.
 
-- 13 days ago (tag: 5.0.1) Daniel Graham
+- 2 weeks ago (tag: 5.0.1) Daniel Graham
     b30f0ed 2023-06-04 12:47:15 -0400
     Tagged version 5.0.1.
 
@@ -76,7 +81,3 @@ Recent tagged changes as of 2023-06-17T08:57:03.174734-04:00:
 - 4 weeks ago (tag: 4.12.4) Daniel Graham
     15b3333 2023-05-20 14:33:40 -0400
     Tagged version 4.12.4.
-
-- 4 weeks ago (tag: 4.12.3) Daniel Graham
-    dd49fda 2023-05-17 12:24:12 -0400
-    Tagged version 4.12.3.
