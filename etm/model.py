@@ -599,14 +599,15 @@ item_hsh:    {self.item_hsh}
         else:
             return False, "does not have an @g goto entry"
 
-    def get_repetitions(self, num=5):
+    def get_repetitions(self):
         """
         Called with a row, we should have an doc_id and can use relevant
         as aft_dt.
         Called while editing, we won't have a row or doc_id and can use '@s'
         as aft_dt
         """
-        # self.update_item_hsh()
+        num = self.settings['num_repetitions']
+        self.update_item_hsh()
         item = self.item_hsh
         showing =  "Repetitions"
         if not ('s' in item and ('r' in item or '+' in item)):
@@ -1011,6 +1012,7 @@ item_hsh:    {self.item_hsh}
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if obj is None:
+                logger.debug(f"got None for {k}, {v}")
                 msg.append(f"bad entry for {k}: {v}")
                 return msg
                 # continue
@@ -1057,6 +1059,7 @@ item_hsh:    {self.item_hsh}
         if self.item_hsh.get('z', None) not in [None, 'float']:
             del self.item_hsh['z']
         if msg:
+            msg = "\n".join(msg)
             logger.debug(f"{msg}")
 
         return msg
@@ -1064,11 +1067,14 @@ item_hsh:    {self.item_hsh}
 
     def update_item_hsh(self):
         msg = self.check_item_hsh()
+        if msg:
+            logger.error(msg)
 
         links = self.item_hsh.get('k', [])
         if links:
             # make sure the doc_id refers to an actual document
             self.item_hsh['k'] = [x for x in links if self.db.contains(doc_id=x)]
+
 
         if self.is_modified and not msg:
             now = pendulum.now('local')
@@ -1326,7 +1332,7 @@ item_hsh:    {self.item_hsh}
             if not arg:
                 continue
             obj, rep  = self.do_completion(arg)
-            if obj:
+            if isinstance(obj, pendulum.Period):
                 obj_lst.append(obj)
                 rep_lst.append(rep)
             else:
@@ -3029,7 +3035,9 @@ class DataView(object):
         pairs = [f"{x[1]} {format_datetime(x[0])[1]}" for x in res]
         starting = format_datetime(relevant.date())[1]
 
-        return  showing, f"through {starting} for\n{details}:\n  " + "\n  ".join(pairs)
+        ps = f"\n\nCompleted instances are marked with {FINISHED_CHAR}" if skip else ""
+
+        return  showing, f"through {starting} for\n{details}:\n  " + "\n  ".join(pairs) + ps
 
     def touch(self, row):
         res = self.get_row_details(row)

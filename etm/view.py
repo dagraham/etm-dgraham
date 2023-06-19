@@ -2407,7 +2407,7 @@ def not_editing_history(*event):
 
 @bindings.add('c-r', filter=is_editing)
 def is_editing_reps(*event):
-    res = item.get_repetitions(5)
+    res = item.get_repetitions()
     if not res:
         return
     showing, reps = res
