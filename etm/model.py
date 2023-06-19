@@ -120,6 +120,7 @@ style = Style.from_dict({
 })
 
 FINISHED_CHAR = '✓'
+SKIPPED_CHAR = '✗'
 UPDATE_CHAR = "𝕦"
 INBASKET_CHAR = "𝕚"
 KONNECT_CHAR = 'k'
@@ -133,6 +134,7 @@ etmdir = None
 ETMFMT = "%Y%m%dT%H%M"
 ZERO = pendulum.duration(minutes=0)
 ONEMIN = pendulum.duration(minutes=1)
+ONESEC = pendulum.duration(seconds=1)
 DAY = pendulum.duration(days=1)
 
 
@@ -1842,7 +1844,7 @@ def format_duration(obj, short=False):
     >>> format_duration(td)
     '1w2d3h27m'
     """
-    if not isinstance(obj, pendulum.Duration):
+    if not (isinstance(obj, pendulum.Duration) or isinstance(obj, pendulum.Period)):
         return None
     hours = obj.hours
     try:
@@ -1878,7 +1880,7 @@ def status_duration(obj):
     """
     hours, minutes and tenths of minutes for display in the status bar
     """
-    if not isinstance(obj, pendulum.Duration):
+    if not (isinstance(obj, pendulum.Duration) or isinstance(obj, pendulum.Period)):
         return None
     hours = obj.hours
     try:
@@ -1915,7 +1917,7 @@ def fmt_dur(obj):
     >>> format_duration(td)
     '1w2d3h27m'
     """
-    if not isinstance(obj, pendulum.Duration):
+    if not (isinstance(obj, pendulum.Duration) or isinstance(obj, pendulum.Period)):
         return None
     try:
         until =[]
@@ -1937,6 +1939,29 @@ def fmt_dur(obj):
         print('format_duration', e)
         print(obj)
         return None
+
+def fmt_period(obj):
+    if not isinstance(obj, pendulum.Period):
+        return None
+    start = obj.start
+    end = obj.end
+    neg = end < start
+    diff = start - end if neg else end - start
+    until = []
+    days = diff.remaining_days
+    hours = diff.hours
+    minutes = diff.minutes
+    if neg:
+        until.append("-")
+    else:
+        until.append("+")
+    if days:
+        until.append(f"{days}d")
+    if hours:
+        until.append(f"{hours}h")
+    if minutes:
+        until.append(f"{minutes}m")
+    return "".join(until)
 
 
 def format_duration_list(obj_lst):
@@ -3019,10 +3044,10 @@ class DataView(object):
         res = []
         skip = item.get('o', 'k') == 's'
         for c in item['h']:
-            if skip and c.start == c.end:
-                res.append((c.end, ' '))
+            if skip and c.start == c.end + ONEMIN:
+                res.append((c.end, "", SKIPPED_CHAR))
             else:
-                res.append((c.end, FINISHED_CHAR))
+                res.append((c.end, f" ({fmt_period(c)})", FINISHED_CHAR))
         res.sort() # pendulum.DateTime obj as first component
         if len(res) > num:
             showing = f"Completion History: last {num} of {len(res)}"
@@ -3032,12 +3057,17 @@ class DataView(object):
         relevant = res[-1][0]
         details = f"{item['itemtype']} {item['summary']}"
 
-        pairs = [f"{x[1]} {format_datetime(x[0])[1]}" for x in res]
+        pairs = [f"{x[2]} {format_datetime(x[0])[1]}{x[1]}" for x in res]
         starting = format_datetime(relevant.date())[1]
 
-        ps = f"\n\nCompleted instances are marked with {FINISHED_CHAR}" if skip else ""
+        ps = f"\n\nSkipped instances are marked with a {SKIPPED_CHAR}." if skip else "\n"
+        pss = """
+Datetimes at which an instance was due
+are listed together with the period (+/-)
+from the completion until due datetime.
+"""
 
-        return  showing, f"through {starting} for\n{details}:\n  " + "\n  ".join(pairs) + ps
+        return  showing, f"through {starting} for\n{details}:\n  " + "\n  ".join(pairs) + ps + pss
 
     def touch(self, row):
         res = self.get_row_details(row)
@@ -5736,7 +5766,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                         if relevant and date_to_datetime(item['s']) < today:
                             cur = date_to_datetime(item['s'])
                             while cur < today:
-                                item.setdefault('h', []).append(pendulum.period(cur, cur))
+                                item.setdefault('h', []).append(pendulum.period(cur+ONEMIN, cur))
                                 cur = rset.after(cur, inc=False)
 
                             item['s'] = pendulum.instance(cur)
