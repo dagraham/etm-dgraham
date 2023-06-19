@@ -3062,9 +3062,10 @@ class DataView(object):
 
         ps = f"\n\nSkipped instances are marked with a {SKIPPED_CHAR}." if skip else "\n"
         pss = """
-Datetimes at which an instance was due
-are listed together with the period (+/-)
-from the completion until due datetime.
+Datetimes at which an instance was due are
+listed together with the period (+/-) from
+the completion until the due datetime in
+parentheses.
 """
 
         return  showing, f"through {starting} for\n{details}:\n  " + "\n  ".join(pairs) + ps + pss
