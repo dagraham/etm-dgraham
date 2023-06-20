@@ -4252,10 +4252,10 @@ def do_two_periods(arg):
 
 
 def do_overdue(arg):
-    ovrstr = "overdue: character from (r)estart, (s)kip, (k)eep or (p)reserve"
+    ovrstr = "overdue: character from (r)estart, (s)kip or (k)eep"
 
     if arg:
-        ok = arg in ('k', 'r', 's', 'p')
+        ok = arg in ('k', 'r', 's')
         if ok:
             return arg, f"overdue: {arg}"
         else:
