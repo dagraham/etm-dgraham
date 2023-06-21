@@ -1945,8 +1945,8 @@ def fmt_period(obj):
         return None
     start = obj.start
     end = obj.end
-    neg = end < start
-    diff = start - end if neg else end - start
+    neg = start > end
+    diff = end - start
     until = []
     days = diff.remaining_days
     hours = diff.hours
@@ -3047,7 +3047,9 @@ class DataView(object):
             if skip and c.start == c.end + ONEMIN:
                 res.append((c.end, "", SKIPPED_CHAR))
             else:
-                res.append((c.end, f" ({fmt_period(c)})", FINISHED_CHAR))
+                # due at 12am, change the effective due date to 12am of the following day
+                per = pendulum.period(c.start, c.end + DAY)
+                res.append((c.end, f" ({fmt_period(per)})", FINISHED_CHAR))
         res.sort() # pendulum.DateTime obj as first component
         if len(res) > num:
             showing = f"Completion History: last {num} of {len(res)}"

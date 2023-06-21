@@ -844,7 +844,7 @@ async def updates_loop(loop):
 
 async def refresh_loop(loop):
     logger.debug("XXX refresh_loop XXX")
-    dataview.refreshRelevant()  # sets now, currentYrWk, current
+    dataview.refreshRelevant()
     dataview.refreshAgenda()
     dataview.refreshCurrent()
     set_text(dataview.show_active_view())
