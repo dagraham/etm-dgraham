@@ -37,8 +37,8 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
         -   [selected menu notes](#selected-menu-notes)
     -   [Installation](#installation)
         -   [For personal use](#for-personal-use)
-        -   [for use in an isolated environment](#for-use-in-an-isolated-environment)
-        -   [for use system wide](#for-use-system-wide)
+        -   [For use in an isolated environment](#for-use-in-an-isolated-environment)
+        -   [For use system wide](#for-use-system-wide)
     -   [Usage](#usage)
         -   [Terminal size and color](#terminal-size-and-color)
         -   [Home directory](#home-directory)
@@ -1508,9 +1508,9 @@ The addition of the typechar '!' means that after importing the reminder will ap
 
 ### From a personal installation {#from-a-personal-installation}
 
-To remove *etm* installed into, say, python3, run
+To remove *etm* run
 
-    $ python3 -m pip uninstall etm-dgraham
+    $ pip uninstall etm-dgraham
 
 This will remove *etm* from the python site-packages directory and the *etm* and *etm+* executables from the python bin directory. Then remove any *etm home* directories that you have created.
 
@@ -1518,11 +1518,11 @@ This will remove *etm* from the python site-packages directory and the *etm* and
 
 ### From a virtual environment {#from-a-virtual-environment}
 
-If you should ever want to deinstall etm, first deactivate the virtual environment, if necessary, by changing to the virtual environment directory and entering
+Use *pipx* instead of *pip*:
 
-        (env) $ deactivate
+    $ pipx uninstall etm-dgraham
 
-You can now simply delete the virtual environment directory and, if you have additional *home* directories, delete each of them. One of the many advantages of the virtual environment is that these steps remove every trace.
+You can now remove any *home* directories you may have created.
 
 [↺ contents](#contents)
 
@@ -1530,7 +1530,8 @@ You can now simply delete the virtual environment directory and, if you have add
 
 To remove *etm* installed into, say, python3.7, run
 
-    $ sudo -H python3.7 -m pip uninstall etm-dgraham
+    $ sudo -H pip uninstall etm-dgraham
+
 This will remove *etm* from the python site-packages directory and the *etm* and *etm+* executables from the python bin directory. Then remove any *etm home* directories that you have created.
 
 [↺ contents](#contents)
