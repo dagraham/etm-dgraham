@@ -3895,7 +3895,7 @@ entry_tmpl = """\
 {%- if 'r' in x and x['r'] -%}\
 {%- set rrule %}\
 {{ x['r'] }}\
-{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'E', 'c'] -%}
+{%- for k in ['i', 's', 'M', 'm', 'n', 'h', 'w', 'E', 'c'] -%}
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
@@ -4002,7 +4002,7 @@ display_tmpl = """\
 {%- if 'r' in x and x['r'] -%}\
 {%- set rrule %}\
 {{ x['r'] }}\
-{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'E', 'c'] -%}
+{%- for k in ['i', 's', 'M', 'm', 'n', 'h', 'w', 'E', 'c'] -%}
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
@@ -5762,14 +5762,24 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
                 if item['itemtype'] == '-':
                     switch = item.get('o', 'k')
-                    relevant = rset.after(today, inc=True)
                     if switch == 's':
-                        if relevant and date_to_datetime(item['s']) < today:
-                            cur = date_to_datetime(item['s'])
-                            while cur < today:
+                        now = pendulum.now('local')
+                        relevant = rset.after(today, inc=True)
+                        cur = date_to_datetime(item['s'])
+                        # make 'all day' tasks not pastdue until one minute before midnight
+                        isdate = (isinstance(item['s'], pendulum.Date) and not isinstance(item['s'], pendulum.DateTime))
+                        isdate = cur.hour == 0 and cur.minute == 0
+                        delta = pendulum.duration(hours=23, minutes=59) if isdate else ZERO
+                        # logger.debug(f"{item['summary']} isdate: {isdate}, delta: {delta}, relevant: {relevant}, cur: {cur}")
+                        if relevant and date_to_datetime(item['s']) + delta < now:
+                            while cur + delta < now:
                                 item.setdefault('h', []).append(pendulum.period(cur+ONEMIN, cur))
                                 cur = rset.after(cur, inc=False)
-
+                            num_finished = settings.get('num_finished', 0)
+                            if num_finished and len(item['h']) > num_finished:
+                                h = item['h']
+                                h.sort(key=sortprd)
+                                item['h'] = h[-num_finished:]
                             item['s'] = pendulum.instance(cur)
                             update_db(db, item.doc_id, item)
                     else: # k or p

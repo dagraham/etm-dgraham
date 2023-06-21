@@ -837,9 +837,20 @@ def check_update():
 
 update_status = UpdateStatus()
 
-async def auto_check_loop(loop):
+async def updates_loop(loop):
+    logger.debug("XXX update_loop XXX")
     status, res = check_update()
     update_status.set_status(status)
+
+async def refresh_loop(loop):
+    logger.debug("XXX refresh_loop XXX")
+    dataview.refreshRelevant()  # sets now, currentYrWk, current
+    dataview.refreshAgenda()
+    dataview.refreshCurrent()
+    set_text(dataview.show_active_view())
+    get_app().invalidate()
+
+
 
 @bindings.add('f3')
 def do_system(*event):
@@ -1394,28 +1405,32 @@ async def maybe_alerts(now):
 async def event_handler():
     global current_datetime
     # check for updates every interval minutes
-    interval = settings.get('updates_interval', 0)
-    refresh_interval = settings.get('refresh_interval', 60)
-    minutes = 0
+    updates_interval = settings.get('updates_interval', 0)
+    refresh_interval = settings.get('refresh_interval', 60) # seconds to wait between loops
+    # minutes = pendulum.now().minute
+    # minutes = minutes % interval if interval else minutes % 5
+
     try:
         while True:
             now = pendulum.now('local')
             current_datetime = status_time(now)
             wait = refresh_interval - now.second % refresh_interval # residual
             if now.second < 6:
+                # minutes = now.minute % interval if interval else now.minute % 5
+                minutes = now.minute
                 current_today = dataview.now.format("YYYYMMDD")
                 asyncio.ensure_future(maybe_alerts(now))
                 current_datetime = status_time(now)
                 today = now.format("YYYYMMDD")
+                logger.debug(f"now: {now}, minutes: {minutes}")
 
-                if interval:
-                    if minutes == 0:
-                        minutes = 1
-                        loop = asyncio.get_event_loop()
-                        asyncio.ensure_future(auto_check_loop(loop))
-                    else:
-                        minutes += 1
-                        minutes = minutes % interval
+                if updates_interval and minutes % updates_interval == 0:
+                    loop = asyncio.get_event_loop()
+                    asyncio.ensure_future(updates_loop(loop))
+
+                if minutes % 5 == 0:
+                    loop = asyncio.get_event_loop()
+                    asyncio.ensure_future(refresh_loop(loop))
 
                 if today != current_today:
                     loop = asyncio.get_event_loop()
