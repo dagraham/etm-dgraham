@@ -1,5 +1,9 @@
-Recent tagged changes as of 2023-06-21T09:13:39.987856-04:00:
-- 1 second ago (HEAD -> working, tag: 5.1.5) Daniel Graham
+Recent tagged changes as of 2023-06-21T14:33:46.525074-04:00:
+- 0 seconds ago (HEAD -> working, tag: 5.1.6) Daniel Graham
+    9c70c17 2023-06-21 14:33:46 -0400
+    Tagged version 5.1.6.
+
+- 5 hours ago (tag: 5.1.5) Daniel Graham
     17d91e2 2023-06-21 09:13:39 -0400
     Tagged version 5.1.5.
 
@@ -77,7 +81,3 @@ Recent tagged changes as of 2023-06-21T09:13:39.987856-04:00:
     7bc8090 2023-06-03 07:21:38 -0400
     Tagged version 5.0.0. Use pendulum periods for f and elements of h
     instead of datetimes.
-
-- 4 weeks ago (tag: 4.12.9) Daniel Graham
-    b8fbc47 2023-05-27 13:45:19 -0400
-    Tagged version 4.12.9.
