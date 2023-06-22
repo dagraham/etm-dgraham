@@ -41,7 +41,11 @@ import sys
 import re
 
 from tinydb import __version__ as tinydb_version
-from tinydb.table import Document
+from packaging.version import parse as parse_version
+if parse_version(tinydb_version) >= parse_version("4.0.0"):
+    from tinydb.table import Document
+else:
+    from tinydb.database import Document
 
 from jinja2 import Template
 from jinja2 import __version__ as jinja2_version
