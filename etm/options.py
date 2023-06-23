@@ -165,6 +165,7 @@ class Settings():
     dayfirst = "false"
     beginbusy = 7
     updates_interval = 0
+    update_command = "pip install -U etm-dgraham"
     locale = "en_US"
     vi_mode = "false"
     secret = randomString(10)
@@ -198,6 +199,7 @@ class Settings():
         "yearfirst" : yearfirst,
         'beginbusy' : beginbusy,
         "updates_interval" : updates_interval,
+        "update_command" : update_command,
         "locale" : locale,
         "vi_mode" : vi_mode,
         "secret" : secret,
@@ -273,6 +275,13 @@ updates_interval: {updates_interval}
 # displayed at the right end of status bar when an update is available
 # or a question mark when the check cannot be completed as, for
 # example, when there is no internet connection.
+
+update_command: {update_command}
+# shell command to update etm. The default is to use pip, i.e.,
+# pip install -U etm-dgraham
+# an option would be to replace pip with pipx if you used pipx
+# to install etm originally. You may need to replace 'pip' or 'pipx'
+# with the full path to the command on your system.
 
 locale: {locale}
 # locale abbreviation. E.g., "en_AU" for English (Australia), "en_US"
@@ -698,7 +707,6 @@ window_colors: {window_colors}
                         changed.append(f"removed {key}.{k}: {new[key][k]}")
                         del new[key][k]
 
-
         if 'colors' in new and new['colors']:
             new['type_colors'] = new['colors']
             del new['colors']
@@ -755,7 +763,6 @@ window_colors: {window_colors}
             tmp = new['locale']
             new['locale'] = self.settings['locale']
             changed.append(f"retaining default for 'locale': {self.settings['locale']}. The provided setting, {tmp}, does have the required format.")
-
 
         if not isinstance(new['updates_interval'], int) or new['updates_interval'] < 0:
             new['updates_interval'] = self.settings['updates_interval']
