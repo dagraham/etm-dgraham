@@ -1,55 +1,59 @@
-Recent tagged changes as of 2023-06-21T14:33:46.525074-04:00:
-- 0 seconds ago (HEAD -> working, tag: 5.1.6) Daniel Graham
+Recent tagged changes as of 2023-06-22T20:25:12.409983-04:00:
+- 0 seconds ago (HEAD -> working, tag: 5.1.7) Daniel Graham
+    fe31c71 2023-06-22 20:25:12 -0400
+    Tagged version 5.1.7.
+
+- 30 hours ago (tag: 5.1.6) Daniel Graham
     9c70c17 2023-06-21 14:33:46 -0400
     Tagged version 5.1.6.
 
-- 5 hours ago (tag: 5.1.5) Daniel Graham
+- 35 hours ago (tag: 5.1.5) Daniel Graham
     17d91e2 2023-06-21 09:13:39 -0400
     Tagged version 5.1.5.
 
-- 2 days ago (tag: 5.1.4) Daniel Graham
+- 3 days ago (tag: 5.1.4) Daniel Graham
     84421ec 2023-06-19 13:40:16 -0400
     Tagged version 5.1.4.
 
-- 2 days ago (tag: 5.1.3) Daniel Graham
+- 3 days ago (tag: 5.1.3) Daniel Graham
     c776097 2023-06-19 11:40:16 -0400
     Tagged version 5.1.3.
 
-- 2 days ago (tag: 5.1.2) Daniel Graham
+- 4 days ago (tag: 5.1.2) Daniel Graham
     3483b69 2023-06-19 05:51:42 -0400
     Tagged version 5.1.2.
 
-- 3 days ago (tag: 5.1.1) Daniel Graham
+- 5 days ago (tag: 5.1.1) Daniel Graham
     d0c733f 2023-06-18 08:29:16 -0400
     Tagged version 5.1.1.
 
-- 3 days ago (tag: 5.1.0) Daniel Graham
+- 5 days ago (tag: 5.1.0) Daniel Graham
     ece86e8 2023-06-18 07:28:25 -0400
     Tagged version 5.1.0. Added ability to display completion history
     for tasks including skipped instead of finished instances.
 
-- 4 days ago (tag: 5.0.12) Daniel Graham
+- 5 days ago (tag: 5.0.12) Daniel Graham
     c42576c 2023-06-17 08:57:03 -0400
     Tagged version 5.0.12.
 
-- 4 days ago (tag: 5.0.11) Daniel Graham
+- 6 days ago (tag: 5.0.11) Daniel Graham
     e9228d2 2023-06-17 05:19:31 -0400
     Tagged version 5.0.11.
 
-- 4 days ago (tag: 5.0.10) Daniel Graham
+- 6 days ago (tag: 5.0.10) Daniel Graham
     2e1f579 2023-06-17 05:05:32 -0400
     Tagged version 5.0.10.
 
-- 6 days ago (tag: 5.0.9) Daniel Graham
+- 7 days ago (tag: 5.0.9) Daniel Graham
     7f30e8b 2023-06-15 10:14:19 -0400
     Tagged version 5.0.9.
 
-- 8 days ago (tag: 5.0.8) Daniel Graham
+- 9 days ago (tag: 5.0.8) Daniel Graham
     1f587d1 2023-06-13 20:17:48 -0400
     Tagged version 5.0.8. Only display and allow completion of jthe
     jobs of the oldest unfinished instance of a repeating task.
 
-- 13 days ago (tag: 5.0.7) Daniel Graham
+- 2 weeks ago (tag: 5.0.7) Daniel Graham
     b9eccc6 2023-06-08 08:38:27 -0400
     Tagged version 5.0.7.
 
@@ -57,27 +61,22 @@ Recent tagged changes as of 2023-06-21T14:33:46.525074-04:00:
     345ca4e 2023-06-05 12:41:31 -0400
     Tagged version 5.0.6.
 
-- 2 weeks ago (tag: 5.0.5) Daniel Graham
+- 3 weeks ago (tag: 5.0.5) Daniel Graham
     9273685 2023-06-05 06:28:25 -0400
     Tagged version 5.0.5.
 
-- 2 weeks ago (tag: 5.0.4) Daniel Graham
+- 3 weeks ago (tag: 5.0.4) Daniel Graham
     ea199ac 2023-06-05 06:02:56 -0400
     Tagged version 5.0.4.
 
-- 2 weeks ago (tag: 5.0.3) Daniel Graham
+- 3 weeks ago (tag: 5.0.3) Daniel Graham
     e0a0d9e 2023-06-04 16:44:49 -0400
     Tagged version 5.0.3.
 
-- 2 weeks ago (tag: 5.0.2) Daniel Graham
+- 3 weeks ago (tag: 5.0.2) Daniel Graham
     4c5d4bb 2023-06-04 13:26:17 -0400
     Tagged version 5.0.2.
 
-- 2 weeks ago (tag: 5.0.1) Daniel Graham
+- 3 weeks ago (tag: 5.0.1) Daniel Graham
     b30f0ed 2023-06-04 12:47:15 -0400
     Tagged version 5.0.1.
-
-- 3 weeks ago (tag: 5.0.0) Daniel Graham
-    7bc8090 2023-06-03 07:21:38 -0400
-    Tagged version 5.0.0. Use pendulum periods for f and elements of h
-    instead of datetimes.

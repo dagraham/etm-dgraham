@@ -1422,7 +1422,6 @@ async def event_handler():
                 asyncio.ensure_future(maybe_alerts(now))
                 current_datetime = status_time(now)
                 today = now.format("YYYYMMDD")
-                logger.debug(f"now: {now}, minutes: {minutes}")
 
                 if updates_interval and minutes % updates_interval == 0:
                     loop = asyncio.get_event_loop()
