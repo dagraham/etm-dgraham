@@ -805,7 +805,33 @@ def do_about(*event):
 def do_check_updates(*event):
     status, res = check_update()
     msg = wrap(res)
-    show_message("version information", msg, 2)
+    # if status:
+    if True:
+        # an update is available, install it prompt?
+        if 'update_command' in settings and settings['update_command']:
+            def coroutine():
+                dialog = ConfirmDialog(f"etm update", "An update is available. Install it?")
+
+                install = yield from show_dialog_as_float(dialog)
+                if install:
+                    ok, msg = check_output(settings['update_command'])
+                    prompt = wrap("\n".join(msg.split('\n')[:1]))
+                    success = wrap("If the update was sucessful, you will need to restart etm for it to take effect.")
+
+                    if ok:
+                        show_message("etm update", f"{prompt}\n\n{success}", 2)
+                    else:
+                        show_message("etm update", wrap(prompt), 2)
+                else:
+                    show_message("etm update", "cancelled")
+
+            asyncio.ensure_future(coroutine())
+
+        else:
+            show_message("version information", msg, 2)
+
+    else:
+        show_message("version information", msg, 2)
 
 
 def check_update():
