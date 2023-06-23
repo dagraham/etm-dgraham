@@ -856,6 +856,7 @@ item_hsh:    {self.item_hsh}
             if 's' in self.item_hsh:
                 if 'r' in self.item_hsh:
                     nxt = get_next_due(self.item_hsh, completed_datetime, completion_entry.end)
+                    # logger.debug(f"nxt: {nxt}")
                     if nxt:
                         for i in range(len(self.item_hsh['r'])):
                             if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
@@ -866,6 +867,7 @@ item_hsh:    {self.item_hsh}
                         self.item_hsh.setdefault('h', []).append(completion_entry)
                         save_item = True
                     else:  # finished last instance
+                        # logger.debug(f"not nxt, finished last instance")
                         self.item_hsh['f'] = completion_entry
                         save_item = True
 
@@ -1022,7 +1024,7 @@ item_hsh:    {self.item_hsh}
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if obj is None:
-                logger.debug(f"got None for {k}, {v}")
+                # logger.debug(f"got None for {k}, {v}")
                 msg.append(f"bad entry for {k}: {v}")
                 return msg
                 # continue
@@ -1959,6 +1961,7 @@ def fmt_period(obj):
     else:
         diff = end - start
     until = []
+    weeks = diff.in_weeks()
     days = diff.remaining_days
     hours = diff.hours
     minutes = diff.minutes
@@ -1966,13 +1969,17 @@ def fmt_period(obj):
         until.append("-")
     else:
         until.append("+")
+    tmp = []
+    if weeks:
+        until.append(f"{weeks}w")
     if days:
         until.append(f"{days}d")
     if hours:
         until.append(f"{hours}h")
     if minutes:
         until.append(f"{minutes}m")
-    return "".join(until)
+    # keep the sign and the 2 most significant
+    return "".join(until[:3])
 
 
 def format_duration_list(obj_lst):
@@ -3050,21 +3057,24 @@ class DataView(object):
         showing = "Completion History"
         item = DBITEM.get(doc_id=item_id)
 
-        if not (item['itemtype'] == '-' and ('r' in item or '+' in item)):
-            return showing, "not a repeating task"
-        if 'h' not in item:
+        # if not (item['itemtype'] == '-' and ('r' in item or '+' in item)):
+        #     return showing, "not a repeating task"
+        if 'h' not in item and 'f' not in item:
             return showing, "there is no history of completions"
 
         relevant = self.id2relevant.get(item_id)
         res = []
         skip = item.get('o', 'k') == 's'
-        for c in item['h']:
+        if 'f' in item:
+            per = item['f']
+            res.append((per.end, f" {fmt_period(per)}", FINISHED_CHAR))
+        for c in item.get('h', []):
             if skip and c.start == c.end + ONEMIN:
                 res.append((c.end, "", SKIPPED_CHAR))
             else:
                 # due at 12am, change the effective due date to 12am of the following day
                 per = pendulum.period(c.start, c.end + DAY)
-                res.append((c.end, f" ({fmt_period(per)})", FINISHED_CHAR))
+                res.append((c.end, f" {fmt_period(per)}", FINISHED_CHAR))
         res.sort() # pendulum.DateTime obj as first component
         if len(res) > num:
             showing = f"Completion History: last {num} of {len(res)}"
@@ -3078,11 +3088,12 @@ class DataView(object):
         starting = format_datetime(relevant.date())[1]
 
         ps = f"\n\nSkipped instances are marked with a {SKIPPED_CHAR}." if skip else "\n"
-        pss = """
-Datetimes at which an instance was due are
-listed together with the period (+/-) from
-the completion until the due datetime in
-parentheses.
+        pss = f"""
+Completed instances are marked with a {FINISHED_CHAR}
+and listed by due datetimes followed
+by the period by which the completion
+datetime preceded (+) or followed (-)
+the due datetime.
 """
 
         return  showing, f"through {starting} for\n{details}:\n  " + "\n  ".join(pairs) + ps + pss
@@ -4801,11 +4812,17 @@ def get_next_due(item, done, due):
     overdue = item.get('o', 'k') # make 'k' the default for 'o'
     start = item['s']
     dtstart = date_to_datetime(item['s'])
+    # logger.debug(f"done: {done}, due: {due}, dtstart: {dtstart}")
     if due > dtstart:
         # we've finished a between instance
+        # logger.debug(f"between, returning dtstart: {dtstart}")
         return dtstart
     # we're finishing the oldest instance
+    h = [x.end for x in item.get('h', [])]
+    h.sort()
+
     due = dtstart if not due else due
+
     if overdue == 'k':
         aft = due
         inc = False
@@ -4834,14 +4851,21 @@ def get_next_due(item, done, due):
             logger.error(f"error processing {hsh}: {e}")
             return []
 
-    if '-' in item:
-        for dt in item['-']:
-            rset.exdate(dt)
+    plus = item.get('+', [])
+    hist = [x.end for x in item.get('h', [])]
+    minus = item.get('-', [])
+    minus_hist = hist + minus
 
-    if '+' in item:
-        for dt in item['+']:
-            rset.rdate(dt)
-    nxt_rset = rset.after(aft, inc)
+    plus_not_minus = list(set(plus) - set(minus_hist))
+    minus_not_plus = list(set(minus_hist) - set(plus))
+
+    for dt in minus_not_plus:
+        rset.exdate(date_to_datetime(dt))
+
+    for dt in plus_not_minus:
+        rset.rdate(date_to_datetime(dt))
+
+    nxt_rset = rset.after(date_to_datetime(aft), inc)
     if nxt_rset:
         nxt = pendulum.instance(nxt_rset)
         if using_dates:
@@ -4849,6 +4873,7 @@ def get_next_due(item, done, due):
     else:
         nxt = None
     return nxt
+
 
 def date_to_datetime(dt, hour=0, minute=0):
     if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
