@@ -1427,9 +1427,9 @@ async def event_handler():
                     loop = asyncio.get_event_loop()
                     asyncio.ensure_future(updates_loop(loop))
 
-                if minutes % 5 == 0:
-                    loop = asyncio.get_event_loop()
-                    asyncio.ensure_future(refresh_loop(loop))
+                # if minutes % 5 == 0:
+                #     loop = asyncio.get_event_loop()
+                #     asyncio.ensure_future(refresh_loop(loop))
 
                 if today != current_today:
                     loop = asyncio.get_event_loop()
