@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# standard sort order: ['!', '#', '$', '%', '&', '(', ')', '*', '+',
+# ',', '-', '.', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'Y', 'Z',
+# '^', '_', 'a', 'b', 'y', 'z', '~']
+
 from pprint import pprint
 import datetime # for type testing in rrule
 import pendulum
@@ -41,7 +45,11 @@ import sys
 import re
 
 from tinydb import __version__ as tinydb_version
-from tinydb.table import Document
+from packaging.version import parse as parse_version
+if parse_version(tinydb_version) >= parse_version("4.0.0"):
+    from tinydb.table import Document
+else:
+    from tinydb.database import Document
 
 from jinja2 import Template
 from jinja2 import __version__ as jinja2_version
@@ -1946,7 +1954,10 @@ def fmt_period(obj):
     start = obj.start
     end = obj.end
     neg = start > end
-    diff = end - start
+    if neg:
+        diff = start - end
+    else:
+        diff = end - start
     until = []
     days = diff.remaining_days
     hours = diff.hours
@@ -2343,12 +2354,14 @@ class DataView(object):
             self.mk_current = True
             self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
         else:
-            self.currfile = None
             self.mk_current = False
+            self.currfile = None
         if 'keep_next' in self.settings and self.settings['keep_next']:
             # keep_next is true
+            self.mk_next = True
             self.nextfile = os.path.normpath(os.path.join(etmdir, 'next.txt'))
         else:
+            self.mk_next = False
             self.nextfile = None
 
         if 'locale' in self.settings:
@@ -2751,7 +2764,7 @@ class DataView(object):
             self.forthcoming_view, self.row2id = show_forthcoming(self.db, self.id2relevant, self.pinned_list, self.link_list, self.konnected, self.timers)
             return self.forthcoming_view
         if self.active_view == 'do next':
-            self.next_view, self.row2id = show_next(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
+            self.next_view, self.row2id, self.next_txt = show_next(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
             return self.next_view
         if self.active_view == 'journal':
             self.journal_view, self.row2id = show_journal(self.db, self.id2relevant, self.pinned_list, self.link_list, self.konnected, self.timers)
@@ -2894,11 +2907,13 @@ class DataView(object):
             else:
                 logger.info("current schedule empty - did not save")
 
-        if self.nextfile is not None:
-            next_view, row2id = show_next(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
-            with open(self.nextfile, 'w', encoding='utf-8') as fo:
-                fo.write(re.sub(' {3,}', ' ', next_view))
-            logger.info(f"saved do next to {self.nextfile}")
+        if self.mk_next:
+            next_view, row2id, next_txt = show_next(self.db, self.pinned_list, self.link_list, self.konnected, self.timers)
+            next_view = current_hsh['next'] if 'next' in current_hsh else None
+            if next_txt:
+                with open(self.nextfile, 'w', encoding='utf-8') as fo:
+                    fo.write(re.sub(LINEDOT, '   ', next_txt))
+                logger.info(f"saved do next to {self.nextfile}")
 
 
     def show_query(self):
@@ -6320,6 +6335,11 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     """
     Unfinished, undated tasks and jobs
     """
+    # width = settings['keep_current'][1]
+    global current_hsh
+    mk_next = settings['keep_next']
+    next_width = settings['keep_current'][1] - 1
+
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     locations = set([])
@@ -6410,8 +6430,26 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
             path = row['location']
             values = row['columns']
             rdict.add(path, values)
+
     tree, row2id = rdict.as_tree(rdict, level=0)
-    return tree, row2id
+
+    if mk_next:
+        cdict = NDict(compact=True, width=next_width)
+        for row in rows:
+            if using_groups:
+                groups = location2groups.get(row['location'], ['OTHER'])
+                for group in groups:
+                    path = f"{group}/{row['location']}"
+                    values = row['columns']
+                    cdict.add(path, values)
+            else:
+                path = row['location']
+                values = row['columns']
+                cdict.add(path, values)
+        ctree, crow2id = cdict.as_tree(cdict, level=0)
+        current_hsh['next'] = ctree
+
+    return tree, row2id, ctree
 
 
 def show_journal(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], timers={}):
@@ -7371,14 +7409,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 # heading = f"Busy periods for {day_}"
                 if values[0] in ["*", "-"]:
                     values[1] = re.sub(' *\n+ *', ' ', values[1])
-                    # busyperiod = row.get('busyperiod', "")
-                    # if busyperiod:
-                    #     wrap = row.get('wrap', [])
-                    #     wrapped = row.get('wrapped', "")
-                    #     row = wkday2row(dayofweek)
-                    #     week2day2heading[week][row] = day_
-                    #     summary = values[1].ljust(current_summary_width-20, ' ')
-                    #     busy_row = f"{values[0]} {summary} {wrapped:^15}".rstrip()
                 cdict.add(path, values)
 
             ctree, crow2id = cdict.as_tree(cdict, level=0)
