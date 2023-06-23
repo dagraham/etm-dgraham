@@ -1,9 +1,13 @@
-Recent tagged changes as of 2023-06-23T14:32:58.480420-04:00:
-- 0 seconds ago (HEAD -> working, tag: 5.1.8) Daniel Graham
+Recent tagged changes as of 2023-06-23T16:38:44.538643-04:00:
+- 0 seconds ago (HEAD -> working, tag: 5.1.9) Daniel Graham
+    1950dbb 2023-06-23 16:38:44 -0400
+    Tagged version 5.1.9.
+
+- 2 hours ago (tag: 5.1.8) Daniel Graham
     3d22710 2023-06-23 14:32:58 -0400
     Tagged version 5.1.8.
 
-- 18 hours ago (tag: 5.1.7) Daniel Graham
+- 20 hours ago (tag: 5.1.7) Daniel Graham
     fe31c71 2023-06-22 20:25:12 -0400
     Tagged version 5.1.7.
 
@@ -44,7 +48,7 @@ Recent tagged changes as of 2023-06-23T14:32:58.480420-04:00:
     e9228d2 2023-06-17 05:19:31 -0400
     Tagged version 5.0.11.
 
-- 6 days ago (tag: 5.0.10) Daniel Graham
+- 7 days ago (tag: 5.0.10) Daniel Graham
     2e1f579 2023-06-17 05:05:32 -0400
     Tagged version 5.0.10.
 
@@ -76,7 +80,3 @@ Recent tagged changes as of 2023-06-23T14:32:58.480420-04:00:
 - 3 weeks ago (tag: 5.0.3) Daniel Graham
     e0a0d9e 2023-06-04 16:44:49 -0400
     Tagged version 5.0.3.
-
-- 3 weeks ago (tag: 5.0.2) Daniel Graham
-    4c5d4bb 2023-06-04 13:26:17 -0400
-    Tagged version 5.0.2.
