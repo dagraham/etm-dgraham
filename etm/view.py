@@ -805,9 +805,8 @@ def do_about(*event):
 def do_check_updates(*event):
     status, res = check_update()
     msg = wrap(res)
-    # if status:
-    if True:
-        # an update is available, install it prompt?
+    if status:
+        # an update is available, promot to install it?
         if 'update_command' in settings and settings['update_command']:
             def coroutine():
                 dialog = ConfirmDialog(f"etm update", "An update is available. Install it?")
