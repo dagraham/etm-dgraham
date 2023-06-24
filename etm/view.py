@@ -805,7 +805,8 @@ def do_about(*event):
 def do_check_updates(*event):
     status, res = check_update()
     msg = wrap(res)
-    if status:
+    # if status:
+    if True:
         # an update is available, promot to install it?
         if 'update_command' in settings and settings['update_command']:
             def coroutine():
@@ -814,13 +815,22 @@ def do_check_updates(*event):
                 install = yield from show_dialog_as_float(dialog)
                 if install:
                     ok, msg = check_output(settings['update_command'])
-                    prompt = wrap("\n".join(msg.split('\n')[:1]))
+                    logger.debug(msg)
+                    tmp = [x.strip() for x in msg.split('\n')]
+                    lines = [wrap(tmp[0])]
+                    for line in tmp[1:]:
+                        if line and not line.startswith("Requirement already"):
+                            lines.append(wrap(line))
+                    logger.debug(f"lines: {lines}")
                     success = wrap("If the update was sucessful, you will need to restart etm for it to take effect.")
+                    prompt = "\n".join(lines)
+                    # prompt = wrap("\n".join(msg.split('\n')[:1]))
 
                     if ok:
                         show_message("etm update", f"{prompt}\n\n{success}", 2)
+                        # show_message("etm update", prompt, 2)
                     else:
-                        show_message("etm update", wrap(prompt), 2)
+                        show_message("etm update", prompt, 2)
                 else:
                     show_message("etm update", "cancelled")
 
