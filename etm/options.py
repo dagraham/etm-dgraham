@@ -391,11 +391,11 @@ journal_name: {journal_name}
 # year and month appended to the index. E.g., with the setting
 #   journal_name: daily
 # this journal entry
-#   % visited Yellowstone @s 22/6/24 @i daily
+#   % visited Yellowstone @s 22/10/24 @i daily
 # would be displayed in journal view as if the index entry were
-#   @i daily/2022/ 6
-# thus organizing such entries by the year and month of their scheduled dates.
-# Within each month, entries will be also ordered by the month day.
+#   @i daily/2022/10/24
+# thus organizing such entries by the year and month and, within each month,
+# also by the month day.
 
 alerts: {alerts}
 # A dictionary with single-character, "alert" keys and corresponding
@@ -428,12 +428,13 @@ expansions: {expansions}
 # 'replacement string' values. E.g. with
 #
 #    expansions:
-#        tennis: "@e 1h30m @a 30m: d @i personal:exercise"
+#        daily: "@s now @i daily"
 #        ...
 #
-# then when "@x tennis" is entered the popup completions for
-# "@x tennis" would offer replacement by the corresponding
-# "@e 1h30m @a 30m: d @i personal:exercise".
+# then when "@x d" is entered, popup completions would include
+# "@x daily" and, if that is selected and a space entered, completions
+# would then offer "@s now @i daily" as a replacement for "@x daily".
+# Note that this is a two-stage process.
 
 sms: {sms}
 # Settings to send "t" (sms text message) alerts to the

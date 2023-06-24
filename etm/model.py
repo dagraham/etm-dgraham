@@ -3073,7 +3073,10 @@ class DataView(object):
                 res.append((c.end, "", SKIPPED_CHAR))
             else:
                 # due at 12am, change the effective due date to 12am of the following day
-                per = pendulum.period(c.start, c.end + DAY)
+                if c.end.hour == 0 and c.end.minute == 0:
+                    per = pendulum.period(c.start, c.end + DAY)
+                else:
+                    per = pendulum.period(c.start, c.end)
                 res.append((c.end, f" {fmt_period(per)}", FINISHED_CHAR))
         res.sort() # pendulum.DateTime obj as first component
         if len(res) > num:
