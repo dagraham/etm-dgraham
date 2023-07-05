@@ -6,7 +6,7 @@ from datetime import *
 import pendulum
 import sys, os
 
-num_items = 800
+num_items = 400
 
 def parse(s, **kwd):
     return pendulum.parse(s, strict=False, **kwd)
@@ -35,9 +35,9 @@ def make_examples(egfile=None, num_items=num_items):
     datetimes = list(rrule(DAILY, byweekday=range(7), byhour=range(6, 22), dtstart=start, until=until))
     past_datetimes = [x for x in datetimes if x <= now]
 
-    types = ['-', '*', '%', '-']
-    # clients = ['A', 'B', 'C', 'D', 'E']
-    clients = ['A', 'B', 'C']
+    types = ['-', '*', '%', '-', '*']
+    clients = ['A', 'B', 'C', 'D']
+    client_name = {'A': 'Tom Jefferson', 'B': 'John Adams', 'C': 'Ben Franklin', 'D': 'Jim Madison' }
     projects = {
             'A': ['project a1', 'project a2'],
             'B': ['project b1', 'project b2', 'project b3'],
@@ -65,6 +65,13 @@ def make_examples(egfile=None, num_items=num_items):
 
     examples.append(f"! the lorem examples @t lorem @d 1) This inbox item and each of the other {num_items} internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'. 2). The examples are generated to fit within a period including the month they were generated together with one subsequent and {months} previous months. You can remove and regenerate them whenever you like to keep them current.")
 
+    for client in clients:
+        summary = f"{client_name[client]}"
+        d = f"details for {client_name[client]} go here"
+        i = f"billing/{client_name[client]}/# contact info"
+        examples.append(f"% {summary} @i {i} @d {d}")
+
+
 
     for _ in range(num_items):
         t = random.choice(types)
@@ -75,8 +82,9 @@ def make_examples(egfile=None, num_items=num_items):
         s = start.strftime("%Y-%m-%d") if date else start.strftime("%Y-%m-%d %I:%M%p")
         end = end.strftime("%Y-%m-%d") if date else start.strftime("%Y-%m-%d %I:%M%p")
         d = lorem.paragraph()
-        i1 = random.choice(clients)
-        i2 = random.choice(projects[i1])
+        i0 = random.choice(clients)
+        i1 = client_name[i0]
+        i2 = random.choice(projects[i0])
         # i3 = random.choice(activities[i1])
         begin = random.choice(range(1, 15))
         used = ""
@@ -90,22 +98,25 @@ def make_examples(egfile=None, num_items=num_items):
             if start < now:
                 used += f"@u {u}m: {e} "
 
-        if t == '*':
+        if t == "%" and start <= now:
+            examples.append(f"{t} {summary} @s {s} @i $ daily @d {d}")
+
+        elif t == '*':
             if date:      # an event
                 examples.append(f"{t} {summary} @s {s} @t {random.choice(tags)} @t lorem")
             else:
                 x = random.choice(extent)
-                examples.append(f"{t} {summary} @s {s} @e {x}m @i client {i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem")
+                examples.append(f"{t} {summary} @s {s} @e {x}m @i billing/{i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem")
         elif t == '-' and random.choice(['h', 't']) == 'h':
             if start < now:
 
                 f = f" @f {s} -> {end} " if random.choice(['h', 't']) == 't' else ""
-                examples.append(f"{t} {summary} @s {s} @i client {i1}/{i2} {f}{used} @d {d} @t lorem")
+                examples.append(f"{t} {summary} @s {s} @i billing/{i1}/{i2} {f}{used} @d {d} @t lorem")
             else:
-                examples.append(f"{t} {summary} @s {s} @i client {i1}/{i2} @d {d} @b {begin} @t lorem")
+                examples.append(f"{t} {summary} @s {s} @i billing/{i1}/{i2} @d {d} @b {begin} @t lorem")
 
         else:
-            examples.append(f"{t} {summary} @i client {i1}/{i2} @d {d} @l {random.choice(locations)} @t {random.choice(tags)} @t lorem")
+            examples.append(f"{t} {summary} @i billing/{i1}/{i2} @d {d} @l {random.choice(locations)} @t {random.choice(tags)} @t lorem")
 
     if egfile:
         with open(egfile, 'w') as fo:
