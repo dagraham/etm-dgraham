@@ -709,8 +709,8 @@ examples):
   field begins with a match for the case insensitve
   regular expression RGX.
 
-* includes LST RGX: return items in which the value of
-  one of the fields in LST includes a match for the case
+* includes (or in) LST RGX: return items in which the value
+  of one of the fields in LST includes a match for the case
   insensitive regular expression RGX. (LST contains all
   but the last, RGX, argument.)
 

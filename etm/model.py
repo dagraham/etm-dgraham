@@ -2359,16 +2359,13 @@ class DataView(object):
         if 'keep_current' in self.settings and self.settings['keep_current'][0]:
             # weeks is not zero
             self.mk_current = True
-            self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
-        else:
-            self.mk_current = False
-            self.currfile = None
-        if 'keep_next' in self.settings and self.settings['keep_next']:
-            # keep_next is true
             self.mk_next = True
+            self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
             self.nextfile = os.path.normpath(os.path.join(etmdir, 'next.txt'))
         else:
+            self.mk_current = False
             self.mk_next = False
+            self.currfile = None
             self.nextfile = None
 
         if 'locale' in self.settings:
@@ -3090,16 +3087,25 @@ class DataView(object):
         pairs = [f"{x[2]} {format_datetime(x[0])[1]}{x[1]}" for x in res]
         starting = format_datetime(relevant.date())[1]
 
-        ps = f"\n\nSkipped instances are marked with a {SKIPPED_CHAR}." if skip else "\n"
-        pss = f"""
-Completed instances are marked with a {FINISHED_CHAR}
-and listed by due datetimes followed
-by the period by which the completion
-datetime preceded (+) or followed (-)
-the due datetime.
-"""
+        # ps = f"\n\nSkipped instances are marked with a {SKIPPED_CHAR}." if skip else "\n"
+        if skip:
+            pss = f"""
 
-        return  showing, f"through {starting} for\n{details}:\n  " + "\n  ".join(pairs) + ps + pss
+{FINISHED_CHAR} and {SKIPPED_CHAR} indicate, respectively, completed
+and skipped instances. Due datetimes are
+shown and, for completions, followed by
+the length of time the completion preceded
+(+) or followed (-) the due datetime."""
+
+        else:
+            pss = f"""
+
+{FINISHED_CHAR} indicates completed instances. Due
+datetimes are shown and followed by the
+length of time the completion preceded (+)
+or followed (-) the due datetime."""
+
+        return  showing, f"through {starting} for\n{details}:\n\n  " + "\n  ".join(pairs) + pss
 
     def touch(self, row):
         res = self.get_row_details(row)
@@ -6365,7 +6371,7 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     """
     # width = settings['keep_current'][1]
     global current_hsh
-    mk_next = settings['keep_next']
+    mk_next = settings['keep_current'][0] > 0
     next_width = settings['keep_current'][1] - 1
 
     width = shutil.get_terminal_size()[0] - 3
@@ -6618,11 +6624,13 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], t
         s = item.get('s', None)
         if s:
             rhc = format_date(s)[1]
+            sort = format_datetime(item['created'])[1]
         else:
             rhc = " "
+            sort = "~"
         rhc = f"{rhc: ^8}"
         rows.append({
-                    'sort': (index, item['summary']),
+                    'sort': (index, sort, item['itemtype'], item['summary']),
                     'path': index,
                     'values': [
                         itemtype,

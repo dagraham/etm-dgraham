@@ -171,7 +171,6 @@ class Settings():
     secret = randomString(10)
     omit_extent = ""
     keep_current = [0, 46]
-    keep_next = "false"
     archive_after = 0
     refresh_interval = 60
     num_finished = 0
@@ -189,7 +188,7 @@ class Settings():
     style = "dark"
     type_colors = ""
     window_colors = ""
-    journal_name = "daily"
+    journal_name = "$ daily"
 
     # use these to format the template
     settings_hsh = {
@@ -205,7 +204,6 @@ class Settings():
         "secret" : secret,
         "omit_extent" : omit_extent,
         "keep_current" : keep_current,
-        "keep_next" : keep_next,
         "archive_after" : archive_after,
         "refresh_interval" : refresh_interval,
         "num_finished" : num_finished,
@@ -309,17 +307,13 @@ keep_current: {keep_current}
 # A list of two, non-negative integers for "weeks" and "width". If
 # weeks is positive, the agenda for that integer number of weeks
 # starting with the current week will be written to "current.txt" in
-# your etm home directory and updated when necessary. The format will
-# be scaled to fit "width". A width of 46, e.g, fits an iPhone display
-# in portrait mode. You could, for example, create a link to
-# "current.txt" in a pCloud or GoogleDrive folder and always have access
-# to your current agenda on your mobile device.
+# your etm home directory and updated when necessary. Similarly, the
+# 'do next' view will be written to "next.txt". In both cases, the
+# format will be scaled to fit "width". A width of 46, e.g, fits an
+# iPhone display in portrait mode. You could, for example, create a
+# link to these files in a pCloud or GoogleDrive folder and always
+# have access to your agenda and do next on your mobile device.
 
-keep_next: {keep_next}
-# true or false. If true, the 'do next' view will be written to
-# "next.txt" in your etm home directory. As with "current.txt", a link
-# to this file could be created in a pCloud or DropBox folder for
-# access from your mobile device.
 
 archive_after: {archive_after}
 # non-negative integer. If zero, do not archive items. If positive,
@@ -389,13 +383,13 @@ usedtime_hours: {usedtime_hours}
 journal_name: {journal_name}
 # Journal items with this index entry and with an @s entry will have the
 # year and month appended to the index. E.g., with the setting
-#   journal_name: daily
+#   journal_name: $ daily
 # this journal entry
-#   % visited Yellowstone @s 22/10/24 @i daily
+#   % visited Yellowstone @s 22/10/24 @i $ daily
 # would be displayed in journal view as if the index entry were
-#   @i daily/2022/10/24
+#   @i $ daily/2022/10
 # thus organizing such entries by the year and month and, within each month,
-# also by the month day.
+# also by the month day. The '$' places '$ daily' first in journal view.
 
 alerts: {alerts}
 # A dictionary with single-character, "alert" keys and corresponding
