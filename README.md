@@ -812,7 +812,7 @@ Conversely, to enter a regex with a space and avoid its
 being interpreted as a list, replace the space with '\s'.
 E.g.,
 
-    query: matches i john\sdoe
+    query: includes i john\sdoe
 
 would return items with '@i' (index) entries such as
 "John Doe/...".
