@@ -7218,21 +7218,27 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 wrapped = ""
                 if 'w' in item and dta and dtb:
                     # adjust for wrap
-                    b, a = item['w']
-                    if b:
-                        dtb -= b
-                    if a:
-                        dta += a
-                    wrapped = fmt_extent(dtb, dta).center(rhc_width, ' ')
+                    if len(item['w']) == 2:
+                        b, a = item['w']
+                        if b:
+                            dtb -= b
+                        if a:
+                            dta += a
+                        wrapped = fmt_extent(dtb, dta).center(rhc_width, ' ')
 
-                    wrap = item['w']
-                    wraps = [format_duration(x) for x in wrap] if wrap else ""
-                    if wraps:
-                        wraps[0] = f"{wrapbefore}{wraps[0]}"
-                        wraps[1] = f"{wrapafter}{wraps[1]}"
-                        wrapper = f"\n{22*' '}+ {', '.join(wraps)}"
+                        wrap = item['w']
+                        wraps = [format_duration(x) for x in wrap] if wrap else ""
+                        if wraps:
+                            wraps[0] = f"{wrapbefore}{wraps[0]}"
+                            wraps[1] = f"{wrapafter}{wraps[1]}"
+                            wrapper = f"\n{22*' '}+ {', '.join(wraps)}"
+                        else:
+                            wrapper = ""
+
+
                     else:
-                        wrapper = ""
+                        a = b = ZERO
+                        logger.error(f"The entry for 'w' in item {item.doc_id} should have 2 arguments but instead has {len(item['w'])}: {item['w']}. The entry has been ignored.")
 
 
                     if b and b > ZERO:
