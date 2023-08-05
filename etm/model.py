@@ -2513,7 +2513,7 @@ class DataView(object):
         filelist = os.listdir(self.backupdir)
         # deal with etm.json
         dbmtime = os.path.getctime(self.dbfile)
-        zipfiles = [x for x in filelist if x.startswith('db')]
+        zipfiles = [x for x in filelist if x.startswith('etm')]
         zipfiles.sort(reverse=True)
         if zipfiles:
             lastdbtime = os.path.getctime(os.path.join(self.backupdir, zipfiles[0]))
@@ -2530,9 +2530,10 @@ class DataView(object):
             logger.info(f"backed up {self.dbfile} to {zipfile}")
             zipfiles.insert(0, f"etm-{timestamp}.zip")
             zipfiles.sort(reverse=True)
-            removefiles.extend([os.path.join(self.backupdir, x) for x in zipfiles[7:]])
         else:
             logger.info(f"{self.dbfile} unchanged - skipping backup")
+
+        removefiles.extend([os.path.join(self.backupdir, x) for x in zipfiles[7:]])
 
         # deal with cfg.yaml
         cfgmtime = os.path.getctime(self.cfgfile)
@@ -2548,10 +2549,11 @@ class DataView(object):
             logger.info(f"backed up {self.cfgfile} to {backupfile}")
             cfgfiles.insert(0, f"cfg-{timestamp}.yaml")
             cfgfiles.sort(reverse=True)
-            removefiles.extend([os.path.join(self.backupdir, x) for x in
-                cfgfiles[7:]])
         else:
             logger.info(f"{self.cfgfile} unchanged - skipping backup")
+
+        removefiles.extend([os.path.join(self.backupdir, x) for x in
+                cfgfiles[7:]])
 
         if os.path.exists(self.currfile):
             currtime = os.path.getctime(self.currfile)
@@ -2567,16 +2569,19 @@ class DataView(object):
                 logger.info(f"backed up {self.currfile} to {backupfile}")
                 currfiles.insert(0, f"curr-{timestamp}.yaml")
                 currfiles.sort(reverse=True)
-                removefiles.extend([os.path.join(self.backupdir, x) for x in
-                    currfiles[7:]])
             else:
                 logger.info(f"{self.currfile} unchanged - skipping backup")
 
+        removefiles.extend([os.path.join(self.backupdir, x) for x in
+                    currfiles[7:]])
+
         # maybe delete older backups
         if removefiles:
-            logger.info(f"removing old files: {removefiles}")
+            filelist = "\n    ".join(removefiles)
+            logger.info(f"removing old files:\n    {filelist}")
             for f in removefiles:
                 os.remove(f)
+
         return True
 
     def save_timers(self):
@@ -2733,7 +2738,7 @@ class DataView(object):
         self.current_row = None
         self.prior_view = self.active_view
         self.active_view = self.views.get(c, 'agenda')
-        logger.debug(f"setting active view from c {c}: {self.active_view}")
+        logger.debug(f"setting active view {c}: {self.active_view}")
         if self.active_view != 'query':
             self.use_items()
 
