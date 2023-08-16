@@ -34,6 +34,7 @@ from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 from prompt_toolkit.layout import Float
 from prompt_toolkit.widgets import Box, Dialog, Label, Button
+from prompt_toolkit.cursor_shapes import CursorShape
 from packaging.version import parse as parse_version
 
 import shutil
@@ -1494,16 +1495,22 @@ def get_edit_mode():
             mode = 'vi:'
             if insert_mode:
                 mode += ' insert'
+                application.output.set_cursor_shape(CursorShape.BEAM)
             elif replace_mode:
                 mode += ' replace'
+                application.output.set_cursor_shape(CursorShape.UNDERLINE)
             elif visual_block:
                 mode += ' vblock'
+                application.output.set_cursor_shape(CursorShape.BLOCK)
             elif visual_line:
                 mode += ' vline'
+                application.output.set_cursor_shape(CursorShape.BLOCK)
             elif visual_char:
                 mode += 'vchar'
+                application.output.set_cursor_shape(CursorShape.BLOCK)
             else:
                 mode += ' normal'
+                application.output.set_cursor_shape(CursorShape.BLOCK)
         else:
             mode = 'emacs'
 
