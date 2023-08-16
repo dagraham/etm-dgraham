@@ -1955,31 +1955,34 @@ def fmt_period(obj):
         return None
     start = obj.start
     end = obj.end
-    neg = start > end
-    if neg:
-        diff = start - end
-    else:
-        diff = end - start
     until = []
-    weeks = diff.in_weeks()
-    days = diff.remaining_days
+    weeks = days = hours = minutes = 0
+    if start > end:
+        sign = "+"
+        diff = start - end
+    elif start < end:
+        sign = "-"
+        diff = end - start
+    else:
+        diff = ZERO
+    days = diff.days
+    if days >= 7:
+        weeks = days // 7
+        days = days % 7
     hours = diff.hours
     minutes = diff.minutes
-    if neg:
-        until.append("-")
-    else:
-        until.append("+")
+    if diff:
+        until.append(sign)
     tmp = []
     if weeks:
         until.append(f"{weeks}w")
     if days:
         until.append(f"{days}d")
-    if hours:
+    if hours and not weeks:
         until.append(f"{hours}h")
-    if minutes:
+    if minutes and not weeks and not days:
         until.append(f"{minutes}m")
-    # keep the sign and the 2 most significant
-    return "".join(until[:3])
+    return "".join(until)
 
 
 def format_duration_list(obj_lst):
@@ -3045,8 +3048,7 @@ class DataView(object):
 
     def get_history(self, row=None):
         """
-        For repeating tasks, show up to num_repetitions of the due datetimes from the completion history. For
-        those with '@o s', additionally show those that were skipped.
+        For those with '@o s', additionally show those that were skipped.
         """
         num = self.settings['num_repetitions']
         res = self.get_row_details(row)
@@ -3059,8 +3061,6 @@ class DataView(object):
         showing = "Completion History"
         item = DBITEM.get(doc_id=item_id)
 
-        # if not (item['itemtype'] == '-' and ('r' in item or '+' in item)):
-        #     return showing, "not a repeating task"
         if 'h' not in item and 'f' not in item:
             return showing, "there is no history of completions"
 
@@ -3089,26 +3089,28 @@ class DataView(object):
         relevant = res[-1][0]
         details = f"{item['itemtype']} {item['summary']}"
 
-        pairs = [f"{x[2]} {format_datetime(x[0])[1]}{x[1]}" for x in res]
+        pairs = [f"{x[2]} {format_datetime(x[0], short=True)[1]:<16}{x[1]:>8}" for x in res]
         starting = format_datetime(relevant.date())[1]
 
-        # ps = f"\n\nSkipped instances are marked with a {SKIPPED_CHAR}." if skip else "\n"
+
         if skip:
             pss = f"""
 
-{FINISHED_CHAR} and {SKIPPED_CHAR} indicate, respectively, completed
-and skipped instances. Due datetimes are
-shown and, for completions, followed by
-the length of time the completion preceded
-(+) or followed (-) the due datetime."""
+{FINISHED_CHAR} indicates completed instances.
+{SKIPPED_CHAR} indicates skipped instances.
+Due datetimes are shown. The length of
+time a completion preceded (-) or
+followed (+) the due datetime is also
+shown when nonzero."""
 
         else:
-            pss = f"""
+            pss  = f"""
 
-{FINISHED_CHAR} indicates completed instances. Due
-datetimes are shown and followed by the
-length of time the completion preceded (+)
-or followed (-) the due datetime."""
+{FINISHED_CHAR} indicates completed instances.
+Due datetimes are shown. The length of
+time the completion preceded (-) or
+followed (+) the due datetime is also
+shown when nonzero."""
 
         return  showing, f"through {starting} for\n{details}:\n\n  " + "\n  ".join(pairs) + pss
 
@@ -7062,10 +7064,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                 for job in jobs:
                     job_summary = job.get('summary', '')
                     if 'f' in job:
-                        # FIXME
-                        # d.append([job['f'].start, job_summary, doc_id, format_date(job['f'].end)[1]])
                         d.append([job['f'].start, job_summary, doc_id, ""])
-                        completed.append(job['f'].end)
             if d:
                 for row in d:
                     dt = row[0]
