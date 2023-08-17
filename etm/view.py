@@ -933,6 +933,7 @@ def save_before_quit(*event):
             app.editing_mode = EditingMode.EMACS
             dataview.is_editing = False
             application.layout.focus(text_area)
+            application.output.set_cursor_shape(CursorShape.BLOCK)
             set_text(dataview.show_active_view())
         else:
             return
@@ -1020,6 +1021,7 @@ def add_usedtime(*event):
             if doc_id in dataview.itemcache:
                 del dataview.itemcache[doc_id]
             application.layout.focus(text_area)
+            application.output.set_cursor_shape(CursorShape.BLOCK)
             set_text(dataview.show_active_view())
             loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
@@ -1530,6 +1532,8 @@ def get_statusbar_text():
 def get_statusbar_center_text():
     if dataview.is_editing:
         return [ ('class:status',  f' {get_edit_mode()}'), ]
+    else:
+        application.output.set_cursor_shape(CursorShape.BLOCK)
     if dataview.is_showing_query:
         return [ ('class:status',  f' {dataview.query_mode}'), ]
     if loglevel == 1:
@@ -1737,6 +1741,7 @@ is or edit it first and then submit.
             # quitting
             dataview.active_view = dataview.prior_view
             application.layout.focus(text_area)
+            application.output.set_cursor_shape(CursorShape.BLOCK)
             set_text(dataview.show_active_view())
             return False
         parts = [x.strip() for x in text.split(' ')]
@@ -1782,6 +1787,7 @@ Error processing {text}:
         # quitting
         dataview.active_view = dataview.prior_view
         application.layout.focus(text_area)
+        application.output.set_cursor_shape(CursorShape.BLOCK)
         set_text(dataview.show_active_view())
 
     return False
@@ -2992,6 +2998,7 @@ def close_edit(*event):
         app.editing_mode = EditingMode.EMACS
         dataview.is_editing = False
         application.layout.focus(text_area)
+        application.output.set_cursor_shape(CursorShape.BLOCK)
         set_text(dataview.show_active_view())
     restore_row_col(row, col)
 
@@ -3005,6 +3012,7 @@ def save_changes(*event):
         # no changes to save - close editor
         dataview.is_editing = False
         application.layout.focus(text_area)
+        application.output.set_cursor_shape(CursorShape.BLOCK)
         set_text(dataview.show_active_view())
         app = get_app()
         app.editing_mode = EditingMode.EMACS
@@ -3038,6 +3046,7 @@ def maybe_save(item):
     app.editing_mode = EditingMode.EMACS
     dataview.is_editing = False
     application.layout.focus(text_area)
+    application.output.set_cursor_shape(CursorShape.BLOCK)
     set_text(dataview.show_active_view())
     loop = asyncio.get_event_loop()
     loop.call_later(0, item_changed, loop)
