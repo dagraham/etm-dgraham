@@ -1522,6 +1522,9 @@ def get_edit_mode():
             ('+' if entry_buffer_changed() else ''),
             (' '),
         ])
+    else:
+        application.output.set_cursor_shape(CursorShape.BLOCK)
+
 
     return '        '
 
