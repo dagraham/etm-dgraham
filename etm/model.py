@@ -6474,6 +6474,7 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
 
     tree, row2id = rdict.as_tree(rdict, level=0)
 
+    ctree = None
     if mk_next:
         cdict = NDict(compact=True, width=next_width)
         for row in rows:
