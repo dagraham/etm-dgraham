@@ -167,28 +167,45 @@ type_prompt = u"item type character:"
 
 item_types = """item type characters:\n    """ + """\n    """.join([f"{k}: {v}" for k, v in type_keys.items()])
 
-allowed = {}
-required = {}
-common_methods = [x for x in 'cdgiklmnstuxz']
-repeating_methods = [x for x in '+-o'] + ['rr', 'rc', 'rm', 'rE', 'rh', 'ri', 'rM', 'rn', 'rs', 'ru', 'rW', 'rw']
-datetime_methods = [x for x in 'abe']
-task_methods = [x for x in 'efhp'] + ['jj', 'ja', 'jb', 'jd', 'je', 'jf', 'ji', 'jl', 'jm', 'jp', 'js', 'ju']
+common_methods = list('cdgiklmnstuxz')
+repeating_methods = list('+-o') + [
+    'rr',
+    'rc',
+    'rm',
+    'rE',
+    'rh',
+    'ri',
+    'rM',
+    'rn',
+    'rs',
+    'ru',
+    'rW',
+    'rw',
+]
+datetime_methods = list('abe')
+task_methods = list('efhp') + [
+    'jj',
+    'ja',
+    'jb',
+    'jd',
+    'je',
+    'jf',
+    'ji',
+    'jl',
+    'jm',
+    'jp',
+    'js',
+    'ju',
+]
 
 wrap_methods = ['w']
 
-# event
-required['*'] = ['s']
-allowed['*'] = common_methods + datetime_methods + repeating_methods + wrap_methods
-
-
-# task
-required['-'] = []
-allowed['-'] = common_methods + datetime_methods + task_methods + repeating_methods
-
-# journal
-required['%'] = []
-allowed['%'] = common_methods + ['+']
-
+required = {'*': ['s'], '-': [], '%': []}
+allowed = {
+    '*': common_methods + datetime_methods + repeating_methods + wrap_methods,
+    '-': common_methods + datetime_methods + task_methods + repeating_methods,
+    '%': common_methods + ['+'],
+}
 # inbox
 required['!'] = []
 allowed['!'] = common_methods + datetime_methods + task_methods + repeating_methods
@@ -218,8 +235,7 @@ def subsets(l):
         for i in range(2, len(l)):
             # add an element for each subset of length i of l
             tmp = list(combinations(l, i))
-            for tup in tmp:
-                ret.append((str(i), ' & '.join(list(tup))))
+            ret.extend((str(i), ' & '.join(list(tup))) for tup in tmp)
     if len(l) == 0:
         ret.append(('~', '~'))
     return ret
@@ -299,9 +315,7 @@ def busy_conf_day(lofp, allday=False):
         for i in range(h_b, h_e):
             if i not in conf_quarters and i not in busy_quarters:
                 busy_quarters.append(i)
-    h = {}
-    h[0] = '  '
-    h[58] = '  '
+    h = {0: '  ', 58: '  '}
     for i in range(1, 58):
         h[i] = ' ' if (i-1) % 4 else VSEP
     empty = "".join([h[i] for i in range(59)])
@@ -319,7 +333,7 @@ def busy_conf_day(lofp, allday=False):
             conflict = True
         if i in busy_quarters:
             busy = True
-        h[0] = CONF+ ' ' if conflict else BUSY + ' ' if busy else '  '
+        h[0] = f'{CONF} ' if conflict else f'{BUSY} ' if busy else '  '
     conflict = False
     busy = False
     for i in range(last_quarter, 24*4):
@@ -327,7 +341,7 @@ def busy_conf_day(lofp, allday=False):
             conflict = True
         elif i in busy_quarters:
             busy = True
-        h[58] = ' ' + CONF if conflict else ' ' + BUSY if busy else '  '
+        h[58] = f' {CONF}' if conflict else f' {BUSY}' if busy else '  '
     for i in range(first_quarter, last_quarter):
         if i in conf_quarters:
             h[i-first_quarter+1] = CONF
@@ -384,9 +398,10 @@ def process_entry(s, settings={}):
 
 
     pattern = re.compile("\s[@&][a-zA-Z+-]")
-    parts = []
-    for match in pattern.finditer(s):
-        parts.append([match.span()[0]+1, match.span()[1], match.group().strip()])
+    parts = [
+        [match.span()[0] + 1, match.span()[1], match.group().strip()]
+        for match in pattern.finditer(s)
+    ]
     if not parts:
         tups.append((s[0], s[1:].strip(), 0, len(s)+1))
 
@@ -395,12 +410,12 @@ def process_entry(s, settings={}):
     lastkey = s[0]
     for beg, end, key in parts:
         tups.append([lastkey, s[lastend:beg].strip(), lastbeg, beg])
-        pos_hsh[tuple((tups[-1][2], tups[-1][3]))] = (tups[-1][0], tups[-1][1])
+        pos_hsh[tups[-1][2], tups[-1][3]] = (tups[-1][0], tups[-1][1])
         lastkey = key
         lastbeg = beg
         lastend = end
     tups.append([lastkey, s[lastend:].strip(), lastbeg, len(s)+1])
-    pos_hsh[tuple((tups[-1][2], tups[-1][3]))] = (tups[-1][0], tups[-1][1])
+    pos_hsh[tups[-1][2], tups[-1][3]] = (tups[-1][0], tups[-1][1])
 
     pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
 
@@ -413,35 +428,33 @@ def process_entry(s, settings={}):
                 aug_key = f"{value[-1]}?"
                 end -= 2
                 value = value[:-2]
-                aug_tups.append(('summary', value, 1, end))
-                aug_tups.append((aug_key, '', end, end + 2))
+                aug_tups.extend((('summary', value, 1, end), (aug_key, '', end, end + 2)))
             else:
                 aug_tups.append(('summary', value, 1, end))
         elif value.endswith(' @') or value.endswith(' &'):
             aug_key = f"{value[-1]}?"
             end -= 2
             value = value[:-2]
-            aug_tups.append((key, value, beg, end))
-            aug_tups.append((aug_key, '', end, end + 2))
+            aug_tups.extend(((key, value, beg, end), (aug_key, '', end, end + 2)))
         else:
             aug_tups.append((key, value, beg, end))
 
     for key, value, beg, end in aug_tups:
         if key in ['@r', '@j']:
-            pos_hsh[tuple([beg, end])] = (f"{key[-1]}{key[-1]}", value)
+            pos_hsh[beg, end] = (f"{key[-1]}{key[-1]}", value)
             adding = key[-1]
         elif key in ['@a', '@u']:
-            pos_hsh[tuple((beg, end))] = (key[-1], value)
+            pos_hsh[beg, end] = (key[-1], value)
             adding = None
         elif key.startswith('&'):
             if adding:
-                pos_hsh[tuple((beg, end))] = (f"{adding}{key[-1]}", value)
+                pos_hsh[beg, end] = (f"{adding}{key[-1]}", value)
         elif key in ['itemtype', 'summary']:
             adding = None
-            pos_hsh[tuple((beg, end))] = (key, value)
+            pos_hsh[beg, end] = (key, value)
         else:
             adding = None
-            pos_hsh[tuple([beg, end])] = (key[-1], value)
+            pos_hsh[beg, end] = (key[-1], value)
 
     keyvals = [(k, v) for pos, (k, v) in pos_hsh.items()]
     if keyvals[0][0] in type_keys:
@@ -603,8 +616,7 @@ item_hsh:    {self.item_hsh}
         """
         """
         self.update_item_hsh()
-        goto = self.item_hsh.get('g')
-        if goto:
+        if goto := self.item_hsh.get('g'):
             return True, goto
         else:
             return False, "does not have an @g goto entry"
@@ -620,7 +632,7 @@ item_hsh:    {self.item_hsh}
         self.update_item_hsh()
         item = self.item_hsh
         showing =  "Repetitions"
-        if not ('s' in item and ('r' in item or '+' in item)):
+        if 's' not in item or 'r' not in item and '+' not in item:
             return showing, "not a repeating item"
         relevant = date_to_datetime(item['s'])
 
@@ -658,8 +670,7 @@ item_hsh:    {self.item_hsh}
     def edit_copy(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
-        item_hsh = self.db.get(doc_id=doc_id)
-        if item_hsh:
+        if item_hsh := self.db.get(doc_id=doc_id):
             self.doc_id = None
             self.is_new = True
             self.item_hsh = deepcopy(item_hsh) # created and modified entries
@@ -745,7 +756,7 @@ item_hsh:    {self.item_hsh}
             self.item_hsh['modified'] = pendulum.now('local')
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
-            changed = True
+            return True
         else:
             # repeating
             removed_old = False
@@ -754,8 +765,7 @@ item_hsh:    {self.item_hsh}
                 removed_old = self.delete_instances(doc_id, old_dt, 0)
             else:
                 logger.warning(f"doc_id: {doc_id}; error adding {new_dt}")
-            changed = added_new and removed_old
-        return changed
+            return added_new and removed_old
 
 
     def delete_instances(self, doc_id, instance, which):
@@ -777,14 +787,12 @@ item_hsh:    {self.item_hsh}
                 # instances don't include @s
                 self.item_hsh.setdefault('-', []).append(instance)
                 changed = True
+            elif self.item_hsh['s'] == instance:
+                self.item_hsh['s'] = self.item_hsh['+'].pop(0)
+                changed = True
             else:
-                # instance should be @s
-                if self.item_hsh['s'] == instance:
-                    self.item_hsh['s'] = self.item_hsh['+'].pop(0)
-                    changed = True
-                else:
-                    # should not happen
-                    logger.warning(f"could not remove {instance} from {self.item_hsh}")
+                # should not happen
+                logger.warning(f"could not remove {instance} from {self.item_hsh}")
             if changed:
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = pendulum.now('local')
@@ -826,13 +834,13 @@ item_hsh:    {self.item_hsh}
                     break
                 else:
                     j += 1
-                    continue
             ok, jbs, last = jobs(self.item_hsh['j'], self.item_hsh)
             if ok:
                 self.item_hsh['j'] = jbs
                 if last:
-                    nxt = get_next_due(self.item_hsh, last, completion_entry.end)
-                    if nxt:
+                    if nxt := get_next_due(
+                        self.item_hsh, last, completion_entry.end
+                    ):
                         if 'r' in self.item_hsh:
                             for i in range(len(self.item_hsh['r'])):
                                 if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
@@ -843,68 +851,55 @@ item_hsh:    {self.item_hsh}
                         if self.doc_id in active_tasks:
                             del active_tasks[self.doc_id]
 
-                        save_item = True
-                    else:  # finished last instance
-                        self.item_hsh['f'] = completion_entry
-                        save_item = True
-                # else:
-                #     # FIXME This is the undated task with jobs branch
-                #     save_item = True
-
-        else:
-            # no jobs
-            if 's' in self.item_hsh:
-                if 'r' in self.item_hsh:
-                    nxt = get_next_due(self.item_hsh, completed_datetime, completion_entry.end)
-                    # logger.debug(f"nxt: {nxt}")
-                    if nxt:
-                        for i in range(len(self.item_hsh['r'])):
-                            if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
-                                self.item_hsh['r'][i]['c'] -= 1
-                                break
-                        self.item_hsh['s'] = nxt
-
-                        self.item_hsh.setdefault('h', []).append(completion_entry)
-                        save_item = True
-                    else:  # finished last instance
-                        # logger.debug(f"not nxt, finished last instance")
-                        self.item_hsh['f'] = completion_entry
-                        save_item = True
-
-                elif '+' in self.item_hsh:
-                    # simple repetition
-                    tmp = [self.item_hsh['s']] + self.item_hsh['+']
-                    tmp = [date_to_datetime(x) for x in tmp]
-                    tmp.sort()
-                    due = tmp.pop(0)
-                    if tmp:
-                        self.item_hsh['s'] = tmp.pop(0)
-                    if tmp:
-                        self.item_hsh['+'] = tmp
-                        self.item_hsh.setdefault('h', []).append(completion_entry)
-                        save_item = True
                     else:
-                        del self.item_hsh['+']
                         self.item_hsh['f'] = completion_entry
-                        save_item = True
-                else:
-                    self.item_hsh['f'] = completion_entry
                     save_item = True
+                        # else:
+                        #     # FIXME This is the undated task with jobs branch
+                        #     save_item = True
+
+        elif 's' in self.item_hsh:
+            if 'r' in self.item_hsh:
+                if nxt := get_next_due(
+                    self.item_hsh, completed_datetime, completion_entry.end
+                ):
+                    for i in range(len(self.item_hsh['r'])):
+                        if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
+                            self.item_hsh['r'][i]['c'] -= 1
+                            break
+                    self.item_hsh['s'] = nxt
+
+                    self.item_hsh.setdefault('h', []).append(completion_entry)
+                else:
+                    # logger.debug(f"not nxt, finished last instance")
+                    self.item_hsh['f'] = completion_entry
+            elif '+' in self.item_hsh:
+                # simple repetition
+                tmp = [self.item_hsh['s']] + self.item_hsh['+']
+                tmp = [date_to_datetime(x) for x in tmp]
+                tmp.sort()
+                due = tmp.pop(0)
+                if tmp:
+                    self.item_hsh['s'] = tmp.pop(0)
+                if tmp:
+                    self.item_hsh['+'] = tmp
+                    self.item_hsh.setdefault('h', []).append(completion_entry)
+                else:
+                    del self.item_hsh['+']
+                    self.item_hsh['f'] = completion_entry
             else:
                 self.item_hsh['f'] = completion_entry
-                save_item = True
+            save_item = True
+        else:
+            self.item_hsh['f'] = completion_entry
+            save_item = True
 
         if save_item:
             num_finished = settings.get('num_finished', 0)
 
 
             if 'h' in self.item_hsh and num_finished:
-                ok = True
-                # only truncate completions for infinitely repeating tasks
-                for rr in self.item_hsh.get('r', {}):
-                    if 'c' in rr or 'u' in rr:
-                        # we have a count or an until: keep all completions
-                        ok = False
+                ok = not any('c' in rr or 'u' in rr for rr in self.item_hsh.get('r', {}))
                 if ok:
                     sh = self.item_hsh['h']
                     sh.sort(key=sortprd)
@@ -6474,6 +6469,7 @@ def show_next(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
 
     tree, row2id = rdict.as_tree(rdict, level=0)
 
+    ctree = None
     if mk_next:
         cdict = NDict(compact=True, width=next_width)
         for row in rows:
