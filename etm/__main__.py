@@ -211,6 +211,7 @@ which will need to be created.
     ical.logger = logger
     data.secret = secret
     data.logger = logger
+    data.settings = settings
     from etm.data import Mask
 
     # dbfile = os.path.normpath(os.path.join(etmdir, 'etm.json'))

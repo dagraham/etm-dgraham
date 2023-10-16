@@ -88,27 +88,10 @@ logger = None
 
 active_tasks = {}
 
-# def sortdt(dt):
-#     # assumes dt is either a date or a datetime
-#     if isinstance(dt, pendulum.Date):
-#         dt = date_to_datetime(dt)
-#     elif isinstance(dt, pendulum.Period):
-#         dt = dt.end
-#     try:
-#         # this works if dt is a datetime
-#         return dt.format("YYYYMMDDHHmm")
-#     except:
-#         # this works if dt is a date by providing 00 for HH and mm
-#         return dt.format("YYYYMMDD0000")
 
 def sortprd(prd):
-    # assumes prd is a pendulum.Period
-    return prd.start.format("YYYYMMDDHHmm")
-
-# def sortend(prd):
-#     # assumes prd is a (pendulum.Datetime, symbol) tuple
-#     return prd[0].format("YYYYMMDDHHmm")
-
+    # assumes prd is a Period
+    return prd.start.strftime("%Y%m%d%H%M")
 
 PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
 KONNECT_REGEX = re.compile(r'^.+:\s+(\d+)\s*$')
