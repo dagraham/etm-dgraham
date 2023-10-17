@@ -1200,7 +1200,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         k) show konnections
         ^h) show completion history
         ^r) show repetitions
-		^u) update last modified
+        ^u) update last modified
         ^x) toggle archived status
     timers
         m) show timer view
