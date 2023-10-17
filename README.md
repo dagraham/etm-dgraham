@@ -1203,12 +1203,15 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
 		^u) update last modified
         ^x) toggle archived status
     timers
-        T) change timer to next state
-        TR) record usedtime and end timer or add usedtime
-        TD) delete timer
-        ---
+        m) show timer view
+        -- for the selected reminder --
+        T) create timer | toggle paused/running
+        TR) add | record used time and delete timer
+        TD) delete timer without recording
+        -- ignores selection --
         TT) toggle paused/running for active timer
-        TC) begin quick timer
+        TC) start quick timer with prompt for summary
+        ^t) start quick timer without prompt
 
 
 [↺ contents](#contents)
