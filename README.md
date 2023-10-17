@@ -1175,7 +1175,6 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         ^l) prompt for and jump to line number
         ^p) jump to next pinned item
         ^c) copy active view to clipboard
-        ^t) start quick timer
         ---
         J) jump to date in a), b) and c)
         right) next in a), b), c), u), U) and y)
@@ -1203,12 +1202,13 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         ^r) show repetitions
 		^u) update last modified
         ^x) toggle archived status
-        ---
+    timers
         T) change timer to next state
         TR) record usedtime and end timer or add usedtime
         TD) delete timer
         ---
         TT) toggle paused/running for active timer
+        TC) begin quick timer
 
 
 [↺ contents](#contents)

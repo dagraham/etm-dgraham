@@ -36,7 +36,7 @@ from prompt_toolkit.layout import Float
 from prompt_toolkit.widgets import Box, Dialog, Label, Button
 from prompt_toolkit.cursor_shapes import CursorShape
 from packaging.version import parse as parse_version
-
+from datetime import datetime
 import shutil
 from shlex import split as qsplit
 import time
@@ -2165,6 +2165,7 @@ def toggle_active_timer(*event):
     text_area.buffer.cursor_position = \
                     text_area.buffer.document.translate_row_col_to_index(row, 0)
 
+
 @bindings.add('T', 'R', filter=is_viewing_or_details)
 def record_time(*event):
     """
@@ -2558,7 +2559,7 @@ Enter the full path of the file to import or
     asyncio.ensure_future(coroutine())
 
 
-@bindings.add('c-t', 'c-t', filter=is_viewing & is_item_view)
+# @bindings.add('c-t', 'c-t', filter=is_viewing & is_item_view)
 def do_whatever(*event):
     """
     For testing whatever
@@ -2577,7 +2578,7 @@ def refresh_views(*event):
     return True
 
 
-@bindings.add('c-t', filter=is_viewing & is_item_view)
+@bindings.add('T', 'C', filter=is_viewing & is_item_view)
 def quick_timer(*event):
     now = format_datetime(pendulum.now(), short=True)[1]
     def coroutine():
@@ -2606,6 +2607,28 @@ def quick_timer(*event):
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
     asyncio.ensure_future(coroutine())
+
+@bindings.add('c-t', filter=is_viewing & is_item_view)
+def quick_capture(*event):
+    """
+    Like quick_timer but does not prompt for summary modification
+    """
+    now = format_datetime(pendulum.now(), short=True)[1]
+    item_hsh = {
+            'itemtype': '!',
+            'summary': now,
+            'created': pendulum.now('UTC')
+            }
+    doc_id = ETMDB.insert(item_hsh)
+    if doc_id:
+        dataview.next_timer_state(doc_id)
+        dataview.next_timer_state(doc_id)
+        dataview.refreshRelevant()
+        dataview.refreshAgenda()
+        dataview.refreshCurrent()
+        dataview.refreshKonnections()
+        loop = asyncio.get_event_loop()
+        loop.call_later(0, data_changed, loop)
 
 
 @bindings.add('c-x', filter=is_viewing & is_item_view)
@@ -3096,7 +3119,6 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^l) prompt for and jump to line number', handler=do_go_to_line),
         MenuItem('^p) jump to next pinned item', handler=next_pinned),
         MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
-        MenuItem('^t) start quick timer', handler=quick_timer),
         MenuItem('-', disabled=True),
         MenuItem('J) jump to date in a), b) and c)', handler=do_jump_to_date),
         MenuItem('right) next in a), b), c), u), U) and y)'),
@@ -3126,11 +3148,17 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^r) show repetitions', handler=not_editing_reps),
         MenuItem('^u) update last modified', handler=do_touch),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
-        MenuItem('-', disabled=True),
-        MenuItem('T) activate timer if none active ', handler=next_timer_state),
-        MenuItem("TR) add usedtime / record usedtime and end timer", handler=record_time),
-        MenuItem('TD) delete timer', handler=maybe_delete_timer),
+    ]),
+    MenuItem('timers', children=[
+        MenuItem('m) show timer view', handler=timers_view),
+        MenuItem('-- for the selected reminder --', disabled=True),
+        MenuItem('T) create timer | toggle paused/running ', handler=next_timer_state),
+        MenuItem("TR) add | record usedtime and delete timer", handler=record_time),
+        MenuItem('TD) delete timer without recording', handler=maybe_delete_timer),
+        MenuItem('-- ignores selection --', disabled=True),
         MenuItem('TT) toggle paused/running for the active timer', handler=toggle_active_timer),
+        MenuItem('TC) start quick timer with prompt for summary', handler=quick_timer),
+        MenuItem('^t) start quick timer without prompt', handler=quick_capture),
     ]),
 ], floats=[
     Float(xcursor=True,

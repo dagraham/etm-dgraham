@@ -24,6 +24,7 @@ from dateutil.rrule import *
 from dateutil import __version__ as dateutil_version
 from dateutil.parser import parse as dateutil_parse
 from dateutil.tz import gettz
+from datetime import datetime
 
 # for saving timers
 import pickle
@@ -2619,25 +2620,38 @@ class DataView(object):
         self.save_timers()
 
 
+
     # bound to T
     def next_timer_state(self, doc_id=None):
         """
-        states for this reminder's timer
+        states for selected reminder's timer
             n: does not exist
             i: inactive
             r: running
             p: paused
         other timers:
-            -: none active
-            +: one is active (running or paused)
+            n: none exist
+            -: none running (one or more paused)
+            +: one running
 
         transitions:
-            n- -> r-   n- -> p-
-            n+ -> i+   n+ -> i+
+            nn -> p-   pn -> rn
+            p+ -> r+   i+ -> r+
             i- -> r-   i- -> r-
             i+ -> r-   i+ -> r-
             r- -> p-   r- -> p-
             p- -> r-   p- -> r-
+
+        transitions for next_timer_state
+            sel other -> sel other
+               n n    ->  p n
+               p n    ->  r n
+               r n    ->  p n
+               n -/+  ->  i -/+
+               i -/+  ->  r -
+               r -    ->  p -
+               p -    ->  r -
+
         """
         if not doc_id:
             return
