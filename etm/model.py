@@ -39,6 +39,8 @@ def parse(s, **kwd):
     if 'tzinfo' in kwd:
         tz = kwd['tzinfo']
         dt = dt.replace(tzinfo=tz)
+    else:
+        dt = dt.astimezone() # use the system local timezone
     return dt
 
 import sys

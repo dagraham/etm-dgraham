@@ -46,8 +46,14 @@ def parse(s, **kwd):
     dt = dateutil_parse(s)
     if 'tzinfo' in kwd:
         tzinfo = kwd['tzinfo']
-        dt = timezone(tzinfo).localize(dt)
-    return dt
+        if tzinfo == 'float':
+            return dt
+        elif tzinfo = 'local':
+            return dt.astimezone()
+        else:
+            return timezone(tzinfo).localize(dt)
+    else:
+        return dt.astimezone()
 
 def is_aware(dt):
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
