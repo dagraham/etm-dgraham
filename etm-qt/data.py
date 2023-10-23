@@ -2,9 +2,10 @@
 from dateutil.parser import parse as dateutil_parse
 from datetime import datetime, date, timedelta
 from pytz import timezone
+from dataclasses import dataclass
 
 
-from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, ValidationError, Field,  field_validator
 from typing import Optional
 from enum import Enum
 from icecream import ic
@@ -31,9 +32,9 @@ args = [
         {},
         ]
 print("\nparse examples:")
-for x in args:
-    print(f"using parse with {x}")
-    ic(parse('2pm fri', **x))
+for _ in args:
+    print(f"using parse with {_}")
+    ic(parse('2pm fri', **_))
     # dt = parse('2pm fri', **x)
     # ic(dt)
 
@@ -79,6 +80,25 @@ print("\ntruncate examples:")
 ic(truncate_datetime(datetime.now()))
 # ic('now:', dt)  # will print current time truncated to its minute value, e.g., "2023-10-21 14:57:00"
 
+
+def print_model(model):
+    try:
+        ic(model)
+        ic(
+            model.model_dump()
+                )
+        ic(
+            model.model_dump_json(
+                    indent=3
+                    )
+        )
+        ic(model.get_start())
+        ic(model.get_end())
+        print()
+
+    except ValidationError as ve:
+        ic(ve)
+
 ############
 # CLASSES
 ############
@@ -91,8 +111,17 @@ class ReminderType(Enum):
 
 
 class Reminder(BaseModel):
-    model_config = ConfigDict(extra='forbid', use_enum_values=True)
-    reminder_type: ReminderType
+    model_config = ConfigDict(
+            extra='forbid',
+            use_enum_values=True,
+            validate_assignment = True,
+            arbitrary_types_allowed=True
+            )
+
+    #####################
+    #### attributes #####
+    #####################
+    itemtype: ReminderType
     summary: str
 
     # combine start and zone and store aware datetimes as UTC
@@ -105,6 +134,10 @@ class Reminder(BaseModel):
         return add_zone_info(value, values.data['zone'])
     extent: Optional[timedelta] = None
 
+    #####################
+    ###### methods ######
+    #####################
+
     def get_end(self):
         if self.extent:
             return (self.start + self.extent).astimezone()
@@ -114,10 +147,10 @@ class Reminder(BaseModel):
     def get_start(self):
         return self.start.astimezone()
 
+
 print("\nReminder examples:")
-try:
-    w = Reminder(
-        reminder_type = ReminderType.inbox,
+w1 = Reminder(
+        itemtype = ReminderType.inbox,
         summary = 'now is the time',
         # start = truncate_datetime(datetime.now().astimezone(timezone('UTC'))),
         start = datetime.now(),
@@ -126,20 +159,29 @@ try:
             ),
         zone = 'US/Eastern',
         )
-    ic(w.model_dump_json(indent=3))
-    ic(w.model_dump())
-    ic(w.get_start())
-    ic(w.get_end())
-
-except ValidationError as ve:
-    print(ve)
+print_model(w1)
 
 
 
-def main():
-    pass
+d = dict(itemtype = ReminderType.event,
+    summary = 'for all good men',
+    start = parse("fri 3p"),
+    extent = truncate_timedelta(
+        timedelta(hours=1, minutes=30, seconds=10, microseconds=737)
+        ),
+    zone = 'US/Mountain',
+    )
+w2 = Reminder(**d)
+print_model(w2)
 
+w_d = w2.model_dump()
+
+w3=Reminder(**w_d)
+print_model(w3)
+
+# def main():
+#     pass
 
 if __name__ == "__main__":
-    main()
+    pass
 

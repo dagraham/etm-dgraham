@@ -48,7 +48,7 @@ def parse(s, **kwd):
         tzinfo = kwd['tzinfo']
         if tzinfo == 'float':
             return dt
-        elif tzinfo = 'local':
+        elif tzinfo == 'local':
             return dt.astimezone()
         else:
             return timezone(tzinfo).localize(dt)
