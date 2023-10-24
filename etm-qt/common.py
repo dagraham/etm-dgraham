@@ -4,6 +4,12 @@ from datetime import datetime, date, timedelta
 from pytz import timezone
 from icecream import ic
 
+testing = __name__ == "__main__"
+
+def pr(s: str) -> None:
+    if testing:
+        ic(s)
+
 def parse(s: str, **kwd: any) -> datetime:
     dt = dateutil_parse(s)
     if 'tzinfo' in kwd:
@@ -23,12 +29,9 @@ args = [
         {'tzinfo': 'float',},
         {},
         ]
-print("\nparse examples:")
+pr("\nparse examples for '2pm fri':")
 for _ in args:
-    print(f"using parse with {_}")
-    ic(parse('2pm fri', **_))
-    # dt = parse('2pm fri', **x)
-    # ic(dt)
+    pr(f"with {_}: {parse('2pm fri', **_)}")
 
 def is_aware(dt: datetime) -> bool:
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
@@ -61,14 +64,14 @@ def add_zone_info(dt: datetime, zone: str = None) -> datetime:
 
 
 def truncate_datetime(dt: datetime) -> datetime:
-    return dt.replace(microsecond=0)
+    return dt.replace(second=0, microsecond=0)
 
 def truncate_timedelta(td: timedelta) -> timedelta:
-    # return timedelta(days=td.days, seconds=td.seconds-td.seconds%60)
-    return timedelta(days=td.days, seconds=td.seconds)
+    return timedelta(days=td.days, seconds=td.seconds-td.seconds%60)
 
-# Example usage:
-print("\ntruncate examples:")
-ic(truncate_datetime(datetime.now()))
-# ic('now:', dt)  # will print current time truncated to its minute value, e.g., "2023-10-21 14:57:00"
+pr("\ntruncate examples:")
+_ = datetime.now()
+pr(f"{_}: {truncate_datetime(_)}")
+_ = timedelta(days=1, hours=1, minutes=1, seconds=30, microseconds=23456)
+pr(f"{_}: {truncate_timedelta(_)}")
 

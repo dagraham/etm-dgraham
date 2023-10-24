@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.12
-from common import parse, is_aware, add_zone_info, truncate_datetime, truncate_timedelta, print_model 
+from common import parse, is_aware, add_zone_info, truncate_datetime, truncate_timedelta
 from datetime import datetime, date, timedelta
 from pytz import timezone
 
@@ -92,7 +92,6 @@ td = timedelta(days=1, hours=-2, minutes=-30)
 normalized_td = normalize_timedelta(td)
 pr(f"pos '{td}' => {normalized_td}")
 
-
 class Period:
     def __init__(self, datetime1, datetime2):
         # Ensure both inputs are datetime.datetime instances
@@ -137,7 +136,6 @@ period = Period(
         )
 pr(period)
 
-
 class DateTimeSerializer(Serializer):
     """
     This class handles both aware and naive datetime objects.
@@ -177,7 +175,6 @@ class DateTimeSerializer(Serializer):
         else:
             return datetime.strptime(s, NAIVE_FMT).astimezone(tz.tzlocal())
 
-
 class DateSerializer(Serializer):
     """
     This class handles datetime date objects. Encode as date string and decode as a midnight datetime without conversion in the local timezone.
@@ -200,7 +197,6 @@ class DateSerializer(Serializer):
         Return the serialization as a date object.
         """
         return datetime.strptime(s, DATE_FMT).date()
-
 
 class PeriodSerializer(Serializer):
     """
@@ -253,7 +249,6 @@ class PeriodSerializer(Serializer):
     def __repr__(self):
         return f"{self.obj}"
 
-
 class DurationSerializer(Serializer):
     """
     This class handles timedelta (timedelta) objects.
@@ -276,7 +271,6 @@ class DurationSerializer(Serializer):
         Return the serialization as a timedelta object.
         """
         return decode_duration(s)[1]
-
 
 class WeekdaySerializer(Serializer):
     """
