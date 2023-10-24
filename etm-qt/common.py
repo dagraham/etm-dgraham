@@ -72,21 +72,3 @@ print("\ntruncate examples:")
 ic(truncate_datetime(datetime.now()))
 # ic('now:', dt)  # will print current time truncated to its minute value, e.g., "2023-10-21 14:57:00"
 
-
-def print_model(model):
-    try:
-        ic(model)
-        ic(
-            model.model_dump()
-                )
-        ic(
-            model.model_dump_json(
-                    indent=3
-                    )
-        )
-        ic(model.get_start())
-        ic(model.get_end())
-        print()
-
-    except ValidationError as ve:
-        ic(ve)
