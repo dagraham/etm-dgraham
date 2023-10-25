@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.12
-from common import parse, is_aware, add_zone_info, truncate_datetime, truncate_timedelta
+from common import *
 from datetime import datetime, date, timedelta
 from pytz import timezone
 
@@ -20,8 +20,9 @@ from dateutil import tz
 from dateutil.rrule import *
 import re
 
-testing = __name__ == "__main__"
+import os
 
+testing = __name__ == "__main__"
 def pr(s: str) -> None:
     if testing:
         ic(s)
@@ -94,7 +95,7 @@ pr(f"pos '{td}' => {normalized_td}")
 
 class Period:
     def __init__(self, datetime1, datetime2):
-        # Ensure both inputs are datetime.datetime instances
+        # Ensure both inputs are datetime instances
         if not isinstance(datetime1, datetime) or not isinstance(datetime2, datetime):
             raise ValueError("Both inputs must be datetime instances")
 
@@ -119,20 +120,20 @@ class Period:
 # Usage:
 print("\nPeriod examples:")
 period = Period(
-        parse('21 2:00p').replace(tzinfo=None),
-        parse('22 9:00a').replace(tzinfo=None)
+        parse('21 2:00p')[0].replace(tzinfo=None),
+        parse('22 9:00a')[0].replace(tzinfo=None)
         )
 pr(period)
 
 period = Period(
-        parse('21 2:00p', tzinfo='US/Eastern'),
-        parse('22 9:00a', tzinfo='US/Pacific')
+        parse('21 2:00p', tzinfo='US/Eastern')[0],
+        parse('22 9:00a', tzinfo='US/Pacific')[0]
         )
 pr(period)
 
 period = Period(
-        parse('22 9:00a', tzinfo='US/Pacific'),
-        parse('21 2:00p', tzinfo='US/Eastern')
+        parse('22 9:00a', tzinfo='US/Pacific')[0],
+        parse('21 2:00p', tzinfo='US/Eastern')[0]
         )
 pr(period)
 
@@ -184,7 +185,7 @@ class DateSerializer(Serializer):
     >>> ds.decode('20180725')
     Date(2018, 7, 25)
     """
-    OBJ_CLASS = datetime.date
+    OBJ_CLASS = date
 
     def encode(self, obj):
         """
@@ -211,12 +212,12 @@ class PeriodSerializer(Serializer):
 
     OBJ_CLASS = Period
 
-    def __init__(self, obj):
-        # Ensure both inputs are datetime.datetime instances
-        self.obj = obj
-        self.encoded = self.encode(obj)
-        self.decoded = self.decode(self.encoded)
-        self.diff = obj.diff
+    # def __init__(self, obj):
+    #     # Ensure both inputs are datetime instances
+    #     self.obj = obj
+    #     self.encoded = self.encode(obj)
+    #     self.decoded = self.decode(self.encoded)
+    #     self.diff = obj.diff
 
     def encode(self, obj):
         """
@@ -227,8 +228,8 @@ class PeriodSerializer(Serializer):
         >>> ps.encode(Period(datetime(2018,7,30,10,45).astimezone(pytz.tzinfo('US/Eastern')), datetime(2018,7,25,10,27)astimezone(pytz('US/Pacific')))
         '20180730T14# W20444119345A -> 20180725T1727A'
         """
-        start_fmt = encode_datetime(obj.start)
-        end_fmt = encode_datetime(obj.end)
+        start_fmt = encode_datetime(self.start)
+        end_fmt = encode_datetime(self.end)
         return f"{start_fmt} -> {end_fmt}"
 
     def decode(self, s):
@@ -391,16 +392,10 @@ class MaskSerializer(Serializer):
 #### end mask setup ####
 ########################
 
-def initialize_tinydb(dbfile):
+def initialize_tinydb(dbfile: str) -> TinyDB:
     """
     """
     serialization = SerializationMiddleware()
-    serialization.register_serializer(DateTimeSerializer(), 'T') # Time
-    serialization.register_serializer(DateSerializer(), 'D')     # Date
-    serialization.register_serializer(PeriodSerializer(), 'P')   # Period
-    serialization.register_serializer(DurationSerializer(), 'I') # Interval
-    serialization.register_serializer(WeekdaySerializer(), 'W')  # Wkday
-    serialization.register_serializer(MaskSerializer(), 'M')             # Mask
     if tinydb_version >= '4.0.0':
         db = TinyDB(dbfile, storage=serialization,
                 indent=1, ensure_ascii=False)
@@ -409,7 +404,27 @@ def initialize_tinydb(dbfile):
         db = TinyDB(dbfile, storage=serialization,
                 default_table='items',
                 indent=1, ensure_ascii=False)
+    serialization.register_serializer(DateTimeSerializer(), 'T') # Time
+    serialization.register_serializer(DateSerializer(), 'D')     # Date
+    serialization.register_serializer(PeriodSerializer(), 'P')   # Period
+    serialization.register_serializer(DurationSerializer(), 'I') # Interval
+    serialization.register_serializer(WeekdaySerializer(), 'W')  # Wkday
+    serialization.register_serializer(MaskSerializer(), 'M')             # Mask
     return db
+
+def insert_db(db, hsh={}):
+    """
+    Assume hsh has been vetted.
+    """
+    if not hsh:
+
+        return
+    hsh['created'] = datetime.now()
+    try:
+        db.insert(hsh)
+    except Exception as e:
+        pr(f"Error updating database:\nhsh {hsh}\ne {repr(e)}")
+
 
 def encode_duration(obj):
     """
@@ -417,7 +432,7 @@ def encode_duration(obj):
     multiple of 60. Thus timedeltas can always be expressed using only weeks, days,
     hours and minutes.
     """
-    if not isinstance(obj, datetime.timedelta):
+    if not isinstance(obj, timedelta):
         raise ValueError(f"{obj} is not a timedelta instance")
     until =[]
     weeks = obj.days // 7
@@ -502,7 +517,6 @@ class ReminderType(Enum):
     task = '-'
     journal = '%'
 
-
 class Reminder(BaseModel):
     model_config = ConfigDict(
             extra='forbid',
@@ -519,12 +533,22 @@ class Reminder(BaseModel):
 
     # combine start and zone and store aware datetimes as UTC
     zone: Optional[str] = None
-    start: datetime | date
+
+    start: datetime | date | str
     @field_validator('start')
     @classmethod
-    def use_zone(cls, value, values):
+    def validate_start(cls, value, values):
         # zone will either be None (null) or have the provided zone information
-        return add_zone_info(value, values.data['zone'])
+        if isinstance(value, str):
+            # try parsing
+            _, s = parse(value)
+            value = _ if _ else None
+
+
+        if value:        
+            return add_zone_info(value, values.data['zone'])
+        else:
+            return None
     extent: Optional[timedelta] = None
 
     #####################
@@ -555,7 +579,7 @@ print_model(w1)
 
 d = dict(itemtype = ReminderType.event,
     summary = 'for all good men',
-    start = parse("fri 3p"),
+    start = parse("fri 3p")[0],
     extent = truncate_timedelta(
         timedelta(hours=1, minutes=30, seconds=10, microseconds=737)
         ),
@@ -565,7 +589,19 @@ w2 = Reminder(**d)
 print_model(w2)
 
 w_d = w2.model_dump()
+pr(f"w_d: {w_d}")
 
 w3=Reminder(**w_d)
 print_model(w3)    
+
+
+
+print("\ninitialize tinydb example")
+_ = "/Users/dag/etm-dgraham/tmp"
+_ = os.path.normpath(os.path.join(_, 'etm.json'))
+db = initialize_tinydb(dbfile=_)
+pr(db)
+for _ in [w1, w2, w3]:
+    insert_db(db, _.model_dump())
+
 
