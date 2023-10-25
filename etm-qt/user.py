@@ -90,3 +90,50 @@ def process_entry(s: str) -> (dict, list):
 s = "* evnt @s 2p fri @e 90m @r m &w 2fr & @c dag"
 pr(s)
 pr(process_entry(s))
+# ic| s: '* evnt @s 2p fri @e 90m @r m &w 2fr & @c dag'
+# ic| s: ({(0, 1): ('itemtype', '*'),
+#          (0, 7): ('*', 'evnt'),
+#          (1, 7): ('summary', 'evnt'),
+#          (7, 17): ('s', '2p fri'),
+#          (17, 24): ('e', '90m'),
+#          (24, 29): ('rr', 'm'),
+#          (29, 36): ('rw', '2fr'),
+#          (29, 38): ('&w', '2fr &'),
+#          (36, 38): ('r?', ''),
+#          (38, 45): ('c', 'dag')},
+#         [('itemtype', '*'),
+#          ('summary', 'evnt'),
+#          ('s', '2p fri'),
+#          ('e', '90m'),
+#          ('rr', 'm'),
+#          ('&w', '2fr &'),
+#          ('c', 'dag'),
+#          ('itemtype', '*'),
+#          ('summary', 'evnt'),
+#          ('rw', '2fr'),
+#          ('r?', '')])
+
+
+def active_from_pos(process_entry_tup: tuple, position: int) -> tuple:
+    """
+    From the tuple produced by process_entry, return the element at position.
+    """
+    for p, v in process_entry_tup[0].items():
+        if p[0] <= position < p[1]:
+            return p, v
+    # else return the last p, v pair
+    return p, v
+
+s = "* evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home"
+pr(s)
+t = process_entry(s)
+for _ in [3,  18, 45]: 
+    pr(_)
+    pr(active_from_pos(t, _))
+# ic| s: '* evnt @s 2p fri @e 90m @r w &w 2fr &u 6/1 9a @c dag @l home'
+# ic| s: 3
+# ic| s: ((0, 7), ('*', 'evnt'))
+# ic| s: 18
+# ic| s: ((17, 24), ('e', '90m'))
+# ic| s: 45
+# ic| s: ((36, 46), ('ru', '6/1 9a'))
