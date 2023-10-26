@@ -22,20 +22,16 @@ import re
 
 import os
 
-testing = __name__ == "__main__"
 def pr(s: str) -> None:
-    if testing:
+    if __name__ == '__main__':
         ic(s)
+
 
 ##########################
 ### begin TinyDB setup ###
 ##########################
 
 TinyDB.DEFAULT_TABLE = 'items'
-AWARE_FMT = '%Y%m%dT%H%MA'
-NAIVE_FMT = '%Y%m%dT%H%MN'
-DATE_FMT = '%Y%m%d'
-
 # for weekdays with integer prefixes
 WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
 WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4']}
@@ -47,9 +43,9 @@ def encode_datetime(obj):
     if not isinstance(obj, datetime):
         raise ValueError(f"{obj} is not a datetime instance")
     if is_aware(obj):
-        return obj.astimezone(timezone('UTC')).strftime(AWARE_FMT)
+        return obj.astimezone(timezone('UTC')).strftime(FMTS["AWARE"])
     else:
-        return obj.strftime(NAIVE_FMT)
+        return obj.strftime(FMTS["NAIVE"])
 
 
 def decode_datetime(s):
@@ -57,9 +53,9 @@ def decode_datetime(s):
         # print(f"{s[-1] in 'AN'}, {len(s) == 14}")
         raise ValueError(f"{s} is not a datetime string")
     if s[-1] == 'A':
-        return datetime.strptime(s, AWARE_FMT).astimezone(timezone('UTC')).astimezone(tz.tzlocal())
+        return datetime.strptime(s, FMTS["AWARE"]).astimezone(timezone('UTC')).astimezone(tz.tzlocal())
     else:
-        return datetime.strptime(s, NAIVE_FMT).astimezone(tz.tzlocal())
+        return datetime.strptime(s, FMTS["NAIVE"]).astimezone(tz.tzlocal())
 
 
 def normalize_timedelta(delta):
@@ -120,20 +116,20 @@ class Period:
 # Usage:
 print("\nPeriod examples:")
 period = Period(
-        parse('21 2:00p')[0].replace(tzinfo=None),
-        parse('22 9:00a')[0].replace(tzinfo=None)
+        parse('21 2:00p')[1].replace(tzinfo=None),
+        parse('22 9:00a')[1].replace(tzinfo=None)
         )
 pr(period)
 
 period = Period(
-        parse('21 2:00p', tzinfo='US/Eastern')[0],
-        parse('22 9:00a', tzinfo='US/Pacific')[0]
+        parse('21 2:00p', tzinfo='US/Eastern')[1],
+        parse('22 9:00a', tzinfo='US/Pacific')[1]
         )
 pr(period)
 
 period = Period(
-        parse('22 9:00a', tzinfo='US/Pacific')[0],
-        parse('21 2:00p', tzinfo='US/Eastern')[0]
+        parse('22 9:00a', tzinfo='US/Pacific')[1],
+        parse('21 2:00p', tzinfo='US/Eastern')[1]
         )
 pr(period)
 
@@ -158,9 +154,9 @@ class DateTimeSerializer(Serializer):
         """
         return encode_datetime(obj)
         # if is_aware(obj):
-        #     return obj.astimezone(pytz.timezone('UTC')).strftime(AWARE_FMT)
+        #     return obj.astimezone(pytz.timezone('UTC')).strftime(FMTS["AWARE"]:)
         # else:
-        #     return obj.strftime(NAIVE_FMT)
+        #     return obj.strftime(FMTS["NAIVE"]:)
 
     def decode(self, s):
         """
@@ -172,9 +168,9 @@ class DateTimeSerializer(Serializer):
         DateTime(2018, 7, 25, 10, 27, 0, tzinfo=Timezone('America/New_York'))
         """
         if s[-1] == 'A':
-            return datetime.strptime(s, AWARE_FMT).astimezone(timezone('UTC')).astimezone(tz.tzlocal())
+            return datetime.strptime(s, FMTS["AWARE"]).astimezone(timezone('UTC')).astimezone(tz.tzlocal())
         else:
-            return datetime.strptime(s, NAIVE_FMT).astimezone(tz.tzlocal())
+            return datetime.strptime(s, FMTS["NAIVE"]).astimezone(tz.tzlocal())
 
 class DateSerializer(Serializer):
     """
@@ -191,13 +187,13 @@ class DateSerializer(Serializer):
         """
         Serialize the naive date object without conversion.
         """
-        return obj.strftime(DATE_FMT)
+        return obj.strftime(FMTS["DATE"])
 
     def decode(self, s):
         """
         Return the serialization as a date object.
         """
-        return datetime.strptime(s, DATE_FMT).date()
+        return datetime.strptime(s, FMTS["DATE"]).date()
 
 class PeriodSerializer(Serializer):
     """
@@ -511,6 +507,14 @@ def decode_duration(s):
 #### begin reminder setup ####
 ##############################
 
+
+####################
+#### validators ####
+####################
+
+def validate_start(s: str) -> tuple:
+    pass    
+
 class ReminderType(Enum):
     inbox = '!'
     event = '*'
@@ -579,7 +583,7 @@ print_model(w1)
 
 d = dict(itemtype = ReminderType.event,
     summary = 'for all good men',
-    start = parse("fri 3p")[0],
+    start = parse("fri 3p")[1],
     extent = truncate_timedelta(
         timedelta(hours=1, minutes=30, seconds=10, microseconds=737)
         ),

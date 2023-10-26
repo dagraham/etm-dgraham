@@ -6,33 +6,42 @@ from pytz import timezone
 from icecream import ic
 import re
 
-atamp_regex = re.compile(r'\s[@&][a-zA-Z+-]')
-
-type_keys = {
-    "*": "event",
-    "-": "task",
-    "✓": "finished",
-    "%": "journal",
-    "!": "inbox",
-    "~": "wrap",
-}
-
-
-
-AWARE_FMT = '%Y%m%dT%H%MA'
-NAIVE_FMT = '%Y%m%dT%H%MN'
-DATE_FMT = '%Y%m%d'
-DATETIME_FMT = '%y-%m-%d %H:%M %Z'
-
 def pr(s: str) -> None:
     if __name__ == '__main__':
         ic(s)
 
-def parse(s: str, **kwd: any) -> (datetime, str):
+REGEX = {
+    "ATAMP": re.compile(r'\s[@&][a-zA-Z+-]'),
+}
+
+TYPE_KEYS = {
+    "*": "event",
+    "-": "task",
+    "%": "journal",
+    "!": "inbox",
+}
+
+DISPLAY_TYPE_KEYS = TYPE_KEYS.update({
+    "✓": "finished",
+    "~": "wrap",
+})
+
+FMTS = {
+    "AWARE": '%Y%m%dT%H%MA',
+    "NAIVE": '%Y%m%dT%H%MN',
+    "DATE": '%Y%m%d',
+    "DATETIME": '%y-%m-%d %H:%M %Z',
+}
+def parse(s: str, **kwd: any) -> (datetime, str | None):
+    s = s.strip()
+    if not s:
+        return ("Enter a datetime expression such as '2p fri'", None)
+    # we have an entry
     try:
         dt = dateutil_parse(s)
     except ParserError as e:
-        return (None, f"'{s}' is not yet a valid date or datetime")
+        return (f"\"{s}\" is not yet a valid date or datetime", None)
+    # we have a datetime object
     if 'tzinfo' in kwd:
         tzinfo = kwd['tzinfo']
         if tzinfo == 'float':
@@ -43,7 +52,7 @@ def parse(s: str, **kwd: any) -> (datetime, str):
             dt = timezone(tzinfo).localize(dt)
     else:
         dt = dt.astimezone()
-    return (dt, dt.strftime(DATETIME_FMT))
+    return (dt.strftime(FMTS["DATETIME"]), dt)
 
 args = [
         {'tzinfo': 'US/Pacific',},
@@ -53,12 +62,14 @@ args = [
         ]
 pr("\nparse examples for '2pm fri':")
 for _ in args:
-    pr(f"with {_}: {parse('2pm fri', **_)}")
+    m, o = parse('2p fri', **_)
+    pr(f"with {_}: {m}; {o}")
 
 pr("\nbad arg for parse:")
 args = ['fr', '32 2p', '25p', '-3' ]
 for _ in args:
-    pr(f"for {_}: {parse(_)}")
+    m, o = parse(_)
+    pr(f"for {_}: {m}; {o}")
 
 def is_aware(dt: datetime) -> bool:
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None

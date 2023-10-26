@@ -10,13 +10,13 @@ def pr(s: str) -> None:
 def process_entry(s: str) -> (dict, list):
     """
     Tokenize user string returning a dictionary 
-        (token_beg, token_end) -> [key, value]
+        (token_beg, token_end) -> (key, value)
     together with a list of all (key, value) pairs.
     """
     s = s.lstrip()
     if not s:
         return {(0, 1): ('itemtype', '')}, [('itemtype', '')]
-    elif s[0] not in type_keys:
+    elif s[0] not in TYPE_KEYS:
         return {(0, len(s) + 1): ('itemtype', s[0])}, [('itemtype', s[0])]
 
     tups = []
@@ -25,7 +25,7 @@ def process_entry(s: str) -> (dict, list):
 
     parts = [
         [match.span()[0] + 1, match.span()[1], match.group().strip()]
-        for match in atamp_regex.finditer(s)
+        for match in REGEX['ATAMP'].finditer(s)
     ]
     if not parts:
         tups.append((s[0], s[1:].strip(), 0, len(s)+1))
@@ -80,7 +80,7 @@ def process_entry(s: str) -> (dict, list):
             pos_hsh[beg, end] = (key[-1], value)
 
     keyvals = [(k, v) for pos, (k, v) in pos_hsh.items()]
-    if keyvals[0][0] in type_keys:
+    if keyvals[0][0] in TYPE_KEYS:
         k, v = keyvals.pop(0)
         keyvals.insert(0, ('summary', v))
         keyvals.insert(0, ('itemtype', k))
