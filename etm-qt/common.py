@@ -32,7 +32,24 @@ FMTS = {
     "DATE": '%Y%m%d',
     "DATETIME": '%y-%m-%d %H:%M %Z',
 }
-def parse(s: str, **kwd: any) -> (datetime, str | None):
+def parse(s: str, **kwd: any) -> (str | None, datetime):
+    """
+    Parse datetime string "s" applying any "**kwd" arguments and return a tuple containing a message describing the result and the python datetime object if successful and None otherwise. 
+    >>> dt = parse('2p 23-10-26', **{'timezone': 'US/Pacific'})
+    >>> dt[0]
+    '26-10-23 14:00 PDT'
+    >>> dt[1]
+    datetime.datetime(2026, 10, 23, 14, 0, tzinfo=<DstTzInfo 'US/Pacific' PDT-1 day, 17:00:00 DST>)
+    >>> dt = parse('')
+    >>> dt[0]
+    "Enter a datetime expression such as '2p fri'"
+    >>> dt[1]
+    >>> dt = parse('2023-10-27')
+    >>> dt[0]
+    "Enter a datetime expression such as '2p fri'"
+    >>> dt[1]
+    
+    """
     s = s.strip()
     if not s:
         return ("Enter a datetime expression such as '2p fri'", None)
@@ -42,8 +59,8 @@ def parse(s: str, **kwd: any) -> (datetime, str | None):
     except ParserError as e:
         return (f"\"{s}\" is not yet a valid date or datetime", None)
     # we have a datetime object
-    if 'tzinfo' in kwd:
-        tzinfo = kwd['tzinfo']
+    if 'timezone' in kwd:
+        tzinfo = kwd['timezone']
         if tzinfo == 'float':
             pass
         elif tzinfo == 'local':
