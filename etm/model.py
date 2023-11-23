@@ -6,10 +6,6 @@
 
 from pprint import pprint
 import datetime # for type testing in rrule
-import pendulum
-from pendulum import parse as pendulum_parse
-from pendulum.datetime import Timezone
-from pendulum import __version__ as pendulum_version
 import locale
 import calendar
 from copy import deepcopy
@@ -24,18 +20,20 @@ from dateutil.rrule import *
 from dateutil import __version__ as dateutil_version
 from dateutil.parser import parse as dateutil_parse
 from dateutil.tz import gettz
+from datetime import datetime, date, timedelta
+from pytz import timezone
 
 # for saving timers
 import pickle
+from icecream import ic
 
 from warnings import filterwarnings
 def parse(s, **kwd):
-    # return pendulum_parse(s, strict=False, parserinfo=pi, **kwd)
     pi = dateutil.parser.parserinfo(
             dayfirst=settings['dayfirst'],
             yearfirst=settings['yearfirst']
             )
-    dt = pendulum.instance(dateutil_parse(s, parserinfo=pi))
+    dt = dateutil_parse(s, parserinfo=pi)
     if 'tzinfo' in kwd:
         tz = kwd['tzinfo']
         dt = dt.replace(tzinfo=tz)
@@ -125,10 +123,10 @@ LINEDOT = ' · '  # ܁ U+00B7 (middle dot)
 etmdir = None
 
 ETMFMT = "%Y%m%dT%H%M"
-ZERO = pendulum.duration(minutes=0)
-ONEMIN = pendulum.duration(minutes=1)
-ONESEC = pendulum.duration(seconds=1)
-DAY = pendulum.duration(days=1)
+ZERO = timedelta(minutes=0)
+ONEMIN = timedelta(minutes=1)
+ONESEC = timedelta(seconds=1)
+DAY = timedelta(days=1)
 
 
 WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
@@ -373,7 +371,7 @@ def process_entry(s, settings={}):
     elif s[0] not in type_keys:
         return {(0, len(s) + 1): ('itemtype', s[0])}, [('itemtype', s[0])]
     # look for expansions
-    xpat = re.compile("@x\s+[a-zA-Z]+\s")
+    xpat = re.compile(r'@x\s+[a-zA-Z]+\s')
     match = xpat.findall(s)
     if match and settings:
         xparts = match[0].split(' ')
@@ -382,7 +380,7 @@ def process_entry(s, settings={}):
             s = s.replace(match[0], replacement)
 
 
-    pattern = re.compile("\s[@&][a-zA-Z+-]")
+    pattern = re.compile(r'\s[@&][a-zA-Z+-]')
     parts = [
         [match.span()[0] + 1, match.span()[1], match.group().strip()]
         for match in pattern.finditer(s)
@@ -476,6 +474,23 @@ def active_from_pos(pos_hsh, pos):
             return p, v
     # return the last p, v pair
     return p, v
+
+
+class Period(object):
+
+    def __init__(self, start: datetime, end: datetime):
+        self.start = start
+        self.end = end
+        self.diff = end - start
+
+    def start(self):
+        return self.start
+
+    def end(self):
+        return self.end
+
+    def diff(self):
+        return self.diff
 
 
 class Item(dict):
@@ -698,7 +713,7 @@ item_hsh:    {self.item_hsh}
         used_times.append([period, dt])
         self.item_hsh['u'] = used_times
         self.item_hsh['created'] = self.created
-        self.item_hsh['modified'] = pendulum.now('local')
+        self.item_hsh['modified'] = datetime.now('local')
         # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         self.do_update()
 
@@ -721,7 +736,7 @@ item_hsh:    {self.item_hsh}
         changed = True
         if changed:
             self.item_hsh['created'] = self.created
-            self.item_hsh['modified'] = pendulum.now('local')
+            self.item_hsh['modified'] = datetime.now('local')
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
         return changed
@@ -738,7 +753,7 @@ item_hsh:    {self.item_hsh}
         if 'r' not in self.item_hsh and '+' not in self.item_hsh:
             # not repeating
             self.item_hsh['s'] = new_dt
-            self.item_hsh['modified'] = pendulum.now('local')
+            self.item_hsh['modified'] = datetime.now('local')
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
             return True
@@ -780,7 +795,7 @@ item_hsh:    {self.item_hsh}
                 logger.warning(f"could not remove {instance} from {self.item_hsh}")
             if changed:
                 self.item_hsh['created'] = self.created
-                self.item_hsh['modified'] = pendulum.now('local')
+                self.item_hsh['modified'] = datetime.now('local')
 
                 # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
                 self.do_update()
@@ -891,7 +906,7 @@ item_hsh:    {self.item_hsh}
                     self.item_hsh['h'] = sh[-num_finished:]
 
             self.item_hsh['created'] = self.created
-            self.item_hsh['modified'] = pendulum.now('local')
+            self.item_hsh['modified'] = datetime.now('local')
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
             return True
@@ -920,7 +935,7 @@ item_hsh:    {self.item_hsh}
             save_item = True
         if save_item:
             self.item_hsh['created'] = self.created
-            self.item_hsh['modified'] = pendulum.now('local')
+            self.item_hsh['modified'] = datetime.now('local')
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
 
@@ -1069,7 +1084,7 @@ item_hsh:    {self.item_hsh}
 
 
         if self.is_modified and not msg:
-            now = pendulum.now('local')
+            now = datetime.now('local')
             if self.is_new:
                 # creating a new item or editing a copy of an existing item
                 self.item_hsh['created'] = now
@@ -1248,7 +1263,7 @@ item_hsh:    {self.item_hsh}
         tz = self.item_hsh.get('z', None)
         ok, res, z = parse_datetime(arg, tz)
         if ok:
-            if isinstance(res, pendulum.Date) and not isinstance(res, pendulum.DateTime):
+            if isinstance(res, date) and not isinstance(res, datetime):
                 return obj, "a datetime is required"
             obj = res
             rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
@@ -1324,7 +1339,7 @@ item_hsh:    {self.item_hsh}
             if not arg:
                 continue
             obj, rep  = self.do_completion(arg)
-            if isinstance(obj, pendulum.Period):
+            if isinstance(obj, Period):
                 obj_lst.append(obj)
                 rep_lst.append(rep)
             else:
@@ -1479,7 +1494,7 @@ def datetime_calculator(s):
             if not ok:
                 return f"error: could not parse '{y}'"
             dt = (dt_x + dur).in_timezone(yz)
-            return dt.format(datetime_fmt)
+            return dt.strftime(datetime_fmt)
         else:
             ok, dt_y, z = parse_datetime(y, yz)
             if not ok:
@@ -1545,12 +1560,12 @@ def parse_datetime(s, z=None):
     try:
         s = s.strip()
         if s == 'now':
-            return True, pendulum.now(tz=tzinfo), z
+            return True, datetime.now(tz=tzinfo), z
 
         dt_str = ''
         dur_str = ''
         dt_and_dur_regex = re.compile(r'^(.+)\s+([+-].+)?$')
-        days_or_more_regex = re.compile(r'[dwM]')
+        days_or_more_regex = re.compile(r'[dwM]') #FIXME: USED?
         g = dt_and_dur_regex.match(s)
         if g:
             # we have dt and dur strings
@@ -1564,9 +1579,9 @@ def parse_datetime(s, z=None):
             dt_str = s
 
         if dt_str:
-            dt = pendulum.now(tz=tzinfo) if dt_str.strip() == 'now' else parse(dt_str, tzinfo=tzinfo)
+            dt = datetime.now(tz=tzinfo) if dt_str.strip() == 'now' else parse(dt_str, tzinfo=tzinfo)
         else:
-            dt = pendulum.now(tz=tzinfo)
+            dt = datetime.now(tz=tzinfo)
             if dur_str and re.search(r'[dwM]', dur_str):
                 dt = dt.replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -1596,11 +1611,11 @@ def timestamp(arg):
     >>> timestamp("13/16/16 2p")
     (False, 'invalid time-stamp: 13/16/16 2p')
     """
-    if isinstance(arg, pendulum.DateTime):
+    if isinstance(arg, datetime):
         return True, arg
-    elif isinstance(arg, pendulum.Date):
+    elif isinstance(arg, date):
         return True, date_to_datetime(arg)
-    elif isinstance(arg, pendulum.Period):
+    elif isinstance(arg, Period):
         return True, arg
     try:
         # res = parse(arg).strftime(ETMFMT)
@@ -1615,11 +1630,9 @@ def plain_datetime(obj):
 
 
 def format_time(obj):
-    if type(obj) != pendulum.DateTime:
-        obj = pendulum.instance(obj)
     ampm = settings.get('ampm', True)
     time_fmt = "h:mmA" if ampm else "H:mm"
-    res = obj.format(time_fmt)
+    res = obj.strftime(time_fmt)
     if ampm:
         res = res.replace('AM', 'am')
         res = res.replace('PM', 'pm')
@@ -1634,9 +1647,7 @@ def fivechar_datetime(obj):
     2p on Nov 7 of this year -> 11/07
     11a on Jan 17 of 2012 -> 12.01
     """
-    if type(obj) != pendulum.DateTime:
-        obj = pendulum.instance(obj)
-    now = pendulum.now('local')
+    now = datetime.now('local')
 
     md_fmt = "DD/MM" if settings['dayfirst'] else "MM/DD"
     ym_fmt = "YY.MM" if settings['yearfirst'] else f"MM.YY"
@@ -1644,23 +1655,23 @@ def fivechar_datetime(obj):
     if obj.year == now.year:
         if obj.month == now.month:
             if obj.day == now.day:
-                return obj.format("HH:mm")
+                return obj.strftime("HH:mm")
             else:
-                return obj.format(md_fmt)
+                return obj.strftime(md_fmt)
         else:
-            return obj.format(md_fmt)
+            return obj.strftime(md_fmt)
     else:
-        return obj.format(ym_fmt)
+        return obj.strftime(ym_fmt)
 
 def format_date(obj):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
     md = "D/M" if dayfirst else "M/D"
     date_fmt = f"YY/{md}" if yearfirst else f"{md}/YY"
-    if type(obj) != pendulum.Date and type(obj) != pendulum.DateTime:
+    if type(obj) != date and type(obj) != datetime:
         return False, ""
     else:
-        return True, obj.format(date_fmt)
+        return True, obj.strftime(date_fmt)
 
 
 def format_datetime(obj, short=False):
@@ -1694,37 +1705,34 @@ def format_datetime(obj, short=False):
     time_fmt = "h:mmA" if ampm else "H:mm"
 
 
-    if type(obj) == pendulum.Date:
-        return True, obj.format(date_fmt)
+    if type(obj) == date:
+        return True, obj.strftime(date_fmt)
 
-    if not isinstance(obj, pendulum.DateTime):
-        try:
-            obj = pendulum.instance(obj)
-        except Exception as e:
-            return False, f"Error: {e}"
+    if not isinstance(obj, datetime):
+        return False, f"Error: {e}"
 
     # we want all-day events to display as dates
     if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
         # treat as date
-        return True, obj.format(date_fmt)
+        return True, obj.strftime(date_fmt)
 
-    if obj.format('Z') == '':
+    if obj.strftime('Z') == '':
         # naive datetime
         if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
             # treat as date
-            return True, obj.format(date_fmt)
+            return True, obj.strftime(date_fmt)
     else:
         # aware datetime
         obj = obj.in_timezone('local')
         if not short: time_fmt += " zz"
-    res = obj.format(f"{date_fmt} {time_fmt}")
+    res = obj.strftime(f"{date_fmt} {time_fmt}")
     if ampm:
         res = res.replace('AM', 'am')
         res = res.replace('PM', 'pm')
     return True, res
 
 def format_period(obj):
-    if not isinstance(obj, pendulum.Period):
+    if not isinstance(obj, Period):
         logger.debug(f"obj: {obj}")
         return obj
     start = obj.start
@@ -1748,7 +1756,7 @@ def format_hours_and_tenths(obj):
     """
     Convert a pendulum duration object into hours and tenths of an hour rounding up to the nearest tenth.
     """
-    if not isinstance(obj, pendulum.Duration):
+    if not isinstance(obj, timedelta):
         return None
     UT_MIN = settings.get('usedtime_minutes', 1)
     if UT_MIN >= 1:
@@ -1796,23 +1804,28 @@ def datetimes2busy(dta, dtb):
             # when dta ends
             end_min = dt2minutes(dta)
         ret.append((begin_week, begin_day, (beg_min, end_min)))
-        beg_dt = beg_dt + pendulum.duration(minutes=end_min - beg_min + 1)
+        beg_dt = beg_dt + timedelta(minutes=end_min - beg_min + 1)
     return ret
 
 
 def round_minutes(obj):
-    seconds = obj.remaining_seconds
+
     # round up
-    if seconds:
-        return obj + pendulum.duration(seconds = 60-seconds)
+    if isinstance(obj, timedelta) and obj.seconds:
+        ic((obj, type(obj)))
+        return obj + timedelta(seconds=60-obj.seconds)
     else:
         return obj
 
 def usedminutes2bar(minutes):
     # leave room for indent and weekday
+    # TODO: fix this?
+    if not minutes:
+        return "", ""
     chars = shutil.get_terminal_size()[0] - 18
     # goal in hours to minutes
     used_minutes = int(minutes)
+    ic(used_minutes)
     used_fmt = format_duration(used_minutes*ONEMIN, short=True).center(6, ' ')
     if usedtime_hours:
         goal_minutes = int(usedtime_hours) * 60
@@ -1834,9 +1847,10 @@ def format_duration(obj, short=False):
     >>> format_duration(td)
     '1w2d3h27m'
     """
-    if not (isinstance(obj, pendulum.Duration) or isinstance(obj, pendulum.Period)):
+    if not (isinstance(obj, Period) or isinstance(obj, timedelta)):
+        ic(type(obj))
         return None
-    hours = obj.hours
+    hours = obj.total_seconds()//(60*60)
     try:
         until =[]
         if obj.weeks:
@@ -1863,14 +1877,14 @@ def format_duration(obj, short=False):
         return "".join(until)
     except Exception as e:
         logger.error(f"{obj}: {e}")
-        return None
+        return ""
 
 
 def status_duration(obj):
     """
     hours, minutes and tenths of minutes for display in the status bar
     """
-    if not (isinstance(obj, pendulum.Duration) or isinstance(obj, pendulum.Period)):
+    if not (isinstance(obj, pendulum.Duration) or isinstance(obj, Period)):
         return None
     hours = obj.hours
     try:
@@ -1907,7 +1921,7 @@ def fmt_dur(obj):
     >>> format_duration(td)
     '1w2d3h27m'
     """
-    if not (isinstance(obj, pendulum.Duration) or isinstance(obj, pendulum.Period)):
+    if not (isinstance(obj, pendulum.Duration) or isinstance(obj, Period)):
         return None
     try:
         until =[]
@@ -1931,7 +1945,7 @@ def fmt_dur(obj):
         return None
 
 def fmt_period(obj):
-    if not isinstance(obj, pendulum.Period):
+    if not isinstance(obj, Period):
         return None
     start = obj.start
     end = obj.end
@@ -2016,11 +2030,11 @@ def parse_duration(s):
     11100
     >>> parse_duration("2d-3h5m")[1]
     Duration(days=1, hours=21, minutes=5)
-    >>> pendulum.datetime(2015, 10, 15, 9, 0, tz='local') + parse_duration("-25m")[1]
+    >>> datetime(2015, 10, 15, 9, 0, tz='local') + parse_duration("-25m")[1]
     DateTime(2015, 10, 15, 8, 35, 0, tzinfo=Timezone('America/New_York'))
-    >>> pendulum.datetime(2015, 10, 15, 9, 0) + parse_duration("1d")[1]
+    >>> datetime(2015, 10, 15, 9, 0) + parse_duration("1d")[1]
     DateTime(2015, 10, 16, 9, 0, 0, tzinfo=Timezone('UTC'))
-    >>> pendulum.datetime(2015, 10, 15, 9, 0) + parse_duration("1w-2d+3h")[1]
+    >>> datetime(2015, 10, 15, 9, 0) + parse_duration("1w-2d+3h")[1]
     DateTime(2015, 10, 20, 12, 0, 0, tzinfo=Timezone('UTC'))
     """
 
@@ -2068,7 +2082,7 @@ def parse_duration(s):
         num = -int(g[2]) if g[1] == '-' else int(g[2])
         if num:
             kwds[knms[g[3]]] = num
-    td = pendulum.duration(**kwds)
+    td = timedelta(**kwds)
 
     return True, td
 
@@ -2492,7 +2506,7 @@ class DataView(object):
 
     def handle_backups(self):
         removefiles = []
-        timestamp = pendulum.now('UTC').format("YYYY-MM-DD")
+        timestamp = datetime.now('UTC').strftime("YYYY-MM-DD")
         filelist = os.listdir(self.backupdir)
         # deal with etm.json
         dbmtime = os.path.getctime(self.dbfile)
@@ -2572,7 +2586,7 @@ class DataView(object):
         if self.active_timer and self.active_timer in timers:
             state, start, period = timers[self.active_timer]
             if state == 'r':
-                now = pendulum.now('local')
+                now = datetime.now('local')
                 period += now - start
                 state = 'p'
                 timers[self.active_timer] = [state, now, period]
@@ -2593,7 +2607,7 @@ class DataView(object):
     def toggle_active_timer(self, row=None):
         if not self.active_timer:
             return
-        now = pendulum.now('local')
+        now = datetime.now('local')
         state, start, period = self.timers[self.active_timer]
         if state == 'r':
             period += now - start
@@ -2632,7 +2646,7 @@ class DataView(object):
         active = [x for x, v in other_timers.items() if v[0] in ['r', 'p']]
         if len(active) > 1:
             logger.warning(f"more than one active timer: {active}")
-        now = pendulum.now('local')
+        now = datetime.now('local')
         if doc_id in self.timers:
             # there is already a timer for this item
             if active:
@@ -2674,11 +2688,11 @@ class DataView(object):
         if not self.timers:
             return '', ''
         active = inactive = status = ""
-        zero = pendulum.Duration()
+        zero = timedelta()
         delta = zero
         if self.active_timer:
             status, started, elapsed = self.timers[self.active_timer]
-            delta = pendulum.now('local') - started
+            delta = datetime.now('local') - started
             if status == 'r': # running
                 delta += elapsed
             active = f"{status}:{status_duration(delta)}"
@@ -2712,7 +2726,7 @@ class DataView(object):
 
 
     def set_now(self):
-        self.now = pendulum.now('local')
+        self.now = datetime.now().astimezone()
 
     def set_active_item(self, doc_id):
         self.active_item = doc_id
@@ -2776,7 +2790,7 @@ class DataView(object):
         if self.active_view == 'used time':
             used_details = self.used_details.get(self.active_month)
             if not used_details:
-                month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
+                month_format = datetime.strptime(self.active_month + "-01", "%Y-%m-%d").strftime("%B %Y")
                 return f"Nothing recorded for {month_format}"
             self.used_view = used_details
             self.row2id = self.used_details2id.get(self.active_month)
@@ -2785,7 +2799,7 @@ class DataView(object):
             self.row2id = {}
             used_summary = self.used_summary.get(self.active_month)
             if not used_summary:
-                month_format = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD").format("MMMM YYYY")
+                month_format = datetime.strptime(self.active_month + "-01", "%Y-%m-%d").strftime("%B %Y")
                 return f"Nothing recorded for {month_format}"
             self.used_summary_view = used_summary
             return self.used_summary_view
@@ -2836,17 +2850,17 @@ class DataView(object):
 
 
     def currMonth(self):
-        self.active_month = pendulum.today().format("YYYY-MM")
+        self.active_month = date.today().strftime("YYYY-MM")
 
 
     def prevMonth(self):
-        dt = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD", 'local') - DAY
-        self.active_month = dt.format("YYYY-MM")
+        dt = datetime.strptime(self.active_month + "-01", "%Y-%m-%d").astimezone() - DAY
+        self.active_month = dt.strftime("YYYY-MM")
 
 
     def nextMonth(self):
-        dt = pendulum.from_format(self.active_month + "-01", "YYYY-MM-DD", 'local') + 31 * DAY
-        self.active_month = dt.format("YYYY-MM")
+        dt = datetime.strptime(self.active_month + "-01", "%Y-%m-%d").astimezone() + 31 * DAY
+        self.active_month = dt.strftime("YYYY-MM")
 
 
     def refreshRelevant(self):
@@ -3060,7 +3074,7 @@ class DataView(object):
                 else:
                     per = pendulum.period(c.start, c.end)
                 res.append((c.end, f" {fmt_period(per)}", FINISHED_CHAR))
-        res.sort() # pendulum.DateTime obj as first component
+        res.sort() # datetime obj as first component
         if len(res) > num:
             showing = f"Completion History: last {num} of {len(res)}"
             res = res[-num:]
@@ -3099,9 +3113,9 @@ shown when nonzero."""
         if not res:
             return False
         doc_id, instance, job_id = res
-        now = pendulum.now('local')
+        now = datetime.now('local')
         item_hsh = self.db.get(doc_id=doc_id)
-        item_hsh['modified'] = pendulum.now('local')
+        item_hsh['modified'] = datetime.now('local')
         # self.db.update(db_replace(item_hsh), doc_ids=[doc_id])
         self.do_update()
         return True
@@ -3191,7 +3205,7 @@ shown when nonzero."""
             if item['itemtype'] == '-':
                 changed = False
                 if 'f' in item:
-                    if not isinstance(item['f'], pendulum.Period):
+                    if not isinstance(item['f'], Period):
                         start = date_to_datetime(item['f'])
                         end = date_to_datetime(item.get('s', item['f']))
                         item['f'] = pendulum.period(start, end)
@@ -3218,7 +3232,7 @@ shown when nonzero."""
                     new_hist = []
                     h_changed = False
                     for x in curr_hist:
-                        if isinstance(x, pendulum.Period):
+                        if isinstance(x, Period):
                             new_hist.append(x)
                         else:
                             x = date_to_datetime(x)
@@ -3236,7 +3250,7 @@ shown when nonzero."""
                     for job in item.get('j', []):
                         if 'f' not in job:
                             new_jobs.append(job)
-                        elif isinstance(job['f'], pendulum.Period):
+                        elif isinstance(job['f'], Period):
                             new_jobs.append(job)
                         else:
                             dt = date_to_datetime(job['f'])
@@ -3272,7 +3286,7 @@ shown when nonzero."""
                         parent = old_parent[link]
                         if 'f' in item:
                             # clone finished - add completion to parent
-                            if isinstance(item['f'], pendulum.Period):
+                            if isinstance(item['f'], Period):
                                 completion = item['f']
                             else:
                                 start = date_to_datetime(item['f'])
@@ -3318,19 +3332,20 @@ shown when nonzero."""
         if not self.archive_after:
             logger.info(f"archive_after: {self.archive_after} - skipping archive")
             return
-        old = pendulum.now() - pendulum.duration(years=self.archive_after)
+        now = datetime.now().astimezone()
+        old = now.replace(year=now.year-self.archive_after)
         rows = []
         for item in self.db:
             if item['itemtype'] == '%':
                 # keep journal
                 continue
             elif 'f' in item:
-                if isinstance(item['f'], pendulum.Period):
+                if isinstance(item['f'], Period):
                     if item['f'].start < old and item['f'].end < old:
                         # toss old finished tasks including repeating ones
                         rows.append(item)
                         continue
-                # elif isinstance(item['f'], pendulum.Date):
+                # elif isinstance(item['f'], date):
                 #     if item['f'] < old.date():
                 #         # toss old finished tasks including repeating ones
                 #         rows.append(item)
@@ -3338,9 +3353,9 @@ shown when nonzero."""
             elif '+' in item:
                 toss = True
                 for dt in item['+']:
-                    if isinstance(dt, pendulum.Date):
+                    if isinstance(dt, date):
                         # could be date or datetime
-                        if isinstance(dt, pendulum.DateTime):
+                        if isinstance(dt, datetime):
                             # datetime
                             if dt.date() >= old.date():
                                 toss = False
@@ -3362,9 +3377,9 @@ shown when nonzero."""
                     if 'u' not in rr:
                         toss = False
                         break
-                    elif isinstance(rr['u'], pendulum.Date):
+                    elif isinstance(rr['u'], date):
                         # could be date or datetime
-                        if isinstance(rr['u'], pendulum.DateTime):
+                        if isinstance(rr['u'], datetime):
                             # datetime
                             if rr['u'].date() >= old.date():
                                 toss = False
@@ -3383,12 +3398,12 @@ shown when nonzero."""
 
             elif item['itemtype'] == '*':
                 start = item.get('s', None)
-                if isinstance(start, pendulum.DateTime):
+                if isinstance(start, datetime):
                     if start < old:
                         # toss old, non-repeating events
                         rows.append(item)
                         continue
-                elif isinstance(start, pendulum.Date):
+                elif isinstance(start, date):
                     if start < old.date():
                         # toss old, non-repeating events
                         rows.append(item)
@@ -3531,7 +3546,7 @@ shown when nonzero."""
         """
         width = shutil.get_terminal_size()[0]
         indent = int((width - 67)/2) * " "
-        today = pendulum.today()
+        today = date.today()
         y = today.year
         try:
 
@@ -3573,7 +3588,7 @@ shown when nonzero."""
 
 
     def currcal(self):
-        self.calAdv = pendulum.today().month // 13
+        self.calAdv = date.today().month // 13
         self.refreshCalendar()
 
 def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
@@ -3611,22 +3626,24 @@ def set_summary(summary='', start=None, relevant=None, freq=''):
 
     """
     if not ('{XXX}' in summary and
-            isinstance(start, pendulum.Date) and
-            isinstance(relevant, pendulum.Date) and
+            isinstance(start, date) and
+            isinstance(relevant, date) and
             freq in ['y', 'm', 'w', 'd']):
         return summary
-    relevant_date = relevant.date() if isinstance(relevant, pendulum.DateTime) else relevant
-    start_date = start.date() if isinstance(start, pendulum.DateTime) else start
+    relevant_date = relevant.date() if isinstance(relevant, datetime) else relevant
+    start_date = start.date() if isinstance(start, datetime) else start
     diff = relevant_date - start_date
     replacement = 0
     if freq == 'y':
-        replacement = diff.in_years()
+        replacement = relevant_date.year - start_date.year
     elif freq == 'm':
-        replacement = diff.in_months()
+        years = relevant_date.year - start_date.year
+        months = relevant_date.month - start_date.month
+        replacement = 12*years + months
     elif freq == 'w':
-        replacement = diff.in_weeks()
+        replacement = diff.days//7
     elif freq == 'd':
-        replacement = diff.in_days()
+        replacement = diff.days
     replacement = ordinal(replacement) if replacement >= 0 else '???'
     return summary.format(XXX=replacement)
 
@@ -4827,7 +4844,7 @@ def get_next_due(item, done, due):
         dtstart = done
         inc = False
     else:  # 's' skip
-        today = pendulum.today()
+        today = date.today()
         if due < today:
             aft = today
             inc = True
@@ -4835,7 +4852,7 @@ def get_next_due(item, done, due):
             aft = due
             inc = False
     using_dates = False
-    if isinstance(start, pendulum.Date) and not isinstance(start, pendulum.DateTime):
+    if isinstance(start, date) and not isinstance(start, datetime):
         using_dates = True
         aft = date_to_datetime(aft)
     for hsh in lofh:
@@ -4861,9 +4878,8 @@ def get_next_due(item, done, due):
     for dt in plus_not_minus:
         rset.rdate(date_to_datetime(dt))
 
-    nxt_rset = rset.after(date_to_datetime(aft), inc)
-    if nxt_rset:
-        nxt = pendulum.instance(nxt_rset)
+    nxt = rset.after(date_to_datetime(aft), inc)
+    if nxt:
         if using_dates:
             nxt = nxt.date()
     else:
@@ -4872,8 +4888,9 @@ def get_next_due(item, done, due):
 
 
 def date_to_datetime(dt, hour=0, minute=0):
-    if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
-        dt= pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=hour, minute=minute, tz='local')
+    if isinstance(dt, date) and not isinstance(dt, datetime):
+        dt= datetime(year=dt.year, month=dt.month, day=dt.day, hour=hour, minute=minute, second=0, microsecond=0).astimezone()
+    ic(dt)
     return dt
 
 
@@ -4924,13 +4941,13 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
     instances = []
     dtstart = item['s']
     if not (
-        isinstance(dtstart, pendulum.DateTime)
-        or isinstance(dtstart, pendulum.Date)
+        isinstance(dtstart, datetime)
+        or isinstance(dtstart, date)
     ):
         return []
     # This should not be necessary since the data store decodes dates as datetimes
-    if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
-        dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0, tz='local')
+    if isinstance(dtstart, date) and not isinstance(dtstart, datetime):
+        dtstart = datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0).astimezone()
         startdst = None
         using_dates = True
     else:
@@ -4943,8 +4960,8 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
             dtstart = dtstart[0]
 
     # all the dateutil instances will be in UTC so these must be as well
-    aft_dt = date_to_datetime(aft_dt).replace(tzinfo='UTC')
-    bef_dt = bef_dt if isinstance(bef_dt, int) else date_to_datetime(bef_dt).replace(tzinfo='UTC')
+    aft_dt = date_to_datetime(aft_dt).astimezone(timezone('UTC'))
+    bef_dt = bef_dt if isinstance(bef_dt, int) else date_to_datetime(bef_dt).astimezone(timezone('UTC'))
 
     if 'r' in item:
         lofh = item['r']
@@ -4976,11 +4993,11 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
                 else:
                     break
             if using_dates:
-                instances = [pendulum.instance(x).date() for x in tmp if x] if tmp else []
+                instances = [x.date() for x in tmp if x] if tmp else []
             else:
-                instances = [pendulum.instance(x) for x in tmp if x] if tmp else []
+                instances = [x for x in tmp if x] if tmp else []
         else:
-            instances = [pendulum.instance(x) for x in rset.between(aft_dt, bef_dt, inc=True)]
+            instances = [x for x in rset.between(aft_dt, bef_dt, inc=True)]
 
     elif '+' in item:
         # no @r but @+ => simple repetition
@@ -5003,7 +5020,8 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
             instances = [dtstart] if aft_dt <= dtstart <= bef_dt else []
 
     pairs = []
-    today = pendulum.today(tz=item.get('z', None))
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone()
+    # today = datetime.today().astimezone() tz=item.get('z', None))
     for instance in instances:
         if item['itemtype'] == "*" and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
@@ -5403,14 +5421,34 @@ def jobs(lofh, at_hsh={}):
 ### start week/month ###
 ########################
 
-def get_period(dt=pendulum.now(), weeks_before=3, weeks_after=9):
+# def get_period(dt=datetime.now(), weeks_before=3, weeks_after=9):
+#     """
+#     Return the begining and ending of the period that includes the weeks in current month plus the weeks in the prior *months_before* and the weeks in the subsequent *months_after*. The period will begin at 0 hours on the relevant Monday and end at 23:59:59 hours on the relevant Sunday.
+#     >>> get_period(datetime(2018, 12, 15, 0, 0, tz='US/Eastern'))
+#     (DateTime(2018, 11, 19, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2019, 2, 17, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
+#     """
+#     beg = dt.start_of('week').subtract(weeks=weeks_before).start_of('week')
+#     end = dt.start_of('week').add(weeks=weeks_after).end_of('week')
+#     return (beg, end)
+
+
+def get_period(dt=datetime.now(), weeks_before=3, weeks_after=9):
     """
     Return the begining and ending of the period that includes the weeks in current month plus the weeks in the prior *months_before* and the weeks in the subsequent *months_after*. The period will begin at 0 hours on the relevant Monday and end at 23:59:59 hours on the relevant Sunday.
-    >>> get_period(pendulum.datetime(2018, 12, 15, 0, 0, tz='US/Eastern'))
+    >>> get_period(datetime(2018, 12, 15, 0, 0, tz='US/Eastern'))
     (DateTime(2018, 11, 19, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2019, 2, 17, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
     """
-    beg = dt.start_of('week').subtract(weeks=weeks_before).start_of('week')
-    end = dt.start_of('week').add(weeks=weeks_after).end_of('week')
+    # Find the weekday (0 for Monday, 6 for Sunday)
+    weekday = dt.weekday()
+
+    days_to_subtract = weekday + 7*weeks_before
+
+    days_to_add = 7 - weekday + 7*weeks_after
+
+    # Subtract the days to get the previous Monday
+    beg = dt - timedelta(days=days_to_subtract)
+    end = dt + timedelta(days=days_to_add)
+
     return (beg, end)
 
 
@@ -5422,8 +5460,8 @@ def iso_year_start(iso_year):
     >>> iso_year_start(2018)
     Date(2018, 1, 1)
     """
-    fourth_jan = pendulum.date(iso_year, 1, 4)
-    delta = pendulum.duration(days=fourth_jan.isoweekday()-1)
+    fourth_jan = date(iso_year, 1, 4)
+    delta = timedelta(days=fourth_jan.isoweekday()-1)
     return (fourth_jan - delta)
 
 
@@ -5434,13 +5472,13 @@ def iso_to_gregorian(ywd):
     Date(2018, 2, 14)
     """
     year_start = iso_year_start(ywd[0])
-    return year_start + pendulum.duration(days=ywd[2]-1, weeks=ywd[1]-1)
+    return year_start + timedelta(days=ywd[2]-1, weeks=ywd[1]-1)
 
 
-def getWeekNum(dt=pendulum.now()):
+def getWeekNum(dt=datetime.now()):
     """
     Return the year and week number for the datetime.
-    >>> getWeekNum(pendulum.datetime(2018, 2, 14, 10, 30))
+    >>> getWeekNum(datetime(2018, 2, 14, 10, 30))
     (2018, 7)
     >>> getWeekNum(pendulum.date(2018, 2, 14))
     (2018, 7)
@@ -5455,7 +5493,7 @@ def nextWeek(yw):
     >>> nextWeek((2015,53))
     (2016, 1)
     """
-    return (iso_to_gregorian((*yw, 7)) + pendulum.duration(days=1)).isocalendar()[:2]
+    return (iso_to_gregorian((*yw, 7)) + timedelta(days=1)).isocalendar()[:2]
 
 
 def prevWeek(yw):
@@ -5463,7 +5501,7 @@ def prevWeek(yw):
     >>> prevWeek((2016,1))
     (2015, 53)
     """
-    return (iso_to_gregorian((*yw, 1)) - pendulum.duration(days=1)).isocalendar()[:2]
+    return (iso_to_gregorian((*yw, 1)) - timedelta(days=1)).isocalendar()[:2]
 
 
 def getWeeksForMonth(ym):
@@ -5472,7 +5510,7 @@ def getWeeksForMonth(ym):
     >>> getWeeksForMonth((2018, 3))
     [(2018, 9), (2018, 10), (2018, 11), (2018, 12), (2018, 13), (2018, 14)]
     """
-    wp = pendulum.date(ym[0], ym[1], 1).isocalendar()[:2]
+    wp = date(ym[0], ym[1], 1).isocalendar()[:2]
     wl = [wp]
     for _ in range(5):
         wn = nextWeek(wp)
@@ -5482,13 +5520,14 @@ def getWeeksForMonth(ym):
     return wl
 
 
-def getWeekNumbers(dt=pendulum.now(), bef=3, after=9):
+def getWeekNumbers(dt=datetime.now(), bef=3, after=9):
     """
-    >>> dt = pendulum.date(2018, 12, 7)
+    >>> dt = date(2018, 12, 7)
     >>> getWeekNumbers(dt)
     [(2018, 46), (2018, 47), (2018, 48), (2018, 49), (2018, 50), (2018, 51), (2018, 52), (2019, 1), (2019, 2), (2019, 3), (2019, 4), (2019, 5), (2019, 6)]
     """
-    yw = dt.add(days=-bef*7).isocalendar()[:2]
+    # yw = dt.add(days=-bef*7).isocalendar()[:2]
+    yw = (dt - timedelta(days=bef*7)).isocalendar()[:2]
     weeks = [yw]
     for _ in range(1, bef + after + 1):
         yw = nextWeek(yw)
@@ -5503,7 +5542,7 @@ def getWeekNumbers(dt=pendulum.now(), bef=3, after=9):
 def period_from_fmt(s, z='local'):
     """
     """
-    start, end = [pendulum.from_format(x.strip(), "YYYYMMDDTHHmm", z) for x in s.split('->')]
+    start, end = [datetime.strptime(x.strip(), "%Y%m%dT%H%M", z) for x in s.split('->')]
     return pendulum.period(start, end)
 
 def pen_from_fmt(s, z='local'):
@@ -5511,7 +5550,7 @@ def pen_from_fmt(s, z='local'):
     >>> pen_from_fmt("20120622T0000")
     Date(2012, 6, 22)
     """
-    dt = pendulum.from_format(s, "YYYYMMDDTHHmm", z)
+    dt = datetime.strptime(s, "%Y%m%dT%H%M", z)
     if z in ['local', 'Factory'] and dt.hour == dt.minute == 0:
         dt = dt.date()
     return dt
@@ -5531,20 +5570,20 @@ def drop_zero_minutes(dt):
     show_minutes = settings['show_minutes']
     if show_minutes:
         if ampm:
-            return dt.format("h:mm")
+            return dt.strftime("%I:%M")
         else:
-            return dt.format("HH:mm")
+            return dt.strftime("%H:%M")
     else:
         if dt.minute == 0:
             if ampm:
-                return dt.format("h")
+                return dt.strftime("%I")
             else:
-                return dt.format("H")
+                return dt.strftime("%H")
         else:
             if ampm:
-                return dt.format("h:mm")
+                return dt.strftime("%I:%M")
             else:
-                return dt.format("HH:mm")
+                return dt.strftime("%H:%M")
 
 
 def fmt_extent(beg_dt, end_dt):
@@ -5560,19 +5599,23 @@ def fmt_extent(beg_dt, end_dt):
     beg_suffix = end_suffix = ""
     ampm = settings['ampm']
     if not (
-        isinstance(beg_dt, pendulum.DateTime)
-        and isinstance(end_dt, pendulum.DateTime)
+        isinstance(beg_dt, datetime)
+        and isinstance(end_dt, datetime)
     ):
         return "xxx"
 
     if ampm:
         diff = beg_dt.hour < 12 and end_dt.hour >= 12
-        end_suffix = end_dt.format("A").lower()
+        end_suffix = end_dt.strftime("%p").lower()
         if diff:
-            beg_suffix = beg_dt.format("A").lower()
+            beg_suffix = beg_dt.strftime("%p").lower()
 
     beg_fmt = drop_zero_minutes(beg_dt)
     end_fmt = drop_zero_minutes(end_dt)
+    if ampm:
+        beg_fmt = beg_fmt.lstrip("0")
+        end_fmt = end_fmt.lstrip("0")
+
 
     return f"{beg_fmt}{beg_suffix}-{end_fmt}{end_suffix}"
 
@@ -5582,9 +5625,11 @@ def fmt_time(dt, ignore_midnight=True):
     show_minutes = settings['show_minutes']
     if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0:
         return ""
-    suffix = dt.format("A").lower() if ampm else ""
+    suffix = dt.strftime("%p").lower() if ampm else ""
 
     dt_fmt = drop_zero_minutes(dt)
+    if ampm:
+        dt_fmt = dt_fmt.lstrip("0")
     return f"{dt_fmt}{suffix}"
 
 
@@ -5603,9 +5648,9 @@ def beg_ends(starting_dt, extent_duration, z=None):
     beg = starting_dt
     ending = starting_dt + extent_duration
     while ending.date() > beg.date():
-        end = beg.end_of('day')
+        end = beg.replace(hour=23, minute=59)
         pairs.append((beg, end))
-        beg = beg.start_of('day').add(days=1)
+        beg = (beg + timedelta(days=1)).replace(hour=0, minute=0)
     if beg == ending:
         # don't include zero-extent "tails"
         pass
@@ -5651,14 +5696,16 @@ def fmt_week(yrwk):
     dt_year, dt_week = yrwk
     # dt_week = dt_obj.week_of_year
     # year_week = f"{dt_year} Week {dt_week}"
-    wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
-    wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
+    wkbeg = datetime.strptime(f"{dt_year} {str(dt_week)} 0", '%Y %W %w').date()
+    wkend = datetime.strptime(f"{dt_year} {str(dt_week)} 6", '%Y %W %w').date()
+    # wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
+    # wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
     if settings['dayfirst']:
-        week_end = wkend.format("D MMM")
-        week_begin = wkbeg.format("D") if wkbeg.month == wkend.month else wkbeg.format("D MMM")
+        week_end = wkend.strftime("%d %b")
+        week_begin = wkbeg.strftime("%d") if wkbeg.month == wkend.month else wkbeg.strftime("%d %b")
     else:
-        week_end = wkend.format("D") if wkbeg.month == wkend.month else wkend.format("MMM D")
-        week_begin = wkbeg.format("MMM D")
+        week_end = wkend.strftime("%d") if wkbeg.month == wkend.month else wkend.strftime("%b %d")
+        week_begin = wkbeg.strftime("%b %d")
 
     return f"{week_begin} - {week_end}, {dt_year} #{dt_week}"
 
@@ -5670,7 +5717,7 @@ def get_item(doc_id):
     pass
 
 
-def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=[], timers={}):
+def relevant(db, now=datetime.now(), pinned_list=[], link_list=[], konnect_list=[], timers={}):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
     Called by dataview.refreshRelevant
@@ -5684,11 +5731,12 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     rhc_width = 15 if ampm else 11
     num_remaining = ""
 
-    today = pendulum.today()
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone()
+    ic(today)
     tomorrow = today + DAY
-    inbox_fmt = today.format("YYYYMMDD    ")   # first
-    pastdue_fmt = today.format("YYYYMMDD^^^^") # after all day and timed
-    begby_fmt = today.format("YYYYMMDD~~~~")   # after past due
+    inbox_fmt = today.strftime("%Y%m%d    ")   # first
+    pastdue_fmt = today.strftime("%Y%m%d^^^^") # after all day and timed
+    begby_fmt = today.strftime("%Y%m%d~~~~")   # after past due
 
     id2relevant = {}
     inbox = []
@@ -5725,23 +5773,26 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
         elif 'f' in item:
             relevant = item['f'].end
-            if isinstance(relevant, pendulum.Date) and not isinstance(relevant, pendulum.DateTime):
-                relevant = pendulum.datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0, tz='local')
+            if isinstance(relevant, date) and not isinstance(relevant, datetime):
+                relevant = datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0).astimezone()
 
         elif 's' in item:
             dtstart = item['s']
             has_a = 'a' in item
             has_b = 'b' in item
             # for daylight savings time changes
-            if isinstance(dtstart, pendulum.Date) and not isinstance(dtstart, pendulum.DateTime):
-                dtstart = pendulum.datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0, tz='local')
+            if isinstance(dtstart, date) and not isinstance(dtstart, datetime):
+                dtstart = datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0).astimezone()
                 startdst = None
             else:
                 # for discarding daylight saving time differences in repetitions
+                # ic(isinstance(dtstart, date))
+                # ic(isinstance(dtstart, datetime))
                 try:
                     startdst = dtstart.dst()
                 except:
-                    dtstart = dtstart[0]
+                    ic(dtstart)
+                    # startdst = None
                     startdst = dtstart.dst()
 
             if has_b:
@@ -5789,8 +5840,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 if '-' in item:
                     for dt in item['-']:
                         dt = date_to_datetime(dt)
-                        # if type(dt) == pendulum.Date:
-                        #     dt = pendulum.datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
+                        # if type(dt) == date:
+                        #     dt = datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
                         rset.exdate(dt)
 
                 if '+' in item:
@@ -5801,13 +5852,13 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                 if item['itemtype'] == '-':
                     switch = item.get('o', 'k')
                     if switch == 's':
-                        now = pendulum.now('local')
+                        now = datetime.now().astimezone()
                         relevant = rset.after(today, inc=True)
                         cur = date_to_datetime(item['s'])
                         # make 'all day' tasks not pastdue until one minute before midnight
-                        isdate = (isinstance(item['s'], pendulum.Date) and not isinstance(item['s'], pendulum.DateTime))
+                        isdate = (isinstance(item['s'], date) and not isinstance(item['s'], datetime))
                         isdate = cur.hour == 0 and cur.minute == 0
-                        delta = pendulum.duration(hours=23, minutes=59) if isdate else ZERO
+                        delta = timedelta(hours=23, minutes=59) if isdate else ZERO
                         # logger.debug(f"{item['summary']} isdate: {isdate}, delta: {delta}, relevant: {relevant}, cur: {cur}")
                         if relevant and date_to_datetime(item['s']) + delta < now:
                             while cur + delta < now:
@@ -5818,7 +5869,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                                 h = item['h']
                                 h.sort(key=sortprd)
                                 item['h'] = h[-num_finished:]
-                            item['s'] = pendulum.instance(cur)
+                            item['s'] = cur
                             update_db(db, item.doc_id, item)
                     else: # k or p
                         relevant = rset.after(today, inc=True)
@@ -5843,9 +5894,8 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                     except Exception as e:
                         logger.error(f"error processing {item}; {repr(e)}")
                     if not relevant:
+                        ic(today)
                         relevant = rset.before(today, inc=True)
-                    if relevant:
-                        relevant = pendulum.instance(relevant)
 
                 # rset
                 if instance_interval:
@@ -5859,7 +5909,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
                                     freq = item['r'][0].get('r', 'y')
                                 else:
                                     freq = 'y'
-                                summary = set_summary(summary, item.get('s', None), pendulum.instance(instance).date(), freq)
+                                summary = set_summary(summary, item.get('s', None), instance.date(), freq)
                                 beginbys.append([(instance.date() - today.date()).days, summary, item.doc_id, None, instance])
                     if possible_alerts:
                         for instance in instances:
@@ -5906,13 +5956,6 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
 
         if not relevant:
             continue
-        else:
-            try:
-                relevant = pendulum.instance(relevant)
-            except Exception as e:
-                print(repr(e))
-                print('relevant:', relevant, startdst)
-                continue
 
         pastdue_jobs = False
         if 'j' in item and 'f' not in item:
@@ -5949,7 +5992,7 @@ def relevant(db, now=pendulum.now(), pinned_list=[], link_list=[], konnect_list=
     alerts.sort()
     # alerts: alert datetime, start datetime, commands, summary, doc_id
     week = today.isocalendar()[:2]
-    day = (today.format(wkday_fmt), )
+    day = (today.strftime(wkday_fmt), )
     for item in inbox:
         item_0 = ' '
         rhc = item_0.center(rhc_width, ' ')
@@ -6002,7 +6045,7 @@ def update_db(db, doc_id, hsh={}):
         return
     if old == hsh:
         return
-    hsh['modified'] = pendulum.now()
+    hsh['modified'] = datetime.now()
     try:
         db.update(db_replace(hsh), doc_ids=[doc_id])
     except Exception as e:
@@ -6024,7 +6067,7 @@ def insert_db(db, hsh={}):
     if not hsh:
 
         return
-    hsh['created'] = pendulum.now()
+    hsh['created'] = datetime.now()
     try:
         db.insert(hsh)
     except Exception as e:
@@ -6035,7 +6078,7 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
     width = shutil.get_terminal_size()[0] - 3
     summary_width = width - 19
     rows = []
-    today = pendulum.today()
+    today = date.today()
     md_fmt = "DD/MM" if settings['dayfirst'] else "MM/DD"
     for item in db:
         if item.doc_id not in id2relevant:
@@ -6202,7 +6245,7 @@ def show_review(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
         modified = item['modified'] if 'modified' in item else item['created']
 
-        weeks = (pendulum.now() - modified).days // 7
+        weeks = (datetime.now() - modified).days // 7
         if weeks == 0:
             wkfmt = " This week"
         elif weeks == 1:
@@ -6242,7 +6285,7 @@ def show_timers(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, ac
     rows = []
     locations = set([])
     summary_width = width - 18
-    now = pendulum.now('local')
+    now = datetime.now('local')
     state2sort = {
             'i': 'inactive',
             'r': 'active',
@@ -6716,18 +6759,18 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
 
         for period, dt in used:
-            if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
-                dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
-                dt.set(hour=23, minute=59, second=59)
+            if isinstance(dt, date) and not isinstance(dt, datetime):
+                dt = datetime(dt.year, dt.month, dt.day).astimezone()
+                dt.replace(hour=23, minute=59, second=59)
 
             rhc_cols = 17 if UT_MIN == 0 else 14
 
             if UT_MIN > 0:
-                seconds = period.remaining_seconds
+                seconds = period.total_seconds()
                 if seconds:
                     # round up to the next minute
-                    period = period + pendulum.duration(seconds = 60-seconds)
-                res = period.in_minutes() % UT_MIN
+                    period = period + timedelta(seconds = 60-seconds)
+                res = (period.total_seconds()//60) % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
 
@@ -6741,19 +6784,19 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
             id_used[monthday] += period
-            month = dt.format("YYYY-MM")
+            month = dt.strftime("%Y-%m")
             used_time.setdefault(tuple((month,)), ZERO)
             used_time[tuple((month, ))] += period
             for i in range(len(index_tup)):
                 used_time.setdefault(tuple((month, *index_tup[:i+1])), ZERO)
                 used_time[tuple((month, *index_tup[:i+1]))] += period
         for monthday in id_used:
-            month = monthday.format("YYYY-MM")
-            rhc = f"{monthday.format('M/DD')} {format_hours_and_tenths(id_used[monthday])}".ljust(rhc_cols, ' ')
+            month = monthday.strftime("%Y-%m")
+            rhc = f"{monthday.strftime('%m/%d')} {format_hours_and_tenths(id_used[monthday])}".ljust(rhc_cols, ' ')
             detail_rows.append({
                         'sort': (month, index_tup, monthday, itemtype, summary),
                         'month': month,
-                        'path': f"{monthday.format('MMMM YYYY')}/{index}",
+                        'path': f"{monthday.strftime('%B %Y')}/{index}",
                         'values': [
                             '◦',
                             f"{itemtype} {summary}",
@@ -6791,7 +6834,8 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
         month_rows.setdefault(key[0], [])
         indent = (len(key) - 1) * 3 * " "
         if len(key) == 1:
-            yrmnth = pendulum.from_format(key[0] + "-01", "YYYY-MM-DD").format("MMMM YYYY")
+            ic(key)
+            yrmnth = datetime.strptime(f"{key[0]}-01", "%Y-%m-%d").strftime("%B %Y")
             try:
                 rhc = f"{format_hours_and_tenths(period)}"
                 summary = f"{indent}{yrmnth}: {rhc}"[:summary_width]
@@ -6822,10 +6866,10 @@ def no_busy_periods(week, width):
     # The weekday 2-char abbreviation and the month day
     width = shutil.get_terminal_size()[0]
     dent = int((width - 69)/2) * " "
-    monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
+    monday = datetime.strptime(f'{week[0]} {week[1]} 0', '%Y %W %w')
     DD = {}
     for i in range(1, 8):
-        DD[i] = f"{WA[i]} {monday.add(days=i-1).format('D')}".ljust(5, ' ')
+        DD[i] = f"{WA[i]} {monday.add(days=i-1).strftime('D')}".ljust(5, ' ')
 
     h = {}
     h[0] = '  '
@@ -6870,9 +6914,10 @@ def wkday2row(wkday):
     # 1 -> 5, ..., 6 -> 15, 0 -> 17  (pendulum thinks Sunday is first)
     return 3+ 2*wkday if wkday else 17
 
-def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}):
+def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     global current_hsh, active_tasks
-    wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
+    # wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
+    wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
     timer_schedule = TimeIt('***SCHEDULE***')
     #
 
@@ -6919,7 +6964,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     summary_width = width - indent_to_summary - flag_width - rhc_width
 
     d = iso_to_gregorian((yw[0], yw[1], 1))
-    dt = pendulum.datetime(d.year, d.month, d.day, 0, 0, 0, tz='local')
+    dt = datetime(d.year, d.month, d.day, 0, 0, 0).astimezone()
     week_numbers = getWeekNumbers(dt, weeks_before, weeks_after)
     if yw not in week_numbers:
         week_numbers.append(yw)
@@ -6947,8 +6992,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     week2day2allday = {}
 
     #XXX main loop begins
-    todayYMD = now.format("YYYYMMDD")
-    tomorrowYMD = (now + 1*DAY).format("YYYYMMDD")
+    todayYMD = now.strftime("%Y%m%d")
+    tomorrowYMD = (now + 1*DAY).strftime("%Y%m%d")
 
     for item in db:
         completed = []
@@ -6972,27 +7017,27 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
         if itemtype == "*" and start and extent and 'r' not in item:
             dt = start
-            if (isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime)):
+            if (isinstance(dt, date) and not isinstance(dt, datetime)):
                 dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
                 dt.set(hour=0, minute=0, second=1)
 
         if used:
             dates_to_periods = {}
             for period, dt in used:
-                if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
+                if isinstance(dt, date) and not isinstance(dt, datetime):
                     pass
                 else:
                     dt = dt.date()
                 if UT_MIN > 0:
-                    seconds = period.remaining_seconds
+                    seconds = period.seconds
                     if seconds:
                         # round up minutes - consistent with used time views
-                        period = period + pendulum.duration(seconds = 60-seconds)
+                        period = period + timedelta(seconds = 60-seconds)
 
                 dates_to_periods.setdefault(dt, []).append(period)
             for dt in dates_to_periods:
                 week = dt.isocalendar()[:2]
-                weekday = dt.format(wkday_fmt)
+                weekday = dt.strftime(wkday_fmt)
                 week2day2engaged.setdefault(week, {})
                 week2day2engaged[week].setdefault(weekday, ZERO)
                 total = ZERO
@@ -7008,7 +7053,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                             'id': doc_id,
                             'job': None,
                             'instance': None,
-                            'sort': (dt.format("YYYYMMDD"), 1),
+                            'sort': (dt.strftime("%Y%m%d"), 1),
                             'week': (
                                 week
                                 ),
@@ -7018,7 +7063,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                             'columns': [
                                 USED,
                                 # '~',
-                                f'{used:<6} {itemtype} {summary}',
+                                f'{used:<6} {itemtype} {summary}' if used else '',
                                 flags,
                                 '',
                                 (doc_id, None, None)
@@ -7030,7 +7075,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         if itemtype == '-':
             d = [] # d for done
             # c = [] # c for completed
-            if isinstance(finished, pendulum.Period):
+            if isinstance(finished, Period):
                 # finished will be false if the period is ZERO
                 # we need details of when completed (start and end) for completed view
                 d.append([finished.start, summary, doc_id, format_date(finished.end)[1]])
@@ -7049,9 +7094,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             if d:
                 for row in d:
                     dt = row[0]
-                    if isinstance(dt, pendulum.Date) and not isinstance(dt, pendulum.DateTime):
+                    if isinstance(dt, date) and not isinstance(dt, datetime):
                         # dt = pendulum.parse(dt.format("YYYYMMDD"), tz='local')
-                        dt = pendulum.datetime(dt.year, dt.month, dt.day, tz='local')
+                        dt = datetime(dt.year, dt.month, dt.day).astimezone()
                         # dt.set(hour=23, minute=59, second=59)
 
                     rhc = str(row[3]) if len(row) > 3 else ""
@@ -7063,12 +7108,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 'id': row[2],
                                 'job': row[3],
                                 'instance': None,
-                                'sort': (dt.format("YYYYMMDDHHmm"), 1),
+                                'sort': (dt.strftime("%Y%m%d%H%M"), 1),
                                 'week': (
                                     dt.isocalendar()[:2]
                                     ),
                                 'day': (
-                                    dt.format(wkday_fmt),
+                                    dt.strftime(wkday_fmt),
                                     ),
                                 'columns': [FINISHED_CHAR,
                                     row[1],
@@ -7092,8 +7137,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
             wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-            itemday = dt.format("YYYYMMDD")
-            dayDM = dt.format(wkday_fmt)
+            itemday = dt.strftime("%Y%m%d")
+            dayDM = dt.strftime(wkday_fmt)
             if itemday == todayYMD:
                 dayDM += " (Today)"
             elif itemday == tomorrowYMD:
@@ -7171,7 +7216,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
             else:
                 dateonly = False
-                sort_dt = dt.format("YYYYMMDDHHmm")
+                sort_dt = dt.strftime("%Y%m%d%H%m")
                 if sort_dt.endswith('0000'):
                     dateonly = True
                     if item['itemtype'] == '*':
@@ -7228,8 +7273,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
                     if b and b > ZERO:
                         itemtype = wrapbefore #  "↱"
-                        # sort_b = (dt-ONEMIN).format("YYYYMMDDHHmm")
-                        sort_b = (dt).format("YYYYMMDDHHmm")
+                        # sort_b = (dt-ONEMIN).strftime("YYYYMMDDHHmm")
+                        sort_b = (dt).strftime("YYYYMMDDHHmm")
                         rhb = fmt_time(dtb).center(rhc_width, ' ')
                         before = {
                                     'id': doc_id,
@@ -7243,7 +7288,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                         dtb.isocalendar()[-1]
                                         ),
                                     'day': (
-                                        dtb.format(wkday_fmt),
+                                        dtb.strftime(wkday_fmt),
                                         ),
                                     'columns': [itemtype,
                                         set_summary("", item['s'], dtb, freq),
@@ -7255,7 +7300,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
                     if a and a > ZERO:
                         itemtype = wrapafter  # "↳"
-                        sort_a = (dt+ONEMIN).format("YYYYMMDDHHmm")
+                        sort_a = (dt+ONEMIN).strftime("YYYYMMDDHHmm")
                         rha = fmt_time(dta).center(rhc_width, ' ')
                         after = {
                                     'id': doc_id,
@@ -7269,7 +7314,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                         dta.isocalendar()[-1]
                                         ),
                                     'day': (
-                                        dta.format(wkday_fmt),
+                                        dta.strftime(wkday_fmt),
                                         ),
                                     'columns': [itemtype,
                                         set_summary("", item['s'], dta, freq),
@@ -7332,7 +7377,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
                                 dayofweek
                                 ),
                             'day': (
-                                dt.format(wkday_fmt),
+                                dt.strftime(wkday_fmt),
                                 ),
                             'busyperiod': (
                                 busyperiod
@@ -7359,8 +7404,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
     dent = int((width - 69)/2) * " "
 
     ### item/agenda loop 2
-    today = now.format(wkday_fmt)
-    tomorrow = (now + 1*DAY).format(wkday_fmt)
+    today = now.strftime(wkday_fmt)
+    tomorrow = (now + 1*DAY).strftime(wkday_fmt)
 
     for week in week2day2allday:
         week2day2heading.setdefault(week, {})
@@ -7460,6 +7505,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
 
     busy = {}
     for week, dayhsh in week2day2busy.items():
+        # week (year, week_number)
         busy_tuples = []
         days = [d for d in dayhsh.keys()]
         days.sort()
@@ -7468,10 +7514,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
             periods.sort()
             busy_tuples.append([day, periods])
 
-        monday = pendulum_parse(f"{week[0]}-W{str(week[1]).zfill(2)}-1")
+        monday = datetime.strptime(f'{week[0]} {week[1]} 0', '%Y %W %w')
+
         DD = {}
         for i in range(1, 8):
-            DD[i] = f"{WA[i]} {monday.add(days=i-1).format('D')}".ljust(5, ' ')
+            DD[i] = f"{WA[i]} {(monday + timedelta(days=i-1)).strftime('%d')}".ljust(5, ' ')
 
         for tup in busy_tuples:
             #                 d             (beg_min, end_min)
@@ -7519,7 +7566,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=pendulum.now(), weeks_before=0
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         for row in items:
             day_ = row['day'][0]
-            total = (week2day2engaged[week][day_] if day_ in week2day2engaged[week] else ZERO).in_minutes()
+            total = (week2day2engaged[week][day_] if day_ in week2day2engaged[week] else ZERO).total_seconds()//60
             used_fmt = bar_fmt = ""
             if total:
                 used, bar = usedminutes2bar(total)
@@ -7643,7 +7690,7 @@ def import_ics(import_file=None):
         if exst and y in exst:
             dups += 1
         else:
-            x['created'] = pendulum.now()
+            x['created'] = datetime.now()
             new.append(x)
 
     ids = []
@@ -7773,7 +7820,7 @@ def import_json(import_file=None):
             item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
         if 'f' in item_hsh:
             item_hsh['f'] = period_from_fmt(item_hsh['f'], z)
-        item_hsh['created'] = pendulum.now('UTC')
+        item_hsh['created'] = datetime.now('UTC')
         if 'h' in item_hsh:
             item_hsh['h'] = [period_from_fmt(x, z) for x in item_hsh['h']]
         if '+' in item_hsh:
@@ -7914,7 +7961,7 @@ def about(padding=0):
         output.append(line.center(width, ' ') + "\n")
     logo = "".join(output)
 
-    copyright = wrap(f"Copyright 2009-{pendulum.today().format('YYYY')}, Daniel A Graham. All rights reserved. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version. See www.gnu.org/licenses/gpl.html for details.", 0, width)
+    copyright = wrap(f"Copyright 2009-{date.today().strftime('YYYY')}, Daniel A Graham. All rights reserved. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version. See www.gnu.org/licenses/gpl.html for details.", 0, width)
 
     summary = wrap(f"This application provides a format for using plain text entries to create events, tasks and other reminders and a prompt_toolkit based interface for creating and modifying items as well as viewing them.", 0, width)
 
@@ -7935,7 +7982,6 @@ Developer:      dnlgrhm@gmail.com
 etm:            {etm_version}
 python:         {python_version}
 dateutil:       {dateutil_version}
-pendulum:       {pendulum_version}
 prompt_toolkit: {prompt_toolkit_version}
 tinydb:         {tinydb_version}
 jinja2:         {jinja2_version}

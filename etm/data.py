@@ -11,7 +11,7 @@ from datetime import datetime
 from datetime import tzinfo
 from datetime import timedelta
 import dateutil
-import dateutil.rrule 
+import dateutil.rrule
 from dateutil import tz
 from dateutil.parser import parse as dateutil_parse
 from dateutil.rrule import *
@@ -235,12 +235,12 @@ class PeriodSerializer(Serializer):
 
     OBJ_CLASS = Period
 
-    def __init__(self, obj):
-        # Ensure both inputs are datetime.datetime instances
-        self.obj = obj
-        self.encoded = self.encode(obj)
-        self.decoded = self.decode(self.encoded)
-        self.diff = obj.diff
+    # def __init__(self, obj):
+    #     # Ensure both inputs are datetime.datetime instances
+    #     self.obj = obj
+    #     self.encoded = self.encode(obj)
+    #     self.decoded = self.decode(self.encoded)
+    #     self.diff = obj.diff
 
     def encode(self, obj):
         """

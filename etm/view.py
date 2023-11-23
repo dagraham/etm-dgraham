@@ -9,32 +9,31 @@ import sys
 # from prompt_toolkit import __version__ as prompt_toolkit_version
 
 from prompt_toolkit.application import Application
-from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout.containers import HSplit, VSplit, Window, WindowAlign, ConditionalContainer
-from prompt_toolkit.layout.controls import FormattedTextControl
-from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.layout.dimension import D
-from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
-from prompt_toolkit.enums import EditingMode
-from prompt_toolkit.lexers import Lexer
-from prompt_toolkit.styles.named_colors import NAMED_COLORS
-from prompt_toolkit.filters import Condition
-
-from prompt_toolkit.selection import SelectionType
-from prompt_toolkit.key_binding.vi_state import InputMode
-from prompt_toolkit.filters import vi_mode, vi_navigation_mode, vi_insert_mode, vi_replace_mode, vi_selection_mode, emacs_mode, emacs_selection_mode, emacs_insert_mode
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import Completion, Completer, PathCompleter
 from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.layout.controls import BufferControl
-from prompt_toolkit.layout import Dimension
-from prompt_toolkit.widgets import HorizontalLine
-from prompt_toolkit.layout.menus import CompletionsMenu
-from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
-from prompt_toolkit.layout import Float
-from prompt_toolkit.widgets import Box, Dialog, Label, Button
+from prompt_toolkit.completion import Completion, Completer, PathCompleter
 from prompt_toolkit.cursor_shapes import CursorShape
+from prompt_toolkit.enums import EditingMode
+from prompt_toolkit.filters import Condition, vi_mode, vi_navigation_mode, vi_insert_mode, vi_replace_mode, vi_selection_mode, emacs_mode, emacs_selection_mode, emacs_insert_mode
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+from prompt_toolkit.key_binding.vi_state import InputMode
+from prompt_toolkit.layout import Dimension
+from prompt_toolkit.layout import Float
+from prompt_toolkit.layout.containers import HSplit, VSplit, Window, WindowAlign, ConditionalContainer
+from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
+from prompt_toolkit.layout.dimension import D
+from prompt_toolkit.layout.layout import Layout
+from prompt_toolkit.layout.menus import CompletionsMenu
+from prompt_toolkit.lexers import Lexer
+from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.selection import SelectionType
+from prompt_toolkit.styles import Style
+from prompt_toolkit.styles.named_colors import NAMED_COLORS
+from prompt_toolkit.widgets import Box, Dialog, Label, Button
+from prompt_toolkit.widgets import HorizontalLine
+from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
+
 from packaging.version import parse as parse_version
 
 import shutil
@@ -74,8 +73,6 @@ from pygments.token import Keyword
 from pygments.token import Literal
 from pygments.token import Operator
 from pygments.token import Comment
-from prompt_toolkit.styles import Style
-from prompt_toolkit.lexers import PygmentsLexer
 
 
 class UpdateStatus():
