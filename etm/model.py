@@ -7215,7 +7215,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                         }
                     )
 
-            else:
+            else: # not a task with jobs
                 dateonly = False
                 sort_dt = dt.strftime("%Y%m%d%H%m")
                 if sort_dt.endswith('0000'):
@@ -7247,9 +7247,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 wrap = []
                 before = after = {}
                 wrapped = ""
+                has_w = False
                 if 'w' in item and dta and dtb:
                     # adjust for wrap
                     # ic(item['w'])
+                    has_w = True
                     if len(item['w']) == 2:
                         b, a = item['w']
                         if b:
@@ -7274,7 +7276,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
 
                     if b and b > ZERO:
                         itemtype = wrapbefore #  "↱"
-                        sort_b = (dt).strftime("%Y%m%d%H%M")
+                        sort_b = (dt-ONEMIN).strftime("%Y%m%d%H%M")
                         rhb = fmt_time(dtb).center(rhc_width, ' ')
                         before = {
                                     'id': doc_id,
@@ -7348,18 +7350,17 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                 break
                 else:
                     busyperiod = None
-
                 tmp_summary = set_summary(summary, item['s'], dt, freq)
-                # ic(tmp_summary)
 
                 columns = [item['itemtype'],
-                                tmp_summary+"^",
+                                tmp_summary,
                                 flags,
                                 rhc,
                                 (doc_id, instance, None)
                                 ]
 
                 path = f"{wk_fmt}/{dayDM}**"
+                sort_dt = (dt).strftime("%Y%m%d%H%M")
 
                 rows.append(
                         {
@@ -7389,9 +7390,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                             'columns': columns
                         }
                     )
-
+                
                 if after:
                     rows.append(after)
+                if has_w:
+                    ic(rows[-4:]) 
+                    # ic(tmp_summary)
+
 
     if yw == getWeekNum(now):
         rows.extend(current)
