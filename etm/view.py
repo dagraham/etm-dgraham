@@ -39,14 +39,15 @@ from packaging.version import parse as parse_version
 import shutil
 from shlex import split as qsplit
 import time
+from datetime import datetime, date, timedelta
 
 import requests
 import asyncio
 
-import pendulum
-from pendulum import parse as pendulum_parse
-def parse(s, **kwd):
-    return pendulum_parse(s, strict=False, **kwd)
+# import pendulum
+# from pendulum import parse as pendulum_parse
+# def parse(s, **kwd):
+#     return pendulum_parse(s, strict=False, **kwd)
 
 import re
 import subprocess # for check_output
@@ -102,6 +103,55 @@ class TDBLexer(RegexLexer):
                 ],
             }
 
+def duration_in_words(obj):
+    """
+    Return string representing weeks, days, hours and minutes. Drop any remaining seconds.
+    >>> td = timedelta(weeks=1, days=2, hours=3, minutes=27)
+    >>> format_duration(td)
+    '1 week 2 days 3 hours 27 minutes'
+    """
+    if not isinstance(obj, timedelta):
+        return None
+    try:
+        until =[]
+        seconds = int(obj.total_seconds())
+        weeks = days = hours = minutes = 0
+        if seconds:
+            minutes = seconds // 60
+            if minutes >= 60:
+                hours = minutes // 60
+                minutes = minutes % 60
+            if hours >= 24:
+                days = hours // 24
+                hours = hours % 24
+            if days >= 7:
+                weeks = days // 7
+                days = days % 7
+        if weeks:
+            if weeks > 1:
+                until.append(f"{weeks} weeks")
+            else:
+                until.append(f"{weeks} week")
+        if days:
+            if days > 1:
+                until.append(f"{days} days")
+            else:
+                until.append(f"{days} day")
+        if hours:
+            if hours > 1:
+                until.append(f"{hours} hours")
+            else:
+                until.append(f"{hours} hour")
+        if minutes:
+            if minutes > 1:
+                until.append(f"{minutes} minutes")
+            else:
+                until.append(f"{minutes} minute")
+        if not until:
+            until.append("zero minutes")
+        return " ".join(until)
+    except Exception as e:
+        return None
 
 def format_week(dt, fmt="WWW"):
     """
@@ -115,8 +165,10 @@ def format_week(dt, fmt="WWW"):
 
     mfmt = "MMMM D" if fmt == "WWWW" else "MMM D"
 
-    wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
-    wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
+    wkbeg = datetime.strptime(f"{dt_year} {str(dt_week)} 1", '%Y %W %w').date()
+    wkend = datetime.strptime(f"{dt_year} {str(dt_week)} 0", '%Y %W %w').date()
+    # wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
+    # wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
     week_begin = wkbeg.format(mfmt)
     if wkbeg.month == wkend.month:
         week_end = wkend.format("D")
@@ -187,7 +239,7 @@ class ETMQuery(object):
                     res = re.sub(rgx, rep, item[a], flags=re.IGNORECASE)
                 if res != item[a]:
                     item[a] = res
-                    item['modified'] = pendulum.now('local')
+                    item['modified'] = datetime.now().astimezone()
                     changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -234,7 +286,7 @@ class ETMQuery(object):
         for item in items:
             if a in item:
                 del item[a]
-                item['modified'] = pendulum.now('local')
+                item['modified'] = datetime.now().astimezone()
                 changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -249,7 +301,7 @@ class ETMQuery(object):
         b = re.sub('\\\s', ' ', b)
         for item in items:
             item[a] = b
-            item['modified'] = pendulum.now('local')
+            item['modified'] = datetime.now().astimezone()
             changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -263,7 +315,7 @@ class ETMQuery(object):
         b = re.sub('\\\s', ' ', b)
         for item in items:
             item.setdefault(a, b)
-            item['modified'] = pendulum.now('local')
+            item['modified'] = datetime.now().astimezone()
             changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -279,11 +331,11 @@ class ETMQuery(object):
         for item in items:
             if a not in item:
                 item.setdefault(a, []).append(b)
-                item['modified'] = pendulum.now('local')
+                item['modified'] = datetime.now().astimezone()
                 changed.append(item)
             elif isinstance(item[a], list) and b not in item[a]:
                 item.setdefault(a, []).append(b)
-                item['modified'] = pendulum.now('local')
+                item['modified'] = datetime.now().astimezone()
                 changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -298,7 +350,7 @@ class ETMQuery(object):
         for item in items:
             if a in item and isinstance(item[a], list) and b in item[a]:
                 item[a].remove(b)
-                item['modified'] = pendulum.now('local')
+                item['modified'] = datetime.now().astimezone()
                 changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -306,10 +358,10 @@ class ETMQuery(object):
 
 
     def is_datetime(self, val):
-        return isinstance(val, pendulum.DateTime)
+        return isinstance(val, datetime)
 
     def is_date(self, val):
-        return isinstance(val, pendulum.Date) and not isinstance(val, pendulum.DateTime)
+        return isinstance(val, date) and not isinstance(val, datetime)
 
     def maybe_equal(self, val, args):
         """
@@ -317,7 +369,7 @@ class ETMQuery(object):
         """
         args = args.split("-")
         # args = list(args)
-        if not isinstance(val, pendulum.Date):
+        if not isinstance(val, date):
             # neither a date or a datetime
             return False
         if args and val.year != int(args.pop(0)):
@@ -326,7 +378,7 @@ class ETMQuery(object):
             return False
         if args and val.day != int(args.pop(0)):
             return False
-        if isinstance(val, pendulum.DateTime):
+        if isinstance(val, datetime):
             # val has hours and minutes
             if args and val.hour != int(args.pop(0)):
                 return False
@@ -340,7 +392,7 @@ class ETMQuery(object):
         """
         args = args.split("-")
         # args = list(args)
-        if not isinstance(val, pendulum.Date):
+        if not isinstance(val, date):
             # neither a date or a datetime
             return False
         if args and not val.year >= int(args.pop(0)):
@@ -349,7 +401,7 @@ class ETMQuery(object):
             return False
         if args and not val.day >= int(args.pop(0)):
             return False
-        if isinstance(val, pendulum.DateTime):
+        if isinstance(val, datetime):
             # val has hours and minutes
             if args and not val.hour >= int(args.pop(0)):
                 return False
@@ -363,7 +415,7 @@ class ETMQuery(object):
         """
         args = args.split("-")
         # args = list(args)
-        if not isinstance(val, pendulum.Date):
+        if not isinstance(val, date):
             # neither a date or a datetime
             return False
         if args and not val.year <= int(args.pop(0)):
@@ -372,7 +424,7 @@ class ETMQuery(object):
             return False
         if args and not val.day <= int(args.pop(0)):
             return False
-        if isinstance(val, pendulum.DateTime):
+        if isinstance(val, datetime):
             # val has hours and minutes
             if args and not val.hour <= int(args.pop(0)):
                 return False
@@ -964,7 +1016,7 @@ def add_usedtime(*event):
             'p': "paused",
             }
 
-    now = pendulum.now('local')
+    now = datetime.now().astimezone()
     if doc_id in dataview.timers:
         title = 'active timer - record used time and end timer'
         state, start, elapsed = dataview.timers[doc_id]
@@ -1029,7 +1081,7 @@ def add_usedtime(*event):
     asyncio.ensure_future(coroutine())
 
 
-today = pendulum.today()
+today = datetime.today()
 calyear = today.year
 calmonth = today.month
 
@@ -1303,7 +1355,7 @@ def item_changed(loop):
         else:
             state = 'r'
             dataview.active_timer = item.doc_id
-        dataview.timers[item.doc_id] = [state, pendulum.now('local'), pendulum.Duration()]
+        dataview.timers[item.doc_id] = [state, datetime.now().astimezone(), timedelta()]
     dataview.get_completions()
     dataview.update_konnections(item)
     data_changed(loop)
@@ -1332,7 +1384,7 @@ async def new_day(loop):
     logger.info(f"new_day currentYrWk: {dataview.currentYrWk}")
     return True
 
-current_datetime = pendulum.now('local')
+current_datetime = datetime.now().astimezone()
 
 async def save_timers():
     dataview.save_timers()
@@ -1341,12 +1393,12 @@ async def save_timers():
 def alerts():
     # alerts = []
     alert_hsh = {}
-    now = pendulum.now('local')
+    now = datetime.now().astimezone()
     #            0            1         2          3         4       5
     # alerts: alert time, start time, commands, itemtype, summary, doc_id
     for alert in dataview.alerts:
-        trigger_time = pendulum.instance(alert[0])
-        start_time = pendulum.instance(alert[1])
+        trigger_time = alert[0]
+        start_time = alert[1]
         if start_time.date() == now.date():
             start = format_time(start_time)[1]
         else:
@@ -1397,20 +1449,20 @@ async def maybe_alerts(now):
     for alert in dataview.alerts:
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
             alertdt = alert[0]
-            if not isinstance(alertdt, pendulum.DateTime):
-                # rrule produces datetime.datetime objects
-                alertdt = pendulum.instance(alertdt)
+            # if not isinstance(alertdt, datetime):
+            #     # rrule produces datetime.datetime objects
+            #     alertdt = alertdt
             startdt = alert[1]
-            if not isinstance(startdt, pendulum.DateTime):
-                # rrule produces datetime.datetime objects
-                startdt = pendulum.instance(startdt)
+            # if not isinstance(startdt, datetime):
+            #     # rrule produces datetime.datetime objects
+            #     startdt = pendulum.instance(startdt)
             # when = startdt.diff_for_humans()
             if startdt > alertdt:
-                when = f"in {(startdt-alertdt).in_words()}"
+                when = f"in {duration_in_words(startdt-alertdt)}"
             elif startdt == alertdt:
                 when = f"now"
             else:
-                when = f"{(alertdt-startdt).in_words()} ago"
+                when = f"{duration_in_words(alertdt-startdt)} ago"
             start = format_datetime(startdt)[1]
             time = format_time(startdt)[1] if startdt.date() == today.date() else format_datetime(startdt, short=True)[1]
             summary = alert[4]
@@ -1446,7 +1498,7 @@ async def event_handler():
 
     try:
         while True:
-            now = pendulum.now('local')
+            now = datetime.now().astimezone()
             current_datetime = status_time(now)
             wait = refresh_interval - now.second % refresh_interval # residual
             if now.second < 6:
@@ -1952,7 +2004,7 @@ def do_reschedule(*event):
     if instance is None and 's' in hsh:
         instance = hsh['s']
 
-    is_date = (isinstance(instance, pendulum.Date) and not isinstance(instance, pendulum.DateTime))
+    is_date = (isinstance(instance, date) and not isinstance(instance, datetime))
 
     date_required = is_date or (instance.hour == 0 and instance.minute == 0)
 
@@ -2128,7 +2180,7 @@ def maybe_delete_timer(*event):
 
     state, start, elapsed = dataview.timers[doc_id]
     if state == 'r':
-        now = pendulum.now('local')
+        now = datetime.now().astimezone()
         elapsed += now - start
         start = now
     timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}\n\nWARNING: The timer's data will be lost.\nAre you sure you want to delete this timer?"
@@ -2278,7 +2330,7 @@ number : datetime\
     elif repeating:
         # must be selected from today's pastdue or beginby
         already_done = [x.end for x in hsh.get('h', [])]
-        between = [x[0] for x in model.item_instances(hsh, model.date_to_datetime(hsh['s']), pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
+        between = [x[0] for x in model.item_instances(hsh, model.date_to_datetime(hsh['s']), datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
         if between:
             # show_message('Finish', "There is nothing to complete.")
             need = 2
@@ -2576,7 +2628,7 @@ def refresh_views(*event):
 
 @bindings.add('c-t', filter=is_viewing & is_item_view)
 def quick_timer(*event):
-    now = format_datetime(pendulum.now(), short=True)[1]
+    now = format_datetime(datetime.now(), short=True)[1]
     def coroutine():
         dialog = TextInputDialog(
             title='Quick timer summary',
@@ -2589,7 +2641,7 @@ def quick_timer(*event):
             item_hsh = {
                     'itemtype': '!',
                     'summary': summary,
-                    'created': pendulum.now('UTC')
+                    'created': datetime.now().astimezone(timezone('UTC'))
                     }
 
             doc_id = ETMDB.insert(item_hsh)

@@ -382,7 +382,7 @@ which will need to be created.
         logger.info(f"calling view.main with etmdir: {etmdir}")
         from etm.view import main
         import asyncio
-        asyncio.run(main(etmdir))
+        asyncio.run(main(etmdir), debug=True)
 
 def inbasket():
     import sys

@@ -36,24 +36,24 @@ for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
     WKDAYS_ENCODE[wkd] = wkd
 
 
-def parse(s, **kwd):
-    ## enable pi when read by main
-    pi = dateutil.parser.parserinfo(
-            dayfirst=settings['dayfirst'],
-            yearfirst=settings['yearfirst']
-            )
-    dt = dateutil_parse(s, parserinfo=pi)
-    dt = dateutil_parse(s)
-    if 'tzinfo' in kwd:
-        tzinfo = kwd['tzinfo']
-        if tzinfo == 'float':
-            return dt
-        elif tzinfo == 'local':
-            return dt.astimezone()
-        else:
-            return timezone(tzinfo).localize(dt)
-    else:
-        return dt.astimezone()
+# def parse(s, **kwd):
+#     ## enable pi when read by main
+#     pi = dateutil.parser.parserinfo(
+#             dayfirst=settings['dayfirst'],
+#             yearfirst=settings['yearfirst']
+#             )
+#     dt = dateutil_parse(s, parserinfo=pi)
+#     dt = dateutil_parse(s)
+#     if 'tzinfo' in kwd:
+#         tzinfo = kwd['tzinfo']
+#         if tzinfo == 'float':
+#             return dt
+#         elif tzinfo == 'local':
+#             return dt.astimezone()
+#         else:
+#             return timezone(tzinfo).localize(dt)
+#     else:
+#         return dt.astimezone()
 
 def is_aware(dt):
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
@@ -133,24 +133,24 @@ class Period:
     def __repr__(self):
         return f"Period({encode_datetime(self.start)} -> {encode_datetime(self.end)}, {normalize_timedelta(self.diff)})"
 
-# Usage:
-period = Period(
-        parse('Fri 2:00p').replace(tzinfo=None),
-        parse('Sat 9:00a').replace(tzinfo=None)
-        )
-print(period)
+# # Usage:
+# period = Period(
+#         parse('Fri 2:00p').replace(tzinfo=None),
+#         parse('Sat 9:00a').replace(tzinfo=None)
+#         )
+# print(period)
 
-period = Period(
-        parse('Fri 2:00p', tzinfo='US/Eastern'),
-        parse('Sat 9:00a', tzinfo='US/Pacific')
-        )
-print(period)
+# period = Period(
+#         parse('Fri 2:00p', tzinfo='US/Eastern'),
+#         parse('Sat 9:00a', tzinfo='US/Pacific')
+#         )
+# print(period)
 
-period = Period(
-        parse('Sat 9:00a', tzinfo='US/Pacific'),
-        parse('Fri 2:00p', tzinfo='US/Eastern')
-        )
-print(period)
+# period = Period(
+#         parse('Sat 9:00a', tzinfo='US/Pacific'),
+#         parse('Fri 2:00p', tzinfo='US/Eastern')
+#         )
+# print(period)
 
 
 

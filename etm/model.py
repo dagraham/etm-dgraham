@@ -28,18 +28,25 @@ import pickle
 from icecream import ic
 
 from warnings import filterwarnings
+
 def parse(s, **kwd):
+    ## enable pi when read by main and settings is available
     pi = dateutil.parser.parserinfo(
             dayfirst=settings['dayfirst'],
             yearfirst=settings['yearfirst']
             )
     dt = dateutil_parse(s, parserinfo=pi)
+    dt = dateutil_parse(s)
     if 'tzinfo' in kwd:
-        tz = kwd['tzinfo']
-        dt = dt.replace(tzinfo=tz)
+        tzinfo = kwd['tzinfo']
+        if tzinfo == 'float':
+            return dt
+        elif tzinfo == 'local':
+            return dt.astimezone()
+        else:
+            return timezone(tzinfo).localize(dt)
     else:
-        dt = dt.astimezone() # use the system local timezone
-    return dt
+        return dt.astimezone()
 
 import sys
 import re
@@ -1845,15 +1852,17 @@ def format_duration(obj, short=False):
     >>> format_duration(td)
     '1w2d3h27m'
     """
-    if not (isinstance(obj, Period) or isinstance(obj, timedelta)):
-        ic(obj)
+    # if not (isinstance(obj, Period) or isinstance(obj, timedelta)):
+    if not isinstance(obj, timedelta):
+        # ic(obj)
         return None
     hours = obj.total_seconds()//(60*60)
     try:
         until =[]
         weeks = days = hours = minutes = 0
-        if obj.total_seconds:
-            minutes = obj.total_seconds // 60
+        seconds = int(obj.total_seconds())
+        if seconds:
+            minutes = seconds // 60
             if minutes >= 60:
                 hours = minutes // 60
                 minutes = minutes % 60
@@ -1953,6 +1962,7 @@ def fmt_dur(obj):
     except Exception as e:
         return None
 
+
 def fmt_period(obj):
     if not isinstance(obj, Period):
         return None
@@ -1995,8 +2005,8 @@ def format_duration_list(obj_lst):
         logger.error(f"{obj_lst}: {e}")
 
 
-period_regex = re.compile(r'(([+-]?)(\d+)([wdhmMys]))+?')
-expanded_period_regex = re.compile(r'(([+-]?)(\d+)\s(week|day|hour|minute|month|year)s?)+?')
+period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
+expanded_period_regex = re.compile(r'(([+-]?)(\d+)\s(week|day|hour|minute)s?)+?')
 relative_regex = re.compile(r'(([+-])(\d+)([wdhmMys]))+?')
 threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
 anniversary_regex = re.compile(r'!(\d{4})!')
@@ -2048,10 +2058,6 @@ def parse_duration(s):
     """
 
     knms = {
-            'y': 'years',
-            'M': 'months',
-            'month': 'months',
-            'months': 'months',
             'w': 'weeks',
             'week': 'weeks',
             'weeks': 'weeks',
@@ -2064,19 +2070,13 @@ def parse_duration(s):
             'm': 'minutes',
             'minute': 'minutes',
             'minutes': 'minutes',
-            's': 'seconds',
-            'second': 'seconds',
-            'seconds': 'seconds'
             }
 
     kwds = {
-            'years': 0,
-            'months': 0,
             'weeks': 0,
             'days': 0,
             'hours': 0,
             'minutes': 0,
-            'seconds': 0
             }
 
     m = period_regex.findall(str(s))
@@ -2091,6 +2091,7 @@ def parse_duration(s):
         num = -int(g[2]) if g[1] == '-' else int(g[2])
         if num:
             kwds[knms[g[3]]] = num
+    ic(kwds)
     td = timedelta(**kwds)
 
     return True, td
@@ -7009,7 +7010,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         extent = item.get('e', None)
         wraps = item.get('w', [])
         if wraps:
-            ic(wraps)
+            ic((summary, wraps))
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
         used = item.get('u', None)
         finished = item.get('f', None)
@@ -7248,7 +7249,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 wrapped = ""
                 if 'w' in item and dta and dtb:
                     # adjust for wrap
-                    ic(item['w'])
+                    # ic(item['w'])
                     if len(item['w']) == 2:
                         b, a = item['w']
                         if b:
@@ -7349,10 +7350,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     busyperiod = None
 
                 tmp_summary = set_summary(summary, item['s'], dt, freq)
-                ic(tmp_summary)
+                # ic(tmp_summary)
 
                 columns = [item['itemtype'],
-                                tmp_summary,
+                                tmp_summary+"^",
                                 flags,
                                 rhc,
                                 (doc_id, instance, None)
