@@ -38,11 +38,11 @@ for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
 
 def parse(s, **kwd):
     ## enable pi when read by main
-    # pi = dateutil.parser.parserinfo(
-    #         dayfirst=settings['dayfirst'],
-    #         yearfirst=settings['yearfirst']
-    #         )
-    # dt = dateutil_parse(s, parserinfo=pi))
+    pi = dateutil.parser.parserinfo(
+            dayfirst=settings['dayfirst'],
+            yearfirst=settings['yearfirst']
+            )
+    dt = dateutil_parse(s, parserinfo=pi)
     dt = dateutil_parse(s)
     if 'tzinfo' in kwd:
         tzinfo = kwd['tzinfo']
