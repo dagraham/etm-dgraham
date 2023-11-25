@@ -12,7 +12,8 @@ from datetime import tzinfo
 from datetime import timedelta
 import dateutil
 import dateutil.rrule
-from dateutil import tz
+from zoneinfo import ZoneInfo
+# from dateutil import tz
 from dateutil.parser import parse as dateutil_parse
 from dateutil.rrule import *
 import re
@@ -71,9 +72,9 @@ def decode_datetime(s):
         # print(f"{s[-1] in 'AN'}, {len(s) == 14}")
         raise ValueError(f"{s} is not a datetime string")
     if s[-1] == 'A':
-        return datetime.strptime(s, AWARE_FMT).astimezone(pytz.timezone('UTC')).astimezone(tz.tzlocal())
+        return datetime.strptime(s, AWARE_FMT).astimezone(timezone('UTC')).astimezone()
     else:
-        return datetime.strptime(s, NAIVE_FMT).astimezone(tz.tzlocal())
+        return datetime.strptime(s, NAIVE_FMT).astimezone()
 
 
 def normalize_timedelta(delta):
@@ -172,14 +173,14 @@ class DateTimeSerializer(Serializer):
         """
         Serialize naive objects (Z == '') without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
         >>> dts = DateTimeSerializer()
-        >>> dts.encode(datetime(2018,7,25,10, 27).naive())
+        >>> dts.encode(datetime(2018,7,25,10,27).naive())
         '20180725T1027N'
-        >>> dts.encode(datetime(2018,7,25,10, 27, tz='US/Eastern'))
+        >>> dts.encode(datetime(2018,7,25,10,27, tz='US/Eastern'))
         '20180725T1427A'
         """
         return encode_datetime(obj)
         # if is_aware(obj):
-        #     return obj.astimezone(pytz.timezone('UTC')).strftime(AWARE_FMT)
+        #     return obj.astimezone(ZoneInfo('UTC')).strftime(AWARE_FMT)
         # else:
         #     return obj.strftime(NAIVE_FMT)
 
@@ -193,9 +194,10 @@ class DateTimeSerializer(Serializer):
         DateTime(2018, 7, 25, 10, 27, 0, tzinfo=Timezone('America/New_York'))
         """
         if s[-1] == 'A':
-            return datetime.strptime(s, AWARE_FMT).astimezone(pytz.timezone('UTC')).astimezone(tz.tzlocal())
+            # return datetime.strptime(s, AWARE_FMT).astimezone(timezone('UTC')).astimezone()
+            return datetime.strptime(s, AWARE_FMT).replace(tzinfo=ZoneInfo('UTC')).astimezone()
         else:
-            return datetime.strptime(s, NAIVE_FMT).astimezone(tz.tzlocal())
+            return datetime.strptime(s, NAIVE_FMT).astimezone()
 
 
 class DateSerializer(Serializer):

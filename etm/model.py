@@ -36,7 +36,6 @@ def parse(s, **kwd):
             yearfirst=settings['yearfirst']
             )
     dt = dateutil_parse(s, parserinfo=pi)
-    dt = dateutil_parse(s)
     if 'tzinfo' in kwd:
         tzinfo = kwd['tzinfo']
         if tzinfo == 'float':
@@ -1586,7 +1585,7 @@ def parse_datetime(s, z=None):
             dt_str = s
 
         if dt_str:
-            dt = datetime.now(tz=tzinfo) if dt_str.strip() == 'now' else parse(dt_str, tzinfo=tzinfo)
+            dt = datetime.now().astimezone() if dt_str.strip() == 'now' else parse(dt_str, tzinfo=tzinfo)
         else:
             dt = datetime.now(tz=tzinfo)
             if dur_str and re.search(r'[dwM]', dur_str):
@@ -1934,7 +1933,7 @@ def fmt_dur(obj):
         return None
     try:
         until =[]
-        seconds = obj.total_seconds()
+        seconds = int(obj.total_seconds())
         weeks = days = hours = minutes = 0
         if seconds:
             minutes = seconds // 60
@@ -2091,7 +2090,7 @@ def parse_duration(s):
         num = -int(g[2]) if g[1] == '-' else int(g[2])
         if num:
             kwds[knms[g[3]]] = num
-    ic(kwds)
+    # ic(kwds)
     td = timedelta(**kwds)
 
     return True, td
@@ -7009,8 +7008,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         start = item.get('s', None)
         extent = item.get('e', None)
         wraps = item.get('w', [])
-        if wraps:
-            ic((summary, wraps))
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
         used = item.get('u', None)
         finished = item.get('f', None)
@@ -7135,6 +7132,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         end_dt = None
 
         for dt, et in item_instances(item, aft_dt, bef_dt):
+
+            if "Abby to Nell" in item['summary']:
+                print(dt, et)
+
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
             wk_fmt = fmt_week(week).center(width, ' ').rstrip()
@@ -7247,10 +7248,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 wrap = []
                 before = after = {}
                 wrapped = ""
-                has_w = False
                 if 'w' in item and dta and dtb:
                     # adjust for wrap
-                    # ic(item['w'])
                     has_w = True
                     if len(item['w']) == 2:
                         b, a = item['w']
@@ -7393,10 +7392,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 
                 if after:
                     rows.append(after)
-                if has_w:
-                    ic(rows[-4:]) 
-                    # ic(tmp_summary)
-
 
     if yw == getWeekNum(now):
         rows.extend(current)
