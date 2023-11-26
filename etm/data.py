@@ -7,7 +7,7 @@ from tinydb_serialization import SerializationMiddleware
 import base64  # for do_mask
 import pytz
 from pytz import timezone
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from datetime import tzinfo
 from datetime import timedelta
 import dateutil
@@ -179,10 +179,10 @@ class DateTimeSerializer(Serializer):
         '20180725T1427A'
         """
         return encode_datetime(obj)
-        # if is_aware(obj):
-        #     return obj.astimezone(ZoneInfo('UTC')).strftime(AWARE_FMT)
-        # else:
-        #     return obj.strftime(NAIVE_FMT)
+        if is_aware(obj):
+            return obj.astimezone(ZoneInfo('UTC')).strftime(AWARE_FMT)
+        else:
+            return obj.strftime(NAIVE_FMT)
 
     def decode(self, s):
         """
@@ -194,10 +194,9 @@ class DateTimeSerializer(Serializer):
         DateTime(2018, 7, 25, 10, 27, 0, tzinfo=Timezone('America/New_York'))
         """
         if s[-1] == 'A':
-            # return datetime.strptime(s, AWARE_FMT).astimezone(timezone('UTC')).astimezone()
             return datetime.strptime(s, AWARE_FMT).replace(tzinfo=ZoneInfo('UTC')).astimezone()
         else:
-            return datetime.strptime(s, NAIVE_FMT).astimezone()
+            return datetime.strptime(s, NAIVE_FMT).astimezone(None)
 
 
 class DateSerializer(Serializer):
@@ -209,7 +208,7 @@ class DateSerializer(Serializer):
     >>> ds.decode('20180725')
     Date(2018, 7, 25)
     """
-    OBJ_CLASS = datetime.date
+    OBJ_CLASS = date
 
     def encode(self, obj):
         """
@@ -428,7 +427,7 @@ def format_duration(obj):
     multiple of 60. Thus timedeltas can always be expressed using only weeks, days,
     hours and minutes.
     """
-    if not isinstance(obj, datetime.timedelta):
+    if not isinstance(obj, timedelta):
         raise ValueError(f"{obj} is not a timedelta instance")
     until =[]
     weeks = obj.days // 7

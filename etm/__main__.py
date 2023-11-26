@@ -270,6 +270,7 @@ which will need to be created.
     item = model.Item()
     format_time = model.format_time
     format_datetime = model.format_datetime
+    format_statustime = model.format_statustime
     format_duration = model.format_duration
     format_hours_and_tenths = model.format_hours_and_tenths
     # since dataview calls schedule it will also have settings
@@ -323,6 +324,7 @@ which will need to be created.
     view.about = about
     view.format_time = format_time
     view.format_datetime = format_datetime
+    view.format_statustime = format_statustime
     view.format_duration = format_duration
     view.parse_datetime = parse_datetime
     view.ETMDB = ETMDB
@@ -465,6 +467,7 @@ invoked.
     print(f"appended:\n   '{input}'\nto {inbasket}")
 
 if __name__ == "__main__":
-    main()
+    # main()
+    asyncio.get_event_loop().run_until_complete(main())
 
 

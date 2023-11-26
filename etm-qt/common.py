@@ -3,6 +3,7 @@ from dateutil.parser import parse as dateutil_parse
 from dateutil.parser import ParserError, parserinfo
 from datetime import datetime, date, timedelta
 from pytz import timezone
+from zoneinfo import ZoneInfo
 from icecream import ic
 import re
 import os
@@ -49,20 +50,20 @@ FMTS = {
     "DATE": '%y-%m-%d',
     "DATETIME": '%y-%m-%d %H:%M %Z',
 }
-def parse(s: str, z: str = 'local') -> (str | None, datetime):
+def parse(s: str, tzinfo: str = 'local') -> (str | None, datetime):
     """
-    Parse datetime string "s" applying "z" arguments and return a tuple containing a message describing the result and the python datetime object if successful and None otherwise.  
-    >>> dt = parse('2p 23-10-26', z = 'US/Pacific')
+    Parse datetime string "s" applying "tzinfo" arguments and return a tuple containing a message describing the result and the python datetime object if successful and None otherwise.  
+    >>> dt = parse('2p 23-10-26', tzinfo = 'US/Pacific')
     >>> dt[0]
     '23-10-26 14:00 PDT'
     >>> dt[1]
     datetime.datetime(2023, 10, 26, 14, 0, tzinfo=<DstTzInfo 'US/Pacific' PDT-1 day, 17:00:00 DST>)
-    >>> dt = parse('2p 23-10-26', z = 'local')
+    >>> dt = parse('2p 23-10-26', tzinfo = 'local')
     >>> dt[0]
     '23-10-26 14:00 EDT'
     >>> dt[1]
     datetime.datetime(2023, 10, 26, 14, 0, tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000), 'EDT'))
-    >>> dt = parse('2p 23-10-26', z = 'float')
+    >>> dt = parse('2p 23-10-26', tzinfo = 'float')
     >>> dt[0]
     '23-10-26 14:00'
     >>> dt[1]
@@ -102,13 +103,13 @@ def parse(s: str, z: str = 'local') -> (str | None, datetime):
         return (f"\"{s}\" is not yet a valid date or datetime", None)
     # we have a datetime object
     
-    if z:
-        if z == 'float':
+    if tzinfo:
+        if tzinfo == 'float':
             dt = dt.replace(tzinfo=None)
-        elif z == 'local':
+        elif tzinfo == 'local':
             dt = dt.astimezone()
         else:
-            dt = timezone(z).localize(dt)
+            dt.replace(tzinfo=ZoneInfo(tzinfo))
     else:
         dt = dt.astimezone()
     if dt.hour == dt.minute == dt.second == 0:
@@ -149,7 +150,7 @@ def add_zone_info(dt: datetime, zone: str = None) -> datetime:
 
 def truncate_datetime(dt: datetime) -> datetime:
     """ Remove seconds and microseconds from datetime.
-    >>> dt = parse('2:01:15p 23-10-26', z = 'local')
+    >>> dt = parse('2:01:15p 23-10-26', tzinfo = 'local')
     >>> dt[0]
     '23-10-26 14:01 EDT'
     >>> truncate_datetime(dt[1])

@@ -34,6 +34,7 @@ from prompt_toolkit.widgets import Box, Dialog, Label, Button
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
 
+
 from packaging.version import parse as parse_version
 
 import shutil
@@ -753,7 +754,6 @@ class RadioListDialog(object):
     def __pt_container__(self):
         return self.dialog
 
-
 class MessageDialog(object):
     def __init__(self, title="", text="", padding=10):
         self.future = asyncio.Future()
@@ -774,7 +774,6 @@ class MessageDialog(object):
 
     def __pt_container__(self):
         return self.dialog
-
 
 class ConfirmDialog(object):
     def __init__(self, title="", text="", padding=10):
@@ -1579,7 +1578,7 @@ def get_edit_mode():
 
 
 def get_statusbar_text():
-    return [ ('class:status',  f' {current_datetime}'), ]
+    return [ ('class:status',  f' {format_statustime(current_datetime)}'), ]
 
 def get_statusbar_center_text():
     if dataview.is_editing:
@@ -3234,7 +3233,9 @@ async def main(etmdir=""):
     background_task = asyncio.create_task(event_handler())
     timer_view.stop()
     try:
-        await application.run_async()
+        result = await application.run_async()
+        # print(result)
+        
     finally:
         background_task.cancel()
         logger.info("Quitting event loop.")

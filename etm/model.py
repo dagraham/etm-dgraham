@@ -22,6 +22,7 @@ from dateutil.parser import parse as dateutil_parse
 from dateutil.tz import gettz
 from datetime import datetime, date, timedelta
 from pytz import timezone
+from zoneinfo import ZoneInfo
 
 # for saving timers
 import pickle
@@ -39,11 +40,11 @@ def parse(s, **kwd):
     if 'tzinfo' in kwd:
         tzinfo = kwd['tzinfo']
         if tzinfo == 'float':
-            return dt
+            return dt.replace(tzinfo=None)
         elif tzinfo == 'local':
             return dt.astimezone()
         else:
-            return timezone(tzinfo).localize(dt)
+            return dt.replace(tzinfo=ZoneInfo(tzinfo))
     else:
         return dt.astimezone()
 
@@ -656,6 +657,7 @@ item_hsh:    {self.item_hsh}
 
     def do_update(self):
         timer_update = TimeIt('***UPDATE***')
+        logger.debug(f"updating item_hsh: {self.item_hsh}")
         self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         timer_update.stop()
 
@@ -1022,6 +1024,7 @@ item_hsh:    {self.item_hsh}
         cur_hsh = {}
         cur_key = None
         msg = []
+        logger.debug(f"pos_hsh: {self.pos_hsh}")
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if obj is None:
@@ -1074,6 +1077,8 @@ item_hsh:    {self.item_hsh}
         if msg:
             msg = "\n".join(msg)
             logger.debug(f"{msg}")
+            
+        logger.debug(f"item_hsh: {self.item_hsh}")
 
         return msg
 
@@ -1090,11 +1095,12 @@ item_hsh:    {self.item_hsh}
 
 
         if self.is_modified and not msg:
-            now = datetime.now('local')
+            now = datetime.now().astimezone()
             if self.is_new:
                 # creating a new item or editing a copy of an existing item
                 self.item_hsh['created'] = now
                 if self.doc_id is None:
+                    logger.debug(f"item_hsh: {self.item_hsh}")
                     self.doc_id = self.db.insert(self.item_hsh)
                 else:
                     self.do_update()
@@ -1565,6 +1571,7 @@ def parse_datetime(s, z=None):
 
     try:
         s = s.strip()
+        logger.debug(f"s: {s}")
         if s == 'now':
             return True, datetime.now(tz=tzinfo), z
 
@@ -1593,6 +1600,7 @@ def parse_datetime(s, z=None):
 
         dur = parse_duration(dur_str)[1] if dur_str else ZERO
         res = dt + dur
+        logger.debug(f"res: {res}")
 
     except Exception as e:
         return False, f"'{s}' is incomplete or invalid: {e}", z
@@ -1603,7 +1611,7 @@ def parse_datetime(s, z=None):
             res.second,
             res.microsecond,
         ) == (0, 0, 0, 0):
-            return 'date', res.replace(tzinfo='Factory').date(), z
+            return 'date', res.astimezone(), z
         elif ok == 'aware':
             return ok, res.astimezone(timezone('UTC')), z
         else:
@@ -1678,6 +1686,16 @@ def format_date(obj):
         return False, ""
     else:
         return True, obj.strftime(date_fmt)
+
+def format_statustime(obj):
+    ampm = settings.get('ampm', True)
+    dayfirst = settings.get('dayfirst', False)
+    yearfirst = settings.get('yearfirst', False)
+    month = obj.strftime("%b")
+    day = obj.strftime("%d").lstrip("0")
+    hourminutes = obj.strftime("%I:%M%p").lstrip("0").lower() if ampm else obj.strftime("%H:%M")
+    monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
+    return f"{hourminutes} {monthday}"
 
 
 def format_datetime(obj, short=False):
@@ -6001,12 +6019,12 @@ def relevant(db, now=datetime.now(), pinned_list=[], link_list=[], konnect_list=
 
     for item in pastdue:
         item_0 = str(item[0]) if item[0] in item else ""
-        rhc = item_0.center(rhc_width, ' ')
+        rhc = item_0
         doc_id = item[2]
         job_id = item[3] if item[3] else ""
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
         try:
-            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', item[1], flags, rhc, (doc_id, item[4], item[3])]})
+            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', f'{rhc + " " if rhc else ""}{item[1]}', flags, '', (doc_id, item[4], item[3])]})
         except Exception as e:
             logger.warning(f"could not append item: {item}; e: {e}")
 
@@ -6015,10 +6033,10 @@ def relevant(db, now=datetime.now(), pinned_list=[], link_list=[], konnect_list=
             item_0 = str(item[0]) if item[0] <= 0 else f"+{item[0]}"
         else:
             item_0 = ""
-        rhc = item_0.center(rhc_width, ' ')
+        rhc = item_0 + " " if item[0] else ""
         doc_id = item[2]
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
-        current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begby_fmt, 3, item[0]), 'week': week, 'day': day, 'columns': ['>', item[1], flags, rhc, doc_id]})
+        current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begby_fmt, 3, item[0]), 'week': week, 'day': day, 'columns': ['>', rhc+item[1], flags, '', doc_id]})
 
     return current, alerts, id2relevant, dirty
 
@@ -6867,7 +6885,8 @@ def no_busy_periods(week, width):
     monday = datetime.strptime(f'{week[0]} {week[1]} 0', '%Y %W %w')
     DD = {}
     for i in range(1, 8):
-        DD[i] = f"{WA[i]} {monday.add(days=i-1).strftime('D')}".ljust(5, ' ')
+        # DD[i] = f"{WA[i]} {monday.add(days=i-1).strftime('D')}".ljust(5, ' ')
+        DD[i] = f"{WA[i]} {(monday + timedelta(days=i-1)).strftime('D')}".ljust(5, ' ')
 
     h = {}
     h[0] = '  '
@@ -6959,6 +6978,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
     rhc_width = 15 if ampm else 11
     flag_width = 6
     indent_to_summary = 6
+    #TODO: set these for rhc on the left
     current_summary_width = current_width - indent_to_summary - rhc_width
     summary_width = width - indent_to_summary - flag_width - rhc_width
 
@@ -7097,7 +7117,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                         dt = datetime(dt.year, dt.month, dt.day).astimezone()
                         # dt.set(hour=23, minute=59, second=59)
 
-                    rhc = str(row[3]) if len(row) > 3 else ""
+                    rhc = str(row[3]) + " " if len(row) > 3 else ""
                     if dt < aft_dt or dt > bef_dt:
                         continue
 
@@ -7114,9 +7134,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                     dt.strftime(wkday_fmt),
                                     ),
                                 'columns': [FINISHED_CHAR,
-                                    row[1],
+                                    f'{rhc}{row[1]}',
                                     flags,
-                                    rhc,
+                                    '',
                                     (row[2], None, row[3])
                                     ],
                             }
@@ -7132,9 +7152,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         end_dt = None
 
         for dt, et in item_instances(item, aft_dt, bef_dt):
-
-            if "Abby to Nell" in item['summary']:
-                print(dt, et)
 
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
@@ -7188,7 +7205,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     job_id = job.get('i', None)
                     job_sort = str(job_id)
 
-                    rhc = fmt_time(dt).center(rhc_width, ' ')
+                    # rhc = fmt_time(dt).center(rhc_width, ' ')
+                    rhc = fmt_time(dt)
                     rows.append(
                         {
                             'id': doc_id,
@@ -7208,9 +7226,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                 jobstart.strftime(wkday_fmt),
                                 ),
                             'columns': [job['status'],
-                                set_summary(job_summary, start,  jobstart, freq),
+                                set_summary(f'{rhc} {job_summary}', start,  jobstart, freq),
                                 flags,
-                                rhc,
+                                "", #rhc,
                                 (doc_id, instance, job_id)
                                 ]
                         }
@@ -7231,14 +7249,15 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 if 'e' in item:
                     if omit and 'c' in item and item['c'] in omit:
                         et = None
-                        rhc = fmt_time(dt).center(rhc_width, ' ')
+                        # rhc = fmt_time(dt).center(rhc_width, ' ')
+                        rhc = fmt_time(dt)
                     else:
                         if item['itemtype'] == '-' and dateonly:
-                            rhc = fmt_dur(item['e']).center(rhc_width, ' ')
+                            rhc = fmt_dur(item['e'])
                         else:
-                            rhc = fmt_extent(dt, et).center(rhc_width, ' ')
+                            rhc = fmt_extent(dt, et)
                 else:
-                    rhc = fmt_time(dt).center(rhc_width, ' ')
+                    rhc = fmt_time(dt)
 
                 dtb = dt
 
@@ -7257,7 +7276,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                             dtb -= b
                         if a:
                             dta += a
-                        wrapped = fmt_extent(dtb, dta).center(rhc_width, ' ')
+                        wrapped = fmt_extent(dtb, dta)
 
                         wrap = item['w']
                         wraps = [format_duration(x) for x in wrap] if wrap else ""
@@ -7276,7 +7295,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     if b and b > ZERO:
                         itemtype = wrapbefore #  "↱"
                         sort_b = (dt-ONEMIN).strftime("%Y%m%d%H%M")
-                        rhb = fmt_time(dtb).center(rhc_width, ' ')
+                        rhb = fmt_time(dtb)
                         before = {
                                     'id': doc_id,
                                     'job': None,
@@ -7292,9 +7311,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                         dtb.strftime(wkday_fmt),
                                         ),
                                     'columns': [itemtype,
-                                        set_summary("", item['s'], dtb, freq),
+                                        set_summary(rhb, item['s'], dtb, freq),
                                         " "*4,
-                                        rhb,
+                                        '',
                                         (doc_id, instance, None)
                                         ]
                                 }
@@ -7302,7 +7321,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     if a and a > ZERO:
                         itemtype = wrapafter  # "↳"
                         sort_a = (dt+ONEMIN).strftime("%Y%m%d%H%M")
-                        rha = fmt_time(dta).center(rhc_width, ' ')
+                        rha = fmt_time(dta)
                         after = {
                                     'id': doc_id,
                                     'job': None,
@@ -7318,9 +7337,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                         dta.strftime(wkday_fmt),
                                         ),
                                     'columns': [itemtype,
-                                        set_summary("", item['s'], dta, freq),
+                                        set_summary(rha, item['s'], dta, freq),
                                         " "*4,
-                                        rha,
+                                        "", # rha,
                                         (doc_id, instance, None)
                                         ]
                                 }
@@ -7350,11 +7369,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 else:
                     busyperiod = None
                 tmp_summary = set_summary(summary, item['s'], dt, freq)
-
+                rhc = rhc + " " if rhc else ""
                 columns = [item['itemtype'],
-                                tmp_summary,
+                                f'{rhc}{tmp_summary}',
                                 flags,
-                                rhc,
+                                '',
                                 (doc_id, instance, None)
                                 ]
 
