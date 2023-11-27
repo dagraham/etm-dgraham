@@ -1698,6 +1698,14 @@ def format_statustime(obj):
     monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
     return f"{hourminutes} {weekday} {monthday}"
 
+def format_wkday(obj):
+    dayfirst = settings.get('dayfirst', False)
+    yearfirst = settings.get('yearfirst', False)
+    month = obj.strftime("%b")
+    day = obj.strftime("%d").lstrip("0")
+    weekday = obj.strftime("%a")
+    monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
+    return f"{weekday} {monthday}"
 
 def format_datetime(obj, short=False):
     """
@@ -2179,7 +2187,7 @@ class NDict(dict):
             2) flags3
             3) rhc (a constant length and pre justified)
             4) doc_id
-
+/busy
         Leaf output will begin with indent, add a possibly truncated value 1, value 2 and value 3. The lengths of indent, value 2 and value 3 will be subtracted from screen width with the difference the space available for value 1 which will either be truncated or left fill justified accordingly.
         """
         keys = tkeys.split(self.split_char)
@@ -2222,30 +2230,32 @@ class NDict(dict):
                     leaf[0] = re.sub(' *\n+ *', ' ', leaf[0])
                     leaf[1] = re.sub(' *\n+ *', ' ', leaf[1])
                     if self.compact:
-                        summary_width = self.width - l_indent - 2 - len(leaf[3])
+                        summary_width = self.width - l_indent - 2 - len(leaf[2])
                     else:
-                        summary_width = self.width - l_indent - 2 - len(leaf[2]) - 2 - len(leaf[3])
-                    if settings['connecting_dots'] and (leaf[2].strip() or leaf[3].strip()):
-                        times = leaf[3].rstrip() if leaf[3].strip() else ''
-                        if self.compact:
-                            details = f" {times}".replace('   ', LINEDOT)
-                        else:
-                            details = f" {leaf[2]} {times}".replace('   ', LINEDOT)
-                        fill = summary_width - len(leaf[1])
-                        if fill < 0:
-                            summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR
-                        elif fill >= 3:
-                            pad = ' '*(fill%3) if fill%3 else ''
-                            summary = f"{leaf[1][:summary_width - 1]}{pad}{LINEDOT*(fill//3)}"
-                        else:
-                            summary = leaf[1][:summary_width - 1].ljust(summary_width, ' ')
-                        tmp = f"{indent}{leaf[0]} {summary}{details}"
+                        summary_width = self.width - l_indent - 2 - len(leaf[2])
+                    # if settings['connecting_dots'] and (leaf[2].strip() or leaf[3].strip()):
+                    #     times = leaf[3].rstrip() if leaf[3].strip() else ''
+                    #     if self.compact:
+                    #         details = f" {times}".replace('   ', LINEDOT)
+                    #     else:
+                    #         details = f" {leaf[2]} {times}".replace('   ', LINEDOT)
+                    #     fill = summary_width - len(leaf[1])
+                    #     if fill < 0:
+                    #         summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR
+                    #     elif fill >= 3:
+                    #         pad = ' '*(fill%3) if fill%3 else ''
+                    #         summary = f"{leaf[1][:summary_width - 1]}{pad}{LINEDOT*(fill//3)}"
+                    #     else:
+                    #         summary = leaf[1][:summary_width - 1].ljust(summary_width, ' ')
+                    #     tmp = f"{indent}{leaf[0]} {summary}{details}"
+                    # else:
+                    summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) > summary_width else leaf[1]
+                    flags = leaf[2].strip()
+                    flags = "❘" + flags + "❘" if flags else ""
+                    if self.compact:
+                        tmp = f"{indent}{leaf[0]} {summary} {flags}"
                     else:
-                        summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) > summary_width else leaf[1].ljust(summary_width-1, ' ')
-                        if self.compact:
-                            tmp = f"{indent}{leaf[0]} {summary} {leaf[3]}"
-                        else:
-                            tmp = f"{indent}{leaf[0]} {summary} {leaf[2]} {leaf[3]}"
+                        tmp = f"{indent}{leaf[0]} {summary} {flags} {leaf[3]}"
 
                     self.output.append(tmp)
                     self.row2id[self.row] = leaf[4]
@@ -5723,11 +5733,13 @@ def fmt_week(yrwk):
     wkbeg = datetime.strptime(f"{dt_year} {str(dt_week)} 1", '%Y %W %w').date()
     wkend = datetime.strptime(f"{dt_year} {str(dt_week)} 0", '%Y %W %w').date()
     if settings['dayfirst']:
-        week_end = wkend.strftime("%d %b")
-        week_begin = wkbeg.strftime("%d") if wkbeg.month == wkend.month else wkbeg.strftime("%d %b")
+        week_end = wkend.strftime("%d %b").lstrip("0")
+        week_begin = wkbeg.strftime("%d").lstrip("0") if wkbeg.month == wkend.month else wkbeg.strftime("%d %b").lstrip("0")
     else:
-        week_end = wkend.strftime("%d") if wkbeg.month == wkend.month else wkend.strftime("%b %d")
-        week_begin = wkbeg.strftime("%b %d")
+        day_beg = wkbeg.strftime("%d").lstrip("0")
+        day_end = wkend.strftime("%d").lstrip("0")
+        week_end = day_end if wkbeg.month == wkend.month else wkend.strftime("%b") + f" {day_end}"
+        week_begin = wkbeg.strftime("%b") + f" {day_beg}"
 
     return f"{week_begin} - {week_end}, {dt_year} #{dt_week}"
 
@@ -5745,7 +5757,6 @@ def relevant(db, now=datetime.now(), pinned_list=[], link_list=[], konnect_list=
     Called by dataview.refreshRelevant
     """
 
-    wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
     wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
     dirty = False
     width = shutil.get_terminal_size()[0] - 3
@@ -6146,7 +6157,6 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
 
 def get_flags(doc_id, link_list=[], konnect_list=[], pinned_list=[], timers={}):
     """
-    Always length = 4, space or character in each slot
     """
     flags = ""
     if doc_id in link_list:
@@ -6157,7 +6167,7 @@ def get_flags(doc_id, link_list=[], konnect_list=[], pinned_list=[], timers={}):
         flags += PIN_CHAR
     if doc_id in timers:
         flags += "t"
-    return flags.rjust(4, ' ')
+    return flags
 
 def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=[], timers={}):
     rows = []
@@ -6883,11 +6893,12 @@ def no_busy_periods(week, width):
     # The weekday 2-char abbreviation and the month day
     width = shutil.get_terminal_size()[0]
     dent = int((width - 69)/2) * " "
-    monday = datetime.strptime(f'{week[0]} {week[1]} 0', '%Y %W %w')
+    monday = datetime.strptime(f'{week[0]} {week[1]} 1', '%Y %W %w')
+    logger.debug(f"week: {week} monday: {monday}")
     DD = {}
     for i in range(1, 8):
         # DD[i] = f"{WA[i]} {monday.add(days=i-1).strftime('D')}".ljust(5, ' ')
-        DD[i] = f"{WA[i]} {(monday + timedelta(days=i-1)).strftime('D')}".ljust(5, ' ')
+        DD[i] = f"{WA[i]} {(monday + (i-1)*DAY).strftime('%d').lstrip('0')}".ljust(5, ' ')
 
     h = {}
     h[0] = '  '
@@ -6983,8 +6994,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
     # indent_to_summary = 6
     indent_to_summary = 0
     #TODO: set these for rhc on the left
-    current_summary_width = current_width - indent_to_summary - rhc_width
-    summary_width = width - indent_to_summary - flag_width - rhc_width
+    # current_summary_width = current_width - indent_to_summary - rhc_width
+    # summary_width = width - indent_to_summary - flag_width - rhc_width
 
     d = iso_to_gregorian((yw[0], yw[1], 1))
     dt = datetime(d.year, d.month, d.day, 0, 0, 0).astimezone()
@@ -7060,7 +7071,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 dates_to_periods.setdefault(dt, []).append(period)
             for dt in dates_to_periods:
                 week = dt.isocalendar()[:2]
-                weekday = dt.strftime(wkday_fmt)
+                # weekday = dt.strftime(wkday_fmt)
+                weekday = format_wkday(dt)
                 week2day2engaged.setdefault(week, {})
                 week2day2engaged[week].setdefault(weekday, ZERO)
                 total = ZERO
@@ -7423,6 +7435,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
 
     busy_details = {}
     allday_details = {}
+    #TODO
     dent = int((width - 69)/2) * " "
 
     ### item/agenda loop 2
@@ -7433,18 +7446,19 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         week2day2heading.setdefault(week, {})
         weeks.add(week)
         allday_details.setdefault(week, {})
+        logger.debug(f"week2day2allday[{week}]: {week2day2allday[week]}")
         for dayofweek in week2day2allday[week]:
             allday, lst = week2day2allday[week][dayofweek]
             if allday and lst:
                 row = wkday2row(dayofweek)
                 week2day2heading[week][row] = lst.pop(0)
                 day_ = row
-                allday_details[week][row] = f"\n  ".join([f"{x}" for x in lst])
+                allday_details[week][row] = f"\n".join([f"{x}" for x in lst])
 
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
         week2day2heading.setdefault(week, {})
-        rdict = NDict(compact=False)
+        rdict = NDict(compact=True)
         busy_details.setdefault(week, {})
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         for row in items:
@@ -7466,7 +7480,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     wrapped = row.get('wrapped', "")
                     row = wkday2row(dayofweek)
                     week2day2heading[week][row] = day_
-                    summary = values[1].ljust(width-20, ' ')
+                    summary = values[1].ljust(width-6, ' ')
                     busy_row = f"{values[0]} {summary} {wrapped:^15}".rstrip()
                     if settings['connecting_dots']:
                         busy_row = f"  {busy_row}".replace('   ', LINEDOT)
@@ -7536,11 +7550,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
             periods.sort()
             busy_tuples.append([day, periods])
 
-        monday = datetime.strptime(f'{week[0]} {week[1]} 0', '%Y %W %w')
+        monday = datetime.strptime(f'{week[0]} {week[1]} 1', '%Y %W %w')
 
         DD = {}
         for i in range(1, 8):
-            DD[i] = f"{WA[i]} {(monday + timedelta(days=i-1)).strftime('%d')}".ljust(5, ' ')
+            DD[i] = f"{WA[i]} {(monday + (i-1)*DAY).strftime('%d').lstrip('0')}".ljust(5, ' ')
 
         for tup in busy_tuples:
             #                 d             (beg_min, end_min)
