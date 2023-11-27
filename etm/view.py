@@ -1578,7 +1578,7 @@ def get_edit_mode():
 
 
 def get_statusbar_text():
-    return [ ('class:status',  f' {format_statustime(current_datetime)}'), ]
+    return [ ('class:status',  f' {format_statustime(datetime.now().astimezone())}'), ]
 
 def get_statusbar_center_text():
     if dataview.is_editing:
