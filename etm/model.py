@@ -1693,9 +1693,10 @@ def format_statustime(obj):
     yearfirst = settings.get('yearfirst', False)
     month = obj.strftime("%b")
     day = obj.strftime("%d").lstrip("0")
+    weekday = obj.strftime("%a")
     hourminutes = obj.strftime("%I:%M%p").lstrip("0").lower() if ampm else obj.strftime("%H:%M")
     monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
-    return f"{hourminutes} {monthday}"
+    return f"{hourminutes} {weekday} {monthday}"
 
 
 def format_datetime(obj, short=False):
@@ -6024,7 +6025,7 @@ def relevant(db, now=datetime.now(), pinned_list=[], link_list=[], konnect_list=
         job_id = item[3] if item[3] else ""
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
         try:
-            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', f'{rhc + " " if rhc else ""}{item[1]}', flags, '', (doc_id, item[4], item[3])]})
+            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', f'{rhc + "  " if rhc else ""}{item[1]}', flags, '', (doc_id, item[4], item[3])]})
         except Exception as e:
             logger.warning(f"could not append item: {item}; e: {e}")
 
@@ -6033,7 +6034,7 @@ def relevant(db, now=datetime.now(), pinned_list=[], link_list=[], konnect_list=
             item_0 = str(item[0]) if item[0] <= 0 else f"+{item[0]}"
         else:
             item_0 = ""
-        rhc = item_0 + " " if item[0] else ""
+        rhc = item_0 + "  " if item[0] else ""
         doc_id = item[2]
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
         current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begby_fmt, 3, item[0]), 'week': week, 'day': day, 'columns': ['>', rhc+item[1], flags, '', doc_id]})
@@ -6975,9 +6976,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
             LL[hour] = ' '.rjust(6, ' ')
 
     # xx:xxam-xx:xxpm
-    rhc_width = 15 if ampm else 11
-    flag_width = 6
-    indent_to_summary = 6
+    # rhc_width = 15 if ampm else 11
+    rhc_width = 0
+    # flag_width = 6
+    flag_width = 0
+    # indent_to_summary = 6
+    indent_to_summary = 0
     #TODO: set these for rhc on the left
     current_summary_width = current_width - indent_to_summary - rhc_width
     summary_width = width - indent_to_summary - flag_width - rhc_width
@@ -7117,7 +7121,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                         dt = datetime(dt.year, dt.month, dt.day).astimezone()
                         # dt.set(hour=23, minute=59, second=59)
 
-                    rhc = str(row[3]) + " " if len(row) > 3 else ""
+                    rhc = str(row[3]) + "  " if len(row) > 3 else ""
                     if dt < aft_dt or dt > bef_dt:
                         continue
 
@@ -7226,7 +7230,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                 jobstart.strftime(wkday_fmt),
                                 ),
                             'columns': [job['status'],
-                                set_summary(f'{rhc} {job_summary}', start,  jobstart, freq),
+                                set_summary(f'{rhc}  {job_summary}', start,  jobstart, freq),
                                 flags,
                                 "", #rhc,
                                 (doc_id, instance, job_id)
@@ -7236,15 +7240,15 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
 
             else: # not a task with jobs
                 dateonly = False
-                sort_dt = dt.strftime("%Y%m%d%H%m")
+                sort_dt = dt.strftime("%Y%m%d%H%M")
                 if sort_dt.endswith('0000'):
                     dateonly = True
-                    if item['itemtype'] == '*':
-                        sort_dt = sort_dt[:-4] + '00$$'
-                    elif item['itemtype'] in ['-']:
-                        sort_dt = sort_dt[:-4] + '24$$'
+                    if item['itemtype'] in ['-']:
+                        sort_dt = sort_dt[:-4] + '2359'
                     elif item['itemtype'] in ['%']:
-                        sort_dt = sort_dt[:-4] + '24%%'
+                        sort_dt = sort_dt[:-4] + '2400'
+                # if 'allday' in item['summary']:
+                #     logger.debug(f"{item['itemtype']} {item['summary']} sort_dt: {sort_dt}")
 
                 if 'e' in item:
                     if omit and 'c' in item and item['c'] in omit:
@@ -7369,7 +7373,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 else:
                     busyperiod = None
                 tmp_summary = set_summary(summary, item['s'], dt, freq)
-                rhc = rhc + " " if rhc else ""
+                rhc = rhc + "  " if rhc else ""
                 columns = [item['itemtype'],
                                 f'{rhc}{tmp_summary}',
                                 flags,
@@ -7378,7 +7382,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                 ]
 
                 path = f"{wk_fmt}/{dayDM}**"
-                sort_dt = (dt).strftime("%Y%m%d%H%M")
 
                 rows.append(
                         {
