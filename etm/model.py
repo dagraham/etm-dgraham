@@ -1481,7 +1481,7 @@ def datetime_calculator(s):
     period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmMy])+\s*$)')
 
     ampm = settings.get('ampm', True)
-    wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
+    # wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
     datetime_fmt = f"{wkday_fmt} %Y %I:%M%p %Z" if ampm else f"{wkday_fmt} %Y %H:%M %Z"
     m = date_calc_regex.match(s)
     if not m:
@@ -7147,7 +7147,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                     dt.isocalendar()[:2]
                                     ),
                                 'day': (
-                                    dt.strftime(wkday_fmt),
+                                    format_wkday(dt),
+                                    # dt.strftime(wkday_fmt),
                                     ),
                                 'columns': [FINISHED_CHAR,
                                     f'{rhc}{row[1]}',
@@ -7173,7 +7174,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
             week = (yr, wk)
             wk_fmt = fmt_week(week).center(width, ' ').rstrip()
             itemday = dt.strftime("%Y%m%d")
-            dayDM = dt.strftime(wkday_fmt)
+            dayDM = format_wkday(dt)
+            # dayDM = dt.strftime(wkday_fmt)
             if itemday == todayYMD:
                 dayDM += " (Today)"
             elif itemday == tomorrowYMD:
@@ -7239,7 +7241,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                 dayofweek
                                 ),
                             'day': (
-                                jobstart.strftime(wkday_fmt),
+                                format_wkday(jobstart),
+                                # jobstart.strftime(wkday_fmt),
                                 ),
                             'columns': [job['status'],
                                 set_summary(f'{rhc}  {job_summary}', start,  jobstart, freq),
@@ -7324,7 +7327,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                         dtb.isocalendar()[-1]
                                         ),
                                     'day': (
-                                        dtb.strftime(wkday_fmt),
+                                        format_wkday(dtb),
+                                        # dtb.strftime(wkday_fmt),
                                         ),
                                     'columns': [itemtype,
                                         set_summary(rhb, item['s'], dtb, freq),
@@ -7350,7 +7354,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                         dta.isocalendar()[-1]
                                         ),
                                     'day': (
-                                        dta.strftime(wkday_fmt),
+                                        format_wkday(dta),
+                                        # dta.strftime(wkday_fmt),
                                         ),
                                     'columns': [itemtype,
                                         set_summary(rha, item['s'], dta, freq),
@@ -7411,7 +7416,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                 dayofweek
                                 ),
                             'day': (
-                                dt.strftime(wkday_fmt),
+                                format_wkday(dt),
+                                # dt.strftime(wkday_fmt),
                                 ),
                             'busyperiod': (
                                 busyperiod
@@ -7439,8 +7445,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
     dent = int((width - 69)/2) * " "
 
     ### item/agenda loop 2
-    today = now.strftime(wkday_fmt)
-    tomorrow = (now + 1*DAY).strftime(wkday_fmt)
+    today = format_wkday(now)
+    tomorrow = format_wkday(now + 1*DAY)
 
     for week in week2day2allday:
         week2day2heading.setdefault(week, {})
