@@ -151,7 +151,7 @@ type_keys = {
 }
 
 wrapbefore = "↱"
-wrapafter = "↳"
+wrapafter =  "↳"
 
 type_prompt = u"item type character:"
 
@@ -339,6 +339,8 @@ def busy_conf_day(lofp, allday=False):
             h[i-first_quarter+1] = BUSY
     res = f"\n{empty}\n{''.join([h[i] for i in range(59)])}"
     full = "".join([h[i] for i in range(59)])
+    # empty: blank busy bar
+    # full:  busy bar with busy/conflict markers
     return empty, full
 
 def process_entry(s, settings={}):
@@ -721,7 +723,7 @@ item_hsh:    {self.item_hsh}
         used_times.append([period, dt])
         self.item_hsh['u'] = used_times
         self.item_hsh['created'] = self.created
-        self.item_hsh['modified'] = datetime.now('local')
+        self.item_hsh['modified'] = datetime.now().astimezone()
         # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         self.do_update()
 
@@ -744,7 +746,7 @@ item_hsh:    {self.item_hsh}
         changed = True
         if changed:
             self.item_hsh['created'] = self.created
-            self.item_hsh['modified'] = datetime.now('local')
+            self.item_hsh['modified'] = datetime.now().astimezone()
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
         return changed
@@ -761,7 +763,7 @@ item_hsh:    {self.item_hsh}
         if 'r' not in self.item_hsh and '+' not in self.item_hsh:
             # not repeating
             self.item_hsh['s'] = new_dt
-            self.item_hsh['modified'] = datetime.now('local')
+            self.item_hsh['modified'] = datetime.now().astimezone()
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
             return True
@@ -803,7 +805,7 @@ item_hsh:    {self.item_hsh}
                 logger.warning(f"could not remove {instance} from {self.item_hsh}")
             if changed:
                 self.item_hsh['created'] = self.created
-                self.item_hsh['modified'] = datetime.now('local')
+                self.item_hsh['modified'] = datetime.now().astimezone()
 
                 # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
                 self.do_update()
@@ -914,7 +916,7 @@ item_hsh:    {self.item_hsh}
                     self.item_hsh['h'] = sh[-num_finished:]
 
             self.item_hsh['created'] = self.created
-            self.item_hsh['modified'] = datetime.now('local')
+            self.item_hsh['modified'] = datetime.now().astimezone()
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
             return True
@@ -943,7 +945,7 @@ item_hsh:    {self.item_hsh}
             save_item = True
         if save_item:
             self.item_hsh['created'] = self.created
-            self.item_hsh['modified'] = datetime.now('local')
+            self.item_hsh['modified'] = datetime.now().astimezone()
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
 
@@ -1481,7 +1483,7 @@ def datetime_calculator(s):
     period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmMy])+\s*$)')
 
     ampm = settings.get('ampm', True)
-    # wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
+    wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
     datetime_fmt = f"{wkday_fmt} %Y %I:%M%p %Z" if ampm else f"{wkday_fmt} %Y %H:%M %Z"
     m = date_calc_regex.match(s)
     if not m:
@@ -1645,12 +1647,8 @@ def plain_datetime(obj):
 
 def format_time(obj):
     ampm = settings.get('ampm', True)
-    time_fmt = "h:mmA" if ampm else "H:mm"
-    res = obj.strftime(time_fmt)
-    if ampm:
-        res = res.replace('AM', 'am')
-        res = res.replace('PM', 'pm')
-    return True, res
+    hourminutes = obj.strftime("%I:%M%p").lstrip("0").lower() if ampm else obj.strftime("%H:%M")
+    return True, hourminutes
 
 def fivechar_datetime(obj):
     """
@@ -1661,7 +1659,7 @@ def fivechar_datetime(obj):
     2p on Nov 7 of this year -> 11/07
     11a on Jan 17 of 2012 -> 12.01
     """
-    now = datetime.now('local')
+    now = datetime.now().astimezone()
 
     md_fmt = "%d/%m" if settings['dayfirst'] else "%m/%d"
     ym_fmt = "%y.%m" if settings['yearfirst'] else f"%m.%y"
@@ -1880,7 +1878,6 @@ def format_duration(obj, short=False):
     """
     # if not (isinstance(obj, Period) or isinstance(obj, timedelta)):
     if not isinstance(obj, timedelta):
-        # ic(obj)
         return None
     hours = obj.total_seconds()//(60*60)
     try:
@@ -2117,7 +2114,6 @@ def parse_duration(s):
         num = -int(g[2]) if g[1] == '-' else int(g[2])
         if num:
             kwds[knms[g[3]]] = num
-    # ic(kwds)
     td = timedelta(**kwds)
 
     return True, td
@@ -2187,7 +2183,7 @@ class NDict(dict):
             2) flags3
             3) rhc (a constant length and pre justified)
             4) doc_id
-/busy
+
         Leaf output will begin with indent, add a possibly truncated value 1, value 2 and value 3. The lengths of indent, value 2 and value 3 will be subtracted from screen width with the difference the space available for value 1 which will either be truncated or left fill justified accordingly.
         """
         keys = tkeys.split(self.split_char)
@@ -2624,7 +2620,7 @@ class DataView(object):
         if self.active_timer and self.active_timer in timers:
             state, start, period = timers[self.active_timer]
             if state == 'r':
-                now = datetime.now('local')
+                now = datetime.now().astimezone()
                 period += now - start
                 state = 'p'
                 timers[self.active_timer] = [state, now, period]
@@ -2645,7 +2641,7 @@ class DataView(object):
     def toggle_active_timer(self, row=None):
         if not self.active_timer:
             return
-        now = datetime.now('local')
+        now = datetime.now().astimezone()
         state, start, period = self.timers[self.active_timer]
         if state == 'r':
             period += now - start
@@ -2684,7 +2680,7 @@ class DataView(object):
         active = [x for x, v in other_timers.items() if v[0] in ['r', 'p']]
         if len(active) > 1:
             logger.warning(f"more than one active timer: {active}")
-        now = datetime.now('local')
+        now = datetime.now().astimezone()
         if doc_id in self.timers:
             # there is already a timer for this item
             if active:
@@ -2730,7 +2726,7 @@ class DataView(object):
         delta = zero
         if self.active_timer:
             status, started, elapsed = self.timers[self.active_timer]
-            delta = datetime.now('local') - started
+            delta = datetime.now().astimezone() - started
             if status == 'r': # running
                 delta += elapsed
             active = f"{status}:{status_duration(delta)}"
@@ -3151,9 +3147,9 @@ shown when nonzero."""
         if not res:
             return False
         doc_id, instance, job_id = res
-        now = datetime.now('local')
+        now = datetime.now().astimezone()
         item_hsh = self.db.get(doc_id=doc_id)
-        item_hsh['modified'] = datetime.now('local')
+        item_hsh['modified'] = datetime.now().astimezone()
         # self.db.update(db_replace(item_hsh), doc_ids=[doc_id])
         self.do_update()
         return True
@@ -3583,7 +3579,12 @@ shown when nonzero."""
         the future if n > 0 or the past if n < 0.
         """
         width = shutil.get_terminal_size()[0]
-        indent = int((width - 67)/2) * " "
+        if width < 70:
+            columns = 2 
+            indent = (1 + int((width - 47)//2)) * " "
+        else: 
+            columns = 3
+            indent = (1 + int((width - 69)//2)) * " "
         today = date.today()
         y = today.year
         try:
@@ -3597,18 +3598,30 @@ shown when nonzero."""
         m += 12 * self.calAdv
         y += m // 12
         m %= 12
-        for i in range(12): # months in the half year
+        for i in range(12): # months in the year
             cal.append(c.formatmonth(y, 1+i, w=2).split('\n'))
         ret = ['']
-        for r in range(0, 12, 3):  # 12 months in columns of 3 months
-            l = max(len(cal[r]), len(cal[r + 1]), len(cal[r+2]))
-            for i in range(3):
+        for r in range(0, 12, columns):  # 12 months in columns months
+            if columns == 3:
+                l = max(len(cal[r]), len(cal[r + 1]), len(cal[r+2]))
+            else:
+                l = max(len(cal[r]), len(cal[r + 1]))
+            
+            for i in range(columns):
                 if len(cal[r + i]) < l:
-                    for _ in range(len(cal[r + i]), l + 2):
+                    for _ in range(len(cal[r + i]), l + (columns-1)):
                         cal[r + i].append('')
             for j in range(l):  # rows from each of the 2 months
-                ret.append((u'%-20s   %-20s   %-20s ' % (cal[r][j], cal[r +
-                    1][j], cal[r + 2][j])))
+                if columns == 3:
+                    ret.append((u'%-20s   %-20s   %-20s ' % (
+                        cal[r][j], cal[r + 1][j], 
+                        cal[r + 2][j]))
+                        )
+                else:
+                    ret.append((u'%-20s   %-20s ' % (
+                        cal[r][j], 
+                        cal[r + 1][j])) 
+                        )
 
         ret_lines = [f"{indent}{line}" for line in ret]
         ret_str = "\n".join(ret_lines)
@@ -6021,7 +6034,7 @@ def relevant(db, now=datetime.now(), pinned_list=[], link_list=[], konnect_list=
     alerts.sort()
     # alerts: alert datetime, start datetime, commands, summary, doc_id
     week = today.isocalendar()[:2]
-    day = (today.strftime(wkday_fmt), )
+    day = (format_wkday(today), )
     for item in inbox:
         item_0 = ' '
         rhc = item_0.center(rhc_width, ' ')
@@ -6313,7 +6326,7 @@ def show_timers(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, ac
     rows = []
     locations = set([])
     summary_width = width - 18
-    now = datetime.now('local')
+    now = datetime.now().astimezone()
     state2sort = {
             'i': 'inactive',
             'r': 'active',
@@ -6827,9 +6840,9 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                         'path': f"{monthday.strftime('%B %Y')}/{index}",
                         'values': [
                             '◦',
-                            f"{itemtype} {summary}",
+                            f"{itemtype} {rhc} {summary}",
                             flags,
-                            rhc,
+                            '',
                             doc_id],
                         })
 
@@ -6909,7 +6922,6 @@ def no_busy_periods(week, width):
     for i in range(1, 58):
         h[i] = HSEP if (i-1) % 4 else VSEP
     full = "".join([h[i] for i in range(59)])
-
     empty_hsh = {}
     wk_fmt = fmt_week(week).center(width, ' ').rstrip()
     empty_hsh[0] = f"""\
@@ -6947,7 +6959,7 @@ def wkday2row(wkday):
 def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     global current_hsh, active_tasks
     # wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
-    wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
+    # wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
     timer_schedule = TimeIt('***SCHEDULE***')
     #
 
@@ -7483,13 +7495,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 busyperiod = row.get('busyperiod', "")
                 if busyperiod:
                     wrap = row.get('wrap', [])
-                    wrapped = row.get('wrapped', "")
+                    # wrapped = f"⌈{row.get('wrapped', '')}⌉" if wrap else ""
+                    wrapped = f"<{row.get('wrapped', '')}>" if wrap else ""
                     row = wkday2row(dayofweek)
                     week2day2heading[week][row] = day_
-                    summary = values[1].ljust(width-6, ' ')
-                    busy_row = f"{values[0]} {summary} {wrapped:^15}".rstrip()
-                    if settings['connecting_dots']:
-                        busy_row = f"  {busy_row}".replace('   ', LINEDOT)
+                    summary = values[1]
+                    busy_row = f"{values[0]} {summary}  {wrapped}".rstrip()
 
                     busy_details[week].setdefault(row, [f"Busy"]).append(
                             busy_row

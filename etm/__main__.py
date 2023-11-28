@@ -1,5 +1,5 @@
 #! ./env/bin/python
-import pendulum
+from datetime import datetime, date, timedelta
 from prompt_toolkit import prompt
 from prompt_toolkit.validation import Validator, ValidationError
 
@@ -181,19 +181,19 @@ which will need to be created.
     UT_MIN = settings.get('usedtime_minutes', 1)
     usedtime_hours = settings.get('usedtime_hours', 6)
     refresh_interval = settings.get('refresh_interval', 60)
-    today = pendulum.today()
-    now = pendulum.now('local')
+    today = date.today()
+    now = datetime.now().astimezone()
+    sunday = today + timedelta(days=6-today.weekday()) # sunday
     # We want 2 char 'en' weekday abbreviations regardless of the actual locale
-    day = today.end_of('week')  # Sunday
-    WA = {i: day.add(days=i).format('ddd')[:2] for i in range(1, 8)}
-    midnight = pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    WA = {i: (sunday + i*timedelta(days=1)).strftime('%a')[:2] for i in range(1, 8)}
+    midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     beginbusy = settings.get('beginbusy', 7)
     ampm = settings.get('ampm', True)
     show_minutes = settings.get('show_minutes', False)
-    hour = pendulum.duration(hours=1)
-    fmt = "hA" if ampm else "H"
+    hour = timedelta(hours=1)
+    fmt = "%I%p" if ampm else "%H"
     # busyhours = [(midnight + i*hour).format(fmt).lower for i in range(beginbusy, beginbusy + 14, 2)]
-    busyhours = [(midnight + i*hour).format('hA').lower() for i in range(beginbusy, beginbusy + 15, 2)]
+    busyhours = [(midnight + i*hour).strftime('%I%p').lstrip("0").lower() for i in range(beginbusy, beginbusy + 15, 2)]
     HB = "".join([f"{h : <8}" for h in busyhours]).rstrip()
     # "".join([f"{h : <10}" for h in busyhours]).rstrip()
 
@@ -282,12 +282,6 @@ which will need to be created.
     style = dataview.settings["style"]
     parse_datetime = model.parse_datetime
     parse_duration = model.parse_duration
-
-    # if needs_update:
-    #     timer_update = TimeIt('***UPDATE***')
-    #     dataview.update_datetimes_to_periods()
-    #     timer_update.stop()
-
 
     view.loglevel = loglevel
     view.TimeIt = TimeIt

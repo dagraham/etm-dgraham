@@ -44,6 +44,7 @@ from datetime import datetime, date, timedelta
 
 import requests
 import asyncio
+import textwrap
 
 # import pendulum
 # from pendulum import parse as pendulum_parse
@@ -228,7 +229,7 @@ class ETMQuery(object):
         is a list, do this for each element in item['a']
         """
         changed = []
-        rep = re.sub('\\\s', ' ', rep)
+        rep = re.sub(r'\\\s', ' ', rep)
         for item in items:
             if a in item:
                 if isinstance(item[a], list):
@@ -299,7 +300,7 @@ class ETMQuery(object):
         Set the value of item[a] = b for items
         """
         changed = []
-        b = re.sub('\\\s', ' ', b)
+        b = re.sub(r'\\\s', ' ', b)
         for item in items:
             item[a] = b
             item['modified'] = datetime.now().astimezone()
@@ -313,7 +314,7 @@ class ETMQuery(object):
         Provide item['a'] = b for items without an exising entry for 'a'.
         """
         changed = []
-        b = re.sub('\\\s', ' ', b)
+        b = re.sub(r'\\\s', ' ', b)
         for item in items:
             item.setdefault(a, b)
             item['modified'] = datetime.now().astimezone()
@@ -328,7 +329,7 @@ class ETMQuery(object):
         Attach 'b' into the item['a'] list if 'b' is not in the list.
         """
         changed = []
-        b = re.sub('\\\s', ' ', b)
+        b = re.sub(r'\\\s', ' ', b)
         for item in items:
             if a not in item:
                 item.setdefault(a, []).append(b)
@@ -347,7 +348,7 @@ class ETMQuery(object):
         Detatch 'b' from the item['a'] list if it belongs to the list.
         """
         changed = []
-        b = re.sub('\\\s', ' ', b)
+        b = re.sub(r'\\\s', ' ', b)
         for item in items:
             if a in item and isinstance(item[a], list) and b in item[a]:
                 item[a].remove(b)
@@ -800,11 +801,33 @@ class ConfirmDialog(object):
         return self.dialog
 
 def show_message(title, text, padding=6):
-    def coroutine():
-        dialog = MessageDialog(title, text, padding)
-        yield from show_dialog_as_float(dialog)
+    if dataview.is_showing_details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    else:
+        tmp = f"""\
+{title} [press return to close]
 
-    asyncio.ensure_future(coroutine())
+{text}
+
+        """
+        if tmp:
+            dataview.show_details()
+            details_area.text = wrap_text(tmp)
+            application.layout.focus(details_area)
+    # dialog = MessageDialog(title, text, padding)
+    # show_dialog_as_float(dialog)
+
+def wrap_text(text: str, init_indent: int = 2, subs_indent: int = 2):
+    # Split the text into paragraphs (separated by newline characters)
+    width = shutil.get_terminal_size()[0] - 2
+    paragraphs = text.split('\n')
+
+    # Wrap each paragraph separately
+    wrapped_text = [textwrap.fill(paragraph, width, initial_indent=init_indent*" ", subsequent_indent=subs_indent*" ") for paragraph in paragraphs]
+
+    # Join the wrapped paragraphs with newline characters
+    return '\n'.join(wrapped_text)
 
 
 def show_dialog_as_float(dialog):
@@ -853,39 +876,42 @@ def do_about(*event):
 @bindings.add('f4')
 def do_check_updates(*event):
     status, res = check_update()
-    msg = wrap(res)
+    # msg = wrap(res)
     if status:
-        # an update is available, promot to install it?
-        if 'update_command' in settings and settings['update_command']:
-            def coroutine():
-                dialog = ConfirmDialog(f"etm update", "An update is available. Install it?")
+        show_message("version information", res)
 
-                install = yield from show_dialog_as_float(dialog)
-                if install:
-                    ok, msg = check_output(settings['update_command'])
-                    logger.debug(msg)
-                    tmp = [x.strip() for x in msg.split('\n')]
-                    lines = [wrap(tmp[0])]
-                    for line in tmp[1:]:
-                        if line and not line.startswith("Requirement already"):
-                            lines.append(wrap(line))
-                    logger.debug(f"lines: {lines}")
-                    success = wrap("If the update was sucessful, you will need to restart etm for it to take effect.")
-                    prompt = "\n".join(lines)
-                    # prompt = wrap("\n".join(msg.split('\n')[:1]))
+    # if status:
+    #     # an update is available, promot to install it?
+    #     if 'update_command' in settings and settings['update_command']:
+    #         def coroutine():
+    #             dialog = ConfirmDialog(f"etm update", "An update is available. Install it?")
 
-                    if ok:
-                        show_message("etm update", f"{prompt}\n\n{success}", 2)
-                        # show_message("etm update", prompt, 2)
-                    else:
-                        show_message("etm update", prompt, 2)
-                else:
-                    show_message("etm update", "cancelled")
+    #             install = yield from show_dialog_as_float(dialog)
+    #             if install:
+    #                 ok, msg = check_output(settings['update_command'])
+    #                 logger.debug(msg)
+    #                 tmp = [x.strip() for x in msg.split('\n')]
+    #                 lines = [wrap(tmp[0])]
+    #                 for line in tmp[1:]:
+    #                     if line and not line.startswith("Requirement already"):
+    #                         lines.append(wrap(line))
+    #                 logger.debug(f"lines: {lines}")
+    #                 success = wrap("If the update was sucessful, you will need to restart etm for it to take effect.")
+    #                 prompt = "\n".join(lines)
+    #                 # prompt = wrap("\n".join(msg.split('\n')[:1]))
 
-            asyncio.ensure_future(coroutine())
+    #                 if ok:
+    #                     show_message("etm update", f"{prompt}\n\n{success}", 2)
+    #                     # show_message("etm update", prompt, 2)
+    #                 else:
+    #                     show_message("etm update", prompt, 2)
+    #             else:
+    #                 show_message("etm update", "cancelled")
 
-        else:
-            show_message("version information", msg, 2)
+    #         asyncio.ensure_future(coroutine())
+
+    #     else:
+    #         show_message("version information", msg, 2)
 
     else:
         show_message("version information", msg, 2)
@@ -1292,7 +1318,7 @@ def first_char(s):
     if not s.strip():
         # nothing but whitespace
         return None
-    m = re.match('(\s+)', s)
+    m = re.match(r'(\s+)', s)
     if m:
         return s[len(m.group(0))]
     else:
@@ -1333,17 +1359,30 @@ def status_time(dt):
     >>> status_time(parse('2018-03-07 2:45pm'))
     '2:45pm Wed Mar 7'
     """
-    ampm = settings['ampm']
-    if settings['dayfirst']:
-        d_fmt = dt.format("ddd D MMM")
-    else:
-        d_fmt = dt.format("ddd MMM D")
-    suffix = dt.format("A").lower() if ampm else ""
+    ampm = settings.get('ampm', True)
+    dayfirst = settings.get('dayfirst', False)
+    yearfirst = settings.get('yearfirst', False)
+    month = dt.strftime("%b")
+    day = dt.strftime("%d").lstrip("0")
+    weekday = dt.strftime("%a")
     if dt.minute == 0:
-        t_fmt = dt.format("h") if ampm else dt.format("H")
+        hourminutes = dt.strftime("%I%p").lstrip("0").lower() if ampm else dt.strftime("%H")
     else:
-        t_fmt = dt.format("h:mm") if ampm else dt.format("H:mm")
-    return f"{t_fmt}{suffix} {d_fmt}"
+        hourminutes = dt.strftime("%I:%M%p").lstrip("0").lower() if ampm else dt.strftime("%H:%M")
+    monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
+    return f"{hourminutes} {weekday} {monthday}"
+    # d_fmt = format_statustime(dt)
+    # ampm = settings['ampm']
+    # if settings['dayfirst']:
+    #     d_fmt = dt
+    # else:
+    #     d_fmt = dt.format("ddd MMM D")
+    # suffix = dt.format("A").lower() if ampm else ""
+    # if dt.minute == 0:
+    #     t_fmt = dt.format("h") if ampm else dt.format("H")
+    # else:
+    #     t_fmt = dt.format("h:mm") if ampm else dt.format("H:mm")
+    # return f"{t_fmt}{suffix} {d_fmt}"
 
 def item_changed(loop):
     item.update_item_hsh()
@@ -1487,8 +1526,12 @@ async def maybe_alerts(now):
         logger.error(f"unrecognized alert commands: {bad}")
 
 
-async def event_handler():
+# async def event_handler():
+def event_handler(e):
     global current_datetime
+    now = datetime.now().astimezone()
+    if now.second >= 1:
+        return
     # check for updates every interval minutes
     updates_interval = settings.get('updates_interval', 0)
     refresh_interval = settings.get('refresh_interval', 60) # seconds to wait between loops
@@ -1496,37 +1539,35 @@ async def event_handler():
     # minutes = minutes % interval if interval else minutes % 5
 
     try:
-        while True:
-            now = datetime.now().astimezone()
-            current_datetime = status_time(now)
-            wait = refresh_interval - now.second % refresh_interval # residual
-            if now.second < 6:
-                # minutes = now.minute % interval if interval else now.minute % 5
-                minutes = now.minute
-                current_today = dataview.now.format("YYYYMMDD")
-                asyncio.ensure_future(maybe_alerts(now))
-                current_datetime = status_time(now)
-                today = now.format("YYYYMMDD")
+        current_datetime = status_time(now)
+        # wait = refresh_interval - now.second % refresh_interval # residual
+        # minutes = now.minute % interval if interval else now.minute % 5
+        minutes = now.minute
+        current_today = dataview.now.strftime("%Y%m%d")
+        asyncio.ensure_future(maybe_alerts(now))
+        current_datetime = status_time(now)
+        today = now.strftime("%Y%m%d")
 
-                if updates_interval and minutes % updates_interval == 0:
-                    loop = asyncio.get_event_loop()
-                    asyncio.ensure_future(updates_loop(loop))
+        if updates_interval and minutes % updates_interval == 0:
+            loop = asyncio.get_event_loop()
+            asyncio.ensure_future(updates_loop(loop))
 
-                # if minutes % 5 == 0:
-                #     loop = asyncio.get_event_loop()
-                #     asyncio.ensure_future(refresh_loop(loop))
+        # if minutes % 5 == 0:
+        #     loop = asyncio.get_event_loop()
+        #     asyncio.ensure_future(refresh_loop(loop))
 
-                if today != current_today:
-                    loop = asyncio.get_event_loop()
-                    asyncio.ensure_future(new_day(loop))
+        if today != current_today:
+            loop = asyncio.get_event_loop()
+            asyncio.ensure_future(new_day(loop))
 
-            asyncio.ensure_future(save_timers())
-            if dataview.active_view == 'timers':
-                row, col = get_row_col()
-                set_text(dataview.show_active_view())
-                restore_row_col(row, col)
-            get_app().invalidate()
-            await asyncio.sleep(wait)
+        asyncio.ensure_future(save_timers())
+        if dataview.active_view == 'timers':
+            row, col = get_row_col()
+            set_text(dataview.show_active_view())
+            restore_row_col(row, col)
+        # get_app().invalidate()
+        # await asyncio.sleep(wait)
+        # asyncio.sleep(wait)
     except asyncio.CancelledError:
         logger.info(f"Background task cancelled.")
 
@@ -1799,7 +1840,7 @@ is or edit it first and then submit.
         if queries and parts[0] in queries:
             set_text("")
             text = queries[parts.pop(0)]
-            m =  re.search('{\d*}', text)
+            m =  re.search(r'{\d*}', text)
             if m:
                 # make the substitutions
                 num_needed = text.count('{}')
@@ -3228,16 +3269,18 @@ async def main(etmdir=""):
         enable_page_navigation_bindings=True,
         mouse_support=True,
         style=style,
-        full_screen=True)
+        full_screen=True,
+        refresh_interval=1.0,
+        on_invalidate=event_handler)
     logger.debug("XX starting event_handler XX")
-    background_task = asyncio.create_task(event_handler())
+    # background_task = asyncio.create_task(event_handler())
+    # background_task = asyncio.create_task(event_handler())
     timer_view.stop()
     try:
         result = await application.run_async()
-        # print(result)
         
     finally:
-        background_task.cancel()
+        # background_task.cancel()
         logger.info("Quitting event loop.")
 
 

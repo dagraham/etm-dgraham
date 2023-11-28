@@ -103,11 +103,9 @@ def normalize_timedelta(delta):
 # Test
 td = timedelta(days=-1, hours=2, minutes=30)
 normalized_td = normalize_timedelta(td)
-print(f"neg '{td}' => {normalized_td}")
 
 td = timedelta(days=1, hours=-2, minutes=-30)
 normalized_td = normalize_timedelta(td)
-print(f"pos '{td}' => {normalized_td}")
 
 
 class Period:
