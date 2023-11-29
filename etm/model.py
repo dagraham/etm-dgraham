@@ -446,7 +446,8 @@ def day_bar(events: list, allday: bool = False) -> str:
             if allday:
                 busyfree.append(ADAY)
             else:
-                busyfree.append(FREE)
+                # busyfree.append(FREE)
+                busyfree.append(HSEP)
         elif event_slots[j] == 1:
             busyfree.append(BUSY)
         elif event_slots[j] == 2:
@@ -7389,7 +7390,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 else:
                     freq = 'y'
                 tmp_summary = set_summary(item['summary'], item['s'], dt, freq)
-                week2day2allday[week][dayofweek][1].append(f"{item['itemtype']} {tmp_summary}")
+                week2day2allday[week][dayofweek][1].append(f" {item['itemtype']} {tmp_summary}")
 
             if 'r' in item:
                 freq = item['r'][0].get('r', 'y')
@@ -7685,7 +7686,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     row = wkday2row(dayofweek)
                     week2day2heading[week][row] = day_
                     summary = values[1]
-                    busy_row = f"{values[0]} {summary}  {wrapped}".rstrip()
+                    busy_row = f" {values[0]} {summary}  {wrapped}".rstrip()
 
                     busy_details[week].setdefault(row, [f"Busy"]).append(
                             busy_row
