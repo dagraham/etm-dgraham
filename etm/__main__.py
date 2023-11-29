@@ -193,12 +193,13 @@ which will need to be created.
     hour = timedelta(hours=1)
     fmt = "%I%p" if ampm else "%H"
     # busyhours = [(midnight + i*hour).format(fmt).lower for i in range(beginbusy, beginbusy + 14, 2)]
-    busyhours = [(midnight + i*hour).strftime('%I%p').lstrip("0").lower() for i in range(beginbusy, beginbusy + 15, 2)]
+    busyhours = [(midnight + i*hour).strftime('%I%p').lstrip("0").lower() for i in range(0, 24, 6)]
     HB = "".join([f"{h : <8}" for h in busyhours]).rstrip()
     # "".join([f"{h : <10}" for h in busyhours]).rstrip()
 
     # HSEP  =    '─' # U+2500  this will be a de-emphasized color
     VSEP   =    '⏐' # U+23D0  this will be a de-emphasized color
+    FREE   =    '─' # U+2500  this will be a de-emphasized color
     HSEP   =    '·' # U+2500  this will be a de-emphasized color
     BUSY   =    '■' # U+25A0 this will be busy (event) color
     CONF   =    '▦' # U+25A6 this will be conflict color
@@ -249,6 +250,7 @@ which will need to be created.
     model.CONF = CONF
     model.ADAY = ADAY
     model.USED = USED
+    model.FREE = FREE
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
@@ -299,6 +301,7 @@ which will need to be created.
     view.TASK = TASK
     view.ADAY = ADAY
     view.USED = USED
+    view.FREE = FREE
     view.settings = settings
     view.type_colors = type_colors
     view.cfgfile = cfgfile

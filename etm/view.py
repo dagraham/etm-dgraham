@@ -217,7 +217,6 @@ class ETMQuery(object):
         self.changed = False
 
         self.lexer = PygmentsLexer(TDBLexer)
-        # self.style = type_colors
         self.Item = Query()
 
         self.allowed_commands = ", ".join([x for x in self.filters])
@@ -815,8 +814,6 @@ def show_message(title, text, padding=6):
             dataview.show_details()
             details_area.text = wrap_text(tmp)
             application.layout.focus(details_area)
-    # dialog = MessageDialog(title, text, padding)
-    # show_dialog_as_float(dialog)
 
 def wrap_text(text: str, init_indent: int = 2, subs_indent: int = 2):
     # Split the text into paragraphs (separated by newline characters)
@@ -878,41 +875,7 @@ def do_check_updates(*event):
     status, res = check_update()
     # msg = wrap(res)
     if status:
-        show_message("version information", res)
-
-    # if status:
-    #     # an update is available, promot to install it?
-    #     if 'update_command' in settings and settings['update_command']:
-    #         def coroutine():
-    #             dialog = ConfirmDialog(f"etm update", "An update is available. Install it?")
-
-    #             install = yield from show_dialog_as_float(dialog)
-    #             if install:
-    #                 ok, msg = check_output(settings['update_command'])
-    #                 logger.debug(msg)
-    #                 tmp = [x.strip() for x in msg.split('\n')]
-    #                 lines = [wrap(tmp[0])]
-    #                 for line in tmp[1:]:
-    #                     if line and not line.startswith("Requirement already"):
-    #                         lines.append(wrap(line))
-    #                 logger.debug(f"lines: {lines}")
-    #                 success = wrap("If the update was sucessful, you will need to restart etm for it to take effect.")
-    #                 prompt = "\n".join(lines)
-    #                 # prompt = wrap("\n".join(msg.split('\n')[:1]))
-
-    #                 if ok:
-    #                     show_message("etm update", f"{prompt}\n\n{success}", 2)
-    #                     # show_message("etm update", prompt, 2)
-    #                 else:
-    #                     show_message("etm update", prompt, 2)
-    #             else:
-    #                 show_message("etm update", "cancelled")
-
-    #         asyncio.ensure_future(coroutine())
-
-    #     else:
-    #         show_message("version information", msg, 2)
-
+        show_message("version information", res, 2)
     else:
         show_message("version information", msg, 2)
 
@@ -1327,7 +1290,6 @@ def first_char(s):
 
 # Create one text buffer for the main content.
 class ETMLexer(Lexer):
-
     def lex_document(self, document):
 
         def get_line(lineno):
@@ -1347,7 +1309,6 @@ class ETMLexer(Lexer):
                 (busy_colors.get(c, type_colors['plain']), c)
                 for i, c in enumerate(document.lines[lineno])
             ]
-
 
         return get_line
 
@@ -1792,7 +1753,10 @@ def get_busy_text_and_keys(n):
     busy_details = dataview.busy_details
     active_days = "  ".join([v for k, v in weekdays.items() if k in busy_details.keys()])
     no_busy_times = "There are no days with busy periods this week.".center(width, ' ')
-    busy_times = wrap(f"Press the number of a weekday, [{weekdays[5]}, ..., {weekdays[17]}], to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.", indent=0)
+    busy_times = wrap_text(f"""\
+Press the number of a weekday,     
+    {weekdays[5]}, ..., {weekdays[17]}
+to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.""", init_indent=0, subs_indent=0)
     active_keys = f"{active_days}  ▼→next  ▲→previous".center(width, ' ')
 
     if n == 0: # text
@@ -3254,6 +3218,7 @@ async def main(etmdir=""):
             BUSY    : type_colors['event'],
             CONF    : type_colors['inbox'],
             ADAY    : type_colors['wrap'],
+            FREE    : type_colors['wrap']
             }
     # query = ETMQuery()
     style = get_style(window_colors)

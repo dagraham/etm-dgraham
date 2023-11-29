@@ -268,6 +268,194 @@ def busy_conf_minutes(lofp):
     busy_minutes.append((b, e))
     return busy_minutes, conf_minutes
 
+def get_busy_settings() -> tuple:
+    width = shutil.get_terminal_size()[0]
+
+    if width < 70:
+        begin_hour = 6
+        end_hour = 24
+        slot_minutes = 30
+        marker_hour_interval = 3
+    else:
+        begin_hour = 6 
+        end_hour = 24
+        slot_minutes = 20
+        marker_hour_interval = 2
+    
+    return begin_hour, end_hour, slot_minutes, marker_hour_interval
+
+
+def day_bar_labels() -> str:
+
+    begin_hour, end_hour, slot_minutes, marker_hour_interval = get_busy_settings()
+
+    # label_interval = (marker_hour_interval*60) // slot_minutes
+    
+    MIDNIGHT = datetime.now().replace(
+        hour=0, minute=0, second=0, microsecond=0)
+    HOUR = timedelta(hours=1)
+    label_length = (marker_hour_interval*60) // slot_minutes
+    ampm = settings.get('ampm', True)
+    hour_fmt = '%I%p' if ampm else '%H'
+    dent = " "*7 if ampm else " "*8
+    hour_labels = [dent] 
+    for i in range(
+        begin_hour, end_hour, marker_hour_interval
+        ):
+        if (i - begin_hour) % marker_hour_interval == 0:
+            l = f"{(MIDNIGHT + i*HOUR).strftime(hour_fmt).lstrip('0').rstrip("M").lower()}"
+            hour_labels.append(f'{l}{' '*(label_length - len(l))}')
+        else:
+            hour_labels.append(' '*label_length)
+    if end_hour % marker_hour_interval == 0:
+        last_label = f"{(MIDNIGHT + end_hour*HOUR).strftime(hour_fmt).lstrip('0').rstrip("M").lower()}"
+        last_label = last_label if last_label else "24"
+        hour_labels.append(last_label)
+    
+    return "".join(hour_labels)
+
+
+def day_bar(events: list, allday: bool = False) -> str:
+    """Takes begin hour, end hour, slot minutes and a list of 
+    (integer start minutes, integer end minutes) tuples, Return a string
+    representing the corresponding free, busy and conflict slots. 
+
+    Args:
+        events (list): (start minutes, extent minutes)
+        allday (bool): At least one all day event is scheduled
+
+    Returns:
+        list[in]: free, busy and conflict slots
+    """
+    VSEP   =  '⏐' # U+23D0  this will be a de-emphasized color
+    FREE   =  '─' # U+2500  this will be a de-emphasized color
+    BUSY   =  '■' # '■' # U+25A0 this will be busy (event) color
+    CONF   =  '▦' # '▦' # U+25A6 this will be conflict color
+    ADAY   =  '━' # U+2501 for all day events ━
+    RSKIP   =  '▶' # U+25E6 for used time
+    LSKIP   =  '◀' # U+25E6 for used time
+    # RSKIP   =  '⏵' # U+25E6 for used time
+    # LSKIP   =  '⏴' # U+25E6 for used time
+
+    #TODO: add ADAY switch and spacing for FREE
+
+    # first_minutes  + 5 minutes       last_minutes
+    # slot:   0   |  1  |   2          | 180 | 181
+    #             |     |              |     |     
+    # events before slot 1 are compressed into slot 0
+    # events after slot 180 are compressed into slot 181
+
+    begin_hour, end_hour, slot_minutes, marker_hour_interval = get_busy_settings()
+     
+    # width = shutil.get_terminal_size()[0]
+
+    # if width < 70:
+    #     # bar length including week day and month day = 42
+    #     begin_hour = 6
+    #     end_hour = 24
+    #     slot_minutes = 30
+    #     marker_hour_interval = 3
+    # else:
+    #     # bar length including week day and month day = 65
+    #     begin_hour = 6 
+    #     end_hour = 24
+    #     slot_minutes = 20
+    #     marker_hour_interval = 2
+    
+    begin_slots = (begin_hour*60) // slot_minutes
+    end_slots = (end_hour*60) // slot_minutes
+
+    if slot_minutes in [5, 10, 12, 15, 20, 30, 60]: 
+        marker_slot_interval = (marker_hour_interval*60) // slot_minutes 
+    else:
+        marker_slot_interval = 0
+    
+    # MIDNIGHT = datetime.now().replace(
+    #     hour=0, minute=0, second=0, microsecond=0)
+    # HOUR = timedelta(hours=1)
+    # label_length = 60//slot_minutes
+    # ampm = settings.get('ampm', True)
+    # hour_fmt = '%I%p' if ampm else '%H'
+    # hour_labels = [] 
+    # for i in range(begin_hour, end_hour + 1):
+    #     if (i - begin_hour) % marker_hour_interval == 0:
+    #         hour_labels.append(
+    #             f"{(MIDNIGHT + i*HOUR).strftime(hour_fmt).lstrip('0').lower()}"
+    #         )
+    #     else:
+    #         hour_labels.append(" ")
+
+    # HB = "".join([f'{l : <{label_length}}' for l in hour_labels])
+
+    all_slots = []
+
+    # ic((marker_slot_interval, [(x, x%marker_slot_interval) for x in range(1+(24*60)//slot_minutes)]))
+    for i in range(1+(24*60)//slot_minutes):
+        if marker_slot_interval and i % marker_slot_interval == 0:
+            all_slots.append([VSEP, 0])
+        else:
+            all_slots.append([None, 0])
+
+    # ic((all_slots[begin_slots], all_slots[end_slots]))
+
+    # all_slots = [0 for i in range((24*60)//slot_minutes)] # 24*12/5 5-minute slots + before + after.  All initially free = 0.
+    for start, end in events:
+        extent = end - start
+        start_slot = start // slot_minutes
+        num_slots = extent // slot_minutes if  extent % slot_minutes == 0 else extent // slot_minutes + 1 
+        for i in range(start_slot, 
+                       min(start_slot+num_slots, len(all_slots))):
+            # free 0 -> busy 1; busy 1 -> confict 2
+            all_slots[i][1] = min(all_slots[i][1]+1, 2)
+
+    # replace slots prior to 'begin' and after 'end' with their 
+    # respective maximums
+
+    event_slots = []
+    if begin_hour > 0:
+        event_slots.append(max([x[1] for x in all_slots[:begin_slots]]))
+        if all_slots[begin_slots][0] is None:
+            event_slots.append(f' {LSKIP} ')
+    for x in all_slots[begin_slots:end_slots]:
+        # if x[0] is not None:
+        #     # append VSEP
+        #     event_slots.append(x[0])
+        # event_slots.append(x[1])
+        if x[1] > 0:
+            event_slots.append(x[1])
+            # append VSEP
+        elif x[0] is not None:
+            event_slots.append(x[0])
+        else:
+            event_slots.append(x[1]) # 0
+    if end_hour < 24:
+        if all_slots[end_slots][0] is not None:
+            event_slots.append(all_slots[end_slots][0])
+        else:
+            event_slots.append(f' {RSKIP} ')
+        event_slots.append(max([x[1] for x in all_slots[end_slots:]])) 
+    elif marker_slot_interval:
+        event_slots.append(VSEP)
+
+    # ic([event_slots[i] for i in [0, 1, -2, -1]])
+    # ic(event_slots)
+        
+    busyfree = []
+    for j in range(len(event_slots)):
+        if event_slots[j] == 0:
+            if allday:
+                busyfree.append(ADAY)
+            else:
+                busyfree.append(FREE)
+        elif event_slots[j] == 1:
+            busyfree.append(BUSY)
+        elif event_slots[j] == 2:
+            busyfree.append(CONF)
+        else:
+            busyfree.append(event_slots[j])
+
+    return "".join(busyfree)
+
 def busy_conf_day(lofp, allday=False):
     """
     lofp is a list of tuples of (begin_minute, end_minute) busy times, e.g., [(b1, e1) , (b2, e2), ...]. By construction bi < ei. By sort, bi <= bi+1.
@@ -3579,16 +3767,10 @@ shown when nonzero."""
         the future if n > 0 or the past if n < 0.
         """
         width = shutil.get_terminal_size()[0]
-        if width < 70:
-            columns = 2 
-            indent = (1 + int((width - 47)//2)) * " "
-        else: 
-            columns = 3
-            indent = (1 + int((width - 69)//2)) * " "
+        columns = 2 if width < 70 else 3
         today = date.today()
         y = today.year
         try:
-
             c = calendar.LocaleTextCalendar(0, self.cal_locale)
         except:
             logger.warning(f"error using locale {self.cal_locale}")
@@ -3614,7 +3796,8 @@ shown when nonzero."""
             for j in range(l):  # rows from each of the 2 months
                 if columns == 3:
                     ret.append((u'%-20s   %-20s   %-20s ' % (
-                        cal[r][j], cal[r + 1][j], 
+                        cal[r][j], 
+                        cal[r + 1][j], 
                         cal[r + 2][j]))
                         )
                 else:
@@ -3622,7 +3805,8 @@ shown when nonzero."""
                         cal[r][j], 
                         cal[r + 1][j])) 
                         )
-
+        max_len = max([len(line) for line in ret])
+        indent = max(width - max_len, 0)//2 * " "
         ret_lines = [f"{indent}{line}" for line in ret]
         ret_str = "\n".join(ret_lines)
         self.calendar_view = ret_str
@@ -6927,12 +7111,13 @@ def no_busy_periods(week, width):
     empty_hsh[0] = f"""\
 {wk_fmt}
 
-{dent}{8*' '}{HB}
+{dent}{day_bar_labels()}
 """
     for weekday in range(1, 8):
+        empty = day_bar([], False)
         empty_hsh[weekday] = f"""\
 {dent}{7*' '}{empty}
-{dent} {DD[weekday] : <6}{full}
+{dent} {DD[weekday] : <6}{empty}
 """
     return  "".join([empty_hsh[i] for i in range(0, 8)])
 
@@ -7580,8 +7765,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         busy_hsh[0] = f"""\
 {wk_fmt}
 
-{dent}{8*' '}{HB}
+{dent}{day_bar_labels()}
 """
+        empty = day_bar([], False)
         for weekday in range(1, 8):
             lofp = busy.get(weekday, [])
             alldayitems = ""
@@ -7589,7 +7775,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
             if week in week2day2allday and weekday in week2day2allday[week]:
                 allday, lst = week2day2allday[week][weekday]
 
-            empty, full = busy_conf_day(lofp, allday)
+            full = day_bar(lofp, allday)
+
             busy_hsh[weekday] = f"""\
 {dent}{7*' '}{empty}
 {dent} {DD[weekday] : <6}{full}
