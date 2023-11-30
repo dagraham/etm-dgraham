@@ -3150,7 +3150,6 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^l) prompt for and jump to line number', handler=do_go_to_line),
         MenuItem('^p) jump to next pinned item', handler=next_pinned),
         MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
-        MenuItem('^t) start quick timer', handler=quick_timer),
         MenuItem('-', disabled=True),
         MenuItem('J) jump to date in a), b) and c)', handler=do_jump_to_date),
         MenuItem('right) next in a), b), c), u), U) and y)'),
@@ -3180,11 +3179,17 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('^r) show repetitions', handler=not_editing_reps),
         MenuItem('^u) update last modified', handler=do_touch),
         MenuItem('^x) toggle archived status', handler=toggle_archived_status),
-        MenuItem('-', disabled=True),
-        MenuItem('T) activate timer if none active ', handler=next_timer_state),
-        MenuItem("TR) add usedtime / record usedtime and end timer", handler=record_time),
-        MenuItem('TD) delete timer', handler=maybe_delete_timer),
-        MenuItem('TT) toggle paused/running for the active timer', handler=toggle_active_timer),
+    ]),
+    MenuItem('timers', children=[
+        MenuItem('m) show timer view', handler=timers_view),
+        MenuItem('-- for the selected reminder --', disabled=True),
+        MenuItem('T) create timer | toggle paused/running ', handler=next_timer_state),
+        MenuItem("TR) add | record usedtime and delete timer", handler=record_time),
+        MenuItem('TD) delete timer without recording', handler=maybe_delete_timer),
+        MenuItem('-- ignores selection --', disabled=True),
+        MenuItem('TT) toggle paused/running for active timer', handler=toggle_active_timer),
+        # MenuItem('TC) start quick timer with prompt for summary', handler=quick_timer),
+        # MenuItem('^t) start quick timer without prompt', handler=quick_capture),
     ]),
 ], floats=[
     Float(xcursor=True,
@@ -3193,6 +3198,7 @@ root_container = MenuContainer(body=body, menu_items=[
               max_height=16,
               scroll_offset=1)),
 ])
+
 
 
 def set_askreply(_):
