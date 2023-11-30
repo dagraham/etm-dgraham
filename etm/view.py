@@ -815,7 +815,7 @@ def show_message(title, text, padding=6):
             details_area.text = wrap_text(tmp)
             application.layout.focus(details_area)
 
-def wrap_text(text: str, init_indent: int = 2, subs_indent: int = 2):
+def wrap_text(text: str, init_indent: int = 0, subs_indent: int = 0):
     # Split the text into paragraphs (separated by newline characters)
     width = shutil.get_terminal_size()[0] - 2
     paragraphs = text.split('\n')
@@ -1189,7 +1189,7 @@ def do_nothing(*event):
 
 @bindings.add('s', filter=is_viewing)
 def do_alerts(*event):
-    show_message("today's scheduled alerts", alerts(), 2)
+    show_message("scheduled alerts", alerts(), 2)
 
 @bindings.add('c-l', filter=is_viewing)
 def do_go_to_line(*event):
@@ -1500,7 +1500,7 @@ def event_handler(e):
     # minutes = minutes % interval if interval else minutes % 5
 
     try:
-        current_datetime = status_time(now)
+        # current_datetime = status_time(now)
         # wait = refresh_interval - now.second % refresh_interval # residual
         # minutes = now.minute % interval if interval else now.minute % 5
         minutes = now.minute
@@ -1935,7 +1935,7 @@ status_area = VSplit([
             Window(FormattedTextControl(get_statusbar_center_text),
                    style='class:status', width=14, align=WindowAlign.CENTER),
             Window(FormattedTextControl(get_statusbar_right_text),
-                   style='class:status', width=26, align=WindowAlign.RIGHT),
+                   style='class:status', width=14, align=WindowAlign.RIGHT),
         ], height=1)
 
 
@@ -2211,6 +2211,7 @@ def maybe_delete_timer(*event):
 
 @bindings.add('T', 'T', filter=is_viewing_or_details & is_item_view)
 def toggle_active_timer(*event):
+    logger.debug("")
     dataview.toggle_active_timer(text_area.document.cursor_position_row)
     row = text_area.document.cursor_position_row
     dataview.refreshRelevant()

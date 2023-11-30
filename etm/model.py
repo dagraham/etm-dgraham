@@ -1875,6 +1875,7 @@ def format_date(obj):
         return True, obj.strftime(date_fmt)
 
 def format_statustime(obj):
+    width = shutil.get_terminal_size()[0]
     ampm = settings.get('ampm', True)
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
@@ -1882,8 +1883,11 @@ def format_statustime(obj):
     day = obj.strftime("%d").lstrip("0")
     weekday = obj.strftime("%a")
     hourminutes = obj.strftime("%I:%M%p").lstrip("0").lower() if ampm else obj.strftime("%H:%M")
-    monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
-    return f"{hourminutes} {weekday} {monthday}"
+    if width < 48:
+        monthday = ""
+    else:
+        monthday = f' {day} {month}' if dayfirst else f' {month} {day}'
+    return f"{hourminutes} {weekday}{monthday}"
 
 def format_wkday(obj):
     dayfirst = settings.get('dayfirst', False)
@@ -2107,33 +2111,23 @@ def status_duration(obj):
     """
     if not (isinstance(obj, timedelta) or isinstance(obj, Period)):
         return None
-    hours = obj.hours
-    try:
-        until =[]
-        if obj.weeks:
-            hours += obj.weeks * 7 * 24
+    
+    td = obj if isinstance(obj, timedelta) else obj.diff
+    total_seconds = int(td.total_seconds())
+    hours = total_seconds // (60*60)
+    minutes = (total_seconds % (60*60)) // 60
+    seconds = total_seconds - 60*60*hours - 60*minutes
+    
+    until =[]
+    if hours > 0:
+        until.append(f"{hours}h")
+    if seconds and refresh_interval == 6:
+            until.append(f"{minutes}.{seconds//6}m")
+    elif minutes:
+        until.append(f"{minutes}m")
+    
+    return "".join(until)
 
-        if obj.remaining_days:
-            hours += obj.remaining_days * 24
-
-        if hours:
-            until.append(f"{hours}h")
-
-        minutes = obj.minutes
-        seconds = obj.remaining_seconds
-        if seconds:
-            if refresh_interval == 6:
-                until.append(f"{minutes}.{seconds//6}m")
-            else:
-                until.append(f"{minutes}m")
-        elif minutes:
-            until.append(f"{minutes}m")
-        if not until:
-            until.append("0m")
-        return "".join(until)
-    except Exception as e:
-        logger.error(f"{obj}: {e}")
-        return None
 
 def fmt_dur(obj):
     """
@@ -3339,8 +3333,7 @@ shown when nonzero."""
         now = datetime.now().astimezone()
         item_hsh = self.db.get(doc_id=doc_id)
         item_hsh['modified'] = datetime.now().astimezone()
-        # self.db.update(db_replace(item_hsh), doc_ids=[doc_id])
-        self.do_update()
+        self.db.update(db_replace(item_hsh), doc_ids=[doc_id])
         return True
 
 
