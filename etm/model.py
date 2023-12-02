@@ -1926,7 +1926,7 @@ def format_datetime(obj, short=False):
 
 def format_period(obj):
     if not isinstance(obj, Period):
-        logger.debug(f"obj: {obj}")
+        logger.debug(f"error, expected Period but got: {obj}")
         return obj
     start = obj.start
     end = obj.end
@@ -2377,33 +2377,14 @@ class NDict(dict):
                     # replace any newlines in the summary with spaces
                     leaf[0] = re.sub(' *\n+ *', ' ', leaf[0])
                     leaf[1] = re.sub(' *\n+ *', ' ', leaf[1])
-                    if self.compact:
-                        summary_width = self.width - l_indent - 2 - len(leaf[2])
-                    else:
-                        summary_width = self.width - l_indent - 2 - len(leaf[2])
-                    # if settings['connecting_dots'] and (leaf[2].strip() or leaf[3].strip()):
-                    #     times = leaf[3].rstrip() if leaf[3].strip() else ''
-                    #     if self.compact:
-                    #         details = f" {times}".replace('   ', LINEDOT)
-                    #     else:
-                    #         details = f" {leaf[2]} {times}".replace('   ', LINEDOT)
-                    #     fill = summary_width - len(leaf[1])
-                    #     if fill < 0:
-                    #         summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR
-                    #     elif fill >= 3:
-                    #         pad = ' '*(fill%3) if fill%3 else ''
-                    #         summary = f"{leaf[1][:summary_width - 1]}{pad}{LINEDOT*(fill//3)}"
-                    #     else:
-                    #         summary = leaf[1][:summary_width - 1].ljust(summary_width, ' ')
-                    #     tmp = f"{indent}{leaf[0]} {summary}{details}"
-                    # else:
-                    summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) > summary_width else leaf[1]
+                    summary_width = self.width - l_indent - 2
+                    summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) >= summary_width else leaf[1]
                     flags = leaf[2].strip()
-                    flags = "❘" + flags + "❘" if flags else ""
+                    flags = " ❘" + flags + "❘" if flags else ""
                     if self.compact:
-                        tmp = f"{indent}{leaf[0]} {summary} {flags}"
+                        tmp = f"{indent}{leaf[0]} {summary}{flags}"
                     else:
-                        tmp = f"{indent}{leaf[0]} {summary} {flags} {leaf[3]}"
+                        tmp = f"{indent}{leaf[0]} {summary}{flags}"
 
                     self.output.append(tmp)
                     self.row2id[self.row] = leaf[4]
@@ -4164,7 +4145,7 @@ entry_tmpl = """\
 {%- if 'r' in x and x['r'] -%}\
 {%- set rrule %}\
 {{ x['r'] }}\
-{%- for k in ['i', 's', 'M', 'm', 'n', 'h', 'w', 'E', 'c'] -%}
+{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'E', 'c'] -%}
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
@@ -4271,7 +4252,7 @@ display_tmpl = """\
 {%- if 'r' in x and x['r'] -%}\
 {%- set rrule %}\
 {{ x['r'] }}\
-{%- for k in ['i', 's', 'M', 'm', 'n', 'h', 'w', 'E', 'c'] -%}
+{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'E', 'c'] -%}
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
@@ -5906,8 +5887,7 @@ def item_details(item, edit=False):
             return jinja_display_template.render(h=item)
 
     except Exception as e:
-        print('item_details', e)
-        print(item)
+        logger.error(f'item_details: {e} {item}')
 
 
 def fmt_week(yrwk):
@@ -5950,7 +5930,7 @@ def relevant(db, now=datetime.now(), pinned_list=[], link_list=[], konnect_list=
     wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
     dirty = False
     width = shutil.get_terminal_size()[0] - 3
-    summary_width = width - 7 - 16
+    summary_width = width - 3
     ampm = settings['ampm']
     rhc_width = 15 if ampm else 11
     num_remaining = ""
@@ -6402,10 +6382,10 @@ def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=
 
 def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     md_fmt = "%d/%m" if settings['dayfirst'] else "%m/%d"
-    ymd_fmt = f"%Y/{md_fmt}" if settings['yearfirst'] else f"{md_fmt}/%y"
+    ymd_fmt = f"%y/{md_fmt}" if settings['yearfirst'] else f"{md_fmt}/%y"
     width = shutil.get_terminal_size()[0] - 3
     rows = []
-    summary_width = width - 25
+    summary_width = width - 14
     for item in db:
         mt = item.get('modified', None)
         if mt is not None:
@@ -6415,7 +6395,7 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
         if dt is not None:
             doc_id = item.doc_id
             ymd = dt.strftime(ymd_fmt)
-            rhc = f" {ymd} {label}"
+            rhc = f" {ymd}-{label}"
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item.get('summary', "~")
             flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
@@ -6426,9 +6406,9 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
                         'path': path,
                         'values': [
                             itemtype,
-                            summary,
+                            f"{rhc} {summary.rstrip()}",
                             flags,
-                            rhc,
+                            '',
                             doc_id
                             ],
                     }
@@ -7139,24 +7119,13 @@ def wkday2row(wkday):
 
 def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0, weeks_after=0, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     global current_hsh, active_tasks
-    # wkday_fmt = "ddd D MMM" if settings['dayfirst'] else "ddd MMM D"
-    # wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
     timer_schedule = TimeIt('***SCHEDULE***')
-    #
-
     width = shutil.get_terminal_size()[0]-3
     compact = False
     weeks_after = settings['keep_current'][0]
     mk_current = weeks_after > 0
     current_width = settings['keep_current'][1] - 1
     current_hsh = {}
-
-    # if weeks_after > 0:
-    #     width = settings['keep_current'][1]-1
-    #     compact = True
-    # else:
-    #     width = shutil.get_terminal_size()[0]-3
-    #     compact = False
 
     ampm = settings['ampm']
     omit = settings['omit_extent']

@@ -65,6 +65,7 @@ Usage:
     etmdir = etmhome if etmhome else os.getcwd()
 
     import etm.data as data
+    from etm.data import Period
     import etm.view as view
     from etm.view import ETMQuery
     import etm.model as model
@@ -239,6 +240,7 @@ which will need to be created.
     model.etm_version = etm_version
     model.secret = secret
     model.data = data
+    model.Period = Period
     model.ical = ical
     model.Mask = Mask
     model.WA = WA
