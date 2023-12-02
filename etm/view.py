@@ -33,6 +33,7 @@ from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from prompt_toolkit.widgets import Box, Dialog, Label, Button
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
+from zoneinfo import ZoneInfo
 
 
 from packaging.version import parse as parse_version
@@ -801,19 +802,43 @@ class ConfirmDialog(object):
 
 def show_message(title, text, padding=6):
     if dataview.is_showing_details:
+        # close the details window
         application.layout.focus(text_area)
         dataview.hide_details()
-    else:
-        tmp = f"""\
-{title} [press return to close]
+    
+    # prep the message window
+    tmp = f"""\
+{title} [press <enter> to close]
 
 {text}
 
         """
-        if tmp:
-            dataview.show_details()
-            details_area.text = wrap_text(tmp)
-            application.layout.focus(details_area)
+    dataview.show_details()
+    details_area.text = wrap_text(tmp)
+    application.layout.focus(details_area)
+
+
+def get_choice(title, text):
+    if dataview.is_showing_choice:
+        # only one choice at a time
+        return
+    
+    if dataview.is_showing_details:
+        # close the details view
+        application.layout.focus(text_area)
+        dataview.hide_details()
+    
+    
+    
+    tmp = f"""\
+ {title} 
+
+{text}
+"""
+    dataview.show_choice()
+    details_area.text = wrap_text(tmp)
+    application.layout.focus(details_area)
+
 
 def wrap_text(text: str, init_indent: int = 0, subs_indent: int = 0):
     # Split the text into paragraphs (separated by newline characters)
@@ -1141,6 +1166,14 @@ def is_not_editing():
     return not dataview.is_editing
 
 @Condition
+def dialog_active():
+    return dataview.dialog_active
+
+@Condition
+def dialog_not_active():
+    return not dataview.dialog_active
+
+@Condition
 def is_not_searching():
     return not application.layout.is_searching
 
@@ -1173,12 +1206,28 @@ def is_not_yearly_view():
     return dataview.active_view not in ['yearly']
 
 @Condition
-def not_showing_details():
+def is_not_showing_details():
     return dataview.is_showing_details == False
 
 @Condition
 def is_showing_details():
     return dataview.is_showing_details
+
+# @Condition
+# def is_showing_confirmation():
+#     return dataview.is_showing_confirmation
+
+# @Condition
+# def is_not_showing_confirmation():
+#     return dataview.is_showing_confirmation == False
+
+@Condition
+def is_showing_choice():
+    return dataview.is_showing_choice
+
+@Condition
+def is_not_showing_choice():
+    return dataview.is_showing_choice == False
 
 bindings.add('tab', filter=is_not_editing)(focus_next)
 bindings.add('s-tab', filter=is_not_editing)(focus_previous)
@@ -1332,18 +1381,6 @@ def status_time(dt):
         hourminutes = dt.strftime("%I:%M%p").lstrip("0").lower() if ampm else dt.strftime("%H:%M")
     monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
     return f"{hourminutes} {weekday} {monthday}"
-    # d_fmt = format_statustime(dt)
-    # ampm = settings['ampm']
-    # if settings['dayfirst']:
-    #     d_fmt = dt
-    # else:
-    #     d_fmt = dt.format("ddd MMM D")
-    # suffix = dt.format("A").lower() if ampm else ""
-    # if dt.minute == 0:
-    #     t_fmt = dt.format("h") if ampm else dt.format("H")
-    # else:
-    #     t_fmt = dt.format("h:mm") if ampm else dt.format("H:mm")
-    # return f"{t_fmt}{suffix} {d_fmt}"
 
 def item_changed(loop):
     item.update_item_hsh()
@@ -1500,9 +1537,6 @@ def event_handler(e):
     # minutes = minutes % interval if interval else minutes % 5
 
     try:
-        # current_datetime = status_time(now)
-        # wait = refresh_interval - now.second % refresh_interval # residual
-        # minutes = now.minute % interval if interval else now.minute % 5
         minutes = now.minute
         current_today = dataview.now.strftime("%Y%m%d")
         asyncio.ensure_future(maybe_alerts(now))
@@ -1597,7 +1631,7 @@ def get_statusbar_center_text():
             current_id = current_id[0]
         return [ ('class:status',  f'{current_row}: {current_id}'), ]
 
-    return [ ('class:status',  14 * ' '), ]
+    return [ ('class:status',  12 * ' '), ]
 
 
 def get_statusbar_right_text():
@@ -1933,9 +1967,9 @@ entry_buffer.on_cursor_position_changed += default_cursor_position_changed
 status_area = VSplit([
             Window(FormattedTextControl(get_statusbar_text), style='class:status'),
             Window(FormattedTextControl(get_statusbar_center_text),
-                   style='class:status', width=14, align=WindowAlign.CENTER),
+                   style='class:status', width=12, align=WindowAlign.CENTER),
             Window(FormattedTextControl(get_statusbar_right_text),
-                   style='class:status', width=14, align=WindowAlign.RIGHT),
+                   style='class:status', width=20, align=WindowAlign.RIGHT),
         ], height=1)
 
 
@@ -1946,6 +1980,9 @@ body = HSplit([
         content=details_area,
         filter=is_showing_details & is_not_busy_view),
     ConditionalContainer(
+        content=details_area,
+        filter=is_showing_choice & is_not_busy_view),
+    ConditionalContainer(
         content=busy_container,
         filter=is_busy_view),
     ConditionalContainer(
@@ -1954,6 +1991,9 @@ body = HSplit([
     ConditionalContainer(
         content=edit_container,
         filter=is_editing),
+    ConditionalContainer(
+        content=edit_container,
+        filter=dialog_active),
     search_field,
     ])
 
@@ -2060,53 +2100,78 @@ def do_maybe_delete(*event):
 
     if not instance:
         # not repeating
-        def coroutine():
-            dialog = ConfirmDialog("Delete",
-                    f"Selected: {hsh['itemtype']} {hsh['summary']}\n\nAre you sure you want to delete this item{timer_warning}?\nThis action cannot be undone.")
 
-            delete = yield from show_dialog_as_float(dialog)
-            if delete:
+        title = "-- Delete --"
+
+        text = f"""\
+Selected: {hsh['itemtype']} {hsh['summary']}
+
+Are you sure that you want to delete this item?  
+    0: no, delete nothing
+    1: yes, delete this reminder
+
+A deletion cannot be undone.
+"""
+
+        get_choice(title, text)
+
+        def coroutine():
+            keypress = dataview.details_key_press
+            logger.debug(f"confirmation keypress: {keypress}")
+            done = keypress in ['0', '1']
+            if keypress == '1':
                 if has_timer:
                     dataview.timer_clear(doc_id)
                 item.delete_item(doc_id)
                 if doc_id in dataview.itemcache:
                     del dataview.itemcache[doc_id]
-                application.layout.focus(text_area)
-                set_text(dataview.show_active_view())
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
+            return done
 
-        asyncio.ensure_future(coroutine())
+            
+            application.layout.focus(text_area)
+ 
+
+        dataview.got_choice = coroutine
+
 
     if instance:
         # repeating
+        title = "-- Delete --"
+
+        text = f"""\
+Selected: {hsh['itemtype']} {hsh['summary']}
+Instance: {format_datetime(instance)[1]} 
+
+This is one instance of a repeating item. What do you want to delete? 
+    0: nothing
+    1: just this instance
+    2: the reminder itself
+
+Deletions cannot be undone.
+"""
+
+        get_choice(title, text)
+
         def coroutine():
-
-            # radios.current_value will contain the first component of the selected tuple
-            title = "Delete"
-            text = f"Selected: {hsh['itemtype']} {hsh['summary']}\nInstance: {format_datetime(instance)[1]}\n\nDelete what?"
-            values =[
-                (0, 'just this instance'),
-                (1, 'the item itself'),
-            ]
-
-            dialog = RadioListDialog(
-                title=title,
-                text=text,
-                values=values)
-
-            which = yield from show_dialog_as_float(dialog)
-            if which is not None:
-                changed = item.delete_instances(doc_id, instance, which)
+            keypress = dataview.details_key_press
+            logger.debug(f"confirmation keypress: {keypress}")
+            
+            done = keypress in ['0', '1', '2']
+            if done:
+                changed = item.delete_instances(doc_id, instance, keypress)
                 if changed:
                     if doc_id in dataview.itemcache:
                         del dataview.itemcache[doc_id]
-                    application.layout.focus(text_area)
-                    set_text(dataview.show_active_view())
+                    # application.layout.focus(text_area)
+                    # set_text(dataview.show_active_view())
                     loop = asyncio.get_event_loop()
                     loop.call_later(0, data_changed, loop)
+                
+                return done
 
-        asyncio.ensure_future(coroutine())
+        dataview.got_choice = coroutine
 
 starting_buffer_text = ""
 
@@ -2662,6 +2727,29 @@ def quick_timer(*event):
     asyncio.ensure_future(coroutine())
 
 
+@bindings.add('c-t', filter=is_viewing & is_item_view)
+def quick_capture(*event):
+    """
+    Like quick_timer but does not prompt for summary modification
+    """
+    now = datetime.now().astimezone()
+    item_hsh = {
+            'itemtype': '!',
+            'summary': format_datetime(now, short=True)[1],
+            'created': now.astimezone(ZoneInfo('UTC'))
+            }
+    doc_id = ETMDB.insert(item_hsh)
+    if doc_id:
+        dataview.next_timer_state(doc_id)
+        dataview.next_timer_state(doc_id)
+        dataview.refreshRelevant()
+        dataview.refreshAgenda()
+        dataview.refreshCurrent()
+        dataview.refreshKonnections()
+        loop = asyncio.get_event_loop()
+        loop.call_later(0, data_changed, loop)
+
+
 @bindings.add('c-x', filter=is_viewing & is_item_view)
 def toggle_archived_status(*event):
     """
@@ -2721,6 +2809,7 @@ def agenda_view(*event):
 def busy_view(*event):
     set_view('b')
     busy_details = dataview.busy_details
+    logger.debug([f"{key}: {value.strip()}\n" for key, value in busy_details.items()])
     if dataview.busy_row:
         text_area.buffer.cursor_position = \
             text_area.buffer.document.translate_row_col_to_index(dataview.busy_row-1, 0)
@@ -2731,7 +2820,7 @@ def busy_view(*event):
 def completed_view(*event):
     set_view('c')
 
-@bindings.add('q', filter=is_viewing)
+@bindings.add('q', filter=is_viewing & is_not_showing_details)
 def query_view(*event):
     ask_buffer.text = "Submit '?' for help or 'l' for a list of stored queries"
     set_view('q')
@@ -3031,7 +3120,23 @@ def currcal(*event):
     dataview.currMonth()
     set_text(dataview.show_active_view())
 
-@bindings.add('enter', filter=is_viewing_or_details & is_item_view)
+@bindings.add('<any>', filter=is_showing_choice)
+def handle_choice(*event):
+    """
+    Handle any key presses. The coroutine used as dataview.got_input
+    will determine which presses are acted upon and which are
+    ignored. 
+    """
+    keypressed = event[0].key_sequence[0].key
+    dataview.details_key_press = keypressed
+    logger.debug(f"handle_choice: {keypressed}")
+    done = dataview.got_choice()
+    if done:
+        dataview.hide_choice()
+        application.layout.focus(text_area)
+
+
+@bindings.add('enter', filter=is_viewing_or_details & is_item_view & is_not_showing_choice)
 def show_details(*event):
     if dataview.is_showing_details:
         application.layout.focus(text_area)
@@ -3188,8 +3293,8 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('TD) delete timer without recording', handler=maybe_delete_timer),
         MenuItem('-- ignores selection --', disabled=True),
         MenuItem('TT) toggle paused/running for active timer', handler=toggle_active_timer),
-        # MenuItem('TC) start quick timer with prompt for summary', handler=quick_timer),
-        # MenuItem('^t) start quick timer without prompt', handler=quick_capture),
+        MenuItem('TC) start quick timer, prompt for summary', handler=quick_timer),
+        MenuItem('^t) start quick timer without prompt', handler=quick_capture),
     ]),
 ], floats=[
     Float(xcursor=True,
@@ -3198,7 +3303,6 @@ root_container = MenuContainer(body=body, menu_items=[
               max_height=16,
               scroll_offset=1)),
 ])
-
 
 
 def set_askreply(_):

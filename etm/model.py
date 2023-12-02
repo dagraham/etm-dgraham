@@ -337,31 +337,13 @@ def day_bar(events: list, allday: bool = False) -> str:
     # RSKIP   =  '⏵' # U+25E6 for used time
     # LSKIP   =  '⏴' # U+25E6 for used time
 
-    #TODO: add ADAY switch and spacing for FREE
 
-    # first_minutes  + 5 minutes       last_minutes
-    # slot:   0   |  1  |   2          | 180 | 181
-    #             |     |              |     |     
-    # events before slot 1 are compressed into slot 0
-    # events after slot 180 are compressed into slot 181
+    # logger.debug(f"{allday} {events}")
+
+    #TODO: add ADAY switch and spacing for FREE
 
     begin_hour, end_hour, slot_minutes, marker_hour_interval = get_busy_settings()
      
-    # width = shutil.get_terminal_size()[0]
-
-    # if width < 70:
-    #     # bar length including week day and month day = 42
-    #     begin_hour = 6
-    #     end_hour = 24
-    #     slot_minutes = 30
-    #     marker_hour_interval = 3
-    # else:
-    #     # bar length including week day and month day = 65
-    #     begin_hour = 6 
-    #     end_hour = 24
-    #     slot_minutes = 20
-    #     marker_hour_interval = 2
-    
     begin_slots = (begin_hour*60) // slot_minutes
     end_slots = (end_hour*60) // slot_minutes
 
@@ -370,23 +352,6 @@ def day_bar(events: list, allday: bool = False) -> str:
     else:
         marker_slot_interval = 0
     
-    # MIDNIGHT = datetime.now().replace(
-    #     hour=0, minute=0, second=0, microsecond=0)
-    # HOUR = timedelta(hours=1)
-    # label_length = 60//slot_minutes
-    # ampm = settings.get('ampm', True)
-    # hour_fmt = '%I%p' if ampm else '%H'
-    # hour_labels = [] 
-    # for i in range(begin_hour, end_hour + 1):
-    #     if (i - begin_hour) % marker_hour_interval == 0:
-    #         hour_labels.append(
-    #             f"{(MIDNIGHT + i*HOUR).strftime(hour_fmt).lstrip('0').lower()}"
-    #         )
-    #     else:
-    #         hour_labels.append(" ")
-
-    # HB = "".join([f'{l : <{label_length}}' for l in hour_labels])
-
     all_slots = []
 
     # ic((marker_slot_interval, [(x, x%marker_slot_interval) for x in range(1+(24*60)//slot_minutes)]))
@@ -446,7 +411,6 @@ def day_bar(events: list, allday: bool = False) -> str:
             if allday:
                 busyfree.append(ADAY)
             else:
-                # busyfree.append(FREE)
                 busyfree.append(HSEP)
         elif event_slots[j] == 1:
             busyfree.append(BUSY)
@@ -852,6 +816,9 @@ item_hsh:    {self.item_hsh}
         self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         timer_update.stop()
 
+    def got_choice(self):
+        # this will the coutine defined in the 'dialog' that requests user input
+        pass
 
     def edit_item(self, doc_id=None, entry=""):
         if not (doc_id and entry):
@@ -970,14 +937,14 @@ item_hsh:    {self.item_hsh}
     def delete_instances(self, doc_id, instance, which):
         """
         which:
-        (0, 'this instance'),
-        (1, 'all instances - delete the item itself'),
+        (1, 'this instance'),
+        (2, 'all instances - delete the item itself'),
         """
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
         changed = False
-        if which == 0:
+        if which == '1':
             # this instance
             if '+' in self.item_hsh and instance in self.item_hsh['+']:
                 self.item_hsh['+'].remove(instance)
@@ -998,7 +965,7 @@ item_hsh:    {self.item_hsh}
 
                 # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
                 self.do_update()
-        else: # 1
+        elif which == '2': 
             # all instance - delete item
             changed = self.delete_item(doc_id)
 
@@ -1211,6 +1178,7 @@ item_hsh:    {self.item_hsh}
 
     def check_item_hsh(self):
         created = self.item_hsh.get('created', None)
+        logger.debug(f"created: {created}")
         self.item_hsh = {'created': created}
         cur_hsh = {}
         cur_key = None
@@ -1881,13 +1849,14 @@ def format_statustime(obj):
     yearfirst = settings.get('yearfirst', False)
     month = obj.strftime("%b")
     day = obj.strftime("%d").lstrip("0")
-    weekday = obj.strftime("%a")
     hourminutes = obj.strftime("%I:%M%p").lstrip("0").lower() if ampm else obj.strftime("%H:%M")
-    if width < 48:
+    if width < 60:
+        weekday = ""
         monthday = ""
     else:
+        weekday = f' {obj.strftime("%a")}'
         monthday = f' {day} {month}' if dayfirst else f' {month} {day}'
-    return f"{hourminutes} {weekday}{monthday}"
+    return f"{hourminutes}{weekday}{monthday}"
 
 def format_wkday(obj):
     dayfirst = settings.get('dayfirst', False)
@@ -2534,9 +2503,13 @@ class DataView(object):
         self.completion_keys = ['c', 'g', 'i', 'k', 'l', 'n', 't']
         self.edit_item = None
         self.is_showing_details = False
+        # self.is_showing_confirmation = False
+        self.is_showing_choice = False
+        self.details_key_press = ""
         self.is_showing_query = False
         self.is_showing_help = False
         self.is_editing = False
+        self.dialog_active = False
         self.is_showing_items = True
         if needs_update:
             timer_update = TimeIt('***UPDATE***')
@@ -3148,9 +3121,35 @@ class DataView(object):
     def show_details(self):
         self.is_showing_details = True
 
-
     def hide_details(self):
         self.is_showing_details = False
+    
+    # def show_confirmation(self):
+    #     self.details_key_press = ""
+    #     self.is_showing_confirmation = True
+    
+    # def hide_confirmation(self):
+    #     self.is_showing_confirmation = False
+
+        def coroutine():
+            pass
+        
+        self.got_choice = coroutine
+    
+    def show_choice(self):
+        self.details_key_press = ""
+        self.is_showing_choice = True
+    
+    def hide_choice(self):
+        self.is_showing_choice = False
+
+        # reset the coroutine used for got_choice    
+        def coroutine():
+            pass
+        
+        self.got_choice = coroutine
+
+
 
     def get_row_details(self, row=None):
         if row is None:
@@ -6316,7 +6315,8 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
         year = relevant.strftime("%Y")
         monthday = relevant.strftime(md_fmt)
         time = fmt_time(relevant)
-        rhc = f"{monthday:>6} {time:^7}".ljust(14, ' ')
+        # rhc = f"{monthday:>6} {time:^7}".ljust(14, ' ')
+        rhc = f"{monthday} {time}" if time else monthday
 
         itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = set_summary(item['summary'], item.get('s', None), relevant, freq)
@@ -6329,9 +6329,9 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
                     'path': year,
                     'values': [
                         itemtype,
-                        summary,
+                        f'{rhc}  {summary}',
                         flags,
-                        rhc,
+                        "",
                         doc_id
                         ],
                 }
@@ -6758,7 +6758,8 @@ def show_journal(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[],
             rhc = " "
             ss = ""
             year = month = day = ""
-        rhc = f"{rhc: ^8}"
+        # rhc = f"{rhc: ^8}"
+        rhc = ""
         index = item.get('i', '~')
         if index == settings['journal_name'] and year:
             index = f"{index}/{year}/{month}"
@@ -6878,7 +6879,8 @@ def show_index(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], t
         else:
             rhc = " "
             sort = "~"
-        rhc = f"{rhc: ^8}"
+        # rhc = f"{rhc: ^8}"
+        rhc = ""
         rows.append({
                     'sort': (index, sort, item['itemtype'], item['summary']),
                     'path': index,
@@ -7739,10 +7741,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
     for week, dayhsh in week2day2busy.items():
         # week (year, week_number)
         busy_tuples = []
-        days = [d for d in dayhsh.keys()]
-        days.sort()
-        for day in days:
-            periods = dayhsh[day]
+        for day in range(1, 8):
+            periods = dayhsh.get(day, [])
             periods.sort()
             busy_tuples.append([day, periods])
 
@@ -7769,7 +7769,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
             if week in week2day2allday and weekday in week2day2allday[week]:
                 allday, lst = week2day2allday[week][weekday]
 
+            logger.debug(f"{week} {weekday}: {lofp}")
             full = day_bar(lofp, allday)
+            
+            if week in [48, '48']: 
+                logger.debug(full)
+
 
             busy_hsh[weekday] = f"""\
 {dent}{7*' '}{empty}
@@ -8195,7 +8200,7 @@ def about(padding=0):
         output.append(line.center(width, ' ') + "\n")
     logo = "".join(output)
 
-    copyright = wrap(f"Copyright 2009-{date.today().strftime('%Y')}, Daniel A Graham. All rights reserved. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version. See www.gnu.org/licenses/gpl.html for details.", 0, width)
+    copyright = wrap(f"Copyright 2009-{datetime.today().strftime('%Y')}, Daniel A Graham. All rights reserved. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version. See www.gnu.org/licenses/gpl.html for details.", 0, width)
 
     summary = wrap(f"This application provides a format for using plain text entries to create events, tasks and other reminders and a prompt_toolkit based interface for creating and modifying items as well as viewing them.", 0, width)
 
