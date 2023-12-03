@@ -6354,7 +6354,7 @@ def show_query_items(text, items=[], pinned_list=[], link_list=[], konnect_list=
         else:
             dt, label = item.get('created', None), 'c'
         doc_id = item.doc_id
-        year = dt.format("%Y")
+        year = dt.strftime("%Y")
         itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = item['summary']
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)

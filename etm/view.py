@@ -810,10 +810,10 @@ def show_message(title, text, padding=6):
         # close the details window
         application.layout.focus(text_area)
         dataview.hide_details()
-    
+
     # prep the message window
     tmp = f"""\
--- {title.rstrip()} -- 
+-- {title.rstrip()} --
 
 {text.rstrip()}
 
@@ -828,16 +828,16 @@ def get_choice(title, text):
     if dataview.is_showing_choice:
         # only one choice at a time
         return
-    
+
     if dataview.is_showing_details:
         # close the details view
         application.layout.focus(text_area)
         dataview.hide_details()
-    
-    
-    
+
+
+
     tmp = f"""\
- -- {title} -- 
+ -- {title} --
 
 {text}
 """
@@ -907,12 +907,40 @@ def do_check_updates(*event):
     # '?', None (info unavalable)
     # UPDATE_CHAR, available_version (update to available_version is possible)
     # '', current_version (current_version is the latest available)
-    if status in ['?', '']: # message only 
+    if status in ['?', '']: # message only
         show_message("Update Information", res, 2)
     else: # update available - get_choice
-        get_choice('Update Available', res)
-        # show_message("version information", res, 2)
+        title = "Update Available"
+        get_choice(title, res)
 
+        def coroutine():
+            keypress = dataview.details_key_press
+            logger.debug(f"confirmation keypress: {keypress}")
+            done = keypress in ['0', '1']
+            if keypress == '1':
+                ok, msg = check_output(settings['update_command'])
+                logger.debug(msg)
+                tmp = [x.strip() for x in msg.split('\n')]
+                lines = [wrap(tmp[0])]
+                for line in tmp[1:]:
+                    if line and not line.startswith("Requirement already"):
+                        lines.append(wrap(line))
+                logger.debug(f"lines: {lines}")
+                success = wrap("If the update was sucessful, you will need to restart etm for it to take effect.")
+                prompt = "\n".join(lines)
+                # prompt = wrap("\n".join(msg.split('\n')[:1]))
+
+                if ok:
+                    show_message("ETM Update", f"{prompt}\n\n{success}", 2)
+                    # show_message("etm update", prompt, 2)
+                else:
+                    show_message("ETM Update", prompt, 2)
+            else:
+                show_message("ETM Update", "cancelled")
+            
+            return done
+
+        dataview.got_choice = coroutine
 
 
 def check_update():
@@ -1011,7 +1039,7 @@ There are changes to this reminder that have not been saved. Are you sure that y
     0: no, continue editing
     1: yes, discard the changes
 """
-    
+
     get_choice(title, text)
 
     def coroutine():
@@ -1026,7 +1054,7 @@ There are changes to this reminder that have not been saved. Are you sure that y
             application.output.set_cursor_shape(CursorShape.BLOCK)
             set_text(dataview.show_active_view())
         return done
-    
+
     dataview.got_choice = coroutine
 
 def discard_changes(event, prompt=''):
@@ -1827,7 +1855,7 @@ def get_busy_text_and_keys(n):
     active_days = "  ".join([v for k, v in weekdays.items() if k in busy_details.keys()])
     no_busy_times = "There are no days with busy periods this week.".center(width, ' ')
     busy_times = wrap_text(f"""\
-Press the number of a weekday,     
+Press the number of a weekday,
     {weekdays[5]}, ..., {weekdays[17]}
 to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.""", init_indent=0, subs_indent=0)
     active_keys = f"{active_days}  ▼→next  ▲→previous".center(width, ' ')
@@ -2146,7 +2174,7 @@ def do_maybe_delete(*event):
         text = f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}
 
-Are you sure that you want to delete this item?  
+Are you sure that you want to delete this item?
     0: no, delete nothing
     1: yes, delete this reminder
 
@@ -2169,9 +2197,9 @@ A deletion cannot be undone.
                 loop.call_later(0, data_changed, loop)
             return done
 
-            
+
             application.layout.focus(text_area)
- 
+
 
         dataview.got_choice = coroutine
 
@@ -2182,9 +2210,9 @@ A deletion cannot be undone.
 
         text = f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}
-Instance: {format_datetime(instance)[1]} 
+Instance: {format_datetime(instance)[1]}
 
-This is one instance of a repeating item. What do you want to delete? 
+This is one instance of a repeating item. What do you want to delete?
     0: nothing
     1: just this instance
     2: the reminder itself
@@ -2197,7 +2225,7 @@ Deletions cannot be undone.
         def coroutine():
             keypress = dataview.details_key_press
             logger.debug(f"confirmation keypress: {keypress}")
-            
+
             done = keypress in ['0', '1', '2']
             if done:
                 changed = item.delete_instances(doc_id, instance, keypress)
@@ -2208,7 +2236,7 @@ Deletions cannot be undone.
                     # set_text(dataview.show_active_view())
                     loop = asyncio.get_event_loop()
                     loop.call_later(0, data_changed, loop)
-                
+
                 return done
 
         dataview.got_choice = coroutine
@@ -3161,7 +3189,7 @@ def handle_choice(*event):
     """
     Handle any key presses. The coroutine used as dataview.got_input
     will determine which presses are acted upon and which are
-    ignored. 
+    ignored.
     """
     keypressed = event[0].key_sequence[0].key
     dataview.details_key_press = keypressed
@@ -3198,7 +3226,7 @@ def close_edit(*event):
     app = get_app()
     app.editing_mode = EditingMode.EMACS
     dataview.is_editing = False
-    dataview.control_z_active = False 
+    dataview.control_z_active = False
     application.layout.focus(text_area)
     application.output.set_cursor_shape(CursorShape.BLOCK)
     set_text(dataview.show_active_view())
@@ -3394,7 +3422,7 @@ async def main(etmdir=""):
     timer_view.stop()
     try:
         result = await application.run_async()
-        
+
     finally:
         # background_task.cancel()
         logger.info("Quitting event loop.")
