@@ -8157,7 +8157,7 @@ def about(padding=0):
         " ╚════╝  ╚═╝  ╚═╝     ╚═╝ ",
         "  Event and Task Manager  ",
     ]
-    width=shutil.get_terminal_size()[0]-2-padding
+    width=shutil.get_terminal_size()[0]-2
     output = []
     for line in logo_lines:
         output.append(line.center(width, ' ') + "\n")
@@ -8180,16 +8180,16 @@ Developer:      dnlgrhm@gmail.com
 {copyright}\
 """
 
-    ret2 = f"""
-etm:            {etm_version}
-python:         {python_version}
-dateutil:       {dateutil_version}
-prompt_toolkit: {prompt_toolkit_version}
-tinydb:         {tinydb_version}
-jinja2:         {jinja2_version}
-ruamel.yaml:    {ruamel_version}
-platform:       {system_platform}
-etm directory:  {etmhome}
+    ret2 = f"""\
+    etm:            {etm_version}
+    python:         {python_version}
+    dateutil:       {dateutil_version}
+    prompt_toolkit: {prompt_toolkit_version}
+    tinydb:         {tinydb_version}
+    jinja2:         {jinja2_version}
+    ruamel.yaml:    {ruamel_version}
+    platform:       {system_platform}
+    etm directory:  {etmhome}\
 """
     return ret1, ret2
 

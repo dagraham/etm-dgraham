@@ -5,6 +5,7 @@ A user interface based on prompt_toolkit.
 from __future__ import unicode_literals
 
 import sys
+import inspect
 
 # from prompt_toolkit import __version__ as prompt_toolkit_version
 
@@ -800,6 +801,10 @@ class ConfirmDialog(object):
     def __pt_container__(self):
         return self.dialog
 
+def show_work_in_progress(func: str = ""):
+    name = inspect.currentframe().f_code.co_name
+    show_message('-- Not Yet Implemented', f'"{func}" is a work in progess.')
+
 def show_message(title, text, padding=6):
     if dataview.is_showing_details:
         # close the details window
@@ -808,11 +813,12 @@ def show_message(title, text, padding=6):
     
     # prep the message window
     tmp = f"""\
-{title} [press <enter> to close]
+-- {title.rstrip()} -- 
 
-{text}
+{text.rstrip()}
 
-        """
+[press <enter> to close]"""
+
     dataview.show_details()
     details_area.text = wrap_text(tmp)
     application.layout.focus(details_area)
@@ -831,7 +837,7 @@ def get_choice(title, text):
     
     
     tmp = f"""\
- {title} 
+ -- {title} -- 
 
 {text}
 """
@@ -893,16 +899,20 @@ bindings = KeyBindings()
 
 @bindings.add('f2')
 def do_about(*event):
-    show_message('etm information', about(2)[0], 0)
+    show_message('ETM Information', about(2)[0], 10)
 
 @bindings.add('f4')
 def do_check_updates(*event):
     status, res = check_update()
-    # msg = wrap(res)
-    if status:
-        show_message("version information", res, 2)
-    else:
-        show_message("version information", msg, 2)
+    # '?', None (info unavalable)
+    # UPDATE_CHAR, available_version (update to available_version is possible)
+    # '', current_version (current_version is the latest available)
+    if status in ['?', '']: # message only 
+        show_message("Update Information", res, 2)
+    else: # update available - get_choice
+        get_choice('Update Available', res)
+        # show_message("version information", res, 2)
+
 
 
 def check_update():
@@ -916,7 +926,7 @@ def check_update():
     except:
         url_version = None
     if url_version is None:
-        res = "update information is unavailable"
+        res = "Update information is currently unavailable. Please check your wifi connection."
         status_char = "?"
     else:
         # kluge for purely numeric versions
@@ -924,10 +934,13 @@ def check_update():
         # from packaging.version parse
         if parse_version(url_version) > parse_version(etm_version):
             status_char = UPDATE_CHAR
-            res = f"an update is available to {url_version}"
+            res = f"""\
+An update is available to {url_version}. Do you want to update now?
+    0: no, do not update now
+    1: yes, update now"""
         else:
             status_char = ''
-            res = f"the installed version, {etm_version}, is the latest available"
+            res = f"The installed version, {etm_version}, is the latest available."
 
     return status_char, res
 
@@ -951,30 +964,34 @@ async def refresh_loop(loop):
 
 @bindings.add('f3')
 def do_system(*event):
-    show_message('system information', about(22)[1], 20)
+    show_message('System Information', about(22)[1], 20)
 
 
 @bindings.add('f6')
 def dt_calculator(*event):
-    def coroutine():
-        prompt = """\
-Enter an expression of the form:
-    x [+-] y
-where x is a datetime and y is either
-    [+] a timeperiod
-    [-] a datetime or a timeperiod
-Be sure to surround [+-] with spaces.
-Timezones can be appended to x and y.
-        """
-        dialog = InteractiveInputDialog(
-            title='datetime calculator',
-            help_text=prompt,
-            evaluator=datetime_calculator,
-            padding=4,
-            )
-        yield from show_dialog_as_float(dialog)
+    func  = inspect.currentframe().f_code.co_name
+    show_work_in_progress(func)
+    return
 
-    asyncio.ensure_future(coroutine())
+#     def coroutine():
+#         prompt = """\
+# Enter an expression of the form:
+#     x [+-] y
+# where x is a datetime and y is either
+#     [+] a timeperiod
+#     [-] a datetime or a timeperiod
+# Be sure to surround [+-] with spaces.
+# Timezones can be appended to x and y.
+#         """
+#         dialog = InteractiveInputDialog(
+#             title='datetime calculator',
+#             help_text=prompt,
+#             evaluator=datetime_calculator,
+#             padding=4,
+#             )
+#         yield from show_dialog_as_float(dialog)
+
+#     asyncio.ensure_future(coroutine())
 
 @bindings.add('f7')
 def do_open_config(*event):
@@ -987,7 +1004,7 @@ def do_show_help(*event):
 
 def save_before_quit(*event):
 
-    title = "-- Unsaved Changes --"
+    title = "Unsaved Changes"
 
     text = """\
 There are changes to this reminder that have not been saved. Are you sure that you want to discard them and close the editor?
@@ -1013,7 +1030,7 @@ There are changes to this reminder that have not been saved. Are you sure that y
     dataview.got_choice = coroutine
 
 def discard_changes(event, prompt=''):
-    title = "-- Unsaved Information --"
+    title = "Unsaved Information"
 
     get_choice(title, prompt)
 
@@ -1105,7 +1122,7 @@ def add_usedtime(*event):
             show_message('add used time', f"Cancelled, {msg}")
 
 
-    asyncio.ensure_future(coroutine())
+    # asyncio.ensure_future(coroutine())
 
 
 today = datetime.today()
@@ -1256,6 +1273,10 @@ def do_alerts(*event):
 
 @bindings.add('c-l', filter=is_viewing)
 def do_go_to_line(*event):
+    func  = inspect.currentframe().f_code.co_name
+    show_work_in_progress(func)
+    return
+
     def coroutine():
         default = ''
         if dataview.current_row:
@@ -1280,6 +1301,10 @@ def do_go_to_line(*event):
 
 @bindings.add('J', filter=is_dated_view)
 def do_jump_to_date(*event):
+    func  = inspect.currentframe().f_code.co_name
+    show_work_in_progress(func)
+    return
+
     def coroutine():
         dialog = TextInputDialog(
             title='Jump to date',
@@ -1294,7 +1319,7 @@ def do_jump_to_date(*event):
                 show_message('jump to date', 'Invalid date')
             else:
                 set_text(dataview.show_active_view())
-    asyncio.ensure_future(coroutine())
+    # asyncio.ensure_future(coroutine())
 
 
 window_colors = None
@@ -2116,7 +2141,7 @@ def do_maybe_delete(*event):
     if not instance:
         # not repeating
 
-        title = "-- Delete --"
+        title = "Delete"
 
         text = f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}
@@ -2153,7 +2178,7 @@ A deletion cannot be undone.
 
     if instance:
         # repeating
-        title = "-- Delete --"
+        title = "Delete"
 
         text = f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}
@@ -2623,6 +2648,10 @@ def toggle_pinned(*event):
 
 @bindings.add('f5')
 def do_import_file(*event):
+    func  = inspect.currentframe().f_code.co_name
+    show_work_in_progress(func)
+    return
+
     inbasket = os.path.join(etmhome, "inbasket.text")
     default = inbasket if os.path.exists(os.path.expanduser(inbasket)) else etmhome
     msg = ""
@@ -2690,7 +2719,7 @@ Enter the full path of the file to import or
                     loop.call_later(0, data_changed, loop)
                 show_message('import file', msg)
 
-    asyncio.ensure_future(coroutine())
+    # asyncio.ensure_future(coroutine())
 
 
 @bindings.add('c-t', 'c-t', filter=is_viewing & is_item_view)
@@ -2791,21 +2820,7 @@ def toggle_archived_status(*event):
 
 @bindings.add('c-q', filter=is_not_editing)
 def exit(*event):
-    tmp = []
-    if is_editing() and entry_buffer_changed():
-        tmp.append('unsaved edits')
-    if dataview.unsaved_timers():
-        tmp.append('unrecorded timers')
-    if tmp:
-        prompt = f"""\
-There are {' and '.join(tmp)}.
-Close etm anyway?
-    0: no, do not close etm
-    1: yes, close etm
-"""
-        discard_changes(event, prompt)
-    else:
-        application.exit()
+    application.exit()
 
 
 @bindings.add('c-c', filter=is_viewing)
