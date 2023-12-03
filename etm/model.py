@@ -338,7 +338,6 @@ def day_bar(events: list, allday: bool = False) -> str:
     # LSKIP   =  '⏴' # U+25E6 for used time
 
 
-    # logger.debug(f"{allday} {events}")
 
     #TODO: add ADAY switch and spacing for FREE
 
@@ -2490,6 +2489,7 @@ class DataView(object):
         self.is_showing_query = False
         self.is_showing_help = False
         self.is_editing = False
+        self.control_z_active = False
         self.dialog_active = False
         self.is_showing_items = True
         if needs_update:
@@ -7614,7 +7614,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         week2day2heading.setdefault(week, {})
         weeks.add(week)
         allday_details.setdefault(week, {})
-        logger.debug(f"week2day2allday[{week}]: {week2day2allday[week]}")
         for dayofweek in week2day2allday[week]:
             allday, lst = week2day2allday[week][dayofweek]
             if allday and lst:
@@ -7738,13 +7737,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
             if week in week2day2allday and weekday in week2day2allday[week]:
                 allday, lst = week2day2allday[week][weekday]
 
-            logger.debug(f"{week} {weekday}: {lofp}")
             full = day_bar(lofp, allday)
             
-            if week in [48, '48']: 
-                logger.debug(full)
-
-
             busy_hsh[weekday] = f"""\
 {dent}{7*' '}{empty}
 {dent} {DD[weekday] : <6}{full}

@@ -986,33 +986,47 @@ def do_show_help(*event):
     openWithDefault(help_link)
 
 def save_before_quit(*event):
-    def coroutine():
-        dialog = ConfirmDialog("unsaved changes", "discard changes and close the editor?")
 
-        discard = yield from show_dialog_as_float(dialog)
-        if discard:
+    title = "-- Unsaved Changes --"
+
+    text = """\
+There are changes to this reminder that have not been saved. Are you sure that you want to discard them and close the editor?
+    0: no, continue editing
+    1: yes, discard the changes
+"""
+    
+    get_choice(title, text)
+
+    def coroutine():
+        keypress = dataview.details_key_press
+        logger.debug(f"confirmation keypress: {keypress}")
+        done = keypress in ['0', '1']
+        if keypress == '1':
             app = get_app()
             app.editing_mode = EditingMode.EMACS
             dataview.is_editing = False
             application.layout.focus(text_area)
             application.output.set_cursor_shape(CursorShape.BLOCK)
             set_text(dataview.show_active_view())
-        else:
-            return
-
-    asyncio.ensure_future(coroutine())
+        return done
+    
+    dataview.got_choice = coroutine
 
 def discard_changes(event, prompt=''):
-    def coroutine(prompt):
-        dialog = ConfirmDialog("unsaved information", prompt)
+    title = "-- Unsaved Information --"
 
-        discard = yield from show_dialog_as_float(dialog)
-        if discard:
+    get_choice(title, prompt)
+
+    def coroutine():
+        keypress = dataview.details_key_press
+        logger.debug(f"confirmation keypress: {keypress}")
+        done = keypress in ['0', '1']
+        if keypress == '1':
             application.exit()
-        else:
-            return
+        return done
 
-    asyncio.ensure_future(coroutine(prompt))
+    dataview.got_choice = coroutine
+
 
 def add_usedtime(*event):
 
@@ -1950,6 +1964,7 @@ edit_container = HSplit([
 def default_buffer_changed(_):
     """
     """
+    dataview.control_z_active = False
     item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
 
 
@@ -2186,6 +2201,7 @@ def edit_new(*event):
         application.layout.focus(text_area)
         dataview.hide_details()
     dataview.is_editing = True
+    dataview.control_z_active = False
     item.new_item()
     entry_buffer.text = item.entry
     default_buffer_changed(event)
@@ -2773,7 +2789,7 @@ def toggle_archived_status(*event):
     return
 
 
-@bindings.add('c-q')
+@bindings.add('c-q', filter=is_not_editing)
 def exit(*event):
     tmp = []
     if is_editing() and entry_buffer_changed():
@@ -2781,7 +2797,12 @@ def exit(*event):
     if dataview.unsaved_timers():
         tmp.append('unrecorded timers')
     if tmp:
-        prompt = f"There are {' and '.join(tmp)}.\nClose etm anyway?"
+        prompt = f"""\
+There are {' and '.join(tmp)}.
+Close etm anyway?
+    0: no, do not close etm
+    1: yes, close etm
+"""
         discard_changes(event, prompt)
     else:
         application.exit()
@@ -3136,7 +3157,7 @@ def handle_choice(*event):
         application.layout.focus(text_area)
 
 
-@bindings.add('enter', filter=is_viewing_or_details & is_item_view & is_not_showing_choice)
+@bindings.add('enter', filter=is_viewing_or_details & is_item_view)
 def show_details(*event):
     if dataview.is_showing_details:
         application.layout.focus(text_area)
@@ -3149,19 +3170,23 @@ def show_details(*event):
             application.layout.focus(details_area)
 
 
+@bindings.add('c-q', filter=is_editing, eager=True)
 @bindings.add('c-z', filter=is_editing, eager=True)
 def close_edit(*event):
     global text_area
+    if is_editing() and entry_buffer_changed() and not dataview.control_z_active:
+        dataview.control_z_active = True
+        ask_buffer.text = "There are unsaved changes"
+        reply_buffer.text = wrap("To discard them and close the editor press Control-Z again.", 0)
+        return
     row, col = get_row_col()
-    if entry_buffer_changed():
-        save_before_quit()
-    else:
-        app = get_app()
-        app.editing_mode = EditingMode.EMACS
-        dataview.is_editing = False
-        application.layout.focus(text_area)
-        application.output.set_cursor_shape(CursorShape.BLOCK)
-        set_text(dataview.show_active_view())
+    app = get_app()
+    app.editing_mode = EditingMode.EMACS
+    dataview.is_editing = False
+    dataview.control_z_active = False 
+    application.layout.focus(text_area)
+    application.output.set_cursor_shape(CursorShape.BLOCK)
+    set_text(dataview.show_active_view())
     restore_row_col(row, col)
 
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
