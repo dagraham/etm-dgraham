@@ -17,6 +17,10 @@ from prompt_toolkit.cursor_shapes import CursorShape
 from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.filters import Condition, vi_mode, vi_navigation_mode, vi_insert_mode, vi_replace_mode, vi_selection_mode, emacs_mode, emacs_selection_mode, emacs_insert_mode
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.filters import has_focus
+from prompt_toolkit.search import start_search, SearchDirection
+
+
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 from prompt_toolkit.key_binding.vi_state import InputMode
 from prompt_toolkit.layout import Dimension
@@ -35,7 +39,6 @@ from prompt_toolkit.widgets import Box, Dialog, Label, Button
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
 from zoneinfo import ZoneInfo
-
 
 from packaging.version import parse as parse_version
 
@@ -834,8 +837,6 @@ def get_choice(title, text):
         application.layout.focus(text_area)
         dataview.hide_details()
 
-
-
     tmp = f"""\
  -- {title} --
 
@@ -844,6 +845,52 @@ def get_choice(title, text):
     dataview.show_choice()
     details_area.text = wrap_text(tmp)
     application.layout.focus(details_area)
+
+
+
+def get_entry(title: str, text: str, default: str, event) -> any:
+    """process a user input string and, when <enter> is pressed store the result in dataview.get_entry_content.  E.g., the name of a file to import, a date to display in a weekly view, the number of a line to show. 
+
+    The function that calls this should provide a coroutine stored as dataview.got_entry. Execute this coroutine to process dataview.get_entry_content when this is closed
+
+
+    Args:
+        title (str): title for the input dialog -> ask_buffer
+        prompt (str): instructions about the proper input -> reply buffer
+        default (str, optional): default/starting entry. Defaults to "" Is this needed?.
+
+    Returns:
+        any
+    """
+    if dataview.is_editing:
+        # finish edit first
+        return
+    
+    if dataview.is_showing_choice:
+        # only one dialog at a time
+        return
+    
+    if dataview.is_showing_details:
+        # close details as lower priority
+        application.layout.focus(text_area)
+        dataview.hide_details()
+
+    tmp = f"""\
+-- {title} --
+
+{text}
+"""
+    logger.debug(f"got tmp:\n{tmp}")
+    app = get_app()
+    app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+    dataview.is_editing = True
+    dataview.control_z_active = False
+    ask_buffer.text = title
+    reply_buffer.text = wrap_text(text)
+    entry_buffer.text = ""
+    # default_buffer_changed(event)
+    # default_cursor_position_changed(event)
+    application.layout.focus(entry_buffer)
 
 
 def wrap_text(text: str, init_indent: int = 0, subs_indent: int = 0):
@@ -897,6 +944,20 @@ def show_confirm_as_float(dialog):
 # Key bindings.
 bindings = KeyBindings()
 
+@Condition
+def is_showing_entry(*event):
+    return dataview.is_showing_entry
+
+@Condition
+def is_not_showing_entry(*event):
+    return not dataview.is_showing_entry
+
+# def is_searching(*event):
+#     return get_app().current_search_state
+
+# def is_not_searching(*event):
+#     return not get_app().current_search_state 
+
 @bindings.add('f2')
 def do_about(*event):
     show_message('ETM Information', about(2)[0], 10)
@@ -909,7 +970,8 @@ def do_check_updates(*event):
     # '', current_version (current_version is the latest available)
     if status in ['?', '']: # message only
         show_message("Update Information", res, 2)
-    else: # update available - get_choice
+    else: # update available 
+        - get_choice
         title = "Update Available"
         get_choice(title, res)
 
@@ -987,7 +1049,6 @@ async def refresh_loop(loop):
     dataview.refreshCurrent()
     set_text(dataview.show_active_view())
     get_app().invalidate()
-
 
 
 @bindings.add('f3')
@@ -1952,7 +2013,7 @@ Error processing {text}:
 
 query = ETMQuery()
 
-query_buffer = Buffer(multiline=False, completer=None, complete_while_typing=False, accept_handler=accept)
+# query_buffer = Buffer(multiline=False, completer=None, complete_while_typing=False, accept_handler=accept)
 
 
 query_window = TextArea(
@@ -2676,48 +2737,67 @@ def toggle_pinned(*event):
 
 @bindings.add('f5')
 def do_import_file(*event):
-    func  = inspect.currentframe().f_code.co_name
-    show_work_in_progress(func)
-    return
+
+    # # begin not yet implemented block
+    # func  = inspect.currentframe().f_code.co_name
+    # show_work_in_progress(func)
+    # return
+    # # end not yet implemented block
 
     inbasket = os.path.join(etmhome, "inbasket.text")
     default = inbasket if os.path.exists(os.path.expanduser(inbasket)) else etmhome
     msg = ""
-    def coroutine():
-        global msg
-        dialog = TextInputDialog(
-            title='import file',
-            completer=PathCompleter(expanduser=True),
-            default=default,
-            label_text=f"""\
-It is possible to import data from files with one
-of the following extensions:
+
+    title='Import File'
+
+    text=f"""\
+It is possible to import data from files with one of the following extensions:
   .json  a json file exported from etm 3.2.x
   .text  a text file with etm entries as lines
   .ics   an iCalendar file
-or a collection of internally generated examples
-by entering the single word:
+or a collection of internally generated examples by entering the single word:
    lorem
-Each of the examples is tagged 'lorem' and thus
-can easily be removed with a single query:
+Each of the examples is tagged 'lorem' and thus can easily be removed with a single query:
    any t lorem | remove
 
 Files imported from the etm home directory
    {etmhome}
-will be removed after importing to avoid possible
-duplications.
+will be removed after importing to avoid possible duplications.
 
-Enter the full path of the file to import or
-'lorem':
-""")
+Enter the full path of the file to import or 'lorem':
+"""
+    logger.debug("calling get_entry")
 
-        file_path = yield from show_dialog_as_float(dialog)
-        if not file_path:
-           return
-        if file_path.strip().lower() == 'lorem':
-            logger.debug(f"calling import_file")
-            ok, msg = import_file('lorem')
+    get_entry(title, text, "", event)
+    
+    logger.debug(f"got file_path: {entry_buffer.text}")
+
+    return "whatever"
+
+    if file_path.strip().lower() == 'lorem':
+        logger.debug(f"calling import_file")
+        ok, msg = import_file('lorem')
+        if ok:
+            dataview.refreshRelevant()
+            dataview.refreshAgenda()
+            if dataview.mk_current:
+                dataview.refreshCurrent()
+            dataview.refreshKonnections()
+            loop = asyncio.get_event_loop()
+            loop.call_later(0, data_changed, loop)
+        show_message('import lorem', msg)
+
+    else:
+        if file_path:
+            file_path = os.path.normpath(os.path.expanduser(file_path))
+            ok, msg = import_file(file_path)
             if ok:
+                etm_dir = os.path.normpath(os.path.expanduser(etmdir))
+
+                if os.path.dirname(file_path) == etm_dir:
+                    os.remove(file_path)
+                    filehome = os.path.join("~", os.path.split(file_path)[1])
+                    msg += f"\n and removed {filehome}"
                 dataview.refreshRelevant()
                 dataview.refreshAgenda()
                 if dataview.mk_current:
@@ -2725,29 +2805,8 @@ Enter the full path of the file to import or
                 dataview.refreshKonnections()
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
-            show_message('import lorem', msg)
+            show_message('import file', msg)
 
-        else:
-            if file_path:
-                file_path = os.path.normpath(os.path.expanduser(file_path))
-                ok, msg = import_file(file_path)
-                if ok:
-                    etm_dir = os.path.normpath(os.path.expanduser(etmdir))
-
-                    if os.path.dirname(file_path) == etm_dir:
-                        os.remove(file_path)
-                        filehome = os.path.join("~", os.path.split(file_path)[1])
-                        msg += f"\n and removed {filehome}"
-                    dataview.refreshRelevant()
-                    dataview.refreshAgenda()
-                    if dataview.mk_current:
-                        dataview.refreshCurrent()
-                    dataview.refreshKonnections()
-                    loop = asyncio.get_event_loop()
-                    loop.call_later(0, data_changed, loop)
-                show_message('import file', msg)
-
-    # asyncio.ensure_future(coroutine())
 
 
 @bindings.add('c-t', 'c-t', filter=is_viewing & is_item_view)
@@ -3198,6 +3257,27 @@ def handle_choice(*event):
     if done:
         dataview.hide_choice()
         application.layout.focus(text_area)
+
+
+# e.g., keypresses: f5 (import file), f6 (date calculator), c-l jump to line
+@bindings.add('<any>', filter=is_showing_entry)
+def handle_entry(*event):
+    """
+    Handle any key presses. The coroutine used as dataview.got_input
+    will determine which presses are acted upon and which are
+    ignored.
+    """
+    keypressed = event[0].key_sequence[0].key
+    dataview.details_key_press = keypressed # f5
+    logger.debug(f"handle_entry: {keypressed}")
+    # got_choice will define the coroutine appropriate to keypressed 
+    # it will return a result which might be None when <enter> is pressed
+    result = dataview.got_choice()
+    # 
+    logger.debug(f"got: {result}") 
+    
+    dataview.hide_entry()
+    application.layout.focus(text_area)
 
 
 @bindings.add('enter', filter=is_viewing_or_details & is_item_view)

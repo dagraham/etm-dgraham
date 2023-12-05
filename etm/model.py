@@ -2485,6 +2485,8 @@ class DataView(object):
         self.is_showing_details = False
         # self.is_showing_confirmation = False
         self.is_showing_choice = False
+        self.is_showing_entry = False
+        self.get_entry_content = ""
         self.details_key_press = ""
         self.is_showing_query = False
         self.is_showing_help = False
@@ -2677,7 +2679,7 @@ class DataView(object):
 
     def handle_backups(self):
         removefiles = []
-        timestamp = datetime.now('UTC').strftime("%Y-%m-%d")
+        timestamp = datetime.now().astimezone(ZoneInfo('UTC')).strftime("%Y-%m-%d")
         filelist = os.listdir(self.backupdir)
         # deal with etm.json
         dbmtime = os.path.getctime(self.dbfile)
@@ -3130,6 +3132,11 @@ class DataView(object):
         
         self.got_choice = coroutine
 
+    def show_entry(self):
+        self.is_showing_entry = True
+
+    def hide_entry(self):
+        self.is_showing_entry = False
 
 
     def get_row_details(self, row=None):

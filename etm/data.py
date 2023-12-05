@@ -5,10 +5,10 @@ from tinydb import __version__ as tinydb_version
 from tinydb_serialization import Serializer
 from tinydb_serialization import SerializationMiddleware
 import base64  # for do_mask
-import pytz
-from pytz import timezone
+# import pytz
+# from pytz import timezone
 from datetime import datetime, date, timedelta
-from datetime import tzinfo
+# from datetime import tzinfo
 from datetime import timedelta
 import dateutil
 import dateutil.rrule
@@ -63,7 +63,7 @@ def encode_datetime(obj):
     if not isinstance(obj, datetime):
         raise ValueError(f"{obj} is not a datetime instance")
     if is_aware(obj):
-        return obj.astimezone(pytz.timezone('UTC')).strftime(AWARE_FMT)
+        return obj.astimezone(ZoneInfo('UTC')).strftime(AWARE_FMT)
     else:
         return obj.strftime(NAIVE_FMT)
 
@@ -72,7 +72,7 @@ def decode_datetime(s):
         # print(f"{s[-1] in 'AN'}, {len(s) == 14}")
         raise ValueError(f"{s} is not a datetime string")
     if s[-1] == 'A':
-        return datetime.strptime(s, AWARE_FMT).astimezone(timezone('UTC')).astimezone()
+        return datetime.strptime(s, AWARE_FMT).astimezone(ZoneInfo('UTC')).astimezone()
     else:
         return datetime.strptime(s, NAIVE_FMT).astimezone()
 
@@ -121,8 +121,8 @@ class Period:
             raise ValueError(f"start: {datetime1.tzinfo}, end: {datetime2.tzinfo}. Both datetimes must either be naive or both must be aware.")
 
         if aware1:
-            self.start = datetime1.astimezone(timezone('UTC'))
-            self.end = datetime2.astimezone(pytz.timezone('UTC'))
+            self.start = datetime1.astimezone(ZoneInfo('UTC'))
+            self.end = datetime2.astimezone(ZoneInfo('UTC'))
         else:
             self.start = datetime1.replace(tzinfo=None)
             self.end = datetime2.replace(tzinfo=None)
