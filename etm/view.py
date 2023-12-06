@@ -2143,12 +2143,17 @@ def do_schedule_new(*event):
 
     hsh = DBITEM.get(doc_id=doc_id)
 
-    def coroutine():
-        dialog = TextInputDialog(
-            title='schedule new instance',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\n\nnew datetime:")
+    title = "Schedule New Instance"
+    text = f"""\
+selected: {hsh['itemtype']} {hsh['summary']}
 
-        new_datetime = yield from show_dialog_as_float(dialog)
+To schedule an additional datetime for this reminder enter the new datetime\
+"""
+
+    get_entry(title, text, "", event)
+
+    def coroutine():
+        new_datetime = dataview.entry_content
 
         if not new_datetime:
             return
@@ -2168,8 +2173,7 @@ def do_schedule_new(*event):
             loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
 
-
-    asyncio.ensure_future(coroutine())
+    dataview.got_entry = coroutine
 
 
 @bindings.add('R', filter=is_viewing_or_details & is_items_table)
@@ -2190,12 +2194,18 @@ def do_reschedule(*event):
     instance = instance.date() if date_required and not is_date else instance
     new = "new date" if date_required else "new datetime"
 
-    def coroutine():
-        dialog = TextInputDialog(
-            title='reschedule instance',
-            label_text=f"selected: {hsh['itemtype']} {hsh['summary']}\ninstance: {format_datetime(instance)[1]}\n\n{new}:")
+    title = "Reschedule Instance"
+    text = f"""\
+selected: {hsh['itemtype']} {hsh['summary']}
+instance: {format_datetime(instance)[1]}
 
-        new_datetime = yield from show_dialog_as_float(dialog)
+To reschedule enter the {new}\
+"""
+
+    get_entry(title, text, "", event)
+
+    def coroutine():
+        new_datetime = dataview.entry_content
 
         if not new_datetime:
             return
@@ -2219,7 +2229,7 @@ def do_reschedule(*event):
             loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
 
-    asyncio.ensure_future(coroutine())
+    dataview.got_entry = coroutine
 
 
 @bindings.add('D', filter=is_viewing_or_details & is_item_view)
