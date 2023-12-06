@@ -1332,20 +1332,20 @@ def do_alerts(*event):
 
 @bindings.add('c-l', filter=is_viewing)
 def do_go_to_line(*event):
-    func  = inspect.currentframe().f_code.co_name
-    show_work_in_progress(func)
-    return
+    # func  = inspect.currentframe().f_code.co_name
+    # show_work_in_progress(func)
+    # return
+
+    title = 'Go to line',
+    text = 'Enter the line number'
+    default = ''
+    if dataview.current_row:
+        default = dataview.current_row + 1
+
+    get_entry(title, text, default, event)
 
     def coroutine():
-        default = ''
-        if dataview.current_row:
-            default = dataview.current_row + 1
-        dialog = TextInputDialog(
-            title='Go to line',
-            label_text='Line number:',
-            default=str(default))
-
-        line_number = yield from show_dialog_as_float(dialog)
+        line_number = dataview.entry_content
         if line_number:
             try:
                 line_number = int(line_number)
@@ -1353,9 +1353,9 @@ def do_go_to_line(*event):
                 show_message('go to line', 'Invalid line number')
             else:
                 text_area.buffer.cursor_position = \
-                    text_area.buffer.document.translate_row_col_to_index(line_number - 1, 0)
+                    text_area.buffer.document.translate_row_col_to_index(line_number, 0)
 
-    asyncio.ensure_future(coroutine())
+    dataview.got_entry = coroutine
 
 
 @bindings.add('J', filter=is_dated_view)
