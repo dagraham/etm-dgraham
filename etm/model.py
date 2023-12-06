@@ -1946,12 +1946,13 @@ def format_datetime(obj, short=False):
     ampm = settings.get('ampm', True)
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    md = "%d/%m" if dayfirst else "%m/%d"
+    monthday = obj.strftime("%d").lstrip('0')
+    md = f"{monthday}/%m" if dayfirst else f"%m/{monthday}"
     if short:
-        md = "%d/%m" if dayfirst else "%m/%d"
+        md = f"{monthday}/%m" if dayfirst else f"%m/{monthday}"
         date_fmt = f"%y/{md}" if yearfirst else f"{md}/%y"
     else:
-        md = "%a %d %b" if dayfirst else "%a %b %d"
+        md = f"%a {monthday} %b" if dayfirst else f"%a %b {monthday}"
         date_fmt = f"{md}, %Y" if yearfirst else f"{md} %Y"
 
     time_fmt = "%I:%M%p" if ampm else "%H:%M"
@@ -7352,12 +7353,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 # we need details of when completed (start and end) for completed view
                 d.append([finished.start, summary, doc_id, format_date(finished.end)[1]])
                 # to skip completed instances we only need the completed (end) instance
-                completed.append(finished.diff)
+                completed.append(finished.end)
                 # ditto below for history
             if history:
                 for dt in history:
                     d.append([dt.start, summary, doc_id, format_date(dt.end)[1]])
-                    completed.append(dt.diff)
+                    completed.append(dt.end)
             if jobs:
                 for job in jobs:
                     job_summary = job.get('summary', '')

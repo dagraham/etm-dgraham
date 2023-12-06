@@ -826,11 +826,12 @@ def get_entry(title: str, text: str, default: str, event) -> any:
         application.layout.focus(text_area)
         dataview.hide_details()
 
-    text = f"""\
-{wrap_text(text.rstrip()) + ' and then press'} 
-  enter: to submit your entry
-  escape: to cancel\
-"""
+    bp = " and press <return> to submit your entry or press <escape> to cancel."
+    text = wrap_text(text.rstrip() + bp)
+
+#     text = f"""\
+# {wrap_text(text.rstrip()) + ' and press'} <return> to submit your entry or <escape> to cancel and close this dialog.\
+# """
     global starting_entry_text
     # app = get_app()
     # app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
@@ -2484,7 +2485,8 @@ def do_finish(*event):
         start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
 
         text= f"""\
-Selected: {hsh['itemtype']} {hsh['summary']}\nJob: {job}{start}
+Selected: {hsh['itemtype']} {hsh['summary']}
+Job: {job}{start}
 
 Enter <completion datetime>
         """
@@ -2587,17 +2589,14 @@ Enter <completion datetime>
         text= f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}{start}
 
-Enter <completion datetime>
+Enter the completion datetime
         """
+    get_entry(title, text, "", event)
 
     def coroutine():
         global hsh
-        dialog = TextInputDialog(
-            title=title,
-            label_text=text,
-            default=entry,
-            )
-        done_str = yield from show_dialog_as_float(dialog)
+        
+        done_str = dataview.entry_content
 
         if not done_str:
             # show_message('Finish', 'Cancelled')
@@ -2653,8 +2652,9 @@ Enter <completion datetime>
         else:
             show_message('finish', f"Cancelled, '{done_str}' is invalid.")
             return
+    
+    dataview.got_entry = coroutine
 
-    asyncio.ensure_future(coroutine())
 
 @bindings.add('C', filter=is_viewing_or_details & is_item_view & is_items_table)
 def edit_copy(*event):
