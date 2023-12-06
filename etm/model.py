@@ -815,10 +815,7 @@ item_hsh:    {self.item_hsh}
         self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         timer_update.stop()
 
-    def got_choice(self):
-        # this will the coutine defined in the 'dialog' that requests user input
-        pass
-
+    
     def edit_item(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
@@ -1638,23 +1635,28 @@ def datetime_calculator(s):
     timezone_regex = re.compile(r'^(.+)\s+([A-Za-z]+/[A-Za-z]+)$')
     period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmMy])+\s*$)')
 
+    logger.debug(f"processing {s}")
     ampm = settings.get('ampm', True)
     wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
     datetime_fmt = f"{wkday_fmt} %Y %I:%M%p %Z" if ampm else f"{wkday_fmt} %Y %H:%M %Z"
     m = date_calc_regex.match(s)
+    logger.debug(f"first pass at m {m}")
     if not m:
         return f'Could not parse "{s}"'
     x, pm, y = [z.strip() for z in m.groups()]
-    xz = 'local'
+    xz = ''
     nx = timezone_regex.match(x)
     if nx:
-        x, xz = nx.groups()
-    yz = 'local'
+        x, xz = nx.groups() 
+    yz = ''
     ny = timezone_regex.match(y)
     if ny:
         y, yz = ny.groups()
     try:
-        ok, dt_x, z = parse_datetime(x, xz)
+        if xz:
+            ok, dt_x, z = parse_datetime(x, xz)
+        else:
+            ok, dt_x, z = parse_datetime(x)
         if not ok:
             return f"error: could not parse '{x}'"
         dt_x = date_to_datetime(dt_x)
@@ -1663,19 +1665,77 @@ def datetime_calculator(s):
             ok, dur = parse_duration(pmy)
             if not ok:
                 return f"error: could not parse '{y}'"
-            dt = (dt_x + dur).astimezone(timezone(yz))
+            if yz:
+                dt = (dt_x + dur).astimezone(timezone(yz))
+            else:
+                dt = (dt_x + dur).astimezone()
             return dt.strftime(datetime_fmt)
         else:
-            ok, dt_y, z = parse_datetime(y, yz)
+            if yz:
+                ok, dt_y, z = parse_datetime(y, yz)
+            else:
+                ok, dt_y, z = parse_datetime(y)
             if not ok:
                 return f"error: could not parse '{y}'"
             dt_y = date_to_datetime(dt_y)
             if pm == '-':
-                return (dt_x - dt_y).in_words()
+                return duration_in_words(dt_x - dt_y)
             else:
                 return 'error: datetimes cannot be added'
     except ValueError:
         return f'error parsing "{s}"'
+
+def duration_in_words(obj):
+    """
+    Return string representing weeks, days, hours and minutes. Drop any remaining seconds.
+    >>> td = timedelta(weeks=1, days=2, hours=3, minutes=27)
+    >>> format_duration(td)
+    '1 week 2 days 3 hours 27 minutes'
+    """
+    if not isinstance(obj, timedelta):
+        return None
+    try:
+        until =[]
+        seconds = int(obj.total_seconds())
+        logger.debug(f"processing total_seconds: {seconds}")
+        weeks = days = hours = minutes = 0
+        if seconds:
+            sign = "" if seconds > 0 else "- "
+            minutes = abs(seconds) // 60
+            if minutes >= 60:
+                hours = minutes // 60
+                minutes = minutes % 60
+            if hours >= 24:
+                days = hours // 24
+                hours = hours % 24
+            if days >= 7:
+                weeks = days // 7
+                days = days % 7
+        if weeks:
+            if weeks > 1:
+                until.append(f"{sign}{weeks} weeks")
+            else:
+                until.append(f"{sign}{weeks} week")
+        if days:
+            if days > 1:
+                until.append(f"{sign}{days} days")
+            else:
+                until.append(f"{sign}{days} day")
+        if hours:
+            if hours > 1:
+                until.append(f"{sign}{hours} hours")
+            else:
+                until.append(f"{sign}{hours} hour")
+        if minutes:
+            if minutes > 1:
+                until.append(f"{sign}{minutes} minutes")
+            else:
+                until.append(f"{sign}{minutes} minute")
+        if not until:
+            until.append("zero minutes")
+        return " ".join(until)
+    except Exception as e:
+        return None
 
 
 def parse_datetime(s, z=None):
@@ -2439,6 +2499,7 @@ class DataView(object):
         self.konnections_from = {}
         self.konnections_to = {}
         self.konnected = []
+        self.calculator_expression = ""
 
         # for repeating tasks with jobs - only one can be active
         # self.active_tasks = [] # ids of repeating tasks with jobs
@@ -2484,9 +2545,11 @@ class DataView(object):
         self.edit_item = None
         self.is_showing_details = False
         # self.is_showing_confirmation = False
-        self.is_showing_choice = False
-        self.is_showing_entry = False
-        self.get_entry_content = ""
+        # self.is_showing_choice = False
+        # self.is_showing_entry = False
+        self.hide_choice()
+        self.hide_entry()
+        self.entry_content = ""
         self.details_key_press = ""
         self.is_showing_query = False
         self.is_showing_help = False
@@ -3114,10 +3177,10 @@ class DataView(object):
     # def hide_confirmation(self):
     #     self.is_showing_confirmation = False
 
-        def coroutine():
-            pass
+        # def coroutine():
+        #     pass
         
-        self.got_choice = coroutine
+        # self.got_choice = coroutine
     
     def show_choice(self):
         self.details_key_press = ""
@@ -3133,10 +3196,15 @@ class DataView(object):
         self.got_choice = coroutine
 
     def show_entry(self):
+        # self.entry_content = ""
         self.is_showing_entry = True
 
     def hide_entry(self):
         self.is_showing_entry = False
+        def coroutine():
+            pass
+        
+        self.got_entry = coroutine
 
 
     def get_row_details(self, row=None):
@@ -7284,12 +7352,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 # we need details of when completed (start and end) for completed view
                 d.append([finished.start, summary, doc_id, format_date(finished.end)[1]])
                 # to skip completed instances we only need the completed (end) instance
-                completed.append(finished.end)
+                completed.append(finished.diff)
                 # ditto below for history
             if history:
                 for dt in history:
                     d.append([dt.start, summary, doc_id, format_date(dt.end)[1]])
-                    completed.append(dt.end)
+                    completed.append(dt.diff)
             if jobs:
                 for job in jobs:
                     job_summary = job.get('summary', '')

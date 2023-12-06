@@ -113,6 +113,7 @@ class Settings():
             'dialog-output':           ['DarkSlateGrey', 'Lime'],
             'dialog.body label':       ['', 'White'],
             'dialog.body':             ['DarkSlateGrey', 'White'],
+            'edit':                    ['grey2', 'LightGoldenRodYellow'],
             'entry':                   ['grey2', 'LightGoldenRodYellow'],
             'frame.label':             ['DarkSlateGrey', 'White'],
             'menu':                    ['DarkSlateGrey', 'White'],
@@ -565,6 +566,7 @@ window_colors: {window_colors}
 # dialog.body label:      [, White]                     [, White]
 # dialog.body:            [DarkSlateGrey, White]        [DimGrey, White]
 # entry:                  [grey2, LightGoldenRodYellow] [Cornsilk, LightGoldenRodYellow]
+# edit:                   [grey2, LightGoldenRodYellow] [Cornsilk, LightGoldenRodYellow]
 # frame.label:            [DarkSlateGrey, White]        [DimGrey, White]
 # menu:                   [DarkSlateGrey, White]        [DimGrey, White]
 # menu-bar:               [grey1, White]                [grey1, White]

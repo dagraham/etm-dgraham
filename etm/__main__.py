@@ -229,6 +229,7 @@ which will need to be created.
     from etm.model import import_file
     from etm.model import import_examples
     from etm.model import write_back
+    from etm.model import duration_in_words
     # from etm.model import RDict
     from etm.model import item_details
     from etm.model import FINISHED_CHAR
@@ -307,6 +308,7 @@ which will need to be created.
     view.type_colors = type_colors
     view.cfgfile = cfgfile
     view.model = model
+    view.duration_in_words = duration_in_words
     view.write_back = write_back
     # view.RDict = RDict
     # view.TDBLexer = model.TBDLexer

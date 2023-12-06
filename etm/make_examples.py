@@ -69,7 +69,7 @@ def make_examples(egfile=None, num_items=num_items):
         summary = f"{client_name[client]}"
         d = f"details for {client_name[client]} go here"
         i = f"billing/{client_name[client]}/# contact info"
-        examples.append(f"% {summary} @i {i} @d {d}")
+        examples.append(f"% {summary} @i {i} @d {d} @t lorem")
 
 
 
@@ -99,7 +99,7 @@ def make_examples(egfile=None, num_items=num_items):
                 used += f"@u {u}m: {e} "
 
         if t == "%" and start <= now:
-            examples.append(f"{t} {summary} @s {s} @i $ daily @d {d}")
+            examples.append(f"{t} {summary} @s {s} @i $ daily @d {d} @t lorem")
 
         elif t == '*':
             if date:      # an event

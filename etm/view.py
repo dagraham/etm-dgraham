@@ -110,56 +110,6 @@ class TDBLexer(RegexLexer):
                 ],
             }
 
-def duration_in_words(obj):
-    """
-    Return string representing weeks, days, hours and minutes. Drop any remaining seconds.
-    >>> td = timedelta(weeks=1, days=2, hours=3, minutes=27)
-    >>> format_duration(td)
-    '1 week 2 days 3 hours 27 minutes'
-    """
-    if not isinstance(obj, timedelta):
-        return None
-    try:
-        until =[]
-        seconds = int(obj.total_seconds())
-        weeks = days = hours = minutes = 0
-        if seconds:
-            minutes = seconds // 60
-            if minutes >= 60:
-                hours = minutes // 60
-                minutes = minutes % 60
-            if hours >= 24:
-                days = hours // 24
-                hours = hours % 24
-            if days >= 7:
-                weeks = days // 7
-                days = days % 7
-        if weeks:
-            if weeks > 1:
-                until.append(f"{weeks} weeks")
-            else:
-                until.append(f"{weeks} week")
-        if days:
-            if days > 1:
-                until.append(f"{days} days")
-            else:
-                until.append(f"{days} day")
-        if hours:
-            if hours > 1:
-                until.append(f"{hours} hours")
-            else:
-                until.append(f"{hours} hour")
-        if minutes:
-            if minutes > 1:
-                until.append(f"{minutes} minutes")
-            else:
-                until.append(f"{minutes} minute")
-        if not until:
-            until.append("zero minutes")
-        return " ".join(until)
-    except Exception as e:
-        return None
-
 def format_week(dt, fmt="WWW"):
     """
     """
@@ -820,7 +770,7 @@ def show_message(title, text, padding=6):
 
 {text.rstrip()}
 
-[press <enter> to close]"""
+Press <return> to close."""
 
     dataview.show_details()
     details_area.text = wrap_text(tmp)
@@ -847,6 +797,7 @@ def get_choice(title, text):
     application.layout.focus(details_area)
 
 
+starting_entry_text = ""
 
 def get_entry(title: str, text: str, default: str, event) -> any:
     """process a user input string and, when <enter> is pressed store the result in dataview.get_entry_content.  E.g., the name of a file to import, a date to display in a weekly view, the number of a line to show. 
@@ -875,20 +826,19 @@ def get_entry(title: str, text: str, default: str, event) -> any:
         application.layout.focus(text_area)
         dataview.hide_details()
 
-    tmp = f"""\
--- {title} --
-
-{text}
+    text = f"""\
+{wrap_text(text.rstrip()) + ' and then press'} 
+  enter: to submit your entry
+  escape: to cancel\
 """
-    logger.debug(f"got tmp:\n{tmp}")
-    app = get_app()
-    app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
-    dataview.is_editing = True
-    dataview.control_z_active = False
-    ask_buffer.text = title
-    reply_buffer.text = wrap_text(text)
-    entry_buffer.text = ""
-    # default_buffer_changed(event)
+    global starting_entry_text
+    # app = get_app()
+    # app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+    entry_title_buffer.text = f"-- {title} --"
+    entry_prompt_buffer.text = wrap_text(text)
+    entry_buffer.text = default
+    dataview.show_entry()
+    entry_buffer_changed(event)
     # default_cursor_position_changed(event)
     application.layout.focus(entry_buffer)
 
@@ -971,7 +921,6 @@ def do_check_updates(*event):
     if status in ['?', '']: # message only
         show_message("Update Information", res, 2)
     else: # update available 
-        - get_choice
         title = "Update Available"
         get_choice(title, res)
 
@@ -1058,29 +1007,46 @@ def do_system(*event):
 
 @bindings.add('f6')
 def dt_calculator(*event):
-    func  = inspect.currentframe().f_code.co_name
-    show_work_in_progress(func)
-    return
+    # func  = inspect.currentframe().f_code.co_name
+    # show_work_in_progress(func)
+    # return
 
-#     def coroutine():
-#         prompt = """\
-# Enter an expression of the form:
-#     x [+-] y
-# where x is a datetime and y is either
-#     [+] a timeperiod
-#     [-] a datetime or a timeperiod
-# Be sure to surround [+-] with spaces.
-# Timezones can be appended to x and y.
-#         """
-#         dialog = InteractiveInputDialog(
-#             title='datetime calculator',
-#             help_text=prompt,
-#             evaluator=datetime_calculator,
-#             padding=4,
-#             )
-#         yield from show_dialog_as_float(dialog)
+    title = 'DateTime Calculator'
+    text = """\
+Enter an expression of the form:
+    x [+-] y
+where x is a datetime and y is either
+    [+] a timeperiod
+    [-] a datetime or a timeperiod
+Be sure to surround [+-] with spaces.
+Timezones can be appended to x and y.
 
-#     asyncio.ensure_future(coroutine())
+Enter the expression"""
+    default = dataview.calculator_expression
+    logger.debug(f"dataview.entry_content: {dataview.entry_content}")
+    get_entry(title, text, default, event)
+
+    def coroutine():
+        expression = dataview.entry_content.rstrip()
+        if expression:
+            dataview.calculator_expression = expression
+            res = datetime_calculator(expression)
+            logger.debug(f"got res: {res} set {dataview.calculator_expression}")
+            _ = f"""\
+  {expression} => 
+    {res}
+"""
+            show_message(title, _)
+            # entry_prompt_buffer.text = text + f"\n{wrap_text(res)}"
+        else:
+            dataview.calculator_expression = ""
+
+            show_message(title, 'cancelled')
+
+    dataview.got_entry = coroutine
+
+
+
 
 @bindings.add('f7')
 def do_open_config(*event):
@@ -1348,6 +1314,14 @@ def is_showing_choice():
 @Condition
 def is_not_showing_choice():
     return dataview.is_showing_choice == False
+
+@Condition
+def is_showing_entry():
+    return dataview.is_showing_entry
+
+@Condition
+def is_not_showing_entry():
+    return dataview.is_showing_entry == False
 
 bindings.add('tab', filter=is_not_editing)(focus_next)
 bindings.add('s-tab', filter=is_not_editing)(focus_previous)
@@ -1697,11 +1671,11 @@ def event_handler(e):
 
 def get_edit_mode():
     app = get_app()
-    if get_app().layout.has_focus(entry_buffer):
+    if get_app().layout.has_focus(edit_buffer):
         if app.editing_mode == EditingMode.VI:
             insert_mode = app.vi_state.input_mode in (InputMode.INSERT, InputMode.INSERT_MULTIPLE)
             replace_mode = app.vi_state.input_mode == InputMode.REPLACE
-            sel = entry_buffer.selection_state
+            sel = edit_buffer.selection_state
             temp_navigation = app.vi_state.temporary_navigation_mode
             visual_line = sel is not None and sel.type == SelectionType.LINES
             visual_block = sel is not None and sel.type == SelectionType.BLOCK
@@ -1731,7 +1705,7 @@ def get_edit_mode():
         return ''.join([
             mode,
             ' ',
-            ('+' if entry_buffer_changed() else ''),
+            ('+' if edit_buffer_changed() else ''),
             (' '),
         ])
     else:
@@ -1856,25 +1830,46 @@ def process_input(buf):
     result = buf.document.text
     return True
 
+def process_entry(buf):
+    dataview.entry_content = buf.document.text
+    logger.debug(f"dataview.entry_content = {dataview.entry_content}")
+
 edit_bindings = KeyBindings()
 ask_buffer = Buffer()
-entry_buffer = Buffer(multiline=True, completer=at_completer, complete_while_typing=True, accept_handler=process_input)
-
 reply_buffer = Buffer(multiline=True)
+entry_title_buffer = Buffer()
+entry_prompt_buffer = Buffer(multiline=True)
+
+edit_buffer = Buffer(multiline=True, completer=at_completer, complete_while_typing=True, accept_handler=process_input)
+entry_buffer = Buffer(multiline=False, accept_handler=process_entry)
+
 
 reply_dimension = Dimension(min=1, weight=1)
-entry_dimension = Dimension(min=2, weight=3)
+prompt_dimension = Dimension(min=2, weight=3)
+edit_dimension = Dimension(min=2, weight=3)
+entry_dimension = Dimension(min=2, weight=1)
 
-entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
+edit_window = Window(BufferControl(buffer=edit_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=edit_dimension, wrap_lines=True, style='class:edit')
+entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:edit')
 ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
+entry_title_window = Window(BufferControl(buffer=entry_title_buffer, focusable=False), height=1, style='class:edit')
 reply_window = Window(BufferControl(buffer=reply_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:reply')
+entry_prompt_window = Window(BufferControl(buffer=entry_prompt_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:edit')
 
 edit_area = HSplit([
     ask_window,
     reply_window,
     HorizontalLine(),
+    edit_window,
+    ], style='class:edit')
+
+
+entry_area = HSplit([
+    entry_title_window,
+    entry_prompt_window,
+    HorizontalLine(),
     entry_window,
-    ], style='class:entry')
+    ], style='class:edit')
 
 
 details_area = TextArea(
@@ -1930,7 +1925,7 @@ to show the details of the busy periods from that day or press the ▼ (down) or
 busy_container = HSplit([
     busy_area,
     Window(FormattedTextControl(get_busy_keys), style='class:status', height=1),
-    ], style='class:entry')
+    ], style='class:edit')
 
 query_bindings = KeyBindings()
 
@@ -2031,7 +2026,7 @@ query_window.accept_handler = accept
 query_area = HSplit([
     ask_window,
     query_window,
-    ], style='class:entry')
+    ], style='class:edit')
 
 
 def do_complex_query(text, loop):
@@ -2075,23 +2070,27 @@ edit_container = HSplit([
     edit_area,
     ])
 
+entry_container = HSplit([
+    entry_area,
+    ])
+
 def default_buffer_changed(_):
     """
     """
     dataview.control_z_active = False
-    item.text_changed(entry_buffer.text, entry_buffer.cursor_position)
+    item.text_changed(edit_buffer.text, edit_buffer.cursor_position)
 
 
 def default_cursor_position_changed(_):
     """
     """
-    item.cursor_changed(entry_buffer.cursor_position)
+    item.cursor_changed(edit_buffer.cursor_position)
     set_askreply('_')
 
 
 # This is slick - add a call to default_buffer_changed
-entry_buffer.on_text_changed += default_buffer_changed
-entry_buffer.on_cursor_position_changed += default_cursor_position_changed
+edit_buffer.on_text_changed += default_buffer_changed
+edit_buffer.on_cursor_position_changed += default_cursor_position_changed
 
 status_area = VSplit([
             Window(FormattedTextControl(get_statusbar_text), style='class:status'),
@@ -2121,8 +2120,8 @@ body = HSplit([
         content=edit_container,
         filter=is_editing),
     ConditionalContainer(
-        content=edit_container,
-        filter=dialog_active),
+        content=entry_container,
+        filter=is_showing_entry),
     search_field,
     ])
 
@@ -2317,10 +2316,10 @@ def edit_new(*event):
     dataview.is_editing = True
     dataview.control_z_active = False
     item.new_item()
-    entry_buffer.text = item.entry
+    edit_buffer.text = item.entry
     default_buffer_changed(event)
     default_cursor_position_changed(event)
-    application.layout.focus(entry_buffer)
+    application.layout.focus(edit_buffer)
 
 
 @bindings.add('E', filter=is_viewing_or_details & is_item_view)
@@ -2337,15 +2336,23 @@ def edit_existing(*event):
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
     row, col = get_row_col()
     item.edit_item(doc_id, entry)
-    entry_buffer.text = item.entry
+    edit_buffer.text = item.entry
     starting_buffer_text = item.entry
     default_buffer_changed(event)
     default_cursor_position_changed(event)
-    application.layout.focus(entry_buffer)
+    application.layout.focus(edit_buffer)
 
-def entry_buffer_changed():
-    return entry_buffer.text != starting_buffer_text
+def edit_buffer_changed():
+    return edit_buffer.text != starting_buffer_text
 
+def entry_buffer_changed(_):
+    logger.debug("entry_buffer_changed")
+    changed = entry_buffer.text != starting_buffer_text
+    if changed:
+        dataview.entry_content = entry_buffer.text
+    return changed 
+
+entry_buffer.on_text_changed += entry_buffer_changed
 
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
 def next_timer_state(*event):
@@ -2661,11 +2668,11 @@ def edit_copy(*event):
     dataview.is_editing = True
     doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
     item.edit_copy(doc_id, entry)
-    entry_buffer.text = item.entry
+    edit_buffer.text = item.entry
     starting_buffer_text = item.entry
     default_buffer_changed(event)
     default_cursor_position_changed(event)
-    application.layout.focus(entry_buffer)
+    application.layout.focus(edit_buffer)
 
 @bindings.add('g', filter=is_viewing & is_not_editing)
 def do_goto(*event):
@@ -2755,57 +2762,52 @@ It is possible to import data from files with one of the following extensions:
   .json  a json file exported from etm 3.2.x
   .text  a text file with etm entries as lines
   .ics   an iCalendar file
-or a collection of internally generated examples by entering the single word:
-   lorem
-Each of the examples is tagged 'lorem' and thus can easily be removed with a single query:
-   any t lorem | remove
+or a collection of illustrative reminders by entering the single word, lorem.
 
-Files imported from the etm home directory
-   {etmhome}
-will be removed after importing to avoid possible duplications.
-
-Enter the full path of the file to import or 'lorem':
-"""
+Enter the complete file path or 'lorem'"""
     logger.debug("calling get_entry")
 
-    get_entry(title, text, "", event)
-    
-    logger.debug(f"got file_path: {entry_buffer.text}")
+    get_entry(title, text, "", event) 
 
-    return "whatever"
+    def coroutine():
+        filepath = dataview.entry_content
+        set_text(dataview.show_active_view())
+        logger.debug(f"got filepath: {filepath}")
+        dataview.hide_entry()
+        if filepath:
+            if filepath.strip().lower() == 'lorem':
+                logger.debug(f"calling import_file")
+                ok, msg = import_file('lorem')
+                if ok:
+                    dataview.refreshRelevant()
+                    dataview.refreshAgenda()
+                    if dataview.mk_current:
+                        dataview.refreshCurrent()
+                    dataview.refreshKonnections()
+                    loop = asyncio.get_event_loop()
+                    loop.call_later(0, data_changed, loop)
+                show_message('Import File', msg)
+            else:
+                filepath = os.path.normpath(os.path.expanduser(filepath))
+                ok, msg = import_file(filepath)
+                if ok:
+                    etm_dir = os.path.normpath(os.path.expanduser(etmdir))
+                    if os.path.dirname(filepath) == etm_dir:
+                        os.remove(filepath)
+                        filehome = os.path.join("~", os.path.split(filepath)[1])
+                        msg += f"\n and removed {filehome}"
+                    dataview.refreshRelevant()
+                    dataview.refreshAgenda()
+                    if dataview.mk_current:
+                        dataview.refreshCurrent()
+                    dataview.refreshKonnections()
+                    loop = asyncio.get_event_loop()
+                    loop.call_later(0, data_changed, loop)
+                show_message('Import File', msg)
+        else:
+            show_message('Import File', 'cancelled - nothing submitted')
 
-    if file_path.strip().lower() == 'lorem':
-        logger.debug(f"calling import_file")
-        ok, msg = import_file('lorem')
-        if ok:
-            dataview.refreshRelevant()
-            dataview.refreshAgenda()
-            if dataview.mk_current:
-                dataview.refreshCurrent()
-            dataview.refreshKonnections()
-            loop = asyncio.get_event_loop()
-            loop.call_later(0, data_changed, loop)
-        show_message('import lorem', msg)
-
-    else:
-        if file_path:
-            file_path = os.path.normpath(os.path.expanduser(file_path))
-            ok, msg = import_file(file_path)
-            if ok:
-                etm_dir = os.path.normpath(os.path.expanduser(etmdir))
-
-                if os.path.dirname(file_path) == etm_dir:
-                    os.remove(file_path)
-                    filehome = os.path.join("~", os.path.split(file_path)[1])
-                    msg += f"\n and removed {filehome}"
-                dataview.refreshRelevant()
-                dataview.refreshAgenda()
-                if dataview.mk_current:
-                    dataview.refreshCurrent()
-                dataview.refreshKonnections()
-                loop = asyncio.get_event_loop()
-                loop.call_later(0, data_changed, loop)
-            show_message('import file', msg)
+    dataview.got_entry = coroutine
 
 
 
@@ -3260,24 +3262,24 @@ def handle_choice(*event):
 
 
 # e.g., keypresses: f5 (import file), f6 (date calculator), c-l jump to line
-@bindings.add('<any>', filter=is_showing_entry)
-def handle_entry(*event):
-    """
-    Handle any key presses. The coroutine used as dataview.got_input
-    will determine which presses are acted upon and which are
-    ignored.
-    """
-    keypressed = event[0].key_sequence[0].key
-    dataview.details_key_press = keypressed # f5
-    logger.debug(f"handle_entry: {keypressed}")
-    # got_choice will define the coroutine appropriate to keypressed 
-    # it will return a result which might be None when <enter> is pressed
-    result = dataview.got_choice()
-    # 
-    logger.debug(f"got: {result}") 
+# @bindings.add('<any>', filter=is_showing_entry)
+# def handle_entry(*event):
+#     """
+#     Handle any key presses. The coroutine used as dataview.got_input
+#     will determine which presses are acted upon and which are
+#     ignored.
+#     """
+#     keypressed = event[0].key_sequence[0].key
+#     dataview.details_key_press = keypressed # f5
+#     logger.debug(f"handle_entry: {keypressed}")
+#     # got_choice will define the coroutine appropriate to keypressed 
+#     # it will return a result which might be None when <enter> is pressed
+#     result = dataview.got_choice()
+#     # 
+#     logger.debug(f"got: {result}") 
     
-    dataview.hide_entry()
-    application.layout.focus(text_area)
+#     dataview.hide_entry()
+#     application.layout.focus(text_area)
 
 
 @bindings.add('enter', filter=is_viewing_or_details & is_item_view)
@@ -3297,7 +3299,7 @@ def show_details(*event):
 @bindings.add('c-z', filter=is_editing, eager=True)
 def close_edit(*event):
     global text_area
-    if is_editing() and entry_buffer_changed() and not dataview.control_z_active:
+    if is_editing() and edit_buffer_changed() and not dataview.control_z_active:
         dataview.control_z_active = True
         ask_buffer.text = "There are unsaved changes"
         reply_buffer.text = wrap("To discard them and close the editor press Control-Z again.", 0)
@@ -3312,9 +3314,34 @@ def close_edit(*event):
     set_text(dataview.show_active_view())
     restore_row_col(row, col)
 
+@bindings.add('enter', filter=is_showing_entry, eager=True)
+def process_entry(*event):
+    global text_area
+    logger.debug(f"dataview.entry_content: {dataview.entry_content}")
+    dataview.got_entry()
+
+    def corountine():
+        pass
+    dataview.got_entry = corountine
+    row, col = get_row_col()
+    dataview.hide_entry()
+    application.layout.focus(text_area)
+    set_text(dataview.show_active_view())
+    restore_row_col(row, col)
+
+@bindings.add('escape', filter=is_showing_entry, eager=True)
+def close_entry(*event):
+    global text_area
+    logger.debug('get entry canceled')
+    row, col = get_row_col()
+    dataview.hide_entry()
+    application.layout.focus(text_area)
+    set_text(dataview.show_active_view())
+    restore_row_col(row, col)
+
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):
-    if entry_buffer_changed():
+    if edit_buffer_changed():
         timer_save = TimeIt('***SAVE***')
         maybe_save(item)
         timer_save.stop()
