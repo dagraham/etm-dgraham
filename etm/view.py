@@ -829,12 +829,7 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     bp = " and press <return> to submit your entry or press <escape> to cancel."
     text = wrap_text(text.rstrip() + bp)
 
-#     text = f"""\
-# {wrap_text(text.rstrip()) + ' and press'} <return> to submit your entry or <escape> to cancel and close this dialog.\
-# """
     global starting_entry_text
-    # app = get_app()
-    # app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
     entry_title_buffer.text = f"-- {title} --"
     entry_prompt_buffer.text = wrap_text(text)
     entry_buffer.text = default
@@ -1365,16 +1360,20 @@ def do_go_to_line(*event):
 
 @bindings.add('J', filter=is_dated_view)
 def do_jump_to_date(*event):
-    func  = inspect.currentframe().f_code.co_name
-    show_work_in_progress(func)
-    return
+    # func  = inspect.currentframe().f_code.co_name
+    # show_work_in_progress(func)
+    # return
+
+    title = "Jump to Date"
+    text = """\
+Enter the date\
+"""
+
+    get_entry(title, text, "", event)
+
 
     def coroutine():
-        dialog = TextInputDialog(
-            title='Jump to date',
-            label_text='date:')
-
-        target_date = yield from show_dialog_as_float(dialog)
+        target_date = dataview.entry_content
 
         if target_date:
             try:
@@ -1383,7 +1382,8 @@ def do_jump_to_date(*event):
                 show_message('jump to date', 'Invalid date')
             else:
                 set_text(dataview.show_active_view())
-    # asyncio.ensure_future(coroutine())
+
+    dataview.got_entry = coroutine
 
 
 window_colors = None

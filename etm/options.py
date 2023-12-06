@@ -141,6 +141,7 @@ class Settings():
             'dialog-output':           ['DimGrey', 'Lime'],
             'dialog.body label':       ['', 'White'],
             'dialog.body':             ['DimGrey', 'White'],
+            'edit':                    ['Cornsilk', 'Black'],
             'entry':                   ['Cornsilk', 'Black'],
             'frame.label':             ['DimGrey', 'White'],
             'menu':                    ['DimGrey', 'White'],
