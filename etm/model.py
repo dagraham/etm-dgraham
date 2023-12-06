@@ -2101,6 +2101,8 @@ def format_duration(obj, short=False):
     # if not (isinstance(obj, Period) or isinstance(obj, timedelta)):
     if not isinstance(obj, timedelta):
         return None
+    if obj.total_seconds == 0:
+        return "0m"
     hours = obj.total_seconds()//(60*60)
     try:
         until =[]
@@ -2140,13 +2142,13 @@ def status_duration(obj):
     """
     if not (isinstance(obj, timedelta) or isinstance(obj, Period)):
         return None
-    
     td = obj if isinstance(obj, timedelta) else obj.diff
     total_seconds = int(td.total_seconds())
+    if total_seconds < 60:
+        return "0m" 
     hours = total_seconds // (60*60)
     minutes = (total_seconds % (60*60)) // 60
     seconds = total_seconds - 60*60*hours - 60*minutes
-    
     until =[]
     if hours > 0:
         until.append(f"{hours}h")
@@ -2437,14 +2439,16 @@ class NDict(dict):
                     # replace any newlines in the summary with spaces
                     leaf[0] = re.sub(' *\n+ *', ' ', leaf[0])
                     leaf[1] = re.sub(' *\n+ *', ' ', leaf[1])
-                    summary_width = self.width - l_indent - 2
-                    summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) >= summary_width else leaf[1]
                     flags = leaf[2].strip()
                     flags = " ❘" + flags + "❘" if flags else ""
+                    rhc = leaf[3].strip()
+                    rhc = f"{rhc}  " if rhc else ""
+                    summary_width = self.width - l_indent - 2 - len(flags)-len(rhc)
+                    summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) >= summary_width else leaf[1]
                     if self.compact:
-                        tmp = f"{indent}{leaf[0]} {summary}{flags}"
+                        tmp = f"{indent}{leaf[0]} {rhc}{summary}{flags}"
                     else:
-                        tmp = f"{indent}{leaf[0]} {summary}{flags}"
+                        tmp = f"{indent}{leaf[0]} {rhc}{summary}{flags}"
 
                     self.output.append(tmp)
                     self.row2id[self.row] = leaf[4]
@@ -6461,7 +6465,7 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
     ymd_fmt = f"%y/{md_fmt}" if settings['yearfirst'] else f"{md_fmt}/%y"
     width = shutil.get_terminal_size()[0] - 3
     rows = []
-    summary_width = width - 14
+    # summary_width = width - 14
     for item in db:
         mt = item.get('modified', None)
         if mt is not None:
@@ -6471,20 +6475,20 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
         if dt is not None:
             doc_id = item.doc_id
             ymd = dt.strftime(ymd_fmt)
-            rhc = f" {ymd}-{label}"
+            rhc = f"{ymd}-{label}"
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item.get('summary', "~")
             flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
-            path = '    m: last modified; c: created; most recent first'
+            path = 'reverse sorted by m)odified or c)created'.center(width, ' ')
             rows.append(
                     {
                         'sort': dt,
                         'path': path,
                         'values': [
                             itemtype,
-                            f"{rhc} {summary.rstrip()}",
+                            summary,
                             flags,
-                            '',
+                            rhc,
                             doc_id
                             ],
                     }
@@ -6559,7 +6563,7 @@ def show_timers(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, ac
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     locations = set([])
-    summary_width = width - 18
+    # summary_width = width - 18
     now = datetime.now().astimezone()
     state2sort = {
             'i': 'inactive',
@@ -6579,7 +6583,7 @@ def show_timers(db, pinned_list=[], link_list=[], konnect_list=[], timers={}, ac
         num_timers += 1
         total_time += elapsed
         sort = state2sort[state]
-        rhc = f"{status_duration(elapsed)}  {state}".rjust(10, ' ')
+        rhc = f"{status_duration(elapsed)}:{state}"
         itemtype = item['itemtype']
         summary = item['summary']
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)

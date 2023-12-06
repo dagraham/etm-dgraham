@@ -833,6 +833,7 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     entry_title_buffer.text = f"-- {title} --"
     entry_prompt_buffer.text = wrap_text(text)
     entry_buffer.text = default
+    logger.debug(f"get_entry for {title}")
     dataview.show_entry()
     entry_buffer_changed(event)
     # default_cursor_position_changed(event)
@@ -1113,27 +1114,33 @@ def add_usedtime(*event):
 
     now = datetime.now().astimezone()
     if doc_id in dataview.timers:
-        title = 'active timer - record used time and end timer'
         state, start, elapsed = dataview.timers[doc_id]
         if state == 'r':
             elapsed += now - start
             start = now
-        timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}"
-        entry = f"{format_duration(elapsed, short=True)}: {format_datetime(start, short=True)[1]}"
+        timer = f"timer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}"
+
+        default = f"{format_duration(elapsed, short=True)} : {format_datetime(now, short=True)[1]}"
     else:
-        title = 'no active timer - add used time entry'
         state = None
-        timer = "\ntimer: None"
-        entry = " : now"
+        timer = "timer: none"
+        default = f"0m : {format_datetime(now, short=True)[1]}"
+
+    title = "Record Used Time"
+
+    text = f"""\
+selected: {hsh['itemtype']} {hsh['summary']}
+@i (index): {hsh.get('i', '~')}
+{timer}
+
+To record a used time entry for this reminder enter an expression using the format:
+    period : datetime
+"""
+    
+    get_entry(title, text, default, event)
 
     def coroutine():
-        dialog = TextInputDialog(
-            title=title,
-            label_text=f"selected:\n  {hsh['itemtype']} {hsh['summary']}\n  @i {hsh.get('i', '~')}{timer}\n\nused time format:\n    period: datetime\n",
-            default=entry,
-            )
-        usedtime = yield from show_dialog_as_float(dialog)
-
+        usedtime = dataview.entry_content
         if not usedtime:
             # None (cancelled) or null string
             return None
@@ -1155,7 +1162,7 @@ def add_usedtime(*event):
                            )
         if msg:
             msg = "\n   ".join(msg)
-            show_message('add used time', f"Cancelled,\n   {msg}")
+            show_message(title, f"Cancelled,  {msg}")
             return
 
         changed, msg = item.add_used(doc_id, per, dt)
@@ -1172,8 +1179,7 @@ def add_usedtime(*event):
         else:
             show_message('add used time', f"Cancelled, {msg}")
 
-
-    # asyncio.ensure_future(coroutine())
+    dataview.got_entry = coroutine
 
 
 today = datetime.today()
@@ -2392,24 +2398,27 @@ def maybe_delete_timer(*event):
         start = now
     timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}\n\nWARNING: The timer's data will be lost.\nAre you sure you want to delete this timer?"
 
+    title = "Delete Timer"
+    text = f"""\
+selected: {hsh['itemtype']} {hsh['summary']}{timer}
+    0: no, do not delete the timer
+    1: yes, delete the timer
+"""
+
+    get_choice(title, text)
+
     def coroutine():
-
-        dialog = ConfirmDialog(
-            title='delete timer',
-            text=f"selected: {hsh['itemtype']} {hsh['summary']}{timer}",
-            )
-
-        discard = yield from show_dialog_as_float(dialog)
-        if discard:
+        keypress = dataview.details_key_press
+        done = keypress in ['0', '1']
+        if keypress == '1':
             dataview.timer_clear(doc_id)
             dataview.refreshRelevant()
             set_text(dataview.show_active_view())
             get_app().invalidate()
-        else:
-            return
 
-    asyncio.ensure_future(coroutine())
+        return done
 
+    dataview.got_choice = coroutine
 
 
 @bindings.add('T', 'T', filter=is_viewing_or_details & is_item_view)
@@ -2830,22 +2839,22 @@ def refresh_views(*event):
     return True
 
 
-@bindings.add('c-t', filter=is_viewing & is_item_view)
+@bindings.add('c-t', filter=is_viewing & is_item_view, eager=True)
 def quick_timer(*event):
-    now = format_datetime(datetime.now(), short=True)[1]
+    
+    title = 'Quick Timer'
+    text = 'Enter the summary for the quick timer'
+    default = format_datetime(datetime.now(), short=True)[1]
+
+    get_entry(title, text, default, event)
+
     def coroutine():
-        dialog = TextInputDialog(
-            title='Quick timer summary',
-            label_text='summary:',
-            default=now)
-
-        summary = yield from show_dialog_as_float(dialog)
-
+        summary = dataview.entry_content
         if summary:
             item_hsh = {
                     'itemtype': '!',
                     'summary': summary,
-                    'created': datetime.now().astimezone(timezone('UTC'))
+                    'created': datetime.now().astimezone(ZoneInfo('UTC'))
                     }
 
             doc_id = ETMDB.insert(item_hsh)
@@ -2858,8 +2867,9 @@ def quick_timer(*event):
                 dataview.refreshKonnections()
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
-    asyncio.ensure_future(coroutine())
 
+    dataview.got_entry = coroutine
+    
 
 @bindings.add('c-t', filter=is_viewing & is_item_view)
 def quick_capture(*event):
@@ -3468,8 +3478,7 @@ root_container = MenuContainer(body=body, menu_items=[
         MenuItem('TD) delete timer without recording', handler=maybe_delete_timer),
         MenuItem('-- ignores selection --', disabled=True),
         MenuItem('TT) toggle paused/running for active timer', handler=toggle_active_timer),
-        MenuItem('TC) start quick timer, prompt for summary', handler=quick_timer),
-        MenuItem('^t) start quick timer without prompt', handler=quick_capture),
+        MenuItem('^t) start quick timer', handler=quick_timer),
     ]),
 ], floats=[
     Float(xcursor=True,

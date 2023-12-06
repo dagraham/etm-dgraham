@@ -81,7 +81,7 @@ class Settings():
             'used':         'Khaki',
             'waiting':      'SlateGrey',
             'wrap':         'ForestGreen',
-            'running':      'OrangeRed',
+            'running':      'LimeGreen',
             'paused':       'Gold',
             },
         'light': {
@@ -97,7 +97,7 @@ class Settings():
             'used':         'DodgerBlue',
             'waiting':      'DarkSlateBlue',
             'wrap':         'LightGrey',
-            'running':      'MediumVioletRed',
+            'running':      'Green',
             'paused':       'DarkViolet',
             },
     }
@@ -514,7 +514,7 @@ type_colors: {type_colors}
 #  used            'Khaki',            'DodgerBlue',
 #  waiting         'SlateGrey',        'DarkSlateBlue',
 #  wrap            'ForestGreen',      'LightGrey',
-#  running         'OrangeRed',        'Gold',
+#  running         'LimeGreen',        'Green',
 #  paused          'MediumVioletRed',   'DarkViolet',
 # Explanations for the key names:
 #     available:    available task/job reminders
