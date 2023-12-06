@@ -2012,29 +2012,18 @@ def format_hours_and_tenths(obj):
     if not isinstance(obj, timedelta):
         return None
     UT_MIN = settings.get('usedtime_minutes', 1)
-    if UT_MIN >= 1:
-        obj = round_minutes(obj)
-    try:
-        if UT_MIN <= 1:
-            # hours, minutes and seconds if not rounded up
-            return format_duration(obj, short=True)
-        minutes = 0
-        if obj.weeks:
-            minutes += obj.weeks * 7 * 24 * 60
-        if obj.remaining_days:
-            minutes += obj.remaining_days * 24 * 60
-        if obj.hours:
-            minutes += obj.hours * 60
-        if obj.minutes:
-            minutes += obj.minutes
-        if minutes:
-            return f"{math.ceil(minutes/UT_MIN)/(60/UT_MIN)}h"
-        else:
-            return "0m"
+    if UT_MIN <= 1:
+        # hours, minutes and seconds if not rounded up
+        return format_duration(obj, short=True)
+    seconds = int(obj.total_seconds())
+    minutes = seconds // 60
+    if seconds % 60:
+        minutes += 1
+    if minutes:
+        return f"{math.ceil(minutes/UT_MIN)/(60/UT_MIN)}"
+    else:
+        return "0.0"
 
-    except Exception as e:
-        logger.error(f"error: {e} formatting {obj}")
-        return obj
 
 def dt2minutes(obj):
     return obj.hour * 60 + obj.minute
@@ -2064,8 +2053,8 @@ def datetimes2busy(dta, dtb):
 def round_minutes(obj):
 
     # round up
-    if isinstance(obj, timedelta) and obj.seconds:
-        return obj + timedelta(seconds=60-obj.seconds)
+    if isinstance(obj, timedelta) and int(obj.total_seconds()) % 60:
+        return obj + timedelta(seconds=60 - int(obj.total_seconds()) % 60)
     else:
         return obj
 
@@ -7047,13 +7036,15 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
             rhc_cols = 17 if UT_MIN == 0 else 14
 
             if UT_MIN > 0:
-                seconds = period.total_seconds()
+                seconds = int(period.total_seconds()) % 60
                 if seconds:
                     # round up to the next minute
                     period = period + timedelta(seconds = 60-seconds)
+
                 res = (period.total_seconds()//60) % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
+                logger.debug(f"period after ut_min {UT_MIN} rounding: {period}")
 
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
@@ -7066,6 +7057,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
             id_used.setdefault(monthday, ZERO)
             id_used[monthday] += period
             month = dt.strftime("%Y-%m")
+            logger.debug(f"adding period {period} to {monthday} and {month}")
             used_time.setdefault(tuple((month,)), ZERO)
             used_time[tuple((month, ))] += period
             for i in range(len(index_tup)):
@@ -7073,16 +7065,18 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 used_time[tuple((month, *index_tup[:i+1]))] += period
         for monthday in id_used:
             month = monthday.strftime("%Y-%m")
-            rhc = f"{monthday.strftime('%m/%d')} {format_hours_and_tenths(id_used[monthday])}".ljust(rhc_cols, ' ')
+            logger.debug(f"for id_used {monthday}: {id_used[monthday]}")
+            rhc = f"{monthday.strftime('%m/%d')} {format_hours_and_tenths(id_used[monthday])}"
+            logger.debug(f"rhc: {rhc}")
             detail_rows.append({
                         'sort': (month, index_tup, monthday, itemtype, summary),
                         'month': month,
                         'path': f"{monthday.strftime('%B %Y')}/{index}",
                         'values': [
                             '◦',
-                            f"{itemtype} {rhc} {summary}",
+                            f"{itemtype} {summary}",
                             flags,
-                            '',
+                            rhc,
                             doc_id],
                         })
 

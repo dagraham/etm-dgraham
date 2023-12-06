@@ -35,7 +35,7 @@ from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.selection import SelectionType
 from prompt_toolkit.styles import Style
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
-from prompt_toolkit.widgets import Box, Dialog, Label, Button
+from prompt_toolkit.widgets import Box, Label, Button
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
 from zoneinfo import ZoneInfo
