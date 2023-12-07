@@ -6338,6 +6338,10 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
         if item.doc_id not in id2relevant:
             continue
 
+        # don't show completed tasks in forthcoming?
+        if 'f' in item:
+            continue
+
         doc_id = item.doc_id
         if 'r' in item:
             # use the freq from the first recurrence rule
