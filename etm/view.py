@@ -571,189 +571,6 @@ class ETMQuery(object):
 ############# end query ################################
 
 
-class InteractiveInputDialog(object):
-    def __init__(self, title='', help_text='', evaluator=None, padding=10, completer=None):
-        self.future = asyncio.Future()
-
-        def cancel():
-            self.future.set_result(None)
-
-        self.output_field = TextArea(
-                text='',
-                style='class:dialog-output',
-                focusable=False,
-                height=3,
-                )
-        self.input_field = TextArea(
-            height=1,
-            # prompt='',
-            multiline=False,
-            style='class:dialog-entry',
-            focusable=True,
-            wrap_lines=False)
-
-        def accept(buff):
-            # Evaluate "calculator" expression.
-            try:
-                output = f"In:  {self.input_field.text}\nOut: {evaluator(self.input_field.text)}\n"
-            except BaseException as e:
-                output = f"\n{e}"
-            # new_text = self.output_field.text + output
-            new_text = output
-            # Add text to output buffer.
-            self.output_field.buffer.text = new_text
-
-        self.input_field.accept_handler = accept
-
-        cancel_button = Button(text='Cancel', handler=cancel)
-
-        self.dialog = Dialog(
-            title=title,
-            body=HSplit([
-                Label(text=help_text),
-                self.output_field,
-                # HorizontalLine(),
-                self.input_field,
-            ]),
-            buttons=[cancel_button],
-            width=D(preferred=shutil.get_terminal_size()[0]-padding),
-            modal=True)
-
-    def __pt_container__(self):
-        return self.dialog
-
-
-class TextInputDialog(object):
-    def __init__(self, title='', label_text='', default='', padding=10, completer=None):
-        self.future = asyncio.Future()
-
-        def accept_text(buf):
-            get_app().layout.focus(ok_button)
-            buf.complete_state = None
-            return True
-
-        def accept():
-            get_app().invalidate()
-            self.future.set_result(self.text_area.text)
-
-        def cancel():
-            self.future.set_result(None)
-
-        self.text_area = TextArea(
-            completer=completer,
-            text=default,
-            style='class:dialog-entry',
-            multiline=False,
-            width=D(preferred=shutil.get_terminal_size()[0]-padding),
-            accept_handler=accept_text)
-
-        self.label = Label(
-                text=label_text
-                )
-
-        ok_button = Button(text='OK', handler=accept)
-        cancel_button = Button(text='Cancel', handler=cancel)
-
-        self.dialog = Dialog(
-            title=title,
-            body=HSplit([
-                self.label,
-                self.text_area
-            ]),
-            buttons=[ok_button, cancel_button],
-            # buttons=[ok_button],
-            width=D(preferred=shutil.get_terminal_size()[0]-10),
-            modal=True)
-
-    def set_label(self, txt):
-        self.label.text = txt
-
-    def __pt_container__(self):
-        return self.dialog
-
-
-class RadioListDialog(object):
-    def __init__(self, title='', text='', label='', values=[], padding=4, completer=None):
-        self.future = asyncio.Future()
-
-        self.radios = RadioList(values=values)
-        # radios.current_value will contain the first component of the selected tuple
-        # title = "Delete"
-        # values =[
-        #     (0, 'this instance'),
-        #     (1, 'this and all subsequent instances'),
-        #     (2, 'this and all previous instances'),
-        #     (3, 'all instances - the item itself'),
-        # ]
-
-        def accept():
-            self.future.set_result(self.radios.current_value)
-
-        def cancel():
-            self.future.set_result(None)
-
-
-        ok_button = Button(text='OK', handler=accept)
-        cancel_button = Button(text='Cancel', handler=cancel)
-
-        self.dialog = Dialog(
-            title=title,
-            body=HSplit([
-                Label(text=text),
-                Frame(title=label, body=self.radios)
-            ]),
-            buttons=[ok_button, cancel_button],
-            width=D(preferred=shutil.get_terminal_size()[0]-10),
-            modal=True)
-
-    def __pt_container__(self):
-        return self.dialog
-
-class MessageDialog(object):
-    def __init__(self, title="", text="", padding=10):
-        self.future = asyncio.Future()
-
-        def set_done():
-            self.future.set_result(None)
-
-        ok_button = Button(text='OK', handler=(lambda: set_done()))
-
-        self.dialog = Dialog(
-            title=title,
-            body=HSplit([
-                Label(text=text),
-            ]),
-            buttons=[ok_button],
-            width=D(preferred=shutil.get_terminal_size()[0]-padding),
-            modal=True)
-
-    def __pt_container__(self):
-        return self.dialog
-
-class ConfirmDialog(object):
-    def __init__(self, title="", text="", padding=10):
-        self.future = asyncio.Future()
-
-        def set_yes():
-            self.future.set_result(True)
-        def set_no():
-            self.future.set_result(False)
-
-        yes_button = Button(text='Yes', handler=(lambda: set_yes()))
-        no_button = Button(text='No', handler=(lambda: set_no()))
-
-        self.dialog = Dialog(
-            title=title,
-            body=HSplit([
-                Label(text=text),
-            ]),
-            buttons=[yes_button, no_button],
-            width=D(preferred=shutil.get_terminal_size()[0]-padding),
-            modal=True)
-
-    def __pt_container__(self):
-        return self.dialog
-
 def show_work_in_progress(func: str = ""):
     name = inspect.currentframe().f_code.co_name
     show_message('-- Not Yet Implemented', f'"{func}" is a work in progess.')
@@ -833,7 +650,6 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     entry_title_buffer.text = f"-- {title} --"
     entry_prompt_buffer.text = wrap_text(text)
     entry_buffer.text = default
-    logger.debug(f"get_entry for {title}")
     dataview.show_entry()
     entry_buffer_changed(event)
     # default_cursor_position_changed(event)
@@ -852,40 +668,6 @@ def wrap_text(text: str, init_indent: int = 0, subs_indent: int = 0):
     return '\n'.join(wrapped_text)
 
 
-def show_dialog_as_float(dialog):
-    " Coroutine. "
-    float_ = Float(content=dialog)
-    root_container.floats.insert(0, float_)
-
-    app = get_app()
-
-    focused_before = app.layout.current_window
-    app.layout.focus(dialog)
-    result = yield from dialog.future
-    app.layout.focus(focused_before)
-
-    if float_ in root_container.floats:
-        root_container.floats.remove(float_)
-
-    return result
-
-
-def show_confirm_as_float(dialog):
-    " Coroutine. "
-    float_ = Float(content=dialog)
-    root_container.floats.insert(0, float_)
-
-    app = get_app()
-
-    focused_before = app.layout.current_window
-    app.layout.focus(dialog)
-    result = yield from dialog.future
-    app.layout.focus(focused_before)
-
-    if float_ in root_container.floats:
-        root_container.floats.remove(float_)
-
-    return result
 
 
 # Key bindings.
@@ -923,17 +705,14 @@ def do_check_updates(*event):
 
         def coroutine():
             keypress = dataview.details_key_press
-            logger.debug(f"confirmation keypress: {keypress}")
             done = keypress in ['0', '1']
             if keypress == '1':
                 ok, msg = check_output(settings['update_command'])
-                logger.debug(msg)
                 tmp = [x.strip() for x in msg.split('\n')]
                 lines = [wrap(tmp[0])]
                 for line in tmp[1:]:
                     if line and not line.startswith("Requirement already"):
                         lines.append(wrap(line))
-                logger.debug(f"lines: {lines}")
                 success = wrap("If the update was sucessful, you will need to restart etm for it to take effect.")
                 prompt = "\n".join(lines)
                 # prompt = wrap("\n".join(msg.split('\n')[:1]))
@@ -1020,7 +799,6 @@ Timezones can be appended to x and y.
 
 Enter the expression"""
     default = dataview.calculator_expression
-    logger.debug(f"dataview.entry_content: {dataview.entry_content}")
     get_entry(title, text, default, event)
 
     def coroutine():
@@ -1028,7 +806,6 @@ Enter the expression"""
         if expression:
             dataview.calculator_expression = expression
             res = datetime_calculator(expression)
-            logger.debug(f"got res: {res} set {dataview.calculator_expression}")
             _ = f"""\
   {expression} => 
     {res}
@@ -1068,7 +845,6 @@ There are changes to this reminder that have not been saved. Are you sure that y
 
     def coroutine():
         keypress = dataview.details_key_press
-        logger.debug(f"confirmation keypress: {keypress}")
         done = keypress in ['0', '1']
         if keypress == '1':
             app = get_app()
@@ -1088,7 +864,6 @@ def discard_changes(event, prompt=''):
 
     def coroutine():
         keypress = dataview.details_key_press
-        logger.debug(f"confirmation keypress: {keypress}")
         done = keypress in ['0', '1']
         if keypress == '1':
             application.exit()
@@ -1458,8 +1233,8 @@ class ETMLexer(Lexer):
                 if sty in type_colors:
                     return [(type_colors[sty], tmp)]
                 else:
-                    logger.debug(f"problem with typ {typ} from {tmp}")
-                    logger.debug(f"sty: {sty}; type_colors.keys: {type_colors.keys()}")
+                    logger.error(f"problem with typ {typ} from {tmp}")
+                    logger.error(f"sty: {sty}; type_colors.keys: {type_colors.keys()}")
             if tmp.rstrip().endswith("(Today)") or tmp.rstrip().endswith("(Tomorrow)"):
                 return [(type_colors['today'], f"{tmp} ")]
 
@@ -1839,7 +1614,6 @@ def process_input(buf):
 
 def process_entry(buf):
     dataview.entry_content = buf.document.text
-    logger.debug(f"dataview.entry_content = {dataview.entry_content}")
 
 edit_bindings = KeyBindings()
 ask_buffer = Buffer()
@@ -2363,7 +2137,6 @@ def edit_buffer_changed():
     return edit_buffer.text != starting_buffer_text
 
 def entry_buffer_changed(_):
-    logger.debug("entry_buffer_changed")
     changed = entry_buffer.text != starting_buffer_text
     if changed:
         dataview.entry_content = entry_buffer.text
@@ -2433,7 +2206,6 @@ selected: {hsh['itemtype']} {hsh['summary']}{timer}
 
 @bindings.add('T', 'T', filter=is_viewing_or_details & is_item_view)
 def toggle_active_timer(*event):
-    logger.debug("")
     dataview.toggle_active_timer(text_area.document.cursor_position_row)
     row = text_area.document.cursor_position_row
     dataview.refreshRelevant()
@@ -2485,54 +2257,56 @@ def do_finish(*event):
         show_message('Finish', "Only an unfinished task can be finished.")
         return
 
-    logger.debug(f"doc_id: {doc_id}, instance: {instance}, job: {job}, hsh: {hsh}")
     has_timer = doc_id in dataview.timers
     timer_warning = " and\nits associated timer" if has_timer else ""
     repeating = 'r' in hsh or '+' in hsh
 
     between = []
-    due = ""
+    due = hsh.get('s', None)
 
     title = "Finish"
+
+    now = format_datetime(datetime.now().astimezone(), short=True)[1]
+    default =  now
 
     if job:
         # only a completion date needed - either undated or finishing the oldest instance
         need = 1
         between = [hsh.get('s', None)]
-        entry =  "now"
         # due = hsh.get('s', "")
-        start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
+        start = f"\nDue: {format_datetime(due)[1]}" if due else ""
 
         text= f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}
 Job: {job}{start}
 
-Enter <completion datetime>
-        """
+Enter the completion datetime\
+"""
+        default = now
 
 
-    elif instance and instance == model.date_to_datetime(hsh['s']):
+    elif instance and instance == model.date_to_datetime(due):
         # the oldest instance is selected
         need = 1
-        between = [hsh.get('s', None)]
-        entry =  "now"
+        between = [due]
+        entry =  is_not_yearly_view
         # due = hsh.get('s', "")
-        start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
+        start = f"\nDue: {format_datetime(due)[1]}" if due in hsh else ""
 
         text= f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}{start}
 
-Enter <completion datetime>
-        """
+Enter the completion datetime\
+"""
 
     elif instance:
         # either the instance or the oldest
         need = 2
-        between = [hsh['s'], instance]
+        between = [due, instance]
         # if instance != hsh['s']:
         values = [
-            f"{format_datetime(hsh['s'])[1]} (oldest)",
-            f"{format_datetime(instance)[1]} (selected)",
+            f"1: {format_datetime(due)[1]} (oldest)",
+            f"2: {format_datetime(instance)[1]} (selected)",
             ]
 
         values_list = []
@@ -2548,11 +2322,9 @@ Selected: {hsh['itemtype']} {hsh['summary']}
 
 {values_str}
 
-The number of the instance to finish and
-the completion datetime to use?
-number : datetime\
+Enter the number of the instance to finish and the completion datetime using the format "number : datetime"\
         """
-        entry = "1 : now"
+        default = f"1 : {now}"
         due = ""
 
     elif repeating:
@@ -2576,12 +2348,10 @@ Selected: {hsh['itemtype']} {hsh['summary']}
 
 {values_str}
 
-The number of the instance to finish and
-the completion datetime to use?
-number : datetime\
+Enter the number of the instance to finish and the completion datetime using the format  "number : datetime"\
             """
 
-            entry = "0 : now"
+            default = f"0 : {now}"
             due = ""
         else:
             # beginby
@@ -2595,39 +2365,41 @@ number : datetime\
             text= f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}{start}
 
-Enter <completion datetime>
+Enter the completion datetime\
         """
 
     else:
         need = 1
-        between = [hsh.get('s', None)]
+        between = [due]
         entry =  "now"
         # due = hsh.get('s', "")
-        start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
+        start = f"\nDue: {format_datetime(due)[1]}" if due in hsh else ""
 
         text= f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}{start}
 
-Enter the completion datetime
+Enter the completion datetime\
         """
-    get_entry(title, text, "", event)
 
-    def coroutine():
+    get_entry(title, text, default, event)
+
+
+    def coroutine(need=need):
         global hsh
-        
+
         done_str = dataview.entry_content
 
         if not done_str:
             # show_message('Finish', 'Cancelled')
             return None
 
-        done_parts = [x.strip() for x in done_str.split(':')]
+        done_parts = [x.strip() for x in done_str.split(' : ')]
 
         msg = ""
         num_parts = len(done_parts)
         if num_parts != need:
             ok = False
-            msg = f"Cancelled, the entry, {done_str}, is invalid"
+            msg = f"Cancelled, the entry, {done_str}, does not have the required format"
 
         elif num_parts == 2:
             num = int(done_parts[0])
@@ -2638,7 +2410,7 @@ Enter the completion datetime
             else:
                 msg = f"Cancelled, '{num}' is not in [{', '.join([str(x) for x in range(len(between))])}]"
 
-            ok, res, z = parse_datetime(done_parts[1], z='local')
+            ok, res, z = parse_datetime(done_str, z='local')
             if ok:
                 done = res
             else:
@@ -2655,7 +2427,6 @@ Enter the completion datetime
         if msg:
             show_message('Finish', msg)
             return
-
         done = model.date_to_datetime(done)
         due = model.date_to_datetime(due)
 
@@ -2697,7 +2468,7 @@ def edit_copy(*event):
 def do_goto(*event):
     row = text_area.document.cursor_position_row
     if not row:
-        logger.debug(f"do_goto failed to return a row for cursor position {cursor_position_row}")
+        logger.error(f"do_goto failed to return a row for cursor position {cursor_position_row}")
         return
     res = dataview.get_row_details(row) # item_id, instance, job_id
     if res:
@@ -3281,27 +3052,6 @@ def handle_choice(*event):
         application.layout.focus(text_area)
 
 
-# e.g., keypresses: f5 (import file), f6 (date calculator), c-l jump to line
-# @bindings.add('<any>', filter=is_showing_entry)
-# def handle_entry(*event):
-#     """
-#     Handle any key presses. The coroutine used as dataview.got_input
-#     will determine which presses are acted upon and which are
-#     ignored.
-#     """
-#     keypressed = event[0].key_sequence[0].key
-#     dataview.details_key_press = keypressed # f5
-#     logger.debug(f"handle_entry: {keypressed}")
-#     # got_choice will define the coroutine appropriate to keypressed 
-#     # it will return a result which might be None when <enter> is pressed
-#     result = dataview.got_choice()
-#     # 
-#     logger.debug(f"got: {result}") 
-    
-#     dataview.hide_entry()
-#     application.layout.focus(text_area)
-
-
 @bindings.add('enter', filter=is_viewing_or_details & is_item_view)
 def show_details(*event):
     if dataview.is_showing_details:
@@ -3543,8 +3293,6 @@ async def main(etmdir=""):
         refresh_interval=1.0,
         on_invalidate=event_handler)
     logger.debug("XX starting event_handler XX")
-    # background_task = asyncio.create_task(event_handler())
-    # background_task = asyncio.create_task(event_handler())
     timer_view.stop()
     try:
         result = await application.run_async()

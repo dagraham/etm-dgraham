@@ -811,7 +811,6 @@ item_hsh:    {self.item_hsh}
 
     def do_update(self):
         timer_update = TimeIt('***UPDATE***')
-        logger.debug(f"updating item_hsh: {self.item_hsh}")
         self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         timer_update.stop()
 
@@ -1033,7 +1032,6 @@ item_hsh:    {self.item_hsh}
 
                     self.item_hsh.setdefault('h', []).append(completion_entry)
                 else:
-                    # logger.debug(f"not nxt, finished last instance")
                     self.item_hsh['f'] = completion_entry
             elif '+' in self.item_hsh:
                 # simple repetition
@@ -1174,16 +1172,13 @@ item_hsh:    {self.item_hsh}
 
     def check_item_hsh(self):
         created = self.item_hsh.get('created', None)
-        logger.debug(f"created: {created}")
         self.item_hsh = {'created': created}
         cur_hsh = {}
         cur_key = None
         msg = []
-        logger.debug(f"pos_hsh: {self.pos_hsh}")
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if obj is None:
-                # logger.debug(f"got None for {k}, {v}")
                 msg.append(f"bad entry for {k}: {v}")
                 return msg
                 # continue
@@ -1233,8 +1228,6 @@ item_hsh:    {self.item_hsh}
             msg = "\n".join(msg)
             logger.debug(f"{msg}")
             
-        logger.debug(f"item_hsh: {self.item_hsh}")
-
         return msg
 
 
@@ -1255,7 +1248,6 @@ item_hsh:    {self.item_hsh}
                 # creating a new item or editing a copy of an existing item
                 self.item_hsh['created'] = now
                 if self.doc_id is None:
-                    logger.debug(f"item_hsh: {self.item_hsh}")
                     self.doc_id = self.db.insert(self.item_hsh)
                 else:
                     self.do_update()
@@ -1635,12 +1627,10 @@ def datetime_calculator(s):
     timezone_regex = re.compile(r'^(.+)\s+([A-Za-z]+/[A-Za-z]+)$')
     period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmMy])+\s*$)')
 
-    logger.debug(f"processing {s}")
     ampm = settings.get('ampm', True)
     wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
     datetime_fmt = f"{wkday_fmt} %Y %I:%M%p %Z" if ampm else f"{wkday_fmt} %Y %H:%M %Z"
     m = date_calc_regex.match(s)
-    logger.debug(f"first pass at m {m}")
     if not m:
         return f'Could not parse "{s}"'
     x, pm, y = [z.strip() for z in m.groups()]
@@ -1666,7 +1656,7 @@ def datetime_calculator(s):
             if not ok:
                 return f"error: could not parse '{y}'"
             if yz:
-                dt = (dt_x + dur).astimezone(timezone(yz))
+                dt = (dt_x + dur).astimezone(Timezone(yz))
             else:
                 dt = (dt_x + dur).astimezone()
             return dt.strftime(datetime_fmt)
@@ -1697,7 +1687,6 @@ def duration_in_words(obj):
     try:
         until =[]
         seconds = int(obj.total_seconds())
-        logger.debug(f"processing total_seconds: {seconds}")
         weeks = days = hours = minutes = 0
         if seconds:
             sign = "" if seconds > 0 else "- "
@@ -1738,7 +1727,7 @@ def duration_in_words(obj):
         return None
 
 
-def parse_datetime(s, z=None):
+def parse_datetime(s: str, z: str = None):
     """
     's' will have the format 'datetime string' Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if 'z == float' or an aware datetime object converting to UTC using tzlocal if z == None and using the timezone specified in z otherwise.
     >>> dt = parse_datetime("2015-10-15 2p")
@@ -1789,9 +1778,8 @@ def parse_datetime(s, z=None):
 
     try:
         s = s.strip()
-        logger.debug(f"s: {s}")
         if s == 'now':
-            return True, datetime.now(tz=tzinfo), z
+            return True, datetime.now().astimezone(), z
 
         dt_str = ''
         dur_str = ''
@@ -1812,13 +1800,12 @@ def parse_datetime(s, z=None):
         if dt_str:
             dt = datetime.now().astimezone() if dt_str.strip() == 'now' else parse(dt_str, tzinfo=tzinfo)
         else:
-            dt = datetime.now(tz=tzinfo)
+            dt = datetime.now().astimezone()
             if dur_str and re.search(r'[dwM]', dur_str):
                 dt = dt.replace(hour=0, minute=0, second=0, microsecond=0)
 
         dur = parse_duration(dur_str)[1] if dur_str else ZERO
         res = dt + dur
-        logger.debug(f"res: {res}")
 
     except Exception as e:
         return False, f"'{s}' is incomplete or invalid: {e}", z
@@ -1830,10 +1817,10 @@ def parse_datetime(s, z=None):
             res.microsecond,
         ) == (0, 0, 0, 0):
             return 'date', res.astimezone(), z
-        elif ok == 'aware':
-            return ok, res.astimezone(timezone('UTC')), z
+        elif ok == 'float':
+            return ok, res.astimezone(None), z
         else:
-            return ok, res, z
+            return ok, res.astimezone(), z
 
 def timestamp(arg):
     """
@@ -1986,7 +1973,7 @@ def format_datetime(obj, short=False):
 
 def format_period(obj):
     if not isinstance(obj, Period):
-        logger.debug(f"error, expected Period but got: {obj}")
+        logger.error(f"error, expected Period but got: {obj}")
         return obj
     start = obj.start
     end = obj.end
@@ -2082,7 +2069,7 @@ def usedminutes2bar(minutes):
 
 def format_duration(obj, short=False):
     """
-    if short report only hours and minutes, else include weeks and days
+    if short report only biggest 2, else all
     >>> td = timedelta(weeks=1, days=2, hours=3, minutes=27)
     >>> format_duration(td)
     '1w2d3h27m'
@@ -2090,25 +2077,25 @@ def format_duration(obj, short=False):
     # if not (isinstance(obj, Period) or isinstance(obj, timedelta)):
     if not isinstance(obj, timedelta):
         return None
-    if obj.total_seconds == 0:
+    seconds = int(obj.total_seconds())
+    if seconds == 0:
         return "0m"
-    hours = obj.total_seconds()//(60*60)
+    sign = "" if seconds > 0 else "-"
+    seconds = abs(seconds)
     try:
         until =[]
         weeks = days = hours = minutes = 0
-        seconds = int(obj.total_seconds())
         if seconds:
             minutes = seconds // 60
             if minutes >= 60:
                 hours = minutes // 60
                 minutes = minutes % 60
-            if not short:
-                if hours >= 24:
-                    days = hours // 24
-                    hours = hours % 24
-                if days >= 7:
-                    weeks = days // 7
-                    days = days % 7
+            if hours >= 24:
+                days = hours // 24
+                hours = hours % 24
+            if days >= 7:
+                weeks = days // 7
+                days = days % 7
         if weeks:
             until.append(f"{weeks}w")
         if days:
@@ -2119,7 +2106,8 @@ def format_duration(obj, short=False):
             until.append(f"{minutes}m")
         if not until:
             until.append("0m")
-        return "".join(until)
+        ret = "".join(until[:2]) if short else "".join(until)
+        return sign + ret
     except Exception as e:
         logger.error(f"{obj}: {e}")
         return ""
@@ -2191,7 +2179,7 @@ def fmt_dur(obj):
 
 def fmt_period(obj):
     if not isinstance(obj, Period):
-        return None
+        return "not a period"
     start = obj.start
     end = obj.end
     until = []
@@ -2351,7 +2339,7 @@ class NDict(dict):
     Constructed from rows of (path, values) tuples. The path will be split using 'split_char' to produce the nodes leading to 'values'. The last element in values is presumed to be the 'id' of the item that generated the row.
     """
 
-    tab = 2
+    tab = 1
 
     def __init__(self, split_char='/', compact=False, width=None):
         self.compact = compact
@@ -5103,10 +5091,8 @@ def get_next_due(item, done, due):
     overdue = item.get('o', 'k') # make 'k' the default for 'o'
     start = item['s']
     dtstart = date_to_datetime(item['s'])
-    # logger.debug(f"done: {done}, due: {due}, dtstart: {dtstart}")
     if due > dtstart:
         # we've finished a between instance
-        # logger.debug(f"between, returning dtstart: {dtstart}")
         return dtstart
     # we're finishing the oldest instance
     h = [x.end for x in item.get('h', [])]
@@ -5860,8 +5846,9 @@ def drop_zero_minutes(dt):
                 return dt.strftime("%H:%M")
 
 
-def fmt_extent(beg_dt, end_dt):
+def fmt_extent(beg_dt: datetime, end_dt: datetime):
     """
+    Format the beginning to ending times to display for a reminder with an extent (both @s and @e). 
     >>> beg_dt = parse('2018-03-07 10am')
     >>> end_dt = parse('2018-03-07 11:30am')
     >>> fmt_extent(beg_dt, end_dt)
@@ -5880,9 +5867,9 @@ def fmt_extent(beg_dt, end_dt):
 
     if ampm:
         diff = beg_dt.hour < 12 and end_dt.hour >= 12
-        end_suffix = end_dt.strftime("%p").lower()
+        end_suffix = end_dt.strftime("%p").lower().rstrip('m')
         if diff:
-            beg_suffix = beg_dt.strftime("%p").lower()
+            beg_suffix = beg_dt.strftime("%p").lower().rstrip('m')
 
     beg_fmt = drop_zero_minutes(beg_dt)
     end_fmt = drop_zero_minutes(end_dt)
@@ -5899,7 +5886,7 @@ def fmt_time(dt, ignore_midnight=True):
     show_minutes = settings['show_minutes']
     if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0:
         return ""
-    suffix = dt.strftime("%p").lower() if ampm else ""
+    suffix = dt.strftime("%p").lower().rstrip('m') if ampm else ""
 
     dt_fmt = drop_zero_minutes(dt)
     if ampm:
@@ -6128,7 +6115,6 @@ def relevant(db, now=datetime.now(), pinned_list=[], link_list=[], konnect_list=
                         isdate = (isinstance(item['s'], date) and not isinstance(item['s'], datetime))
                         isdate = cur.hour == 0 and cur.minute == 0
                         delta = timedelta(hours=23, minutes=59) if isdate else ZERO
-                        # logger.debug(f"{item['summary']} isdate: {isdate}, delta: {delta}, relevant: {relevant}, cur: {cur}")
                         if relevant and date_to_datetime(item['s']) + delta < now:
                             while cur + delta < now:
                                 item.setdefault('h', []).append(Period(cur+ONEMIN, cur))
@@ -7044,7 +7030,6 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 res = (period.total_seconds()//60) % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
-                logger.debug(f"period after ut_min {UT_MIN} rounding: {period}")
 
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
@@ -7057,7 +7042,6 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
             id_used.setdefault(monthday, ZERO)
             id_used[monthday] += period
             month = dt.strftime("%Y-%m")
-            logger.debug(f"adding period {period} to {monthday} and {month}")
             used_time.setdefault(tuple((month,)), ZERO)
             used_time[tuple((month, ))] += period
             for i in range(len(index_tup)):
@@ -7065,9 +7049,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 used_time[tuple((month, *index_tup[:i+1]))] += period
         for monthday in id_used:
             month = monthday.strftime("%Y-%m")
-            logger.debug(f"for id_used {monthday}: {id_used[monthday]}")
             rhc = f"{monthday.strftime('%m/%d')} {format_hours_and_tenths(id_used[monthday])}"
-            logger.debug(f"rhc: {rhc}")
             detail_rows.append({
                         'sort': (month, index_tup, monthday, itemtype, summary),
                         'month': month,
@@ -7141,7 +7123,6 @@ def no_busy_periods(week, width):
     width = shutil.get_terminal_size()[0]
     dent = int((width - 69)/2) * " "
     monday = datetime.strptime(f'{week[0]} {week[1]} 1', '%Y %W %w')
-    logger.debug(f"week: {week} monday: {monday}")
     DD = {}
     for i in range(1, 8):
         # DD[i] = f"{WA[i]} {monday.add(days=i-1).strftime('D')}".ljust(5, ' ')
@@ -7349,19 +7330,20 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
             if isinstance(finished, Period):
                 # finished will be false if the period is ZERO
                 # we need details of when completed (start and end) for completed view
-                d.append([finished.start, summary, doc_id, format_date(finished.end)[1]])
+                # d.append([finished.start, summary, doc_id, format_duration(finished.end-finished.start, short=True)])
+                d.append([finished.start, summary, doc_id, format_duration(finished.end-finished.start, short=True)])
                 # to skip completed instances we only need the completed (end) instance
-                completed.append(finished.end)
+                completed.append(finished.start)
                 # ditto below for history
             if history:
                 for dt in history:
-                    d.append([dt.start, summary, doc_id, format_date(dt.end)[1]])
+                    d.append([dt.start, summary, doc_id, format_duration(dt.end-dt.start, short=True)])
                     completed.append(dt.end)
             if jobs:
                 for job in jobs:
                     job_summary = job.get('summary', '')
                     if 'f' in job:
-                        d.append([job['f'].start, job_summary, doc_id, ""])
+                        d.append([job['f'].start, job_summary, doc_id, format_duration(job['f'].end - job['f'].start, short=True)])
             if d:
                 for row in d:
                     dt = row[0]
@@ -7499,7 +7481,6 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     elif item['itemtype'] in ['%']:
                         sort_dt = sort_dt[:-4] + '2400'
                 # if 'allday' in item['summary']:
-                #     logger.debug(f"{item['itemtype']} {item['summary']} sort_dt: {sort_dt}")
 
                 if 'e' in item:
                     if omit and 'c' in item and item['c'] in omit:

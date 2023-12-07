@@ -14,7 +14,7 @@ import dateutil
 import dateutil.rrule
 from zoneinfo import ZoneInfo
 # from dateutil import tz
-from dateutil.parser import parse as dateutil_parse
+# from dateutil.parser import parse as dateutil_parse
 from dateutil.rrule import *
 import re
 
@@ -69,12 +69,11 @@ def encode_datetime(obj):
 
 def decode_datetime(s):
     if s[-1] not in 'AN' or len(s) != 14:
-        # print(f"{s[-1] in 'AN'}, {len(s) == 14}")
         raise ValueError(f"{s} is not a datetime string")
     if s[-1] == 'A':
-        return datetime.strptime(s, AWARE_FMT).astimezone(ZoneInfo('UTC')).astimezone()
+        return datetime.strptime(s, AWARE_FMT).replace(tzinfo=ZoneInfo('UTC')).astimezone()
     else:
-        return datetime.strptime(s, NAIVE_FMT).astimezone()
+        return datetime.strptime(s, NAIVE_FMT).astimezone(None)
 
 
 def normalize_timedelta(delta):
@@ -131,26 +130,6 @@ class Period:
 
     def __repr__(self):
         return f"Period({encode_datetime(self.start)} -> {encode_datetime(self.end)}, {normalize_timedelta(self.diff)})"
-
-# # Usage:
-# period = Period(
-#         parse('Fri 2:00p').replace(tzinfo=None),
-#         parse('Sat 9:00a').replace(tzinfo=None)
-#         )
-# print(period)
-
-# period = Period(
-#         parse('Fri 2:00p', tzinfo='US/Eastern'),
-#         parse('Sat 9:00a', tzinfo='US/Pacific')
-#         )
-# print(period)
-
-# period = Period(
-#         parse('Sat 9:00a', tzinfo='US/Pacific'),
-#         parse('Fri 2:00p', tzinfo='US/Eastern')
-#         )
-# print(period)
-
 
 
 class DateTimeSerializer(Serializer):
@@ -327,14 +306,12 @@ class WeekdaySerializer(Serializer):
         if s.startswith('+'):
             # drop the leading + sign
             s = s[1:]
-        # print('serializing', obj.__repr__(), type(obj), 'as', s)
         return s
 
     def decode(self, s):
         """
         Return the serialization as a weekday object.
         """
-        # print('deseralizing', s, type(s))
         return eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[s]))
 
 ########################################

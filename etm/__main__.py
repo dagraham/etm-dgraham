@@ -225,6 +225,7 @@ which will need to be created.
 
     from etm.make_examples import make_examples
     from etm.model import about
+    from etm.model import parse
     from etm.model import wrap
     from etm.model import import_file
     from etm.model import import_examples
@@ -290,6 +291,7 @@ which will need to be created.
     view.loglevel = loglevel
     view.TimeIt = TimeIt
     view.wrap = wrap
+    view.parse = parse
     view.WA = WA
     view.beginbusy = beginbusy
     view.FINISHED_CHAR = FINISHED_CHAR
