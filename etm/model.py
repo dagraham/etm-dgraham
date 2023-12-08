@@ -2081,8 +2081,8 @@ def format_duration(obj, short=False):
         return None
     seconds = int(obj.total_seconds())
     if seconds == 0:
-        return "0m"
-    sign = "" if seconds > 0 else "-"
+        return " 0m"
+    sign = "+" if seconds > 0 else "-"
     seconds = abs(seconds)
     try:
         until =[]

@@ -132,6 +132,29 @@ class Period:
         return f"Period({encode_datetime(self.start)} -> {encode_datetime(self.end)}, {normalize_timedelta(self.diff)})"
 
 
+    def __eq__(self, other):
+        if isinstance(other, Period):
+            return self.start == other.start
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, Period):
+            return self.start < other.start
+        return NotImplemented
+
+    def __gt__(self, other):
+        if isinstance(other, Period):
+            return self.start > other.start
+        return NotImplemented
+
+    # Optionally, define __le__ and __ge__
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __ge__(self, other):
+        return self > other or self == other
+
+
 class DateTimeSerializer(Serializer):
     """
     This class handles both aware and naive datetime objects.
