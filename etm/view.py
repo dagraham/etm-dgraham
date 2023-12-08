@@ -2759,6 +2759,7 @@ def yearly_view(*event):
 @bindings.add('h', filter=is_viewing)
 def history_view(*event):
     set_view('h')
+    show_message('History View', 'Reverse sorted (most recent first) using the last modified datetime if modified or the created datetime otherwise.')
 
 @bindings.add('m', filter=is_viewing)
 def timers_view(*event):

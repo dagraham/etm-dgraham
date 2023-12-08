@@ -303,12 +303,12 @@ def day_bar_labels() -> str:
         begin_hour, end_hour, marker_hour_interval
         ):
         if (i - begin_hour) % marker_hour_interval == 0:
-            l = f"{(MIDNIGHT + i*HOUR).strftime(hour_fmt).lstrip('0').rstrip("M").lower()}"
-            hour_labels.append(f'{l}{' '*(label_length - len(l))}')
+            l = f"{(MIDNIGHT + i*HOUR).strftime(hour_fmt).lstrip('0').rstrip('M').lower()}"
+            hour_labels.append(f"{l}{' '*(label_length - len(l))}")
         else:
             hour_labels.append(' '*label_length)
     if end_hour % marker_hour_interval == 0:
-        last_label = f"{(MIDNIGHT + end_hour*HOUR).strftime(hour_fmt).lstrip('0').rstrip("M").lower()}"
+        last_label = f"{(MIDNIGHT + end_hour*HOUR).strftime(hour_fmt).lstrip('0').rstrip('M').lower()}"
         last_label = last_label if last_label else "24"
         hour_labels.append(last_label)
     
@@ -811,7 +811,9 @@ item_hsh:    {self.item_hsh}
 
     def do_update(self):
         timer_update = TimeIt('***UPDATE***')
+        logger.debug(f"do_update {self.doc_id}: {self.item_hsh}")
         self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+        logger.debug(f"finished do_update")
         timer_update.stop()
 
     
@@ -6351,11 +6353,11 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
         relevant = id2relevant[item.doc_id]
         if relevant < today:
             continue
-        year = relevant.strftime("%Y")
-        monthday = relevant.strftime(md_fmt)
+        year = relevant.strftime("%b %Y")
+        monthday = relevant.strftime("%d").lstrip('0')
         time = fmt_time(relevant)
         # rhc = f"{monthday:>6} {time:^7}".ljust(14, ' ')
-        rhc = f"{monthday} {time}" if time else monthday
+        rhc = f"{monthday : >2} {time} " if time else f"{monthday : >2} "
 
         itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = set_summary(item['summary'], item.get('s', None), relevant, freq)
@@ -6368,7 +6370,7 @@ def show_forthcoming(db, id2relevant, pinned_list=[], link_list=[], konnect_list
                     'path': year,
                     'values': [
                         itemtype,
-                        f'{rhc}  {summary}',
+                        f'{rhc}{summary}',
                         flags,
                         "",
                         doc_id
@@ -6445,6 +6447,7 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     # summary_width = width - 14
+    title = 'reverse sorted by m)odified else c)created'
     for item in db:
         mt = item.get('modified', None)
         if mt is not None:
@@ -6453,21 +6456,21 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
             dt, label = item.get('created', None), 'c'
         if dt is not None:
             doc_id = item.doc_id
-            ymd = dt.strftime(ymd_fmt)
-            rhc = f"{ymd}-{label}"
+            path = dt.strftime("%b %Y")
+            d = dt.strftime("%d").lstrip('0')
+            rhc = f"{d : >2} {label} "
             itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             summary = item.get('summary', "~")
             flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
-            path = 'reverse sorted by m)odified or c)created'.center(width, ' ')
             rows.append(
                     {
                         'sort': dt,
                         'path': path,
                         'values': [
                             itemtype,
-                            summary,
+                            rhc + summary,
                             flags,
-                            rhc,
+                            '',
                             doc_id
                             ],
                     }
@@ -6482,6 +6485,8 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
+    
+    # return f"{title}\n" + tree, row2id
     return tree, row2id
 
 
