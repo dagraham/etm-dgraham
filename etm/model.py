@@ -961,7 +961,21 @@ item_hsh:    {self.item_hsh}
         return changed
 
 
-    def finish_item(self, item_id, job_id, completed_datetime, due_datetime):
+    def finish_item(self, item_id: int, job_id: any, completed_datetime: datetime, due_datetime: datetime) -> bool:
+        """Use the completed_datetime and the due_datetime to update the completion history and to remove the due_datetime from the instances that still need to be finished.
+
+        Args:
+            item_id (int): The database key for the item
+            job_id (any): If this is a job, the key for the job
+            completed_datetime (datetime): instance completed
+            due_datetime (datetime): instance due
+
+        Returns:
+            bool: Success/Failure
+
+
+        """
+
         # item_id and job_id should have come from dataview.hsh ok, maybe_finish and thus be valid
 
         # 23/5/29 FIXME with a repeating item either r or +, finishing an
@@ -1015,9 +1029,12 @@ item_hsh:    {self.item_hsh}
 
         elif 's' in self.item_hsh:
             if 'r' in self.item_hsh:
+                # walrus operator, :=, assigns return from get_next_due to nxt
+                # any @+ dates will have been added to @r
                 if nxt := get_next_due(
                     self.item_hsh, completed_datetime, completion_entry.end
                 ):
+                    logger.debug(f"nxt: {nxt}; completed: {completed_datetime}, due: {completion_entry.end}")
                     for i in range(len(self.item_hsh['r'])):
                         if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
                             self.item_hsh['r'][i]['c'] -= 1
@@ -1028,7 +1045,7 @@ item_hsh:    {self.item_hsh}
                 else:
                     self.item_hsh['f'] = completion_entry
             elif '+' in self.item_hsh:
-                # simple repetition
+                # simple repetition or added to @r
                 tmp = [self.item_hsh['s']] + self.item_hsh['+']
                 tmp = [date_to_datetime(x) for x in tmp]
                 tmp.sort()
@@ -1650,7 +1667,7 @@ def datetime_calculator(s):
             if not ok:
                 return f"error: could not parse '{y}'"
             if yz:
-                dt = (dt_x + dur).astimezone(Timezone(yz))
+                dt = (dt_x + dur).astimezone(ZoneInfo(yz))
             else:
                 dt = (dt_x + dur).astimezone()
             return dt.strftime(datetime_fmt)
@@ -1757,7 +1774,7 @@ def parse_datetime(s: str, z: str = None):
     """
 
     filterwarnings("error")
-    if z is None:
+    if z in ['local', None]:
         tzinfo = 'local'
         ok = 'local'
     elif z == 'float':
@@ -4372,7 +4389,7 @@ jinja_entry_template.globals['nowrap'] = nowrap
 jinja_display_template = Template(display_tmpl)
 jinja_display_template.globals['dt2str'] = plain_datetime
 jinja_display_template.globals['in2str'] = fmt_dur
-jinja_display_template.globals['dtlst2str'] = format_datetime_list
+jinja_display_template.globals['dtlst2str'] = plain_datetime_list
 jinja_display_template.globals['inlst2str'] = format_duration_list
 jinja_display_template.globals['prd2str'] = format_period
 jinja_display_template.globals['prdlst2str'] = format_period_list
@@ -5076,7 +5093,7 @@ def rrule_args(r_hsh):
 
 def get_next_due(item, done, due):
     """
-    return the next due datetime for an @r repetition
+    return the next due datetime for an @r and @+ / @- repetition
     """
     lofh = item.get('r')
     if not lofh:
@@ -7608,9 +7625,11 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 else:
                     busyperiod = None
                 tmp_summary = set_summary(summary, item['s'], dt, freq)
-                rhc = rhc + "  " if rhc else ""
+                rhc = rhc + " " if rhc else ""
+                # rhc = " " + rhc if rhc else ""
                 columns = [item['itemtype'],
                                 f'{rhc}{tmp_summary}',
+                                # f'{tmp_summary}{rhc}',
                                 flags,
                                 '',
                                 (doc_id, instance, None)

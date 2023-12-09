@@ -583,11 +583,10 @@ def show_message(title, text, padding=6):
 
     # prep the message window
     tmp = f"""\
--- {title.rstrip()} --
+ {title.rstrip()} - press <return> to close
 
-{text.rstrip()}
-
-Press <return> to close."""
+{text.rstrip()}\
+"""
 
     dataview.show_details()
     details_area.text = wrap_text(tmp)
@@ -2300,13 +2299,13 @@ Enter the completion datetime\
 """
 
     elif instance:
-        # either the instance or the oldest
+        # either the selected instance or the oldest
         need = 2
         between = [due, instance]
         # if instance != hsh['s']:
         values = [
-            f"1: {format_datetime(due)[1]} (oldest)",
-            f"2: {format_datetime(instance)[1]} (selected)",
+            f"{format_datetime(due)[1]} (oldest)",
+            f"{format_datetime(instance)[1]} (selected)",
             ]
 
         values_list = []
@@ -2340,6 +2339,7 @@ Enter the number of the instance to finish and the completion datetime using the
             for x in between:
                 count += 1
                 values_list.append(f"   {count}: {format_datetime(x)[1]}")
+                # values_list.append(f"   {format_datetime(x)[1]}")
 
             values_str = "\n".join(values_list)
 
@@ -2383,7 +2383,9 @@ Enter the completion datetime\
 
     get_entry(title, text, default, event)
 
-
+    ###################
+    #### coroutine ####
+    ###################
     def coroutine(need=need):
         global hsh
 
@@ -2394,6 +2396,7 @@ Enter the completion datetime\
             return None
 
         done_parts = [x.strip() for x in done_str.split(' : ')]
+        logger.debug(f"done_parts: {done_parts}")
 
         msg = ""
         num_parts = len(done_parts)
@@ -2409,15 +2412,15 @@ Enter the completion datetime\
                 due = between[num]
             else:
                 msg = f"Cancelled, '{num}' is not in [{', '.join([str(x) for x in range(len(between))])}]"
-
-            ok, res, z = parse_datetime(done_str, z='local')
+            logger.debug(f"parsing: {done_parts[1]}")
+            ok, res, z = parse_datetime(done_parts[1])
             if ok:
                 done = res
             else:
                 msg = f"Cancelled, '{done_parts[1]}' is not a valid datetime"
 
         elif num_parts == 1:
-            ok, res, z = parse_datetime(done_str, z='local')
+            ok, res, z = parse_datetime(done_str)
             if ok:
                 done = res
             else:
