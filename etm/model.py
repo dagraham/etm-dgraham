@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-# standard sort order: ['!', '#', '$', '%', '&', '(', ')', '*', '+',
-# ',', '-', '.', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'Y', 'Z',
-# '^', '_', 'a', 'b', 'y', 'z', '~']
+# standard sort order: ['!', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'Y', 'Z',  '^', '_', 'a', 'b', 'y', 'z', '~']
 
 from pprint import pprint
 import datetime # for type testing in rrule
@@ -26,7 +24,6 @@ from zoneinfo import ZoneInfo
 
 # for saving timers
 import pickle
-from icecream import ic
 
 from warnings import filterwarnings
 
@@ -353,14 +350,12 @@ def day_bar(events: list, allday: bool = False) -> str:
     
     all_slots = []
 
-    # ic((marker_slot_interval, [(x, x%marker_slot_interval) for x in range(1+(24*60)//slot_minutes)]))
     for i in range(1+(24*60)//slot_minutes):
         if marker_slot_interval and i % marker_slot_interval == 0:
             all_slots.append([VSEP, 0])
         else:
             all_slots.append([None, 0])
 
-    # ic((all_slots[begin_slots], all_slots[end_slots]))
 
     # all_slots = [0 for i in range((24*60)//slot_minutes)] # 24*12/5 5-minute slots + before + after.  All initially free = 0.
     for start, end in events:
@@ -401,9 +396,6 @@ def day_bar(events: list, allday: bool = False) -> str:
     elif marker_slot_interval:
         event_slots.append(VSEP)
 
-    # ic([event_slots[i] for i in [0, 1, -2, -1]])
-    # ic(event_slots)
-        
     busyfree = []
     for j in range(len(event_slots)):
         if event_slots[j] == 0:
@@ -6876,7 +6868,7 @@ def show_location(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[]
     rows = []
     for item in db:
         doc_id = item.doc_id
-        rhc = str(doc_id).rjust(5, ' ')
+        rhc = format_date(id2relevant[doc_id])[1] if doc_id in id2relevant else " "*8
         location = item.get('l', '~')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']

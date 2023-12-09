@@ -27,7 +27,6 @@ REQUIRED = [
         "Jinja2>=2.10",
         "lorem>=0.1.1",
         "MarkupSafe>=1.1.0",
-        "pendulum>=2.0.4",
         "prompt-toolkit>=3.0.2",
         "Pygments>=2.5.2",
         "pyperclip>=1.7.0",
