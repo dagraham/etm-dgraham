@@ -11,9 +11,12 @@ from prompt_toolkit import prompt
 from prompt_toolkit import PromptSession
 import etm.options as options
 from etm import view
+
+from etm.model import parse, parse_duration, fmt_week
 from etm.model import item_details
 from etm.model import format_hours_and_tenths
 import etm.data as data
+from etm.data import Period
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import TextArea
@@ -22,23 +25,21 @@ from pygments.token import Keyword
 from pygments.token import Literal
 from pygments.token import Operator
 from pygments.token import Comment
-import pendulum
-from pendulum import parse
-from pendulum import duration
 import itertools
 from itertools import groupby
 flatten = itertools.chain.from_iterable
 from operator import itemgetter
+from datetime import datetime, date, timedelta
 
-ZERO = duration(minutes=0)
-ONEMIN = duration(minutes=1)
+ZERO = timedelta(seconds=0)
+ONEMIN = timedelta(seconds=60)
 
 finished_char = u"\u2713"  #  ✓
 
 minus_regex = re.compile(r'\s+\-(?=[a-zA-Z])')
 groupdate_regex = re.compile(r'\bW{1,4}\b|\bY{2}\b|\bY{4}\b|\b[M]{1,4}\b|\bd{1,4}\b|\b[D]{1,2}\b|\b[w]\b')
 
-# supported date formats (subset of pendulum)
+# date formats supported by pendulum :-( 
 # YYYY        year 2019
 # YY          year 19
 # MMMM        month January
@@ -60,26 +61,36 @@ ETMDB = None
 DBITEM = None
 DBARCH = None
 
+
+def format_week(dt, fmt="WWW"):
+    """
+    """
+    yrwk = dt.isocalendar()[:2]
+    return fmt_week(yrwk)
+
+
 def daybeg():
-    return pendulum.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    return datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
 def dayend():
-    return daybeg() + duration(days=1)
+    return datetime.now().replace(hour=23, minute=59, second=59, microsecond=0)
 
 def weekbeg():
     d = daybeg()
-    return d - duration(days=d.weekday())
+    return d - timedelta(days=d.weekday())
 
 def weekend():
-    d = daybeg()
-    return d + duration(days=7-d.weekday())
+    d = dayend()
+    return d + timedelta(days=6-d.weekday())
 
 def monthbeg():
-    return daybeg().replace(day=1)
+    d = daybeg()
+    return d.replace(day=1)
 
 def monthend():
-    return monthbeg() + duration(months=1)
-
+    mb = monthbeg()
+    (y, m) = (mb.year, mb.month + 1) if mb.month < 12 else (mb.year + 1, 1)
+    return mb.replace(year=y, month=m) - timedelta(seconds=1)
 
 
 date_shortcuts = {
@@ -120,12 +131,12 @@ def parse_reldt(s):
     if dtm in date_shortcuts:
         dt = date_shortcuts[dtm]()
     else:
-        dt = pendulum.parse(dtm, strict=False, tz='local')
+        dt = parse(dtm)
     logger.debug(f"dt: {dt}")
     if dur:
         ok, du = parse_duration(dur)
     else:
-        du = pendulum.Duration()
+        du = ZERO
     logger.debug(f"dt: {dt}, du: {du}, dt+du: {dt+du}")
     return dt + du
 
@@ -134,97 +145,60 @@ def _fmtdt(dt):
     # assumes dt is either a date or a datetime
     try:
         # this works if dt is a datetime
-        return dt.format("YYYYMMDDHHmm")
+        # return dt.format("YYYYMMDDHHmm")
+        return dt.strftime("%Y%m%d%H%M")
     except:
         # this works if dt is a date by providing 00 for HH and mm
-        return dt.format("YYYYMMDD0000")
+        # return dt.format("YYYYMMDD0000")
+        return dt.strftime("%Y%m%d0000")
 
 
 def later(d1, d2):
     """
     True if d1 > d2
     """
-    if not (isinstance(d1, pendulum.Date) and isinstance(d2, pendulum.Date)):
+    if not (isinstance(d1, date) and isinstance(d2, date)):
         # each must be a date or a datetime
-        return "only pendulum dates or datetimes can be compared"
+        return "only dates or datetimes can be compared"
     return _fmtdt(d1) > _fmtdt(d2)
 
 def earlier(d1, d2):
     """
     True if d1 < d2
     """
-    if not (isinstance(d1, pendulum.Date) and isinstance(d2, pendulum.Date)):
+    if not (isinstance(d1, date) and isinstance(d2, date)):
         # each must be a date or a datetime
-        return "only pendulum dates or datetimes can be compared"
+        return "only dates or datetimes can be compared"
     return _fmtdt(d1) < _fmtdt(d2)
-
-def format_week(dt, fmt="WWW"):
-    """
-    """
-    if fmt.endswith(','):
-        add_comma = ','
-        fmt = fmt[:-1]
-    else:
-        add_comma = ''
-
-    if fmt == "W":
-        return str(dt.week_of_year) + add_comma
-
-    dt_year, dt_week = dt.isocalendar()[:2]
-
-    if fmt == "WWW":
-        year_week = f", {dt_year}"
-    elif fmt == "WWWW":
-        year_week = f", {dt_year} #{dt_week}"
-    else:
-        year_week = ""
-
-
-    mfmt = "MMM D"
-
-    wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
-    wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
-    week_begin = wkbeg.format(mfmt)
-    if wkbeg.month == wkend.month:
-        week_end = wkend.format("D")
-    else:
-        week_end = wkend.format(mfmt)
-    return f"{week_begin} - {week_end}{year_week}{add_comma}"
 
 
 def maybe_round(obj):
     """
     round up to the nearest UT_MIN minutes.
     """
-    if not isinstance(obj, pendulum.Duration):
-        return None
-    try:
-        if UT_MIN <= 1:
-            return obj
-        minutes = 0
-        if obj.weeks:
-            minutes += obj.weeks * 7 * 24 * 60
-        if obj.remaining_days:
-            minutes += obj.remaining_days * 24 * 60
-        if obj.hours:
-            minutes += obj.hours * 60
-        if obj.minutes:
-            minutes += obj.minutes
-        if minutes:
-            minutes = math.ceil(minutes/UT_MIN)*(UT_MIN)
-            return minutes * ONEMIN
-        else:
-            return ZERO
 
-    except Exception as e:
-        print('format_hours_and_tenths', e)
-        print(obj)
+    logger.debug(f"obj: {type(obj)}")
+    if isinstance(obj, Period):
+        obj = obj.diff
+    if not isinstance(obj, timedelta):
+        logger.debug(f"returning none for obj: {type(obj)}")
         return None
+    if UT_MIN == 0:
+        return obj
+    seconds = int(obj.total_seconds()) % 60
+    if seconds:
+        # round up to the next minute
+        obj = obj + timedelta(seconds = 60-seconds)
+
+    res = (obj.total_seconds()//60) % UT_MIN
+    if res:
+        obj += (UT_MIN - res) * ONEMIN
+    return obj
 
 def sort_dates_times(obj):
-    if isinstance(obj, pendulum.Date):
+    if isinstance(obj, date):
         return obj.format("YYYY-MM-DD 00:00")
-    if isinstance(obj, pendulum.DateTime):
+    if isinstance(obj, dateTime):
         return obj.format("YYYY-MM-DD HH:mm")
     else:
         return obj
@@ -256,7 +230,7 @@ def apply_dates_filter(items, grpby, filters):
             items = []
             dt2ut = {}
             for x in used_times:
-                rdt = x[1] if isinstance(x[1], pendulum.Date) else x[1].date()
+                rdt = x[1] if isinstance(x[1], date) else x[1].date()
                 dt2ut.setdefault(rdt, ZERO)
                 dt2ut[rdt] += maybe_round(x[0])
             for rdt in dt2ut:
@@ -273,13 +247,13 @@ def apply_dates_filter(items, grpby, filters):
             tmp = deepcopy(item)
             rdt = None
             if 'f' in item:
-                rdt = item['f'] if isinstance(item['f'], pendulum.Date) else item['f'].date()
+                rdt = item['f'] if isinstance(item['f'], date) else item['f'].date()
                 # e_ok = 'e' not in filters or item['f'] <= filters['e']
                 e_ok = 'e' not in filters or not later(item['f'], filters['e'])
                 # b_ok = 'b' not in filters or item['f'] >= filters['b']
                 b_ok = not ('b' in filters and earlier(item['f'], filters['b']))
             elif 's' in item:
-                rdt = item['s'] if isinstance(item['s'], pendulum.Date) else item['s'].date()
+                rdt = item['s'] if isinstance(item['s'], date) else item['s'].date()
                 # e_ok = 'e' not in filters or rdt <= filters['e']
                 e_ok = not ('e' in filters and later(item['s'], filters['e']))
                 # b_ok = 'b' not in filters or rdt >= filters['b']
@@ -369,9 +343,9 @@ class QDict(dict):
             ret = []
             for para in paragraphs:
                 ret.extend(textwrap.fill(para, initial_indent=dindent, subsequent_indent=dindent, width=self.width - QDict.tab*(depth-1)).split('\n'))
-        elif isinstance(detail, pendulum.DateTime):
+        elif isinstance(detail, dateTime):
             ret = [dindent + format_datetime(detail, short=True)[1]]
-        elif isinstance(detail, pendulum.Duration):
+        elif isinstance(detail, timedelta):
             ret = [dindent + format_hours_and_tenths(detail)]
         elif isinstance(detail, list) and detail:
             if isinstance(detail[0], str):
