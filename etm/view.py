@@ -2471,7 +2471,7 @@ def edit_copy(*event):
 def do_goto(*event):
     row = text_area.document.cursor_position_row
     if not row:
-        logger.error(f"do_goto failed to return a row for cursor position {cursor_position_row}")
+        logger.error(f"do_goto failed to return a row for cursor position {text_area.document.cursor_position_row}")
         return
     res = dataview.get_row_details(row) # item_id, instance, job_id
     if res:

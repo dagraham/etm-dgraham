@@ -2070,7 +2070,7 @@ def usedminutes2bar(minutes):
     chars = width - 6
     # goal in hours to minutes
     used_minutes = int(minutes)
-    used_fmt = format_duration(used_minutes*ONEMIN, short=True)[1:].ljust(6, ' ')
+    used_fmt = format_hours_and_tenths(used_minutes*ONEMIN).ljust(6, ' ').lstrip('+')
     if usedtime_hours:
         goal_minutes = int(usedtime_hours) * 60
         numchars = math.ceil((used_minutes/goal_minutes)/(1/chars))
@@ -6523,7 +6523,7 @@ def show_review(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
         flags = get_flags(doc_id, link_list, konnect_list, pinned_list, timers)
         modified = item['modified'] if 'modified' in item else item['created']
 
-        weeks = (datetime.now() - modified).days // 7
+        weeks = (datetime.now().astimezone(ZoneInfo('UTC')) - modified).days // 7
         if weeks == 0:
             wkfmt = " This week"
         elif weeks == 1:
@@ -6855,7 +6855,7 @@ def show_tags(db, id2relevant, pinned_list=[], link_list=[], konnect_list=[], ti
     rows = []
     for item in db:
         doc_id = item.doc_id
-        rhc = str(doc_id).rjust(5, ' ')
+        rhc = ''
         tags = item.get('t', [])
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
@@ -7076,8 +7076,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 used_time[tuple((month, *index_tup[:i+1]))] += period
         for monthday in id_used:
             month = monthday.strftime("%Y-%m")
-            # rhc = f"{format_hours_and_tenths(id_used[monthday])} {monthday.day}"
-            rhc = f"{format_hours_and_tenths(id_used[monthday])} {monthday.day}"
+            rhc = f"{format_hours_and_tenths(id_used[monthday]).lstrip('+')} {monthday.day}"
             detail_rows.append({
                         'sort': (month, index_tup, monthday, itemtype, summary),
                         'month': month,
@@ -7120,13 +7119,13 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
         indent = (len(key) - 1) * 2 * " "
         if len(key) == 1:
             yrmnth = datetime.strptime(f"{key[0]}-01", "%Y-%m-%d").strftime("%B %Y")
-            rhc = f": {format_hours_and_tenths(period)}"
+            rhc = f": {format_hours_and_tenths(period).lstrip('+')}"
             # summary = indent + f"{indent}{yrmnth}"[:summary_width]
             summary = indent + yrmnth
             month_rows[key[0]].append(f"{summary}{rhc}")
 
         else:
-            rhc = f": {format_hours_and_tenths(period)}"
+            rhc = f": {format_hours_and_tenths(period).lstrip('+')}"
             summary = indent + key[-1]
             excess = len(rhc) + len(summary) - width
             summary = summary[:-excess] if excess > 0 else summary
@@ -7308,10 +7307,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 else:
                     dt = dt.date()
                 if UT_MIN > 0:
-                    seconds = period.total_seconds()//60
+                    # round up minutes - consistent with used time views
+                    # seconds = period.total_seconds()//60
+                    seconds = int(period.total_seconds())%(UT_MIN*60)
                     if seconds:
-                        # round up minutes - consistent with used time views
-                        period = period + timedelta(seconds = 60-seconds)
+                        increment = timedelta(seconds = UT_MIN*60 - seconds)
+                        period += increment
+
                 dates_to_periods.setdefault(dt, []).append(period)
             for dt in dates_to_periods:
                 week = dt.isocalendar()[:2]
@@ -7324,7 +7326,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     total += p
                 if total is not None:
                     week2day2engaged[week][weekday] += total
-                    used = format_duration(total, short=True)[1:] # drop the +
+                    used = format_hours_and_tenths(total).lstrip('+') # drop the +
                 else:
                     used = ''
                 engaged.append(
@@ -7850,7 +7852,8 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         for row in items:
             day_ = row['day'][0]
-            total = (week2day2engaged[week][day_] if day_ in week2day2engaged[week] else ZERO).total_seconds()//60
+            total_period = week2day2engaged[week][day_] if day_ in week2day2engaged[week] else ZERO
+            total = int(total_period.total_seconds())//60
             used_fmt = bar_fmt = ""
             if total:
                 used, bar = usedminutes2bar(total)
