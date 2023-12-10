@@ -1889,11 +1889,16 @@ def fivechar_datetime(obj):
     else:
         return obj.strftime(ym_fmt)
 
-def format_date(obj):
+def format_date(obj, year=True):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    md = "%d/%m" if dayfirst else "%m/%d"
-    date_fmt = f"%y/{md}" if yearfirst else f"{md}/%y"
+    day = obj.strftime("%d").lstrip('0')
+    md = f"{day}/%m" if dayfirst else f"%m/{day}"
+    if year:
+        date_fmt = f"%y/{md}" if yearfirst else f"{md}/%y" 
+    else:
+        date_fmt = md
+
     if type(obj) != date and type(obj) != datetime:
         return False, ""
     else:
@@ -2018,9 +2023,9 @@ def format_hours_and_tenths(obj):
     if seconds % 60:
         minutes += 1
     if minutes:
-        return f"{math.ceil(minutes/UT_MIN)/(60/UT_MIN)}"
+        return f"{math.ceil(minutes/UT_MIN)/(60/UT_MIN)}h"
     else:
-        return "0.0"
+        return "0.0h"
 
 
 def dt2minutes(obj):
@@ -2061,17 +2066,18 @@ def usedminutes2bar(minutes):
     # TODO: fix this?
     if not minutes:
         return "", ""
-    chars = shutil.get_terminal_size()[0] - 18
+    width = shutil.get_terminal_size()[0] - 2
+    chars = width - 6
     # goal in hours to minutes
     used_minutes = int(minutes)
-    used_fmt = format_duration(used_minutes*ONEMIN, short=True).center(6, ' ')
+    used_fmt = format_duration(used_minutes*ONEMIN, short=True)[1:].ljust(6, ' ')
     if usedtime_hours:
         goal_minutes = int(usedtime_hours) * 60
         numchars = math.ceil((used_minutes/goal_minutes)/(1/chars))
         if numchars <= chars:
-            bar = f"{numchars*BUSY:<50}"
+            bar = f"{numchars*BUSY}"
         else:
-            bar = f"{chars*BUSY} {BUSY}"
+            bar = f"{(chars-6)*BUSY} {BUSY}"
         return used_fmt, bar
     else:
         return used_fmt, ""
@@ -7008,9 +7014,12 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
 
     """
     UT_MIN = settings.get('usedtime_minutes', 1)
-
+        
     width = shutil.get_terminal_size()[0] - 3
-    summary_width = width - 21
+    if UT_MIN == 0:
+        rhc_width = 10  # 11h22m 23
+    else:
+        rhc_width = 10  # 111.2h 23
 
     used_details = {}
     used_details2id = {}
@@ -7067,14 +7076,15 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
                 used_time[tuple((month, *index_tup[:i+1]))] += period
         for monthday in id_used:
             month = monthday.strftime("%Y-%m")
-            rhc = f"{monthday.strftime('%m/%d')} {format_hours_and_tenths(id_used[monthday])}"
+            # rhc = f"{format_hours_and_tenths(id_used[monthday])} {monthday.day}"
+            rhc = f"{format_hours_and_tenths(id_used[monthday])} {monthday.day}"
             detail_rows.append({
                         'sort': (month, index_tup, monthday, itemtype, summary),
                         'month': month,
                         'path': f"{monthday.strftime('%B %Y')}/{index}",
                         'values': [
-                            '◦',
-                            f"{itemtype} {summary}",
+                            itemtype,
+                            summary,
                             flags,
                             rhc,
                             doc_id],
@@ -7107,20 +7117,20 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
     for key in keys:
         period = used_time[key]
         month_rows.setdefault(key[0], [])
-        indent = (len(key) - 1) * 3 * " "
+        indent = (len(key) - 1) * 2 * " "
         if len(key) == 1:
             yrmnth = datetime.strptime(f"{key[0]}-01", "%Y-%m-%d").strftime("%B %Y")
-            try:
-                rhc = f"{format_hours_and_tenths(period)}"
-                summary = f"{indent}{yrmnth}: {rhc}"[:summary_width]
-                month_rows[key[0]].append(f"{summary}")
-            except Exception as e:
-                logger.error(f"e: {repr(e)}")
+            rhc = f": {format_hours_and_tenths(period)}"
+            # summary = indent + f"{indent}{yrmnth}"[:summary_width]
+            summary = indent + yrmnth
+            month_rows[key[0]].append(f"{summary}{rhc}")
 
         else:
-            rhc = f"{format_hours_and_tenths(period)}"
-            summary = f"{indent}{key[-1]}: {rhc}"[:summary_width].ljust(summary_width, ' ')
-            month_rows[key[0]].append(f"{summary}")
+            rhc = f": {format_hours_and_tenths(period)}"
+            summary = indent + key[-1]
+            excess = len(rhc) + len(summary) - width
+            summary = summary[:-excess] if excess > 0 else summary
+            month_rows[key[0]].append(f"{summary}{rhc}")
 
     for key, val in month_rows.items():
         used_summary[key] = "\n".join(val)
@@ -7298,11 +7308,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 else:
                     dt = dt.date()
                 if UT_MIN > 0:
-                    seconds = period.seconds
+                    seconds = period.total_seconds()//60
                     if seconds:
                         # round up minutes - consistent with used time views
                         period = period + timedelta(seconds = 60-seconds)
-
                 dates_to_periods.setdefault(dt, []).append(period)
             for dt in dates_to_periods:
                 week = dt.isocalendar()[:2]
@@ -7315,7 +7324,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     total += p
                 if total is not None:
                     week2day2engaged[week][weekday] += total
-                    used = format_duration(total, short=True)
+                    used = format_duration(total, short=True)[1:] # drop the +
                 else:
                     used = ''
                 engaged.append(
@@ -7331,16 +7340,14 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                                 weekday,
                                 ),
                             'columns': [
-                                USED,
-                                # '~',
-                                f'{used:<6} {itemtype} {summary}' if used else '',
+                                itemtype,
+                                f'{used} {summary}' if used else '',
                                 flags,
                                 '',
                                 (doc_id, None, None)
                             ],
                         }
                     )
-
 
         if itemtype == '-':
             d = [] # d for done

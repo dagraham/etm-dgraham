@@ -380,7 +380,9 @@ usedtime_hours: {usedtime_hours}
 # 0, 1, 2, ..., 24. The daily goal for used time. This is used in engaged
 # view to control the display of the daily used time bars. The goal is to
 # to maximize the granularity of the bar when displaying this number of hours
-# in the space allowed by the terminal width.
+# in the space allowed by the terminal width so that, e.g., with a goal of 6
+# the used time bar for the day would take all of the available space when the
+# actual used time spent is 6 or more hours.
 
 journal_name: {journal_name}
 # Journal items with this index entry and with an @s entry will have the

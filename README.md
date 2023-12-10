@@ -25,7 +25,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
             -   [Simple query examples](#simple-query-examples)
             -   [Archive queries](#archive-queries)
             -   [Update queries](#update-queries)
-            -   [Complex queries](#complex-queries)
+            <!-- -   [Complex queries](#complex-queries) -->
             -   [Command History](#command-history)
             -   [Saved Queries](#saved-queries)
         -   [Common Features](#common-features)
@@ -909,6 +909,7 @@ ALL YOUR REMINDERS:
 
 [↺ contents](#contents)
 
+<!--
 #### Complex queries {#complex-queries}
 
 Return a formatted, heirarchial display of items. Both the format and the items displayed are determined by the type of the query and the arguments provided. Since these queries can group and sort by date/times, these queries must begin by specifying which of the possible datetimes to use. There are four types of datetime specifications:
@@ -1005,7 +1006,7 @@ w (week), d (day), h (hour) and m (minute). E.g.:
 
 
 [↺ contents](#contents)
-
+-->
 #### Command History {#command-history}
 
 Any query entered at the 'query:' prompt and submitted by pressing 'Enter' is added to the command history. These queries are kept as long as 'etm' is running and can be accessed using the up and down cursor keys in the query field. This means you can enter a query, check the result, press 'q' to reopen the query prompt, press the up cursor and you will have your previous query ready to modify and submit again. It is also possible to keep a permanent list of queries accessible by shortcuts. See 'Saved Queries' below.
