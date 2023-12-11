@@ -582,10 +582,14 @@ def show_message(title, text, padding=6):
         dataview.hide_details()
 
     # prep the message window
+    width = shutil.get_terminal_size()[0] - 2
+    heading = f"-- {title.rstrip()} --".center(width, ' ')
+    prompt = "<return> or <escape>: cancel".center(width, ' ')
     tmp = f"""\
- {title.rstrip()} - press <return> to close
+{heading}
+{text.rstrip()}
 
-{text.rstrip()}\
+{prompt}\
 """
 
     dataview.show_details()
@@ -593,7 +597,7 @@ def show_message(title, text, padding=6):
     application.layout.focus(details_area)
 
 
-def get_choice(title, text):
+def get_choice(title, text, options=[]):
     if dataview.is_showing_choice:
         # only one choice at a time
         return
@@ -602,11 +606,20 @@ def get_choice(title, text):
         # close the details view
         application.layout.focus(text_area)
         dataview.hide_details()
+    
+    width = shutil.get_terminal_size()[0] - 2
+    heading = f"-- {title.rstrip()} --".center(width, ' ')
+    # cancel = "<escape>: cancel".center(width, ' ')
 
+    text = text.rstrip()
+    if options:
+        for opt in options:
+            text += f"\n{7*" "}{opt.rstrip()}"
+    
     tmp = f"""\
- -- {title} --
-
+{heading}
 {text}
+    <escape>: cancel\
 """
     dataview.show_choice()
     details_area.text = wrap_text(tmp)
@@ -642,13 +655,22 @@ def get_entry(title: str, text: str, default: str, event) -> any:
         application.layout.focus(text_area)
         dataview.hide_details()
 
-    bp = " and press <return> to submit your entry or press <escape> to cancel."
+    global starting_entry_text
+    width = shutil.get_terminal_size()[0] - 2
+    heading = f"-- {title.rstrip()} --".center(width, ' ')
+
+    ret = "<return>: submit".center(width, ' ')
+    esc = "<escape>: cancel".center(width, ' ')
+    
+    bp = f""" and press 
+{ret}
+{esc}\
+    """
     text = wrap_text(text.rstrip() + bp)
 
-    global starting_entry_text
-    entry_title_buffer.text = f"-- {title} --"
+    entry_title_buffer.text = heading
     entry_prompt_buffer.text = wrap_text(text)
-    entry_buffer.text = default
+    entry_buffer.text = " " + default
     dataview.show_entry()
     entry_buffer_changed(event)
     # default_cursor_position_changed(event)
@@ -830,45 +852,47 @@ def do_show_help(*event):
     help_link = "https://dagraham.github.io/etm-dgraham/"
     openWithDefault(help_link)
 
-def save_before_quit(*event):
+# # TODO: is this used?
+# def save_before_quit(*event):
 
-    title = "Unsaved Changes"
+#     title = "Unsaved Changes"
 
-    text = """\
-There are changes to this reminder that have not been saved. Are you sure that you want to discard them and close the editor?
-    0: no, continue editing
-    1: yes, discard the changes
-"""
+#     text = """\
+# There are changes to this reminder that have not been saved. Are you sure that you want to discard them and close the editor?
+#     0: no, continue editing
+#     1: yes, discard the changes
+# """
 
-    get_choice(title, text)
+#     get_choice(title, text)
 
-    def coroutine():
-        keypress = dataview.details_key_press
-        done = keypress in ['0', '1']
-        if keypress == '1':
-            app = get_app()
-            app.editing_mode = EditingMode.EMACS
-            dataview.is_editing = False
-            application.layout.focus(text_area)
-            application.output.set_cursor_shape(CursorShape.BLOCK)
-            set_text(dataview.show_active_view())
-        return done
+#     def coroutine():
+#         keypress = dataview.details_key_press
+#         done = keypress in ['0', '1']
+#         if keypress == '1':
+#             app = get_app()
+#             app.editing_mode = EditingMode.EMACS
+#             dataview.is_editing = False
+#             application.layout.focus(text_area)
+#             application.output.set_cursor_shape(CursorShape.BLOCK)
+#             set_text(dataview.show_active_view())
+#         return done
 
-    dataview.got_choice = coroutine
+#     dataview.got_choice = coroutine
 
-def discard_changes(event, prompt=''):
-    title = "Unsaved Information"
+# # TODO: is this used?
+# def discard_changes(event, prompt=''):
+#     title = "Unsaved Information"
 
-    get_choice(title, prompt)
+#     get_choice(title, prompt)
 
-    def coroutine():
-        keypress = dataview.details_key_press
-        done = keypress in ['0', '1']
-        if keypress == '1':
-            application.exit()
-        return done
+#     def coroutine():
+#         keypress = dataview.details_key_press
+#         done = keypress in ['0', '1']
+#         if keypress == '1':
+#             application.exit()
+#         return done
 
-    dataview.got_choice = coroutine
+#     dataview.got_choice = coroutine
 
 
 def add_usedtime(*event):
@@ -2025,10 +2049,7 @@ def do_maybe_delete(*event):
 Selected: {hsh['itemtype']} {hsh['summary']}
 
 Are you sure that you want to delete this item?
-    0: no, delete nothing
-    1: yes, delete this reminder
-
-A deletion cannot be undone.
+    <return>: yes, delete this reminder
 """
 
         get_choice(title, text)
@@ -2036,8 +2057,8 @@ A deletion cannot be undone.
         def coroutine():
             keypress = dataview.details_key_press
             logger.debug(f"confirmation keypress: {keypress}")
-            done = keypress in ['0', '1']
-            if keypress == '1':
+            done = keypress in ['escape', 'return']
+            if keypress == 'return':
                 if has_timer:
                     dataview.timer_clear(doc_id)
                 item.delete_item(doc_id)
@@ -2058,19 +2079,20 @@ A deletion cannot be undone.
         # repeating
         title = "Delete"
 
+        options = [
+            "<1>: just this instance",
+            "<2>: the reminder itself"
+        ]
+
+
+
         text = f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}
-Instance: {format_datetime(instance)[1]}
+          {format_datetime(instance)[1]}
 
 This is one instance of a repeating item. What do you want to delete?
-    0: nothing
-    1: just this instance
-    2: the reminder itself
-
-Deletions cannot be undone.
 """
-
-        get_choice(title, text)
+        get_choice(title, text, options)
 
         def coroutine():
             keypress = dataview.details_key_press
@@ -2245,24 +2267,49 @@ def do_touch(*event):
 
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
 def do_finish(*event):
+    """
+    If itemtype is '<', there is at least one pastdue instance. The completion will be for the oldest, if more than one with a warning that others are past due and to finish one other than the oldest to cancel and select the desired instance. Otherwise, the completion will apply to the selection.
 
-    doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+    For the completion coroutine
+    If the selection corresponds to a
+    - non repeating item: add an @f entry
+    - repeating [in @+ or @r instances perhaps including @s]
+        - if an @+ element: delete it
+        - elif == @s
+            - if there is a next instance in @r, set @s = next
+            - elif there is an instance in @+, set @s = oldest
+            - else add an @f entry
+        - else add it to @-
+
+    """
+    row = text_area.document.cursor_position_row
+    doc_id, instance, job = dataview.get_row_details(row)
     if not doc_id:
         return
 
     hsh = DBITEM.get(doc_id=doc_id)
+    logger.debug(f"type(hsh): {type(hsh)}")
     msg = ""
+    logger.debug(f'itemtype: {hsh['itemtype']}')
     if hsh['itemtype'] != '-' or 'f' in hsh:
         show_message('Finish', "Only an unfinished task can be finished.")
         return
-
-    has_timer = doc_id in dataview.timers
-    timer_warning = " and\nits associated timer" if has_timer else ""
-    repeating = 'r' in hsh or '+' in hsh
+    
+    # has_timer = doc_id in dataview.timers
+    # timer_warning = " and\nits associated timer" if has_timer else ""
+    repeating = 's' in hsh and ('r' in hsh or '+' in hsh)
+    if repeating:
+        due = hsh['s']
+        at_plus = hsh.get('+', [])
+        if at_plus:
+            at_plus.sort()
+            due = min(due, model.date_to_datetime(at_plus[0]))
+    else:
+        due = hsh.get('s', None)
+    logger.debug(f"due: {due} {type(due)}")    
 
     between = []
-    due = hsh.get('s', None)
-
+    
     title = "Finish"
 
     now = format_datetime(datetime.now().astimezone(), short=True)[1]
@@ -2290,7 +2337,7 @@ Enter the completion datetime\
         between = [due]
         entry =  is_not_yearly_view
         # due = hsh.get('s', "")
-        start = f"\nDue: {format_datetime(due)[1]}" if due in hsh else ""
+        start = f"\n    {format_datetime(due)[1]}" if due else ""
 
         text= f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}{start}
@@ -2318,18 +2365,16 @@ Enter the completion datetime\
 
         text= f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}
-
 {values_str}
 
-Enter the number of the instance to finish and the completion datetime using the format "number : datetime"\
+Enter the completion datetime and the number of the instance to finish using the format "datetime : number "\
         """
-        default = f"1 : {now}"
-        due = ""
+        default = f"{now} : 1"
 
     elif repeating:
         # must be selected from today's pastdue or beginby
         already_done = [x.end for x in hsh.get('h', [])]
-        between = [x[0] for x in model.item_instances(hsh, model.date_to_datetime(hsh['s']), datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
+        between = [x[0] for x in model.item_instances(hsh, model.date_to_datetime(due), datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
         if between:
             # show_message('Finish', "There is nothing to complete.")
             need = 2
@@ -2348,10 +2393,10 @@ Selected: {hsh['itemtype']} {hsh['summary']}
 
 {values_str}
 
-Enter the number of the instance to finish and the completion datetime using the format  "number : datetime"\
+c) Enter the number of the instance to finish and the completion datetime using the format  "datetime : number"\
             """
 
-            default = f"0 : {now}"
+            default = f"{now} : 0"
             due = ""
         else:
             # beginby
@@ -2365,7 +2410,7 @@ Enter the number of the instance to finish and the completion datetime using the
             text= f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}{start}
 
-Enter the completion datetime\
+d) Enter the completion datetime\
         """
 
     else:
@@ -2378,7 +2423,7 @@ Enter the completion datetime\
         text= f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}{start}
 
-Enter the completion datetime\
+e) Enter the completion datetime\
         """
 
     get_entry(title, text, default, event)
@@ -2502,7 +2547,9 @@ def check_goto(*event):
 
 @bindings.add('c-r', filter=is_viewing_or_details & is_item_view)
 def not_editing_reps(*event):
+    # doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
     row = text_area.document.cursor_position_row
+    logger.debug(f"calling get_repetitions with row {row}")
     res = dataview.get_repetitions(row)
     if not res:
         return
@@ -3103,6 +3150,24 @@ def process_entry(*event):
     set_text(dataview.show_active_view())
     restore_row_col(row, col)
 
+@bindings.add('escape', filter=is_showing_details, eager=True)
+def close_details(*event):
+    global text_area
+    application.layout.focus(text_area)
+    dataview.hide_details()
+
+
+@bindings.add('escape', filter=is_showing_choice, eager=True)
+def close_choice(*event):
+    global text_area
+    logger.debug('get choice canceled')
+    row, col = get_row_col()
+    dataview.hide_choice()
+    application.layout.focus(text_area)
+    set_text(dataview.show_active_view())
+    restore_row_col(row, col)
+
+
 @bindings.add('escape', filter=is_showing_entry, eager=True)
 def close_entry(*event):
     global text_area
@@ -3112,6 +3177,7 @@ def close_entry(*event):
     application.layout.focus(text_area)
     set_text(dataview.show_active_view())
     restore_row_col(row, col)
+
 
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):

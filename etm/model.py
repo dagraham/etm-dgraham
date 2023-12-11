@@ -776,11 +776,11 @@ item_hsh:    {self.item_hsh}
 
     def get_repetitions(self):
         """
-        Called with a row, we should have an doc_id and can use relevant
-        as aft_dt.
-        Called while editing, we won't have a row or doc_id and can use '@s'
-        as aft_dt
+        Called with a row, we should have an doc_id and can use relevant as aft_dt.
+        Called while editing, we won't have a row or doc_id and can use '@s' as aft_dt
         """
+        # doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+        
         num = self.settings['num_repetitions']
         self.update_item_hsh()
         item = self.item_hsh
@@ -788,8 +788,15 @@ item_hsh:    {self.item_hsh}
         if 's' not in item or 'r' not in item and '+' not in item:
             return showing, "not a repeating item"
         relevant = date_to_datetime(item['s'])
+        at_plus = item.get('+', [])
+        if at_plus:
+            at_plus.sort()
+            relevant = min(relevant, date_to_datetime(at_plus[0]))
+        logger.debug(f"relevant: {relevant}")
 
-        pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1, False)]
+        instances = item_instances(item, relevant, num+1, False)
+        instances.sort()
+        pairs = [format_datetime(x[0])[1] for x in instances]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
             showing = f"Next {num} repetitions"
@@ -1040,7 +1047,6 @@ item_hsh:    {self.item_hsh}
                             self.item_hsh['r'][i]['c'] -= 1
                             break
                     self.item_hsh['s'] = nxt
-
                     self.item_hsh.setdefault('h', []).append(completion_entry)
                 else:
                     self.item_hsh['f'] = completion_entry
@@ -3279,26 +3285,39 @@ class DataView(object):
 
     def get_repetitions(self, row=None):
         """
-        Called with a row, we should have an doc_id and can use relevant
-        as aft_dt.
-        Called while editing, we won't have a row or doc_id and can use '@s'
-        as aft_dt
+        Called with a row, we should have an doc_id and can use relevant as aft_dt.
+        Called while editing, we won't have a row or doc_id and can use '@s' as aft_dt
         """
         num = self.settings['num_repetitions']
         res = self.get_row_details(row)
+        logger.debug(f"res: {res}")
         if not res:
             return None, ''
         item_id = res[0]
+        instance = res[1]
 
         if not (item_id and item_id in self.id2relevant):
             return ''
         showing = "Repetitions"
         item = DBITEM.get(doc_id=item_id)
+        details = f"{item['itemtype']} {item['summary']}"
+
         if not ('s' in item and ('r' in item or '+' in item)):
             return showing, "not a repeating item"
-        relevant = self.id2relevant.get(item_id)
+        
+        if instance:
+            relevant = instance
+        else:
+            relevant = date_to_datetime(item['s'])
+            at_plus = item.get('+', [])
+            if at_plus:
+                at_plus.sort()
+                relevant = min(relevant, date_to_datetime(at_plus[0]))
+        logger.debug(f"relevant: {relevant}")
+
+        
+        # relevant = instance if instance else self.id2relevant.get(item_id)
         showing =  "Repetitions"
-        details = f"{item['itemtype']} {item['summary']}"
         if not relevant:
             return "Repetitons", details + "none"
         pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1, False)]
@@ -3307,7 +3326,7 @@ class DataView(object):
             showing = f"Next {num} repetitions"
             pairs = pairs[:num]
         else:
-            showing = f"All repetitions"
+            showing = f"Remaining repetitions"
         return  showing, f"from {starting} for\n{details}:\n  " + "\n  ".join(pairs)
 
 
