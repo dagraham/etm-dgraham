@@ -584,7 +584,7 @@ def show_message(title, text, padding=6):
     # prep the message window
     width = shutil.get_terminal_size()[0] - 2
     heading = f"-- {title.rstrip()} --".center(width, ' ')
-    prompt = "<return> or <escape>: cancel".center(width, ' ')
+    prompt = "<return> or <escape>: close".center(width, ' ')
     tmp = f"""\
 {heading}
 {text.rstrip()}
@@ -614,12 +614,11 @@ def get_choice(title, text, options=[]):
     text = text.rstrip()
     if options:
         for opt in options:
-            text += f"\n{7*" "}{opt.rstrip()}"
+            text += f"\n{4*" "}{opt.rstrip()}"
     
     tmp = f"""\
 {heading}
-{text}
-    <escape>: cancel\
+{text}\
 """
     dataview.show_choice()
     details_area.text = wrap_text(tmp)
@@ -659,8 +658,8 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     width = shutil.get_terminal_size()[0] - 2
     heading = f"-- {title.rstrip()} --".center(width, ' ')
 
-    ret = "<return>: submit".center(width, ' ')
-    esc = "<escape>: cancel".center(width, ' ')
+    ret = "<return>: to submit".center(width, ' ')
+    esc = "<escape>: to cancel".center(width, ' ')
     
     bp = f""" and press 
 {ret}
@@ -722,7 +721,11 @@ def do_check_updates(*event):
         show_message("Update Information", res, 2)
     else: # update available 
         title = "Update Available"
-        get_choice(title, res)
+        options = [
+            "<return>: yes, install update",
+            "<escape>: no, do not install now"
+        ]
+        get_choice(title, res, options)
 
         def coroutine():
             keypress = dataview.details_key_press
@@ -772,8 +775,7 @@ def check_update():
             status_char = UPDATE_CHAR
             res = f"""\
 An update is available to {url_version}. Do you want to update now?
-    0: no, do not update now
-    1: yes, update now"""
+If so, a restart will be necessary for the changes to take effect."""
         else:
             status_char = ''
             res = f"The installed version, {etm_version}, is the latest available."
@@ -1651,7 +1653,7 @@ entry_buffer = Buffer(multiline=False, accept_handler=process_entry)
 reply_dimension = Dimension(min=1, weight=1)
 prompt_dimension = Dimension(min=2, weight=3)
 edit_dimension = Dimension(min=2, weight=3)
-entry_dimension = Dimension(min=2, weight=1)
+entry_dimension = Dimension(min=2, weight=2)
 
 edit_window = Window(BufferControl(buffer=edit_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=edit_dimension, wrap_lines=True, style='class:edit')
 entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:edit')
@@ -2042,17 +2044,20 @@ def do_maybe_delete(*event):
 
     if not instance:
         # not repeating
-
         title = "Delete"
+
+        options = [
+            "<return>: yes, delete this reminder",
+            "<escape>: no, cancel"
+            ]
 
         text = f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}
 
-Are you sure that you want to delete this item?
-    <return>: yes, delete this reminder
+Are you sure that you want to delete this reminder?
 """
 
-        get_choice(title, text)
+        get_choice(title, text, options)
 
         def coroutine():
             keypress = dataview.details_key_press
@@ -2080,11 +2085,10 @@ Are you sure that you want to delete this item?
         title = "Delete"
 
         options = [
-            "<1>: just this instance",
-            "<2>: the reminder itself"
+            "  <1>: just this instance",
+            "  <2>: the reminder itself",
+            "<escape>: delete nothing, cancel"
         ]
-
-
 
         text = f"""\
 Selected: {hsh['itemtype']} {hsh['summary']}
@@ -2323,10 +2327,10 @@ def do_finish(*event):
         start = f"\nDue: {format_datetime(due)[1]}" if due else ""
 
         text= f"""\
-Selected: {hsh['itemtype']} {hsh['summary']}
-Job: {job}{start}
+{hsh['itemtype']} {hsh['summary']}
+    {job}{start}
 
-Enter the completion datetime\
+If necessary, edit the completion datetime for this task\
 """
         default = now
 
@@ -2340,9 +2344,9 @@ Enter the completion datetime\
         start = f"\n    {format_datetime(due)[1]}" if due else ""
 
         text= f"""\
-Selected: {hsh['itemtype']} {hsh['summary']}{start}
+{hsh['itemtype']} {hsh['summary']}{start}
 
-Enter the completion datetime\
+If necessary, edit the completion datetime for this task\
 """
 
     elif instance:
@@ -2364,10 +2368,10 @@ Enter the completion datetime\
         values_str = "\n".join(values_list)
 
         text= f"""\
-Selected: {hsh['itemtype']} {hsh['summary']}
+{hsh['itemtype']} {hsh['summary']}
 {values_str}
 
-Enter the completion datetime and the number of the instance to finish using the format "datetime : number "\
+The selected instance is not the oldest of the unfinished ones for this task. If necessary, edit the completion datetime and the number of the instance to finish using the format "datetime : number"\
         """
         default = f"{now} : 1"
 
@@ -2389,11 +2393,10 @@ Enter the completion datetime and the number of the instance to finish using the
             values_str = "\n".join(values_list)
 
             text= f"""\
-Selected: {hsh['itemtype']} {hsh['summary']}
-
+{hsh['itemtype']} {hsh['summary']}
 {values_str}
 
-c) Enter the number of the instance to finish and the completion datetime using the format  "datetime : number"\
+More than one instance of this task is past due. If necessary, edit the completion datetime and the number of the instance to finish using the format "datetime : number"\
             """
 
             default = f"{now} : 0"
@@ -2408,9 +2411,9 @@ c) Enter the number of the instance to finish and the completion datetime using 
             start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
 
             text= f"""\
-Selected: {hsh['itemtype']} {hsh['summary']}{start}
+{hsh['itemtype']} {hsh['summary']}{start}
 
-d) Enter the completion datetime\
+There are no pastdue instances for this task.  If necessary, edit the completion datetime\
         """
 
     else:
@@ -2421,9 +2424,9 @@ d) Enter the completion datetime\
         start = f"\nDue: {format_datetime(due)[1]}" if due in hsh else ""
 
         text= f"""\
-Selected: {hsh['itemtype']} {hsh['summary']}{start}
+{hsh['itemtype']} {hsh['summary']}{start}
 
-e) Enter the completion datetime\
+If necessary, edit the completion datetime for this task\
         """
 
     get_entry(title, text, default, event)
