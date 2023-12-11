@@ -2453,7 +2453,7 @@ If necessary, edit the completion datetime for this task\
             msg = f"Cancelled, the entry, {done_str}, does not have the required format"
 
         elif num_parts == 2:
-            num = int(done_parts[0])
+            num = int(done_parts[1])
             # only return due for instance other than the oldest
             # due = between[num] if num else ""
             if num in range(len(between)):
@@ -2461,11 +2461,11 @@ If necessary, edit the completion datetime for this task\
             else:
                 msg = f"Cancelled, '{num}' is not in [{', '.join([str(x) for x in range(len(between))])}]"
             logger.debug(f"parsing: {done_parts[1]}")
-            ok, res, z = parse_datetime(done_parts[1])
+            ok, res, z = parse_datetime(done_parts[0])
             if ok:
                 done = res
             else:
-                msg = f"Cancelled, '{done_parts[1]}' is not a valid datetime"
+                msg = f"Cancelled, '{done_parts[0]}' is not a valid datetime"
 
         elif num_parts == 1:
             ok, res, z = parse_datetime(done_str)
