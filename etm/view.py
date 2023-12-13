@@ -607,7 +607,7 @@ def get_choice(title, text, options=[]):
         # close the details view
         application.layout.focus(text_area)
         dataview.hide_details()
-    
+
     width = shutil.get_terminal_size()[0] - 2
     heading = f"-- {title.rstrip()} --".center(width, ' ')
     # cancel = "<escape>: cancel".center(width, ' ')
@@ -619,24 +619,17 @@ def get_choice(title, text, options=[]):
     if options:
         for opt in options:
             text += f"\n{4*' '}{opt.rstrip()}"
-    
-    text += f"\n\nPress {opt_choices}."
-#     tmp = f"""\
-# {heading}
-# {text}
 
-# Press {opt_choices}.
-# """
+    text += f"\n\nPress {opt_choices}."
     choice_title_buffer.text = heading
     choice_display_area.text = wrap_text(text)
-    # application.layout.focus(choice_prompt_buffer)
     dataview.show_choice()
 
 
 starting_entry_text = ""
 
 def get_entry(title: str, text: str, default: str, event) -> any:
-    """process a user input string and, when <enter> is pressed store the result in dataview.get_entry_content.  E.g., the name of a file to import, a date to display in a weekly view, the number of a line to show. 
+    """process a user input string and, when <enter> is pressed store the result in dataview.get_entry_content.  E.g., the name of a file to import, a date to display in a weekly view, the number of a line to show.
 
     The function that calls this should provide a coroutine stored as dataview.got_entry. Execute this coroutine to process dataview.get_entry_content when this is closed
 
@@ -652,11 +645,11 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     if dataview.is_editing:
         # finish edit first
         return
-    
+
     if dataview.is_showing_choice:
         # only one dialog at a time
         return
-    
+
     if dataview.is_showing_details:
         # close details as lower priority
         application.layout.focus(text_area)
@@ -668,8 +661,8 @@ def get_entry(title: str, text: str, default: str, event) -> any:
 
     ret = "<return>: to proceed".center(width, ' ')
     esc = "<escape>: to cancel".center(width, ' ')
-    
-    bp = f""" and press 
+
+    bp = f""" and press
 {ret}
 {esc}\
     """
@@ -713,7 +706,7 @@ def is_not_showing_entry(*event):
 #     return get_app().current_search_state
 
 # def is_not_searching(*event):
-#     return not get_app().current_search_state 
+#     return not get_app().current_search_state
 
 @bindings.add('f2')
 def do_about(*event):
@@ -727,7 +720,7 @@ def do_check_updates(*event):
     # '', current_version (current_version is the latest available)
     if status in ['?', '']: # message only
         show_message("Update Information", res, 2)
-    else: # update available 
+    else: # update available
         title = "Update Available"
         options = [
             "<return>: yes, install update",
@@ -756,7 +749,7 @@ def do_check_updates(*event):
                     show_message("ETM Update", prompt, 2)
             else:
                 show_message("ETM Update", "cancelled")
-            
+
             return done
 
         dataview.got_choice = coroutine
@@ -838,7 +831,7 @@ Enter the expression"""
             dataview.calculator_expression = expression
             res = datetime_calculator(expression)
             _ = f"""\
-  {expression} => 
+  {expression} =>
     {res}
 """
             show_message(title, _)
@@ -944,7 +937,7 @@ selected: {hsh['itemtype']} {hsh['summary']}
 To record a used time entry for this reminder enter an expression using the format:
     period : datetime
 """
-    
+
     get_entry(title, text, default, event)
 
     def coroutine():
@@ -2120,7 +2113,7 @@ Are you sure that you want to delete this reminder?
                     del dataview.itemcache[doc_id]
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
-            
+
             return done
 
         dataview.got_choice = coroutine
@@ -2214,7 +2207,7 @@ def entry_buffer_changed(_):
     changed = entry_buffer.text != starting_buffer_text
     if changed:
         dataview.entry_content = entry_buffer.text
-    return changed 
+    return changed
 
 entry_buffer.on_text_changed += entry_buffer_changed
 
@@ -2343,11 +2336,11 @@ def do_finish(*event):
     hsh = DBITEM.get(doc_id=doc_id)
     logger.debug(f"type(hsh): {type(hsh)}")
     msg = ""
-    logger.debug(f'itemtype: {hsh['itemtype']}')
+    logger.debug(f"itemtype: {hsh['itemtype']}")
     if hsh['itemtype'] != '-' or 'f' in hsh:
         show_message('Finish', "Only an unfinished task can be finished.")
         return
-    
+
     # has_timer = doc_id in dataview.timers
     # timer_warning = " and\nits associated timer" if has_timer else ""
     repeating = 's' in hsh and ('r' in hsh or '+' in hsh)
@@ -2359,10 +2352,10 @@ def do_finish(*event):
             due = min(due, model.date_to_datetime(at_plus[0]))
     else:
         due = hsh.get('s', None)
-    logger.debug(f"due: {due} {type(due)}")    
+    logger.debug(f"due: {due} {type(due)}")
 
     between = []
-    
+
     title = "Finish"
 
     now = format_datetime(datetime.now().astimezone(), short=True)[1]
@@ -2395,7 +2388,7 @@ If necessary, edit the completion datetime for this task\
         text= f"""\
 {hsh['itemtype']} {hsh['summary']}{start}
 
-If necessary, edit the completion datetime for this task\
+The default entered below is to use the current moment as the "completion datetime". Edit this entry if you wish\
 """
 
     elif instance:
@@ -2419,9 +2412,9 @@ If necessary, edit the completion datetime for this task\
         text= f"""\
 {hsh['itemtype']} {hsh['summary']}
 
-The selected instance is not the oldest of the unfinished ones for this task:
+At least one unfinished instance of this task is older than the one selected:
 {values_str}
-If necessary, edit the "completion datetime : instance number" below\
+The default entered below is to use the current moment and the number of the selected instance. Edit this "completion datetime : instance number" entry if you wish\
         """
         default = f"{now} : 1"
 
@@ -2447,7 +2440,7 @@ If necessary, edit the "completion datetime : instance number" below\
 
 More than one instance of this task is past due:
 {values_str}
-If necessary, edit the "completion datetime : instance number" below\
+The default entered below is to use the current moment and the number of the oldest instance. Edit this "completion datetime : instance number" entry if you wish\
             """
 
             default = f"{now} : 0"
@@ -2477,7 +2470,7 @@ There are no pastdue instances for this task.  If necessary, edit the completion
         text= f"""\
 {hsh['itemtype']} {hsh['summary']}{start}
 
-If necessary, edit the completion datetime for this task below\
+The default entered below is to use the current moment as the "completion datetime". Edit this entry if you wish\
         """
 
     get_entry(title, text, default, event)
@@ -2544,7 +2537,7 @@ If necessary, edit the completion datetime for this task below\
         else:
             show_message('finish', f"Cancelled, '{done_str}' is invalid.")
             return
-    
+
     dataview.got_entry = coroutine
 
 
@@ -2661,7 +2654,7 @@ or a collection of illustrative reminders by entering the single word, lorem.
 Enter the complete file path or 'lorem'"""
     logger.debug("calling get_entry")
 
-    get_entry(title, text, "", event) 
+    get_entry(title, text, "", event)
 
     def coroutine():
         filepath = dataview.entry_content
@@ -2726,7 +2719,7 @@ def refresh_views(*event):
 
 @bindings.add('c-t', filter=is_viewing & is_item_view, eager=True)
 def quick_timer(*event):
-    
+
     title = 'Quick Timer'
     text = 'Enter the summary for the quick timer'
     default = format_datetime(datetime.now(), short=True)[1]
@@ -2754,7 +2747,7 @@ def quick_timer(*event):
                 loop.call_later(0, data_changed, loop)
 
     dataview.got_entry = coroutine
-    
+
 
 @bindings.add('c-t', filter=is_viewing & is_item_view)
 def quick_capture(*event):
