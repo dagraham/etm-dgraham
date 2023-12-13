@@ -612,6 +612,9 @@ def get_choice(title, text, options=[]):
     heading = f"-- {title.rstrip()} --".center(width, ' ')
     # cancel = "<escape>: cancel".center(width, ' ')
 
+    opt_choices = ", ".join([x.split(':')[0].strip() for x in options[:-1]])
+    opt_choices += f" or {options[-1].split(':')[0].strip()}"
+    # opt_choices = ", ".join([str(x) for x in range(1, len(options))])
     text = text.rstrip()
     if options:
         for opt in options:
@@ -619,7 +622,9 @@ def get_choice(title, text, options=[]):
     
     tmp = f"""\
 {heading}
-{text}\
+{text}
+
+Press {opt_choices}.
 """
     dataview.show_choice()
     details_area.text = wrap_text(tmp)
@@ -659,7 +664,7 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     width = shutil.get_terminal_size()[0] - 2
     heading = f"-- {title.rstrip()} --".center(width, ' ')
 
-    ret = "<return>: to submit".center(width, ' ')
+    ret = "<return>: to proceed".center(width, ' ')
     esc = "<escape>: to cancel".center(width, ' ')
     
     bp = f""" and press 
@@ -1656,12 +1661,18 @@ prompt_dimension = Dimension(min=2, weight=3)
 edit_dimension = Dimension(min=2, weight=3)
 entry_dimension = Dimension(min=2, weight=2)
 
-edit_window = Window(BufferControl(buffer=edit_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=edit_dimension, wrap_lines=True, style='class:edit')
-entry_window = Window(BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:edit')
-ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
-entry_title_window = Window(BufferControl(buffer=entry_title_buffer, focusable=False), height=1, style='class:edit')
-reply_window = Window(BufferControl(buffer=reply_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:reply')
-entry_prompt_window = Window(BufferControl(buffer=entry_prompt_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:edit')
+edit_window = Window(
+    BufferControl(buffer=edit_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=edit_dimension, wrap_lines=True, style='class:edit')
+entry_window = Window(
+    BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
+ask_window = Window(
+    BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
+entry_title_window = Window(
+    BufferControl(buffer=entry_title_buffer, focusable=False), height=1, style='class:ask')
+reply_window = Window(
+    BufferControl(buffer=reply_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:reply')
+entry_prompt_window = Window(
+    BufferControl(buffer=entry_prompt_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:edit')
 
 edit_area = HSplit([
     ask_window,
@@ -2054,7 +2065,7 @@ def do_maybe_delete(*event):
             ]
 
         text = f"""\
-Selected: {hsh['itemtype']} {hsh['summary']}
+{hsh['itemtype']} {hsh['summary']}
 
 Are you sure that you want to delete this reminder?
 """
@@ -2093,8 +2104,8 @@ Are you sure that you want to delete this reminder?
         ]
 
         text = f"""\
-Selected: {hsh['itemtype']} {hsh['summary']}
-          {format_datetime(instance)[1]}
+{hsh['itemtype']} {hsh['summary']}
+    {format_datetime(instance)[1]}
 
 This is one instance of a repeating item. What do you want to delete?
 """

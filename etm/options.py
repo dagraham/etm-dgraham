@@ -114,7 +114,7 @@ class Settings():
             'dialog.body label':       ['', 'White'],
             'dialog.body':             ['DarkSlateGrey', 'White'],
             'edit':                    ['grey2', 'LightGoldenRodYellow'],
-            'entry':                   ['grey2', 'LightGoldenRodYellow'],
+            'entry':                   ['grey2', 'Lime'],
             'frame.label':             ['DarkSlateGrey', 'White'],
             'menu':                    ['DarkSlateGrey', 'White'],
             'menu-bar':                ['grey1', 'White'],
