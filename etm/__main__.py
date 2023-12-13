@@ -200,7 +200,7 @@ which will need to be created.
 
     VSEP   =    '⏐' # U+23D0  this will be a de-emphasized color
     FREE   =    '─' # U+2500  this will be a de-emphasized color
-    HSEP   =    '┈' # 
+    HSEP   =    '┈' #
     BUSY   =    '■' # U+25A0 this will be busy (event) color
     CONF   =    '▦' # U+25A6 this will be conflict color
     TASK   =    '▩' # U+25A9 this will be busy (task) color
@@ -238,6 +238,7 @@ which will need to be created.
     from etm.model import PIN_CHAR
     from etm.model import INBASKET_CHAR
     from etm.model import TimeIt
+    ical.parse = parse
     model.loglevel = loglevel
     model.etm_version = etm_version
     model.secret = secret

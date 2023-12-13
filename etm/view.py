@@ -2648,7 +2648,6 @@ def do_import_file(*event):
 It is possible to import data from files with one of the following extensions:
   .json  a json file exported from etm 3.2.x
   .text  a text file with etm entries as lines
-  .ics   an iCalendar file
 or a collection of illustrative reminders by entering the single word, lorem.
 
 Enter the complete file path or 'lorem'"""

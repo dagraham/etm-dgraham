@@ -6,14 +6,9 @@ from icalendar import Calendar, Event, Todo, Journal
 from icalendar.caselessdict import CaselessDict
 from icalendar.prop import vDate, vDatetime
 import pytz
-import pendulum
 import dateutil
 
 # from dateutil.parser import parse
-from pendulum import parse as pendulum_parse
-
-def parse(s, **kwd):
-    return pendulum_parse(s, strict=False, **kwd)
 
 local_timezone = None
 ONEMINUTE = timedelta(minutes=1)

@@ -274,11 +274,11 @@ def get_busy_settings() -> tuple:
         slot_minutes = 30
         marker_hour_interval = 3
     else:
-        begin_hour = 6 
+        begin_hour = 6
         end_hour = 24
         slot_minutes = 20
         marker_hour_interval = 2
-    
+
     return begin_hour, end_hour, slot_minutes, marker_hour_interval
 
 
@@ -287,7 +287,7 @@ def day_bar_labels() -> str:
     begin_hour, end_hour, slot_minutes, marker_hour_interval = get_busy_settings()
 
     # label_interval = (marker_hour_interval*60) // slot_minutes
-    
+
     MIDNIGHT = datetime.now().replace(
         hour=0, minute=0, second=0, microsecond=0)
     HOUR = timedelta(hours=1)
@@ -295,7 +295,7 @@ def day_bar_labels() -> str:
     ampm = settings.get('ampm', True)
     hour_fmt = '%I%p' if ampm else '%H'
     dent = " "*7 if ampm else " "*8
-    hour_labels = [dent] 
+    hour_labels = [dent]
     for i in range(
         begin_hour, end_hour, marker_hour_interval
         ):
@@ -308,14 +308,14 @@ def day_bar_labels() -> str:
         last_label = f"{(MIDNIGHT + end_hour*HOUR).strftime(hour_fmt).lstrip('0').rstrip('M').lower()}"
         last_label = last_label if last_label else "24"
         hour_labels.append(last_label)
-    
+
     return "".join(hour_labels)
 
 
 def day_bar(events: list, allday: bool = False) -> str:
-    """Takes begin hour, end hour, slot minutes and a list of 
+    """Takes begin hour, end hour, slot minutes and a list of
     (integer start minutes, integer end minutes) tuples, Return a string
-    representing the corresponding free, busy and conflict slots. 
+    representing the corresponding free, busy and conflict slots.
 
     Args:
         events (list): (start minutes, extent minutes)
@@ -339,15 +339,15 @@ def day_bar(events: list, allday: bool = False) -> str:
     #TODO: add ADAY switch and spacing for FREE
 
     begin_hour, end_hour, slot_minutes, marker_hour_interval = get_busy_settings()
-     
+
     begin_slots = (begin_hour*60) // slot_minutes
     end_slots = (end_hour*60) // slot_minutes
 
-    if slot_minutes in [5, 10, 12, 15, 20, 30, 60]: 
-        marker_slot_interval = (marker_hour_interval*60) // slot_minutes 
+    if slot_minutes in [5, 10, 12, 15, 20, 30, 60]:
+        marker_slot_interval = (marker_hour_interval*60) // slot_minutes
     else:
         marker_slot_interval = 0
-    
+
     all_slots = []
 
     for i in range(1+(24*60)//slot_minutes):
@@ -361,13 +361,13 @@ def day_bar(events: list, allday: bool = False) -> str:
     for start, end in events:
         extent = end - start
         start_slot = start // slot_minutes
-        num_slots = extent // slot_minutes if  extent % slot_minutes == 0 else extent // slot_minutes + 1 
-        for i in range(start_slot, 
+        num_slots = extent // slot_minutes if  extent % slot_minutes == 0 else extent // slot_minutes + 1
+        for i in range(start_slot,
                        min(start_slot+num_slots, len(all_slots))):
             # free 0 -> busy 1; busy 1 -> confict 2
             all_slots[i][1] = min(all_slots[i][1]+1, 2)
 
-    # replace slots prior to 'begin' and after 'end' with their 
+    # replace slots prior to 'begin' and after 'end' with their
     # respective maximums
 
     event_slots = []
@@ -392,7 +392,7 @@ def day_bar(events: list, allday: bool = False) -> str:
             event_slots.append(all_slots[end_slots][0])
         else:
             event_slots.append(f' {RSKIP} ')
-        event_slots.append(max([x[1] for x in all_slots[end_slots:]])) 
+        event_slots.append(max([x[1] for x in all_slots[end_slots:]]))
     elif marker_slot_interval:
         event_slots.append(VSEP)
 
@@ -780,7 +780,7 @@ item_hsh:    {self.item_hsh}
         Called while editing, we won't have a row or doc_id and can use '@s' as aft_dt
         """
         # doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
-        
+
         num = self.settings['num_repetitions']
         self.update_item_hsh()
         item = self.item_hsh
@@ -815,7 +815,7 @@ item_hsh:    {self.item_hsh}
         logger.debug(f"finished do_update")
         timer_update.stop()
 
-    
+
     def edit_item(self, doc_id=None, entry=""):
         if not (doc_id and entry):
             return None
@@ -985,7 +985,7 @@ item_hsh:    {self.item_hsh}
                     rr = self.item_hsh['r'][i]
                     logger.debug(f"starting rr: {rr}, {type(rr)}")
                     if 'c' in rr:
-                        # error to have a 'u' with this 'c' 
+                        # error to have a 'u' with this 'c'
                         current_count = rr['c']
                         rset = rruleset()
                         freq, kwd = rrule_args(rr)
@@ -1026,10 +1026,10 @@ item_hsh:    {self.item_hsh}
                     #         changed = True
                     #     else:
                     #         self.item_hsh['r'][i] = {}
-                        
+
                     else:
                         self.item_hsh['r'][i] = {}
-                    
+
                 if changed:
                     # anything left of rr's?
                     rr_to_keep = []
@@ -1038,7 +1038,7 @@ item_hsh:    {self.item_hsh}
                         if rr:
                             rr_to_keep.append(rr)
                     if rr_to_keep:
-                        self.item_hsh['r'] = rr_to_keep 
+                        self.item_hsh['r'] = rr_to_keep
                     else:
                         del self.item_hsh['r']
 
@@ -1050,7 +1050,7 @@ item_hsh:    {self.item_hsh}
                 else:
                     # nothing left
                     delete_item = True
-            
+
             if changed:
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = datetime.now().astimezone()
@@ -1058,8 +1058,8 @@ item_hsh:    {self.item_hsh}
                 self.do_update()
             elif delete_item:
                 changed = self.delete_item(doc_id)
-        
-        elif which == '3': 
+
+        elif which == '3':
             # all instance - delete item
             changed = self.delete_item(doc_id)
 
@@ -1342,7 +1342,7 @@ item_hsh:    {self.item_hsh}
         if msg:
             msg = "\n".join(msg)
             logger.debug(f"{msg}")
-            
+
         return msg
 
 
@@ -1752,7 +1752,7 @@ def datetime_calculator(s):
     xz = ''
     nx = timezone_regex.match(x)
     if nx:
-        x, xz = nx.groups() 
+        x, xz = nx.groups()
     yz = ''
     ny = timezone_regex.match(y)
     if ny:
@@ -1999,7 +1999,7 @@ def format_date(obj, year=True):
     day = obj.strftime("%d").lstrip('0')
     md = f"{day}/%m" if dayfirst else f"%m/{day}"
     if year:
-        date_fmt = f"%y/{md}" if yearfirst else f"{md}/%y" 
+        date_fmt = f"%y/{md}" if yearfirst else f"{md}/%y"
     else:
         date_fmt = md
 
@@ -2243,7 +2243,7 @@ def status_duration(obj):
     td = obj if isinstance(obj, timedelta) else obj.diff
     total_seconds = int(td.total_seconds())
     if total_seconds < 60:
-        return "0m" 
+        return "0m"
     hours = total_seconds // (60*60)
     minutes = (total_seconds % (60*60)) // 60
     seconds = total_seconds - 60*60*hours - 60*minutes
@@ -2254,7 +2254,7 @@ def status_duration(obj):
             until.append(f"{minutes}.{seconds//6}m")
     elif minutes:
         until.append(f"{minutes}m")
-    
+
     return "".join(until)
 
 
@@ -3272,30 +3272,30 @@ class DataView(object):
 
     def hide_details(self):
         self.is_showing_details = False
-    
+
     # def show_confirmation(self):
     #     self.details_key_press = ""
     #     self.is_showing_confirmation = True
-    
+
     # def hide_confirmation(self):
     #     self.is_showing_confirmation = False
 
         # def coroutine():
         #     pass
-        
+
         # self.got_choice = coroutine
-    
+
     def show_choice(self):
         self.details_key_press = ""
         self.is_showing_choice = True
-    
+
     def hide_choice(self):
         self.is_showing_choice = False
 
-        # reset the coroutine used for got_choice    
+        # reset the coroutine used for got_choice
         def coroutine():
             pass
-        
+
         self.got_choice = coroutine
 
     def show_entry(self):
@@ -3306,7 +3306,7 @@ class DataView(object):
         self.is_showing_entry = False
         def coroutine():
             pass
-        
+
         self.got_entry = coroutine
 
 
@@ -3402,7 +3402,7 @@ class DataView(object):
 
         if not ('s' in item and ('r' in item or '+' in item)):
             return showing, "not a repeating item"
-        
+
         if instance:
             relevant = instance
         else:
@@ -3413,7 +3413,7 @@ class DataView(object):
                 relevant = min(relevant, date_to_datetime(at_plus[0]))
         logger.debug(f"relevant: {relevant}")
 
-        
+
         # relevant = instance if instance else self.id2relevant.get(item_id)
         showing =  "Repetitions"
         if not relevant:
@@ -3953,7 +3953,7 @@ shown when nonzero."""
                 l = max(len(cal[r]), len(cal[r + 1]), len(cal[r+2]))
             else:
                 l = max(len(cal[r]), len(cal[r + 1]))
-            
+
             for i in range(columns):
                 if len(cal[r + i]) < l:
                     for _ in range(len(cal[r + i]), l + (columns-1)):
@@ -3961,14 +3961,14 @@ shown when nonzero."""
             for j in range(l):  # rows from each of the 2 months
                 if columns == 3:
                     ret.append((u'%-20s   %-20s   %-20s ' % (
-                        cal[r][j], 
-                        cal[r + 1][j], 
+                        cal[r][j],
+                        cal[r + 1][j],
                         cal[r + 2][j]))
                         )
                 else:
                     ret.append((u'%-20s   %-20s ' % (
-                        cal[r][j], 
-                        cal[r + 1][j])) 
+                        cal[r][j],
+                        cal[r + 1][j]))
                         )
         max_len = max([len(line) for line in ret])
         indent = max(width - max_len, 0)//2 * " "
@@ -5982,7 +5982,7 @@ def drop_zero_minutes(dt):
 
 def fmt_extent(beg_dt: datetime, end_dt: datetime):
     """
-    Format the beginning to ending times to display for a reminder with an extent (both @s and @e). 
+    Format the beginning to ending times to display for a reminder with an extent (both @s and @e).
     >>> beg_dt = parse('2018-03-07 10am')
     >>> end_dt = parse('2018-03-07 11:30am')
     >>> fmt_extent(beg_dt, end_dt)
@@ -6617,7 +6617,7 @@ def show_history(db, reverse=True, pinned_list=[], link_list=[], konnect_list=[]
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
-    
+
     # return f"{title}\n" + tree, row2id
     return tree, row2id
 
@@ -7131,7 +7131,7 @@ def get_usedtime(db, pinned_list=[], link_list=[], konnect_list=[], timers={}):
 
     """
     UT_MIN = settings.get('usedtime_minutes', 1)
-        
+
     width = shutil.get_terminal_size()[0] - 3
     if UT_MIN == 0:
         rhc_width = 10  # 11h22m 23
@@ -7792,7 +7792,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                             'columns': columns
                         }
                     )
-                
+
                 if after:
                     rows.append(after)
 
@@ -7939,7 +7939,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 allday, lst = week2day2allday[week][weekday]
 
             full = day_bar(lofp, allday)
-            
+
             busy_hsh[weekday] = f"""\
 {dent}{7*' '}{empty}
 {dent} {DD[weekday] : <6}{full}
@@ -8059,53 +8059,53 @@ def import_file(import_file=None):
         return True, import_json(import_file)
     elif extension == '.text':
         return True, import_text(import_file)
-    elif extension == '.ics':
-        return True, import_ics(import_file)
+    # elif extension == '.ics':
+    #     return True, import_ics(import_file)
     else:
         return False, f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized"
 
 
-def import_ics(import_file=None):
-    """
-    open ics file and convert it to text file in tempdir. Then import the text file using
-    """
-    items = ical.ics_to_items(import_file)
-    if not items:
-        return
-    # check for dups
-    exst = []
-    new = []
-    dups = 0
-    for x in ETMDB:
-        exst.append({
-                    'itemtype': x.get('itemtype'),
-                    'summary': x.get('summary'),
-                    's': x.get('s'),
-                    # 'f': x.get('f')
-                    })
-    num_docs = len(items.keys())
-    for i, x  in items.items():
-        y = {
-                    'itemtype': x.get('itemtype'),
-                    'summary': x.get('summary'),
-                    's': x.get('s'),
-                    # 'f': x.get('f')
-                    }
-        if exst and y in exst:
-            dups += 1
-        else:
-            x['created'] = datetime.now()
-            new.append(x)
+# def import_ics(import_file=None):
+#     """
+#     open ics file and convert it to text file in tempdir. Then import the text file using
+#     """
+#     items = ical.ics_to_items(import_file)
+#     if not items:
+#         return
+#     # check for dups
+#     exst = []
+#     new = []
+#     dups = 0
+#     for x in ETMDB:
+#         exst.append({
+#                     'itemtype': x.get('itemtype'),
+#                     'summary': x.get('summary'),
+#                     's': x.get('s'),
+#                     # 'f': x.get('f')
+#                     })
+#     num_docs = len(items.keys())
+#     for i, x  in items.items():
+#         y = {
+#                     'itemtype': x.get('itemtype'),
+#                     'summary': x.get('summary'),
+#                     's': x.get('s'),
+#                     # 'f': x.get('f')
+#                     }
+#         if exst and y in exst:
+#             dups += 1
+#         else:
+#             x['created'] = datetime.now()
+#             new.append(x)
 
-    ids = []
-    if new:
-        ids = ETMDB.insert_multiple(new)
-    msg = f"imported {len(new)} items"
-    if ids:
-        msg += f"\n  ids: {ids[0]}-{ids[-1]}."
-    if dups:
-        msg += f"\n  rejected {dups} items as duplicates"
-    return msg
+#     ids = []
+#     if new:
+#         ids = ETMDB.insert_multiple(new)
+#     msg = f"imported {len(new)} items"
+#     if ids:
+#         msg += f"\n  ids: {ids[0]}-{ids[-1]}."
+#     if dups:
+#         msg += f"\n  rejected {dups} items as duplicates"
+#     return msg
 
 
 def import_examples():
