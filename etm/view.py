@@ -618,17 +618,19 @@ def get_choice(title, text, options=[]):
     text = text.rstrip()
     if options:
         for opt in options:
-            text += f"\n{2*' '}{opt.rstrip()}"
+            text += f"\n{4*' '}{opt.rstrip()}"
     
-    tmp = f"""\
-{heading}
-{text}
+    text += f"\n\nPress {opt_choices}."
+#     tmp = f"""\
+# {heading}
+# {text}
 
-Press {opt_choices}.
-"""
+# Press {opt_choices}.
+# """
+    choice_title_buffer.text = heading
+    choice_display_area.text = wrap_text(text)
+    # application.layout.focus(choice_prompt_buffer)
     dataview.show_choice()
-    details_area.text = wrap_text(tmp)
-    application.layout.focus(details_area)
 
 
 starting_entry_text = ""
@@ -674,7 +676,7 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     text = wrap_text(text.rstrip() + bp)
 
     entry_title_buffer.text = heading
-    entry_prompt_buffer.text = wrap_text(text)
+    entry_display_area.text = wrap_text(text)
     entry_buffer.text = " " + default
     dataview.show_entry()
     entry_buffer_changed(event)
@@ -1649,8 +1651,12 @@ def process_entry(buf):
 edit_bindings = KeyBindings()
 ask_buffer = Buffer()
 reply_buffer = Buffer(multiline=True)
+
 entry_title_buffer = Buffer()
 entry_prompt_buffer = Buffer(multiline=True)
+
+choice_title_buffer = Buffer()
+# choice_prompt_buffer = Buffer(multiline=True)
 
 edit_buffer = Buffer(multiline=True, completer=at_completer, complete_while_typing=True, accept_handler=process_input)
 entry_buffer = Buffer(multiline=False, accept_handler=process_entry)
@@ -1669,10 +1675,14 @@ ask_window = Window(
     BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
 entry_title_window = Window(
     BufferControl(buffer=entry_title_buffer, focusable=False), height=1, style='class:ask')
+choice_title_window = Window(
+    BufferControl(buffer=choice_title_buffer, focusable=False), height=1, style='class:ask')
 reply_window = Window(
     BufferControl(buffer=reply_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:reply')
 entry_prompt_window = Window(
     BufferControl(buffer=entry_prompt_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:edit')
+# choice_prompt_window = Window(
+#     BufferControl(buffer=choice_prompt_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:edit')
 
 edit_area = HSplit([
     ask_window,
@@ -1681,19 +1691,41 @@ edit_area = HSplit([
     edit_window,
     ], style='class:edit')
 
+entry_display_area = TextArea(
+    text="",
+    style='class:edit',
+    read_only=True,
+    scrollbar=True,
+    )
+
 
 entry_area = HSplit([
     entry_title_window,
-    entry_prompt_window,
+    entry_display_area,
     HorizontalLine(),
     entry_window,
     ], style='class:edit')
+
+
+choice_display_area = TextArea(
+    text="",
+    style='class:edit',
+    read_only=True,
+    scrollbar=True,
+    )
+
+choice_area = HSplit([
+    choice_title_window,
+    choice_display_area,
+    ], style='class:edit')
+
 
 
 details_area = TextArea(
     text="",
     style='class:details',
     read_only=True,
+    scrollbar=True,
     search_field=search_field,
     )
 
@@ -1892,6 +1924,10 @@ entry_container = HSplit([
     entry_area,
     ])
 
+choice_container = HSplit([
+    choice_area,
+    ])
+
 def default_buffer_changed(_):
     """
     """
@@ -1926,9 +1962,6 @@ body = HSplit([
         content=details_area,
         filter=is_showing_details & is_not_busy_view),
     ConditionalContainer(
-        content=details_area,
-        filter=is_showing_choice & is_not_busy_view),
-    ConditionalContainer(
         content=busy_container,
         filter=is_busy_view),
     ConditionalContainer(
@@ -1937,6 +1970,9 @@ body = HSplit([
     ConditionalContainer(
         content=edit_container,
         filter=is_editing),
+    ConditionalContainer(
+        content=choice_area,
+        filter=is_showing_choice),
     ConditionalContainer(
         content=entry_container,
         filter=is_showing_entry),
@@ -2382,9 +2418,10 @@ If necessary, edit the completion datetime for this task\
 
         text= f"""\
 {hsh['itemtype']} {hsh['summary']}
-{values_str}
 
-The selected instance is not the oldest of the unfinished ones for this task. If necessary, edit the completion datetime and the number of the instance to finish using the format "datetime : number"\
+The selected instance is not the oldest of the unfinished ones for this task:
+{values_str}
+If necessary, edit the "completion datetime : instance number" below\
         """
         default = f"{now} : 1"
 
@@ -2407,9 +2444,10 @@ The selected instance is not the oldest of the unfinished ones for this task. If
 
             text= f"""\
 {hsh['itemtype']} {hsh['summary']}
-{values_str}
 
-More than one instance of this task is past due. If necessary, edit the completion datetime and the number of the instance to finish using the format "datetime : number"\
+More than one instance of this task is past due:
+{values_str}
+If necessary, edit the "completion datetime : instance number" below\
             """
 
             default = f"{now} : 0"
@@ -2426,7 +2464,7 @@ More than one instance of this task is past due. If necessary, edit the completi
             text= f"""\
 {hsh['itemtype']} {hsh['summary']}{start}
 
-There are no pastdue instances for this task.  If necessary, edit the completion datetime\
+There are no pastdue instances for this task.  If necessary, edit the completion datetime for this task below\
         """
 
     else:
@@ -2439,7 +2477,7 @@ There are no pastdue instances for this task.  If necessary, edit the completion
         text= f"""\
 {hsh['itemtype']} {hsh['summary']}{start}
 
-If necessary, edit the completion datetime for this task\
+If necessary, edit the completion datetime for this task below\
         """
 
     get_entry(title, text, default, event)
