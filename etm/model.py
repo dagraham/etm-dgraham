@@ -934,14 +934,17 @@ item_hsh:    {self.item_hsh}
         """
         which:
         (1, 'this instance'),
-        (2, 'all instances - delete the item itself'),
+        (2, 'this and any subsequent instance'),
+        (3, 'the item itself'),
         """
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
+        logger.debug(f"instance {instance.astimezone()}, {type(instance)}")
         changed = False
         if which == '1':
             # this instance
+            logger.debug(f"deleting this instance: {instance}")
             if '+' in self.item_hsh and instance in self.item_hsh['+']:
                 self.item_hsh['+'].remove(instance)
                 changed = True
@@ -950,7 +953,10 @@ item_hsh:    {self.item_hsh}
                 self.item_hsh.setdefault('-', []).append(instance)
                 changed = True
             elif self.item_hsh['s'] == instance:
-                self.item_hsh['s'] = self.item_hsh['+'].pop(0)
+                if '+' in self.item_hsh and self.item_hsh['+']:
+                    self.item_hsh['s'] = self.item_hsh['+'].pop(0)
+                else:
+                    del self.item_hsh['s']
                 changed = True
             else:
                 # should not happen
@@ -961,7 +967,99 @@ item_hsh:    {self.item_hsh}
 
                 # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
                 self.do_update()
-        elif which == '2': 
+        if which == '2':
+            # this and any future instances
+            logger.debug(f"deleting any subsequent instances: {instance}")
+            delete_item = False
+            if '+' in self.item_hsh:
+                for dt in self.item_hsh['+']:
+                    if dt >= instance:
+                        logger.debug(f"removing {dt} from '+'")
+                        self.item_hsh['+'].remove(instance)
+                        changed = True
+            if 'r' in self.item_hsh:
+                # instances don't necessarily include @s
+                # r will contain a list of hashes
+                rr_to_keep = []
+                for i in range(len(self.item_hsh['r'])):
+                    rr = self.item_hsh['r'][i]
+                    logger.debug(f"starting rr: {rr}, {type(rr)}")
+                    if 'c' in rr:
+                        # error to have a 'u' with this 'c' 
+                        current_count = rr['c']
+                        rset = rruleset()
+                        freq, kwd = rrule_args(rr)
+                        kwd['dtstart'] = self.item_hsh['s']
+                        logger.debug(f"freq: {freq}; kwd: {kwd}; rr: {rr}")
+                        rset.rrule(rrule(freq, **kwd))
+                        logger.debug(f"rset: {rset}")
+                        # forthcoming = [format_datetime(dt) for dt in rset if date_to_datetime(dt.astimezone()) > instance.astimezone()]
+                        # logger.debug(f"instance: {format_datetime(instance)}; forthcoming: {forthcoming}, {len(forthcoming)}")
+                        new_count = current_count - sum(1 for dt in rset if dt.astimezone() >= instance.astimezone())
+                        logger.debug(f"current_count: {current_count}; new_count: {new_count}")
+                        if new_count > 0 and new_count < current_count:
+                            rr['c'] = new_count
+                            self.item_hsh['r'][i] = rr
+                            changed = True
+                        elif new_count == 0:
+                            # all gone, remove this rr
+                            # del rr['c']
+                            # rr['u'] = instance - ONEMIN
+                            if '+' in self.item_hsh and self.item_hsh:
+                                self.item_hsh['r'][i] = {}
+                                changed = True
+                            else:
+                                # no instances left
+                                delete_item = True
+                    elif instance > self.item_hsh['s']:
+                        # no 'c', so we can change/add 'u'
+                        rr['u'] = instance - ONESEC
+                        logger.debug(f"ending rr: {rr}")
+                        self.item_hsh['r'][i] = rr
+                        changed = True
+                    # elif instance == self.item_hsh['s']:
+                    #     # any +'s must be < instance - they were removed first
+                    #     rr['u'] = instance - ONEMIN
+                    #     if rr['u'] >= self.item_hsh['s']:
+                    #         logger.debug(f"ending rr: {rr}")
+                    #         self.item_hsh['r'][i] = rr
+                    #         changed = True
+                    #     else:
+                    #         self.item_hsh['r'][i] = {}
+                        
+                    else:
+                        self.item_hsh['r'][i] = {}
+                    
+                if changed:
+                    # anything left of rr's?
+                    rr_to_keep = []
+                    for i in range(len(self.item_hsh['r'])):
+                        rr = self.item_hsh['r'][i]
+                        if rr:
+                            rr_to_keep.append(rr)
+                    if rr_to_keep:
+                        self.item_hsh['r'] = rr_to_keep 
+                    else:
+                        del self.item_hsh['r']
+
+            if instance <= self.item_hsh['s']:
+                logger.debug(f"updating @s: {self.item_hsh['s']} >= {instance}")
+                if '+' in self.item_hsh and self.item_hsh['+']:
+                    self.item_hsh['s'] = self.item_hsh['+'].pop(0)
+                    changed = True
+                else:
+                    # nothing left
+                    delete_item = True
+            
+            if changed:
+                self.item_hsh['created'] = self.created
+                self.item_hsh['modified'] = datetime.now().astimezone()
+                # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
+                self.do_update()
+            elif delete_item:
+                changed = self.delete_item(doc_id)
+        
+        elif which == '3': 
             # all instance - delete item
             changed = self.delete_item(doc_id)
 

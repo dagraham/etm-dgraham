@@ -16,6 +16,7 @@ from prompt_toolkit.completion import Completion, Completer, PathCompleter
 from prompt_toolkit.cursor_shapes import CursorShape
 from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.filters import Condition, vi_mode, vi_navigation_mode, vi_insert_mode, vi_replace_mode, vi_selection_mode, emacs_mode, emacs_selection_mode, emacs_insert_mode
+from prompt_toolkit.keys import Keys
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.filters import has_focus
 from prompt_toolkit.search import start_search, SearchDirection
@@ -614,7 +615,7 @@ def get_choice(title, text, options=[]):
     text = text.rstrip()
     if options:
         for opt in options:
-            text += f"\n{4*" "}{opt.rstrip()}"
+            text += f"\n{2*' '}{opt.rstrip()}"
     
     tmp = f"""\
 {heading}
@@ -2042,6 +2043,7 @@ def do_maybe_delete(*event):
     has_timer = doc_id in dataview.timers
     timer_warning = " and\nits associated timer" if has_timer else ""
 
+    logger.debug(f"details: doc_id={doc_id}, instance={instance}, job={job}")
     if not instance:
         # not repeating
         title = "Delete"
@@ -2056,14 +2058,14 @@ Selected: {hsh['itemtype']} {hsh['summary']}
 
 Are you sure that you want to delete this reminder?
 """
-
+        logger.debug(f"calling get_choice with {title}, {text}, {options}")
         get_choice(title, text, options)
 
         def coroutine():
             keypress = dataview.details_key_press
             logger.debug(f"confirmation keypress: {keypress}")
-            done = keypress in ['escape', 'return']
-            if keypress == 'return':
+            done = keypress in ['escape', Keys.ControlM]
+            if keypress == Keys.ControlM:
                 if has_timer:
                     dataview.timer_clear(doc_id)
                 item.delete_item(doc_id)
@@ -2071,13 +2073,12 @@ Are you sure that you want to delete this reminder?
                     del dataview.itemcache[doc_id]
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
+            
             return done
 
-
-            application.layout.focus(text_area)
-
-
         dataview.got_choice = coroutine
+
+        return
 
 
     if instance:
@@ -2086,7 +2087,8 @@ Are you sure that you want to delete this reminder?
 
         options = [
             "  <1>: just this instance",
-            "  <2>: the reminder itself",
+            "  <2>: this and all subsequent instances",
+            "  <3>: the reminder itself",
             "<escape>: delete nothing, cancel"
         ]
 
@@ -2102,7 +2104,7 @@ This is one instance of a repeating item. What do you want to delete?
             keypress = dataview.details_key_press
             logger.debug(f"confirmation keypress: {keypress}")
 
-            done = keypress in ['0', '1', '2']
+            done = keypress in ['escape', '1', '2', '3']
             if done:
                 changed = item.delete_instances(doc_id, instance, keypress)
                 if changed:
@@ -2812,7 +2814,7 @@ def yearly_view(*event):
 @bindings.add('h', filter=is_viewing)
 def history_view(*event):
     set_view('h')
-    show_message('History View', 'Reverse sorted (most recent first) using the last modified datetime if modified or the created datetime otherwise.')
+    # show_message('History View', 'Reverse sorted (most recent first) using the last modified datetime if modified or the created datetime otherwise.')
 
 @bindings.add('m', filter=is_viewing)
 def timers_view(*event):
@@ -3090,6 +3092,8 @@ def currcal(*event):
     dataview.currMonth()
     set_text(dataview.show_active_view())
 
+@bindings.add('escape', filter=is_showing_choice)
+@bindings.add('enter', filter=is_showing_choice)
 @bindings.add('<any>', filter=is_showing_choice)
 def handle_choice(*event):
     """
@@ -3106,7 +3110,7 @@ def handle_choice(*event):
         application.layout.focus(text_area)
 
 
-@bindings.add('enter', filter=is_viewing_or_details & is_item_view)
+@bindings.add('enter', filter=is_viewing_or_details & is_not_showing_choice & is_item_view)
 def show_details(*event):
     if dataview.is_showing_details:
         application.layout.focus(text_area)
