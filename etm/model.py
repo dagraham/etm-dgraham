@@ -2170,8 +2170,8 @@ def usedminutes2bar(minutes):
     # TODO: fix this?
     if not minutes:
         return "", ""
-    width = shutil.get_terminal_size()[0] - 2
-    chars = width - 6
+    width = shutil.get_terminal_size()[0] - 3
+    chars = width - 8
     # goal in hours to minutes
     used_minutes = int(minutes)
     used_fmt = format_hours_and_tenths(used_minutes*ONEMIN).ljust(6, ' ').lstrip('+')
@@ -2464,7 +2464,7 @@ class NDict(dict):
 
     def __init__(self, split_char='/', compact=False, width=None):
         self.compact = compact
-        self.width = width if width else shutil.get_terminal_size()[0]-2
+        self.width = width if width else shutil.get_terminal_size()[0] - 3
         self.split_char = split_char
         self.row = 0
         self.row2id = {}
@@ -2515,7 +2515,7 @@ class NDict(dict):
 
     def as_tree(self, t={}, depth = 0, level=0):
         """ return an indented tree """
-        # self.width = shutil.get_terminal_size()[0]-2
+        # self.width = shutil.get_terminal_size()[0] - 3
         for k in t.keys():
             indent = NDict.tab * depth * " "
             # replace any newlines in the title with spaces
@@ -8359,7 +8359,7 @@ def about(padding=0):
         " ╚════╝  ╚═╝  ╚═╝     ╚═╝ ",
         "  Event and Task Manager  ",
     ]
-    width=shutil.get_terminal_size()[0]-2
+    width=shutil.get_terminal_size()[0]-3
     output = []
     for line in logo_lines:
         output.append(line.center(width, ' ') + "\n")
@@ -8411,4 +8411,3 @@ def main(etmdir="", *args):
 
 if __name__ == '__main__':
     sys.exit('model.py should only be imported')
-

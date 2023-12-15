@@ -1328,6 +1328,8 @@ See [Home directory](#home-directory) for details about `<path to home>`.
 
 ### For use in an isolated environment {#For-use-in-an-isolated-environment}
 
+FIXME
+
 Installing etm in an isolated or virtual environment (sandbox) is only slightly more complicated. Begin by using *pip* to install *pipx*:
 
     $ python3 -m pip install -U pipx

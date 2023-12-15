@@ -208,8 +208,8 @@ which will need to be created.
     USED   =    '◦' # U+25E6 for used time
 
 
-    import etm.ical as ical
-    ical.logger = logger
+    # import etm.ical as ical
+    # ical.logger = logger
     data.secret = secret
     data.logger = logger
     data.settings = settings
@@ -238,13 +238,13 @@ which will need to be created.
     from etm.model import PIN_CHAR
     from etm.model import INBASKET_CHAR
     from etm.model import TimeIt
-    ical.parse = parse
+    # ical.parse = parse
     model.loglevel = loglevel
     model.etm_version = etm_version
     model.secret = secret
     model.data = data
     model.Period = Period
-    model.ical = ical
+    # model.ical = ical
     model.Mask = Mask
     model.WA = WA
     model.HB = HB

@@ -2,37 +2,56 @@
 import random
 import lorem
 from dateutil.rrule import *
-from datetime import *
-import pendulum
+from datetime import datetime, date, timedelta
 import sys, os
 
-num_items = 400
+from dateutil.parser import parse
 
-def parse(s, **kwd):
-    return pendulum.parse(s, strict=False, **kwd)
+# from etm.model import parse
 
-def phrase(minlen=24):
+num_items = 200
+
+ONEDAY = timedelta(days=1)
+ONEWK = 7*ONEDAY
+
+# rrule components
+
+wkly = ['@r w', '@r w &w MO, WE, FR', '@r w &i 2']
+dyly = ['@r d', '@r d &i 2', '@r d &i 3']
+
+
+client_index = "# "
+info_index = "# "
+client_detail = f"""
+Because of the index entry, all client records will be grouped under "{client_index}", then under the name of the relevant client in both index and journal view.  This infomation record will be first among the items for each client since beginning with a "{info_index}" will put it at the top of the sorting order for the index entries for each client. Having such a journal entry for each client ensures that the client name will be available for completion of the index entry when other client related items are being created. The choice of "{client_index}" and "{info_index}" is, of course, arbitrary but takes advantage of the sorting order that begins with "!", "#", "$" and "%".
+"""
+
+def week(dt: datetime) -> [datetime, datetime]:
+    y, w, d = dt.isocalendar()
+    wk_beg = dt - (d-1)*ONEDAY if d > 1 else dt
+    wk_end = dt + (7-d)*ONEDAY if d < 7 else dt
+    return wk_beg.date(), wk_end.date()
+
+
+def phrase():
+    # for the summary
     # drop the ending period
     s = lorem.sentence()[:-1]
-    tmp = ""
-    words = s.split(' ')
-    while words and len(tmp) < minlen:
-        tmp += f"{words.pop(0)} "
-
-    return tmp.strip()
+    num = random.choice([3, 4, 5])
+    words = s.split(' ')[:num]
+    return " ".join(words).rstrip()
 
 def make_examples(egfile=None, num_items=num_items):
+    now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     num_konnections = 0
     num_items = int(num_items)
-    # if make_many include 8 months - 6 previous, current and following months
-    # else 4 months - 2 previous, current and following months
+    # include 12 weeks: 6 previous, the current and the following 5
+    wkbeg, wkend = week(now)
     months = num_items//200
-    start = parse('9a 1') - pendulum.duration(months=months)
-    until = parse('9a 1') + pendulum.duration(months=2) - pendulum.duration(days=1)
-    # now = parse('9a Sun') - pendulum.duration(days=6)
-    now = parse('8a')
+    start = wkbeg - 6*7*ONEDAY
+    until = wkend + (5*7)*ONEDAY
 
-    datetimes = list(rrule(DAILY, byweekday=range(7), byhour=range(6, 22), dtstart=start, until=until))
+    datetimes = list(rrule(DAILY, byweekday=range(7), byhour=range(6, 22), byminute=range(0, 60, 15), dtstart=start, until=until))
     past_datetimes = [x for x in datetimes if x <= now]
 
     types = ['-', '*', '%', '-', '*']
@@ -55,7 +74,7 @@ def make_examples(egfile=None, num_items=num_items):
     locations = ['errands', 'home', 'office', 'shop']
     tags = ['red', 'green', 'blue']
     dates = [0, 0, 0, 1, 0, 0, 0] # dates 1/7 of the time
-    minutes = range(12, 96, 6) # for used times
+    minutes = range(15, 110, 5) # for used times (test rounding)
     days = range(7)
     extent = [x for x in range(30, 210, 15)]
 
@@ -63,12 +82,13 @@ def make_examples(egfile=None, num_items=num_items):
     client_id = {}
     examples = []
 
-    examples.append(f"! the lorem examples @t lorem @d 1) This inbox item and each of the other {num_items} internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'. 2). The examples are generated to fit within a period including the month they were generated together with one subsequent and {months} previous months. You can remove and regenerate them whenever you like to keep them current.")
+    examples.append(f"! the lorem examples @t lorem @d 1) This inbox item and each of the other {num_items} internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'. 2). The examples are generated to fit within a period including the week they were generated together with 5 subsequent and 6 previous weeks. You can remove and regenerate them whenever you like to keep them current.")
+
 
     for client in clients:
         summary = f"{client_name[client]}"
-        d = f"details for {client_name[client]} go here"
-        i = f"billing/{client_name[client]}/# contact info"
+        d = f"contact details for {client_name[client]} go here. {client_detail}"
+        i = f"{client_index}/{client_name[client]}/{info_index}details"
         examples.append(f"% {summary} @i {i} @d {d} @t lorem")
 
 
@@ -81,7 +101,7 @@ def make_examples(egfile=None, num_items=num_items):
         date = random.choice(dates)
         s = start.strftime("%Y-%m-%d") if date else start.strftime("%Y-%m-%d %I:%M%p")
         end = end.strftime("%Y-%m-%d") if date else start.strftime("%Y-%m-%d %I:%M%p")
-        d = lorem.paragraph()
+        d = lorem.sentence()
         i0 = random.choice(clients)
         i1 = client_name[i0]
         i2 = random.choice(projects[i0])
@@ -94,7 +114,7 @@ def make_examples(egfile=None, num_items=num_items):
             if random.choice(dates):
                 e = start.strftime("%Y-%m-%d")
             else:
-                e = (start + pendulum.duration(minutes=u)).strftime("%Y-%m-%d %I:%M%p")
+                e = (start + timedelta(minutes=u)).strftime("%Y-%m-%d %I:%M%p")
             if start < now:
                 used += f"@u {u}m: {e} "
 
@@ -106,32 +126,33 @@ def make_examples(egfile=None, num_items=num_items):
                 examples.append(f"{t} {summary} @s {s} @t {random.choice(tags)} @t lorem")
             else:
                 x = random.choice(extent)
-                examples.append(f"{t} {summary} @s {s} @e {x}m @i billing/{i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem")
+                examples.append(f"{t} {summary} @s {s} @e {x}m @i {client_index}/{i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem")
         elif t == '-' and random.choice(['h', 't']) == 'h':
             if start < now:
 
                 f = f" @f {s} -> {end} " if random.choice(['h', 't']) == 't' else ""
-                examples.append(f"{t} {summary} @s {s} @i billing/{i1}/{i2} {f}{used} @d {d} @t lorem")
+                examples.append(f"{t} {summary} @s {s} @i {client_index}/{i1}/{i2} {f}{used} @d {d} @t lorem")
             else:
-                examples.append(f"{t} {summary} @s {s} @i billing/{i1}/{i2} @d {d} @b {begin} @t lorem")
+                examples.append(f"{t} {summary} @s {s} @i {client_index}/{i1}/{i2} @d {d} @b {begin} @t lorem")
 
         else:
-            examples.append(f"{t} {summary} @i billing/{i1}/{i2} @d {d} @l {random.choice(locations)} @t {random.choice(tags)} @t lorem")
+            examples.append(f"{t} {summary} @i {client_index}/{i1}/{i2} @d {d} @l {random.choice(locations)} @t {random.choice(tags)} @t lorem")
 
     if egfile:
         with open(egfile, 'w') as fo:
             fo.writelines("\n".join(examples))
-    else:
-        return examples
+    return examples
 
 if __name__ == '__main__':
     if len(sys.argv) > 2:
         egfile = sys.argv.pop(1)
-        numitems = sys.argv.pop(1)
+        num_items = sys.argv.pop(1)
     elif len(sys.argv) > 1:
         egfile = sys.argv.pop(1)
-        numitems = num_items
     else:
         egfile = None
-    make_examples(egfile, numitems)
+
+    res = make_examples(egfile, num_items)
+    for _ in res:
+        print(_)
 
