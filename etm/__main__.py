@@ -206,7 +206,7 @@ which will need to be created.
     TASK   =    '▩' # U+25A9 this will be busy (task) color
     ADAY   =    '━' # U+2501 for all day events ━
     USED   =    '◦' # U+25E6 for used time
-
+    REPS   =    '↻' # Flag for repeating items
 
     # import etm.ical as ical
     # ical.logger = logger
@@ -255,6 +255,7 @@ which will need to be created.
     model.ADAY = ADAY
     model.USED = USED
     model.FREE = FREE
+    model.REPS = REPS
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
@@ -307,6 +308,7 @@ which will need to be created.
     view.ADAY = ADAY
     view.USED = USED
     view.FREE = FREE
+    view.REPS = REPS
     view.settings = settings
     view.type_colors = type_colors
     view.cfgfile = cfgfile

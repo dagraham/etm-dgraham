@@ -9,15 +9,39 @@ from dateutil.parser import parse
 
 # from etm.model import parse
 
-num_items = 200
+num_items = 140
 
 ONEDAY = timedelta(days=1)
 ONEWK = 7*ONEDAY
 
 # rrule components
 
-wkly = ['@r w', '@r w &w MO, WE, FR', '@r w &i 2']
-dyly = ['@r d', '@r d &i 2', '@r d &i 3']
+def phrase():
+    # for the summary
+    # drop the ending period
+    s = lorem.sentence()[:-1]
+    num = random.choice([3, 4, 5])
+    words = s.split(' ')[:num]
+    return " ".join(words).rstrip()
+
+def word():
+    return lorem.sentence()[:-1].split(' ')[0]
+
+
+def days_or_weeks():
+    return random.choice(['d', 'w'])
+
+
+
+freq = ['@r w', '@r w &w MO, WE, FR', '@r w &i 2','@r d', '@r d &i 2', '@r d &i 3']
+stop = [f"&c {n}" for n in range(2, 5)] + [f"&u +{n}{days_or_weeks()}" for n in range(2, 5)]
+
+def cnt():
+    return f"@+ {random.choice(['+', '-'])}{random.choice([1, 3, 5])}d, {random.choice(['+', '-'])}{random.choice([2, 4, 6])}d"
+
+def beg():
+    return f"@s -{random.choice([1,2,3,4])}{random.choice(['d', 'w'])}"
+
 
 
 client_index = "# "
@@ -32,14 +56,6 @@ def week(dt: datetime) -> [datetime, datetime]:
     wk_end = dt + (7-d)*ONEDAY if d < 7 else dt
     return wk_beg.date(), wk_end.date()
 
-
-def phrase():
-    # for the summary
-    # drop the ending period
-    s = lorem.sentence()[:-1]
-    num = random.choice([3, 4, 5])
-    words = s.split(' ')[:num]
-    return " ".join(words).rstrip()
 
 def make_examples(egfile=None, num_items=num_items):
     now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -82,14 +98,21 @@ def make_examples(egfile=None, num_items=num_items):
     client_id = {}
     examples = []
 
-    examples.append(f"! the lorem examples @t lorem @d 1) This inbox item and each of the other {num_items} internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'. 2). The examples are generated to fit within a period including the week they were generated together with 5 subsequent and 6 previous weeks. You can remove and regenerate them whenever you like to keep them current.")
-
+    for i in range(20):
+        examples.append(f"- {phrase()} {beg()} {random.choice(freq)} {random.choice(stop)} {cnt()} @t lorem")
 
     for client in clients:
         summary = f"{client_name[client]}"
         d = f"contact details for {client_name[client]} go here. {client_detail}"
         i = f"{client_index}/{client_name[client]}/{info_index}details"
         examples.append(f"% {summary} @i {i} @d {d} @t lorem")
+
+    examples.append(f"""\
+! the lorem examples @t lorem @d .
+1) This inbox item and each of the other {num_items+len(examples)} internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'.
+2). The examples are generated to fit within a period including the week they were generated together with 5 subsequent and 6 previous weeks. You can remove and regenerate them whenever you like to keep them current.\
+""")
+
 
 
 

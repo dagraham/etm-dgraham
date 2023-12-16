@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from tinydb import TinyDB, Query
+from tinydb import TinyDB
 from tinydb import __version__ as tinydb_version
 from tinydb_serialization import Serializer
 from tinydb_serialization import SerializationMiddleware
@@ -9,7 +9,6 @@ import base64  # for do_mask
 # from pytz import timezone
 from datetime import datetime, date, timedelta
 # from datetime import tzinfo
-from datetime import timedelta
 import dateutil
 import dateutil.rrule
 from zoneinfo import ZoneInfo

@@ -2656,6 +2656,9 @@ Enter the complete file path or 'lorem'"""
     get_entry(title, text, "", event)
 
     def coroutine():
+        keypress = dataview.details_key_press
+        logger.debug(f"confirmation keypress: {keypress}")
+        done = keypress in ['escape', Keys.ControlM]
         filepath = dataview.entry_content
         set_text(dataview.show_active_view())
         logger.debug(f"got filepath: {filepath}")
@@ -2692,6 +2695,7 @@ Enter the complete file path or 'lorem'"""
                 show_message('Import File', msg)
         else:
             show_message('Import File', 'cancelled - nothing submitted')
+        return done
 
     dataview.got_entry = coroutine
 
