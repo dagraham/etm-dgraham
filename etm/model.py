@@ -1,35 +1,35 @@
 #!/usr/bin/env python
 
-# standard sort order: ['!', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'Y', 'Z',  '^', '_', 'a', 'b', 'y', 'z', '~']
+# standard sort order:
+# ['!', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', ':', ';', '<',
+# '=', '>', '?', '@', 'A', 'B', 'Y', 'Z',  '^', '_', 'a', 'b', 'y', 'z', '~']
 
 from pprint import pprint
-import datetime # for type testing in rrule
+import datetime  # for type testing in rrule
 import locale
 import calendar
 from copy import deepcopy
 import math
-from ruamel.yaml import YAML
-yaml = YAML(typ='safe', pure=True)
-
 from ruamel.yaml import __version__ as ruamel_version
-
-import dateutil
+# import dateutil
 from dateutil.rrule import *
 from dateutil import __version__ as dateutil_version
 from dateutil.parser import parse as dateutil_parse
-from dateutil.tz import gettz
+from dateutil.parser import parserinfo
+# from dateutil.tz import gettz
 from datetime import datetime, date, timedelta
 from pytz import timezone
 from zoneinfo import ZoneInfo
 
 # for saving timers
 import pickle
-
 from warnings import filterwarnings
+from ruamel.yaml import YAML
+yaml = YAML(typ='safe', pure=True)
 
 def parse(s, **kwd):
     ## enable pi when read by main and settings is available
-    pi = dateutil.parser.parserinfo(
+    pi = parserinfo(
             dayfirst=settings['dayfirst'],
             yearfirst=settings['yearfirst']
             )
@@ -663,9 +663,9 @@ class Item(dict):
         self.created = None
         self.modified = None
         self.set_dbfile(dbfile)
-        self.object_hsh = {}    # key, val -> object version of raw string for tinydb
-        self.askreply= {}       # key, val -> display version raw string
-        self.pos_hsh = {}       # (beg, end) -> (key, val)
+        self.object_hsh = {}  # key, val -> object version for tinydb
+        self.askreply= {}     # key, val -> display version raw string
+        self.pos_hsh = {}     # (beg, end) -> (key, val)
         self.keyvals = []
 
         self.messages = []
@@ -3948,7 +3948,7 @@ shown when nonzero."""
             logger.error(f"Bad or missing smx settings in the cfg.json sms entry: {sms}. send_text aborted.")
             return
         startdt = item.get('s', "")
-        when = startdt.diff_for_humans() if startdt else ""
+        when = duration_in_words(startdt) if startdt else ""
         start = format_datetime(startdt)[1] if startdt else ""
         summary = item.get('summary', "")
         location = item.get('l', "")
@@ -5286,7 +5286,7 @@ def get_next_due(item, done, due):
         dtstart = done
         inc = False
     else:  # 's' skip
-        today = date.today()
+        today = date_to_datetime(date.today())
         if due < today:
             aft = today
             inc = True

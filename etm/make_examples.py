@@ -1,9 +1,10 @@
 #! /usr/bin/env python3
 import random
 import lorem
-from dateutil.rrule import *
-from datetime import datetime, date, timedelta
-import sys, os
+from dateutil.rrule import rrule
+from datetime import datetime, timedelta
+import sys
+import os
 
 from dateutil.parser import parse
 
@@ -32,7 +33,6 @@ def days_or_weeks():
     return random.choice(['d', 'w'])
 
 
-
 freq = ['@r w', '@r w &w MO, WE, FR', '@r w &i 2','@r d', '@r d &i 2', '@r d &i 3']
 stop = [f"&c {n}" for n in range(2, 5)] + [f"&u +{n}{days_or_weeks()}" for n in range(2, 5)]
 
@@ -43,12 +43,12 @@ def beg():
     return f"@s -{random.choice([1,2,3,4])}{random.choice(['d', 'w'])}"
 
 
-
 client_index = "# "
 info_index = "# "
 client_detail = f"""
 Because of the index entry, all client records will be grouped under "{client_index}", then under the name of the relevant client in both index and journal view.  This infomation record will be first among the items for each client since beginning with a "{info_index}" will put it at the top of the sorting order for the index entries for each client. Having such a journal entry for each client ensures that the client name will be available for completion of the index entry when other client related items are being created. The choice of "{client_index}" and "{info_index}" is, of course, arbitrary but takes advantage of the sorting order that begins with "!", "#", "$" and "%".
 """
+
 
 def week(dt: datetime) -> [datetime, datetime]:
     y, w, d = dt.isocalendar()
@@ -57,7 +57,7 @@ def week(dt: datetime) -> [datetime, datetime]:
     return wk_beg.date(), wk_end.date()
 
 
-def make_examples(egfile=None, num_items=num_items):
+def make_examples(egfile: str = None, num_items:int = num_items):
     now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     num_konnections = 0
     num_items = int(num_items)
@@ -165,6 +165,7 @@ def make_examples(egfile=None, num_items=num_items):
         with open(egfile, 'w') as fo:
             fo.writelines("\n".join(examples))
     return examples
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 2:
