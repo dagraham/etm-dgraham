@@ -184,7 +184,7 @@ class ETMQuery(object):
         is a list, do this for each element in item['a']
         """
         changed = []
-        rep = re.sub(r'\\\s', ' ', rep)
+        rep = re.sub(r'\\s', ' ', rep)
         for item in items:
             if a in item:
                 if isinstance(item[a], list):
@@ -553,6 +553,7 @@ class ETMQuery(object):
             return False, "opened query help using default browser"
         try:
             ok, test, updt = self.process_query(query)
+            logger.debug(f"ok: {ok}; test: {test}; updt: {updt}")
             if not ok:
                 return False, test
             if isinstance(test, str):
@@ -560,6 +561,7 @@ class ETMQuery(object):
             else:
                 items = dataview.db.search(test)
                 if updt:
+                    logger.debug(f"updt[0]: {updt[0]}; updt[1:]: {updt[1:]}")
                     self.update[updt[0]](*updt[1:], items)
                     if self.changed:
                         loop = asyncio.get_event_loop()
@@ -1729,11 +1731,13 @@ busy_container = HSplit([
 
 query_bindings = KeyBindings()
 
+
 @query_bindings.add('enter', filter=is_querying)
 def accept(buff):
     set_text('processing query ...')
     if query_window.text:
         text = query_window.text
+        logger.debug(f"query: {text}")
         queries = settings.get('queries')
         if text == 'l':
             if queries:
@@ -1816,7 +1820,7 @@ query_window = TextArea(
     lexer=query.lexer,
     multiline=False,
     focusable=True,
-    # height=3,
+    height=3,
     wrap_lines=True,
     prompt='query: ',
     )

@@ -7098,7 +7098,7 @@ def show_index(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], ko
         index = item.get('i', '~')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary'][:summary_width]
-        flags = get_flags(doc_id, repeat_list, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
         s = item.get('s', None)
         if s:
             rhc = format_date(s)[1]
