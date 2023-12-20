@@ -33,7 +33,7 @@ def days_or_weeks():
     return random.choice(['d', 'w'])
 
 
-freq = ['@r w', '@r w &w MO, WE, FR', '@r w &i 2','@r d', '@r d &i 2', '@r d &i 3']
+freq = ['@r w', '@r w &w MO, WE, FR', '@r w &i 2', '@r d', '@r d &i 2', '@r d &i 3']
 stop = [f"&c {n}" for n in range(2, 5)] + [f"&u +{n}{days_or_weeks()}" for n in range(2, 5)]
 
 def cnt():

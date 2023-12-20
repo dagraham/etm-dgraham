@@ -610,7 +610,6 @@ def get_choice(title, text, options=[]):
 
     width = shutil.get_terminal_size()[0] - 2
     heading = f"-- {title.rstrip()} --".center(width, ' ')
-    # cancel = "<escape>: cancel".center(width, ' ')
 
     opt_choices = ", ".join([x.split(':')[0].strip() for x in options[:-1]])
     opt_choices += f" or {options[-1].split(':')[0].strip()}"
@@ -854,48 +853,6 @@ def do_open_config(*event):
 def do_show_help(*event):
     help_link = "https://dagraham.github.io/etm-dgraham/"
     openWithDefault(help_link)
-
-# # TODO: is this used?
-# def save_before_quit(*event):
-
-#     title = "Unsaved Changes"
-
-#     text = """\
-# There are changes to this reminder that have not been saved. Are you sure that you want to discard them and close the editor?
-#     0: no, continue editing
-#     1: yes, discard the changes
-# """
-
-#     get_choice(title, text)
-
-#     def coroutine():
-#         keypress = dataview.details_key_press
-#         done = keypress in ['0', '1']
-#         if keypress == '1':
-#             app = get_app()
-#             app.editing_mode = EditingMode.EMACS
-#             dataview.is_editing = False
-#             application.layout.focus(text_area)
-#             application.output.set_cursor_shape(CursorShape.BLOCK)
-#             set_text(dataview.show_active_view())
-#         return done
-
-#     dataview.got_choice = coroutine
-
-# # TODO: is this used?
-# def discard_changes(event, prompt=''):
-#     title = "Unsaved Information"
-
-#     get_choice(title, prompt)
-
-#     def coroutine():
-#         keypress = dataview.details_key_press
-#         done = keypress in ['0', '1']
-#         if keypress == '1':
-#             application.exit()
-#         return done
-
-#     dataview.got_choice = coroutine
 
 
 def add_usedtime(*event):
@@ -2251,16 +2208,18 @@ def maybe_delete_timer(*event):
     title = "Delete Timer"
     text = f"""\
 selected: {hsh['itemtype']} {hsh['summary']}{timer}
-    0: no, do not delete the timer
-    1: yes, delete the timer
 """
 
-    get_choice(title, text)
+    options = [
+        "  <return>: yes, delete the timer",
+        "  <escape>: no, do not delete the timer",
+    ]
+    get_choice(title, text, options)
 
     def coroutine():
         keypress = dataview.details_key_press
-        done = keypress in ['0', '1']
-        if keypress == '1':
+        done = keypress in ['escape', Keys.ControlM]
+        if keypress == Keys.ControlM:
             dataview.timer_clear(doc_id)
             dataview.refreshRelevant()
             set_text(dataview.show_active_view())

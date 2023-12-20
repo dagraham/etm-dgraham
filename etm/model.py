@@ -4,6 +4,8 @@
 # ['!', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', ':', ';', '<',
 # '=', '>', '?', '@', 'A', 'B', 'Y', 'Z',  '^', '_', 'a', 'b', 'y', 'z', '~']
 
+import sys
+import re
 from pprint import pprint
 import datetime  # for type testing in rrule
 import locale
@@ -11,7 +13,7 @@ import calendar
 from copy import deepcopy
 import math
 from ruamel.yaml import __version__ as ruamel_version
-# import dateutil
+import dateutil
 from dateutil.rrule import *
 from dateutil import __version__ as dateutil_version
 from dateutil.parser import parse as dateutil_parse
@@ -27,12 +29,12 @@ from warnings import filterwarnings
 from ruamel.yaml import YAML
 yaml = YAML(typ='safe', pure=True)
 
+
 def parse(s, **kwd):
-    ## enable pi when read by main and settings is available
+    # enable pi when read by main and settings is available
     pi = parserinfo(
-            dayfirst=settings['dayfirst'],
-            yearfirst=settings['yearfirst']
-            )
+        dayfirst=settings['dayfirst'],
+        yearfirst=settings['yearfirst'])
     dt = dateutil_parse(s, parserinfo=pi)
     if 'tzinfo' in kwd:
         tzinfo = kwd['tzinfo']
@@ -44,9 +46,6 @@ def parse(s, **kwd):
             return dt.replace(tzinfo=ZoneInfo(tzinfo))
     else:
         return dt.astimezone()
-
-import sys
-import re
 
 from tinydb import __version__ as tinydb_version
 from packaging.version import parse as parse_version
@@ -102,16 +101,16 @@ KONNECT_REGEX = re.compile(r'^.+:\s+(\d+)\s*$')
 
 # The style sheet for terminal output
 style = Style.from_dict({
-    'plain':        '#fffafa',
-    'selection':    '#fffafa',
-    'inbox':        '#ff00ff',
-    'pastdue':      '#87ceeb',
-    'begin':        '#ffff00',
-    'journal':      '#daa520',
-    'event':        '#90ee90',
-    'available':    '#1e90ff',
-    'waiting':      '#6495ed',
-    'finished':     '#191970',
+    'plain':     '#fffafa',
+    'selection': '#fffafa',
+    'inbox':     '#ff00ff',
+    'pastdue':   '#87ceeb',
+    'begin':     '#ffff00',
+    'journal':   '#daa520',
+    'event':     '#90ee90',
+    'available': '#1e90ff',
+    'waiting':   '#6495ed',
+    'finished':  '#191970',
 })
 
 FINISHED_CHAR = '✓'
