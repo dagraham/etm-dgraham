@@ -178,7 +178,7 @@ class ETMQuery(object):
         is a list, do this for each element in item['a']
         """
         changed = []
-        rep = re.sub('\\\s', ' ', rep)
+        rep = re.sub(r'\\s', ' ', rep)
         for item in items:
             if a in item:
                 if isinstance(item[a], list):
