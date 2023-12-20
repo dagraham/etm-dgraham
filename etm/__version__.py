@@ -1,2 +1,1 @@
-version = '6.0.0a8'
-
+version = '6.0.0a9'

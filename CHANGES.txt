@@ -1,33 +1,37 @@
-Recent tagged changes as of 2023-12-16T14:17:22.936717-05:00:
-- 0 seconds ago (HEAD -> working6, tag: 6.0.0a8) Daniel Graham
+Recent tagged changes as of 2023-12-20T07:01:48.910130-05:00:
+- 0 seconds ago (HEAD -> working6, tag: 6.0.0a9) Daniel Graham
+    8442e26 2023-12-20 07:01:48 -0500
+    Tagged version 6.0.0a9.
+
+- 4 days ago (tag: 6.0.0a8) Daniel Graham
     60ef490 2023-12-16 14:17:22 -0500
     Tagged version 6.0.0a8.
 
-- 3 days ago (tag: 6.0.0a7) Daniel Graham
+- 7 days ago (tag: 6.0.0a7) Daniel Graham
     8da1b91 2023-12-13 13:42:15 -0500
     Tagged version 6.0.0a7.
 
-- 3 days ago (tag: 6.0.0a6) Daniel Graham
+- 7 days ago (tag: 6.0.0a6) Daniel Graham
     96f06ea 2023-12-13 13:28:36 -0500
     Tagged version 6.0.0a6.
 
-- 3 days ago (tag: 6.0.0a5) Daniel Graham
+- 7 days ago (tag: 6.0.0a5) Daniel Graham
     375ea51 2023-12-13 05:58:38 -0500
     Tagged version 6.0.0a5.
 
-- 5 days ago (tag: 6.0.0a4) Daniel Graham
+- 9 days ago (tag: 6.0.0a4) Daniel Graham
     730016f 2023-12-11 15:38:16 -0500
     Tagged version 6.0.0a4.
 
-- 6 days ago (tag: 6.0.0a3) Daniel Graham
+- 10 days ago (tag: 6.0.0a3) Daniel Graham
     8f3366a 2023-12-10 15:02:13 -0500
     Tagged version 6.0.0a3.
 
-- 6 days ago (tag: 6.0.0a2) Daniel Graham
+- 10 days ago (tag: 6.0.0a2) Daniel Graham
     3ca767b 2023-12-10 11:49:26 -0500
     Tagged version 6.0.0a2.
 
-- 7 days ago (tag: 6.0.0a1) Daniel Graham
+- 11 days ago (tag: 6.0.0a1) Daniel Graham
     af1af0a 2023-12-09 07:08:40 -0500
     Tagged version 6.0.0a1.
 
@@ -47,7 +51,7 @@ Recent tagged changes as of 2023-12-16T14:17:22.936717-05:00:
     927a3c5 2023-08-16 08:51:34 -0400
     Tagged version 5.1.15.
 
-- 4 months ago (tag: 5.1.14) Daniel Graham
+- 5 months ago (tag: 5.1.14) Daniel Graham
     f12f0d5 2023-08-05 15:16:57 -0400
     Tagged version 5.1.14.
 
@@ -55,7 +59,7 @@ Recent tagged changes as of 2023-12-16T14:17:22.936717-05:00:
     8bccd7a 2023-07-16 08:23:38 -0400
     Tagged version 5.1.13.
 
-- 5 months ago (tag: 5.1.12) Daniel Graham
+- 6 months ago (tag: 5.1.12) Daniel Graham
     f744975 2023-07-05 08:15:36 -0400
     Tagged version 5.1.12.
 
@@ -74,7 +78,3 @@ Recent tagged changes as of 2023-12-16T14:17:22.936717-05:00:
 - 6 months ago (tag: 5.1.9) Daniel Graham
     1950dbb 2023-06-23 16:38:44 -0400
     Tagged version 5.1.9.
-
-- 6 months ago (tag: 5.1.8) Daniel Graham
-    3d22710 2023-06-23 14:32:58 -0400
-    Tagged version 5.1.8.
