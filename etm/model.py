@@ -18,7 +18,6 @@ from dateutil.rrule import *
 from dateutil import __version__ as dateutil_version
 from dateutil.parser import parse as dateutil_parse
 from dateutil.parser import parserinfo
-# from dateutil.tz import gettz
 from datetime import datetime, date, timedelta
 from pytz import timezone
 from zoneinfo import ZoneInfo

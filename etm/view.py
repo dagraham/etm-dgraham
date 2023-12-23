@@ -52,11 +52,6 @@ import requests
 import asyncio
 import textwrap
 
-# import pendulum
-# from pendulum import parse as pendulum_parse
-# def parse(s, **kwd):
-#     return pendulum_parse(s, strict=False, **kwd)
-
 import re
 import subprocess # for check_output
 
