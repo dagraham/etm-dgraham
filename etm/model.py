@@ -26,14 +26,15 @@ from zoneinfo import ZoneInfo
 import pickle
 from warnings import filterwarnings
 from ruamel.yaml import YAML
+
 yaml = YAML(typ='safe', pure=True)
 
 
 def parse(s, **kwd):
     # enable pi when read by main and settings is available
     pi = parserinfo(
-        dayfirst=settings['dayfirst'],
-        yearfirst=settings['yearfirst'])
+        dayfirst=settings['dayfirst'], yearfirst=settings['yearfirst']
+    )
     dt = dateutil_parse(s, parserinfo=pi)
     if 'tzinfo' in kwd:
         tzinfo = kwd['tzinfo']
@@ -46,9 +47,11 @@ def parse(s, **kwd):
     else:
         return dt.astimezone()
 
+
 from tinydb import __version__ as tinydb_version
 from packaging.version import parse as parse_version
-if parse_version(tinydb_version) >= parse_version("4.0.0"):
+
+if parse_version(tinydb_version) >= parse_version('4.0.0'):
     from tinydb.table import Document
 else:
     from tinydb.database import Document
@@ -61,6 +64,7 @@ import os
 import platform
 
 import string
+
 # for automatic job ids
 LOWERCASE = list(string.ascii_lowercase)
 
@@ -70,7 +74,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 system_platform = platform.platform(terse=True)
 
 python_version = platform.python_version()
-developer = "dnlgrhm@gmail.com"
+developer = 'dnlgrhm@gmail.com'
 import shutil
 
 from operator import itemgetter
@@ -93,29 +97,32 @@ active_tasks = {}
 
 def sortprd(prd):
     # assumes prd is a Period
-    return prd.start.strftime("%Y%m%d%H%M")
+    return prd.start.strftime('%Y%m%d%H%M')
+
 
 PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
 KONNECT_REGEX = re.compile(r'^.+:\s+(\d+)\s*$')
 
 # The style sheet for terminal output
-style = Style.from_dict({
-    'plain':     '#fffafa',
-    'selection': '#fffafa',
-    'inbox':     '#ff00ff',
-    'pastdue':   '#87ceeb',
-    'begin':     '#ffff00',
-    'journal':   '#daa520',
-    'event':     '#90ee90',
-    'available': '#1e90ff',
-    'waiting':   '#6495ed',
-    'finished':  '#191970',
-})
+style = Style.from_dict(
+    {
+        'plain': '#fffafa',
+        'selection': '#fffafa',
+        'inbox': '#ff00ff',
+        'pastdue': '#87ceeb',
+        'begin': '#ffff00',
+        'journal': '#daa520',
+        'event': '#90ee90',
+        'available': '#1e90ff',
+        'waiting': '#6495ed',
+        'finished': '#191970',
+    }
+)
 
 FINISHED_CHAR = '✓'
 SKIPPED_CHAR = '✗'
-UPDATE_CHAR = "𝕦"
-INBASKET_CHAR = "𝕚"
+UPDATE_CHAR = '𝕦'
+INBASKET_CHAR = '𝕚'
 KONNECT_CHAR = 'k'
 LINK_CHAR = 'g'
 PIN_CHAR = 'p'
@@ -124,33 +131,43 @@ LINEDOT = ' · '  # ܁ U+00B7 (middle dot)
 
 etmdir = None
 
-ETMFMT = "%Y%m%dT%H%M"
+ETMFMT = '%Y%m%dT%H%M'
 ZERO = timedelta(minutes=0)
 ONEMIN = timedelta(minutes=1)
 ONESEC = timedelta(seconds=1)
 DAY = timedelta(days=1)
 
 
-WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
-WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4']}
+WKDAYS_DECODE = {
+    '{0}{1}'.format(n, d): '{0}({1})'.format(d, n) if n else d
+    for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
+    for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']
+}
+WKDAYS_ENCODE = {
+    '{0}({1})'.format(d, n): '{0}{1}'.format(n, d) if n else d
+    for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
+    for n in ['-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4']
+}
 for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
     WKDAYS_ENCODE[wkd] = wkd
 
 type_keys = {
-    "*": "event",
-    "-": "task",
-    "✓": "finished",
-    "%": "journal",
-    "!": "inbox",
-    "~": "wrap",
+    '*': 'event',
+    '-': 'task',
+    '✓': 'finished',
+    '%': 'journal',
+    '!': 'inbox',
+    '~': 'wrap',
 }
 
-wrapbefore = "↱"
-wrapafter =  "↳"
+wrapbefore = '↱'
+wrapafter = '↳'
 
-type_prompt = u"item type character:"
+type_prompt = 'item type character:'
 
-item_types = """item type characters:\n    """ + """\n    """.join([f"{k}: {v}" for k, v in type_keys.items()])
+item_types = """item type characters:\n    """ + """\n    """.join(
+    [f'{k}: {v}' for k, v in type_keys.items()]
+)
 
 common_methods = list('cdgiklmnstuxz')
 repeating_methods = list('+-o') + [
@@ -193,18 +210,20 @@ allowed = {
 }
 # inbox
 required['!'] = []
-allowed['!'] = common_methods + datetime_methods + task_methods + repeating_methods
+allowed['!'] = (
+    common_methods + datetime_methods + task_methods + repeating_methods
+)
 
 requires = {
-        'a': ['s'],
-        'b': ['s'],
-        '+': ['s'],
-        '-': ['rr'],
-        'rr': ['s'],
-        'js': ['s'],
-        'ja': ['s'],
-        'jb': ['s'],
-        }
+    'a': ['s'],
+    'b': ['s'],
+    '+': ['s'],
+    '-': ['rr'],
+    'rr': ['s'],
+    'js': ['s'],
+    'ja': ['s'],
+    'jb': ['s'],
+}
 
 
 def subsets(l):
@@ -263,6 +282,7 @@ def busy_conf_minutes(lofp):
     busy_minutes.append((b, e))
     return busy_minutes, conf_minutes
 
+
 def get_busy_settings() -> tuple:
     width = shutil.get_terminal_size()[0]
 
@@ -282,32 +302,36 @@ def get_busy_settings() -> tuple:
 
 def day_bar_labels() -> str:
 
-    begin_hour, end_hour, slot_minutes, marker_hour_interval = get_busy_settings()
+    (
+        begin_hour,
+        end_hour,
+        slot_minutes,
+        marker_hour_interval,
+    ) = get_busy_settings()
 
     # label_interval = (marker_hour_interval*60) // slot_minutes
 
     MIDNIGHT = datetime.now().replace(
-        hour=0, minute=0, second=0, microsecond=0)
+        hour=0, minute=0, second=0, microsecond=0
+    )
     HOUR = timedelta(hours=1)
-    label_length = (marker_hour_interval*60) // slot_minutes
+    label_length = (marker_hour_interval * 60) // slot_minutes
     ampm = settings.get('ampm', True)
     hour_fmt = '%I%p' if ampm else '%H'
-    dent = " "*7 if ampm else " "*8
+    dent = ' ' * 7 if ampm else ' ' * 8
     hour_labels = [dent]
-    for i in range(
-        begin_hour, end_hour, marker_hour_interval
-        ):
+    for i in range(begin_hour, end_hour, marker_hour_interval):
         if (i - begin_hour) % marker_hour_interval == 0:
             l = f"{(MIDNIGHT + i*HOUR).strftime(hour_fmt).lstrip('0').rstrip('M').lower()}"
             hour_labels.append(f"{l}{' '*(label_length - len(l))}")
         else:
-            hour_labels.append(' '*label_length)
+            hour_labels.append(' ' * label_length)
     if end_hour % marker_hour_interval == 0:
         last_label = f"{(MIDNIGHT + end_hour*HOUR).strftime(hour_fmt).lstrip('0').rstrip('M').lower()}"
-        last_label = last_label if last_label else "24"
+        last_label = last_label if last_label else '24'
         hour_labels.append(last_label)
 
-    return "".join(hour_labels)
+    return ''.join(hour_labels)
 
 
 def day_bar(events: list, allday: bool = False) -> str:
@@ -322,48 +346,55 @@ def day_bar(events: list, allday: bool = False) -> str:
     Returns:
         list[in]: free, busy and conflict slots
     """
-    VSEP   =  '⏐' # U+23D0  this will be a de-emphasized color
-    FREE   =  '─' # U+2500  this will be a de-emphasized color
-    BUSY   =  '■' # '■' # U+25A0 this will be busy (event) color
-    CONF   =  '▦' # '▦' # U+25A6 this will be conflict color
-    ADAY   =  '━' # U+2501 for all day events ━
-    RSKIP   =  '▶' # U+25E6 for used time
-    LSKIP   =  '◀' # U+25E6 for used time
+    VSEP = '⏐'   # U+23D0  this will be a de-emphasized color
+    FREE = '─'   # U+2500  this will be a de-emphasized color
+    BUSY = '■'   # '■' # U+25A0 this will be busy (event) color
+    CONF = '▦'   # '▦' # U+25A6 this will be conflict color
+    ADAY = '━'   # U+2501 for all day events ━
+    RSKIP = '▶'   # U+25E6 for used time
+    LSKIP = '◀'   # U+25E6 for used time
     # RSKIP   =  '⏵' # U+25E6 for used time
     # LSKIP   =  '⏴' # U+25E6 for used time
 
+    # TODO: add ADAY switch and spacing for FREE
 
+    (
+        begin_hour,
+        end_hour,
+        slot_minutes,
+        marker_hour_interval,
+    ) = get_busy_settings()
 
-    #TODO: add ADAY switch and spacing for FREE
-
-    begin_hour, end_hour, slot_minutes, marker_hour_interval = get_busy_settings()
-
-    begin_slots = (begin_hour*60) // slot_minutes
-    end_slots = (end_hour*60) // slot_minutes
+    begin_slots = (begin_hour * 60) // slot_minutes
+    end_slots = (end_hour * 60) // slot_minutes
 
     if slot_minutes in [5, 10, 12, 15, 20, 30, 60]:
-        marker_slot_interval = (marker_hour_interval*60) // slot_minutes
+        marker_slot_interval = (marker_hour_interval * 60) // slot_minutes
     else:
         marker_slot_interval = 0
 
     all_slots = []
 
-    for i in range(1+(24*60)//slot_minutes):
+    for i in range(1 + (24 * 60) // slot_minutes):
         if marker_slot_interval and i % marker_slot_interval == 0:
             all_slots.append([VSEP, 0])
         else:
             all_slots.append([None, 0])
 
-
     # all_slots = [0 for i in range((24*60)//slot_minutes)] # 24*12/5 5-minute slots + before + after.  All initially free = 0.
     for start, end in events:
         extent = end - start
         start_slot = start // slot_minutes
-        num_slots = extent // slot_minutes if  extent % slot_minutes == 0 else extent // slot_minutes + 1
-        for i in range(start_slot,
-                       min(start_slot+num_slots, len(all_slots))):
+        num_slots = (
+            extent // slot_minutes
+            if extent % slot_minutes == 0
+            else extent // slot_minutes + 1
+        )
+        for i in range(
+            start_slot, min(start_slot + num_slots, len(all_slots))
+        ):
             # free 0 -> busy 1; busy 1 -> confict 2
-            all_slots[i][1] = min(all_slots[i][1]+1, 2)
+            all_slots[i][1] = min(all_slots[i][1] + 1, 2)
 
     # replace slots prior to 'begin' and after 'end' with their
     # respective maximums
@@ -384,7 +415,7 @@ def day_bar(events: list, allday: bool = False) -> str:
         elif x[0] is not None:
             event_slots.append(x[0])
         else:
-            event_slots.append(x[1]) # 0
+            event_slots.append(x[1])   # 0
     if end_hour < 24:
         if all_slots[end_slots][0] is not None:
             event_slots.append(all_slots[end_slots][0])
@@ -408,7 +439,8 @@ def day_bar(events: list, allday: bool = False) -> str:
         else:
             busyfree.append(event_slots[j])
 
-    return "".join(busyfree)
+    return ''.join(busyfree)
+
 
 def busy_conf_day(lofp, allday=False):
     """
@@ -429,13 +461,14 @@ def busy_conf_day(lofp, allday=False):
     busy_ranges, conf_ranges = busy_conf_minutes(lofp)
     busy_quarters = []
     conf_quarters = []
-    first_quarter = beginbusy*4
-    last_quarter = first_quarter + 14*4 + 1
+    first_quarter = beginbusy * 4
+    last_quarter = first_quarter + 14 * 4 + 1
 
     for (b, e) in conf_ranges:
         h_b = b // 15
         h_e = e // 15
-        if e % 15: h_e += 1
+        if e % 15:
+            h_e += 1
         for i in range(h_b, h_e):
             if i not in conf_quarters:
                 conf_quarters.append(i)
@@ -443,19 +476,20 @@ def busy_conf_day(lofp, allday=False):
     for (b, e) in busy_ranges:
         h_b = b // 15
         h_e = e // 15
-        if e % 15: h_e += 1
+        if e % 15:
+            h_e += 1
         for i in range(h_b, h_e):
             if i not in conf_quarters and i not in busy_quarters:
                 busy_quarters.append(i)
     h = {0: '  ', 58: '  '}
     for i in range(1, 58):
-        h[i] = ' ' if (i-1) % 4 else VSEP
-    empty = "".join([h[i] for i in range(59)])
+        h[i] = ' ' if (i - 1) % 4 else VSEP
+    empty = ''.join([h[i] for i in range(59)])
     for i in range(1, 58):
         if allday:
-            h[i] = ADAY # if (i-1) % 4 else VSEP
+            h[i] = ADAY   # if (i-1) % 4 else VSEP
         else:
-            h[i] = HSEP if (i-1) % 4 else VSEP
+            h[i] = HSEP if (i - 1) % 4 else VSEP
 
     # quarters: 1 before start + 1 after start + 56 + 1 between = 59 slots 0, ... 58
     conflict = False
@@ -468,7 +502,7 @@ def busy_conf_day(lofp, allday=False):
         h[0] = f'{CONF} ' if conflict else f'{BUSY} ' if busy else '  '
     conflict = False
     busy = False
-    for i in range(last_quarter, 24*4):
+    for i in range(last_quarter, 24 * 4):
         if i in conf_quarters:
             conflict = True
         elif i in busy_quarters:
@@ -476,14 +510,15 @@ def busy_conf_day(lofp, allday=False):
         h[58] = f' {CONF}' if conflict else f' {BUSY}' if busy else '  '
     for i in range(first_quarter, last_quarter):
         if i in conf_quarters:
-            h[i-first_quarter+1] = CONF
+            h[i - first_quarter + 1] = CONF
         elif i in busy_quarters:
-            h[i-first_quarter+1] = BUSY
+            h[i - first_quarter + 1] = BUSY
     res = f"\n{empty}\n{''.join([h[i] for i in range(59)])}"
-    full = "".join([h[i] for i in range(59)])
+    full = ''.join([h[i] for i in range(59)])
     # empty: blank busy bar
     # full:  busy bar with busy/conflict markers
     return empty, full
+
 
 def process_entry(s, settings={}):
     """
@@ -530,14 +565,13 @@ def process_entry(s, settings={}):
             replacement = settings['expansions'][xparts[1]] + xparts[2]
             s = s.replace(match[0], replacement)
 
-
     pattern = re.compile(r'\s[@&][a-zA-Z+-]')
     parts = [
         [match.span()[0] + 1, match.span()[1], match.group().strip()]
         for match in pattern.finditer(s)
     ]
     if not parts:
-        tups.append((s[0], s[1:].strip(), 0, len(s)+1))
+        tups.append((s[0], s[1:].strip(), 0, len(s) + 1))
 
     lastbeg = 0
     lastend = 1
@@ -548,7 +582,7 @@ def process_entry(s, settings={}):
         lastkey = key
         lastbeg = beg
         lastend = end
-    tups.append([lastkey, s[lastend:].strip(), lastbeg, len(s)+1])
+    tups.append([lastkey, s[lastend:].strip(), lastbeg, len(s) + 1])
     pos_hsh[tups[-1][2], tups[-1][3]] = (tups[-1][0], tups[-1][1])
 
     pos_hsh = {}  # (tupbeg, tupend) -> [key, value]
@@ -559,30 +593,34 @@ def process_entry(s, settings={}):
         if beg == 0:
             aug_tups.append(('itemtype', key, beg, 1))
             if value.endswith(' @') or value.endswith(' &'):
-                aug_key = f"{value[-1]}?"
+                aug_key = f'{value[-1]}?'
                 end -= 2
                 value = value[:-2]
-                aug_tups.extend((('summary', value, 1, end), (aug_key, '', end, end + 2)))
+                aug_tups.extend(
+                    (('summary', value, 1, end), (aug_key, '', end, end + 2))
+                )
             else:
                 aug_tups.append(('summary', value, 1, end))
         elif value.endswith(' @') or value.endswith(' &'):
-            aug_key = f"{value[-1]}?"
+            aug_key = f'{value[-1]}?'
             end -= 2
             value = value[:-2]
-            aug_tups.extend(((key, value, beg, end), (aug_key, '', end, end + 2)))
+            aug_tups.extend(
+                ((key, value, beg, end), (aug_key, '', end, end + 2))
+            )
         else:
             aug_tups.append((key, value, beg, end))
 
     for key, value, beg, end in aug_tups:
         if key in ['@r', '@j']:
-            pos_hsh[beg, end] = (f"{key[-1]}{key[-1]}", value)
+            pos_hsh[beg, end] = (f'{key[-1]}{key[-1]}', value)
             adding = key[-1]
         elif key in ['@a', '@u']:
             pos_hsh[beg, end] = (key[-1], value)
             adding = None
         elif key.startswith('&'):
             if adding:
-                pos_hsh[beg, end] = (f"{adding}{key[-1]}", value)
+                pos_hsh[beg, end] = (f'{adding}{key[-1]}', value)
         elif key in ['itemtype', 'summary']:
             adding = None
             pos_hsh[beg, end] = (key, value)
@@ -597,6 +635,7 @@ def process_entry(s, settings={}):
         keyvals.insert(0, ('itemtype', k))
 
     return pos_hsh, keyvals
+
 
 def active_from_pos(pos_hsh, pos):
     """
@@ -628,7 +667,6 @@ def active_from_pos(pos_hsh, pos):
 
 
 class Period(object):
-
     def __init__(self, start: datetime, end: datetime):
         self.start = start
         self.end = end
@@ -645,24 +683,21 @@ class Period(object):
 
 
 class Item(dict):
-    """
-
-    """
+    """ """
 
     # def __init__(self, doc_id=None, s=""):
     def __init__(self, dbfile=None):
-        """
-        """
+        """ """
         self.doc_id = None
-        self.entry = ""
-        self.init_entry = ""
+        self.entry = ''
+        self.init_entry = ''
         self.is_new = True
         self.is_modified = False
         self.created = None
         self.modified = None
         self.set_dbfile(dbfile)
         self.object_hsh = {}  # key, val -> object version for tinydb
-        self.askreply= {}     # key, val -> display version raw string
+        self.askreply = {}     # key, val -> display version raw string
         self.pos_hsh = {}     # (beg, end) -> (key, val)
         self.keyvals = []
 
@@ -673,61 +708,131 @@ class Item(dict):
         # Note: datetime(s) require timezone and at requires itemtype
         # all else do not need item_hsh
         self.keys = {
-                'itemtype': ["item type", "character from * (event), - (task), % (journal) or ! (inbox)", self.do_itemtype],
-                'summary': ["summary", "brief item description. Append an '@' to add an option.", self.do_summary],
-                '+': ["include", "list of datetimes to include", self.do_datetimes],
-                '-': ["exclude", "list of datetimes to exclude", self.do_datetimes],
-                'a': ["alerts", "list of alerts", do_alert],
-                'b': ["beginby", "number of days for beginby notices", do_beginby],
-                'c': ["calendar", "calendar", do_string],
-                'd': ["description", "item details", do_paragraph],
-                'e': ["extent", "timeperiod", do_duration],
-                'w': ["wrap", "list of two timeperiods", do_two_periods],
-                'f': ["finish", "completion done -> due", self.do_completion],
-                'g': ["goto", "url or filepath", do_string],
-                'h': ["completions", "list of completion datetimes", self.do_completions],
-                'i': ["index", "forward slash delimited string", do_string],
-                'k': ["konnection", "document id", do_konnection],
-                'l': ["location", "location or context, e.g., home, office, errands", do_string],
-                'm': ["mask", "string to be masked", do_mask],
-                'n': ["attendee", "name <email address>", do_string],
-                'o': ["overdue", "character from (r)estart, (s)kip or (k)eep", do_overdue],
-                'p': ["priority", "priority from 0 (none) to 4 (urgent)", do_priority],
-                's': ["scheduled", "starting date or datetime", self.do_datetime],
-                't': ["tag", "tag", do_string],
-                'u': ["used time", "timeperiod: datetime", do_usedtime],
-                'x': ["expansion", "expansion key", do_string],
-                'z': ["timezone", "a timezone entry such as 'US/Eastern' or 'Europe/Paris' or 'float' to specify a naive/floating datetime", self.do_timezone],
-                '?': ["@-key", "", self.do_at],
-
-                'rr': ["repetition frequency", "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute. Append an '&' to add a repetition option.", do_frequency],
-                'ri': ["interval", "positive integer", do_interval],
-                'rm': ["monthdays", "list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month", do_monthdays],
-                'rE': ["easterdays", "number of days before (-), on (0) or after (+) Easter", do_easterdays],
-                'rh': ["hours", "list of integers in 0 ... 23", do_hours],
-                'rM': ["months", "list of integers in 1 ... 12", do_months],
-                'rn': ["minutes", "list of integers in 0 ... 59", do_minutes],
-                'rw': ["weekdays", "list from SU, MO, ..., SA, possibly prepended with a positive or negative integer", do_weekdays],
-                'rW': ["week numbers", "list of integers in 1, ... 53", do_weeknumbers],
-                'rc': ["count", "integer number of repetitions", do_count],
-                'ru': ["until", "datetime", self.do_until],
-                'rs': ["set positions", "integer", do_setpositions],
-                'r?': ["repetition &-key", "enter &-key", self.do_ampr],
-
-                'jj': ["summary", "job summary. Append an '&' to add a job option.", do_string],
-                'ja': ["alert", "list of timeperiods before job is scheduled followed by a colon and a list of commands", do_alert],
-                'jb': ["beginby", " integer number of days", do_beginby],
-                'jd': ["description", " string", do_paragraph],
-                'je': ["extent", " timeperiod", do_duration],
-                'jf': ["finish", " completion done -> due", self.do_completion],
-                'ji': ["unique id", " integer or string", do_string],
-                'jl': ["location", " string", do_string],
-                'jm': ["mask", "string to be masked", do_mask],
-                'jp': ["prerequisite ids", "list of ids of immediate prereqs", do_stringlist],
-                'js': ["scheduled", "timeperiod before task scheduled when job is scheduled", do_duration],
-                'ju': ["used time", "timeperiod: datetime", do_usedtime],
-                'j?': ["job &-key", "enter &-key", self.do_ampj],
-                }
+            'itemtype': [
+                'item type',
+                'character from * (event), - (task), % (journal) or ! (inbox)',
+                self.do_itemtype,
+            ],
+            'summary': [
+                'summary',
+                "brief item description. Append an '@' to add an option.",
+                self.do_summary,
+            ],
+            '+': [
+                'include',
+                'list of datetimes to include',
+                self.do_datetimes,
+            ],
+            '-': [
+                'exclude',
+                'list of datetimes to exclude',
+                self.do_datetimes,
+            ],
+            'a': ['alerts', 'list of alerts', do_alert],
+            'b': ['beginby', 'number of days for beginby notices', do_beginby],
+            'c': ['calendar', 'calendar', do_string],
+            'd': ['description', 'item details', do_paragraph],
+            'e': ['extent', 'timeperiod', do_duration],
+            'w': ['wrap', 'list of two timeperiods', do_two_periods],
+            'f': ['finish', 'completion done -> due', self.do_completion],
+            'g': ['goto', 'url or filepath', do_string],
+            'h': [
+                'completions',
+                'list of completion datetimes',
+                self.do_completions,
+            ],
+            'i': ['index', 'forward slash delimited string', do_string],
+            'k': ['konnection', 'document id', do_konnection],
+            'l': [
+                'location',
+                'location or context, e.g., home, office, errands',
+                do_string,
+            ],
+            'm': ['mask', 'string to be masked', do_mask],
+            'n': ['attendee', 'name <email address>', do_string],
+            'o': [
+                'overdue',
+                'character from (r)estart, (s)kip or (k)eep',
+                do_overdue,
+            ],
+            'p': [
+                'priority',
+                'priority from 0 (none) to 4 (urgent)',
+                do_priority,
+            ],
+            's': ['scheduled', 'starting date or datetime', self.do_datetime],
+            't': ['tag', 'tag', do_string],
+            'u': ['used time', 'timeperiod: datetime', do_usedtime],
+            'x': ['expansion', 'expansion key', do_string],
+            'z': [
+                'timezone',
+                "a timezone entry such as 'US/Eastern' or 'Europe/Paris' or 'float' to specify a naive/floating datetime",
+                self.do_timezone,
+            ],
+            '?': ['@-key', '', self.do_at],
+            'rr': [
+                'repetition frequency',
+                "character from (y)ear, (m)onth, (w)eek,  (d)ay, (h)our, mi(n)ute. Append an '&' to add a repetition option.",
+                do_frequency,
+            ],
+            'ri': ['interval', 'positive integer', do_interval],
+            'rm': [
+                'monthdays',
+                'list of integers 1 ... 31, possibly prepended with a minus sign to count backwards from the end of the month',
+                do_monthdays,
+            ],
+            'rE': [
+                'easterdays',
+                'number of days before (-), on (0) or after (+) Easter',
+                do_easterdays,
+            ],
+            'rh': ['hours', 'list of integers in 0 ... 23', do_hours],
+            'rM': ['months', 'list of integers in 1 ... 12', do_months],
+            'rn': ['minutes', 'list of integers in 0 ... 59', do_minutes],
+            'rw': [
+                'weekdays',
+                'list from SU, MO, ..., SA, possibly prepended with a positive or negative integer',
+                do_weekdays,
+            ],
+            'rW': [
+                'week numbers',
+                'list of integers in 1, ... 53',
+                do_weeknumbers,
+            ],
+            'rc': ['count', 'integer number of repetitions', do_count],
+            'ru': ['until', 'datetime', self.do_until],
+            'rs': ['set positions', 'integer', do_setpositions],
+            'r?': ['repetition &-key', 'enter &-key', self.do_ampr],
+            'jj': [
+                'summary',
+                "job summary. Append an '&' to add a job option.",
+                do_string,
+            ],
+            'ja': [
+                'alert',
+                'list of timeperiods before job is scheduled followed by a colon and a list of commands',
+                do_alert,
+            ],
+            'jb': ['beginby', ' integer number of days', do_beginby],
+            'jd': ['description', ' string', do_paragraph],
+            'je': ['extent', ' timeperiod', do_duration],
+            'jf': ['finish', ' completion done -> due', self.do_completion],
+            'ji': ['unique id', ' integer or string', do_string],
+            'jl': ['location', ' string', do_string],
+            'jm': ['mask', 'string to be masked', do_mask],
+            'jp': [
+                'prerequisite ids',
+                'list of ids of immediate prereqs',
+                do_stringlist,
+            ],
+            'js': [
+                'scheduled',
+                'timeperiod before task scheduled when job is scheduled',
+                do_duration,
+            ],
+            'ju': ['used time', 'timeperiod: datetime', do_usedtime],
+            'j?': ['job &-key', 'enter &-key', self.do_ampj],
+        }
         if not self.entry:
             self.text_changed('', 0, False)
 
@@ -749,28 +854,27 @@ item_hsh:    {self.item_hsh}
 
         else:
             if not os.path.exists(dbfile):
-                logger.error(f"{dbfile} does not exist")
+                logger.error(f'{dbfile} does not exist')
                 return
             self.db = data.initialize_tinydb(dbfile)
             self.dbarch = self.db.table('archive', cache_size=None)
             self.dbquery = self.db.table('items', cache_size=None)
 
     def use_archive(self):
-        self.query_mode = "archive table"
+        self.query_mode = 'archive table'
         self.db = DBARCH
 
     def use_items(self):
-        self.query_mode = "items table"
+        self.query_mode = 'items table'
         self.db = DBITEM
 
     def check_goto_link(self, num=5):
-        """
-        """
+        """ """
         self.update_item_hsh()
         if goto := self.item_hsh.get('g'):
             return True, goto
         else:
-            return False, "does not have an @g goto entry"
+            return False, 'does not have an @g goto entry'
 
     def get_repetitions(self):
         """
@@ -782,39 +886,37 @@ item_hsh:    {self.item_hsh}
         num = self.settings['num_repetitions']
         self.update_item_hsh()
         item = self.item_hsh
-        showing =  "Repetitions"
+        showing = 'Repetitions'
         if 's' not in item or 'r' not in item and '+' not in item:
-            return showing, "not a repeating item"
+            return showing, 'not a repeating item'
         relevant = date_to_datetime(item['s'])
         at_plus = item.get('+', [])
         if at_plus:
             at_plus.sort()
             relevant = min(relevant, date_to_datetime(at_plus[0]))
-        logger.debug(f"relevant: {relevant}")
+        logger.debug(f'relevant: {relevant}')
 
-        instances = item_instances(item, relevant, num+1, False)
+        instances = item_instances(item, relevant, num + 1, False)
         instances.sort()
         pairs = [format_datetime(x[0])[1] for x in instances]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
-            showing = f"Next {num} repetitions"
+            showing = f'Next {num} repetitions'
             pairs = pairs[:num]
         elif pairs:
-            showing = "All repetitions"
+            showing = 'All repetitions'
         else:
-            showing = "No repetitions"
-        return  showing, f"from {starting}:\n  " + "\n  ".join(pairs)
-
+            showing = 'No repetitions'
+        return showing, f'from {starting}:\n  ' + '\n  '.join(pairs)
 
     def do_update(self):
         timer_update = TimeIt('***UPDATE***')
-        logger.debug(f"do_update {self.doc_id}: {self.item_hsh}")
+        logger.debug(f'do_update {self.doc_id}: {self.item_hsh}')
         self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
-        logger.debug(f"finished do_update")
+        logger.debug(f'finished do_update')
         timer_update.stop()
 
-
-    def edit_item(self, doc_id=None, entry=""):
+    def edit_item(self, doc_id=None, entry=''):
         if not (doc_id and entry):
             return None
         item_hsh = self.db.get(doc_id=doc_id)
@@ -822,18 +924,17 @@ item_hsh:    {self.item_hsh}
         if item_hsh:
             self.doc_id = doc_id
             self.is_new = False
-            self.item_hsh = deepcopy(item_hsh) # created and modified entries
+            self.item_hsh = deepcopy(item_hsh)   # created and modified entries
             self.keyvals = []
             self.text_changed(entry, 0, False)
 
-
-    def edit_copy(self, doc_id=None, entry=""):
+    def edit_copy(self, doc_id=None, entry=''):
         if not (doc_id and entry):
             return None
         if item_hsh := self.db.get(doc_id=doc_id):
             self.doc_id = None
             self.is_new = True
-            self.item_hsh = deepcopy(item_hsh) # created and modified entries
+            self.item_hsh = deepcopy(item_hsh)   # created and modified entries
             self.keyvals = []
             self.text_changed(entry, 0, False)
 
@@ -841,8 +942,7 @@ item_hsh:    {self.item_hsh}
         self.doc_id = None
         self.is_new = True
         self.item_hsh = {}
-        self.entry = ""
-
+        self.entry = ''
 
     def delete_item(self, doc_id=None):
         if not (doc_id):
@@ -852,7 +952,6 @@ item_hsh:    {self.item_hsh}
             return True
         except:
             return False
-
 
     def add_used(self, doc_id, period, dt):
         self.item_hsh = self.db.get(doc_id=doc_id)
@@ -869,7 +968,7 @@ item_hsh:    {self.item_hsh}
         # if not dt_ok:
         #     return False, f"The entry '{ut[1]}' is not a valid datetime"
 
-        used_times = self.item_hsh.get("u", [])
+        used_times = self.item_hsh.get('u', [])
         used_times.append([period, dt])
         self.item_hsh['u'] = used_times
         self.item_hsh['created'] = self.created
@@ -877,9 +976,7 @@ item_hsh:    {self.item_hsh}
         # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
         self.do_update()
 
-        return True, ""
-
-
+        return True, ''
 
     def schedule_new(self, doc_id, new_dt):
         self.item_hsh = self.db.get(doc_id=doc_id)
@@ -888,7 +985,11 @@ item_hsh:    {self.item_hsh}
         changed = False
         if 's' not in self.item_hsh:
             self.item_hsh['s'] = new_dt
-        elif 'r' in self.item_hsh and '-' in self.item_hsh and new_dt in self.item_hsh['-']:
+        elif (
+            'r' in self.item_hsh
+            and '-' in self.item_hsh
+            and new_dt in self.item_hsh['-']
+        ):
             self.item_hsh['-'].remove(new_dt)
         else:
             # works both with and without r
@@ -900,8 +1001,6 @@ item_hsh:    {self.item_hsh}
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
         return changed
-
-
 
     def reschedule(self, doc_id, old_dt, new_dt):
         if old_dt == new_dt:
@@ -924,9 +1023,8 @@ item_hsh:    {self.item_hsh}
             if added_new:
                 removed_old = self.delete_instances(doc_id, old_dt, 0)
             else:
-                logger.warning(f"doc_id: {doc_id}; error adding {new_dt}")
+                logger.warning(f'doc_id: {doc_id}; error adding {new_dt}')
             return added_new and removed_old
-
 
     def delete_instances(self, doc_id, instance, which):
         """
@@ -938,11 +1036,11 @@ item_hsh:    {self.item_hsh}
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
-        logger.debug(f"instance {instance.astimezone()}, {type(instance)}")
+        logger.debug(f'instance {instance.astimezone()}, {type(instance)}')
         changed = False
         if which == '1':
             # this instance
-            logger.debug(f"deleting this instance: {instance}")
+            logger.debug(f'deleting this instance: {instance}')
             if '+' in self.item_hsh and instance in self.item_hsh['+']:
                 self.item_hsh['+'].remove(instance)
                 changed = True
@@ -958,7 +1056,9 @@ item_hsh:    {self.item_hsh}
                 changed = True
             else:
                 # should not happen
-                logger.warning(f"could not remove {instance} from {self.item_hsh}")
+                logger.warning(
+                    f'could not remove {instance} from {self.item_hsh}'
+                )
             if changed:
                 self.item_hsh['created'] = self.created
                 self.item_hsh['modified'] = datetime.now().astimezone()
@@ -967,7 +1067,7 @@ item_hsh:    {self.item_hsh}
                 self.do_update()
         if which == '2':
             # this and any future instances
-            logger.debug(f"deleting any subsequent instances: {instance}")
+            logger.debug(f'deleting any subsequent instances: {instance}')
             delete_item = False
             if '+' in self.item_hsh:
                 for dt in self.item_hsh['+']:
@@ -981,20 +1081,26 @@ item_hsh:    {self.item_hsh}
                 rr_to_keep = []
                 for i in range(len(self.item_hsh['r'])):
                     rr = self.item_hsh['r'][i]
-                    logger.debug(f"starting rr: {rr}, {type(rr)}")
+                    logger.debug(f'starting rr: {rr}, {type(rr)}')
                     if 'c' in rr:
                         # error to have a 'u' with this 'c'
                         current_count = rr['c']
                         rset = rruleset()
                         freq, kwd = rrule_args(rr)
                         kwd['dtstart'] = self.item_hsh['s']
-                        logger.debug(f"freq: {freq}; kwd: {kwd}; rr: {rr}")
+                        logger.debug(f'freq: {freq}; kwd: {kwd}; rr: {rr}')
                         rset.rrule(rrule(freq, **kwd))
-                        logger.debug(f"rset: {rset}")
+                        logger.debug(f'rset: {rset}')
                         # forthcoming = [format_datetime(dt) for dt in rset if date_to_datetime(dt.astimezone()) > instance.astimezone()]
                         # logger.debug(f"instance: {format_datetime(instance)}; forthcoming: {forthcoming}, {len(forthcoming)}")
-                        new_count = current_count - sum(1 for dt in rset if dt.astimezone() >= instance.astimezone())
-                        logger.debug(f"current_count: {current_count}; new_count: {new_count}")
+                        new_count = current_count - sum(
+                            1
+                            for dt in rset
+                            if dt.astimezone() >= instance.astimezone()
+                        )
+                        logger.debug(
+                            f'current_count: {current_count}; new_count: {new_count}'
+                        )
                         if new_count > 0 and new_count < current_count:
                             rr['c'] = new_count
                             self.item_hsh['r'][i] = rr
@@ -1012,7 +1118,7 @@ item_hsh:    {self.item_hsh}
                     elif instance > self.item_hsh['s']:
                         # no 'c', so we can change/add 'u'
                         rr['u'] = instance - ONESEC
-                        logger.debug(f"ending rr: {rr}")
+                        logger.debug(f'ending rr: {rr}')
                         self.item_hsh['r'][i] = rr
                         changed = True
                     # elif instance == self.item_hsh['s']:
@@ -1041,7 +1147,9 @@ item_hsh:    {self.item_hsh}
                         del self.item_hsh['r']
 
             if instance <= self.item_hsh['s']:
-                logger.debug(f"updating @s: {self.item_hsh['s']} >= {instance}")
+                logger.debug(
+                    f"updating @s: {self.item_hsh['s']} >= {instance}"
+                )
                 if '+' in self.item_hsh and self.item_hsh['+']:
                     self.item_hsh['s'] = self.item_hsh['+'].pop(0)
                     changed = True
@@ -1063,8 +1171,13 @@ item_hsh:    {self.item_hsh}
 
         return changed
 
-
-    def finish_item(self, item_id: int, job_id: any, completed_datetime: datetime, due_datetime: datetime) -> bool:
+    def finish_item(
+        self,
+        item_id: int,
+        job_id: any,
+        completed_datetime: datetime,
+        due_datetime: datetime,
+    ) -> bool:
         """Use the completed_datetime and the due_datetime to update the completion history and to remove the due_datetime from the instances that still need to be finished.
 
         Args:
@@ -1096,7 +1209,11 @@ item_hsh:    {self.item_hsh}
         self.item_hsh = self.db.get(doc_id=item_id)
         self.doc_id = item_id
         self.created = self.item_hsh['created']
-        completion_entry = Period(completed_datetime, due_datetime) if due_datetime else Period(completed_datetime, completed_datetime)
+        completion_entry = (
+            Period(completed_datetime, due_datetime)
+            if due_datetime
+            else Period(completed_datetime, completed_datetime)
+        )
         if job_id:
             j = 0
             for job in self.item_hsh['j']:
@@ -1115,20 +1232,25 @@ item_hsh:    {self.item_hsh}
                     ):
                         if 'r' in self.item_hsh:
                             for i in range(len(self.item_hsh['r'])):
-                                if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
+                                if (
+                                    'c' in self.item_hsh['r'][i]
+                                    and self.item_hsh['r'][i]['c'] > 0
+                                ):
                                     self.item_hsh['r'][i]['c'] -= 1
                                     break
                         self.item_hsh['s'] = nxt
-                        self.item_hsh.setdefault('h', []).append(completion_entry)
+                        self.item_hsh.setdefault('h', []).append(
+                            completion_entry
+                        )
                         if self.doc_id in active_tasks:
                             del active_tasks[self.doc_id]
 
                     else:
                         self.item_hsh['f'] = completion_entry
                     save_item = True
-                        # else:
-                        #     # FIXME This is the undated task with jobs branch
-                        #     save_item = True
+                    # else:
+                    #     # FIXME This is the undated task with jobs branch
+                    #     save_item = True
 
         elif 's' in self.item_hsh:
             if 'r' in self.item_hsh:
@@ -1137,9 +1259,14 @@ item_hsh:    {self.item_hsh}
                 if nxt := get_next_due(
                     self.item_hsh, completed_datetime, completion_entry.end
                 ):
-                    logger.debug(f"nxt: {nxt}; completed: {completed_datetime}, due: {completion_entry.end}")
+                    logger.debug(
+                        f'nxt: {nxt}; completed: {completed_datetime}, due: {completion_entry.end}'
+                    )
                     for i in range(len(self.item_hsh['r'])):
-                        if 'c' in self.item_hsh['r'][i] and self.item_hsh['r'][i]['c'] > 0:
+                        if (
+                            'c' in self.item_hsh['r'][i]
+                            and self.item_hsh['r'][i]['c'] > 0
+                        ):
                             self.item_hsh['r'][i]['c'] -= 1
                             break
                     self.item_hsh['s'] = nxt
@@ -1170,9 +1297,10 @@ item_hsh:    {self.item_hsh}
         if save_item:
             num_finished = settings.get('num_finished', 0)
 
-
             if 'h' in self.item_hsh and num_finished:
-                ok = not any('c' in rr or 'u' in rr for rr in self.item_hsh.get('r', {}))
+                ok = not any(
+                    'c' in rr or 'u' in rr for rr in self.item_hsh.get('r', {})
+                )
                 if ok:
                     sh = self.item_hsh['h']
                     sh.sort(key=sortprd)
@@ -1185,8 +1313,9 @@ item_hsh:    {self.item_hsh}
             return True
         return False
 
-
-    def record_timer(self, item_id, job_id=None, completed_datetime=None, elapsed_time=None):
+    def record_timer(
+        self, item_id, job_id=None, completed_datetime=None, elapsed_time=None
+    ):
         if not (item_id and completed_datetime and elapsed_time):
             return
         save_item = False
@@ -1197,14 +1326,18 @@ item_hsh:    {self.item_hsh}
             j = 0
             for job in self.item_hsh['j']:
                 if job['i'] == job_id:
-                    self.item_hsh['j'][j].setdefault('u', []).append([elapsed_time, completed_datetime])
+                    self.item_hsh['j'][j].setdefault('u', []).append(
+                        [elapsed_time, completed_datetime]
+                    )
                     save_item = True
                     break
                 else:
                     j += 1
                     continue
         else:
-            self.item_hsh.setdefault('u', []).append([elapsed_time, completed_datetime])
+            self.item_hsh.setdefault('u', []).append(
+                [elapsed_time, completed_datetime]
+            )
             save_item = True
         if save_item:
             self.item_hsh['created'] = self.created
@@ -1212,16 +1345,12 @@ item_hsh:    {self.item_hsh}
             # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
 
-
     def cursor_changed(self, pos):
         # ((17, 24), ('e', '90m'))
         self.interval, self.active = active_from_pos(self.pos_hsh, pos)
 
-
     def text_changed(self, s, pos, modified=True):
-        """
-
-        """
+        """ """
         # self.is_modified = modified
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s, self.settings)
@@ -1236,7 +1365,9 @@ item_hsh:    {self.item_hsh}
                 update_timezone = True
                 break
         if update_timezone:
-            changed += [kv for kv in self.keyvals if kv[0] in ['s', 'ru',  '+', '-']]
+            changed += [
+                kv for kv in self.keyvals if kv[0] in ['s', 'ru', '+', '-']
+            ]
 
         for kv in removed:
             if kv in self.object_hsh:
@@ -1246,7 +1377,6 @@ item_hsh:    {self.item_hsh}
         self.keyvals = [kv for kv in keyvals]
         for kv in changed:
             self.update_keyval(kv)
-
 
     def update_keyval(self, kv):
         """
@@ -1263,7 +1393,7 @@ item_hsh:    {self.item_hsh}
             if msg:
                 obj = None
                 reply = msg
-            else: # only do this for allowed keys
+            else:   # only do this for allowed keys
                 msg = self.check_requires(key)
                 if msg:
                     obj = None
@@ -1279,9 +1409,11 @@ item_hsh:    {self.item_hsh}
                             del self.object_hsh[kv]
             self.askreply[kv] = (ask, reply)
         else:
-            display_key = f"@{key}" if len(key) == 1 else f"&{key[-1]}"
-            self.askreply[kv] = ('unrecognized key', f'{display_key} is invalid')
-
+            display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
+            self.askreply[kv] = (
+                'unrecognized key',
+                f'{display_key} is invalid',
+            )
 
     def check_item_hsh(self):
         created = self.item_hsh.get('created', None)
@@ -1292,7 +1424,7 @@ item_hsh:    {self.item_hsh}
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if obj is None:
-                msg.append(f"bad entry for {k}: {v}")
+                msg.append(f'bad entry for {k}: {v}')
                 return msg
                 # continue
             elif k in ['a', 'u', 'n', 't', 'k']:
@@ -1331,18 +1463,17 @@ item_hsh:    {self.item_hsh}
             if ok:
                 self.item_hsh['j'] = res
                 if last:
-                    #FIXME
+                    # FIXME
                     self.item_hsh['f'] = last
             else:
                 msg.extend(res)
         if self.item_hsh.get('z', None) not in [None, 'float']:
             del self.item_hsh['z']
         if msg:
-            msg = "\n".join(msg)
-            logger.debug(f"{msg}")
+            msg = '\n'.join(msg)
+            logger.debug(f'{msg}')
 
         return msg
-
 
     def update_item_hsh(self):
         msg = self.check_item_hsh()
@@ -1352,8 +1483,9 @@ item_hsh:    {self.item_hsh}
         links = self.item_hsh.get('k', [])
         if links:
             # make sure the doc_id refers to an actual document
-            self.item_hsh['k'] = [x for x in links if self.db.contains(doc_id=x)]
-
+            self.item_hsh['k'] = [
+                x for x in links if self.db.contains(doc_id=x)
+            ]
 
         if self.is_modified and not msg:
             now = datetime.now().astimezone()
@@ -1372,7 +1504,6 @@ item_hsh:    {self.item_hsh}
                 self.item_hsh['modified'] = now
                 self.do_update()
 
-
     def check_requires(self, key):
         """
         Check that key has the prerequisite entries.
@@ -1382,13 +1513,19 @@ item_hsh:    {self.item_hsh}
         missing = []
         if key in requires:
             cur_keys = [k for (k, v) in self.keyvals]
-            missing = [f"@{k[0]}" for k in requires[key] if k not in cur_keys]
+            missing = [f'@{k[0]}' for k in requires[key] if k not in cur_keys]
 
         if missing:
-            display_key = f"@{key[0]}" if len(key) == 1 or key in ['rr', 'jj'] else f"&{key[-1]}"
-            return f"Required for {display_key} but missing: {', '.join(missing)}"
+            display_key = (
+                f'@{key[0]}'
+                if len(key) == 1 or key in ['rr', 'jj']
+                else f'&{key[-1]}'
+            )
+            return (
+                f"Required for {display_key} but missing: {', '.join(missing)}"
+            )
         else:
-            return ""
+            return ''
 
     def check_allowed(self, key):
         """
@@ -1397,23 +1534,22 @@ item_hsh:    {self.item_hsh}
         if not self.item_hsh:
             return
         if key in ['?', 'r?', 'j?', 'itemtype', 'summary']:
-            return ""
+            return ''
         if key not in self.keys:
             if len(key) > 1:
-                msg = f"&{key[1]} is invalid with @{key[0]}"
+                msg = f'&{key[1]} is invalid with @{key[0]}'
             else:
-                msg = f"@{key} is invalid"
+                msg = f'@{key} is invalid'
             return msg
         itemtype = self.item_hsh.get('itemtype', None)
         if itemtype:
             if key not in allowed[itemtype]:
-                display_key = f"@{key}" if len(key) == 1 else f"&{key[-1]}"
-                return f"{display_key} is not allowed for itemtype {itemtype} ({type_keys[itemtype]})"
+                display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
+                return f'{display_key} is not allowed for itemtype {itemtype} ({type_keys[itemtype]})'
             else:
-                return ""
+                return ''
         else:
-            return "missing itemtype"
-
+            return 'missing itemtype'
 
     def do_at(self, arg=''):
         """
@@ -1434,20 +1570,40 @@ item_hsh:    {self.item_hsh}
         itemtype = self.item_hsh.get('itemtype', '')
         if itemtype:
             # only @-keys; allow a, u, rr and jj more than once
-            already_entered = [k for (k, v) in self.keyvals if len(k) == 1 and k not in ['a', 'u']]
-            require = [f"@{k}_({v[0]})" for k, v in self.keys.items() if (k in required[itemtype] and k != '?' and k not in already_entered)]
+            already_entered = [
+                k
+                for (k, v) in self.keyvals
+                if len(k) == 1 and k not in ['a', 'u']
+            ]
+            require = [
+                f'@{k}_({v[0]})'
+                for k, v in self.keys.items()
+                if (
+                    k in required[itemtype]
+                    and k != '?'
+                    and k not in already_entered
+                )
+            ]
             # allow rr to be entered as r and jj as j
-            avail = [x for x in allowed[itemtype] if len(x) == 1 or x in ['rr', 'jj'] ]
-            allow = [f"@{k[0]}_({v[0]})" for k, v in self.keys.items() if (k in avail and k not in already_entered)]
+            avail = [
+                x
+                for x in allowed[itemtype]
+                if len(x) == 1 or x in ['rr', 'jj']
+            ]
+            allow = [
+                f'@{k[0]}_({v[0]})'
+                for k, v in self.keys.items()
+                if (k in avail and k not in already_entered)
+            ]
             allow.sort()
-            prompt = ""
+            prompt = ''
             if require:
-                prompt += wrap(f"required: {', '.join(require)}", 2) + "\n"
+                prompt += wrap(f"required: {', '.join(require)}", 2) + '\n'
             if allow:
                 prompt += wrap(f"available: {', '.join(allow)}", 2)
             rep = prompt.replace('_', ' ')
         else:
-            rep = "The type character must be entered before any @-keys"
+            rep = 'The type character must be entered before any @-keys'
 
         return None, rep
 
@@ -1462,11 +1618,16 @@ item_hsh:    {self.item_hsh}
             &n (minutes), &w (weekdays), &W (week numbers),
             &c (count), &u (until), &s (set positions)
         """
-        keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('r') and k[1] not in 'r?']
-        rep = wrap("repetition &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
+        keys = [
+            f'&{k[1]}_({v[0]})'
+            for k, v in self.keys.items()
+            if k.startswith('r') and k[1] not in 'r?'
+        ]
+        rep = wrap('repetition &-keys: ' + ', '.join(keys), 4, 60).replace(
+            '_', ' '
+        )
 
         return None, rep
-
 
     def do_ampj(self, arg=''):
         """
@@ -1479,11 +1640,14 @@ item_hsh:    {self.item_hsh}
             &l (location), &m (mask), &p (prerequisite ids),
             &s (start), &u (used time)
         """
-        keys = [f"&{k[1]}_({v[0]})" for k, v in self.keys.items() if k.startswith('j') and k[1] not in 'j?']
-        rep = wrap("job &-keys: " + ", ".join(keys), 4, 60).replace('_', ' ')
+        keys = [
+            f'&{k[1]}_({v[0]})'
+            for k, v in self.keys.items()
+            if k.startswith('j') and k[1] not in 'j?'
+        ]
+        rep = wrap('job &-keys: ' + ', '.join(keys), 4, 60).replace('_', ' ')
 
         return None, rep
-
 
     def do_itemtype(self, arg):
         """
@@ -1498,10 +1662,10 @@ item_hsh:    {self.item_hsh}
         a, r, d = self.keys['itemtype']
         if not arg:
             obj = None
-            rep = f"Choose a {r}"
+            rep = f'Choose a {r}'
         elif arg in type_keys:
             obj = arg
-            rep = f"{arg} ({type_keys[arg]})"
+            rep = f'{arg} ({type_keys[arg]})'
             self.item_hsh['itemtype'] = obj
         else:
             obj = None
@@ -1511,7 +1675,7 @@ item_hsh:    {self.item_hsh}
 
     def do_summary(self, arg):
         if not self.item_hsh['itemtype']:
-            return None, "a valid itemtype must be provided"
+            return None, 'a valid itemtype must be provided'
         obj, rep = do_string(arg)
         if obj:
             self.item_hsh['summary'] = obj
@@ -1536,13 +1700,16 @@ item_hsh:    {self.item_hsh}
         ok, res, z = parse_datetime(arg, tz)
         if ok:
             if isinstance(res, date) and not isinstance(res, datetime):
-                return obj, "a datetime is required"
+                return obj, 'a datetime is required'
             obj = res
-            rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
+            rep = (
+                f'local datetime: {format_datetime(obj)[1]}'
+                if ok == 'aware'
+                else format_datetime(obj)[1]
+            )
         else:
-            rep = "Include repetitions falling on or before this datetime"
+            rep = 'Include repetitions falling on or before this datetime'
         return obj, rep
-
 
     def do_datetime(self, arg):
         """
@@ -1559,7 +1726,11 @@ item_hsh:    {self.item_hsh}
         ok, res, z = parse_datetime(arg, tz)
         if ok:
             obj = res
-            rep = f"local datetime: {format_datetime(obj)[1]}" if ok == 'aware' else format_datetime(obj)[1]
+            rep = (
+                f'local datetime: {format_datetime(obj)[1]}'
+                if ok == 'aware'
+                else format_datetime(obj)[1]
+            )
         else:
             rep = res
         return obj, rep
@@ -1593,7 +1764,11 @@ item_hsh:    {self.item_hsh}
                 all_ok = False
                 bad.append(arg)
         obj = obj if all_ok else None
-        rep = f"local datetimes: {', '.join(rep)}" if (tz is not None and tz != 'float') else f"datetimes: {', '.join(rep)}"
+        rep = (
+            f"local datetimes: {', '.join(rep)}"
+            if (tz is not None and tz != 'float')
+            else f"datetimes: {', '.join(rep)}"
+        )
         if bad:
             rep += f"\nincomplete or invalid datetimes:  {', '.join(bad)}"
         return obj, rep
@@ -1610,7 +1785,7 @@ item_hsh:    {self.item_hsh}
         for arg in args:
             if not arg:
                 continue
-            obj, rep  = self.do_completion(arg)
+            obj, rep = self.do_completion(arg)
             if isinstance(obj, Period):
                 obj_lst.append(obj)
                 rep_lst.append(rep)
@@ -1618,14 +1793,12 @@ item_hsh:    {self.item_hsh}
                 all_ok = False
                 bad_lst.append(arg)
 
-
         obj = obj_lst if all_ok else None
         rep = f"periods: {', '.join(rep_lst)}"
         if bad_lst:
             rep += f"\nincomplete or invalid completions: {', '.join(bad_lst)}"
 
         return obj, rep
-
 
     def do_completion(self, arg):
         # obj = None
@@ -1636,12 +1809,11 @@ item_hsh:    {self.item_hsh}
         if len(parts) > 1:
             start_dt, end_dt = parts[:2]
             obj = Period(start_dt, end_dt)
-            rep = f"{format_datetime(start_dt, short=True)[1]} -> {format_datetime(end_dt, short=True)[1]}"
+            rep = f'{format_datetime(start_dt, short=True)[1]} -> {format_datetime(end_dt, short=True)[1]}'
         else:
             obj = None
-            rep = f"\nincomplete or invalid completion: {arg}"
+            rep = f'\nincomplete or invalid completion: {arg}'
         return obj, rep
-
 
     def do_timezone(self, arg=None):
         """
@@ -1668,13 +1840,13 @@ item_hsh:    {self.item_hsh}
             obj = rep = arg
         elif not arg.strip():
             obj = None
-            rep = ""
+            rep = ''
         else:
             try:
                 Timezone(arg)
                 obj = rep = arg
                 self.item_hsh['z'] = obj
-                rep = f"timezone: {obj}"
+                rep = f'timezone: {obj}'
             except:
                 obj = None
                 rep = f"incomplete or invalid timezone: '{arg}'"
@@ -1693,6 +1865,7 @@ def listdiff(old_lst, new_lst):
     removed = [x for x in old_lst if x not in new_lst]
     changed = [x for x in new_lst if x not in old_lst]
     return removed, changed
+
 
 def is_duplicate(import_hsh, existing_hsh, ignore=[]):
     """
@@ -1714,7 +1887,8 @@ def is_duplicate(import_hsh, existing_hsh, ignore=[]):
 
 
 def completion_evaluator(s):
-    return f"got {s}"
+    return f'got {s}'
+
 
 def datetime_calculator(s):
     """
@@ -1741,8 +1915,10 @@ def datetime_calculator(s):
     period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmMy])+\s*$)')
 
     ampm = settings.get('ampm', True)
-    wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
-    datetime_fmt = f"{wkday_fmt} %Y %I:%M%p %Z" if ampm else f"{wkday_fmt} %Y %H:%M %Z"
+    wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
+    datetime_fmt = (
+        f'{wkday_fmt} %Y %I:%M%p %Z' if ampm else f'{wkday_fmt} %Y %H:%M %Z'
+    )
     m = date_calc_regex.match(s)
     if not m:
         return f'Could not parse "{s}"'
@@ -1763,7 +1939,7 @@ def datetime_calculator(s):
         if not ok:
             return f"error: could not parse '{x}'"
         dt_x = date_to_datetime(dt_x)
-        pmy = f"{pm}{y}"
+        pmy = f'{pm}{y}'
         if period_string_regex.match(y):
             ok, dur = parse_duration(pmy)
             if not ok:
@@ -1788,6 +1964,7 @@ def datetime_calculator(s):
     except ValueError:
         return f'error parsing "{s}"'
 
+
 def duration_in_words(obj):
     """
     Return string representing weeks, days, hours and minutes. Drop any remaining seconds.
@@ -1798,11 +1975,11 @@ def duration_in_words(obj):
     if not isinstance(obj, timedelta):
         return None
     try:
-        until =[]
+        until = []
         seconds = int(obj.total_seconds())
         weeks = days = hours = minutes = 0
         if seconds:
-            sign = "" if seconds > 0 else "- "
+            sign = '' if seconds > 0 else '- '
             minutes = abs(seconds) // 60
             if minutes >= 60:
                 hours = minutes // 60
@@ -1815,27 +1992,27 @@ def duration_in_words(obj):
                 days = days % 7
         if weeks:
             if weeks > 1:
-                until.append(f"{sign}{weeks} weeks")
+                until.append(f'{sign}{weeks} weeks')
             else:
-                until.append(f"{sign}{weeks} week")
+                until.append(f'{sign}{weeks} week')
         if days:
             if days > 1:
-                until.append(f"{sign}{days} days")
+                until.append(f'{sign}{days} days')
             else:
-                until.append(f"{sign}{days} day")
+                until.append(f'{sign}{days} day')
         if hours:
             if hours > 1:
-                until.append(f"{sign}{hours} hours")
+                until.append(f'{sign}{hours} hours')
             else:
-                until.append(f"{sign}{hours} hour")
+                until.append(f'{sign}{hours} hour')
         if minutes:
             if minutes > 1:
-                until.append(f"{sign}{minutes} minutes")
+                until.append(f'{sign}{minutes} minutes')
             else:
-                until.append(f"{sign}{minutes} minute")
+                until.append(f'{sign}{minutes} minute')
         if not until:
-            until.append("zero minutes")
-        return " ".join(until)
+            until.append('zero minutes')
+        return ' '.join(until)
     except Exception as e:
         return None
 
@@ -1875,7 +2052,7 @@ def parse_datetime(s: str, z: str = None):
     ('local', DateTime(2019, 3, 24, 17, 0, 0, tzinfo=Timezone('America/New_York')), None)
     """
 
-    filterwarnings("error")
+    filterwarnings('error')
     if z in ['local', None]:
         tzinfo = 'local'
         ok = 'local'
@@ -1897,7 +2074,7 @@ def parse_datetime(s: str, z: str = None):
         dt_str = ''
         dur_str = ''
         dt_and_dur_regex = re.compile(r'^(.+)\s+([+-].+)?$')
-        days_or_more_regex = re.compile(r'[dwM]') #FIXME: USED?
+        days_or_more_regex = re.compile(r'[dwM]')   # FIXME: USED?
         g = dt_and_dur_regex.match(s)
         if g:
             # we have dt and dur strings
@@ -1911,7 +2088,11 @@ def parse_datetime(s: str, z: str = None):
             dt_str = s
 
         if dt_str:
-            dt = datetime.now().astimezone() if dt_str.strip() == 'now' else parse(dt_str, tzinfo=tzinfo)
+            dt = (
+                datetime.now().astimezone()
+                if dt_str.strip() == 'now'
+                else parse(dt_str, tzinfo=tzinfo)
+            )
         else:
             dt = datetime.now().astimezone()
             if dur_str and re.search(r'[dwM]', dur_str):
@@ -1934,6 +2115,7 @@ def parse_datetime(s: str, z: str = None):
             return ok, res.astimezone(None), z
         else:
             return ok, res.astimezone(), z
+
 
 def timestamp(arg):
     """
@@ -1963,8 +2145,13 @@ def plain_datetime(obj):
 
 def format_time(obj):
     ampm = settings.get('ampm', True)
-    hourminutes = obj.strftime("%I:%M%p").lstrip("0").lower() if ampm else obj.strftime("%H:%M")
+    hourminutes = (
+        obj.strftime('%I:%M%p').lstrip('0').lower()
+        if ampm
+        else obj.strftime('%H:%M')
+    )
     return True, hourminutes
+
 
 def fivechar_datetime(obj):
     """
@@ -1977,13 +2164,13 @@ def fivechar_datetime(obj):
     """
     now = datetime.now().astimezone()
 
-    md_fmt = "%d/%m" if settings['dayfirst'] else "%m/%d"
-    ym_fmt = "%y.%m" if settings['yearfirst'] else f"%m.%y"
+    md_fmt = '%d/%m' if settings['dayfirst'] else '%m/%d'
+    ym_fmt = '%y.%m' if settings['yearfirst'] else f'%m.%y'
 
     if obj.year == now.year:
         if obj.month == now.month:
             if obj.day == now.day:
-                return obj.strftime("HH:mm")
+                return obj.strftime('HH:mm')
             else:
                 return obj.strftime(md_fmt)
         else:
@@ -1991,45 +2178,53 @@ def fivechar_datetime(obj):
     else:
         return obj.strftime(ym_fmt)
 
+
 def format_date(obj, year=True):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    day = obj.strftime("%d").lstrip('0')
-    md = f"{day}/%m" if dayfirst else f"%m/{day}"
+    day = obj.strftime('%d').lstrip('0')
+    md = f'{day}/%m' if dayfirst else f'%m/{day}'
     if year:
-        date_fmt = f"%y/{md}" if yearfirst else f"{md}/%y"
+        date_fmt = f'%y/{md}' if yearfirst else f'{md}/%y'
     else:
         date_fmt = md
 
     if type(obj) != date and type(obj) != datetime:
-        return False, ""
+        return False, ''
     else:
         return True, obj.strftime(date_fmt)
+
 
 def format_statustime(obj):
     width = shutil.get_terminal_size()[0]
     ampm = settings.get('ampm', True)
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    month = obj.strftime("%b")
-    day = obj.strftime("%d").lstrip("0")
-    hourminutes = obj.strftime("%I:%M%p").lstrip("0").lower() if ampm else obj.strftime("%H:%M")
+    month = obj.strftime('%b')
+    day = obj.strftime('%d').lstrip('0')
+    hourminutes = (
+        obj.strftime('%I:%M%p').lstrip('0').lower()
+        if ampm
+        else obj.strftime('%H:%M')
+    )
     if width < 60:
-        weekday = ""
-        monthday = ""
+        weekday = ''
+        monthday = ''
     else:
         weekday = f' {obj.strftime("%a")}'
         monthday = f' {day} {month}' if dayfirst else f' {month} {day}'
-    return f"{hourminutes}{weekday}{monthday}"
+    return f'{hourminutes}{weekday}{monthday}'
+
 
 def format_wkday(obj):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    month = obj.strftime("%b")
-    day = obj.strftime("%d").lstrip("0")
-    weekday = obj.strftime("%a")
+    month = obj.strftime('%b')
+    day = obj.strftime('%d').lstrip('0')
+    weekday = obj.strftime('%a')
     monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
-    return f"{weekday} {monthday}"
+    return f'{weekday} {monthday}'
+
 
 def format_datetime(obj, short=False):
     """
@@ -2051,23 +2246,22 @@ def format_datetime(obj, short=False):
     ampm = settings.get('ampm', True)
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    monthday = obj.strftime("%d").lstrip('0')
-    md = f"{monthday}/%m" if dayfirst else f"%m/{monthday}"
+    monthday = obj.strftime('%d').lstrip('0')
+    md = f'{monthday}/%m' if dayfirst else f'%m/{monthday}'
     if short:
-        md = f"{monthday}/%m" if dayfirst else f"%m/{monthday}"
-        date_fmt = f"%y/{md}" if yearfirst else f"{md}/%y"
+        md = f'{monthday}/%m' if dayfirst else f'%m/{monthday}'
+        date_fmt = f'%y/{md}' if yearfirst else f'{md}/%y'
     else:
-        md = f"%a {monthday} %b" if dayfirst else f"%a %b {monthday}"
-        date_fmt = f"{md}, %Y" if yearfirst else f"{md} %Y"
+        md = f'%a {monthday} %b' if dayfirst else f'%a %b {monthday}'
+        date_fmt = f'{md}, %Y' if yearfirst else f'{md} %Y'
 
-    time_fmt = "%I:%M%p" if ampm else "%H:%M"
-
+    time_fmt = '%I:%M%p' if ampm else '%H:%M'
 
     if type(obj) == date:
         return True, obj.strftime(date_fmt)
 
     if not isinstance(obj, datetime):
-        return False, f"Error: {e}"
+        return False, f'Error: {e}'
 
     # we want all-day events to display as dates
     if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
@@ -2082,33 +2276,37 @@ def format_datetime(obj, short=False):
     else:
         # aware datetime
         obj = obj.astimezone()
-        if not short: time_fmt += " %Z"
-    res = obj.strftime(f"{date_fmt} {time_fmt}")
+        if not short:
+            time_fmt += ' %Z'
+    res = obj.strftime(f'{date_fmt} {time_fmt}')
     if ampm:
         res = res.replace('AM', 'am')
         res = res.replace('PM', 'pm')
     return True, res
 
+
 def format_period(obj):
     if not isinstance(obj, Period):
-        logger.error(f"error, expected Period but got: {obj}")
+        logger.error(f'error, expected Period but got: {obj}')
         return obj
     start = obj.start
     end = obj.end
-    return f"{format_datetime(start, short=True)[1]} -> {format_datetime(end, short=True)[1]}"
+    return f'{format_datetime(start, short=True)[1]} -> {format_datetime(end, short=True)[1]}'
+
 
 def format_period_list(obj_lst):
     if not isinstance(obj_lst, list):
         obj_lst = [obj_lst]
-    return ", ".join([format_period(x) for x in obj_lst])
+    return ', '.join([format_period(x) for x in obj_lst])
 
 
 def format_datetime_list(obj_lst):
-    return ", ".join([format_datetime(x)[1] for x in obj_lst])
+    return ', '.join([format_datetime(x)[1] for x in obj_lst])
 
 
 def plain_datetime_list(obj_lst):
-    return ", ".join([plain_datetime(x)[1] for x in obj_lst])
+    return ', '.join([plain_datetime(x)[1] for x in obj_lst])
+
 
 def format_hours_and_tenths(obj):
     """
@@ -2125,9 +2323,9 @@ def format_hours_and_tenths(obj):
     if seconds % 60:
         minutes += 1
     if minutes:
-        return f"{math.ceil(minutes/UT_MIN)/(60/UT_MIN)}h"
+        return f'{math.ceil(minutes/UT_MIN)/(60/UT_MIN)}h'
     else:
-        return "0.0h"
+        return '0.0h'
 
 
 def dt2minutes(obj):
@@ -2139,7 +2337,7 @@ def datetimes2busy(dta, dtb):
     ret = []
     beg_dt = dtb
     count = 0
-    while beg_dt < dta and count<5:
+    while beg_dt < dta and count < 5:
         count += 1
         by, bw, begin_day = beg_dt.isocalendar()
         begin_week = (by, bw)
@@ -2163,27 +2361,31 @@ def round_minutes(obj):
     else:
         return obj
 
+
 def usedminutes2bar(minutes):
     # leave room for indent and weekday
     # TODO: fix this?
     if not minutes:
-        return "", ""
+        return '', ''
     width = shutil.get_terminal_size()[0] - 3
     chars = width - 8
     # goal in hours to minutes
     used_minutes = int(minutes)
-    used_fmt = format_hours_and_tenths(used_minutes*ONEMIN).ljust(6, ' ').lstrip('+')
+    used_fmt = (
+        format_hours_and_tenths(used_minutes * ONEMIN)
+        .ljust(6, ' ')
+        .lstrip('+')
+    )
     if usedtime_hours:
         goal_minutes = int(usedtime_hours) * 60
-        numchars = math.ceil((used_minutes/goal_minutes)/(1/chars))
+        numchars = math.ceil((used_minutes / goal_minutes) / (1 / chars))
         if numchars <= chars:
-            bar = f"{numchars*BUSY}"
+            bar = f'{numchars*BUSY}'
         else:
-            bar = f"{(chars-6)*BUSY} {BUSY}"
+            bar = f'{(chars-6)*BUSY} {BUSY}'
         return used_fmt, bar
     else:
-        return used_fmt, ""
-
+        return used_fmt, ''
 
 
 def format_duration(obj, short=False):
@@ -2198,11 +2400,11 @@ def format_duration(obj, short=False):
         return None
     seconds = int(obj.total_seconds())
     if seconds == 0:
-        return " 0m"
-    sign = "+" if seconds > 0 else "-"
+        return ' 0m'
+    sign = '+' if seconds > 0 else '-'
     seconds = abs(seconds)
     try:
-        until =[]
+        until = []
         weeks = days = hours = minutes = 0
         if seconds:
             minutes = seconds // 60
@@ -2216,20 +2418,20 @@ def format_duration(obj, short=False):
                 weeks = days // 7
                 days = days % 7
         if weeks:
-            until.append(f"{weeks}w")
+            until.append(f'{weeks}w')
         if days:
-            until.append(f"{days}d")
+            until.append(f'{days}d')
         if hours:
-            until.append(f"{hours}h")
+            until.append(f'{hours}h')
         if minutes:
-            until.append(f"{minutes}m")
+            until.append(f'{minutes}m')
         if not until:
-            until.append("0m")
-        ret = "".join(until[:2]) if short else "".join(until)
+            until.append('0m')
+        ret = ''.join(until[:2]) if short else ''.join(until)
         return sign + ret
     except Exception as e:
-        logger.error(f"{obj}: {e}")
-        return ""
+        logger.error(f'{obj}: {e}')
+        return ''
 
 
 def status_duration(obj):
@@ -2241,19 +2443,19 @@ def status_duration(obj):
     td = obj if isinstance(obj, timedelta) else obj.diff
     total_seconds = int(td.total_seconds())
     if total_seconds < 60:
-        return "0m"
-    hours = total_seconds // (60*60)
-    minutes = (total_seconds % (60*60)) // 60
-    seconds = total_seconds - 60*60*hours - 60*minutes
-    until =[]
+        return '0m'
+    hours = total_seconds // (60 * 60)
+    minutes = (total_seconds % (60 * 60)) // 60
+    seconds = total_seconds - 60 * 60 * hours - 60 * minutes
+    until = []
     if hours > 0:
-        until.append(f"{hours}h")
+        until.append(f'{hours}h')
     if seconds and refresh_interval == 6:
-            until.append(f"{minutes}.{seconds//6}m")
+        until.append(f'{minutes}.{seconds//6}m')
     elif minutes:
-        until.append(f"{minutes}m")
+        until.append(f'{minutes}m')
 
-    return "".join(until)
+    return ''.join(until)
 
 
 def fmt_dur(obj):
@@ -2266,7 +2468,7 @@ def fmt_dur(obj):
     if not isinstance(obj, timedelta):
         return None
     try:
-        until =[]
+        until = []
         seconds = int(obj.total_seconds())
         weeks = days = hours = minutes = 0
         if seconds:
@@ -2281,33 +2483,33 @@ def fmt_dur(obj):
                 weeks = days // 7
                 days = days % 7
         if weeks:
-            until.append(f"{weeks}w")
+            until.append(f'{weeks}w')
         if days:
-            until.append(f"{days}d")
+            until.append(f'{days}d')
         if hours:
-            until.append(f"{hours}h")
+            until.append(f'{hours}h')
         if minutes:
-            until.append(f"{minutes}m")
+            until.append(f'{minutes}m')
         if not until:
-            until.append("0m")
-        ret = "".join(until)
-        return "".join(until)
+            until.append('0m')
+        ret = ''.join(until)
+        return ''.join(until)
     except Exception as e:
         return None
 
 
 def fmt_period(obj):
     if not isinstance(obj, Period):
-        return "not a period"
+        return 'not a period'
     start = obj.start
     end = obj.end
     until = []
     weeks = days = hours = minutes = 0
     if start > end:
-        sign = "+"
+        sign = '+'
         diff = start - end
     elif start < end:
-        sign = "-"
+        sign = '-'
         diff = end - start
     else:
         diff = ZERO
@@ -2321,27 +2523,31 @@ def fmt_period(obj):
         until.append(sign)
     tmp = []
     if weeks:
-        until.append(f"{weeks}w")
+        until.append(f'{weeks}w')
     if days:
-        until.append(f"{days}d")
+        until.append(f'{days}d')
     if hours and not weeks:
-        until.append(f"{hours}h")
+        until.append(f'{hours}h')
     if minutes and not weeks and not days:
-        until.append(f"{minutes}m")
-    return "".join(until)
+        until.append(f'{minutes}m')
+    return ''.join(until)
 
 
 def format_duration_list(obj_lst):
     try:
-        return ", ".join([format_duration(x) for x in obj_lst])
+        return ', '.join([format_duration(x) for x in obj_lst])
     except Exception as e:
-        logger.error(f"{obj_lst}: {e}")
+        logger.error(f'{obj_lst}: {e}')
 
 
 period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
-expanded_period_regex = re.compile(r'(([+-]?)(\d+)\s(week|day|hour|minute)s?)+?')
+expanded_period_regex = re.compile(
+    r'(([+-]?)(\d+)\s(week|day|hour|minute)s?)+?'
+)
 relative_regex = re.compile(r'(([+-])(\d+)([wdhmMys]))+?')
-threeday_regex = re.compile(r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
+threeday_regex = re.compile(
+    r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE
+)
 anniversary_regex = re.compile(r'!(\d{4})!')
 
 
@@ -2359,7 +2565,6 @@ def parse_durations(s):
         return False, bad
     else:
         return True, total
-
 
 
 def parse_duration(s):
@@ -2391,26 +2596,26 @@ def parse_duration(s):
     """
 
     knms = {
-            'w': 'weeks',
-            'week': 'weeks',
-            'weeks': 'weeks',
-            'd': 'days',
-            'day': 'days',
-            'days': 'days',
-            'h': 'hours',
-            'hour': 'hours',
-            'hours': 'hours',
-            'm': 'minutes',
-            'minute': 'minutes',
-            'minutes': 'minutes',
-            }
+        'w': 'weeks',
+        'week': 'weeks',
+        'weeks': 'weeks',
+        'd': 'days',
+        'day': 'days',
+        'days': 'days',
+        'h': 'hours',
+        'hour': 'hours',
+        'hours': 'hours',
+        'm': 'minutes',
+        'minute': 'minutes',
+        'minutes': 'minutes',
+    }
 
     kwds = {
-            'weeks': 0,
-            'days': 0,
-            'hours': 0,
-            'minutes': 0,
-            }
+        'weeks': 0,
+        'days': 0,
+        'hours': 0,
+        'minutes': 0,
+    }
 
     m = period_regex.findall(str(s))
     if not m:
@@ -2419,7 +2624,7 @@ def parse_duration(s):
             return False, f"Invalid period string '{s}'"
     for g in m:
         if g[3] not in knms:
-            return False, f"invalid period argument: {g[3]}"
+            return False, f'invalid period argument: {g[3]}'
 
         num = -int(g[2]) if g[1] == '-' else int(g[2])
         if num:
@@ -2435,12 +2640,15 @@ windoz = sys_platform in ('Windows', 'Microsoft')
 
 from time import perf_counter as timer
 
+
 class TimeIt(object):
-    def __init__(self, label=""):
+    def __init__(self, label=''):
         self.loglevel = loglevel
         self.label = label
         if self.loglevel == 1:
-            msg = "timer {0} started; loglevel: {1}".format(self.label, self.loglevel)
+            msg = 'timer {0} started; loglevel: {1}'.format(
+                self.label, self.loglevel
+            )
             logger.debug(msg)
             self.start = timer()
 
@@ -2449,7 +2657,9 @@ class TimeIt(object):
             self.end = timer()
             self.secs = self.end - self.start
             self.msecs = self.secs * 1000  # millisecs
-            msg = "timer {0} stopped; elapsed time: {1} milliseconds".format(self.label, self.msecs)
+            msg = 'timer {0} stopped; elapsed time: {1} milliseconds'.format(
+                self.label, self.msecs
+            )
             logger.debug(msg)
 
 
@@ -2467,7 +2677,7 @@ class NDict(dict):
         self.row = 0
         self.row2id = {}
         self.output = []
-        self.flag_len = 4 # gkptp
+        self.flag_len = 4   # gkptp
 
     def __missing__(self, key):
         self[key] = NDict(compact=self.compact, width=self.width)
@@ -2477,13 +2687,19 @@ class NDict(dict):
         return self
 
     def leaf_detail(self, detail, depth):
-        dindent = NDict.tab * (depth + 1) * " "
+        dindent = NDict.tab * (depth + 1) * ' '
         paragraphs = detail.split('\n')
         ret = []
         for para in paragraphs:
-            ret.extend(textwrap.fill(para, initial_indent=dindent, subsequent_indent=dindent, width=self.width-NDict.tab*(depth-1)).split('\n'))
+            ret.extend(
+                textwrap.fill(
+                    para,
+                    initial_indent=dindent,
+                    subsequent_indent=dindent,
+                    width=self.width - NDict.tab * (depth - 1),
+                ).split('\n')
+            )
         return ret
-
 
     def add(self, tkeys, values=()):
         """
@@ -2499,26 +2715,28 @@ class NDict(dict):
         keys = tkeys.split(self.split_char)
         for j in range(len(keys)):
             key = keys[j]
-            keys_left = keys[j+1:]
+            keys_left = keys[j + 1 :]
             if not keys_left:
                 try:
                     self.setdefault(key, []).append(values)
                 except Exception as e:
-                    logger.warning(f"error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}")
+                    logger.warning(
+                        f'error adding key: {key}, values: {values}\n self: {self}; e: {repr(e)}'
+                    )
             if isinstance(self[key], dict):
                 self = self[key]
             elif keys_left:
-                self.setdefault("/".join(keys[j:]), []).append(values)
+                self.setdefault('/'.join(keys[j:]), []).append(values)
                 break
 
-    def as_tree(self, t={}, depth = 0, level=0):
-        """ return an indented tree """
+    def as_tree(self, t={}, depth=0, level=0):
+        """return an indented tree"""
         # self.width = shutil.get_terminal_size()[0] - 3
         for k in t.keys():
-            indent = NDict.tab * depth * " "
+            indent = NDict.tab * depth * ' '
             # replace any newlines in the title with spaces
             K = re.sub(' *\n+ *', ' ', k)
-            self.output.append(f"{indent}{K}")
+            self.output.append(f'{indent}{K}')
             self.row += 1
             depth += 1
             if level and depth > level:
@@ -2530,22 +2748,28 @@ class NDict(dict):
             else:
                 # we have a list of leaves
                 for leaf in t[k]:
-                    indent = NDict.tab * depth * " "
+                    indent = NDict.tab * depth * ' '
                     l_indent = len(indent)
                     # replace any newlines in the summary with spaces
                     leaf[0] = re.sub(' *\n+ *', ' ', leaf[0])
                     leaf[1] = re.sub(' *\n+ *', ' ', leaf[1])
                     flags = leaf[2].strip()
                     # flags = " ❘" + flags + "❘" if flags else ""
-                    flags = " " + flags if flags else ""
+                    flags = ' ' + flags if flags else ''
                     rhc = leaf[3].strip()
-                    rhc = f"{rhc}  " if rhc else ""
-                    summary_width = self.width - l_indent - 2 - len(flags)-len(rhc)
-                    summary = leaf[1][:summary_width - 1] + ELLIPSiS_CHAR if len(leaf[1]) >= summary_width else leaf[1]
+                    rhc = f'{rhc}  ' if rhc else ''
+                    summary_width = (
+                        self.width - l_indent - 2 - len(flags) - len(rhc)
+                    )
+                    summary = (
+                        leaf[1][: summary_width - 1] + ELLIPSiS_CHAR
+                        if len(leaf[1]) >= summary_width
+                        else leaf[1]
+                    )
                     if self.compact:
-                        tmp = f"{indent}{leaf[0]} {rhc}{summary}{flags}"
+                        tmp = f'{indent}{leaf[0]} {rhc}{summary}{flags}'
                     else:
-                        tmp = f"{indent}{leaf[0]} {rhc}{summary}{flags}"
+                        tmp = f'{indent}{leaf[0]} {rhc}{summary}{flags}'
 
                     self.output.append(tmp)
                     self.row2id[self.row] = leaf[4]
@@ -2556,11 +2780,10 @@ class NDict(dict):
                             self.output.append(line)
                             self.row += 1
             depth -= 1
-        return "\n".join(self.output), self.row2id
+        return '\n'.join(self.output), self.row2id
 
 
 class DataView(object):
-
     def __init__(self, etmdir):
         timer_database = TimeIt('***DATABASE***')
         self.active_item = None
@@ -2576,20 +2799,20 @@ class DataView(object):
         self.pinned_list = []
         self.repeat_list = []
         self.current_row = 0
-        self.agenda_view = ""
-        self.done_view = ""
-        self.engaged_view = ""
-        self.busy_view = ""
-        self.calendar_view = ""
-        self.query_view = ""
-        self.query_text = ""
+        self.agenda_view = ''
+        self.done_view = ''
+        self.engaged_view = ''
+        self.busy_view = ''
+        self.calendar_view = ''
+        self.query_view = ''
+        self.query_text = ''
         self.query_items = []
-        self.query_mode = "items table"
-        self.report_view = ""
-        self.report_text = ""
+        self.query_mode = 'items table'
+        self.report_view = ''
+        self.report_text = ''
         self.report_items = []
         self.cal_locale = None
-        self.history_view = ""
+        self.history_view = ''
         self.cache = {}
         self.itemcache = {}
         self.current_hsh = {}
@@ -2602,7 +2825,7 @@ class DataView(object):
         self.konnections_from = {}
         self.konnections_to = {}
         self.konnected = []
-        self.calculator_expression = ""
+        self.calculator_expression = ''
 
         # for repeating tasks with jobs - only one can be active
         # self.active_tasks = [] # ids of repeating tasks with jobs
@@ -2623,26 +2846,26 @@ class DataView(object):
 
         self.set_etmdir(etmdir)
         self.views = {
-                'a': 'agenda',
-                'b': 'busy',
-                'c': 'completed',
-                'd': 'do next',
-                'e': 'engaged',
-                'f': 'forthcoming',
-                'h': 'history',
-                'i': 'index',
-                'k': 'konnected',
-                'l': 'location',
-                'm': 'timers',
-                'p': 'pinned',
-                'q': 'query',
-                'j': 'journal',
-                't': 'tags',
-                'u': 'used time',
-                'r': 'review',
-                'U': 'used summary',
-                'y': 'yearly',
-                }
+            'a': 'agenda',
+            'b': 'busy',
+            'c': 'completed',
+            'd': 'do next',
+            'e': 'engaged',
+            'f': 'forthcoming',
+            'h': 'history',
+            'i': 'index',
+            'k': 'konnected',
+            'l': 'location',
+            'm': 'timers',
+            'p': 'pinned',
+            'q': 'query',
+            'j': 'journal',
+            't': 'tags',
+            'u': 'used time',
+            'r': 'review',
+            'U': 'used summary',
+            'y': 'yearly',
+        }
 
         self.completion_keys = ['c', 'g', 'i', 'k', 'l', 'n', 't']
         self.edit_item = None
@@ -2652,8 +2875,8 @@ class DataView(object):
         # self.is_showing_entry = False
         self.hide_choice()
         self.hide_entry()
-        self.entry_content = ""
-        self.details_key_press = ""
+        self.entry_content = ''
+        self.details_key_press = ''
         self.is_showing_query = False
         self.is_showing_help = False
         self.is_editing = False
@@ -2692,11 +2915,16 @@ class DataView(object):
         self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
         self.settings = settings
         # if 'keep_current' in self.settings and self.settings['keep_current']:
-        if 'keep_current' in self.settings and self.settings['keep_current'][0]:
+        if (
+            'keep_current' in self.settings
+            and self.settings['keep_current'][0]
+        ):
             # weeks is not zero
             self.mk_current = True
             self.mk_next = True
-            self.currfile = os.path.normpath(os.path.join(etmdir, 'current.txt'))
+            self.currfile = os.path.normpath(
+                os.path.join(etmdir, 'current.txt')
+            )
             self.nextfile = os.path.normpath(os.path.join(etmdir, 'next.txt'))
         else:
             self.mk_current = False
@@ -2709,10 +2937,12 @@ class DataView(object):
             # locale_str should have the format "en_US"
             if locale_str:
                 try:
-                    locale.setlocale(locale.LC_ALL, f"{locale_str}.UTF-8")
-                    self.cal_locale = [locale_str, "UTF-8"]
+                    locale.setlocale(locale.LC_ALL, f'{locale_str}.UTF-8')
+                    self.cal_locale = [locale_str, 'UTF-8']
                 except:
-                    logger.error(f"could not set python locale to {locale_str}.UTF-8")
+                    logger.error(
+                        f'could not set python locale to {locale_str}.UTF-8'
+                    )
                 else:
                     logger.info(f"Using python locale: '{locale_str}.UTF-8'")
 
@@ -2721,7 +2951,7 @@ class DataView(object):
                     # TODO: needs 2 char abbreviations
                     pass
                 except:
-                    logger.error(f"could not set locale to {tmp}")
+                    logger.error(f'could not set locale to {tmp}')
                 else:
                     logger.info(f"Using locale: '{tmp}'")
 
@@ -2729,19 +2959,21 @@ class DataView(object):
             try:
                 self.archive_after = int(self.settings['archive_after'])
             except Exception as e:
-                logger.error(f"An integer is required for archive_after - got {self.settings['archive_after']}. {e}")
+                logger.error(
+                    f"An integer is required for archive_after - got {self.settings['archive_after']}. {e}"
+                )
 
         self.db = DBITEM
         self.dbarch = DBARCH
-        logger.info(f"items: {len(DBITEM)}; archive: {len(DBARCH)}")
+        logger.info(f'items: {len(DBITEM)}; archive: {len(DBARCH)}')
         self.update_links()
 
     def use_archive(self):
-        self.query_mode = "archive table"
+        self.query_mode = 'archive table'
         self.db = DBARCH
 
     def use_items(self):
-        self.query_mode = "items table"
+        self.query_mode = 'items table'
         self.db = DBITEM
 
     def get_completions(self):
@@ -2752,35 +2984,38 @@ class DataView(object):
         self.completions = list(completions)
 
         for item in self.db:
-            found = {x: v for x, v in item.items() if x in self.completion_keys}
+            found = {
+                x: v for x, v in item.items() if x in self.completion_keys
+            }
 
             for x, v in found.items():
                 if isinstance(v, list):
-                    if x == "k":
+                    if x == 'k':
                         continue
                     for p in v:
-                        completions.add(f"@{x} {p}")
+                        completions.add(f'@{x} {p}')
                 else:
-                    completions.add(f"@{x} {v}")
-                    if x == "i":
+                    completions.add(f'@{x} {v}')
+                    if x == 'i':
                         # make a "k" completion for the "i" entry
                         i, t, s, d = (
-                            item["i"],
-                            item["itemtype"],
-                            item["summary"],
+                            item['i'],
+                            item['itemtype'],
+                            item['summary'],
                             item.doc_id,
                         )
-                        completions.add(f"@k {i} {t} {s}: {d}")
+                        completions.add(f'@k {i} {t} {s}: {d}')
         self.completions = list(completions)
         self.completions.sort()
-
 
     def update_konnections(self, item):
         """
         Only change relevant hashes
         """
         # the original @k entries
-        orig = self.konnections_from.get(item.doc_id, []) if item.doc_id else []
+        orig = (
+            self.konnections_from.get(item.doc_id, []) if item.doc_id else []
+        )
 
         # the new and valid @k entries
         # links = [x for x in item.item_hsh.get('k', []) if self.db.contains(doc_id = x)]
@@ -2808,9 +3043,10 @@ class DataView(object):
                 self.konnections_to[link].remove(item.doc_id)
 
         # now update konnected to reflect the changes
-        konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
+        konnected = [x for x in self.konnections_to] + [
+            x for x in self.konnections_from
+        ]
         self.konnected = list(set(konnected))
-
 
     def refreshKonnections(self):
         """
@@ -2839,82 +3075,99 @@ class DataView(object):
                 # append the to links
                 for link in links:
                     self.konnections_to.setdefault(link, []).append(item_id)
-        konnected = [x for x in self.konnections_to] + [x for x in self.konnections_from]
+        konnected = [x for x in self.konnections_to] + [
+            x for x in self.konnections_from
+        ]
         self.konnected = list(set(konnected))
-
 
     def handle_backups(self):
         removefiles = []
-        timestamp = datetime.now().astimezone(ZoneInfo('UTC')).strftime("%Y-%m-%d")
+        timestamp = (
+            datetime.now().astimezone(ZoneInfo('UTC')).strftime('%Y-%m-%d')
+        )
         filelist = os.listdir(self.backupdir)
         # deal with etm.json
         dbmtime = os.path.getctime(self.dbfile)
         zipfiles = [x for x in filelist if x.startswith('etm')]
         zipfiles.sort(reverse=True)
         if zipfiles:
-            lastdbtime = os.path.getctime(os.path.join(self.backupdir, zipfiles[0]))
+            lastdbtime = os.path.getctime(
+                os.path.join(self.backupdir, zipfiles[0])
+            )
         else:
             lastdbtime = None
 
         if lastdbtime is None or dbmtime > lastdbtime:
-            backupfile = os.path.join(self.backupdir, f"etm-{timestamp}.json")
-            zipfile = os.path.join(self.backupdir, f"etm-{timestamp}.zip")
+            backupfile = os.path.join(self.backupdir, f'etm-{timestamp}.json')
+            zipfile = os.path.join(self.backupdir, f'etm-{timestamp}.zip')
             shutil.copy2(self.dbfile, backupfile)
-            with ZipFile(zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6) as zip:
+            with ZipFile(
+                zipfile, 'w', compression=ZIP_DEFLATED, compresslevel=6
+            ) as zip:
                 zip.write(backupfile, os.path.basename(backupfile))
             os.remove(backupfile)
-            logger.info(f"backed up {self.dbfile} to {zipfile}")
-            zipfiles.insert(0, f"etm-{timestamp}.zip")
+            logger.info(f'backed up {self.dbfile} to {zipfile}')
+            zipfiles.insert(0, f'etm-{timestamp}.zip')
             zipfiles.sort(reverse=True)
         else:
-            logger.info(f"{self.dbfile} unchanged - skipping backup")
+            logger.info(f'{self.dbfile} unchanged - skipping backup')
 
-        removefiles.extend([os.path.join(self.backupdir, x) for x in zipfiles[7:]])
+        removefiles.extend(
+            [os.path.join(self.backupdir, x) for x in zipfiles[7:]]
+        )
 
         # deal with cfg.yaml
         cfgmtime = os.path.getctime(self.cfgfile)
         cfgfiles = [x for x in filelist if x.startswith('cfg')]
         cfgfiles.sort(reverse=True)
         if cfgfiles:
-            lastcfgtime = os.path.getctime(os.path.join(self.backupdir, cfgfiles[0]))
+            lastcfgtime = os.path.getctime(
+                os.path.join(self.backupdir, cfgfiles[0])
+            )
         else:
             lastcfgtime = None
         if lastcfgtime is None or cfgmtime > lastcfgtime:
-            backupfile = os.path.join(self.backupdir, f"cfg-{timestamp}.yaml")
+            backupfile = os.path.join(self.backupdir, f'cfg-{timestamp}.yaml')
             shutil.copy2(self.cfgfile, backupfile)
-            logger.info(f"backed up {self.cfgfile} to {backupfile}")
-            cfgfiles.insert(0, f"cfg-{timestamp}.yaml")
+            logger.info(f'backed up {self.cfgfile} to {backupfile}')
+            cfgfiles.insert(0, f'cfg-{timestamp}.yaml')
             cfgfiles.sort(reverse=True)
         else:
-            logger.info(f"{self.cfgfile} unchanged - skipping backup")
+            logger.info(f'{self.cfgfile} unchanged - skipping backup')
 
-        removefiles.extend([os.path.join(self.backupdir, x) for x in
-                cfgfiles[7:]])
+        removefiles.extend(
+            [os.path.join(self.backupdir, x) for x in cfgfiles[7:]]
+        )
 
         if os.path.exists(self.currfile):
             currtime = os.path.getctime(self.currfile)
             currfiles = [x for x in filelist if x.startswith('curr')]
             currfiles.sort(reverse=True)
             if currfiles:
-                lastcurrtime = os.path.getctime(os.path.join(self.backupdir, currfiles[0]))
+                lastcurrtime = os.path.getctime(
+                    os.path.join(self.backupdir, currfiles[0])
+                )
             else:
                 lastcurrtime = None
             if lastcurrtime is None or currtime > lastcfgtime:
-                backupfile = os.path.join(self.backupdir, f"curr-{timestamp}.txt")
+                backupfile = os.path.join(
+                    self.backupdir, f'curr-{timestamp}.txt'
+                )
                 shutil.copy2(self.currfile, backupfile)
-                logger.info(f"backed up {self.currfile} to {backupfile}")
-                currfiles.insert(0, f"curr-{timestamp}.yaml")
+                logger.info(f'backed up {self.currfile} to {backupfile}')
+                currfiles.insert(0, f'curr-{timestamp}.yaml')
                 currfiles.sort(reverse=True)
             else:
-                logger.info(f"{self.currfile} unchanged - skipping backup")
+                logger.info(f'{self.currfile} unchanged - skipping backup')
 
-        removefiles.extend([os.path.join(self.backupdir, x) for x in
-                    currfiles[7:]])
+        removefiles.extend(
+            [os.path.join(self.backupdir, x) for x in currfiles[7:]]
+        )
 
         # maybe delete older backups
         if removefiles:
-            filelist = "\n    ".join(removefiles)
-            logger.info(f"removing old files:\n    {filelist}")
+            filelist = '\n    '.join(removefiles)
+            logger.info(f'removing old files:\n    {filelist}')
             for f in removefiles:
                 os.remove(f)
 
@@ -2936,11 +3189,10 @@ class DataView(object):
                 self.saved_timers = timers
 
         elif os.path.exists(timers_file):
-            logger.debug(f"removing {timers_file}")
+            logger.debug(f'removing {timers_file}')
             os.remove(timers_file)
         # this return is necessary to avoid blocking event_handler
         return
-
 
     # bound to tt
     def toggle_active_timer(self, row=None):
@@ -2955,7 +3207,6 @@ class DataView(object):
             state = 'r'
         self.timers[self.active_timer] = [state, now, period]
         self.save_timers()
-
 
     # bound to T
     def next_timer_state(self, doc_id=None):
@@ -2984,7 +3235,7 @@ class DataView(object):
             del other_timers[doc_id]
         active = [x for x, v in other_timers.items() if v[0] in ['r', 'p']]
         if len(active) > 1:
-            logger.warning(f"more than one active timer: {active}")
+            logger.warning(f'more than one active timer: {active}')
         now = datetime.now().astimezone()
         if doc_id in self.timers:
             # there is already a timer for this item
@@ -2992,7 +3243,11 @@ class DataView(object):
                 # another timer is active - update time if needed and make inactive
                 for x in active:
                     active_state, active_start, active_period = self.timers[x]
-                    active_period = active_period + now - active_start if active_state == 'r' else active_period
+                    active_period = (
+                        active_period + now - active_start
+                        if active_state == 'r'
+                        else active_period
+                    )
                     self.timers[x] = ['i', now, active_period]
             state, start, period = self.timers[doc_id]
             if state == 'i':
@@ -3021,20 +3276,19 @@ class DataView(object):
         self.save_timers()
         return True, doc_id, active
 
-
     # for status bar report
     def timer_report(self):
         if not self.timers:
             return '', ''
-        active = inactive = status = ""
+        active = inactive = status = ''
         zero = timedelta()
         delta = zero
         if self.active_timer:
             status, started, elapsed = self.timers[self.active_timer]
             delta = datetime.now().astimezone() - started
-            if status == 'r': # running
+            if status == 'r':   # running
                 delta += elapsed
-            active = f"{status}:{status_duration(delta)}"
+            active = f'{status}:{status_duration(delta)}'
             # active = f"{status_duration(delta)}"
         if len(self.timers) > 1:
             timers = deepcopy(self.timers)
@@ -3045,13 +3299,11 @@ class DataView(object):
                 total = zero
                 for v in relevant:
                     total += v
-                inactive = f" i:{status_duration(total)}"
+                inactive = f' i:{status_duration(total)}'
         return active, inactive
-
 
     def unsaved_timers(self):
         return len(self.timers)
-
 
     def timer_clear(self, doc_id=None):
         if not doc_id:
@@ -3063,7 +3315,6 @@ class DataView(object):
         self.save_timers()
         self.show_active_view()
 
-
     def set_now(self):
         self.now = datetime.now().astimezone()
 
@@ -3074,10 +3325,9 @@ class DataView(object):
         self.current_row = None
         self.prior_view = self.active_view
         self.active_view = self.views.get(c, 'agenda')
-        logger.debug(f"setting active view {c}: {self.active_view}")
+        logger.debug(f'setting active view {c}: {self.active_view}')
         if self.active_view != 'query':
             self.use_items()
-
 
     def show_active_view(self):
         if self.active_view != 'query':
@@ -3101,69 +3351,111 @@ class DataView(object):
             return self.calendar_view
         if self.active_view == 'history':
             self.history_view, self.row2id = show_history(
-                    self.db, True,
-                    self.repeat_list,
-                    self.pinned_list,
-                    self.link_list,
-                    self.konnected,
-                    self.timers)
+                self.db,
+                True,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
             return self.history_view
         if self.active_view == 'timers':
             self.timers_view, self.row2id = show_timers(
-                    self.db,
-                    self.repeat_list,
-                    self.pinned_list,
-                    self.link_list,
-                    self.konnected,
-                    self.timers,
-                    self.active_timer)
+                self.db,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+                self.active_timer,
+            )
             return self.timers_view
         if self.active_view == 'forthcoming':
             self.forthcoming_view, self.row2id = show_forthcoming(
-                    self.db,
-                    self.id2relevant,
-                    self.repeat_list,
-                    self.pinned_list,
-                    self.link_list,
-                    self.konnected,
-                    self.timers)
+                self.db,
+                self.id2relevant,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
             return self.forthcoming_view
         if self.active_view == 'do next':
             self.next_view, self.row2id, self.next_txt = show_next(
-                    self.db,
-                    self.repeat_list,
-                    self.pinned_list,
-                    self.link_list,
-                    self.konnected,
-                    self.timers)
+                self.db,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
             return self.next_view
         if self.active_view == 'journal':
-            self.journal_view, self.row2id = show_journal(self.db, self.id2relevant, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers)
+            self.journal_view, self.row2id = show_journal(
+                self.db,
+                self.id2relevant,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
             return self.journal_view
         if self.active_view == 'tags':
-            self.tag_view, self.row2id = show_tags(self.db, self.id2relevant, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers)
+            self.tag_view, self.row2id = show_tags(
+                self.db,
+                self.id2relevant,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
             return self.tag_view
         if self.active_view == 'index':
-            self.index_view, self.row2id = show_index(self.db, self.id2relevant, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers)
+            self.index_view, self.row2id = show_index(
+                self.db,
+                self.id2relevant,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
             return self.index_view
         if self.active_view == 'location':
-            self.index_view, self.row2id = show_location(self.db, self.id2relevant, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers)
+            self.index_view, self.row2id = show_location(
+                self.db,
+                self.id2relevant,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
             return self.index_view
         if self.active_view == 'pinned':
             self.pinned_view, self.row2id = show_pinned(
-                    self.get_pinned(), # items for ids in list
-                    self.repeat_list,
-                    self.pinned_list,
-                    self.link_list,
-                    self.konnected,
-                    self.timers)
-            logger.debug(f"repeat: {self.repeat_list}, pinned: {self.pinned_list}, link: {self.link_list}, konnected: {self.konnected}")
+                self.get_pinned(),  # items for ids in list
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
+            logger.debug(
+                f'repeat: {self.repeat_list}, pinned: {self.pinned_list}, link: {self.link_list}, konnected: {self.konnected}'
+            )
             return self.pinned_view
         if self.active_view == 'used time':
             used_details = self.used_details.get(self.active_month)
             if not used_details:
-                month_format = datetime.strptime(self.active_month + "-01", "%Y-%m-%d").strftime("%B %Y")
-                return f"Nothing recorded for {month_format}"
+                month_format = datetime.strptime(
+                    self.active_month + '-01', '%Y-%m-%d'
+                ).strftime('%B %Y')
+                return f'Nothing recorded for {month_format}'
             self.used_view = used_details
             self.row2id = self.used_details2id.get(self.active_month)
             return self.used_view
@@ -3171,26 +3463,59 @@ class DataView(object):
             self.row2id = {}
             used_summary = self.used_summary.get(self.active_month)
             if not used_summary:
-                month_format = datetime.strptime(self.active_month + "-01", "%Y-%m-%d").strftime("%B %Y")
-                return f"Nothing recorded for {month_format}"
+                month_format = datetime.strptime(
+                    self.active_month + '-01', '%Y-%m-%d'
+                ).strftime('%B %Y')
+                return f'Nothing recorded for {month_format}'
             self.used_summary_view = used_summary
             return self.used_summary_view
         if self.active_view == 'review':
-            self.review_view, self.row2id = show_review(self.db, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers)
+            self.review_view, self.row2id = show_review(
+                self.db,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
             return self.review_view
         if self.active_view == 'konnected':
-            self.konnected_view, self.row2id = show_konnected(self.db, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers, self.active_item, self.konnections_from, self.konnections_to)
+            self.konnected_view, self.row2id = show_konnected(
+                self.db,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+                self.active_item,
+                self.konnections_from,
+                self.konnections_to,
+            )
             return self.konnected_view
         if self.active_view == 'query':
             if self.query_text:
-                if len(self.query_text) > 1 and self.query_text[1] == ' ' and self.query_text[0] in ['s', 'u', 'm', 'c']:
+                if (
+                    len(self.query_text) > 1
+                    and self.query_text[1] == ' '
+                    and self.query_text[0] in ['s', 'u', 'm', 'c']
+                ):
                     # complex query
-                    self.query_view, self.row2id = show_query_results(self.query_text, self.query_grpby, self.query_items)
+                    self.query_view, self.row2id = show_query_results(
+                        self.query_text, self.query_grpby, self.query_items
+                    )
                 else:
                     # standard query
-                    self.query_view, self.row2id = show_query_items(self.query_text, self.query_items, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers)
+                    self.query_view, self.row2id = show_query_items(
+                        self.query_text,
+                        self.query_items,
+                        self.repeat_list,
+                        self.pinned_list,
+                        self.link_list,
+                        self.konnected,
+                        self.timers,
+                    )
             else:
-                self.query_view = ""
+                self.query_view = ''
                 self.row2id = {}
 
             return self.query_view
@@ -3204,11 +3529,9 @@ class DataView(object):
         self.activeYrWk = nextWeek(self.activeYrWk)
         self.refreshAgenda()
 
-
     def prevYrWk(self):
         self.activeYrWk = prevWeek(self.activeYrWk)
         self.refreshAgenda()
-
 
     def currYrWk(self):
         """Set the active week to one containing today."""
@@ -3220,20 +3543,26 @@ class DataView(object):
         self.activeYrWk = getWeekNum(dt)
         self.refreshAgenda()
 
-
     def currMonth(self):
-        self.active_month = date.today().strftime("%Y-%m")
-
+        self.active_month = date.today().strftime('%Y-%m')
 
     def prevMonth(self):
-        dt = datetime.strptime(self.active_month + "-01", "%Y-%m-%d").astimezone() - DAY
-        self.active_month = dt.strftime("%Y-%m")
-
+        dt = (
+            datetime.strptime(
+                self.active_month + '-01', '%Y-%m-%d'
+            ).astimezone()
+            - DAY
+        )
+        self.active_month = dt.strftime('%Y-%m')
 
     def nextMonth(self):
-        dt = datetime.strptime(self.active_month + "-01", "%Y-%m-%d").astimezone() + 31 * DAY
-        self.active_month = dt.strftime("%Y-%m")
-
+        dt = (
+            datetime.strptime(
+                self.active_month + '-01', '%Y-%m-%d'
+            ).astimezone()
+            + 31 * DAY
+        )
+        self.active_month = dt.strftime('%Y-%m')
 
     def refreshRelevant(self):
         """
@@ -3243,18 +3572,45 @@ class DataView(object):
         self.currentYrWk = getWeekNum(self.now)
         dirty = True
         while dirty:
-            self.current, self.alerts, self.id2relevant, dirty = relevant(self.db, self.now, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers)
+            self.current, self.alerts, self.id2relevant, dirty = relevant(
+                self.db,
+                self.now,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
             if dirty:
                 self.refreshKonnections()
         self.refreshCache()
 
-
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
-            self.cache.update(schedule(self.db, yw=self.activeYrWk, current=self.current, now=self.now, repeat_list=self.repeat_list, pinned_list=self.pinned_list, link_list=self.link_list, konnected=self.konnected, timers=self.timers))
+            self.cache.update(
+                schedule(
+                    self.db,
+                    yw=self.activeYrWk,
+                    current=self.current,
+                    now=self.now,
+                    repeat_list=self.repeat_list,
+                    pinned_list=self.pinned_list,
+                    link_list=self.link_list,
+                    konnected=self.konnected,
+                    timers=self.timers,
+                )
+            )
         # agenda, done, busy, row2id, done2id
-        self.agenda_view, self.done_view, self.engaged_view, self.busy_view, self.row2id, self.done2id, self.engaged2id, self.busy_details = self.cache[self.activeYrWk]
-
+        (
+            self.agenda_view,
+            self.done_view,
+            self.engaged_view,
+            self.busy_view,
+            self.row2id,
+            self.done2id,
+            self.engaged2id,
+            self.busy_details,
+        ) = self.cache[self.activeYrWk]
 
     def refreshCurrent(self):
         """
@@ -3277,22 +3633,30 @@ class DataView(object):
                     # append the agenda component
                     curr_lines.append(current_hsh[week])
                 else:
-                    logger.debug(f"week {week} missing from cache")
+                    logger.debug(f'week {week} missing from cache')
             if curr_lines:
                 with open(self.currfile, 'w', encoding='utf-8') as fo:
-                    fo.write("\n\n".join([x.strip() for x in curr_lines]))
-                logger.info(f"saved {len(curr_lines)} weeks from current schedule to {self.currfile}")
+                    fo.write('\n\n'.join([x.strip() for x in curr_lines]))
+                logger.info(
+                    f'saved {len(curr_lines)} weeks from current schedule to {self.currfile}'
+                )
             else:
-                logger.info("current schedule empty - did not save")
+                logger.info('current schedule empty - did not save')
 
         if self.mk_next:
-            next_view, row2id, next_txt = show_next(self.db, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers)
+            next_view, row2id, next_txt = show_next(
+                self.db,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
             next_view = current_hsh['next'] if 'next' in current_hsh else None
             if next_txt:
                 with open(self.nextfile, 'w', encoding='utf-8') as fo:
                     fo.write(re.sub(LINEDOT, '   ', next_txt))
-                logger.info(f"saved do next to {self.nextfile}")
-
+                logger.info(f'saved do next to {self.nextfile}')
 
     def show_query(self):
         self.is_showing_query = True
@@ -3313,13 +3677,13 @@ class DataView(object):
     # def hide_confirmation(self):
     #     self.is_showing_confirmation = False
 
-        # def coroutine():
-        #     pass
+    # def coroutine():
+    #     pass
 
-        # self.got_choice = coroutine
+    # self.got_choice = coroutine
 
     def show_choice(self):
-        self.details_key_press = ""
+        self.details_key_press = ''
         self.is_showing_choice = True
 
     def hide_choice(self):
@@ -3337,11 +3701,11 @@ class DataView(object):
 
     def hide_entry(self):
         self.is_showing_entry = False
+
         def coroutine():
             pass
 
         self.got_entry = coroutine
-
 
     def get_row_details(self, row=None):
         if row is None:
@@ -3356,7 +3720,6 @@ class DataView(object):
             job = None
         return (item_id, instance, job)
 
-
     def get_arch_id(self, row=None, edit=False):
         res = self.get_row_details(row)
         if not (res and res[0]):
@@ -3365,7 +3728,6 @@ class DataView(object):
         item = self.db.get(doc_id=item_id)
         if 'doc_id' in item:
             return item['doc_id']
-
 
     def get_details(self, row=None, edit=False):
         res = self.get_row_details(row)
@@ -3381,11 +3743,10 @@ class DataView(object):
             return item_id, item_hsh
         return None, ''
 
-
     def toggle_pinned(self, row=None):
         res = self.get_row_details(row)
         if not (res and res[0]):
-            logger.debug(f"toggle_pinned no details for {row}")
+            logger.debug(f'toggle_pinned no details for {row}')
             return None, ''
         item_id = res[0]
         if item_id in self.pinned_list:
@@ -3394,14 +3755,12 @@ class DataView(object):
         else:
             self.pinned_list.append(item_id)
             act = 'pinned'
-        logger.debug(f"toggle_pinned for {item_id} to {act}")
-        logger.debug(f"pinned_list: {self.pinned_list}")
-        return f"{act} {item_id}"
-
+        logger.debug(f'toggle_pinned for {item_id} to {act}')
+        logger.debug(f'pinned_list: {self.pinned_list}')
+        return f'{act} {item_id}'
 
     def get_pinned(self):
         return [self.db.get(doc_id=x) for x in self.pinned_list if x]
-
 
     def get_goto(self, row=None):
         res = self.get_row_details(row)
@@ -3413,8 +3772,10 @@ class DataView(object):
         if goto:
             return True, goto
         else:
-            return False, f"The item\n   {item['itemtype']} {item['summary']}\n does not have an @g goto entry."
-
+            return (
+                False,
+                f"The item\n   {item['itemtype']} {item['summary']}\n does not have an @g goto entry.",
+            )
 
     def get_repetitions(self, row=None):
         """
@@ -3423,7 +3784,7 @@ class DataView(object):
         """
         num = self.settings['num_repetitions']
         res = self.get_row_details(row)
-        logger.debug(f"res: {res}")
+        logger.debug(f'res: {res}')
         if not res:
             return None, ''
         item_id = res[0]
@@ -3431,12 +3792,12 @@ class DataView(object):
 
         if not (item_id and item_id in self.id2relevant):
             return ''
-        showing = "Repetitions"
+        showing = 'Repetitions'
         item = DBITEM.get(doc_id=item_id)
         details = f"{item['itemtype']} {item['summary']}"
 
         if not ('s' in item and ('r' in item or '+' in item)):
-            return showing, "not a repeating item"
+            return showing, 'not a repeating item'
 
         if instance:
             relevant = instance
@@ -3446,22 +3807,25 @@ class DataView(object):
             if at_plus:
                 at_plus.sort()
                 relevant = min(relevant, date_to_datetime(at_plus[0]))
-        logger.debug(f"relevant: {relevant}")
-
+        logger.debug(f'relevant: {relevant}')
 
         # relevant = instance if instance else self.id2relevant.get(item_id)
-        showing =  "Repetitions"
+        showing = 'Repetitions'
         if not relevant:
-            return "Repetitons", details + "none"
-        pairs = [format_datetime(x[0])[1] for x in item_instances(item, relevant, num+1, False)]
+            return 'Repetitons', details + 'none'
+        pairs = [
+            format_datetime(x[0])[1]
+            for x in item_instances(item, relevant, num + 1, False)
+        ]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
-            showing = f"Next {num} repetitions"
+            showing = f'Next {num} repetitions'
             pairs = pairs[:num]
         else:
-            showing = f"Remaining repetitions"
-        return  showing, f"from {starting} for\n{details}:\n  " + "\n  ".join(pairs)
-
+            showing = f'Remaining repetitions'
+        return showing, f'from {starting} for\n{details}:\n  ' + '\n  '.join(
+            pairs
+        )
 
     def get_history(self, row=None):
         """
@@ -3475,40 +3839,42 @@ class DataView(object):
 
         if not (item_id and item_id in self.id2relevant):
             return ''
-        showing = "Completion History"
+        showing = 'Completion History'
         item = DBITEM.get(doc_id=item_id)
 
         if 'h' not in item and 'f' not in item:
-            return showing, "there is no history of completions"
+            return showing, 'there is no history of completions'
 
         relevant = self.id2relevant.get(item_id)
         res = []
         skip = item.get('o', 'k') == 's'
         if 'f' in item:
             per = item['f']
-            res.append((per.end, f" {fmt_period(per)}", FINISHED_CHAR))
+            res.append((per.end, f' {fmt_period(per)}', FINISHED_CHAR))
         for c in item.get('h', []):
             if skip and c.start == c.end + ONEMIN:
-                res.append((c.end, "", SKIPPED_CHAR))
+                res.append((c.end, '', SKIPPED_CHAR))
             else:
                 # due at 12am, change the effective due date to 12am of the following day
                 if c.end.hour == 0 and c.end.minute == 0:
                     per = Period(c.start, c.end + DAY)
                 else:
                     per = Period(c.start, c.end)
-                res.append((c.end, f" {fmt_period(per)}", FINISHED_CHAR))
-        res.sort() # datetime obj as first component
+                res.append((c.end, f' {fmt_period(per)}', FINISHED_CHAR))
+        res.sort()   # datetime obj as first component
         if len(res) > num:
-            showing = f"Completion History: last {num} of {len(res)}"
+            showing = f'Completion History: last {num} of {len(res)}'
             res = res[-num:]
         else:
-            showing = f"Completion History"
+            showing = f'Completion History'
         relevant = res[-1][0]
         details = f"{item['itemtype']} {item['summary']}"
 
-        pairs = [f"{x[2]} {format_datetime(x[0], short=True)[1]:<16}{x[1]:>8}" for x in res]
+        pairs = [
+            f'{x[2]} {format_datetime(x[0], short=True)[1]:<16}{x[1]:>8}'
+            for x in res
+        ]
         starting = format_datetime(relevant.date())[1]
-
 
         if skip:
             pss = f"""
@@ -3521,7 +3887,7 @@ followed (+) the due datetime is also
 shown when nonzero."""
 
         else:
-            pss  = f"""
+            pss = f"""
 
 {FINISHED_CHAR} indicates completed instances.
 Due datetimes are shown. The length of
@@ -3529,7 +3895,12 @@ time the completion preceded (-) or
 followed (+) the due datetime is also
 shown when nonzero."""
 
-        return  showing, f"through {starting} for\n{details}:\n\n  " + "\n  ".join(pairs) + pss
+        return (
+            showing,
+            f'through {starting} for\n{details}:\n\n  '
+            + '\n  '.join(pairs)
+            + pss,
+        )
 
     def touch(self, row):
         res = self.get_row_details(row)
@@ -3541,7 +3912,6 @@ shown when nonzero."""
         item_hsh['modified'] = datetime.now().astimezone()
         self.db.update(db_replace(item_hsh), doc_ids=[doc_id])
         return True
-
 
     def maybe_finish(self, row):
         """
@@ -3571,7 +3941,7 @@ shown when nonzero."""
             return False, 'no job_id but task has jobs', None, None, None
 
         due = self.id2relevant.get(item_id)
-        due_str = f"due: {format_datetime(due, short=True)[1]}" if due else ""
+        due_str = f'due: {format_datetime(due, short=True)[1]}' if due else ''
 
         if job_id:
             for job in item.get('j', []):
@@ -3579,24 +3949,64 @@ shown when nonzero."""
                     continue
                 elif job['status'] != '-':
                     # the requisite job_id is already finished or waiting
-                    return False, 'this job is either finished or waiting', None, None, None
+                    return (
+                        False,
+                        'this job is either finished or waiting',
+                        None,
+                        None,
+                        None,
+                    )
                 else:
                     # the requisite job_id and available
-                    return True, f"{job['status']} {job['summary']}\n{due_str}", item_id, job_id, due
+                    return (
+                        True,
+                        f"{job['status']} {job['summary']}\n{due_str}",
+                        item_id,
+                        job_id,
+                        due,
+                    )
             # couldn't find job_id
-            return False, f"bad job_id: {job_id}", None, None, None
+            return False, f'bad job_id: {job_id}', None, None, None
 
         # we have an unfinished task without jobs
-        return True, f"{item['itemtype']} {item['summary']}\n{due_str}", item_id, job_id, due
-
+        return (
+            True,
+            f"{item['itemtype']} {item['summary']}\n{due_str}",
+            item_id,
+            job_id,
+            due,
+        )
 
     def clearCache(self):
         self.cache = {}
 
-
     def refreshCache(self):
-        self.cache = schedule(ETMDB, self.currentYrWk, self.current, self.now, 5, 20, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers)
-        self.used_details, self.used_details2id, self.used_summary, self.effort_details = get_usedtime(self.db, self.repeat_list, self.pinned_list, self.link_list, self.konnected, self.timers)
+        self.cache = schedule(
+            ETMDB,
+            self.currentYrWk,
+            self.current,
+            self.now,
+            5,
+            20,
+            self.repeat_list,
+            self.pinned_list,
+            self.link_list,
+            self.konnected,
+            self.timers,
+        )
+        (
+            self.used_details,
+            self.used_details2id,
+            self.used_summary,
+            self.effort_details,
+        ) = get_usedtime(
+            self.db,
+            self.repeat_list,
+            self.pinned_list,
+            self.link_list,
+            self.konnected,
+            self.timers,
+        )
 
     def update_links(self):
         """
@@ -3626,7 +4036,9 @@ shown when nonzero."""
         using etm.json.
         """
         items_to_update = []
-        old_parent = {}       # doc_id of parent -> parent item for items with @o p entries
+        old_parent = (
+            {}
+        )       # doc_id of parent -> parent item for items with @o p entries
         possible_clones = []  # items with @k entries
         doc_ids = []
         for item in self.db:
@@ -3656,7 +4068,7 @@ shown when nonzero."""
                     changed = True
 
                 if 'h' in item:
-                # deal with old to new history format
+                    # deal with old to new history format
                     curr_hist = item.get('h', [])
                     new_hist = []
                     h_changed = False
@@ -3665,13 +4077,12 @@ shown when nonzero."""
                             new_hist.append(x)
                         else:
                             x = date_to_datetime(x)
-                            new_hist.append( Period(x, x) )
+                            new_hist.append(Period(x, x))
                             h_changed = True
 
                     if h_changed:
                         item['h'] = new_hist
                         changed = True
-
 
                 if 'j' in item:
                     j_changed = False
@@ -3693,14 +4104,15 @@ shown when nonzero."""
                 if changed:
                     items_to_update.append(item)
 
-
         if items_to_update:
             # backup db
             updated_items = []
             for item in items_to_update:
                 update_db(self.db, item.doc_id, item)
                 updated_items.append(item.doc_id)
-            logger.info(f"updated datetimes to periods for {len(updated_items)} items with these doc_ids:\n  {updated_items}")
+            logger.info(
+                f'updated datetimes to periods for {len(updated_items)} items with these doc_ids:\n  {updated_items}'
+            )
 
         items_to_update = []
         items_to_remove = []
@@ -3710,7 +4122,9 @@ shown when nonzero."""
             for link in item.get('k', []):
                 if link in doc_ids:
                     # the item corresponding to the link exists in the database
-                    if link in old_parent and item['summary'].startswith(old_parent[link]['summary']):
+                    if link in old_parent and item['summary'].startswith(
+                        old_parent[link]['summary']
+                    ):
                         # we have a clone - the summary of the clone begins with the summary from the possible parent
                         parent = old_parent[link]
                         if 'f' in item:
@@ -3719,7 +4133,9 @@ shown when nonzero."""
                                 completion = item['f']
                             else:
                                 start = date_to_datetime(item['f'])
-                                end = date_to_datetime(item.get('s', item['f']))
+                                end = date_to_datetime(
+                                    item.get('s', item['f'])
+                                )
                                 completion = Period(start, end)
                             parent.setdefault('h', []).append(completion)
                             items_to_update.append(parent)
@@ -3742,7 +4158,9 @@ shown when nonzero."""
             for item in items_to_update:
                 update_db(self.db, item.doc_id, item)
                 updated_items.append(item.doc_id)
-            logger.info(f"updated parents of clones for {len(updated_items)} items with these doc_ids:\n  {updated_items}")
+            logger.info(
+                f'updated parents of clones for {len(updated_items)} items with these doc_ids:\n  {updated_items}'
+            )
 
         if items_to_remove:
             # backup db
@@ -3750,8 +4168,9 @@ shown when nonzero."""
             for item in items_to_remove:
                 self.db.remove(doc_ids=[item.doc_id])
                 removed_ids.append(item.doc_id)
-            logger.info(f"removed clones for {len(removed_ids)} items with these doc_ids:\n  {removed_ids}")
-
+            logger.info(
+                f'removed clones for {len(removed_ids)} items with these doc_ids:\n  {removed_ids}'
+            )
 
     def possible_archive(self):
         """
@@ -3759,10 +4178,12 @@ shown when nonzero."""
         and repeating events with old @u entries. Do not collect journal.
         """
         if not self.archive_after:
-            logger.info(f"archive_after: {self.archive_after} - skipping archive")
+            logger.info(
+                f'archive_after: {self.archive_after} - skipping archive'
+            )
             return
         now = datetime.now().astimezone()
-        old = now.replace(year=now.year-self.archive_after)
+        old = now.replace(year=now.year - self.archive_after)
         rows = []
         for item in self.db:
             if item['itemtype'] == '%':
@@ -3844,19 +4265,19 @@ shown when nonzero."""
         archive_ids = [item.doc_id for item in rows]
         failed_ids = []
         rem_ids = []
-        logger.info(f"items to archive {len(archive_ids)}: {archive_ids}")
+        logger.info(f'items to archive {len(archive_ids)}: {archive_ids}')
         for item in rows:
             try:
                 self.dbarch.insert(item)
             except Exception as e:
-                failed_ids.append(f"{item.doc_id}; {e}")
+                failed_ids.append(f'{item.doc_id}; {e}')
             else:
                 self.db.remove(doc_ids=[item.doc_id])
                 rem_ids.append(item.doc_id)
         if rem_ids:
-            logger.info(f"archived doc_ids: {rem_ids}")
+            logger.info(f'archived doc_ids: {rem_ids}')
         if failed_ids:
-            logger.error(f"archive failed for doc_ids: {failed_ids}")
+            logger.error(f'archive failed for doc_ids: {failed_ids}')
         return rows
 
     def move_item(self, row=None):
@@ -3866,7 +4287,7 @@ shown when nonzero."""
         item_id = res[0]
         item = self.db.get(doc_id=item_id)
         try:
-            if self.query_mode == "items table":
+            if self.query_mode == 'items table':
                 # move to archive
                 DBARCH.insert(item)
                 DBITEM.remove(doc_ids=[item_id])
@@ -3875,7 +4296,9 @@ shown when nonzero."""
                 DBITEM.insert(item)
                 DBARCH.remove(doc_ids=[item_id])
         except Exception as e:
-            logger.error(f"move from {self.query_mode} failed for item_id: {item_id}; exception: {e}")
+            logger.error(
+                f'move from {self.query_mode} failed for item_id: {item_id}; exception: {e}'
+            )
             return False
         return True
 
@@ -3883,7 +4306,9 @@ shown when nonzero."""
         item = DBITEM.get(doc_id=doc_id)
         attendees = item.get('n', None)
         if not attendees:
-            logger.error(f"@n (attendees) are not specified in {item}. send_mail aborted.")
+            logger.error(
+                f'@n (attendees) are not specified in {item}. send_mail aborted.'
+            )
             return
         # attendees can have the form "abbrev: emailaddress". Split on the colon and keep the emailaddress.
         addresses = [x.split(':')[-1].strip() for x in attendees]
@@ -3894,22 +4319,33 @@ shown when nonzero."""
         smtp_pw = smtp.get('pw', None)
         smtp_server = smtp.get('server', None)
         smtp_body = smtp.get('body', None)
-        if not (smtp_from and smtp_id and smtp_pw and smtp_server and smtp_body):
-            logger.error(f"Bad or missing stmp settings in the cfg.json smtp entry: {smtp}. send_mail aborted")
+        if not (
+            smtp_from and smtp_id and smtp_pw and smtp_server and smtp_body
+        ):
+            logger.error(
+                f'Bad or missing stmp settings in the cfg.json smtp entry: {smtp}. send_mail aborted'
+            )
             return
-        startdt = item.get('s', "")
-        when = startdt.diff_for_humans() if startdt else ""
-        start = format_datetime(startdt)[1] if startdt else ""
-        summary = item.get('summary', "")
-        location = item.get('l', "")
-        description = item.get('d', "")
-        message = smtp_body.format(start=start, when=when, summary=summary, location=location, description=description)
+        startdt = item.get('s', '')
+        when = startdt.diff_for_humans() if startdt else ''
+        start = format_datetime(startdt)[1] if startdt else ''
+        summary = item.get('summary', '')
+        location = item.get('l', '')
+        description = item.get('d', '')
+        message = smtp_body.format(
+            start=start,
+            when=when,
+            summary=summary,
+            location=location,
+            description=description,
+        )
 
         # All the necessary ingredients are in place
         import smtplib
         from email.mime.multipart import MIMEMultipart
         from email.mime.text import MIMEText
         from email.utils import COMMASPACE, formatdate
+
         assert type(email_addresses) == list
         msg = MIMEMultipart()
         msg['From'] = smtp_from
@@ -3922,18 +4358,18 @@ shown when nonzero."""
         smtp.sendmail(smtp_from, attendees, msg.as_string())
         smtp.close()
 
-
     def send_text(self, doc_id):
         item = DBITEM.get(doc_id=doc_id)
         attendees = item.get('n', None)
         if not attendees:
-            logger.error(f"@n (attendees) are not specified in {item}. send_text aborted.")
+            logger.error(
+                f'@n (attendees) are not specified in {item}. send_text aborted.'
+            )
             return
         addresses = [x.split(':')[-1].strip() for x in attendees]
         phone_numbers = [x for x in addresses if PHONE_REGEX.match(x)]
 
         from email.utils import COMMASPACE
-
 
         sms = self.settings['sms']
         sms_from = sms.get('from', None)
@@ -3943,29 +4379,37 @@ shown when nonzero."""
         sms_server = sms.get('server', None)
         sms_body = sms.get('body', None)
         if not (sms_from and sms_phone and sms_pw and sms_server and sms_body):
-            logger.error(f"Bad or missing smx settings in the cfg.json sms entry: {sms}. send_text aborted.")
+            logger.error(
+                f'Bad or missing smx settings in the cfg.json sms entry: {sms}. send_text aborted.'
+            )
             return
-        startdt = item.get('s', "")
-        when = duration_in_words(startdt) if startdt else ""
-        start = format_datetime(startdt)[1] if startdt else ""
-        summary = item.get('summary', "")
-        location = item.get('l', "")
-        description = item.get('d', "")
-        message = sms_body.format(start=start, when=when, summary=summary, location=location, description=description)
+        startdt = item.get('s', '')
+        when = duration_in_words(startdt) if startdt else ''
+        start = format_datetime(startdt)[1] if startdt else ''
+        summary = item.get('summary', '')
+        location = item.get('l', '')
+        description = item.get('d', '')
+        message = sms_body.format(
+            start=start,
+            when=when,
+            summary=summary,
+            location=location,
+            description=description,
+        )
 
         # All the necessary ingredients are in place
         import smtplib
         from email.mime.text import MIMEText
+
         sms = smtplib.SMTP(sms_server)
         sms.starttls()
         sms.login(sms_from, sms_pw)
         msg = MIMEText(message)
-        msg["From"] = sms_from
-        msg["Subject"] = summary
+        msg['From'] = sms_from
+        msg['Subject'] = summary
         msg['To'] = sms_phone
         sms.sendmail(sms_from, sms_phone, msg.as_string())
         sms.quit()
-
 
     def refreshCalendar(self):
         """
@@ -3980,63 +4424,60 @@ shown when nonzero."""
         try:
             c = calendar.LocaleTextCalendar(0, self.cal_locale)
         except:
-            logger.warning(f"error using locale {self.cal_locale}")
+            logger.warning(f'error using locale {self.cal_locale}')
             c = calendar.LocaleTextCalendar(0)
         cal = []
         m = 0
         m += 12 * self.calAdv
         y += m // 12
         m %= 12
-        for i in range(12): # months in the year
-            cal.append(c.formatmonth(y, 1+i, w=2).split('\n'))
+        for i in range(12):   # months in the year
+            cal.append(c.formatmonth(y, 1 + i, w=2).split('\n'))
         ret = ['']
         for r in range(0, 12, columns):  # 12 months in columns months
             if columns == 3:
-                l = max(len(cal[r]), len(cal[r + 1]), len(cal[r+2]))
+                l = max(len(cal[r]), len(cal[r + 1]), len(cal[r + 2]))
             else:
                 l = max(len(cal[r]), len(cal[r + 1]))
 
             for i in range(columns):
                 if len(cal[r + i]) < l:
-                    for _ in range(len(cal[r + i]), l + (columns-1)):
+                    for _ in range(len(cal[r + i]), l + (columns - 1)):
                         cal[r + i].append('')
             for j in range(l):  # rows from each of the 2 months
                 if columns == 3:
-                    ret.append((u'%-20s   %-20s   %-20s ' % (
-                        cal[r][j],
-                        cal[r + 1][j],
-                        cal[r + 2][j]))
+                    ret.append(
+                        (
+                            '%-20s   %-20s   %-20s '
+                            % (cal[r][j], cal[r + 1][j], cal[r + 2][j])
                         )
+                    )
                 else:
-                    ret.append((u'%-20s   %-20s ' % (
-                        cal[r][j],
-                        cal[r + 1][j]))
-                        )
+                    ret.append(('%-20s   %-20s ' % (cal[r][j], cal[r + 1][j])))
         max_len = max([len(line) for line in ret])
-        indent = max(width - max_len, 0)//2 * " "
-        ret_lines = [f"{indent}{line}" for line in ret]
-        ret_str = "\n".join(ret_lines)
+        indent = max(width - max_len, 0) // 2 * ' '
+        ret_lines = [f'{indent}{line}' for line in ret]
+        ret_str = '\n'.join(ret_lines)
         self.calendar_view = ret_str
-
 
     def nextcal(self):
         self.calAdv += 1
         self.refreshCalendar()
 
-
     def prevcal(self):
         self.calAdv -= 1
         self.refreshCalendar()
-
 
     def currcal(self):
         self.calAdv = date.today().month // 13
         self.refreshCalendar()
 
-def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
+
+def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
     return txt
 
-def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
+
+def wrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
     """
     Wrap text to terminal width using indent spaces before each line.
     >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
@@ -4058,21 +4499,30 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0]-3):
             initial_indent = ''
             first = False
         else:
-            initial_indent = ' '*indent
-        tmp.append(textwrap.fill(p, initial_indent=initial_indent, subsequent_indent=' '*indent, width=width-indent-1))
-    return "\n".join(tmp)
+            initial_indent = ' ' * indent
+        tmp.append(
+            textwrap.fill(
+                p,
+                initial_indent=initial_indent,
+                subsequent_indent=' ' * indent,
+                width=width - indent - 1,
+            )
+        )
+    return '\n'.join(tmp)
 
 
 def set_summary(summary='', start=None, relevant=None, freq=''):
-    """
-
-    """
-    if not ('{XXX}' in summary and
-            isinstance(start, date) and
-            isinstance(relevant, date) and
-            freq in ['y', 'm', 'w', 'd']):
+    """ """
+    if not (
+        '{XXX}' in summary
+        and isinstance(start, date)
+        and isinstance(relevant, date)
+        and freq in ['y', 'm', 'w', 'd']
+    ):
         return summary
-    relevant_date = relevant.date() if isinstance(relevant, datetime) else relevant
+    relevant_date = (
+        relevant.date() if isinstance(relevant, datetime) else relevant
+    )
     start_date = start.date() if isinstance(start, datetime) else start
     diff = relevant_date - start_date
     replacement = 0
@@ -4081,13 +4531,14 @@ def set_summary(summary='', start=None, relevant=None, freq=''):
     elif freq == 'm':
         years = relevant_date.year - start_date.year
         months = relevant_date.month - start_date.month
-        replacement = 12*years + months
+        replacement = 12 * years + months
     elif freq == 'w':
-        replacement = diff.days//7
+        replacement = diff.days // 7
     elif freq == 'd':
         replacement = diff.days
     replacement = ordinal(replacement) if replacement >= 0 else '???'
     return summary.format(XXX=replacement)
+
 
 def ordinal(num):
     """
@@ -4108,12 +4559,12 @@ def ordinal(num):
         suffix = SUFFIXES[num % 10]
     else:
         suffix = SUFFIXES[0]
-    return "{0}{1}".format(str(num), suffix)
+    return '{0}{1}'.format(str(num), suffix)
 
 
 def one_or_more(s):
     if type(s) is list:
-        return ", ".join([str(x) for x in s])
+        return ', '.join([str(x) for x in s])
     else:
         return str(s)
 
@@ -4124,8 +4575,9 @@ def do_string(arg):
         rep = arg
     except:
         obj = None
-        rep = f"invalid: {arg}"
+        rep = f'invalid: {arg}'
     return obj, rep
+
 
 def do_paragraph(arg):
     """
@@ -4145,10 +4597,11 @@ def do_paragraph(arg):
                 rep_lst.append(res)
             except:
                 all_ok = False
-                rep_lst.append(f"~{arg}~")
-        obj = "\n".join(obj_lst) if all_ok else None
-        rep = "\n".join(rep_lst)
+                rep_lst.append(f'~{arg}~')
+        obj = '\n'.join(obj_lst) if all_ok else None
+        rep = '\n'.join(rep_lst)
     return obj, rep
+
 
 def do_stringlist(args):
     """
@@ -4175,9 +4628,9 @@ def do_stringlist(args):
                 rep_lst.append(res)
             except:
                 all_ok = False
-                rep_lst.append(f"~{arg}~")
+                rep_lst.append(f'~{arg}~')
         obj = obj_lst if all_ok else None
-        rep = ", ".join(rep_lst)
+        rep = ', '.join(rep_lst)
     return obj, rep
 
 
@@ -4186,20 +4639,19 @@ def string(arg, typ=None):
         arg = str(arg)
     except:
         if typ:
-            return False, "{}: {}".format(typ, arg)
+            return False, '{}: {}'.format(typ, arg)
         else:
-            return False, "{}".format(arg)
+            return False, '{}'.format(arg)
     return True, arg
 
 
 def string_list(arg, typ=None):
-    """
-    """
+    """ """
     if arg == '':
         args = []
     elif type(arg) == str:
         try:
-            args = [x.strip() for x in arg.split(",")]
+            args = [x.strip() for x in arg.split(',')]
         except:
             return False, '{}: {}'.format(typ, arg)
     elif type(arg) == list:
@@ -4219,9 +4671,9 @@ def string_list(arg, typ=None):
             msg.append(res)
     if msg:
         if typ:
-            return False, "{}: {}".format(typ, "; ".join(msg))
+            return False, '{}: {}'.format(typ, '; '.join(msg))
         else:
-            return False, "{}".format("; ".join(msg))
+            return False, '{}'.format('; '.join(msg))
     else:
         return True, ret
 
@@ -4239,23 +4691,23 @@ def integer(arg, min, max, zero, typ=None):
     >>> integer(-2, 0, 8, False, 'integer_test')
     (False, 'integer_test: -2 is less than the allowed minimum')
     """
-    msg = ""
+    msg = ''
     try:
         arg = int(arg)
     except:
         if typ:
-            return False, "{}: {}".format(typ, arg)
+            return False, '{}: {}'.format(typ, arg)
         else:
             return False, arg
     if min is not None and arg < min:
-        msg = "{} is less than the allowed minimum".format(arg)
+        msg = '{} is less than the allowed minimum'.format(arg)
     elif max is not None and arg > max:
-        msg = "{} is greater than the allowed maximum".format(arg)
+        msg = '{} is greater than the allowed maximum'.format(arg)
     elif not zero and arg == 0:
-        msg = "0 is not allowed"
+        msg = '0 is not allowed'
     if msg:
         if typ:
-            return False, "{}: {}".format(typ, msg)
+            return False, '{}: {}'.format(typ, msg)
         else:
             return False, msg
     else:
@@ -4281,7 +4733,7 @@ def integer_list(arg, min, max, zero, typ=None):
     """
     if type(arg) == str:
         try:
-            args = [int(x) for x in arg.split(",")]
+            args = [int(x) for x in arg.split(',')]
         except:
             if typ:
                 return False, '{}: {}'.format(typ, arg)
@@ -4307,9 +4759,9 @@ def integer_list(arg, min, max, zero, typ=None):
             msg.append(res)
     if msg:
         if typ:
-            return False, "{}: {}".format(typ, "; ".join(msg))
+            return False, '{}: {}'.format(typ, '; '.join(msg))
         else:
-            return False, "; ".join(msg)
+            return False, '; '.join(msg)
     else:
         return True, ret
 
@@ -4563,9 +5015,8 @@ jinja_display_template.globals['isinstance'] = isinstance
 jinja_display_template.globals['wrap'] = wrap
 
 
-
 def do_beginby(arg):
-    beginby_str = "an integer number of days"
+    beginby_str = 'an integer number of days'
     if not arg:
         return None, beginby_str
     ok, res = integer(arg, 1, None, False)
@@ -4577,8 +5028,9 @@ def do_beginby(arg):
         rep = f"'{arg}' is invalid. Beginby requires {beginby_str}."
     return obj, rep
 
+
 def do_konnection(arg):
-    konnection_str = "an integer document id"
+    konnection_str = 'an integer document id'
     m = KONNECT_REGEX.match(arg)
     if m:
         arg = m[1]
@@ -4629,9 +5081,9 @@ def do_usedtime(arg):
 
     if got_period and got_datetime:
         obj = [obj_period, obj_datetime]
-        return obj, f"{rep_period}: {rep_datetime}"
+        return obj, f'{rep_period}: {rep_datetime}'
     else:
-        return None, f"{rep_period}: {rep_datetime}"
+        return None, f'{rep_period}: {rep_datetime}'
 
 
 def do_alert(arg):
@@ -4676,7 +5128,7 @@ def do_alert(arg):
             rep += f"\nincomplete or invalid periods: {', '.join(bad_periods)}"
         elif command is None:
             obj = None
-            rep += f"\ncommmand is required but missing"
+            rep += f'\ncommmand is required but missing'
         else:
             obj = [obj_periods, commands]
 
@@ -4693,25 +5145,25 @@ def do_duration(arg):
     (Duration(hours=1, minutes=30), '1h30m')
     """
     if not arg:
-        return None, f"time period"
+        return None, f'time period'
     ok, res = parse_duration(arg)
     if ok:
         obj = res
-        rep = f"{format_duration(res)}"
+        rep = f'{format_duration(res)}'
     else:
         obj = None
-        rep = f"incomplete or invalid period: {arg}"
+        rep = f'incomplete or invalid period: {arg}'
     return obj, rep
 
 
 def do_two_periods(arg):
     if not arg:
-        return None, f"two time periods"
+        return None, f'two time periods'
     if arg:
         periods = [x.strip() for x in arg.split(',')]
         if len(periods) != 2:
             obj = None
-            rep = f"got {len(periods)} but exactly two periods are requred"
+            rep = f'got {len(periods)} but exactly two periods are requred'
         else:
             # we have 2 periods
             obj_periods = []
@@ -4735,12 +5187,12 @@ def do_two_periods(arg):
 
 
 def do_overdue(arg):
-    ovrstr = "overdue: character from (r)estart, (s)kip or (k)eep"
+    ovrstr = 'overdue: character from (r)estart, (s)kip or (k)eep'
 
     if arg:
         ok = arg in ('k', 'r', 's')
         if ok:
-            return arg, f"overdue: {arg}"
+            return arg, f'overdue: {arg}'
         else:
             return None, f"invalid overdue: '{arg}'. {ovrstr}"
     else:
@@ -4795,15 +5247,15 @@ def do_priority(arg):
     >>> do_priority("1")
     ('1', 'priority: 1')
     """
-    prioritystr = "An integer priority number from 0 (none), to 4 (urgent)"
+    prioritystr = 'An integer priority number from 0 (none), to 4 (urgent)'
     if arg:
-        ok, res = integer(arg, 0, 4, True, "")
+        ok, res = integer(arg, 0, 4, True, '')
         if ok:
-            obj = f"{res}"
-            rep = f"priority: {arg}"
+            obj = f'{res}'
+            rep = f'priority: {arg}'
         else:
             obj = None
-            rep = f"invalid priority: {res}. {prioritystr} is required"
+            rep = f'invalid priority: {res}. {prioritystr} is required'
     else:
         obj = None
         rep = prioritystr
@@ -4814,6 +5266,7 @@ def do_priority(arg):
 ### begin rrule setup ###############
 #####################################
 
+
 def do_easterdays(arg):
     """
     byeaster; integer or sequence of integers numbers of days before, < 0,
@@ -4823,7 +5276,7 @@ def do_easterdays(arg):
     >>> do_easterdays("-364, -30, 0, 45, 260")
     ([-364, -30, 0, 45, 260], '-364, -30, 0, 45, 260')
     """
-    easterstr = "easter: a comma separated list of integer numbers of days before, < 0, or after, > 0, Easter."
+    easterstr = 'easter: a comma separated list of integer numbers of days before, < 0, or after, > 0, Easter.'
 
     if arg == 0:
         arg = [0]
@@ -4835,7 +5288,7 @@ def do_easterdays(arg):
             rep = arg
         else:
             obj = None
-            rep = f"invalid easter: {res}. Required for {easterstr}"
+            rep = f'invalid easter: {res}. Required for {easterstr}'
     else:
         obj = None
         rep = easterstr
@@ -4854,12 +5307,12 @@ def do_interval(arg):
     (None, "invalid interval: '1, 2'. Interval requires a positive integer (default 1) that sets the frequency interval. E.g., with frequency w (weekly), interval 3 would repeat every three weeks.")
     """
 
-    intstr = "Interval requires a positive integer (default 1) that sets the frequency interval. E.g., with frequency w (weekly), interval 3 would repeat every three weeks."
+    intstr = 'Interval requires a positive integer (default 1) that sets the frequency interval. E.g., with frequency w (weekly), interval 3 would repeat every three weeks.'
 
     if arg:
         ok, res = integer(arg, 1, None, False)
         if ok:
-            return res, f"interval: {arg}"
+            return res, f'interval: {arg}'
         else:
             return None, f"invalid interval: '{res}'. {intstr}"
     else:
@@ -4877,13 +5330,16 @@ def do_frequency(arg):
     """
 
     freq = [x for x in freq_names]
-    freqstr = "(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely."
+    freqstr = '(y)early, (m)onthly, (w)eekly, (d)aily, (h)ourly or mi(n)utely.'
     if arg in freq:
-        return arg, f"{freq_names[arg]}"
+        return arg, f'{freq_names[arg]}'
     elif arg:
-        return None, wrap(f"invalid frequency: {arg} not in {freqstr}", 2)
+        return None, wrap(f'invalid frequency: {arg} not in {freqstr}', 2)
     else:
-        return None, wrap(f"repetition frequency: character from {freqstr} Append an '&' to add an option.", 2)
+        return None, wrap(
+            f"repetition frequency: character from {freqstr} Append an '&' to add an option.",
+            2,
+        )
 
 
 def do_setpositions(arg):
@@ -4893,16 +5349,16 @@ def do_setpositions(arg):
     >>> do_setpositions("-1, 0")
     (None, 'invalid set positions: 0 is not allowed. set positions (non-zero integer or sequence of non-zero integers). When multiple dates satisfy the rule, take the dates from this/these positions in the list, e.g, &s 1 would choose the first element and &s -1 the last.')
     """
-    setposstr = "set positions (non-zero integer or sequence of non-zero integers). When multiple dates satisfy the rule, take the dates from this/these positions in the list, e.g, &s 1 would choose the first element and &s -1 the last."
+    setposstr = 'set positions (non-zero integer or sequence of non-zero integers). When multiple dates satisfy the rule, take the dates from this/these positions in the list, e.g, &s 1 would choose the first element and &s -1 the last.'
     if arg:
         args = arg.split(',')
-        ok, res = integer_list(args, None, None, False, "")
+        ok, res = integer_list(args, None, None, False, '')
         if ok:
             obj = res
-            rep = f"set positions: {arg}"
+            rep = f'set positions: {arg}'
         else:
             obj = None
-            rep = f"invalid set positions: {res}. {setposstr}"
+            rep = f'invalid set positions: {res}. {setposstr}'
     else:
         obj = None
         rep = setposstr
@@ -4920,16 +5376,16 @@ def do_count(arg):
     (None, 'invalid count: [2, 3]. Required for count: a positive integer. Include no more than this number of repetitions.')
     """
 
-    countstr = "count: a positive integer. Include no more than this number of repetitions."
+    countstr = 'count: a positive integer. Include no more than this number of repetitions.'
 
     if arg:
-        ok, res = integer(arg, 1, None, False )
+        ok, res = integer(arg, 1, None, False)
         if ok:
             obj = res
-            rep = f"count: {arg}"
+            rep = f'count: {arg}'
         else:
             obj = None
-            rep = f"invalid count: {res}. Required for {countstr}"
+            rep = f'invalid count: {res}. Required for {countstr}'
     else:
         obj = None
         rep = countstr
@@ -4952,7 +5408,7 @@ def do_weekdays(arg):
     >>> do_weekdays('FR(+3), MO(-1)')
     ([FR(+3), MO(-1)], '+3FR, -1MO')
     """
-    weekdaysstr = "weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month."
+    weekdaysstr = 'weekdays: a comma separated list of English weekday abbreviations from SU, MO, TU, WE, TH, FR, SA. Prepend an integer to specify a particular weekday in the month. E.g., 3WE for the 3rd Wednesday or -1FR, for the last Friday in the month.'
     if arg:
         args = [x.strip().upper() for x in arg.split(',')]
         bad = []
@@ -4962,13 +5418,13 @@ def do_weekdays(arg):
             m = threeday_regex.match(x)
             if m:
                 # fix 3 char weekdays, e.g., -2FRI -> -2FR
-                x = f"{m[1]}{m[2][:2]}"
+                x = f'{m[1]}{m[2][:2]}'
             if x in WKDAYS_DECODE:
                 good.append(eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[x])))
                 rep.append(x)
             elif x in WKDAYS_ENCODE:
                 good.append(eval(x))
-                rep.append( WKDAYS_ENCODE[x] )
+                rep.append(WKDAYS_ENCODE[x])
             else:
                 bad.append(x)
         if bad:
@@ -4976,7 +5432,7 @@ def do_weekdays(arg):
             rep = f"incomplete or invalid weekdays: {', '.join(bad)}. {weekdaysstr}"
         else:
             obj = good
-            rep = ", ".join(rep)
+            rep = ', '.join(rep)
     else:
         obj = None
         rep = weekdaysstr
@@ -4994,13 +5450,13 @@ def do_weeknumbers(arg):
         ok, res = integer_list(args, 0, 53, False)
         if ok:
             obj = res
-            rep = f"{arg}"
+            rep = f'{arg}'
         else:
             obj = None
-            rep = "invalid weeknumbers: {res}. Required for {weeknumbersstr}"
+            rep = 'invalid weeknumbers: {res}. Required for {weeknumbersstr}'
     else:
         obj = None
-        weeknumbersstr = "weeknumbers: a comma separated list of integer week numbers from 1, 2, ..., 53"
+        weeknumbersstr = 'weeknumbers: a comma separated list of integer week numbers from 1, 2, ..., 53'
 
         rep = weeknumbersstr
     return obj, rep
@@ -5012,17 +5468,17 @@ def do_months(arg):
     >>> do_months("0, 2, 7, 13")
     (None, 'invalid months: 0 is not allowed; 13 is greater than the allowed maximum. Required for months: a comma separated list of integer month numbers from 1, 2, ..., 12')
     """
-    monthsstr = "months: a comma separated list of integer month numbers from 1, 2, ..., 12"
+    monthsstr = 'months: a comma separated list of integer month numbers from 1, 2, ..., 12'
 
     if arg:
         args = arg.split(',')
-        ok, res = integer_list(args, 0, 12, False, "")
+        ok, res = integer_list(args, 0, 12, False, '')
         if ok:
             obj = res
-            rep = f"{arg}"
+            rep = f'{arg}'
         else:
             obj = None
-            rep = f"invalid months: {res}. Required for {monthsstr}"
+            rep = f'invalid months: {res}. Required for {monthsstr}'
     else:
         obj = None
         rep = monthsstr
@@ -5035,18 +5491,18 @@ def do_monthdays(arg):
     (None, 'invalid monthdays: 0 is not allowed. Required for monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month.')
     """
 
-    monthdaysstr = "monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month."
+    monthdaysstr = 'monthdays: a comma separated list of integer month days from  (1, 2, ..., 31. Prepend a minus sign to count backwards from the end of the month. E.g., use  -1 for the last day of the month.'
 
     args = arg.split(',')
     if arg:
         args = arg.split(',')
-        ok, res = integer_list(args, -31, 31, False, "")
+        ok, res = integer_list(args, -31, 31, False, '')
         if ok:
             obj = res
-            rep = f"{arg}"
+            rep = f'{arg}'
         else:
             obj = None
-            rep = f"invalid monthdays: {res}. Required for {monthdaysstr}"
+            rep = f'invalid monthdays: {res}. Required for {monthdaysstr}'
     else:
         obj = None
         rep = monthdaysstr
@@ -5060,18 +5516,20 @@ def do_hours(arg):
     >>> do_hours("0, 1")
     ([0, 1], '0, 1')
     """
-    hoursstr = "hours: a comma separated of integer hour numbers from 0, 1,  ..., 23."
+    hoursstr = (
+        'hours: a comma separated of integer hour numbers from 0, 1,  ..., 23.'
+    )
 
     args = arg.split(',')
 
     if args:
-        ok, res = integer_list(args, 0, 23, True, "hours")
+        ok, res = integer_list(args, 0, 23, True, 'hours')
         if ok:
             obj = res
             rep = arg
         else:
             obj = None
-            rep = f"invalid hours: {res}. Required for {hoursstr}"
+            rep = f'invalid hours: {res}. Required for {hoursstr}'
     else:
         obj = None
         rep = hoursstr
@@ -5095,17 +5553,17 @@ def do_minutes(arg):
     >>> do_minutes("0, 60")
     (None, 'invalid minutes: 60 is greater than the allowed maximum. Required for minutes: a comma separated of integer minute numbers from 0 through 59.')
     """
-    minutesstr = "minutes: a comma separated of integer minute numbers from 0 through 59."
+    minutesstr = 'minutes: a comma separated of integer minute numbers from 0 through 59.'
 
     args = arg.split(',')
     if args:
-        ok, res = integer_list(arg, 0, 59, True, "")
+        ok, res = integer_list(arg, 0, 59, True, '')
         if ok:
             obj = res
             rep = arg
         else:
             obj = None
-            rep = f"invalid minutes: {res}. Required for {minutesstr}"
+            rep = f'invalid minutes: {res}. Required for {minutesstr}'
     else:
         obj = None
         rep = minutesstr
@@ -5113,19 +5571,19 @@ def do_minutes(arg):
 
 
 rrule_methods = {
-    'r':  'frequency',
-    'i':  'interval',
-    's':  'setpositions',
-    'c':  'count',
-    'u':  'until',
-    'M':  'months',
-    'm':  'monthdays',
-    'W':  'weeknumbers',
-    'w':  'weekdays',
-    'h':  'hours',
-    'n':  'minutes',
-    'E':  'easterdays',
-    }
+    'r': 'frequency',
+    'i': 'interval',
+    's': 'setpositions',
+    'c': 'count',
+    'u': 'until',
+    'M': 'months',
+    'm': 'monthdays',
+    'W': 'weeknumbers',
+    'w': 'weekdays',
+    'h': 'hours',
+    'n': 'minutes',
+    'E': 'easterdays',
+}
 
 freq_names = {
     'y': 'yearly',
@@ -5134,27 +5592,19 @@ freq_names = {
     'd': 'daily',
     'h': 'hourly',
     'n': 'minutely',
-    }
+}
 
 rrule_freq = {
-    'y': 0,     #'YEARLY',
-    'm': 1,     #'MONTHLY',
-    'w': 2,     #'WEEKLY',
-    'd': 3,     #'DAILY',
-    'h': 4,     #'HOURLY',
-    'n': 5,     #'MINUTELY',
+    'y': 0,  #'YEARLY',
+    'm': 1,  #'MONTHLY',
+    'w': 2,  #'WEEKLY',
+    'd': 3,  #'DAILY',
+    'h': 4,  #'HOURLY',
+    'n': 5,  #'MINUTELY',
 }
 
 # Note: the values such as MO in the following are dateutil.rrule WEEKDAY methods and not strings. A dict is used to dispatch the relevant method
-rrule_weekdays = dict(
-        MO = MO,
-        TU = TU,
-        WE = WE,
-        TH = TH,
-        FR = FR,
-        SA = SA,
-        SU = SU
-        )
+rrule_weekdays = dict(MO=MO, TU=TU, WE=WE, TH=TH, FR=FR, SA=SA, SU=SU)
 
 # Note: 'r' (FREQ) is not included in the following.
 rrule_name = {
@@ -5168,11 +5618,12 @@ rrule_name = {
     'w': 'byweekday',  # rrule weekday MO ... SU
     'h': 'byhour',  # positive integer
     'n': 'byminute',  # positive integer
-    'E': 'byeaster', # interger number of days before (-) or after (+) Easter Sunday
+    'E': 'byeaster',  # interger number of days before (-) or after (+) Easter Sunday
 }
 
 rrule_keys = [x for x in rrule_name]
 rrule_keys.sort()
+
 
 def check_rrule(lofh):
     msg = []
@@ -5182,7 +5633,11 @@ def check_rrule(lofh):
     for hsh in lofh:
         res = {}
         if type(hsh) != dict:
-            msg.append('error: Elements must be hashes. Cannot process: "{}"'.format(hsh))
+            msg.append(
+                'error: Elements must be hashes. Cannot process: "{}"'.format(
+                    hsh
+                )
+            )
             continue
         if 'r' not in hsh:
             msg.append('error: r is required but missing')
@@ -5197,15 +5652,16 @@ def check_rrule(lofh):
                 else:
                     msg.append(rep)
             else:
-                msg.append("error: {} is not a valid key".format(key))
+                msg.append('error: {} is not a valid key'.format(key))
 
         if not msg:
             ret.append(res)
 
     if msg:
-        return False, "{}".format("; ".join(msg))
+        return False, '{}'.format('; '.join(msg))
     else:
         return True, ret
+
 
 def rrule_args(r_hsh):
     """
@@ -5242,7 +5698,7 @@ def rrule_args(r_hsh):
     """
 
     # force integers
-    for k in "icsMmWhmE":
+    for k in 'icsMmWhmE':
         if k in r_hsh:
             args = r_hsh[k]
             if not isinstance(args, list):
@@ -5250,7 +5706,9 @@ def rrule_args(r_hsh):
             tmp = [int(x) for x in args]
             r_hsh[k] = tmp[0] if len(tmp) == 1 else tmp
     if 'u' in r_hsh and 'c' in r_hsh:
-        logger.warning(f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}")
+        logger.warning(
+            f"Warning: using both 'c' and 'u' is depreciated in {r_hsh}"
+        )
     freq = rrule_freq[r_hsh['r']]
     kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
@@ -5264,7 +5722,7 @@ def get_next_due(item, done, due):
     if not lofh:
         return ''
     rset = rruleset()
-    overdue = item.get('o', 'k') # make 'k' the default for 'o'
+    overdue = item.get('o', 'k')   # make 'k' the default for 'o'
     start = item['s']
     dtstart = date_to_datetime(item['s'])
     if due > dtstart:
@@ -5301,7 +5759,7 @@ def get_next_due(item, done, due):
         try:
             rset.rrule(rrule(freq, **kwd))
         except Exception as e:
-            logger.error(f"error processing {hsh}: {e}")
+            logger.error(f'error processing {hsh}: {e}')
             return []
 
     plus = item.get('+', [])
@@ -5329,7 +5787,15 @@ def get_next_due(item, done, due):
 
 def date_to_datetime(dt, hour=0, minute=0):
     if isinstance(dt, date) and not isinstance(dt, datetime):
-        dt= datetime(year=dt.year, month=dt.month, day=dt.day, hour=hour, minute=minute, second=0, microsecond=0).astimezone()
+        dt = datetime(
+            year=dt.year,
+            month=dt.month,
+            day=dt.day,
+            hour=hour,
+            minute=minute,
+            second=0,
+            microsecond=0,
+        ).astimezone()
     return dt
 
 
@@ -5379,14 +5845,17 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
             return []
     instances = []
     dtstart = item['s']
-    if not (
-        isinstance(dtstart, datetime)
-        or isinstance(dtstart, date)
-    ):
+    if not (isinstance(dtstart, datetime) or isinstance(dtstart, date)):
         return []
     # This should not be necessary since the data store decodes dates as datetimes
     if isinstance(dtstart, date) and not isinstance(dtstart, datetime):
-        dtstart = datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0).astimezone()
+        dtstart = datetime(
+            year=dtstart.year,
+            month=dtstart.month,
+            day=dtstart.day,
+            hour=0,
+            minute=0,
+        ).astimezone()
         startdst = None
         using_dates = True
     else:
@@ -5400,7 +5869,11 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
 
     # all the dateutil instances will be in UTC so these must be as well
     aft_dt = date_to_datetime(aft_dt).astimezone(timezone('UTC'))
-    bef_dt = bef_dt if isinstance(bef_dt, int) else date_to_datetime(bef_dt).astimezone(timezone('UTC'))
+    bef_dt = (
+        bef_dt
+        if isinstance(bef_dt, int)
+        else date_to_datetime(bef_dt).astimezone(timezone('UTC'))
+    )
 
     if 'r' in item:
         lofh = item['r']
@@ -5412,7 +5885,7 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
             try:
                 rset.rrule(rrule(freq, **kwd))
             except Exception as e:
-                logger.error(f"exception: {e}")
+                logger.error(f'exception: {e}')
                 return []
         if '-' in item:
             for dt in item['-']:
@@ -5428,7 +5901,7 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
                 aft_dt = rset.after(aft_dt, inc=inc)
                 if aft_dt:
                     tmp.append(aft_dt)
-                    inc = False # to get the next one
+                    inc = False   # to get the next one
                 else:
                     break
             if using_dates:
@@ -5459,18 +5932,28 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
             instances = [dtstart] if aft_dt <= dtstart <= bef_dt else []
 
     pairs = []
-    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone()
+    today = (
+        datetime.now()
+        .replace(hour=0, minute=0, second=0, microsecond=0)
+        .astimezone()
+    )
     # today = datetime.today().astimezone() tz=item.get('z', None))
     for instance in instances:
-        if item['itemtype'] == "*" and 'e' in item:
+        if item['itemtype'] == '*' and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
                 pairs.append(pair)
-        elif item['itemtype'] == "-":
+        elif item['itemtype'] == '-':
             # handle tasks repeating or not, extent or not and overdue skip or not
             if item.get('o', 'k') == 's':
-                if (instance.year, instance.month, instance.day) >= (today.year, today.month, today.day):
+                if (instance.year, instance.month, instance.day) >= (
+                    today.year,
+                    today.month,
+                    today.day,
+                ):
                     if 'e' in item:
-                        for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
+                        for pair in beg_ends(
+                            instance, item['e'], item.get('z', 'local')
+                        ):
                             pairs.append(pair)
                     else:
                         pairs.append((instance, None))
@@ -5478,15 +5961,18 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
                         # only keep the first instance that falls during or after today/now
                         break
             elif 'e' in item:
-                for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
+                for pair in beg_ends(
+                    instance, item['e'], item.get('z', 'local')
+                ):
                     pairs.append(pair)
             else:
                 pairs.append((instance, None))
         else:
             pairs.append((instance, None))
-    pairs.sort(key = itemgetter(0))
+    pairs.sort(key=itemgetter(0))
 
     return pairs
+
 
 ########################
 ### end rrule setup ####
@@ -5495,6 +5981,7 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
 #########################
 ### begin jobs setup ####
 #########################
+
 
 def prereqs(arg):
     """
@@ -5509,6 +5996,7 @@ def prereqs(arg):
         return string_list(arg, 'prereqs')
     else:
         return True, []
+
 
 # NOTE: job_methods, datetime or undated, are dispatched in jobs() according to whether or not the task has an 's' entry
 
@@ -5528,6 +6016,7 @@ datetime_job_methods = dict(
     b=do_beginby,
 )
 datetime_job_methods.update(undated_job_methods)
+
 
 def jobs(lofh, at_hsh={}):
     """
@@ -5692,7 +6181,9 @@ def jobs(lofh, at_hsh={}):
        'summary': ' 1/2/0: Job Three'}],
      DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern')))
     """
-    job_methods = datetime_job_methods if 's' in at_hsh else undated_job_methods
+    job_methods = (
+        datetime_job_methods if 's' in at_hsh else undated_job_methods
+    )
     msg = []
     # rmd = []
     req = {}
@@ -5703,7 +6194,9 @@ def jobs(lofh, at_hsh={}):
         # todo: is defaults needed?
         res = {}
         if type(hsh) != dict:
-            msg.append('Elements must be hashes. Cannot process: "{}"'.format(hsh))
+            msg.append(
+                'Elements must be hashes. Cannot process: "{}"'.format(hsh)
+            )
             continue
         if 'j' not in hsh:
             msg.append('error: j is required but missing')
@@ -5713,17 +6206,14 @@ def jobs(lofh, at_hsh={}):
             count = 0
             # set auto mode True if i is missing from the first job, otherwise set auto mode
             auto = 'i' not in hsh
-        if auto: # auto mode
+        if auto:   # auto mode
             if count > 25:
                 count = 0
-                msg.append(
-                    "error: at most 26 jobs are allowed in auto mode")
+                msg.append('error: at most 26 jobs are allowed in auto mode')
             if 'i' in hsh:
-                msg.append(
-                    "error: &i should not be specified in auto mode")
+                msg.append('error: &i should not be specified in auto mode')
             if 'p' in hsh:
-                msg.append(
-                    "error: &p should not be specified in auto mode")
+                msg.append('error: &p should not be specified in auto mode')
             # auto generate simple sequence for i: a, b, c, ... and
             # for p: a requires nothing, b requires a, c requires b, ...
             hsh['i'] = LOWERCASE[count]
@@ -5737,10 +6227,12 @@ def jobs(lofh, at_hsh={}):
             elif hsh['i'] in req:
                 msg.append(f"error: '&i {hsh['i']}' has already been used")
             elif 'p' in hsh:
-                    if type(hsh['p']) == str:
-                        req[hsh['i']] = [x.strip() for x in hsh['p'].split(',') if x]
-                    else:
-                        req[hsh['i']] = deepcopy(hsh['p'])
+                if type(hsh['p']) == str:
+                    req[hsh['i']] = [
+                        x.strip() for x in hsh['p'].split(',') if x
+                    ]
+                else:
+                    req[hsh['i']] = deepcopy(hsh['p'])
             else:
                 req[hsh['i']] = []
 
@@ -5762,7 +6254,7 @@ def jobs(lofh, at_hsh={}):
                     msg.append(out)
         if not_allowed:
             not_allowed.sort()
-            msg.append("invalid: {}".format(", ".join(not_allowed)))
+            msg.append('invalid: {}'.format(', '.join(not_allowed)))
 
         if 'i' in hsh:
             id2hsh[hsh['i']] = res
@@ -5771,7 +6263,7 @@ def jobs(lofh, at_hsh={}):
     for i in ids:
         for j in req[i]:
             if j not in ids:
-                msg.append("invalid id given in &p: {}".format(j))
+                msg.append('invalid id given in &p: {}'.format(j))
 
     ids.sort()
 
@@ -5800,7 +6292,9 @@ def jobs(lofh, at_hsh={}):
             tmp.append(i)
     if tmp:
         tmp.sort()
-        msg.append("error: circular dependency for jobs {}".format(", ".join(tmp)))
+        msg.append(
+            'error: circular dependency for jobs {}'.format(', '.join(tmp))
+        )
 
     # Are all jobs finished:
     last_completion = None
@@ -5831,25 +6325,28 @@ def jobs(lofh, at_hsh={}):
     awf = [0, 0, 0]
     # set the job status for each job - f) finished, a) available or w) waiting
     for i in ids:
-        if id2hsh[i].get('f', None) is not None: # i is finished
+        if id2hsh[i].get('f', None) is not None:   # i is finished
             id2hsh[i]['status'] = FINISHED_CHAR
             awf[2] += 1
-        elif req[i]: # there are unfinished requirements for i
+        elif req[i]:   # there are unfinished requirements for i
             id2hsh[i]['status'] = '+'
             awf[1] += 1
-        else: # there are no unfinished requirements for i
+        else:   # there are no unfinished requirements for i
             id2hsh[i]['status'] = '-'
             awf[0] += 1
 
     for i in ids:
-        id2hsh[i]['summary'] = "{} {}: {}".format(summary, "/".join([str(x) for x in awf]), id2hsh[i]['j'])
+        id2hsh[i]['summary'] = '{} {}: {}'.format(
+            summary, '/'.join([str(x) for x in awf]), id2hsh[i]['j']
+        )
         id2hsh[i]['req'] = req[i]
         id2hsh[i]['i'] = i
 
     if msg:
-        logger.warning(f"{msg}")
+        logger.warning(f'{msg}')
         return False, msg, None
     return True, [id2hsh[i] for i in ids], last_completion
+
 
 #######################
 ### end jobs setup ####
@@ -5880,9 +6377,9 @@ def get_period(dt=datetime.now(), weeks_before=3, weeks_after=9):
     # Find the weekday (0 for Monday, 6 for Sunday)
     weekday = dt.weekday()
 
-    days_to_subtract = weekday + 7*weeks_before
+    days_to_subtract = weekday + 7 * weeks_before
 
-    days_to_add = 7 - weekday + 7*weeks_after
+    days_to_add = 7 - weekday + 7 * weeks_after
 
     # Subtract the days to get the previous Monday
     beg = dt - timedelta(days=days_to_subtract)
@@ -5900,8 +6397,8 @@ def iso_year_start(iso_year):
     Date(2018, 1, 1)
     """
     fourth_jan = date(iso_year, 1, 4)
-    delta = timedelta(days=fourth_jan.isoweekday()-1)
-    return (fourth_jan - delta)
+    delta = timedelta(days=fourth_jan.isoweekday() - 1)
+    return fourth_jan - delta
 
 
 def iso_to_gregorian(ywd):
@@ -5911,7 +6408,7 @@ def iso_to_gregorian(ywd):
     Date(2018, 2, 14)
     """
     year_start = iso_year_start(ywd[0])
-    return year_start + timedelta(days=ywd[2]-1, weeks=ywd[1]-1)
+    return year_start + timedelta(days=ywd[2] - 1, weeks=ywd[1] - 1)
 
 
 def getWeekNum(dt=datetime.now()):
@@ -5966,7 +6463,7 @@ def getWeekNumbers(dt=datetime.now(), bef=3, after=9):
     [(2018, 46), (2018, 47), (2018, 48), (2018, 49), (2018, 50), (2018, 51), (2018, 52), (2019, 1), (2019, 2), (2019, 3), (2019, 4), (2019, 5), (2019, 6)]
     """
     # yw = dt.add(days=-bef*7).isocalendar()[:2]
-    yw = (dt - timedelta(days=bef*7)).isocalendar()[:2]
+    yw = (dt - timedelta(days=bef * 7)).isocalendar()[:2]
     weeks = [yw]
     for _ in range(1, bef + after + 1):
         yw = nextWeek(yw)
@@ -5978,18 +6475,21 @@ def getWeekNumbers(dt=datetime.now(), bef=3, after=9):
 ### end week/month ###
 ######################
 
+
 def period_from_fmt(s, z='local'):
-    """
-    """
-    start, end = [datetime.strptime(x.strip(), "%Y%m%dT%H%M", z) for x in s.split('->')]
+    """ """
+    start, end = [
+        datetime.strptime(x.strip(), '%Y%m%dT%H%M', z) for x in s.split('->')
+    ]
     return Period(start, end)
+
 
 def pen_from_fmt(s, z='local'):
     """
     >>> pen_from_fmt("20120622T0000")
     Date(2012, 6, 22)
     """
-    dt = datetime.strptime(s, "%Y%m%dT%H%M", z)
+    dt = datetime.strptime(s, '%Y%m%dT%H%M', z)
     if z in ['local', 'Factory'] and dt.hour == dt.minute == 0:
         dt = dt.date()
     return dt
@@ -6006,20 +6506,20 @@ def drop_zero_minutes(dt):
     show_minutes = settings['show_minutes']
     if show_minutes:
         if ampm:
-            return dt.strftime("%I:%M")
+            return dt.strftime('%I:%M')
         else:
-            return dt.strftime("%H:%M")
+            return dt.strftime('%H:%M')
     else:
         if dt.minute == 0:
             if ampm:
-                return dt.strftime("%I")
+                return dt.strftime('%I')
             else:
-                return dt.strftime("%H")
+                return dt.strftime('%H')
         else:
             if ampm:
-                return dt.strftime("%I:%M")
+                return dt.strftime('%I:%M')
             else:
-                return dt.strftime("%H:%M")
+                return dt.strftime('%H:%M')
 
 
 def fmt_extent(beg_dt: datetime, end_dt: datetime):
@@ -6033,41 +6533,37 @@ def fmt_extent(beg_dt: datetime, end_dt: datetime):
     >>> fmt_extent(beg_dt, end_dt)
     '10am-2pm'
     """
-    beg_suffix = end_suffix = ""
+    beg_suffix = end_suffix = ''
     ampm = settings['ampm']
-    if not (
-        isinstance(beg_dt, datetime)
-        and isinstance(end_dt, datetime)
-    ):
-        return "xxx"
+    if not (isinstance(beg_dt, datetime) and isinstance(end_dt, datetime)):
+        return 'xxx'
 
     if ampm:
         diff = beg_dt.hour < 12 and end_dt.hour >= 12
-        end_suffix = end_dt.strftime("%p").lower().rstrip('m')
+        end_suffix = end_dt.strftime('%p').lower().rstrip('m')
         if diff:
-            beg_suffix = beg_dt.strftime("%p").lower().rstrip('m')
+            beg_suffix = beg_dt.strftime('%p').lower().rstrip('m')
 
     beg_fmt = drop_zero_minutes(beg_dt)
     end_fmt = drop_zero_minutes(end_dt)
     if ampm:
-        beg_fmt = beg_fmt.lstrip("0")
-        end_fmt = end_fmt.lstrip("0")
+        beg_fmt = beg_fmt.lstrip('0')
+        end_fmt = end_fmt.lstrip('0')
 
-
-    return f"{beg_fmt}{beg_suffix}-{end_fmt}{end_suffix}"
+    return f'{beg_fmt}{beg_suffix}-{end_fmt}{end_suffix}'
 
 
 def fmt_time(dt, ignore_midnight=True):
     ampm = settings['ampm']
     show_minutes = settings['show_minutes']
     if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0:
-        return ""
-    suffix = dt.strftime("%p").lower().rstrip('m') if ampm else ""
+        return ''
+    suffix = dt.strftime('%p').lower().rstrip('m') if ampm else ''
 
     dt_fmt = drop_zero_minutes(dt)
     if ampm:
-        dt_fmt = dt_fmt.lstrip("0")
-    return f"{dt_fmt}{suffix}"
+        dt_fmt = dt_fmt.lstrip('0')
+    return f'{dt_fmt}{suffix}'
 
 
 def beg_ends(starting_dt, extent_duration, z=None):
@@ -6109,9 +6605,7 @@ def print_json(etmdb, edit=False):
 
 
 def item_details(item, edit=False):
-    """
-
-    """
+    """ """
     try:
         if edit:
             return jinja_entry_template.render(h=item)
@@ -6132,18 +6626,26 @@ def fmt_week(yrwk):
     dt_year, dt_week = yrwk
     # dt_week = dt_obj.week_of_year
     # year_week = f"{dt_year} Week {dt_week}"
-    wkbeg = datetime.strptime(f"{dt_year} {str(dt_week)} 1", '%Y %W %w').date()
-    wkend = datetime.strptime(f"{dt_year} {str(dt_week)} 0", '%Y %W %w').date()
+    wkbeg = datetime.strptime(f'{dt_year} {str(dt_week)} 1', '%Y %W %w').date()
+    wkend = datetime.strptime(f'{dt_year} {str(dt_week)} 0', '%Y %W %w').date()
     if settings['dayfirst']:
-        week_end = wkend.strftime("%d %b").lstrip("0")
-        week_begin = wkbeg.strftime("%d").lstrip("0") if wkbeg.month == wkend.month else wkbeg.strftime("%d %b").lstrip("0")
+        week_end = wkend.strftime('%d %b').lstrip('0')
+        week_begin = (
+            wkbeg.strftime('%d').lstrip('0')
+            if wkbeg.month == wkend.month
+            else wkbeg.strftime('%d %b').lstrip('0')
+        )
     else:
-        day_beg = wkbeg.strftime("%d").lstrip("0")
-        day_end = wkend.strftime("%d").lstrip("0")
-        week_end = day_end if wkbeg.month == wkend.month else wkend.strftime("%b") + f" {day_end}"
-        week_begin = wkbeg.strftime("%b") + f" {day_beg}"
+        day_beg = wkbeg.strftime('%d').lstrip('0')
+        day_end = wkend.strftime('%d').lstrip('0')
+        week_end = (
+            day_end
+            if wkbeg.month == wkend.month
+            else wkend.strftime('%b') + f' {day_end}'
+        )
+        week_begin = wkbeg.strftime('%b') + f' {day_beg}'
 
-    return f"{week_begin} - {week_end}, {dt_year} #{dt_week}"
+    return f'{week_begin} - {week_end}, {dt_year} #{dt_week}'
 
 
 def get_item(doc_id):
@@ -6153,25 +6655,37 @@ def get_item(doc_id):
     pass
 
 
-def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+def relevant(
+    db,
+    now=datetime.now(),
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
     """
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
     Called by dataview.refreshRelevant
     """
 
-    wkday_fmt = "%a %d %b" if settings['dayfirst'] else "%a %b %d"
+    wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
     dirty = False
     width = shutil.get_terminal_size()[0] - 3
     summary_width = width - 3
     ampm = settings['ampm']
     rhc_width = 15 if ampm else 11
-    num_remaining = ""
+    num_remaining = ''
 
-    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone()
+    today = (
+        datetime.now()
+        .replace(hour=0, minute=0, second=0, microsecond=0)
+        .astimezone()
+    )
     tomorrow = today + DAY
-    inbox_fmt = today.strftime("%Y%m%d    ")   # first
-    pastdue_fmt = today.strftime("%Y%m%d^^^^") # after all day and timed
-    begby_fmt = today.strftime("%Y%m%d~~~~")   # after past due
+    inbox_fmt = today.strftime('%Y%m%d    ')   # first
+    pastdue_fmt = today.strftime('%Y%m%d^^^^')   # after all day and timed
+    begby_fmt = today.strftime('%Y%m%d~~~~')   # after past due
 
     id2relevant = {}
     inbox = []
@@ -6190,7 +6704,7 @@ def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[
         doc_id = item.doc_id
         rset = rruleset()
         if 'itemtype' not in item:
-            logger.warning(f"no itemtype: {item}")
+            logger.warning(f'no itemtype: {item}')
             item['itemtype'] = '?'
             # continue
         if 'g' in item:
@@ -6206,16 +6720,26 @@ def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[
             if doc_id in repeat_list:
                 repeat_list.remove(doc_id)
 
-        summary = item.get('summary', "~")
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        summary = item.get('summary', '~')
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
         if item['itemtype'] == '!':
             inbox.append([0, summary, item.doc_id, None, None])
             relevant = today
 
         elif 'f' in item:
             relevant = item['f'].end
-            if isinstance(relevant, date) and not isinstance(relevant, datetime):
-                relevant = datetime(year=relevant.year, month=relevant.month, day=relevant.day, hour=0, minute=0).astimezone()
+            if isinstance(relevant, date) and not isinstance(
+                relevant, datetime
+            ):
+                relevant = datetime(
+                    year=relevant.year,
+                    month=relevant.month,
+                    day=relevant.day,
+                    hour=0,
+                    minute=0,
+                ).astimezone()
 
         elif 's' in item:
             dtstart = item['s']
@@ -6223,7 +6747,13 @@ def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[
             has_b = 'b' in item
             # for daylight savings time changes
             if isinstance(dtstart, date) and not isinstance(dtstart, datetime):
-                dtstart = datetime(year=dtstart.year, month=dtstart.month, day=dtstart.day, hour=0, minute=0).astimezone()
+                dtstart = datetime(
+                    year=dtstart.year,
+                    month=dtstart.month,
+                    day=dtstart.day,
+                    hour=0,
+                    minute=0,
+                ).astimezone()
                 startdst = None
             else:
                 # for discarding daylight saving time differences in repetitions
@@ -6238,10 +6768,9 @@ def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[
                 all_tds.extend([DAY, days])
                 possible_beginby = days
 
-
             if has_a:
                 # alerts
-                for alert in  item['a']:
+                for alert in item['a']:
                     tds = alert[0]
                     cmd = alert[1]
                     all_tds.extend(tds)
@@ -6252,7 +6781,10 @@ def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[
 
             # this catches all alerts and beginbys for the item
             if all_tds:
-                instance_interval = [today + min(all_tds), tomorrow + max(all_tds)]
+                instance_interval = [
+                    today + min(all_tds),
+                    tomorrow + max(all_tds),
+                ]
 
             # FIXME
             # r and +      :
@@ -6294,12 +6826,21 @@ def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[
                         relevant = rset.after(today, inc=True)
                         cur = date_to_datetime(item['s'])
                         # make 'all day' tasks not pastdue until one minute before midnight
-                        isdate = (isinstance(item['s'], date) and not isinstance(item['s'], datetime))
+                        isdate = isinstance(
+                            item['s'], date
+                        ) and not isinstance(item['s'], datetime)
                         isdate = cur.hour == 0 and cur.minute == 0
-                        delta = timedelta(hours=23, minutes=59) if isdate else ZERO
-                        if relevant and date_to_datetime(item['s']) + delta < now:
+                        delta = (
+                            timedelta(hours=23, minutes=59) if isdate else ZERO
+                        )
+                        if (
+                            relevant
+                            and date_to_datetime(item['s']) + delta < now
+                        ):
                             while cur + delta < now:
-                                item.setdefault('h', []).append(Period(cur+ONEMIN, cur))
+                                item.setdefault('h', []).append(
+                                    Period(cur + ONEMIN, cur)
+                                )
                                 cur = rset.after(cur, inc=False)
                             num_finished = settings.get('num_finished', 0)
                             if num_finished and len(item['h']) > num_finished:
@@ -6308,50 +6849,96 @@ def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[
                                 item['h'] = h[-num_finished:]
                             item['s'] = cur
                             update_db(db, item.doc_id, item)
-                    else: # k or p
+                    else:   # k or p
                         relevant = rset.after(today, inc=True)
                         already_done = [x.end for x in item.get('h', [])]
                         # relevant will be the first instance after 12am today
                         # it will be the @s entry for the updated repeating item
                         # these are @s entries for the instances to be preserved
-                        between = rset.between(dtstart, today-ONEMIN, inc=True)
+                        between = rset.between(
+                            dtstart, today - ONEMIN, inc=True
+                        )
                         # remaining = [x for x in between if x not in already_done and x != dtstart]
-                        remaining = [x for x in between if x not in already_done]
+                        remaining = [
+                            x for x in between if x not in already_done
+                        ]
                         # once instances have been created, between will be empty until
                         # the current date falls after item['s'] and relevant is reset
-                        num_remaining = f"({len(remaining)})" if remaining else ""
+                        num_remaining = (
+                            f'({len(remaining)})' if remaining else ''
+                        )
                         sum_abbr = item['summary'][:summary_width]
-                        summary = f"{sum_abbr} {num_remaining}"
+                        summary = f'{sum_abbr} {num_remaining}'
                         if dtstart.date() < today.date() and 'j' not in item:
-                            pastdue.append([(dtstart.date() - today.date()).days, summary, item.doc_id, None, None])
+                            pastdue.append(
+                                [
+                                    (dtstart.date() - today.date()).days,
+                                    summary,
+                                    item.doc_id,
+                                    None,
+                                    None,
+                                ]
+                            )
                 else:
                     # get the first instance after today
                     try:
                         relevant = rset.after(today, inc=True)
                     except Exception as e:
-                        logger.error(f"error processing {item}; {repr(e)}")
+                        logger.error(f'error processing {item}; {repr(e)}')
                     if not relevant:
                         relevant = rset.before(today, inc=True)
 
                 # rset
                 if instance_interval:
-                    instances = rset.between(instance_interval[0], instance_interval[1], inc=True)
+                    instances = rset.between(
+                        instance_interval[0], instance_interval[1], inc=True
+                    )
                     if possible_beginby:
                         for instance in instances:
-                            if ZERO < instance.date()-today.date() <= possible_beginby:
+                            if (
+                                ZERO
+                                < instance.date() - today.date()
+                                <= possible_beginby
+                            ):
                                 doc_id = item.doc_id
                                 if 'r' in item:
                                     # use the freq from the first recurrence rule
                                     freq = item['r'][0].get('r', 'y')
                                 else:
                                     freq = 'y'
-                                summary = set_summary(summary, item.get('s', None), instance.date(), freq)
-                                beginbys.append([(instance.date() - today.date()).days, summary, item.doc_id, None, instance])
+                                summary = set_summary(
+                                    summary,
+                                    item.get('s', None),
+                                    instance.date(),
+                                    freq,
+                                )
+                                beginbys.append(
+                                    [
+                                        (instance.date() - today.date()).days,
+                                        summary,
+                                        item.doc_id,
+                                        None,
+                                        instance,
+                                    ]
+                                )
                     if possible_alerts:
                         for instance in instances:
                             for possible_alert in possible_alerts:
-                                if today <= instance - possible_alert[0] <= tomorrow:
-                                    alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['itemtype'],item['summary'], item.doc_id])
+                                if (
+                                    today
+                                    <= instance - possible_alert[0]
+                                    <= tomorrow
+                                ):
+                                    alerts.append(
+                                        [
+                                            instance - possible_alert[0],
+                                            instance,
+                                            possible_alert[1],
+                                            item['itemtype'],
+                                            item['summary'],
+                                            item.doc_id,
+                                        ]
+                                    )
 
             elif '+' in item:
                 # no @r but @+ => simple repetition
@@ -6369,23 +6956,70 @@ def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[
                 if possible_beginby:
                     for instance in aft:
                         # if today + DAY <= instance <= tomorrow + possible_beginby:
-                        if ZERO < instance.date()-today.date() <= possible_beginby:
-                            beginbys.append([(instance.date() - today.date()).days, summary, item.doc_id, None, instance])
+                        if (
+                            ZERO
+                            < instance.date() - today.date()
+                            <= possible_beginby
+                        ):
+                            beginbys.append(
+                                [
+                                    (instance.date() - today.date()).days,
+                                    summary,
+                                    item.doc_id,
+                                    None,
+                                    instance,
+                                ]
+                            )
                 if possible_alerts:
                     for instance in aft + bef:
                         for possible_alert in possible_alerts:
-                            if today <= instance - possible_alert[0] <= tomorrow:
-                                alerts.append([instance - possible_alert[0], instance, possible_alert[1], item['itemtype'], item['summary'], item.doc_id])
+                            if (
+                                today
+                                <= instance - possible_alert[0]
+                                <= tomorrow
+                            ):
+                                alerts.append(
+                                    [
+                                        instance - possible_alert[0],
+                                        instance,
+                                        possible_alert[1],
+                                        item['itemtype'],
+                                        item['summary'],
+                                        item.doc_id,
+                                    ]
+                                )
 
             else:
                 # 's' but not 'r' or '+'
                 relevant = dtstart
-                if possible_beginby and ZERO < relevant.date()-today.date() <= possible_beginby:
-                    beginbys.append([(relevant.date() - today.date()).days, summary,  item.doc_id, None, None])
+                if (
+                    possible_beginby
+                    and ZERO
+                    < relevant.date() - today.date()
+                    <= possible_beginby
+                ):
+                    beginbys.append(
+                        [
+                            (relevant.date() - today.date()).days,
+                            summary,
+                            item.doc_id,
+                            None,
+                            None,
+                        ]
+                    )
                 if possible_alerts:
                     for possible_alert in possible_alerts:
                         if today <= dtstart - possible_alert[0] <= tomorrow:
-                            alerts.append([dtstart - possible_alert[0], dtstart, possible_alert[1], item['itemtype'], item['summary'], item.doc_id])
+                            alerts.append(
+                                [
+                                    dtstart - possible_alert[0],
+                                    dtstart,
+                                    possible_alert[1],
+                                    item['itemtype'],
+                                    item['summary'],
+                                    item.doc_id,
+                                ]
+                            )
         else:
             # no 's', no 'f'
             relevant = None
@@ -6401,26 +7035,71 @@ def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[
                 if 'f' in job:
                     continue
                 # adjust job starting time if 's' in job
-                job_summary = f"{job.get('summary', '')[:summary_width]} {num_remaining}"
+                job_summary = (
+                    f"{job.get('summary', '')[:summary_width]} {num_remaining}"
+                )
                 jobstart = dtstart - job.get('s', ZERO)
-                if jobstart.date() < today.date() and job.get('status', None) == '-':
+                if (
+                    jobstart.date() < today.date()
+                    and job.get('status', None) == '-'
+                ):
                     pastdue_jobs = True
-                    pastdue.append([(jobstart.date() - today.date()).days, job_summary, item.doc_id, job_id, None])
+                    pastdue.append(
+                        [
+                            (jobstart.date() - today.date()).days,
+                            job_summary,
+                            item.doc_id,
+                            job_id,
+                            None,
+                        ]
+                    )
                 if 'b' in job:
                     days = int(job['b']) * DAY
                     if today + DAY <= jobstart <= tomorrow + days:
-                        beginbys.append([(jobstart.date() - today.date()).days, job_summary, item.doc_id, job_id, None])
+                        beginbys.append(
+                            [
+                                (jobstart.date() - today.date()).days,
+                                job_summary,
+                                item.doc_id,
+                                job_id,
+                                None,
+                            ]
+                        )
                 if 'a' in job:
                     for alert in job['a']:
                         for td in alert[0]:
                             if today <= jobstart - td <= tomorrow:
-                                alerts.append([dtstart - td, dtstart, alert[1], '-', job['summary'], item.doc_id, job_id, None])
+                                alerts.append(
+                                    [
+                                        dtstart - td,
+                                        dtstart,
+                                        alert[1],
+                                        '-',
+                                        job['summary'],
+                                        item.doc_id,
+                                        job_id,
+                                        None,
+                                    ]
+                                )
 
         id2relevant[item.doc_id] = relevant
 
         # if item['itemtype'] == '-' and 'f' not in item and relevant.date() < today.date():
-        if item['itemtype'] == '-' and 'f' not in item and 'j' not in item and relevant.date() < today.date():
-            pastdue.append([(relevant.date() - today.date()).days, summary, item.doc_id, None, None])
+        if (
+            item['itemtype'] == '-'
+            and 'f' not in item
+            and 'j' not in item
+            and relevant.date() < today.date()
+        ):
+            pastdue.append(
+                [
+                    (relevant.date() - today.date()).days,
+                    summary,
+                    item.doc_id,
+                    None,
+                    None,
+                ]
+            )
 
     inbox.sort()
     pastdue.sort()
@@ -6428,34 +7107,76 @@ def relevant(db, now=datetime.now(), repeat_list=[], pinned_list=[], link_list=[
     alerts.sort()
     # alerts: alert datetime, start datetime, commands, summary, doc_id
     week = today.isocalendar()[:2]
-    day = (format_wkday(today), )
+    day = (format_wkday(today),)
     for item in inbox:
         item_0 = ' '
         rhc = item_0.center(rhc_width, ' ')
         doc_id = item[2]
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
-        current.append({'id': item[2], 'job': None, 'instance': None, 'sort': (inbox_fmt, 1), 'week': week, 'day': day, 'columns': ['!', item[1], flags, rhc, doc_id]})
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
+        current.append(
+            {
+                'id': item[2],
+                'job': None,
+                'instance': None,
+                'sort': (inbox_fmt, 1),
+                'week': week,
+                'day': day,
+                'columns': ['!', item[1], flags, rhc, doc_id],
+            }
+        )
 
     for item in pastdue:
-        item_0 = str(item[0]) if item[0] in item else ""
+        item_0 = str(item[0]) if item[0] in item else ''
         rhc = item_0
         doc_id = item[2]
-        job_id = item[3] if item[3] else ""
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        job_id = item[3] if item[3] else ''
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
         try:
-            current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (pastdue_fmt, 2, item[0]), 'week': week, 'day': day, 'columns': ['<', f'{rhc + "  " if rhc else ""}{item[1]}', flags, '', (doc_id, item[4], item[3])]})
+            current.append(
+                {
+                    'id': item[2],
+                    'job': item[3],
+                    'instance': item[4],
+                    'sort': (pastdue_fmt, 2, item[0]),
+                    'week': week,
+                    'day': day,
+                    'columns': [
+                        '<',
+                        f'{rhc + "  " if rhc else ""}{item[1]}',
+                        flags,
+                        '',
+                        (doc_id, item[4], item[3]),
+                    ],
+                }
+            )
         except Exception as e:
-            logger.warning(f"could not append item: {item}; e: {e}")
+            logger.warning(f'could not append item: {item}; e: {e}')
 
     for item in beginbys:
         if item[0] in item:
-            item_0 = str(item[0]) if item[0] <= 0 else f"+{item[0]}"
+            item_0 = str(item[0]) if item[0] <= 0 else f'+{item[0]}'
         else:
-            item_0 = ""
-        rhc = item_0 + "  " if item[0] else ""
+            item_0 = ''
+        rhc = item_0 + '  ' if item[0] else ''
         doc_id = item[2]
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
-        current.append({'id': item[2], 'job': item[3], 'instance': item[4], 'sort': (begby_fmt, 3, item[0]), 'week': week, 'day': day, 'columns': ['>', rhc+item[1], flags, '', doc_id]})
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
+        current.append(
+            {
+                'id': item[2],
+                'job': item[3],
+                'instance': item[4],
+                'sort': (begby_fmt, 3, item[0]),
+                'week': week,
+                'day': day,
+                'columns': ['>', rhc + item[1], flags, '', doc_id],
+            }
+        )
 
     return current, alerts, id2relevant, dirty
 
@@ -6464,6 +7185,7 @@ def db_replace(new):
     """
     Used with update to replace the original doc with new.
     """
+
     def transform(doc):
         # update doc to include key/values from new
         doc.update(new)
@@ -6471,13 +7193,16 @@ def db_replace(new):
         for k in list(doc.keys()):
             if k not in new:
                 del doc[k]
+
     return transform
 
 
 def update_db(db, doc_id, hsh={}):
     old = db.get(doc_id=doc_id)
     if not old:
-        logger.error(f"Could not get document corresponding to doc_id {doc_id}")
+        logger.error(
+            f'Could not get document corresponding to doc_id {doc_id}'
+        )
         return
     if old == hsh:
         return
@@ -6485,7 +7210,10 @@ def update_db(db, doc_id, hsh={}):
     try:
         db.update(db_replace(hsh), doc_ids=[doc_id])
     except Exception as e:
-        logger.error(f"Error updating document corresponding to doc_id {doc_id}\nhsh {hsh}\nexception: {repr(e)}")
+        logger.error(
+            f'Error updating document corresponding to doc_id {doc_id}\nhsh {hsh}\nexception: {repr(e)}'
+        )
+
 
 def write_back(db, docs):
     for doc in docs:
@@ -6493,7 +7221,7 @@ def write_back(db, docs):
             doc_id = doc.doc_id
             update_db(db, doc_id, doc)
         except Exception as e:
-            logger.error(f"exception: {e}")
+            logger.error(f'exception: {e}')
 
 
 def insert_db(db, hsh={}):
@@ -6507,15 +7235,23 @@ def insert_db(db, hsh={}):
     try:
         db.insert(hsh)
     except Exception as e:
-        logger.error(f"Error updating database:\nhsh {hsh}\ne {repr(e)}")
+        logger.error(f'Error updating database:\nhsh {hsh}\ne {repr(e)}')
 
 
-def show_forthcoming(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+def show_forthcoming(
+    db,
+    id2relevant,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
     width = shutil.get_terminal_size()[0] - 3
     summary_width = width - 19
     rows = []
     today = datetime.now().replace(hour=0, minute=0, second=0).astimezone()
-    md_fmt = "%d/%m" if settings['dayfirst'] else "%m/%d"
+    md_fmt = '%d/%m' if settings['dayfirst'] else '%m/%d'
     for item in db:
         if item.doc_id not in id2relevant:
             continue
@@ -6533,30 +7269,28 @@ def show_forthcoming(db, id2relevant, repeat_list=[], pinned_list=[], link_list=
         relevant = id2relevant[item.doc_id]
         if relevant < today:
             continue
-        year = relevant.strftime("%b %Y")
-        monthday = relevant.strftime("%d").lstrip('0')
+        year = relevant.strftime('%b %Y')
+        monthday = relevant.strftime('%d').lstrip('0')
         time = fmt_time(relevant)
         # rhc = f"{monthday:>6} {time:^7}".ljust(14, ' ')
-        rhc = f"{monthday : >2} {time} " if time else f"{monthday : >2} "
+        rhc = f'{monthday : >2} {time} ' if time else f'{monthday : >2} '
 
         itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
-        summary = set_summary(item['summary'], item.get('s', None), relevant, freq)
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        summary = set_summary(
+            item['summary'], item.get('s', None), relevant, freq
+        )
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
 
         rows.append(
-                {
-                    'id': doc_id,
-                    'sort': relevant,
-                    'path': year,
-                    'values': [
-                        itemtype,
-                        f'{rhc}{summary}',
-                        flags,
-                        "",
-                        doc_id
-                        ],
-                }
-                )
+            {
+                'id': doc_id,
+                'sort': relevant,
+                'path': year,
+                'values': [itemtype, f'{rhc}{summary}', flags, '', doc_id],
+            }
+        )
 
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
@@ -6567,10 +7301,17 @@ def show_forthcoming(db, id2relevant, repeat_list=[], pinned_list=[], link_list=
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
-def get_flags(doc_id, repeat_list=[], link_list=[], konnected=[], pinned_list=[], timers={}):
-    """
-    """
-    flags = ""
+
+def get_flags(
+    doc_id,
+    repeat_list=[],
+    link_list=[],
+    konnected=[],
+    pinned_list=[],
+    timers={},
+):
+    """ """
+    flags = ''
     if doc_id in repeat_list:
         flags += REPS
     if doc_id in link_list:
@@ -6580,14 +7321,23 @@ def get_flags(doc_id, repeat_list=[], link_list=[], konnected=[], pinned_list=[]
     if doc_id in pinned_list:
         flags += PIN_CHAR
     if doc_id in timers:
-        flags += "t"
+        flags += 't'
     return flags
 
-def show_query_items(text, items=[], repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+
+def show_query_items(
+    text,
+    items=[],
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
     rows = []
     if not items or not isinstance(items, list):
-        return f"query: {text}\n   none matching", {}
-    item_count = f" [{len(items)}]"
+        return f'query: {text}\n   none matching', {}
+    item_count = f' [{len(items)}]'
     width = shutil.get_terminal_size()[0] - 3
     summary_width = width - len(item_count) - 7
     for item in items:
@@ -6597,25 +7347,22 @@ def show_query_items(text, items=[], repeat_list=[], pinned_list=[], link_list=[
         else:
             dt, label = item.get('created', None), 'c'
         doc_id = item.doc_id
-        year = dt.strftime("%Y")
+        year = dt.strftime('%Y')
         itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = item['summary']
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
-        rhc = f"{doc_id: >6}"
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
+        rhc = f'{doc_id: >6}'
         rows.append(
-                {
-                    'sort': dt,
-                    'path': year,
-                    'values': [
-                        itemtype,
-                        summary,
-                        flags,
-                        rhc,
-                        doc_id],
-                }
-                )
+            {
+                'sort': dt,
+                'path': year,
+                'values': [itemtype, summary, flags, rhc, doc_id],
+            }
+        )
     rdict = NDict()
-    path = f"query: {text[:summary_width]}{item_count}"
+    path = f'query: {text[:summary_width]}{item_count}'
     for row in rows:
         values = row['values']
         rdict.add(path, values)
@@ -6623,9 +7370,17 @@ def show_query_items(text, items=[], repeat_list=[], pinned_list=[], link_list=[
     return tree, row2id
 
 
-def show_history(db, reverse=True, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
-    md_fmt = "%d/%m" if settings['dayfirst'] else "%m/%d"
-    ymd_fmt = f"%y/{md_fmt}" if settings['yearfirst'] else f"{md_fmt}/%y"
+def show_history(
+    db,
+    reverse=True,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
+    md_fmt = '%d/%m' if settings['dayfirst'] else '%m/%d'
+    ymd_fmt = f'%y/{md_fmt}' if settings['yearfirst'] else f'{md_fmt}/%y'
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     # summary_width = width - 14
@@ -6638,25 +7393,23 @@ def show_history(db, reverse=True, repeat_list=[], pinned_list=[], link_list=[],
             dt, label = item.get('created', None), 'c'
         if dt is not None:
             doc_id = item.doc_id
-            path = dt.strftime("%b %Y")
-            d = dt.strftime("%d").lstrip('0')
-            rhc = f"{d : >2} {label} "
-            itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
-            summary = item.get('summary', "~")
-            flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+            path = dt.strftime('%b %Y')
+            d = dt.strftime('%d').lstrip('0')
+            rhc = f'{d : >2} {label} '
+            itemtype = (
+                FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+            )
+            summary = item.get('summary', '~')
+            flags = get_flags(
+                doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            )
             rows.append(
-                    {
-                        'sort': dt,
-                        'path': path,
-                        'values': [
-                            itemtype,
-                            rhc + summary,
-                            flags,
-                            '',
-                            doc_id
-                            ],
-                    }
-                    )
+                {
+                    'sort': dt,
+                    'path': path,
+                    'values': [itemtype, rhc + summary, flags, '', doc_id],
+                }
+            )
     try:
         rows.sort(key=itemgetter('sort'), reverse=reverse)
     except Exception as e:
@@ -6672,7 +7425,9 @@ def show_history(db, reverse=True, repeat_list=[], pinned_list=[], link_list=[],
     return tree, row2id
 
 
-def show_review(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+def show_review(
+    db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}
+):
     """
     Unfinished, undated tasks and jobs
     """
@@ -6681,35 +7436,43 @@ def show_review(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], 
     locations = set([])
     summary_width = width - 18
     for item in db:
-        if item.get('itemtype', None) not in ['-'] or 's' in item or 'f' in item:
+        if (
+            item.get('itemtype', None) not in ['-']
+            or 's' in item
+            or 'f' in item
+        ):
             continue
         doc_id = item.doc_id
         rhc = item.get('l', '~')[:10].ljust(10, ' ')
         itemtype = item['itemtype']
         summary = item['summary']
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
         modified = item['modified'] if 'modified' in item else item['created']
 
-        weeks = (datetime.now().astimezone(ZoneInfo('UTC')) - modified).days // 7
+        weeks = (
+            datetime.now().astimezone(ZoneInfo('UTC')) - modified
+        ).days // 7
         if weeks == 0:
-            wkfmt = " This week"
+            wkfmt = ' This week'
         elif weeks == 1:
-            wkfmt = " Last week"
+            wkfmt = ' Last week'
         else:
-            wkfmt = f" {weeks} weeks ago"
+            wkfmt = f' {weeks} weeks ago'
         rows.append(
-                {
-                    'path': wkfmt,
-                    'sort': modified,
-                    'values': [
-                        itemtype,
-                        summary,
-                        flags,
-                        rhc, # location
-                        doc_id,
-                        ]
-                }
-                )
+            {
+                'path': wkfmt,
+                'sort': modified,
+                'values': [
+                    itemtype,
+                    summary,
+                    flags,
+                    rhc,  # location
+                    doc_id,
+                ],
+            }
+        )
     try:
         rows.sort(key=itemgetter('sort'), reverse=False)
     except Exception as e:
@@ -6722,7 +7485,16 @@ def show_review(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], 
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
-def show_timers(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}, active_timer=None):
+
+def show_timers(
+    db,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+    active_timer=None,
+):
     """
     timers
     """
@@ -6731,11 +7503,7 @@ def show_timers(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], 
     locations = set([])
     # summary_width = width - 18
     now = datetime.now().astimezone()
-    state2sort = {
-            'i': 'inactive',
-            'r': 'active',
-            'p': 'active'
-            }
+    state2sort = {'i': 'inactive', 'r': 'active', 'p': 'active'}
     total_time = ZERO
     num_timers = 0
     timer_ids = [x for x in timers if x]
@@ -6749,36 +7517,51 @@ def show_timers(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], 
         num_timers += 1
         total_time += elapsed
         sort = state2sort[state]
-        rhc = f"{status_duration(elapsed)}:{state}"
+        rhc = f'{status_duration(elapsed)}:{state}'
         itemtype = item['itemtype']
         summary = item['summary']
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
         rows.append(
-                {
-                    'sort': (sort, now - start),
-                    'values': [
-                        itemtype,
-                        summary,
-                        flags,
-                        rhc, # status
-                        doc_id,
-                        ]
-                }
-                )
+            {
+                'sort': (sort, now - start),
+                'values': [
+                    itemtype,
+                    summary,
+                    flags,
+                    rhc,  # status
+                    doc_id,
+                ],
+            }
+        )
     try:
         rows.sort(key=itemgetter('sort'), reverse=False)
     except Exception as e:
         logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
     rdict = NDict()
-    timers_fmt = "timers" if num_timers > 1 else "timer"
-    path = f"{num_timers} {timers_fmt}: {status_duration(total_time)}".center(width, ' ')
+    timers_fmt = 'timers' if num_timers > 1 else 'timer'
+    path = f'{num_timers} {timers_fmt}: {status_duration(total_time)}'.center(
+        width, ' '
+    )
     for row in rows:
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
-def show_konnected(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}, selected_id=None, from_ids={}, to_ids={}):
+
+def show_konnected(
+    db,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+    selected_id=None,
+    from_ids={},
+    to_ids={},
+):
     """
     konnected view for selected_id
     """
@@ -6813,20 +7596,22 @@ def show_konnected(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[
         rhc = str(doc_id).rjust(5, ' ')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
         rows.append(
-                {
-                    'path': path,
-                    'sort': (path, -doc_id),
-                    'values': [
-                        itemtype,
-                        summary,
-                        flags,
-                        rhc,
-                        doc_id,
-                        ]
-                }
-                )
+            {
+                'path': path,
+                'sort': (path, -doc_id),
+                'values': [
+                    itemtype,
+                    summary,
+                    flags,
+                    rhc,
+                    doc_id,
+                ],
+            }
+        )
     try:
         rows.sort(key=itemgetter('sort'), reverse=True)
     except Exception as e:
@@ -6840,7 +7625,9 @@ def show_konnected(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[
     return tree, row2id
 
 
-def show_next(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+def show_next(
+    db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}
+):
     """
     Unfinished, undated tasks and jobs
     """
@@ -6863,15 +7650,21 @@ def show_next(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], ti
                 location2groups.setdefault(location, []).append(group)
 
     for item in db:
-        if item.get('itemtype', None) not in ['-'] or 's' in item or 'f' in item:
+        if (
+            item.get('itemtype', None) not in ['-']
+            or 's' in item
+            or 'f' in item
+        ):
             continue
         doc_id = item.doc_id
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
         if 'j' in item:
             task_location = item.get('l', '~')
             priority = int(item.get('p', 0))
             sort_priority = 4 - int(priority)
-            show_priority = str(priority) if priority > 0 else ""
+            show_priority = str(priority) if priority > 0 else ''
             for job in item['j']:
                 if job.get('f', None) is not None:
                     # show completed jobs only in completed view
@@ -6881,7 +7674,7 @@ def show_next(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], ti
                 extent = format_duration(extent) if extent else ''
                 status = 0 if job.get('status') == '-' else 1
                 # status 1 -> waiting, status 0 -> available
-                rhc = " ".join([show_priority, extent]).center(7, ' ')
+                rhc = ' '.join([show_priority, extent]).center(7, ' ')
                 summary = job.get('summary')
                 job_id = job.get('i', None)
                 job_sort = str(job_id)
@@ -6890,42 +7683,48 @@ def show_next(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], ti
                         'id': doc_id,
                         'job': job_id,
                         'instance': None,
-                        'sort': (location, status, sort_priority, job_sort, job.get('summary', '')),
+                        'sort': (
+                            location,
+                            status,
+                            sort_priority,
+                            job_sort,
+                            job.get('summary', ''),
+                        ),
                         'location': location,
                         'columns': [
                             job.get('status', ''),
                             summary,
                             flags,
                             rhc,
-                            (doc_id, None, job_id)
-                            ]
+                            (doc_id, None, job_id),
+                        ],
                     }
                 )
         else:
             location = item.get('l', '~')
             priority = int(item.get('p', 0))
             extent = item.get('e', '')
-            extent = format_duration(extent) if extent else ""
+            extent = format_duration(extent) if extent else ''
             sort_priority = 4 - int(priority)
-            show_priority = str(priority) if priority > 0 else ""
-            rhc = " ".join([show_priority, extent]).center(7, ' ')
+            show_priority = str(priority) if priority > 0 else ''
+            rhc = ' '.join([show_priority, extent]).center(7, ' ')
             summary = item['summary']
             rows.append(
-                    {
-                        'id': doc_id,
-                        'job': None,
-                        'instance': None,
-                        'sort': (location, sort_priority, extent, item['summary']),
-                        'location': location,
-                        'columns': [
-                            item['itemtype'],
-                            summary,
-                            flags,
-                            rhc,
-                            (doc_id, None, None)
-                            ]
-                    }
-                    )
+                {
+                    'id': doc_id,
+                    'job': None,
+                    'instance': None,
+                    'sort': (location, sort_priority, extent, item['summary']),
+                    'location': location,
+                    'columns': [
+                        item['itemtype'],
+                        summary,
+                        flags,
+                        rhc,
+                        (doc_id, None, None),
+                    ],
+                }
+            )
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
     for row in rows:
@@ -6962,7 +7761,15 @@ def show_next(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], ti
     return tree, row2id, ctree
 
 
-def show_journal(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+def show_journal(
+    db,
+    id2relevant,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
     """
     journal grouped by index entry
     """
@@ -6976,34 +7783,32 @@ def show_journal(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], 
         s = item.get('s', None)
         if s:
             rhc = format_date(s)[1]
-            ymd = s.strftime("%Y/%m/%d").split('/')
+            ymd = s.strftime('%Y/%m/%d').split('/')
             year = ymd.pop(0)
-            month, day = [f"{x: >2}" for x in ymd]
-            ss = f"{year}/{month}/{day}"
+            month, day = [f'{x: >2}' for x in ymd]
+            ss = f'{year}/{month}/{day}'
         else:
-            rhc = " "
-            ss = ""
-            year = month = day = ""
+            rhc = ' '
+            ss = ''
+            year = month = day = ''
         # rhc = f"{rhc: ^8}"
-        rhc = ""
+        rhc = ''
         index = item.get('i', '~')
         if index == settings['journal_name'] and year:
-            index = f"{index}/{year}/{month}"
+            index = f'{index}/{year}/{month}'
         itemtype = item['itemtype']
         summary = item['summary'][:summary_width]
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
 
-        rows.append({
-                    'sort': (index, ss, item['summary']),
-                    'path': index,
-                    'values': [
-                        itemtype,
-                        summary,
-                        flags,
-                        rhc,
-                        doc_id
-                        ],
-                    })
+        rows.append(
+            {
+                'sort': (index, ss, item['summary']),
+                'path': index,
+                'values': [itemtype, summary, flags, rhc, doc_id],
+            }
+        )
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
     for row in rows:
@@ -7014,7 +7819,15 @@ def show_journal(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], 
     return tree, row2id
 
 
-def show_tags(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+def show_tags(
+    db,
+    id2relevant,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
     """
     tagged items grouped by tag
     """
@@ -7026,20 +7839,18 @@ def show_tags(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], kon
         tags = item.get('t', [])
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
 
         for tag in subsets(tags):
-            rows.append({
-                        'sort': (tag, item['itemtype'], item['summary']),
-                        'path': tag[1],
-                        'values': [
-                            itemtype,
-                            summary,
-                            flags,
-                            rhc,
-                            doc_id
-                            ],
-                        })
+            rows.append(
+                {
+                    'sort': (tag, item['itemtype'], item['summary']),
+                    'path': tag[1],
+                    'values': [itemtype, summary, flags, rhc, doc_id],
+                }
+            )
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
     for row in rows:
@@ -7050,7 +7861,15 @@ def show_tags(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], kon
     return tree, row2id
 
 
-def show_location(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+def show_location(
+    db,
+    id2relevant,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
     """
     items with location entries grouped by location
     """
@@ -7058,23 +7877,25 @@ def show_location(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[],
     rows = []
     for item in db:
         doc_id = item.doc_id
-        rhc = format_date(id2relevant[doc_id])[1] if doc_id in id2relevant else " "*8
+        rhc = (
+            format_date(id2relevant[doc_id])[1]
+            if doc_id in id2relevant
+            else ' ' * 8
+        )
         location = item.get('l', '~')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
 
-        rows.append({
-                    'sort': (location, item['itemtype'], item['summary']),
-                    'path': location,
-                    'values': [
-                        itemtype,
-                        summary,
-                        flags,
-                        rhc,
-                        doc_id
-                        ],
-                    })
+        rows.append(
+            {
+                'sort': (location, item['itemtype'], item['summary']),
+                'path': location,
+                'values': [itemtype, summary, flags, rhc, doc_id],
+            }
+        )
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
     for row in rows:
@@ -7085,7 +7906,15 @@ def show_location(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[],
     return tree, row2id
 
 
-def show_index(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+def show_index(
+    db,
+    id2relevant,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
     """
     All items grouped by index entry
     """
@@ -7097,26 +7926,25 @@ def show_index(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], ko
         index = item.get('i', '~')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary'][:summary_width]
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
         s = item.get('s', None)
         if s:
             rhc = format_date(s)[1]
             sort = format_datetime(item['created'])[1]
         else:
-            rhc = " "
-            sort = "~"
+            rhc = ' '
+            sort = '~'
         # rhc = f"{rhc: ^8}"
-        rhc = ""
-        rows.append({
-                    'sort': (index, sort, item['itemtype'], item['summary']),
-                    'path': index,
-                    'values': [
-                        itemtype,
-                        summary,
-                        flags,
-                        rhc,
-                        doc_id],
-                    })
+        rhc = ''
+        rows.append(
+            {
+                'sort': (index, sort, item['itemtype'], item['summary']),
+                'path': index,
+                'values': [itemtype, summary, flags, rhc, doc_id],
+            }
+        )
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
     for row in rows:
@@ -7125,17 +7953,24 @@ def show_index(db, id2relevant, repeat_list=[], pinned_list=[], link_list=[], ko
         try:
             rdict.add(path, values)
         except:
-            logger.error(f"error adding path: {path}, values: {values}")
+            logger.error(f'error adding path: {path}, values: {values}')
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
 
-def show_pinned(items, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+def show_pinned(
+    items,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     rhc_width = 8
-    md_fmt = "D MMM" if settings['dayfirst'] else "MMM D"
-    logger.debug(f"repeat_list: {repeat_list}; pinned_list: {pinned_list}")
+    md_fmt = 'D MMM' if settings['dayfirst'] else 'MMM D'
+    logger.debug(f'repeat_list: {repeat_list}; pinned_list: {pinned_list}')
 
     for item in items:
         mt = item.get('modified', None)
@@ -7145,27 +7980,25 @@ def show_pinned(items, repeat_list=[], pinned_list=[], link_list=[], konnected=[
             dt, label = item.get('created', None), 'c'
         if dt is not None:
             doc_id = item.doc_id
-            year = dt.strftime("%Y")
+            year = dt.strftime('%Y')
             monthday = dt.strftime(md_fmt)
             time = fmt_time(dt)
-            rhc = f"{str(doc_id).rjust(6)}"
-            itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+            rhc = f'{str(doc_id).rjust(6)}'
+            itemtype = (
+                FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+            )
             summary = item['summary']
-            flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+            flags = get_flags(
+                doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            )
 
             rows.append(
-                    {
-                        'sort': (itemtype, dt),
-                        'path': type_keys[itemtype],
-                        'values': [
-                            itemtype,
-                            summary,
-                            flags,
-                            rhc,
-                            doc_id
-                           ],
-                    }
-                    )
+                {
+                    'sort': (itemtype, dt),
+                    'path': type_keys[itemtype],
+                    'values': [itemtype, summary, flags, rhc, doc_id],
+                }
+            )
 
     rows.sort(key=itemgetter('sort'), reverse=False)
     rdict = NDict()
@@ -7176,7 +8009,10 @@ def show_pinned(items, repeat_list=[], pinned_list=[], link_list=[], konnected=[
     tree, row2id = rdict.as_tree(rdict, level=0)
     return tree, row2id
 
-def get_usedtime(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+
+def get_usedtime(
+    db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}
+):
     """
     All items with used entries grouped by month, index entry and day
 
@@ -7198,7 +8034,9 @@ def get_usedtime(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[],
     detail_rows = []
     months = set([])
     for item in db:
-        used = item.get('u') # this will be a list of 'period, datetime' tuples
+        used = item.get(
+            'u'
+        )   # this will be a list of 'period, datetime' tuples
         if item['itemtype'] == '!' or not used:
             continue
         index = item.get('i', '~')
@@ -7207,7 +8045,9 @@ def get_usedtime(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[],
         doc_id = item.doc_id
         itemtype = item['itemtype']
         summary = item['summary']
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
 
         for period, dt in used:
             if isinstance(dt, date) and not isinstance(dt, datetime):
@@ -7220,9 +8060,9 @@ def get_usedtime(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[],
                 seconds = int(period.total_seconds()) % 60
                 if seconds:
                     # round up to the next minute
-                    period = period + timedelta(seconds = 60-seconds)
+                    period = period + timedelta(seconds=60 - seconds)
 
-                res = (period.total_seconds()//60) % UT_MIN
+                res = (period.total_seconds() // 60) % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
 
@@ -7236,34 +8076,32 @@ def get_usedtime(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[],
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
             id_used[monthday] += period
-            month = dt.strftime("%Y-%m")
+            month = dt.strftime('%Y-%m')
             used_time.setdefault(tuple((month,)), ZERO)
-            used_time[tuple((month, ))] += period
+            used_time[tuple((month,))] += period
             for i in range(len(index_tup)):
-                used_time.setdefault(tuple((month, *index_tup[:i+1])), ZERO)
-                used_time[tuple((month, *index_tup[:i+1]))] += period
+                used_time.setdefault(tuple((month, *index_tup[: i + 1])), ZERO)
+                used_time[tuple((month, *index_tup[: i + 1]))] += period
         for monthday in id_used:
-            month = monthday.strftime("%Y-%m")
+            month = monthday.strftime('%Y-%m')
             rhc = f"{format_hours_and_tenths(id_used[monthday]).lstrip('+')} {monthday.day}"
-            detail_rows.append({
-                        'sort': (month, index_tup, monthday, itemtype, summary),
-                        'month': month,
-                        'path': f"{monthday.strftime('%B %Y')}/{index}",
-                        'values': [
-                            itemtype,
-                            summary,
-                            flags,
-                            rhc,
-                            doc_id],
-                        })
+            detail_rows.append(
+                {
+                    'sort': (month, index_tup, monthday, itemtype, summary),
+                    'month': month,
+                    'path': f"{monthday.strftime('%B %Y')}/{index}",
+                    'values': [itemtype, summary, flags, rhc, doc_id],
+                }
+            )
 
     try:
         detail_rows.sort(key=itemgetter('sort'))
     except Exception as e:
         # report the components of sort other than the last, the summary
-        logger.error(f"error sorting detail_rows: f{e}\nsort: {[x['sort'][:-1] for x in detail_rows]}")
+        logger.error(
+            f"error sorting detail_rows: f{e}\nsort: {[x['sort'][:-1] for x in detail_rows]}"
+        )
         return used_details, used_details2id, used_summary
-
 
     for month, items in groupby(detail_rows, key=itemgetter('month')):
         months.add(month)
@@ -7274,7 +8112,9 @@ def get_usedtime(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[],
             try:
                 rdict.add(path, values)
             except Exception as e:
-                logger.error(f"error adding path: {path}, values: {values}: {e}")
+                logger.error(
+                    f'error adding path: {path}, values: {values}: {e}'
+                )
         tree, row2id = rdict.as_tree(rdict, level=0)
         used_details[month] = tree
         used_details2id[month] = row2id
@@ -7284,23 +8124,25 @@ def get_usedtime(db, repeat_list=[], pinned_list=[], link_list=[], konnected=[],
     for key in keys:
         period = used_time[key]
         month_rows.setdefault(key[0], [])
-        indent = (len(key) - 1) * 2 * " "
+        indent = (len(key) - 1) * 2 * ' '
         if len(key) == 1:
-            yrmnth = datetime.strptime(f"{key[0]}-01", "%Y-%m-%d").strftime("%B %Y")
+            yrmnth = datetime.strptime(f'{key[0]}-01', '%Y-%m-%d').strftime(
+                '%B %Y'
+            )
             rhc = f": {format_hours_and_tenths(period).lstrip('+')}"
             # summary = indent + f"{indent}{yrmnth}"[:summary_width]
             summary = indent + yrmnth
-            month_rows[key[0]].append(f"{summary}{rhc}")
+            month_rows[key[0]].append(f'{summary}{rhc}')
 
         else:
             rhc = f": {format_hours_and_tenths(period).lstrip('+')}"
             summary = indent + key[-1]
             excess = len(rhc) + len(summary) - width
             summary = summary[:-excess] if excess > 0 else summary
-            month_rows[key[0]].append(f"{summary}{rhc}")
+            month_rows[key[0]].append(f'{summary}{rhc}')
 
     for key, val in month_rows.items():
-        used_summary[key] = "\n".join(val)
+        used_summary[key] = '\n'.join(val)
 
     return used_details, used_details2id, used_summary, effort_details
 
@@ -7316,61 +8158,83 @@ def no_busy_periods(week, width):
 
     # The weekday 2-char abbreviation and the month day
     width = shutil.get_terminal_size()[0]
-    dent = int((width - 69)/2) * " "
+    dent = int((width - 69) / 2) * ' '
     monday = datetime.strptime(f'{week[0]} {week[1]} 1', '%Y %W %w')
     DD = {}
     for i in range(1, 8):
         # DD[i] = f"{WA[i]} {monday.add(days=i-1).strftime('D')}".ljust(5, ' ')
-        DD[i] = f"{WA[i]} {(monday + (i-1)*DAY).strftime('%d').lstrip('0')}".ljust(5, ' ')
+        DD[
+            i
+        ] = f"{WA[i]} {(monday + (i-1)*DAY).strftime('%d').lstrip('0')}".ljust(
+            5, ' '
+        )
 
     h = {}
     h[0] = '  '
     h[58] = '  '
     for i in range(1, 58):
-        h[i] = ' ' if (i-1) % 4 else VSEP
-    empty = "".join([h[i] for i in range(59)])
+        h[i] = ' ' if (i - 1) % 4 else VSEP
+    empty = ''.join([h[i] for i in range(59)])
     for i in range(1, 58):
-        h[i] = HSEP if (i-1) % 4 else VSEP
-    full = "".join([h[i] for i in range(59)])
+        h[i] = HSEP if (i - 1) % 4 else VSEP
+    full = ''.join([h[i] for i in range(59)])
     empty_hsh = {}
     wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-    empty_hsh[0] = f"""\
+    empty_hsh[
+        0
+    ] = f"""\
 {wk_fmt}
 
 {dent}{day_bar_labels()}
 """
     for weekday in range(1, 8):
         empty = day_bar([], False)
-        empty_hsh[weekday] = f"""\
+        empty_hsh[
+            weekday
+        ] = f"""\
 {dent}{7*' '}{empty}
 {dent} {DD[weekday] : <6}{empty}
 """
-    return  "".join([empty_hsh[i] for i in range(0, 8)])
+    return ''.join([empty_hsh[i] for i in range(0, 8)])
 
 
 def summary_pin(text, width, doc_id, pinned_list, link_list, konnected_list):
     in_konnected = False
     if doc_id in konnected_list:
         in_konnected = True
-        text = (text[:width-3].rstrip() +  KONNECT_CHAR)
+        text = text[: width - 3].rstrip() + KONNECT_CHAR
     if doc_id in link_list:
-        text = (text[:width-3].rstrip() +  LINK_CHAR)
+        text = text[: width - 3].rstrip() + LINK_CHAR
     if doc_id in pinned_list:
-        ret = (text[:width-1] + PIN_CHAR).ljust(width-1, ' ')
+        ret = (text[: width - 1] + PIN_CHAR).ljust(width - 1, ' ')
     else:
         ret = text[:width].ljust(width, ' ')
     return ret
 
+
 def wkday2row(wkday):
     # week day number in 1, ..., 7 to row number in busy view
     # 1 -> 5, ..., 6 -> 15, 0 -> 17  (pendulum thinks Sunday is first)
-    #TODO: fixme
-    return 3+ 2*wkday if wkday else 17
+    # TODO: fixme
+    return 3 + 2 * wkday if wkday else 17
 
-def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0, weeks_after=0, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}):
+
+def schedule(
+    db,
+    yw=getWeekNum(),
+    current=[],
+    now=datetime.now(),
+    weeks_before=0,
+    weeks_after=0,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
     global current_hsh, active_tasks
     timer_schedule = TimeIt('***SCHEDULE***')
-    width = shutil.get_terminal_size()[0]-3
+    width = shutil.get_terminal_size()[0] - 3
     compact = False
     weeks_after = settings['keep_current'][0]
     mk_current = weeks_after > 0
@@ -7392,9 +8256,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     hr = hour
                 elif hour > 12:
                     hr = hour - 12
-                LL[hour] = f"{hr}{suffix}".rjust(6, ' ')
+                LL[hour] = f'{hr}{suffix}'.rjust(6, ' ')
             else:
-                LL[hour] = f"{hour}h".rjust(6, ' ')
+                LL[hour] = f'{hour}h'.rjust(6, ' ')
         else:
             LL[hour] = ' '.rjust(6, ' ')
 
@@ -7405,7 +8269,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
     flag_width = 0
     # indent_to_summary = 6
     indent_to_summary = 0
-    #TODO: set these for rhc on the left
+    # TODO: set these for rhc on the left
     # current_summary_width = current_width - indent_to_summary - rhc_width
     # summary_width = width - indent_to_summary - flag_width - rhc_width
 
@@ -7432,30 +8296,32 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
     done = []
     engaged = []
 
-    #XXX year, week -> dayofweek -> list of [time interval, summary, period]
+    # XXX year, week -> dayofweek -> list of [time interval, summary, period]
     busy_details = {}
     week2day2busy = {}
     week2day2allday = {}
 
-    #XXX main loop begins
-    todayYMD = now.strftime("%Y%m%d")
-    tomorrowYMD = (now + 1*DAY).strftime("%Y%m%d")
+    # XXX main loop begins
+    todayYMD = now.strftime('%Y%m%d')
+    tomorrowYMD = (now + 1 * DAY).strftime('%Y%m%d')
 
     for item in db:
         completed = []
         if item.get('itemtype', None) == None:
-            logger.error(f"itemtype missing from {item}")
+            logger.error(f'itemtype missing from {item}')
             continue
-        if item['itemtype'] in "!?":
+        if item['itemtype'] in '!?':
             continue
 
         doc_id = item.doc_id
         itemtype = item['itemtype']
-        summary = item.get('summary', "~")
+        summary = item.get('summary', '~')
         start = item.get('s', None)
         extent = item.get('e', None)
         wraps = item.get('w', [])
-        flags = get_flags(doc_id, repeat_list, link_list, konnected, pinned_list, timers)
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
         # if 'r' in item or '+' in item:
         #     flags = REPS + flags # put REPS first
         used = item.get('u', None)
@@ -7463,10 +8329,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         history = item.get('h', None)
         jobs = item.get('j', None)
 
-        if itemtype == "*" and start and extent and 'r' not in item:
+        if itemtype == '*' and start and extent and 'r' not in item:
             dt = start
-            if (isinstance(dt, date) and not isinstance(dt, datetime)):
-                dt = datetime.strftime("%Y%m%d").astimezone()
+            if isinstance(dt, date) and not isinstance(dt, datetime):
+                dt = datetime.strftime('%Y%m%d').astimezone()
                 dt.set(hour=0, minute=0, second=1)
 
         if used:
@@ -7479,9 +8345,9 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 if UT_MIN > 0:
                     # round up minutes - consistent with used time views
                     # seconds = period.total_seconds()//60
-                    seconds = int(period.total_seconds())%(UT_MIN*60)
+                    seconds = int(period.total_seconds()) % (UT_MIN * 60)
                     if seconds:
-                        increment = timedelta(seconds = UT_MIN*60 - seconds)
+                        increment = timedelta(seconds=UT_MIN * 60 - seconds)
                         period += increment
 
                 dates_to_periods.setdefault(dt, []).append(period)
@@ -7496,51 +8362,74 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                     total += p
                 if total is not None:
                     week2day2engaged[week][weekday] += total
-                    used = format_hours_and_tenths(total).lstrip('+') # drop the +
+                    used = format_hours_and_tenths(total).lstrip(
+                        '+'
+                    )   # drop the +
                 else:
                     used = ''
                 engaged.append(
-                        {
-                            'id': doc_id,
-                            'job': None,
-                            'instance': None,
-                            'sort': (dt.strftime("%Y%m%d"), 1),
-                            'week': (
-                                week
-                                ),
-                            'day': (
-                                weekday,
-                                ),
-                            'columns': [
-                                itemtype,
-                                f'{used} {summary}' if used else '',
-                                flags,
-                                '',
-                                (doc_id, None, None)
-                            ],
-                        }
-                    )
+                    {
+                        'id': doc_id,
+                        'job': None,
+                        'instance': None,
+                        'sort': (dt.strftime('%Y%m%d'), 1),
+                        'week': (week),
+                        'day': (weekday,),
+                        'columns': [
+                            itemtype,
+                            f'{used} {summary}' if used else '',
+                            flags,
+                            '',
+                            (doc_id, None, None),
+                        ],
+                    }
+                )
 
         if itemtype == '-':
-            d = [] # d for done
+            d = []   # d for done
             # c = [] # c for completed
             if isinstance(finished, Period):
                 # finished will be false if the period is ZERO
                 # we need details of when completed (start and end) for completed view
                 # d.append([finished.start, summary, doc_id, format_duration(finished.end-finished.start, short=True)])
-                d.append([finished.start, summary, doc_id, format_duration(finished.end-finished.start, short=True)])
+                d.append(
+                    [
+                        finished.start,
+                        summary,
+                        doc_id,
+                        format_duration(
+                            finished.end - finished.start, short=True
+                        ),
+                    ]
+                )
                 # to skip completed instances we only need the completed (end) instance
                 completed.append(finished.start)
                 # ditto below for history
             if history:
                 for dt in history:
-                    d.append([dt.start, summary, doc_id, format_duration(dt.end-dt.start, short=True)])
+                    d.append(
+                        [
+                            dt.start,
+                            summary,
+                            doc_id,
+                            format_duration(dt.end - dt.start, short=True),
+                        ]
+                    )
                     completed.append(dt.end)
             if jobs:
                 for job in jobs:
                     job_summary = job.get('summary', '')
                     if 'f' in job:
-                        d.append([job['f'].start, job_summary, doc_id, format_duration(job['f'].end - job['f'].start, short=True)])
+                        d.append(
+                            [
+                                job['f'].start,
+                                job_summary,
+                                doc_id,
+                                format_duration(
+                                    job['f'].end - job['f'].start, short=True
+                                ),
+                            ]
+                        )
             if d:
                 for row in d:
                     dt = row[0]
@@ -7548,31 +8437,30 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                         dt = datetime(dt.year, dt.month, dt.day).astimezone()
                         # dt.set(hour=23, minute=59, second=59)
 
-                    rhc = str(row[3]) + "  " if len(row) > 3 else ""
+                    rhc = str(row[3]) + '  ' if len(row) > 3 else ''
                     if dt < aft_dt or dt > bef_dt:
                         continue
 
                     done.append(
-                            {
-                                'id': row[2],
-                                'job': row[3],
-                                'instance': None,
-                                'sort': (dt.strftime("%Y%m%d%H%M"), 1),
-                                'week': (
-                                    dt.isocalendar()[:2]
-                                    ),
-                                'day': (
-                                    format_wkday(dt),
-                                    # dt.strftime(wkday_fmt),
-                                    ),
-                                'columns': [FINISHED_CHAR,
-                                    f'{rhc}{row[1]}',
-                                    flags,
-                                    '',
-                                    (row[2], None, row[3])
-                                    ],
-                            }
-                            )
+                        {
+                            'id': row[2],
+                            'job': row[3],
+                            'instance': None,
+                            'sort': (dt.strftime('%Y%m%d%H%M'), 1),
+                            'week': (dt.isocalendar()[:2]),
+                            'day': (
+                                format_wkday(dt),
+                                # dt.strftime(wkday_fmt),
+                            ),
+                            'columns': [
+                                FINISHED_CHAR,
+                                f'{rhc}{row[1]}',
+                                flags,
+                                '',
+                                (row[2], None, row[3]),
+                            ],
+                        }
+                    )
 
         startdt = date_to_datetime(start)
         if not start or finished is not None or startdt in completed:
@@ -7588,26 +8476,35 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
             wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-            itemday = dt.strftime("%Y%m%d")
+            itemday = dt.strftime('%Y%m%d')
             dayDM = format_wkday(dt)
             # dayDM = dt.strftime(wkday_fmt)
             if itemday == todayYMD:
-                dayDM += " (Today)"
+                dayDM += ' (Today)'
             elif itemday == tomorrowYMD:
-                dayDM += " (Tomorrow)"
+                dayDM += ' (Tomorrow)'
             week2day2busy.setdefault(week, {})
             week2day2busy[week].setdefault(dayofweek, [])
             week2day2allday.setdefault(week, {})
-            week2day2allday[week].setdefault(dayofweek, [False, [f"{dayDM}", f"All day"]])
+            week2day2allday[week].setdefault(
+                dayofweek, [False, [f'{dayDM}', f'All day']]
+            )
 
-            if item['itemtype'] == '*' and dt.hour == 0 and dt.minute == 0 and 'e' not in item:
+            if (
+                item['itemtype'] == '*'
+                and dt.hour == 0
+                and dt.minute == 0
+                and 'e' not in item
+            ):
                 week2day2allday[week][dayofweek][0] = True
                 if 'r' in item:
                     freq = item['r'][0].get('r', 'y')
                 else:
                     freq = 'y'
                 tmp_summary = set_summary(item['summary'], item['s'], dt, freq)
-                week2day2allday[week][dayofweek][1].append(f" {item['itemtype']} {tmp_summary}")
+                week2day2allday[week][dayofweek][1].append(
+                    f" {item['itemtype']} {tmp_summary}"
+                )
 
             if 'r' in item:
                 freq = item['r'][0].get('r', 'y')
@@ -7624,11 +8521,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 # repeating task with jobs
 
                 if instance:
-                    if doc_id in active_tasks and active_tasks[doc_id] != instance:
-                            continue
+                    if (
+                        doc_id in active_tasks
+                        and active_tasks[doc_id] != instance
+                    ):
+                        continue
                     else:
                         active_tasks[doc_id] = instance
-
 
                 for job in item['j']:
                     if 'f' in job:
@@ -7645,32 +8544,35 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                             'id': doc_id,
                             'job': job_id,
                             'instance': instance,
-                            'sort': (jobstart.strftime("%Y%m%d%H%M"), job_sort),
-                            'week': (
-                                jobstart.isocalendar()[:2]
-                                ),
-                            'week_fmt': (
-                                wk_fmt
-                                ),
-                            'dayofweek': (
-                                dayofweek
-                                ),
+                            'sort': (
+                                jobstart.strftime('%Y%m%d%H%M'),
+                                job_sort,
+                            ),
+                            'week': (jobstart.isocalendar()[:2]),
+                            'week_fmt': (wk_fmt),
+                            'dayofweek': (dayofweek),
                             'day': (
                                 format_wkday(jobstart),
                                 # jobstart.strftime(wkday_fmt),
+                            ),
+                            'columns': [
+                                job['status'],
+                                set_summary(
+                                    f'{rhc}  {job_summary}',
+                                    start,
+                                    jobstart,
+                                    freq,
                                 ),
-                            'columns': [job['status'],
-                                set_summary(f'{rhc}  {job_summary}', start,  jobstart, freq),
                                 flags,
-                                "", #rhc,
-                                (doc_id, instance, job_id)
-                                ]
+                                '',  # rhc,
+                                (doc_id, instance, job_id),
+                            ],
                         }
                     )
 
-            else: # not a task with jobs
+            else:   # not a task with jobs
                 dateonly = False
-                sort_dt = dt.strftime("%Y%m%d%H%M")
+                sort_dt = dt.strftime('%Y%m%d%H%M')
                 if sort_dt.endswith('0000'):
                     dateonly = True
                     if item['itemtype'] in ['-']:
@@ -7699,7 +8601,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 # temp - just for this item
                 wrap = []
                 before = after = {}
-                wrapped = ""
+                wrapped = ''
                 if 'w' in item and dta and dtb:
                     # adjust for wrap
                     has_w = True
@@ -7712,72 +8614,69 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                         wrapped = fmt_extent(dtb, dta)
 
                         wrap = item['w']
-                        wraps = [format_duration(x) for x in wrap] if wrap else ""
+                        wraps = (
+                            [format_duration(x) for x in wrap] if wrap else ''
+                        )
                         if wraps:
-                            wraps[0] = f"{wrapbefore}{wraps[0]}"
-                            wraps[1] = f"{wrapafter}{wraps[1]}"
+                            wraps[0] = f'{wrapbefore}{wraps[0]}'
+                            wraps[1] = f'{wrapafter}{wraps[1]}'
                             wrapper = f"\n{22*' '}+ {', '.join(wraps)}"
                         else:
-                            wrapper = ""
+                            wrapper = ''
 
                     else:
                         a = b = ZERO
-                        logger.error(f"The entry for 'w' in item {item.doc_id} should have 2 arguments but instead has {len(item['w'])}: {item['w']}. The entry has been ignored.")
-
+                        logger.error(
+                            f"The entry for 'w' in item {item.doc_id} should have 2 arguments but instead has {len(item['w'])}: {item['w']}. The entry has been ignored."
+                        )
 
                     if b and b > ZERO:
-                        itemtype = wrapbefore #  "↱"
-                        sort_b = (dt-ONEMIN).strftime("%Y%m%d%H%M")
+                        itemtype = wrapbefore   #  "↱"
+                        sort_b = (dt - ONEMIN).strftime('%Y%m%d%H%M')
                         rhb = fmt_time(dtb)
                         before = {
-                                    'id': doc_id,
-                                    'job': None,
-                                    'instance': instance,
-                                    'sort': (sort_b, 0),
-                                    'week': (
-                                        dtb.isocalendar()[:2]
-                                        ),
-                                    'dayofweek': (
-                                        dtb.isocalendar()[-1]
-                                        ),
-                                    'day': (
-                                        format_wkday(dtb),
-                                        # dtb.strftime(wkday_fmt),
-                                        ),
-                                    'columns': [itemtype,
-                                        set_summary(rhb, item['s'], dtb, freq),
-                                        " "*4,
-                                        '',
-                                        (doc_id, instance, None)
-                                        ]
-                                }
+                            'id': doc_id,
+                            'job': None,
+                            'instance': instance,
+                            'sort': (sort_b, 0),
+                            'week': (dtb.isocalendar()[:2]),
+                            'dayofweek': (dtb.isocalendar()[-1]),
+                            'day': (
+                                format_wkday(dtb),
+                                # dtb.strftime(wkday_fmt),
+                            ),
+                            'columns': [
+                                itemtype,
+                                set_summary(rhb, item['s'], dtb, freq),
+                                ' ' * 4,
+                                '',
+                                (doc_id, instance, None),
+                            ],
+                        }
 
                     if a and a > ZERO:
                         itemtype = wrapafter  # "↳"
-                        sort_a = (dt+ONEMIN).strftime("%Y%m%d%H%M")
+                        sort_a = (dt + ONEMIN).strftime('%Y%m%d%H%M')
                         rha = fmt_time(dta)
                         after = {
-                                    'id': doc_id,
-                                    'job': None,
-                                    'instance': instance,
-                                    'sort': (sort_a, 0),
-                                    'week': (
-                                        dta.isocalendar()[:2]
-                                        ),
-                                    'dayofweek': (
-                                        dta.isocalendar()[-1]
-                                        ),
-                                    'day': (
-                                        format_wkday(dta),
-                                        # dta.strftime(wkday_fmt),
-                                        ),
-                                    'columns': [itemtype,
-                                        set_summary(rha, item['s'], dta, freq),
-                                        " "*4,
-                                        "", # rha,
-                                        (doc_id, instance, None)
-                                        ]
-                                }
+                            'id': doc_id,
+                            'job': None,
+                            'instance': instance,
+                            'sort': (sort_a, 0),
+                            'week': (dta.isocalendar()[:2]),
+                            'dayofweek': (dta.isocalendar()[-1]),
+                            'day': (
+                                format_wkday(dta),
+                                # dta.strftime(wkday_fmt),
+                            ),
+                            'columns': [
+                                itemtype,
+                                set_summary(rha, item['s'], dta, freq),
+                                ' ' * 4,
+                                '',  # rha,
+                                (doc_id, instance, None),
+                            ],
+                        }
                 else:
                     wrapped = rhc
 
@@ -7799,52 +8698,45 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                         for w, wd, periods in busyperiods:
                             if w == week and wd == dayofweek:
                                 busyperiod = periods
-                                week2day2busy[week][dayofweek].append(busyperiod)
+                                week2day2busy[week][dayofweek].append(
+                                    busyperiod
+                                )
                                 break
                 else:
                     busyperiod = None
                 tmp_summary = set_summary(summary, item['s'], dt, freq)
-                rhc = rhc + " " if rhc else ""
+                rhc = rhc + ' ' if rhc else ''
                 # rhc = " " + rhc if rhc else ""
-                columns = [item['itemtype'],
-                                f'{rhc}{tmp_summary}',
-                                # f'{tmp_summary}{rhc}',
-                                flags,
-                                '',
-                                (doc_id, instance, None)
-                                ]
+                columns = [
+                    item['itemtype'],
+                    f'{rhc}{tmp_summary}',
+                    # f'{tmp_summary}{rhc}',
+                    flags,
+                    '',
+                    (doc_id, instance, None),
+                ]
 
-                path = f"{wk_fmt}/{dayDM}**"
+                path = f'{wk_fmt}/{dayDM}**'
 
                 rows.append(
-                        {
-                            'id': doc_id,
-                            'job': None,
-                            'instance': instance,
-                            'sort': (sort_dt, 0),
-                            'week': (
-                                week
-                                ),
-                            'week_fmt': (
-                                wk_fmt
-                                ),
-                            'dayofweek': (
-                                dayofweek
-                                ),
-                            'day': (
-                                format_wkday(dt),
-                                # dt.strftime(wkday_fmt),
-                                ),
-                            'busyperiod': (
-                                busyperiod
-                                ),
-                            'wrap': (
-                                wrap
-                                ),
-                            'wrapped': wrapped,
-                            'columns': columns
-                        }
-                    )
+                    {
+                        'id': doc_id,
+                        'job': None,
+                        'instance': instance,
+                        'sort': (sort_dt, 0),
+                        'week': (week),
+                        'week_fmt': (wk_fmt),
+                        'dayofweek': (dayofweek),
+                        'day': (
+                            format_wkday(dt),
+                            # dt.strftime(wkday_fmt),
+                        ),
+                        'busyperiod': (busyperiod),
+                        'wrap': (wrap),
+                        'wrapped': wrapped,
+                        'columns': columns,
+                    }
+                )
 
                 if after:
                     rows.append(after)
@@ -7857,12 +8749,12 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
 
     busy_details = {}
     allday_details = {}
-    #TODO
-    dent = int((width - 69)/2) * " "
+    # TODO
+    dent = int((width - 69) / 2) * ' '
 
     ### item/agenda loop 2
     today = format_wkday(now)
-    tomorrow = format_wkday(now + 1*DAY)
+    tomorrow = format_wkday(now + 1 * DAY)
 
     for week in week2day2allday:
         week2day2heading.setdefault(week, {})
@@ -7874,7 +8766,7 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 row = wkday2row(dayofweek)
                 week2day2heading[week][row] = lst.pop(0)
                 day_ = row
-                allday_details[week][row] = f"\n".join([f"{x}" for x in lst])
+                allday_details[week][row] = f'\n'.join([f'{x}' for x in lst])
 
     for week, items in groupby(rows, key=itemgetter('week')):
         weeks.add(week)
@@ -7887,31 +8779,30 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
             day_ = row['day'][0]
             dayofweek = row.get('dayofweek', 1)
             if day_ == today:
-                day_ += " (Today)"
+                day_ += ' (Today)'
             elif day_ == tomorrow:
-                day_ += " (Tomorrow)"
-            path = f"{wk_fmt}/{day_}"
+                day_ += ' (Tomorrow)'
+            path = f'{wk_fmt}/{day_}'
             values = row['columns']
             # heading = f"Busy periods for {day_}"
-            if values[0] in ["*", "-"]:
+            if values[0] in ['*', '-']:
                 values[1] = re.sub(' *\n+ *', ' ', values[1])
-                busyperiod = row.get('busyperiod', "")
+                busyperiod = row.get('busyperiod', '')
                 if busyperiod:
                     wrap = row.get('wrap', [])
                     # wrapped = f"⌈{row.get('wrapped', '')}⌉" if wrap else ""
-                    wrapped = f"<{row.get('wrapped', '')}>" if wrap else ""
+                    wrapped = f"<{row.get('wrapped', '')}>" if wrap else ''
                     row = wkday2row(dayofweek)
                     week2day2heading[week][row] = day_
                     summary = values[1]
-                    busy_row = f" {values[0]} {summary}  {wrapped}".rstrip()
+                    busy_row = f' {values[0]} {summary}  {wrapped}'.rstrip()
 
-                    busy_details[week].setdefault(row, [f"Busy"]).append(
-                            busy_row
-                            )
+                    busy_details[week].setdefault(row, [f'Busy']).append(
+                        busy_row
+                    )
             rdict.add(path, values)
         for d, v in busy_details[week].items():
-            busy_details[week][d] = "\n".join([x.rstrip() for x in v])
-
+            busy_details[week][d] = '\n'.join([x.rstrip() for x in v])
 
         tree, row2id = rdict.as_tree(rdict, level=0)
         agenda_hsh[week] = tree
@@ -7929,13 +8820,13 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
                 day_ = row['day'][0]
                 dayofweek = row.get('dayofweek', 1)
                 if day_ == today:
-                    day_ += " (Today)"
+                    day_ += ' (Today)'
                 elif day_ == tomorrow:
-                    day_ += " (Tomorrow)"
-                path = f"{wk_fmt}/{day_}"
+                    day_ += ' (Tomorrow)'
+                path = f'{wk_fmt}/{day_}'
                 values = row['columns']
                 # heading = f"Busy periods for {day_}"
-                if values[0] in ["*", "-"]:
+                if values[0] in ['*', '-']:
                     values[1] = re.sub(' *\n+ *', ' ', values[1])
                 cdict.add(path, values)
 
@@ -7946,18 +8837,26 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
     for week in allday_details:
         busyday_details.setdefault(week, {})
         for day in allday_details[week]:
-            busyday_details[week].setdefault(day, []).append(allday_details[week][day])
+            busyday_details[week].setdefault(day, []).append(
+                allday_details[week][day]
+            )
     for week in busy_details:
         busyday_details.setdefault(week, {})
         for day in busy_details[week]:
-            busyday_details[week].setdefault(day, []).append(busy_details[week][day].rstrip())
+            busyday_details[week].setdefault(day, []).append(
+                busy_details[week][day].rstrip()
+            )
 
     for week in busyday_details:
         for row in busyday_details[week]:
-            lst = [week2day2heading[week].get(row, f"{week} {row}").center(width, ' ').rstrip(),]
+            lst = [
+                week2day2heading[week]
+                .get(row, f'{week} {row}')
+                .center(width, ' ')
+                .rstrip(),
+            ]
             lst += [x for x in busyday_details[week][row] if x.strip()]
-            busyday_details[week][row] = "\n".join(lst)
-
+            busyday_details[week][row] = '\n'.join(lst)
 
     busy = {}
     for week, dayhsh in week2day2busy.items():
@@ -7972,13 +8871,19 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
 
         DD = {}
         for i in range(1, 8):
-            DD[i] = f"{WA[i]} {(monday + (i-1)*DAY).strftime('%d').lstrip('0')}".ljust(5, ' ')
+            DD[
+                i
+            ] = f"{WA[i]} {(monday + (i-1)*DAY).strftime('%d').lstrip('0')}".ljust(
+                5, ' '
+            )
 
         for tup in busy_tuples:
             #                 d             (beg_min, end_min)
             busy[tup[0]] = tup[1]
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-        busy_hsh[0] = f"""\
+        busy_hsh[
+            0
+        ] = f"""\
 {wk_fmt}
 
 {dent}{day_bar_labels()}
@@ -7986,18 +8891,20 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         empty = day_bar([], False)
         for weekday in range(1, 8):
             lofp = busy.get(weekday, [])
-            alldayitems = ""
+            alldayitems = ''
             allday = False
             if week in week2day2allday and weekday in week2day2allday[week]:
                 allday, lst = week2day2allday[week][weekday]
 
             full = day_bar(lofp, allday)
 
-            busy_hsh[weekday] = f"""\
+            busy_hsh[
+                weekday
+            ] = f"""\
 {dent}{7*' '}{empty}
 {dent} {DD[weekday] : <6}{full}
 """
-        busy_hsh[week] = "".join([busy_hsh[i] for i in range(0, 8)])
+        busy_hsh[week] = ''.join([busy_hsh[i] for i in range(0, 8)])
 
     for week, items in groupby(done, key=itemgetter('week')):
         weeks.add(week)
@@ -8006,10 +8913,10 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         for row in items:
             day_ = row['day'][0]
             if day_ == today:
-                day_ += " (Today)"
+                day_ += ' (Today)'
             elif day_ == tomorrow:
-                day_ += " (Tomorrow)"
-            path = f"{wk_fmt}/{day_}"
+                day_ += ' (Tomorrow)'
+            path = f'{wk_fmt}/{day_}'
             values = row['columns']
             rdict.add(path, values)
         tree, row2id = rdict.as_tree(rdict, level=0)
@@ -8022,28 +8929,31 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         for row in items:
             day_ = row['day'][0]
-            total_period = week2day2engaged[week][day_] if day_ in week2day2engaged[week] else ZERO
-            total = int(total_period.total_seconds())//60
-            used_fmt = bar_fmt = ""
+            total_period = (
+                week2day2engaged[week][day_]
+                if day_ in week2day2engaged[week]
+                else ZERO
+            )
+            total = int(total_period.total_seconds()) // 60
+            used_fmt = bar_fmt = ''
             if total:
                 used, bar = usedminutes2bar(total)
                 if usedtime_hours:
                     bar_fmt = f"{bar.ljust(width-12, ' ')}"
                     used_fmt = used.center(6, ' ')
                 else:
-                    bar_fmt = " "
+                    bar_fmt = ' '
                     used_fmt = used
             if day_ == today:
-                day_ += " (Today)"
+                day_ += ' (Today)'
             elif day_ == tomorrow:
-                day_ += " (Tomorrow)"
-            path = f"{wk_fmt}/{day_}/{used_fmt} {bar_fmt}"
+                day_ += ' (Tomorrow)'
+            path = f'{wk_fmt}/{day_}/{used_fmt} {bar_fmt}'
             values = row['columns']
             rdict.add(path, values)
         tree, row2id = rdict.as_tree(rdict, level=0)
         engaged_hsh[week] = tree
         engaged2id_hsh[week] = row2id
-
 
     cache = {}
     for week in week_numbers:
@@ -8052,18 +8962,30 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
         if week in agenda_hsh:
             tup.append(agenda_hsh[week])
         else:
-            tup.append("{}\n   Nothing scheduled".format(fmt_week(week).center(width, ' ').rstrip()))
+            tup.append(
+                '{}\n   Nothing scheduled'.format(
+                    fmt_week(week).center(width, ' ').rstrip()
+                )
+            )
         # done
         if week in done_hsh:
             tup.append(done_hsh[week])
         else:
-            tup.append("{}\n   Nothing completed".format(fmt_week(week).center(width, ' ').rstrip()))
+            tup.append(
+                '{}\n   Nothing completed'.format(
+                    fmt_week(week).center(width, ' ').rstrip()
+                )
+            )
 
         # engaged
         if week in engaged_hsh:
             tup.append(engaged_hsh[week])
         else:
-            tup.append("{}\n   No used times recorded".format(fmt_week(week).center(width, ' ').rstrip()))
+            tup.append(
+                '{}\n   No used times recorded'.format(
+                    fmt_week(week).center(width, ' ').rstrip()
+                )
+            )
 
         # busy
         if week in busy_hsh:
@@ -8099,14 +9021,17 @@ def schedule(db, yw=getWeekNum(), current=[], now=datetime.now(), weeks_before=0
 
 def import_file(import_file=None):
     if not import_file:
-        return False, ""
+        return False, ''
     import_file = import_file.strip()
     if import_file.lower() == 'lorem':
         return True, import_examples()
 
     import_file = os.path.normpath(os.path.expanduser(import_file))
     if not os.path.isfile(import_file):
-        return False, f'"{import_file}"\n   either does not exist or is not a regular file'
+        return (
+            False,
+            f'"{import_file}"\n   either does not exist or is not a regular file',
+        )
     filename, extension = os.path.splitext(import_file)
     if extension == '.json':
         return True, import_json(import_file)
@@ -8115,7 +9040,10 @@ def import_file(import_file=None):
     # elif extension == '.ics':
     #     return True, import_ics(import_file)
     else:
-        return False, f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized"
+        return (
+            False,
+            f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized",
+        )
 
 
 # def import_ics(import_file=None):
@@ -8175,7 +9103,8 @@ def import_examples():
     for s in examples:
         ok = True
         count += 1
-        if not s: continue
+        if not s:
+            continue
         item = Item()  # use ETMDB by default
         item.new_item()
         item.text_changed(s, 1)
@@ -8187,16 +9116,16 @@ def import_examples():
 
         if ok:
             item.update_item_hsh()
-            good.append(f"{item.doc_id}")
+            good.append(f'{item.doc_id}')
         else:
             bad.append(s)
 
-    res = f"imported {len(good)} items"
+    res = f'imported {len(good)} items'
     if good:
-        res += f"\n  ids: {good[0]} - {good[-1]}"
+        res += f'\n  ids: {good[0]} - {good[-1]}'
     if bad:
-        res += f"\nrejected {bad} items:\n  "
-        res += "\n  ".join(results)
+        res += f'\nrejected {bad} items:\n  '
+        res += '\n  '.join(results)
     return res
 
 
@@ -8223,8 +9152,9 @@ def import_text(import_file=None):
             reminders.append(reminder)
     for reminder in reminders:
         ok = True
-        s = "\n".join(reminder)
-        if not s: continue
+        s = '\n'.join(reminder)
+        if not s:
+            continue
         item = Item()  # use ETMDB by default
         item.new_item()
         item.text_changed(s, 1)
@@ -8236,25 +9166,25 @@ def import_text(import_file=None):
 
         if not ok:
             bad += 1
-            results.append(f"   {s}")
+            results.append(f'   {s}')
             continue
 
         # update_item_hsh stores the item in ETMDB
         item.update_item_hsh()
-        good.append(f"{item.doc_id}")
+        good.append(f'{item.doc_id}')
 
-
-    res = f"imported {len(good)} items"
+    res = f'imported {len(good)} items'
     if good:
-        res += f"\n  ids: {good[0]} - {good[-1]}"
+        res += f'\n  ids: {good[0]} - {good[-1]}'
     if bad:
-        res += f"\nrejected {bad} items:\n  "
-        res += "\n  ".join(results)
+        res += f'\nrejected {bad} items:\n  '
+        res += '\n  '.join(results)
     return res
 
 
 def import_json(import_file=None):
     import json
+
     with open(import_file, 'r') as fo:
         import_hsh = json.load(fo)
     items = import_hsh['items']
@@ -8281,9 +9211,9 @@ def import_json(import_file=None):
         if 'h' in item_hsh:
             item_hsh['h'] = [period_from_fmt(x, z) for x in item_hsh['h']]
         if '+' in item_hsh:
-            item_hsh['+'] = [pen_from_fmt(x, z) for x in item_hsh['+'] ]
+            item_hsh['+'] = [pen_from_fmt(x, z) for x in item_hsh['+']]
         if '-' in item_hsh:
-            item_hsh['-'] = [pen_from_fmt(x, z) for x in item_hsh['-'] ]
+            item_hsh['-'] = [pen_from_fmt(x, z) for x in item_hsh['-']]
         if 'e' in item_hsh:
             item_hsh['e'] = parse_duration(item_hsh['e'])[1]
         if 'w' in item_hsh:
@@ -8297,9 +9227,9 @@ def import_json(import_file=None):
                 # put the largest duration first
                 tds.sort(reverse=True)
                 cmds = alert[1:2]
-                args = ""
+                args = ''
                 if len(alert) > 2 and alert[2]:
-                    args = ", ".join(alert[2])
+                    args = ', '.join(alert[2])
                 for cmd in cmds:
                     if args:
                         row = (tds, cmd, args)
@@ -8321,7 +9251,14 @@ def import_json(import_file=None):
                 item_hsh['j'] = lofh
             else:
                 print('using jbs', jbs)
-                print("ok:", ok,  " lofh:", lofh, " last_completed:", last_completed)
+                print(
+                    'ok:',
+                    ok,
+                    ' lofh:',
+                    lofh,
+                    ' last_completed:',
+                    last_completed,
+                )
 
         if 'r' in item_hsh:
             ruls = []
@@ -8347,12 +9284,17 @@ def import_json(import_file=None):
                         try:
                             rul['u'] = parse(rul['u'], tz=z)
                         except Exception as e:
-                            logger.error(f"error parsing rul['u']: {rul['u']}. {e}")
+                            logger.error(
+                                f"error parsing rul['u']: {rul['u']}. {e}"
+                            )
                 if 'w' in rul:
                     if isinstance(rul['w'], list):
-                        rul['w'] = ["{0}:{1}".format("{W}", x.upper()) for x in rul['w']]
+                        rul['w'] = [
+                            '{0}:{1}'.format('{W}', x.upper())
+                            for x in rul['w']
+                        ]
                     else:
-                        rul['w'] = "{0}:{1}".format("{W}", rul['w'].upper())
+                        rul['w'] = '{0}:{1}'.format('{W}', rul['w'].upper())
                 bad_keys = []
                 for key in rul:
                     if not rul[key]:
@@ -8373,19 +9315,21 @@ def import_json(import_file=None):
     new = []
     dups = 0
     for x in ETMDB:
-        exst.append({
-                    'itemtype': x.get('itemtype'),
-                    'summary': x.get('summary'),
-                    's': x.get('s'),
-                    })
+        exst.append(
+            {
+                'itemtype': x.get('itemtype'),
+                'summary': x.get('summary'),
+                's': x.get('s'),
+            }
+        )
     i = 0
     for x in docs:
         i += 1
         y = {
-                    'itemtype': x.get('itemtype'),
-                    'summary': x.get('summary'),
-                    's': x.get('s'),
-                    }
+            'itemtype': x.get('itemtype'),
+            'summary': x.get('summary'),
+            's': x.get('s'),
+        }
         if exst and y in exst:
             dups += 1
         else:
@@ -8394,33 +9338,41 @@ def import_json(import_file=None):
     ids = []
     if new:
         ids = ETMDB.insert_multiple(new)
-    msg = f"imported {len(new)} items"
+    msg = f'imported {len(new)} items'
     if ids:
-        msg += f"\n  ids: {ids[0]}-{ids[-1]}."
+        msg += f'\n  ids: {ids[0]}-{ids[-1]}.'
     if dups:
-        msg += f"\n  rejected {dups} items as duplicates"
+        msg += f'\n  rejected {dups} items as duplicates'
     return msg
 
 
 def about(padding=0):
     logo_lines = [
-        " █████╗██████╗███╗   ███╗ ",
-        " ██╔══╝╚═██╔═╝████╗ ████║ ",
-        " ███╗    ██║  ██╔████╔██║ ",
-        " ██╔╝    ██║  ██║╚██╔╝██║ ",
-        " █████╗  ██║  ██║ ╚═╝ ██║ ",
-        " ╚════╝  ╚═╝  ╚═╝     ╚═╝ ",
-        "  Event and Task Manager  ",
+        ' █████╗██████╗███╗   ███╗ ',
+        ' ██╔══╝╚═██╔═╝████╗ ████║ ',
+        ' ███╗    ██║  ██╔████╔██║ ',
+        ' ██╔╝    ██║  ██║╚██╔╝██║ ',
+        ' █████╗  ██║  ██║ ╚═╝ ██║ ',
+        ' ╚════╝  ╚═╝  ╚═╝     ╚═╝ ',
+        '  Event and Task Manager  ',
     ]
-    width=shutil.get_terminal_size()[0]-3
+    width = shutil.get_terminal_size()[0] - 3
     output = []
     for line in logo_lines:
-        output.append(line.center(width, ' ') + "\n")
-    logo = "".join(output)
+        output.append(line.center(width, ' ') + '\n')
+    logo = ''.join(output)
 
-    copyright = wrap(f"Copyright 2009-{datetime.today().strftime('%Y')}, Daniel A Graham. All rights reserved. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version. See www.gnu.org/licenses/gpl.html for details.", 0, width)
+    copyright = wrap(
+        f"Copyright 2009-{datetime.today().strftime('%Y')}, Daniel A Graham. All rights reserved. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version. See www.gnu.org/licenses/gpl.html for details.",
+        0,
+        width,
+    )
 
-    summary = wrap(f"This application provides a format for using plain text entries to create events, tasks and other reminders and a prompt_toolkit based interface for creating and modifying items as well as viewing them.", 0, width)
+    summary = wrap(
+        f'This application provides a format for using plain text entries to create events, tasks and other reminders and a prompt_toolkit based interface for creating and modifying items as well as viewing them.',
+        0,
+        width,
+    )
 
     ret1 = f"""\
 {logo}
@@ -8449,10 +9401,11 @@ Developer:      dnlgrhm@gmail.com
     return ret1, ret2
 
 
-
 dataview = None
 item = None
-def main(etmdir="", *args):
+
+
+def main(etmdir='', *args):
     global dataview, item, db, ampm, settings
     # NOTE: DataView called in model.main
     dataview = DataView(etmdir)

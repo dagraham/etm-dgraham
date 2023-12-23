@@ -15,18 +15,37 @@ from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.completion import Completion, Completer, PathCompleter
 from prompt_toolkit.cursor_shapes import CursorShape
 from prompt_toolkit.enums import EditingMode
-from prompt_toolkit.filters import Condition, vi_mode, vi_navigation_mode, vi_insert_mode, vi_replace_mode, vi_selection_mode, emacs_mode, emacs_selection_mode, emacs_insert_mode
+from prompt_toolkit.filters import (
+    Condition,
+    vi_mode,
+    vi_navigation_mode,
+    vi_insert_mode,
+    vi_replace_mode,
+    vi_selection_mode,
+    emacs_mode,
+    emacs_selection_mode,
+    emacs_insert_mode,
+)
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.filters import has_focus
 from prompt_toolkit.search import start_search, SearchDirection
 
 
-from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+from prompt_toolkit.key_binding.bindings.focus import (
+    focus_next,
+    focus_previous,
+)
 from prompt_toolkit.key_binding.vi_state import InputMode
 from prompt_toolkit.layout import Dimension
 from prompt_toolkit.layout import Float
-from prompt_toolkit.layout.containers import HSplit, VSplit, Window, WindowAlign, ConditionalContainer
+from prompt_toolkit.layout.containers import (
+    HSplit,
+    VSplit,
+    Window,
+    WindowAlign,
+    ConditionalContainer,
+)
 from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.layout.layout import Layout
@@ -38,7 +57,14 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from prompt_toolkit.widgets import Box, Label, Button
 from prompt_toolkit.widgets import HorizontalLine
-from prompt_toolkit.widgets import TextArea, Frame, RadioList, SearchToolbar, MenuContainer, MenuItem
+from prompt_toolkit.widgets import (
+    TextArea,
+    Frame,
+    RadioList,
+    SearchToolbar,
+    MenuContainer,
+    MenuItem,
+)
 from zoneinfo import ZoneInfo
 
 from packaging.version import parse as parse_version
@@ -53,7 +79,7 @@ import asyncio
 import textwrap
 
 import re
-import subprocess # for check_output
+import subprocess   # for check_output
 
 # for openWithDefault
 import platform
@@ -61,6 +87,7 @@ import os
 import contextlib, io
 
 import pyperclip
+
 # set in __main__
 logger = None
 
@@ -79,8 +106,8 @@ from pygments.token import Operator
 from pygments.token import Comment
 
 
-class UpdateStatus():
-    def __init__(self, new=""):
+class UpdateStatus:
+    def __init__(self, new=''):
         self.status = new
 
     def set_status(self, new):
@@ -98,80 +125,84 @@ class TDBLexer(RegexLexer):
     flags = re.MULTILINE | re.DOTALL
 
     tokens = {
-            'root': [
-                (r'\b(begins|includes|in|equals|more|less|exists|any|all|one)\b', Keyword),
-                (r'\b(replace|remove|archive|delete|set|provide|attach|detach)\b', Keyword),
-                (r'\b(itemtype|summary)\b', Literal),
-                (r'\b(and|or|info)\b', Keyword),
-                ],
-            }
+        'root': [
+            (
+                r'\b(begins|includes|in|equals|more|less|exists|any|all|one)\b',
+                Keyword,
+            ),
+            (
+                r'\b(replace|remove|archive|delete|set|provide|attach|detach)\b',
+                Keyword,
+            ),
+            (r'\b(itemtype|summary)\b', Literal),
+            (r'\b(and|or|info)\b', Keyword),
+        ],
+    }
 
-def format_week(dt, fmt="WWW"):
-    """
-    """
-    if fmt == "W":
+
+def format_week(dt, fmt='WWW'):
+    """ """
+    if fmt == 'W':
         return dt.week_of_year
-    if fmt == "WW":
-        return dt.strftime("%W")
+    if fmt == 'WW':
+        return dt.strftime('%W')
 
     dt_year, dt_week = dt.isocalendar()[:2]
 
-    mfmt = "MMMM D" if fmt == "WWWW" else "MMM D"
+    mfmt = 'MMMM D' if fmt == 'WWWW' else 'MMM D'
 
-    wkbeg = datetime.strptime(f"{dt_year} {str(dt_week)} 1", '%Y %W %w').date()
-    wkend = datetime.strptime(f"{dt_year} {str(dt_week)} 0", '%Y %W %w').date()
+    wkbeg = datetime.strptime(f'{dt_year} {str(dt_week)} 1', '%Y %W %w').date()
+    wkend = datetime.strptime(f'{dt_year} {str(dt_week)} 0', '%Y %W %w').date()
     # wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
     # wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
     week_begin = wkbeg.format(mfmt)
     if wkbeg.month == wkend.month:
-        week_end = wkend.format("D")
+        week_end = wkend.format('D')
     else:
         week_end = wkend.format(mfmt)
-    return f"{week_begin} - {week_end}"
+    return f'{week_begin} - {week_end}'
 
 
 class ETMQuery(object):
-
     def __init__(self):
         self.filters = {
-                'begins': self.begins,
-                'includes': self.includes,
-                'in': self.includes,
-                'equals': self.equals,
-                'more': self.more,
-                'less': self.less,
-                'exists': self.exists,
-                'any': self.in_any,
-                'all': self.in_all,
-                'one': self.one_of,
-                'info': self.info,
-                'dt' : self.dt,
-                }
+            'begins': self.begins,
+            'includes': self.includes,
+            'in': self.includes,
+            'equals': self.equals,
+            'more': self.more,
+            'less': self.less,
+            'exists': self.exists,
+            'any': self.in_any,
+            'all': self.in_all,
+            'one': self.one_of,
+            'info': self.info,
+            'dt': self.dt,
+        }
 
         self.op = {
-                '=': self.maybe_equal,
-                '>': self.maybe_later,
-                '<': self.maybe_earlier
-                }
+            '=': self.maybe_equal,
+            '>': self.maybe_later,
+            '<': self.maybe_earlier,
+        }
 
         self.update = {
-                'replace': self.replace,    # a, rgx, rep
-                'remove': self.remove,      #
-                'archive': self.archive,    #
-                'delete': self.delete,      # a
-                'set': self.set,            # a, b
-                'provide': self.provide,   # a, b
-                'attach': self.attach,      # a, b
-                'detach': self.detach,      # a, b
-                }
+            'replace': self.replace,  # a, rgx, rep
+            'remove': self.remove,  #
+            'archive': self.archive,  #
+            'delete': self.delete,  # a
+            'set': self.set,  # a, b
+            'provide': self.provide,  # a, b
+            'attach': self.attach,  # a, b
+            'detach': self.detach,  # a, b
+        }
 
         self.changed = False
 
         self.lexer = PygmentsLexer(TDBLexer)
         self.Item = Query()
 
-        self.allowed_commands = ", ".join([x for x in self.filters])
-
+        self.allowed_commands = ', '.join([x for x in self.filters])
 
     def replace(self, a, rgx, rep, items):
         """
@@ -197,7 +228,6 @@ class ETMQuery(object):
             write_back(dataview.db, changed)
         return changed
 
-
     def remove(self, items):
         """
         Remove items.
@@ -215,7 +245,7 @@ class ETMQuery(object):
         rem_ids = [item.doc_id for item in items]
 
         try:
-            if dataview.query_mode == "items table":
+            if dataview.query_mode == 'items table':
                 # move to archive
                 DBARCH.insert_multiple(items)
                 DBITEM.remove(doc_ids=rem_ids)
@@ -224,11 +254,12 @@ class ETMQuery(object):
                 DBITEM.insert_multiple(items)
                 DBARCH.remove(doc_ids=rem_ids)
         except Exception as e:
-            logger.error(f"move from {dataview.query_mode} failed for items: {items}; rem_ids: {rem_ids}; exception: {e}")
+            logger.error(
+                f'move from {dataview.query_mode} failed for items: {items}; rem_ids: {rem_ids}; exception: {e}'
+            )
             return False
         else:
             self.changed = True
-
 
     def delete(self, a, items):
         """
@@ -273,7 +304,6 @@ class ETMQuery(object):
             write_back(dataview.db, changed)
             self.changed = True
 
-
     def attach(self, a, b, items):
         """
         Attach 'b' into the item['a'] list if 'b' is not in the list.
@@ -308,7 +338,6 @@ class ETMQuery(object):
             write_back(dataview.db, changed)
             self.changed = True
 
-
     def is_datetime(self, val):
         return isinstance(val, datetime)
 
@@ -319,7 +348,7 @@ class ETMQuery(object):
         """
         args = year-month-...-minute
         """
-        args = args.split("-")
+        args = args.split('-')
         # args = list(args)
         if not isinstance(val, date):
             # neither a date or a datetime
@@ -342,7 +371,7 @@ class ETMQuery(object):
         """
         args = year-month-...-minute
         """
-        args = args.split("-")
+        args = args.split('-')
         # args = list(args)
         if not isinstance(val, date):
             # neither a date or a datetime
@@ -365,7 +394,7 @@ class ETMQuery(object):
         """
         args = year-month-...-minute
         """
-        args = args.split("-")
+        args = args.split('-')
         # args = list(args)
         if not isinstance(val, date):
             # neither a date or a datetime
@@ -383,7 +412,6 @@ class ETMQuery(object):
             if args and not val.minute <= int(args.pop(0)):
                 return False
         return True
-
 
     def begins(self, a, b):
         # the value of field 'a' begins with the case-insensitive regex 'b'
@@ -427,7 +455,6 @@ class ETMQuery(object):
         # field 'a' exists
         return where(a).exists()
 
-
     def in_any(self, a, b):
         """
         the value of field 'a' is a list of values and at least
@@ -468,11 +495,10 @@ class ETMQuery(object):
     def info(self, a):
         # field 'a' exists
         item = dataview.db.get(doc_id=int(a))
-        return  item if item else f"doc_id {a} not found"
-
+        return item if item else f'doc_id {a} not found'
 
     def dt(self, a, b):
-        if b[0]  == '?':
+        if b[0] == '?':
             if b[1] == 'time':
                 return self.Item[a].test(self.is_datetime)
             elif b[1] == 'date':
@@ -480,12 +506,9 @@ class ETMQuery(object):
 
         return self.Item[a].test(self.op[b[0]], b[1])
 
-
     def process_query(self, query):
-        """
-
-        """
-        [fltr, *updt] = [x.strip() for x in query.split(" | ")]
+        """ """
+        [fltr, *updt] = [x.strip() for x in query.split(' | ')]
         if len(updt) == 1:
             # get a list with the update command and arguments
             updt = [x.strip() for x in updt[0].split(' ')]
@@ -504,27 +527,49 @@ class ETMQuery(object):
                     # drop the ~
                     part[0] = part[0][1:]
                 if self.filters.get(part[0], None) is None:
-                    return False, wrap(f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed."""), updt
+                    return (
+                        False,
+                        wrap(
+                            f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed."""
+                        ),
+                        updt,
+                    )
 
             if len(part) > 3:
                 if part[0] in ['in', 'includes']:
                     if negation:
-                        cmnds.append(~ self.filters[part[0]]([x.strip() for x in part[1:-1]], part[-1]))
+                        cmnds.append(
+                            ~self.filters[part[0]](
+                                [x.strip() for x in part[1:-1]], part[-1]
+                            )
+                        )
                     else:
-                        cmnds.append(self.filters[part[0]]([x.strip() for x in part[1:-1]], part[-1]))
+                        cmnds.append(
+                            self.filters[part[0]](
+                                [x.strip() for x in part[1:-1]], part[-1]
+                            )
+                        )
                 else:
                     if negation:
-                        cmnds.append(~ self.filters[part[0]](part[1], [x.strip() for x in part[2:]]))
+                        cmnds.append(
+                            ~self.filters[part[0]](
+                                part[1], [x.strip() for x in part[2:]]
+                            )
+                        )
                     else:
-                        cmnds.append(self.filters[part[0]](part[1], [x.strip() for x in part[2:]]))
+                        cmnds.append(
+                            self.filters[part[0]](
+                                part[1], [x.strip() for x in part[2:]]
+                            )
+                        )
             elif len(part) > 2:
                 if negation:
-                    cmnds.append(~ self.filters[part[0]](part[1], part[2]))
+                    cmnds.append(~self.filters[part[0]](part[1], part[2]))
                 else:
                     cmnds.append(self.filters[part[0]](part[1], part[2]))
             elif len(part) > 1:
                 if negation:
-                    cmnds.append(~ self.filters[part[0]](part[1]))
+                    cmnds.append(~self.filters[part[0]](part[1]))
                 else:
                     cmnds.append(self.filters[part[0]](part[1]))
             else:
@@ -538,17 +583,15 @@ class ETMQuery(object):
             test = test | cmnds[i] if andor == 'or' else test & cmnds[i]
         return True, test, updt
 
-
     def do_query(self, query):
-        """
-        """
-        if query in ["?", "help"]:
-            query_help = "https://dagraham.github.io/etm-dgraham/#query-view"
+        """ """
+        if query in ['?', 'help']:
+            query_help = 'https://dagraham.github.io/etm-dgraham/#query-view'
             openWithDefault(query_help)
-            return False, "opened query help using default browser"
+            return False, 'opened query help using default browser'
         try:
             ok, test, updt = self.process_query(query)
-            logger.debug(f"ok: {ok}; test: {test}; updt: {updt}")
+            logger.debug(f'ok: {ok}; test: {test}; updt: {updt}')
             if not ok:
                 return False, test
             if isinstance(test, str):
@@ -556,7 +599,7 @@ class ETMQuery(object):
             else:
                 items = dataview.db.search(test)
                 if updt:
-                    logger.debug(f"updt[0]: {updt[0]}; updt[1:]: {updt[1:]}")
+                    logger.debug(f'updt[0]: {updt[0]}; updt[1:]: {updt[1:]}')
                     self.update[updt[0]](*updt[1:], items)
                     if self.changed:
                         loop = asyncio.get_event_loop()
@@ -566,12 +609,14 @@ class ETMQuery(object):
         except Exception as e:
             return False, f"exception processing '{query}':\n{e}"
 
+
 ############# end query ################################
 
 
-def show_work_in_progress(func: str = ""):
+def show_work_in_progress(func: str = ''):
     name = inspect.currentframe().f_code.co_name
     show_message('-- Not Yet Implemented', f'"{func}" is a work in progess.')
+
 
 def show_message(title, text, padding=6):
     if dataview.is_showing_details:
@@ -581,8 +626,8 @@ def show_message(title, text, padding=6):
 
     # prep the message window
     width = shutil.get_terminal_size()[0] - 2
-    heading = f"-- {title.rstrip()} --".center(width, ' ')
-    prompt = "<return> or <escape>: close".center(width, ' ')
+    heading = f'-- {title.rstrip()} --'.center(width, ' ')
+    prompt = '<return> or <escape>: close'.center(width, ' ')
     tmp = f"""\
 {heading}
 {text.rstrip()}
@@ -606,9 +651,9 @@ def get_choice(title, text, options=[]):
         dataview.hide_details()
 
     width = shutil.get_terminal_size()[0] - 2
-    heading = f"-- {title.rstrip()} --".center(width, ' ')
+    heading = f'-- {title.rstrip()} --'.center(width, ' ')
 
-    opt_choices = ", ".join([x.split(':')[0].strip() for x in options[:-1]])
+    opt_choices = ', '.join([x.split(':')[0].strip() for x in options[:-1]])
     opt_choices += f" or {options[-1].split(':')[0].strip()}"
     # opt_choices = ", ".join([str(x) for x in range(1, len(options))])
     text = text.rstrip()
@@ -616,13 +661,14 @@ def get_choice(title, text, options=[]):
         for opt in options:
             text += f"\n{4*' '}{opt.rstrip()}"
 
-    text += f"\n\nPress {opt_choices}."
+    text += f'\n\nPress {opt_choices}.'
     choice_title_buffer.text = heading
     choice_display_area.text = wrap_text(text)
     dataview.show_choice()
 
 
-starting_entry_text = ""
+starting_entry_text = ''
+
 
 def get_entry(title: str, text: str, default: str, event) -> any:
     """process a user input string and, when <enter> is pressed store the result in dataview.get_entry_content.  E.g., the name of a file to import, a date to display in a weekly view, the number of a line to show.
@@ -653,10 +699,10 @@ def get_entry(title: str, text: str, default: str, event) -> any:
 
     global starting_entry_text
     width = shutil.get_terminal_size()[0] - 2
-    heading = f"-- {title.rstrip()} --".center(width, ' ')
+    heading = f'-- {title.rstrip()} --'.center(width, ' ')
 
-    ret = "<return>: to proceed".center(width, ' ')
-    esc = "<escape>: to cancel".center(width, ' ')
+    ret = '<return>: to proceed'.center(width, ' ')
+    esc = '<escape>: to cancel'.center(width, ' ')
 
     bp = f""" and press
 {ret}
@@ -666,7 +712,7 @@ def get_entry(title: str, text: str, default: str, event) -> any:
 
     entry_title_buffer.text = heading
     entry_display_area.text = wrap_text(text)
-    entry_buffer.text = " " + default
+    entry_buffer.text = ' ' + default
     dataview.show_entry()
     entry_buffer_changed(event)
     # default_cursor_position_changed(event)
@@ -679,24 +725,33 @@ def wrap_text(text: str, init_indent: int = 0, subs_indent: int = 0):
     paragraphs = text.split('\n')
 
     # Wrap each paragraph separately
-    wrapped_text = [textwrap.fill(paragraph, width, initial_indent=init_indent*" ", subsequent_indent=subs_indent*" ") for paragraph in paragraphs]
+    wrapped_text = [
+        textwrap.fill(
+            paragraph,
+            width,
+            initial_indent=init_indent * ' ',
+            subsequent_indent=subs_indent * ' ',
+        )
+        for paragraph in paragraphs
+    ]
 
     # Join the wrapped paragraphs with newline characters
     return '\n'.join(wrapped_text)
 
 
-
-
 # Key bindings.
 bindings = KeyBindings()
+
 
 @Condition
 def is_showing_entry(*event):
     return dataview.is_showing_entry
 
+
 @Condition
 def is_not_showing_entry(*event):
     return not dataview.is_showing_entry
+
 
 # def is_searching(*event):
 #     return get_app().current_search_state
@@ -704,9 +759,11 @@ def is_not_showing_entry(*event):
 # def is_not_searching(*event):
 #     return not get_app().current_search_state
 
+
 @bindings.add('f2')
 def do_about(*event):
     show_message('ETM Information', about(2)[0], 10)
+
 
 @bindings.add('f4')
 def do_check_updates(*event):
@@ -714,13 +771,13 @@ def do_check_updates(*event):
     # '?', None (info unavalable)
     # UPDATE_CHAR, available_version (update to available_version is possible)
     # '', current_version (current_version is the latest available)
-    if status in ['?', '']: # message only
-        show_message("Update Information", res, 2)
-    else: # update available
-        title = "Update Available"
+    if status in ['?', '']:   # message only
+        show_message('Update Information', res, 2)
+    else:   # update available
+        title = 'Update Available'
         options = [
-            "<return>: yes, install update",
-            "<escape>: no, do not install now"
+            '<return>: yes, install update',
+            '<escape>: no, do not install now',
         ]
         get_choice(title, res, options)
 
@@ -732,19 +789,21 @@ def do_check_updates(*event):
                 tmp = [x.strip() for x in msg.split('\n')]
                 lines = [wrap(tmp[0])]
                 for line in tmp[1:]:
-                    if line and not line.startswith("Requirement already"):
+                    if line and not line.startswith('Requirement already'):
                         lines.append(wrap(line))
-                success = wrap("If the update was sucessful, you will need to restart etm for it to take effect.")
-                prompt = "\n".join(lines)
+                success = wrap(
+                    'If the update was sucessful, you will need to restart etm for it to take effect.'
+                )
+                prompt = '\n'.join(lines)
                 # prompt = wrap("\n".join(msg.split('\n')[:1]))
 
                 if ok:
-                    show_message("ETM Update", f"{prompt}\n\n{success}", 2)
+                    show_message('ETM Update', f'{prompt}\n\n{success}', 2)
                     # show_message("etm update", prompt, 2)
                 else:
-                    show_message("ETM Update", prompt, 2)
+                    show_message('ETM Update', prompt, 2)
             else:
-                show_message("ETM Update", "cancelled")
+                show_message('ETM Update', 'cancelled')
 
             return done
 
@@ -752,7 +811,7 @@ def do_check_updates(*event):
 
 
 def check_update():
-    url = "https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etm/__version__.py"
+    url = 'https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etm/__version__.py'
     try:
         r = requests.get(url)
         t = r.text.strip()
@@ -762,8 +821,8 @@ def check_update():
     except:
         url_version = None
     if url_version is None:
-        res = "Update information is currently unavailable. Please check your wifi connection."
-        status_char = "?"
+        res = 'Update information is currently unavailable. Please check your wifi connection.'
+        status_char = '?'
     else:
         # kluge for purely numeric versions
         # if [int(x) for x in url_version.split('.')] > [int(x) for x in etm_version.split('.')]:
@@ -775,20 +834,22 @@ An update is available to {url_version}. Do you want to update now?
 If so, a restart will be necessary for the changes to take effect."""
         else:
             status_char = ''
-            res = f"The installed version, {etm_version}, is the latest available."
+            res = f'The installed version, {etm_version}, is the latest available.'
 
     return status_char, res
 
 
 update_status = UpdateStatus()
 
+
 async def updates_loop(loop):
-    logger.debug("XXX update_loop XXX")
+    logger.debug('XXX update_loop XXX')
     status, res = check_update()
     update_status.set_status(status)
 
+
 async def refresh_loop(loop):
-    logger.debug("XXX refresh_loop XXX")
+    logger.debug('XXX refresh_loop XXX')
     dataview.refreshRelevant()
     dataview.refreshAgenda()
     dataview.refreshCurrent()
@@ -833,28 +894,29 @@ Enter the expression"""
             show_message(title, _)
             # entry_prompt_buffer.text = text + f"\n{wrap_text(res)}"
         else:
-            dataview.calculator_expression = ""
+            dataview.calculator_expression = ''
 
             show_message(title, 'cancelled')
 
     dataview.got_entry = coroutine
 
 
-
-
 @bindings.add('f7')
 def do_open_config(*event):
     openWithDefault(cfgfile)
 
+
 @bindings.add('f8')
 def do_show_help(*event):
-    help_link = "https://dagraham.github.io/etm-dgraham/"
+    help_link = 'https://dagraham.github.io/etm-dgraham/'
     openWithDefault(help_link)
 
 
 def add_usedtime(*event):
 
-    doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+    doc_id, instance, job = dataview.get_row_details(
+        text_area.document.cursor_position_row
+    )
 
     if not doc_id:
         return
@@ -862,10 +924,10 @@ def add_usedtime(*event):
     hsh = DBITEM.get(doc_id=doc_id)
 
     state2fmt = {
-            'i': "inactive",
-            'r': "running",
-            'p': "paused",
-            }
+        'i': 'inactive',
+        'r': 'running',
+        'p': 'paused',
+    }
 
     now = datetime.now().astimezone()
     if doc_id in dataview.timers:
@@ -873,15 +935,15 @@ def add_usedtime(*event):
         if state == 'r':
             elapsed += now - start
             start = now
-        timer = f"timer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}"
+        timer = f'timer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}'
 
-        default = f"{format_duration(elapsed, short=True)} : {format_datetime(now, short=True)[1]}"
+        default = f'{format_duration(elapsed, short=True)} : {format_datetime(now, short=True)[1]}'
     else:
         state = None
-        timer = "timer: none"
-        default = f"0m : {format_datetime(now, short=True)[1]}"
+        timer = 'timer: none'
+        default = f'0m : {format_datetime(now, short=True)[1]}'
 
-    title = "Record Used Time"
+    title = 'Record Used Time'
 
     text = f"""\
 selected: {hsh['itemtype']} {hsh['summary']}
@@ -913,11 +975,10 @@ To record a used time entry for this reminder enter an expression using the form
 
             ok, dt, z = model.parse_datetime(ut[1])
             if not ok:
-                msg.append(f"The entry '{ut[1]}' is not a valid datetime"
-                           )
+                msg.append(f"The entry '{ut[1]}' is not a valid datetime")
         if msg:
-            msg = "\n   ".join(msg)
-            show_message(title, f"Cancelled,  {msg}")
+            msg = '\n   '.join(msg)
+            show_message(title, f'Cancelled,  {msg}')
             return
 
         changed, msg = item.add_used(doc_id, per, dt)
@@ -932,7 +993,7 @@ To record a used time entry for this reminder enter an expression using the form
             loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
         else:
-            show_message('add used time', f"Cancelled, {msg}")
+            show_message('add used time', f'Cancelled, {msg}')
 
     dataview.got_entry = coroutine
 
@@ -941,12 +1002,19 @@ today = datetime.today()
 calyear = today.year
 calmonth = today.month
 
+
 def check_output(cmd):
     if not cmd:
         return
-    res = ""
+    res = ''
     try:
-        res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True, encoding='UTF-8')
+        res = subprocess.check_output(
+            cmd,
+            stderr=subprocess.STDOUT,
+            shell=True,
+            universal_newlines=True,
+            encoding='UTF-8',
+        )
         return True, res
     except subprocess.CalledProcessError as e:
         logger.warning(f"Error running {cmd}\n'{e.output}'")
@@ -954,27 +1022,36 @@ def check_output(cmd):
         msg = lines[-1]
         return False, msg
 
+
 editing = False
+
 
 @Condition
 def is_viewing():
     return get_app().layout.has_focus(text_area)
 
+
 @Condition
 def is_viewing_or_details():
-    return get_app().layout.has_focus(text_area) or get_app().layout.has_focus(details_area)
+    return get_app().layout.has_focus(text_area) or get_app().layout.has_focus(
+        details_area
+    )
+
 
 @Condition
 def is_details():
     return get_app().layout.has_focus(details_area)
 
+
 @Condition
 def is_querying():
     return get_app().layout.has_focus(query_area)
 
+
 @Condition
 def is_items_table():
-    return dataview.query_mode == "items table"
+    return dataview.query_mode == 'items table'
+
 
 @bindings.add(',', ',', filter=is_viewing)
 def _(event):
@@ -982,9 +1059,10 @@ def _(event):
     text = search_state.text
     search_state.text = ''
 
+
 @bindings.add('f1')
 def menu(event=None):
-    " Focus menu. "
+    """Focus menu."""
     if event:
         if event.app.layout.has_focus(root_container.window):
             focus_previous(event)
@@ -994,67 +1072,105 @@ def menu(event=None):
 
 @Condition
 def is_item_view():
-    return dataview.active_view in ['agenda', 'completed', 'engaged', 'history', 'index', 'tags', 'journal', 'do next', 'used time', 'relevant', 'forthcoming', 'query', 'pinned', 'review', 'konnected', 'timers', 'location']
+    return dataview.active_view in [
+        'agenda',
+        'completed',
+        'engaged',
+        'history',
+        'index',
+        'tags',
+        'journal',
+        'do next',
+        'used time',
+        'relevant',
+        'forthcoming',
+        'query',
+        'pinned',
+        'review',
+        'konnected',
+        'timers',
+        'location',
+    ]
+
 
 @Condition
 def is_dated_view():
-    return dataview.active_view in ['agenda', 'completed', 'busy'] and get_app().layout.has_focus(text_area)
+    return dataview.active_view in [
+        'agenda',
+        'completed',
+        'busy',
+    ] and get_app().layout.has_focus(text_area)
+
 
 @Condition
 def is_editing():
     return dataview.is_editing
 
+
 @Condition
 def is_not_editing():
     return not dataview.is_editing
+
 
 @Condition
 def dialog_active():
     return dataview.dialog_active
 
+
 @Condition
 def dialog_not_active():
     return not dataview.dialog_active
+
 
 @Condition
 def is_not_searching():
     return not application.layout.is_searching
 
+
 @Condition
 def is_busy_view():
     return dataview.active_view == 'busy'
+
 
 @Condition
 def is_not_busy_view():
     return dataview.active_view != 'busy'
 
+
 @Condition
 def is_agenda_view():
     return dataview.active_view in ['agenda', 'busy', 'completed', 'engaged']
+
 
 @Condition
 def is_used_view():
     return dataview.active_view in ['used time', 'used summary']
 
+
 @Condition
 def is_query_view():
     return dataview.active_view in ['query']
+
 
 @Condition
 def is_yearly_view():
     return dataview.active_view in ['yearly']
 
+
 @Condition
 def is_not_yearly_view():
     return dataview.active_view not in ['yearly']
+
 
 @Condition
 def is_not_showing_details():
     return dataview.is_showing_details == False
 
+
 @Condition
 def is_showing_details():
     return dataview.is_showing_details
+
 
 # @Condition
 # def is_showing_confirmation():
@@ -1064,32 +1180,40 @@ def is_showing_details():
 # def is_not_showing_confirmation():
 #     return dataview.is_showing_confirmation == False
 
+
 @Condition
 def is_showing_choice():
     return dataview.is_showing_choice
+
 
 @Condition
 def is_not_showing_choice():
     return dataview.is_showing_choice == False
 
+
 @Condition
 def is_showing_entry():
     return dataview.is_showing_entry
+
 
 @Condition
 def is_not_showing_entry():
     return dataview.is_showing_entry == False
 
+
 bindings.add('tab', filter=is_not_editing)(focus_next)
 bindings.add('s-tab', filter=is_not_editing)(focus_previous)
+
 
 @bindings.add('c-s', filter=is_not_editing)
 def do_nothing(*event):
     pass
 
+
 @bindings.add('s', filter=is_viewing)
 def do_alerts(*event):
-    show_message("scheduled alerts", alerts(), 2)
+    show_message('scheduled alerts', alerts(), 2)
+
 
 @bindings.add('c-l', filter=is_viewing)
 def do_go_to_line(*event):
@@ -1097,7 +1221,7 @@ def do_go_to_line(*event):
     # show_work_in_progress(func)
     # return
 
-    title = 'Go to line',
+    title = ('Go to line',)
     text = 'Enter the line number'
     default = ''
     if dataview.current_row:
@@ -1113,8 +1237,11 @@ def do_go_to_line(*event):
             except ValueError:
                 show_message('go to line', 'Invalid line number')
             else:
-                text_area.buffer.cursor_position = \
-                    text_area.buffer.document.translate_row_col_to_index(line_number, 0)
+                text_area.buffer.cursor_position = (
+                    text_area.buffer.document.translate_row_col_to_index(
+                        line_number, 0
+                    )
+                )
 
     dataview.got_entry = coroutine
 
@@ -1125,13 +1252,12 @@ def do_jump_to_date(*event):
     # show_work_in_progress(func)
     # return
 
-    title = "Jump to Date"
+    title = 'Jump to Date'
     text = """\
 Enter the date\
 """
 
-    get_entry(title, text, "", event)
-
+    get_entry(title, text, '', event)
 
     def coroutine():
         target_date = dataview.entry_content
@@ -1150,42 +1276,45 @@ Enter the date\
 window_colors = None
 
 grey_colors = {
-        'grey1': '#396060', # 1 shade lighter of darkslategrey for status and menubar background
-        'grey2': '#1d3030', # 2 shades darker of darkslategrey for textarea background
-    }
+    'grey1': '#396060',  # 1 shade lighter of darkslategrey for status and menubar background
+    'grey2': '#1d3030',  # 2 shades darker of darkslategrey for textarea background
+}
+
 
 def get_colors(bg='', fg='', attr=''):
     if bg and bg in grey_colors:
-        bg = f"bg:{grey_colors[bg]}"
+        bg = f'bg:{grey_colors[bg]}'
     else:
         # background colors from NAMED_COLORS if possible
-        bg = f"bg:{NAMED_COLORS.get(bg, bg)}" if bg else ""
+        bg = f'bg:{NAMED_COLORS.get(bg, bg)}' if bg else ''
     if fg and fg in grey_colors:
-        fg = f"{grey_colors[fg]}"
+        fg = f'{grey_colors[fg]}'
     else:
         # foreground colors from NAMED_COLORS if possible
-        fg = f"{NAMED_COLORS.get(fg, fg)}" if fg else ""
-    return f"{bg} {fg} {attr}".rstrip()
+        fg = f'{NAMED_COLORS.get(fg, fg)}' if fg else ''
+    return f'{bg} {fg} {attr}'.rstrip()
 
 
 def get_style(style_dict):
     window_colors = {k: get_colors(*v) for k, v in style_dict.items()}
     return Style.from_dict(window_colors)
 
+
 type2style = {
-        '!': 'inbox',
-        '<': 'pastdue',
-        '>': 'begin',
-        '%': 'journal',
-        '*': 'event',
-        '-': 'available',
-        '+': 'waiting',
-        '✓': 'finished',
-        '~': 'missing',
-        '◦': 'used',
-        '↱': 'wrap',
-        '↳': 'wrap',
-        }
+    '!': 'inbox',
+    '<': 'pastdue',
+    '>': 'begin',
+    '%': 'journal',
+    '*': 'event',
+    '-': 'available',
+    '+': 'waiting',
+    '✓': 'finished',
+    '~': 'missing',
+    '◦': 'used',
+    '↱': 'wrap',
+    '↳': 'wrap',
+}
+
 
 def first_char(s):
     """
@@ -1201,10 +1330,10 @@ def first_char(s):
         # no leading spaces
         return None
 
+
 # Create one text buffer for the main content.
 class ETMLexer(Lexer):
     def lex_document(self, document):
-
         def get_line(lineno):
             tmp = document.lines[lineno]
             typ = first_char(tmp)
@@ -1213,10 +1342,14 @@ class ETMLexer(Lexer):
                 if sty in type_colors:
                     return [(type_colors[sty], tmp)]
                 else:
-                    logger.error(f"problem with typ {typ} from {tmp}")
-                    logger.error(f"sty: {sty}; type_colors.keys: {type_colors.keys()}")
-            if tmp.rstrip().endswith("(Today)") or tmp.rstrip().endswith("(Tomorrow)"):
-                return [(type_colors['today'], f"{tmp} ")]
+                    logger.error(f'problem with typ {typ} from {tmp}')
+                    logger.error(
+                        f'sty: {sty}; type_colors.keys: {type_colors.keys()}'
+                    )
+            if tmp.rstrip().endswith('(Today)') or tmp.rstrip().endswith(
+                '(Tomorrow)'
+            ):
+                return [(type_colors['today'], f'{tmp} ')]
 
             return [
                 (busy_colors.get(c, type_colors['plain']), c)
@@ -1236,29 +1369,42 @@ def status_time(dt):
     ampm = settings.get('ampm', True)
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    month = dt.strftime("%b")
-    day = dt.strftime("%d").lstrip("0")
-    weekday = dt.strftime("%a")
+    month = dt.strftime('%b')
+    day = dt.strftime('%d').lstrip('0')
+    weekday = dt.strftime('%a')
     if dt.minute == 0:
-        hourminutes = dt.strftime("%I%p").lstrip("0").lower() if ampm else dt.strftime("%H")
+        hourminutes = (
+            dt.strftime('%I%p').lstrip('0').lower()
+            if ampm
+            else dt.strftime('%H')
+        )
     else:
-        hourminutes = dt.strftime("%I:%M%p").lstrip("0").lower() if ampm else dt.strftime("%H:%M")
+        hourminutes = (
+            dt.strftime('%I:%M%p').lstrip('0').lower()
+            if ampm
+            else dt.strftime('%H:%M')
+        )
     monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
-    return f"{hourminutes} {weekday} {monthday}"
+    return f'{hourminutes} {weekday} {monthday}'
+
 
 def item_changed(loop):
     item.update_item_hsh()
-    if (dataview.active_view == 'timers'
-            and item.doc_id not in dataview.timers):
+    if dataview.active_view == 'timers' and item.doc_id not in dataview.timers:
         if dataview.active_timer:
             state = 'i'
         else:
             state = 'r'
             dataview.active_timer = item.doc_id
-        dataview.timers[item.doc_id] = [state, datetime.now().astimezone(), timedelta()]
+        dataview.timers[item.doc_id] = [
+            state,
+            datetime.now().astimezone(),
+            timedelta(),
+        ]
     dataview.get_completions()
     dataview.update_konnections(item)
     data_changed(loop)
+
 
 def data_changed(loop):
     dataview.refreshRelevant()
@@ -1266,11 +1412,16 @@ def data_changed(loop):
     set_text(dataview.show_active_view())
     dataview.refreshCurrent()
     if dataview.current_row:
-        text_area.buffer.cursor_position = text_area.buffer.document.translate_row_col_to_index(dataview.current_row, 0)
+        text_area.buffer.cursor_position = (
+            text_area.buffer.document.translate_row_col_to_index(
+                dataview.current_row, 0
+            )
+        )
     get_app().invalidate()
 
+
 async def new_day(loop):
-    logger.debug("XXX new day XXX")
+    logger.debug('XXX new day XXX')
     dataview.currYrWk()
     dataview.refreshRelevant()  # sets now, currentYrWk, current
     dataview.refreshAgenda()
@@ -1281,14 +1432,17 @@ async def new_day(loop):
     get_app().invalidate()
     dataview.handle_backups()
     dataview.possible_archive()
-    logger.info(f"new_day currentYrWk: {dataview.currentYrWk}")
+    logger.info(f'new_day currentYrWk: {dataview.currentYrWk}')
     return True
 
+
 current_datetime = datetime.now().astimezone()
+
 
 async def save_timers():
     dataview.save_timers()
     return True
+
 
 def alerts():
     # alerts = []
@@ -1304,35 +1458,43 @@ def alerts():
         else:
             start = format_datetime(start_time, short=True)[1]
         trigger = format_time(trigger_time)[1]
-        command = ", ".join(alert[2])
+        command = ', '.join(alert[2])
         itemtype = alert[3]
         summary = alert[4]
         doc_id = alert[5]
-        prefix = '✓' if trigger_time < now else '•' # '⧖'
-        alert_hsh.setdefault((alert[5], itemtype, summary), []).append([prefix, trigger, start, command])
+        prefix = '✓' if trigger_time < now else '•'   # '⧖'
+        alert_hsh.setdefault((alert[5], itemtype, summary), []).append(
+            [prefix, trigger, start, command]
+        )
     if alerts:
         output = []
         for key, values in alert_hsh.items():
-            output.append(f"{key[1]} {key[2]}")
+            output.append(f'{key[1]} {key[2]}')
             for value in values:
-                output.append(f"  {value[0]} {value[1]:>7} ⭢  {value[2]:>7}:  {value[3]}")
+                output.append(
+                    f'  {value[0]} {value[1]:>7} ⭢  {value[2]:>7}:  {value[3]}'
+                )
         output.append('')
         output.append('✓ already activated')
         output.append('• not yet activated')
-        return "\n".join(output)
+        return '\n'.join(output)
 
     else:
-        return "There are no alerts for today."
+        return 'There are no alerts for today.'
+
 
 def get_row_col():
     row_number = text_area.document.cursor_position_row
     col_number = text_area.document.cursor_position_col
     return row_number, col_number
 
-def restore_row_col(row_number, col_number):
-    text_area.buffer.cursor_position = \
-                    text_area.buffer.document.translate_row_col_to_index(row_number, col_number)
 
+def restore_row_col(row_number, col_number):
+    text_area.buffer.cursor_position = (
+        text_area.buffer.document.translate_row_col_to_index(
+            row_number, col_number
+        )
+    )
 
 
 async def maybe_alerts(now):
@@ -1343,7 +1505,7 @@ async def maybe_alerts(now):
     # alerts: alert time, start time, commands, itemtype, summary, doc_id
     restore_row_col(row, col)
     if dataview.alerts and not ('alerts' in settings and settings['alerts']):
-        logger.warning("alerts have not been configured")
+        logger.warning('alerts have not been configured')
         return
     bad = []
     for alert in dataview.alerts:
@@ -1358,13 +1520,17 @@ async def maybe_alerts(now):
             #     startdt = pendulum.instance(startdt)
             # when = startdt.diff_for_humans()
             if startdt > alertdt:
-                when = f"in {duration_in_words(startdt-alertdt)}"
+                when = f'in {duration_in_words(startdt-alertdt)}'
             elif startdt == alertdt:
-                when = f"now"
+                when = f'now'
             else:
-                when = f"{duration_in_words(alertdt-startdt)} ago"
+                when = f'{duration_in_words(alertdt-startdt)} ago'
             start = format_datetime(startdt)[1]
-            time = format_time(startdt)[1] if startdt.date() == today.date() else format_datetime(startdt, short=True)[1]
+            time = (
+                format_time(startdt)[1]
+                if startdt.date() == today.date()
+                else format_datetime(startdt, short=True)[1]
+            )
             summary = alert[4]
             doc_id = alert[5]
             command_list = alert[2]
@@ -1377,15 +1543,29 @@ async def maybe_alerts(now):
             if 't' in command_list:
                 command_list.remove('t')
                 dataview.send_text(doc_id)
-            commands = [settings['alerts'][x].format(start=start, time=time, when=when, now=format_time(now)[1], summary=summary, location=location, description=description) for x in command_list if x in settings['alerts']]
+            commands = [
+                settings['alerts'][x].format(
+                    start=start,
+                    time=time,
+                    when=when,
+                    now=format_time(now)[1],
+                    summary=summary,
+                    location=location,
+                    description=description,
+                )
+                for x in command_list
+                if x in settings['alerts']
+            ]
             for command in commands:
                 if command:
                     check_output(command)
             if len(commands) < len(command_list):
-                bad.extend([x for x in command_list if x not in settings['alerts']])
+                bad.extend(
+                    [x for x in command_list if x not in settings['alerts']]
+                )
 
     if bad:
-        logger.error(f"unrecognized alert commands: {bad}")
+        logger.error(f'unrecognized alert commands: {bad}')
 
 
 # async def event_handler():
@@ -1396,16 +1576,18 @@ def event_handler(e):
         return
     # check for updates every interval minutes
     updates_interval = settings.get('updates_interval', 0)
-    refresh_interval = settings.get('refresh_interval', 60) # seconds to wait between loops
+    refresh_interval = settings.get(
+        'refresh_interval', 60
+    )   # seconds to wait between loops
     # minutes = pendulum.now().minute
     # minutes = minutes % interval if interval else minutes % 5
 
     try:
         minutes = now.minute
-        current_today = dataview.now.strftime("%Y%m%d")
+        current_today = dataview.now.strftime('%Y%m%d')
         asyncio.ensure_future(maybe_alerts(now))
         current_datetime = status_time(now)
-        today = now.strftime("%Y%m%d")
+        today = now.strftime('%Y%m%d')
 
         if updates_interval and minutes % updates_interval == 0:
             loop = asyncio.get_event_loop()
@@ -1428,20 +1610,25 @@ def event_handler(e):
         # await asyncio.sleep(wait)
         # asyncio.sleep(wait)
     except asyncio.CancelledError:
-        logger.info(f"Background task cancelled.")
+        logger.info(f'Background task cancelled.')
 
 
 def get_edit_mode():
     app = get_app()
     if get_app().layout.has_focus(edit_buffer):
         if app.editing_mode == EditingMode.VI:
-            insert_mode = app.vi_state.input_mode in (InputMode.INSERT, InputMode.INSERT_MULTIPLE)
+            insert_mode = app.vi_state.input_mode in (
+                InputMode.INSERT,
+                InputMode.INSERT_MULTIPLE,
+            )
             replace_mode = app.vi_state.input_mode == InputMode.REPLACE
             sel = edit_buffer.selection_state
             temp_navigation = app.vi_state.temporary_navigation_mode
             visual_line = sel is not None and sel.type == SelectionType.LINES
             visual_block = sel is not None and sel.type == SelectionType.BLOCK
-            visual_char = sel is not None and sel.type == SelectionType.CHARACTERS
+            visual_char = (
+                sel is not None and sel.type == SelectionType.CHARACTERS
+            )
             mode = 'vi:'
             if insert_mode:
                 mode += ' insert'
@@ -1464,94 +1651,134 @@ def get_edit_mode():
         else:
             mode = 'emacs'
 
-        return ''.join([
-            mode,
-            ' ',
-            ('+' if edit_buffer_changed() else ''),
-            (' '),
-        ])
+        return ''.join(
+            [
+                mode,
+                ' ',
+                ('+' if edit_buffer_changed() else ''),
+                (' '),
+            ]
+        )
     else:
         application.output.set_cursor_shape(CursorShape.BLOCK)
-
 
     return '        '
 
 
 def get_statusbar_text():
-    return [ ('class:status',  f' {format_statustime(datetime.now().astimezone())}'), ]
+    return [
+        ('class:status', f' {format_statustime(datetime.now().astimezone())}'),
+    ]
+
 
 def get_statusbar_center_text():
     if dataview.is_editing:
-        return [ ('class:status',  f' {get_edit_mode()}'), ]
+        return [
+            ('class:status', f' {get_edit_mode()}'),
+        ]
     else:
         application.output.set_cursor_shape(CursorShape.BLOCK)
     if dataview.is_showing_query:
-        return [ ('class:status',  f' {dataview.query_mode}'), ]
+        return [
+            ('class:status', f' {dataview.query_mode}'),
+        ]
     if loglevel == 1:
         # show current row number and associated id in the status bar
         current_row = text_area.document.cursor_position_row
         current_id = dataview.row2id.get(current_row, '~')
         if isinstance(current_id, tuple):
             current_id = current_id[0]
-        return [ ('class:status',  f'{current_row}: {current_id}'), ]
+        return [
+            ('class:status', f'{current_row}: {current_id}'),
+        ]
 
-    return [ ('class:status',  12 * ' '), ]
+    return [
+        ('class:status', 12 * ' '),
+    ]
 
 
 def get_statusbar_right_text():
-    inbasket = INBASKET_CHAR if os.path.exists(inbasket_file) else ""
+    inbasket = INBASKET_CHAR if os.path.exists(inbasket_file) else ''
     active, inactive = dataview.timer_report()
     if active:
-        active_part = (type_colors['running'], active) if active.startswith('r') else (type_colors['paused'], active)
-        inactive_part = ('class:status', f"{inactive}  ")
+        active_part = (
+            (type_colors['running'], active)
+            if active.startswith('r')
+            else (type_colors['paused'], active)
+        )
+        inactive_part = ('class:status', f'{inactive}  ')
     else:
-        active_part = inactive_part = ('class:status', "")
+        active_part = inactive_part = ('class:status', '')
 
-    return [ active_part, inactive_part,  ('class:status',  f"{dataview.active_view} {inbasket}{update_status.get_status()}"), ]
+    return [
+        active_part,
+        inactive_part,
+        (
+            'class:status',
+            f'{dataview.active_view} {inbasket}{update_status.get_status()}',
+        ),
+    ]
+
 
 def openWithDefault(path):
-    if " " in path:
+    if ' ' in path:
         parts = qsplit(path)
         if parts:
             # wrapper to catch 'Exception Ignored' messages
             output = io.StringIO()
             with contextlib.redirect_stderr(output):
                 # the pid business is evidently needed to avoid waiting
-                pid = subprocess.Popen(parts, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
+                pid = subprocess.Popen(
+                    parts,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                ).pid
                 res = output.getvalue()
                 if res:
                     logger.error(f"caught by contextlib:\n'{res}'")
-
 
     else:
         path = os.path.normpath(os.path.expanduser(path))
         sys_platform = platform.system()
         if platform.system() == 'Darwin':       # macOS
-            subprocess.run(('open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(
+                ('open', path),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
         elif platform.system() == 'Windows':    # Windows
             os.startfile(path)
         else:                                   # linux
-            subprocess.run(('xdg-open', path), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(
+                ('xdg-open', path),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
 
     return
 
-search_field = SearchToolbar(text_if_not_searching=[
-    ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
 
-content = ""
+search_field = SearchToolbar(
+    text_if_not_searching=[
+        ('class:not-searching', "Press '/' to start searching.")
+    ],
+    ignore_case=True,
+)
+
+content = ''
 etmlexer = ETMLexer()
 text_area = TextArea(
-    text="",
+    text='',
     read_only=True,
     scrollbar=True,
     search_field=search_field,
     focus_on_click=True,
     lexer=etmlexer,
-    )
+)
 
 # expansions will come from cfg.yaml
-expansions = {
-        }
+expansions = {}
 
 
 class AtCompleter(Completer):
@@ -1561,7 +1788,7 @@ class AtCompleter(Completer):
     def get_completions(self, document, complete_event):
         cur_line = document.current_line_before_cursor
         matches = re.findall(AtCompleter.pat, cur_line)
-        word = matches[-1] if matches else ""
+        word = matches[-1] if matches else ''
         if word:
             word_len = len(word)
             word = word.rstrip()
@@ -1569,31 +1796,29 @@ class AtCompleter(Completer):
                 if word.startswith('@x') and completion.startswith(word):
                     if completion == word:
                         replacement = expansions.get(word[3:], completion)
-                        yield Completion(
-                            replacement,
-                            start_position=-word_len)
+                        yield Completion(replacement, start_position=-word_len)
                     else:
-                        yield Completion(
-                            completion,
-                            start_position=-word_len)
+                        yield Completion(completion, start_position=-word_len)
 
                 elif completion.startswith(word) and completion != word:
-                    yield Completion(
-                        completion,
-                        start_position=-word_len)
+                    yield Completion(completion, start_position=-word_len)
         return
 
 
 at_completer = AtCompleter()
 
-result = ""
+result = ''
+
+
 def process_input(buf):
     global result
     result = buf.document.text
     return True
 
+
 def process_entry(buf):
     dataview.entry_content = buf.document.text
+
 
 edit_bindings = KeyBindings()
 ask_buffer = Buffer()
@@ -1605,7 +1830,12 @@ entry_prompt_buffer = Buffer(multiline=True)
 choice_title_buffer = Buffer()
 # choice_prompt_buffer = Buffer(multiline=True)
 
-edit_buffer = Buffer(multiline=True, completer=at_completer, complete_while_typing=True, accept_handler=process_input)
+edit_buffer = Buffer(
+    multiline=True,
+    completer=at_completer,
+    complete_while_typing=True,
+    accept_handler=process_input,
+)
 entry_buffer = Buffer(multiline=False, accept_handler=process_entry)
 
 
@@ -1615,114 +1845,173 @@ edit_dimension = Dimension(min=2, weight=3)
 entry_dimension = Dimension(min=2, weight=2)
 
 edit_window = Window(
-    BufferControl(buffer=edit_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=edit_dimension, wrap_lines=True, style='class:edit')
+    BufferControl(
+        buffer=edit_buffer,
+        focusable=True,
+        focus_on_click=True,
+        key_bindings=edit_bindings,
+    ),
+    height=edit_dimension,
+    wrap_lines=True,
+    style='class:edit',
+)
 entry_window = Window(
-    BufferControl(buffer=entry_buffer, focusable=True, focus_on_click=True, key_bindings=edit_bindings), height=entry_dimension, wrap_lines=True, style='class:entry')
+    BufferControl(
+        buffer=entry_buffer,
+        focusable=True,
+        focus_on_click=True,
+        key_bindings=edit_bindings,
+    ),
+    height=entry_dimension,
+    wrap_lines=True,
+    style='class:entry',
+)
 ask_window = Window(
-    BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:ask')
+    BufferControl(buffer=ask_buffer, focusable=False),
+    height=1,
+    style='class:ask',
+)
 entry_title_window = Window(
-    BufferControl(buffer=entry_title_buffer, focusable=False), height=1, style='class:ask')
+    BufferControl(buffer=entry_title_buffer, focusable=False),
+    height=1,
+    style='class:ask',
+)
 choice_title_window = Window(
-    BufferControl(buffer=choice_title_buffer, focusable=False), height=1, style='class:ask')
+    BufferControl(buffer=choice_title_buffer, focusable=False),
+    height=1,
+    style='class:ask',
+)
 reply_window = Window(
-    BufferControl(buffer=reply_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:reply')
+    BufferControl(buffer=reply_buffer, focusable=False),
+    height=reply_dimension,
+    wrap_lines=True,
+    style='class:reply',
+)
 entry_prompt_window = Window(
-    BufferControl(buffer=entry_prompt_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:edit')
+    BufferControl(buffer=entry_prompt_buffer, focusable=False),
+    height=reply_dimension,
+    wrap_lines=True,
+    style='class:edit',
+)
 # choice_prompt_window = Window(
 #     BufferControl(buffer=choice_prompt_buffer, focusable=False), height=reply_dimension, wrap_lines=True, style='class:edit')
 
-edit_area = HSplit([
-    ask_window,
-    reply_window,
-    HorizontalLine(),
-    edit_window,
-    ], style='class:edit')
+edit_area = HSplit(
+    [
+        ask_window,
+        reply_window,
+        HorizontalLine(),
+        edit_window,
+    ],
+    style='class:edit',
+)
 
 entry_display_area = TextArea(
-    text="",
+    text='',
     style='class:edit',
     read_only=True,
     scrollbar=True,
-    )
+)
 
 
-entry_area = HSplit([
-    entry_title_window,
-    entry_display_area,
-    HorizontalLine(),
-    entry_window,
-    ], style='class:edit')
+entry_area = HSplit(
+    [
+        entry_title_window,
+        entry_display_area,
+        HorizontalLine(),
+        entry_window,
+    ],
+    style='class:edit',
+)
 
 
 choice_display_area = TextArea(
-    text="",
+    text='',
     style='class:edit',
     read_only=True,
     scrollbar=True,
-    )
+)
 
-choice_area = HSplit([
-    choice_title_window,
-    choice_display_area,
-    ], style='class:edit')
-
+choice_area = HSplit(
+    [
+        choice_title_window,
+        choice_display_area,
+    ],
+    style='class:edit',
+)
 
 
 details_area = TextArea(
-    text="",
+    text='',
     style='class:details',
     read_only=True,
     scrollbar=True,
     search_field=search_field,
-    )
+)
 
 
 busy_area = TextArea(
-    text="",
+    text='',
     style='class:details',
     read_only=True,
     search_field=search_field,
-    )
+)
 
 
 width = shutil.get_terminal_size()[0] - 4
 
+
 def get_busy_text():
     return get_busy_text_and_keys(0)
+
 
 def get_busy_keys():
     return get_busy_text_and_keys(1)
 
+
 def get_busy_text_and_keys(n):
 
     weekdays = {
-            5:  f"1→{WA[1]}",
-            7:  f"2→{WA[2]}",
-            9:  f"3→{WA[3]}",
-            11: f"4→{WA[4]}",
-            13: f"5→{WA[5]}",
-            15: f"6→{WA[6]}",
-            17: f"7→{WA[7]}",
-            }
+        5: f'1→{WA[1]}',
+        7: f'2→{WA[2]}',
+        9: f'3→{WA[3]}',
+        11: f'4→{WA[4]}',
+        13: f'5→{WA[5]}',
+        15: f'6→{WA[6]}',
+        17: f'7→{WA[7]}',
+    }
     busy_details = dataview.busy_details
-    active_days = "  ".join([v for k, v in weekdays.items() if k in busy_details.keys()])
-    no_busy_times = "There are no days with busy periods this week.".center(width, ' ')
-    busy_times = wrap_text(f"""\
+    active_days = '  '.join(
+        [v for k, v in weekdays.items() if k in busy_details.keys()]
+    )
+    no_busy_times = 'There are no days with busy periods this week.'.center(
+        width, ' '
+    )
+    busy_times = wrap_text(
+        f"""\
 Press the number of a weekday,
     {weekdays[5]}, ..., {weekdays[17]}
-to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.""", init_indent=0, subs_indent=0)
-    active_keys = f"{active_days}  ▼→next  ▲→previous".center(width, ' ')
+to show the details of the busy periods from that day or press the ▼ (down) or ▲ (up) cursor keys to show the details of the next or previous day with busy periods.""",
+        init_indent=0,
+        subs_indent=0,
+    )
+    active_keys = f'{active_days}  ▼→next  ▲→previous'.center(width, ' ')
 
-    if n == 0: # text
-        return busy_times if dataview.busy_details else ""
-    else: # n=1, keys
+    if n == 0:   # text
+        return busy_times if dataview.busy_details else ''
+    else:   # n=1, keys
         return active_keys if dataview.busy_details else no_busy_times
 
 
-busy_container = HSplit([
-    busy_area,
-    Window(FormattedTextControl(get_busy_keys), style='class:status', height=1),
-    ], style='class:edit')
+busy_container = HSplit(
+    [
+        busy_area,
+        Window(
+            FormattedTextControl(get_busy_keys), style='class:status', height=1
+        ),
+    ],
+    style='class:edit',
+)
 
 query_bindings = KeyBindings()
 
@@ -1732,20 +2021,25 @@ def accept(buff):
     set_text('processing query ...')
     if query_window.text:
         text = query_window.text
-        logger.debug(f"query: {text}")
+        logger.debug(f'query: {text}')
         queries = settings.get('queries')
         if text == 'l':
             if queries:
-                query_str = "\n  ".join([f"{k}: {v}" for k, v in queries.items()])
+                query_str = '\n  '.join(
+                    [f'{k}: {v}' for k, v in queries.items()]
+                )
             else:
-                query_str = "None listed"
-            tmp = """\
+                query_str = 'None listed'
+            tmp = (
+                """\
 Stored queries are listed as <key>: <query> below.
 Enter <key> at the prompt and press 'enter' to
 replace <key> with <query>. Submit this query as
 is or edit it first and then submit.
 
-  """ + query_str
+  """
+                + query_str
+            )
 
             show_message('query information', tmp)
             return False
@@ -1758,9 +2052,9 @@ is or edit it first and then submit.
             return False
         parts = [x.strip() for x in text.split(' ')]
         if queries and parts[0] in queries:
-            set_text("")
+            set_text('')
             text = queries[parts.pop(0)]
-            m =  re.search(r'{\d*}', text)
+            m = re.search(r'{\d*}', text)
             if m:
                 # make the substitutions
                 num_needed = text.count('{}')
@@ -1793,7 +2087,7 @@ Error processing {text}:
 
         loop = asyncio.get_event_loop()
         loop.call_later(0, do_show_processing, loop)
-        loop.call_later(.1, do_complex_query, text, loop)
+        loop.call_later(0.1, do_complex_query, text, loop)
 
     else:
         # quitting
@@ -1818,19 +2112,22 @@ query_window = TextArea(
     height=3,
     wrap_lines=True,
     prompt='query: ',
-    )
+)
 
 query_window.accept_handler = accept
 
-query_area = HSplit([
-    ask_window,
-    query_window,
-    ], style='class:edit')
+query_area = HSplit(
+    [
+        ask_window,
+        query_window,
+    ],
+    style='class:edit',
+)
 
 
 def do_complex_query(text, loop):
     text, *updt = [x.strip() for x in text.split(' | ')]
-    updt = f" | {updt[0]}" if updt else ""
+    updt = f' | {updt[0]}' if updt else ''
     if text.startswith('a '):
         text = text[2:]
         dataview.use_archive()
@@ -1852,41 +2149,46 @@ def do_complex_query(text, loop):
     else:
         ok, items = query.do_query(text + updt)
         if ok:
-            dataview.set_query(f"{text + updt}", {}, items)
+            dataview.set_query(f'{text + updt}', {}, items)
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
         else:
             set_text(items)
 
+
 def do_show_processing(loop):
-    set_text("processing query ...")
+    set_text('processing query ...')
     application.layout.focus(text_area)
     get_app().invalidate()
 
 
+edit_container = HSplit(
+    [
+        edit_area,
+    ]
+)
 
-edit_container = HSplit([
-    edit_area,
-    ])
+entry_container = HSplit(
+    [
+        entry_area,
+    ]
+)
 
-entry_container = HSplit([
-    entry_area,
-    ])
+choice_container = HSplit(
+    [
+        choice_area,
+    ]
+)
 
-choice_container = HSplit([
-    choice_area,
-    ])
 
 def default_buffer_changed(_):
-    """
-    """
+    """ """
     dataview.control_z_active = False
     item.text_changed(edit_buffer.text, edit_buffer.cursor_position)
 
 
 def default_cursor_position_changed(_):
-    """
-    """
+    """ """
     item.cursor_changed(edit_buffer.cursor_position)
     set_askreply('_')
 
@@ -1895,58 +2197,64 @@ def default_cursor_position_changed(_):
 edit_buffer.on_text_changed += default_buffer_changed
 edit_buffer.on_cursor_position_changed += default_cursor_position_changed
 
-status_area = VSplit([
-            Window(FormattedTextControl(get_statusbar_text), style='class:status'),
-            Window(FormattedTextControl(get_statusbar_center_text),
-                   style='class:status', width=12, align=WindowAlign.CENTER),
-            Window(FormattedTextControl(get_statusbar_right_text),
-                   style='class:status', width=20, align=WindowAlign.RIGHT),
-        ], height=1)
+status_area = VSplit(
+    [
+        Window(FormattedTextControl(get_statusbar_text), style='class:status'),
+        Window(
+            FormattedTextControl(get_statusbar_center_text),
+            style='class:status',
+            width=12,
+            align=WindowAlign.CENTER,
+        ),
+        Window(
+            FormattedTextControl(get_statusbar_right_text),
+            style='class:status',
+            width=20,
+            align=WindowAlign.RIGHT,
+        ),
+    ],
+    height=1,
+)
 
 
-body = HSplit([
-    text_area,      # main content
-    status_area,    # toolbar
-    ConditionalContainer(
-        content=details_area,
-        filter=is_showing_details & is_not_busy_view),
-    ConditionalContainer(
-        content=busy_container,
-        filter=is_busy_view),
-    ConditionalContainer(
-        content=query_area,
-        filter=is_querying),
-    ConditionalContainer(
-        content=edit_container,
-        filter=is_editing),
-    ConditionalContainer(
-        content=choice_area,
-        filter=is_showing_choice),
-    ConditionalContainer(
-        content=entry_container,
-        filter=is_showing_entry),
-    search_field,
-    ])
+body = HSplit(
+    [
+        text_area,  # main content
+        status_area,  # toolbar
+        ConditionalContainer(
+            content=details_area, filter=is_showing_details & is_not_busy_view
+        ),
+        ConditionalContainer(content=busy_container, filter=is_busy_view),
+        ConditionalContainer(content=query_area, filter=is_querying),
+        ConditionalContainer(content=edit_container, filter=is_editing),
+        ConditionalContainer(content=choice_area, filter=is_showing_choice),
+        ConditionalContainer(content=entry_container, filter=is_showing_entry),
+        search_field,
+    ]
+)
 
 item_not_selected = False
 
+
 @bindings.add('S', filter=is_viewing_or_details & is_items_table)
 def do_schedule_new(*event):
-    doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+    doc_id, instance, job = dataview.get_row_details(
+        text_area.document.cursor_position_row
+    )
 
     if not doc_id:
         return
 
     hsh = DBITEM.get(doc_id=doc_id)
 
-    title = "Schedule New Instance"
+    title = 'Schedule New Instance'
     text = f"""\
 selected: {hsh['itemtype']} {hsh['summary']}
 
 To schedule an additional datetime for this reminder enter the new datetime\
 """
 
-    get_entry(title, text, "", event)
+    get_entry(title, text, '', event)
 
     def coroutine():
         new_datetime = dataview.entry_content
@@ -1974,7 +2282,9 @@ To schedule an additional datetime for this reminder enter the new datetime\
 
 @bindings.add('R', filter=is_viewing_or_details & is_items_table)
 def do_reschedule(*event):
-    doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+    doc_id, instance, job = dataview.get_row_details(
+        text_area.document.cursor_position_row
+    )
 
     if not doc_id:
         return
@@ -1983,14 +2293,14 @@ def do_reschedule(*event):
     if instance is None and 's' in hsh:
         instance = hsh['s']
 
-    is_date = (isinstance(instance, date) and not isinstance(instance, datetime))
+    is_date = isinstance(instance, date) and not isinstance(instance, datetime)
 
     date_required = is_date or (instance.hour == 0 and instance.minute == 0)
 
     instance = instance.date() if date_required and not is_date else instance
-    new = "new date" if date_required else "new datetime"
+    new = 'new date' if date_required else 'new datetime'
 
-    title = "Reschedule Instance"
+    title = 'Reschedule Instance'
     text = f"""\
 selected: {hsh['itemtype']} {hsh['summary']}
 instance: {format_datetime(instance)[1]}
@@ -1998,7 +2308,7 @@ instance: {format_datetime(instance)[1]}
 To reschedule enter the {new}\
 """
 
-    get_entry(title, text, "", event)
+    get_entry(title, text, '', event)
 
     def coroutine():
         new_datetime = dataview.entry_content
@@ -2030,36 +2340,38 @@ To reschedule enter the {new}\
 
 @bindings.add('D', filter=is_viewing_or_details & is_item_view)
 def do_maybe_delete(*event):
-    doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
+    doc_id, instance, job = dataview.get_row_details(
+        text_area.document.cursor_position_row
+    )
 
     if not doc_id:
         return
 
     hsh = DBITEM.get(doc_id=doc_id)
     has_timer = doc_id in dataview.timers
-    timer_warning = " and\nits associated timer" if has_timer else ""
+    timer_warning = ' and\nits associated timer' if has_timer else ''
 
-    logger.debug(f"details: doc_id={doc_id}, instance={instance}, job={job}")
+    logger.debug(f'details: doc_id={doc_id}, instance={instance}, job={job}')
     if not instance:
         # not repeating
-        title = "Delete"
+        title = 'Delete'
 
         options = [
-            "<return>: yes, delete this reminder",
-            "<escape>: no, cancel"
-            ]
+            '<return>: yes, delete this reminder',
+            '<escape>: no, cancel',
+        ]
 
         text = f"""\
 {hsh['itemtype']} {hsh['summary']}
 
 Are you sure that you want to delete this reminder?
 """
-        logger.debug(f"calling get_choice with {title}, {text}, {options}")
+        logger.debug(f'calling get_choice with {title}, {text}, {options}')
         get_choice(title, text, options)
 
         def coroutine():
             keypress = dataview.details_key_press
-            logger.debug(f"confirmation keypress: {keypress}")
+            logger.debug(f'confirmation keypress: {keypress}')
             done = keypress in ['escape', Keys.ControlM]
             if keypress == Keys.ControlM:
                 if has_timer:
@@ -2076,16 +2388,15 @@ Are you sure that you want to delete this reminder?
 
         return
 
-
     if instance:
         # repeating
-        title = "Delete"
+        title = 'Delete'
 
         options = [
-            "  <1>: just this instance",
-            "  <2>: this and all subsequent instances",
-            "  <3>: the reminder itself",
-            "<escape>: delete nothing, cancel"
+            '  <1>: just this instance',
+            '  <2>: this and all subsequent instances',
+            '  <3>: the reminder itself',
+            '<escape>: delete nothing, cancel',
         ]
 
         text = f"""\
@@ -2098,7 +2409,7 @@ This is one instance of a repeating item. What do you want to delete?
 
         def coroutine():
             keypress = dataview.details_key_press
-            logger.debug(f"confirmation keypress: {keypress}")
+            logger.debug(f'confirmation keypress: {keypress}')
 
             done = keypress in ['escape', '1', '2', '3']
             if done:
@@ -2115,15 +2426,19 @@ This is one instance of a repeating item. What do you want to delete?
 
         dataview.got_choice = coroutine
 
-starting_buffer_text = ""
+
+starting_buffer_text = ''
+
 
 @bindings.add('N', filter=is_viewing & is_items_table)
 def edit_new(*event):
     global item
     global starting_buffer_text
     app = get_app()
-    app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
-    starting_buffer_text = ""
+    app.editing_mode = (
+        EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+    )
+    starting_buffer_text = ''
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
@@ -2142,12 +2457,16 @@ def edit_existing(*event):
     global starting_buffer_text
     global text_area
     app = get_app()
-    app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+    app.editing_mode = (
+        EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+    )
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
     dataview.is_editing = True
-    doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
+    doc_id, entry = dataview.get_details(
+        text_area.document.cursor_position_row, True
+    )
     row, col = get_row_col()
     item.edit_item(doc_id, entry)
     edit_buffer.text = item.entry
@@ -2156,8 +2475,10 @@ def edit_existing(*event):
     default_cursor_position_changed(event)
     application.layout.focus(edit_buffer)
 
+
 def edit_buffer_changed():
     return edit_buffer.text != starting_buffer_text
+
 
 def entry_buffer_changed(_):
     changed = entry_buffer.text != starting_buffer_text
@@ -2165,12 +2486,14 @@ def entry_buffer_changed(_):
         dataview.entry_content = entry_buffer.text
     return changed
 
+
 entry_buffer.on_text_changed += entry_buffer_changed
+
 
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
 def next_timer_state(*event):
     row = text_area.document.cursor_position_row
-    res = dataview.get_row_details(row) # item_id, instance, job_id
+    res = dataview.get_row_details(row)   # item_id, instance, job_id
     doc_id = res[0]
     if not doc_id:
         return
@@ -2178,24 +2501,24 @@ def next_timer_state(*event):
     row = text_area.document.cursor_position_row
     dataview.refreshRelevant()
     set_text(dataview.show_active_view())
-    text_area.buffer.cursor_position = \
-                    text_area.buffer.document.translate_row_col_to_index(row, 0)
+    text_area.buffer.cursor_position = (
+        text_area.buffer.document.translate_row_col_to_index(row, 0)
+    )
 
 
 @bindings.add('T', 'D', filter=is_viewing_or_details & is_item_view)
 def maybe_delete_timer(*event):
     row = text_area.document.cursor_position_row
-    res = dataview.get_row_details(row) # item_id, instance, job_id
+    res = dataview.get_row_details(row)   # item_id, instance, job_id
     doc_id = res[0]
     if not doc_id or doc_id not in dataview.timers:
         return
     hsh = DBITEM.get(doc_id=doc_id)
     state2fmt = {
-            'i': "inactive",
-            'r': "running",
-            'p': "paused",
-            }
-
+        'i': 'inactive',
+        'r': 'running',
+        'p': 'paused',
+    }
 
     state, start, elapsed = dataview.timers[doc_id]
     if state == 'r':
@@ -2204,14 +2527,14 @@ def maybe_delete_timer(*event):
         start = now
     timer = f"\ntimer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}\n\nWARNING: The timer's data will be lost.\nAre you sure you want to delete this timer?"
 
-    title = "Delete Timer"
+    title = 'Delete Timer'
     text = f"""\
 selected: {hsh['itemtype']} {hsh['summary']}{timer}
 """
 
     options = [
-        "  <return>: yes, delete the timer",
-        "  <escape>: no, do not delete the timer",
+        '  <return>: yes, delete the timer',
+        '  <escape>: no, do not delete the timer',
     ]
     get_choice(title, text, options)
 
@@ -2235,8 +2558,10 @@ def toggle_active_timer(*event):
     row = text_area.document.cursor_position_row
     dataview.refreshRelevant()
     set_text(dataview.show_active_view())
-    text_area.buffer.cursor_position = \
-                    text_area.buffer.document.translate_row_col_to_index(row, 0)
+    text_area.buffer.cursor_position = (
+        text_area.buffer.document.translate_row_col_to_index(row, 0)
+    )
+
 
 @bindings.add('T', 'R', filter=is_viewing_or_details)
 def record_time(*event):
@@ -2249,7 +2574,7 @@ def record_time(*event):
             prompt for period and ending time w/o defaults
     """
     row = text_area.document.cursor_position_row
-    res = dataview.get_row_details(row) # item_id, instance, job_id
+    res = dataview.get_row_details(row)   # item_id, instance, job_id
     doc_id = res[0]
     if not doc_id:
         return
@@ -2266,7 +2591,7 @@ def do_touch(*event):
         loop = asyncio.get_event_loop()
         loop.call_later(0, item_changed, loop)
     else:
-        show_message('Update last-modified', "Update last-modified failed")
+        show_message('Update last-modified', 'Update last-modified failed')
 
 
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
@@ -2292,11 +2617,11 @@ def do_finish(*event):
         return
 
     hsh = DBITEM.get(doc_id=doc_id)
-    logger.debug(f"type(hsh): {type(hsh)}")
-    msg = ""
+    logger.debug(f'type(hsh): {type(hsh)}')
+    msg = ''
     logger.debug(f"itemtype: {hsh['itemtype']}")
     if hsh['itemtype'] != '-' or 'f' in hsh:
-        show_message('Finish', "Only an unfinished task can be finished.")
+        show_message('Finish', 'Only an unfinished task can be finished.')
         return
 
     # has_timer = doc_id in dataview.timers
@@ -2310,23 +2635,23 @@ def do_finish(*event):
             due = min(due, model.date_to_datetime(at_plus[0]))
     else:
         due = hsh.get('s', None)
-    logger.debug(f"due: {due} {type(due)}")
+    logger.debug(f'due: {due} {type(due)}')
 
     between = []
 
-    title = "Finish"
+    title = 'Finish'
 
     now = format_datetime(datetime.now().astimezone(), short=True)[1]
-    default =  now
+    default = now
 
     if job:
         # only a completion date needed - either undated or finishing the oldest instance
         need = 1
         between = [hsh.get('s', None)]
         # due = hsh.get('s', "")
-        start = f"\nDue: {format_datetime(due)[1]}" if due else ""
+        start = f'\nDue: {format_datetime(due)[1]}' if due else ''
 
-        text= f"""\
+        text = f"""\
 {hsh['itemtype']} {hsh['summary']}
     {job}{start}
 
@@ -2334,16 +2659,15 @@ If necessary, edit the completion datetime for this task\
 """
         default = now
 
-
     elif instance and instance == model.date_to_datetime(due):
         # the oldest instance is selected
         need = 1
         between = [due]
-        entry =  is_not_yearly_view
+        entry = is_not_yearly_view
         # due = hsh.get('s', "")
-        start = f"\n    {format_datetime(due)[1]}" if due else ""
+        start = f'\n    {format_datetime(due)[1]}' if due else ''
 
-        text= f"""\
+        text = f"""\
 {hsh['itemtype']} {hsh['summary']}{start}
 
 The default entered below is to use the current moment as the "completion datetime". Edit this entry if you wish\
@@ -2355,31 +2679,41 @@ The default entered below is to use the current moment as the "completion dateti
         between = [due, instance]
         # if instance != hsh['s']:
         values = [
-            f"{format_datetime(due)[1]} (oldest)",
-            f"{format_datetime(instance)[1]} (selected)",
-            ]
+            f'{format_datetime(due)[1]} (oldest)',
+            f'{format_datetime(instance)[1]} (selected)',
+        ]
 
         values_list = []
         count = -1
         for x in values:
             count += 1
-            values_list.append(f"    {count}: {x}")
+            values_list.append(f'    {count}: {x}')
 
-        values_str = "\n".join(values_list)
+        values_str = '\n'.join(values_list)
 
-        text= f"""\
+        text = f"""\
 {hsh['itemtype']} {hsh['summary']}
 
 At least one unfinished instance of this task is older than the one selected:
 {values_str}
 The default entered below is to use the current moment and the number of the selected instance. Edit this "completion datetime : instance number" entry if you wish\
         """
-        default = f"{now} : 1"
+        default = f'{now} : 1'
 
     elif repeating:
         # must be selected from today's pastdue or beginby
         already_done = [x.end for x in hsh.get('h', [])]
-        between = [x[0] for x in model.item_instances(hsh, model.date_to_datetime(due), datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)) if x[0] not in already_done]
+        between = [
+            x[0]
+            for x in model.item_instances(
+                hsh,
+                model.date_to_datetime(due),
+                datetime.now().replace(
+                    hour=0, minute=0, second=0, microsecond=0
+                ),
+            )
+            if x[0] not in already_done
+        ]
         if between:
             # show_message('Finish', "There is nothing to complete.")
             need = 2
@@ -2388,12 +2722,12 @@ The default entered below is to use the current moment and the number of the sel
             count = -1
             for x in between:
                 count += 1
-                values_list.append(f"   {count}: {format_datetime(x)[1]}")
+                values_list.append(f'   {count}: {format_datetime(x)[1]}')
                 # values_list.append(f"   {format_datetime(x)[1]}")
 
-            values_str = "\n".join(values_list)
+            values_str = '\n'.join(values_list)
 
-            text= f"""\
+            text = f"""\
 {hsh['itemtype']} {hsh['summary']}
 
 More than one instance of this task is past due:
@@ -2401,18 +2735,20 @@ More than one instance of this task is past due:
 The default entered below is to use the current moment and the number of the oldest instance. Edit this "completion datetime : instance number" entry if you wish\
             """
 
-            default = f"{now} : 0"
-            due = ""
+            default = f'{now} : 0'
+            due = ''
         else:
             # beginby
 
             need = 1
             between = [hsh.get('s', None)]
-            entry =  "now"
+            entry = 'now'
             # due = hsh.get('s', "")
-            start = f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ""
+            start = (
+                f"\nDue: {format_datetime(hsh['s'])[1]}" if 's' in hsh else ''
+            )
 
-            text= f"""\
+            text = f"""\
 {hsh['itemtype']} {hsh['summary']}{start}
 
 There are no pastdue instances for this task.  If necessary, edit the completion datetime for this task below\
@@ -2421,11 +2757,11 @@ There are no pastdue instances for this task.  If necessary, edit the completion
     else:
         need = 1
         between = [due]
-        entry =  "now"
+        entry = 'now'
         # due = hsh.get('s', "")
-        start = f"\nDue: {format_datetime(due)[1]}" if due in hsh else ""
+        start = f'\nDue: {format_datetime(due)[1]}' if due in hsh else ''
 
-        text= f"""\
+        text = f"""\
 {hsh['itemtype']} {hsh['summary']}{start}
 
 The default entered below is to use the current moment as the "completion datetime". Edit this entry if you wish\
@@ -2446,13 +2782,13 @@ The default entered below is to use the current moment as the "completion dateti
             return None
 
         done_parts = [x.strip() for x in done_str.split(' : ')]
-        logger.debug(f"done_parts: {done_parts}")
+        logger.debug(f'done_parts: {done_parts}')
 
-        msg = ""
+        msg = ''
         num_parts = len(done_parts)
         if num_parts != need:
             ok = False
-            msg = f"Cancelled, the entry, {done_str}, does not have the required format"
+            msg = f'Cancelled, the entry, {done_str}, does not have the required format'
 
         elif num_parts == 2:
             num = int(done_parts[1])
@@ -2462,7 +2798,7 @@ The default entered below is to use the current moment as the "completion dateti
                 due = between[num]
             else:
                 msg = f"Cancelled, '{num}' is not in [{', '.join([str(x) for x in range(len(between))])}]"
-            logger.debug(f"parsing: {done_parts[1]}")
+            logger.debug(f'parsing: {done_parts[1]}')
             ok, res, z = parse_datetime(done_parts[0])
             if ok:
                 done = res
@@ -2499,17 +2835,23 @@ The default entered below is to use the current moment as the "completion dateti
     dataview.got_entry = coroutine
 
 
-@bindings.add('C', filter=is_viewing_or_details & is_item_view & is_items_table)
+@bindings.add(
+    'C', filter=is_viewing_or_details & is_item_view & is_items_table
+)
 def edit_copy(*event):
     global item
     global starting_buffer_text
     app = get_app()
-    app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+    app.editing_mode = (
+        EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+    )
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
     dataview.is_editing = True
-    doc_id, entry = dataview.get_details(text_area.document.cursor_position_row, True)
+    doc_id, entry = dataview.get_details(
+        text_area.document.cursor_position_row, True
+    )
     item.edit_copy(doc_id, entry)
     edit_buffer.text = item.entry
     starting_buffer_text = item.entry
@@ -2517,27 +2859,32 @@ def edit_copy(*event):
     default_cursor_position_changed(event)
     application.layout.focus(edit_buffer)
 
+
 @bindings.add('g', filter=is_viewing & is_not_editing)
 def do_goto(*event):
     row = text_area.document.cursor_position_row
     if not row:
-        logger.error(f"do_goto failed to return a row for cursor position {text_area.document.cursor_position_row}")
+        logger.error(
+            f'do_goto failed to return a row for cursor position {text_area.document.cursor_position_row}'
+        )
         return
-    res = dataview.get_row_details(row) # item_id, instance, job_id
+    res = dataview.get_row_details(row)   # item_id, instance, job_id
     if res:
-        logger.debug(f"get_row_details for row {row} returned {res} ")
+        logger.debug(f'get_row_details for row {row} returned {res} ')
     else:
         return
     doc_id = res[0]
     # we have a row and a doc_id
     ok, goto = dataview.get_goto(row)
-    logger.debug(f"calling get_goto on row {row} with doc_id {res[0]} - returned: {ok}, {goto}")
+    logger.debug(
+        f'calling get_goto on row {row} with doc_id {res[0]} - returned: {ok}, {goto}'
+    )
     if ok and goto:
         res = openWithDefault(goto)
         if res:
-            show_message("goto", res, 8)
+            show_message('goto', res, 8)
     else:
-        show_message("goto", goto, 8)
+        show_message('goto', goto, 8)
 
 
 @bindings.add('c-g', filter=is_editing)
@@ -2546,20 +2893,22 @@ def check_goto(*event):
     if ok:
         res = openWithDefault(goto)
         if res:
-            show_message("goto", res, 8)
+            show_message('goto', res, 8)
     else:
         show_message('goto', goto, 8)
+
 
 @bindings.add('c-r', filter=is_viewing_or_details & is_item_view)
 def not_editing_reps(*event):
     # doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
     row = text_area.document.cursor_position_row
-    logger.debug(f"calling get_repetitions with row {row}")
+    logger.debug(f'calling get_repetitions with row {row}')
     res = dataview.get_repetitions(row)
     if not res:
         return
     showing, reps = res
     show_message(showing, reps, 24)
+
 
 @bindings.add('c-h', filter=is_viewing_or_details & is_item_view)
 def not_editing_history(*event):
@@ -2570,6 +2919,7 @@ def not_editing_history(*event):
     showing, reps = res
     show_message(showing, reps, 24)
 
+
 @bindings.add('c-r', filter=is_editing)
 def is_editing_reps(*event):
     res = item.get_repetitions()
@@ -2578,14 +2928,19 @@ def is_editing_reps(*event):
     showing, reps = res
     show_message(showing, reps, 24)
 
-@bindings.add('P', filter=is_viewing_or_details & is_item_view & is_items_table)
+
+@bindings.add(
+    'P', filter=is_viewing_or_details & is_item_view & is_items_table
+)
 def toggle_pinned(*event):
     row = text_area.document.cursor_position_row
     res = dataview.toggle_pinned(row)
     dataview.refreshRelevant()
     set_text(dataview.show_active_view())
-    text_area.buffer.cursor_position = \
-                    text_area.buffer.document.translate_row_col_to_index(row, 0)
+    text_area.buffer.cursor_position = (
+        text_area.buffer.document.translate_row_col_to_index(row, 0)
+    )
+
 
 @bindings.add('f5')
 def do_import_file(*event):
@@ -2596,34 +2951,36 @@ def do_import_file(*event):
     # return
     # # end not yet implemented block
 
-    inbasket = os.path.join(etmhome, "inbasket.text")
-    default = inbasket if os.path.exists(os.path.expanduser(inbasket)) else etmhome
-    msg = ""
+    inbasket = os.path.join(etmhome, 'inbasket.text')
+    default = (
+        inbasket if os.path.exists(os.path.expanduser(inbasket)) else etmhome
+    )
+    msg = ''
 
-    title='Import File'
+    title = 'Import File'
 
-    text=f"""\
+    text = f"""\
 It is possible to import data from files with one of the following extensions:
   .json  a json file exported from etm 3.2.x
   .text  a text file with etm entries as lines
 or a collection of illustrative reminders by entering the single word, lorem.
 
 Enter the complete file path or 'lorem'"""
-    logger.debug("calling get_entry")
+    logger.debug('calling get_entry')
 
-    get_entry(title, text, "", event)
+    get_entry(title, text, '', event)
 
     def coroutine():
         keypress = dataview.details_key_press
-        logger.debug(f"confirmation keypress: {keypress}")
+        logger.debug(f'confirmation keypress: {keypress}')
         done = keypress in ['escape', Keys.ControlM]
         filepath = dataview.entry_content
         set_text(dataview.show_active_view())
-        logger.debug(f"got filepath: {filepath}")
+        logger.debug(f'got filepath: {filepath}')
         dataview.hide_entry()
         if filepath:
             if filepath.strip().lower() == 'lorem':
-                logger.debug(f"calling import_file")
+                logger.debug(f'calling import_file')
                 ok, msg = import_file('lorem')
                 if ok:
                     dataview.refreshRelevant()
@@ -2641,8 +2998,10 @@ Enter the complete file path or 'lorem'"""
                     etm_dir = os.path.normpath(os.path.expanduser(etmdir))
                     if os.path.dirname(filepath) == etm_dir:
                         os.remove(filepath)
-                        filehome = os.path.join("~", os.path.split(filepath)[1])
-                        msg += f"\n and removed {filehome}"
+                        filehome = os.path.join(
+                            '~', os.path.split(filepath)[1]
+                        )
+                        msg += f'\n and removed {filehome}'
                     dataview.refreshRelevant()
                     dataview.refreshAgenda()
                     if dataview.mk_current:
@@ -2656,7 +3015,6 @@ Enter the complete file path or 'lorem'"""
         return done
 
     dataview.got_entry = coroutine
-
 
 
 @bindings.add('c-t', 'c-t', filter=is_viewing & is_item_view)
@@ -2691,10 +3049,10 @@ def quick_timer(*event):
         summary = dataview.entry_content
         if summary:
             item_hsh = {
-                    'itemtype': '!',
-                    'summary': summary,
-                    'created': datetime.now().astimezone(ZoneInfo('UTC'))
-                    }
+                'itemtype': '!',
+                'summary': summary,
+                'created': datetime.now().astimezone(ZoneInfo('UTC')),
+            }
 
             doc_id = ETMDB.insert(item_hsh)
             if doc_id:
@@ -2717,10 +3075,10 @@ def quick_capture(*event):
     """
     now = datetime.now().astimezone()
     item_hsh = {
-            'itemtype': '!',
-            'summary': format_datetime(now, short=True)[1],
-            'created': now.astimezone(ZoneInfo('UTC'))
-            }
+        'itemtype': '!',
+        'summary': format_datetime(now, short=True)[1],
+        'created': now.astimezone(ZoneInfo('UTC')),
+    }
     doc_id = ETMDB.insert(item_hsh)
     if doc_id:
         dataview.next_timer_state(doc_id)
@@ -2743,16 +3101,18 @@ def toggle_archived_status(*event):
         return
     application.layout.focus(text_area)
     loop = asyncio.get_event_loop()
-    if dataview.query_mode == "items table":
+    if dataview.query_mode == 'items table':
         set_text(dataview.show_active_view())
         loop.call_later(0, data_changed, loop)
     else:
-        set_text("The reminder has been moved to items table.\nRun the previous query again to update the display")
-        text = f"a { dataview.query_text }"
+        set_text(
+            'The reminder has been moved to items table.\nRun the previous query again to update the display'
+        )
+        text = f'a { dataview.query_text }'
         dataview.use_items()
         item.use_items()
         loop.call_later(0, data_changed, loop)
-        loop.call_later(.1, do_complex_query, text, loop)
+        loop.call_later(0.1, do_complex_query, text, loop)
     return
 
 
@@ -2764,35 +3124,46 @@ def exit(*event):
 @bindings.add('c-c', filter=is_viewing)
 def copy_active_view(*event):
     pyperclip.copy(text_area.text)
-    show_message("copy", "view copied to system clipboard", 2)
+    show_message('copy', 'view copied to system clipboard', 2)
+
 
 @bindings.add('c-c', filter=is_details | is_editing)
 def copy_details(*event):
     details = dataview.get_details(text_area.document.cursor_position_row)[1]
     pyperclip.copy(details)
-    show_message("copy", "details copied to system clipboard", 2)
+    show_message('copy', 'details copied to system clipboard', 2)
+
 
 def set_text(txt, row=0):
     text_area.text = txt
+
 
 @bindings.add('a', filter=is_viewing)
 def agenda_view(*event):
     set_view('a')
 
+
 @bindings.add('b', filter=is_viewing)
 def busy_view(*event):
     set_view('b')
     busy_details = dataview.busy_details
-    logger.debug([f"{key}: {value.strip()}\n" for key, value in busy_details.items()])
+    logger.debug(
+        [f'{key}: {value.strip()}\n' for key, value in busy_details.items()]
+    )
     if dataview.busy_row:
-        text_area.buffer.cursor_position = \
-            text_area.buffer.document.translate_row_col_to_index(dataview.busy_row-1, 0)
+        text_area.buffer.cursor_position = (
+            text_area.buffer.document.translate_row_col_to_index(
+                dataview.busy_row - 1, 0
+            )
+        )
     else:
         busy_area.text = get_busy_text()
+
 
 @bindings.add('c', filter=is_viewing)
 def completed_view(*event):
     set_view('c')
+
 
 @bindings.add('q', filter=is_viewing & is_not_showing_details)
 def query_view(*event):
@@ -2801,83 +3172,103 @@ def query_view(*event):
     dataview.show_query()
     application.layout.focus(query_area)
 
+
 @bindings.add('u', filter=is_viewing)
 def used_view(*event):
     set_view('u')
 
+
 @bindings.add('U', filter=is_viewing)
 def used_summary_view(*event):
     set_view('U')
+
 
 @bindings.add('y', filter=is_viewing)
 def yearly_view(*event):
     dataview.set_active_view('y')
     set_text(dataview.show_active_view())
 
+
 @bindings.add('h', filter=is_viewing)
 def history_view(*event):
     set_view('h')
     # show_message('History View', 'Reverse sorted (most recent first) using the last modified datetime if modified or the created datetime otherwise.')
 
+
 @bindings.add('m', filter=is_viewing)
 def timers_view(*event):
     set_view('m')
+
 
 @bindings.add('p', filter=is_viewing)
 def pinned_view(*event):
     set_view('p')
 
+
 @bindings.add('f', filter=is_viewing)
 def forthcoming_view(*event):
     set_view('f')
+
 
 @bindings.add('d', filter=is_viewing)
 def next_view(*event):
     set_view('d')
 
+
 @bindings.add('e', filter=is_viewing)
 def engaged_view(*event):
     set_view('e')
+
 
 @bindings.add('j', filter=is_viewing)
 def journal_view(*event):
     set_view('j')
 
+
 @bindings.add('r', filter=is_viewing)
 def review_view(*event):
     set_view('r')
 
+
 @bindings.add('k', filter=is_viewing)
 def show_konnections(*event):
-    selected_id = dataview.get_details(text_area.document.cursor_position_row)[0]
+    selected_id = dataview.get_details(text_area.document.cursor_position_row)[
+        0
+    ]
     if selected_id in dataview.konnected:
         dataview.set_active_item(selected_id)
         set_view('k')
+
 
 @bindings.add('t', filter=is_viewing)
 def tag_view(*event):
     set_view('t')
 
+
 @bindings.add('i', filter=is_viewing)
 def index_view(*event):
     set_view('i')
 
+
 @bindings.add('l', filter=is_viewing)
 def location_view(*event):
     set_view('l')
+
 
 def set_view(view):
     dataview.set_active_view(view)
     item.use_items()
     set_text(dataview.show_active_view())
 
+
 def get_busy_day(d):
     busy_details = dataview.busy_details
-    r = 5 + 2*(d-1)
+    r = 5 + 2 * (d - 1)
     if not r in busy_details.keys():
         return
-    text_area.buffer.cursor_position = \
-        text_area.buffer.document.translate_row_col_to_index(r-1, 0)
+    text_area.buffer.cursor_position = (
+        text_area.buffer.document.translate_row_col_to_index(r - 1, 0)
+    )
     busy_area.text = busy_details.get(r, get_busy_text())
     dataview.busy_row = r
 
@@ -2917,7 +3308,6 @@ def get_busy_1(*event):
     get_busy_day(7)
 
 
-
 @bindings.add('enter', filter=is_busy_view & is_viewing)
 def curr_busy(*event):
     busy_details = dataview.busy_details
@@ -2940,8 +3330,9 @@ def next_busy(*event):
         if r > current_row:
             next_row = r
             break
-    text_area.buffer.cursor_position = \
-        text_area.buffer.document.translate_row_col_to_index(next_row-1, 0)
+    text_area.buffer.cursor_position = (
+        text_area.buffer.document.translate_row_col_to_index(next_row - 1, 0)
+    )
     busy_area.text = busy_details.get(next_row, get_busy_text())
     dataview.busy_row = next_row
 
@@ -2959,13 +3350,16 @@ def previous_busy(*event):
         if r < current_row:
             next_row = r
             break
-    text_area.buffer.cursor_position = \
-        text_area.buffer.document.translate_row_col_to_index(next_row-1, 0)
-    busy_area.text = busy_details.get(next_row, "")
+    text_area.buffer.cursor_position = (
+        text_area.buffer.document.translate_row_col_to_index(next_row - 1, 0)
+    )
+    busy_area.text = busy_details.get(next_row, '')
     dataview.busy_row = next_row
 
 
-@bindings.add('down', filter=is_not_busy_view & is_not_yearly_view & is_viewing)
+@bindings.add(
+    'down', filter=is_not_busy_view & is_not_yearly_view & is_viewing
+)
 def next_id(*event):
     row2id = dataview.row2id
     if not row2id:
@@ -2979,12 +3373,16 @@ def next_id(*event):
             next_row = r
             break
     if next_row in rows:
-        next_id = row2id[next_row][0] if isinstance(row2id[next_row], tuple) else row2id[next_row]
+        next_id = (
+            row2id[next_row][0]
+            if isinstance(row2id[next_row], tuple)
+            else row2id[next_row]
+        )
     else:
-        next_id = "?"
-    text_area.buffer.cursor_position = \
+        next_id = '?'
+    text_area.buffer.cursor_position = (
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
-
+    )
 
 
 @bindings.add('up', filter=is_not_busy_view & is_not_yearly_view & is_viewing)
@@ -3001,11 +3399,16 @@ def previous_id(*event):
             next_row = r
             break
     if next_row in rows:
-        next_id = row2id[next_row][0] if isinstance(row2id[next_row], tuple) else row2id[next_row]
+        next_id = (
+            row2id[next_row][0]
+            if isinstance(row2id[next_row], tuple)
+            else row2id[next_row]
+        )
     else:
-        next_id = "?"
-    text_area.buffer.cursor_position = \
+        next_id = '?'
+    text_area.buffer.cursor_position = (
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
+    )
 
 
 @bindings.add('c-p', filter=is_viewing)
@@ -3026,8 +3429,9 @@ def next_pinned(*event):
         if k > cur_row:
             nxt = k
             break
-    text_area.buffer.cursor_position = \
+    text_area.buffer.cursor_position = (
         text_area.buffer.document.translate_row_col_to_index(nxt, 0)
+    )
 
 
 @bindings.add('Z', filter=is_viewing)
@@ -3035,8 +3439,11 @@ def toggle_goto_id(*event):
     """
     If goto id is set, remove it. Else set it to the id of the selected item.
     """
-    dataview.goto_id = None if dataview.goto_id else dataview.get_details(text_area.document.cursor_position_row)[0]
-
+    dataview.goto_id = (
+        None
+        if dataview.goto_id
+        else dataview.get_details(text_area.document.cursor_position_row)[0]
+    )
 
 
 @bindings.add('right', filter=is_agenda_view & is_viewing)
@@ -3044,7 +3451,7 @@ def nextweek(*event):
     dataview.nextYrWk()
     dataview.busy_row = 0
     busy_details = dataview.busy_details
-    busy_area.text = '' # get_busy_text()
+    busy_area.text = ''   # get_busy_text()
     set_text(dataview.show_active_view())
 
 
@@ -3053,26 +3460,30 @@ def prevweek(*event):
     dataview.prevYrWk()
     dataview.busy_row = 0
     busy_details = dataview.busy_details
-    busy_area.text = '' # get_busy_text()
+    busy_area.text = ''   # get_busy_text()
     set_text(dataview.show_active_view())
+
 
 @bindings.add('space', filter=is_agenda_view & is_viewing)
 def currweek(*event):
     dataview.currYrWk()
     dataview.busy_row = 0
     busy_details = dataview.busy_details
-    busy_area.text = ""
+    busy_area.text = ''
     set_text(dataview.show_active_view())
+
 
 @bindings.add('right', filter=is_yearly_view & is_viewing)
 def nextcal(*event):
     dataview.nextcal()
     set_text(dataview.show_active_view())
 
+
 @bindings.add('left', filter=is_yearly_view & is_viewing)
 def prevcal(*event):
     dataview.prevcal()
     set_text(dataview.show_active_view())
+
 
 @bindings.add('space', filter=is_yearly_view & is_viewing)
 def prevcal(*event):
@@ -3085,15 +3496,18 @@ def nextcal(*event):
     dataview.nextMonth()
     set_text(dataview.show_active_view())
 
+
 @bindings.add('left', filter=is_used_view & is_viewing)
 def prevcal(*event):
     dataview.prevMonth()
     set_text(dataview.show_active_view())
 
+
 @bindings.add('space', filter=is_used_view & is_viewing)
 def currcal(*event):
     dataview.currMonth()
     set_text(dataview.show_active_view())
+
 
 @bindings.add('escape', filter=is_showing_choice)
 @bindings.add('enter', filter=is_showing_choice)
@@ -3106,14 +3520,17 @@ def handle_choice(*event):
     """
     keypressed = event[0].key_sequence[0].key
     dataview.details_key_press = keypressed
-    logger.debug(f"handle_choice: {keypressed}")
+    logger.debug(f'handle_choice: {keypressed}')
     done = dataview.got_choice()
     if done:
         dataview.hide_choice()
         application.layout.focus(text_area)
 
 
-@bindings.add('enter', filter=is_viewing_or_details & is_not_showing_choice & is_item_view)
+@bindings.add(
+    'enter',
+    filter=is_viewing_or_details & is_not_showing_choice & is_item_view,
+)
 def show_details(*event):
     if dataview.is_showing_details:
         application.layout.focus(text_area)
@@ -3130,10 +3547,16 @@ def show_details(*event):
 @bindings.add('c-z', filter=is_editing, eager=True)
 def close_edit(*event):
     global text_area
-    if is_editing() and edit_buffer_changed() and not dataview.control_z_active:
+    if (
+        is_editing()
+        and edit_buffer_changed()
+        and not dataview.control_z_active
+    ):
         dataview.control_z_active = True
-        ask_buffer.text = "There are unsaved changes"
-        reply_buffer.text = wrap("To discard them and close the editor press Control-Z again.", 0)
+        ask_buffer.text = 'There are unsaved changes'
+        reply_buffer.text = wrap(
+            'To discard them and close the editor press Control-Z again.', 0
+        )
         return
     row, col = get_row_col()
     app = get_app()
@@ -3145,20 +3568,23 @@ def close_edit(*event):
     set_text(dataview.show_active_view())
     restore_row_col(row, col)
 
+
 @bindings.add('enter', filter=is_showing_entry, eager=True)
 def process_entry(*event):
     global text_area
-    logger.debug(f"dataview.entry_content: {dataview.entry_content}")
+    logger.debug(f'dataview.entry_content: {dataview.entry_content}')
     dataview.got_entry()
 
     def corountine():
         pass
+
     dataview.got_entry = corountine
     row, col = get_row_col()
     dataview.hide_entry()
     application.layout.focus(text_area)
     set_text(dataview.show_active_view())
     restore_row_col(row, col)
+
 
 @bindings.add('escape', filter=is_showing_details, eager=True)
 def close_details(*event):
@@ -3210,10 +3636,12 @@ def maybe_save(item):
     global text_area
     msg = item.check_item_hsh()
     if msg:
-        show_message('Error', ", ".join(msg))
+        show_message('Error', ', '.join(msg))
         return
     if item.item_hsh.get('itemtype', None) is None:
-        show_message('Error', 'An entry for itemtype is required but missing.', 0)
+        show_message(
+            'Error', 'An entry for itemtype is required but missing.', 0
+        )
         return
 
     if item.item_hsh.get('summary', None) is None:
@@ -3221,7 +3649,9 @@ def maybe_save(item):
         return
 
     if item.item_hsh['itemtype'] == '*' and 's' not in item.item_hsh:
-        show_message('Error', 'An entry for @s is required for events but missing.', 0)
+        show_message(
+            'Error', 'An entry for @s is required for events but missing.', 0
+        )
         # item needs correcting, return to edit
         return
     # hsh ok, save changes and close editor
@@ -3239,94 +3669,143 @@ def maybe_save(item):
     loop.call_later(0, item_changed, loop)
 
 
-root_container = MenuContainer(body=body, menu_items=[
-    MenuItem('etm', children=[
-        MenuItem('F1) activate/close menu', handler=menu),
-        MenuItem('F2) about etm', handler=do_about),
-        MenuItem('F3) system info', handler=do_system),
-        MenuItem('F4) check for updates', handler=do_check_updates),
-        MenuItem('F5) import file', handler=do_import_file),
-        MenuItem('F6) datetime calculator', handler=dt_calculator),
-        MenuItem('F7) configuration settings', handler=do_open_config),
-        MenuItem('F8) help', handler=do_show_help),
-        MenuItem('-', disabled=True),
-        MenuItem('^q) quit', handler=exit),
-    ]),
-    MenuItem('view', children=[
-        MenuItem('a) agenda', handler=agenda_view),
-        MenuItem('b) busy', handler=busy_view),
-        MenuItem('c) completed', handler=completed_view),
-        MenuItem('d) do next', handler=next_view),
-        MenuItem('e) engaged', handler=engaged_view),
-        MenuItem('f) forthcoming', handler=forthcoming_view),
-        MenuItem('h) history', handler=history_view),
-        MenuItem('i) index', handler=index_view),
-        MenuItem('j) journal', handler=journal_view),
-        MenuItem('l) location', handler=location_view),
-        MenuItem('m) timers', handler=timers_view),
-        MenuItem('p) pinned', handler=pinned_view),
-        MenuItem('q) query', handler=query_view),
-        MenuItem('r) review', handler=review_view),
-        MenuItem('t) tags', handler=tag_view),
-        MenuItem('u) used time', handler=used_view),
-        MenuItem('U) used summary', handler=used_summary_view),
-        MenuItem('v) refresh views to fit resized terminal', handler=refresh_views),
-        MenuItem('-', disabled=True),
-        MenuItem("s) scheduled alerts for today", handler=do_alerts),
-        MenuItem('y) yearly calendar', handler=yearly_view),
-        MenuItem('-', disabled=True),
-        MenuItem('/|?|,,) search forward|backward|clear search'),
-        MenuItem('n) next incrementally in search'),
-        MenuItem('^l) prompt for and jump to line number', handler=do_go_to_line),
-        MenuItem('^p) jump to next pinned item', handler=next_pinned),
-        MenuItem('^c) copy active view to clipboard', handler=copy_active_view),
-        MenuItem('-', disabled=True),
-        MenuItem('J) jump to date in a), b) and c)', handler=do_jump_to_date),
-        MenuItem('right) next in a), b), c), u), U) and y)'),
-        MenuItem('left) previous in a), b), c), u), U) and y)'),
-        MenuItem('space) current in a), b), c), u), U) and y)'),
-    ]),
-    MenuItem('editor', children=[
-        MenuItem('N) create new item', handler=edit_new),
-        MenuItem('-', disabled=True),
-        MenuItem('^s) save changes & close', handler=save_changes),
-        MenuItem('^g) test goto link', handler=do_goto),
-        MenuItem('^r) show repetitions', handler=is_editing_reps),
-        MenuItem('^z) discard changes & close', handler=close_edit),
-    ]),
-    MenuItem('selected', children=[
-        MenuItem('Enter) toggle showing details', handler=show_details),
-        MenuItem('E) edit', handler=edit_existing),
-        MenuItem('C) edit copy', handler=edit_copy),
-        MenuItem('D) delete', handler=do_maybe_delete),
-        MenuItem('F) finish', handler=do_finish),
-        MenuItem('P) toggle pin', handler=toggle_pinned),
-        MenuItem('R) reschedule',  handler=do_reschedule),
-        MenuItem('S) schedule new', handler=do_schedule_new),
-        MenuItem('g) open goto link', handler=do_goto),
-        MenuItem('k) show konnections', handler=show_konnections),
-        MenuItem('^h) show completion history', handler=not_editing_history),
-        MenuItem('^r) show repetitions', handler=not_editing_reps),
-        MenuItem('^u) update last modified', handler=do_touch),
-        MenuItem('^x) toggle archived status', handler=toggle_archived_status),
-    ]),
-    MenuItem('timers', children=[
-        MenuItem('m) show timer view', handler=timers_view),
-        MenuItem('-- for the selected reminder --', disabled=True),
-        MenuItem('T) create timer | toggle paused/running ', handler=next_timer_state),
-        MenuItem("TR) add | record usedtime and delete timer", handler=record_time),
-        MenuItem('TD) delete timer without recording', handler=maybe_delete_timer),
-        MenuItem('-- ignores selection --', disabled=True),
-        MenuItem('TT) toggle paused/running for active timer', handler=toggle_active_timer),
-        MenuItem('^t) start quick timer', handler=quick_timer),
-    ]),
-], floats=[
-    Float(xcursor=True,
-          ycursor=True,
-          content=CompletionsMenu(
-              max_height=16,
-              scroll_offset=1)),
-])
+root_container = MenuContainer(
+    body=body,
+    menu_items=[
+        MenuItem(
+            'etm',
+            children=[
+                MenuItem('F1) activate/close menu', handler=menu),
+                MenuItem('F2) about etm', handler=do_about),
+                MenuItem('F3) system info', handler=do_system),
+                MenuItem('F4) check for updates', handler=do_check_updates),
+                MenuItem('F5) import file', handler=do_import_file),
+                MenuItem('F6) datetime calculator', handler=dt_calculator),
+                MenuItem('F7) configuration settings', handler=do_open_config),
+                MenuItem('F8) help', handler=do_show_help),
+                MenuItem('-', disabled=True),
+                MenuItem('^q) quit', handler=exit),
+            ],
+        ),
+        MenuItem(
+            'view',
+            children=[
+                MenuItem('a) agenda', handler=agenda_view),
+                MenuItem('b) busy', handler=busy_view),
+                MenuItem('c) completed', handler=completed_view),
+                MenuItem('d) do next', handler=next_view),
+                MenuItem('e) engaged', handler=engaged_view),
+                MenuItem('f) forthcoming', handler=forthcoming_view),
+                MenuItem('h) history', handler=history_view),
+                MenuItem('i) index', handler=index_view),
+                MenuItem('j) journal', handler=journal_view),
+                MenuItem('l) location', handler=location_view),
+                MenuItem('m) timers', handler=timers_view),
+                MenuItem('p) pinned', handler=pinned_view),
+                MenuItem('q) query', handler=query_view),
+                MenuItem('r) review', handler=review_view),
+                MenuItem('t) tags', handler=tag_view),
+                MenuItem('u) used time', handler=used_view),
+                MenuItem('U) used summary', handler=used_summary_view),
+                MenuItem(
+                    'v) refresh views to fit resized terminal',
+                    handler=refresh_views,
+                ),
+                MenuItem('-', disabled=True),
+                MenuItem('s) scheduled alerts for today', handler=do_alerts),
+                MenuItem('y) yearly calendar', handler=yearly_view),
+                MenuItem('-', disabled=True),
+                MenuItem('/|?|,,) search forward|backward|clear search'),
+                MenuItem('n) next incrementally in search'),
+                MenuItem(
+                    '^l) prompt for and jump to line number',
+                    handler=do_go_to_line,
+                ),
+                MenuItem('^p) jump to next pinned item', handler=next_pinned),
+                MenuItem(
+                    '^c) copy active view to clipboard',
+                    handler=copy_active_view,
+                ),
+                MenuItem('-', disabled=True),
+                MenuItem(
+                    'J) jump to date in a), b) and c)', handler=do_jump_to_date
+                ),
+                MenuItem('right) next in a), b), c), u), U) and y)'),
+                MenuItem('left) previous in a), b), c), u), U) and y)'),
+                MenuItem('space) current in a), b), c), u), U) and y)'),
+            ],
+        ),
+        MenuItem(
+            'editor',
+            children=[
+                MenuItem('N) create new item', handler=edit_new),
+                MenuItem('-', disabled=True),
+                MenuItem('^s) save changes & close', handler=save_changes),
+                MenuItem('^g) test goto link', handler=do_goto),
+                MenuItem('^r) show repetitions', handler=is_editing_reps),
+                MenuItem('^z) discard changes & close', handler=close_edit),
+            ],
+        ),
+        MenuItem(
+            'selected',
+            children=[
+                MenuItem(
+                    'Enter) toggle showing details', handler=show_details
+                ),
+                MenuItem('E) edit', handler=edit_existing),
+                MenuItem('C) edit copy', handler=edit_copy),
+                MenuItem('D) delete', handler=do_maybe_delete),
+                MenuItem('F) finish', handler=do_finish),
+                MenuItem('P) toggle pin', handler=toggle_pinned),
+                MenuItem('R) reschedule', handler=do_reschedule),
+                MenuItem('S) schedule new', handler=do_schedule_new),
+                MenuItem('g) open goto link', handler=do_goto),
+                MenuItem('k) show konnections', handler=show_konnections),
+                MenuItem(
+                    '^h) show completion history', handler=not_editing_history
+                ),
+                MenuItem('^r) show repetitions', handler=not_editing_reps),
+                MenuItem('^u) update last modified', handler=do_touch),
+                MenuItem(
+                    '^x) toggle archived status',
+                    handler=toggle_archived_status,
+                ),
+            ],
+        ),
+        MenuItem(
+            'timers',
+            children=[
+                MenuItem('m) show timer view', handler=timers_view),
+                MenuItem('-- for the selected reminder --', disabled=True),
+                MenuItem(
+                    'T) create timer | toggle paused/running ',
+                    handler=next_timer_state,
+                ),
+                MenuItem(
+                    'TR) add | record usedtime and delete timer',
+                    handler=record_time,
+                ),
+                MenuItem(
+                    'TD) delete timer without recording',
+                    handler=maybe_delete_timer,
+                ),
+                MenuItem('-- ignores selection --', disabled=True),
+                MenuItem(
+                    'TT) toggle paused/running for active timer',
+                    handler=toggle_active_timer,
+                ),
+                MenuItem('^t) start quick timer', handler=quick_timer),
+            ],
+        ),
+    ],
+    floats=[
+        Float(
+            xcursor=True,
+            ycursor=True,
+            content=CompletionsMenu(max_height=16, scroll_offset=1),
+        ),
+    ],
+)
 
 
 def set_askreply(_):
@@ -3340,7 +3819,7 @@ def set_askreply(_):
     reply_buffer.text = wrap(reply, 0)
 
 
-async def main(etmdir=""):
+async def main(etmdir=''):
     global item, settings, ampm, style, type_colors, application, busy_colors
     timer_view = TimeIt('***VIEW***')
     ampm = settings['ampm']
@@ -3348,13 +3827,13 @@ async def main(etmdir=""):
     type_colors = settings['type_colors']
     window_colors = settings['window_colors']
     busy_colors = {
-            VSEP    : type_colors['wrap'],
-            HSEP    : type_colors['wrap'],
-            BUSY    : type_colors['event'],
-            CONF    : type_colors['inbox'],
-            ADAY    : type_colors['wrap'],
-            FREE    : type_colors['wrap']
-            }
+        VSEP: type_colors['wrap'],
+        HSEP: type_colors['wrap'],
+        BUSY: type_colors['event'],
+        CONF: type_colors['inbox'],
+        ADAY: type_colors['wrap'],
+        FREE: type_colors['wrap'],
+    }
     # query = ETMQuery()
     style = get_style(window_colors)
     agenda_view()
@@ -3371,15 +3850,16 @@ async def main(etmdir=""):
         style=style,
         full_screen=True,
         refresh_interval=1.0,
-        on_invalidate=event_handler)
-    logger.debug("XX starting event_handler XX")
+        on_invalidate=event_handler,
+    )
+    logger.debug('XX starting event_handler XX')
     timer_view.stop()
     try:
         result = await application.run_async()
 
     finally:
         # background_task.cancel()
-        logger.info("Quitting event loop.")
+        logger.info('Quitting event loop.')
 
 
 if __name__ == '__main__':
