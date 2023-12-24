@@ -5673,7 +5673,7 @@ def get_next_due(item, done, due):
     lofh = item.get('r')
     if not lofh:
         return ''
-    rset = rruleset()
+    rset = dr.rruleset()
     overdue = item.get('o', 'k')   # make 'k' the default for 'o'
     start = item['s']
     dtstart = date_to_datetime(item['s'])
