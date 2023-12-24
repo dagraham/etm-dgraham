@@ -1,87 +1,61 @@
-#!/usr/bin/env python
-
 # standard sort order:
 # ['!', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', ':', ';', '<',
 # '=', '>', '?', '@', 'A', 'B', 'Y', 'Z',  '^', '_', 'a', 'b', 'y', 'z', '~']
 
+from etm.common import (
+    VERSION_INFO,
+    parse,
+    WKDAYS_DECODE,
+    WKDAYS_ENCODE,
+    ETM_CHAR,
+)
 import sys
 import re
 from pprint import pprint
-import datetime  # for type testing in rrule
+
+# import datetime  # for type testing in rrule
 import locale
 import calendar
 from copy import deepcopy
 import math
-from ruamel.yaml import __version__ as ruamel_version
-import dateutil
-from dateutil.rrule import *
-from dateutil import __version__ as dateutil_version
-from dateutil.parser import parse as dateutil_parse
-from dateutil.parser import parserinfo
+import shutil
+from operator import itemgetter
+from itertools import groupby, combinations
+
+from prompt_toolkit.styles import Style
+
+# from ruamel.yaml import __version__ as ruamel_version
+# from dateutil import __version__ as dateutil_version
+# from tinydb import __version__ as tinydb_version
+# from jinja2 import __version__ as jinja2_version
+# from prompt_toolkit import __version__ as prompt_toolkit_version
+
+from dateutil import rrule as dr
 from datetime import datetime, date, timedelta
-from pytz import timezone
 from zoneinfo import ZoneInfo
 
 # for saving timers
 import pickle
 from warnings import filterwarnings
 from ruamel.yaml import YAML
-
-yaml = YAML(typ='safe', pure=True)
-
-
-def parse(s, **kwd):
-    # enable pi when read by main and settings is available
-    pi = parserinfo(
-        dayfirst=settings['dayfirst'], yearfirst=settings['yearfirst']
-    )
-    dt = dateutil_parse(s, parserinfo=pi)
-    if 'tzinfo' in kwd:
-        tzinfo = kwd['tzinfo']
-        if tzinfo == 'float':
-            return dt.replace(tzinfo=None)
-        elif tzinfo == 'local':
-            return dt.astimezone()
-        else:
-            return dt.replace(tzinfo=ZoneInfo(tzinfo))
-    else:
-        return dt.astimezone()
-
-
-from tinydb import __version__ as tinydb_version
-from packaging.version import parse as parse_version
-
-if parse_version(tinydb_version) >= parse_version('4.0.0'):
-    from tinydb.table import Document
-else:
-    from tinydb.database import Document
-
 from jinja2 import Template
-from jinja2 import __version__ as jinja2_version
-
 import textwrap
 import os
 import platform
-
-import string
-
-# for automatic job ids
-LOWERCASE = list(string.ascii_lowercase)
-
-# for compressing backup files
+import string as strng
 from zipfile import ZipFile, ZIP_DEFLATED
 
-system_platform = platform.platform(terse=True)
+for key, value in ETM_CHAR.items():
+    globals()[key] = value
 
+yaml = YAML(typ='safe', pure=True)
+
+LOWERCASE = list(strng.ascii_lowercase)
+
+# for compressing backup files
+system_platform = platform.platform(terse=True)
 python_version = platform.python_version()
 developer = 'dnlgrhm@gmail.com'
-import shutil
-
-from operator import itemgetter
-from itertools import groupby, combinations
-
-from prompt_toolkit.styles import Style
-from prompt_toolkit import __version__ as prompt_toolkit_version
 
 # These are set in _main_
 DBITEM = None
@@ -119,16 +93,6 @@ style = Style.from_dict(
     }
 )
 
-FINISHED_CHAR = '✓'
-SKIPPED_CHAR = '✗'
-UPDATE_CHAR = '𝕦'
-INBASKET_CHAR = '𝕚'
-KONNECT_CHAR = 'k'
-LINK_CHAR = 'g'
-PIN_CHAR = 'p'
-ELLIPSiS_CHAR = '…'
-LINEDOT = ' · '  # ܁ U+00B7 (middle dot)
-
 etmdir = None
 
 ETMFMT = '%Y%m%dT%H%M'
@@ -137,19 +101,6 @@ ONEMIN = timedelta(minutes=1)
 ONESEC = timedelta(seconds=1)
 DAY = timedelta(days=1)
 
-
-WKDAYS_DECODE = {
-    '{0}{1}'.format(n, d): '{0}({1})'.format(d, n) if n else d
-    for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
-    for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']
-}
-WKDAYS_ENCODE = {
-    '{0}({1})'.format(d, n): '{0}{1}'.format(n, d) if n else d
-    for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
-    for n in ['-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4']
-}
-for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
-    WKDAYS_ENCODE[wkd] = wkd
 
 type_keys = {
     '*': 'event',
@@ -878,8 +829,9 @@ item_hsh:    {self.item_hsh}
 
     def get_repetitions(self):
         """
-        Called with a row, we should have an doc_id and can use relevant as aft_dt.
-        Called while editing, we won't have a row or doc_id and can use '@s' as aft_dt
+        Called with a row, we should have an doc_id and can use relevant
+        as aft_dt. Called while editing, we won't have a row or doc_id
+        and can use '@s' as aft_dt
         """
         # doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
 
@@ -887,7 +839,7 @@ item_hsh:    {self.item_hsh}
         self.update_item_hsh()
         item = self.item_hsh
         showing = 'Repetitions'
-        if 's' not in item or 'r' not in item and '+' not in item:
+        if 's' not in item and ('r' not in item or '+' not in item):
             return showing, 'not a repeating item'
         relevant = date_to_datetime(item['s'])
         at_plus = item.get('+', [])
@@ -1085,11 +1037,11 @@ item_hsh:    {self.item_hsh}
                     if 'c' in rr:
                         # error to have a 'u' with this 'c'
                         current_count = rr['c']
-                        rset = rruleset()
+                        rset = dr.rruleset()
                         freq, kwd = rrule_args(rr)
                         kwd['dtstart'] = self.item_hsh['s']
                         logger.debug(f'freq: {freq}; kwd: {kwd}; rr: {rr}')
-                        rset.rrule(rrule(freq, **kwd))
+                        rset.rrule(dr.rrule(freq, **kwd))
                         logger.debug(f'rset: {rset}')
                         # forthcoming = [format_datetime(dt) for dt in rset if date_to_datetime(dt.astimezone()) > instance.astimezone()]
                         # logger.debug(f"instance: {format_datetime(instance)}; forthcoming: {forthcoming}, {len(forthcoming)}")
@@ -2634,10 +2586,6 @@ def parse_duration(s):
     return True, td
 
 
-sys_platform = platform.system()
-mac = sys.platform == 'darwin'
-windoz = sys_platform in ('Windows', 'Microsoft')
-
 from time import perf_counter as timer
 
 
@@ -3712,6 +3660,7 @@ class DataView(object):
             return ()
         self.current_row = row
         id_tup = self.row2id.get(row, None)
+        logger.debug(f"details for id_tup: {id_tup}")
         if isinstance(id_tup, tuple):
             item_id, instance, job = id_tup
         else:
@@ -3784,13 +3733,14 @@ class DataView(object):
         """
         num = self.settings['num_repetitions']
         res = self.get_row_details(row)
-        logger.debug(f'res: {res}')
+        logger.debug(f'row_details: {res}')
         if not res:
             return None, ''
         item_id = res[0]
         instance = res[1]
 
         if not (item_id and item_id in self.id2relevant):
+            logger.debug(f"{item_id} not in id2relevant")
             return ''
         showing = 'Repetitions'
         item = DBITEM.get(doc_id=item_id)
@@ -3810,7 +3760,7 @@ class DataView(object):
         logger.debug(f'relevant: {relevant}')
 
         # relevant = instance if instance else self.id2relevant.get(item_id)
-        showing = 'Repetitions'
+        # showing = 'Repetitions'
         if not relevant:
             return 'Repetitons', details + 'none'
         pairs = [
@@ -5420,7 +5370,7 @@ def do_weekdays(arg):
                 # fix 3 char weekdays, e.g., -2FRI -> -2FR
                 x = f'{m[1]}{m[2][:2]}'
             if x in WKDAYS_DECODE:
-                good.append(eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[x])))
+                good.append(eval('dr.{}'.format(WKDAYS_DECODE[x])))
                 rep.append(x)
             elif x in WKDAYS_ENCODE:
                 good.append(eval(x))
@@ -5604,7 +5554,9 @@ rrule_freq = {
 }
 
 # Note: the values such as MO in the following are dateutil.rrule WEEKDAY methods and not strings. A dict is used to dispatch the relevant method
-rrule_weekdays = dict(MO=MO, TU=TU, WE=WE, TH=TH, FR=FR, SA=SA, SU=SU)
+rrule_weekdays = dict(
+    MO=dr.MO, TU=dr.TU, WE=dr.WE, TH=dr.TH, FR=dr.FR, SA=dr.SA, SU=dr.SU
+)
 
 # Note: 'r' (FREQ) is not included in the following.
 rrule_name = {
@@ -5868,22 +5820,22 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
             dtstart = dtstart[0]
 
     # all the dateutil instances will be in UTC so these must be as well
-    aft_dt = date_to_datetime(aft_dt).astimezone(timezone('UTC'))
+    aft_dt = date_to_datetime(aft_dt).astimezone(ZoneInfo('UTC'))
     bef_dt = (
         bef_dt
         if isinstance(bef_dt, int)
-        else date_to_datetime(bef_dt).astimezone(timezone('UTC'))
+        else date_to_datetime(bef_dt).astimezone(ZoneInfo('UTC'))
     )
 
     if 'r' in item:
         lofh = item['r']
-        rset = rruleset()
+        rset = dr.rruleset()
 
         for hsh in lofh:
             freq, kwd = rrule_args(hsh)
             kwd['dtstart'] = dtstart
             try:
-                rset.rrule(rrule(freq, **kwd))
+                rset.rrule(dr.rrule(freq, **kwd))
             except Exception as e:
                 logger.error(f'exception: {e}')
                 return []
@@ -6702,7 +6654,7 @@ def relevant(
         relevant = None
         dtstart = None
         doc_id = item.doc_id
-        rset = rruleset()
+        rset = dr.rruleset()
         if 'itemtype' not in item:
             logger.warning(f'no itemtype: {item}')
             item['itemtype'] = '?'
@@ -6793,13 +6745,13 @@ def relevant(
 
             if 'r' in item or '+' in item:
                 lofh = item.get('r', [])
-                rset = rruleset()
+                rset = dr.rruleset()
 
                 for hsh in lofh:
                     freq, kwd = rrule_args(hsh)
                     kwd['dtstart'] = dtstart
                     try:
-                        rset.rrule(rrule(freq, **kwd))
+                        rset.rrule(dr.rrule(freq, **kwd))
                     except Exception as e:
                         print('Error processing:')
                         print('  ', freq, kwd)
@@ -9369,7 +9321,7 @@ def about(padding=0):
     )
 
     summary = wrap(
-        f'This application provides a format for using plain text entries to create events, tasks and other reminders and a prompt_toolkit based interface for creating and modifying items as well as viewing them.',
+        'This application provides a format for using plain text entries to create events, tasks and other reminders and a prompt_toolkit based interface for creating and modifying items as well as viewing them.',
         0,
         width,
     )
@@ -9388,15 +9340,8 @@ Developer:      dnlgrhm@gmail.com
 """
 
     ret2 = f"""\
-    etm:            {etm_version}
-    python:         {python_version}
-    dateutil:       {dateutil_version}
-    prompt_toolkit: {prompt_toolkit_version}
-    tinydb:         {tinydb_version}
-    jinja2:         {jinja2_version}
-    ruamel.yaml:    {ruamel_version}
-    platform:       {system_platform}
-    etm directory:  {etmhome}\
+{VERSION_INFO}
+ etm directory:      {etmhome}\
 """
     return ret1, ret2
 

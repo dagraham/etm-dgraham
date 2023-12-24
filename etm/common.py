@@ -1,15 +1,75 @@
+from dateutil.parser import parse as dateutil_parse
+from dateutil.parser import parserinfo
+import platform
+import sys
+import os
+import etm.__version__ as version
+from ruamel.yaml import __version__ as ruamel_version
+from dateutil import __version__ as dateutil_version
+from tinydb import __version__ as tinydb_version
+from jinja2 import __version__ as jinja2_version
+from prompt_toolkit import __version__ as prompt_toolkit_version
+
+from etm.__main__ import ETMHOME
+
+python_version = platform.python_version()
+system_platform = platform.platform(terse=True)
+etm_version = version.version
+sys_platform = platform.system()
+mac = sys.platform == 'darwin'
+windoz = sys_platform in ('Windows', 'Microsoft')
+
+VERSION_INFO = f"""\
+ etm version:        {etm_version}
+ python:             {python_version}
+ dateutil:           {dateutil_version}
+ prompt_toolkit:     {prompt_toolkit_version}
+ tinydb:             {tinydb_version}
+ jinja2:             {jinja2_version}
+ ruamel.yaml:        {ruamel_version}
+ platform:           {system_platform}\
+"""
+
+
+def parse(s, **kwd):
+    # enable pi when read by main and settings is available
+    pi = parserinfo(
+        dayfirst=settings['dayfirst'], yearfirst=settings['yearfirst']
+    )
+    dt = dateutil_parse(s, parserinfo=pi)
+    if 'tzinfo' in kwd:
+        tzinfo = kwd['tzinfo']
+        if tzinfo == 'float':
+            return dt.replace(tzinfo=None)
+        elif tzinfo == 'local':
+            return dt.astimezone()
+        else:
+            return dt.replace(tzinfo=ZoneInfo(tzinfo))
+    else:
+        return dt.astimezone()
+
+
 # in __main__ placed in model and view
-VSEP = '⏐'   # U+23D0  this will be a de-emphasized color
-FREE = '─'   # U+2500  this will be a de-emphasized color
-HSEP = '┈'   #
-BUSY = '■'   # U+25A0 this will be busy (event) color
-CONF = '▦'   # U+25A6 this will be conflict color
-TASK = '▩'   # U+25A9 this will be busy (task) color
-ADAY = '━'   # U+2501 for all day events ━
-USED = '◦'   # U+25E6 for used time
-REPS = '↻'   # Flag for repeating items
-
-
+ETM_CHAR = dict(
+    VSEP='⏐',  # U+23D0  this will be a de-emphasized color
+    FREE='─',  # U+2500  this will be a de-emphasized color
+    HSEP='┈',  #
+    BUSY='■',  # U+25A0 this will be busy (event) color
+    CONF='▦',  # U+25A6 this will be conflict color
+    TASK='▩',  # U+25A9 this will be busy (task) color
+    ADAY='━',  # U+2501 for all day events ━
+    USED='◦',  # U+25E6 for used time
+    REPS='↻',  # Flag for repeating items
+    FINISHED_CHAR='✓',
+    SKIPPED_CHAR='✗',
+    UPDATE_CHAR='𝕦',
+    INBASKET_CHAR='𝕚',
+    KONNECT_CHAR='k',
+    LINK_CHAR='g',
+    PIN_CHAR='p',
+    ELLIPSiS_CHAR='…',
+    LINEDOT=' · ',  # ܁ U+00B7 (middle dot),
+)
 #  model, data and ical
 #  with integer prefixes
 WKDAYS_DECODE = {

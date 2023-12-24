@@ -7,12 +7,17 @@ from prompt_toolkit.validation import Validator, ValidationError
 class ConfirmationValidator(Validator):
     def validate(self, document):
         if document.text.lower() not in ('y', 'n'):
-            raise ValidationError(message='Please enter either "y" or "n"', cursor_position=len(document.text))
+            raise ValidationError(
+                message='Please enter either "y" or "n"',
+                cursor_position=len(document.text),
+            )
 
 
 def ask_for_confirmation(prompt_message):
     while True:
-        response = prompt(f'{prompt_message} [y/n]: ', validator=ConfirmationValidator())
+        response = prompt(
+            f'{prompt_message} [y/n]: ', validator=ConfirmationValidator()
+        )
         if response.lower() == 'y':
             return True
         elif response.lower() == 'n':
@@ -21,7 +26,8 @@ def ask_for_confirmation(prompt_message):
 
 def print_usage():
 
-    print("""\
+    print(
+        """\
     Usage: etm [options]
     Options:
       -h, --help   Show this help message and exit
@@ -31,37 +37,47 @@ def print_usage():
                        or, if omitted, use the environmental
                        variable ETMHOME if set and the current
                        working directory otherwise."""
-                )
+    )
+
+
+ETMHOME = ''
+
 
 def main():
+    global ETMHOME
     import sys
     import logging
     import logging.config
+
     logging.getLogger('asyncio').setLevel(logging.WARNING)
     logger = logging.getLogger()
 
-    if "-h" in sys.argv or "--help" in sys.argv:
+    if '-h' in sys.argv or '--help' in sys.argv:
         print_usage()
         sys.exit()
 
     if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--h', '-help', '--help']:
-        print("""
+        print(
+            """
 Usage:
     etm <
 
-              """)
+              """
+        )
         sys.exit()
 
     MIN_PYTHON = (3, 7, 3)
     if sys.version_info < MIN_PYTHON:
-        mv = ".".join([str(x) for x in MIN_PYTHON])
-        sys.exit(f"Python {mv} or later is required.\n")
+        mv = '.'.join([str(x) for x in MIN_PYTHON])
+        sys.exit(f'Python {mv} or later is required.\n')
     import os
+
     IS_VENV = os.getenv('VIRTUAL_ENV') is not None
 
     import etm.__version__ as version
+
     etm_version = version.version
-    etmhome = os.environ.get("ETMHOME")
+    etmhome = os.environ.get('ETMHOME')
     etmdir = etmhome if etmhome else os.getcwd()
 
     import etm.data as data
@@ -69,25 +85,36 @@ Usage:
     import etm.view as view
     from etm.view import ETMQuery
     import etm.model as model
+    import etm.common as common
+
     # import etm.report as report
     # report.ETMQuery = ETMQuery
 
-    loglevel = 2 # info
+    loglevel = 2   # info
     log_levels = [str(x) for x in range(1, 6)]
     if len(sys.argv) > 1 and sys.argv[1] in log_levels:
         loglevel = int(sys.argv.pop(1))
     if len(sys.argv) > 1 and sys.argv[1] in ['model', 'view', 'data', 'rep']:
         if sys.argv[1] == 'model':
-            logger.info(f"calling model doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            logger.info(
+                f'calling model doctest with etmdir: {etmdir}, argv: {sys.argv}'
+            )
             import doctest
+
             doctest.testmod(model)
         elif sys.argv[1] == 'view':
-            logger.info(f"calling view doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            logger.info(
+                f'calling view doctest with etmdir: {etmdir}, argv: {sys.argv}'
+            )
             import doctest
+
             doctest.testmod(view)
         elif sys.argv[1] == 'data':
-            logger.info(f"calling data doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            logger.info(
+                f'calling data doctest with etmdir: {etmdir}, argv: {sys.argv}'
+            )
             import doctest
+
             doctest.testmod(data)
         # elif sys.argv[1] == 'rep':
         #     logger.info(f"calling report.main with etmdir: {etmdir}, argv: {sys.argv}")
@@ -101,26 +128,25 @@ Usage:
         etmdir = sys.argv.pop(1)
         etmdir = os.getcwd() if etmdir == '.' else os.path.normpath(etmdir)
 
-
-
-    print(f"using etmdir {etmdir}")
+    print(f'using etmdir {etmdir}')
     created_etmdir = False
     # if not (os.path.exists(etmdir) and os.path.isdir(etmdir)):
     if not os.path.isdir(etmdir):
-        print(f"""
+        print(
+            f"""
 The provided directory to use for etm
     {etmdir}
 does not exist and will need to be created.
-              """)
-        if ask_for_confirmation("Do you want to continue?"):
-            print("Continuing...")
+              """
+        )
+        if ask_for_confirmation('Do you want to continue?'):
+            print('Continuing...')
             os.makedirs(etmdir)
             created_etmdir = True
             print(f'created {etmdir}')
         else:
-            print("Exiting...")
+            print('Exiting...')
             sys.exit()
-
 
     logdir = os.path.normpath(os.path.join(etmdir, 'logs'))
     backdir = os.path.normpath(os.path.join(etmdir, 'backups'))
@@ -130,29 +156,32 @@ does not exist and will need to be created.
     for p in [logdir, backdir, cfgfile, dbfile]:
         if not os.path.exists(p):
             missing.append(p)
-    missing = "\n    ".join(missing) if missing else ""
+    missing = '\n    '.join(missing) if missing else ''
 
     # condition = created_etmdir or (os.path.exists(logdir) and os.path.exists(backdir) and os.path.exists(db))
     condition = not created_etmdir and missing
 
     if condition:
-        print(f"""\
+        print(
+            f"""\
 The etm directory
      {etmdir}
 is missing
     {missing}
 which will need to be created.
-""")
-        if ask_for_confirmation("Do you want to continue?"):
-            print("Continuing...")
+"""
+        )
+        if ask_for_confirmation('Do you want to continue?'):
+            print('Continuing...')
         else:
-            print("Exiting...")
+            print('Exiting...')
             sys.exit()
 
     olddb = os.path.normpath(os.path.join(etmdir, 'db.json'))
     needs_update = False
     if os.path.exists(olddb) and not os.path.exists(dbfile):
         import shutil
+
         shutil.copy(olddb, dbfile)
         needs_update = True
 
@@ -163,6 +192,7 @@ which will need to be created.
         os.makedirs(backdir)
 
     import etm.options as options
+
     setup_logging = options.setup_logging
     setup_logging(loglevel, logdir)
     options.logger = logger
@@ -175,7 +205,7 @@ which will need to be created.
     window_colors = settings['window_colors']
     # logger.debug(f"__main__ window_colors: {window_colors}")
 
-    logger.info(f"running in a virtual environment: {IS_VENV}")
+    logger.info(f'running in a virtual environment: {IS_VENV}')
 
     secret = settings.get('secret')
     queries = settings.get('queries')
@@ -184,30 +214,38 @@ which will need to be created.
     refresh_interval = settings.get('refresh_interval', 60)
     today = date.today()
     now = datetime.now().astimezone()
-    sunday = today + timedelta(days=6-today.weekday()) # sunday
+    sunday = today + timedelta(days=6 - today.weekday())   # sunday
     # We want 2 char 'en' weekday abbreviations regardless of the actual locale
-    WA = {i: (sunday + i*timedelta(days=1)).strftime('%a')[:2] for i in range(1, 8)}
-    midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    WA = {
+        i: (sunday + i * timedelta(days=1)).strftime('%a')[:2]
+        for i in range(1, 8)
+    }
+    midnight = datetime.now().replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
     beginbusy = settings.get('beginbusy', 7)
     ampm = settings.get('ampm', True)
     show_minutes = settings.get('show_minutes', False)
     hour = timedelta(hours=1)
-    fmt = "%I%p" if ampm else "%H"
+    fmt = '%I%p' if ampm else '%H'
     # busyhours = [(midnight + i*hour).format(fmt).lower for i in range(beginbusy, beginbusy + 14, 2)]
-    busyhours = [(midnight + i*hour).strftime('%I%p').lstrip("0").lower() for i in range(0, 24, 6)]
-    HB = "".join([f"{h : <8}" for h in busyhours]).rstrip()
+    busyhours = [
+        (midnight + i * hour).strftime('%I%p').lstrip('0').lower()
+        for i in range(0, 24, 6)
+    ]
+    HB = ''.join([f'{h : <8}' for h in busyhours]).rstrip()
     # "".join([f"{h : <10}" for h in busyhours]).rstrip()
 
-    VSEP   =    '⏐' # U+23D0  this will be a de-emphasized color
-    FREE   =    '─' # U+2500  this will be a de-emphasized color
-    HSEP   =    '┈' #
-    BUSY   =    '■' # U+25A0 this will be busy (event) color
-    CONF   =    '▦' # U+25A6 this will be conflict color
-    TASK   =    '▩' # U+25A9 this will be busy (task) color
-    ADAY   =    '━' # U+2501 for all day events ━
-    USED   =    '◦' # U+25E6 for used time
-    REPS   =    '↻' # Flag for repeating items
-
+    # VSEP = '⏐'   # U+23D0  this will be a de-emphasized color
+    # FREE = '─'   # U+2500  this will be a de-emphasized color
+    # HSEP = '┈'   #
+    # BUSY = '■'   # U+25A0 this will be busy (event) color
+    # CONF = '▦'   # U+25A6 this will be conflict color
+    # TASK = '▩'   # U+25A9 this will be busy (task) color
+    # ADAY = '━'   # U+2501 for all day events ━
+    # USED = '◦'   # U+25E6 for used time
+    # REPS = '↻'   # Flag for repeating items
+    #
     # import etm.ical as ical
     # ical.logger = logger
     data.secret = secret
@@ -218,10 +256,10 @@ which will need to be created.
     # dbfile = os.path.normpath(os.path.join(etmdir, 'etm.json'))
     # cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
     ETMDB = data.initialize_tinydb(dbfile)
-    logger.info(f"initialized TinyDB using {dbfile}")
+    logger.info(f'initialized TinyDB using {dbfile}')
     DBITEM = ETMDB.table('items', cache_size=None)
     DBARCH = ETMDB.table('archive', cache_size=None)
-    logger.debug(f"ETMDB: {ETMDB}, number of items: {len(ETMDB)}")
+    logger.debug(f'ETMDB: {ETMDB}, number of items: {len(ETMDB)}')
 
     from etm.make_examples import make_examples
     from etm.model import about
@@ -231,6 +269,7 @@ which will need to be created.
     from etm.model import import_examples
     from etm.model import write_back
     from etm.model import duration_in_words
+
     # from etm.model import RDict
     from etm.model import item_details
     from etm.model import FINISHED_CHAR
@@ -238,6 +277,7 @@ which will need to be created.
     from etm.model import PIN_CHAR
     from etm.model import INBASKET_CHAR
     from etm.model import TimeIt
+
     # ical.parse = parse
     model.loglevel = loglevel
     model.etm_version = etm_version
@@ -248,14 +288,14 @@ which will need to be created.
     model.Mask = Mask
     model.WA = WA
     model.HB = HB
-    model.VSEP = VSEP
-    model.HSEP = HSEP
-    model.BUSY = BUSY
-    model.CONF = CONF
-    model.ADAY = ADAY
-    model.USED = USED
-    model.FREE = FREE
-    model.REPS = REPS
+    # model.VSEP = VSEP
+    # model.HSEP = HSEP
+    # model.BUSY = BUSY
+    # model.CONF = CONF
+    # model.ADAY = ADAY
+    # model.USED = USED
+    # model.FREE = FREE
+    # model.REPS = REPS
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
@@ -264,13 +304,21 @@ which will need to be created.
     model.refresh_interval = refresh_interval
     model.beginbusy = beginbusy
     model.settings = settings
+    common.settings = settings
     model.logger = logger
     model.make_examples = make_examples
     model.needs_update = needs_update
     model.timers_file = os.path.join(etmdir, 'timers.pkl')
     userhome = os.path.expanduser('~')
-    etmhome = os.path.join('~', os.path.relpath(etmdir, userhome)) if etmdir.startswith(userhome) else etmdir
+    etmhome = (
+        os.path.join('~', os.path.relpath(etmdir, userhome))
+        if etmdir.startswith(userhome)
+        else etmdir
+    )
+    logger.debug(f'etmhome: {etmhome}')
+    # common.etmhome = etmhome
     model.etmhome = etmhome
+    ETMHOME = etmhome
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
     datetime_calculator = model.datetime_calculator
@@ -282,11 +330,11 @@ which will need to be created.
     format_hours_and_tenths = model.format_hours_and_tenths
     # since dataview calls schedule it will also have settings
     completions = dataview.completions
-    expansions = settings["expansions"]
+    expansions = settings['expansions']
     if expansions:
         for x in expansions:
-            completions.append(f"@x {x}")
-    style = dataview.settings["style"]
+            completions.append(f'@x {x}')
+    style = dataview.settings['style']
     parse_datetime = model.parse_datetime
     parse_duration = model.parse_duration
 
@@ -300,15 +348,15 @@ which will need to be created.
     view.UPDATE_CHAR = UPDATE_CHAR
     view.PIN_CHAR = PIN_CHAR
     view.INBASKET_CHAR = INBASKET_CHAR
-    view.VSEP = VSEP
-    view.HSEP = HSEP
-    view.BUSY = BUSY
-    view.CONF = CONF
-    view.TASK = TASK
-    view.ADAY = ADAY
-    view.USED = USED
-    view.FREE = FREE
-    view.REPS = REPS
+    # view.VSEP = VSEP
+    # view.HSEP = HSEP
+    # view.BUSY = BUSY
+    # view.CONF = CONF
+    # view.TASK = TASK
+    # view.ADAY = ADAY
+    # view.USED = USED
+    # view.FREE = FREE
+    # view.REPS = REPS
     view.settings = settings
     view.type_colors = type_colors
     view.cfgfile = cfgfile
@@ -361,40 +409,53 @@ which will need to be created.
     # report.logger = logger
     # report.UT_MIN = UT_MIN
 
-    logger.info(f"setting terminal_style: {style}")
-
+    logger.info(f'setting terminal_style: {style}')
 
     if len(sys.argv) > 1:
         if sys.argv[1] == 'model':
-            logger.info(f"calling model doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            logger.info(
+                f'calling model doctest with etmdir: {etmdir}, argv: {sys.argv}'
+            )
             import doctest
+
             doctest.testmod(model)
         elif sys.argv[1] == 'view':
-            logger.info(f"calling view doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            logger.info(
+                f'calling view doctest with etmdir: {etmdir}, argv: {sys.argv}'
+            )
             import doctest
+
             doctest.testmod(view)
         elif sys.argv[1] == 'data':
-            logger.info(f"calling data doctest with etmdir: {etmdir}, argv: {sys.argv}")
+            logger.info(
+                f'calling data doctest with etmdir: {etmdir}, argv: {sys.argv}'
+            )
             import doctest
+
             doctest.testmod(data)
         # elif sys.argv[1] == 'rep':
         #     logger.info(f"calling report.main with etmdir: {etmdir}, argv: {sys.argv}")
         #     report.main(etmdir, sys.argv)
         else:
-            logger.info(f"calling model.main with etmdir: {etmdir}, argv: {sys.argv}")
+            logger.info(
+                f'calling model.main with etmdir: {etmdir}, argv: {sys.argv}'
+            )
             model.main(etmdir, sys.argv)
 
     else:
-        logger.info(f"system info {model.about()[1]}")
-        logger.info(f"calling view.main with etmdir: {etmdir}")
+        logger.info(f'system info {model.about()[1]}')
+        logger.info(f'calling view.main with etmdir: {etmdir}')
         from etm.view import main
         import asyncio
+
         asyncio.run(main(etmdir), debug=True)
+
 
 def inbasket():
     import sys
     import os
-    typechar = '!' # inbasket
+
+    typechar = '!'   # inbasket
     option = '@t etm+'
 
     help = f"""\
@@ -428,16 +489,17 @@ with a timestamp corresponding to the moment this script was
 invoked.
 """
 
-    etmhome = os.environ.get("ETMHOME")
+    etmhome = os.environ.get('ETMHOME')
     if not etmhome:
         print("The environmental variable 'ETMHOME' is missing but required.")
         sys.exit()
     elif not os.path.isdir(etmhome):
-        print(f"The environmental variable 'ETMHOME={etmhome}' is not a valid directory.")
+        print(
+            f"The environmental variable 'ETMHOME={etmhome}' is not a valid directory."
+        )
         sys.exit()
 
     inbasket = os.path.join(etmhome, 'inbasket.text')
-
 
     # use stdin if it's full
     if not sys.stdin.isatty():
@@ -446,33 +508,34 @@ invoked.
     # otherwise, get the input from
     elif len(sys.argv) > 1:
         if len(sys.argv) == 2:
-            input = " ".join(sys.argv[1:])
+            input = ' '.join(sys.argv[1:])
         else:
-            print("The provided input should be wrapped in single quotes")
+            print('The provided input should be wrapped in single quotes')
             sys.exit()
     else:
         print(help)
         sys.exit()
 
     input = input.strip()
-    if input in ["help", "?"]:
+    if input in ['help', '?']:
         print(help)
         sys.exit()
 
     # if input does not begins with an itemtype character, prepend typechar .
-    input = input if input[0] in "!*-%" else f"{typechar} {input}"
-    input = input if '@' in input else f"{input} {option}"
+    input = input if input[0] in '!*-%' else f'{typechar} {input}'
+    input = input if '@' in input else f'{input} {option}'
     if '{T}' in input:
         # expand the timestamp
-        hsh = {'T': pendulum.now().in_tz('local').format('YYYY-MM-DD HH:mm:ss zz')}
+        hsh = {
+            'T': datetime.now().astimezone().format('YYYY-MM-DD HH:mm:ss zz')
+        }
         input = input.format(**hsh)
 
     with open(inbasket, 'a') as fo:
-        fo.write(f"{input}\n")
+        fo.write(f'{input}\n')
     print(f"appended:\n   '{input}'\nto {inbasket}")
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     # main()
     asyncio.get_event_loop().run_until_complete(main())
-
-

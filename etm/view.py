@@ -9,10 +9,15 @@ import inspect
 
 # from prompt_toolkit import __version__ as prompt_toolkit_version
 
-from prompt_toolkit.application import Application
-from prompt_toolkit.application.current import get_app
-from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.completion import Completion, Completer, PathCompleter
+# import prompt_toolkit.application as pta
+import prompt_toolkit
+pta = prompt_toolkit.application
+# from prompt_toolkit.application import Application
+# from prompt_toolkit.application.current import get_app
+get_app = prompt_toolkit.application.current.get_app
+# from prompt_toolkit.buffer import Buffer
+Buffer = prompt_toolkit.buffer.Buffer
+from prompt_toolkit.completion import Completion, Completer
 from prompt_toolkit.cursor_shapes import CursorShape
 from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.filters import (
@@ -59,8 +64,6 @@ from prompt_toolkit.widgets import Box, Label, Button
 from prompt_toolkit.widgets import HorizontalLine
 from prompt_toolkit.widgets import (
     TextArea,
-    Frame,
-    RadioList,
     SearchToolbar,
     MenuContainer,
     MenuItem,
@@ -87,6 +90,10 @@ import os
 import contextlib, io
 
 import pyperclip
+from etm.common import ETM_CHAR
+
+for key, value in ETM_CHAR.items():
+    globals()[key] = value
 
 # set in __main__
 logger = None
@@ -153,8 +160,6 @@ def format_week(dt, fmt='WWW'):
 
     wkbeg = datetime.strptime(f'{dt_year} {str(dt_week)} 1', '%Y %W %w').date()
     wkend = datetime.strptime(f'{dt_year} {str(dt_week)} 0', '%Y %W %w').date()
-    # wkbeg = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}")
-    # wkend = pendulum.parse(f"{dt_year}-W{str(dt_week).rjust(2, '0')}-7")
     week_begin = wkbeg.format(mfmt)
     if wkbeg.month == wkend.month:
         week_end = wkend.format('D')
@@ -627,12 +632,12 @@ def show_message(title, text, padding=6):
     # prep the message window
     width = shutil.get_terminal_size()[0] - 2
     heading = f'-- {title.rstrip()} --'.center(width, ' ')
-    prompt = '<return> or <escape>: close'.center(width, ' ')
+    prompt = 'press <return> or <escape> to close'.center(width, ' ')
     tmp = f"""\
 {heading}
-{text.rstrip()}
+{text}
 
-{prompt}\
+{prompt}
 """
 
     dataview.show_details()
@@ -1511,14 +1516,7 @@ async def maybe_alerts(now):
     for alert in dataview.alerts:
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
             alertdt = alert[0]
-            # if not isinstance(alertdt, datetime):
-            #     # rrule produces datetime.datetime objects
-            #     alertdt = alertdt
             startdt = alert[1]
-            # if not isinstance(startdt, datetime):
-            #     # rrule produces datetime.datetime objects
-            #     startdt = pendulum.instance(startdt)
-            # when = startdt.diff_for_humans()
             if startdt > alertdt:
                 when = f'in {duration_in_words(startdt-alertdt)}'
             elif startdt == alertdt:
@@ -1579,8 +1577,6 @@ def event_handler(e):
     refresh_interval = settings.get(
         'refresh_interval', 60
     )   # seconds to wait between loops
-    # minutes = pendulum.now().minute
-    # minutes = minutes % interval if interval else minutes % 5
 
     try:
         minutes = now.minute
@@ -3838,7 +3834,7 @@ async def main(etmdir=''):
     style = get_style(window_colors)
     agenda_view()
 
-    application = Application(
+    application = pta.Application(
         layout=Layout(
             root_container,
             focused_element=text_area,

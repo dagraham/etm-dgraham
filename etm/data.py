@@ -5,17 +5,16 @@ from tinydb import __version__ as tinydb_version
 from tinydb_serialization import Serializer
 from tinydb_serialization import SerializationMiddleware
 import base64  # for do_mask
-# import pytz
-# from pytz import timezone
+
 from datetime import datetime, date, timedelta
-# from datetime import tzinfo
+
 import dateutil
 import dateutil.rrule
 from zoneinfo import ZoneInfo
-# from dateutil import tz
-# from dateutil.parser import parse as dateutil_parse
+
 from dateutil.rrule import *
 import re
+from etm.common import WKDAYS_DECODE, WKDAYS_ENCODE
 
 ##########################
 ### begin TinyDB setup ###
@@ -27,50 +26,29 @@ AWARE_FMT = '%Y%m%dT%H%MA'
 NAIVE_FMT = '%Y%m%dT%H%MN'
 DATE_FMT = '%Y%m%d'
 
-WKDAYS_DECODE = {"{0}{1}".format(n, d): "{0}({1})".format(d, n) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']}
-
-WKDAYS_ENCODE = {"{0}({1})".format(d, n): "{0}{1}".format(n, d) if n else d for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] for n in ['-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4']}
-
-## Add those without integer prefixes
-for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
-    WKDAYS_ENCODE[wkd] = wkd
-
-
-# def parse(s, **kwd):
-#     ## enable pi when read by main
-#     pi = dateutil.parser.parserinfo(
-#             dayfirst=settings['dayfirst'],
-#             yearfirst=settings['yearfirst']
-#             )
-#     dt = dateutil_parse(s, parserinfo=pi)
-#     dt = dateutil_parse(s)
-#     if 'tzinfo' in kwd:
-#         tzinfo = kwd['tzinfo']
-#         if tzinfo == 'float':
-#             return dt
-#         elif tzinfo == 'local':
-#             return dt.astimezone()
-#         else:
-#             return timezone(tzinfo).localize(dt)
-#     else:
-#         return dt.astimezone()
 
 def is_aware(dt):
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
 
+
 def encode_datetime(obj):
     if not isinstance(obj, datetime):
-        raise ValueError(f"{obj} is not a datetime instance")
+        raise ValueError(f'{obj} is not a datetime instance')
     if is_aware(obj):
         return obj.astimezone(ZoneInfo('UTC')).strftime(AWARE_FMT)
     else:
         return obj.strftime(NAIVE_FMT)
 
+
 def decode_datetime(s):
     if s[-1] not in 'AN' or len(s) != 14:
-        raise ValueError(f"{s} is not a datetime string")
+        raise ValueError(f'{s} is not a datetime string')
     if s[-1] == 'A':
-        return datetime.strptime(s, AWARE_FMT).replace(tzinfo=ZoneInfo('UTC')).astimezone()
+        return (
+            datetime.strptime(s, AWARE_FMT)
+            .replace(tzinfo=ZoneInfo('UTC'))
+            .astimezone()
+        )
     else:
         return datetime.strptime(s, NAIVE_FMT).astimezone(None)
 
@@ -85,17 +63,17 @@ def normalize_timedelta(delta):
 
     until = []
     if weeks:
-        until.append(f"{weeks}w")
+        until.append(f'{weeks}w')
     if days:
-        until.append(f"{days}d")
+        until.append(f'{days}d')
     if hours:
-        until.append(f"{hours}h")
+        until.append(f'{hours}h')
     if minutes:
-        until.append(f"{minutes}m")
+        until.append(f'{minutes}m')
     if not until:
-        until.append("0m")
+        until.append('0m')
 
-    return sign + "".join(until)
+    return sign + ''.join(until)
 
 
 # Test
@@ -109,14 +87,18 @@ normalized_td = normalize_timedelta(td)
 class Period:
     def __init__(self, datetime1, datetime2):
         # Ensure both inputs are datetime.datetime instances
-        if not isinstance(datetime1, datetime) or not isinstance(datetime2, datetime):
-            raise ValueError("Both inputs must be datetime instances")
+        if not isinstance(datetime1, datetime) or not isinstance(
+            datetime2, datetime
+        ):
+            raise ValueError('Both inputs must be datetime instances')
 
         aware1 = is_aware(datetime1)
         aware2 = is_aware(datetime2)
 
         if aware1 != aware2:
-            raise ValueError(f"start: {datetime1.tzinfo}, end: {datetime2.tzinfo}. Both datetimes must either be naive or both must be aware.")
+            raise ValueError(
+                f'start: {datetime1.tzinfo}, end: {datetime2.tzinfo}. Both datetimes must either be naive or both must be aware.'
+            )
 
         if aware1:
             self.start = datetime1.astimezone(ZoneInfo('UTC'))
@@ -128,8 +110,7 @@ class Period:
         self.diff = self.end - self.start
 
     def __repr__(self):
-        return f"Period({encode_datetime(self.start)} -> {encode_datetime(self.end)}, {normalize_timedelta(self.diff)})"
-
+        return f'Period({encode_datetime(self.start)} -> {encode_datetime(self.end)}, {normalize_timedelta(self.diff)})'
 
     def __eq__(self, other):
         if isinstance(other, Period):
@@ -167,7 +148,6 @@ class DateTimeSerializer(Serializer):
 
     OBJ_CLASS = datetime
 
-
     def encode(self, obj):
         """
         Serialize naive objects (Z == '') without conversion but with 'N' for 'Naive' appended. Convert aware datetime objects to UTC and then serialize them with 'A' for 'Aware' appended.
@@ -193,7 +173,11 @@ class DateTimeSerializer(Serializer):
         DateTime(2018, 7, 25, 10, 27, 0, tzinfo=Timezone('America/New_York'))
         """
         if s[-1] == 'A':
-            return datetime.strptime(s, AWARE_FMT).replace(tzinfo=ZoneInfo('UTC')).astimezone()
+            return (
+                datetime.strptime(s, AWARE_FMT)
+                .replace(tzinfo=ZoneInfo('UTC'))
+                .astimezone()
+            )
         else:
             return datetime.strptime(s, NAIVE_FMT).astimezone(None)
 
@@ -207,6 +191,7 @@ class DateSerializer(Serializer):
     >>> ds.decode('20180725')
     Date(2018, 7, 25)
     """
+
     OBJ_CLASS = date
 
     def encode(self, obj):
@@ -253,8 +238,7 @@ class PeriodSerializer(Serializer):
         """
         start_fmt = encode_datetime(obj.start)
         end_fmt = encode_datetime(obj.end)
-        return f"{start_fmt} -> {end_fmt}"
-
+        return f'{start_fmt} -> {end_fmt}'
 
     def decode(self, s):
         """
@@ -272,8 +256,7 @@ class PeriodSerializer(Serializer):
         return Period(start_enc, end_enc)
 
     def __repr__(self):
-        return f"{self.obj}"
-
+        return f'{self.obj}'
 
 
 class DurationSerializer(Serializer):
@@ -285,6 +268,7 @@ class DurationSerializer(Serializer):
     >>> dus.decode('3d5h15m')
     Duration(days=3, hours=5, minutes=15)
     """
+
     OBJ_CLASS = timedelta
 
     def encode(self, obj):
@@ -336,9 +320,11 @@ class WeekdaySerializer(Serializer):
         """
         return eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[s]))
 
+
 ########################################
 ###### Begin Mask ######################
 ########################################
+
 
 def encode(key, clear):
     enc = []
@@ -346,7 +332,8 @@ def encode(key, clear):
         key_c = key[i % len(key)]
         enc_c = chr((ord(clear[i]) + ord(key_c)) % 256)
         enc.append(enc_c)
-    return base64.urlsafe_b64encode("".join(enc).encode()).decode()
+    return base64.urlsafe_b64encode(''.join(enc).encode()).decode()
+
 
 def decode(key, enc):
     dec = []
@@ -355,12 +342,14 @@ def decode(key, enc):
         key_c = key[i % len(key)]
         dec_c = chr((256 + ord(enc[i]) - ord(key_c)) % 256)
         dec.append(dec_c)
-    return "".join(dec)
+    return ''.join(dec)
+
 
 # NOTE: The real secret is set in cfg.yaml
-secret = "whatever"
+secret = 'whatever'
 
-class Mask():
+
+class Mask:
     """
     Provide an encoded value with an "isinstance" test for serializaton
     >>> mask = Mask('my dirty secret')
@@ -368,18 +357,16 @@ class Mask():
     True
     """
 
-    def __init__(self, message=""):
+    def __init__(self, message=''):
         self.encoded = encode(secret, message)
-
 
     def __repr__(self):
         return decode(secret, self.encoded)
 
 
-
 class MaskSerializer(Serializer):
-    """
-    """
+    """ """
+
     OBJ_CLASS = Mask
 
     def encode(self, obj):
@@ -394,29 +381,36 @@ class MaskSerializer(Serializer):
         """
         return Mask(decode(secret, s))
 
+
 ########################################
 ###### End Mask ########################
 ########################################
 
+
 def initialize_tinydb(dbfile):
-    """
-    """
+    """ """
     serialization = SerializationMiddleware()
-    serialization.register_serializer(DateTimeSerializer(), 'T') # Time
+    serialization.register_serializer(DateTimeSerializer(), 'T')   # Time
     serialization.register_serializer(DateSerializer(), 'D')     # Date
     serialization.register_serializer(PeriodSerializer(), 'P')   # Period
-    serialization.register_serializer(DurationSerializer(), 'I') # Interval
+    serialization.register_serializer(DurationSerializer(), 'I')   # Interval
     serialization.register_serializer(WeekdaySerializer(), 'W')  # Wkday
     serialization.register_serializer(MaskSerializer(), 'M')             # Mask
     if tinydb_version >= '4.0.0':
-        db = TinyDB(dbfile, storage=serialization,
-                indent=1, ensure_ascii=False)
-        db.default_table_name='items'
+        db = TinyDB(
+            dbfile, storage=serialization, indent=1, ensure_ascii=False
+        )
+        db.default_table_name = 'items'
     else:
-        db = TinyDB(dbfile, storage=serialization,
-                default_table='items',
-                indent=1, ensure_ascii=False)
+        db = TinyDB(
+            dbfile,
+            storage=serialization,
+            default_table='items',
+            indent=1,
+            ensure_ascii=False,
+        )
     return db
+
 
 def format_duration(obj):
     """
@@ -425,27 +419,28 @@ def format_duration(obj):
     hours and minutes.
     """
     if not isinstance(obj, timedelta):
-        raise ValueError(f"{obj} is not a timedelta instance")
-    until =[]
+        raise ValueError(f'{obj} is not a timedelta instance')
+    until = []
     weeks = obj.days // 7
     days = obj.days % 7
-    hours = obj.seconds // (60*60)
+    hours = obj.seconds // (60 * 60)
     minutes = (obj.seconds // 60) % 60
     if weeks:
-        until.append(f"{weeks}w")
+        until.append(f'{weeks}w')
     if days:
-        until.append(f"{days}d")
+        until.append(f'{days}d')
     if hours:
-        until.append(f"{hours}h")
+        until.append(f'{hours}h')
     if minutes:
-        until.append(f"{minutes}m")
+        until.append(f'{minutes}m')
     if not until:
-        until.append("0m")
-    return "".join(until)
+        until.append('0m')
+    return ''.join(until)
+
 
 def format_duration_list(obj_lst):
     try:
-        return ", ".join([format_duration(x) for x in obj_lst])
+        return ', '.join([format_duration(x) for x in obj_lst])
     except Exception as e:
         print('format_duration_list', e)
         print(obj_lst)
@@ -462,7 +457,8 @@ period_hsh = dict(
     h=timedelta(hours=1),
     d=timedelta(days=1),
     w=timedelta(weeks=1),
-        )
+)
+
 
 def parse_duration(s):
     """\
@@ -497,4 +493,3 @@ def parse_duration(s):
         num = -int(g[2]) if g[1] == '-' else int(g[2])
         td += num * period_hsh[g[3]]
     return True, td
-
