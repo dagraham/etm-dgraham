@@ -11,6 +11,7 @@ import inspect
 
 # import prompt_toolkit.application as pta
 import prompt_toolkit
+
 pta = prompt_toolkit.application
 # from prompt_toolkit.application import Application
 # from prompt_toolkit.application.current import get_app

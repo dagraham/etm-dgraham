@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 import random
 import lorem
-from dateutil.rrule import rrule
+from dateutil import rrule as dr
 from datetime import datetime, timedelta
 import sys
 import os
@@ -13,9 +13,10 @@ from dateutil.parser import parse
 num_items = 140
 
 ONEDAY = timedelta(days=1)
-ONEWK = 7*ONEDAY
+ONEWK = 7 * ONEDAY
 
 # rrule components
+
 
 def phrase():
     # for the summary
@@ -23,7 +24,8 @@ def phrase():
     s = lorem.sentence()[:-1]
     num = random.choice([3, 4, 5])
     words = s.split(' ')[:num]
-    return " ".join(words).rstrip()
+    return ' '.join(words).rstrip()
+
 
 def word():
     return lorem.sentence()[:-1].split(' ')[0]
@@ -33,18 +35,29 @@ def days_or_weeks():
     return random.choice(['d', 'w'])
 
 
-freq = ['@r w', '@r w &w MO, WE, FR', '@r w &i 2', '@r d', '@r d &i 2', '@r d &i 3']
-stop = [f"&c {n}" for n in range(2, 5)] + [f"&u +{n}{days_or_weeks()}" for n in range(2, 5)]
+freq = [
+    '@r w',
+    '@r w &w MO, WE, FR',
+    '@r w &i 2',
+    '@r d',
+    '@r d &i 2',
+    '@r d &i 3',
+]
+stop = [f'&c {n}' for n in range(2, 5)] + [
+    f'&u +{n}{days_or_weeks()}' for n in range(2, 5)
+]
+
 
 def cnt():
     return f"@+ {random.choice(['+', '-'])}{random.choice([1, 3, 5])}d, {random.choice(['+', '-'])}{random.choice([2, 4, 6])}d"
+
 
 def beg():
     return f"@s -{random.choice([1,2,3,4])}{random.choice(['d', 'w'])}"
 
 
-client_index = "# "
-info_index = "# "
+client_index = '# '
+info_index = '# '
 client_detail = f"""
 Because of the index entry, all client records will be grouped under "{client_index}", then under the name of the relevant client in both index and journal view.  This infomation record will be first among the items for each client since beginning with a "{info_index}" will put it at the top of the sorting order for the index entries for each client. Having such a journal entry for each client ensures that the client name will be available for completion of the index entry when other client related items are being created. The choice of "{client_index}" and "{info_index}" is, of course, arbitrary but takes advantage of the sorting order that begins with "!", "#", "$" and "%".
 """
@@ -52,45 +65,59 @@ Because of the index entry, all client records will be grouped under "{client_in
 
 def week(dt: datetime) -> [datetime, datetime]:
     y, w, d = dt.isocalendar()
-    wk_beg = dt - (d-1)*ONEDAY if d > 1 else dt
-    wk_end = dt + (7-d)*ONEDAY if d < 7 else dt
+    wk_beg = dt - (d - 1) * ONEDAY if d > 1 else dt
+    wk_end = dt + (7 - d) * ONEDAY if d < 7 else dt
     return wk_beg.date(), wk_end.date()
 
 
-def make_examples(egfile: str = None, num_items:int = num_items):
+def make_examples(egfile: str = None, num_items: int = num_items):
     now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     num_konnections = 0
     num_items = int(num_items)
     # include 12 weeks: 6 previous, the current and the following 5
     wkbeg, wkend = week(now)
-    months = num_items//200
-    start = wkbeg - 6*7*ONEDAY
-    until = wkend + (5*7)*ONEDAY
+    months = num_items // 200
+    start = wkbeg - 6 * 7 * ONEDAY
+    until = wkend + (5 * 7) * ONEDAY
 
-    datetimes = list(rrule(DAILY, byweekday=range(7), byhour=range(6, 22), byminute=range(0, 60, 15), dtstart=start, until=until))
+    datetimes = list(
+        dr.rrule(
+            dr.DAILY,
+            byweekday=range(7),
+            byhour=range(6, 22),
+            byminute=range(0, 60, 15),
+            dtstart=start,
+            until=until,
+        )
+    )
     past_datetimes = [x for x in datetimes if x <= now]
 
     types = ['-', '*', '%', '-', '*']
     clients = ['A', 'B', 'C', 'D']
-    client_name = {'A': 'Tom Jefferson', 'B': 'John Adams', 'C': 'Ben Franklin', 'D': 'Jim Madison' }
+    client_name = {
+        'A': 'Tom Jefferson',
+        'B': 'John Adams',
+        'C': 'Ben Franklin',
+        'D': 'Jim Madison',
+    }
     projects = {
-            'A': ['project a1', 'project a2'],
-            'B': ['project b1', 'project b2', 'project b3'],
-            'C': ['project c1', 'project c2'],
-            'D': ['project d1'],
-            'E': ['project e1', 'project e2', 'project e3'],
-            }
+        'A': ['project a1', 'project a2'],
+        'B': ['project b1', 'project b2', 'project b3'],
+        'C': ['project c1', 'project c2'],
+        'D': ['project d1'],
+        'E': ['project e1', 'project e2', 'project e3'],
+    }
     activities = {
-            'A': ['activity a1', 'activity a2'],
-            'B': ['activity b1', 'activity b2', 'activity b3'],
-            'C': ['activity c1', 'activity c2'],
-            'D': ['activity d1'],
-            'E': ['activity e1', 'activity e2', 'activity e3'],
-            }
+        'A': ['activity a1', 'activity a2'],
+        'B': ['activity b1', 'activity b2', 'activity b3'],
+        'C': ['activity c1', 'activity c2'],
+        'D': ['activity d1'],
+        'E': ['activity e1', 'activity e2', 'activity e3'],
+    }
     locations = ['errands', 'home', 'office', 'shop']
     tags = ['red', 'green', 'blue']
-    dates = [0, 0, 0, 1, 0, 0, 0] # dates 1/7 of the time
-    minutes = range(15, 110, 5) # for used times (test rounding)
+    dates = [0, 0, 0, 1, 0, 0, 0]   # dates 1/7 of the time
+    minutes = range(15, 110, 5)   # for used times (test rounding)
     days = range(7)
     extent = [x for x in range(30, 210, 15)]
 
@@ -99,22 +126,23 @@ def make_examples(egfile: str = None, num_items:int = num_items):
     examples = []
 
     for i in range(20):
-        examples.append(f"- {phrase()} {beg()} {random.choice(freq)} {random.choice(stop)} {cnt()} @t lorem")
+        examples.append(
+            f'- {phrase()} {beg()} {random.choice(freq)} {random.choice(stop)} {cnt()} @t lorem'
+        )
 
     for client in clients:
-        summary = f"{client_name[client]}"
-        d = f"contact details for {client_name[client]} go here. {client_detail}"
-        i = f"{client_index}/{client_name[client]}/{info_index}details"
-        examples.append(f"% {summary} @i {i} @d {d} @t lorem")
+        summary = f'{client_name[client]}'
+        d = f'contact details for {client_name[client]} go here. {client_detail}'
+        i = f'{client_index}/{client_name[client]}/{info_index}details'
+        examples.append(f'% {summary} @i {i} @d {d} @t lorem')
 
-    examples.append(f"""\
+    examples.append(
+        f"""\
 ! the lorem examples @t lorem @d .
 1) This inbox item and each of the other {num_items+len(examples)} internally generated reminders is tagged 'lorem'. All of them can be removed in one step by opening query view (press 'q'), entering the query 'any t lorem | remove' and pressing 'return'.
 2). The examples are generated to fit within a period including the week they were generated together with 5 subsequent and 6 previous weeks. You can remove and regenerate them whenever you like to keep them current.\
-""")
-
-
-
+"""
+    )
 
     for _ in range(num_items):
         t = random.choice(types)
@@ -122,48 +150,70 @@ def make_examples(egfile: str = None, num_items:int = num_items):
         start = random.choice(datetimes)
         end = random.choice(datetimes)
         date = random.choice(dates)
-        s = start.strftime("%Y-%m-%d") if date else start.strftime("%Y-%m-%d %I:%M%p")
-        end = end.strftime("%Y-%m-%d") if date else start.strftime("%Y-%m-%d %I:%M%p")
+        s = (
+            start.strftime('%Y-%m-%d')
+            if date
+            else start.strftime('%Y-%m-%d %I:%M%p')
+        )
+        end = (
+            end.strftime('%Y-%m-%d')
+            if date
+            else start.strftime('%Y-%m-%d %I:%M%p')
+        )
         d = lorem.sentence()
         i0 = random.choice(clients)
         i1 = client_name[i0]
         i2 = random.choice(projects[i0])
         # i3 = random.choice(activities[i1])
         begin = random.choice(range(1, 15))
-        used = ""
+        used = ''
         # konnect = random.choice(konnections) if konnections and random.randint(1, 10) <= 4 else ""
-        for i in range(random.randint(1,2)):
+        for i in range(random.randint(1, 2)):
             u = random.choice(minutes)
             if random.choice(dates):
-                e = start.strftime("%Y-%m-%d")
+                e = start.strftime('%Y-%m-%d')
             else:
-                e = (start + timedelta(minutes=u)).strftime("%Y-%m-%d %I:%M%p")
+                e = (start + timedelta(minutes=u)).strftime('%Y-%m-%d %I:%M%p')
             if start < now:
-                used += f"@u {u}m: {e} "
+                used += f'@u {u}m: {e} '
 
-        if t == "%" and start <= now:
-            examples.append(f"{t} {summary} @s {s} @i $ daily @d {d} @t lorem")
+        if t == '%' and start <= now:
+            examples.append(f'{t} {summary} @s {s} @i $ daily @d {d} @t lorem')
 
         elif t == '*':
             if date:      # an event
-                examples.append(f"{t} {summary} @s {s} @t {random.choice(tags)} @t lorem")
+                examples.append(
+                    f'{t} {summary} @s {s} @t {random.choice(tags)} @t lorem'
+                )
             else:
                 x = random.choice(extent)
-                examples.append(f"{t} {summary} @s {s} @e {x}m @i {client_index}/{i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem")
+                examples.append(
+                    f'{t} {summary} @s {s} @e {x}m @i {client_index}/{i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem'
+                )
         elif t == '-' and random.choice(['h', 't']) == 'h':
             if start < now:
 
-                f = f" @f {s} -> {end} " if random.choice(['h', 't']) == 't' else ""
-                examples.append(f"{t} {summary} @s {s} @i {client_index}/{i1}/{i2} {f}{used} @d {d} @t lorem")
+                f = (
+                    f' @f {s} -> {end} '
+                    if random.choice(['h', 't']) == 't'
+                    else ''
+                )
+                examples.append(
+                    f'{t} {summary} @s {s} @i {client_index}/{i1}/{i2} {f}{used} @d {d} @t lorem'
+                )
             else:
-                examples.append(f"{t} {summary} @s {s} @i {client_index}/{i1}/{i2} @d {d} @b {begin} @t lorem")
+                examples.append(
+                    f'{t} {summary} @s {s} @i {client_index}/{i1}/{i2} @d {d} @b {begin} @t lorem'
+                )
 
         else:
-            examples.append(f"{t} {summary} @i {client_index}/{i1}/{i2} @d {d} @l {random.choice(locations)} @t {random.choice(tags)} @t lorem")
+            examples.append(
+                f'{t} {summary} @i {client_index}/{i1}/{i2} @d {d} @l {random.choice(locations)} @t {random.choice(tags)} @t lorem'
+            )
 
     if egfile:
         with open(egfile, 'w') as fo:
-            fo.writelines("\n".join(examples))
+            fo.writelines('\n'.join(examples))
     return examples
 
 
@@ -179,4 +229,3 @@ if __name__ == '__main__':
     res = make_examples(egfile, num_items)
     for _ in res:
         print(_)
-

@@ -1205,7 +1205,16 @@ item_hsh:    {self.item_hsh}
                     #     save_item = True
 
         elif 's' in self.item_hsh:
-            if 'r' in self.item_hsh:
+            logger.debug(f"due: {type(due_datetime)}; in +: {due_datetime in self.item_hsh.get('+', [])}")
+            if '+' in self.item_hsh and due_datetime in self.item_hsh['+']:
+                logger.debug(f"removing {due_datetime} from @+")
+                self.item_hsh['+'].remove(due_datetime)
+                logger.debug(f"+: {self.item_hsh['+']}")
+                if not self.item_hsh['+']:
+                    del self.item_hsh['+']
+                self.item_hsh.setdefault('h', []).append(completion_entry)
+                save_item = True
+            elif 'r' in self.item_hsh:
                 # walrus operator, :=, assigns return from get_next_due to nxt
                 # any @+ dates will have been added to @r
                 if nxt := get_next_due(
@@ -1225,8 +1234,8 @@ item_hsh:    {self.item_hsh}
                     self.item_hsh.setdefault('h', []).append(completion_entry)
                 else:
                     self.item_hsh['f'] = completion_entry
+
             elif '+' in self.item_hsh:
-                # simple repetition or added to @r
                 tmp = [self.item_hsh['s']] + self.item_hsh['+']
                 tmp = [date_to_datetime(x) for x in tmp]
                 tmp.sort()
@@ -3660,7 +3669,7 @@ class DataView(object):
             return ()
         self.current_row = row
         id_tup = self.row2id.get(row, None)
-        logger.debug(f"details for id_tup: {id_tup}")
+        logger.debug(f'details for id_tup: {id_tup}')
         if isinstance(id_tup, tuple):
             item_id, instance, job = id_tup
         else:
@@ -3740,7 +3749,7 @@ class DataView(object):
         instance = res[1]
 
         if not (item_id and item_id in self.id2relevant):
-            logger.debug(f"{item_id} not in id2relevant")
+            logger.debug(f'{item_id} not in id2relevant')
             return ''
         showing = 'Repetitions'
         item = DBITEM.get(doc_id=item_id)
@@ -5709,7 +5718,7 @@ def get_next_due(item, done, due):
         freq, kwd = rrule_args(hsh)
         kwd['dtstart'] = dtstart
         try:
-            rset.rrule(rrule(freq, **kwd))
+            rset.rrule(dr.rrule(freq, **kwd))
         except Exception as e:
             logger.error(f'error processing {hsh}: {e}')
             return []
