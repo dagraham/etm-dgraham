@@ -476,7 +476,7 @@ The display for each reminder shows the itemtype and summary column on the left 
   * b: Busy: a graphical illustration of busy and conflicted times by year-week
   * c: Completed: finished tasks and jobs and used time entries by year-week and week day
   * d: Do Next: undated tasks grouped by location/context and ordered by priority (highest first) and extent (least first)
-  * e: Engaged: instances of reminders with used time entries with daily totals displayed graphically
+  * e: Effort: instances of reminders with used time entries with daily totals displayed graphically
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence
   * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first. Datetimes are displayed using a 5 character format where, e.g., 1:15pm today would be displayed as 13:15, November 7 of the current year as 11/17 and January 15 of 2012 as 12.01.
   * i: Index: all items grouped hierarchically by index entry
@@ -497,7 +497,7 @@ The display for each reminder shows the itemtype and summary column on the left 
 
 ### Weekly Views {#weekly-views}
 
-The _agenda_, _busy_, _completed_ and _engaged_ views display one week at a time and are *synchronized* so that all four views always display the same week. Press the ▶ (right) or ◀ (left) cursor keys go forward or backward a week at a time or press the space bar to jump to the week containing the current day. You can also press "J" and enter a date to jump to the week containing the date.
+The _agenda_, _busy_, _completed_ and _effort_ views display one week at a time and are *synchronized* so that all four views always display the same week. Press the ▶ (right) or ◀ (left) cursor keys go forward or backward a week at a time or press the space bar to jump to the week containing the current day. You can also press "J" and enter a date to jump to the week containing the date.
 
 In _agenda_ view, only days with scheduled reminders are listed. If nothing is scheduled for the entire week, then "Nothing scheduled" is displayed.
 
@@ -506,7 +506,7 @@ In _busy_ view, only days that have events with busy times (@e and/or @w entries
 
 _Completed_ view shows instances of completed tasks.
 
-_Engaged_ view shows instances of reminders with used time entries with daily totals displayed graphically.
+_effort_ view shows instances of reminders with used time entries with daily totals displayed graphically.
 
 The normal agenda listing for a week day:
 
@@ -1153,7 +1153,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         b) busy
         c) completed
         d) do next
-        e) engaged
+        e) effort
         f) forthcoming
         h) history
         i) index
@@ -2102,7 +2102,7 @@ Here are the options with their default values from that file. The lines beginni
         # second.
 
         usedtime_hours: 6
-        # 0, 1, 2, ..., 24. The daily goal for used time. This is used in engaged
+        # 0, 1, 2, ..., 24. The daily goal for used time. This is used in effort
         # view to control the display of the daily used time bars. The goal is to
         # to maximize the granularity of the bar when displaying this number of hours
         # in the space allowed by the terminal width.
@@ -2268,7 +2268,7 @@ Here are the options with their default values from that file. The lines beginni
         #     pastdue:      pasdue task warnings
         #     plain:        headings such as outline branches
         #     today:        the current and following agenda date headings
-        #     used:         used time rows in engaged and used time views
+        #     used:         used time rows in effort and used time views
         #     waiting:      waiting job reminders (jobs with unfinished prereqs)
         #     wrap:         before and after rows for events in agenda view with
         #                   @w entries

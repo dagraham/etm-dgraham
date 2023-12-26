@@ -633,7 +633,7 @@ def show_message(title, text, padding=6):
     # prep the message window
     width = shutil.get_terminal_size()[0] - 2
     heading = f'-- {title.rstrip()} --'.center(width, ' ')
-    prompt = 'press <return> or <escape> to close'.center(width, ' ')
+    prompt = '<return> or <escape> closes'.center(width, ' ')
     tmp = f"""\
 {heading}
 {text}
@@ -1081,7 +1081,7 @@ def is_item_view():
     return dataview.active_view in [
         'agenda',
         'completed',
-        'engaged',
+        'effort',
         'history',
         'index',
         'tags',
@@ -1145,7 +1145,7 @@ def is_not_busy_view():
 
 @Condition
 def is_agenda_view():
-    return dataview.active_view in ['agenda', 'busy', 'completed', 'engaged']
+    return dataview.active_view in ['agenda', 'busy', 'completed', 'effort']
 
 
 @Condition
@@ -3213,7 +3213,7 @@ def next_view(*event):
 
 
 @bindings.add('e', filter=is_viewing)
-def engaged_view(*event):
+def effort_view(*event):
     set_view('e')
 
 
@@ -3691,7 +3691,7 @@ root_container = MenuContainer(
                 MenuItem('b) busy', handler=busy_view),
                 MenuItem('c) completed', handler=completed_view),
                 MenuItem('d) do next', handler=next_view),
-                MenuItem('e) engaged', handler=engaged_view),
+                MenuItem('e) effort', handler=effort_view),
                 MenuItem('f) forthcoming', handler=forthcoming_view),
                 MenuItem('h) history', handler=history_view),
                 MenuItem('i) index', handler=index_view),

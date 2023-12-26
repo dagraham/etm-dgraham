@@ -2758,7 +2758,7 @@ class DataView(object):
         self.current_row = 0
         self.agenda_view = ''
         self.done_view = ''
-        self.engaged_view = ''
+        self.effort_view = ''
         self.busy_view = ''
         self.calendar_view = ''
         self.query_view = ''
@@ -2807,7 +2807,7 @@ class DataView(object):
             'b': 'busy',
             'c': 'completed',
             'd': 'do next',
-            'e': 'engaged',
+            'e': 'effort',
             'f': 'forthcoming',
             'h': 'history',
             'i': 'index',
@@ -3296,10 +3296,10 @@ class DataView(object):
             self.refreshAgenda()
             self.row2id = self.done2id
             return self.done_view
-        if self.active_view == 'engaged':
+        if self.active_view == 'effort':
             self.refreshAgenda()
-            self.row2id = self.engaged2id
-            return self.engaged_view
+            self.row2id = self.effort2id
+            return self.effort_view
         if self.active_view == 'busy':
             self.refreshAgenda()
             return self.busy_view
@@ -3561,11 +3561,11 @@ class DataView(object):
         (
             self.agenda_view,
             self.done_view,
-            self.engaged_view,
+            self.effort_view,
             self.busy_view,
             self.row2id,
             self.done2id,
-            self.engaged2id,
+            self.effort2id,
             self.busy_details,
         ) = self.cache[self.activeYrWk]
 
@@ -8248,14 +8248,14 @@ def schedule(
     busy_hsh = {}       # yw -> busy_view
     row2id_hsh = {}     # yw -> row2id
     done2id_hsh = {}     # yw -> row2id
-    engaged_hsh = {}
-    engaged2id_hsh = {}     # yw -> row2id
-    week2day2engaged = {}   # year, week -> dayofweek -> period total for day
+    effort_hsh = {}
+    effort2id_hsh = {}     # yw -> row2id
+    week2day2effort = {}   # year, week -> dayofweek -> period total for day
     week2day2heading = {}
     weeks = set([])
     rows = []
     done = []
-    engaged = []
+    effort = []
 
     # XXX year, week -> dayofweek -> list of [time interval, summary, period]
     busy_details = {}
@@ -8316,19 +8316,19 @@ def schedule(
                 week = dt.isocalendar()[:2]
                 # weekday = dt.strftime(wkday_fmt)
                 weekday = format_wkday(dt)
-                week2day2engaged.setdefault(week, {})
-                week2day2engaged[week].setdefault(weekday, ZERO)
+                week2day2effort.setdefault(week, {})
+                week2day2effort[week].setdefault(weekday, ZERO)
                 total = ZERO
                 for p in dates_to_periods[dt]:
                     total += p
                 if total is not None:
-                    week2day2engaged[week][weekday] += total
+                    week2day2effort[week][weekday] += total
                     used = format_hours_and_tenths(total).lstrip(
                         '+'
                     )   # drop the +
                 else:
                     used = ''
-                engaged.append(
+                effort.append(
                     {
                         'id': doc_id,
                         'job': None,
@@ -8706,7 +8706,7 @@ def schedule(
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
     done.sort(key=itemgetter('sort'))
-    engaged.sort(key=itemgetter('sort'))
+    effort.sort(key=itemgetter('sort'))
 
     busy_details = {}
     allday_details = {}
@@ -8884,15 +8884,15 @@ def schedule(
         done_hsh[week] = tree
         done2id_hsh[week] = row2id
 
-    for week, items in groupby(engaged, key=itemgetter('week')):
+    for week, items in groupby(effort, key=itemgetter('week')):
         weeks.add(week)
         rdict = NDict()
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
         for row in items:
             day_ = row['day'][0]
             total_period = (
-                week2day2engaged[week][day_]
-                if day_ in week2day2engaged[week]
+                week2day2effort[week][day_]
+                if day_ in week2day2effort[week]
                 else ZERO
             )
             total = int(total_period.total_seconds()) // 60
@@ -8913,8 +8913,8 @@ def schedule(
             values = row['columns']
             rdict.add(path, values)
         tree, row2id = rdict.as_tree(rdict, level=0)
-        engaged_hsh[week] = tree
-        engaged2id_hsh[week] = row2id
+        effort_hsh[week] = tree
+        effort2id_hsh[week] = row2id
 
     cache = {}
     for week in week_numbers:
@@ -8938,9 +8938,9 @@ def schedule(
                 )
             )
 
-        # engaged
-        if week in engaged_hsh:
-            tup.append(engaged_hsh[week])
+        # effort
+        if week in effort_hsh:
+            tup.append(effort_hsh[week])
         else:
             tup.append(
                 '{}\n   No used times recorded'.format(
@@ -8963,9 +8963,9 @@ def schedule(
             tup.append(done2id_hsh[week])
         else:
             tup.append({})
-        # engaged2id
-        if week in engaged2id_hsh:
-            tup.append(engaged2id_hsh[week])
+        # effort2id
+        if week in effort2id_hsh:
+            tup.append(effort2id_hsh[week])
         else:
             tup.append({})
 
@@ -8973,7 +8973,7 @@ def schedule(
             tup.append(busyday_details[week])
         else:
             tup.append({})
-        # agenda, done, engaged, busy, row2id, done2id, engaged2id, busy_details
+        # agenda, done, effort, busy, row2id, done2id, effort2id, busy_details
         cache[week] = tup
 
     timer_schedule.stop()
