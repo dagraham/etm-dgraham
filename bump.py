@@ -9,12 +9,6 @@ import etm.view as view
 # from etm.view import check_output
 import etm.options as options
 
-
-setup_logging = options.setup_logging
-setup_logging(1, '~/etm-dgraham')
-view.logger = logger
-
-
 check_output = view.check_output
 ok, gb = check_output('git branch')
 print('branch:')
