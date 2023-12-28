@@ -229,7 +229,7 @@ which will need to be created.
     hour = timedelta(hours=1)
     fmt = '%I%p' if ampm else '%H'
     busyhours = [
-        (midnight + i * hour).strftime('%I%p').lstrip('0').lower()
+        (midnight + i * hour).strftime('%-I%p').rstrip('M').lower()
         for i in range(0, 24, 6)
     ]
     HB = ''.join([f'{h : <8}' for h in busyhours]).rstrip()

@@ -1376,17 +1376,17 @@ def status_time(dt):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
     month = dt.strftime('%b')
-    day = dt.strftime('%d').lstrip('0')
+    day = dt.strftime('%-d')
     weekday = dt.strftime('%a')
     if dt.minute == 0:
         hourminutes = (
-            dt.strftime('%I%p').lstrip('0').lower()
+            dt.strftime('%-I%p').rstrip('M').lower()
             if ampm
             else dt.strftime('%H')
         )
     else:
         hourminutes = (
-            dt.strftime('%I:%M%p').lstrip('0').lower()
+            dt.strftime('%-I:%M%p').rstrip('M').lower()
             if ampm
             else dt.strftime('%H:%M')
         )

@@ -268,17 +268,17 @@ def day_bar_labels() -> str:
     HOUR = timedelta(hours=1)
     label_length = (marker_hour_interval * 60) // slot_minutes
     ampm = settings.get('ampm', True)
-    hour_fmt = '%I%p' if ampm else '%H'
+    hour_fmt = '%-I%p' if ampm else '%H'
     dent = ' ' * 7 if ampm else ' ' * 8
     hour_labels = [dent]
     for i in range(begin_hour, end_hour, marker_hour_interval):
         if (i - begin_hour) % marker_hour_interval == 0:
-            l = f"{(MIDNIGHT + i*HOUR).strftime(hour_fmt).lstrip('0').rstrip('M').lower()}"
+            l = f"{(MIDNIGHT + i*HOUR).strftime(hour_fmt).rstrip('M').lower()}"
             hour_labels.append(f"{l}{' '*(label_length - len(l))}")
         else:
             hour_labels.append(' ' * label_length)
     if end_hour % marker_hour_interval == 0:
-        last_label = f"{(MIDNIGHT + end_hour*HOUR).strftime(hour_fmt).lstrip('0').rstrip('M').lower()}"
+        last_label = f"{(MIDNIGHT + end_hour*HOUR).strftime(hour_fmt).rstrip('M').lower()}"
         last_label = last_label if last_label else '24'
         hour_labels.append(last_label)
 
@@ -2093,7 +2093,6 @@ def timestamp(arg):
     elif isinstance(arg, Period):
         return True, arg
     try:
-        # res = parse(arg).strftime(ETMFMT)
         res = parse(arg)
     except:
         return False, 'invalid time-stamp: {}'.format(arg)
@@ -2143,7 +2142,6 @@ def fivechar_datetime(obj):
 def format_date(obj, year=True):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    # day = obj.strftime('%d').lstrip('0')
     md = '%-d/%-m' if dayfirst else '%-m/%-d'
     if year:
         date_fmt = f'%y/{md}' if yearfirst else f'{md}/%y'
@@ -2181,7 +2179,7 @@ def format_wkday(obj):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
     month = obj.strftime('%b')
-    day = obj.strftime('%d').lstrip('0')
+    day = obj.strftime('%-d')
     weekday = obj.strftime('%a')
     monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
     return f'{weekday} {monthday}'
@@ -2207,7 +2205,6 @@ def format_datetime(obj, short=False):
     ampm = settings.get('ampm', True)
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    # monthday = obj.strftime('%d').lstrip('0')
     md = f'%-d/%-m' if dayfirst else f'%-m/%-d'
     if short:
         md = '%-d/%-m' if dayfirst else '%-m/%-d'
@@ -7231,7 +7228,7 @@ def show_forthcoming(
         if relevant < today:
             continue
         year = relevant.strftime('%b %Y')
-        monthday = relevant.strftime('%d').lstrip('0')
+        monthday = relevant.strftime('%-d')
         time = fmt_time(relevant)
         # rhc = f"{monthday:>6} {time:^7}".ljust(14, ' ')
         rhc = f'{monthday : >2} {time} ' if time else f'{monthday : >2} '
@@ -7930,7 +7927,7 @@ def show_pinned(
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     rhc_width = 8
-    md_fmt = 'D MMM' if settings['dayfirst'] else 'MMM D'
+    md_fmt = '%-d %b' if settings['dayfirst'] else '%b %-d'
     logger.debug(f'repeat_list: {repeat_list}; pinned_list: {pinned_list}')
 
     for item in items:
@@ -8037,14 +8034,14 @@ def get_usedtime(
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
             id_used[monthday] += period
-            month = dt.strftime('%Y-%m')
+            month = dt.strftime('%Y-%-m')
             used_time.setdefault(tuple((month,)), ZERO)
             used_time[tuple((month,))] += period
             for i in range(len(index_tup)):
                 used_time.setdefault(tuple((month, *index_tup[: i + 1])), ZERO)
                 used_time[tuple((month, *index_tup[: i + 1]))] += period
         for monthday in id_used:
-            month = monthday.strftime('%Y-%m')
+            month = monthday.strftime('%Y-%-m')
             rhc = f"{format_hours_and_tenths(id_used[monthday]).lstrip('+')} {monthday.day}"
             detail_rows.append(
                 {
@@ -8123,10 +8120,9 @@ def no_busy_periods(week, width):
     monday = datetime.strptime(f'{week[0]} {week[1]} 1', '%Y %W %w')
     DD = {}
     for i in range(1, 8):
-        # DD[i] = f"{WA[i]} {monday.add(days=i-1).strftime('D')}".ljust(5, ' ')
         DD[
             i
-        ] = f"{WA[i]} {(monday + (i-1)*DAY).strftime('%d').lstrip('0')}".ljust(
+        ] = f"{WA[i]} {(monday + (i-1)*DAY).strftime('%-d')}".ljust(
             5, ' '
         )
 
@@ -8514,7 +8510,6 @@ def schedule(
                             'dayofweek': (dayofweek),
                             'day': (
                                 format_wkday(jobstart),
-                                # jobstart.strftime(wkday_fmt),
                             ),
                             'columns': [
                                 job['status'],
@@ -8604,7 +8599,6 @@ def schedule(
                             'dayofweek': (dtb.isocalendar()[-1]),
                             'day': (
                                 format_wkday(dtb),
-                                # dtb.strftime(wkday_fmt),
                             ),
                             'columns': [
                                 itemtype,
@@ -8690,7 +8684,6 @@ def schedule(
                         'dayofweek': (dayofweek),
                         'day': (
                             format_wkday(dt),
-                            # dt.strftime(wkday_fmt),
                         ),
                         'busyperiod': (busyperiod),
                         'wrap': (wrap),
@@ -8834,7 +8827,7 @@ def schedule(
         for i in range(1, 8):
             DD[
                 i
-            ] = f"{WA[i]} {(monday + (i-1)*DAY).strftime('%d').lstrip('0')}".ljust(
+            ] = f"{WA[i]} {(monday + (i-1)*DAY).strftime('%-d')}".ljust(
                 5, ' '
             )
 
