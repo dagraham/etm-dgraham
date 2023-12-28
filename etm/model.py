@@ -1876,9 +1876,9 @@ def datetime_calculator(s):
     period_string_regex = re.compile(r'^\s*(([+-]?\d+[wdhmMy])+\s*$)')
 
     ampm = settings.get('ampm', True)
-    wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
+    wkday_fmt = '%a %-d %b' if settings['dayfirst'] else '%a %b %-d'
     datetime_fmt = (
-        f'{wkday_fmt} %Y %I:%M%p %Z' if ampm else f'{wkday_fmt} %Y %H:%M %Z'
+        f'{wkday_fmt} %Y %-I:%M%p %Z' if ampm else f'{wkday_fmt} %Y %H:%M %Z'
     )
     m = date_calc_regex.match(s)
     if not m:
@@ -2107,7 +2107,7 @@ def plain_datetime(obj):
 def format_time(obj):
     ampm = settings.get('ampm', True)
     hourminutes = (
-        obj.strftime('%I:%M%p').lstrip('0').lower()
+        obj.strftime('%-I:%M%p').rstrip('M').lower()
         if ampm
         else obj.strftime('%H:%M')
     )
@@ -2126,12 +2126,12 @@ def fivechar_datetime(obj):
     now = datetime.now().astimezone()
 
     md_fmt = '%d/%m' if settings['dayfirst'] else '%m/%d'
-    ym_fmt = '%y.%m' if settings['yearfirst'] else f'%m.%y'
+    ym_fmt = '%y.%m' if settings['yearfirst'] else '%m.%y'
 
     if obj.year == now.year:
         if obj.month == now.month:
             if obj.day == now.day:
-                return obj.strftime('HH:mm')
+                return obj.strftime('%H:%M')
             else:
                 return obj.strftime(md_fmt)
         else:
@@ -2143,8 +2143,8 @@ def fivechar_datetime(obj):
 def format_date(obj, year=True):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    day = obj.strftime('%d').lstrip('0')
-    md = f'{day}/%m' if dayfirst else f'%m/{day}'
+    # day = obj.strftime('%d').lstrip('0')
+    md = '%-d/%-m' if dayfirst else '%-m/%-d'
     if year:
         date_fmt = f'%y/{md}' if yearfirst else f'{md}/%y'
     else:
@@ -2162,9 +2162,9 @@ def format_statustime(obj):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
     month = obj.strftime('%b')
-    day = obj.strftime('%d').lstrip('0')
+    day = obj.strftime('%-d')
     hourminutes = (
-        obj.strftime('%I:%M%p').lstrip('0').lower()
+        obj.strftime('%-I:%M%p').rstrip('M').lower()
         if ampm
         else obj.strftime('%H:%M')
     )
@@ -2207,16 +2207,16 @@ def format_datetime(obj, short=False):
     ampm = settings.get('ampm', True)
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    monthday = obj.strftime('%d').lstrip('0')
-    md = f'{monthday}/%m' if dayfirst else f'%m/{monthday}'
+    # monthday = obj.strftime('%d').lstrip('0')
+    md = f'%-d/%-m' if dayfirst else f'%-m/%-d'
     if short:
-        md = f'{monthday}/%m' if dayfirst else f'%m/{monthday}'
+        md = '%-d/%-m' if dayfirst else '%-m/%-d'
         date_fmt = f'%y/{md}' if yearfirst else f'{md}/%y'
     else:
-        md = f'%a {monthday} %b' if dayfirst else f'%a %b {monthday}'
+        md = '%a %-d %b' if dayfirst else '%a %b %-d'
         date_fmt = f'{md}, %Y' if yearfirst else f'{md} %Y'
 
-    time_fmt = '%I:%M%p' if ampm else '%H:%M'
+    time_fmt = '%-I:%M%p' if ampm else '%H:%M'
 
     if type(obj) == date:
         return True, obj.strftime(date_fmt)
@@ -2241,8 +2241,8 @@ def format_datetime(obj, short=False):
             time_fmt += ' %Z'
     res = obj.strftime(f'{date_fmt} {time_fmt}')
     if ampm:
-        res = res.replace('AM', 'am')
-        res = res.replace('PM', 'pm')
+        res = res.replace('AM', 'a')
+        res = res.replace('PM', 'p')
     return True, res
 
 
@@ -6467,18 +6467,18 @@ def drop_zero_minutes(dt):
     show_minutes = settings['show_minutes']
     if show_minutes:
         if ampm:
-            return dt.strftime('%I:%M')
+            return dt.strftime('%-I:%M').rstrip('M').lower()
         else:
             return dt.strftime('%H:%M')
     else:
         if dt.minute == 0:
             if ampm:
-                return dt.strftime('%I')
+                return dt.strftime('%-I')
             else:
                 return dt.strftime('%H')
         else:
             if ampm:
-                return dt.strftime('%I:%M')
+                return dt.strftime('%-I:%M').rstrip('M').lower()
             else:
                 return dt.strftime('%H:%M')
 
@@ -6590,15 +6590,15 @@ def fmt_week(yrwk):
     wkbeg = datetime.strptime(f'{dt_year} {str(dt_week)} 1', '%Y %W %w').date()
     wkend = datetime.strptime(f'{dt_year} {str(dt_week)} 0', '%Y %W %w').date()
     if settings['dayfirst']:
-        week_end = wkend.strftime('%d %b').lstrip('0')
+        week_end = wkend.strftime('%-d %b')
         week_begin = (
-            wkbeg.strftime('%d').lstrip('0')
+            wkbeg.strftime('%-d')
             if wkbeg.month == wkend.month
-            else wkbeg.strftime('%d %b').lstrip('0')
+            else wkbeg.strftime('%-d %b')
         )
     else:
-        day_beg = wkbeg.strftime('%d').lstrip('0')
-        day_end = wkend.strftime('%d').lstrip('0')
+        day_beg = wkbeg.strftime('%-d')
+        day_end = wkend.strftime('%-d')
         week_end = (
             day_end
             if wkbeg.month == wkend.month

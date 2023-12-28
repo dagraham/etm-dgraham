@@ -228,23 +228,11 @@ which will need to be created.
     show_minutes = settings.get('show_minutes', False)
     hour = timedelta(hours=1)
     fmt = '%I%p' if ampm else '%H'
-    # busyhours = [(midnight + i*hour).format(fmt).lower for i in range(beginbusy, beginbusy + 14, 2)]
     busyhours = [
         (midnight + i * hour).strftime('%I%p').lstrip('0').lower()
         for i in range(0, 24, 6)
     ]
     HB = ''.join([f'{h : <8}' for h in busyhours]).rstrip()
-    # "".join([f"{h : <10}" for h in busyhours]).rstrip()
-
-    # VSEP = '⏐'   # U+23D0  this will be a de-emphasized color
-    # FREE = '─'   # U+2500  this will be a de-emphasized color
-    # HSEP = '┈'   #
-    # BUSY = '■'   # U+25A0 this will be busy (event) color
-    # CONF = '▦'   # U+25A6 this will be conflict color
-    # TASK = '▩'   # U+25A9 this will be busy (task) color
-    # ADAY = '━'   # U+2501 for all day events ━
-    # USED = '◦'   # U+25E6 for used time
-    # REPS = '↻'   # Flag for repeating items
     #
     # import etm.ical as ical
     # ical.logger = logger
@@ -253,8 +241,6 @@ which will need to be created.
     data.settings = settings
     from etm.data import Mask
 
-    # dbfile = os.path.normpath(os.path.join(etmdir, 'etm.json'))
-    # cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
     ETMDB = data.initialize_tinydb(dbfile)
     logger.info(f'initialized TinyDB using {dbfile}')
     DBITEM = ETMDB.table('items', cache_size=None)
@@ -272,10 +258,11 @@ which will need to be created.
 
     # from etm.model import RDict
     from etm.model import item_details
-    from etm.model import FINISHED_CHAR
-    from etm.model import UPDATE_CHAR
-    from etm.model import PIN_CHAR
-    from etm.model import INBASKET_CHAR
+
+    # from etm.model import FINISHED_CHAR
+    # from etm.model import UPDATE_CHAR
+    # from etm.model import PIN_CHAR
+    # from etm.model import INBASKET_CHAR
     from etm.model import TimeIt
 
     # ical.parse = parse
@@ -344,19 +331,10 @@ which will need to be created.
     view.parse = parse
     view.WA = WA
     view.beginbusy = beginbusy
-    view.FINISHED_CHAR = FINISHED_CHAR
-    view.UPDATE_CHAR = UPDATE_CHAR
-    view.PIN_CHAR = PIN_CHAR
-    view.INBASKET_CHAR = INBASKET_CHAR
-    # view.VSEP = VSEP
-    # view.HSEP = HSEP
-    # view.BUSY = BUSY
-    # view.CONF = CONF
-    # view.TASK = TASK
-    # view.ADAY = ADAY
-    # view.USED = USED
-    # view.FREE = FREE
-    # view.REPS = REPS
+    # view.FINISHED_CHAR = FINISHED_CHAR
+    # view.UPDATE_CHAR = UPDATE_CHAR
+    # view.PIN_CHAR = PIN_CHAR
+    # view.INBASKET_CHAR = INBASKET_CHAR
     view.settings = settings
     view.type_colors = type_colors
     view.cfgfile = cfgfile
@@ -504,7 +482,6 @@ invoked.
     # use stdin if it's full
     if not sys.stdin.isatty():
         input = sys.stdin.read()
-
     # otherwise, get the input from
     elif len(sys.argv) > 1:
         if len(sys.argv) == 2:
