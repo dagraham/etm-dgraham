@@ -3,6 +3,10 @@ from dateutil.parser import parserinfo
 import platform
 import sys
 import os
+import sys
+import logging
+import logging.config
+
 import etm.__version__ as version
 from ruamel.yaml import __version__ as ruamel_version
 from dateutil import __version__ as dateutil_version
@@ -10,7 +14,32 @@ from tinydb import __version__ as tinydb_version
 from jinja2 import __version__ as jinja2_version
 from prompt_toolkit import __version__ as prompt_toolkit_version
 
-from etm.__main__ import ETMHOME
+from time import perf_counter as timer
+
+
+class TimeIt(object):
+    def __init__(self, label='', loglevel=1):
+        self.loglevel = loglevel
+        self.label = label
+        if self.loglevel == 1:
+            msg = 'timer {0} started; loglevel: {1}'.format(
+                self.label, self.loglevel
+            )
+            logger.debug(msg)
+            self.start = timer()
+
+    def stop(self, *args):
+        if self.loglevel == 1:
+            self.end = timer()
+            self.secs = self.end - self.start
+            self.msecs = self.secs * 1000  # millisecs
+            msg = 'timer {0} stopped; elapsed time: {1} milliseconds'.format(
+                self.label, self.msecs
+            )
+            logger.debug(msg)
+
+
+# from etm.__main__ import ETMHOME
 
 python_version = platform.python_version()
 system_platform = platform.platform(terse=True)
@@ -29,6 +58,9 @@ VERSION_INFO = f"""\
  ruamel.yaml:        {ruamel_version}
  platform:           {system_platform}\
 """
+
+logging.getLogger('asyncio').setLevel(logging.WARNING)
+logger = logging.getLogger()
 
 
 def parse(s, **kwd):

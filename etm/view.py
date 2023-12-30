@@ -10,32 +10,17 @@ import inspect
 # from prompt_toolkit import __version__ as prompt_toolkit_version
 
 # import prompt_toolkit.application as pta
-import prompt_toolkit
+import prompt_toolkit.application
 
-pta = prompt_toolkit.application
 # from prompt_toolkit.application import Application
 # from prompt_toolkit.application.current import get_app
-get_app = prompt_toolkit.application.current.get_app
 # from prompt_toolkit.buffer import Buffer
-Buffer = prompt_toolkit.buffer.Buffer
 from prompt_toolkit.completion import Completion, Completer
 from prompt_toolkit.cursor_shapes import CursorShape
 from prompt_toolkit.enums import EditingMode
-from prompt_toolkit.filters import (
-    Condition,
-    vi_mode,
-    vi_navigation_mode,
-    vi_insert_mode,
-    vi_replace_mode,
-    vi_selection_mode,
-    emacs_mode,
-    emacs_selection_mode,
-    emacs_insert_mode,
-)
+from prompt_toolkit.filters import Condition
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.filters import has_focus
-from prompt_toolkit.search import start_search, SearchDirection
 
 
 from prompt_toolkit.key_binding.bindings.focus import (
@@ -85,13 +70,27 @@ import textwrap
 import re
 import subprocess   # for check_output
 
-# for openWithDefault
 import platform
 import os
+from glob import glob
 import contextlib, io
 
 import pyperclip
 from etm.common import ETM_CHAR
+from etm.common import logger
+from etm.common import TimeIt
+
+from tinydb import where
+from tinydb import Query
+from pygments.lexer import RegexLexer
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Operator
+from pygments.token import Comment
+
+pta = prompt_toolkit.application
+get_app = prompt_toolkit.application.current.get_app
+Buffer = prompt_toolkit.buffer.Buffer
 
 for key, value in ETM_CHAR.items():
     globals()[key] = value
@@ -105,14 +104,6 @@ style = None
 application = None
 
 ############ begin query ###############################
-from tinydb import where
-from tinydb import Query
-from pygments.lexer import RegexLexer
-from pygments.token import Keyword
-from pygments.token import Literal
-from pygments.token import Operator
-from pygments.token import Comment
-
 
 class UpdateStatus:
     def __init__(self, new=''):
@@ -1695,7 +1686,7 @@ def get_statusbar_center_text():
 
 
 def get_statusbar_right_text():
-    inbasket = INBASKET_CHAR if os.path.exists(inbasket_file) else ''
+    inbasket = INBASKET_CHAR if (glob(text_pattern)) else ''
     active, inactive = dataview.timer_report()
     if active:
         active_part = (
@@ -2948,36 +2939,39 @@ def do_import_file(*event):
     # return
     # # end not yet implemented block
 
-    inbasket = os.path.join(etmhome, 'inbasket.text')
-    default = (
-        inbasket if os.path.exists(os.path.expanduser(inbasket)) else etmhome
-    )
+    possible_imports = glob(text_pattern)
+    possible_imports.sort()
+    count = 0
+    options = ["    <0>: lorem"]
+    values = {}
+    for x in possible_imports:
+        count += 1
+        options.append(f"    <{count}>: {os.path.relpath(x, start=os.path.expanduser(etmhome))}")
+        values[str(count)] = x
+    options.append("  <escape>: cancel")
+    # values_str = '\n'.join(values)
+    
+    # default = (
+    #     inbasket if os.path.exists(os.path.expanduser(inbasket)) else etmhome
+    # )
     msg = ''
 
     title = 'Import File'
 
     text = f"""\
-It is possible to import data from files with one of the following extensions:
-  .json  a json file exported from etm 3.2.x
-  .text  a text file with etm entries as lines
-or a collection of illustrative reminders by entering the single word, lorem.
-
-Enter the complete file path or 'lorem'"""
+It is possible to import data from a collection of illustrative, 'lorem', reminders or from from a file in the etm home directory, {etmhome}, with the extension '.text'.  (This file will subsequently be deleted). The current options: 
+"""
     logger.debug('calling get_entry')
 
-    get_entry(title, text, '', event)
+    get_choice(title, text, options)
 
     def coroutine():
         keypress = dataview.details_key_press
-        logger.debug(f'confirmation keypress: {keypress}')
-        done = keypress in ['escape', Keys.ControlM]
-        filepath = dataview.entry_content
-        set_text(dataview.show_active_view())
-        logger.debug(f'got filepath: {filepath}')
-        dataview.hide_entry()
-        if filepath:
-            if filepath.strip().lower() == 'lorem':
-                logger.debug(f'calling import_file')
+        logger.debug(f'confirmation keypress: {keypress} {type(keypress)}')
+        done = keypress in (['escape', '0'] + [x for x in values.keys()])
+        if done:
+            logger.debug("done ...")
+            if keypress == '0':
                 ok, msg = import_file('lorem')
                 if ok:
                     dataview.refreshRelevant()
@@ -2988,17 +2982,20 @@ Enter the complete file path or 'lorem'"""
                     loop = asyncio.get_event_loop()
                     loop.call_later(0, data_changed, loop)
                 show_message('Import File', msg)
-            else:
-                filepath = os.path.normpath(os.path.expanduser(filepath))
+
+            elif keypress in values.keys():
+                filepath = values[keypress]
+                set_text(dataview.show_active_view())
+                logger.debug(f'got filepath: {filepath}')
+                # filepath = os.path.expanduser(filepath.strip())
                 ok, msg = import_file(filepath)
+                logger.debug(f"ok: {ok}; msg: {msg}; filepath: '{filepath}'")
                 if ok:
-                    etm_dir = os.path.normpath(os.path.expanduser(etmdir))
-                    if os.path.dirname(filepath) == etm_dir:
-                        os.remove(filepath)
-                        filehome = os.path.join(
-                            '~', os.path.split(filepath)[1]
-                        )
-                        msg += f'\n and removed {filehome}'
+                    # file_base, file_extension = os.path.splitext(filepath)
+                    # new_filepath = file_base + '.txt'
+                    # os.rename(filepath, new_filepath)
+                    os.remove(filepath)
+                    msg += f'\n and removed {filepath}'
                     dataview.refreshRelevant()
                     dataview.refreshAgenda()
                     if dataview.mk_current:
@@ -3007,11 +3004,11 @@ Enter the complete file path or 'lorem'"""
                     loop = asyncio.get_event_loop()
                     loop.call_later(0, data_changed, loop)
                 show_message('Import File', msg)
-        else:
-            show_message('Import File', 'cancelled - nothing submitted')
-        return done
+            else:
+                show_message('Import File', 'cancelled - nothing submitted')
+            return done
 
-    dataview.got_entry = coroutine
+    dataview.got_choice = coroutine
 
 
 @bindings.add('c-t', 'c-t', filter=is_viewing & is_item_view)

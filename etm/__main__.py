@@ -2,6 +2,8 @@
 from datetime import datetime, date, timedelta
 from prompt_toolkit import prompt
 from prompt_toolkit.validation import Validator, ValidationError
+from etm.common import logger
+import sys
 
 
 class ConfirmationValidator(Validator):
@@ -43,14 +45,19 @@ def print_usage():
 ETMHOME = ''
 
 
-def main():
-    global ETMHOME
-    import sys
-    import logging
-    import logging.config
+# import sys
+# import logging
+# import logging.config
+#
+# logging.getLogger('asyncio').setLevel(logging.WARNING)
+# logger = logging.getLogger()
 
-    logging.getLogger('asyncio').setLevel(logging.WARNING)
-    logger = logging.getLogger()
+
+def main():
+
+    global ETMHOME
+
+    from etm.common import TimeIt
 
     if '-h' in sys.argv or '--help' in sys.argv:
         print_usage()
@@ -83,7 +90,8 @@ Usage:
     import etm.data as data
     from etm.data import Period
     import etm.view as view
-    from etm.view import ETMQuery
+
+    # from etm.view import ETMQuery
     import etm.model as model
     import etm.common as common
 
@@ -263,7 +271,6 @@ which will need to be created.
     # from etm.model import UPDATE_CHAR
     # from etm.model import PIN_CHAR
     # from etm.model import INBASKET_CHAR
-    from etm.model import TimeIt
 
     # ical.parse = parse
     model.loglevel = loglevel
@@ -349,7 +356,7 @@ which will need to be created.
     view.import_file = import_file
     view.import_examples = import_examples
     view.etmdir = etmdir
-    view.inbasket_file = os.path.join(etmdir, 'inbasket.text')
+    view.text_pattern = os.path.join(etmdir, '*.text')
     view.etmhome = etmhome
     view.datetime_calculator = datetime_calculator
     view.about = about

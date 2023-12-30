@@ -10,12 +10,66 @@ from dateutil.parser import parse
 
 # from etm.model import parse
 
-num_items = 140
+num_items = 160
 
 ONEDAY = timedelta(days=1)
 ONEWK = 7 * ONEDAY
 
 # rrule components
+names = [
+    'Ariyah Blair',
+    'Troy Webb',
+    'Ariella Greer',
+    'Koda Rivas',
+    'Averie Reeves',
+    'Clark Cannon',
+    'Noa Garner',
+    'Sage Person',
+    'Dylan Lugo',
+    'Santos Padilla',
+    'Maggie Collier',
+    'Edison Ayala',
+    'Blair Rosales',
+    'Wilder Ryan',
+    'Morgan Beltran',
+    'Ricky Flynn',
+    'Dorothy Glenn',
+    'Zaid Vaughn',
+    'Reign McDowell',
+    'Lachlan Wheeler',
+    'Sydney Delgado',
+    'Colt Santos',
+    'Alana Wells',
+    'Max Pierce',
+    'Arabella Reyna',
+    'Reginald Ward',
+    'Ariana Richardson',
+    'Robert Quintero',
+    'Keyla Barnett',
+    'Stephen McMillan',
+    'Oakleigh Quintero',
+    'Thatcher Valdez',
+    'Diana Pruitt',
+    'Gatlin Keith',
+    'Elyse Kennedy',
+    'Maxwell McCall',
+    'Kai Cisneros',
+    'Alden Alvarado',
+    'Blake Obrien',
+    'Riley Soto',
+    'Brynlee Francis',
+    'Harvey Shannon',
+    'Harlee Harding',
+    'Brodie Frazier',
+    'Octavia McKinney',
+    'Romeo Barrett',
+    'Kendall Guzman',
+    'Jude Murphy',
+    'Bella Ballard',
+    'Kenzo Holland',
+]
+
+selected = random.sample(names, 4)
 
 
 def phrase():
@@ -57,7 +111,7 @@ def beg():
 
 
 client_index = '# '
-info_index = '# '
+info_index = '>>'
 client_detail = f"""
 Because of the index entry, all client records will be grouped under "{client_index}", then under the name of the relevant client in both index and journal view.  This infomation record will be first among the items for each client since beginning with a "{info_index}" will put it at the top of the sorting order for the index entries for each client. Having such a journal entry for each client ensures that the client name will be available for completion of the index entry when other client related items are being created. The choice of "{client_index}" and "{info_index}" is, of course, arbitrary but takes advantage of the sorting order that begins with "!", "#", "$" and "%".
 """
@@ -95,10 +149,10 @@ def make_examples(egfile: str = None, num_items: int = num_items):
     types = ['-', '*', '%', '-', '*']
     clients = ['A', 'B', 'C', 'D']
     client_name = {
-        'A': 'Tom Jefferson',
-        'B': 'John Adams',
-        'C': 'Ben Franklin',
-        'D': 'Jim Madison',
+        'A': selected[0],
+        'B': selected[1],
+        'C': selected[2],
+        'D': selected[3],
     }
     projects = {
         'A': ['project a1', 'project a2'],
@@ -125,7 +179,7 @@ def make_examples(egfile: str = None, num_items: int = num_items):
     client_id = {}
     examples = []
 
-    for i in range(20):
+    for i in range(4):
         examples.append(
             f'- {phrase()} {beg()} {random.choice(freq)} {random.choice(stop)} {cnt()} @t lorem'
         )
@@ -133,7 +187,7 @@ def make_examples(egfile: str = None, num_items: int = num_items):
     for client in clients:
         summary = f'{client_name[client]}'
         d = f'contact details for {client_name[client]} go here. {client_detail}'
-        i = f'{client_index}/{client_name[client]}/{info_index}details'
+        i = f'{client_index}/{client_name[client]}/{info_index}'
         examples.append(f'% {summary} @i {i} @d {d} @t lorem')
 
     examples.append(

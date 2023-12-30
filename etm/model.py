@@ -9,6 +9,8 @@ from etm.common import (
     WKDAYS_ENCODE,
     ETM_CHAR,
 )
+
+from etm.common import logger
 import sys
 import re
 from pprint import pprint
@@ -2596,7 +2598,7 @@ from time import perf_counter as timer
 
 
 class TimeIt(object):
-    def __init__(self, label=''):
+    def __init__(self, label='', loglevel=1):
         self.loglevel = loglevel
         self.label = label
         if self.loglevel == 1:
@@ -8974,29 +8976,29 @@ def schedule(
 
 
 def import_file(import_file=None):
+    import_file = import_file.strip()
     if not import_file:
         return False, ''
-    import_file = import_file.strip()
     if import_file.lower() == 'lorem':
         return True, import_examples()
 
-    import_file = os.path.normpath(os.path.expanduser(import_file))
     if not os.path.isfile(import_file):
         return (
             False,
             f'"{import_file}"\n   either does not exist or is not a regular file',
         )
     filename, extension = os.path.splitext(import_file)
-    if extension == '.json':
-        return True, import_json(import_file)
-    elif extension == '.text':
+    # if extension == '.json':
+    #     return True, import_json(import_file)
+    if extension == '.text':
         return True, import_text(import_file)
     # elif extension == '.ics':
     #     return True, import_ics(import_file)
     else:
         return (
             False,
-            f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized",
+            # f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized",
+            f"Importing a file with the extension '{extension}' is not implemented. Only files with the extension '.text' are recognized",
         )
 
 
@@ -9086,6 +9088,7 @@ def import_examples():
 def import_text(import_file=None):
     docs = []
     with open(import_file, 'r') as fo:
+        logger.debug(f"opened for reading: '{import_file}'")
         results = []
         good = []
         bad = 0
@@ -9133,6 +9136,7 @@ def import_text(import_file=None):
     if bad:
         res += f'\nrejected {bad} items:\n  '
         res += '\n  '.join(results)
+    logger.debug(f"returning: {res}")
     return res
 
 

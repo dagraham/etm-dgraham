@@ -119,7 +119,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
         ! Coffee with Alex @s fri @e 1h
 
-	This can be changed to an event when the details are confirmed by replacing the **!** with an **\*** and adding the time to `@s`.  This inbox entry will appear on the current day in *agenda view* until you make the changes.
+	This can be changed to an event when the details are confirmed by replacing the **!** with an **\*** and adding the time to `@s`.  This inbox entry will appear highlighed on the current day in *agenda view* until you make the changes.
 
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
@@ -152,6 +152,9 @@ When you want to create a new reminder or edit an exiting one, *etm* opens an ar
 
 #### just in time entry prompts and feedback {#just-in-time-entry-prompts-and-feedback}
 
+**FIXME** replace this section with a link to a new video
+
+<!--
 Let's create the election day reminder to illustrate the **timely** part of the process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character and suggests the alternatives.
 
         item type
@@ -309,7 +312,7 @@ General observations:
 
 * The prompts provide "just in time" information relevant to the entry you are typing and need only be consulted if you are uncertain about your entry. With a little
 	experience, most reminders can be completed without a glance at the prompt.
-
+-->
 [↺ contents](#contents)
 
 #### fuzzy parsing of datetimes {#fuzzy-parsing-of-datetimes}

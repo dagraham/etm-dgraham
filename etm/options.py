@@ -2,12 +2,14 @@ import os
 import sys
 
 import ruamel.yaml
-yaml_nort = ruamel.yaml.YAML(typ='safe') # no round trip
+
+yaml_nort = ruamel.yaml.YAML(typ='safe')   # no round trip
 yaml_nort.indent(mapping=2, sequence=4, offset=2)
-yaml = ruamel.yaml.YAML() # use round trip
+yaml = ruamel.yaml.YAML()   # use round trip
 yaml.indent(mapping=2, sequence=4, offset=2)
 import logging
 import logging.config
+
 logger = logging.getLogger()
 import string
 import random
@@ -16,37 +18,46 @@ import locale
 from copy import deepcopy
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 import etm.__version__ as version
+
 etmversion = version.version
 
 locale_regex = re.compile(r'[a-z]{2}_[A-Z]{2}')
 
-def randomString(stringLength=10):
-    """Generate a random string with the combination of lowercase and uppercase letters and digits """
 
-    letters = string.ascii_letters + 2*'0123456789'
+def randomString(stringLength=10):
+    """Generate a random string with the combination of lowercase and uppercase letters and digits"""
+
+    letters = string.ascii_letters + 2 * '0123456789'
     return ''.join(random.choice(letters) for i in range(stringLength))
 
-grey1 = '#396060', # 1 shade lighter of darkslategrey for status and menubar background
-grey2 = '#1d3030', # 2 shades darker of darkslategrey for textarea background
+
+grey1 = (
+    '#396060',
+)   # 1 shade lighter of darkslategrey for status and menubar background
+grey2 = (
+    '#1d3030',
+)   # 2 shades darker of darkslategrey for textarea background
+
 
 def dict2yaml(d):
     if not d or not type(d) == dict:
-        return ""
+        return ''
     rows = [""" """]
     for k, v in d.items():
         if v and type(v) != list:
             v = repr(v)
             v = str2yaml(v)
         rows.append(f"""  {k}: {v}""")
-    ret = "\n".join(rows)
-    return "\n".join(rows)
+    ret = '\n'.join(rows)
+    return '\n'.join(rows)
+
 
 def str2yaml(s):
-    ret = ""
+    ret = ''
     if type(s) == bool:
         ret = 'true' if s else 'false'
     elif s is None or s == 'None':
-        ret = ""
+        ret = ''
     elif type(s) == str:
         ret = re.sub(r'\\+\\n', r'\\n', s)
     else:
@@ -56,7 +67,8 @@ def str2yaml(s):
     else:
         return
 
-class Settings():
+
+class Settings:
     """
     'settings' stores the defaults for all settings. 'settings_hsh' stores the settings that
     are user adjustable, e.g., ampm, type_colors and window_colors and is initially populated
@@ -69,164 +81,169 @@ class Settings():
 
     default_type_colors = {
         'dark': {
-            'available':    'LightSkyBlue',
-            'begin':        'Gold',
-            'event':        'LimeGreen',
-            'finished':     'DarkGrey',
-            'inbox':        'OrangeRed',
-            'journal':      'GoldenRod',
-            'pastdue':      'LightSalmon',
-            'plain':        'Ivory',
-            'today':        'Ivory bold',
-            'used':         'Khaki',
-            'waiting':      'SlateGrey',
-            'wrap':         'ForestGreen',
-            'running':      'LimeGreen',
-            'paused':       'Gold',
-            },
+            'available': 'LightSkyBlue',
+            'begin': 'Gold',
+            'event': 'LimeGreen',
+            'finished': 'DarkGrey',
+            'inbox': 'OrangeRed',
+            'journal': 'GoldenRod',
+            'pastdue': 'LightSalmon',
+            'plain': 'Ivory',
+            'today': 'Ivory bold',
+            'used': 'Khaki',
+            'waiting': 'SlateGrey',
+            'wrap': 'ForestGreen',
+            'running': 'LimeGreen',
+            'paused': 'Gold',
+        },
         'light': {
-            'available':    'DarkBlue',
-            'begin':        'DarkViolet',
-            'event':        'Green',
-            'finished':     'LightSlateGrey',
-            'inbox':        'MediumVioletRed',
-            'journal':      'Brown',
-            'pastdue':      'Red',
-            'plain':        'Black',
-            'today':        'Black bold',
-            'used':         'DodgerBlue',
-            'waiting':      'DarkSlateBlue',
-            'wrap':         'LightGrey',
-            'running':      'Green',
-            'paused':       'DarkViolet',
-            },
+            'available': 'DarkBlue',
+            'begin': 'DarkViolet',
+            'event': 'Green',
+            'finished': 'LightSlateGrey',
+            'inbox': 'MediumVioletRed',
+            'journal': 'Brown',
+            'pastdue': 'Red',
+            'plain': 'Black',
+            'today': 'Black bold',
+            'used': 'DodgerBlue',
+            'waiting': 'DarkSlateBlue',
+            'wrap': 'LightGrey',
+            'running': 'Green',
+            'paused': 'DarkViolet',
+        },
     }
 
     default_window_colors = {
         'dark': {
-            'ask':                     ['grey2', 'Lime', 'bold'],
-            'button.focused':          ['DarkGreen', 'White'],
-            'details':                 ['', 'Ivory'],
-            'dialog shadow':           ['#444444', ''],
-            'dialog':                  ['DarkSlateGrey', 'White'],
-            'dialog-entry':            ['White', 'Black'],
-            'dialog-output':           ['DarkSlateGrey', 'Lime'],
-            'dialog.body label':       ['', 'White'],
-            'dialog.body':             ['DarkSlateGrey', 'White'],
-            'edit':                    ['grey2', 'LightGoldenRodYellow'],
-            'entry':                   ['grey2', 'Lime'],
-            'frame.label':             ['DarkSlateGrey', 'White'],
-            'menu':                    ['DarkSlateGrey', 'White'],
-            'menu-bar':                ['grey1', 'White'],
-            'menu-bar.selected-item':  ['#ffffff', '#000000'],
-            'menu.border':             ['', '#aaaaaa'],
-            'not-searching':           ['', '#222222'],
-            'query':                   ['', 'Ivory'],
-            'reply':                   ['grey2', 'DeepSkyBlue'],
-            'shadow':                  ['#222222', ''],
-            'status':                  ['grey1', 'White'],
-            'status.key':              ['', '#ffaa00'],
-            'status.position':         ['', '#aaaa00'],
-            'text-area':               ['grey2', 'Ivory'],
-            'window.border shadow':    ['', '#444444'],
-            'window.border':           ['', '#888888'],
-            },
+            'ask': ['grey2', 'Lime', 'bold'],
+            'button.focused': ['DarkGreen', 'White'],
+            'details': ['', 'Ivory'],
+            'dialog shadow': ['#444444', ''],
+            'dialog': ['DarkSlateGrey', 'White'],
+            'dialog-entry': ['White', 'Black'],
+            'dialog-output': ['DarkSlateGrey', 'Lime'],
+            'dialog.body label': ['', 'White'],
+            'dialog.body': ['DarkSlateGrey', 'White'],
+            'edit': ['grey2', 'LightGoldenRodYellow'],
+            'entry': ['grey2', 'Lime'],
+            'frame.label': ['DarkSlateGrey', 'White'],
+            'menu': ['DarkSlateGrey', 'White'],
+            'menu-bar': ['grey1', 'White'],
+            'menu-bar.selected-item': ['#ffffff', '#000000'],
+            'menu.border': ['', '#aaaaaa'],
+            'not-searching': ['', '#222222'],
+            'query': ['', 'Ivory'],
+            'reply': ['grey2', 'DeepSkyBlue'],
+            'shadow': ['#222222', ''],
+            'status': ['grey1', 'White'],
+            'status.key': ['', '#ffaa00'],
+            'status.position': ['', '#aaaa00'],
+            'text-area': ['grey2', 'Ivory'],
+            'window.border shadow': ['', '#444444'],
+            'window.border': ['', '#888888'],
+        },
         'light': {
-            'ask':                     ['Cornsilk', 'Lime', 'bold'],
-            'button.focused':          ['DarkGreen', 'White'],
-            'details':                 ['', 'Black'],
-            'dialog shadow':           ['#444444', ''],
-            'dialog':                  ['DimGrey', 'White'],
-            'dialog-entry':            ['White', 'Black'],
-            'dialog-output':           ['DimGrey', 'Lime'],
-            'dialog.body label':       ['', 'White'],
-            'dialog.body':             ['DimGrey', 'White'],
-            'edit':                    ['Cornsilk', 'Black'],
-            'entry':                   ['Cornsilk', 'Black'],
-            'frame.label':             ['DimGrey', 'White'],
-            'menu':                    ['DimGrey', 'White'],
-            'menu-bar':                ['grey1', 'White'],
-            'menu-bar.selected-item':  ['#ffffff', '#000000'],
-            'menu.border':             ['', '#aaaaaa'],
-            'not-searching':           ['', '#777777'],
-            'query':                   ['', 'Black'],
-            'reply':                   ['Cornsilk', 'DeepSkyBlue'],
-            'shadow':                  ['#222222', ''],
-            'status':                  ['grey1', 'White'],
-            'status.key':              ['', '#ffaa00'],
-            'status.position':         ['', '#aaaa00'],
-            'text-area':               ['Cornsilk', 'Black'],
-            'window.border shadow':    ['', '#444444'],
-            'window.border':           ['', '#888888'],
-            }
-        }
+            'ask': ['Cornsilk', 'Lime', 'bold'],
+            'button.focused': ['DarkGreen', 'White'],
+            'details': ['', 'Black'],
+            'dialog shadow': ['#444444', ''],
+            'dialog': ['DimGrey', 'White'],
+            'dialog-entry': ['White', 'Black'],
+            'dialog-output': ['DimGrey', 'Lime'],
+            'dialog.body label': ['', 'White'],
+            'dialog.body': ['DimGrey', 'White'],
+            'edit': ['Cornsilk', 'Black'],
+            'entry': ['Cornsilk', 'Black'],
+            'frame.label': ['DimGrey', 'White'],
+            'menu': ['DimGrey', 'White'],
+            'menu-bar': ['grey1', 'White'],
+            'menu-bar.selected-item': ['#ffffff', '#000000'],
+            'menu.border': ['', '#aaaaaa'],
+            'not-searching': ['', '#777777'],
+            'query': ['', 'Black'],
+            'reply': ['Cornsilk', 'DeepSkyBlue'],
+            'shadow': ['#222222', ''],
+            'status': ['grey1', 'White'],
+            'status.key': ['', '#ffaa00'],
+            'status.position': ['', '#aaaa00'],
+            'text-area': ['Cornsilk', 'Black'],
+            'window.border shadow': ['', '#444444'],
+            'window.border': ['', '#888888'],
+        },
+    }
 
-    ampm = "true"
-    show_minutes = "false"
-    yearfirst = "true"
-    dayfirst = "false"
+    ampm = 'true'
+    show_minutes = 'false'
+    yearfirst = 'true'
+    dayfirst = 'false'
     beginbusy = 7
     updates_interval = 0
-    update_command = "pip install -U etm-dgraham"
-    locale = "en_US"
-    vi_mode = "false"
+    update_command = 'pip install -U etm-dgraham'
+    locale = 'en_US'
+    vi_mode = 'false'
     secret = randomString(10)
-    omit_extent = ""
+    omit_extent = ''
     keep_current = [0, 46]
     archive_after = 0
     refresh_interval = 60
     num_finished = 0
     num_repetitions = 10
-    limit_skip_display = "true"
-    connecting_dots = "false"
+    limit_skip_display = 'true'
+    connecting_dots = 'false'
     usedtime_minutes = 1
     usedtime_hours = 6
-    alerts = ""
-    expansions = ""
-    sms = {"body": "{location} {when}", "from": "", "server": "", "pw": ""}
-    smtp = {"body": "{location} {when}\n{description}", "from": "", "server": "", "id": "", "pw": ""}
-    locations = ""
-    queries = ""
-    style = "dark"
-    type_colors = ""
-    window_colors = ""
-    journal_name = "$ daily"
+    alerts = ''
+    expansions = ''
+    sms = {'body': '{location} {when}', 'from': '', 'server': '', 'pw': ''}
+    smtp = {
+        'body': '{location} {when}\n{description}',
+        'from': '',
+        'server': '',
+        'id': '',
+        'pw': '',
+    }
+    locations = ''
+    queries = ''
+    style = 'dark'
+    type_colors = ''
+    window_colors = ''
+    journal_name = '$ daily'
 
     # use these to format the template
     settings_hsh = {
-        "ampm" : ampm,
-        "show_minutes": show_minutes,
-        "dayfirst" : dayfirst,
-        "yearfirst" : yearfirst,
-        'beginbusy' : beginbusy,
-        "updates_interval" : updates_interval,
-        "update_command" : update_command,
-        "locale" : locale,
-        "vi_mode" : vi_mode,
-        "secret" : secret,
-        "omit_extent" : omit_extent,
-        "keep_current" : keep_current,
-        "archive_after" : archive_after,
-        "refresh_interval" : refresh_interval,
-        "num_finished" : num_finished,
-        "num_repetitions" : num_repetitions,
-        "limit_skip_display" : limit_skip_display,
-        "connecting_dots" : connecting_dots,
-        "usedtime_minutes" : usedtime_minutes,
-        "usedtime_hours" : usedtime_hours,
-        "alerts" : dict2yaml(alerts),
-        "expansions" : dict2yaml(expansions),
-        "sms": dict2yaml(sms),
-        "smtp": dict2yaml(smtp),
-        "locations": dict2yaml(locations),
-        "queries": dict2yaml(queries),
-        "style" : style,
-        "type_colors" : dict2yaml(type_colors),        # user modifications only
-        "window_colors" : dict2yaml(window_colors),    # user modifications only
-        "journal_name": journal_name,
-        "etmversion": etmversion
-}
-
+        'ampm': ampm,
+        'show_minutes': show_minutes,
+        'dayfirst': dayfirst,
+        'yearfirst': yearfirst,
+        'beginbusy': beginbusy,
+        'updates_interval': updates_interval,
+        'update_command': update_command,
+        'locale': locale,
+        'vi_mode': vi_mode,
+        'secret': secret,
+        'omit_extent': omit_extent,
+        'keep_current': keep_current,
+        'archive_after': archive_after,
+        'refresh_interval': refresh_interval,
+        'num_finished': num_finished,
+        'num_repetitions': num_repetitions,
+        'limit_skip_display': limit_skip_display,
+        'connecting_dots': connecting_dots,
+        'usedtime_minutes': usedtime_minutes,
+        'usedtime_hours': usedtime_hours,
+        'alerts': dict2yaml(alerts),
+        'expansions': dict2yaml(expansions),
+        'sms': dict2yaml(sms),
+        'smtp': dict2yaml(smtp),
+        'locations': dict2yaml(locations),
+        'queries': dict2yaml(queries),
+        'style': style,
+        'type_colors': dict2yaml(type_colors),  # user modifications only
+        'window_colors': dict2yaml(window_colors),  # user modifications only
+        'journal_name': journal_name,
+        'etmversion': etmversion,
+    }
 
     template = """\
 #### begin cfg.yaml ####
@@ -377,7 +394,7 @@ usedtime_minutes: {usedtime_minutes}
 # second.
 
 usedtime_hours: {usedtime_hours}
-# 0, 1, 2, ..., 24. The daily goal for used time. This is used in engaged
+# 0, 1, 2, ..., 24. The daily goal for used time. This is used in effort
 # view to control the display of the daily used time bars. The goal is to
 # to maximize the granularity of the bar when displaying this number of hours
 # in the space allowed by the terminal width so that, e.g., with a goal of 6
@@ -602,7 +619,7 @@ window_colors: {window_colors}
 
     def __init__(self, etmdir):
         if not os.path.isdir(etmdir):
-            raise ValueError(f"{etmdir} is not a valid directory")
+            raise ValueError(f'{etmdir} is not a valid directory')
         self.settings = {}
         default_template = Settings.template.format(**Settings.settings_hsh)
         self.settings.update(self.settings_hsh)
@@ -619,20 +636,21 @@ window_colors: {window_colors}
         # settings will have all the possible keys
         self.settings['type_colors'] = default_type_colors
         self.settings['window_colors'] = default_window_colors
-        self.cfgfile = os.path.normpath(
-                os.path.join(etmdir, 'cfg.yaml'))
+        self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
         if os.path.exists(self.cfgfile):
             with open(self.cfgfile, 'rb') as fn:
                 try:
-                    self.user = yaml_nort.load(fn) # not RoundTripLoader (no comments)
+                    self.user = yaml_nort.load(
+                        fn
+                    )   # not RoundTripLoader (no comments)
                 except Exception as e:
-                    error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {self.cfgfile} and restart etm.\n"
+                    error = f'This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {self.cfgfile} and restart etm.\n'
                     logger.critical(error)
                     print(error)
                     sys.exit()
 
             if self.user and isinstance(self.user, dict):
-                logger.debug(f"self.user: {self.user}")
+                logger.debug(f'self.user: {self.user}')
             else:
                 self.user = {}
         else:
@@ -652,11 +670,10 @@ window_colors: {window_colors}
             updated_template = Settings.template.format(**self.settings_hsh)
             with open(self.cfgfile, 'w') as fn:
                 fn.writelines(updated_template)
-            changes = "\n    - ".join(self.changes)
-            logger.info(f"updated {self.cfgfile}:\n    - {changes}")
+            changes = '\n    - '.join(self.changes)
+            logger.info(f'updated {self.cfgfile}:\n    - {changes}')
         else:
-            logger.info(f"using settings from {self.cfgfile}")
-
+            logger.info(f'using settings from {self.cfgfile}')
 
     def check_options(self):
         changed = []
@@ -667,44 +684,54 @@ window_colors: {window_colors}
         # logger.debug(f"active style: {active_style}")
         self.settings['type_colors'] = self.default_type_colors[active_style]
         # logger.debug(f"active type_colors: {self.settings['type_colors']}")
-        self.settings['window_colors'] = self.default_window_colors[active_style]
+        self.settings['window_colors'] = self.default_window_colors[
+            active_style
+        ]
         # logger.debug(f"active window_colors: {self.settings['window_colors']}")
 
         cfg = deepcopy(self.settings_hsh)
         # add missing default keys
         for key, value in self.settings_hsh.items():
-            if key in ["colors", "type_colors", "window_colors"]:
+            if key in ['colors', 'type_colors', 'window_colors']:
                 continue
             if isinstance(self.settings_hsh[key], dict):
                 if key not in new or not isinstance(new[key], dict):
                     new[key] = self.settings_hsh[key]
-                    changed.append(f"retaining default {key}: self.settings_hsh[key]")
+                    changed.append(
+                        f'retaining default {key}: self.settings_hsh[key]'
+                    )
                 else:
                     for k, v in self.settings_hsh[key].items():
                         if k not in new[key]:
                             new[key][k] = self.settings_hsh[key][k]
-                            changed.append(f"retaining default {key}.{k}: {self.settings_hsh[key][k]}")
+                            changed.append(
+                                f'retaining default {key}.{k}: {self.settings_hsh[key][k]}'
+                            )
             elif key not in new:
                 new[key] = self.settings_hsh[key]
-                changed.append(f"retaining default {key}: {self.settings_hsh[key]}")
-        if "etmversion" not in new or new["etmversion"] != etmversion:
+                changed.append(
+                    f'retaining default {key}: {self.settings_hsh[key]}'
+                )
+        if 'etmversion' not in new or new['etmversion'] != etmversion:
             new['etmversion'] = etmversion
-            changed.append(f"set etmversion {etmversion}")
+            changed.append(f'set etmversion {etmversion}')
         # remove invalid user keys/values
-        tmp = deepcopy(new) # avoid modifying ordered_dict during iteration
+        tmp = deepcopy(new)   # avoid modifying ordered_dict during iteration
         for key in tmp:
             # if key in ["summary", "prop", "start", "when", "location", "description", "etmversion"]:
             #     continue
             if key not in self.settings_hsh:
                 # not a valid option
                 del new[key]
-                changed.append(f"removed {key}: {self.user[key]} - not in settings_hsh")
+                changed.append(
+                    f'removed {key}: {self.user[key]} - not in settings_hsh'
+                )
             elif key in ['type_colors', 'window_colors']:
                 # only allow the specified subfields for these keys
                 ks = tmp[key] or []
                 for k in ks:
                     if k not in self.settings[key]:
-                        changed.append(f"removed {key}.{k}: {new[key][k]}")
+                        changed.append(f'removed {key}.{k}: {new[key][k]}')
                         del new[key][k]
 
         if 'colors' in new and new['colors']:
@@ -718,15 +745,16 @@ window_colors: {window_colors}
             for k in tmp:
                 if k not in self.settings['type_colors']:
                     deleted = True
-                    changed.append(f"removed invalid type_colors entry: {k}")
+                    changed.append(f'removed invalid type_colors entry: {k}')
                     del tmp[k]
             if deleted:
                 new['type_colors'] = tmp
 
             if new['type_colors']:
-                self.settings_hsh['type_colors'] = dict2yaml(new['type_colors'])
+                self.settings_hsh['type_colors'] = dict2yaml(
+                    new['type_colors']
+                )
                 self.settings['type_colors'].update(new['type_colors'])
-
 
         if 'style_modifications' in new and new['style_modifications']:
             new['window_colors'] = new['style_modifications']
@@ -738,58 +766,84 @@ window_colors: {window_colors}
             for k in tmp:
                 if k not in self.settings['window_colors']:
                     deleted = True
-                    changed.append(f"removed invalid window_colors entry: {k}")
+                    changed.append(f'removed invalid window_colors entry: {k}')
                     del tmp[k]
             if deleted:
                 new['window_colors'] = tmp
 
             if new['window_colors']:
-                self.settings_hsh['window_colors'] = dict2yaml(new['window_colors'])
+                self.settings_hsh['window_colors'] = dict2yaml(
+                    new['window_colors']
+                )
                 self.settings['window_colors'].update(new['window_colors'])
 
         if 'keep_current' in new and not isinstance(new['keep_current'], list):
             weeks, width = self.settings['keep_current']
             if isinstance(new['keep_current'], int):
                 weeks = new['keep_current']
-            elif isinstance(new['keep_current'], bool) and not new['keep_current']:
+            elif (
+                isinstance(new['keep_current'], bool)
+                and not new['keep_current']
+            ):
                 weeks = 0
             else:
                 weeks = 0
             # use default width
-            changed.append(f"Converting 'keep_current' from {new['keep_current']} to [{weeks}, {width}]")
+            changed.append(
+                f"Converting 'keep_current' from {new['keep_current']} to [{weeks}, {width}]"
+            )
             new['keep_current'] = [weeks, width]
 
         if not locale_regex.match(new['locale']):
             tmp = new['locale']
             new['locale'] = self.settings['locale']
-            changed.append(f"retaining default for 'locale': {self.settings['locale']}. The provided setting, {tmp}, does have the required format.")
+            changed.append(
+                f"retaining default for 'locale': {self.settings['locale']}. The provided setting, {tmp}, does have the required format."
+            )
 
-        if not isinstance(new['updates_interval'], int) or new['updates_interval'] < 0:
+        if (
+            not isinstance(new['updates_interval'], int)
+            or new['updates_interval'] < 0
+        ):
             new['updates_interval'] = self.settings['updates_interval']
-            changed.append(f"retaining default for 'updates_interval': {self.settings['updates_interval']}")
+            changed.append(
+                f"retaining default for 'updates_interval': {self.settings['updates_interval']}"
+            )
 
         if new['refresh_interval'] not in [6, 12, 30, 60]:
-            changed.append(f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 60.")
+            changed.append(
+                f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 60."
+            )
             new['refresh_interval'] = 60
         if new['usedtime_minutes'] not in [0, 1, 6, 12, 30, 60]:
-            changed.append(f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 1.")
+            changed.append(
+                f"{new['usedtime_minutes']} is invalid for usedtime_minute. Using default value: 1."
+            )
             new['usedtime_minutes'] = 1
         if new['usedtime_hours'] not in [x for x in range(0, 25)]:
-            changed.append(f"{new['usedtime_hours']} is invalid for usedtime_minute. Using default value: 6.")
+            changed.append(
+                f"{new['usedtime_hours']} is invalid for usedtime_minute. Using default value: 6."
+            )
             new['usedtime_hours'] = 6
-        if  new['style'] not in ['dark', 'light']:
+        if new['style'] not in ['dark', 'light']:
             new['style'] = self.settings['style']
-            changed.append(f"retaining default for 'style': {self.settings['style']}")
-        if  not isinstance(new['vi_mode'], bool):
+            changed.append(
+                f"retaining default for 'style': {self.settings['style']}"
+            )
+        if not isinstance(new['vi_mode'], bool):
             new['vi_mode'] = self.settings['vi_mode']
-            changed.append(f"retaining default for 'vi_mode': {self.settings['vi_mode']}")
+            changed.append(
+                f"retaining default for 'vi_mode': {self.settings['vi_mode']}"
+            )
 
         for key in self.settings_hsh:
             if key in ['type_colors', 'window_colors']:
                 # already processed these
                 continue
             new_value = new.get(key, '')
-            if new_value is not None and new_value != self.settings_hsh.get(key, ''):
+            if new_value is not None and new_value != self.settings_hsh.get(
+                key, ''
+            ):
                 tmp = self.settings_hsh[key]
                 if type(new_value) == dict:
                     self.settings_hsh[key] = dict2yaml(new_value)
@@ -814,55 +868,65 @@ def setup_logging(level, etmdir, file=None):
         2: logging.INFO,
         3: logging.WARN,
         4: logging.ERROR,
-        5: logging.CRITICAL
+        5: logging.CRITICAL,
     }
 
     level = int(level)
     loglevel = log_levels.get(level, log_levels[3])
 
     # if we get here, we have an existing etmdir
-    logfile = os.path.normpath(os.path.abspath(os.path.join(etmdir, "etm.log")))
+    logfile = os.path.normpath(
+        os.path.abspath(os.path.join(etmdir, 'etm.log'))
+    )
 
-    config = {'disable_existing_loggers': False,
-              'formatters': {'simple': {
-                  'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
-              'handlers': {
-                    'file': {
-                        'backupCount': 7,
-                        'class': 'logging.handlers.TimedRotatingFileHandler',
-                        'encoding': 'utf8',
-                        'filename': logfile,
-                        'formatter': 'simple',
-                        'level': loglevel,
-                        'when': 'midnight',
-                        'interval': 1}
-              },
-              'loggers': {
-                  'etmmv': {
-                    'handlers': ['file'],
-                    'level': loglevel,
-                    'propagate': False}
-              },
-              'root': {
-                  'handlers': ['file'],
-                  'level': loglevel},
-              'version': 1}
+    config = {
+        'disable_existing_loggers': False,
+        'formatters': {
+            'simple': {
+                'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'
+            }
+        },
+        'handlers': {
+            'file': {
+                'backupCount': 7,
+                'class': 'logging.handlers.TimedRotatingFileHandler',
+                'encoding': 'utf8',
+                'filename': logfile,
+                'formatter': 'simple',
+                'level': loglevel,
+                'when': 'midnight',
+                'interval': 1,
+            }
+        },
+        'loggers': {
+            'etmmv': {
+                'handlers': ['file'],
+                'level': loglevel,
+                'propagate': False,
+            }
+        },
+        'root': {'handlers': ['file'], 'level': loglevel},
+        'version': 1,
+    }
     logging.config.dictConfig(config)
-    logger.critical("\n######## Initializing logging #########")
+    logger.critical('\n######## Initializing logging #########')
     if file:
-        logger.critical(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
+        logger.critical(
+            f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}'
+        )
     else:
-        logger.critical(f'logging at level: {loglevel}\n    logging to file: {logfile}')
+        logger.critical(
+            f'logging at level: {loglevel}\n    logging to file: {logfile}'
+        )
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
         etmdir = sys.argv.pop(1)
     else:
-        sys.exit("The etm path must be provided.")
+        sys.exit('The etm path must be provided.')
 
     settings = Settings(etmdir)
-    print(settings.settings, "\n")
-    print(settings.changes, "\n")
+    print(settings.settings, '\n')
+    print(settings.changes, '\n')
     yaml.dump(settings.settings, sys.stdout)
-
-
