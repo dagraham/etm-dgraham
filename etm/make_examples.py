@@ -16,60 +16,15 @@ ONEDAY = timedelta(days=1)
 ONEWK = 7 * ONEDAY
 
 # rrule components
-names = [
-    'Ariyah Blair',
-    'Troy Webb',
-    'Ariella Greer',
-    'Koda Rivas',
-    'Averie Reeves',
-    'Clark Cannon',
-    'Noa Garner',
-    'Sage Person',
-    'Dylan Lugo',
-    'Santos Padilla',
-    'Maggie Collier',
-    'Edison Ayala',
-    'Blair Rosales',
-    'Wilder Ryan',
-    'Morgan Beltran',
-    'Ricky Flynn',
-    'Dorothy Glenn',
-    'Zaid Vaughn',
-    'Reign McDowell',
-    'Lachlan Wheeler',
-    'Sydney Delgado',
-    'Colt Santos',
-    'Alana Wells',
-    'Max Pierce',
-    'Arabella Reyna',
-    'Reginald Ward',
-    'Ariana Richardson',
-    'Robert Quintero',
-    'Keyla Barnett',
-    'Stephen McMillan',
-    'Oakleigh Quintero',
-    'Thatcher Valdez',
-    'Diana Pruitt',
-    'Gatlin Keith',
-    'Elyse Kennedy',
-    'Maxwell McCall',
-    'Kai Cisneros',
-    'Alden Alvarado',
-    'Blake Obrien',
-    'Riley Soto',
-    'Brynlee Francis',
-    'Harvey Shannon',
-    'Harlee Harding',
-    'Brodie Frazier',
-    'Octavia McKinney',
-    'Romeo Barrett',
-    'Kendall Guzman',
-    'Jude Murphy',
-    'Bella Ballard',
-    'Kenzo Holland',
-]
+tmp = []
+while len(tmp) < 8:
+    _ = lorem.sentence().split(' ')[0]
+    if _ not in tmp:
+        tmp.append(_)
 
-selected = random.sample(names, 4)
+names = []
+for i in range(0, 8, 2):
+    names.append(f'{tmp[i]} {tmp[i+1]}')
 
 
 def phrase():
@@ -110,8 +65,8 @@ def beg():
     return f"@s -{random.choice([1,2,3,4])}{random.choice(['d', 'w'])}"
 
 
-client_index = '# '
-info_index = '>>'
+client_index = '# all clients'
+info_index = '# client info'
 client_detail = f"""
 Because of the index entry, all client records will be grouped under "{client_index}", then under the name of the relevant client in both index and journal view.  This infomation record will be first among the items for each client since beginning with a "{info_index}" will put it at the top of the sorting order for the index entries for each client. Having such a journal entry for each client ensures that the client name will be available for completion of the index entry when other client related items are being created. The choice of "{client_index}" and "{info_index}" is, of course, arbitrary but takes advantage of the sorting order that begins with "!", "#", "$" and "%".
 """
@@ -149,10 +104,10 @@ def make_examples(egfile: str = None, num_items: int = num_items):
     types = ['-', '*', '%', '-', '*']
     clients = ['A', 'B', 'C', 'D']
     client_name = {
-        'A': selected[0],
-        'B': selected[1],
-        'C': selected[2],
-        'D': selected[3],
+        'A': names[0],
+        'B': names[1],
+        'C': names[2],
+        'D': names[3],
     }
     projects = {
         'A': ['project a1', 'project a2'],
@@ -161,22 +116,22 @@ def make_examples(egfile: str = None, num_items: int = num_items):
         'D': ['project d1'],
         'E': ['project e1', 'project e2', 'project e3'],
     }
-    activities = {
-        'A': ['activity a1', 'activity a2'],
-        'B': ['activity b1', 'activity b2', 'activity b3'],
-        'C': ['activity c1', 'activity c2'],
-        'D': ['activity d1'],
-        'E': ['activity e1', 'activity e2', 'activity e3'],
-    }
+    # activities = {
+    #     'A': ['activity a1', 'activity a2'],
+    #     'B': ['activity b1', 'activity b2', 'activity b3'],
+    #     'C': ['activity c1', 'activity c2'],
+    #     'D': ['activity d1'],
+    #     'E': ['activity e1', 'activity e2', 'activity e3'],
+    # }
     locations = ['errands', 'home', 'office', 'shop']
     tags = ['red', 'green', 'blue']
     dates = [0, 0, 0, 1, 0, 0, 0]   # dates 1/7 of the time
     minutes = range(15, 110, 5)   # for used times (test rounding)
-    days = range(7)
+    # days = range(7)
     extent = [x for x in range(30, 210, 15)]
 
-    client_contacts = {}
-    client_id = {}
+    # client_contacts = {}
+    # client_id = {}
     examples = []
 
     for i in range(4):
@@ -244,9 +199,13 @@ def make_examples(egfile: str = None, num_items: int = num_items):
                 examples.append(
                     f'{t} {summary} @s {s} @e {x}m @i {client_index}/{i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem'
                 )
-        elif t == '-' and random.choice(['h', 't']) == 'h':
-            if start < now:
-
+        elif t == '-':
+            if start < now - 2 * ONEWK:
+                f = f' @f {s} -> {end} '
+                examples.append(
+                    f'{t} {summary} @s {s} @i {client_index}/{i1}/{i2} {f}{used} @d {d} @t lorem'
+                )
+            elif start < now:
                 f = (
                     f' @f {s} -> {end} '
                     if random.choice(['h', 't']) == 't'
@@ -255,6 +214,7 @@ def make_examples(egfile: str = None, num_items: int = num_items):
                 examples.append(
                     f'{t} {summary} @s {s} @i {client_index}/{i1}/{i2} {f}{used} @d {d} @t lorem'
                 )
+
             else:
                 examples.append(
                     f'{t} {summary} @s {s} @i {client_index}/{i1}/{i2} @d {d} @b {begin} @t lorem'

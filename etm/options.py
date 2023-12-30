@@ -204,7 +204,7 @@ class Settings:
         'pw': '',
     }
     locations = ''
-    queries = ''
+    queries = {'lorem': 'any t lorem | remove'}
     style = 'dark'
     type_colors = ''
     window_colors = ''
