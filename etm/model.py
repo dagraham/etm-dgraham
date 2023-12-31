@@ -1145,6 +1145,7 @@ item_hsh:    {self.item_hsh}
 
 
         """
+        logger.debug('finish_item')
 
         # item_id and job_id should have come from dataview.hsh ok, maybe_finish and thus be valid
 
@@ -1219,12 +1220,14 @@ item_hsh:    {self.item_hsh}
             elif 'r' in self.item_hsh:
                 # walrus operator, :=, assigns return from get_next_due to nxt
                 # any @+ dates will have been added to @r
-                if nxt := get_next_due(
-                    self.item_hsh, completed_datetime, completion_entry.end
-                ):
-                    logger.debug(
-                        f'nxt: {nxt}; completed: {completed_datetime}, due: {completion_entry.end}'
+                from_rrule = self.item_hsh.get('o', 'k') == 's'
+                nxt = get_next_due(
+                    self.item_hsh, completed_datetime, completion_entry.end, from_rrule
+                )
+                logger.debug(
+                    f'nxt: {nxt}; completed: {completed_datetime}, due: {completion_entry.end}'
                     )
+                if nxt:
                     for i in range(len(self.item_hsh['r'])):
                         if (
                             'c' in self.item_hsh['r'][i]
@@ -1233,6 +1236,7 @@ item_hsh:    {self.item_hsh}
                             self.item_hsh['r'][i]['c'] -= 1
                             break
                     self.item_hsh['s'] = nxt
+                    logger.debug(f"got nxt: {nxt} for @s from @r")
                     self.item_hsh.setdefault('h', []).append(completion_entry)
                 else:
                     self.item_hsh['f'] = completion_entry
@@ -1511,12 +1515,13 @@ item_hsh:    {self.item_hsh}
 
 
             numuses = {}
+            duplicates = []
             for k, v in self.keyvals:
                 numuses.setdefault(k, 0)
                 numuses[k] += 1
             duplicates = [
                 k for (k, v) in numuses.items() if v > 1 and k not in [
-                    'a', 'u', 't', 'jj', 'rr']
+                    'a', 'u', 't', 'jj', 'rr', 'ji']
                 ]
             logger.debug(f"key: {key}; duplicates: {duplicates}")
             if key in duplicates:
@@ -3874,6 +3879,7 @@ shown when nonzero."""
         Reps? Which instance?
 
         """
+        logger.debug('maybe_finish')
         res = self.get_row_details(row)
         if not res:
             return None, ''
@@ -5663,7 +5669,7 @@ def rrule_args(r_hsh):
     return freq, kwd
 
 
-def get_next_due(item, done, due):
+def get_next_due(item, done, due, from_rrule=False):
     """
     return the next due datetime for an @r and @+ / @- repetition
     """
@@ -5687,7 +5693,7 @@ def get_next_due(item, done, due):
         aft = due
         inc = False
     elif overdue == 'r':
-        aft = done
+        aft = done 
         dtstart = done
         inc = False
     else:  # 's' skip
@@ -5718,14 +5724,14 @@ def get_next_due(item, done, due):
 
     plus_not_minus = list(set(plus) - set(minus_hist))
     minus_not_plus = list(set(minus_hist) - set(plus))
-
-    for dt in minus_not_plus:
-        rset.exdate(date_to_datetime(dt))
-
-    for dt in plus_not_minus:
-        rset.rdate(date_to_datetime(dt))
-
-    nxt = rset.after(date_to_datetime(aft), inc)
+    if from_rrule:
+        for dt in minus_not_plus:
+            rset.exdate(date_to_datetime(dt))
+        nxt = rset.after(date_to_datetime(aft), inc)
+    else:
+        for dt in plus_not_minus:
+            rset.rdate(date_to_datetime(dt))
+        nxt = rset.after(date_to_datetime(aft), inc)
     if nxt:
         if using_dates:
             nxt = nxt.date()

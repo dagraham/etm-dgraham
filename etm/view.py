@@ -2817,6 +2817,7 @@ The default entered below is to use the current moment as the "completion dateti
         done = model.date_to_datetime(done)
         due = model.date_to_datetime(due)
 
+        logger.debug(f'calling finish_item {doc_id}, {job}, {done}, {due}')
         changed = item.finish_item(doc_id, job, done, due)
 
         if not msg and changed:
