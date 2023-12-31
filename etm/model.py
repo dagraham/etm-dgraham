@@ -11,6 +11,7 @@ from etm.common import (
 )
 
 from etm.common import logger
+from etm.common import TimeIt
 import sys
 import re
 from pprint import pprint
@@ -586,7 +587,6 @@ def process_entry(s, settings={}):
         k, v = keyvals.pop(0)
         keyvals.insert(0, ('summary', v))
         keyvals.insert(0, ('itemtype', k))
-
     return pos_hsh, keyvals
 
 
@@ -1472,7 +1472,6 @@ item_hsh:    {self.item_hsh}
         Check that key has the prerequisite entries.
         if key in requires, check that each key in requires[k] has a corresponding key, val in keyvals: [(k, v), (k, v), ...]
         """
-
         missing = []
         if key in requires:
             cur_keys = [k for (k, v) in self.keyvals]
@@ -1509,6 +1508,20 @@ item_hsh:    {self.item_hsh}
             if key not in allowed[itemtype]:
                 display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
                 return f'{display_key} is not allowed for itemtype {itemtype} ({type_keys[itemtype]})'
+
+
+            numuses = {}
+            for k, v in self.keyvals:
+                numuses.setdefault(k, 0)
+                numuses[k] += 1
+            duplicates = [
+                k for (k, v) in numuses.items() if v > 1 and k not in [
+                    'a', 'u', 't', 'jj', 'rr']
+                ]
+            logger.debug(f"key: {key}; duplicates: {duplicates}")
+            if key in duplicates:
+                display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
+                return f'{display_key} has already been entered'
             else:
                 return ''
         else:
@@ -1536,7 +1549,7 @@ item_hsh:    {self.item_hsh}
             already_entered = [
                 k
                 for (k, v) in self.keyvals
-                if len(k) == 1 and k not in ['a', 'u']
+                if len(k) == 1 and k not in ['a', 'u', 't']
             ]
             require = [
                 f'@{k}_({v[0]})'
@@ -1569,6 +1582,7 @@ item_hsh:    {self.item_hsh}
             rep = 'The type character must be entered before any @-keys'
 
         return None, rep
+
 
     def do_ampr(self, arg=''):
         """
@@ -2592,31 +2606,6 @@ def parse_duration(s):
     td = timedelta(**kwds)
 
     return True, td
-
-
-from time import perf_counter as timer
-
-
-class TimeIt(object):
-    def __init__(self, label='', loglevel=1):
-        self.loglevel = loglevel
-        self.label = label
-        if self.loglevel == 1:
-            msg = 'timer {0} started; loglevel: {1}'.format(
-                self.label, self.loglevel
-            )
-            logger.debug(msg)
-            self.start = timer()
-
-    def stop(self, *args):
-        if self.loglevel == 1:
-            self.end = timer()
-            self.secs = self.end - self.start
-            self.msecs = self.secs * 1000  # millisecs
-            msg = 'timer {0} stopped; elapsed time: {1} milliseconds'.format(
-                self.label, self.msecs
-            )
-            logger.debug(msg)
 
 
 class NDict(dict):
@@ -7742,22 +7731,21 @@ def show_journal(
             continue
         s = item.get('s', None)
         if s:
-            rhc = format_date(s)[1]
+            rhc = s.strftime("%-d ")
             ymd = s.strftime('%Y/%m/%d').split('/')
             year = ymd.pop(0)
             month, day = [f'{x: >2}' for x in ymd]
             ss = f'{year}/{month}/{day}'
         else:
-            rhc = ' '
+            rhc = ''
             ss = ''
             year = month = day = ''
-        # rhc = f"{rhc: ^8}"
-        rhc = ''
         index = item.get('i', '~')
         if index == settings['journal_name'] and year:
+            # rhc = s.strftime("%d ") if s else ""
             index = f'{index}/{year}/{month}'
         itemtype = item['itemtype']
-        summary = item['summary'][:summary_width]
+        summary = f"{item['summary']}" #[:summary_width]
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
         )

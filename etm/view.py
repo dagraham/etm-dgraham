@@ -1773,11 +1773,16 @@ class AtCompleter(Completer):
     # pat = re.compile(r'@[cgilntxz]\s?\S*')
     pat = re.compile(r'@[cgiklntxz]\s?[^@&]*')
 
+    def __init__(self):
+        super().__init__()
+        self.continue_completion = True
+
+
     def get_completions(self, document, complete_event):
         cur_line = document.current_line_before_cursor
         matches = re.findall(AtCompleter.pat, cur_line)
         word = matches[-1] if matches else ''
-        if word:
+        if self.continue_completion and word:
             word_len = len(word)
             word = word.rstrip()
             for completion in dataview.completions:
@@ -1791,6 +1796,9 @@ class AtCompleter(Completer):
                 elif completion.startswith(word) and completion != word:
                     yield Completion(completion, start_position=-word_len)
         return
+
+    def cancel(self):
+        self.continue_completion = False
 
 
 at_completer = AtCompleter()
@@ -1934,7 +1942,7 @@ details_area = TextArea(
     style='class:details',
     read_only=True,
     scrollbar=True,
-    search_field=search_field,
+    search_field=None,
 )
 
 
@@ -1942,7 +1950,7 @@ busy_area = TextArea(
     text='',
     style='class:details',
     read_only=True,
-    search_field=search_field,
+    search_field=None,
 )
 
 
@@ -2217,7 +2225,9 @@ body = HSplit(
         ConditionalContainer(content=edit_container, filter=is_editing),
         ConditionalContainer(content=choice_area, filter=is_showing_choice),
         ConditionalContainer(content=entry_container, filter=is_showing_entry),
-        search_field,
+        ConditionalContainer(content=entry_container, filter=is_showing_entry),
+        ConditionalContainer(content=search_field, filter=is_not_editing),
+        # search_field,
     ]
 )
 
@@ -3123,7 +3133,8 @@ def copy_active_view(*event):
 
 @bindings.add('c-c', filter=is_details | is_editing)
 def copy_details(*event):
-    details = dataview.get_details(text_area.document.cursor_position_row)[1]
+    details = details_area.text
+    # details = dataview.get_details(text_area.document.cursor_position_row)[1]
     pyperclip.copy(details)
     show_message('copy', 'details copied to system clipboard', 2)
 
