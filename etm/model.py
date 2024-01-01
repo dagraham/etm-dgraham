@@ -2706,7 +2706,8 @@ class NDict(dict):
                     flags = leaf[2].strip()
                     # flags = " ❘" + flags + "❘" if flags else ""
                     flags = ' ' + flags if flags else ''
-                    rhc = leaf[3].strip()
+                    # rhc = leaf[3].strip()
+                    rhc = leaf[3].rstrip()
                     rhc = f'{rhc}  ' if rhc else ''
                     summary_width = (
                         self.width - l_indent - 2 - len(flags) - len(rhc)
@@ -7737,7 +7738,7 @@ def show_journal(
             continue
         s = item.get('s', None)
         if s:
-            rhc = s.strftime("%-d ")
+            rhc = f"{s.strftime("%-d"): >2}"
             ymd = s.strftime('%Y/%m/%d').split('/')
             year = ymd.pop(0)
             month, day = [f'{x: >2}' for x in ymd]

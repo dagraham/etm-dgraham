@@ -750,11 +750,11 @@ def is_not_showing_entry(*event):
     return not dataview.is_showing_entry
 
 
-# def is_searching(*event):
-#     return get_app().current_search_state
+def is_searching(*event):
+    return get_app().current_search_state
 
-# def is_not_searching(*event):
-#     return not get_app().current_search_state
+def is_not_searching(*event):
+    return not get_app().current_search_state
 
 
 @bindings.add('f2')
@@ -2428,7 +2428,8 @@ This is one instance of a repeating item. What do you want to delete?
 starting_buffer_text = ''
 
 
-@bindings.add('N', filter=is_viewing & is_items_table)
+# @bindings.add('N', filter=is_viewing & is_items_table)
+@bindings.add('+', filter=is_viewing & is_items_table)
 def edit_new(*event):
     global item
     global starting_buffer_text
@@ -3744,7 +3745,7 @@ root_container = MenuContainer(
         MenuItem(
             'editor',
             children=[
-                MenuItem('N) create new item', handler=edit_new),
+                MenuItem('+) add new item', handler=edit_new),
                 MenuItem('-', disabled=True),
                 MenuItem('^s) save changes & close', handler=save_changes),
                 MenuItem('^g) test goto link', handler=do_goto),

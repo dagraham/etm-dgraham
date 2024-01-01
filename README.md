@@ -1186,7 +1186,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         left) previous in a), b), c), u), U) and y)
         space) current in a), b), c), u), U) and y)
     editor
-        N) create new item
+        +) add new item
         ---
         ^s) save changes & close
         ^g) test goto link
