@@ -1306,6 +1306,7 @@ type2style = {
     '-': 'available',
     '+': 'waiting',
     '✓': 'finished',
+    '✗': 'finished',
     '~': 'missing',
     '◦': 'used',
     '↱': 'wrap',
@@ -2225,7 +2226,6 @@ body = HSplit(
         ConditionalContainer(content=edit_container, filter=is_editing),
         ConditionalContainer(content=choice_area, filter=is_showing_choice),
         ConditionalContainer(content=entry_container, filter=is_showing_entry),
-        ConditionalContainer(content=entry_container, filter=is_showing_entry),
         ConditionalContainer(content=search_field, filter=is_not_editing),
         # search_field,
     ]
@@ -2781,7 +2781,6 @@ The default entered below is to use the current moment as the "completion dateti
             return None
 
         done_parts = [x.strip() for x in done_str.split(' : ')]
-        logger.debug(f'done_parts: {done_parts}')
 
         msg = ''
         num_parts = len(done_parts)
@@ -2973,7 +2972,6 @@ def do_import_file(*event):
     text = f"""\
 It is possible to import data from a collection of illustrative, 'lorem', reminders or from from a file in the etm home directory, {etmhome}, with the extension '.text'.  (This file will subsequently be deleted). The current options: 
 """
-    logger.debug('calling get_entry')
 
     get_choice(title, text, options)
 

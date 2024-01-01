@@ -1218,8 +1218,6 @@ item_hsh:    {self.item_hsh}
                 self.item_hsh.setdefault('h', []).append(completion_entry)
                 save_item = True
             elif 'r' in self.item_hsh:
-                # walrus operator, :=, assigns return from get_next_due to nxt
-                # any @+ dates will have been added to @r
                 from_rrule = self.item_hsh.get('o', 'k') == 's'
                 nxt = get_next_due(
                     self.item_hsh, completed_datetime, completion_entry.end, from_rrule
@@ -1523,7 +1521,7 @@ item_hsh:    {self.item_hsh}
                 k for (k, v) in numuses.items() if v > 1 and k not in [
                     'a', 'u', 't', 'jj', 'rr', 'ji']
                 ]
-            logger.debug(f"key: {key}; duplicates: {duplicates}")
+            # logger.debug(f"key: {key}; duplicates: {duplicates}")
             if key in duplicates:
                 display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
                 return f'{display_key} has already been entered'
@@ -2823,7 +2821,7 @@ class DataView(object):
         self.is_showing_details = False
         # self.is_showing_confirmation = False
         # self.is_showing_choice = False
-        # self.is_showing_entry = False
+        self.is_showing_entry = False
         self.hide_choice()
         self.hide_entry()
         self.entry_content = ''
@@ -3789,6 +3787,7 @@ class DataView(object):
         if not res:
             return None, ''
         item_id = res[0]
+        logger.debug(f'get_history item_id: {item_id}; in id2relevant: {item_id in self.id2relevant}')
 
         if not (item_id and item_id in self.id2relevant):
             return ''
@@ -3805,6 +3804,7 @@ class DataView(object):
             per = item['f']
             res.append((per.end, f' {fmt_period(per)}', FINISHED_CHAR))
         for c in item.get('h', []):
+            logger.debug(f"skip: {skip}; c.start: {c.start}; c.end: {c.end}; skip: {c.start == c.end+ONEMIN}")
             if skip and c.start == c.end + ONEMIN:
                 res.append((c.end, '', SKIPPED_CHAR))
             else:
@@ -5674,6 +5674,7 @@ def get_next_due(item, done, due, from_rrule=False):
     """
     return the next due datetime for an @r and @+ / @- repetition
     """
+    logger.debug(f"get_next_due for {item}, {done}, {due}, {from_rrule}")
     lofh = item.get('r')
     if not lofh:
         return ''
@@ -6779,32 +6780,28 @@ def relevant(
                     switch = item.get('o', 'k')
                     if switch == 's':
                         now = datetime.now().astimezone()
-                        relevant = rset.after(today, inc=True)
                         cur = date_to_datetime(item['s'])
                         # make 'all day' tasks not pastdue until one minute before midnight
-                        isdate = isinstance(
-                            item['s'], date
-                        ) and not isinstance(item['s'], datetime)
-                        isdate = cur.hour == 0 and cur.minute == 0
                         delta = (
-                            timedelta(hours=23, minutes=59) if isdate else ZERO
+                            timedelta(hours=23, minutes=59) if (cur.hour == 0 and cur.minute == 0) else ZERO
                         )
-                        if (
-                            relevant
-                            and date_to_datetime(item['s']) + delta < now
-                        ):
-                            while cur + delta < now:
-                                item.setdefault('h', []).append(
-                                    Period(cur + ONEMIN, cur)
-                                )
-                                cur = rset.after(cur, inc=False)
+                        if cur + delta < now:
+                            # we need to update @s
+                            plus_dates = item.get('+', [])
+                            relevant = rset.after(now, inc=True)
+                            while relevant in plus_dates:
+                                relevant = rset.after(relevant, inc=False)
+                            item['s'] = relevant
+                            item.setdefault('h', []).append(
+                                    Period(cur + ONEMIN, cur))
                             num_finished = settings.get('num_finished', 0)
                             if num_finished and len(item['h']) > num_finished:
                                 h = item['h']
                                 h.sort(key=sortprd)
                                 item['h'] = h[-num_finished:]
-                            item['s'] = cur
                             update_db(db, item.doc_id, item)
+                        else:
+                            relevant = cur
                     else:   # k or p
                         relevant = rset.after(today, inc=True)
                         already_done = [x.end for x in item.get('h', [])]
@@ -8390,6 +8387,7 @@ def schedule(
                     if isinstance(dt, date) and not isinstance(dt, datetime):
                         dt = datetime(dt.year, dt.month, dt.day).astimezone()
                         # dt.set(hour=23, minute=59, second=59)
+                    finished_char = SKIPPED_CHAR if row[3] == '-1m' else FINISHED_CHAR
 
                     rhc = str(row[3]) + '  ' if len(row) > 3 else ''
                     if dt < aft_dt or dt > bef_dt:
@@ -8407,7 +8405,7 @@ def schedule(
                                 # dt.strftime(wkday_fmt),
                             ),
                             'columns': [
-                                FINISHED_CHAR,
+                                finished_char,
                                 f'{rhc}{row[1]}',
                                 flags,
                                 '',
