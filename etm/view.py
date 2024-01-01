@@ -3131,7 +3131,12 @@ def copy_active_view(*event):
     show_message('copy', 'view copied to system clipboard', 2)
 
 
-@bindings.add('c-c', filter=is_details | is_editing)
+@bindings.add('c-c', filter=is_editing)
+def copy_details(*event):
+    pyperclip.copy(edit_buffer.text)
+    show_message('copy', 'entry copied to system clipboard', 2)
+
+@bindings.add('c-c', filter=is_details)
 def copy_details(*event):
     details = details_area.text
     # details = dataview.get_details(text_area.document.cursor_position_row)[1]
