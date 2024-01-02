@@ -5721,7 +5721,6 @@ def date_to_datetime(dt, hour=0, minute=0):
             second=0,
             microsecond=0,
         ).astimezone()
-        logger.debug(f"reset {dt} -> {new_dt}")
         dt = new_dt
     return dt
 
