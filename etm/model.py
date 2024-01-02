@@ -8,6 +8,7 @@ from etm.common import (
     WKDAYS_DECODE,
     WKDAYS_ENCODE,
     ETM_CHAR,
+    Period,
 )
 
 from etm.common import logger
@@ -619,25 +620,8 @@ def active_from_pos(pos_hsh, pos):
     return p, v
 
 
-class Period(object):
-    def __init__(self, start: datetime, end: datetime):
-        self.start = start
-        self.end = end
-        self.diff = end - start
-
-    def start(self):
-        return self.start
-
-    def end(self):
-        return self.end
-
-    def diff(self):
-        return self.diff
-
-
 class Item(dict):
     """ """
-
     # def __init__(self, doc_id=None, s=""):
     def __init__(self, dbfile=None):
         """ """
@@ -2489,25 +2473,9 @@ def fmt_period(obj):
         sign = '-'
         diff = end - start
     else:
+        sign = ' '
         diff = ZERO
-    days = diff.days
-    if days >= 7:
-        weeks = days // 7
-        days = days % 7
-    hours = diff.hours
-    minutes = diff.minutes
-    if diff:
-        until.append(sign)
-    tmp = []
-    if weeks:
-        until.append(f'{weeks}w')
-    if days:
-        until.append(f'{days}d')
-    if hours and not weeks:
-        until.append(f'{hours}h')
-    if minutes and not weeks and not days:
-        until.append(f'{minutes}m')
-    return ''.join(until)
+    return f"{sign}{fmt_dur(diff)}"
 
 
 def format_duration_list(obj_lst):
@@ -5744,7 +5712,7 @@ def get_next_due(item, done, due, from_rrule=False):
 
 def date_to_datetime(dt, hour=0, minute=0):
     if isinstance(dt, date) and not isinstance(dt, datetime):
-        dt = datetime(
+        new_dt = datetime(
             year=dt.year,
             month=dt.month,
             day=dt.day,
@@ -5753,6 +5721,8 @@ def date_to_datetime(dt, hour=0, minute=0):
             second=0,
             microsecond=0,
         ).astimezone()
+        logger.debug(f"reset {dt} -> {new_dt}")
+        dt = new_dt
     return dt
 
 
@@ -6625,8 +6595,8 @@ def relevant(
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
     Called by dataview.refreshRelevant
     """
-
-    wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
+    logger.debug(f"### Relevant ###")
+    # wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
     dirty = False
     width = shutil.get_terminal_size()[0] - 3
     summary_width = width - 3
@@ -6698,34 +6668,19 @@ def relevant(
                     minute=0,
                 ).astimezone()
 
-        elif 's' in item:
-            dtstart = item['s']
-            has_a = 'a' in item
-            has_b = 'b' in item
-            # for daylight savings time changes
-            if isinstance(dtstart, date) and not isinstance(dtstart, datetime):
-                dtstart = datetime(
-                    year=dtstart.year,
-                    month=dtstart.month,
-                    day=dtstart.day,
-                    hour=0,
-                    minute=0,
-                ).astimezone()
-                startdst = None
-            else:
-                # for discarding daylight saving time differences in repetitions
-                try:
-                    startdst = dtstart.dst()
-                except:
-                    # startdst = None
-                    startdst = dtstart.dst()
+        elif 's' in item and not item['s']:
+            logger.error(f"bad @s in item['s'] for {doc_id}: {item['s']}; item: {item}")
 
-            if has_b:
+        elif 's' in item and item['s']:
+            dtstart = date_to_datetime(item['s'])
+            # has_a = 'a' in item
+            # has_b = 'b' in item
+            if 'b' in item:
                 days = int(item['b']) * DAY
                 all_tds.extend([DAY, days])
                 possible_beginby = days
 
-            if has_a:
+            if 'a' in item:
                 # alerts
                 for alert in item['a']:
                     tds = alert[0]
@@ -6742,11 +6697,6 @@ def relevant(
                     today + min(all_tds),
                     tomorrow + max(all_tds),
                 ]
-
-            # FIXME
-            # r and +      :
-            # r but not +  :
-            # + but not r  :
 
             if 'r' in item or '+' in item:
                 lofh = item.get('r', [])
@@ -6779,18 +6729,21 @@ def relevant(
                 if item['itemtype'] == '-':
                     switch = item.get('o', 'k')
                     if switch == 's':
+                        logger.debug(f"overdue skip {item['summary']}")
                         now = datetime.now().astimezone()
                         cur = date_to_datetime(item['s'])
                         # make 'all day' tasks not pastdue until one minute before midnight
                         delta = (
                             timedelta(hours=23, minutes=59) if (cur.hour == 0 and cur.minute == 0) else ZERO
                         )
+                        plus_dates = item.get('+', [])
                         if cur + delta < now:
+                            logger.debug(f"updating @s {cur}")
                             # we need to update @s
-                            plus_dates = item.get('+', [])
                             relevant = rset.after(now, inc=True)
                             while relevant in plus_dates:
                                 relevant = rset.after(relevant, inc=False)
+                                logger.debug(f"reset relevant: {relevant} for {item['summary']}")
                             item['s'] = relevant
                             item.setdefault('h', []).append(
                                     Period(cur + ONEMIN, cur))
@@ -6800,8 +6753,31 @@ def relevant(
                                 h.sort(key=sortprd)
                                 item['h'] = h[-num_finished:]
                             update_db(db, item.doc_id, item)
+                        elif plus_dates:
+                            # @s is ok but @+ may need updating 
+                            changed = False
+                            for dt in plus_dates:
+                                delta = (
+                                    timedelta(hours=23, minutes=59) if (dt.hour == 0 and cur.minute == 0) else ZERO
+                                )
+                                if dt + delta < now:
+                                    item.setdefault('h', []).append(
+                                            Period(dt + ONEMIN, dt))
+                                    item['+'].remove(dt)
+                                    changed = True
+                            if len(item['+']) > 0: 
+                                if item['+'][0] < cur:
+                                    relevant = item['+'][0]
+                                else:
+                                    relevant = cur
+                            else:
+                                del item['+']
+                                changed = True
+                            if changed:
+                                update_db(db, item.doc_id, item)
                         else:
-                            relevant = cur
+                            relevant = cur 
+
                     else:   # k or p
                         relevant = rset.after(today, inc=True)
                         already_done = [x.end for x in item.get('h', [])]
@@ -7347,7 +7323,7 @@ def show_history(
         if dt is not None:
             doc_id = item.doc_id
             path = dt.strftime('%b %Y')
-            d = dt.strftime('%d').lstrip('0')
+            d = dt.strftime('%-d')
             rhc = f'{d : >2} {label} '
             itemtype = (
                 FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
@@ -8184,6 +8160,7 @@ def schedule(
     timers={},
 ):
     global current_hsh, active_tasks
+    logger.debug(f"### Schedule ###")
     timer_schedule = TimeIt('***SCHEDULE***')
     width = shutil.get_terminal_size()[0] - 3
     compact = False

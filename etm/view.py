@@ -2862,24 +2862,25 @@ def edit_copy(*event):
 @bindings.add('g', filter=is_viewing & is_not_editing)
 def do_goto(*event):
     row = text_area.document.cursor_position_row
+    logger.debug(f"row: {row}")
     if not row:
         logger.error(
             f'do_goto failed to return a row for cursor position {text_area.document.cursor_position_row}'
         )
         return
     res = dataview.get_row_details(row)   # item_id, instance, job_id
-    if res:
-        logger.debug(f'get_row_details for row {row} returned {res} ')
-    else:
+    logger.debug(f'get_row_details for row {row} returned {res} ')
+    if not res:
         return
     doc_id = res[0]
     # we have a row and a doc_id
     ok, goto = dataview.get_goto(row)
     logger.debug(
-        f'calling get_goto on row {row} with doc_id {res[0]} - returned: {ok}, {goto}'
+        f'get_goto with row {row} and doc_id {res[0]} returned: {ok}, {goto}'
     )
     if ok and goto:
         res = openWithDefault(goto)
+        logger.debug(f"openWithDefault '{goto}' returned {res}")
         if res:
             show_message('goto', res, 8)
     else:
