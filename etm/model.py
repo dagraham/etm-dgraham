@@ -7702,7 +7702,7 @@ def show_journal(
         s = item.get('s', None)
         if s:
             rhc = f"{s.strftime('%-d'): >2}"
-            ymd = s.strftime('%Y/%m/%d').split('/')
+            ymd = s.strftime('%Y/%b/%-d').split('/')
             year = ymd.pop(0)
             month, day = [f'{x: >2}' for x in ymd]
             ss = f'{year}/{month}/{day}'
