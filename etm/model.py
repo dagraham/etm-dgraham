@@ -2464,18 +2464,7 @@ def fmt_period(obj):
         return 'not a period'
     start = obj.start
     end = obj.end
-    until = []
-    weeks = days = hours = minutes = 0
-    if start > end:
-        sign = '+'
-        diff = start - end
-    elif start < end:
-        sign = '-'
-        diff = end - start
-    else:
-        sign = ' '
-        diff = ZERO
-    return f"{sign}{fmt_dur(diff)}"
+    return format_duration(end-start, short=True)
 
 
 def format_duration_list(obj_lst):
@@ -3056,7 +3045,7 @@ class DataView(object):
             [os.path.join(self.backupdir, x) for x in cfgfiles[7:]]
         )
 
-        if os.path.exists(self.currfile):
+        if self.currfile and os.path.exists(self.currfile):
             currtime = os.path.getctime(self.currfile)
             currfiles = [x for x in filelist if x.startswith('curr')]
             currfiles.sort(reverse=True)
@@ -3803,8 +3792,8 @@ class DataView(object):
 {FINISHED_CHAR} indicates completed instances.
 {SKIPPED_CHAR} indicates skipped instances.
 Due datetimes are shown. The length of
-time a completion preceded (-) or
-followed (+) the due datetime is also
+time a completion preceded (+) or
+followed (-) the due datetime is also
 shown when nonzero."""
 
         else:
@@ -3812,8 +3801,8 @@ shown when nonzero."""
 
 {FINISHED_CHAR} indicates completed instances.
 Due datetimes are shown. The length of
-time the completion preceded (-) or
-followed (+) the due datetime is also
+time the completion preceded (+) or
+followed (-) the due datetime is also
 shown when nonzero."""
 
         return (
@@ -5721,6 +5710,7 @@ def date_to_datetime(dt, hour=0, minute=0):
             second=0,
             microsecond=0,
         ).astimezone()
+        # logger.debug(f"reset {dt} date -> {new_dt}")
         dt = new_dt
     return dt
 
@@ -6595,6 +6585,7 @@ def relevant(
     Called by dataview.refreshRelevant
     """
     logger.debug(f"### Relevant ###")
+    
     # wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
     dirty = False
     width = shutil.get_terminal_size()[0] - 3
@@ -6619,6 +6610,7 @@ def relevant(
     beginbys = []
     alerts = []
     current = []
+    now = datetime.now().astimezone()
 
     for item in db:
         instance_interval = []
@@ -6728,8 +6720,6 @@ def relevant(
                 if item['itemtype'] == '-':
                     switch = item.get('o', 'k')
                     if switch == 's':
-                        logger.debug(f"overdue skip {item['summary']}")
-                        now = datetime.now().astimezone()
                         cur = date_to_datetime(item['s'])
                         # make 'all day' tasks not pastdue until one minute before midnight
                         delta = (
@@ -6756,8 +6746,10 @@ def relevant(
                             # @s is ok but @+ may need updating 
                             changed = False
                             for dt in plus_dates:
+                                if dt >= now:
+                                    continue
                                 delta = (
-                                    timedelta(hours=23, minutes=59) if (dt.hour == 0 and cur.minute == 0) else ZERO
+                                    timedelta(hours=23, minutes=59) if (dt.hour == 0 and dt.minute == 0) else ZERO
                                 )
                                 if dt + delta < now:
                                     item.setdefault('h', []).append(
@@ -7105,7 +7097,6 @@ def relevant(
                 'columns': ['>', rhc + item[1], flags, '', doc_id],
             }
         )
-
     return current, alerts, id2relevant, dirty
 
 
