@@ -1,5 +1,5 @@
-# standard sort order:
-# ['!', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', ':', ';', '<',
+# standard sort order: note space is first
+# [' ', '!', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', ':', ';', '<',
 # '=', '>', '?', '@', 'A', 'B', 'Y', 'Z',  '^', '_', 'a', 'b', 'y', 'z', '~']
 
 from etm.common import (
@@ -7702,17 +7702,16 @@ def show_journal(
         s = item.get('s', None)
         if s:
             rhc = f"{s.strftime('%-d'): >2}"
-            ymd = s.strftime('%Y/%b/%-d').split('/')
-            year = ymd.pop(0)
-            month, day = [f'{x: >2}' for x in ymd]
-            ss = f'{year}/{month}/{day}'
+            # ymd = s.strftime('%Y/%m/%d').split('/')
+            ss = s.strftime('%Y%m%d')
+            year = s.strftime("%Y")
+            month = s.strftime("%b")
         else:
             rhc = ''
-            ss = ''
-            year = month = day = ''
+            ss = '='
+            year = month = ''
         index = item.get('i', '~')
-        if index == settings['journal_name'] and year:
-            # rhc = s.strftime("%d ") if s else ""
+        if index == settings['journal_name'] and s:
             index = f'{index}/{year}/{month}'
         itemtype = item['itemtype']
         summary = f"{item['summary']}" #[:summary_width]

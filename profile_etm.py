@@ -39,25 +39,28 @@ else:
     )
     sys.exit()
 
-fp = os.path.join(etmdir, fn)
+# pstats directory
+pd = os.path.join(etmdir, 'pstats')
+if not os.path.isdir(pd):
+    os.makedirs(pd)
+    print(f'created profile directory: {pd}')
+fp = os.path.join(pd, fn)
 
 if os.path.exists(fp):
     timestamp = (
         datetime.now().astimezone(ZoneInfo('UTC')).strftime('%y%m%dT%H%M')
     )
-    backup = os.path.join(os.path.split(fp)[0], f'{bn}-{timestamp}.{ext}')
+    backup = os.path.join(pd, f'{bn}-{timestamp}.{ext}')
     shutil.copy2(fp, backup)
+    os.remove(fp)
+    print(f'backed up {fp} to {backup} and removed it.')
 
-
-if os.path.exists(fn):
-    os.remove(fn)
 
 # use contexts for profile and stdout
 with cProfile.Profile() as profile:
-    print(sys.argv)
     main()
 
-    with open(fn, 'w') as file:
+    with open(fp, 'w') as file:
         # Save the original stdout so we can restore it later
         original_stdout = sys.stdout
 
@@ -73,4 +76,4 @@ with cProfile.Profile() as profile:
         # Reset stdout to its original value
         sys.stdout = original_stdout
 
-print(f'\n### pstats saved to {fn} ###')
+print(f'\n### pstats saved to {fp} ###')
