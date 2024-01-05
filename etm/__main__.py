@@ -190,7 +190,7 @@ which will need to be created.
     if os.path.exists(olddb) and not os.path.exists(dbfile):
         import shutil
 
-        shutil.copy(olddb, dbfile)
+        shutil.copy2(olddb, dbfile)
         needs_update = True
 
     if not os.path.isdir(logdir):
@@ -249,10 +249,11 @@ which will need to be created.
     data.settings = settings
     from etm.data import Mask
 
+    with 
     ETMDB = data.initialize_tinydb(dbfile)
     logger.info(f'initialized TinyDB using {dbfile}')
-    DBITEM = ETMDB.table('items', cache_size=None)
-    DBARCH = ETMDB.table('archive', cache_size=None)
+    DBITEM = ETMDB.table('items', cache_size=30)
+    DBARCH = ETMDB.table('archive', cache_size=30)
     logger.debug(f'ETMDB: {ETMDB}, number of items: {len(ETMDB)}')
 
     from etm.make_examples import make_examples

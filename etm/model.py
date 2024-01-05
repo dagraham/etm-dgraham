@@ -11,11 +11,13 @@ from etm.common import (
     Period,
 )
 
+from tinydb.table import Table, Document
 from etm.common import logger
 from etm.common import TimeIt
 import sys
 import re
 from pprint import pprint
+import tracemalloc
 
 # import datetime  # for type testing in rrule
 import locale
@@ -794,8 +796,8 @@ item_hsh:    {self.item_hsh}
                 logger.error(f'{dbfile} does not exist')
                 return
             self.db = data.initialize_tinydb(dbfile)
-            self.dbarch = self.db.table('archive', cache_size=None)
-            self.dbquery = self.db.table('items', cache_size=None)
+            self.dbarch = self.db.table('archive', cache_size=30)
+            self.dbquery = self.db.table('items', cache_size=0)
 
     def use_archive(self):
         self.query_mode = 'archive table'
@@ -848,11 +850,38 @@ item_hsh:    {self.item_hsh}
         return showing, f'from {starting}:\n  ' + '\n  '.join(pairs)
 
     def do_update(self):
-        timer_update = TimeIt('***UPDATE***')
-        logger.debug(f'do_update {self.doc_id}: {self.item_hsh}')
-        self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
-        logger.debug(f'finished do_update')
-        timer_update.stop()
+        # self.db.upsert(self.item_hsh, doc_ids=[self.doc_id])
+        tracemalloc.start()
+        try:
+            # timer_update = TimeIt('***UPDATE***')
+            doc = Document(self.item_hsh, self.doc_id)
+            logger.debug(f'item do_update {doc}')
+            self.db.upsert(doc)
+            logger.debug('finished do_update')
+            # timer_update.stop()
+        except Exception as e:
+            logger.debug(f"exception: {e}")
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:20]:
+            logger.debug(f"{stat}")
+        tracemalloc.stop()
+        return True
+
+    def do_insert(self):
+        tracemalloc.start()
+        # timer_insert = TimeIt('***INSERT***')
+        logger.debug(f'do_insert {self.doc_id}: {self.item_hsh}')
+        doc_id = self.db.insert(self.item_hsh)
+        # self.dbfile.close()
+        logger.debug(f'finished do_insert')
+        # timer_insert.stop()
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:20]:
+            logger.debug(f"  *stat*: {stat}")
+        tracemalloc.stop()
+        return doc_id
 
     def edit_item(self, doc_id=None, entry=''):
         if not (doc_id and entry):
@@ -1442,7 +1471,7 @@ item_hsh:    {self.item_hsh}
                 # creating a new item or editing a copy of an existing item
                 self.item_hsh['created'] = now
                 if self.doc_id is None:
-                    self.doc_id = self.db.insert(self.item_hsh)
+                    self.doc_id = self.do_insert()
                 else:
                     self.do_update()
             else:
@@ -1983,7 +2012,7 @@ def duration_in_words(obj):
 
 def parse_datetime(s: str, z: str = None):
     """
-    's' will have the format 'datetime string' Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if 'z == float' or an aware datetime object converting to UTC using tzlocal if z == None and using the timezone specified in z otherwise.
+    's' will have the format 'datetime string' Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if 'z == float' or an aware datetime object converting to UTC using the local timezone if z == None and using the timezone specified in z otherwise.
     >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt[1]
     DateTime(2015, 10, 15, 14, 0, 0, tzinfo=Timezone('America/New_York'))
@@ -3066,9 +3095,9 @@ class DataView(object):
             else:
                 logger.info(f'{self.currfile} unchanged - skipping backup')
 
-        removefiles.extend(
-            [os.path.join(self.backupdir, x) for x in currfiles[7:]]
-        )
+            removefiles.extend(
+                [os.path.join(self.backupdir, x) for x in currfiles[7:]]
+            )
 
         # maybe delete older backups
         if removefiles:
@@ -7126,6 +7155,7 @@ def update_db(db, doc_id, hsh={}):
     if old == hsh:
         return
     hsh['modified'] = datetime.now()
+    logger.debug(f"starting db.update")
     try:
         db.update(db_replace(hsh), doc_ids=[doc_id])
     except Exception as e:
@@ -7135,12 +7165,13 @@ def update_db(db, doc_id, hsh={}):
 
 
 def write_back(db, docs):
+    logger.debug(f"starting write_back")
     for doc in docs:
         try:
             doc_id = doc.doc_id
             update_db(db, doc_id, doc)
         except Exception as e:
-            logger.error(f'exception: {e}')
+            logger.error(f'write_back exception: {e}')
 
 
 def insert_db(db, hsh={}):
@@ -8289,7 +8320,7 @@ def schedule(
                         'id': doc_id,
                         'job': None,
                         'instance': None,
-                        'sort': (dt.strftime('%Y%m%d'), 1),
+                        'sort': (dt.strftime('%Y%m%d'), '1'),
                         'week': (week),
                         'day': (weekday,),
                         'columns': [
@@ -8364,7 +8395,7 @@ def schedule(
                             'id': row[2],
                             'job': row[3],
                             'instance': None,
-                            'sort': (dt.strftime('%Y%m%d%H%M'), 1),
+                            'sort': (dt.strftime('%Y%m%d%H%M'), '1'),
                             'week': (dt.isocalendar()[:2]),
                             'day': (
                                 format_wkday(dt),
@@ -8555,7 +8586,7 @@ def schedule(
                             'id': doc_id,
                             'job': None,
                             'instance': instance,
-                            'sort': (sort_b, 0),
+                            'sort': (sort_b, '0'),
                             'week': (dtb.isocalendar()[:2]),
                             'dayofweek': (dtb.isocalendar()[-1]),
                             'day': (
@@ -8639,7 +8670,7 @@ def schedule(
                         'id': doc_id,
                         'job': None,
                         'instance': instance,
-                        'sort': (sort_dt, 0),
+                        'sort': (sort_dt, '0'),
                         'week': (week),
                         'week_fmt': (wk_fmt),
                         'dayofweek': (dayofweek),
@@ -9015,6 +9046,7 @@ def import_examples():
 
     num_examples = len(examples)
     count = 0
+    logger.debug("beginning import")
     for s in examples:
         ok = True
         count += 1
@@ -9035,6 +9067,7 @@ def import_examples():
         else:
             bad.append(s)
 
+    logger.debug("ending import")
     res = f'imported {len(good)} items'
     if good:
         res += f'\n  ids: {good[0]} - {good[-1]}'
@@ -9101,7 +9134,6 @@ def import_text(import_file=None):
 
 def import_json(import_file=None):
     import json
-
     with open(import_file, 'r') as fo:
         import_hsh = json.load(fo)
     items = import_hsh['items']
@@ -9255,6 +9287,7 @@ def import_json(import_file=None):
     ids = []
     if new:
         ids = ETMDB.insert_multiple(new)
+        ETMDB.close()
     msg = f'imported {len(new)} items'
     if ids:
         msg += f'\n  ids: {ids[0]}-{ids[-1]}.'

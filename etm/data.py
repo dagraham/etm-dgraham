@@ -1,6 +1,25 @@
 #!/usr/bin/env python3
 
 from tinydb import TinyDB
+from tinydb.table import Table, Document
+
+from tinydb_smartcache import SmartCacheTable
+
+TinyDB.table_class = SmartCacheTable
+# from typing import (
+#     Callable,
+#     Dict,
+#     Iterable,
+#     Iterator,
+#     List,
+#     Mapping,
+#     Optional,
+#     Union,
+#     cast,
+#     Tuple,
+# )
+
+
 from tinydb import __version__ as tinydb_version
 from tinydb_serialization import Serializer
 from tinydb_serialization import SerializationMiddleware
@@ -26,6 +45,62 @@ from etm.common import Period, is_aware, encode_datetime, decode_datetime
 ##########################
 ### begin TinyDB setup ###
 ##########################
+
+
+# class MyTable(Table):
+#     # Add your method overrides
+#     def _update_table(self, updater: Callable[[Dict[int, Mapping]], None]):
+#         """
+#         Perform a table update operation.
+#
+#         The storage interface used by TinyDB only allows to read/write the
+#         complete database data, but not modifying only portions of it. Thus,
+#         to only update portions of the table data, we first perform a read
+#         operation, perform the update on the table data and then write
+#         the updated data back to the storage.
+#
+#         As a further optimization, we don't convert the documents into the
+#         document class, as the table data will *not* be returned to the user.
+#         """
+#
+#         tables = self._storage.read()
+#
+#         if tables is None:
+#             # The database is empty
+#             tables = {}
+#
+#         try:
+#             raw_table = tables[self.name]
+#         except KeyError:
+#             # The table does not exist yet, so it is empty
+#             raw_table = {}
+#
+#         # Convert the document IDs to the document ID class.
+#         # This is required as the rest of TinyDB expects the document IDs
+#         # to be an instance of ``self.document_id_class`` but the storage
+#         # might convert dict keys to strings.
+#         table = {
+#             self.document_id_class(doc_id): doc
+#             for doc_id, doc in raw_table.items()
+#         }
+#
+#         # Perform the table update operation
+#         updater(table)
+#
+#         # Convert the document IDs back to strings.
+#         # This is required as some storages (most notably the JSON file format)
+#         # don't support IDs other than strings.
+#         tables[self.name] = {str(doc_id): doc for doc_id, doc in table.items()}
+#
+#         # Write the newly updated data back to the storage
+#         self._storage.write(tables)
+#
+#         # Clear the query cache, as the table contents have changed
+#         self.clear_cache()
+#
+#
+# TinyDB.table_class = MyTable
+
 
 TinyDB.DEFAULT_TABLE = 'items'
 
@@ -291,9 +366,13 @@ def initialize_tinydb(dbfile):
     serialization.register_serializer(DurationSerializer(), 'I')   # Interval
     serialization.register_serializer(WeekdaySerializer(), 'W')  # Wkday
     serialization.register_serializer(MaskSerializer(), 'M')             # Mask
+
     if tinydb_version >= '4.0.0':
         db = TinyDB(
-            dbfile, storage=serialization, indent=1, ensure_ascii=False
+            dbfile,
+            storage=serialization,
+            indent=1,
+            ensure_ascii=False,
         )
         db.default_table_name = 'items'
     else:

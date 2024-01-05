@@ -2441,6 +2441,8 @@ def edit_new(*event):
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
+    # to restore the current cursor row after completed
+    dataview.current_row = text_area.document.cursor_position_row
     dataview.is_editing = True
     dataview.control_z_active = False
     item.new_item()
@@ -3629,9 +3631,13 @@ def close_entry(*event):
 @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):
     if edit_buffer_changed():
-        timer_save = TimeIt('***SAVE***')
-        maybe_save(item)
-        timer_save.stop()
+        try:
+            timer_save = TimeIt('***SAVE***')
+            maybe_save(item)
+            timer_save.stop()
+        except Exception as e:
+            logger.debug(f'exception: {e}')
+
     else:
         # no changes to save - close editor
         dataview.is_editing = False
@@ -3667,7 +3673,10 @@ def maybe_save(item):
         return
     # hsh ok, save changes and close editor
     if item.doc_id in dataview.itemcache:
-        del dataview.itemcache[item.doc_id]
+        try:
+            del dataview.itemcache[item.doc_id]
+        except Exception as e:
+            logger.debug(f'exception: {e}')
 
     row, col = get_row_col()
     app = get_app()

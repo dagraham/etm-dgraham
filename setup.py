@@ -23,26 +23,24 @@ VERSION = version
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-        "icalendar>=4.0.3",
-        "Jinja2>=2.10",
-        "lorem>=0.1.1",
-        "MarkupSafe>=1.1.0",
-        "prompt-toolkit>=3.0.2",
-        "Pygments>=2.5.2",
-        "pyperclip>=1.7.0",
-        "python-dateutil>=2.7.3",
-        "pytz>=2018.9",
-        "pytzdata>=2018.9",
-        "ruamel.yaml>=0.15.88",
-        "requests>=2.25.1",
-        "six>=1.11.0",
-        "style>=1.1.6",
-        "tinydb>=3.12.2",
-        "tinydb-serialization>=1.0.4",
-        "tinydb-smartcache>=1.0.2",
-        "tzlocal>=1.5.1",
-        "wcwidth>=0.1.7",
-        "packaging>=22.0"
+    'icalendar>=4.0.3',
+    'Jinja2>=2.10',
+    'lorem>=0.1.1',
+    'MarkupSafe>=1.1.0',
+    'prompt-toolkit>=3.0.2',
+    'Pygments>=2.5.2',
+    'pyperclip>=1.7.0',
+    'python-dateutil>=2.7.3',
+    'ruamel.yaml>=0.15.88',
+    'requests>=2.25.1',
+    'six>=1.11.0',
+    'style>=1.1.6',
+    'tinydb>=4.0.0',
+    'tinydb-serialization>=2.0.0',
+    'tinydb-smartcache>=2.0.0',
+    'tzlocal>=1.5.1',
+    'wcwidth>=0.1.7',
+    'packaging>=22.0',
 ]
 
 # What packages are optional?
@@ -68,31 +66,45 @@ except FileNotFoundError:
 # Load the package's __version__.py module as a dictionary.
 about = {}
 if not VERSION:
-    project_slug = NAME.lower().replace("-", "_").replace(" ", "_")
+    project_slug = NAME.lower().replace('-', '_').replace(' ', '_')
     with open(os.path.join(here, project_slug, '__version__.py')) as f:
         exec(f.read(), about)
-    CLASSIFIERS = ["Development Status :: 2 - Pre-Alpha", ]
+    CLASSIFIERS = [
+        'Development Status :: 2 - Pre-Alpha',
+    ]
 else:
     about['__version__'] = VERSION
     if 'a' in VERSION:
-        CLASSIFIERS = ["Development Status :: 3 - Alpha", ]
+        CLASSIFIERS = [
+            'Development Status :: 3 - Alpha',
+        ]
     elif 'b' in VERSION:
-        CLASSIFIERS = ["Development Status :: 4 - Beta", ]
+        CLASSIFIERS = [
+            'Development Status :: 4 - Beta',
+        ]
     else:
-        CLASSIFIERS = ["Development Status :: 5 - Production/Stable", ]
+        CLASSIFIERS = [
+            'Development Status :: 5 - Production/Stable',
+        ]
 
-    CLASSIFIERS.extend([
-        'Environment :: Console',
-        'Intended Audience :: End Users/Desktop',
-        'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Topic :: Office/Business',
-        'Topic :: Office/Business :: News/Diary',
-        'Topic :: Office/Business :: Scheduling'])
+    CLASSIFIERS.extend(
+        [
+            'Environment :: Console',
+            'Intended Audience :: End Users/Desktop',
+            'License :: OSI Approved :: GNU General Public License (GPL)',
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.10',
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.12',
+            'Programming Language :: Python :: Implementation :: CPython',
+            'Programming Language :: Python :: Implementation :: PyPy',
+            'Topic :: Office/Business',
+            'Topic :: Office/Business :: News/Diary',
+            'Topic :: Office/Business :: Scheduling',
+        ]
+    )
+
 
 class UploadCommand(Command):
     """Support setup.py upload."""
@@ -116,13 +128,17 @@ class UploadCommand(Command):
             self.status('Removing previous builds…')
             rmtree(os.path.join(here, 'dist'))
         except OSError as e:
-            print("error removing dist tree:", e)
+            print('error removing dist tree:', e)
 
         self.status('Building Source and Wheel (universal) distribution…')
-        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+        os.system(
+            '{0} setup.py sdist bdist_wheel --universal'.format(sys.executable)
+        )
 
         self.status('Uploading the package to PyPI via Twine…')
-        os.system('twine upload --verbose --repository-url https://upload.pypi.org/legacy/ dist/*')
+        os.system(
+            'twine upload --verbose --repository-url https://upload.pypi.org/legacy/ dist/*'
+        )
 
         sys.exit()
 
@@ -157,4 +173,3 @@ setup(
         'upload': UploadCommand,
     },
 )
-
