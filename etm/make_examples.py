@@ -187,7 +187,7 @@ def make_examples(egfile: str = None, num_items: int = num_items):
                 used += f'@u {u}m: {e} '
 
         if t == '%' and start <= now:
-            examples.append(f'{t} {summary} @s {s} @i ! daily @d {d} @t lorem')
+            examples.append(f'{t} {summary} @s {s} @i # daily @d {d} @t lorem')
 
         elif t == '*':
             if date:      # an event
