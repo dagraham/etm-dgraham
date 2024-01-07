@@ -129,7 +129,7 @@ if new_version:
         print('cancelled')
         sys.exit()
     ok, res = check_output(
-        f'git checkout master && git merge working && git push && git checkout working'
+        f'git checkout master && git merge working6 && git push && git checkout working6'
     )
     if res:
         print(res)
