@@ -1,13 +1,13 @@
-Recent tagged changes as of 2024-01-07 07:35:46.613709:
-- 0 seconds ago (HEAD -> working6, tag: 6.0.1a1) Daniel Graham
+Recent tagged changes as of 2024-01-07 08:37:04.179554:
+- 0 seconds ago (HEAD -> working6, tag: 6.0.1) Daniel Graham
+    c027fc7 2024-01-07 08:37:04 -0500
+    Tagged version 6.0.1.
+
+- 61 minutes ago (tag: 6.0.1a1) Daniel Graham
     df3de16 2024-01-07 07:35:46 -0500
     Tagged version 6.0.1a1.
 
-- 5 minutes ago (tag: 6.0.1) Daniel Graham
-    7a38be5 2024-01-07 07:30:42 -0500
-    Tagged version 6.0.1. "initial release"
-
-- 9 hours ago (tag: 6.0.0rc4) Daniel Graham
+- 10 hours ago (tag: 6.0.0rc4) Daniel Graham
     15ca2a0 2024-01-06 22:29:38 -0500
     Tagged version 6.0.0rc4.
 
