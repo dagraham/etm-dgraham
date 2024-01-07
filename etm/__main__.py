@@ -105,7 +105,8 @@ def setup_logging(level, etmdir, file=None):
     logging.config.dictConfig(config)
     # logger = logging.getLogger('asyncio').setLevel(logging.WARNING)
     logger = logging.getLogger('etmmv')
-    # logger.critical('\n######## Initializing logging #########')
+
+    logger.critical('\n######## Initializing logging #########')
     if logfile:
         logger.critical(
             f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}'
@@ -199,7 +200,6 @@ Usage:
         etmdir = sys.argv.pop(1)
         etmdir = os.getcwd() if etmdir == '.' else os.path.normpath(etmdir)
 
-    print(f'using etmdir {etmdir}')
     created_etmdir = False
     # if not (os.path.exists(etmdir) and os.path.isdir(etmdir)):
     if not os.path.isdir(etmdir):
@@ -229,7 +229,6 @@ does not exist and will need to be created.
             missing.append(p)
     missing = '\n    '.join(missing) if missing else ''
 
-    # condition = created_etmdir or (os.path.exists(logdir) and os.path.exists(backdir) and os.path.exists(db))
     condition = not created_etmdir and missing
 
     if condition:
@@ -267,7 +266,7 @@ which will need to be created.
     setup_logging(loglevel, logdir)
     # logger = logging.getLogger('asyncio').setLevel(logging.WARNING)
     logger = logging.getLogger('etmmv')
-    logger.critical('\n######## Initializing logging #########')
+
     common.logger = logger
     options.logger = logger
 
@@ -495,15 +494,16 @@ which will need to be created.
             model.main(etmdir, sys.argv)
 
     else:
-        # logger.critical('\n######## Initializing logging #########')
         logger.info(f'system info {model.about()[1]}')
         logger.info(f'calling view.main with etmdir: {etmdir}')
-        from etm.view import main
-        import asyncio
 
         # stderr to /dev/null
         fd = os.open('/dev/null', os.O_WRONLY)
         os.dup2(fd, 2)
+
+        from etm.view import main
+        import asyncio
+
         asyncio.run(main(etmdir), debug=True)
 
 

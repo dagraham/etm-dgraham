@@ -7727,6 +7727,7 @@ def show_journal(
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     summary_width = width - 14
+    logger.debug(f"using journal_name: {settings['journal_name']}")
     for item in db:
         doc_id = item.doc_id
         if item['itemtype'] != '%':
@@ -7882,11 +7883,18 @@ def show_index(
         if s:
             rhc = format_date(s)[1]
             sort = format_datetime(item['created'])[1]
+            year = s.strftime("%Y")
+            month = s.strftime("%b")
         else:
             rhc = ' '
             sort = '~'
+            year = month = ''
         # rhc = f"{rhc: ^8}"
         rhc = ''
+        if index == settings['journal_name'] and s:
+            rhc = f"{s.strftime('%-d'): >2}"
+            sort = s.strftime('%Y%m%d')
+            index = f'{index}/{year}/{month}'
         rows.append(
             {
                 'sort': (index, sort, item['itemtype'], item['summary']),
