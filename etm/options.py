@@ -7,10 +7,11 @@ yaml_nort = ruamel.yaml.YAML(typ='safe')   # no round trip
 yaml_nort.indent(mapping=2, sequence=4, offset=2)
 yaml = ruamel.yaml.YAML()   # use round trip
 yaml.indent(mapping=2, sequence=4, offset=2)
-import logging
-import logging.config
 
-logger = logging.getLogger()
+# import logging
+# import logging.config
+#
+# logger = logging.getLogger()
 import string
 import random
 import re
@@ -623,15 +624,9 @@ window_colors: {window_colors}
         self.settings = {}
         default_template = Settings.template.format(**Settings.settings_hsh)
         self.settings.update(self.settings_hsh)
-        # self.settings = yaml_nort.load(default_template) # uses RoundTripLoader (comments)
-        # yaml = YAML(typ='safe', pure=True)
-        # load defaults
         active_style = self.settings_hsh['style']
-        # logger.debug(f"default style: {active_style}")
         default_type_colors = self.default_type_colors[active_style]
-        # logger.debug(f"default type_colors: {default_type_colors}")
         default_window_colors = self.default_window_colors[active_style]
-        # logger.debug(f"default window_colors: {default_window_colors}")
         # override the settings_hsh values for type_colors and window_colors so that
         # settings will have all the possible keys
         self.settings['type_colors'] = default_type_colors
@@ -689,7 +684,7 @@ window_colors: {window_colors}
         ]
         # logger.debug(f"active window_colors: {self.settings['window_colors']}")
 
-        cfg = deepcopy(self.settings_hsh)
+        # cfg = deepcopy(self.settings_hsh)
         # add missing default keys
         for key, value in self.settings_hsh.items():
             if key in ['colors', 'type_colors', 'window_colors']:
@@ -718,8 +713,6 @@ window_colors: {window_colors}
         # remove invalid user keys/values
         tmp = deepcopy(new)   # avoid modifying ordered_dict during iteration
         for key in tmp:
-            # if key in ["summary", "prop", "start", "when", "location", "description", "etmversion"]:
-            #     continue
             if key not in self.settings_hsh:
                 # not a valid option
                 del new[key]
@@ -852,72 +845,6 @@ window_colors: {window_colors}
                 self.settings[key] = new_value
 
         return changed
-
-
-def setup_logging(level, etmdir, file=None):
-    """
-    Setup logging configuration. Override root:level in
-    logging.yaml with default_level.
-    """
-
-    if not os.path.isdir(etmdir):
-        return
-
-    log_levels = {
-        1: logging.DEBUG,
-        2: logging.INFO,
-        3: logging.WARN,
-        4: logging.ERROR,
-        5: logging.CRITICAL,
-    }
-
-    level = int(level)
-    loglevel = log_levels.get(level, log_levels[3])
-
-    # if we get here, we have an existing etmdir
-    logfile = os.path.normpath(
-        os.path.abspath(os.path.join(etmdir, 'etm.log'))
-    )
-
-    config = {
-        'disable_existing_loggers': False,
-        'formatters': {
-            'simple': {
-                'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'
-            }
-        },
-        'handlers': {
-            'file': {
-                'backupCount': 7,
-                'class': 'logging.handlers.TimedRotatingFileHandler',
-                'encoding': 'utf8',
-                'filename': logfile,
-                'formatter': 'simple',
-                'level': loglevel,
-                'when': 'midnight',
-                'interval': 1,
-            }
-        },
-        'loggers': {
-            'etmmv': {
-                'handlers': ['file'],
-                'level': loglevel,
-                'propagate': False,
-            }
-        },
-        'root': {'handlers': ['file'], 'level': loglevel},
-        'version': 1,
-    }
-    logging.config.dictConfig(config)
-    logger.critical('\n######## Initializing logging #########')
-    if file:
-        logger.critical(
-            f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}'
-        )
-    else:
-        logger.critical(
-            f'logging at level: {loglevel}\n    logging to file: {logfile}'
-        )
 
 
 if __name__ == '__main__':

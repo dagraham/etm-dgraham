@@ -12,7 +12,6 @@ from etm.common import (
 )
 
 from tinydb.table import Table, Document
-from etm.common import logger
 from etm.common import TimeIt
 import sys
 import re
@@ -786,6 +785,7 @@ item_hsh:    {self.item_hsh}
     def set_dbfile(self, dbfile=None):
         self.settings = settings if settings else {}
         if dbfile is None:
+            logger.debug(f"dbfile is None, using ETMDB")
             self.db = ETMDB
             self.dbarch = DBARCH
             self.dbitem = DBITEM
@@ -795,6 +795,7 @@ item_hsh:    {self.item_hsh}
             if not os.path.exists(dbfile):
                 logger.error(f'{dbfile} does not exist')
                 return
+            logger.debug(f"dbfile is {dbfile}, initializing tinydb")
             self.db = data.initialize_tinydb(dbfile)
             self.dbarch = self.db.table('archive', cache_size=30)
             self.dbquery = self.db.table('items', cache_size=0)
@@ -851,7 +852,7 @@ item_hsh:    {self.item_hsh}
 
     def do_update(self):
         # self.db.upsert(self.item_hsh, doc_ids=[self.doc_id])
-        tracemalloc.start()
+        # tracemalloc.start()
         try:
             # timer_update = TimeIt('***UPDATE***')
             doc = Document(self.item_hsh, self.doc_id)
@@ -861,26 +862,26 @@ item_hsh:    {self.item_hsh}
             # timer_update.stop()
         except Exception as e:
             logger.debug(f"exception: {e}")
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:20]:
-            logger.debug(f"{stat}")
-        tracemalloc.stop()
+        # snapshot = tracemalloc.take_snapshot()
+        # top_stats = snapshot.statistics('lineno')
+        # for stat in top_stats[:20]:
+        #     logger.debug(f"{stat}")
+        # tracemalloc.stop()
         return True
 
     def do_insert(self):
-        tracemalloc.start()
+        # tracemalloc.start()
         # timer_insert = TimeIt('***INSERT***')
         logger.debug(f'do_insert {self.doc_id}: {self.item_hsh}')
         doc_id = self.db.insert(self.item_hsh)
         # self.dbfile.close()
         logger.debug(f'finished do_insert')
         # timer_insert.stop()
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:20]:
-            logger.debug(f"  *stat*: {stat}")
-        tracemalloc.stop()
+        # snapshot = tracemalloc.take_snapshot()
+        # top_stats = snapshot.statistics('lineno')
+        # for stat in top_stats[:20]:
+        #     logger.debug(f"  *stat*: {stat}")
+        # tracemalloc.stop()
         return doc_id
 
     def edit_item(self, doc_id=None, entry=''):
@@ -7985,7 +7986,7 @@ def get_usedtime(
         used = item.get(
             'u'
         )   # this will be a list of 'period, datetime' tuples
-        if item['itemtype'] == '!' or not used:
+        if item.get('itemtype', '!') == '!' or not used:
             continue
         index = item.get('i', '~')
         id_used = {}

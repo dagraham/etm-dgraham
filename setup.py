@@ -38,7 +38,6 @@ REQUIRED = [
     'tinydb>=4.0.0',
     'tinydb-serialization>=2.0.0',
     'tinydb-smartcache>=2.0.0',
-    'tzlocal>=1.5.1',
     'wcwidth>=0.1.7',
     'packaging>=22.0',
 ]

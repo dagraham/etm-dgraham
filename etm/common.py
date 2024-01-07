@@ -6,8 +6,9 @@ import platform
 import sys
 import os
 import sys
-import logging
-import logging.config
+
+# import logging
+# import logging.config
 
 import etm.__version__ as version
 from ruamel.yaml import __version__ as ruamel_version
@@ -64,9 +65,6 @@ VERSION_INFO = f"""\
  ruamel.yaml:        {ruamel_version}
  platform:           {system_platform}\
 """
-
-logging.getLogger('asyncio').setLevel(logging.WARNING)
-logger = logging.getLogger()
 
 
 def parse(s, **kwd):

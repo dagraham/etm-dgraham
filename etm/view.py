@@ -77,7 +77,6 @@ import contextlib, io
 
 import pyperclip
 from etm.common import ETM_CHAR
-from etm.common import logger
 from etm.common import TimeIt
 
 from tinydb import where
