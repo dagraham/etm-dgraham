@@ -83,10 +83,13 @@ Rather than filling out fields in a form to create or edit reminders, a simple t
 
 The 4 types of reminders in etm with their associated type characters:
 
-* task: **-**
-* event: **\***
-* journal: **%**
-* inbox: **!**
+|  type   | char  |
+| ------- | ----- |
+| task    |    -  |
+| event   |    *  |
+| journal |    %  |
+| inbox   |    !  |
+
 
 See [Item Types](#item-types) for details about these item types and [Options](#options) for details about possible attributes.
 

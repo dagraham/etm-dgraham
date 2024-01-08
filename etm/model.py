@@ -856,32 +856,16 @@ item_hsh:    {self.item_hsh}
         try:
             # timer_update = TimeIt('***UPDATE***')
             doc = Document(self.item_hsh, self.doc_id)
-            logger.debug(f'item do_update {doc}')
             self.db.upsert(doc)
-            logger.debug('finished do_update')
             # timer_update.stop()
         except Exception as e:
             logger.debug(f"exception: {e}")
-        # snapshot = tracemalloc.take_snapshot()
-        # top_stats = snapshot.statistics('lineno')
-        # for stat in top_stats[:20]:
-        #     logger.debug(f"{stat}")
-        # tracemalloc.stop()
         return True
 
     def do_insert(self):
-        # tracemalloc.start()
         # timer_insert = TimeIt('***INSERT***')
-        logger.debug(f'do_insert {self.doc_id}: {self.item_hsh}')
         doc_id = self.db.insert(self.item_hsh)
-        # self.dbfile.close()
-        logger.debug(f'finished do_insert')
         # timer_insert.stop()
-        # snapshot = tracemalloc.take_snapshot()
-        # top_stats = snapshot.statistics('lineno')
-        # for stat in top_stats[:20]:
-        #     logger.debug(f"  *stat*: {stat}")
-        # tracemalloc.stop()
         return doc_id
 
     def edit_item(self, doc_id=None, entry=''):
@@ -1004,11 +988,9 @@ item_hsh:    {self.item_hsh}
         self.item_hsh = self.db.get(doc_id=doc_id)
         self.doc_id = doc_id
         self.created = self.item_hsh['created']
-        logger.debug(f'instance {instance.astimezone()}, {type(instance)}')
         changed = False
         if which == '1':
             # this instance
-            logger.debug(f'deleting this instance: {instance}')
             if '+' in self.item_hsh and instance in self.item_hsh['+']:
                 self.item_hsh['+'].remove(instance)
                 changed = True
@@ -1035,12 +1017,10 @@ item_hsh:    {self.item_hsh}
                 self.do_update()
         if which == '2':
             # this and any future instances
-            logger.debug(f'deleting any subsequent instances: {instance}')
             delete_item = False
             if '+' in self.item_hsh:
                 for dt in self.item_hsh['+']:
                     if dt >= instance:
-                        logger.debug(f"removing {dt} from '+'")
                         self.item_hsh['+'].remove(instance)
                         changed = True
             if 'r' in self.item_hsh:
@@ -1049,25 +1029,17 @@ item_hsh:    {self.item_hsh}
                 rr_to_keep = []
                 for i in range(len(self.item_hsh['r'])):
                     rr = self.item_hsh['r'][i]
-                    logger.debug(f'starting rr: {rr}, {type(rr)}')
                     if 'c' in rr:
                         # error to have a 'u' with this 'c'
                         current_count = rr['c']
                         rset = dr.rruleset()
                         freq, kwd = rrule_args(rr)
                         kwd['dtstart'] = self.item_hsh['s']
-                        logger.debug(f'freq: {freq}; kwd: {kwd}; rr: {rr}')
                         rset.rrule(dr.rrule(freq, **kwd))
-                        logger.debug(f'rset: {rset}')
-                        # forthcoming = [format_datetime(dt) for dt in rset if date_to_datetime(dt.astimezone()) > instance.astimezone()]
-                        # logger.debug(f"instance: {format_datetime(instance)}; forthcoming: {forthcoming}, {len(forthcoming)}")
                         new_count = current_count - sum(
                             1
                             for dt in rset
                             if dt.astimezone() >= instance.astimezone()
-                        )
-                        logger.debug(
-                            f'current_count: {current_count}; new_count: {new_count}'
                         )
                         if new_count > 0 and new_count < current_count:
                             rr['c'] = new_count
@@ -1086,18 +1058,8 @@ item_hsh:    {self.item_hsh}
                     elif instance > self.item_hsh['s']:
                         # no 'c', so we can change/add 'u'
                         rr['u'] = instance - ONESEC
-                        logger.debug(f'ending rr: {rr}')
                         self.item_hsh['r'][i] = rr
                         changed = True
-                    # elif instance == self.item_hsh['s']:
-                    #     # any +'s must be < instance - they were removed first
-                    #     rr['u'] = instance - ONEMIN
-                    #     if rr['u'] >= self.item_hsh['s']:
-                    #         logger.debug(f"ending rr: {rr}")
-                    #         self.item_hsh['r'][i] = rr
-                    #         changed = True
-                    #     else:
-                    #         self.item_hsh['r'][i] = {}
 
                     else:
                         self.item_hsh['r'][i] = {}
@@ -1115,9 +1077,6 @@ item_hsh:    {self.item_hsh}
                         del self.item_hsh['r']
 
             if instance <= self.item_hsh['s']:
-                logger.debug(
-                    f"updating @s: {self.item_hsh['s']} >= {instance}"
-                )
                 if '+' in self.item_hsh and self.item_hsh['+']:
                     self.item_hsh['s'] = self.item_hsh['+'].pop(0)
                     changed = True
@@ -1159,7 +1118,6 @@ item_hsh:    {self.item_hsh}
 
 
         """
-        logger.debug('finish_item')
 
         # item_id and job_id should have come from dataview.hsh ok, maybe_finish and thus be valid
 
@@ -1222,11 +1180,8 @@ item_hsh:    {self.item_hsh}
                     #     save_item = True
 
         elif 's' in self.item_hsh:
-            logger.debug(f"due: {type(due_datetime)}; in +: {due_datetime in self.item_hsh.get('+', [])}")
             if '+' in self.item_hsh and due_datetime in self.item_hsh['+']:
-                logger.debug(f"removing {due_datetime} from @+")
                 self.item_hsh['+'].remove(due_datetime)
-                logger.debug(f"+: {self.item_hsh['+']}")
                 if not self.item_hsh['+']:
                     del self.item_hsh['+']
                 self.item_hsh.setdefault('h', []).append(completion_entry)
@@ -1236,9 +1191,6 @@ item_hsh:    {self.item_hsh}
                 nxt = get_next_due(
                     self.item_hsh, completed_datetime, completion_entry.end, from_rrule
                 )
-                logger.debug(
-                    f'nxt: {nxt}; completed: {completed_datetime}, due: {completion_entry.end}'
-                    )
                 if nxt:
                     for i in range(len(self.item_hsh['r'])):
                         if (
@@ -1248,7 +1200,6 @@ item_hsh:    {self.item_hsh}
                             self.item_hsh['r'][i]['c'] -= 1
                             break
                     self.item_hsh['s'] = nxt
-                    logger.debug(f"got nxt: {nxt} for @s from @r")
                     self.item_hsh.setdefault('h', []).append(completion_entry)
                 else:
                     self.item_hsh['f'] = completion_entry
@@ -1450,7 +1401,6 @@ item_hsh:    {self.item_hsh}
             del self.item_hsh['z']
         if msg:
             msg = '\n'.join(msg)
-            logger.debug(f'{msg}')
 
         return msg
 
@@ -1535,7 +1485,6 @@ item_hsh:    {self.item_hsh}
                 k for (k, v) in numuses.items() if v > 1 and k not in [
                     'a', 'u', 't', 'jj', 'rr', 'ji']
                 ]
-            # logger.debug(f"key: {key}; duplicates: {duplicates}")
             if key in duplicates:
                 display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
                 return f'{display_key} has already been entered'
@@ -3125,7 +3074,6 @@ class DataView(object):
                 self.saved_timers = timers
 
         elif os.path.exists(timers_file):
-            logger.debug(f'removing {timers_file}')
             os.remove(timers_file)
         # this return is necessary to avoid blocking event_handler
         return
@@ -3261,7 +3209,6 @@ class DataView(object):
         self.current_row = None
         self.prior_view = self.active_view
         self.active_view = self.views.get(c, 'agenda')
-        logger.debug(f'setting active view {c}: {self.active_view}')
         if self.active_view != 'query':
             self.use_items()
 
@@ -3380,9 +3327,6 @@ class DataView(object):
                 self.link_list,
                 self.konnected,
                 self.timers,
-            )
-            logger.debug(
-                f'repeat: {self.repeat_list}, pinned: {self.pinned_list}, link: {self.link_list}, konnected: {self.konnected}'
             )
             return self.pinned_view
         if self.active_view == 'used time':
@@ -3648,7 +3592,6 @@ class DataView(object):
             return ()
         self.current_row = row
         id_tup = self.row2id.get(row, None)
-        logger.debug(f'details for id_tup: {id_tup}')
         if isinstance(id_tup, tuple):
             item_id, instance, job = id_tup
         else:
@@ -8006,12 +7949,13 @@ def get_usedtime(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
         )
 
+        logger.debug(f"get_usedtime: {summary} used {used}")
         for period, dt in used:
             if isinstance(dt, date) and not isinstance(dt, datetime):
                 dt = datetime(dt.year, dt.month, dt.day).astimezone()
                 dt.replace(hour=23, minute=59, second=59)
 
-            rhc_cols = 17 if UT_MIN == 0 else 14
+            # rhc_cols = 17 if UT_MIN == 0 else 14
 
             if UT_MIN > 0:
                 seconds = int(period.total_seconds()) % 60
@@ -8033,14 +7977,14 @@ def get_usedtime(
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
             id_used[monthday] += period
-            month = dt.strftime('%Y-%-m')
+            month = dt.strftime('%Y-%m')
             used_time.setdefault(tuple((month,)), ZERO)
             used_time[tuple((month,))] += period
             for i in range(len(index_tup)):
                 used_time.setdefault(tuple((month, *index_tup[: i + 1])), ZERO)
                 used_time[tuple((month, *index_tup[: i + 1]))] += period
         for monthday in id_used:
-            month = monthday.strftime('%Y-%-m')
+            month = monthday.strftime('%Y-%m')
             rhc = f"{format_hours_and_tenths(id_used[monthday]).lstrip('+')} {monthday.day}"
             detail_rows.append(
                 {
@@ -8219,16 +8163,6 @@ def schedule(
         else:
             LL[hour] = ' '.rjust(6, ' ')
 
-    # xx:xxam-xx:xxpm
-    # rhc_width = 15 if ampm else 11
-    rhc_width = 0
-    # flag_width = 6
-    flag_width = 0
-    # indent_to_summary = 6
-    indent_to_summary = 0
-    # TODO: set these for rhc on the left
-    # current_summary_width = current_width - indent_to_summary - rhc_width
-    # summary_width = width - indent_to_summary - flag_width - rhc_width
 
     d = iso_to_gregorian((yw[0], yw[1], 1))
     dt = datetime(d.year, d.month, d.day, 0, 0, 0).astimezone()
@@ -8293,6 +8227,7 @@ def schedule(
                 dt.set(hour=0, minute=0, second=1)
 
         if used:
+            logger.debug(f"processing {summary} used: {used}")
             dates_to_periods = {}
             for period, dt in used:
                 if isinstance(dt, date) and not isinstance(dt, datetime):
@@ -8308,6 +8243,7 @@ def schedule(
                         period += increment
 
                 dates_to_periods.setdefault(dt, []).append(period)
+
             for dt in dates_to_periods:
                 week = dt.isocalendar()[:2]
                 # weekday = dt.strftime(wkday_fmt)
