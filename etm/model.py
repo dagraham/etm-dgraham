@@ -7920,10 +7920,6 @@ def get_usedtime(
     UT_MIN = settings.get('usedtime_minutes', 1)
 
     width = shutil.get_terminal_size()[0] - 3
-    if UT_MIN == 0:
-        rhc_width = 10  # 11h22m 23
-    else:
-        rhc_width = 10  # 111.2h 23
 
     used_details = {}
     used_details2id = {}
@@ -7948,15 +7944,11 @@ def get_usedtime(
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
         )
-
         logger.debug(f"get_usedtime: {summary} used {used}")
         for period, dt in used:
             if isinstance(dt, date) and not isinstance(dt, datetime):
                 dt = datetime(dt.year, dt.month, dt.day).astimezone()
                 dt.replace(hour=23, minute=59, second=59)
-
-            # rhc_cols = 17 if UT_MIN == 0 else 14
-
             if UT_MIN > 0:
                 seconds = int(period.total_seconds()) % 60
                 if seconds:
@@ -7966,14 +7958,12 @@ def get_usedtime(
                 res = (period.total_seconds() // 60) % UT_MIN
                 if res:
                     period += (UT_MIN - res) * ONEMIN
-
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
             row = wkday2row(dayofweek)
             effort_details.setdefault(week, {})
             effort_details[week].setdefault(dayofweek, ZERO)
             effort_details[week][dayofweek] += period
-
             monthday = dt.date()
             id_used.setdefault(monthday, ZERO)
             id_used[monthday] += period

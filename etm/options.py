@@ -344,11 +344,6 @@ archive_after: {archive_after}
 # longer appear in normal views. Note that unfinished tasks and
 # journal entries are not archived.
 
-refresh_interval: {refresh_interval}
-# 6, 12, 30 or 60. The event loop responsible for refreshing
-# etm caches, updating alerts, timers and so forth, repeats once
-# every refresh_interval seconds.
-
 num_finished: {num_finished}
 # non-negative integer
 # If positive, when saving retain only the most recent "num_finished"
@@ -378,21 +373,25 @@ connecting_dots: {connecting_dots}
 # true or false. If true, display dots connecting the item summary and
 # the right-hand details columns in tree views.
 
+refresh_interval: {refresh_interval}
+# 6, 12, 30 or 60. The event loop responsible for refreshing
+# etm caches, updating alerts, timers and so forth, repeats once
+# every refresh_interval seconds. This setting determines the maximum
+# accuracy for used time recording since, e.g., with a setting of 12 
+# the clock is only read every 12 seconds so timers can only be accurate 
+# to the nearest 0.2 minutes. Whatever the value of this setting, usedtimes 
+# are recorded rounded off to the nearest minute. See also the setting for 
+# usedtime_minutes.
+
 usedtime_minutes: {usedtime_minutes}
-# 0, 1, 6, 12, 30 or 60. Round up used times. With 0, no rounding is done
-# and times are reported in hours, minutes and seconds. With 1, after
-# rounding up to the nearest minute, times are reported as hours and minutes.
-# Otherwise, rounding is up to the nearest integer multiple of
-# usedtime_minutes and times are reported as floating point hours. E.g.,
-# with usedtime_minutes = 6, 1 minute would be rounded up to 6 minutes and
-# reported as 0.1 hours. Similarly 13 minutes would be rounded up to 18
-# minutes and reported as 0.3 hours. The numbers 6, 12, 30 and 60 are
-# characterized by the fact that each is an integer multiple of 6 and 60 is
-# evenly divisible by each. This allows reported times to be expressed as
-# hours and tenths of an hour for each. Note that when rounding is specified,
-# each "@u" timeperiod is rounded before aggregation. Whatever the setting,
-# a used time record created using the timer is accurate to the nearest
-# second.
+# 0, 1, 6, 12, 30 or 60. This setting only affects how used times are 
+# reported - with 0, no rounding up is done, with 1 times are rounded up 
+# to the nearest minute, with 6 times are rounded up to the nearest 0.1 of
+# an hour, with 12 to the nearest 0.2 of an hour and so forth.  E.g., with
+# usedtime_minutes = 12, a used time entry of 15 minutes would be rounded
+# up to the nearest multiple of 12 or to 24 minutes = 0.4 hours for 
+# reporting in the used time views. This setting does not affect how the 
+# times are recorded but only how they are reported in used time views.
 
 usedtime_hours: {usedtime_hours}
 # 0, 1, 2, ..., 24. The daily goal for used time. This is used in effort
