@@ -209,7 +209,7 @@ class Settings:
     style = 'dark'
     type_colors = ''
     window_colors = ''
-    journal_name = '& daily'
+    journal_name = '# daily'
 
     # use these to format the template
     settings_hsh = {

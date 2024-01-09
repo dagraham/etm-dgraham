@@ -3129,21 +3129,37 @@ def exit(*event):
 
 @bindings.add('c-c', filter=is_viewing)
 def copy_active_view(*event):
-    pyperclip.copy(text_area.text)
-    show_message('copy', 'view copied to system clipboard', 2)
+    selection = text_area.buffer.copy_selection().text
+    if selection:
+        pyperclip.copy(selection)
+        show_message('copy', 'selection copied to system clipboard', 2)
+    else:
+        pyperclip.copy(text_area.text)
+        show_message('copy', 'view copied to system clipboard', 2)
 
 
 @bindings.add('c-c', filter=is_editing)
 def copy_details(*event):
-    pyperclip.copy(edit_buffer.text)
-    show_message('copy', 'entry copied to system clipboard', 2)
+    selection = edit_buffer.copy_selection().text
+    if selection:
+        pyperclip.copy(selection)
+        show_message('copy', 'selection copied to system clipboard', 2)
+    else:
+        pyperclip.copy(edit_buffer.text)
+        show_message('copy', 'entry text copied to system clipboard', 2)
 
 @bindings.add('c-c', filter=is_details)
 def copy_details(*event):
-    details = details_area.text
-    # details = dataview.get_details(text_area.document.cursor_position_row)[1]
-    pyperclip.copy(details)
-    show_message('copy', 'details copied to system clipboard', 2)
+    selection = details_area.buffer.copy_selection().text
+    if selection:
+        pyperclip.copy(selection)
+        show_message('copy', 'selection copied to system clipboard', 2)
+    else:
+        # get_app().clipboard.set_data(data)
+        details = details_area.text
+        # details = dataview.get_details(text_area.document.cursor_position_row)[1]
+        pyperclip.copy(details)
+        show_message('copy', 'details copied to system clipboard', 2)
 
 
 def set_text(txt, row=0):

@@ -24,7 +24,7 @@ while len(tmp) < 8:
 
 names = []
 for i in range(0, 8, 2):
-    names.append(f'{tmp[i]} {tmp[i+1]}')
+    names.append(f'{tmp[i]}, {tmp[i+1]}')
 
 
 def phrase():
@@ -65,7 +65,7 @@ def beg():
     return f"@s -{random.choice([1,2,3,4])}{random.choice(['d', 'w'])}"
 
 
-client_index = '$ all clients'
+client_index = '$ clients'
 info_index = '$ client info'
 client_detail = f"""
 Because of the index entry, all client records will be grouped under "{client_index}", then under the name of the relevant client in both index and journal view.  This infomation record will be first among the items for each client since beginning with a "{info_index}" will put it at the top of the sorting order for the index entries for each client. Having such a journal entry for each client ensures that the client name will be available for completion of the index entry when other client related items are being created. The choice of "{client_index}" and "{info_index}" is, of course, arbitrary but takes advantage of the sorting order that begins with "!", "#", "$" and "%".
