@@ -1,4 +1,10 @@
-2024-01-10 31208eb Daniel Graham
+2024-01-10 3665cb1 Daniel Graham
+    Tagged version 6.0.8.
+
+2024-01-10 8982e8e Daniel Graham
+    Fixed key bindings for do_check_update.
+
+2024-01-10 1db262c Daniel Graham
     Tagged version 6.0.7. Fix for Mr White
 
 2024-01-10 7a1ea5c Daniel Graham
@@ -199,9 +205,3 @@
 
 2023-12-25 a09d21b Daniel Graham
     rrule fixes, finish_item tweaks and formatting improvements.
-
-2023-12-24 92c00bd Daniel Graham
-    Fixed import of rruleset
-
-2023-12-24 9bd582f Daniel Graham
-    First pass at consolidating items in common.py.
