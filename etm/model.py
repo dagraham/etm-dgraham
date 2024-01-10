@@ -8211,10 +8211,7 @@ def schedule(
         jobs = item.get('j', None)
 
         if itemtype == '*' and start and extent and 'r' not in item:
-            dt = start
-            if isinstance(dt, date) and not isinstance(dt, datetime):
-                dt = datetime.strftime('%Y%m%d').astimezone()
-                dt.set(hour=0, minute=0, second=1)
+            dt = date_to_datetime(start)
 
         if used:
             logger.debug(f"processing {summary} used: {used}")
@@ -8236,7 +8233,6 @@ def schedule(
 
             for dt in dates_to_periods:
                 week = dt.isocalendar()[:2]
-                # weekday = dt.strftime(wkday_fmt)
                 weekday = format_wkday(dt)
                 week2day2effort.setdefault(week, {})
                 week2day2effort[week].setdefault(weekday, ZERO)
@@ -8334,7 +8330,6 @@ def schedule(
                             'week': (dt.isocalendar()[:2]),
                             'day': (
                                 format_wkday(dt),
-                                # dt.strftime(wkday_fmt),
                             ),
                             'columns': [
                                 finished_char,
@@ -8362,7 +8357,6 @@ def schedule(
             wk_fmt = fmt_week(week).center(width, ' ').rstrip()
             itemday = dt.strftime('%Y%m%d')
             dayDM = format_wkday(dt)
-            # dayDM = dt.strftime(wkday_fmt)
             if itemday == todayYMD:
                 dayDM += ' (Today)'
             elif itemday == tomorrowYMD:
@@ -8549,7 +8543,6 @@ def schedule(
                             'dayofweek': (dta.isocalendar()[-1]),
                             'day': (
                                 format_wkday(dta),
-                                # dta.strftime(wkday_fmt),
                             ),
                             'columns': [
                                 itemtype,
