@@ -1,4 +1,9 @@
-Recent tagged changes as of 2024-01-10 06:37:57.362402:
+Recent tagged changes as of 2024-01-10 06:54:28.822797:
+- 0 seconds ago (HEAD -> working, tag: 6.0.4) Daniel Graham
+    a64e3c2 2024-01-10 06:54:28 -0500
+    Tagged version 6.0.4. Back to master and working in github - etm 6
+    is now the official and only release
+
 - 17 hours ago (tag: 6.0.3) Daniel Graham
     9d348fd 2024-01-09 13:36:53 -0500
     Tagged version 6.0.3.
