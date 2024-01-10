@@ -115,12 +115,13 @@ if new_version:
     ok, version_info = check_output("git log --pretty=format:'%ai' -n 1")
     check_output(f"git tag -a -f '{new_version}' -m '{version_info}'")
 
-    count = 20
+    count = 60
     check_output(
         f"echo 'Recent tagged changes as of {datetime.now()}:' > CHANGES.txt"
     )
     check_output(
-        f"git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} --no-walk --tags >> CHANGES.txt"
+        # f"git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} --no-walk --tags >> CHANGES.txt"
+        f"git log --pretty=format:'%as %h %an%n%w(70,4,4)%B' --max-count={count} >> CHANGES.txt"
     )
     check_output(f"git commit -a --amend -m '{tmsg}'")
 
