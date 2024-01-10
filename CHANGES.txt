@@ -1,3 +1,9 @@
+2024-01-10 4b0f37a Daniel Graham
+    Tagged version 6.0.6. Fixes for bump.py.
+
+2024-01-10 ecd332f Daniel Graham
+    More bump tweaks.
+
 2024-01-10 7ded0b3 Daniel Graham
     restored bump.py changes
 
@@ -199,9 +205,3 @@
 
 2023-12-23 6183318 Daniel Graham
     Post python formatting by NvChad
-
-2023-12-23 92bc823 Daniel Graham
-    About to fiddle with code formatting a la 'blue'
-
-2023-12-20 97fd68c Daniel Graham
-    Merge branch 'working'
