@@ -1,4 +1,10 @@
-2024-01-10 4b0f37a Daniel Graham
+2024-01-10 31208eb Daniel Graham
+    Tagged version 6.0.7. Fix for Mr White
+
+2024-01-10 7a1ea5c Daniel Graham
+    Replace erroneous strftime with call to date_to_datetime.
+
+2024-01-10 180b3aa Daniel Graham
     Tagged version 6.0.6. Fixes for bump.py.
 
 2024-01-10 ecd332f Daniel Graham
@@ -199,9 +205,3 @@
 
 2023-12-24 9bd582f Daniel Graham
     First pass at consolidating items in common.py.
-
-2023-12-23 f9f84a3 Daniel Graham
-    Tagged version 6.0.0b0. On to beta!
-
-2023-12-23 6183318 Daniel Graham
-    Post python formatting by NvChad
