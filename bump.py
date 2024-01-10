@@ -116,12 +116,12 @@ if new_version:
     check_output(f"git tag -a -f '{new_version}' -m '{version_info}'")
 
     count = 60
-    check_output(
-        f"echo 'Recent tagged changes as of {datetime.now()}:' > CHANGES.txt"
-    )
+    # check_output(
+    #     f"echo 'Recent tagged changes as of {datetime.now()}:' > CHANGES.txt"
+    # )
     check_output(
         # f"git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} --no-walk --tags >> CHANGES.txt"
-        f"git log --pretty=format:'%as %h %an%n%w(70,4,4)%B' --max-count={count} >> CHANGES.txt"
+        f"git log --pretty=format:'%as %h %an%n%w(70,4,4)%B' --max-count={count} > CHANGES.txt"
     )
     check_output(f"git commit -a --amend -m '{tmsg}'")
 
@@ -130,7 +130,7 @@ if new_version:
         print('cancelled')
         sys.exit()
     ok, res = check_output(
-        f'git checkout master && git merge working && git push origin && git checkout working'
+        f'git push origin && git checkout master && git merge working && git push origin && git checkout working'
     )
     if res:
         print(res)

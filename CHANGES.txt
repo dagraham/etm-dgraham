@@ -1,81 +1,207 @@
-Recent tagged changes as of 2024-01-10 11:05:12.725572:
-- 0 seconds ago (HEAD -> working, tag: 6.0.5) Daniel Graham
-    dcca395 2024-01-10 11:05:12 -0500
+2024-01-10 7ded0b3 Daniel Graham
+    restored bump.py changes
+
+2024-01-10 e61af52 Daniel Graham
     Tagged version 6.0.5. Testing update procedure and tagging.
 
-- 4 hours ago (tag: 6.0.4) Daniel Graham
-    a64e3c2 2024-01-10 06:54:28 -0500
+2024-01-10 e460628 Daniel Graham
     Tagged version 6.0.4. Back to master and working in github - etm 6
     is now the official and only release
 
-- 21 hours ago (tag: 6.0.3) Daniel Graham
-    9d348fd 2024-01-09 13:36:53 -0500
+2024-01-10 a3c1111 Daniel Graham
+    Fixed CHANGES.txt
+
+2024-01-10 b1312df Daniel Graham
+    bump fix
+
+2024-01-10 e239fa6 Daniel Graham
+    Tagged version 6.0.4. Github modifications: master6 -> master;
+    working6 -> working. etm 6 is now the official (and only) release.
+
+2024-01-10 2803ca7 Daniel Graham
+    Back from working6 and master6 to working and master.
+
+2024-01-10 2ed6d17 Daniel Graham
+    Merge branch 'working' into working6
+
+2024-01-10 22e6751 Daniel Graham
+    Merge remote-tracking branch 'origin/master' into master6
+
+2024-01-09 f601318 Daniel Graham
+    Corrected check updates to get version number from master6.
+
+2024-01-09 1e98f61 Daniel Graham
+    Improved explanation of refresh_interval and usedtime_minutes in
+    options.py
+
+2024-01-09 7068d15 Daniel Graham
     Tagged version 6.0.3.
 
-- 2 days ago (tag: 6.0.2) Daniel Graham
-    e73a516 2024-01-08 11:45:42 -0500
+2024-01-09 6f6b2b4 Daniel Graham
+    Lorem tweaks. Enabled copying selection in details, edit and views
+    with Ctrl-C. If text is selected then the selection is copied to
+    the clipboard, otherwise the details, edit or view text is copied.
+
+2024-01-08 5f0fe09 Daniel Graham
+    Update bump.py
+
+    Fixed push command.
+
+2024-01-08 9e104dc Daniel Graham
     Tagged version 6.0.2.
 
-- 3 days ago (tag: 6.0.1) Daniel Graham
-    c027fc7 2024-01-07 08:37:04 -0500
+2024-01-08 1a855a7 Daniel Graham
+    updated bump to use working6 and master6
+
+2024-01-08 fef84e2 Daniel Graham
+    Fixed bug in key for usedtime_details where single digit months
+    were used erroneously, e.g., '2024-1' instead of '2024-01'.
+
+2024-01-07 2c129d8 Daniel Graham
+    lorem example tweaks
+
+2024-01-07 9374ba8 Daniel Graham
     Tagged version 6.0.1.
 
-- 3 days ago (tag: 6.0.1a1) Daniel Graham
-    df3de16 2024-01-07 07:35:46 -0500
+2024-01-07 a96db8f Daniel Graham
+    Commit tweaks
+
+2024-01-07 d96a6f2 Daniel Graham
     Tagged version 6.0.1a1.
 
-- 4 days ago (tag: 6.0.0rc4) Daniel Graham
-    15ca2a0 2024-01-06 22:29:38 -0500
+2024-01-07 2e6ad4e Daniel Graham
+    Changed bump.py to reflect the move from working to working6.
+
+2024-01-07 c067fb6 Daniel Graham
+    Tagged version 6.0.1. "initial release"
+
+2024-01-07 b542aeb Daniel Graham
+    Cleaned up logging. Expand @i 'journal_name' in index view as in
+    journal view. Tweaked ake_examples and changed the summary of the
+    inbox item to README to call attention to the information in the
+    description.
+
+2024-01-06 fd3deaf Daniel Graham
     Tagged version 6.0.0rc4.
 
-- 7 days ago (tag: 6.0.0rc3) Daniel Graham
-    6117d41 2024-01-03 10:35:03 -0500
+2024-01-06 5362290 Daniel Graham
+    More work on resource warnings, might have solution.
+
+2024-01-05 f565ead Daniel Graham
+    Removed ical.py and report.py. Working on 'Resource error'.
+
+2024-01-03 033aaab Daniel Graham
+    More profile_etm tweaks and sort improvements for journal view.
+
+2024-01-03 52459e9 Daniel Graham
+    profile_etm tweaks
+
+2024-01-03 f4958b3 Daniel Graham
+    Moved etm-qt/ and removed it from git.
+
+2024-01-03 39d4727 Daniel Graham
     Tagged version 6.0.0rc3.
 
-- 8 days ago (tag: 6.0.0rc2) Daniel Graham
-    811071c 2024-01-02 09:35:18 -0500
+2024-01-03 17c2153 Daniel Graham
+    Fixed inconsistent sign for completions - + for early and - for
+    late. Re use format_duration to catch two most significant
+    periods. Added profile_eetm.py script to start etm 'wrapped' in
+    cProfile and save the resulting pstats when etm closes to
+    'profile.txt' in the etmhome directory.
+
+2024-01-02 58c315f Daniel Graham
+    Removed unneeded logging.debug
+
+2024-01-02 8e6f5b9 Daniel Graham
     Tagged version 6.0.0rc2.
 
-- 9 days ago (tag: 6.0.0rc1) Daniel Graham
-    12da1a0 2024-01-01 15:16:28 -0500
+2024-01-02 38a0a0e Daniel Graham
+    Consolidated Period and related in common.py. Added debug logging
+    to do_goto (for @g links). Fixed logic for overdue skip to update
+    skipped and history from @+ list and to set relevant from @+ when
+    appropriate.
+
+2024-01-01 169c991 Daniel Graham
     Tagged version 6.0.0rc1.
 
-- 9 days ago (tag: 6.0.0rc0) Daniel Graham
-    5df775c 2024-01-01 09:51:40 -0500
+2024-01-01 35ca634 Daniel Graham
+    Fixed copy to clipboard when editing a reminder.
+
+2024-01-01 7820d45 Daniel Graham
+    Fixed nested double quotes for python3.11 compatibility.
+
+2024-01-01 8a8df43 Daniel Graham
     Tagged version 6.0.0rc0.
 
-- 10 days ago (tag: 6.0.0b4) Daniel Graham
-    b08dc5d 2023-12-31 17:32:39 -0500
+2024-01-01 e04de45 Daniel Graham
+    Fixed update for @s when tasks with @o s become past due. Show
+    skipped char for such completions in done and completions history.
+    Fixed duplicate display in get_entry.
+
+2024-01-01 ba25c34 Daniel Graham
+    Changed binding for adding a new item from 'N' to '+' to allow 'N'
+    to be used for backward search.
+
+2023-12-31 35d72d5 Daniel Graham
     Tagged version 6.0.0b4.
 
-- 11 days ago (tag: 6.0.0b3) Daniel Graham
-    6e11487 2023-12-30 11:38:14 -0500
+2023-12-31 451099d Daniel Graham
+    More tweaks on handling repeating tasks with @o s and @+ entries.
+
+2023-12-31 1a7c546 Daniel Graham
+    Implemented test for duplicates when editing. Changed c-c to copy
+    to pyperclip whatever is in the details window including messages.
+    Removed search_field from details, edit and other unnecessary
+    places.
+
+2023-12-30 f1ffe8a Daniel Graham
+    make_example tweaks. Added query to remove lorem examples to the
+    default query options.
+
+2023-12-30 f8bbec5 Daniel Graham
     Tagged version 6.0.0b3.
 
-- 13 days ago (tag: 6.0.0b2) Daniel Graham
-    f97a994 2023-12-28 09:46:18 -0500
+2023-12-30 84bb5b0 Daniel Graham
+    Refactored import_file. Only .text files in etmhome plus lorem
+    using a get_choice dialog. Moved logging and TimeIt to common.
+
+2023-12-28 e71563a Daniel Graham
+    More strftime %-<x> changes.
+
+2023-12-28 7e983d5 Daniel Graham
     Tagged version 6.0.0b2.
 
-- 2 weeks ago (tag: 6.0.0b1) Daniel Graham
-    63e30b5 2023-12-25 09:19:33 -0500
+2023-12-28 eacebad Daniel Graham
+    bump.py fixes
+
+2023-12-28 dd90527 Daniel Graham
+    bump.py tweaks to incorporate 'upload_sdist.sh'. Many strftime
+    changes to replace, e.g., '%d' with '%-d', to remove leading
+    zeros.
+
+2023-12-26 03588dc Daniel Graham
+    Renamed engaged view as effort view.
+
+2023-12-25 cf35760 Daniel Graham
     Tagged version 6.0.0b1.
 
-- 3 weeks ago (tag: 6.0.0b0) Daniel Graham
-    68746cb 2023-12-23 11:32:47 -0500
+2023-12-25 a09d21b Daniel Graham
+    rrule fixes, finish_item tweaks and formatting improvements.
+
+2023-12-24 92c00bd Daniel Graham
+    Fixed import of rruleset
+
+2023-12-24 9bd582f Daniel Graham
+    First pass at consolidating items in common.py.
+
+2023-12-23 f9f84a3 Daniel Graham
     Tagged version 6.0.0b0. On to beta!
 
-- 3 weeks ago (tag: 5.1.19) Daniel Graham
-    7ff6e53 2023-12-20 16:34:45 -0500
-    Tagged version 5.1.19.
+2023-12-23 6183318 Daniel Graham
+    Post python formatting by NvChad
 
-- 3 weeks ago (tag: 6.0.0a9) Daniel Graham
-    8442e26 2023-12-20 07:01:48 -0500
-    Tagged version 6.0.0a9.
+2023-12-23 92bc823 Daniel Graham
+    About to fiddle with code formatting a la 'blue'
 
-- 4 weeks ago (tag: 6.0.0a8) Daniel Graham
-    60ef490 2023-12-16 14:17:22 -0500
-    Tagged version 6.0.0a8.
-
-- 4 weeks ago (tag: 6.0.0a7) Daniel Graham
-    8da1b91 2023-12-13 13:42:15 -0500
-    Tagged version 6.0.0a7.
+2023-12-20 97fd68c Daniel Graham
+    Merge branch 'working'
