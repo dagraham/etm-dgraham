@@ -779,8 +779,8 @@ def do_check_updates(*event):
 
         def coroutine():
             keypress = dataview.details_key_press
-            done = keypress in ['0', '1']
-            if keypress == '1':
+            done = keypress in ['escape', Keys.ControlM]
+            if keypress == Keys.ControlM:
                 ok, msg = check_output(settings['update_command'])
                 tmp = [x.strip() for x in msg.split('\n')]
                 lines = [wrap(tmp[0])]
