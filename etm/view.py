@@ -807,7 +807,7 @@ def do_check_updates(*event):
 
 
 def check_update():
-    url = 'https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etm/__version__.py'
+    url = 'https://raw.githubusercontent.com/dagraham/etm-dgraham/master6/etm/__version__.py'
     try:
         r = requests.get(url)
         t = r.text.strip()
