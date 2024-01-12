@@ -2170,7 +2170,7 @@ def format_wkday(obj):
 def format_datetime(obj, short=False):
     """
     >>> format_datetime(parse_datetime("20160710T1730")[1])
-    (True, 'Sun Jul 10 2016 5:30pm EDT')
+    , needs(True, 'Sun Jul 10 2016 5:30pm EDT')
     >>> format_datetime(parse_datetime("2015-07-10 5:30p", "float")[1])
     (True, 'Fri Jul 10 2015 5:30pm')
     >>> format_datetime(parse_datetime("20160710")[1])
@@ -3380,7 +3380,7 @@ class DataView(object):
                 ):
                     # complex query
                     self.query_view, self.row2id = show_query_results(
-                        self.query_text, self.query_grpby, self.query_items
+                        self.query_text, self.query_grpby, self.query_items, self.query_needs
                     )
                 else:
                     # standard query
@@ -3399,10 +3399,11 @@ class DataView(object):
 
             return self.query_view
 
-    def set_query(self, text, grpby, items):
+    def set_query(self, text, grpby, items, needs):
         self.query_text = text
         self.query_items = items
         self.query_grpby = grpby
+        self.query_needs = needs
 
     def nextYrWk(self):
         self.activeYrWk = nextWeek(self.activeYrWk)

@@ -2139,11 +2139,11 @@ def do_complex_query(text, loop):
         item.use_items()
 
     if len(text) > 1 and text[1] == ' ' and text[0] in ['s', 'u', 'm', 'c']:
-        grpby, filters = report.get_grpby_and_filters(text)
+        grpby, filters, needs = report.get_grpby_and_filters(text)
         ok, items = query.do_query(filters.get('query') + updt)
         if ok:
             items = report.apply_dates_filter(items, grpby, filters)
-            dataview.set_query(text, grpby, items)
+            dataview.set_query(text, grpby, items, needs)
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
         else:
@@ -2352,7 +2352,6 @@ def do_maybe_delete(*event):
     has_timer = doc_id in dataview.timers
     timer_warning = ' and\nits associated timer' if has_timer else ''
 
-    logger.debug(f'details: doc_id={doc_id}, instance={instance}, job={job}')
     if not instance:
         # not repeating
         title = 'Delete'
@@ -2367,12 +2366,10 @@ def do_maybe_delete(*event):
 
 Are you sure that you want to delete this reminder?
 """
-        logger.debug(f'calling get_choice with {title}, {text}, {options}')
         get_choice(title, text, options)
 
         def coroutine():
             keypress = dataview.details_key_press
-            logger.debug(f'confirmation keypress: {keypress}')
             done = keypress in ['escape', Keys.ControlM]
             if keypress == Keys.ControlM:
                 if has_timer:
@@ -2410,7 +2407,6 @@ This is one instance of a repeating item. What do you want to delete?
 
         def coroutine():
             keypress = dataview.details_key_press
-            logger.debug(f'confirmation keypress: {keypress}')
 
             done = keypress in ['escape', '1', '2', '3']
             if done:
@@ -2621,9 +2617,7 @@ def do_finish(*event):
         return
 
     hsh = DBITEM.get(doc_id=doc_id)
-    logger.debug(f'type(hsh): {type(hsh)}')
     msg = ''
-    logger.debug(f"itemtype: {hsh['itemtype']}")
     if hsh['itemtype'] != '-' or 'f' in hsh:
         show_message('Finish', 'Only an unfinished task can be finished.')
         return
@@ -2639,7 +2633,6 @@ def do_finish(*event):
             due = min(due, model.date_to_datetime(at_plus[0]))
     else:
         due = hsh.get('s', None)
-    logger.debug(f'due: {due} {type(due)}')
 
     between = []
 
@@ -2800,7 +2793,6 @@ The default entered below is to use the current moment as the "completion dateti
                 due = between[num]
             else:
                 msg = f"Cancelled, '{num}' is not in [{', '.join([str(x) for x in range(len(between))])}]"
-            logger.debug(f'parsing: {done_parts[1]}')
             ok, res, z = parse_datetime(done_parts[0])
             if ok:
                 done = res
@@ -2821,7 +2813,6 @@ The default entered below is to use the current moment as the "completion dateti
         done = model.date_to_datetime(done)
         due = model.date_to_datetime(due)
 
-        logger.debug(f'calling finish_item {doc_id}, {job}, {done}, {due}')
         changed = item.finish_item(doc_id, job, done, due)
 
         if not msg and changed:
@@ -2866,14 +2857,12 @@ def edit_copy(*event):
 @bindings.add('g', filter=is_viewing & is_not_editing)
 def do_goto(*event):
     row = text_area.document.cursor_position_row
-    logger.debug(f"row: {row}")
     if not row:
         logger.error(
             f'do_goto failed to return a row for cursor position {text_area.document.cursor_position_row}'
         )
         return
     res = dataview.get_row_details(row)   # item_id, instance, job_id
-    logger.debug(f'get_row_details for row {row} returned {res} ')
     if not res:
         return
     doc_id = res[0]

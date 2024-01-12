@@ -16,7 +16,7 @@ from prompt_toolkit import PromptSession
 
 from etm.view import ETMQuery, format_week
 
-from etm.model import parse, parse_duration, fmt_week
+from etm.model import format_datetime, parse, parse_duration, fmt_week
 
 from etm.model import format_hours_and_tenths
 import etm.data as data
@@ -124,7 +124,6 @@ def parse_reldt(s):
         sign = '+'
     elif re.search(minus, s):
         sign = '-'
-    # logger.debug(f's: {s}; sign: {sign}')
     if sign:
         if s[0] in ['+', '-']:
             dtm = ''
@@ -136,17 +135,14 @@ def parse_reldt(s):
     else:
         dtm = s.strip()
         dur = ''
-    # logger.debug(f'dtm: {dtm}; dur: {dur}')
     if dtm in date_shortcuts:
         dt = date_shortcuts[dtm]()
     else:
         dt = parse(dtm)
-    # logger.debug(f'dt: {dt}')
     if dur:
         ok, du = parse_duration(dur)
     else:
         du = ZERO
-    logger.debug(f'dt: {dt} {type(dt)}, du: {du} {type(du)}')
     return dt + du if sign == '+' else dt - du
 
 
@@ -187,11 +183,9 @@ def maybe_round(obj):
     round up to the nearest UT_MIN minutes.
     """
 
-    # logger.debug(f'obj: {type(obj)}')
     if isinstance(obj, Period):
         obj = obj.diff
     if not isinstance(obj, timedelta):
-        # logger.debug(f'returning none for obj: {type(obj)}')
         return None
     if UT_MIN == 0:
         return obj
@@ -216,7 +210,6 @@ def sort_dates_times(obj):
 
 
 def apply_dates_filter(items, grpby, filters):
-    # logger.debug(f'starting len(items): {len(items)}; filters: {filters}')
     if grpby['report'] == 'u':
 
         def rel_dt(item, filters):
@@ -340,7 +333,6 @@ def apply_dates_filter(items, grpby, filters):
     ok_items = []
     for item in items:
         ok_items.extend(rel_dt(item, filters))
-    # logger.debug(f'ending len(ok_items): {len(ok_items)}')
     return ok_items
 
 
@@ -351,12 +343,31 @@ class QDict(dict):
 
     tab = 2
 
-    def __init__(self, used_time={}, row=0):
+    def __init__(self, used_time={}, row=0, needs=[]):
         self.width = shutil.get_terminal_size()[0] - 4   # -2 for query indent
         self.row = row
+        self.needs = needs
         self.row2id = {}
         self.output = []
         self.used_time = used_time
+
+        self.fmt = ''
+        if self.needs:
+            fmts = {'y': '%y', 'm': '%-m', 'd': '%-d'}
+            tmp = []
+            if settings['yearfirst'] and not settings['dayfirst']:
+                for x in ['y', 'm', 'd']:
+                    if x in self.needs:
+                        tmp.append(fmts[x])
+            else:
+                for x in ['d', 'm', 'y']:
+                    if x in self.needs:
+                        tmp.append(fmts[x])
+            self.fmt = '/'.join(tmp)
+            if settings['ampm']:
+                self.fmt += ' %-I:%M%p'
+            else:
+                self.fmt += '%H:%M'
 
     def __missing__(self, key):
         self[key] = QDict()
@@ -379,7 +390,7 @@ class QDict(dict):
                         width=self.width - QDict.tab * (depth - 1),
                     ).split('\n')
                 )
-        elif isinstance(detail, dateTime):
+        elif isinstance(detail, datetime):
             ret = [dindent + format_datetime(detail, short=True)[1]]
         elif isinstance(detail, timedelta):
             ret = [dindent + format_hours_and_tenths(detail)]
@@ -458,8 +469,11 @@ class QDict(dict):
                 for leaf in t[k]:
                     indent = QDict.tab * depth * ' '
                     l_indent = len(indent)
-                    ht = format_hours_and_tenths(leaf[2])
-                    avail = self.width - l_indent - len(ht) - 4
+                    ut = format_hours_and_tenths(leaf[2])
+                    # dt = leaf[3].strftime('%d %H:%M')
+                    # dt = format_datetime(leaf[3], short=True)[1]
+                    dt = leaf[3].strftime(self.fmt).rstrip('M').lower()
+                    avail = self.width - l_indent - len(ut) - len(dt) - 4
                     if len(leaf[1]) > avail:
                         leaf[1] = (
                             leaf[1][: avail - 1] + ETM_CHAR['ELLIPSiS_CHAR']
@@ -468,9 +482,11 @@ class QDict(dict):
                         )
                     if self.used_time:
                         self.output.append(
-                            '%s%s %s: %s' % (indent, leaf[0], leaf[1], ht)
+                            f'{indent}{leaf[0]} {dt} {leaf[1]} {ut}'
+                            # '%s%s %s: %s %s'
+                            # % (indent, leaf[0], dt, leaf[1], ut)
                         )
-                        num_leafs = 3
+                        num_leafs = 4
                     else:
                         self.output.append(
                             '%s%s %s' % (indent, leaf[0], leaf[1])
@@ -489,8 +505,7 @@ class QDict(dict):
         return '\n  '.join(self.output), self.row2id
 
 
-def get_output_and_row2id(items, grpby, header=''):
-    # logger.debug(f'grpby: {grpby}; header: {header}')
+def get_output_and_row2id(items, grpby, header='', needs=[]):
     used_time = {}
     ret = []
     report = grpby['report']
@@ -559,7 +574,8 @@ def get_output_and_row2id(items, grpby, header=''):
 
     # create recursive dict from data
     row = 1 if header else 0
-    index = QDict(used_time, row)
+    # need to pass 'needs' to QDict
+    index = QDict(used_time, row, needs)
     for path, value in ret:
         index.add(path, value)
 
@@ -577,7 +593,6 @@ def get_grpby_and_filters(s, options=None):
     head = parts.pop(0)
     report = head[0]
     groupbystr = head[1:].strip()
-    # logger.debug(f'report: {report}')
     if not (report and report in ['s', 'u', 'm', 'c']):
         return {}, {}
     grpby['report'] = report
@@ -604,11 +619,12 @@ def get_grpby_and_filters(s, options=None):
     grpby['path'] = []
     grpby['sort'] = []
     # include = {'W', 'Y', 'M', 'D'}
+    # needs = ['%y', '%-m', '%-d']
+    needs = ['y', 'm', 'd']
     if groupbylst:
         if grpby['dated'] or grpby['report'] in ['u', 'm', 'c']:
             grpby['sort'].append(f"item['rdt'].strftime('%Y%m%d')")
         for group in groupbylst:
-            # logger.debug(f'group: {group}')
             if groupdate_regex.search(group):
                 gparts = group.split(' ')
                 this_sort = []
@@ -620,16 +636,19 @@ def get_grpby_and_filters(s, options=None):
                             f"format_week(item['rdt'], {p2d[part]})"
                         )
                     if 'Y' in part:
+                        needs.remove('y')
                         this_sort.append("item['rdt'].strftime('%Y')")
                         this_path.append(
                             f"item['rdt'].strftime('{p2d[part]}')"
                         )
                     if 'M' in part:
+                        needs.remove('m')
                         this_sort.append("item['rdt'].strftime('%m')")
                         this_path.append(
                             f"item['rdt'].strftime('{p2d[part]}')"
                         )
                     if 'D' in part:
+                        needs.remove('d')
                         this_sort.append("item['rdt'].strftime('%d')")
                         this_path.append(
                             f"item['rdt'].strftime('{p2d[part]}')"
@@ -642,7 +661,6 @@ def get_grpby_and_filters(s, options=None):
                 grpby['path'].append(this_path)
 
             elif '[' in group and group[0] == 'i':
-                # logger.debug(f'i group: {group[0]}, {group[1:]}')
                 if ':' in group:
                     grpby['path'].append(
                         f"'/'.join(re.split('/', item['{group[0]}']){group[1:]}) or '~'"
@@ -674,17 +692,18 @@ def get_grpby_and_filters(s, options=None):
     details = ["item['itemtype']", "item['summary']"]
     if report == 'u':
         details.append("item['u'][1]")
+        details.append("item['u'][0]")
     else:
         details.append('')
     if also:
         details.extend([f"item.get('{x}', '~')" for x in also])
     details.append('item.doc_id')
     grpby['dtls'] = details
-    # logger.debug(f'get_grpby_and_filters: rgrpby: {grpby}; filters: {filters}')
-    return grpby, filters
+    return grpby, filters, needs
 
 
-def show_query_results(text, grpby, items):
+def show_query_results(text, grpby, items, needs):
+    # called by dataview to set query
     width = shutil.get_terminal_size()[0] - 7
     rows = []
     item_count = f' [{len(items)}]'
@@ -692,7 +711,8 @@ def show_query_results(text, grpby, items):
     if not (items and isinstance(items, list)):
         return f'query: {text}\n   none matching', {}
     header = f'query: {text[:summary_width]}{item_count}'
-    output, row2id = get_output_and_row2id(items, grpby, header)
+    # need to pass 'needs' to get_output_and_row2id
+    output, row2id = get_output_and_row2id(items, grpby, header, needs)
     return output, row2id
 
 
