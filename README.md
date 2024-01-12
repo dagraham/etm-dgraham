@@ -25,7 +25,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
             -   [Simple query examples](#simple-query-examples)
             -   [Archive queries](#archive-queries)
             -   [Update queries](#update-queries)
-            <!-- -   [Complex queries](#complex-queries) -->
+            -   [Complex queries](#complex-queries)
             -   [Command History](#command-history)
             -   [Saved Queries](#saved-queries)
         -   [Common Features](#common-features)
@@ -915,7 +915,6 @@ ALL YOUR REMINDERS:
 
 [↺ contents](#contents)
 
-<!--
 #### Complex queries {#complex-queries}
 
 Return a formatted, heirarchial display of items. Both the format and the items displayed are determined by the type of the query and the arguments provided. Since these queries can group and sort by date/times, these queries must begin by specifying which of the possible datetimes to use. There are four types of datetime specifications:
@@ -967,6 +966,7 @@ Complex queries follow the datetime specifier with a required group/sort specifi
 	* WW: month days interval for week: Jan 13 - 19
 	* WWW: interval and year: Jan 13 - 19, 2020
 	* WWWW: interval, year and week number: Jan 13 - 19, 2020 #3
+	* WWWWW: interval, year and week number: January 13 - 19, 2020 #3
   * day:
 	* D: month day: 1 - 31
 	* DD: month day: 01 - 31
@@ -999,20 +999,21 @@ The group/sort specification can be followed, optionally, by any of the followin
 
 Note: -b and -e accept shortcuts:
 * daybeg: 12am on the current day
-* dayend: 12am on the following day
+* dayend: 12am on the following day - 1 second
 * weekbeg: 12am on Monday of the current week
-* weekend: 12am on Monday of the following week
+* weekend: 12am on Monday of the following week - 1 second
 * monthbeg: 12am on the 1st of the current month
-* monthend: 12am on the 1st of the following month
+* monthend: 12am on the 1st of the following month - 1 second
+* prevmonthbeg: 12am on the 1st of the previous month
+* prevmonthend: 12am on the 1st of the current month - 1 second
 
-and can be combined with period strings using M (month),
-w (week), d (day), h (hour) and m (minute). E.g.:
+and can be combined with period strings using w (week), d (day), h (hour) and m (minute). 
+E.g.:
 * `weekbeg - 1w`  (the beginning of the previous week)
-* `monthend + 1M` (the end of the following month)
 
 
 [↺ contents](#contents)
--->
+
 #### Command History {#command-history}
 
 Any query entered at the 'query:' prompt and submitted by pressing 'Enter' is added to the command history. These queries are kept as long as 'etm' is running and can be accessed using the up and down cursor keys in the query field. This means you can enter a query, check the result, press 'q' to reopen the query prompt, press the up cursor and you will have your previous query ready to modify and submit again. It is also possible to keep a permanent list of queries accessible by shortcuts. See 'Saved Queries' below.

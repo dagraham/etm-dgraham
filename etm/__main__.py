@@ -115,6 +115,7 @@ def setup_logging(level, etmdir, file=None):
         logger.critical(
             f'logging at level: {loglevel}\n    logging to file: {logfile}'
         )
+    return logger
 
 
 def main():
@@ -155,12 +156,13 @@ Usage:
     from etm.data import Period
     import etm.view as view
 
-    # from etm.view import ETMQuery
+    from etm.view import ETMQuery
     import etm.model as model
     import etm.common as common
 
-    # import etm.report as report
-    # report.ETMQuery = ETMQuery
+    import etm.report as report
+
+    report.ETMQuery = ETMQuery
 
     loglevel = 2   # info
     log_levels = [str(x) for x in range(1, 6)]
@@ -442,23 +444,23 @@ which will need to be created.
     view.terminal_style = style
     view.make_examples = make_examples
 
-    # view.report = report
-    # show_query_results = report.show_query_results
-    # view.show_query_results = show_query_results
-    # model.show_query_results = show_query_results
-    # report.ETMDB = ETMDB
-    # report.DBITEM = DBITEM
-    # report.DBARCH = DBARCH
-    # report.ETMQuery = ETMQuery
-    # report.settings = settings
-    # report.format_time = format_time
-    # report.parse_duration = parse_duration
-    # report.parse_datetime = parse_datetime
-    # report.format_datetime = format_datetime
-    # report.format_duration = format_duration
-    # report.format_hours_and_tenths = format_hours_and_tenths
-    # report.logger = logger
-    # report.UT_MIN = UT_MIN
+    view.report = report
+    show_query_results = report.show_query_results
+    view.show_query_results = show_query_results
+    model.show_query_results = show_query_results
+    report.ETMDB = ETMDB
+    report.DBITEM = DBITEM
+    report.DBARCH = DBARCH
+    report.ETMQuery = ETMQuery
+    report.settings = settings
+    report.format_time = format_time
+    report.parse_duration = parse_duration
+    report.parse_datetime = parse_datetime
+    report.format_datetime = format_datetime
+    report.format_duration = format_duration
+    report.format_hours_and_tenths = format_hours_and_tenths
+    report.logger = logger
+    report.UT_MIN = UT_MIN
 
     logger.info(f'setting terminal_style: {style}')
 
@@ -581,7 +583,7 @@ invoked.
     if '{T}' in input:
         # expand the timestamp
         hsh = {
-            'T': datetime.now().astimezone().format('YYYY-MM-DD HH:mm:ss zz')
+            'T': datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S %Z')
         }
         input = input.format(**hsh)
 

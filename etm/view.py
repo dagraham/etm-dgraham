@@ -140,23 +140,32 @@ class TDBLexer(RegexLexer):
 
 def format_week(dt, fmt='WWW'):
     """ """
-    if fmt == 'W':
-        return dt.week_of_year
-    if fmt == 'WW':
-        return dt.strftime('%W')
+    wm = re.compile(r'^W{1,5}$')
+    if not wm.match(fmt.strip()):
+        return f'bad fmt: {fmt}'
 
+    if fmt == 'W':
+        return dt.strftime("%-W")
+
+    if len(fmt) < 3:
+        year_part = ""
+    elif len(fmt) == 3:    
+        year_part = ", %Y" 
+    else:
+        year_part = ", %Y #%-W" 
+        
     dt_year, dt_week = dt.isocalendar()[:2]
 
-    mfmt = 'MMMM D' if fmt == 'WWWW' else 'MMM D'
+    mfmt = '%B %-d' if fmt == 'WWWWW' else '%b %-d'
 
     wkbeg = datetime.strptime(f'{dt_year} {str(dt_week)} 1', '%Y %W %w').date()
     wkend = datetime.strptime(f'{dt_year} {str(dt_week)} 0', '%Y %W %w').date()
-    week_begin = wkbeg.format(mfmt)
+    week_begin = wkbeg.strftime(mfmt)
     if wkbeg.month == wkend.month:
-        week_end = wkend.format('D')
+        week_end = wkend.strftime('%-d')
     else:
-        week_end = wkend.format(mfmt)
-    return f'{week_begin} - {week_end}'
+        week_end = wkend.strftime(mfmt)
+    return f'{week_begin} - {week_end}{year_part}'
 
 
 class ETMQuery(object):
@@ -700,11 +709,11 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     ret = '<return>: to proceed'.center(width, ' ')
     esc = '<escape>: to cancel'.center(width, ' ')
 
-    bp = f""" and press
+    bp = f"""and press
 {ret}
 {esc}\
     """
-    text = wrap_text(text.rstrip() + bp)
+    text = wrap_text(text + bp)
 
     entry_title_buffer.text = heading
     entry_display_area.text = wrap_text(text)
@@ -874,7 +883,7 @@ where x is a datetime and y is either
 Be sure to surround [+-] with spaces.
 Timezones can be appended to x and y.
 
-Enter the expression"""
+Enter the expression """
     default = dataview.calculator_expression
     get_entry(title, text, default, event)
 
@@ -933,11 +942,11 @@ def add_usedtime(*event):
             start = now
         timer = f'timer:\n  status: {state2fmt[state]}\n  last change: {format_datetime(start, short=True)[1]}\n  elapsed time: {format_duration(elapsed, short=True)}'
 
-        default = f'{format_duration(elapsed, short=True)} : {format_datetime(now, short=True)[1]}'
+        default = f'{format_duration(elapsed, short=True)}: {format_datetime(now, short=True)[1]}'
     else:
         state = None
         timer = 'timer: none'
-        default = f'0m : {format_datetime(now, short=True)[1]}'
+        default = f'0m: {format_datetime(now, short=True)[1]}'
 
     title = 'Record Used Time'
 
@@ -946,9 +955,7 @@ selected: {hsh['itemtype']} {hsh['summary']}
 @i (index): {hsh.get('i', '~')}
 {timer}
 
-To record a used time entry for this reminder enter an expression using the format:
-    period : datetime
-"""
+Enter an expression of the form "period: datetime", e.g., "1h27m: 3:20p", in the entry area below. The default is the current period from the timer ("0m" if there is no timer) and the current datetime. Make any changes you like """
 
     get_entry(title, text, default, event)
 
@@ -1218,7 +1225,7 @@ def do_go_to_line(*event):
     # return
 
     title = ('Go to line',)
-    text = 'Enter the line number'
+    text = 'Enter the line number '
     default = ''
     if dataview.current_row:
         default = dataview.current_row + 1
@@ -1250,8 +1257,7 @@ def do_jump_to_date(*event):
 
     title = 'Jump to Date'
     text = """\
-Enter the date\
-"""
+Enter the date """
 
     get_entry(title, text, '', event)
 
@@ -2248,8 +2254,7 @@ def do_schedule_new(*event):
     text = f"""\
 selected: {hsh['itemtype']} {hsh['summary']}
 
-To schedule an additional datetime for this reminder enter the new datetime\
-"""
+To schedule an additional datetime for this reminder enter the new datetime """
 
     get_entry(title, text, '', event)
 
@@ -2302,8 +2307,7 @@ def do_reschedule(*event):
 selected: {hsh['itemtype']} {hsh['summary']}
 instance: {format_datetime(instance)[1]}
 
-To reschedule enter the {new}\
-"""
+To reschedule enter the {new} """
 
     get_entry(title, text, '', event)
 
@@ -2764,8 +2768,7 @@ There are no pastdue instances for this task.  If necessary, edit the completion
         text = f"""\
 {hsh['itemtype']} {hsh['summary']}{start}
 
-The default entered below is to use the current moment as the "completion datetime". Edit this entry if you wish\
-        """
+The default entered below is to use the current moment as the "completion datetime". Edit this entry if you wish """
 
     get_entry(title, text, default, event)
 
@@ -3046,7 +3049,7 @@ def refresh_views(*event):
 def quick_timer(*event):
 
     title = 'Quick Timer'
-    text = 'Enter the summary for the quick timer'
+    text = 'Enter the summary for the quick timer '
     default = format_datetime(datetime.now(), short=True)[1]
 
     get_entry(title, text, default, event)
@@ -3126,6 +3129,16 @@ def toggle_archived_status(*event):
 def exit(*event):
     application.exit()
 
+
+@query_bindings.add('c-c', filter=is_querying)
+def copy_details(*event):
+    selection = query_window.buffer.copy_selection().text
+    if selection:
+        pyperclip.copy(selection)
+        show_message('copy', 'selection copied to system clipboard', 2)
+    else:
+        pyperclip.copy(query_window.text)
+        show_message('copy', 'query copied to system clipboard', 2)
 
 @bindings.add('c-c', filter=is_viewing)
 def copy_active_view(*event):

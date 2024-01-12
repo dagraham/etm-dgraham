@@ -2457,7 +2457,7 @@ period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
 expanded_period_regex = re.compile(
     r'(([+-]?)(\d+)\s(week|day|hour|minute)s?)+?'
 )
-relative_regex = re.compile(r'(([+-])(\d+)([wdhmMys]))+?')
+relative_regex = re.compile(r'(([+-])(\d+)([wdhmys]))+?')
 threeday_regex = re.compile(
     r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE
 )
@@ -2480,7 +2480,7 @@ def parse_durations(s):
         return True, total
 
 
-def parse_duration(s):
+def parse_duration(s: str)->timedelta:
     """\
     Take a period string and return a corresponding timedelta.
     Examples:
@@ -2489,7 +2489,6 @@ def parse_duration(s):
         parse_duration('-10m') = Duration(minutes=10)
     where:
         y: years
-        M: months
         w: weeks
         d: days
         h: hours
@@ -7944,7 +7943,7 @@ def get_usedtime(
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
         )
-        logger.debug(f"get_usedtime: {summary} used {used}")
+        # logger.debug(f"get_usedtime: {summary} used {used}")
         for period, dt in used:
             if isinstance(dt, date) and not isinstance(dt, datetime):
                 dt = datetime(dt.year, dt.month, dt.day).astimezone()
@@ -8214,7 +8213,7 @@ def schedule(
             dt = date_to_datetime(start)
 
         if used:
-            logger.debug(f"processing {summary} used: {used}")
+            # logger.debug(f"processing {summary} used: {used}")
             dates_to_periods = {}
             for period, dt in used:
                 if isinstance(dt, date) and not isinstance(dt, datetime):
