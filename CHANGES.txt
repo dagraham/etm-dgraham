@@ -1,4 +1,13 @@
-2024-01-10 3665cb1 Daniel Graham
+2024-01-12 4a02c8c Daniel Graham
+    Tagged version 6.0.9.
+
+2024-01-12 a14d723 Daniel Graham
+    Restored complex queries and report.py.
+
+2024-01-12 a4a98ac Daniel Graham
+    First pass at restoring complex queries with report.py
+
+2024-01-10 0d4b53e Daniel Graham
     Tagged version 6.0.8.
 
 2024-01-10 8982e8e Daniel Graham
@@ -196,12 +205,3 @@
     bump.py tweaks to incorporate 'upload_sdist.sh'. Many strftime
     changes to replace, e.g., '%d' with '%-d', to remove leading
     zeros.
-
-2023-12-26 03588dc Daniel Graham
-    Renamed engaged view as effort view.
-
-2023-12-25 cf35760 Daniel Graham
-    Tagged version 6.0.0b1.
-
-2023-12-25 a09d21b Daniel Graham
-    rrule fixes, finish_item tweaks and formatting improvements.
