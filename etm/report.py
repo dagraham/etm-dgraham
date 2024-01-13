@@ -482,7 +482,7 @@ class QDict(dict):
                         )
                     if self.used_time:
                         self.output.append(
-                            f'{indent}{leaf[0]} {dt} {leaf[1]} {ut}'
+                            f'{indent}{leaf[0]} {ut} {dt} {leaf[1]}'
                             # '%s%s %s: %s %s'
                             # % (indent, leaf[0], dt, leaf[1], ut)
                         )
