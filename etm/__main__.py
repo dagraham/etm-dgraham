@@ -222,11 +222,12 @@ does not exist and will need to be created.
             sys.exit()
 
     logdir = os.path.normpath(os.path.join(etmdir, 'logs'))
+    csvdir = os.path.normpath(os.path.join(etmdir, 'csv'))
     backdir = os.path.normpath(os.path.join(etmdir, 'backups'))
     cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
     dbfile = os.path.normpath(os.path.join(etmdir, 'etm.json'))
     missing = []
-    for p in [logdir, backdir, cfgfile, dbfile]:
+    for p in [logdir, backdir, csvdir, cfgfile, dbfile]:
         if not os.path.exists(p):
             missing.append(p)
     missing = '\n    '.join(missing) if missing else ''
@@ -262,6 +263,9 @@ which will need to be created.
 
     if not os.path.isdir(backdir):
         os.makedirs(backdir)
+
+    if not os.path.isdir(csvdir):
+        os.makedirs(csvdir)
 
     import etm.options as options
 
@@ -448,6 +452,10 @@ which will need to be created.
     show_query_results = report.show_query_results
     view.show_query_results = show_query_results
     model.show_query_results = show_query_results
+    # get_usedtime_cvs = report.get_usedtime_cvs
+    # view.get_usedtime_cvs = get_usedtime_cvs
+    # model.get_usedtime_cvs = get_usedtime_cvs
+
     report.ETMDB = ETMDB
     report.DBITEM = DBITEM
     report.DBARCH = DBARCH
@@ -461,6 +469,7 @@ which will need to be created.
     report.format_hours_and_tenths = format_hours_and_tenths
     report.logger = logger
     report.UT_MIN = UT_MIN
+    report.csvdir = csvdir
 
     logger.info(f'setting terminal_style: {style}')
 

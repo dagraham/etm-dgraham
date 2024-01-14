@@ -50,6 +50,8 @@ import platform
 import string as strng
 from zipfile import ZipFile, ZIP_DEFLATED
 
+# from etm.report import get_usedtime_cvs
+
 for key, value in ETM_CHAR.items():
     globals()[key] = value
 
@@ -2690,6 +2692,7 @@ class DataView(object):
         self.calendar_view = ''
         self.query_view = ''
         self.query_text = ''
+        self.last_query = ''
         self.query_items = []
         self.query_mode = 'items table'
         self.report_view = ''
@@ -3373,12 +3376,15 @@ class DataView(object):
             return self.konnected_view
         if self.active_view == 'query':
             if self.query_text:
+                if self.query_text == self.last_query:
+                    return self.query_view
+                else:
+                    self.last_query = self.query_text
                 if (
                     len(self.query_text) > 1
                     and self.query_text[1] == ' '
-                    and self.query_text[0] in ['s', 'u', 'm', 'c']
+                    and self.query_text[0] in ['s', 'u', 'm', 'c', 'v']
                 ):
-                    # complex query
                     self.query_view, self.row2id = show_query_results(
                         self.query_text, self.query_grpby, self.query_items, self.query_needs
                     )
@@ -3399,7 +3405,7 @@ class DataView(object):
 
             return self.query_view
 
-    def set_query(self, text, grpby, items, needs):
+    def set_query(self, text, grpby, items, needs=[]):
         self.query_text = text
         self.query_items = items
         self.query_grpby = grpby

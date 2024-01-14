@@ -513,6 +513,7 @@ class ETMQuery(object):
 
     def process_query(self, query):
         """ """
+        dataview.last_query = []
         [fltr, *updt] = [x.strip() for x in query.split(' | ')]
         if len(updt) == 1:
             # get a list with the update command and arguments
@@ -2138,7 +2139,7 @@ def do_complex_query(text, loop):
         dataview.use_items()
         item.use_items()
 
-    if len(text) > 1 and text[1] == ' ' and text[0] in ['s', 'u', 'm', 'c']:
+    if len(text) > 1 and text[1] == ' ' and text[0] in ['s', 'u', 'm', 'c', 'v']:
         grpby, filters, needs = report.get_grpby_and_filters(text)
         ok, items = query.do_query(filters.get('query') + updt)
         if ok:

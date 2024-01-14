@@ -1,14 +1,17 @@
-# import os
+import os
+
 # import math
 import sys
 import shutil
 import textwrap
 import re
+import csv
 from dateutil.parser import parse as dateutil_parse
 from dateutil.parser import parserinfo
 
 from copy import deepcopy
-from etm.__main__ import setup_logging
+
+# from etm.__main__ import setup_logging
 
 from tinydb import where, Query
 
@@ -210,7 +213,7 @@ def sort_dates_times(obj):
 
 
 def apply_dates_filter(items, grpby, filters):
-    if grpby['report'] == 'u':
+    if grpby['report'] in ['u', 'v']:
 
         def rel_dt(item, filters):
             rdts = []
@@ -512,18 +515,18 @@ def get_output_and_row2id(items, grpby, header='', needs=[]):
     sort_tups = [x for x in grpby.get('sort', [])]
     path_tups = [x for x in grpby.get('path', [])]
     dtls_tups = [x for x in grpby.get('dtls', [])]
+    mode = header[0]
     for item in items:
         for x in ['i', 'c', 'l']:
             item.setdefault(x, '~')   # make ~ the default
         item.setdefault('modified', item['created'])
         if 'f' in item:
-            item['itemtype'] = '-' if report == 'u' else finished_char
+            item['itemtype'] = '-' if report in ['u', 'v'] else finished_char
         st = [
             eval(x, {'item': item, 're': re, 'format_week': format_week})
             for x in sort_tups
             if x
         ]
-        # pt = [eval(x, {'item': item, 're': re, 'format_week': format_week}) for x in path_tups if x]
         pt = []
         for y in path_tups:
             if not y:
@@ -560,7 +563,7 @@ def get_output_and_row2id(items, grpby, header='', needs=[]):
                 dt.append(eval(x, {'item': item, 're': re}))
             except Exception as e:
                 logger.error(f'error: {e}, evaluating {x}')
-        if grpby['report'] == 'u':
+        if grpby['report'] in ['u', 'v']:
             dt[2] = ut = maybe_round(dt[2])
             for i in range(len(pt)):
                 key = tuple(pt[: i + 1])
@@ -571,16 +574,81 @@ def get_output_and_row2id(items, grpby, header='', needs=[]):
 
     # drop the sort key
     ret = [x[1:] for x in ret]
+    # logger.debug(ret)
 
-    # create recursive dict from data
-    row = 1 if header else 0
-    # need to pass 'needs' to QDict
-    index = QDict(used_time, row, needs)
-    for path, value in ret:
-        index.add(path, value)
+    if mode == 'v':
+        # CVS stuff
+        now = datetime.now().astimezone().strftime('%y%m%dT%H%M%S')
+        # txtfile = os.path.join(csvdir, f'{now}.txt')
+        csvfile = os.path.join(csvdir, f'{now}.csv')
+        count = 0
+        txt_output = [
+            f'{count}) {header}',
+        ]
+        # num_fields = len(ret[0][1]) + 1
+        # header_row = ['' for x in range(num_fields)]
+        header_row = ['#', 'type', 'summary', 'hours', 'datetime']
+        for x in dtls_tups[4:-1]:
+            header_row.append(x)
+        header_row.append('doc_id')
+        header_row.append(header)
+        # logger.debug(f'num_fields: {num_fields}, header_row: {header_row}')
+        csv_output = [
+            header_row,
+        ]
+        last_path = []
+        for row in ret:
+            count += 1
+            path, body = row
+            # logger.debug(f'path: {path}, body: {body}')
+            if path != last_path:
+                last_path = path
+                # txt_output.append(f"{count}) {' '.join(path)}")
+                append = ' / '.join(path)
+            else:
+                append = ''
+            tmp = [
+                f'{count}',
+            ]
+            for part in body:
+                # logger.debug(f'processing {part} {type(part)}')
+                if isinstance(part, str):
+                    tmp.append(part)
+                elif isinstance(part, int):
+                    tmp.append(str(part))
+                elif isinstance(part, timedelta):
+                    tmp.append(format_hours_and_tenths(part).rstrip('h'))
+                elif isinstance(part, datetime):
+                    tmp.append(part.strftime('%Y-%m-%d %H:%M'))
+                else:
+                    tmp.append(part.__repr__)
+            tmp.append(append)
+            csv_output.append(tmp)
+        with open(csvfile, 'w+') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerows(csv_output)
+        # with open(txtfile, 'w') as txt_file:
+        #     txt_file.write('\n'.join(txt_output))
+        return (
+            f'csv output saved to {csvfile}',
+            {},
+        )
+    else:
+        header = textwrap.fill(
+            f'query: {header}',
+            width=shutil.get_terminal_size()[0] - 2,
+            initial_indent='',
+            subsequent_indent='   ',
+        )
+        # create recursive dict from data
+        row = 1 if header else 0
+        # need to pass 'needs' to QDict
+        index = QDict(used_time, row, needs)
+        for path, value in ret:
+            index.add(path, value)
 
-    output, row2id = index.as_tree(index)
-    return f'{header}\n  {output}', row2id
+        output, row2id = index.as_tree(index)
+        return f'{header}\n  {output}', row2id
 
 
 def get_grpby_and_filters(s, options=None):
@@ -593,12 +661,14 @@ def get_grpby_and_filters(s, options=None):
     head = parts.pop(0)
     report = head[0]
     groupbystr = head[1:].strip()
-    if not (report and report in ['s', 'u', 'm', 'c']):
+    if not (report and report in ['s', 'u', 'm', 'c', 'v']):
         return {}, {}
     grpby['report'] = report
     filters['dates'] = False
     grpby['dated'] = False
-    filters['query'] = 'exists u' if report == 'u' else 'exists itemtype'
+    filters['query'] = (
+        'exists u' if report in ['u', 'v'] else 'exists itemtype'
+    )
     groupbylst = []
     if groupbystr:
         groupbylst = [x.strip() for x in groupbystr.split(';')]
@@ -622,7 +692,7 @@ def get_grpby_and_filters(s, options=None):
     # needs = ['%y', '%-m', '%-d']
     needs = ['y', 'm', 'd']
     if groupbylst:
-        if grpby['dated'] or grpby['report'] in ['u', 'm', 'c']:
+        if grpby['dated'] or grpby['report'] in ['u', 'v', 'm', 'c']:
             grpby['sort'].append(f"item['rdt'].strftime('%Y%m%d')")
         for group in groupbylst:
             if groupdate_regex.search(group):
@@ -690,7 +760,7 @@ def get_grpby_and_filters(s, options=None):
         elif key == 't':
             value = [x.strip() for x in part[1:].split(',')]
     details = ["item['itemtype']", "item['summary']"]
-    if report == 'u':
+    if report in ['u', 'v']:
         details.append("item['u'][1]")
         details.append("item['u'][0]")
     else:
@@ -704,13 +774,18 @@ def get_grpby_and_filters(s, options=None):
 
 def show_query_results(text, grpby, items, needs):
     # called by dataview to set query
-    width = shutil.get_terminal_size()[0] - 7
     rows = []
-    item_count = f' [{len(items)}]'
-    summary_width = width - 6 - len(item_count)
+    item_count = f'[{len(items)} records]'
     if not (items and isinstance(items, list)):
         return f'query: {text}\n   none matching', {}
-    header = f'query: {text[:summary_width]}{item_count}'
+    # header = textwrap.fill(
+    #     f'query: {text} {item_count}',
+    #     width=width,
+    #     initial_indent='# ',
+    #     subsequent_indent='# ',
+    # )
+    header = f'{text} {item_count}'
+    mode = text[0]
     # need to pass 'needs' to get_output_and_row2id
     output, row2id = get_output_and_row2id(items, grpby, header, needs)
     return output, row2id
