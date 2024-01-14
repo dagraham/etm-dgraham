@@ -1,4 +1,15 @@
-2024-01-12 4a02c8c Daniel Graham
+2024-01-14 25b02c0 Daniel Graham
+    Tagged version 6.0.10.
+
+2024-01-14 74d74c2 Daniel Graham
+    Added 'v' to complex query modes. Like 'u' it reports used times
+    but saves the report as a timestamped CSV file in the 'csv'
+    subdirectory of etmhome.
+
+2024-01-13 3ee0ece Daniel Graham
+    put used_time first in u query leafs
+
+2024-01-12 56cc5c7 Daniel Graham
     Tagged version 6.0.9.
 
 2024-01-12 a14d723 Daniel Graham
@@ -194,14 +205,3 @@
 
 2023-12-28 e71563a Daniel Graham
     More strftime %-<x> changes.
-
-2023-12-28 7e983d5 Daniel Graham
-    Tagged version 6.0.0b2.
-
-2023-12-28 eacebad Daniel Graham
-    bump.py fixes
-
-2023-12-28 dd90527 Daniel Graham
-    bump.py tweaks to incorporate 'upload_sdist.sh'. Many strftime
-    changes to replace, e.g., '%d' with '%-d', to remove leading
-    zeros.
