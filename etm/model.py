@@ -11,7 +11,7 @@ from etm.common import (
     Period,
 )
 
-from tinydb.table import Table, Document
+from tinydb.table import Document
 from etm.common import TimeIt
 import sys
 import re
