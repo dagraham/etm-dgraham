@@ -1,4 +1,17 @@
-2024-01-14 25b02c0 Daniel Graham
+2024-01-18 85649cd Daniel Graham
+    Tagged version 6.0.11.
+
+2024-01-18 70fb828 Daniel Graham
+    Konnected view tweaks.
+
+2024-01-18 0e23212 Daniel Graham
+    Added @k entries to lorem examples. Replaced erroneous Timezone
+    entries with ZoneInfo. Work on konnect view formatting.
+
+2024-01-15 ae440fe Daniel Graham
+    removed unused imports
+
+2024-01-14 06c43fe Daniel Graham
     Tagged version 6.0.10.
 
 2024-01-14 74d74c2 Daniel Graham
@@ -191,17 +204,3 @@
     to pyperclip whatever is in the details window including messages.
     Removed search_field from details, edit and other unnecessary
     places.
-
-2023-12-30 f1ffe8a Daniel Graham
-    make_example tweaks. Added query to remove lorem examples to the
-    default query options.
-
-2023-12-30 f8bbec5 Daniel Graham
-    Tagged version 6.0.0b3.
-
-2023-12-30 84bb5b0 Daniel Graham
-    Refactored import_file. Only .text files in etmhome plus lorem
-    using a get_choice dialog. Moved logging and TimeIt to common.
-
-2023-12-28 e71563a Daniel Graham
-    More strftime %-<x> changes.
