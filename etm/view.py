@@ -2977,6 +2977,7 @@ It is possible to import data from a collection of illustrative, 'lorem', remind
         if done:
             logger.debug("done ...")
             if keypress == '0':
+                logger.debug(f"last doc_id: {dataview.last_id}")
                 ok, msg = import_file('lorem')
                 if ok:
                     dataview.refreshRelevant()
@@ -2987,6 +2988,7 @@ It is possible to import data from a collection of illustrative, 'lorem', remind
                     loop = asyncio.get_event_loop()
                     loop.call_later(0, data_changed, loop)
                 show_message('Import File', msg)
+                logger.debug(f"last doc_id: {dataview.last_id}")
 
             elif keypress in values.keys():
                 filepath = values[keypress]

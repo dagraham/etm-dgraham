@@ -1,4 +1,4 @@
-# standard sort order: note space is first
+#  standard sort order: note space is first
 # [' ', '!', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', ':', ';', '<',
 # '=', '>', '?', '@', 'A', 'B', 'Y', 'Z',  '^', '_', 'a', 'b', 'y', 'z', '~']
 
@@ -787,7 +787,6 @@ item_hsh:    {self.item_hsh}
     def set_dbfile(self, dbfile=None):
         self.settings = settings if settings else {}
         if dbfile is None:
-            logger.debug(f"dbfile is None, using ETMDB")
             self.db = ETMDB
             self.dbarch = DBARCH
             self.dbitem = DBITEM
@@ -1406,14 +1405,14 @@ item_hsh:    {self.item_hsh}
 
         return msg
 
-    def update_item_hsh(self):
+    def update_item_hsh(self, check_links=True):
         msg = self.check_item_hsh()
         if msg:
             logger.error(msg)
 
-        links = self.item_hsh.get('k', [])
-        if links:
+        if check_links:
             # make sure the doc_id refers to an actual document
+            links = self.item_hsh.get('k', [])
             self.item_hsh['k'] = [
                 x for x in links if self.db.contains(doc_id=x)
             ]
@@ -1485,7 +1484,7 @@ item_hsh:    {self.item_hsh}
                 numuses[k] += 1
             duplicates = [
                 k for (k, v) in numuses.items() if v > 1 and k not in [
-                    'a', 'u', 't', 'jj', 'rr', 'ji']
+                    'a', 'u', 't', 'k', 'jj', 'rr', 'ji']
                 ]
             if key in duplicates:
                 display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
@@ -1636,7 +1635,7 @@ item_hsh:    {self.item_hsh}
         """
         Return a datetime object. This will be an aware datetime in the local timezone.
         >>> until('2019-01-03 10am')
-        (True, DateTime(2019, 1, 3, 10, 0, 0, tzinfo=Timezone('America/New_York')))
+        (True, DateTime(2019, 1, 3, 10, 0, 0, tzinfo=ZoneInfo('America/New_York')))
         >>> until('whenever')
         (False, 'Include repetitions falling on or before this datetime.')
         """
@@ -1664,7 +1663,7 @@ item_hsh:    {self.item_hsh}
         >>> item.do_datetime('2019-01-25')
         (Date(2019, 1, 25), 'Fri Jan 25 2019')
         >>> item.do_datetime('2019-01-25 2p')
-        (DateTime(2019, 1, 25, 14, 0, 0, tzinfo=Timezone('America/New_York')), 'Fri Jan 25 2019 2:00pm EST')
+        (DateTime(2019, 1, 25, 14, 0, 0, tzinfo=ZoneInfo('America/New_York')), 'Fri Jan 25 2019 2:00pm EST')
         """
         obj = None
         tz = self.item_hsh.get('z', None)
@@ -1684,7 +1683,7 @@ item_hsh:    {self.item_hsh}
         """
         >>> item = Item("")
         >>> item.do_datetimes('2019-1-25 2p, 2019-1-30 4p')
-        ([DateTime(2019, 1, 25, 14, 0, 0, tzinfo=Timezone('America/New_York')), DateTime(2019, 1, 30, 16, 0, 0, tzinfo=Timezone('America/New_York'))], 'datetimes: 2019-01-25 2:00pm, 2019-01-30 4:00pm')
+        ([DateTime(2019, 1, 25, 14, 0, 0, tzinfo=ZoneInfo('America/New_York')), DateTime(2019, 1, 30, 16, 0, 0, tzinfo=ZoneInfo('America/New_York'))], 'datetimes: 2019-01-25 2:00pm, 2019-01-30 4:00pm')
         >>> print(item.do_datetimes('2019-1-25 2p, 2019-1-30 4p, 2019-2-29 8a')[1])
         datetimes: 2019-01-25 2:00pm, 2019-01-30 4:00pm
         incomplete or invalid datetimes:  2019-2-29 8a
@@ -1788,7 +1787,7 @@ item_hsh:    {self.item_hsh}
             rep = ''
         else:
             try:
-                Timezone(arg)
+                ZoneInfo(arg)
                 obj = rep = arg
                 self.item_hsh['z'] = obj
                 rep = f'timezone: {obj}'
@@ -1967,7 +1966,7 @@ def parse_datetime(s: str, z: str = None):
     's' will have the format 'datetime string' Return a 'date' object if the parsed datetime is exactly midnight. Otherwise return a naive datetime object if 'z == float' or an aware datetime object converting to UTC using the local timezone if z == None and using the timezone specified in z otherwise.
     >>> dt = parse_datetime("2015-10-15 2p")
     >>> dt[1]
-    DateTime(2015, 10, 15, 14, 0, 0, tzinfo=Timezone('America/New_York'))
+    DateTime(2015, 10, 15, 14, 0, 0, tzinfo=ZoneInfo('America/New_York'))
     >>> dt = parse_datetime("2015-10-15")
     >>> dt[1]
     Date(2015, 10, 15)
@@ -1975,7 +1974,7 @@ def parse_datetime(s: str, z: str = None):
     To get a datetime for midnight, schedule for 1 second later - the second will be dropped from the hours and minutes datetime:
     >>> dt = parse_datetime("2015-10-15 00:00:01")
     >>> dt[1]
-    DateTime(2015, 10, 15, 0, 0, 1, tzinfo=Timezone('America/New_York'))
+    DateTime(2015, 10, 15, 0, 0, 1, tzinfo=ZoneInfo('America/New_York'))
     >>> dt = parse_datetime("2015-10-15 2p", "float")
     >>> dt[1]
     DateTime(2015, 10, 15, 14, 0, 0)
@@ -1983,18 +1982,18 @@ def parse_datetime(s: str, z: str = None):
     True
     >>> dt = parse_datetime("2015-10-15 2p", "US/Pacific")
     >>> dt
-    ('aware', DateTime(2015, 10, 15, 21, 0, 0, tzinfo=Timezone('UTC')), 'US/Pacific')
+    ('aware', DateTime(2015, 10, 15, 21, 0, 0, tzinfo=ZoneInfo('UTC')), 'US/Pacific')
     >>> dt[1].tzinfo
-    Timezone('UTC')
+    ZoneInfo('UTC')
     >>> dt = parse_datetime("2019-02-01 12:30a", "Europe/Paris")
     >>> dt
-    ('aware', DateTime(2019, 1, 31, 23, 30, 0, tzinfo=Timezone('UTC')), 'Europe/Paris')
+    ('aware', DateTime(2019, 1, 31, 23, 30, 0, tzinfo=ZoneInfo('UTC')), 'Europe/Paris')
     >>> dt = parse_datetime("2019-02-01 12:30a", "UTC")
     >>> dt
-    ('aware', DateTime(2019, 2, 1, 0, 30, 0, tzinfo=Timezone('UTC')), 'UTC')
+    ('aware', DateTime(2019, 2, 1, 0, 30, 0, tzinfo=ZoneInfo('UTC')), 'UTC')
     >>> dt = parse_datetime("2019-03-24 5:00PM")
     >>> dt
-    ('local', DateTime(2019, 3, 24, 17, 0, 0, tzinfo=Timezone('America/New_York')), None)
+    ('local', DateTime(2019, 3, 24, 17, 0, 0, tzinfo=ZoneInfo('America/New_York')), None)
     """
 
     filterwarnings('error')
@@ -2066,7 +2065,7 @@ def timestamp(arg):
     """
     Fuzzy parse a datetime string and return the YYYYMMDDTHHMM formatted version.
     >>> timestamp("6/16/16 4p")
-    (True, DateTime(2016, 6, 16, 16, 0, 0, tzinfo=Timezone('UTC')))
+    (True, DateTime(2016, 6, 16, 16, 0, 0, tzinfo=ZoneInfo('UTC')))
     >>> timestamp("13/16/16 2p")
     (False, 'invalid time-stamp: 13/16/16 2p')
     """
@@ -2502,11 +2501,11 @@ def parse_duration(s: str)->timedelta:
     >>> parse_duration("2d-3h5m")[1]
     Duration(days=1, hours=21, minutes=5)
     >>> datetime(2015, 10, 15, 9, 0, tz='local') + parse_duration("-25m")[1]
-    DateTime(2015, 10, 15, 8, 35, 0, tzinfo=Timezone('America/New_York'))
+    DateTime(2015, 10, 15, 8, 35, 0, tzinfo=ZoneInfo('America/New_York'))
     >>> datetime(2015, 10, 15, 9, 0) + parse_duration("1d")[1]
-    DateTime(2015, 10, 16, 9, 0, 0, tzinfo=Timezone('UTC'))
+    DateTime(2015, 10, 16, 9, 0, 0, tzinfo=ZoneInfo('UTC'))
     >>> datetime(2015, 10, 15, 9, 0) + parse_duration("1w-2d+3h")[1]
-    DateTime(2015, 10, 20, 12, 0, 0, tzinfo=Timezone('UTC'))
+    DateTime(2015, 10, 20, 12, 0, 0, tzinfo=ZoneInfo('UTC'))
     """
 
     knms = {
@@ -2678,6 +2677,7 @@ class DataView(object):
         self.current = []
         self.alerts = []
         self.row2id = []
+        self.last_id = 0
         self.id2relevant = {}
         self.wkday2busy_details = {}
         self.busy_row = 0
@@ -2871,6 +2871,7 @@ class DataView(object):
         self.completions = list(completions)
 
         for item in self.db:
+            self.last_id = item.doc_id
             found = {
                 x: v for x, v in item.items() if x in self.completion_keys
             }
@@ -2892,6 +2893,8 @@ class DataView(object):
                             item.doc_id,
                         )
                         completions.add(f'@k {i} {t} {s}: {d}')
+
+        logger.debug(f"### last_id: {self.last_id} ###")
         self.completions = list(completions)
         self.completions.sort()
 
@@ -4940,9 +4943,9 @@ def do_konnection(arg):
 def do_usedtime(arg):
     """
     >>> do_usedtime('75m: 9p 2019-02-01')
-    ([Duration(hours=1, minutes=15), DateTime(2019, 2, 1, 21, 0, 0, tzinfo=Timezone('America/New_York'))], '1h15m: 2019-02-01 9:00pm')
+    ([Duration(hours=1, minutes=15), DateTime(2019, 2, 1, 21, 0, 0, tzinfo=ZoneInfo('America/New_York'))], '1h15m: 2019-02-01 9:00pm')
     >>> do_usedtime('75m: 2019-02-01 9:00AM')
-    ([Duration(hours=1, minutes=15), DateTime(2019, 2, 1, 9, 0, 0, tzinfo=Timezone('America/New_York'))], '1h15m: 2019-02-01 9:00am')
+    ([Duration(hours=1, minutes=15), DateTime(2019, 2, 1, 9, 0, 0, tzinfo=ZoneInfo('America/New_York'))], '1h15m: 2019-02-01 9:00am')
     """
     if not arg:
         return None, ''
@@ -5110,7 +5113,7 @@ def history(arg):
     """
     Return a list of properly formatted completions.
     >>> history("4/1/2016 2p")
-    (True, [DateTime(2016, 4, 1, 14, 0, 0, tzinfo=Timezone('America/New_York'))])
+    (True, [DateTime(2016, 4, 1, 14, 0, 0, tzinfo=ZoneInfo('America/New_York'))])
     >>> history(["4/31 2p", "6/1 7a"])
     (False, "'4/31 2p' is incomplete or invalid")
     """
@@ -5560,7 +5563,7 @@ def rrule_args(r_hsh):
     Housekeeping: Check for u and c, fix integers and weekdays. Replace etm arg names with dateutil. E.g., frequency 'y' with 0, 'E' with 'byeaster', ... Called by item_instances.
     >>> item_eg = { "s": parse('2018-03-07 8am').naive(), "r": [ { "r": "w", "u": parse('2018-04-01 8am').naive(), }, ], "itemtype": "*"}
     >>> item_instances(item_eg, parse('2018-03-01 12am').naive(), parse('2018-04-01 12am').naive())
-    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 14, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 3, 28, 8, 0, 0, tzinfo=Timezone('UTC')), None)]
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=ZoneInfo('UTC')), None), (DateTime(2018, 3, 14, 8, 0, 0, tzinfo=ZoneInfo('UTC')), None), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=ZoneInfo('UTC')), None), (DateTime(2018, 3, 28, 8, 0, 0, tzinfo=ZoneInfo('UTC')), None)]
     >>> r_hsh = item_eg['r'][0]
     >>> r_hsh
     {'r': 'w', 'u': DateTime(2018, 4, 1, 8, 0, 0)}
@@ -5568,7 +5571,7 @@ def rrule_args(r_hsh):
     (2, {'until': DateTime(2018, 4, 1, 8, 0, 0)})
     >>> item_eg = { "s": parse('2016-01-01 8am').naive(), "r": [ { "r": "y", "E": 0, }, ], "itemtype": "*"}
     >>> item_instances(item_eg, parse('2016-03-01 12am').naive(), parse('2019-06-01 12am').naive())
-    [(DateTime(2016, 3, 27, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2017, 4, 16, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('UTC')), None), (DateTime(2019, 4, 21, 8, 0, 0, tzinfo=Timezone('UTC')), None)]
+    [(DateTime(2016, 3, 27, 8, 0, 0, tzinfo=ZoneInfo('UTC')), None), (DateTime(2017, 4, 16, 8, 0, 0, tzinfo=ZoneInfo('UTC')), None), (DateTime(2018, 4, 1, 8, 0, 0, tzinfo=ZoneInfo('UTC')), None), (DateTime(2019, 4, 21, 8, 0, 0, tzinfo=ZoneInfo('UTC')), None)]
     >>> r_hsh = item_eg['r'][0]
     >>> r_hsh
     {'r': 'y', 'E': 0}
@@ -5577,15 +5580,15 @@ def rrule_args(r_hsh):
     >>> item_eg = { "s": parse('2018-03-07 8am', tz="US/Eastern"), "e": timedelta(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am', tz="US/Eastern")}], "z": "US/Eastern", "itemtype": "*" }
     >>> r_hsh = item_eg['r'][0]
     >>> r_hsh
-    {'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}
+    {'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern'))}
     >>> rrule_args(r_hsh)
-    (2, {'interval': 2, 'until': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))})
+    (2, {'interval': 2, 'until': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern'))})
     >>> item_eg = { "s": parse('2018-03-07 8am', tz="US/Eastern"),  "r": [ { "r": "w", "w": MO(+2), "u": parse('2018-06-30 8am', tz="US/Eastern")}], "z": "US/Eastern", "itemtype": "*" }
     >>> r_hsh = item_eg['r'][0]
     >>> r_hsh
-    {'r': 'w', 'w': MO(+2), 'u': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}
+    {'r': 'w', 'w': MO(+2), 'u': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern'))}
     >>> rrule_args(r_hsh)
-    (2, {'byweekday': MO(+2), 'until': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=Timezone('US/Eastern'))})
+    (2, {'byweekday': MO(+2), 'until': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern'))})
 
     """
 
@@ -5703,34 +5706,34 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
     Get instances from item falling on or after aft_dt and on or before bef_dt or, if bef_dt is an integer, n, get the first n instances after aft_dt. All datetimes will be returned with zero offsets.
     >>> item_eg = { "s": parse('2018-03-07 8am', tz="US/Eastern"), "e": timedelta(days=1, hours=5), "r": [ { "r": "w", "i": 2, "u": parse('2018-04-01 8am', tz="US/Eastern")}], "z": "US/Eastern", "itemtype": "*" }
     >>> item_eg
-    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), 'e': Duration(days=1, hours=5), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*'}
+    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), 'e': Duration(days=1, hours=5), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*'}
     >>> item_instances(item_eg, parse('2018-03-01 12am', tz="US/Eastern"), parse('2018-04-01 12am', tz="US/Eastern"))
-    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 7, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 8, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 8, 13, 0, 0, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 21, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 22, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 22, 13, 0, 0, tzinfo=Timezone('US/Eastern')))]
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), DateTime(2018, 3, 7, 23, 59, 59, 999999, tzinfo=ZoneInfo('US/Eastern'))), (DateTime(2018, 3, 8, 0, 0, 0, tzinfo=ZoneInfo('US/Eastern')), DateTime(2018, 3, 8, 13, 0, 0, tzinfo=ZoneInfo('US/Eastern'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), DateTime(2018, 3, 21, 23, 59, 59, 999999, tzinfo=ZoneInfo('US/Eastern'))), (DateTime(2018, 3, 22, 0, 0, 0, tzinfo=ZoneInfo('US/Eastern')), DateTime(2018, 3, 22, 13, 0, 0, tzinfo=ZoneInfo('US/Eastern')))]
     >>> item_eg['+'] = [parse("20180311T1000", tz="US/Eastern")]
     >>> item_eg['-'] = [parse("20180311T0800", tz="US/Eastern")]
     >>> item_eg['e'] = timedelta(hours=2)
     >>> item_eg
-    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), 'e': Duration(hours=2), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*', '+': [DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('US/Eastern'))], '-': [DateTime(2018, 3, 11, 8, 0, 0, tzinfo=Timezone('US/Eastern'))]}
+    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), 'e': Duration(hours=2), 'r': [{'r': 'w', 'i': 2, 'u': DateTime(2018, 4, 1, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*', '+': [DateTime(2018, 3, 11, 10, 0, 0, tzinfo=ZoneInfo('US/Eastern'))], '-': [DateTime(2018, 3, 11, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern'))]}
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am'))
-    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 7, 10, 0, 0, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 11, 12, 0, 0, tzinfo=Timezone('US/Eastern'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2018, 3, 21, 10, 0, 0, tzinfo=Timezone('US/Eastern')))]
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), DateTime(2018, 3, 7, 10, 0, 0, tzinfo=ZoneInfo('US/Eastern'))), (DateTime(2018, 3, 11, 10, 0, 0, tzinfo=ZoneInfo('US/Eastern')), DateTime(2018, 3, 11, 12, 0, 0, tzinfo=ZoneInfo('US/Eastern'))), (DateTime(2018, 3, 21, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), DateTime(2018, 3, 21, 10, 0, 0, tzinfo=ZoneInfo('US/Eastern')))]
     >>> del item_eg['e']
     >>> item_instances(item_eg, parse('2018-03-07 8:01am', tz="US/Eastern"))
-    [(DateTime(2018, 3, 11, 10, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
+    [(DateTime(2018, 3, 11, 10, 0, 0, tzinfo=ZoneInfo('US/Eastern')), None)]
     >>> del item_eg['r']
     >>> del item_eg['-']
     >>> del item_eg['+']
     >>> item_instances(item_eg, parse('2018-03-01 12am'), parse('2018-04-01 12am', tz="US/Eastern"))
-    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
+    [(DateTime(2018, 3, 7, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), None)]
     >>> item_eg = { "s": parse('2018-03-07 8am', tz="US/Eastern"), "r": [ { "r": "w", "w": MO(+2), "u": parse('2018-06-30 8am', tz="US/Eastern")}], "z": "US/Eastern", "itemtype": "*" }
     >>> item_eg
-    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=Timezone('US/Eastern')), 'r': [{'r': 'w', 'w': MO(+2), 'u': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=Timezone('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*'}
+    {'s': DateTime(2018, 3, 7, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), 'r': [{'r': 'w', 'w': MO(+2), 'u': DateTime(2018, 6, 30, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern'))}], 'z': 'US/Eastern', 'itemtype': '*'}
     >>> item_instances(item_eg, parse('2018-03-01 12am', tz="US/Eastern"), parse('2018-04-01 12am', tz="US/Eastern"))
-    [(DateTime(2018, 3, 12, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None), (DateTime(2018, 3, 19, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None), (DateTime(2018, 3, 26, 8, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
+    [(DateTime(2018, 3, 12, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), None), (DateTime(2018, 3, 19, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), None), (DateTime(2018, 3, 26, 8, 0, 0, tzinfo=ZoneInfo('US/Eastern')), None)]
 
     Simple repetition:
     >>> item_eg = { "itemtype": "*", "s": parse('2018-11-15 8a', tz="US/Eastern"), "+": [parse('2018-11-16 10a', tz="US/Eastern"), parse('2018-11-18 3p', tz="US/Eastern"), parse('2018-11-27 8p', tz="US/Eastern")] }
     >>> item_instances(item_eg, parse('2018-11-17 9am', tz="US/Eastern"), 3)
-    [(DateTime(2018, 11, 18, 15, 0, 0, tzinfo=Timezone('US/Eastern')), None), (DateTime(2018, 11, 27, 20, 0, 0, tzinfo=Timezone('US/Eastern')), None)]
+    [(DateTime(2018, 11, 18, 15, 0, 0, tzinfo=ZoneInfo('US/Eastern')), None), (DateTime(2018, 11, 27, 20, 0, 0, tzinfo=ZoneInfo('US/Eastern')), None)]
     """
 
     if 's' not in item:
@@ -5968,7 +5971,7 @@ def jobs(lofh, at_hsh={}):
     >>> pprint(jobs(data))
     (True,
      [{'a': ['2d: d'],
-       'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
+       'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=ZoneInfo('UTC')),
        'i': '1',
        'j': 'Job One',
        'p': [],
@@ -5995,7 +5998,7 @@ def jobs(lofh, at_hsh={}):
     >>> pprint(jobs(data))
     (True,
      [{'a': ['2d: d'],
-       'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('UTC')),
+       'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=ZoneInfo('UTC')),
        'i': '1',
        'j': 'Job One',
        'p': [],
@@ -6003,7 +6006,7 @@ def jobs(lofh, at_hsh={}):
        'status': '✓',
        'summary': ' 1/0/2: Job One'},
       {'a': ['1d: d'],
-       'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('UTC')),
+       'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=ZoneInfo('UTC')),
        'i': '2',
        'j': 'Job Two',
        'p': ['1'],
@@ -6042,12 +6045,12 @@ def jobs(lofh, at_hsh={}):
        'req': ['2', '1'],
        'status': '+',
        'summary': ' 1/2/0: Job Three'}],
-     DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('UTC')))
+     DateTime(2018, 6, 22, 12, 0, 0, tzinfo=ZoneInfo('UTC')))
 
     Now add an 'r' entry for at_hsh.
     >>> data = [{'j': 'Job One', 's': '1d', 'a': '2d: d', 'b': 2, 'f': parse('6/20/18 12p', tz="US/Eastern")}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': parse('6/21/18 12p', tz="US/Eastern")}, {'j': 'Job Three', 'a': '6h: d', 'f': parse('6/22/18 12p', tz="US/Eastern")}]
     >>> data
-    [{'j': 'Job One', 's': '1d', 'a': '2d: d', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}, {'j': 'Job Three', 'a': '6h: d', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern'))}]
+    [{'j': 'Job One', 's': '1d', 'a': '2d: d', 'b': 2, 'f': DateTime(2018, 6, 20, 12, 0, 0, tzinfo=ZoneInfo('US/Eastern'))}, {'j': 'Job Two', 'a': '1d: d', 'b': 1, 'f': DateTime(2018, 6, 21, 12, 0, 0, tzinfo=ZoneInfo('US/Eastern'))}, {'j': 'Job Three', 'a': '6h: d', 'f': DateTime(2018, 6, 22, 12, 0, 0, tzinfo=ZoneInfo('US/Eastern'))}]
     >>> pprint(jobs(data, {'itemtype': '-', 'r': [{'r': 'd'}], 's': parse('6/22/18 8a', tz="US/Eastern"), 'a': parse('6/22/18 7a', tz="US/Eastern"), 'j': data}))
     (True,
      [{'a': ['2d: d'],
@@ -6074,7 +6077,7 @@ def jobs(lofh, at_hsh={}):
        'req': ['2', '1'],
        'status': '+',
        'summary': ' 1/2/0: Job Three'}],
-     DateTime(2018, 6, 22, 12, 0, 0, tzinfo=Timezone('US/Eastern')))
+     DateTime(2018, 6, 22, 12, 0, 0, tzinfo=ZoneInfo('US/Eastern')))
     """
     job_methods = (
         datetime_job_methods if 's' in at_hsh else undated_job_methods
@@ -6256,7 +6259,7 @@ def jobs(lofh, at_hsh={}):
 #     """
 #     Return the begining and ending of the period that includes the weeks in current month plus the weeks in the prior *months_before* and the weeks in the subsequent *months_after*. The period will begin at 0 hours on the relevant Monday and end at 23:59:59 hours on the relevant Sunday.
 #     >>> get_period(datetime(2018, 12, 15, 0, 0, tz='US/Eastern'))
-#     (DateTime(2018, 11, 19, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2019, 2, 17, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
+#     (DateTime(2018, 11, 19, 0, 0, 0, tzinfo=ZoneInfo('US/Eastern')), DateTime(2019, 2, 17, 23, 59, 59, 999999, tzinfo=ZoneInfo('US/Eastern')))
 #     """
 #     beg = dt.start_of('week').subtract(weeks=weeks_before).start_of('week')
 #     end = dt.start_of('week').add(weeks=weeks_after).end_of('week')
@@ -6267,7 +6270,7 @@ def get_period(dt=datetime.now(), weeks_before=3, weeks_after=9):
     """
     Return the begining and ending of the period that includes the weeks in current month plus the weeks in the prior *months_before* and the weeks in the subsequent *months_after*. The period will begin at 0 hours on the relevant Monday and end at 23:59:59 hours on the relevant Sunday.
     >>> get_period(datetime(2018, 12, 15, 0, 0, tz='US/Eastern'))
-    (DateTime(2018, 11, 19, 0, 0, 0, tzinfo=Timezone('US/Eastern')), DateTime(2019, 2, 17, 23, 59, 59, 999999, tzinfo=Timezone('US/Eastern')))
+    (DateTime(2018, 11, 19, 0, 0, 0, tzinfo=ZoneInfo('US/Eastern')), DateTime(2019, 2, 17, 23, 59, 59, 999999, tzinfo=ZoneInfo('US/Eastern')))
     """
     # Find the weekday (0 for Monday, 6 for Sunday)
     weekday = dt.weekday()
@@ -6465,11 +6468,11 @@ def beg_ends(starting_dt, extent_duration, z=None):
     """
     >>> starting = parse('2018-03-02 9am')
     >>> beg_ends(starting, parse_duration('2d2h20m')[1])
-    [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 3, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 3, 23, 59, 59, 999999, tzinfo=Timezone('UTC'))), (DateTime(2018, 3, 4, 0, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 4, 11, 20, 0, tzinfo=Timezone('UTC')))]
+    [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=ZoneInfo('UTC')), DateTime(2018, 3, 2, 23, 59, 59, 999999, tzinfo=ZoneInfo('UTC'))), (DateTime(2018, 3, 3, 0, 0, 0, tzinfo=ZoneInfo('UTC')), DateTime(2018, 3, 3, 23, 59, 59, 999999, tzinfo=ZoneInfo('UTC'))), (DateTime(2018, 3, 4, 0, 0, 0, tzinfo=ZoneInfo('UTC')), DateTime(2018, 3, 4, 11, 20, 0, tzinfo=ZoneInfo('UTC')))]
     >>> beg_ends(starting, parse_duration('8h20m')[1])
-    [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 17, 20, 0, tzinfo=Timezone('UTC')))]
+    [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=ZoneInfo('UTC')), DateTime(2018, 3, 2, 17, 20, 0, tzinfo=ZoneInfo('UTC')))]
     >>> beg_ends(parse('2022-12-29 12am'), parse_duration('1d')[1])
-    [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=Timezone('UTC')), DateTime(2018, 3, 2, 17, 20, 0, tzinfo=Timezone('UTC')))]
+    [(DateTime(2018, 3, 2, 9, 0, 0, tzinfo=ZoneInfo('UTC')), DateTime(2018, 3, 2, 17, 20, 0, tzinfo=ZoneInfo('UTC')))]
     """
 
     pairs = []
@@ -7472,17 +7475,20 @@ def show_konnected(
         return [], {}
 
     relevant = []
-    relevant.append([' Selection', selected_item])
+    # relevant.append(['Selection', selected_item])
+    relevant.append(['   === the selection:', selected_item])
 
     for doc_id in from_ids.get(selected_id, []):
         tmp = db.get(doc_id=doc_id)
         if tmp:
-            relevant.append([' From the selection', tmp])
+            # relevant.append(['From the selection', tmp])
+            relevant.append(['      <<< linked from the selection:', tmp])
 
     for doc_id in to_ids.get(selected_id, []):
         tmp = db.get(doc_id=doc_id)
         if tmp:
-            relevant.append([' To the selection', tmp])
+            # relevant.append(['To the selection', tmp])
+            relevant.append([' >>> linked to the selection:', tmp])
 
     if len(relevant) < 2:
         # from and to are empty
@@ -7495,6 +7501,10 @@ def show_konnected(
         doc_id = item.doc_id
         rhc = str(doc_id).rjust(5, ' ')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+        if '===' in path:
+            itemtype = f"  {itemtype}"
+        elif '<<<' in path:
+            itemtype = f"     {itemtype}"
         summary = item['summary']
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
@@ -7502,12 +7512,12 @@ def show_konnected(
         rows.append(
             {
                 'path': path,
-                'sort': (path, -doc_id),
+                'sort': (path.lstrip(), -doc_id),
                 'values': [
                     itemtype,
                     summary,
                     flags,
-                    rhc,
+                    '',
                     doc_id,
                 ],
             }
@@ -8926,52 +8936,9 @@ def import_file(import_file=None):
         )
 
 
-# def import_ics(import_file=None):
-#     """
-#     open ics file and convert it to text file in tempdir. Then import the text file using
-#     """
-#     items = ical.ics_to_items(import_file)
-#     if not items:
-#         return
-#     # check for dups
-#     exst = []
-#     new = []
-#     dups = 0
-#     for x in ETMDB:
-#         exst.append({
-#                     'itemtype': x.get('itemtype'),
-#                     'summary': x.get('summary'),
-#                     's': x.get('s'),
-#                     # 'f': x.get('f')
-#                     })
-#     num_docs = len(items.keys())
-#     for i, x  in items.items():
-#         y = {
-#                     'itemtype': x.get('itemtype'),
-#                     'summary': x.get('summary'),
-#                     's': x.get('s'),
-#                     # 'f': x.get('f')
-#                     }
-#         if exst and y in exst:
-#             dups += 1
-#         else:
-#             x['created'] = datetime.now()
-#             new.append(x)
-
-#     ids = []
-#     if new:
-#         ids = ETMDB.insert_multiple(new)
-#     msg = f"imported {len(new)} items"
-#     if ids:
-#         msg += f"\n  ids: {ids[0]}-{ids[-1]}."
-#     if dups:
-#         msg += f"\n  rejected {dups} items as duplicates"
-#     return msg
-
-
 def import_examples():
     docs = []
-    examples = make_examples()
+    examples = make_examples(last_id=last_id)
 
     results = []
     good = []
@@ -8979,8 +8946,9 @@ def import_examples():
     items = []
 
     num_examples = len(examples)
+    logger.debug(f"starting import from last_id: {last_id}")
     count = 0
-    logger.debug("beginning import")
+    # logger.debug(f"beginning import with last_id {dataview.last_id}")
     for s in examples:
         ok = True
         count += 1
@@ -8995,10 +8963,12 @@ def import_examples():
         if item.item_hsh.get('summary', None) is None:
             ok = False
 
+
         if ok:
-            item.update_item_hsh()
+            item.update_item_hsh(check_links=False)
             good.append(f'{item.doc_id}')
         else:
+            logger.debug(f"bad entry: {s}")
             bad.append(s)
 
     logger.debug("ending import")

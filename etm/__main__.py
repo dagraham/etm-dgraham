@@ -387,6 +387,9 @@ which will need to be created.
     ETMHOME = etmhome
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
+
+    logger.debug(f'dataview.last_id: {dataview.last_id}')
+    model.last_id = dataview.last_id
     datetime_calculator = model.datetime_calculator
     item = model.Item()
     format_time = model.format_time

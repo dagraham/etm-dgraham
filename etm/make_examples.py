@@ -5,6 +5,7 @@ from dateutil import rrule as dr
 from datetime import datetime, timedelta
 import sys
 import os
+import time
 
 from dateutil.parser import parse
 
@@ -79,7 +80,7 @@ def week(dt: datetime) -> [datetime, datetime]:
     return wk_beg.date(), wk_end.date()
 
 
-def make_examples(egfile: str = None, num_items: int = num_items):
+def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
     now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     num_konnections = 0
     num_items = int(num_items)
@@ -224,6 +225,15 @@ def make_examples(egfile: str = None, num_items: int = num_items):
             examples.append(
                 f'{t} {summary} @i {client_index}/{i1}/{i2} @d {d} @l {random.choice(locations)} @t {random.choice(tags)} @t lorem'
             )
+
+    # # adding @k won't work since update hsh requires that the id exist
+    indices = [x for x in range(last_id, last_id + len(examples))]
+    parents = random.choices(indices, k=40)
+    for p in parents:
+        n = random.choice([x for x in range(3, 7)])
+        samp = random.choices(indices, k=n)
+        entry = ' '.join([f'@k {x}' for x in samp if x != p])
+        examples[p - last_id] += f' {entry}'
 
     if egfile:
         with open(egfile, 'w') as fo:
