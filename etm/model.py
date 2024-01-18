@@ -7476,19 +7476,22 @@ def show_konnected(
 
     relevant = []
     # relevant.append(['Selection', selected_item])
-    relevant.append(['   === the selection:', selected_item])
+    relevant.append(['   === selection:', selected_item])
+    # relevant.append(['   ===', selected_item])
 
     for doc_id in from_ids.get(selected_id, []):
         tmp = db.get(doc_id=doc_id)
         if tmp:
             # relevant.append(['From the selection', tmp])
-            relevant.append(['      <<< linked from the selection:', tmp])
+            relevant.append(['      <<< from the selection:', tmp])
+            # relevant.append(['      <<<', tmp])
 
     for doc_id in to_ids.get(selected_id, []):
         tmp = db.get(doc_id=doc_id)
         if tmp:
             # relevant.append(['To the selection', tmp])
-            relevant.append([' >>> linked to the selection:', tmp])
+            relevant.append([' >>> to the selection:', tmp])
+            # relevant.append([' >>>', tmp])
 
     if len(relevant) < 2:
         # from and to are empty
@@ -7499,7 +7502,7 @@ def show_konnected(
     summary_width = width - 11
     for path, item in relevant:
         doc_id = item.doc_id
-        rhc = str(doc_id).rjust(5, ' ')
+        # rhc = str(doc_id).rjust(5, ' ')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         if '===' in path:
             itemtype = f"  {itemtype}"
@@ -7512,6 +7515,7 @@ def show_konnected(
         rows.append(
             {
                 'path': path,
+                # 'path': '',
                 'sort': (path.lstrip(), -doc_id),
                 'values': [
                     itemtype,
