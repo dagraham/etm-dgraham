@@ -1310,6 +1310,7 @@ type2style = {
     '%': 'journal',
     '*': 'event',
     '-': 'available',
+    '→': 'event',
     '+': 'waiting',
     '✓': 'finished',
     '✗': 'finished',
@@ -1317,6 +1318,8 @@ type2style = {
     '◦': 'used',
     '↱': 'wrap',
     '↳': 'wrap',
+    '↑': 'pastdue',
+    '↓': 'begin',
 }
 
 

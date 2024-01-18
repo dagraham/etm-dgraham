@@ -1056,7 +1056,7 @@ item_hsh:    {self.item_hsh}
                             else:
                                 # no instances left
                                 delete_item = True
-                    elif instance > self.item_hsh['s']:
+                    elif instance > date_to_datetime(self.item_hsh['s']):
                         # no 'c', so we can change/add 'u'
                         rr['u'] = instance - ONESEC
                         self.item_hsh['r'][i] = rr
@@ -2665,6 +2665,7 @@ class NDict(dict):
                             self.output.append(line)
                             self.row += 1
             depth -= 1
+        # return '\n'.join([x for x in self.output if x]), self.row2id
         return '\n'.join(self.output), self.row2id
 
 
@@ -2946,29 +2947,19 @@ class DataView(object):
         self.konnections_to = {}
         self.konnections_from = {}
         self.konnected = []
-        ids = []
-        ids_with_k = []
 
         for item in self.db:
             doc_id = item.doc_id
-            ids.append(doc_id)
-            if 'k' in item:
-                ids_with_k.append(doc_id)
-
-        for item_id in ids_with_k:
-            # from item to link by @k entry
-            item = self.db.get(doc_id=item_id)
-            links = [x for x in item.get('k', []) if x in ids]
-
-            if links:
-                self.konnections_from[item_id] = links
-                # append the to links
-                for link in links:
-                    self.konnections_to.setdefault(link, []).append(item_id)
+            if 'k' in item and item['k']:
+                for id in item['k']:
+                    self.konnections_from.setdefault(doc_id, []). append(id)
+                    self.konnections_to.setdefault(id, []).append(doc_id)
         konnected = [x for x in self.konnections_to] + [
             x for x in self.konnections_from
         ]
         self.konnected = list(set(konnected))
+
+        logger.debug(f"konnected: {self.konnected}")
 
     def handle_backups(self):
         removefiles = []
@@ -7505,17 +7496,19 @@ def show_konnected(
         # rhc = str(doc_id).rjust(5, ' ')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         if '===' in path:
-            itemtype = f"  {itemtype}"
+            itemtype = "  →"
+        elif '>>>' in path:
+            itemtype = "↓"
         elif '<<<' in path:
-            itemtype = f"     {itemtype}"
+            itemtype = "    ↑"
         summary = item['summary']
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
         )
         rows.append(
             {
-                'path': path,
-                # 'path': '',
+                # 'path': path,
+                'path': '',
                 'sort': (path.lstrip(), -doc_id),
                 'values': [
                     itemtype,
@@ -7531,11 +7524,13 @@ def show_konnected(
     except Exception as e:
         logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
     rdict = NDict()
+    logger.debug(f"rows: {rows}")
     for row in rows:
         path = row['path']
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
+    logger.debug(f"tree: {tree}")
     return tree, row2id
 
 
@@ -8196,6 +8191,7 @@ def schedule(
     rows = []
     done = []
     effort = []
+    id2konnected = {} # id -> [(to|from, id)] 
 
     # XXX year, week -> dayofweek -> list of [time interval, summary, period]
     busy_details = {}
@@ -8214,7 +8210,11 @@ def schedule(
         if item['itemtype'] in '!?':
             continue
 
+
+
+
         doc_id = item.doc_id
+    
         itemtype = item['itemtype']
         summary = item.get('summary', '~')
         start = item.get('s', None)
