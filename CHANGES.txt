@@ -1,4 +1,12 @@
-2024-01-18 85649cd Daniel Graham
+2024-01-18 0e66d1e Daniel Graham
+    Tagged version 6.0.12.
+
+2024-01-18 9d15299 Daniel Graham
+    Refactored konnected, konnections_to and konnections_from. Wrapped
+    item['s'] in date_to_datetime to permit comparisons with rrule
+    instance when deleting.
+
+2024-01-18 1b434bb Daniel Graham
     Tagged version 6.0.11.
 
 2024-01-18 70fb828 Daniel Graham
@@ -195,12 +203,3 @@
 
 2023-12-31 35d72d5 Daniel Graham
     Tagged version 6.0.0b4.
-
-2023-12-31 451099d Daniel Graham
-    More tweaks on handling repeating tasks with @o s and @+ entries.
-
-2023-12-31 1a7c546 Daniel Graham
-    Implemented test for duplicates when editing. Changed c-c to copy
-    to pyperclip whatever is in the details window including messages.
-    Removed search_field from details, edit and other unnecessary
-    places.
