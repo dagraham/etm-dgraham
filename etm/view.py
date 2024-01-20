@@ -1041,6 +1041,24 @@ def is_viewing_or_details():
         details_area
     )
 
+@Condition
+def is_showing_konnected():
+    return dataview.active_view == 'konnected'
+
+
+@Condition
+def is_not_showing_konnected():
+    return dataview.active_view != 'konnected'
+
+@Condition
+def is_showing_konnections():
+    return dataview.is_showing_konnections
+
+
+@Condition
+def is_not_showing_konnections():
+    return not dataview.is_showing_konnections
+
 
 @Condition
 def is_details():
@@ -1250,7 +1268,7 @@ def do_go_to_line(*event):
     dataview.got_entry = coroutine
 
 
-@bindings.add('J', filter=is_dated_view)
+@bindings.add('c-up', filter=is_dated_view)
 def do_jump_to_date(*event):
     # func  = inspect.currentframe().f_code.co_name
     # show_work_in_progress(func)
@@ -1310,7 +1328,7 @@ type2style = {
     '%': 'journal',
     '*': 'event',
     '-': 'available',
-    '→': 'event',
+    '→': 'begin',
     '+': 'waiting',
     '✓': 'finished',
     '✗': 'finished',
@@ -1318,8 +1336,8 @@ type2style = {
     '◦': 'used',
     '↱': 'wrap',
     '↳': 'wrap',
-    '↑': 'pastdue',
-    '↓': 'begin',
+    '↑': 'event',
+    '↓': 'available',
 }
 
 
@@ -1766,7 +1784,18 @@ search_field = SearchToolbar(
 
 content = ''
 etmlexer = ETMLexer()
+
+# this is the main display area
 text_area = TextArea(
+    text='',
+    read_only=True,
+    scrollbar=True,
+    search_field=search_field,
+    focus_on_click=True,
+    lexer=etmlexer,
+)
+
+konnected_area = TextArea(
     text='',
     read_only=True,
     scrollbar=True,
@@ -2226,6 +2255,12 @@ status_area = VSplit(
 body = HSplit(
     [
         text_area,  # main content
+        ConditionalContainer(
+            content=HorizontalLine(), filter=is_showing_konnections
+        ),
+        ConditionalContainer(
+            content=konnected_area, filter=is_showing_konnected
+        ),
         status_area,  # toolbar
         ConditionalContainer(
             content=details_area, filter=is_showing_details & is_not_busy_view
@@ -3266,15 +3301,32 @@ def review_view(*event):
     set_view('r')
 
 
-@bindings.add('k', filter=is_viewing)
-def show_konnections(*event):
+
+@bindings.add('k', filter=is_viewing & is_not_showing_konnected)
+def konnected_view(*event):
+    set_view('k')
+
+@bindings.add('enter', filter=is_showing_konnected & is_not_showing_konnections)
+def get_konnections(*event):
+    if not dataview.active_view == 'konnected':
+        return
+
     selected_id = dataview.get_details(text_area.document.cursor_position_row)[
         0
     ]
-    if selected_id in dataview.konnected:
-        dataview.set_active_item(selected_id)
-        set_view('k')
+    tree, row2id = dataview.show_konnections(selected_id)
+    dataview.konnections_row2id = row2id
+    logger.debug(f"tree: {tree}")
+    konnected_area.text = tree
+    application.layout.focus(konnected_area)
+    dataview.is_showing_konnections = True
 
+
+@bindings.add('enter', filter=is_showing_konnected & is_showing_konnections)
+def hide_konnections(*event):
+    konnected_area.text = ""
+    application.layout.focus(text_area)
+    dataview.is_showing_konnections = False
 
 @bindings.add('t', filter=is_viewing)
 def tag_view(*event):
@@ -3344,7 +3396,7 @@ def get_busy_1(*event):
     get_busy_day(7)
 
 
-@bindings.add('enter', filter=is_busy_view & is_viewing)
+@bindings.add(' ', filter=is_busy_view & is_viewing)
 def curr_busy(*event):
     busy_details = dataview.busy_details
     if not busy_details:
@@ -3500,7 +3552,7 @@ def prevweek(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('space', filter=is_agenda_view & is_viewing)
+@bindings.add('c-down', filter=is_agenda_view & is_viewing)
 def currweek(*event):
     dataview.currYrWk()
     dataview.busy_row = 0
@@ -3521,7 +3573,7 @@ def prevcal(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('space', filter=is_yearly_view & is_viewing)
+@bindings.add('c-down', filter=is_yearly_view & is_viewing)
 def prevcal(*event):
     dataview.currcal()
     set_text(dataview.show_active_view())
@@ -3539,7 +3591,7 @@ def prevcal(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('space', filter=is_used_view & is_viewing)
+@bindings.add('c-down', filter=is_used_view & is_viewing)
 def currcal(*event):
     dataview.currMonth()
     set_text(dataview.show_active_view())
@@ -3564,7 +3616,7 @@ def handle_choice(*event):
 
 
 @bindings.add(
-    'enter',
+    ' ',
     filter=is_viewing_or_details & is_not_showing_choice & is_item_view,
 )
 def show_details(*event):
@@ -3573,6 +3625,21 @@ def show_details(*event):
         dataview.hide_details()
     else:
         tmp = dataview.get_details(text_area.document.cursor_position_row)[1]
+        if tmp:
+            dataview.show_details()
+            details_area.text = tmp.rstrip()
+            application.layout.focus(details_area)
+
+
+@bindings.add(
+    ' ',
+    filter=is_showing_konnections)
+def show_details(*event):
+    if dataview.is_showing_details:
+        application.layout.focus(konnected_area)
+        dataview.hide_details()
+    else:
+        tmp = dataview.get_details(konnected_area.document.cursor_position_row)[1]
         if tmp:
             dataview.show_details()
             details_area.text = tmp.rstrip()
@@ -3742,6 +3809,7 @@ root_container = MenuContainer(
                 MenuItem('h) history', handler=history_view),
                 MenuItem('i) index', handler=index_view),
                 MenuItem('j) journal', handler=journal_view),
+                MenuItem('k) konnected', handler=konnected_view),
                 MenuItem('l) location', handler=location_view),
                 MenuItem('m) timers', handler=timers_view),
                 MenuItem('p) pinned', handler=pinned_view),
@@ -3771,11 +3839,11 @@ root_container = MenuContainer(
                 ),
                 MenuItem('-', disabled=True),
                 MenuItem(
-                    'J) jump to date in a), b) and c)', handler=do_jump_to_date
+                    '^up) jump to date in a), b) and c)', handler=do_jump_to_date
                 ),
                 MenuItem('right) next in a), b), c), u), U) and y)'),
                 MenuItem('left) previous in a), b), c), u), U) and y)'),
-                MenuItem('space) current in a), b), c), u), U) and y)'),
+                MenuItem('^down) current in a), b), c), u), U) and y)'),
             ],
         ),
         MenuItem(
@@ -3793,7 +3861,7 @@ root_container = MenuContainer(
             'selected',
             children=[
                 MenuItem(
-                    'Enter) toggle showing details', handler=show_details
+                    'space) toggle showing details', handler=show_details
                 ),
                 MenuItem('E) edit', handler=edit_existing),
                 MenuItem('C) edit copy', handler=edit_copy),
@@ -3803,7 +3871,6 @@ root_container = MenuContainer(
                 MenuItem('R) reschedule', handler=do_reschedule),
                 MenuItem('S) schedule new', handler=do_schedule_new),
                 MenuItem('g) open goto link', handler=do_goto),
-                MenuItem('k) show konnections', handler=show_konnections),
                 MenuItem(
                     '^h) show completion history', handler=not_editing_history
                 ),
@@ -3813,6 +3880,7 @@ root_container = MenuContainer(
                     '^x) toggle archived status',
                     handler=toggle_archived_status,
                 ),
+                MenuItem('enter) toggle showing konnections (konnected view)', handler=get_konnections),
             ],
         ),
         MenuItem(

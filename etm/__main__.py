@@ -190,20 +190,13 @@ Usage:
             import doctest
 
             doctest.testmod(data)
-        # elif sys.argv[1] == 'rep':
-        #     logger.info(f"calling report.main with etmdir: {etmdir}, argv: {sys.argv}")
-        #     report.main(etmdir, sys.argv)
         sys.exit()
-        # else:
-        #     logger.info(f"calling model.main with etmdir: {etmdir}, argv: {sys.argv}")
-        #     model.main(etmdir, sys.argv)
     if len(sys.argv) > 1:
         # use the directory being provided
         etmdir = sys.argv.pop(1)
         etmdir = os.getcwd() if etmdir == '.' else os.path.normpath(etmdir)
 
     created_etmdir = False
-    # if not (os.path.exists(etmdir) and os.path.isdir(etmdir)):
     if not os.path.isdir(etmdir):
         print(
             f"""
@@ -270,7 +263,6 @@ which will need to be created.
     import etm.options as options
 
     setup_logging(loglevel, logdir)
-    # logger = logging.getLogger('asyncio').setLevel(logging.WARNING)
     logger = logging.getLogger('etmmv')
 
     common.logger = logger
@@ -305,17 +297,13 @@ which will need to be created.
     )
     beginbusy = settings.get('beginbusy', 7)
     ampm = settings.get('ampm', True)
-    show_minutes = settings.get('show_minutes', False)
     hour = timedelta(hours=1)
-    fmt = '%I%p' if ampm else '%H'
+    # fmt = '%I%p' if ampm else '%H'
     busyhours = [
         (midnight + i * hour).strftime('%-I%p').rstrip('M').lower()
         for i in range(0, 24, 6)
     ]
     HB = ''.join([f'{h : <8}' for h in busyhours]).rstrip()
-    #
-    # import etm.ical as ical
-    # ical.logger = logger
     data.secret = secret
     data.logger = logger
     data.settings = settings
@@ -336,32 +324,16 @@ which will need to be created.
     from etm.model import write_back
     from etm.model import duration_in_words
 
-    # from etm.model import RDict
     from etm.model import item_details
 
-    # from etm.model import FINISHED_CHAR
-    # from etm.model import UPDATE_CHAR
-    # from etm.model import PIN_CHAR
-    # from etm.model import INBASKET_CHAR
-
-    # ical.parse = parse
     model.loglevel = loglevel
     model.etm_version = etm_version
     model.secret = secret
     model.data = data
     model.Period = Period
-    # model.ical = ical
     model.Mask = Mask
     model.WA = WA
     model.HB = HB
-    # model.VSEP = VSEP
-    # model.HSEP = HSEP
-    # model.BUSY = BUSY
-    # model.CONF = CONF
-    # model.ADAY = ADAY
-    # model.USED = USED
-    # model.FREE = FREE
-    # model.REPS = REPS
     model.ETMDB = ETMDB
     model.DBITEM = DBITEM
     model.DBARCH = DBARCH
@@ -382,7 +354,6 @@ which will need to be created.
         else etmdir
     )
     logger.debug(f'etmhome: {etmhome}')
-    # common.etmhome = etmhome
     model.etmhome = etmhome
     ETMHOME = etmhome
     # we put settings into the model namespace so model.Dataview will have it
@@ -413,18 +384,12 @@ which will need to be created.
     view.parse = parse
     view.WA = WA
     view.beginbusy = beginbusy
-    # view.FINISHED_CHAR = FINISHED_CHAR
-    # view.UPDATE_CHAR = UPDATE_CHAR
-    # view.PIN_CHAR = PIN_CHAR
-    # view.INBASKET_CHAR = INBASKET_CHAR
     view.settings = settings
     view.type_colors = type_colors
     view.cfgfile = cfgfile
     view.model = model
     view.duration_in_words = duration_in_words
     view.write_back = write_back
-    # view.RDict = RDict
-    # view.TDBLexer = model.TBDLexer
     view.item = item
     view.item_details = item_details
     view.logger = logger
@@ -455,10 +420,6 @@ which will need to be created.
     show_query_results = report.show_query_results
     view.show_query_results = show_query_results
     model.show_query_results = show_query_results
-    # get_usedtime_cvs = report.get_usedtime_cvs
-    # view.get_usedtime_cvs = get_usedtime_cvs
-    # model.get_usedtime_cvs = get_usedtime_cvs
-
     report.ETMDB = ETMDB
     report.DBITEM = DBITEM
     report.DBARCH = DBARCH
@@ -498,9 +459,6 @@ which will need to be created.
             import doctest
 
             doctest.testmod(data)
-        # elif sys.argv[1] == 'rep':
-        #     logger.info(f"calling report.main with etmdir: {etmdir}, argv: {sys.argv}")
-        #     report.main(etmdir, sys.argv)
         else:
             logger.info(
                 f'calling model.main with etmdir: {etmdir}, argv: {sys.argv}'

@@ -229,9 +229,10 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
     # # adding @k won't work since update hsh requires that the id exist
     indices = [x for x in range(last_id, last_id + len(examples))]
     parents = random.choices(indices, k=40)
+    children = random.choices(indices, k=40)
     for p in parents:
-        n = random.choice([x for x in range(3, 7)])
-        samp = random.choices(indices, k=n)
+        n = random.choice([x for x in range(3, 8)])
+        samp = random.choices(children, k=n)
         entry = ' '.join([f'@k {x}' for x in samp if x != p])
         examples[p - last_id] += f' {entry}'
 

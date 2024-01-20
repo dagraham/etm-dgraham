@@ -50,6 +50,8 @@ import platform
 import string as strng
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from etm.view import is_showing_konnections
+
 # from etm.report import get_usedtime_cvs
 
 for key, value in ETM_CHAR.items():
@@ -2678,6 +2680,7 @@ class DataView(object):
         self.current = []
         self.alerts = []
         self.row2id = []
+        self.konnections_row2id = {}
         self.last_id = 0
         self.id2relevant = {}
         self.wkday2busy_details = {}
@@ -2771,6 +2774,7 @@ class DataView(object):
         self.control_z_active = False
         self.dialog_active = False
         self.is_showing_items = True
+        self.is_showing_konnections = False
         if needs_update:
             timer_update = TimeIt('***UPDATE***')
             self.update_datetimes_to_periods()
@@ -3444,6 +3448,85 @@ class DataView(object):
         )
         self.active_month = dt.strftime('%Y-%m')
 
+    def show_konnections(self, selected_id):
+        """
+        konnected view for selected_id
+        """
+        if selected_id is None or not self.db.contains(doc_id=selected_id):
+            return [], {}
+        selected_item = self.db.get(doc_id=selected_id)
+        if selected_item is None:
+            return [], {}
+        relevant = []
+        # relevant.append(['Selection', selected_item])
+        relevant.append(['   === selection:', selected_item])
+        # relevant.append(['   ===', selected_item])
+
+        for doc_id in self.konnections_from.get(selected_id, []):
+            tmp = self.db.get(doc_id=doc_id)
+            if tmp:
+                # relevant.append(['From the selection', tmp])
+                relevant.append(['      <<< from the selection:', tmp])
+                # relevant.append(['      <<<', tmp])
+
+        for doc_id in self.konnections_to.get(selected_id, []):
+            tmp =self.db.get(doc_id=doc_id)
+            if tmp:
+                # relevant.append(['To the selection', tmp])
+                relevant.append([' >>> to the selection:', tmp])
+                # relevant.append([' >>>', tmp])
+
+        if len(relevant) < 2:
+            # from and to are empty
+            return [], {}
+
+        # width = shutil.get_terminal_size()[0] - 3
+        rows = []
+        # summary_width = width - 11
+        for path, item in relevant:
+            # rhc = str(doc_id).rjust(5, ' ')
+            itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+            if '===' in path:
+                itemtype = "  →"
+            elif '>>>' in path:
+                itemtype = "↓"
+            elif '<<<' in path:
+                itemtype = "    ↑"
+            doc_id = item.doc_id
+            summary = item['summary']
+            # flags = get_flags(
+            #     doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            # )
+            rows.append(
+                {
+                    # 'path': path,
+                    'path': '',
+                    'sort': (path.lstrip(), -doc_id),
+                    'values': [
+                        itemtype,
+                        summary,
+                        f"{doc_id}",
+                        '',
+                        doc_id,
+                    ],
+                }
+            )
+        try:
+            rows.sort(key=itemgetter('sort'), reverse=True)
+        except Exception as e:
+            logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
+        rdict = NDict()
+        for row in rows:
+            path = row['path']
+            values = row['values']
+            rdict.add(path, values)
+        tree, row2id = rdict.as_tree(rdict, level=0)
+        logger.debug(f"tree: {tree}")
+        tree = re.sub(r'^\s*\n', f" konnections for #{selected_id}\n", tree, 1)
+        # tree = re.sub(r'^\s*\n', "", tree, 1)
+        return tree, row2id
+
+
     def refreshRelevant(self):
         """
         Called to set the relevant items for the current date and to change the currentYrWk and activeYrWk to that containing the current date.
@@ -3544,6 +3627,12 @@ class DataView(object):
     def hide_query(self):
         self.is_showing_query = False
 
+    # def show_konnected(self):
+    #     self.is_showing_konnections = True
+    #
+    # def hide_konnected(self):
+    #     self.is_showing_konnections = False
+    #
     def show_details(self):
         self.is_showing_details = True
 
@@ -3591,7 +3680,11 @@ class DataView(object):
         if row is None:
             return ()
         self.current_row = row
-        id_tup = self.row2id.get(row, None)
+        if self.is_showing_konnections:
+            row2id = self.konnections_row2id
+        else:
+            row2id = self.row2id
+        id_tup = row2id.get(row, None)
         if isinstance(id_tup, tuple):
             item_id, instance, job = id_tup
         else:
@@ -7457,82 +7550,140 @@ def show_konnected(
     to_ids={},
 ):
     """
-    konnected view for selected_id
+    Show list of items with konnections
     """
-    if selected_id is None or not db.contains(doc_id=selected_id):
-        return [], {}
-    selected_item = db.get(doc_id=selected_id)
-    if selected_item is None:
-        return [], {}
-
+    konnected.sort()
+    count = 0
+    id2row = {}
     relevant = []
-    # relevant.append(['Selection', selected_item])
-    relevant.append(['   === selection:', selected_item])
-    # relevant.append(['   ===', selected_item])
+    for id in konnected:
+        item = db.get(doc_id=id)
+        if not item:
+            continue
+        count += 1
+        id2row[id] = count
+        relevant.append([id, item])
 
-    for doc_id in from_ids.get(selected_id, []):
-        tmp = db.get(doc_id=doc_id)
-        if tmp:
-            # relevant.append(['From the selection', tmp])
-            relevant.append(['      <<< from the selection:', tmp])
-            # relevant.append(['      <<<', tmp])
-
-    for doc_id in to_ids.get(selected_id, []):
-        tmp = db.get(doc_id=doc_id)
-        if tmp:
-            # relevant.append(['To the selection', tmp])
-            relevant.append([' >>> to the selection:', tmp])
-            # relevant.append([' >>>', tmp])
-
-    if len(relevant) < 2:
-        # from and to are empty
-        return [], {}
-
-    width = shutil.get_terminal_size()[0] - 3
     rows = []
-    summary_width = width - 11
     for path, item in relevant:
-        doc_id = item.doc_id
-        # rhc = str(doc_id).rjust(5, ' ')
         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
-        if '===' in path:
-            itemtype = "  →"
-        elif '>>>' in path:
-            itemtype = "↓"
-        elif '<<<' in path:
-            itemtype = "    ↑"
         summary = item['summary']
-        flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        )
+        doc_id = item.doc_id
+        # flags = get_flags(
+            # doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        # )
+
         rows.append(
             {
-                # 'path': path,
                 'path': '',
-                'sort': (path.lstrip(), -doc_id),
+                'sort': (doc_id),
                 'values': [
                     itemtype,
                     summary,
-                    flags,
+                    f"#{doc_id}",
                     '',
                     doc_id,
                 ],
             }
         )
     try:
-        rows.sort(key=itemgetter('sort'), reverse=True)
+        rows.sort(key=itemgetter('sort'), reverse=False)
     except Exception as e:
         logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
+
     rdict = NDict()
-    logger.debug(f"rows: {rows}")
     for row in rows:
         path = row['path']
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
+    tree = re.sub(r'^\s*\n', f" konnected items [{len(rows)}]\n", tree, 1)
     logger.debug(f"tree: {tree}")
     return tree, row2id
 
+
+# def show_konnections(
+#     db,
+#     selected_id=None,
+#     from_ids={},
+#     to_ids={},
+# ):
+#     """
+#     konnected view for selected_id
+#     """
+#     if selected_id is None or not db.contains(doc_id=selected_id):
+#         return [], {}
+#     selected_item = db.get(doc_id=selected_id)
+#     if selected_item is None:
+#         return [], {}
+#     relevant = []
+#     # relevant.append(['Selection', selected_item])
+#     relevant.append(['   === selection:', selected_item])
+#     # relevant.append(['   ===', selected_item])
+#
+#     for doc_id in from_ids.get(selected_id, []):
+#         tmp = db.get(doc_id=doc_id)
+#         if tmp:
+#             # relevant.append(['From the selection', tmp])
+#             relevant.append(['      <<< from the selection:', tmp])
+#             # relevant.append(['      <<<', tmp])
+#
+#     for doc_id in to_ids.get(selected_id, []):
+#         tmp = db.get(doc_id=doc_id)
+#         if tmp:
+#             # relevant.append(['To the selection', tmp])
+#             relevant.append([' >>> to the selection:', tmp])
+#             # relevant.append([' >>>', tmp])
+#
+#     if len(relevant) < 2:
+#         # from and to are empty
+#         return [], {}
+#
+#     # width = shutil.get_terminal_size()[0] - 3
+#     rows = []
+#     # summary_width = width - 11
+#     for path, item in relevant:
+#         # rhc = str(doc_id).rjust(5, ' ')
+#         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+#         if '===' in path:
+#             itemtype = "  →"
+#         elif '>>>' in path:
+#             itemtype = "↓"
+#         elif '<<<' in path:
+#             itemtype = "    ↑"
+#         doc_id = item.doc_id
+#         summary = item['summary']
+#         # flags = get_flags(
+#         #     doc_id, repeat_list, link_list, konnected, pinned_list, timers
+#         # )
+#         rows.append(
+#             {
+#                 # 'path': path,
+#                 'path': '',
+#                 'sort': (path.lstrip(), -doc_id),
+#                 'values': [
+#                     itemtype,
+#                     summary,
+#                     f"{doc_id}",
+#                     '',
+#                     doc_id,
+#                 ],
+#             }
+#         )
+#     try:
+#         rows.sort(key=itemgetter('sort'), reverse=True)
+#     except Exception as e:
+#         logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
+#     rdict = NDict()
+#     for row in rows:
+#         path = row['path']
+#         values = row['values']
+#         rdict.add(path, values)
+#     tree, row2id = rdict.as_tree(rdict, level=0)
+#     logger.debug(f"tree: {tree}")
+#     tree = re.sub(r'^\s*\n', f" konnections for #{selected_id}\n", tree, 1)
+#     return tree, row2id
+#
 
 def show_next(
     db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}
@@ -8969,6 +9120,7 @@ def import_examples():
 
 
         if ok:
+            # don't check links because the ids won't yet exist
             item.update_item_hsh(check_links=False)
             good.append(f'{item.doc_id}')
         else:
