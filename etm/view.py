@@ -690,6 +690,7 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     Returns:
         any
     """
+    logger.debug(f"title: {title}")
     if dataview.is_editing:
         # finish edit first
         return
@@ -1247,7 +1248,7 @@ def do_go_to_line(*event):
     # show_work_in_progress(func)
     # return
 
-    title = ('Go to line',)
+    title = 'Go to line'
     text = 'Enter the line number '
     default = ''
     if dataview.current_row:
