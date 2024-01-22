@@ -1069,6 +1069,10 @@ def is_details():
 def is_querying():
     return get_app().layout.has_focus(query_area)
 
+@Condition
+def is_not_querying():
+    return not get_app().layout.has_focus(query_area)
+
 
 @Condition
 def is_items_table():
@@ -3396,7 +3400,7 @@ def get_busy_1(*event):
     get_busy_day(7)
 
 
-@bindings.add(' ', filter=is_busy_view & is_viewing)
+@bindings.add(' ', filter=is_busy_view & is_viewing & is_not_querying)
 def curr_busy(*event):
     busy_details = dataview.busy_details
     if not busy_details:
@@ -3617,7 +3621,7 @@ def handle_choice(*event):
 
 @bindings.add(
     ' ',
-    filter=is_viewing_or_details & is_not_showing_choice & is_item_view,
+    filter=is_viewing_or_details & is_not_showing_choice & is_item_view & is_not_querying,
 )
 def show_details(*event):
     if dataview.is_showing_details:
@@ -3633,7 +3637,7 @@ def show_details(*event):
 
 @bindings.add(
     ' ',
-    filter=is_showing_konnections)
+    filter=is_showing_konnections & is_not_querying)
 def show_details(*event):
     if dataview.is_showing_details:
         application.layout.focus(konnected_area)
@@ -3860,9 +3864,7 @@ root_container = MenuContainer(
         MenuItem(
             'selected',
             children=[
-                MenuItem(
-                    'space) toggle showing details', handler=show_details
-                ),
+                MenuItem('space) toggle showing details', handler=show_details),
                 MenuItem('E) edit', handler=edit_existing),
                 MenuItem('C) edit copy', handler=edit_copy),
                 MenuItem('D) delete', handler=do_maybe_delete),
@@ -3871,16 +3873,12 @@ root_container = MenuContainer(
                 MenuItem('R) reschedule', handler=do_reschedule),
                 MenuItem('S) schedule new', handler=do_schedule_new),
                 MenuItem('g) open goto link', handler=do_goto),
-                MenuItem(
-                    '^h) show completion history', handler=not_editing_history
-                ),
+                MenuItem('^h) show completion history', handler=not_editing_history),
                 MenuItem('^r) show repetitions', handler=not_editing_reps),
                 MenuItem('^u) update last modified', handler=do_touch),
-                MenuItem(
-                    '^x) toggle archived status',
-                    handler=toggle_archived_status,
-                ),
-                MenuItem('enter) toggle showing konnections (konnected view)', handler=get_konnections),
+                MenuItem('^x) toggle archived status', handler=toggle_archived_status,),
+                MenuItem('-- konnected view --', disabled=True),
+                MenuItem('enter) toggle showing konnections', handler=get_konnections),
             ],
         ),
         MenuItem(

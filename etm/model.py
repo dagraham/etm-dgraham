@@ -2129,7 +2129,7 @@ def format_date(obj, year=True):
     yearfirst = settings.get('yearfirst', False)
     md = '%-d/%-m' if dayfirst else '%-m/%-d'
     if year:
-        date_fmt = f'%y/{md}' if yearfirst else f'{md}/%y'
+        date_fmt = f'%Y/{md}' if yearfirst else f'{md}/%Y'
     else:
         date_fmt = md
 
@@ -2193,7 +2193,7 @@ def format_datetime(obj, short=False):
     md = f'%-d/%-m' if dayfirst else f'%-m/%-d'
     if short:
         md = '%-d/%-m' if dayfirst else '%-m/%-d'
-        date_fmt = f'%y/{md}' if yearfirst else f'{md}/%y'
+        date_fmt = f'%Y/{md}' if yearfirst else f'{md}/%Y'
     else:
         md = '%a %-d %b' if dayfirst else '%a %b %-d'
         date_fmt = f'{md}, %Y' if yearfirst else f'{md} %Y'
@@ -3491,7 +3491,7 @@ class DataView(object):
             elif '>>>' in path:
                 itemtype = "↓"
             elif '<<<' in path:
-                itemtype = "    ↑"
+                itemtype = "    ↓"
             doc_id = item.doc_id
             summary = item['summary']
             # flags = get_flags(
@@ -3627,12 +3627,7 @@ class DataView(object):
     def hide_query(self):
         self.is_showing_query = False
 
-    # def show_konnected(self):
-    #     self.is_showing_konnections = True
-    #
-    # def hide_konnected(self):
-    #     self.is_showing_konnections = False
-    #
+
     def show_details(self):
         self.is_showing_details = True
 
@@ -4163,20 +4158,15 @@ shown when nonzero."""
         old = now.replace(year=now.year - self.archive_after)
         rows = []
         for item in self.db:
-            if item['itemtype'] == '%':
-                # keep journal
+            if item['itemtype'] == '%' or item.get('k', []):
+                # keep journal and konnections
                 continue
             elif 'f' in item:
                 if isinstance(item['f'], Period):
                     if item['f'].start < old and item['f'].end < old:
-                        # toss old finished tasks including repeating ones
+                        # toss old finished tasks 
                         rows.append(item)
                         continue
-                # elif isinstance(item['f'], date):
-                #     if item['f'] < old.date():
-                #         # toss old finished tasks including repeating ones
-                #         rows.append(item)
-                #         continue
             elif '+' in item:
                 toss = True
                 for dt in item['+']:
@@ -7367,7 +7357,7 @@ def show_history(
     timers={},
 ):
     md_fmt = '%d/%m' if settings['dayfirst'] else '%m/%d'
-    ymd_fmt = f'%y/{md_fmt}' if settings['yearfirst'] else f'{md_fmt}/%y'
+    ymd_fmt = f'%Y/{md_fmt}' if settings['yearfirst'] else f'{md_fmt}/%Y'
     width = shutil.get_terminal_size()[0] - 3
     rows = []
     # summary_width = width - 14
@@ -7546,8 +7536,8 @@ def show_konnected(
     konnected=[],
     timers={},
     selected_id=None,
-    from_ids={},
-    to_ids={},
+    konnections_from={},
+    konnections_to={},
 ):
     """
     Show list of items with konnections
@@ -7580,7 +7570,7 @@ def show_konnected(
                 'values': [
                     itemtype,
                     summary,
-                    f"#{doc_id}",
+                    f"↓{len(konnections_to.get(doc_id,[]))}#{doc_id}↓{len(konnections_from.get(doc_id, []))}",
                     '',
                     doc_id,
                 ],
@@ -7601,89 +7591,6 @@ def show_konnected(
     logger.debug(f"tree: {tree}")
     return tree, row2id
 
-
-# def show_konnections(
-#     db,
-#     selected_id=None,
-#     from_ids={},
-#     to_ids={},
-# ):
-#     """
-#     konnected view for selected_id
-#     """
-#     if selected_id is None or not db.contains(doc_id=selected_id):
-#         return [], {}
-#     selected_item = db.get(doc_id=selected_id)
-#     if selected_item is None:
-#         return [], {}
-#     relevant = []
-#     # relevant.append(['Selection', selected_item])
-#     relevant.append(['   === selection:', selected_item])
-#     # relevant.append(['   ===', selected_item])
-#
-#     for doc_id in from_ids.get(selected_id, []):
-#         tmp = db.get(doc_id=doc_id)
-#         if tmp:
-#             # relevant.append(['From the selection', tmp])
-#             relevant.append(['      <<< from the selection:', tmp])
-#             # relevant.append(['      <<<', tmp])
-#
-#     for doc_id in to_ids.get(selected_id, []):
-#         tmp = db.get(doc_id=doc_id)
-#         if tmp:
-#             # relevant.append(['To the selection', tmp])
-#             relevant.append([' >>> to the selection:', tmp])
-#             # relevant.append([' >>>', tmp])
-#
-#     if len(relevant) < 2:
-#         # from and to are empty
-#         return [], {}
-#
-#     # width = shutil.get_terminal_size()[0] - 3
-#     rows = []
-#     # summary_width = width - 11
-#     for path, item in relevant:
-#         # rhc = str(doc_id).rjust(5, ' ')
-#         itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
-#         if '===' in path:
-#             itemtype = "  →"
-#         elif '>>>' in path:
-#             itemtype = "↓"
-#         elif '<<<' in path:
-#             itemtype = "    ↑"
-#         doc_id = item.doc_id
-#         summary = item['summary']
-#         # flags = get_flags(
-#         #     doc_id, repeat_list, link_list, konnected, pinned_list, timers
-#         # )
-#         rows.append(
-#             {
-#                 # 'path': path,
-#                 'path': '',
-#                 'sort': (path.lstrip(), -doc_id),
-#                 'values': [
-#                     itemtype,
-#                     summary,
-#                     f"{doc_id}",
-#                     '',
-#                     doc_id,
-#                 ],
-#             }
-#         )
-#     try:
-#         rows.sort(key=itemgetter('sort'), reverse=True)
-#     except Exception as e:
-#         logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
-#     rdict = NDict()
-#     for row in rows:
-#         path = row['path']
-#         values = row['values']
-#         rdict.add(path, values)
-#     tree, row2id = rdict.as_tree(rdict, level=0)
-#     logger.debug(f"tree: {tree}")
-#     tree = re.sub(r'^\s*\n', f" konnections for #{selected_id}\n", tree, 1)
-#     return tree, row2id
-#
 
 def show_next(
     db, repeat_list=[], pinned_list=[], link_list=[], konnected=[], timers={}

@@ -571,16 +571,9 @@ The pinned status of items is retained so long as *etm* is active but cleared wh
 
 ### Konnected View {#konnected-view}
 
-Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. When such an item is selected and 'k' is pressed this view displays all reminders konnected to the selected reminder, organized as follows:
+Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. Konnected view only displays items that either have an @k entry or are among the @k entries of other items. These items are listed in order of their doc_ids and are like other views, e.g., press 'space' to see the details of the selected item, 'E' to edit the selected and so forth. Unlike other views, pressing 'enter' toggles the display of the 'konnections' of the selected item. This opens a pane at the bottom of the display that shows the list of items with @k links to the selected item, then the selected item itself and finally the list of items with @k links from the selected item. The konnections display is also a normal view, e.g., selecting an item and pressing 'space' will display its details.
 
-reminders with links to the selection
-: the list of items with @k entries which include the id of the selected item
-
-the selection
-: the selected item
-
-reminders with links from the selection
-: the list of items whose ids are included in the @k entries of the selected item
+This view and the ability to add links between items in *etm* is meant to support [Zettelkasten](https://zettelkasten.de/introduction/)
 
 [↺ contents](#contents)
 
@@ -1951,7 +1944,7 @@ In addition to monthly and yearly frequencies, `d` (daily) and `w` (weekly) are 
 When a reminder is 'archived' in *etm*, it is is moved from the *items* table in the database to the *archive* table. Reminders in the *archive* table can only be viewed by opening *query view* and then beginning the query with 'a' to use the *archive* table. All other views display reminders from the *items* table.
 
 There are two ways to archive a reminder:
-* Automatically. If 'archive_after' in the configuration settings is set to a positive integer, then tasks with finished datetimes and events with last datetimes more than this number of years before the current date will be achived automatically at the beginning of each new day. Note that unfinshed tasks, journal entries and inbox reminders are never automatically archived.
+* Automatically. If 'archive_after' in the configuration settings is set to a positive integer, then tasks with finished datetimes and events with last datetimes more than this number of years before the current date will be achived automatically at the beginning of each new day. Note that unfinshed tasks, journal entries, inbox reminders and reminders with an @k konnection entry are never automatically archived.
 * Manually. Select a reminder and press `^x` (control and x) to archive it.
 
 There is only one way to un-archive a reminder. Run a query beginning with 'a' in *query* view to use the archive table, select a reminder and press `^x`. This will un-archive the reminder, i.e., move it back to the *items* table.

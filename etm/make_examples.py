@@ -11,7 +11,7 @@ from dateutil.parser import parse
 
 # from etm.model import parse
 
-num_items = 160
+num_items = 180
 
 ONEDAY = timedelta(days=1)
 ONEWK = 7 * ONEDAY
@@ -102,7 +102,7 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
     )
     past_datetimes = [x for x in datetimes if x <= now]
 
-    types = ['-', '*', '%', '-', '*']
+    types = ['-', '*', '%']
     clients = ['A', 'B', 'C', 'D']
     client_name = {
         'A': names[0],
