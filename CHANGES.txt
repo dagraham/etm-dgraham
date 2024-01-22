@@ -1,4 +1,21 @@
-2024-01-18 0e66d1e Daniel Graham
+2024-01-22 899ffae Daniel Graham
+    Tagged version 6.0.13.
+
+2024-01-22 98ff2b4 Daniel Graham
+    Fixed bug in setting title for go_to_line.
+
+2024-01-22 15e61d0 Daniel Graham
+    Don't automatically archive items with @k entries. Use 4-digit
+    years in detail and edit views to preserve century, e.g., to avoid
+    1944/4/17 being saved as 44/4/17 and then interpreted as
+    2044/4/17.
+
+2024-01-20 3c246a6 Daniel Graham
+    Konnected view with show konnections for selected. Changed
+    bindings, space for details, ^down for current, ^up for jump to
+    date, in konnected view, enter shows konnections.
+
+2024-01-18 f21d6ff Daniel Graham
     Tagged version 6.0.12.
 
 2024-01-18 9d15299 Daniel Graham
@@ -188,18 +205,3 @@
 
 2024-01-01 7820d45 Daniel Graham
     Fixed nested double quotes for python3.11 compatibility.
-
-2024-01-01 8a8df43 Daniel Graham
-    Tagged version 6.0.0rc0.
-
-2024-01-01 e04de45 Daniel Graham
-    Fixed update for @s when tasks with @o s become past due. Show
-    skipped char for such completions in done and completions history.
-    Fixed duplicate display in get_entry.
-
-2024-01-01 ba25c34 Daniel Graham
-    Changed binding for adding a new item from 'N' to '+' to allow 'N'
-    to be used for backward search.
-
-2023-12-31 35d72d5 Daniel Graham
-    Tagged version 6.0.0b4.
