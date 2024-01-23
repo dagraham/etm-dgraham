@@ -1,4 +1,11 @@
-2024-01-23 edf1e82 Daniel Graham
+2024-01-23 c73091d Daniel Graham
+    Tagged version 6.0.16.
+
+2024-01-23 6ba92e8 Daniel Graham
+    Key binding tweaks for dated views: '.' show current date and ','
+    jump to date. (One hand commands)
+
+2024-01-23 57da6a2 Daniel Graham
     Tagged version 6.0.15. bug fix
 
 2024-01-23 33d0c35 Daniel Graham
@@ -203,9 +210,3 @@
     periods. Added profile_eetm.py script to start etm 'wrapped' in
     cProfile and save the resulting pstats when etm closes to
     'profile.txt' in the etmhome directory.
-
-2024-01-02 58c315f Daniel Graham
-    Removed unneeded logging.debug
-
-2024-01-02 8e6f5b9 Daniel Graham
-    Tagged version 6.0.0rc2.
