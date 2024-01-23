@@ -1177,6 +1177,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         h) history
         i) index
         j) journal
+        k) konnected
         l) location
         p) pinned
         q) query
@@ -1197,10 +1198,10 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         ^c) copy active view to clipboard
         ^t) start quick timer
         ---
-        J) jump to date in a), b) and c)
+        ,) jump to date in a), b) and c)
         right) next in a), b), c), u), U) and y)
         left) previous in a), b), c), u), U) and y)
-        space) current in a), b), c), u), U) and y)
+        .) current date in a), b), c), u), U) and y)
     editor
         +) add new item
         ---
@@ -1209,7 +1210,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         ^r) show repetitions
         ^z) discard changes and close
     selected
-        Enter) toggle showing details
+        space) toggle showing details
         E) edit
         C) edit copy
         D) delete
@@ -1218,7 +1219,6 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         R) reschedule
         S) schedule new
         g) open goto link
-        k) show konnections
         ^h) show completion history
         ^r) show repetitions
 		^u) update last modified

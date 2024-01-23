@@ -633,7 +633,7 @@ def show_message(title, text, padding=6):
     # prep the message window
     width = shutil.get_terminal_size()[0] - 2
     heading = f'-- {title.rstrip()} --'.center(width, ' ')
-    prompt = '<return> or <escape> closes'.center(width, ' ')
+    prompt = '<escape> closes'.center(width, ' ')
     tmp = f"""\
 {heading}
 {text}
@@ -1269,7 +1269,7 @@ def do_go_to_line(*event):
     dataview.got_entry = coroutine
 
 
-@bindings.add('c-up', filter=is_dated_view)
+@bindings.add(',', filter=is_dated_view, eager=True)
 def do_jump_to_date(*event):
     # func  = inspect.currentframe().f_code.co_name
     # show_work_in_progress(func)
@@ -3582,7 +3582,7 @@ def prevweek(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('c-down', filter=is_agenda_view & is_viewing)
+@bindings.add('.', filter=is_agenda_view & is_viewing)
 def currweek(*event):
     dataview.currYrWk()
     dataview.busy_row = 0
@@ -3603,7 +3603,7 @@ def prevcal(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('c-down', filter=is_yearly_view & is_viewing)
+@bindings.add('.', filter=is_yearly_view & is_viewing)
 def prevcal(*event):
     dataview.currcal()
     set_text(dataview.show_active_view())
@@ -3621,7 +3621,7 @@ def prevcal(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('c-down', filter=is_used_view & is_viewing)
+@bindings.add('.', filter=is_used_view & is_viewing)
 def currcal(*event):
     dataview.currMonth()
     set_text(dataview.show_active_view())
@@ -3869,11 +3869,11 @@ root_container = MenuContainer(
                 ),
                 MenuItem('-', disabled=True),
                 MenuItem(
-                    '^up) jump to date in a), b) and c)', handler=do_jump_to_date
+                    ',) jump to date in a), b) and c)', handler=do_jump_to_date
                 ),
                 MenuItem('right) next in a), b), c), u), U) and y)'),
                 MenuItem('left) previous in a), b), c), u), U) and y)'),
-                MenuItem('^down) current in a), b), c), u), U) and y)'),
+                MenuItem('.) current date in a), b), c), u), U) and y)'),
             ],
         ),
         MenuItem(
