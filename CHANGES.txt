@@ -1,4 +1,11 @@
-2024-01-23 f445d32 Daniel Graham
+2024-01-23 edf1e82 Daniel Graham
+    Tagged version 6.0.15. bug fix
+
+2024-01-23 33d0c35 Daniel Graham
+    Replaced ': ' as separator in completions with '|| ' to avoid
+    false matches.
+
+2024-01-23 98c2c0e Daniel Graham
     Tagged version 6.0.14. Major update to Konnected (Zettelkasten)
     View.
 
@@ -202,12 +209,3 @@
 
 2024-01-02 8e6f5b9 Daniel Graham
     Tagged version 6.0.0rc2.
-
-2024-01-02 38a0a0e Daniel Graham
-    Consolidated Period and related in common.py. Added debug logging
-    to do_goto (for @g links). Fixed logic for overdue skip to update
-    skipped and history from @+ list and to set relevant from @+ when
-    appropriate.
-
-2024-01-01 169c991 Daniel Graham
-    Tagged version 6.0.0rc1.
