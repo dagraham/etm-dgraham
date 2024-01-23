@@ -1,4 +1,16 @@
-2024-01-22 899ffae Daniel Graham
+2024-01-23 f445d32 Daniel Graham
+    Tagged version 6.0.14. Major update to Konnected (Zettelkasten)
+    View.
+
+2024-01-23 bdb1f21 Daniel Graham
+    When opening konnected view, if an item is selected with an @k
+    entry, then jump to that row in konnected view. When returning to
+    konnected view from viewing konnections for an item, jump to the
+    row corresponding to the last selection in konnections. Added
+    discussion of Zettelkasten to the Konnected View section of
+    README.
+
+2024-01-22 fde1078 Daniel Graham
     Tagged version 6.0.13.
 
 2024-01-22 98ff2b4 Daniel Graham
@@ -199,9 +211,3 @@
 
 2024-01-01 169c991 Daniel Graham
     Tagged version 6.0.0rc1.
-
-2024-01-01 35ca634 Daniel Graham
-    Fixed copy to clipboard when editing a reminder.
-
-2024-01-01 7820d45 Daniel Graham
-    Fixed nested double quotes for python3.11 compatibility.
