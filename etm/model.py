@@ -2901,18 +2901,22 @@ class DataView(object):
                             item['summary'],
                             item.doc_id,
                         )
-                        completions.add(f'@k {i} {t} {s}: {d}')
+                        completions.add(f'@k {i} {t} {s}|| {d}')
                         # self.kompletions[f"@k {i} {t} {s}: {d}"] = d
 
         logger.debug(f"### last_id: {self.last_id} ###")
         self.completions = list(completions)
         self.completions.sort()
         for x in  self.completions:
-            if ':' not in x:
+            if '|| ' not in x:
                 continue
             logger.debug(f"in completions: {x}")
-            k, v = x.split(':')
-            self.kompletions[k.strip()[3:]] = f"@k {v.strip()}"
+            parts = x.split('|| ')
+            if len(parts) == 2:
+                k, v = parts
+                self.kompletions[k.strip()[3:]] = f"@k {v.strip()}"
+            else:
+                logger.debug(f"bad parts: {parts}")
         
 
 
