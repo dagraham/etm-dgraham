@@ -571,9 +571,28 @@ The pinned status of items is retained so long as *etm* is active but cleared wh
 
 ### Konnected View {#konnected-view}
 
-Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. Konnected view only displays items that either have an @k entry or are among the @k entries of other items. These items are listed in order of their doc_ids and are like other views, e.g., press 'space' to see the details of the selected item, 'E' to edit the selected and so forth. Unlike other views, pressing 'enter' toggles the display of the 'konnections' of the selected item. This opens a pane at the bottom of the display that shows the list of items with @k links to the selected item, then the selected item itself and finally the list of items with @k links from the selected item. The konnections display is also a normal view, e.g., selecting an item and pressing 'space' will display its details.
+Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. Konnected view only displays items that either have an @k entry or are among the @k entries of other items. These items are listed in order of their doc_ids and are similar to other item views, e.g., press 'space' to see the details of the selected item, 'E' to edit the selection and so forth. Unlike other views, pressing 'enter' toggles the display of the 'konnections' of the selected item. This opens a pane at the bottom of the display that shows the list of items with @k links to the selected item, then the selected item itself and finally the list of items with @k links from the selected item. The konnections display is also a normal view, e.g., selecting an item and pressing 'space' will display its details.
 
-This view and the ability to add links between items in *etm* is meant to support [Zettelkasten](https://zettelkasten.de/introduction/)
+This view and the ability to add links between items in *etm* is meant to support the *Zettelkasten* system of note taking. The term is German for "slip box" where "slip" is a slip of paper containing a single note. These are the essential ideas: 
+
+* Each note represents a single, self-contained idea.
+* Notes are linked to other, related notes. 
+
+This network of ideas and links has been compared to the brain with its network of neurons and connecting synapses. The links are the keys to both. With notes on paper slips, links required a unique label for each slip and a variety of labeling techniques have been used historically from suggestive keywords to the date and time the note was created. 
+
+Labels are built into *etm* since every note (journal entry), event, task or inbox entry gets a unique, integer *doc_id* when it is created. Links are provided by the `@k` konnections - e.g., adding `@k 238` to an item, konnects/links that item to the item with doc_id 238. 
+
+As discussed above, *konnected view* provides the means for examining the network of konnections. But how are these konnections created in the first place? Tab completion for `@k` entries is the answer. When you type `@k` into the entry area, a list of possible completions will pop up. The lines in this list contain the following item values separated by spaces:
+
+* the item index entry
+* the item type character
+* the item summary
+* the item doc_id
+
+Initially the list of possible completions includes **every** item in the *etm* active database, but as you begin typing an index entry, the list collapses to show only those items which are consistent with what you have typed thus far. At any point you can stop typing and scroll up and down the list and, finding the item you want to use for the link, press **TAB** to select it and then **TAB** again to replace the selected entry with just the doc_id from the selected entry. Note that **TWO TAB** presses are needed to complete the selection. 
+
+Other relationships are possible in *etm* - shared tags, common index entries, common item type, and so forth - and there are views to support examining these relationships - tags view, index view, journal view and so forth. *Konnected View* is uniquely intended to support examining the konnections among items.
+
 
 [↺ contents](#contents)
 

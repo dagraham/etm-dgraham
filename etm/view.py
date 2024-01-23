@@ -1244,10 +1244,6 @@ def do_alerts(*event):
 
 @bindings.add('c-l', filter=is_viewing)
 def do_go_to_line(*event):
-    # func  = inspect.currentframe().f_code.co_name
-    # show_work_in_progress(func)
-    # return
-
     title = 'Go to line'
     text = 'Enter the line number '
     default = ''
@@ -1835,6 +1831,16 @@ class AtCompleter(Completer):
                         replacement = expansions.get(word[3:], completion)
                         yield Completion(replacement, start_position=-word_len)
                     else:
+                        yield Completion(completion, start_position=-word_len)
+
+                elif word.startswith('@k') and completion.startswith(word):
+                    if completion == word:
+                        tmp = completion.split(': ')
+                        replacement = f"@k {tmp[1].strip()}"
+                        logger.debug(f"word: {word}; completion: {completion}; replacement: {replacement}; word_len: {word_len}")
+                        yield Completion(replacement, start_position=-word_len)
+                    else:
+                        # yield Completion(completion, start_position=-word_len)
                         yield Completion(completion, start_position=-word_len)
 
                 elif completion.startswith(word) and completion != word:
@@ -2511,7 +2517,6 @@ def edit_existing(*event):
     doc_id, entry = dataview.get_details(
         text_area.document.cursor_position_row, True
     )
-    row, col = get_row_col()
     item.edit_item(doc_id, entry)
     edit_buffer.text = item.entry
     starting_buffer_text = item.entry
@@ -3309,7 +3314,18 @@ def review_view(*event):
 
 @bindings.add('k', filter=is_viewing & is_not_showing_konnected)
 def konnected_view(*event):
+    doc_id, entry = dataview.get_details(
+        text_area.document.cursor_position_row, True
+    )
+    # id2row = {id: row for row, id in dataview.konnections_row2id.items()}
+    konnected_row = dataview.konnected_id2row.get(doc_id, None)
+    # logger.debug(f"doc_id: {doc_id}; konnected_row: {konnected_row}; dataview.konnected_id2row: {dataview.konnected_id2row}")
     set_view('k')
+    if konnected_row: 
+        text_area.buffer.cursor_position = (
+            text_area.buffer.document.translate_row_col_to_index(
+                konnected_row, 0)
+            )
 
 @bindings.add('enter', filter=is_showing_konnected & is_not_showing_konnections)
 def get_konnections(*event):
@@ -3321,7 +3337,7 @@ def get_konnections(*event):
     ]
     tree, row2id = dataview.show_konnections(selected_id)
     dataview.konnections_row2id = row2id
-    logger.debug(f"tree: {tree}")
+    # logger.debug(f"tree: {tree}")
     konnected_area.text = tree
     application.layout.focus(konnected_area)
     dataview.is_showing_konnections = True
@@ -3329,8 +3345,17 @@ def get_konnections(*event):
 
 @bindings.add('enter', filter=is_showing_konnected & is_showing_konnections)
 def hide_konnections(*event):
-    konnected_area.text = ""
+    doc_id, entry = dataview.get_details(
+        konnected_area.document.cursor_position_row, True
+    )
+    konnected_row = dataview.konnected_id2row.get(doc_id, None)
     application.layout.focus(text_area)
+    if konnected_row: 
+        text_area.buffer.cursor_position = (
+            text_area.buffer.document.translate_row_col_to_index(
+                konnected_row, 0)
+            )
+    konnected_area.text = ""
     dataview.is_showing_konnections = False
 
 @bindings.add('t', filter=is_viewing)

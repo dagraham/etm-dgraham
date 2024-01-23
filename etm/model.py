@@ -2681,6 +2681,8 @@ class DataView(object):
         self.alerts = []
         self.row2id = []
         self.konnections_row2id = {}
+        self.konnected_id2row = {}
+        self.konnected_row = None
         self.last_id = 0
         self.id2relevant = {}
         self.wkday2busy_details = {}
@@ -2713,6 +2715,7 @@ class DataView(object):
         self.effort_details = {}
         self.currMonth()
         self.completions = []
+        self.kompletions = {}
         self.konnections_from = {}
         self.konnections_to = {}
         self.konnected = []
@@ -2874,6 +2877,7 @@ class DataView(object):
         """
         completions = set([])
         self.completions = list(completions)
+        self.kompletions = {}
 
         for item in self.db:
             self.last_id = item.doc_id
@@ -2898,10 +2902,19 @@ class DataView(object):
                             item.doc_id,
                         )
                         completions.add(f'@k {i} {t} {s}: {d}')
+                        # self.kompletions[f"@k {i} {t} {s}: {d}"] = d
 
         logger.debug(f"### last_id: {self.last_id} ###")
         self.completions = list(completions)
         self.completions.sort()
+        for x in  self.completions:
+            if ':' not in x:
+                continue
+            logger.debug(f"in completions: {x}")
+            k, v = x.split(':')
+            self.kompletions[k.strip()[3:]] = f"@k {v.strip()}"
+        
+
 
     def update_konnections(self, item):
         """
@@ -2962,8 +2975,14 @@ class DataView(object):
             x for x in self.konnections_from
         ]
         self.konnected = list(set(konnected))
+        self.konnected.sort()
+        row = 0 
+        for id in self.konnected:
+            row += 1 
+            self.konnected_id2row[id] = row
 
         logger.debug(f"konnected: {self.konnected}")
+
 
     def handle_backups(self):
         removefiles = []
@@ -3371,7 +3390,9 @@ class DataView(object):
                 self.konnections_from,
                 self.konnections_to,
             )
+            # self.konnected_id2row = {id: row for row, id in self.row2id.items()} 
             return self.konnected_view
+
         if self.active_view == 'query':
             if self.query_text:
                 if self.query_text == self.last_query:
@@ -3521,9 +3542,7 @@ class DataView(object):
             values = row['values']
             rdict.add(path, values)
         tree, row2id = rdict.as_tree(rdict, level=0)
-        logger.debug(f"tree: {tree}")
         tree = re.sub(r'^\s*\n', f" konnections for #{selected_id}\n", tree, 1)
-        # tree = re.sub(r'^\s*\n', "", tree, 1)
         return tree, row2id
 
 
@@ -7588,7 +7607,6 @@ def show_konnected(
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict, level=0)
     tree = re.sub(r'^\s*\n', f" konnected items [{len(rows)}]\n", tree, 1)
-    logger.debug(f"tree: {tree}")
     return tree, row2id
 
 
@@ -8249,7 +8267,7 @@ def schedule(
     rows = []
     done = []
     effort = []
-    id2konnected = {} # id -> [(to|from, id)] 
+    # id2konnected = {} # id -> [(to|from, id)] 
 
     # XXX year, week -> dayofweek -> list of [time interval, summary, period]
     busy_details = {}
