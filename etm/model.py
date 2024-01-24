@@ -6848,8 +6848,13 @@ def relevant(
                         else:
                             relevant = cur 
 
-                    else:   # k or p
-                        relevant = rset.after(today, inc=True)
+                    else:   # k or r
+                        try:
+                            relevant = rset.after(today, inc=True)
+                        except Exception as e:
+                            logger.debug(f"Exception: {e}\nissue with today: {today} ({type(today)}) or rset: {rset}\nskipping {item}")
+                            continue
+                            
                         already_done = [x.end for x in item.get('h', [])]
                         # relevant will be the first instance after 12am today
                         # it will be the @s entry for the updated repeating item
@@ -7783,17 +7788,21 @@ def show_journal(
             year = month = ''
         index = item.get('i', '~')
         if index == settings['journal_name'] and s:
-            index = f'{index}/{year}/{month}'
+            sort = (index, -int(s.strftime('%Y')), -int(s.strftime('%m')), -int(s.strftime('%d')))
+            # sort = (index, f'-{ss}', item['summary'])
+            path = f'{index}/{year}/{month}'
+        else:
+            sort = (index, ss, item['summary'])
+            path = index
         itemtype = item['itemtype']
         summary = f"{item['summary']}" #[:summary_width]
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
         )
-
         rows.append(
             {
-                'sort': (index, ss, item['summary']),
-                'path': index,
+                'sort': sort,
+                'path': path,
                 'values': [itemtype, summary, flags, rhc, doc_id],
             }
         )
