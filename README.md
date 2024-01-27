@@ -1162,7 +1162,7 @@ Here is a screen shot from an iPhone of an illustrative `current.txt`:
 Pressing F1 toggles the *etm* menu display - opening it if it is closed and closing it if it is open. There are four menu tabs labeled *etm*, *view*, *editor* and *selected* with the options listed below:
 
     etm
-		F1) activate/close menu
+        F1) activate/close menu
         F2) about etm
         F3) system info
         F4) check for updates

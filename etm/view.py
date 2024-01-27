@@ -3682,7 +3682,8 @@ def prevcal(*event):
 
 
 @bindings.add('home', filter=is_yearly_view & is_viewing)
-def prevcal(*event):
+@bindings.add('space', filter=is_yearly_view & is_viewing)
+def currcal(*event):
     dataview.currcal()
     set_text(dataview.show_active_view())
 
@@ -3700,6 +3701,7 @@ def prevcal(*event):
 
 
 @bindings.add('home', filter=is_used_view & is_viewing)
+@bindings.add('space', filter=is_used_view & is_viewing)
 def currcal(*event):
     dataview.currMonth()
     set_text(dataview.show_active_view())
