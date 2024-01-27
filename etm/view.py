@@ -15,7 +15,8 @@ import prompt_toolkit.application
 # from prompt_toolkit.application import Application
 # from prompt_toolkit.application.current import get_app
 # from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.completion import Completion, Completer
+from prompt_toolkit.completion import Completion, Completer, FuzzyCompleter
+from prompt_toolkit.shortcuts import CompleteStyle, prompt
 from prompt_toolkit.cursor_shapes import CursorShape
 from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.filters import Condition
@@ -1085,7 +1086,7 @@ def is_items_table():
 
 
 @bindings.add(',', ',', filter=is_viewing)
-def _(event):
+def clear_search(*event):
     search_state = get_app().current_search_state
     text = search_state.text
     search_state.text = ''
@@ -1273,7 +1274,7 @@ def do_go_to_line(*event):
     dataview.got_entry = coroutine
 
 
-@bindings.add(',', filter=is_dated_view, eager=True)
+@bindings.add('end', filter=is_dated_view)
 def do_jump_to_date(*event):
     # func  = inspect.currentframe().f_code.co_name
     # show_work_in_progress(func)
@@ -1830,16 +1831,16 @@ class AtCompleter(Completer):
             word_len = len(word)
             word = word.rstrip()
             for completion in dataview.completions:
-                if word.startswith('@x') and completion.startswith(word):
+                if word.startswith('@x') and completion.find(word)>=0:
                     if completion == word:
                         replacement = expansions.get(word[3:], completion)
                         yield Completion(replacement, start_position=-word_len)
                     else:
                         yield Completion(completion, start_position=-word_len)
 
-                elif word.startswith('@k') and completion.startswith(word):
+                elif word.startswith('@k') and completion.find(word)>=0:
                     if completion == word:
-                        tmp = completion.split('|| ')
+                        tmp = completion.split(' | ')
                         replacement = f"@k {tmp[1].strip()}"
                         logger.debug(f"word: {word}; completion: {completion}; replacement: {replacement}; word_len: {word_len}")
                         yield Completion(replacement, start_position=-word_len)
@@ -1855,7 +1856,7 @@ class AtCompleter(Completer):
         self.continue_completion = False
 
 
-at_completer = AtCompleter()
+at_completer = FuzzyCompleter(AtCompleter())
 
 result = ''
 
@@ -2531,26 +2532,16 @@ def edit_or_add_journal(*event):
     doc_id, entry = dataview.get_details(
         text_area.document.cursor_position_row, True
     )
-    # selected = ETMDB.get(doc_id=doc_id) if doc_id else None
-    # if doc_id and selected and selected.get('s') and selected['itemtype'] == '%' and selected.get('i') == journal_name:
-    #     selected['summary'] = selected['s'].strftime(summary_fmt)
-    #     entry = item_details(selected, True)
-    #     item.edit_item(doc_id, entry)
-    #     logger.debug(f"selected: {selected}; entry: {entry}; item: {item}")
-    #     edit_buffer.text = item.entry
-    #     starting_buffer_text = item.entry
-    #     default_buffer_changed(event)
-    #     default_cursor_position_changed(event)
-    #     application.layout.focus(edit_buffer)
-    # else:
-    summary = today.strftime(summary_fmt)
+    summary = model.format_date(today, separator='-', omit_zeros=False)[1]
     relevant = None
     for it in ETMDB:
         itemtype = it.get('itemtype')
         index = it.get('i')
-        start = it.get('s')
+        start = it.get('s') 
+        if isinstance(start, datetime):
+            start = start.date()
         logger.debug(f"itemtype: {itemtype}; index: {index}; journal_name: {journal_name}; start: {start}; today: {today.date()}")
-        if itemtype == '%' and index == journal_name and start and start.date() == today.date():
+        if itemtype == '%' and index == journal_name and start and start == date.today():
             relevant = it
             break        
     logger.debug(f"relevant: {relevant}")
@@ -2572,8 +2563,8 @@ def edit_or_add_journal(*event):
         starting_buffer_text = f"""\
 % {summary}      
 @s {start} @i {settings['journal_name']}
-@d # {today.strftime('%B %-d, %Y')}
-* 
+@d {today.strftime('%A, %B %-d, %Y')}
+ 
 """
         item.new_item()
         edit_buffer.text = starting_buffer_text
@@ -3408,7 +3399,7 @@ def konnected_view(*event):
                 konnected_row, 0)
             )
 
-@bindings.add('enter', filter=is_showing_konnected & is_not_showing_konnections)
+@bindings.add('k', filter=is_showing_konnected & is_not_showing_konnections)
 def get_konnections(*event):
     if not dataview.active_view == 'konnected':
         return
@@ -3429,7 +3420,7 @@ def get_konnections(*event):
     dataview.is_showing_konnections = True
 
 
-@bindings.add('enter', filter=is_showing_konnected & is_showing_konnections)
+@bindings.add('k', filter=is_showing_konnected & is_showing_konnections)
 def hide_konnections(*event):
     doc_id, entry = dataview.get_details(
         konnected_area.document.cursor_position_row, True
@@ -3668,7 +3659,8 @@ def prevweek(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('.', filter=is_agenda_view & is_viewing)
+@bindings.add('home', filter=is_agenda_view & is_viewing)
+@bindings.add('space', filter=is_agenda_view & is_viewing)
 def currweek(*event):
     dataview.currYrWk()
     dataview.busy_row = 0
@@ -3689,7 +3681,7 @@ def prevcal(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('.', filter=is_yearly_view & is_viewing)
+@bindings.add('home', filter=is_yearly_view & is_viewing)
 def prevcal(*event):
     dataview.currcal()
     set_text(dataview.show_active_view())
@@ -3707,7 +3699,7 @@ def prevcal(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('.', filter=is_used_view & is_viewing)
+@bindings.add('home', filter=is_used_view & is_viewing)
 def currcal(*event):
     dataview.currMonth()
     set_text(dataview.show_active_view())
@@ -3718,9 +3710,7 @@ def currcal(*event):
 @bindings.add('<any>', filter=is_showing_choice)
 def handle_choice(*event):
     """
-    Handle any key presses. The coroutine used as dataview.got_input
-    will determine which presses are acted upon and which are
-    ignored.
+    Handle any key presses. The coroutine used as dataview.got_input will determine which presses are acted upon and which are ignored.
     """
     keypressed = event[0].key_sequence[0].key
     dataview.details_key_press = keypressed
@@ -3732,7 +3722,7 @@ def handle_choice(*event):
 
 
 @bindings.add(
-    ' ',
+    'enter',
     filter=is_viewing_or_details & is_not_showing_choice & is_item_view & is_not_querying,
 )
 def show_details(*event):
@@ -3748,7 +3738,7 @@ def show_details(*event):
 
 
 @bindings.add(
-    ' ',
+    'enter',
     filter=is_showing_konnections & is_not_querying)
 def show_details(*event):
     if dataview.is_showing_details:
@@ -3945,6 +3935,8 @@ root_container = MenuContainer(
                     '^c) copy active view to clipboard',
                     handler=copy_active_view,
                 ),
+                MenuItem('-- konnected view --', disabled=True),
+                MenuItem('k) toggle showing konnections', handler=get_konnections),
             ]
         ),
         MenuItem(
@@ -3952,15 +3944,16 @@ root_container = MenuContainer(
             children=[
                 # MenuItem('-', disabled=True),
                 # MenuItem('-', disabled=True),
-                MenuItem('.) go to today in a), b), c), u), U) and y)'),
+                MenuItem('space|home) go to today in a, b, c, u, U and y', handler=currweek),
                 MenuItem(
-                    ',) prompt for and go to date in a), b) and c)', handler=do_jump_to_date
+                    'end) prompt for and go to date in a, b and c', handler=do_jump_to_date
                 ),
-                MenuItem('right) next in a), b), c), u), U) and y)'),
-                MenuItem('left) previous in a), b), c), u), U) and y)'),
+                MenuItem('right) next in a, b, c, u, U and y', disabled=True),
+                MenuItem('left) previous in a, b, c, u, U and y', disabled=True),
                 MenuItem('-', disabled=True),
-                MenuItem('/|?|,,) search forward|backward|clear search'),
-                MenuItem('n) next incrementally in search'),
+                MenuItem('/|?) initiate forward|backward search', disabled=True),
+                MenuItem('n|N) search next|previous incrementally', disabled=True),
+                MenuItem(',,) clear search', handler=clear_search),
                 MenuItem(
                     '^l) prompt for and go to line number',
                     handler=do_go_to_line,
@@ -3983,7 +3976,7 @@ root_container = MenuContainer(
         MenuItem(
             'selected',
             children=[
-                MenuItem('space) toggle showing details', handler=show_details),
+                MenuItem('enter) toggle showing details', handler=show_details),
                 MenuItem('E) edit', handler=edit_existing),
                 MenuItem('C) edit copy', handler=edit_copy),
                 MenuItem('D) delete', handler=do_maybe_delete),
@@ -3997,7 +3990,7 @@ root_container = MenuContainer(
                 MenuItem('^u) update last modified', handler=do_touch),
                 MenuItem('^x) toggle archived status', handler=toggle_archived_status,),
                 MenuItem('-- konnected view --', disabled=True),
-                MenuItem('enter) toggle showing konnections', handler=get_konnections),
+                MenuItem('k) toggle showing konnections', handler=get_konnections),
             ],
         ),
         MenuItem(

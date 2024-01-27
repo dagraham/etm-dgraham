@@ -419,7 +419,7 @@ journal_name: '{journal_name}'
 # most recent entries are always at the top.
 # 
 # Pressing 'J' in any view will open a daily journal entry for the
-# current date with a summary corresponding to {journal_summary} and
+# current date with a summary corresponding to the current date and
 # an index entry equal to {journal_name}. This journal entry will be
 # created if necessary.
 

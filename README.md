@@ -571,7 +571,7 @@ The pinned status of items is retained so long as *etm* is active but cleared wh
 
 ### Konnected View {#konnected-view}
 
-Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. Konnected view only displays such items. They are listed in order of their doc_ids and the view similar to other item views, e.g., press 'space' to see the details of the selected item, 'E' to edit the selection and so forth. Unlike other item views, pressing 'enter' toggles the display of the 'konnections' of the selected item. This opens a pane at the bottom of the display that shows the list of items with @k links to the selected item, then the selected item itself and finally the list of items with @k links from the selected item. This konnections display is also a normal view, e.g., selecting an item and pressing 'space' will display its details.
+Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. Konnected view **only** displays items with such konnections. They are listed in order of their doc_ids and the view is similar to other item views, e.g., press 'space' to see the details of the selected item, 'E' to edit the selection and so forth. Unlike other item views, pressing 'k' toggles the display of the 'konnections' of the selected item. This opens a pane at the bottom of the display that shows the list of items with @k links to the selected item, then the selected item itself and finally the list of items with @k links from the selected item. This konnections display is also a normal view, e.g., selecting an item and pressing 'space' will display its details.
 
 This view and the ability to add links between items in *etm* is meant to support the *Zettelkasten* system of note taking. The term is German for "slip box" where "slip" is a slip of paper containing a single note. These are the essential ideas: 
 
@@ -582,16 +582,21 @@ This network of ideas and links has been compared to the brain with its network 
 
 Labels are built into *etm* since every note (journal entry), event, task or inbox entry gets a unique, integer *doc_id* when it is created. Links are provided by the `@k` konnections - e.g., adding `@k 238` to an item, konnects/links that item to the item with doc_id 238. 
 
-As discussed above, *konnected view* provides the means for examining the network of konnections. But how are these konnections created in the first place? Tab completion for `@k` entries is the answer. When you type `@k` into the entry area, a list of possible completions will pop up. The lines in this list contain the following item values separated by spaces:
+As discussed above, *konnected view* provides the means for examining the network of konnections. But how are these konnections created in the first place? When you type `@k` into the entry area, a list of possible completions will pop up. The lines in this list contain the following item values separated by spaces:
 
 * the item index entry
 * the item type character
 * the item summary
 * the item doc_id
 
-Initially the list of possible completions includes **every** item in the *etm* active database, but as you begin typing an index entry, the list collapses to show only those items which are consistent with what you have typed thus far. At any point you can stop typing and scroll up and down the list and, finding the item you want to use for the link, press **TAB** to select it and then **TAB** again to replace the selected entry with just the doc_id from the selected entry. Note that **TWO TAB** presses are needed to complete the selection. 
+Initially the list of possible completions includes **every** item in the *etm* active database, but as you begin typing an index entry, the list collapses to show only those items which contain what you have typed thus far. At any point you can stop typing and scroll up and down the list and, finding the item you want to use for the link, press **TAB** to select it and then  **space** and **TAB** again to replace the selected entry with just the doc_id from the selected entry. 
+
+What if you have an related idea while editing an item and the idea does not yet correspond to another item? Add `@K comment regarding idea` (note the capital K) and, when you save the item, etm will create an inbox item with your comment as its summary and then replace the `@K comment regarding idea` with `@k doc_id` using the doc_id of the new inbox item. When you have time, edit the inbox entry to better represent your idea and change the item type accordingly. You can add as many `@K` entries as you like - each will give rise to a new inbox item.
 
 Other relationships are possible in *etm* - shared tags, common index entries, common item type, and so forth - and there are views to support examining these relationships - tags view, index view, journal view and so forth. *Konnected View* is uniquely intended to support examining the konnections among items.
+
+*Konnected View* is specially designed to help you follow a thread of konnections. When you select an item and press 'k',
+a konnection view opens that shows just the items with konnections to the selected item and the items with konnections from the selected item. Selecting an item from this view and pressing 'k' closes the konnections view but moves the selection in the konnected view to the item just selected so that pressing 'k' again will show the konnections for the item just selected. 
 
 
 [↺ contents](#contents)
@@ -1190,13 +1195,14 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         y) yearly calendar
         ^c) copy active view to clipboard
     move
-        .) go to today in a), b) and c)
-        ,) prompt for and goto date in a), b), c), u), U) and y)
+        space|home) go to today in a), b) and c)
+        end) prompt for and goto date in a), b), c), u), U) and y)
         right) next in a), b), c), u), U) and y)
         left) previous in a), b), c), u), U) and y)
         ---
-        /|?|,,) search forward|backward|clear search
-        n) next incrementally in search
+        /|?) initiate forward|backwards search 
+        n|N) search next|previous incrementally
+        ,,) clear search
         ^l) prompt for and jump to line number
         ^p) jump to next pinned item
     edit
@@ -1208,7 +1214,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         ^s) save changes & close
         ^z) discard changes and close
     selected
-        space) toggle showing details
+        enter) toggle showing details
         E) edit
         C) edit copy
         D) delete
@@ -1222,7 +1228,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
 		^u) update last modified
         ^x) toggle archived status
         --- konnected view
-        enter) toggle showing konnections
+        k) toggle showing konnections
     timers
         m) show timer view
         --- for the selected reminder

@@ -1639,6 +1639,7 @@ item_hsh:    {self.item_hsh}
         return obj, rep
 
     def do_summary(self, arg):
+        logger.debug(f"item_hsh: {self.item_hsh}")
         if not self.item_hsh['itemtype']:
             return None, 'a valid itemtype must be provided'
         obj, rep = do_string(arg)
@@ -2929,16 +2930,16 @@ class DataView(object):
                             item['summary'],
                             item.doc_id,
                         )
-                        completions.add(f'@k {i} {t} {s}|| {d}')
+                        completions.add(f'@k {i} {t} {s} | {d}')
                         # self.kompletions[f"@k {i} {t} {s}: {d}"] = d
 
         logger.debug(f"### last_id: {self.last_id} ###")
         self.completions = list(completions)
         self.completions.sort()
         for x in  self.completions:
-            if '|| ' not in x:
+            if ' | ' not in x:
                 continue
-            parts = x.split('|| ')
+            parts = x.split(' | ')
             if len(parts) == 2:
                 k, v = parts
                 self.kompletions[k.strip()[3:]] = f"@k {v.strip()}"
@@ -9073,19 +9074,15 @@ def get_konnections(hsh: dict)->[int]:
         return []
 
     konnect = hsh.get('K', [])
-    logger.debug(f"K: {hsh.get('K')}")
-    # del hsh['K']
     doc_ids = []
     while len(konnect) > 0:
         # save a inbox item for each and replace @K summary with @k doc_id
-        logger.debug(f"starting num left: {len(konnect)}")
         s = konnect.pop(0)
         item = Item()
         item.new_item()
         item.text_changed(s, 1)
         doc_id = item.do_insert()
         doc_ids.append(doc_id)
-        logger.debug(f"processed {s}; num left: {len(konnect)}")
     return doc_ids
 
 def import_examples():
