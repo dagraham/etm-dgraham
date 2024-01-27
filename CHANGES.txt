@@ -1,4 +1,25 @@
-2024-01-23 c73091d Daniel Graham
+2024-01-27 cf34139 Daniel Graham
+    Tagged version 6.0.17.
+
+2024-01-27 0068cfd Daniel Graham
+    Restored keybindings: space->goto today, enter->toggle details.
+    Added FuzzyCompleter wrapper to at_completer. Updated README for
+    menus and Konnected View.
+
+2024-01-26 fdcd9cd Daniel Graham
+    Implemented using @K <summary> entries to add links to as yet non
+    existing inbox items with the provided summary and an @s entry
+    corresponding to the current date. The inbox items are created and
+    the resulting doc_id's added to an @k entry which replaces the @K
+    entry. Reorganized menus and updated README accordingly. Pressing
+    'J' in any mode, opens a 'daily' journal entry for the current
+    date for editing, creating the item if it doesn't already exist.
+
+2024-01-24 11f2673 Daniel Graham
+    Reverse sort 'daily' to put most recent first. Wrap rset.after in
+    try/except to catch Gour issue.
+
+2024-01-23 b60c10a Daniel Graham
     Tagged version 6.0.16.
 
 2024-01-23 6ba92e8 Daniel Graham
@@ -194,19 +215,3 @@
 
 2024-01-03 033aaab Daniel Graham
     More profile_etm tweaks and sort improvements for journal view.
-
-2024-01-03 52459e9 Daniel Graham
-    profile_etm tweaks
-
-2024-01-03 f4958b3 Daniel Graham
-    Moved etm-qt/ and removed it from git.
-
-2024-01-03 39d4727 Daniel Graham
-    Tagged version 6.0.0rc3.
-
-2024-01-03 17c2153 Daniel Graham
-    Fixed inconsistent sign for completions - + for early and - for
-    late. Re use format_duration to catch two most significant
-    periods. Added profile_eetm.py script to start etm 'wrapped' in
-    cProfile and save the resulting pstats when etm closes to
-    'profile.txt' in the etmhome directory.
