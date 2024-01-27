@@ -1,4 +1,10 @@
-2024-01-27 cf34139 Daniel Graham
+2024-01-27 b8a4762 Daniel Graham
+    Tagged version 6.0.18.
+
+2024-01-27 af2eba5 Daniel Graham
+    Missed bindings for goto today.
+
+2024-01-27 f805747 Daniel Graham
     Tagged version 6.0.17.
 
 2024-01-27 0068cfd Daniel Graham
@@ -209,9 +215,3 @@
 
 2024-01-06 5362290 Daniel Graham
     More work on resource warnings, might have solution.
-
-2024-01-05 f565ead Daniel Graham
-    Removed ical.py and report.py. Working on 'Resource error'.
-
-2024-01-03 033aaab Daniel Graham
-    More profile_etm tweaks and sort improvements for journal view.
