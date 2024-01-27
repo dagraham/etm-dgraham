@@ -571,7 +571,7 @@ The pinned status of items is retained so long as *etm* is active but cleared wh
 
 ### Konnected View {#konnected-view}
 
-Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. Konnected view only displays items that either have an @k entry or are among the @k entries of other items. These items are listed in order of their doc_ids and are similar to other item views, e.g., press 'space' to see the details of the selected item, 'E' to edit the selection and so forth. Unlike other views, pressing 'enter' toggles the display of the 'konnections' of the selected item. This opens a pane at the bottom of the display that shows the list of items with @k links to the selected item, then the selected item itself and finally the list of items with @k links from the selected item. The konnections display is also a normal view, e.g., selecting an item and pressing 'space' will display its details.
+Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. Konnected view only displays such items. They are listed in order of their doc_ids and the view similar to other item views, e.g., press 'space' to see the details of the selected item, 'E' to edit the selection and so forth. Unlike other item views, pressing 'enter' toggles the display of the 'konnections' of the selected item. This opens a pane at the bottom of the display that shows the list of items with @k links to the selected item, then the selected item itself and finally the list of items with @k links from the selected item. This konnections display is also a normal view, e.g., selecting an item and pressing 'space' will display its details.
 
 This view and the ability to add links between items in *etm* is meant to support the *Zettelkasten* system of note taking. The term is German for "slip box" where "slip" is a slip of paper containing a single note. These are the essential ideas: 
 
@@ -1182,32 +1182,30 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         p) pinned
         q) query
 		r) review
+        s) scheduled alerts for today
         t) tags
         u) used time
-        U) used time summary
+        U) used summary
         v) refresh views to fit resized terminal
-        ---
-        s) scheduled alerts for today
         y) yearly calendar
+        ^c) copy active view to clipboard
+    move
+        .) go to today in a), b) and c)
+        ,) prompt for and goto date in a), b), c), u), U) and y)
+        right) next in a), b), c), u), U) and y)
+        left) previous in a), b), c), u), U) and y)
         ---
-        /) search forward
-        ?) search backward
+        /|?|,,) search forward|backward|clear search
         n) next incrementally in search
         ^l) prompt for and jump to line number
         ^p) jump to next pinned item
-        ^c) copy active view to clipboard
-        ^t) start quick timer
-        ---
-        ,) jump to date in a), b) and c)
-        right) next in a), b), c), u), U) and y)
-        left) previous in a), b), c), u), U) and y)
-        .) current date in a), b), c), u), U) and y)
-    editor
+    edit
         +) add new item
+        J) edit today's journal entry
         ---
-        ^s) save changes & close
         ^g) test goto link
         ^r) show repetitions
+        ^s) save changes & close
         ^z) discard changes and close
     selected
         space) toggle showing details
@@ -1223,12 +1221,17 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         ^r) show repetitions
 		^u) update last modified
         ^x) toggle archived status
-        ---
+        --- konnected view
+        enter) toggle showing konnections
+    timers
+        m) show timer view
+        --- for the selected reminder
         T) change timer to next state
         TR) record usedtime and end timer or add usedtime
         TD) delete timer
-        ---
+        --- ignores selection
         TT) toggle paused/running for active timer
+        ^t) start quick timer
 
 
 [↺ contents](#contents)

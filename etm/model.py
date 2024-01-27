@@ -129,7 +129,7 @@ item_types = """item type characters:\n    """ + """\n    """.join(
     [f'{k}: {v}' for k, v in type_keys.items()]
 )
 
-common_methods = list('cdgiklmnstuxz')
+common_methods = list('cdgikKlmnstuxz')
 repeating_methods = list('+-o') + [
     'rr',
     'rc',
@@ -685,6 +685,7 @@ class Item(dict):
             ],
             'i': ['index', 'forward slash delimited string', do_string],
             'k': ['konnection', 'document id', do_konnection],
+            'K': ['konnect', 'summary for inbox item', do_konnect],
             'l': [
                 'location',
                 'location or context, e.g., home, office, errands',
@@ -813,6 +814,7 @@ item_hsh:    {self.item_hsh}
 
     def check_goto_link(self, num=5):
         """ """
+        logger.debug("calling update_item_hsh from check_goto_link")
         self.update_item_hsh()
         if goto := self.item_hsh.get('g'):
             return True, goto
@@ -1347,8 +1349,10 @@ item_hsh:    {self.item_hsh}
                 'unrecognized key',
                 f'{display_key} is invalid',
             )
+ 
 
     def check_item_hsh(self):
+        logger.debug("in check_item_hsh")
         created = self.item_hsh.get('created', None)
         self.item_hsh = {'created': created}
         cur_hsh = {}
@@ -1360,7 +1364,7 @@ item_hsh:    {self.item_hsh}
                 msg.append(f'bad entry for {k}: {v}')
                 return msg
                 # continue
-            elif k in ['a', 'u', 'n', 't', 'k']:
+            elif k in ['a', 'u', 'n', 't', 'k', 'K']:
                 self.item_hsh.setdefault(k, []).append(obj)
             elif k in ['rr', 'jj']:
                 if cur_hsh:
@@ -1380,6 +1384,7 @@ item_hsh:    {self.item_hsh}
                     cur_key = None
                     cur_hsh = {}
                 self.item_hsh[k] = obj
+
         for k in ['k', 't', 'n']:
             # remove duplicates
             # XXX: should 'u' be included?
@@ -1408,9 +1413,21 @@ item_hsh:    {self.item_hsh}
         return msg
 
     def update_item_hsh(self, check_links=True):
+        logger.debug("in update_item_hsh")
         msg = self.check_item_hsh()
         if msg:
             logger.error(msg)
+
+        if 'K' in self.item_hsh:
+            logger.debug(f"calling get_konnections with {self.item_hsh}")
+            doc_ids = get_konnections(self.item_hsh)
+            logger.debug(f"back from get_konnections with {doc_ids}")
+            konnections = self.item_hsh.get('k', [])
+            konnections.extend(doc_ids)
+            self.item_hsh['k'] = konnections
+            logger.debug(f"extended {self.item_hsh.get('k')}")
+            del self.item_hsh['K']
+            logger.debug(f"deleted 'K' -> {self.item_hsh}") 
 
         if check_links:
             # make sure the doc_id refers to an actual document
@@ -1418,6 +1435,8 @@ item_hsh:    {self.item_hsh}
             self.item_hsh['k'] = [
                 x for x in links if self.db.contains(doc_id=x)
             ]
+
+
 
         if self.is_modified and not msg:
             now = datetime.now().astimezone()
@@ -1486,7 +1505,7 @@ item_hsh:    {self.item_hsh}
                 numuses[k] += 1
             duplicates = [
                 k for (k, v) in numuses.items() if v > 1 and k not in [
-                    'a', 'u', 't', 'k', 'jj', 'rr', 'ji']
+                    'a', 'u', 't', 'k', 'K', 'jj', 'rr', 'ji']
                 ]
             if key in duplicates:
                 display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
@@ -1518,7 +1537,7 @@ item_hsh:    {self.item_hsh}
             already_entered = [
                 k
                 for (k, v) in self.keyvals
-                if len(k) == 1 and k not in ['a', 'u', 't']
+                if len(k) == 1 and k not in ['a', 'u', 't', 'k', 'K']
             ]
             require = [
                 f'@{k}_({v[0]})'
@@ -2124,14 +2143,22 @@ def fivechar_datetime(obj):
         return obj.strftime(ym_fmt)
 
 
-def format_date(obj, year=True):
+def format_date(obj, year=True, separator='/', omit_zeros=True):
     dayfirst = settings.get('dayfirst', False)
     yearfirst = settings.get('yearfirst', False)
-    md = '%-d/%-m' if dayfirst else '%-m/%-d'
+    # md = ('%-d', '%-m') if dayfirst else ('%-m', '%-d')
+    if omit_zeros:
+        md = f"%-d{separator}%-m" if dayfirst else f"%-m{separator}%-d"
+    else:
+        md = f"%d{separator}%m" if dayfirst else f"%m{separator}%d"
     if year:
-        date_fmt = f'%Y/{md}' if yearfirst else f'{md}/%Y'
+        # date_fmt = f'%Y/{md}' if yearfirst else f'{md}/%Y'
+        # ymd = ('%Y',) + md if yearfirst else md + ('%Y',)
+        date_fmt = f"%Y{separator}{md}" if yearfirst else f"{md}{separator}%Y"
     else:
         date_fmt = md
+
+    # logger.debug(f"date_fmt: {date_fmt}; {obj.strftime(date_fmt)}")
 
     if type(obj) != date and type(obj) != datetime:
         return False, ''
@@ -2619,6 +2646,7 @@ class NDict(dict):
         """return an indented tree"""
         # self.width = shutil.get_terminal_size()[0] - 3
         for k in t.keys():
+            # indent = NDict.tab * depth * '  '
             indent = NDict.tab * depth * ' '
             # replace any newlines in the title with spaces
             K = re.sub(' *\n+ *', ' ', k)
@@ -2910,7 +2938,6 @@ class DataView(object):
         for x in  self.completions:
             if '|| ' not in x:
                 continue
-            logger.debug(f"in completions: {x}")
             parts = x.split('|| ')
             if len(parts) == 2:
                 k, v = parts
@@ -4800,6 +4827,9 @@ entry_tmpl = """\
 {%- if 'k' in h %}
 {% for x in h['k'] %}{{ "@k {} ".format(x) }}{% endfor %}\
 {% endif %}\
+{%- if 'K' in h %}
+{% for x in h['k'] %}{{ "@K {} ".format(x) }}{% endfor %}\
+{% endif %}\
 {%- if 'n' in h %}
 {% for x in h['n'] %}{{ "@n {} ".format(x) }}{% endfor %}\
 {% endif %}\
@@ -4906,6 +4936,9 @@ display_tmpl = """\
 {% endif %}\
 {%- if 'k' in h %}
 {% for x in h['k'] %}{{ "@k {} ".format(x) }}{% endfor %}\
+{% endif %}\
+{%- if 'K' in h %}
+{% for x in h['k'] %}{{ "@K {} ".format(x) }}{% endfor %}\
 {% endif %}\
 {%- if 'n' in h %}
 {% for x in h['n'] %}{{ "@n {} ".format(x) }}{% endfor %}\
@@ -5019,7 +5052,7 @@ def do_beginby(arg):
     return obj, rep
 
 
-def do_konnection(arg):
+def do_konnection(arg: int):
     konnection_str = 'an integer document id'
     m = KONNECT_REGEX.match(arg)
     if m:
@@ -5035,6 +5068,14 @@ def do_konnection(arg):
         obj = None
         rep = f"'{arg}' is incomple or invalid. Konnection requires {konnection_str}."
     return obj, rep
+
+def do_konnect(arg: str):
+    konnect_str = "summary for konnected inbox item"
+    ok, res = string(arg)
+    if ok:
+        return f"! {res} @s {format_date(datetime.today())[1]}", arg
+    else:
+        return None, f"'{arg}' is missing. Konnect requires {konnect_str}"
 
 
 def do_usedtime(arg):
@@ -7767,35 +7808,31 @@ def show_journal(
     """
     journal grouped by index entry
     """
-    width = shutil.get_terminal_size()[0] - 3
     rows = []
-    summary_width = width - 14
-    logger.debug(f"using journal_name: {settings['journal_name']}")
     for item in db:
         doc_id = item.doc_id
         if item['itemtype'] != '%':
             continue
         s = item.get('s', None)
         if s:
-            rhc = f"{s.strftime('%-d'): >2}"
-            # ymd = s.strftime('%Y/%m/%d').split('/')
             ss = s.strftime('%Y%m%d')
             year = s.strftime("%Y")
-            month = s.strftime("%b")
+            month = s.strftime("%B")
         else:
-            rhc = ''
             ss = '='
             year = month = ''
         index = item.get('i', '~')
         if index == settings['journal_name'] and s:
+            # this is a 'daily' entry
             sort = (index, -int(s.strftime('%Y')), -int(s.strftime('%m')), -int(s.strftime('%d')))
-            # sort = (index, f'-{ss}', item['summary'])
             path = f'{index}/{year}/{month}'
+            # summary = s.strftime(settings['journal_summary'])
+            ok, summary = format_date(s,separator='-',omit_zeros=False)
         else:
             sort = (index, ss, item['summary'])
             path = index
+            summary = f"{item['summary']}" 
         itemtype = item['itemtype']
-        summary = f"{item['summary']}" #[:summary_width]
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
         )
@@ -7803,7 +7840,7 @@ def show_journal(
             {
                 'sort': sort,
                 'path': path,
-                'values': [itemtype, summary, flags, rhc, doc_id],
+                'values': [itemtype, summary, flags, '', doc_id],
             }
         )
     rows.sort(key=itemgetter('sort'))
@@ -7928,25 +7965,30 @@ def show_index(
         )
         s = item.get('s', None)
         if s:
-            rhc = format_date(s)[1]
+            ss = s.strftime('%Y%m%d')
             sort = format_datetime(item['created'])[1]
             year = s.strftime("%Y")
             month = s.strftime("%b")
         else:
-            rhc = ' '
+            ss = '='
             sort = '~'
             year = month = ''
-        # rhc = f"{rhc: ^8}"
-        rhc = ''
         if index == settings['journal_name'] and s:
-            rhc = f"{s.strftime('%-d'): >2}"
-            sort = s.strftime('%Y%m%d')
-            index = f'{index}/{year}/{month}'
+            sort = (index, -int(s.strftime('%Y')), -int(s.strftime('%m')), -int(s.strftime('%d')))
+            path = f'{index}/{year}/{month}'
+        else:
+            sort = (index, ss, item['summary'])
+            path = index
+        itemtype = item['itemtype']
+        summary = f"{item['summary']}" #[:summary_width]
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
         rows.append(
             {
-                'sort': (index, sort, item['itemtype'], item['summary']),
-                'path': index,
-                'values': [itemtype, summary, flags, rhc, doc_id],
+                'sort': sort,
+                'path': path,
+                'values': [itemtype, summary, flags, '', doc_id],
             }
         )
     rows.sort(key=itemgetter('sort'))
@@ -8298,9 +8340,6 @@ def schedule(
             continue
         if item['itemtype'] in '!?':
             continue
-
-
-
 
         doc_id = item.doc_id
     
@@ -9028,6 +9067,26 @@ def import_file(import_file=None):
             f"Importing a file with the extension '{extension}' is not implemented. Only files with the extension '.text' are recognized",
         )
 
+
+def get_konnections(hsh: dict)->[int]:
+    if 'K' not in hsh:
+        return []
+
+    konnect = hsh.get('K', [])
+    logger.debug(f"K: {hsh.get('K')}")
+    # del hsh['K']
+    doc_ids = []
+    while len(konnect) > 0:
+        # save a inbox item for each and replace @K summary with @k doc_id
+        logger.debug(f"starting num left: {len(konnect)}")
+        s = konnect.pop(0)
+        item = Item()
+        item.new_item()
+        item.text_changed(s, 1)
+        doc_id = item.do_insert()
+        doc_ids.append(doc_id)
+        logger.debug(f"processed {s}; num left: {len(konnect)}")
+    return doc_ids
 
 def import_examples():
     docs = []

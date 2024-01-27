@@ -87,6 +87,10 @@ from pygments.token import Literal
 from pygments.token import Operator
 from pygments.token import Comment
 
+# from etm.model import ETMDB
+
+# from etm.model import ETMDB
+
 pta = prompt_toolkit.application
 get_app = prompt_toolkit.application.current.get_app
 Buffer = prompt_toolkit.buffer.Buffer
@@ -1835,7 +1839,7 @@ class AtCompleter(Completer):
 
                 elif word.startswith('@k') and completion.startswith(word):
                     if completion == word:
-                        tmp = completion.split(': ')
+                        tmp = completion.split('|| ')
                         replacement = f"@k {tmp[1].strip()}"
                         logger.debug(f"word: {word}; completion: {completion}; replacement: {replacement}; word_len: {word_len}")
                         yield Completion(replacement, start_position=-word_len)
@@ -2499,6 +2503,83 @@ def edit_new(*event):
     default_buffer_changed(event)
     default_cursor_position_changed(event)
     application.layout.focus(edit_buffer)
+
+def ordinal_day_and_weekday(d: datetime)->str:
+    md, wd = d.split(', ')
+    return f"{model.ordinal(int(md))}, {wd}"
+
+@bindings.add('J', filter=is_viewing & is_items_table)
+def edit_or_add_journal(*event):
+    global item
+    global starting_buffer_text
+    app = get_app()
+    app.editing_mode = (
+        EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+    )
+
+    if dataview.is_showing_details:
+        application.layout.focus(text_area)
+        dataview.hide_details()
+
+    # to restore the current cursor row after completed
+    dataview.current_row = text_area.document.cursor_position_row
+    dataview.is_editing = True
+    dataview.control_z_active = False
+    summary_fmt = settings['journal_summary']
+
+    journal_name = settings.get('journal_name')
+    doc_id, entry = dataview.get_details(
+        text_area.document.cursor_position_row, True
+    )
+    # selected = ETMDB.get(doc_id=doc_id) if doc_id else None
+    # if doc_id and selected and selected.get('s') and selected['itemtype'] == '%' and selected.get('i') == journal_name:
+    #     selected['summary'] = selected['s'].strftime(summary_fmt)
+    #     entry = item_details(selected, True)
+    #     item.edit_item(doc_id, entry)
+    #     logger.debug(f"selected: {selected}; entry: {entry}; item: {item}")
+    #     edit_buffer.text = item.entry
+    #     starting_buffer_text = item.entry
+    #     default_buffer_changed(event)
+    #     default_cursor_position_changed(event)
+    #     application.layout.focus(edit_buffer)
+    # else:
+    summary = today.strftime(summary_fmt)
+    relevant = None
+    for it in ETMDB:
+        itemtype = it.get('itemtype')
+        index = it.get('i')
+        start = it.get('s')
+        logger.debug(f"itemtype: {itemtype}; index: {index}; journal_name: {journal_name}; start: {start}; today: {today.date()}")
+        if itemtype == '%' and index == journal_name and start and start.date() == today.date():
+            relevant = it
+            break        
+    logger.debug(f"relevant: {relevant}")
+    doc_id, entry = dataview.get_details(
+        text_area.document.cursor_position_row, True
+    )
+    if relevant:
+        doc_id = relevant.doc_id
+        relevant['summary'] = summary
+        entry = item_details(relevant, True)
+        item.edit_item(doc_id, entry)
+        edit_buffer.text = item.entry
+        starting_buffer_text = item.entry
+        default_buffer_changed(event)
+        default_cursor_position_changed(event)
+        application.layout.focus(edit_buffer)
+    else:
+        start = today.strftime("%Y-%m-%d")
+        starting_buffer_text = f"""\
+% {summary}      
+@s {start} @i {settings['journal_name']}
+@d # {today.strftime('%B %-d, %Y')}
+* 
+"""
+        item.new_item()
+        edit_buffer.text = starting_buffer_text
+        default_buffer_changed(event)
+        default_cursor_position_changed(event)
+        application.layout.focus(edit_buffer)
 
 
 @bindings.add('E', filter=is_viewing_or_details & is_item_view)
@@ -3338,7 +3419,12 @@ def get_konnections(*event):
     tree, row2id = dataview.show_konnections(selected_id)
     dataview.konnections_row2id = row2id
     # logger.debug(f"tree: {tree}")
-    konnected_area.text = tree
+    if tree:
+        konnected_area.text = tree
+    else:
+        konnected_area.text = f"""
+        Problem showing konnections for {selected_id}
+        """
     application.layout.focus(konnected_area)
     dataview.is_showing_konnections = True
 
@@ -3627,7 +3713,7 @@ def currcal(*event):
     set_text(dataview.show_active_view())
 
 
-@bindings.add('escape', filter=is_showing_choice)
+@bindings.add('escape', filter=is_showing_choice, eager=True)
 @bindings.add('enter', filter=is_showing_choice)
 @bindings.add('<any>', filter=is_showing_choice)
 def handle_choice(*event):
@@ -3771,6 +3857,7 @@ def save_changes(*event):
 def maybe_save(item):
     # check hsh
     global text_area
+    logger.debug("calling check_item_hsh from maybe_save")
     msg = item.check_item_hsh()
     if msg:
         show_message('Error', ', '.join(msg))
@@ -3845,45 +3932,51 @@ root_container = MenuContainer(
                 MenuItem('p) pinned', handler=pinned_view),
                 MenuItem('q) query', handler=query_view),
                 MenuItem('r) review', handler=review_view),
+                MenuItem('s) scheduled alerts for today', handler=do_alerts),
                 MenuItem('t) tags', handler=tag_view),
                 MenuItem('u) used time', handler=used_view),
                 MenuItem('U) used summary', handler=used_summary_view),
                 MenuItem(
-                    'v) refresh views to fit resized terminal',
+                    'v) refresh views to fit terminal',
                     handler=refresh_views,
                 ),
-                MenuItem('-', disabled=True),
-                MenuItem('s) scheduled alerts for today', handler=do_alerts),
                 MenuItem('y) yearly calendar', handler=yearly_view),
-                MenuItem('-', disabled=True),
-                MenuItem('/|?|,,) search forward|backward|clear search'),
-                MenuItem('n) next incrementally in search'),
-                MenuItem(
-                    '^l) prompt for and jump to line number',
-                    handler=do_go_to_line,
-                ),
-                MenuItem('^p) jump to next pinned item', handler=next_pinned),
                 MenuItem(
                     '^c) copy active view to clipboard',
                     handler=copy_active_view,
                 ),
-                MenuItem('-', disabled=True),
+            ]
+        ),
+        MenuItem(
+            'move',
+            children=[
+                # MenuItem('-', disabled=True),
+                # MenuItem('-', disabled=True),
+                MenuItem('.) go to today in a), b), c), u), U) and y)'),
                 MenuItem(
-                    ',) jump to date in a), b) and c)', handler=do_jump_to_date
+                    ',) prompt for and go to date in a), b) and c)', handler=do_jump_to_date
                 ),
                 MenuItem('right) next in a), b), c), u), U) and y)'),
                 MenuItem('left) previous in a), b), c), u), U) and y)'),
-                MenuItem('.) current date in a), b), c), u), U) and y)'),
+                MenuItem('-', disabled=True),
+                MenuItem('/|?|,,) search forward|backward|clear search'),
+                MenuItem('n) next incrementally in search'),
+                MenuItem(
+                    '^l) prompt for and go to line number',
+                    handler=do_go_to_line,
+                ),
+                MenuItem('^p) go to next pinned item', handler=next_pinned),
             ],
         ),
         MenuItem(
-            'editor',
+            'edit',
             children=[
                 MenuItem('+) add new item', handler=edit_new),
+                MenuItem('J) edit today\'s journal entry', handler=edit_or_add_journal),
                 MenuItem('-', disabled=True),
-                MenuItem('^s) save changes & close', handler=save_changes),
                 MenuItem('^g) test goto link', handler=do_goto),
                 MenuItem('^r) show repetitions', handler=is_editing_reps),
+                MenuItem('^s) save changes & close', handler=save_changes),
                 MenuItem('^z) discard changes & close', handler=close_edit),
             ],
         ),
@@ -3913,7 +4006,7 @@ root_container = MenuContainer(
                 MenuItem('m) show timer view', handler=timers_view),
                 MenuItem('-- for the selected reminder --', disabled=True),
                 MenuItem(
-                    'T) create timer | toggle paused/running ',
+                    'T) create timer then toggle paused/running',
                     handler=next_timer_state,
                 ),
                 MenuItem(

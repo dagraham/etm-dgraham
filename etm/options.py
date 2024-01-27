@@ -245,6 +245,7 @@ class Settings:
         'type_colors': dict2yaml(type_colors),  # user modifications only
         'window_colors': dict2yaml(window_colors),  # user modifications only
         'journal_name': journal_name,
+        'journal_summary': '%a %-d',
         'etmversion': etmversion,
     }
 
@@ -255,8 +256,8 @@ etmversion: {etmversion}
 # automatically updated when a new version of etm is installed.
 
 ampm: {ampm}
-# true or false. Use AM/PM format for datetimes if true else
-# use 24 hour format. See also the show_minutes setting.
+# true or false. Use AM/PM format for datetimes if true else use 24
+# hour format. See also the show_minutes setting.
 
 show_minutes: {show_minutes}
 # true or false. If true show ":00" in agenda and forthcoming views
@@ -277,16 +278,18 @@ yearfirst: {yearfirst}
 # 	dayfirst: true  => DMY
 #   dayfirst: false => MDY
 # E.g., with both true, 3/4/5 would be interpreted as May 4, 2003.
-# When possible, dates will also be displayed respecting these settings.
-# I.e., the year will generally be displayed first when yearfirst is
-# true and last otherwise. Similarly, the day will generally be displayed
-# before the month when dayfirst is true and after the month otherwise.
+# When possible, dates will also be displayed respecting these
+# settings. I.e., the year will generally be displayed first when
+# yearfirst is true and last otherwise. Similarly, the day will
+# generally be displayed before the month when dayfirst is true and
+# after the month otherwise.
 
 beginbusy: {beginbusy}
-# non-negative integer. The number of hours after midnight to begin the
-# busy view display of busy times for each day. The display continues
-# for 14 hours after the begin_busy hour. E.g. with 'begin_busy: 7' the
-# display would show busy times from 7am (7h) until 9pm (21h).
+# non-negative integer. The number of hours after midnight to begin
+# the busy view display of busy times for each day. The display
+# continues for 14 hours after the begin_busy hour. E.g. with
+# 'begin_busy: 7' the display would show busy times from 7am (7h)
+# until 9pm (21h).
 
 updates_interval: {updates_interval}
 # non-negative integer. If positive,  automatically check for updates
@@ -347,21 +350,19 @@ archive_after: {archive_after}
 # journal entries are not archived.
 
 num_finished: {num_finished}
-# non-negative integer
-# If positive, when saving retain only the most recent "num_finished"
-# completions of an infinitely repeating task, i.e., repeating without
-# an "&c" count or an "&u" until attribute. If zero or not infinitely
-# repeating, save all completions.
+# non-negative integer. If positive, when saving retain only the most
+# recent "num_finished" completions of an infinitely repeating task,
+# i.e., repeating without an "&c" count or an "&u" until attribute. If
+# zero or not infinitely repeating, save all completions.
 
 num_repetitions: {num_repetitions}
-# positive integer
-# Show at most this number of repetitions when showing repetitions
-# with (^r) or when showing completion history (^h). In the former
-# case these are instances for the selected item (repeating of any
-# item type) starting from date of the selected item and in the latter
-# case these are the completion instances (task item type). Note that
-# the num_finished setting can affect the number available for display
-# for the completion history.
+# positive integer. Show at most this number of repetitions when
+# showing repetitions with (^r) or when showing completion history
+# (^h). In the former case these are instances for the selected item
+# (repeating of any item type) starting from date of the selected item
+# and in the latter case these are the completion instances (task item
+# type). Note that the num_finished setting can affect the number
+# available for display for the completion history.
 
 limit_skip_display: {limit_skip_display}
 # true or false. If true, only the first instance of a task with "@o
@@ -396,23 +397,31 @@ usedtime_minutes: {usedtime_minutes}
 # times are recorded but only how they are reported in used time views.
 
 usedtime_hours: {usedtime_hours}
-# 0, 1, 2, ..., 24. The daily goal for used time. This is used in effort
-# view to control the display of the daily used time bars. The goal is to
-# to maximize the granularity of the bar when displaying this number of hours
-# in the space allowed by the terminal width so that, e.g., with a goal of 6
-# the used time bar for the day would take all of the available space when the
-# actual used time spent is 6 or more hours.
+# 0, 1, 2, ..., 24. The daily goal for used time. This is used in
+# effort view to control the display of the daily used time bars. The
+# goal is to to maximize the granularity of the bar when displaying
+# this number of hours in the space allowed by the terminal width so
+# that, e.g., with a goal of 6 the used time bar for the day would
+# take all of the available space when the actual used time spent is 6
+# or more hours.
 
-journal_name: {journal_name}
-# Journal items with this index entry and with an @s entry will have the
-# year and month appended to the index. E.g., with the setting
-#   journal_name: $ daily
+journal_name: '{journal_name}'
+# Journal items with this index entry and with an @s entry will have
+# the year and month appended to the index. E.g., with the setting
+#   journal_name: '# daily'
 # this journal entry
-#   % visited Yellowstone @s 22/10/24 @i $ daily
+#   % visited Yellowstone @s 22/10/24 @i # daily
 # would be displayed in journal view as if the index entry were
-#   @i $ daily/2022/10
-# thus organizing such entries by the year and month and, within each month,
-# also by the month day. The '$' places '$ daily' first in journal view.
+#   @i # daily/2022/10
+# thus organizing such entries by the year and month and, within each
+# month, also by the month day. The '#' places '# daily' near the top
+# in journal with daily entries sorted in reverse order so that the
+# most recent entries are always at the top.
+# 
+# Pressing 'J' in any view will open a daily journal entry for the
+# current date with a summary corresponding to {journal_summary} and
+# an index entry equal to {journal_name}. This journal entry will be
+# created if necessary.
 
 alerts: {alerts}
 # A dictionary with single-character, "alert" keys and corresponding
@@ -421,14 +430,15 @@ alerts: {alerts}
 # a comand with any applicable arguments that could be run in a
 # terminal. Properties of the item triggering the alert can be
 # included in the command arguments using the syntax {{prop}}, e.g.,
-# {{summary}} in the command string would be replaced by the summary of
-# the item. Similarly {{start}} by the starting datetime, {{time}} by the
-# starting time (omits the date for the current date), {{when}} by the time
-# remaining until the starting datetime, {{now}} by the current time,
-# {{location}} by the @l entry and {{description}} by the @d entry. E.g., If
-# the event "* sales meeting @s 2019-02-12 3p" triggered an alert 30 minutes
-# before the starting time the string "{{summary}} {{when}}" would expand to
-# "sales meeting in 30 minutes". E.g. on my macbook
+# {{summary}} in the command string would be replaced by the summary
+# of the item. Similarly {{start}} by the starting datetime, {{time}}
+# by the starting time (omits the date for the current date), {{when}}
+# by the time remaining until the starting datetime, {{now}} by the
+# current time, {{location}} by the @l entry and {{description}} by
+# the @d entry. E.g., If the event "* sales meeting @s 2019-02-12 3p"
+# triggered an alert 30 minutes before the starting time the string
+# "{{summary}} {{when}}" would expand to "sales meeting in 30
+# minutes". E.g. on my macbook
 #
 #    alerts:
 #        v:   /usr/bin/say -v "Alex" "{{summary}}, {{when}}"
