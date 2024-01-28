@@ -1,4 +1,15 @@
-2024-01-27 b8a4762 Daniel Graham
+2024-01-28 5d001e6 Daniel Graham
+    Tagged version 6.0.19.
+
+2024-01-28 1a5afa8 Daniel Graham
+    README tweaks. Now using auto tabs to spaces and remove trailing
+    white space which makes for lots of changes. Replaced erroneous
+    instance of 'diff_for_humans' (Pendulum) with 'duration_in_words'
+    now twith short option to retain only the two most significant
+    periods from weeks, days, hours and minutes. Used for 'when' in
+    email and text alerts.
+
+2024-01-27 5d2ed6d Daniel Graham
     Tagged version 6.0.18.
 
 2024-01-27 af2eba5 Daniel Graham
@@ -209,9 +220,3 @@
     journal view. Tweaked ake_examples and changed the summary of the
     inbox item to README to call attention to the information in the
     description.
-
-2024-01-06 fd3deaf Daniel Graham
-    Tagged version 6.0.0rc4.
-
-2024-01-06 5362290 Daniel Graham
-    More work on resource warnings, might have solution.
