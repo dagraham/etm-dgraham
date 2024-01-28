@@ -1,6 +1,6 @@
-#  standard sort order: note space is first
-# [' ', '!', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', ':', ';', '<',
-# '=', '>', '?', '@', 'A', 'B', 'Y', 'Z',  '^', '_', 'a', 'b', 'y', 'z', '~']
+#  standard sort order for usable ASCII characters
+# usable = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~']
+# len(usable): 94
 
 from etm.common import (
     VERSION_INFO,
@@ -1349,7 +1349,7 @@ item_hsh:    {self.item_hsh}
                 'unrecognized key',
                 f'{display_key} is invalid',
             )
- 
+
 
     def check_item_hsh(self):
         logger.debug("in check_item_hsh")
@@ -1427,7 +1427,7 @@ item_hsh:    {self.item_hsh}
             self.item_hsh['k'] = konnections
             logger.debug(f"extended {self.item_hsh.get('k')}")
             del self.item_hsh['K']
-            logger.debug(f"deleted 'K' -> {self.item_hsh}") 
+            logger.debug(f"deleted 'K' -> {self.item_hsh}")
 
         if check_links:
             # make sure the doc_id refers to an actual document
@@ -1931,7 +1931,7 @@ def datetime_calculator(s):
         return f'error parsing "{s}"'
 
 
-def duration_in_words(obj):
+def duration_in_words(obj, short=False):
     """
     Return string representing weeks, days, hours and minutes. Drop any remaining seconds.
     >>> td = timedelta(weeks=1, days=2, hours=3, minutes=27)
@@ -1978,7 +1978,8 @@ def duration_in_words(obj):
                 until.append(f'{sign}{minutes} minute')
         if not until:
             until.append('zero minutes')
-        return ' '.join(until)
+        ret = ' '.join(until[:2]) if short else ' '.join(until)
+        return ret
     except Exception as e:
         return None
 
@@ -2945,7 +2946,7 @@ class DataView(object):
                 self.kompletions[k.strip()[3:]] = f"@k {v.strip()}"
             else:
                 logger.debug(f"bad parts: {parts}")
-        
+
 
 
     def update_konnections(self, item):
@@ -3008,9 +3009,9 @@ class DataView(object):
         ]
         self.konnected = list(set(konnected))
         self.konnected.sort()
-        row = 0 
+        row = 0
         for id in self.konnected:
-            row += 1 
+            row += 1
             self.konnected_id2row[id] = row
 
         logger.debug(f"konnected: {self.konnected}")
@@ -3422,7 +3423,7 @@ class DataView(object):
                 self.konnections_from,
                 self.konnections_to,
             )
-            # self.konnected_id2row = {id: row for row, id in self.row2id.items()} 
+            # self.konnected_id2row = {id: row for row, id in self.row2id.items()}
             return self.konnected_view
 
         if self.active_view == 'query':
@@ -4215,7 +4216,7 @@ shown when nonzero."""
             elif 'f' in item:
                 if isinstance(item['f'], Period):
                     if item['f'].start < old and item['f'].end < old:
-                        # toss old finished tasks 
+                        # toss old finished tasks
                         rows.append(item)
                         continue
             elif '+' in item:
@@ -4345,8 +4346,19 @@ shown when nonzero."""
             )
             return
         startdt = item.get('s', '')
-        when = startdt.diff_for_humans() if startdt else ''
-        start = format_datetime(startdt)[1] if startdt else ''
+        if startdt:
+            start = format_datetime(startdt)[1]
+            startdt = date_to_datetime(startdt)
+            alertdt = datetime.now().astimezone()
+            if startdt > alertdt:
+                when = f'in {duration_in_words(startdt-alertdt, short=True)}'
+            elif startdt == alertdt:
+                when = 'now'
+            else:
+                when = f'{duration_in_words(alertdt-startdt, short=True)} ago'
+        else:
+            start = ''
+            when = ''
         summary = item.get('summary', '')
         location = item.get('l', '')
         description = item.get('d', '')
@@ -4357,7 +4369,7 @@ shown when nonzero."""
             location=location,
             description=description,
         )
-
+        logger.debug(f"message: {message}")
         # All the necessary ingredients are in place
         import smtplib
         from email.mime.multipart import MIMEMultipart
@@ -4398,12 +4410,23 @@ shown when nonzero."""
         sms_body = sms.get('body', None)
         if not (sms_from and sms_phone and sms_pw and sms_server and sms_body):
             logger.error(
-                f'Bad or missing smx settings in the cfg.json sms entry: {sms}. send_text aborted.'
+                f"Bad or missing smx settings in the cfg.json sms entry: {sms}. send_text aborted. sms_from: {sms_from}; sms_phone: {sms_phone}; sms_pw: {sms_pw}; sms_server: {sms_server}; sms_body: {sms_body}"
             )
             return
         startdt = item.get('s', '')
-        when = duration_in_words(startdt) if startdt else ''
-        start = format_datetime(startdt)[1] if startdt else ''
+        if startdt:
+            start = format_datetime(startdt)[1]
+            startdt = date_to_datetime(startdt)
+            alertdt = datetime.now().astimezone()
+            if startdt > alertdt:
+                when = f'in {duration_in_words(startdt-alertdt, short=True)}'
+            elif startdt == alertdt:
+                when = 'now'
+            else:
+                when = f'{duration_in_words(alertdt-startdt, short=True)} ago'
+        else:
+            start = ''
+            when = ''
         summary = item.get('summary', '')
         location = item.get('l', '')
         description = item.get('d', '')
@@ -5773,7 +5796,7 @@ def get_next_due(item, done, due, from_rrule=False):
         aft = due
         inc = False
     elif overdue == 'r':
-        aft = done 
+        aft = done
         dtstart = done
         inc = False
     else:  # 's' skip
@@ -6706,7 +6729,7 @@ def relevant(
     Called by dataview.refreshRelevant
     """
     logger.debug(f"### Relevant ###")
-    
+
     # wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
     dirty = False
     width = shutil.get_terminal_size()[0] - 3
@@ -6864,7 +6887,7 @@ def relevant(
                                 item['h'] = h[-num_finished:]
                             update_db(db, item.doc_id, item)
                         elif plus_dates:
-                            # @s is ok but @+ may need updating 
+                            # @s is ok but @+ may need updating
                             changed = False
                             for dt in plus_dates:
                                 if dt >= now:
@@ -6877,7 +6900,7 @@ def relevant(
                                             Period(dt + ONEMIN, dt))
                                     item['+'].remove(dt)
                                     changed = True
-                            if len(item['+']) > 0: 
+                            if len(item['+']) > 0:
                                 if item['+'][0] < cur:
                                     relevant = item['+'][0]
                                 else:
@@ -6888,7 +6911,7 @@ def relevant(
                             if changed:
                                 update_db(db, item.doc_id, item)
                         else:
-                            relevant = cur 
+                            relevant = cur
 
                     else:   # k or r
                         try:
@@ -6896,7 +6919,7 @@ def relevant(
                         except Exception as e:
                             logger.debug(f"Exception: {e}\nissue with today: {today} ({type(today)}) or rset: {rset}\nskipping {item}")
                             continue
-                            
+
                         already_done = [x.end for x in item.get('h', [])]
                         # relevant will be the first instance after 12am today
                         # it will be the @s entry for the updated repeating item
@@ -7832,7 +7855,7 @@ def show_journal(
         else:
             sort = (index, ss, item['summary'])
             path = index
-            summary = f"{item['summary']}" 
+            summary = f"{item['summary']}"
         itemtype = item['itemtype']
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
@@ -8323,7 +8346,7 @@ def schedule(
     rows = []
     done = []
     effort = []
-    # id2konnected = {} # id -> [(to|from, id)] 
+    # id2konnected = {} # id -> [(to|from, id)]
 
     # XXX year, week -> dayofweek -> list of [time interval, summary, period]
     busy_details = {}
@@ -8343,7 +8366,7 @@ def schedule(
             continue
 
         doc_id = item.doc_id
-    
+
         itemtype = item['itemtype']
         summary = item.get('summary', '~')
         start = item.get('s', None)

@@ -11,7 +11,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
         -   [unobtrusive and timely entry assistance](#unobtrusive-and-timely-entry-assistance)
             -   [just in time entry prompts and feedback](#just-in-time-entry-prompts-and-feedback)
             -   [fuzzy parsing of datetimes](#fuzzy-parsing-of-datetimes)
-			-   [relative datetimes](#relative-datetimes)
+            -   [relative datetimes](#relative-datetimes)
             -   [tab completion](#tab-completion)
     -   [Views](#views)
         -   [Weekly Views](#weekly-views)
@@ -65,8 +65,8 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
     -   [Notes](#notes)
         -   [notices](#notices)
         -   [repetition](#repetition)
-			- [repetition examples](#repetition-examples)
-			- [anniversary substitutions](#anniversary-substitutions)
+            - [repetition examples](#repetition-examples)
+            - [anniversary substitutions](#anniversary-substitutions)
         -   [archived reminders](#archived-reminders)
         -   [configuration](#configuration)
         -   [data storage](#data-storage)
@@ -99,7 +99,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
 * A task (**-**): pick up milk.
 
-		- pick up milk
+        - pick up milk
 
 * An event (**\***): have lunch with Ed [s]tarting next Tuesday at 12pm and [e]xtending for 90 minutes, i.e., lasting from 12pm until 1:30pm.
 
@@ -111,7 +111,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
           you. Cats look down at you. Give me a pig - they
           look you in the eye and treat you as an equal.
 
-	The *summary*, "Give me a pig - Churchill" in this example, follows the type character and is meant to be brief - analagous to the subject of an email. The optional *description* follows the "@d" and is meant to be more expansive - analagous to the body of an email.
+    The *summary*, "Give me a pig - Churchill" in this example, follows the type character and is meant to be brief - analagous to the subject of an email. The optional *description* follows the "@d" and is meant to be more expansive - analagous to the body of an email.
 
 * A task (**-**): build a dog house, with component [j]obs.
 
@@ -122,7 +122,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
         ! Coffee with Alex @s fri @e 1h
 
-	This can be changed to an event when the details are confirmed by replacing the **!** with an **\*** and adding the time to `@s`.  This inbox entry will appear highlighed on the current day in *agenda view* until you make the changes.
+    This can be changed to an event when the details are confirmed by replacing the **!** with an **\*** and adding the time to `@s`.  This inbox entry will appear highlighed on the current day in *agenda view* until you make the changes.
 
 * An appointment (event) for a dental exam and cleaning at 2pm on Feb 5 and then again [@+] at 9am on Sep 3.
 
@@ -302,19 +302,19 @@ General observations:
 
 * The general structure of this reminder is
 
-			* Presidential election day
-				@s nov 1 20
-				@r y
-					&i 4
-					&M 11
-					&m 2, 3, 4, 5, 6, 7, 8
-					&w tu
+            * Presidential election day
+                @s nov 1 20
+                @r y
+                    &i 4
+                    &M 11
+                    &m 2, 3, 4, 5, 6, 7, 8
+                    &w tu
 
    The `@s` and `@r` entries provide attributes of the event itself and the `&i`, `&M`, `&m` and `&w` entries provide attributes of the `@r` entry. More than one `@r` entry can be provided and each can have its own set of `&-key` entries.
 * *@-keys* can generally be entered in any order provided that `@s` is entered before any options that require it. *&-keys* can also be entered in any order.
 
 * The prompts provide "just in time" information relevant to the entry you are typing and need only be consulted if you are uncertain about your entry. With a little
-	experience, most reminders can be completed without a glance at the prompt.
+    experience, most reminders can be completed without a glance at the prompt.
 -->
 [↺ contents](#contents)
 
@@ -412,11 +412,11 @@ The interpretation of the date depends upon the 'dayfirst' and 'yearfirst' setti
 in the etm configuration file - see [configuration](#configuration) for details
 about these settings. For example, with both dayfirst and yearfirst false,
 
-	6/1 => June 1 in the current year
+    6/1 => June 1 in the current year
 
 but after changing dayfirst to true
 
-	6/1 => January 6 in the current year
+    6/1 => January 6 in the current year
 
 [↺ contents](#contents)
 
@@ -438,12 +438,12 @@ If the datetime is omitted and
 
 Examples supposing it is currently 1:20pm on July 15:
 
-	+1h30m     => 2:50pm on July 15
-	+3d        => July 18
-	-3d        => July 12
-	8a         => 8am on July 15
-	8a +1h30m  => 9:30am on July 15
-	8a +3d     => 8am on July 18
+    +1h30m     => 2:50pm on July 15
+    +3d        => July 18
+    -3d        => July 12
+    8a         => 8am on July 15
+    8a +1h30m  => 9:30am on July 15
+    8a +3d     => 8am on July 18
 
 [↺ contents](#contents)
 
@@ -573,14 +573,14 @@ The pinned status of items is retained so long as *etm* is active but cleared wh
 
 Items with @k konnection links either to or from other items are displayed with a 'k' in the *flags* column of normal views. Konnected view **only** displays items with such konnections. They are listed in order of their doc_ids and the view is similar to other item views, e.g., press 'space' to see the details of the selected item, 'E' to edit the selection and so forth. Unlike other item views, pressing 'k' toggles the display of the 'konnections' of the selected item. This opens a pane at the bottom of the display that shows the list of items with @k links to the selected item, then the selected item itself and finally the list of items with @k links from the selected item. This konnections display is also a normal view, e.g., selecting an item and pressing 'space' will display its details.
 
-This view and the ability to add links between items in *etm* is meant to support the *Zettelkasten* system of note taking. The term is German for "slip box" where "slip" is a slip of paper containing a single note. These are the essential ideas: 
+This view and the ability to add links between items in *etm* is meant to support the *Zettelkasten* system of note taking. The term is German for "slip box" where "slip" is a slip of paper containing a single note. These are the essential ideas:
 
 * Each note represents a single, self-contained idea.
-* Notes are linked to other, related notes. 
+* Notes are linked to other, related notes.
 
-This network of ideas and links has been compared to the brain with its network of neurons and connecting synapses. The links are the keys to both. With notes on paper slips, links required a unique label for each slip and a variety of labeling techniques have been used historically from suggestive keywords to the date and time the note was created. 
+This network of ideas and links has been compared to the brain with its network of neurons and connecting synapses. The links are the keys to both. With notes on paper slips, links required a unique label for each slip and a variety of labeling techniques have been used historically from suggestive keywords to the date and time the note was created.
 
-Labels are built into *etm* since every note (journal entry), event, task or inbox entry gets a unique, integer *doc_id* when it is created. Links are provided by the `@k` konnections - e.g., adding `@k 238` to an item, konnects/links that item to the item with doc_id 238. 
+Labels are built into *etm* since every note (journal entry), event, task or inbox entry gets a unique, integer *doc_id* when it is created. Links are provided by the `@k` konnections - e.g., adding `@k 238` to an item, konnects/links that item to the item with doc_id 238.
 
 As discussed above, *konnected view* provides the means for examining the network of konnections. But how are these konnections created in the first place? When you type `@k` into the entry area, a list of possible completions will pop up. The lines in this list contain the following item values separated by spaces:
 
@@ -589,14 +589,14 @@ As discussed above, *konnected view* provides the means for examining the networ
 * the item summary
 * the item doc_id
 
-Initially the list of possible completions includes **every** item in the *etm* active database, but as you begin typing an index entry, the list collapses to show only those items which contain what you have typed thus far. At any point you can stop typing and scroll up and down the list and, finding the item you want to use for the link, press **TAB** to select it and then  **space** and **TAB** again to replace the selected entry with just the doc_id from the selected entry. 
+Initially the list of possible completions includes **every** item in the *etm* active database, but as you begin typing an index entry, the list collapses to show only those items which contain what you have typed thus far. At any point you can stop typing and scroll up and down the list and, finding the item you want to use for the link, press **TAB** to select it and then  **space** and **TAB** again to replace the selected entry with just the doc_id from the selected entry.
 
 What if you have an related idea while editing an item and the idea does not yet correspond to another item? Add `@K comment regarding idea` (note the capital K) and, when you save the item, etm will create an inbox item with your comment as its summary and then replace the `@K comment regarding idea` with `@k doc_id` using the doc_id of the new inbox item. When you have time, edit the inbox entry to better represent your idea and change the item type accordingly. You can add as many `@K` entries as you like - each will give rise to a new inbox item.
 
 Other relationships are possible in *etm* - shared tags, common index entries, common item type, and so forth - and there are views to support examining these relationships - tags view, index view, journal view and so forth. *Konnected View* is uniquely intended to support examining the konnections among items.
 
 *Konnected View* is specially designed to help you follow a thread of konnections. When you select an item and press 'k',
-a konnection view opens that shows just the items with konnections to the selected item and the items with konnections from the selected item. Selecting an item from this view and pressing 'k' closes the konnections view but moves the selection in the konnected view to the item just selected so that pressing 'k' again will show the konnections for the item just selected. 
+a konnection view opens that shows just the items with konnections to the selected item and the items with konnections from the selected item. Selecting an item from this view and pressing 'k' closes the konnections view but moves the selection in the konnected view to the item just selected so that pressing 'k' again will show the konnections for the item just selected.
 
 
 [↺ contents](#contents)
@@ -607,90 +607,90 @@ The *used time* and *used time summary* views are bound to `u` and `U` respectiv
 
 I have a file of reminders with `@i` and `@u` entries such as
 
-		* Modi ut sit sed amet sit @s 2019-11-11 10:00am @e
-		   1h30m
-		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
-		@i client A/project a1/correspondence
-		@d Aliquam non sed aliquam eius tempora quisquam dolorem.
-		Neque quiquia labore tempora magnam. Quiquia tempora
-		porro est ut. Ut tempora sed non ut eius neque porro.
-		Sed quaerat consectetur dolor sit.
+        * Modi ut sit sed amet sit @s 2019-11-11 10:00am @e
+           1h30m
+        @u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
+        @i client A/project a1/correspondence
+        @d Aliquam non sed aliquam eius tempora quisquam dolorem.
+        Neque quiquia labore tempora magnam. Quiquia tempora
+        porro est ut. Ut tempora sed non ut eius neque porro.
+        Sed quaerat consectetur dolor sit.
 
 With `usedtime_minutes: 6`, the *used time view* for November begins with
 
-		November 2019
-		  client A
-			project a1
-			  correspondence
-				* Modi ut sit sed amet sit: 1.6h Nov 11
-				% Amet modi neque eius adipisci: 2.7h Nov 27
-			  research
-				* Quisquam quiquia velit non: 2.0h Nov 19
-			project a2
-			  correspondence
-				* Consectetur voluptatem dolorem: 1.0h Nov 6
-				* Quaerat etincidunt sed non: 0.9h Nov 13
-				* Consectetur eius est adipisci: 0.5h Nov 25
-				% Magnam labore etincidunt: 1.8h Nov 28
-			  meeting
-				% Adipisci dolor labore quiquia: 0.9h Nov 7
-				% Adipisci eius velit porro: 1.4h Nov 14
-			  research
-				* Non modi non velit eius: 1.0h Nov 20
-		  client B
-			project b1
-			  correspondence
-				* Dolor neque velit dolorem: 0.4h Nov 22
-			  meeting
-				* Ipsum numquam porro consectetur: 0.8h Nov 15
-			  phone
-				- Porro voluptatem aliquam: 1.0h Nov 12
-				% Amet ut dolor velit aliquam: 1.9h Nov 13
-			  research
-				* Quisquam labore ut sit aliquam: 0.7h Nov 5
-				* Quiquia ut quisquam sit: 1.5h Nov 12
-				% Adipisci amet modi sed eius: 2.6h Nov 15
-				- Velit dolor quiquia etincidunt: 1.9h Nov 15
+        November 2019
+          client A
+            project a1
+              correspondence
+                * Modi ut sit sed amet sit: 1.6h Nov 11
+                % Amet modi neque eius adipisci: 2.7h Nov 27
+              research
+                * Quisquam quiquia velit non: 2.0h Nov 19
+            project a2
+              correspondence
+                * Consectetur voluptatem dolorem: 1.0h Nov 6
+                * Quaerat etincidunt sed non: 0.9h Nov 13
+                * Consectetur eius est adipisci: 0.5h Nov 25
+                % Magnam labore etincidunt: 1.8h Nov 28
+              meeting
+                % Adipisci dolor labore quiquia: 0.9h Nov 7
+                % Adipisci eius velit porro: 1.4h Nov 14
+              research
+                * Non modi non velit eius: 1.0h Nov 20
+          client B
+            project b1
+              correspondence
+                * Dolor neque velit dolorem: 0.4h Nov 22
+              meeting
+                * Ipsum numquam porro consectetur: 0.8h Nov 15
+              phone
+                - Porro voluptatem aliquam: 1.0h Nov 12
+                % Amet ut dolor velit aliquam: 1.9h Nov 13
+              research
+                * Quisquam labore ut sit aliquam: 0.7h Nov 5
+                * Quiquia ut quisquam sit: 1.5h Nov 12
+                % Adipisci amet modi sed eius: 2.6h Nov 15
+                - Velit dolor quiquia etincidunt: 1.9h Nov 15
 
 Note that the display is by month and, within the month, heirarchially by index entry and reminder. Note also, that the reported times are aggregates of all `@u` entries in the reminder. The first reminder, for example, has 2 such entries:
 
-		@u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
+        @u 58m: 2019-11-11 10:58am @u 34m: 2019-11-11 10:34am
 
 Because of
 
-		usedtime_minutes: 6
+        usedtime_minutes: 6
 
 in `cfg.yaml`, each `@u` timeperiod is first rounded up to the next 6 minutes and then added. Thus 58m becomes 1h, 34m becomes 36m and the sum, 1h36m, is reported in hours and tenths as 1.6h.
 
 The reminder lines are similar to those in other views. With, e.g.,
 
-			* Modi ut sit sed amet sit: 1.6h Nov 11
+            * Modi ut sit sed amet sit: 1.6h Nov 11
 
 selected, pressing return would display the item's details, pressing `E` would open it for editing and so forth.
 
 
 The *used time **summary** view* for the same month begins with:
 
-		November 2019: 44.4h
-		   client A: 13.8h
-			  project a1: 6.3h
-				 correspondence: 4.3h
-				 research: 2.0h
-			  project a2: 7.5h
-				 correspondence: 4.2h
-				 meeting: 2.3h
-				 research: 1.0h
-		   client B: 16.6h
-			  project b1: 10.8h
-				 correspondence: 0.4h
-				 meeting: 0.8h
-				 phone: 2.9h
-				 research: 6.7h
-			  project b2: 3.9h
-				 meeting: 1.8h
-				 research: 2.1h
-			  project b3: 1.9h
-				 correspondence: 1.9h
+        November 2019: 44.4h
+           client A: 13.8h
+              project a1: 6.3h
+                 correspondence: 4.3h
+                 research: 2.0h
+              project a2: 7.5h
+                 correspondence: 4.2h
+                 meeting: 2.3h
+                 research: 1.0h
+           client B: 16.6h
+              project b1: 10.8h
+                 correspondence: 0.4h
+                 meeting: 0.8h
+                 phone: 2.9h
+                 research: 6.7h
+              project b2: 3.9h
+                 meeting: 1.8h
+                 research: 2.1h
+              project b3: 1.9h
+                 correspondence: 1.9h
 
 
 This view omits the reminder lines and aggregates the used times hierarchically by index entry.
@@ -703,11 +703,11 @@ As with other dated views, the left and right cursor keys go backwards and forwa
 
 In *query view* an entry line at the bottom of the screen is used to submit queries to your data store of reminders. For example, press `q` to open query view, enter
 
-		includes summary waldo
+        includes summary waldo
 
 and press return to see a list of reminders in which either the summary or the `@d` element includes a match for the case-insensitive regular expression "waldo". Each line of the display contains the item type, the summary and the document id of the matching reminder. As another example
 
-		exists u and ~exists i
+        exists u and ~exists i
 
 would display reminders with an @u element but not an @i element.
 
@@ -812,7 +812,7 @@ reminders where the summary does not include a match for
 To enter a list of values for "arg", simply separate the
 components with spaces. E.g.,
 
-	query: includes summary d waldo
+    query: includes summary d waldo
 
 would return items in which either the summary or d
 (@d description) contains a match for "waldo". Similarly
@@ -972,23 +972,23 @@ Complex queries follow the datetime specifier with a required group/sort specifi
 * date specification:
   * year:
     * YY: 2-digit year
-	* YYYY: 4-digit year
+    * YYYY: 4-digit year
   * month:
-	* M: month: 1 - 12
-	* MM: month: 01 - 12
-	* MMM: locale abbreviated month name: Jan - Dec
-	* MMMM: locale month name: January - December
+    * M: month: 1 - 12
+    * MM: month: 01 - 12
+    * MMM: locale abbreviated month name: Jan - Dec
+    * MMMM: locale month name: January - December
   * week: (examples based on 2020 iso week number 3):
-	* W: week number: 3
-	* WW: month days interval for week: Jan 13 - 19
-	* WWW: interval and year: Jan 13 - 19, 2020
-	* WWWW: interval, year and week number: Jan 13 - 19, 2020 #3
-	* WWWWW: interval, year and week number: January 13 - 19, 2020 #3
+    * W: week number: 3
+    * WW: month days interval for week: Jan 13 - 19
+    * WWW: interval and year: Jan 13 - 19, 2020
+    * WWWW: interval, year and week number: Jan 13 - 19, 2020 #3
+    * WWWWW: interval, year and week number: January 13 - 19, 2020 #3
   * day:
-	* D: month day: 1 - 31
-	* DD: month day: 01 - 31
-	* ddd: locale abbreviated week day: Mon - Sun
-	* dddd: locale week day: Monday - Sunday
+    * D: month day: 1 - 31
+    * DD: month day: 01 - 31
+    * ddd: locale abbreviated week day: Mon - Sun
+    * dddd: locale week day: Monday - Sunday
 
 Note: when a date specification is given, the datetime used depends upon the report type.
 * u: the value of the datetime component of the @u entry. Items without @u entries are omitted.
@@ -1024,7 +1024,7 @@ Note: -b and -e accept shortcuts:
 * prevmonthbeg: 12am on the 1st of the previous month
 * prevmonthend: 12am on the 1st of the current month - 1 second
 
-and can be combined with period strings using w (week), d (day), h (hour) and m (minute). 
+and can be combined with period strings using w (week), d (day), h (hour) and m (minute).
 E.g.:
 * `weekbeg - 1w`  (the beginning of the previous week)
 
@@ -1133,9 +1133,9 @@ While the views differ in many respects, they also share some common aspects:
     * In the dated views a), b), c), u), U) and y), press the right or left cursor keys to go  to the next or previous period, respectively, and the space bar to return to the current period.
 * Search.
     * Press “/“ (or "?") and enter an expression to search the view forward (or backward) for a row whose content contains a case-insensitive match for the expression.
-	* While entering the search expression, push the `up` or `down` cursor keys to change the direction of search.
+    * While entering the search expression, push the `up` or `down` cursor keys to change the direction of search.
     * After entering the search expression, press “n” to search (cyclically) for other matches in the direction specified.
-	* Once a search is initiated, it remains active in all views with matches highlighted. To remove the highlighting, search for something unlikely to be matched, e.g., 3 consecutive commas.
+    * Once a search is initiated, it remains active in all views with matches highlighted. To remove the highlighting, search for something unlikely to be matched, e.g., 3 consecutive commas.
 
 
 [↺ contents](#contents)
@@ -1186,7 +1186,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         l) location
         p) pinned
         q) query
-		r) review
+        r) review
         s) scheduled alerts for today
         t) tags
         u) used time
@@ -1200,7 +1200,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         right) next in a), b), c), u), U) and y)
         left) previous in a), b), c), u), U) and y)
         ---
-        /|?) initiate forward|backwards search 
+        /|?) initiate forward|backwards search
         n|N) search next|previous incrementally
         ,,) clear search
         ^l) prompt for and jump to line number
@@ -1225,7 +1225,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         g) open goto link
         ^h) show completion history
         ^r) show repetitions
-		^u) update last modified
+        ^u) update last modified
         ^x) toggle archived status
         --- konnected view
         k) toggle showing konnections
@@ -1256,11 +1256,11 @@ Many of the entries are obvious but a few deserve comment.
   Any file located in the root of the *etmdir* will automatically be removed after it is imported to avoid duplications.
 * *datetime calculator* processes an expression of the form `x [+-] y` where x is a datetime and y is either a timeperiod with `+` or a datetime or a timeperiod with `-`. As an example, suppose you have the arrival time in Paris of a flight and the departure time from Raleigh/Durham and you would like to determine the flight time. Entering
 
-			7:45a 4/7 Europe/Paris - 5:30p 4/6 US/Eastern
+            7:45a 4/7 Europe/Paris - 5:30p 4/6 US/Eastern
 
     yields
 
-			8 hours 15 minutes
+            8 hours 15 minutes
 * *configuration settings* opens the file `cfg.yaml` using the default text editor for your operating system. Note that any changes you make to this file will not take effect until you close and reopen *etm*.
 * *help* opens the *etm* documentation on google pages using the default web browser for your system. This is the most user friendly source for the documentation because it begins with a table of contents whose elements are active links to the relevant sections. It is updated with every commit so it is always the most recent version available.
 
@@ -1342,11 +1342,11 @@ Several options here deserve comment.
 
 The easiest way to install *etm* for personal use is to use *pip*:
 
-	$ python3 -m pip install -U etm-dgraham
+    $ python3 -m pip install -U etm-dgraham
 
 (This same command can be used to update *etm* when a new version is released.) This will install *etm* with all the needed python supporting modules. You can then start *etm* with
 
-	$ etm <path to home>
+    $ etm <path to home>
 
 
 See [Home directory](#home-directory) for details about `<path to home>`.
@@ -1422,11 +1422,11 @@ The size of the terminal is used when *etm* starts to set various display option
 
 Before you start etm, think about where you would like to keep your personal data and configuration files. This will be your etm *home* directory. The default is to use whatever directory you're in when you start _etm_ as your _etm_ home directory. If you start _etm_ in your virtual environment directory then the default will be to use that as your home directory as well. If this is not what you want, you can just give the path for whatever directory you would like to use when you start _etm_.
 
-	$ etm <path to home>
+    $ etm <path to home>
 
 Finally, if there is an environmental variable, `ETMHOME`, set to this path then you can just enter
 
-	$ etm
+    $ etm
 
 and etm will use `ETMHOME` as its home directory.
 
@@ -1506,15 +1506,15 @@ These examples are named for and depend upon the python package *lorem* that can
 
 An added bonus of setting `ETMHOME` to the path of your *home* directory is the possibility of using the `etm+` shortcut for creating reminders. E.g., entering
 
-	$ etm+ '* lunch with Peter @s fri 12p'
+    $ etm+ '* lunch with Peter @s fri 12p'
 would append the line `* lunch with Peter @s fri 12p` to the file `inbasket.text`in `ETMHOME`, creating the file if necessary. `etm+` also accepts input piped to it so that
 
-	$ echo '* lunch with Peter @s fri 12p' | etm+
+    $ echo '* lunch with Peter @s fri 12p' | etm+
 would produce exactly the same result.
 
 Finally, if `{T}` is included, it will be replaced with a time stamp corresponding to the moment the script was invoked. E.g.,
 
-	$ echo '% got the test result at {T}' | etm+
+    $ echo '% got the test result at {T}' | etm+
 
 would append something like `% got the test result at 2022-12-07 9:13:55 EST`.
 
@@ -1525,10 +1525,10 @@ Important
 
 Note finally that `etm+` will accept quick notes which are not themselves valid etm reminders such as
 
-	$ etm+ '123 456-7890 Peter'
+    $ etm+ '123 456-7890 Peter'
 This would result in the valid reminder
 
-	! 123 456-7890 Peter @t etm+
+    ! 123 456-7890 Peter @t etm+
 being appended to `inbasket.text` - note the added type character, `!` and the tag, `@t etm+`.
 
 The addition of the typechar '!' means that after importing the reminder will appear as an 'inbox' item. These are highlighted in the list for the current day in agenda view, reminding you that they require futher attention. You can thus make quick notes without much thought and know that you will automatically be reminded to sort them out later. An added bonus is that when editing such entries in etm itself, all its completion, fuzzy parsing and verification features are available.
@@ -1597,15 +1597,15 @@ A task is something that requires action from the user and lasts, so to speak, u
     - Tasks that are past due are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Do Next* view grouped by @l (location/context).
 - Tasks with an `@r` (repeat) or an `@+` entry can have an `@o` (overdue) setting.
-	- `@o k`: keep. Whenever completed, the next instance is due at the datetime specified in the recurrance rule even if that datetime has already passed. E.g. minutes from a monthly meeting to be made on the 1st of the month are due for each prior month in which they have not been made. With this option, many instances can be past due. By default, a completion applies to the oldest, past due one, though other instances can be selected. The default when no `@o` entry is given is `@o k`.
-	- `@o r`: reset. Whenever completed, the next instance is due at the first datetime that falls after the current datetime. E.g., getting a haircut every 14 days is due 14 days after the last haircut. With this option, at most one instance can be past due.
-	- `@o s`: skip. Like 'keep' with the addition that past due instances are ignored. E.g., taking out the trash every Monday morning for pickup is due every Monday morning but, if a Monday passes without taking out the trash, the instance is better regarded as irrelevant than past due. With this option, an instance can never be past due.
+    - `@o k`: keep. Whenever completed, the next instance is due at the datetime specified in the recurrance rule even if that datetime has already passed. E.g. minutes from a monthly meeting to be made on the 1st of the month are due for each prior month in which they have not been made. With this option, many instances can be past due. By default, a completion applies to the oldest, past due one, though other instances can be selected. The default when no `@o` entry is given is `@o k`.
+    - `@o r`: reset. Whenever completed, the next instance is due at the first datetime that falls after the current datetime. E.g., getting a haircut every 14 days is due 14 days after the last haircut. With this option, at most one instance can be past due.
+    - `@o s`: skip. Like 'keep' with the addition that past due instances are ignored. E.g., taking out the trash every Monday morning for pickup is due every Monday morning but, if a Monday passes without taking out the trash, the instance is better regarded as irrelevant than past due. With this option, an instance can never be past due.
 
-	    Furthermore, if the options setting `limit_skip_display` were true, then only the first instance of such a task would be displayed in agenda view. E.g., with the `limit_skip_display` setting true, then for the task
+        Furthermore, if the options setting `limit_skip_display` were true, then only the first instance of such a task would be displayed in agenda view. E.g., with the `limit_skip_display` setting true, then for the task
 
-			- meds @s +0d @r d &h 8,14,20 @o s
+            - meds @s +0d @r d &h 8,14,20 @o s
 
-		agenda view at 10am today would only display the first, 2pm (14h) instance of this task. If, on the other hand, this setting were false, then agenda view would display not only the 2pm instance but also the 8pm (20h) instances and all three instances on every future date.
+        agenda view at 10am today would only display the first, 2pm (14h) instance of this task. If, on the other hand, this setting were false, then agenda view would display not only the 2pm instance but also the 8pm (20h) instances and all three instances on every future date.
 
 - Jobs
     - Tasks, both with and without @s entries can have component jobs using @j entries.
@@ -1638,7 +1638,7 @@ A task is something that requires action from the user and lasts, so to speak, u
 
             and thereafter treated as if the ids and prerequisites had been manually assigned. Note that at most 26 jobs are possible with auto assignment.
 
-			Once ids and prerequisites have been assigned, it is sometimes useful to be able to add a job here or there or change the order of existing jobs and have the ids and prerequisites generated again. To do this simply remove the `&i` and `&p` entries from the *first job* and save the task - *all* job ids and preqrequisites will automatically be reassigned.
+            Once ids and prerequisites have been assigned, it is sometimes useful to be able to add a job here or there or change the order of existing jobs and have the ids and prerequisites generated again. To do this simply remove the `&i` and `&p` entries from the *first job* and save the task - *all* job ids and preqrequisites will automatically be reassigned.
         - Manually assigned.  Job prequisites can also be assigned manually using entries for `&i` (id) and `&p`, (comma separated list of ids of immediate prequisites). E.g., with
 
                 - manually assigned
@@ -1744,7 +1744,7 @@ Notes:
 
     @n joe: jdoaks@whatever.com  @n john: jsmith@wherever.org
 
-	@t red  @t green
+    @t red  @t green
 
 <h3 id="atkeys">
 @ keys
@@ -1831,25 +1831,25 @@ For use with @r:
 * A beginby is specified by adding `@b n` to a reminder where `n` is a positive integer and is interpreted as a number of days. A reminder with such an entry will be displayed in *agenda view* on the current date provided that the current date is no more than `n` days before the scheduled date/time of the reminder. Such a warning will appear n days before, n-1 days before and so forth until 1 day before the scheduled date/time of the reminder. The warning displays the type character `>`, the summary of the reminder and the number of days remaining.
 * An alert is specified by adding `@a <list of time periods>: <list of commands>` to a reminder. The time periods must be given in the usual etm format, e.g., `1h13m` for one hour and 13 minutes. The commands are single alphabetic characters, e.g., `a`, `b` and such. The commands used must either be `e` (email) or `t` (text) or be specified in the `alerts` section of the `cfg.yaml` file in your etm home directory. See [configuration](#configuration) for details about this file. Basically, it associates a command, such as `v` with a shell command to be invoked when an alert that includes `v` is triggered. E.g., the alert
 
-			@a 20m: v
+            @a 20m: v
 
     would be triggered 20 minutes before the datetime specified in the reminder's `@s` entry and at that time the shell command associated with `v` would be invoked. Both positive (before) and negative (after) time periods can be used. Thus this entry
 
-			@a 1d, -1h: v, w
+            @a 1d, -1h: v, w
 
-	would invoke the shell commands associated with `v` and `w`, one day *before* and again 1 hour *after* the datetime specified in the reminder's `@s` entry.
+    would invoke the shell commands associated with `v` and `w`, one day *before* and again 1 hour *after* the datetime specified in the reminder's `@s` entry.
 * Reminders can have more than one `@a` alert entries. Different alerts could, for example, be used to trigger their commands at different times.
 * With an email, `e`, or text alert, `t`, the item summary is used as the subject and an email or text message is sent to each attendee listed in @n entries. The content of the body of the emails/messages are options that can be set in the user's configuration file.
 * Alerts and beginbys are only triggered for unfinished tasks and, when the task is repeating, only for the first unfinished instance. Similarly, past due notices for repeating tasks are only triggered for the first unfinished instance.
 * Events with `@w <before>, <after>` *wrap* entries have 'busy periods' that extend from `<before>` (a time period) before the beginning of the event until `<after>` (another time period) after the end of the event. An entry such as `@w 30m, 0m` could be used, for example, to block out 30 minutes before a meeting to review your notes or, as another example, `@w 30m, 20m` to block out 30 minutes before and 20 minutes after an event to allow for travel time to and from the event's location. The additional busy time is displayed in *busy view* as well as in *agenda view* where the event
 
-		* sales meeting @s 22/11/15 3p @e 1h30m @w 30m, 20m
+        * sales meeting @s 22/11/15 3p @e 1h30m @w 30m, 20m
 
     would appear as
 
-		~   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·   2:30pm
-		* sales meeting ·  ·  ·  ·  ·  ·  ·  ·  ·  3-4:30pm
-		~   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·   4:50pm
+        ~   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·   2:30pm
+        * sales meeting ·  ·  ·  ·  ·  ·  ·  ·  ·  3-4:30pm
+        ~   ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·   4:50pm
 
 [↺ contents](#contents)
 
@@ -1899,7 +1899,7 @@ For use with @r:
 
 * Get a haircut (a task) on the 24th of the current month and then [r]epeatedly at (d)aily [i]ntervals of (14) days and, [o]n completion, (r)estart from the last completion date:
 
-		- haircut @s 24 @r d &i 14 @o r
+        - haircut @s 24 @r d &i 14 @o r
 
 * Reconcile accounts (a task) on the 2nd day of the current month and then [r]epeatedly at (m)onthly intervals on the second day of the month (&m 2) at midnight (&h 0 &n 0). *etm* will treat midnight as a date rather than a datetime. [o]n completion, (r)restart from the last completion datetime:
 
@@ -1907,26 +1907,26 @@ For use with @r:
 
 * Take out trash (at task) on Mondays but if the task becomes [o]verdue, (s)kip the past due reminders.
 
-		- Take out trash @s mon @r w @o s
+        - Take out trash @s mon @r w @o s
 
 * A sales meeting (an event) [r]epeating m)onthly on [w]eekdays that are either the first or third Tuesdays in the month.
 
-		* sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
+        * sales meeting @s tue 9a @e 45m @r m &w 1tu, 3tu
 
 * Good Friday each year 2 days before [E]aster Sunday.
 
-		* Good Friday @s 1/1/2015 @r y @E -2
+        * Good Friday @s 1/1/2015 @r y @E -2
 
 * Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
 
-		* Friday tennis @s 2019-01-01 6a @e 90m
-		  @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
-		  @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
+        * Friday tennis @s 2019-01-01 6a @e 90m
+          @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
+          @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
 
 * Payday on the last week day of each month. The &s -1 part of the entry extracts the last (-1) date which is both a weekday and falls within the last three days of the month):
 
-		* payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1,
-		  -2, -3 &s -1
+        * payday @s 1/1 @r m &w MO, TU, WE, TH, FR &m -1,
+          -2, -3 &s -1
 
 [↺ contents](#contents)
 
@@ -1934,24 +1934,24 @@ For use with @r:
 
 Repeating events or tasks can have an anniversary expression, {XXX}, in the summary that will be replaced by the appropriate ordinal for the anniversary: 1st, 2nd, 3rd, etc. E.g.,
 
-	* {XXX} of 60 auto payments due @s 2020-06-01 @r m &c 60
+    * {XXX} of 60 auto payments due @s 2020-06-01 @r m &c 60
 
 would appear in agenda view
 
-*	On July 1 2020
-	   * 1st of 60 auto payments due
-*	On Aug 1 2020
-	   * 2nd of 60 auto payments due
+*   On July 1 2020
+       * 1st of 60 auto payments due
+*   On Aug 1 2020
+       * 2nd of 60 auto payments due
 
 ...
-*	On May 1 2025
-	   * 59th of 60 auto payments due
-*	On Jun 1 2025
-	   * 60th of 60 auto payments due
+*   On May 1 2025
+       * 59th of 60 auto payments due
+*   On Jun 1 2025
+       * 60th of 60 auto payments due
 
 Similarly
 
-	* Will's {XXX} birthday @s 1985-08-23 @r y
+    * Will's {XXX} birthday @s 1985-08-23 @r y
 
 would appear in agenda view on Aug 23, 2020 as
 
@@ -2007,10 +2007,10 @@ Here are the options with their default values from that file. The lines beginni
         # and yearfirst parameters control how the information is processed
         # using this precedence:
         # yearfirst: true
-        # 	dayfirst: true  => YDM
+        #   dayfirst: true  => YDM
         #   dayfirst: false => YMD
         # yearfirst: false
-        # 	dayfirst: true  => DMY
+        #   dayfirst: true  => DMY
         #   dayfirst: false => MDY
         # E.g., with both true, 3/4/5 would be interpreted as May 4, 2003.
         # When possible, dates will also be displayed respecting these settings.
@@ -2371,8 +2371,8 @@ See [Saved Queries](#saved-queries) for more information about queries that allo
 
 Note that in the 'dictionary' entries above, the components must be indented (using 2 spaces not tabs). E.g., the illustrative alert entry would be:
 
-	alerts:
-		v: /usr/bin/say -v "Alex" "{summary}, {when}"
+    alerts:
+        v: /usr/bin/say -v "Alex" "{summary}, {when}"
 
 
 [↺ contents](#contents)
@@ -2381,37 +2381,37 @@ Note that in the 'dictionary' entries above, the components must be indented (us
 
 All *etm* reminders are stored in the text file `etm.json` in your etm home directory using the wonderful *TinyDB* package. [Prior to etm 5.0.0, the data storage file was named `db.json`. The format and name changed slightly with that version.] This *json* file is human readable but not easily editable. When you start *etm* for the first time, this file will have no entries:
 
-	{
-	"items": {},
-	"archive": {}
-	}
+    {
+    "items": {},
+    "archive": {}
+    }
 
 To *json* this is a hash/dictionary with two keys: "items" and "archive". Both have empty hashes/dictionaries as values.
 Add a first reminder to take out the trash on Mondays
 
-	- trash @s 2019-12-21 @r w &w mo
+    - trash @s 2019-12-21 @r w &w mo
 
 at 10:26am on Dec 21, 2019 EST and the file would change to
 
-	{
-	"items": {
-	"1": {
-	"itemtype": "-",
-	"summary": "trash",
-	"s": "{D}:20191223",
-	"r": [
-		{
-		"r": "w",
-		"w": [
-		"{W}:MO"
-		]
-		}
-	],
-	"created": "{T}:20191221T1526A"
-	}
-	},
-	"archive": {}
-	}
+    {
+    "items": {
+    "1": {
+    "itemtype": "-",
+    "summary": "trash",
+    "s": "{D}:20191223",
+    "r": [
+        {
+        "r": "w",
+        "w": [
+        "{W}:MO"
+        ]
+        }
+    ],
+    "created": "{T}:20191221T1526A"
+    }
+    },
+    "archive": {}
+    }
 
 `items` now has a first item with key (unique identifier) "1". The value corresponding to this key is a hash with keys and values corresponding to the attributes of the reminder. Though these attributes are stored as strings, some actually represent non-string objects. How is this possible?
 

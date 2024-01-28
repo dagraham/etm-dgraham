@@ -200,7 +200,7 @@ class Settings:
     expansions = ''
     sms = {'body': '{location} {when}', 'from': '', 'server': '', 'pw': ''}
     smtp = {
-        'body': '{location} {when}\n{description}',
+        'body': '{start} {location} ({when}) {description}',
         'from': '',
         'server': '',
         'id': '',
@@ -272,10 +272,10 @@ yearfirst: {yearfirst}
 # and yearfirst parameters control how the information is processed
 # using this precedence:
 # yearfirst: true
-# 	dayfirst: true  => YDM
+#   dayfirst: true  => YDM
 #   dayfirst: false => YMD
 # yearfirst: false
-# 	dayfirst: true  => DMY
+#   dayfirst: true  => DMY
 #   dayfirst: false => MDY
 # E.g., with both true, 3/4/5 would be interpreted as May 4, 2003.
 # When possible, dates will also be displayed respecting these
@@ -380,20 +380,20 @@ refresh_interval: {refresh_interval}
 # 6, 12, 30 or 60. The event loop responsible for refreshing
 # etm caches, updating alerts, timers and so forth, repeats once
 # every refresh_interval seconds. This setting determines the maximum
-# accuracy for used time recording since, e.g., with a setting of 12 
-# the clock is only read every 12 seconds so timers can only be accurate 
-# to the nearest 0.2 minutes. Whatever the value of this setting, usedtimes 
-# are recorded rounded off to the nearest minute. See also the setting for 
+# accuracy for used time recording since, e.g., with a setting of 12
+# the clock is only read every 12 seconds so timers can only be accurate
+# to the nearest 0.2 minutes. Whatever the value of this setting, usedtimes
+# are recorded rounded off to the nearest minute. See also the setting for
 # usedtime_minutes.
 
 usedtime_minutes: {usedtime_minutes}
-# 0, 1, 6, 12, 30 or 60. This setting only affects how used times are 
-# reported - with 0, no rounding up is done, with 1 times are rounded up 
+# 0, 1, 6, 12, 30 or 60. This setting only affects how used times are
+# reported - with 0, no rounding up is done, with 1 times are rounded up
 # to the nearest minute, with 6 times are rounded up to the nearest 0.1 of
 # an hour, with 12 to the nearest 0.2 of an hour and so forth.  E.g., with
 # usedtime_minutes = 12, a used time entry of 15 minutes would be rounded
-# up to the nearest multiple of 12 or to 24 minutes = 0.4 hours for 
-# reporting in the used time views. This setting does not affect how the 
+# up to the nearest multiple of 12 or to 24 minutes = 0.4 hours for
+# reporting in the used time views. This setting does not affect how the
 # times are recorded but only how they are reported in used time views.
 
 usedtime_hours: {usedtime_hours}
@@ -417,7 +417,7 @@ journal_name: '{journal_name}'
 # month, also by the month day. The '#' places '# daily' near the top
 # in journal with daily entries sorted in reverse order so that the
 # most recent entries are always at the top.
-# 
+#
 # Pressing 'J' in any view will open a daily journal entry for the
 # current date with a summary corresponding to the current date and
 # an index entry equal to {journal_name}. This journal entry will be
@@ -464,24 +464,24 @@ expansions: {expansions}
 # Note that this is a two-stage process.
 
 sms: {sms}
-# Settings to send "t" (sms text message) alerts to the
-# list of phone numbers from the item's @n attendee
-# entries using the item's summary and the body as specified
-# in the template below as the message. E.g., suppose you
-# have a gmail account with email address "who457@gmail.com"
-# and want to text alerts to Verizon moble phone (123)
-# 456-7890. Then your sms entries should be
+# Settings to send "t" (sms text message) alerts to the list of phone
+# numbers from the item's @n attendee entries using the item's summary
+# and the body as specified in the template below as the message.
+# E.g., suppose you have a gmail account with email address
+# "who457@gmail.com" and want to text alerts to Verizon moble phone
+# (123) 456-7890. Then your sms entries should be
 #     from:   who457@gmail.com
 #     pw:     your gmail password
 #     server: smtp.gmail.com:587
 # and your item should include the following attendee entry
 #     @n 1234567890@vzwpix.com
-# In the illustrative phone number, @vzwpix.com is the mms
-# gateway for Verizon. Other common mms gateways are
+# In the illustrative phone number, @vzwpix.com is the mms gateway for
+# Verizon. Note that the country code is NOT included. Other common
+# mms gateways are
 #     AT&T:     @mms.att.net
 #     Sprint:   @pm.sprint.com
 #     T-Mobile: @tmomail.net
-# Note. Google "mms gateway listing" for other alternatives.
+# Google "mms gateway listing" for other alternatives.
 
 smtp: {smtp}
 # Settings to send "e" (email message) alerts to the list of email
@@ -493,6 +493,9 @@ smtp: {smtp}
 #     id: whatever457
 #     pw: your gmail password
 #     server: smtp.gmail.com
+# For email, the attendee entry, @n, should have comma separated
+# entries with the format:
+#     [optional name]:<email address>
 
 locations: {locations}
 # A dictionary with location group names as keys and corresponding
