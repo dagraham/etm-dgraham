@@ -1,4 +1,11 @@
-2024-01-28 5d001e6 Daniel Graham
+2024-01-29 1a26520 Daniel Graham
+    Tagged version 6.1.0.
+
+2024-01-29 ece863d Daniel Graham
+    Fixed sorting issue in journal and index views. Added section on
+    'Do Next View' to README.
+
+2024-01-28 65f3211 Daniel Graham
     Tagged version 6.0.19.
 
 2024-01-28 1a5afa8 Daniel Graham
@@ -211,12 +218,3 @@
 
 2024-01-07 2e6ad4e Daniel Graham
     Changed bump.py to reflect the move from working to working6.
-
-2024-01-07 c067fb6 Daniel Graham
-    Tagged version 6.0.1. "initial release"
-
-2024-01-07 b542aeb Daniel Graham
-    Cleaned up logging. Expand @i 'journal_name' in index view as in
-    journal view. Tweaked ake_examples and changed the summary of the
-    inbox item to README to call attention to the information in the
-    description.
