@@ -1,4 +1,11 @@
-2024-01-29 1a26520 Daniel Graham
+2024-01-29 ad7b1c6 Daniel Graham
+    Tagged version 6.1.1.
+
+2024-01-29 69922a0 Daniel Graham
+    Wrapped starting time in date_to_datetime to permit sorting using
+    timestamp().
+
+2024-01-29 4df92d8 Daniel Graham
     Tagged version 6.1.0.
 
 2024-01-29 ece863d Daniel Graham
@@ -212,9 +219,3 @@
 
 2024-01-07 a96db8f Daniel Graham
     Commit tweaks
-
-2024-01-07 d96a6f2 Daniel Graham
-    Tagged version 6.0.1a1.
-
-2024-01-07 2e6ad4e Daniel Graham
-    Changed bump.py to reflect the move from working to working6.
