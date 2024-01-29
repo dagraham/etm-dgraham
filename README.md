@@ -15,6 +15,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
             -   [tab completion](#tab-completion)
     -   [Views](#views)
         -   [Weekly Views](#weekly-views)
+        -   [Do Next View](#do-next-view)
         -   [Timer View](#timer-view)
         -   [Review View](#review-view)
         -   [Pinned View](#pinned-view)
@@ -503,7 +504,7 @@ The display for each reminder shows the itemtype and summary column on the left 
 
 ### Weekly Views {#weekly-views}
 
-The _agenda_, _busy_, _completed_ and _effort_ views display one week at a time and are *synchronized* so that all four views always display the same week. Press the ▶ (right) or ◀ (left) cursor keys go forward or backward a week at a time or press the space bar to jump to the week containing the current day. You can also press "J" and enter a date to jump to the week containing the date.
+The _agenda_, _busy_, _completed_ and _effort_ views display one week at a time and are *synchronized* so that all four views always display the same week. Press the ▶ (right) or ◀ (left) cursor keys go forward or backward a week at a time or press the space bar to jump to the week containing the current day. You can also press "end" and enter a date to jump to the week containing the date.
 
 In _agenda_ view, only days with scheduled reminders are listed. If nothing is scheduled for the entire week, then "Nothing scheduled" is displayed.
 
@@ -540,6 +541,28 @@ The second thing to notice is the red, conflict bar in the display for *Mo 28*. 
 As you might expect, if a conflict occurred either before or after the displayed period then the corresponding *before* or *after* character would be red instead of green.
 
 [↺ contents](#contents)
+
+### Do Next View {#do-next-view}
+
+This view is a todo list on steroids. It displays undated and unfinished tasks grouped and sorted by their `@l` (location/context) entries and then, within each group by their priorities.  E.g., the entry `@l #next` would put a task in a group at the top of the list because of the `#`. As another example,`‘@l |someday`, would put the task in a group near the end of the list because of the `|`.
+
+If you're curious, here is the list of visible ASCII characters in their sorted order:
+
+        '!', '"', '#', '$', '%', '&', "'", '(', ')',
+        '*', '+', ',', '-', '.', '/', '0', '1', '2',
+        '3', '4', '5', '6', '7', '8', '9', ':', ';',
+        '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D',
+        'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+        'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_',
+        '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
+        'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+        'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        '{', '|', '}', '~'
+
+Context is useful for more than just the sorting order. Suppose you have a task that you want to deal with the next time you’re at the lake house. Just add `@l at/lake house` and all you have to remember is to check the subgroup 'lake house ' under the 'at' group in *do next view* when you’re next there. Many such contexts come to mind - `at/grocery store`, `at/office`, ...
+
+One final useful context is 'waiting for'. E.g., completing a task might depend upon getting something from Joe. Add `@l waiting for/Joe` to the task and it will be listed in the subgroup 'Joe' under 'waiting for'.
 
 ### Timer View {#timer-view}
 
@@ -705,7 +728,7 @@ In *query view* an entry line at the bottom of the screen is used to submit quer
 
         includes summary waldo
 
-and press return to see a list of reminders in which either the summary or the `@d` element includes a match for the case-insensitive regular expression "waldo". Each line of the display contains the item type, the summary and the document id of the matching reminder. As another example
+and press return to see a list of reminders in which either the summary or the `@d` element includes a match for the case-insensitive regular expression "waldo". Each line of the display contains the item type, the summary and the document id of the matching reminder. You can use `in` as an abbreviation for `includes`. As another example
 
         exists u and ~exists i
 
@@ -1687,6 +1710,8 @@ Corresponds to VJOURNAL in the vcalendar specification.
 Type character: **!**
 
 An inbox item can be regarded as a task that is always due on the current date. E.g., you have created an event to remind you of a lunch meeting but need to confirm the time. Just record it using **!** instead of **\*** and the entry  will appear highlighted in the agenda view on the current date until you confirm the scheduled time.
+
+Inbox items are also useful when you have an idea but not enough time to think about it. Create an inbox entry with just enough information in the summary to remind you of the idea. Make a habit at the end of the day of checking inbox items. The idea is not necessarily to complete them but to change those that can’t be finished quickly to, say, undated tasks with appropriate `@l` entries and enough detail in the summaries and the `@d` descriptions so that you will have all the information you need to act on them when the time comes.
 
 Corresponds to VTODO in the vcalendar specification.
 

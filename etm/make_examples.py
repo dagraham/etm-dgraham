@@ -66,8 +66,8 @@ def beg():
     return f"@s -{random.choice([1,2,3,4])}{random.choice(['d', 'w'])}"
 
 
-client_index = '$ clients'
-info_index = '$ client info'
+client_index = '$clients'
+info_index = '$client info'
 client_detail = f"""
 Because of the index entry, all client records will be grouped under "{client_index}", then under the name of the relevant client in both index and journal view.  This infomation record will be first among the items for each client since beginning with a "{info_index}" will put it at the top of the sorting order for the index entries for each client. Having such a journal entry for each client ensures that the client name will be available for completion of the index entry when other client related items are being created. The choice of "{client_index}" and "{info_index}" is, of course, arbitrary but takes advantage of the sorting order that begins with "!", "#", "$" and "%".
 """
@@ -188,7 +188,7 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
                 used += f'@u {u}m: {e} '
 
         if t == '%' and start <= now:
-            examples.append(f'{t} {summary} @s {s} @i # daily @d {d} @t lorem')
+            examples.append(f'{t} {summary} @s {s} @i #daily @d {d} @t lorem')
 
         elif t == '*':
             if date:      # an event

@@ -2698,6 +2698,7 @@ class NDict(dict):
                             self.row += 1
             depth -= 1
         # return '\n'.join([x for x in self.output if x]), self.row2id
+        logger.debug(f"output and row2id: {self.output}\n {self.row2id}")
         return '\n'.join(self.output), self.row2id
 
 
@@ -7839,23 +7840,30 @@ def show_journal(
             continue
         s = item.get('s', None)
         if s:
-            ss = s.strftime('%Y%m%d')
+            ss = s.timestamp()
             year = s.strftime("%Y")
             month = s.strftime("%B")
         else:
-            ss = '='
+            ss = 0.0
             year = month = ''
         index = item.get('i', '~')
-        if index == settings['journal_name'] and s:
-            # this is a 'daily' entry
-            sort = (index, -int(s.strftime('%Y')), -int(s.strftime('%m')), -int(s.strftime('%d')))
-            path = f'{index}/{year}/{month}'
-            # summary = s.strftime(settings['journal_summary'])
-            ok, summary = format_date(s,separator='-',omit_zeros=False)
+        if s:
+            if index == settings['journal_name']:
+                # this is a 'daily' entry
+                # sort = (index, -int(s.strftime('%Y')), -int(s.strftime('%m')), -int(s.strftime('%d')))
+                sort = (index, -ss, item['summary'])
+                path = f'{index}/{year}/{month}'
+                # summary = s.strftime(settings['journal_summary'])
+                ok, summary = format_date(s,separator='-',omit_zeros=False)
+            else:
+                sort = (index, ss, item['summary'])
+                path = index
+                summary = f"{item['summary']}"
         else:
             sort = (index, ss, item['summary'])
             path = index
             summary = f"{item['summary']}"
+
         itemtype = item['itemtype']
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
@@ -7989,22 +7997,31 @@ def show_index(
         )
         s = item.get('s', None)
         if s:
-            ss = s.strftime('%Y%m%d')
+            ss = s.timestamp()
             sort = format_datetime(item['created'])[1]
             year = s.strftime("%Y")
             month = s.strftime("%b")
         else:
-            ss = '='
+            ss = 0.0
             sort = '~'
             year = month = ''
-        if index == settings['journal_name'] and s:
-            sort = (index, -int(s.strftime('%Y')), -int(s.strftime('%m')), -int(s.strftime('%d')))
-            path = f'{index}/{year}/{month}'
+        if s:
+            if index == settings['journal_name']:
+                # sort = (index, -ss, item['summary'])
+                sort = (index, ss, item['summary'])
+                path = f'{index}/{year}/{month}'
+                # ok, summary = format_date(s,separator='-',omit_zeros=False)
+                summary = f"{item['summary']}"
+            else:
+                sort = (index, ss, item['summary'])
+                path = index
+                summary = f"{item['summary']}"
         else:
             sort = (index, ss, item['summary'])
             path = index
+            summary = f"{item['summary']}"
+
         itemtype = item['itemtype']
-        summary = f"{item['summary']}" #[:summary_width]
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
         )
