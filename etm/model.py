@@ -7840,7 +7840,7 @@ def show_journal(
             continue
         s = item.get('s', None)
         if s:
-            ss = s.timestamp()
+            ss = date_to_datetime(s).timestamp()
             year = s.strftime("%Y")
             month = s.strftime("%B")
         else:
@@ -7997,7 +7997,7 @@ def show_index(
         )
         s = item.get('s', None)
         if s:
-            ss = s.timestamp()
+            ss = date_to_datetime(s).timestamp()
             sort = format_datetime(item['created'])[1]
             year = s.strftime("%Y")
             month = s.strftime("%b")
