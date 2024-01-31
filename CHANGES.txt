@@ -1,4 +1,11 @@
-2024-01-29 ad7b1c6 Daniel Graham
+2024-01-31 b00ed09 Daniel Graham
+    Tagged version 6.1.2. Proper sorting for type v csv queries.
+
+2024-01-31 c37c715 Daniel Graham
+    Refactored 'v' queries to use QDict 'as_csv', a slightly modified
+    version of as_tree. Cleaned up comments.
+
+2024-01-29 c3681b2 Daniel Graham
     Tagged version 6.1.1.
 
 2024-01-29 69922a0 Daniel Graham
@@ -213,9 +220,3 @@
 
 2024-01-07 2c129d8 Daniel Graham
     lorem example tweaks
-
-2024-01-07 9374ba8 Daniel Graham
-    Tagged version 6.0.1.
-
-2024-01-07 a96db8f Daniel Graham
-    Commit tweaks
