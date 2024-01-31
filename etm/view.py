@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import sys
 import inspect
+import tinydb
 
 # from prompt_toolkit import __version__ as prompt_toolkit_version
 
@@ -154,11 +155,11 @@ def format_week(dt, fmt='WWW'):
 
     if len(fmt) < 3:
         year_part = ""
-    elif len(fmt) == 3:    
-        year_part = ", %Y" 
+    elif len(fmt) == 3:
+        year_part = ", %Y"
     else:
-        year_part = ", %Y #%-W" 
-        
+        year_part = ", %Y #%-W"
+
     dt_year, dt_week = dt.isocalendar()[:2]
 
     mfmt = '%B %-d' if fmt == 'WWWWW' else '%b %-d'
@@ -601,14 +602,17 @@ class ETMQuery(object):
             openWithDefault(query_help)
             return False, 'opened query help using default browser'
         try:
-            ok, test, updt = self.process_query(query)
-            logger.debug(f'ok: {ok}; test: {test}; updt: {updt}')
-            if not ok:
-                return False, test
-            if isinstance(test, str):
-                return False, test
+            ok, res, updt = self.process_query(query)
+            # logger.debug(f'ok: {ok}; res: {res}; type(res): {type(res)}; updt: {updt}')
+            if not ok or isinstance(res, str):
+                logger.debug(f"not ok, returning {res}")
+                return False, res
+
+            if isinstance(res, tinydb.table.Document):
+                # logger.debug(f"dealing with Document: {res}")
+                return False, item_details(res)
             else:
-                items = dataview.db.search(test)
+                items = dataview.db.search(res)
                 if updt:
                     logger.debug(f'updt[0]: {updt[0]}; updt[1:]: {updt[1:]}')
                     self.update[updt[0]](*updt[1:], items)
@@ -2537,13 +2541,13 @@ def edit_or_add_journal(*event):
     for it in ETMDB:
         itemtype = it.get('itemtype')
         index = it.get('i')
-        start = it.get('s') 
+        start = it.get('s')
         if isinstance(start, datetime):
             start = start.date()
         logger.debug(f"itemtype: {itemtype}; index: {index}; journal_name: {journal_name}; start: {start}; today: {today.date()}")
         if itemtype == '%' and index == journal_name and start and start == date.today():
             relevant = it
-            break        
+            break
     logger.debug(f"relevant: {relevant}")
     doc_id, entry = dataview.get_details(
         text_area.document.cursor_position_row, True
@@ -2561,10 +2565,10 @@ def edit_or_add_journal(*event):
     else:
         start = today.strftime("%Y-%m-%d")
         starting_buffer_text = f"""\
-% {summary}      
+% {summary}
 @s {start} @i {settings['journal_name']}
 @d {today.strftime('%A, %B %-d, %Y')}
- 
+
 """
         item.new_item()
         edit_buffer.text = starting_buffer_text
@@ -3076,7 +3080,7 @@ def do_import_file(*event):
         values[str(count)] = x
     options.append("  <escape>: cancel")
     # values_str = '\n'.join(values)
-    
+
     # default = (
     #     inbasket if os.path.exists(os.path.expanduser(inbasket)) else etmhome
     # )
@@ -3085,7 +3089,7 @@ def do_import_file(*event):
     title = 'Import File'
 
     text = f"""\
-It is possible to import data from a collection of illustrative, 'lorem', reminders or from from a file in the etm home directory, {etmhome}, with the extension '.text'.  (This file will subsequently be deleted). The current options: 
+It is possible to import data from a collection of illustrative, 'lorem', reminders or from from a file in the etm home directory, {etmhome}, with the extension '.text'.  (This file will subsequently be deleted). The current options:
 """
 
     get_choice(title, text, options)
@@ -3393,7 +3397,7 @@ def konnected_view(*event):
     konnected_row = dataview.konnected_id2row.get(doc_id, None)
     # logger.debug(f"doc_id: {doc_id}; konnected_row: {konnected_row}; dataview.konnected_id2row: {dataview.konnected_id2row}")
     set_view('k')
-    if konnected_row: 
+    if konnected_row:
         text_area.buffer.cursor_position = (
             text_area.buffer.document.translate_row_col_to_index(
                 konnected_row, 0)
@@ -3427,7 +3431,7 @@ def hide_konnections(*event):
     )
     konnected_row = dataview.konnected_id2row.get(doc_id, None)
     application.layout.focus(text_area)
-    if konnected_row: 
+    if konnected_row:
         text_area.buffer.cursor_position = (
             text_area.buffer.document.translate_row_col_to_index(
                 konnected_row, 0)

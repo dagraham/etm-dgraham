@@ -7393,6 +7393,10 @@ def show_query_items(
                 'values': [itemtype, summary, flags, rhc, doc_id],
             }
         )
+    if len(rows) == 1:
+        ok, res = rows[0]
+        return item_details(res), {}
+
     rdict = NDict()
     path = f'query: {text[:summary_width]}{item_count}'
     for row in rows:
