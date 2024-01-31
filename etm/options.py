@@ -667,7 +667,6 @@ window_colors: {window_colors}
 
         if self.user:
             # we have user settings that need to be checked
-            # logger.debug("calling check_options")
             self.changes = self.check_options()
         else:
             # we need to populate cfg.yaml
@@ -690,13 +689,10 @@ window_colors: {window_colors}
         active_style = new.get('style', self.settings_hsh['style'])
         if active_style not in ['dark', 'light']:
             active_style = self.settings_hsh['style']
-        # logger.debug(f"active style: {active_style}")
         self.settings['type_colors'] = self.default_type_colors[active_style]
-        # logger.debug(f"active type_colors: {self.settings['type_colors']}")
         self.settings['window_colors'] = self.default_window_colors[
             active_style
         ]
-        # logger.debug(f"active window_colors: {self.settings['window_colors']}")
 
         # cfg = deepcopy(self.settings_hsh)
         # add missing default keys

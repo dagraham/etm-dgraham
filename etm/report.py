@@ -352,6 +352,7 @@ class QDict(dict):
         self.needs = needs
         self.row2id = {}
         self.output = []
+        self.csv = []   # list of hsh col_num -> value
         self.used_time = used_time
 
         self.fmt = ''
@@ -377,6 +378,7 @@ class QDict(dict):
         return self[key]
 
     def as_dict(self):
+        logger.debug(f'as dict: {self}')
         return self
 
     def leaf_detail(self, detail, depth):
@@ -507,6 +509,50 @@ class QDict(dict):
             depth -= 1
         return '\n  '.join(self.output), self.row2id
 
+    def as_csv(self, t={}, depth=0, level=0, pre=[]):
+        """return a list of CSV rows"""
+        # pre will contain the header elements to begin each row
+        for k in t.keys():
+            del pre[depth:]
+            pre.append(k)
+            # indent = depth * [
+            #     ' ',
+            # ]
+            # tmp.extend(indent)
+            if self.used_time:
+                header = f"{'/'.join(tuple(pre))} {format_hours_and_tenths(self.used_time.get(tuple(pre), ''))}"
+                # header = f"{pre} {format_hours_and_tenths(self.used_time.get(tuple(pre), ''))}"
+
+            else:
+                header = f'{pre}'
+            # self.csv.append(tmp)
+            # self.row += 1
+            depth += 1
+            if level and depth > level:
+                depth -= 1
+                continue
+
+            if type(t[k]) == QDict:
+                self.as_csv(t[k], depth, level, pre)
+            else:
+                for leaf in t[k]:
+                    row = []
+                    row.append(header)
+                    ut = format_hours_and_tenths(leaf[2])
+                    dt = leaf[3].strftime('%Y-%m-%d %H:%M')
+                    if self.used_time:
+                        row.extend([ut, dt, leaf[0], leaf[1]])
+                        num_leafs = 4
+                    else:
+                        row.extend([leaf[0], leaf[1]])
+                        num_leafs = 2
+                    for i in range(num_leafs, len(leaf) - 1):
+                        row.append(leaf[i])
+                    row.append(leaf[-1])
+                    self.csv.append(row)
+            depth -= 1
+        return self.csv
+
 
 def get_output_and_row2id(items, grpby, header='', needs=[]):
     used_time = {}
@@ -576,59 +622,36 @@ def get_output_and_row2id(items, grpby, header='', needs=[]):
     ret = [x[1:] for x in ret]
     # logger.debug(ret)
 
+    # create recursive dict from data
+    row = 1 if header else 0
+    # need to pass 'needs' to QDict
+    index = QDict(used_time, row, needs)
+    for path, value in ret:
+        index.add(path, value)
+
     if mode == 'v':
         # CVS stuff
+        csv_rows = index.as_csv(index)
         now = datetime.now().astimezone().strftime('%y%m%dT%H%M%S')
-        # txtfile = os.path.join(csvdir, f'{now}.txt')
         csvfile = os.path.join(csvdir, f'{now}.csv')
-        count = 0
-        txt_output = [
-            f'{count}) {header}',
+        header_row = [
+            f'etm query: {header}',
+            'hours',
+            'datetime',
+            'type',
+            'summary',
         ]
-        # num_fields = len(ret[0][1]) + 1
-        # header_row = ['' for x in range(num_fields)]
-        header_row = ['#', 'type', 'summary', 'hours', 'datetime']
         for x in dtls_tups[4:-1]:
             header_row.append(x)
         header_row.append('doc_id')
-        header_row.append(header)
-        # logger.debug(f'num_fields: {num_fields}, header_row: {header_row}')
+
         csv_output = [
             header_row,
         ]
-        last_path = []
-        for row in ret:
-            count += 1
-            path, body = row
-            # logger.debug(f'path: {path}, body: {body}')
-            if path != last_path:
-                last_path = path
-                # txt_output.append(f"{count}) {' '.join(path)}")
-                append = ' / '.join(path)
-            else:
-                append = ''
-            tmp = [
-                f'{count}',
-            ]
-            for part in body:
-                # logger.debug(f'processing {part} {type(part)}')
-                if isinstance(part, str):
-                    tmp.append(part)
-                elif isinstance(part, int):
-                    tmp.append(str(part))
-                elif isinstance(part, timedelta):
-                    tmp.append(format_hours_and_tenths(part).rstrip('h'))
-                elif isinstance(part, datetime):
-                    tmp.append(part.strftime('%Y-%m-%d %H:%M'))
-                else:
-                    tmp.append(part.__repr__)
-            tmp.append(append)
-            csv_output.append(tmp)
+        csv_output.extend(csv_rows)
         with open(csvfile, 'w+') as csv_file:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerows(csv_output)
-        # with open(txtfile, 'w') as txt_file:
-        #     txt_file.write('\n'.join(txt_output))
         return (
             f'csv output saved to {csvfile}',
             {},
@@ -640,13 +663,6 @@ def get_output_and_row2id(items, grpby, header='', needs=[]):
             initial_indent='',
             subsequent_indent='   ',
         )
-        # create recursive dict from data
-        row = 1 if header else 0
-        # need to pass 'needs' to QDict
-        index = QDict(used_time, row, needs)
-        for path, value in ret:
-            index.add(path, value)
-
         output, row2id = index.as_tree(index)
         return f'{header}\n  {output}', row2id
 
@@ -666,6 +682,7 @@ def get_grpby_and_filters(s, options=None):
     grpby['report'] = report
     filters['dates'] = False
     grpby['dated'] = False
+    grpby['path'] = False
     filters['query'] = (
         'exists u' if report in ['u', 'v'] else 'exists itemtype'
     )
@@ -675,12 +692,13 @@ def get_grpby_and_filters(s, options=None):
         for comp in groupbylst:
             comp_parts = comp.split(' ')
             for part in comp_parts:
-                if groupdate_regex.match(part):
+                if part[0] == 'i':
+                    grpby['path'] = True
+                elif groupdate_regex.match(part):
                     grpby['dated'] = True
                     filters['dates'] = True
                 elif not (
-                    part[0] == 'i'
-                    or part
+                    part
                     in ['c', 'l', 'itemtype', 'created', 'modified', 'summary']
                 ):
                     print(f'Ignoring invalid groupby part: {part}')
@@ -688,10 +706,10 @@ def get_grpby_and_filters(s, options=None):
         grpby['args'] = groupbylst
     grpby['path'] = []
     grpby['sort'] = []
-    # include = {'W', 'Y', 'M', 'D'}
-    # needs = ['%y', '%-m', '%-d']
     needs = ['y', 'm', 'd']
     if groupbylst:
+        if grpby['path']:
+            grpby['sort'].append()
         if grpby['dated'] or grpby['report'] in ['u', 'v', 'm', 'c']:
             grpby['sort'].append(f"item['rdt'].strftime('%Y%m%d')")
         for group in groupbylst:
@@ -738,8 +756,6 @@ def get_grpby_and_filters(s, options=None):
                     grpby['sort'].append(
                         f"'/'.join(re.split('/', item['{group[0]}']){group[1:]}) or '~'"
                     )
-                # else:
-                #     # logger.warning(f'non slice use of i: {group}')
             else:
                 grpby['path'].append("item['%s']" % group.strip())
                 grpby['sort'].append(f"item['{group.strip()}']")
@@ -751,7 +767,6 @@ def get_grpby_and_filters(s, options=None):
             value = [x.strip() for x in part[1:].split(',')]
             also.extend(value)
         elif key in ['b', 'e']:
-            # dt = parse(part[1:], strict=False, tz='local')
             dt = parse_reldt(part[1:])
             filters[key] = dt
         elif key == 'q':
@@ -774,18 +789,10 @@ def get_grpby_and_filters(s, options=None):
 
 def show_query_results(text, grpby, items, needs):
     # called by dataview to set query
-    rows = []
     item_count = f'[{len(items)} records]'
     if not (items and isinstance(items, list)):
         return f'query: {text}\n   none matching', {}
-    # header = textwrap.fill(
-    #     f'query: {text} {item_count}',
-    #     width=width,
-    #     initial_indent='# ',
-    #     subsequent_indent='# ',
-    # )
     header = f'{text} {item_count}'
-    mode = text[0]
     # need to pass 'needs' to get_output_and_row2id
     output, row2id = get_output_and_row2id(items, grpby, header, needs)
     return output, row2id
@@ -793,18 +800,10 @@ def show_query_results(text, grpby, items, needs):
 
 def main(etmdir, args):
 
-    # from etm.view import Query
-    # logger = setup_logging(1, etmdir)
-    # from etm.options import Settings
-
-    # settings = Settings(etmdir)
     query = ETMQuery()
-
     session = PromptSession()
-
     again = True
     while again:
-
         print("Enter 'quit', 'stop', 'exit' or '' to exit loop")
         text = session.prompt('query: ', lexer=query.lexer)
         if not text or text in ['quit', 'stop', 'exit']:

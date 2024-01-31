@@ -1413,21 +1413,16 @@ item_hsh:    {self.item_hsh}
         return msg
 
     def update_item_hsh(self, check_links=True):
-        logger.debug("in update_item_hsh")
         msg = self.check_item_hsh()
         if msg:
             logger.error(msg)
 
         if 'K' in self.item_hsh:
-            logger.debug(f"calling get_konnections with {self.item_hsh}")
             doc_ids = get_konnections(self.item_hsh)
-            logger.debug(f"back from get_konnections with {doc_ids}")
             konnections = self.item_hsh.get('k', [])
             konnections.extend(doc_ids)
             self.item_hsh['k'] = konnections
-            logger.debug(f"extended {self.item_hsh.get('k')}")
             del self.item_hsh['K']
-            logger.debug(f"deleted 'K' -> {self.item_hsh}")
 
         if check_links:
             # make sure the doc_id refers to an actual document
@@ -2160,7 +2155,6 @@ def format_date(obj, year=True, separator='/', omit_zeros=True):
     else:
         date_fmt = md
 
-    # logger.debug(f"date_fmt: {date_fmt}; {obj.strftime(date_fmt)}")
 
     if type(obj) != date and type(obj) != datetime:
         return False, ''
@@ -2698,7 +2692,6 @@ class NDict(dict):
                             self.row += 1
             depth -= 1
         # return '\n'.join([x for x in self.output if x]), self.row2id
-        logger.debug(f"output and row2id: {self.output}\n {self.row2id}")
         return '\n'.join(self.output), self.row2id
 
 
@@ -3014,8 +3007,6 @@ class DataView(object):
         for id in self.konnected:
             row += 1
             self.konnected_id2row[id] = row
-
-        logger.debug(f"konnected: {self.konnected}")
 
 
     def handle_backups(self):
@@ -3805,7 +3796,6 @@ class DataView(object):
         """
         num = self.settings['num_repetitions']
         res = self.get_row_details(row)
-        logger.debug(f'row_details: {res}')
         if not res:
             return None, ''
         item_id = res[0]
@@ -3829,7 +3819,6 @@ class DataView(object):
             if at_plus:
                 at_plus.sort()
                 relevant = min(relevant, date_to_datetime(at_plus[0]))
-        logger.debug(f'relevant: {relevant}')
 
         # relevant = instance if instance else self.id2relevant.get(item_id)
         # showing = 'Repetitions'
@@ -3858,7 +3847,6 @@ class DataView(object):
         if not res:
             return None, ''
         item_id = res[0]
-        logger.debug(f'get_history item_id: {item_id}; in id2relevant: {item_id in self.id2relevant}')
 
         if not (item_id and item_id in self.id2relevant):
             return ''
@@ -3875,7 +3863,6 @@ class DataView(object):
             per = item['f']
             res.append((per.end, f' {fmt_period(per)}', FINISHED_CHAR))
         for c in item.get('h', []):
-            logger.debug(f"skip: {skip}; c.start: {c.start}; c.end: {c.end}; skip: {c.start == c.end+ONEMIN}")
             if skip and c.start == c.end + ONEMIN:
                 res.append((c.end, '', SKIPPED_CHAR))
             else:
@@ -5272,30 +5259,6 @@ def extent(arg):
     return parse_duration(arg)
 
 
-def history(arg):
-    """
-    Return a list of properly formatted completions.
-    >>> history("4/1/2016 2p")
-    (True, [DateTime(2016, 4, 1, 14, 0, 0, tzinfo=ZoneInfo('America/New_York'))])
-    >>> history(["4/31 2p", "6/1 7a"])
-    (False, "'4/31 2p' is incomplete or invalid")
-    """
-    if type(arg) != list:
-        arg = [arg]
-    msg = []
-    tmp = []
-    for comp in arg:
-        ok, res, tz = parse_datetime(comp)
-        if ok:
-            tmp.append(res)
-        else:
-            msg.append(res)
-    if msg:
-        return False, ', '.join(msg)
-    else:
-        return True, tmp
-
-
 def do_priority(arg):
     """
     >>> do_priority(6)
@@ -5855,7 +5818,6 @@ def date_to_datetime(dt, hour=0, minute=0):
             second=0,
             microsecond=0,
         ).astimezone()
-        # logger.debug(f"reset {dt} date -> {new_dt}")
         dt = new_dt
     return dt
 
@@ -6065,8 +6027,7 @@ undated_job_methods = dict(
     d=description,
     e=extent,
     f=timestamp,
-    h=history,
-    j=title,
+    k=title,
     l=location,
     q=timestamp,
     # The last requires consideration of the whole list of jobs
@@ -8131,7 +8092,6 @@ def get_usedtime(
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
         )
-        # logger.debug(f"get_usedtime: {summary} used {used}")
         for period, dt in used:
             if isinstance(dt, date) and not isinstance(dt, datetime):
                 dt = datetime(dt.year, dt.month, dt.day).astimezone()
@@ -8313,10 +8273,8 @@ def schedule(
     logger.debug(f"### Schedule ###")
     timer_schedule = TimeIt('***SCHEDULE***')
     width = shutil.get_terminal_size()[0] - 3
-    compact = False
     weeks_after = settings['keep_current'][0]
     mk_current = weeks_after > 0
-    current_width = settings['keep_current'][1] - 1
     current_hsh = {}
 
     ampm = settings['ampm']
@@ -8392,8 +8350,6 @@ def schedule(
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
         )
-        # if 'r' in item or '+' in item:
-        #     flags = REPS + flags # put REPS first
         used = item.get('u', None)
         finished = item.get('f', None)
         history = item.get('h', None)
@@ -8403,7 +8359,6 @@ def schedule(
             dt = date_to_datetime(start)
 
         if used:
-            # logger.debug(f"processing {summary} used: {used}")
             dates_to_periods = {}
             for period, dt in used:
                 if isinstance(dt, date) and not isinstance(dt, datetime):
@@ -8459,7 +8414,6 @@ def schedule(
             if isinstance(finished, Period):
                 # finished will be false if the period is ZERO
                 # we need details of when completed (start and end) for completed view
-                # d.append([finished.start, summary, doc_id, format_duration(finished.end-finished.start, short=True)])
                 d.append(
                     [
                         finished.start,
@@ -8503,7 +8457,6 @@ def schedule(
                     dt = row[0]
                     if isinstance(dt, date) and not isinstance(dt, datetime):
                         dt = datetime(dt.year, dt.month, dt.day).astimezone()
-                        # dt.set(hour=23, minute=59, second=59)
                     finished_char = SKIPPED_CHAR if row[3] == '-1m' else FINISHED_CHAR
 
                     rhc = str(row[3]) + '  ' if len(row) > 3 else ''
@@ -8770,11 +8723,9 @@ def schedule(
                     busyperiod = None
                 tmp_summary = set_summary(summary, item['s'], dt, freq)
                 rhc = rhc + ' ' if rhc else ''
-                # rhc = " " + rhc if rhc else ""
                 columns = [
                     item['itemtype'],
                     f'{rhc}{tmp_summary}',
-                    # f'{tmp_summary}{rhc}',
                     flags,
                     '',
                     (doc_id, instance, None),
@@ -8847,13 +8798,11 @@ def schedule(
                 day_ += ' (Tomorrow)'
             path = f'{wk_fmt}/{day_}'
             values = row['columns']
-            # heading = f"Busy periods for {day_}"
             if values[0] in ['*', '-']:
                 values[1] = re.sub(' *\n+ *', ' ', values[1])
                 busyperiod = row.get('busyperiod', '')
                 if busyperiod:
                     wrap = row.get('wrap', [])
-                    # wrapped = f"⌈{row.get('wrapped', '')}⌉" if wrap else ""
                     wrapped = f"<{row.get('wrapped', '')}>" if wrap else ''
                     row = wkday2row(dayofweek)
                     week2day2heading[week][row] = day_
@@ -8923,7 +8872,6 @@ def schedule(
 
     busy = {}
     for week, dayhsh in week2day2busy.items():
-        # week (year, week_number)
         busy_tuples = []
         for day in range(1, 8):
             periods = dayhsh.get(day, [])
@@ -9095,16 +9043,11 @@ def import_file(import_file=None):
             f'"{import_file}"\n   either does not exist or is not a regular file',
         )
     filename, extension = os.path.splitext(import_file)
-    # if extension == '.json':
-    #     return True, import_json(import_file)
     if extension == '.text':
         return True, import_text(import_file)
-    # elif extension == '.ics':
-    #     return True, import_ics(import_file)
     else:
         return (
             False,
-            # f"Importing a file with the extension '{extension}' is not implemented. Only 'json', 'text' and 'ics' are recognized",
             f"Importing a file with the extension '{extension}' is not implemented. Only files with the extension '.text' are recognized",
         )
 
@@ -9134,7 +9077,6 @@ def import_examples():
     bad = []
     items = []
 
-    num_examples = len(examples)
     logger.debug(f"starting import from last_id: {last_id}")
     count = 0
     # logger.debug(f"beginning import with last_id {dataview.last_id}")
