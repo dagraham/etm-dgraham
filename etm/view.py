@@ -603,13 +603,11 @@ class ETMQuery(object):
             return False, 'opened query help using default browser'
         try:
             ok, res, updt = self.process_query(query)
-            # logger.debug(f'ok: {ok}; res: {res}; type(res): {type(res)}; updt: {updt}')
             if not ok or isinstance(res, str):
                 logger.debug(f"not ok, returning {res}")
                 return False, res
 
             if isinstance(res, tinydb.table.Document):
-                # logger.debug(f"dealing with Document: {res}")
                 return False, item_details(res)
             else:
                 items = dataview.db.search(res)
@@ -2536,7 +2534,7 @@ def edit_or_add_journal(*event):
     doc_id, entry = dataview.get_details(
         text_area.document.cursor_position_row, True
     )
-    summary = model.format_date(today, separator='-', omit_zeros=False)[1]
+    summary = model.format_date(datetime.today(), separator='-', omit_zeros=False)[1]
     relevant = None
     for it in ETMDB:
         itemtype = it.get('itemtype')
@@ -2564,17 +2562,18 @@ def edit_or_add_journal(*event):
         application.layout.focus(edit_buffer)
     else:
         start = today.strftime("%Y-%m-%d")
-        starting_buffer_text = f"""\
+        starting_buffer_text = ""
+        template = f"""\
 % {summary}
 @s {start} @i {settings['journal_name']}
 @d {today.strftime('%A, %B %-d, %Y')}
 
 """
         item.new_item()
-        edit_buffer.text = starting_buffer_text
         default_buffer_changed(event)
         default_cursor_position_changed(event)
         application.layout.focus(edit_buffer)
+        edit_buffer.text = template
 
 
 @bindings.add('E', filter=is_viewing_or_details & is_item_view)
