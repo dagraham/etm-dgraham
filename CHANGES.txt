@@ -1,4 +1,17 @@
-2024-02-02 360c892 Daniel Graham
+2024-02-03 883cd48 Daniel Graham
+    Tagged version 6.1.5.
+
+2024-02-03 bfa56e6 Daniel Graham
+    Fixed probably longstanding bug in which removing an element from
+    an item while editing, e.g., an @t tag, would apparently succeed
+    but when saving the changes, the removed item would reappear. The
+    standard tinydb update and upsert methods record adding new
+    elements and making changes to existing elements but not removing
+    an existing element. The solution is to obtain the doc_id of the
+    item, delete the item and then insert the new, changed item using
+    the original doc_id.
+
+2024-02-02 48a0e3e Daniel Graham
     Tagged version 6.1.4.
 
 2024-02-02 65ee7b8 Daniel Graham
@@ -213,13 +226,3 @@
 
 2024-01-09 7068d15 Daniel Graham
     Tagged version 6.0.3.
-
-2024-01-09 6f6b2b4 Daniel Graham
-    Lorem tweaks. Enabled copying selection in details, edit and views
-    with Ctrl-C. If text is selected then the selection is copied to
-    the clipboard, otherwise the details, edit or view text is copied.
-
-2024-01-08 5f0fe09 Daniel Graham
-    Update bump.py
-
-    Fixed push command.
