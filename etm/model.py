@@ -856,13 +856,9 @@ item_hsh:    {self.item_hsh}
         return showing, f'from {starting}:\n  ' + '\n  '.join(pairs)
 
     def do_update(self):
-        # self.db.upsert(self.item_hsh, doc_ids=[self.doc_id])
-        # tracemalloc.start()
         try:
-            # timer_update = TimeIt('***UPDATE***')
-            doc = Document(self.item_hsh, self.doc_id)
-            self.db.upsert(doc)
-            # timer_update.stop()
+            self.db.remove(doc_ids=[self.doc_id])
+            self.db.insert(Document(self.item_hsh, doc_id=self.doc_id))
         except Exception as e:
             logger.debug(f"exception: {e}")
         return True
@@ -1309,9 +1305,11 @@ item_hsh:    {self.item_hsh}
                 del self.object_hsh[kv]
             if kv in self.askreply:
                 del self.askreply[kv]
-        self.keyvals = [kv for kv in keyvals]
+            if kv in keyvals:
+                keyvals.remove(kv)
         for kv in changed:
             self.update_keyval(kv)
+        self.keyvals = [kv for kv in keyvals]
 
     def update_keyval(self, kv):
         """
@@ -1352,7 +1350,6 @@ item_hsh:    {self.item_hsh}
 
 
     def check_item_hsh(self):
-        logger.debug("in check_item_hsh")
         created = self.item_hsh.get('created', None)
         self.item_hsh = {'created': created}
         cur_hsh = {}
@@ -1414,6 +1411,7 @@ item_hsh:    {self.item_hsh}
 
     def update_item_hsh(self, check_links=True):
         msg = self.check_item_hsh()
+
         if msg:
             logger.error(msg)
 
@@ -1430,7 +1428,6 @@ item_hsh:    {self.item_hsh}
             self.item_hsh['k'] = [
                 x for x in links if self.db.contains(doc_id=x)
             ]
-
 
 
         if self.is_modified and not msg:
@@ -1634,7 +1631,6 @@ item_hsh:    {self.item_hsh}
         return obj, rep
 
     def do_summary(self, arg):
-        logger.debug(f"item_hsh: {self.item_hsh}")
         if not self.item_hsh['itemtype']:
             return None, 'a valid itemtype must be provided'
         obj, rep = do_string(arg)
@@ -2928,7 +2924,6 @@ class DataView(object):
                         completions.add(f'@k {i} {t} {s} | {d}')
                         # self.kompletions[f"@k {i} {t} {s}: {d}"] = d
 
-        logger.debug(f"### last_id: {self.last_id} ###")
         self.completions = list(completions)
         self.completions.sort()
         for x in  self.completions:

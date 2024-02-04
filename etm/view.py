@@ -3852,7 +3852,6 @@ def save_changes(*event):
 def maybe_save(item):
     # check hsh
     global text_area
-    logger.debug("calling check_item_hsh from maybe_save")
     msg = item.check_item_hsh()
     if msg:
         show_message('Error', ', '.join(msg))
