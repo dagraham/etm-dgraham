@@ -640,7 +640,7 @@ def show_message(title, text, padding=6):
     # prep the message window
     width = shutil.get_terminal_size()[0] - 2
     heading = f'-- {title.rstrip()} --'.center(width, ' ')
-    prompt = '<escape> closes'.center(width, ' ')
+    prompt = '<enter> closes'.center(width, ' ')
     tmp = f"""\
 {heading}
 {text}
@@ -2566,14 +2566,19 @@ def edit_or_add_journal(*event):
         template = f"""\
 % {summary}
 @s {start} @i {settings['journal_name']}
-@d {today.strftime('%A, %B %-d, %Y')}
-
+@d --
+* {today.strftime('%A, %B %-d, %Y')}\
 """
         item.new_item()
         default_buffer_changed(event)
         default_cursor_position_changed(event)
         application.layout.focus(edit_buffer)
         edit_buffer.text = template
+    edit_buffer.text = f"{edit_buffer.text}\n\n** {datetime.now().strftime('%H:%M')}\n   "
+    starting_buffer_text = edit_buffer.text
+    position = edit_buffer.document.get_end_of_document_position()
+    edit_buffer.cursor_position = position
+
 
 
 @bindings.add('E', filter=is_viewing_or_details & is_item_view)

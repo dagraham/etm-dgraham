@@ -203,17 +203,28 @@ class WeekdaySerializer(Serializer):
         """
         Serialize the weekday object.
         """
-        s = WKDAYS_ENCODE[obj.__repr__()]
-        if s.startswith('+'):
-            # drop the leading + sign
-            s = s[1:]
-        return s
+        return format_rrwkday(obj)
 
     def decode(self, s):
         """
         Return the serialization as a weekday object.
         """
-        return eval('dateutil.rrule.{}'.format(WKDAYS_DECODE[s]))
+        return parse_rrwkday(s)
+
+
+def format_rrwkday(obj):
+    s = WKDAYS_ENCODE.get(obj.__repr__(), '').lstrip('+')
+    if s is None:
+        raise ValueError(f'{obj} is not a dateutil rrule weekday instance')
+    return s
+
+
+def parse_rrwkday(s):
+    s = WKDAYS_DECODE.get(s, '')
+    if not s:
+        raise ValueError(f'{s} is not a valid rrule weekday expression')
+    obj = eval(f'dateutil.rrule.{s}')
+    return obj
 
 
 ########################################

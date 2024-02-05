@@ -113,14 +113,24 @@ WKDAYS_DECODE = {
     for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
     for n in ['-4', '-3', '-2', '-1', '', '1', '2', '3', '4']
 }
+
 WKDAYS_ENCODE = {
     '{0}({1})'.format(d, n): '{0}{1}'.format(n, d) if n else d
     for d in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
     for n in ['-4', '-3', '-2', '-1', '+1', '+2', '+3', '+4']
 }
+
 # without integer prefixes
 for wkd in ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']:
     WKDAYS_ENCODE[wkd] = wkd
+
+# print(f'WKDAYS_DECODE:\n{WKDAYS_DECODE}')
+# print(f'WKDAYS_ENCODE:\n{WKDAYS_ENCODE}')
+# WKDAYS_DECODE:
+# {'-4MO': 'MO(-4)', '-3MO': 'MO(-3)', '-2MO': 'MO(-2)', '-1MO': 'MO(-1)', 'MO': 'MO', '1MO': 'MO(1)', '2MO': 'MO(2)', '3MO': 'MO(3)', '4MO': 'MO(4)', '-4TU': 'TU(-4)', '-3TU': 'TU(-3)', '-2TU': 'TU(-2)', '-1TU': 'TU(-1)', 'TU': 'TU', '1TU': 'TU(1)', '2TU': 'TU(2)', '3TU': 'TU(3)', '4TU': 'TU(4)', '-4WE': 'WE(-4)', '-3WE': 'WE(-3)', '-2WE': 'WE(-2)', '-1WE': 'WE(-1)', 'WE': 'WE', '1WE': 'WE(1)', '2WE': 'WE(2)', '3WE': 'WE(3)', '4WE': 'WE(4)', '-4TH': 'TH(-4)', '-3TH': 'TH(-3)', '-2TH': 'TH(-2)', '-1TH': 'TH(-1)', 'TH': 'TH', '1TH': 'TH(1)', '2TH': 'TH(2)', '3TH': 'TH(3)', '4TH': 'TH(4)', '-4FR': 'FR(-4)', '-3FR': 'FR(-3)', '-2FR': 'FR(-2)', '-1FR': 'FR(-1)', 'FR': 'FR', '1FR': 'FR(1)', '2FR': 'FR(2)', '3FR': 'FR(3)', '4FR': 'FR(4)', '-4SA': 'SA(-4)', '-3SA': 'SA(-3)', '-2SA': 'SA(-2)', '-1SA': 'SA(-1)', 'SA': 'SA', '1SA': 'SA(1)', '2SA': 'SA(2)', '3SA': 'SA(3)', '4SA': 'SA(4)', '-4SU': 'SU(-4)', '-3SU': 'SU(-3)', '-2SU': 'SU(-2)', '-1SU': 'SU(-1)', 'SU': 'SU', '1SU': 'SU(1)', '2SU': 'SU(2)', '3SU': 'SU(3)', '4SU': 'SU(4)'}
+# WKDAYS_ENCODE:
+# {'MO(-4)': '-4MO', 'MO(-3)': '-3MO', 'MO(-2)': '-2MO', 'MO(-1)': '-1MO', 'MO(+1)': '+1MO', 'MO(+2)': '+2MO', 'MO(+3)': '+3MO', 'MO(+4)': '+4MO', 'TU(-4)': '-4TU', 'TU(-3)': '-3TU', 'TU(-2)': '-2TU', 'TU(-1)': '-1TU', 'TU(+1)': '+1TU', 'TU(+2)': '+2TU', 'TU(+3)': '+3TU', 'TU(+4)': '+4TU', 'WE(-4)': '-4WE', 'WE(-3)': '-3WE', 'WE(-2)': '-2WE', 'WE(-1)': '-1WE', 'WE(+1)': '+1WE', 'WE(+2)': '+2WE', 'WE(+3)': '+3WE', 'WE(+4)': '+4WE', 'TH(-4)': '-4TH', 'TH(-3)': '-3TH', 'TH(-2)': '-2TH', 'TH(-1)': '-1TH', 'TH(+1)': '+1TH', 'TH(+2)': '+2TH', 'TH(+3)': '+3TH', 'TH(+4)': '+4TH', 'FR(-4)': '-4FR', 'FR(-3)': '-3FR', 'FR(-2)': '-2FR', 'FR(-1)': '-1FR', 'FR(+1)': '+1FR', 'FR(+2)': '+2FR', 'FR(+3)': '+3FR', 'FR(+4)': '+4FR', 'SA(-4)': '-4SA', 'SA(-3)': '-3SA', 'SA(-2)': '-2SA', 'SA(-1)': '-1SA', 'SA(+1)': '+1SA', 'SA(+2)': '+2SA', 'SA(+3)': '+3SA', 'SA(+4)': '+4SA', 'SU(-4)': '-4SU', 'SU(-3)': '-3SU', 'SU(-2)': '-2SU', 'SU(-1)': '-1SU', 'SU(+1)': '+1SU', 'SU(+2)': '+2SU', 'SU(+3)': '+3SU', 'SU(+4)': '+4SU', 'MO': 'MO', 'TU': 'TU', 'WE': 'WE', 'TH': 'TH', 'FR': 'FR', 'SA': 'SA', 'SU': 'SU'}
+
 
 AWARE_FMT = '%Y%m%dT%H%MA'
 NAIVE_FMT = '%Y%m%dT%H%MN'

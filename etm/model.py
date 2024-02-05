@@ -38,6 +38,7 @@ from prompt_toolkit.styles import Style
 from dateutil import rrule as dr
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
+from dateutil.rrule import MO, TU, WE, TH, FR, SA, SU
 
 # for saving timers
 import pickle
@@ -1355,6 +1356,7 @@ item_hsh:    {self.item_hsh}
         cur_hsh = {}
         cur_key = None
         msg = []
+        logger.debug(f"pos_hsh: {self.pos_hsh}")
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if obj is None:
@@ -4587,10 +4589,16 @@ def ordinal(num):
 
 
 def one_or_more(s):
+    def _str(s):
+        s = str(s)
+        if s in WKDAYS_ENCODE:
+            return WKDAYS_ENCODE[s].lstrip('+')
+        else:
+            return s
     if type(s) is list:
-        return ', '.join([str(x) for x in s])
+        return ', '.join([_str(x) for x in s])
     else:
-        return str(s)
+        return _str(s)
 
 
 def do_string(arg):
@@ -5433,12 +5441,17 @@ def do_weekdays(arg):
             if m:
                 # fix 3 char weekdays, e.g., -2FRI -> -2FR
                 x = f'{m[1]}{m[2][:2]}'
+            logger.debug(f"examining weekday: '{x}'")
             if x in WKDAYS_DECODE:
                 good.append(eval('dr.{}'.format(WKDAYS_DECODE[x])))
                 rep.append(x)
             elif x in WKDAYS_ENCODE:
-                good.append(eval(x))
-                rep.append(WKDAYS_ENCODE[x])
+                try:
+                    good.append(eval(x))
+                except Exception as e:
+                    logger.debug(f"exception: {e} when evaluating '{x}'")
+
+                rep.append(WKDAYS_ENCODE[x].lstrip('+'))
             else:
                 bad.append(x)
         if bad:
