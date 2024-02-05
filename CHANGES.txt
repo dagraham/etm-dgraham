@@ -1,4 +1,10 @@
-2024-02-05 4c31042 Daniel Graham
+2024-02-05 6d2f07e Daniel Graham
+    Tagged version 6.1.7.
+
+2024-02-05 3c257da Daniel Graham
+    Update object_hsh for all keyvals.
+
+2024-02-05 0225f8f Daniel Graham
     Tagged version 6.1.6.
 
 2024-02-05 41e4c7a Daniel Graham
@@ -222,9 +228,3 @@
 
 2024-01-10 2ed6d17 Daniel Graham
     Merge branch 'working' into working6
-
-2024-01-10 22e6751 Daniel Graham
-    Merge remote-tracking branch 'origin/master' into master6
-
-2024-01-09 f601318 Daniel Graham
-    Corrected check updates to get version number from master6.
