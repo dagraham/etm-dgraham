@@ -1308,7 +1308,7 @@ item_hsh:    {self.item_hsh}
                 del self.askreply[kv]
             if kv in keyvals:
                 keyvals.remove(kv)
-        for kv in changed:
+        for kv in [x for x in keyvals if x not in removed]:
             self.update_keyval(kv)
         self.keyvals = [kv for kv in keyvals]
 
@@ -1356,8 +1356,9 @@ item_hsh:    {self.item_hsh}
         cur_hsh = {}
         cur_key = None
         msg = []
-        logger.debug(f"pos_hsh: {self.pos_hsh}")
+        # logger.debug(f"pos_hsh: {self.pos_hsh}")
         for pos, (k, v) in self.pos_hsh.items():
+            # logger.debug(f"looking for {(k,v)} in obj_hsh: {self.object_hsh}")
             obj = self.object_hsh.get((k, v))
             if obj is None:
                 msg.append(f'bad entry for {k}: {v}')
@@ -4591,9 +4592,12 @@ def ordinal(num):
 def one_or_more(s):
     def _str(s):
         s = str(s)
+        # logger.debug(f"s: {s}")
         if s in WKDAYS_ENCODE:
+            # logger.debug(f"in WKDAYS_ENCODE: {WKDAYS_ENCODE[s]}")
             return WKDAYS_ENCODE[s].lstrip('+')
         else:
+            # logger.debug(f"not in WKDAYS_ENCODE")
             return s
     if type(s) is list:
         return ', '.join([_str(x) for x in s])
