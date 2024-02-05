@@ -1,4 +1,13 @@
-2024-02-03 883cd48 Daniel Graham
+2024-02-05 4c31042 Daniel Graham
+    Tagged version 6.1.6.
+
+2024-02-05 41e4c7a Daniel Graham
+    Fixed bug in processing weekday entries in rrule specifications,
+    e.g., '@r m &w 2TH'. Problem arises from the fact that the
+    dateutil.rrule.weekday string representation for '2TH' is 'TH(+2)'
+    which differs from the '2TH' needed by etm.
+
+2024-02-03 80170b2 Daniel Graham
     Tagged version 6.1.5.
 
 2024-02-03 bfa56e6 Daniel Graham
@@ -219,10 +228,3 @@
 
 2024-01-09 f601318 Daniel Graham
     Corrected check updates to get version number from master6.
-
-2024-01-09 1e98f61 Daniel Graham
-    Improved explanation of refresh_interval and usedtime_minutes in
-    options.py
-
-2024-01-09 7068d15 Daniel Graham
-    Tagged version 6.0.3.
