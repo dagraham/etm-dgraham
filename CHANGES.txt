@@ -1,4 +1,10 @@
-2024-02-05 6d2f07e Daniel Graham
+2024-02-07 b8481c1 Daniel Graham
+    Tagged version 6.1.8.
+
+2024-02-07 415aec7 Daniel Graham
+    Fixed bug in processing keyvals in text_changed.
+
+2024-02-05 d44dba2 Daniel Graham
     Tagged version 6.1.7.
 
 2024-02-05 3c257da Daniel Graham
@@ -222,9 +228,3 @@
 2024-01-10 e239fa6 Daniel Graham
     Tagged version 6.0.4. Github modifications: master6 -> master;
     working6 -> working. etm 6 is now the official (and only) release.
-
-2024-01-10 2803ca7 Daniel Graham
-    Back from working6 and master6 to working and master.
-
-2024-01-10 2ed6d17 Daniel Graham
-    Merge branch 'working' into working6
