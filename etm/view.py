@@ -2561,7 +2561,7 @@ def edit_or_add_journal(*event):
         default_cursor_position_changed(event)
         application.layout.focus(edit_buffer)
     else:
-        start = today.strftime("%Y-%m-%d")
+        start = datetime.today().strftime("%Y-%m-%d")
         starting_buffer_text = ""
         template = f"""\
 % {summary}
@@ -2576,8 +2576,15 @@ def edit_or_add_journal(*event):
         edit_buffer.text = template
     edit_buffer.text = f"{edit_buffer.text}\n\n** {datetime.now().strftime('%H:%M')}\n   "
     starting_buffer_text = edit_buffer.text
+    lines_in_buffer = len(edit_buffer.text.split('\n'))
     position = edit_buffer.document.get_end_of_document_position()
-    edit_buffer.cursor_position = position
+    logger.debug(f"end_of_document: {position}; lines: {lines_in_buffer}")
+    for i in range(lines_in_buffer):
+        edit_buffer.cursor_down()
+    for i in range(3):
+        edit_buffer.cursor_right()
+
+    # edit_buffer.cursor_position = position
 
 
 

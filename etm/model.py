@@ -629,10 +629,10 @@ def active_from_pos(pos_hsh, pos):
 class Item(dict):
     """ """
     # def __init__(self, doc_id=None, s=""):
-    def __init__(self, dbfile=None):
+    def __init__(self, dbfile=None, entry=""):
         """ """
         self.doc_id = None
-        self.entry = ''
+        self.entry = entry
         self.init_entry = ''
         self.is_new = True
         self.is_modified = False
@@ -1281,12 +1281,15 @@ item_hsh:    {self.item_hsh}
         # ((17, 24), ('e', '90m'))
         self.interval, self.active = active_from_pos(self.pos_hsh, pos)
 
+
     def text_changed(self, s, pos, modified=True):
         """ """
         # self.is_modified = modified
+        # logger.debug(f"\n### starting text_changed with s: {s} and self.keyvals: {self.keyvals}")
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s, self.settings)
         removed, changed = listdiff(self.keyvals, keyvals)
+        # logger.debug(f" pos_hsh: {self.pos_hsh}; keyvals: {keyvals}\nremoved: {removed}; changed: {changed}")
         # if removed + changed != []:
         if self.init_entry != self.entry:
             self.is_modified = True
@@ -1298,7 +1301,7 @@ item_hsh:    {self.item_hsh}
                 break
         if update_timezone:
             changed += [
-                kv for kv in self.keyvals if kv[0] in ['s', 'ru', '+', '-']
+                kv for kv in keyvals if kv[0] in ['s', 'ru', '+', '-']
             ]
 
         for kv in removed:
@@ -1308,36 +1311,48 @@ item_hsh:    {self.item_hsh}
                 del self.askreply[kv]
             if kv in keyvals:
                 keyvals.remove(kv)
+        self.keyvals = []
         for kv in [x for x in keyvals if x not in removed]:
+            # logger.debug(f"updating kv: {kv}")
             self.update_keyval(kv)
-        self.keyvals = [kv for kv in keyvals]
+            self.keyvals.append(kv)
+        # logger.debug(f"### leaving text_changed with self.keyvals: {self.keyvals}\n")
 
     def update_keyval(self, kv):
         """
         TODO: add return status
         """
         key, val = kv
+        # logger.debug(f"starting update_keyval with self.keyvals: {self.keyvals}")
 
         condition = 'f' in key
 
+        # logger.debug(f"checking kv: {kv}")
         if key in self.keys:
+            # logger.debug(f"found kv: {kv}")
             a, r, do = self.keys[key]
             ask = a
             msg = self.check_allowed(key)
+            # logger.debug(f"got msg: {msg} when checking {kv} allowed")
             if msg:
                 obj = None
                 reply = msg
             else:   # only do this for allowed keys
                 msg = self.check_requires(key)
+                # logger.debug(f"got msg: {msg} checking required for {key}")
                 if msg:
+                    # logger.debug(f"failed required, self: {self}")
                     obj = None
                     reply = msg
                 else:
                     # call the appropriate do for the key
                     obj, rep = do(val)
                     reply = rep if rep else r
+                    # logger.debug(f"got obj: {obj}, rep: {rep} from {val}")
                     if obj is not None:
                         self.object_hsh[kv] = obj
+                        # logger.debug(f"added {kv[0]}: {obj} to obj_hsh: {self.object_hsh}")
+                        # self.item_hsh[kv[0]] = obj
                     else:
                         if kv in self.object_hsh:
                             del self.object_hsh[kv]
@@ -1348,6 +1363,7 @@ item_hsh:    {self.item_hsh}
                 'unrecognized key',
                 f'{display_key} is invalid',
             )
+        # logger.debug(f"leaving update_keyval with self.keyvals: {self.keyvals}")
 
 
     def check_item_hsh(self):
@@ -1358,7 +1374,7 @@ item_hsh:    {self.item_hsh}
         msg = []
         # logger.debug(f"pos_hsh: {self.pos_hsh}")
         for pos, (k, v) in self.pos_hsh.items():
-            # logger.debug(f"looking for {(k,v)} in obj_hsh: {self.object_hsh}")
+            # logger.debug(f"looking for {(k,v)} in object_hsh: {self.object_hsh}")
             obj = self.object_hsh.get((k, v))
             if obj is None:
                 msg.append(f'bad entry for {k}: {v}')
@@ -1455,9 +1471,11 @@ item_hsh:    {self.item_hsh}
         Check that key has the prerequisite entries.
         if key in requires, check that each key in requires[k] has a corresponding key, val in keyvals: [(k, v), (k, v), ...]
         """
+        # logger.debug(f"self.keyvals: {self.keyvals}")
         missing = []
         if key in requires:
             cur_keys = [k for (k, v) in self.keyvals]
+            # logger.debug(f"checking cur_keys {cur_keys} for required key {key}")
             missing = [f'@{k[0]}' for k in requires[key] if k not in cur_keys]
 
         if missing:
@@ -3765,7 +3783,7 @@ class DataView(object):
         else:
             self.pinned_list.append(item_id)
             act = 'pinned'
-        logger.debug(f'toggle_pinned for {item_id} to {act}')
+        # logger.debug(f'toggle_pinned for {item_id} to {act}')
         logger.debug(f'pinned_list: {self.pinned_list}')
         return f'{act} {item_id}'
 
@@ -5445,7 +5463,7 @@ def do_weekdays(arg):
             if m:
                 # fix 3 char weekdays, e.g., -2FRI -> -2FR
                 x = f'{m[1]}{m[2][:2]}'
-            logger.debug(f"examining weekday: '{x}'")
+            # logger.debug(f"examining weekday: '{x}'")
             if x in WKDAYS_DECODE:
                 good.append(eval('dr.{}'.format(WKDAYS_DECODE[x])))
                 rep.append(x)
@@ -5751,7 +5769,7 @@ def get_next_due(item, done, due, from_rrule=False):
     """
     return the next due datetime for an @r and @+ / @- repetition
     """
-    logger.debug(f"get_next_due for {item}, {done}, {due}, {from_rrule}")
+    # logger.debug(f"get_next_due for {item}, {done}, {due}, {from_rrule}")
     lofh = item.get('r')
     if not lofh:
         return ''
@@ -9151,11 +9169,15 @@ def import_text(import_file=None):
                 reminder.append(s)
         if reminder:
             reminders.append(reminder)
+    count = 0
     for reminder in reminders:
+        count += 1
+        logger.debug(f"reminder number {count}: {reminder}")
         ok = True
         s = '\n'.join(reminder)
         if not s:
             continue
+        logger.debug(f"adding item for {s}")
         item = Item()  # use ETMDB by default
         item.new_item()
         item.text_changed(s, 1)
@@ -9165,14 +9187,22 @@ def import_text(import_file=None):
         if item.item_hsh.get('summary', None) is None:
             ok = False
 
-        if not ok:
-            bad += 1
-            results.append(f'   {s}')
-            continue
+        if ok:
+            # don't check links because the ids won't yet exist
+            item.update_item_hsh(check_links=False)
+            good.append(f'{item.doc_id}')
+        else:
+            logger.debug(f"bad entry: {s}")
+            bad.append(s)
+
+        # if not ok:
+        #     bad += 1
+        #     results.append(f'   {s}')
+        #     continue
 
         # update_item_hsh stores the item in ETMDB
-        item.update_item_hsh()
-        good.append(f'{item.doc_id}')
+        # item.update_item_hsh()
+        # good.append(f'{item.doc_id}')
 
     res = f'imported {len(good)} items'
     if good:
