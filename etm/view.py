@@ -3593,6 +3593,12 @@ def next_id(*event):
     text_area.buffer.cursor_position = (
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
     )
+    if is_showing_details():
+        tmp = dataview.get_details(text_area.document.cursor_position_row)[1]
+        if tmp:
+            dataview.show_details()
+            details_area.text = tmp.rstrip()
+            application.layout.focus(text_area)
 
 
 @bindings.add('up', filter=is_not_busy_view & is_not_yearly_view & is_viewing)
@@ -3619,6 +3625,12 @@ def previous_id(*event):
     text_area.buffer.cursor_position = (
         text_area.buffer.document.translate_row_col_to_index(next_row, 0)
     )
+    if is_showing_details():
+        tmp = dataview.get_details(text_area.document.cursor_position_row)[1]
+        if tmp:
+            dataview.show_details()
+            details_area.text = tmp.rstrip()
+            application.layout.focus(text_area)
 
 
 @bindings.add('c-p', filter=is_viewing)
@@ -3751,7 +3763,7 @@ def show_details(*event):
         if tmp:
             dataview.show_details()
             details_area.text = tmp.rstrip()
-            application.layout.focus(details_area)
+            application.layout.focus(text_area)
 
 
 @bindings.add(
