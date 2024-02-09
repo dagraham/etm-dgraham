@@ -245,7 +245,6 @@ class Settings:
         'type_colors': dict2yaml(type_colors),  # user modifications only
         'window_colors': dict2yaml(window_colors),  # user modifications only
         'journal_name': journal_name,
-        'journal_summary': '%a %-d',
         'etmversion': etmversion,
     }
 

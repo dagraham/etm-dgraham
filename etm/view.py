@@ -2515,6 +2515,7 @@ def ordinal_day_and_weekday(d: datetime)->str:
 def edit_or_add_journal(*event):
     global item
     global starting_buffer_text
+    now = datetime.now()
     app = get_app()
     app.editing_mode = (
         EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
@@ -2528,31 +2529,26 @@ def edit_or_add_journal(*event):
     dataview.current_row = text_area.document.cursor_position_row
     dataview.is_editing = True
     dataview.control_z_active = False
-    summary_fmt = settings['journal_summary']
+    # summary_fmt = settings['journal_summary']
 
     journal_name = settings.get('journal_name')
     doc_id, entry = dataview.get_details(
         text_area.document.cursor_position_row, True
     )
-    summary = model.format_date(datetime.today(), separator='-', omit_zeros=False)[1]
+    # summary = model.format_date(datetime.today(), separator='-', omit_zeros=False)[1]
+    summary = now.strftime("%Y-%m-%d")
     relevant = None
     for it in ETMDB:
-        itemtype = it.get('itemtype')
-        index = it.get('i')
-        start = it.get('s')
-        if isinstance(start, datetime):
-            start = start.date()
-        logger.debug(f"itemtype: {itemtype}; index: {index}; journal_name: {journal_name}; start: {start}; today: {today.date()}")
-        if itemtype == '%' and index == journal_name and start and start == date.today():
+        if it.get('itemtype') != '%':
+            continue
+        if it.get('i') != journal_name:
+            continue
+        if it.get('summary') == summary:
             relevant = it
             break
     logger.debug(f"relevant: {relevant}")
-    doc_id, entry = dataview.get_details(
-        text_area.document.cursor_position_row, True
-    )
     if relevant:
         doc_id = relevant.doc_id
-        relevant['summary'] = summary
         entry = item_details(relevant, True)
         item.edit_item(doc_id, entry)
         edit_buffer.text = item.entry
@@ -2561,27 +2557,26 @@ def edit_or_add_journal(*event):
         default_cursor_position_changed(event)
         application.layout.focus(edit_buffer)
     else:
-        start = datetime.today().strftime("%Y-%m-%d")
         starting_buffer_text = ""
         template = f"""\
 % {summary}
-@s {start} @i {settings['journal_name']}
-@d --
-* {today.strftime('%A, %B %-d, %Y')}\
+@i {journal_name}
+@d {now.strftime('%A, %B %-d, %Y')}\
 """
         item.new_item()
         default_buffer_changed(event)
         default_cursor_position_changed(event)
         application.layout.focus(edit_buffer)
         edit_buffer.text = template
-    edit_buffer.text = f"{edit_buffer.text}\n\n** {datetime.now().strftime('%H:%M')}\n   "
+    # cursor_right below will move over just to the end of '\n   - '
+    edit_buffer.text = f"{edit_buffer.text}\n\n* {now.strftime('%H:%M')}\n  - "
     starting_buffer_text = edit_buffer.text
     lines_in_buffer = len(edit_buffer.text.split('\n'))
     position = edit_buffer.document.get_end_of_document_position()
     logger.debug(f"end_of_document: {position}; lines: {lines_in_buffer}")
     for i in range(lines_in_buffer):
         edit_buffer.cursor_down()
-    for i in range(3):
+    for i in range(4):
         edit_buffer.cursor_right()
 
     # edit_buffer.cursor_position = position

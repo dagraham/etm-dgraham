@@ -41,6 +41,12 @@ def word():
     return lorem.sentence()[:-1].split(' ')[0]
 
 
+def note_time():
+    hour = random.choice(range(6, 18))
+    minute = random.choice(range(0, 60))
+    return f'{hour:02}:{minute:02}'
+
+
 def days_or_weeks():
     return random.choice(['d', 'w'])
 
@@ -156,7 +162,10 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
 """
     )
 
-    for _ in range(num_items):
+    daily = []
+
+    while len(examples) < num_items:
+        # for _ in range(num_items):
         t = random.choice(types)
         summary = phrase()
         start = random.choice(datetimes)
@@ -190,7 +199,13 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
                 used += f'@u {u}m: {e} '
 
         if t == '%' and start <= now:
-            examples.append(f'{t} {summary} @s {s} @i #daily @d {d} @t lorem')
+            summary = start.strftime('%Y-%m-%d')
+            if summary not in daily:
+                daily.append(summary)
+                description = start.strftime('%A, %B %-d %Y')
+                examples.append(
+                    f'{t} {summary} @i #daily @t lorem @d {description}\n\n* {note_time()}\n  - {phrase()}'
+                )
 
         elif t == '*':
             if date:      # an event

@@ -86,6 +86,7 @@ def sortprd(prd):
 
 PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
 KONNECT_REGEX = re.compile(r'^.+:\s+(\d+)\s*$')
+YMD_REGEX = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}')  # 4-digit year - 2-digit month - 2-digit month day
 
 # The style sheet for terminal output
 style = Style.from_dict(
@@ -4903,7 +4904,8 @@ entry_tmpl = """\
 @{{ k }} {{ nowrap(dtlst2str(h[k])) }} \
 {%- endif %}\
 {%- endfor %}\
-{% if 'd' in h %}
+{% if 'd' in h %}\
+
 @d {{ nowrap(h['d'], 0) }} \
 {% endif -%}
 {%- if 'j' in h %}\
@@ -5009,13 +5011,14 @@ display_tmpl = """\
 @o {{ h['o'] }}{% endif %} \
 {% endif %}\
 {% for k in ['+', '-'] %}\
-{% if k in h and h[k] %}
-@{{ k }} {{ wrap(dtlst2str(h[k])) }} \
+{% if k in h and h[k] %}\
+@{{ k }} {{ wrap(dtlst2str(h[k])) }}\
 {%- endif %}\
 {%- endfor %}\
-{% if 'd' in h %}
+{% if 'd' in h %}\
+
 @d {{ wrap(h['d'], 0) }} \
-{% endif -%}
+{% endif -%}\
 {%- if 'j' in h %}\
 {%- for x in h['j'] %}\
 {%- set job -%}\
@@ -7829,11 +7832,21 @@ def show_journal(
     journal grouped by index entry
     """
     rows = []
+    journal_name = settings.get('journal_name')
     for item in db:
-        doc_id = item.doc_id
-        if item['itemtype'] != '%':
+        itemtype = item.get('itemtype')
+        if itemtype != '%':
             continue
-        s = item.get('s', None)
+        doc_id = item.doc_id
+        summary = item.get('summary')
+        index = item.get('i', '~')
+
+        if YMD_REGEX.match(summary) and index == journal_name:
+            DAILY = True
+            s = parse_datetime(summary)[1]
+        else:
+            DAILY = False
+            s = item.get('s', None)
         if s:
             ss = date_to_datetime(s).timestamp()
             year = s.strftime("%Y")
@@ -7841,23 +7854,20 @@ def show_journal(
         else:
             ss = 0.0
             year = month = ''
-        index = item.get('i', '~')
+
         if s:
-            if index == settings['journal_name']:
+            if DAILY:
                 # this is a 'daily' entry
                 # sort = (index, -int(s.strftime('%Y')), -int(s.strftime('%m')), -int(s.strftime('%d')))
-                sort = (index, -ss, item['summary'])
+                sort = (index, -ss, summary)
                 path = f'{index}/{year}/{month}'
-                # summary = s.strftime(settings['journal_summary'])
-                ok, summary = format_date(s,separator='-',omit_zeros=False)
             else:
-                sort = (index, ss, item['summary'])
+                sort = (index, ss, summary)
                 path = index
-                summary = f"{item['summary']}"
         else:
             sort = (index, ss, item['summary'])
             path = index
-            summary = f"{item['summary']}"
+
 
         itemtype = item['itemtype']
         flags = get_flags(
