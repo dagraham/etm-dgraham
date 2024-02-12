@@ -867,6 +867,8 @@ item_hsh:    {self.item_hsh}
 
     def do_insert(self):
         # timer_insert = TimeIt('***INSERT***')
+        if 'created' not in self.item_hsh:
+            self.item_hsh['created'] = datetime.now().astimezone()
         doc_id = self.db.insert(self.item_hsh)
         # timer_insert.stop()
         return doc_id
@@ -2701,7 +2703,8 @@ class NDict(dict):
                         tmp = f'{indent}{leaf[0]} {rhc}{summary}{flags}'
 
                     self.output.append(tmp)
-                    self.row2id[self.row] = leaf[4]
+                    if leaf[0] not in [wrapbefore, wrapafter]:
+                        self.row2id[self.row] = leaf[4]
                     self.row += 1
                     if len(leaf) > 5:
                         lines = self.leaf_detail(leaf[5], depth)
@@ -3008,13 +3011,14 @@ class DataView(object):
         self.konnections_to = {}
         self.konnections_from = {}
         self.konnected = []
-
+        all_ids = [item.doc_id for item in self.db]
         for item in self.db:
             doc_id = item.doc_id
             if 'k' in item and item['k']:
                 for id in item['k']:
-                    self.konnections_from.setdefault(doc_id, []). append(id)
-                    self.konnections_to.setdefault(id, []).append(doc_id)
+                    if id in all_ids:
+                        self.konnections_from.setdefault(doc_id, []). append(id)
+                        self.konnections_to.setdefault(id, []).append(doc_id)
         konnected = [x for x in self.konnections_to] + [
             x for x in self.konnections_from
         ]
@@ -7426,9 +7430,10 @@ def show_query_items(
                 'values': [itemtype, summary, flags, rhc, doc_id],
             }
         )
-    if len(rows) == 1:
-        ok, res = rows[0]
-        return item_details(res), {}
+    # if len(rows) == 1:
+    #     logger.debug(f"rows[0]: {rows[0]}")
+    #     res = rows[0]
+    #     return item_details(res), {}
 
     rdict = NDict()
     path = f'query: {text[:summary_width]}{item_count}'

@@ -211,7 +211,7 @@ class Settings:
     style = 'dark'
     type_colors = ''
     window_colors = ''
-    journal_name = '# daily'
+    journal_name = '#daily'
 
     # use these to format the template
     settings_hsh = {
@@ -393,7 +393,7 @@ usedtime_minutes: {usedtime_minutes}
 # usedtime_minutes = 12, a used time entry of 15 minutes would be rounded
 # up to the nearest multiple of 12 or to 24 minutes = 0.4 hours for
 # reporting in the used time views. This setting does not affect how the
-# times are recorded but only how they are reported in used time views.
+# times are recorded but only how they are reported in usedtime views.
 
 usedtime_hours: {usedtime_hours}
 # 0, 1, 2, ..., 24. The daily goal for used time. This is used in
@@ -405,16 +405,17 @@ usedtime_hours: {usedtime_hours}
 # or more hours.
 
 journal_name: '{journal_name}'
-# Journal items with this index entry and with an @s entry will have
-# the year and month appended to the index. E.g., with the setting
-#   journal_name: '# daily'
+# Journal items with this index entry and with a summary in 'yyyy-mm-dd'
+# format will have the year and month appended to the index. E.g., with
+# the setting
+#   journal_name: '#daily'
 # this journal entry
-#   % visited Yellowstone @s 22/10/24 @i # daily
+#   % 2022/10/24 @i #daily
 # would be displayed in journal view as if the index entry were
 #   @i # daily/2022/10
 # thus organizing such entries by the year and month and, within each
-# month, also by the month day. The '#' places '# daily' near the top
-# in journal with daily entries sorted in reverse order so that the
+# month, by the month day. The '#' places '#daily' near the top in
+# journal with daily entries sorted in reverse order so that the
 # most recent entries are always at the top.
 #
 # Pressing 'J' in any view will open a daily journal entry for the
@@ -518,10 +519,17 @@ queries: {queries}
 #    td: m l -q equals itemtype - and ~exists f
 #    mi: exists u and ~exists i
 #    arch: a exists itemtype
-#    find: includes summary d {{}}
-# The latter would allow you to enter, e.g., `find waldo` and have
+#    lorem: any t lorem | remove
+#    daily: in i {journal_name} and in d {{}}
+#    find: in summary d {{}}
+# 'find' would allow you to enter, e.g., `find waldo` and have
 # it expand to `includes summary d waldo` and thus locate all
 # reminders with `waldo` either in the summary or d (the description).
+# 'lorem' would identify every item that has 'lorem' as a tag and
+# remove them - thus deleting all the lorem examples. 'daily' would
+# allow you to enter, e.g., 'daily whatever' and have it expand to
+# `in i {journal_name} and in d whatever` thus identifying every
+# daily note that contains 'whatever' in the description.
 
 style: {style}
 # dark or light. Set the defaults for dark or light terminal

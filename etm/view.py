@@ -1999,7 +1999,8 @@ details_area = TextArea(
     style='class:details',
     read_only=True,
     scrollbar=True,
-    search_field=None,
+    focus_on_click=True,
+    search_field=search_field,
 )
 
 
@@ -3394,7 +3395,7 @@ def review_view(*event):
 
 
 
-@bindings.add('k', filter=is_viewing & is_not_showing_konnected)
+@bindings.add('k', filter=is_viewing & is_not_showing_konnected & is_not_editing)
 def konnected_view(*event):
     doc_id, entry = dataview.get_details(
         text_area.document.cursor_position_row, True
@@ -3409,7 +3410,7 @@ def konnected_view(*event):
                 konnected_row, 0)
             )
 
-@bindings.add('k', filter=is_showing_konnected & is_not_showing_konnections)
+@bindings.add('k', filter=is_showing_konnected & is_not_showing_konnections & is_not_editing)
 def get_konnections(*event):
     if not dataview.active_view == 'konnected':
         return
@@ -3988,7 +3989,7 @@ root_container = MenuContainer(
             'edit',
             children=[
                 MenuItem('+) add new item', handler=edit_new),
-                MenuItem('J) edit today\'s journal entry', handler=edit_or_add_journal),
+                MenuItem('J) jot it down', handler=edit_or_add_journal),
                 MenuItem('-', disabled=True),
                 MenuItem('^g) test goto link', handler=do_goto),
                 MenuItem('^r) show repetitions', handler=is_editing_reps),
