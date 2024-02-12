@@ -1,4 +1,29 @@
-2024-02-07 b8481c1 Daniel Graham
+2024-02-12 34ef252 Daniel Graham
+    Tagged version 6.1.9.
+
+2024-02-12 6059ead Daniel Graham
+    corrected erroneous change to __version__.py
+
+2024-02-12 ba39b1c Daniel Graham
+    In row2id, skip 'wrapper' rows. When creating @K inbox entries
+    insure that 'created' is added. In populating konnections_from and
+    konnections_to, make sure that doc_ids correspond to existing data
+    entries. Added focus_on_click and search_field to details_area.
+    Require is_not_editing for 'k' binding in showing_konnections.
+    Changed menu name for 'J' to 'jot it down'.
+
+2024-02-09 0caec39 Daniel Graham
+    Simplified format for journal daily. No @s entry, take the
+    datetime from the summary. Format @d with weekday, long format
+    datetime and then modified norg headings for hour:minute entry
+    timestamps. Remove extra linebread in jinsa template for @d.
+
+2024-02-08 dcf36bd Daniel Graham
+    <enter> toggles showing details leaving text_area in focus. When
+    details is showing, up|down moves selection to previous|next item
+    and shows details for the current selection.
+
+2024-02-07 5e819fc Daniel Graham
     Tagged version 6.1.8.
 
 2024-02-07 415aec7 Daniel Graham
@@ -211,20 +236,3 @@
 
 2024-01-10 7ded0b3 Daniel Graham
     restored bump.py changes
-
-2024-01-10 e61af52 Daniel Graham
-    Tagged version 6.0.5. Testing update procedure and tagging.
-
-2024-01-10 e460628 Daniel Graham
-    Tagged version 6.0.4. Back to master and working in github - etm 6
-    is now the official and only release
-
-2024-01-10 a3c1111 Daniel Graham
-    Fixed CHANGES.txt
-
-2024-01-10 b1312df Daniel Graham
-    bump fix
-
-2024-01-10 e239fa6 Daniel Graham
-    Tagged version 6.0.4. Github modifications: master6 -> master;
-    working6 -> working. etm 6 is now the official (and only) release.
