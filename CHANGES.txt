@@ -1,4 +1,11 @@
-2024-02-12 34ef252 Daniel Graham
+2024-02-13 57f439b Daniel Graham
+    Tagged version 6.1.10.
+
+2024-02-13 f4ac9a4 Daniel Graham
+    Fixed bug in processing do_reschedule when an empty string is
+    returned.
+
+2024-02-12 1c2f8be Daniel Graham
     Tagged version 6.1.9.
 
 2024-02-12 6059ead Daniel Graham
@@ -230,9 +237,3 @@
 
 2024-01-10 180b3aa Daniel Graham
     Tagged version 6.0.6. Fixes for bump.py.
-
-2024-01-10 ecd332f Daniel Graham
-    More bump tweaks.
-
-2024-01-10 7ded0b3 Daniel Graham
-    restored bump.py changes
