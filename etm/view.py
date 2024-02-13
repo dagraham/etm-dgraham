@@ -969,43 +969,44 @@ Enter an expression of the form "period: datetime", e.g., "1h27m: 3:20p", in the
     get_entry(title, text, default, event)
 
     def coroutine():
-        usedtime = dataview.entry_content
-        if not usedtime:
-            # None (cancelled) or null string
-            return None
+        usedtime = dataview.entry_content.strip()
 
-        msg = []
-        ut = [x.strip() for x in usedtime.split(': ')]
-        if len(ut) != 2:
-            ok = False
-            msg.append(f"The entry '{usedtime}' is invalid")
+        if usedtime:
+            msg = []
+            ut = [x.strip() for x in usedtime.split(': ')]
+            if len(ut) != 2:
+                ok = False
+                msg.append(f"The entry '{usedtime}' is invalid")
+
+            else:
+                ok, per = model.parse_duration(ut[0])
+                if not ok:
+                    msg.append(f"The entry '{ut[0]}' is not a valid period")
+
+                ok, dt, z = model.parse_datetime(ut[1])
+                if not ok:
+                    msg.append(f"The entry '{ut[1]}' is not a valid datetime")
+            if msg:
+                msg = '\n   '.join(msg)
+                show_message(title, f'Cancelled,  {msg}')
+                return
+
+            changed, msg = item.add_used(doc_id, per, dt)
+            if changed:
+                dataview.timer_clear(doc_id)
+
+                if doc_id in dataview.itemcache:
+                    del dataview.itemcache[doc_id]
+                application.layout.focus(text_area)
+                application.output.set_cursor_shape(CursorShape.BLOCK)
+                set_text(dataview.show_active_view())
+                loop = asyncio.get_event_loop()
+                loop.call_later(0, data_changed, loop)
+            else:
+                show_message('add used time', f'Cancelled, {msg}')
 
         else:
-            ok, per = model.parse_duration(ut[0])
-            if not ok:
-                msg.append(f"The entry '{ut[0]}' is not a valid period")
-
-            ok, dt, z = model.parse_datetime(ut[1])
-            if not ok:
-                msg.append(f"The entry '{ut[1]}' is not a valid datetime")
-        if msg:
-            msg = '\n   '.join(msg)
-            show_message(title, f'Cancelled,  {msg}')
-            return
-
-        changed, msg = item.add_used(doc_id, per, dt)
-        if changed:
-            dataview.timer_clear(doc_id)
-
-            if doc_id in dataview.itemcache:
-                del dataview.itemcache[doc_id]
-            application.layout.focus(text_area)
-            application.output.set_cursor_shape(CursorShape.BLOCK)
-            set_text(dataview.show_active_view())
-            loop = asyncio.get_event_loop()
-            loop.call_later(0, data_changed, loop)
-        else:
-            show_message('add used time', f'Cancelled, {msg}')
+            show_message(title, 'cancelled')
 
     dataview.got_entry = coroutine
 
@@ -2317,25 +2318,26 @@ To schedule an additional datetime for this reminder enter the new datetime """
     get_entry(title, text, '', event)
 
     def coroutine():
-        new_datetime = dataview.entry_content
+        new_datetime = dataview.entry_content.strip()
 
-        if not new_datetime:
-            return
-        changed = False
-        ok, dt, z = parse_datetime(new_datetime)
+        if new_datetime:
+            changed = False
+            ok, dt, z = parse_datetime(new_datetime)
 
-        if ok:
-            changed = item.schedule_new(doc_id, dt)
+            if ok:
+                changed = item.schedule_new(doc_id, dt)
+            else:
+                show_message('new instance', f"'{new_datetime}' is invalid")
+
+            if changed:
+                if doc_id in dataview.itemcache:
+                    del dataview.itemcache[doc_id]
+                application.layout.focus(text_area)
+                set_text(dataview.show_active_view())
+                loop = asyncio.get_event_loop()
+                loop.call_later(0, data_changed, loop)
         else:
-            show_message('new instance', f"'{new_datetime}' is invalid")
-
-        if changed:
-            if doc_id in dataview.itemcache:
-                del dataview.itemcache[doc_id]
-            application.layout.focus(text_area)
-            set_text(dataview.show_active_view())
-            loop = asyncio.get_event_loop()
-            loop.call_later(0, data_changed, loop)
+            show_message(title, 'cancelled')
 
     dataview.got_entry = coroutine
 
@@ -2370,29 +2372,31 @@ To reschedule enter the {new} """
     get_entry(title, text, '', event)
 
     def coroutine():
-        new_datetime = dataview.entry_content
+        new_datetime = dataview.entry_content.strip()
 
-        if not new_datetime:
-            return
-        changed = False
-        try:
-            dt = parse_datetime(new_datetime, z='local')[1]
-            ok = True
-        except:
-            ok = False
+        if new_datetime:
+            logger.debug(f"new_datetime: {new_datetime}")
+            try:
+                dt = parse_datetime(new_datetime, z='local')[1]
+                ok = True
+            except:
+                ok = False
 
-        if ok:
-            changed = item.reschedule(doc_id, instance, dt)
+            if ok:
+                changed = item.reschedule(doc_id, instance, dt)
+            else:
+                show_message('new instance', f"'{new_datetime}' is invalid")
+
+            if changed:
+                if doc_id in dataview.itemcache:
+                    del dataview.itemcache[doc_id]
+                application.layout.focus(text_area)
+                set_text(dataview.show_active_view())
+                loop = asyncio.get_event_loop()
+                loop.call_later(0, data_changed, loop)
+
         else:
-            show_message('new instance', f"'{new_datetime}' is invalid")
-
-        if changed:
-            if doc_id in dataview.itemcache:
-                del dataview.itemcache[doc_id]
-            application.layout.focus(text_area)
-            set_text(dataview.show_active_view())
-            loop = asyncio.get_event_loop()
-            loop.call_later(0, data_changed, loop)
+            show_message(title, 'cancelled')
 
     dataview.got_entry = coroutine
 
@@ -2547,7 +2551,6 @@ def edit_or_add_journal(*event):
         if it.get('summary') == summary:
             relevant = it
             break
-    logger.debug(f"relevant: {relevant}")
     if relevant:
         doc_id = relevant.doc_id
         entry = item_details(relevant, True)
@@ -2906,7 +2909,8 @@ The default entered below is to use the current moment as the "completion dateti
         done_str = dataview.entry_content
 
         if not done_str:
-            # show_message('Finish', 'Cancelled')
+            show_message('Finish', 'Cancelled')
+            close_entry(*event)
             return None
 
         done_parts = [x.strip() for x in done_str.split(' : ')]
@@ -3402,7 +3406,6 @@ def konnected_view(*event):
     )
     # id2row = {id: row for row, id in dataview.konnections_row2id.items()}
     konnected_row = dataview.konnected_id2row.get(doc_id, None)
-    # logger.debug(f"doc_id: {doc_id}; konnected_row: {konnected_row}; dataview.konnected_id2row: {dataview.konnected_id2row}")
     set_view('k')
     if konnected_row:
         text_area.buffer.cursor_position = (
@@ -3420,7 +3423,6 @@ def get_konnections(*event):
     ]
     tree, row2id = dataview.show_konnections(selected_id)
     dataview.konnections_row2id = row2id
-    # logger.debug(f"tree: {tree}")
     if tree:
         konnected_area.text = tree
     else:
