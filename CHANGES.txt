@@ -1,4 +1,15 @@
-2024-02-13 57f439b Daniel Graham
+2024-02-16 4ef0794 Daniel Graham
+    Tagged version 6.1.11.
+
+2024-02-16 53022e3 Daniel Graham
+    Corrected wording in README regarding tab completion for @k
+    entries.
+
+2024-02-16 2f48d58 Daniel Graham
+    Jinja template tweaks for wrapping @d entries. Bind N (along with
+    +) to create new item but only if is_not_searching.
+
+2024-02-13 f99e118 Daniel Graham
     Tagged version 6.1.10.
 
 2024-02-13 f4ac9a4 Daniel Graham
@@ -228,12 +239,3 @@
 
 2024-01-10 8982e8e Daniel Graham
     Fixed key bindings for do_check_update.
-
-2024-01-10 1db262c Daniel Graham
-    Tagged version 6.0.7. Fix for Mr White
-
-2024-01-10 7a1ea5c Daniel Graham
-    Replace erroneous strftime with call to date_to_datetime.
-
-2024-01-10 180b3aa Daniel Graham
-    Tagged version 6.0.6. Fixes for bump.py.
