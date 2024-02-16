@@ -612,7 +612,7 @@ As discussed above, *konnected view* provides the means for examining the networ
 * the item summary
 * the item doc_id
 
-Initially the list of possible completions includes **every** item in the *etm* active database, but as you begin typing an index entry, the list collapses to show only those items which contain what you have typed thus far. At any point you can stop typing and scroll up and down the list and, finding the item you want to use for the link, press **TAB** to select it and then  **space** and **TAB** again to replace the selected entry with just the doc_id from the selected entry.
+Initially the list of possible completions includes **every** item in the *etm* active database, but as you begin typing an index entry, the list collapses to show only those items which contain what you have typed thus far. At any point you can stop typing and scroll up and down the list and, finding the item you want to use for the link, press **SPACE** to select it and then  **TAB** to replace the selected entry with just the doc_id from the selected entry.
 
 What if you have an related idea while editing an item and the idea does not yet correspond to another item? Add `@K comment regarding idea` (note the capital K) and, when you save the item, etm will create an inbox item with your comment as its summary and then replace the `@K comment regarding idea` with `@k doc_id` using the doc_id of the new inbox item. When you have time, edit the inbox entry to better represent your idea and change the item type accordingly. You can add as many `@K` entries as you like - each will give rise to a new inbox item.
 
