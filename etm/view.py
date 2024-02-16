@@ -2489,7 +2489,7 @@ This is one instance of a repeating item. What do you want to delete?
 starting_buffer_text = ''
 
 
-# @bindings.add('N', filter=is_viewing & is_items_table)
+@bindings.add('N', filter=is_viewing & is_items_table & is_not_searching)
 @bindings.add('+', filter=is_viewing & is_items_table)
 def edit_new(*event):
     global item
@@ -3990,7 +3990,7 @@ root_container = MenuContainer(
         MenuItem(
             'edit',
             children=[
-                MenuItem('+) add new item', handler=edit_new),
+                MenuItem('+|N) add new item', handler=edit_new),
                 MenuItem('J) jot it down', handler=edit_or_add_journal),
                 MenuItem('-', disabled=True),
                 MenuItem('^g) test goto link', handler=do_goto),

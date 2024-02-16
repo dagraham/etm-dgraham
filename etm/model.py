@@ -4903,10 +4903,10 @@ entry_tmpl = """\
 {% if 'o' in h %}\
 @o {{ h['o'] }}{% endif %} \
 {% endif %}\
-{% for k in ['+', '-'] %}\
+{% for k in ['+', '-'] %} \
 {% if k in h and h[k] %}
 @{{ k }} {{ nowrap(dtlst2str(h[k])) }} \
-{%- endif %}\
+{%- endif %} \
 {%- endfor %}\
 {% if 'd' in h %}\
 
@@ -4974,7 +4974,7 @@ display_tmpl = """\
 {% if is.found %}
 {{ wrap(index) }} \
 {% endif %}\
-{%- if 't' in h %}
+{%- if 't' in h %}\
 {% for x in h['t'] %}{{ "@t {} ".format(x) }}{% endfor %}\
 {% endif %}\
 {%- if 'k' in h %}
@@ -5014,14 +5014,16 @@ display_tmpl = """\
 {% if 'o' in h %}\
 @o {{ h['o'] }}{% endif %} \
 {% endif %}\
-{% for k in ['+', '-'] %}\
-{% if k in h and h[k] %}\
-@{{ k }} {{ wrap(dtlst2str(h[k])) }}\
-{%- endif %}\
+{% for k in ['+', '-'] %} \
+{% if k in h and h[k] %}
+@{{ k }} {{ wrap(dtlst2str(h[k])) }} \
+{%- endif %} \
 {%- endfor %}\
 {% if 'd' in h %}\
-
-@d {{ wrap(h['d'], 0) }} \
+{% set description -%} \
+@d {{ h['d'] }} \
+{%- endset %}
+{{ wrap(description) }} \
 {% endif -%}\
 {%- if 'j' in h %}\
 {%- for x in h['j'] %}\
