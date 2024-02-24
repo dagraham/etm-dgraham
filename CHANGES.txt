@@ -1,4 +1,12 @@
-2024-02-16 4ef0794 Daniel Graham
+2024-02-24 fefae54 Daniel Graham
+    Tagged version 6.1.12.
+
+2024-02-24 d0f5f18 Daniel Graham
+    Added 'show occurrences' bound to 'o' to display a list of fields
+    such as @i, @l, ..., with the distince occurrences of each and the
+    number of times used.
+
+2024-02-16 878447b Daniel Graham
     Tagged version 6.1.11.
 
 2024-02-16 53022e3 Daniel Graham
@@ -233,9 +241,3 @@
 
 2024-01-12 a4a98ac Daniel Graham
     First pass at restoring complex queries with report.py
-
-2024-01-10 0d4b53e Daniel Graham
-    Tagged version 6.0.8.
-
-2024-01-10 8982e8e Daniel Graham
-    Fixed key bindings for do_check_update.
