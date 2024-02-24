@@ -1207,6 +1207,8 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         j) journal
         k) konnected
         l) location
+        m) timers
+        o) occurrences
         p) pinned
         q) query
         r) review

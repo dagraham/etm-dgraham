@@ -187,6 +187,12 @@ requires = {
     'jb': ['s'],
 }
 
+def truncate_string(s, max_length):
+    if len(s) > max_length:
+        return f"{s[:max_length-2]} {ELLIPSiS_CHAR}"
+    else:
+        return s
+
 
 def subsets(l):
     """
@@ -2692,11 +2698,12 @@ class NDict(dict):
                     summary_width = (
                         self.width - l_indent - 2 - len(flags) - len(rhc)
                     )
-                    summary = (
-                        leaf[1][: summary_width - 1] + ELLIPSiS_CHAR
-                        if len(leaf[1]) >= summary_width
-                        else leaf[1]
-                    )
+                    summary = truncate_string(leaf[1], summary_width)
+                    # summary = (
+                    #     leaf[1][: summary_width - 1] + ELLIPSiS_CHAR
+                    #     if len(leaf[1]) >= summary_width
+                    #     else leaf[1]
+                    # )
                     if self.compact:
                         tmp = f'{indent}{leaf[0]} {rhc}{summary}{flags}'
                     else:
@@ -2923,6 +2930,8 @@ class DataView(object):
         completions = set([])
         self.completions = list(completions)
         self.kompletions = {}
+        # self.occurrences = []
+        self.occurrences = {} # hsk with fields such as @i -> hsh instances -> number of occurences
 
         for item in self.db:
             self.last_id = item.doc_id
@@ -2934,9 +2943,15 @@ class DataView(object):
                 if isinstance(v, list):
                     if x == 'k':
                         continue
+                    self.occurrences.setdefault(x, {})
                     for p in v:
                         completions.add(f'@{x} {p}')
+                        self.occurrences[x].setdefault(p, 0)
+                        self.occurrences[x][p] += 1
                 else:
+                    self.occurrences.setdefault(x, {})
+                    self.occurrences[x].setdefault(v, 0)
+                    self.occurrences[x][v] += 1
                     completions.add(f'@{x} {v}')
                     if x == 'i':
                         # make a "k" completion for the "i" entry
@@ -2960,6 +2975,27 @@ class DataView(object):
                 self.kompletions[k.strip()[3:]] = f"@k {v.strip()}"
             else:
                 logger.debug(f"bad parts: {parts}")
+        logger.debug(f"{self.occurrences = :}")
+
+
+    def show_occurrences(self):
+        width = shutil.get_terminal_size()[0]
+        tmp = []
+        newline = False
+        for k in self.completion_keys:
+            if k in self.occurrences:
+                if newline:
+                    tmp.append('')
+                else:
+                    newline = True
+                tmp.append(f"@{k}")
+                instances = [x for x in self.occurrences[k].keys()]
+                instances.sort()
+                for instance in instances:
+                    count = f"{self.occurrences[k][instance]}"
+                    w = width - 7 - len(count)
+                    tmp.append(f"   {truncate_string(instance, w)}: {count}")
+        return "\n".join(tmp)
 
 
 

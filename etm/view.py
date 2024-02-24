@@ -1250,6 +1250,11 @@ def do_alerts(*event):
     show_message('scheduled alerts', alerts(), 2)
 
 
+@bindings.add('o', filter=is_viewing)
+def do_occurrences(*event):
+    show_message('Occurrences', dataview.show_occurrences(), 2)
+
+
 @bindings.add('c-l', filter=is_viewing)
 def do_go_to_line(*event):
     title = 'Go to line'
@@ -3945,6 +3950,7 @@ root_container = MenuContainer(
                 MenuItem('k) konnected', handler=konnected_view),
                 MenuItem('l) location', handler=location_view),
                 MenuItem('m) timers', handler=timers_view),
+                MenuItem('o) occurrences', handler=do_occurrences),
                 MenuItem('p) pinned', handler=pinned_view),
                 MenuItem('q) query', handler=query_view),
                 MenuItem('r) review', handler=review_view),
