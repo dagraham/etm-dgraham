@@ -1,4 +1,16 @@
-2024-02-24 fefae54 Daniel Graham
+2024-02-29 8fe107f Daniel Graham
+    Tagged version 6.1.13. Conditionally show active timer in
+    statusbar 2nd line
+
+2024-02-29 fbe470f Daniel Graham
+    Fixed leap year bug in archiving items. Refactored fitting strings
+    into available terminal width using 'truncate_string'. Added
+    'conditional' status bar second line to show active timer when one
+    exists. Removed unused 'level' argument from NDict as_tree.
+    Reformated timer report to show total time for item, the current
+    status and the moment the status last changed.
+
+2024-02-24 f71dfcd Daniel Graham
     Tagged version 6.1.12.
 
 2024-02-24 d0f5f18 Daniel Graham
@@ -235,9 +247,3 @@
 
 2024-01-12 56cc5c7 Daniel Graham
     Tagged version 6.0.9.
-
-2024-01-12 a14d723 Daniel Graham
-    Restored complex queries and report.py.
-
-2024-01-12 a4a98ac Daniel Graham
-    First pass at restoring complex queries with report.py
