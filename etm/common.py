@@ -105,6 +105,7 @@ ETM_CHAR = dict(
     PIN_CHAR='p',
     ELLIPSiS_CHAR='…',
     LINEDOT=' · ',  # ܁ U+00B7 (middle dot),
+    ELECTRIC='⌁',
 )
 #  model, data and ical
 #  with integer prefixes

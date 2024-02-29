@@ -193,6 +193,20 @@ def truncate_string(s, max_length):
     else:
         return s
 
+# def is_leap_year(year):
+#     """Return True if the year is a leap year, False otherwise."""
+#     if year % 400 == 0:
+#         return True
+#     if year % 100 == 0:
+#         return False
+#     if year % 4 == 0:
+#         return True
+#     return False
+
+# Example usage
+# current_year = 2024  # You can replace this with any year you want to check
+# print(is_leap_year(current_year))
+
 
 def subsets(l):
     """
@@ -2276,6 +2290,14 @@ def format_datetime(obj, short=False):
         res = res.replace('PM', 'p')
     return True, res
 
+def format_time(dt: datetime)->str:
+    ampm = settings.get('ampm', True)
+    time_fmt = '%-I:%M%p' if ampm else '%H:%M'
+    res = dt.strftime(time_fmt)
+    if ampm:
+        res = res.lower().rstrip('m')
+    return res
+
 
 def format_period(obj):
     if not isinstance(obj, Period):
@@ -2610,6 +2632,8 @@ class NDict(dict):
         self.width = width if width else shutil.get_terminal_size()[0] - 3
         self.split_char = split_char
         self.row = 0
+        self.level = 0
+        self.show_leaves = True
         self.row2id = {}
         self.output = []
         self.flag_len = 4   # gkptp
@@ -2622,6 +2646,8 @@ class NDict(dict):
         return self
 
     def leaf_detail(self, detail, depth):
+        if not self.show_details:
+            return []
         dindent = NDict.tab * (depth + 1) * ' '
         paragraphs = detail.split('\n')
         ret = []
@@ -2664,24 +2690,23 @@ class NDict(dict):
                 self.setdefault('/'.join(keys[j:]), []).append(values)
                 break
 
-    def as_tree(self, t={}, depth=0, level=0):
+    # def as_tree(self, t={}, depth=0, level=0):
+    def as_tree(self, t={}, depth=0):
         """return an indented tree"""
-        # self.width = shutil.get_terminal_size()[0] - 3
         for k in t.keys():
-            # indent = NDict.tab * depth * '  '
             indent = NDict.tab * depth * ' '
             # replace any newlines in the title with spaces
             K = re.sub(' *\n+ *', ' ', k)
             self.output.append(f'{indent}{K}')
             self.row += 1
             depth += 1
-            if level and depth > level:
+            if self.level and depth > self.level:
                 depth -= 1
                 continue
 
             if type(t[k]) == NDict:
-                self.as_tree(t[k], depth, level)
-            else:
+                self.as_tree(t[k], depth)
+            elif self.show_leaves:
                 # we have a list of leaves
                 for leaf in t[k]:
                     indent = NDict.tab * depth * ' '
@@ -2699,11 +2724,6 @@ class NDict(dict):
                         self.width - l_indent - 2 - len(flags) - len(rhc)
                     )
                     summary = truncate_string(leaf[1], summary_width)
-                    # summary = (
-                    #     leaf[1][: summary_width - 1] + ELLIPSiS_CHAR
-                    #     if len(leaf[1]) >= summary_width
-                    #     else leaf[1]
-                    # )
                     if self.compact:
                         tmp = f'{indent}{leaf[0]} {rhc}{summary}{flags}'
                     else:
@@ -3263,29 +3283,42 @@ class DataView(object):
 
     # for status bar report
     def timer_report(self):
+        # logger.debug("in timer_report")
+        ELECTRIC: str = '⌁'
+        active = all = status = ''
         if not self.timers:
-            return '', ''
-        active = inactive = status = ''
+            # logger.debug("bailing out")
+            return [active, all]
         zero = timedelta()
         delta = zero
         if self.active_timer:
+            # logger.debug(f"{self.active_timer = }")
+            item = self.db.get(doc_id=self.active_timer)
+            active_item = f"{item['itemtype']} {item['summary']}" if item else ""
             status, started, elapsed = self.timers[self.active_timer]
+            # logger.debug(f"{status = } {started = } {elapsed = }")
             delta = datetime.now().astimezone() - started
+            # since = f'{status_duration(delta)}'
+            since = f'{format_time(started)}'
             if status == 'r':   # running
-                delta += elapsed
-            active = f'{status}:{status_duration(delta)}'
+                elapsed += delta
+            total = f'{status_duration(elapsed)}'
+            width = shutil.get_terminal_size()[0] - len(since) - len(total) - 6
+            active = f'{status_duration(elapsed)} {status}{ELECTRIC}{since} {truncate_string(active_item, width)}'
+            # logger.debug(f"{active = }")
             # active = f"{status_duration(delta)}"
-        if len(self.timers) > 1:
-            timers = deepcopy(self.timers)
-            if self.active_timer in timers:
-                del timers[self.active_timer]
-            relevant = [v[2] for k, v in timers.items() if v[2] > zero]
+        if len(self.timers) >= 1:
+            # timers = deepcopy(self.timers)
+            # if self.active_timer in timers:
+            #     del timers[self.active_timer]
+            relevant = [v[2] for k, v in self.timers.items() if v[2] > zero and k != self.active_timer]
             if relevant:
                 total = zero
                 for v in relevant:
                     total += v
-                inactive = f' i:{status_duration(total)}'
-        return active, inactive
+                all = f'{status_duration(total)} '
+        # logger.debug(f"returning {active = }; {all = }")
+        return [active, all]
 
     def unsaved_timers(self):
         return len(self.timers)
@@ -3623,7 +3656,7 @@ class DataView(object):
             path = row['path']
             values = row['values']
             rdict.add(path, values)
-        tree, row2id = rdict.as_tree(rdict, level=0)
+        tree, row2id = rdict.as_tree(rdict)
         tree = re.sub(r'^\s*\n', f" konnections for #{selected_id}\n", tree, 1)
         return tree, row2id
 
@@ -4252,7 +4285,8 @@ shown when nonzero."""
             )
             return
         now = datetime.now().astimezone()
-        old = now.replace(year=now.year - self.archive_after)
+        # old = now.replace(year=now.year - self.archive_after)
+        old = now - timedelta(days=365*self.archive_after)
         rows = []
         for item in self.db:
             if item['itemtype'] == '%' or item.get('k', []):
@@ -7405,7 +7439,7 @@ def show_forthcoming(
         path = row['path']
         values = row['values']
         rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
 
@@ -7478,7 +7512,7 @@ def show_query_items(
     for row in rows:
         values = row['values']
         rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
 
@@ -7531,7 +7565,7 @@ def show_history(
         path = row['path']
         values = row['values']
         rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
 
     # return f"{title}\n" + tree, row2id
     return tree, row2id
@@ -7594,7 +7628,7 @@ def show_review(
         path = row['path']
         values = row['values']
         rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
 
@@ -7629,7 +7663,7 @@ def show_timers(
         num_timers += 1
         total_time += elapsed
         sort = state2sort[state]
-        rhc = f'{status_duration(elapsed)}:{state}'
+        rhc = f'{status_duration(elapsed)} {state}{ELECTRIC}{format_time(start)}'
         itemtype = item['itemtype']
         summary = item['summary']
         flags = get_flags(
@@ -7659,7 +7693,7 @@ def show_timers(
     for row in rows:
         values = row['values']
         rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
 
@@ -7721,7 +7755,7 @@ def show_konnected(
         path = row['path']
         values = row['values']
         rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
     tree = re.sub(r'^\s*\n', f" konnected items [{len(rows)}]\n", tree, 1)
     return tree, row2id
 
@@ -7840,7 +7874,7 @@ def show_next(
             values = row['columns']
             rdict.add(path, values)
 
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
 
     ctree = None
     if mk_next:
@@ -7929,7 +7963,7 @@ def show_journal(
         path = row['path']
         values = row['values']
         rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
 
@@ -7971,7 +8005,7 @@ def show_tags(
         path = row['path']
         values = row['values']
         rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
 
@@ -8016,7 +8050,7 @@ def show_location(
         path = row['path']
         values = row['values']
         rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
 
@@ -8089,7 +8123,7 @@ def show_index(
             rdict.add(path, values)
         except:
             logger.error(f'error adding path: {path}, values: {values}')
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
 
@@ -8141,7 +8175,7 @@ def show_pinned(
         path = row['path']
         values = row['values']
         rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict, level=0)
+    tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
 
@@ -8240,7 +8274,7 @@ def get_usedtime(
                 logger.error(
                     f'error adding path: {path}, values: {values}: {e}'
                 )
-        tree, row2id = rdict.as_tree(rdict, level=0)
+        tree, row2id = rdict.as_tree(rdict)
         used_details[month] = tree
         used_details2id[month] = row2id
 
@@ -8903,7 +8937,8 @@ def schedule(
         for d, v in busy_details[week].items():
             busy_details[week][d] = '\n'.join([x.rstrip() for x in v])
 
-        tree, row2id = rdict.as_tree(rdict, level=0)
+        # tree, row2id = rdict.as_tree(rdict, level=0)
+        tree, row2id = rdict.as_tree(rdict)
         agenda_hsh[week] = tree
         row2id_hsh[week] = row2id
 
@@ -8929,7 +8964,7 @@ def schedule(
                     values[1] = re.sub(' *\n+ *', ' ', values[1])
                 cdict.add(path, values)
 
-            ctree, crow2id = cdict.as_tree(cdict, level=0)
+            ctree, crow2id = cdict.as_tree(cdict)
             current_hsh[week] = ctree
 
     busyday_details = {}
@@ -9017,7 +9052,7 @@ def schedule(
             path = f'{wk_fmt}/{day_}'
             values = row['columns']
             rdict.add(path, values)
-        tree, row2id = rdict.as_tree(rdict, level=0)
+        tree, row2id = rdict.as_tree(rdict)
         done_hsh[week] = tree
         done2id_hsh[week] = row2id
 
@@ -9049,7 +9084,7 @@ def schedule(
             path = f'{wk_fmt}/{day_}/{used_fmt} {bar_fmt}'
             values = row['columns']
             rdict.add(path, values)
-        tree, row2id = rdict.as_tree(rdict, level=0)
+        tree, row2id = rdict.as_tree(rdict)
         effort_hsh[week] = tree
         effort2id_hsh[week] = row2id
 

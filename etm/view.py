@@ -881,6 +881,7 @@ def dt_calculator(*event):
     # func  = inspect.currentframe().f_code.co_name
     # show_work_in_progress(func)
     # return
+    logger.debug(f"{timer_active()}; {dataview.active_timer = }; {dataview.timers = }\n")
 
     title = 'DateTime Calculator'
     text = """\
@@ -1053,6 +1054,10 @@ def is_viewing_or_details():
 @Condition
 def is_showing_konnected():
     return dataview.active_view == 'konnected'
+
+@Condition
+def timer_active():
+    return dataview.timers != {}
 
 
 @Condition
@@ -1728,27 +1733,41 @@ def get_statusbar_center_text():
 
 
 def get_statusbar_right_text():
+    # logger.debug("calling timer_report")
     inbasket = INBASKET_CHAR if (glob(text_pattern)) else ''
-    active, inactive = dataview.timer_report()
-    if active:
-        active_part = (
-            (type_colors['running'], active)
-            if active.startswith('r')
-            else (type_colors['paused'], active)
+    active, all = dataview.timer_report()
+    # logger.debug(f"got {active = }; {all = }")
+    # logger.debug(f"{active = } {inactive = }")
+    if all:
+        all_part = (
+            (type_colors['running'], all)
+            if f'r{ELECTRIC}' in all
+            else (type_colors['paused'], all)
         )
-        inactive_part = ('class:status', f'{inactive}  ')
     else:
-        active_part = inactive_part = ('class:status', '')
+        all_part = ('class:status', '')
 
     return [
-        active_part,
-        inactive_part,
+        # active_part,
+        all_part,
         (
             'class:status',
             f'{dataview.active_view} {inbasket}{update_status.get_status()}',
         ),
     ]
 
+def get_timer_text():
+    active, _ = dataview.timer_report()
+    if active:
+        active_part = (
+
+                (type_colors['running'], f' {active}') if f'r{ELECTRIC}' in active
+            else (type_colors['paused'], f' {active}')
+        )
+        # inactive_part = ('class:status', f'{inactive}  ')
+    else:
+        active_part = ('class:status', '')
+    return [active_part]
 
 def openWithDefault(path):
     if ' ' in path:
@@ -2276,6 +2295,13 @@ status_area = VSplit(
     height=1,
 )
 
+timer_area = VSplit(
+    [
+        Window(FormattedTextControl(get_timer_text), style='class:status')
+    ],
+    height=1,
+)
+
 
 body = HSplit(
     [
@@ -2287,6 +2313,9 @@ body = HSplit(
             content=konnected_area, filter=is_showing_konnected
         ),
         status_area,  # toolbar
+        ConditionalContainer(
+            content=timer_area, filter=timer_active
+        ),
         ConditionalContainer(
             content=details_area, filter=is_showing_details & is_not_busy_view
         ),
