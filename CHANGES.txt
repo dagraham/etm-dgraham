@@ -1,4 +1,11 @@
-2024-02-29 8fe107f Daniel Graham
+2024-02-29 f37ec77 Daniel Graham
+    Tagged version 6.1.14.
+
+2024-02-29 465af5b Daniel Graham
+    Removed extraneous 'level=0
+    '
+
+2024-02-29 1b565b0 Daniel Graham
     Tagged version 6.1.13. Conditionally show active timer in
     statusbar 2nd line
 
@@ -241,9 +248,3 @@
     Added 'v' to complex query modes. Like 'u' it reports used times
     but saves the report as a timestamped CSV file in the 'csv'
     subdirectory of etmhome.
-
-2024-01-13 3ee0ece Daniel Graham
-    put used_time first in u query leafs
-
-2024-01-12 56cc5c7 Daniel Graham
-    Tagged version 6.0.9.
