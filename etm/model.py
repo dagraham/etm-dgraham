@@ -2690,7 +2690,6 @@ class NDict(dict):
                 self.setdefault('/'.join(keys[j:]), []).append(values)
                 break
 
-    # def as_tree(self, t={}, depth=0, level=0):
     def as_tree(self, t={}, depth=0):
         """return an indented tree"""
         for k in t.keys():
@@ -7890,7 +7889,7 @@ def show_next(
                 path = row['location']
                 values = row['columns']
                 cdict.add(path, values)
-        ctree, crow2id = cdict.as_tree(cdict, level=0)
+        ctree, crow2id = cdict.as_tree(cdict)
         current_hsh['next'] = ctree
 
     return tree, row2id, ctree
@@ -8937,7 +8936,6 @@ def schedule(
         for d, v in busy_details[week].items():
             busy_details[week][d] = '\n'.join([x.rstrip() for x in v])
 
-        # tree, row2id = rdict.as_tree(rdict, level=0)
         tree, row2id = rdict.as_tree(rdict)
         agenda_hsh[week] = tree
         row2id_hsh[week] = row2id
