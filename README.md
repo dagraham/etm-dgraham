@@ -566,7 +566,7 @@ One final useful context is 'waiting for'. E.g., completing a task might depend 
 
 ### Timer View {#timer-view}
 
-This view lists all reminders with associated timers sorted by the elapsed time since the timer's *state* was last changed. The display for each reminder shows the itemtype and summary, any applicable *flags* and, in the right hand column, the elapsed time and *state* of the associated timer.
+This view lists all reminders with associated timers sorted by the elapsed time since the timer's *state* was last changed. The display for each reminder shows the itemtype and summary, any applicable *flags* and the elapsed time and *state* of the associated timer.
 
 The sort order assures that the reminder with the active timer will always be at the top of the list and followed by the reminders with the most recently modified timers. This makes it easy to switch back and forth between recent timers.
 
@@ -1515,7 +1515,7 @@ Used time entries can be recorded directly by editing the relevant reminder and 
 
 [Timer View](#timer-view), bound to `m`, provides a convenient way of manipulating multiple timers. It lists each existing timer with the active timer first and followed by the other timers in the order of most recently active. Pausing/running the active timer can be done from any view by pressing `TT`. To switch to another timer, change to timer view, press `TT` if necessary to pause the active timer, select the timer you want to start and press 'T' to change its state from 'inactive' to 'running'. It will move to the top of the list and the other timers will move down by one row.
 
-When there are one or more timers, their status is always displayed in the status bar. E.g., `r:6.3m + i:1h3.2` would mean that the active timer is running with 6.3m of elapsed time and there are other, inactive timers with a total of 1h3.2m of elapsed time.
+When there is an active timer, either running or paused, its status will be displayed in a second line of the status bar. E.g., `6.3m r⌁10:23a' would mean that the active timer has been running since 10:23am today and has a total of 6.3m of elapsed time.  If there are other, inactive timers with positive elapsed times then the total of these times would be displayed in the first line of the status bar.
 
 [↺ contents](#contents)
 

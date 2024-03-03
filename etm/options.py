@@ -90,13 +90,14 @@ class Settings:
             'journal': 'GoldenRod',
             'missing': 'SlateGrey',
             'pastdue': 'LightSalmon',
-            'paused': 'Gold',
             'plain': 'Ivory',
-            'running': 'LimeGreen',
             'today': 'Ivory bold',
             'used': 'Khaki',
             'waiting': 'SlateGrey',
             'wrap': 'ForestGreen',
+            'inactive': 'LightSkyBlue',
+            'paused': 'Gold',
+            'running': 'LimeGreen',
         },
         'light': {
             'available': 'DarkBlue',
@@ -107,13 +108,14 @@ class Settings:
             'journal': 'Brown',
             'missing': 'DarkSlateBlue',
             'pastdue': 'Red',
-            'paused': 'DarkViolet',
             'plain': 'Black',
-            'running': 'Green',
             'today': 'Black bold',
             'used': 'DodgerBlue',
             'waiting': 'DarkSlateBlue',
             'wrap': 'LightGrey',
+            'inactive': 'LightSkyBlue',
+            'paused': 'Gold',
+            'running': 'GreenYellow',
         },
     }
 
@@ -159,15 +161,15 @@ class Settings:
             'edit': ['Cornsilk', 'Black'],
             'entry': ['Cornsilk', 'Black'],
             'frame.label': ['DimGrey', 'White'],
-            'menu': ['DimGrey', 'White'],
-            'menu-bar': ['grey1', 'White'],
+            'menu': ['grey2', 'White'],
+            'menu-bar': ['grey2', 'White'],
             'menu-bar.selected-item': ['#ffffff', '#000000'],
             'menu.border': ['', '#aaaaaa'],
             'not-searching': ['', '#777777'],
             'query': ['', 'Black'],
             'reply': ['Cornsilk', 'DeepSkyBlue'],
             'shadow': ['#222222', ''],
-            'status': ['grey1', 'White'],
+            'status': ['grey2', 'White'],
             'status.key': ['', '#ffaa00'],
             'status.position': ['', '#aaaa00'],
             'text-area': ['Cornsilk', 'Black'],
@@ -545,7 +547,7 @@ type_colors: {type_colors}
 #  -----------    -----------------   -----------------
 #  available       'LightSkyBlue',     'DarkBlue',
 #  begin           'Gold',             'DarkViolet',
-#  event           'LimeGreen',        'DarkGreen',
+#  event           'LimeGreen',        'Green',
 #  finished        'DarkGrey',         'LightSlateGrey',
 #  inbox           'OrangeRed',        'MediumVioletRed',
 #  journal         'GoldenRod',        'Brown',
@@ -555,8 +557,9 @@ type_colors: {type_colors}
 #  used            'Khaki',            'DodgerBlue',
 #  waiting         'SlateGrey',        'DarkSlateBlue',
 #  wrap            'ForestGreen',      'LightGrey',
-#  running         'LimeGreen',        'Green',
-#  paused          'MediumVioletRed',   'DarkViolet',
+#  inactive        'LightSkyBlue',     'LightSkyBlue',
+#  paused          'Gold',             'DarkViolet',
+#  running         'LimeGreen',        'YellowGreen',
 # Explanations for the key names:
 #     available:    available task/job reminders
 #     begin:        begin by warnings
@@ -573,6 +576,7 @@ type_colors: {type_colors}
 #                   @w entries
 #     running:      status bar color for 'r', running timer
 #     paused:       status bar color for 'p', paused timer
+#     inactive:     status bar color for 'i', inactive timer
 #
 # E.g., with style 'dark', the default color for 'available' is
 # 'LightSkyBlue'. This entry

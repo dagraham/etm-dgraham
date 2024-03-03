@@ -187,11 +187,21 @@ requires = {
     'jb': ['s'],
 }
 
-def truncate_string(s, max_length):
+def truncate_string(s: str, max_length: int)->str:
     if len(s) > max_length:
         return f"{s[:max_length-2]} {ELLIPSiS_CHAR}"
     else:
         return s
+
+def round_to_minutes(obj: timedelta)->timedelta:
+    """
+    Round a timedelta object to the nearest minute
+    """
+    seconds = abs(int(obj.total_seconds()))
+    minutes = seconds // 60
+    if seconds % 60 >= 30:
+        minutes += 1
+    return timedelta(minutes=minutes)
 
 # def is_leap_year(year):
 #     """Return True if the year is a leap year, False otherwise."""
@@ -2144,7 +2154,7 @@ def plain_datetime(obj):
     return format_datetime(obj, short=True)
 
 
-def format_time(obj):
+def format_time(obj: datetime)->str:
     ampm = settings.get('ampm', True)
     hourminutes = (
         obj.strftime('%-I:%M%p').rstrip('M').lower()
@@ -2290,13 +2300,13 @@ def format_datetime(obj, short=False):
         res = res.replace('PM', 'p')
     return True, res
 
-def format_time(dt: datetime)->str:
-    ampm = settings.get('ampm', True)
-    time_fmt = '%-I:%M%p' if ampm else '%H:%M'
-    res = dt.strftime(time_fmt)
-    if ampm:
-        res = res.lower().rstrip('m')
-    return res
+
+def format_relative_time(obj: datetime)->str:
+    now = datetime.now().astimezone()
+    if obj.date() != now.date():
+        return format_duration(now - obj, short=True)[1:]
+    else:
+        return format_time(obj)[1]
 
 
 def format_period(obj):
@@ -2455,6 +2465,8 @@ def status_duration(obj):
     if not (isinstance(obj, timedelta) or isinstance(obj, Period)):
         return None
     td = obj if isinstance(obj, timedelta) else obj.diff
+    return format_duration(td)[1:]
+
     total_seconds = int(td.total_seconds())
     if total_seconds < 60:
         return '0m'
@@ -2464,9 +2476,9 @@ def status_duration(obj):
     until = []
     if hours > 0:
         until.append(f'{hours}h')
-    if seconds and refresh_interval == 6:
-        until.append(f'{minutes}.{seconds//6}m')
-    elif minutes:
+    # if seconds and refresh_interval == 6:
+    #     until.append(f'{minutes}.{seconds//6}m')
+    if minutes:
         until.append(f'{minutes}m')
 
     return ''.join(until)
@@ -2774,6 +2786,8 @@ class DataView(object):
         self.query_mode = 'items table'
         self.report_view = ''
         self.report_text = ''
+        self.active_str = ''
+        self.inactive_str = ''
         self.report_items = []
         self.cal_locale = None
         self.history_view = ''
@@ -2798,6 +2812,7 @@ class DataView(object):
         if os.path.exists(timers_file):
             with open(timers_file, 'rb') as fn:
                 self.timers = pickle.load(fn)
+                logger.debug(f"{self.timers = }")
             self.active_timer = None
             for x in self.timers:
                 if self.timers[x][0] == 'p':
@@ -3232,9 +3247,11 @@ class DataView(object):
             r- -> p-   r- -> p-
             p- -> r-   p- -> r-
         """
+        logger.debug("next_timer_state")
         if not doc_id:
             return
         other_timers = deepcopy(self.timers)
+        logger.debug(f"{other_timers = }")
         if doc_id in other_timers:
             del other_timers[doc_id]
         active = [x for x, v in other_timers.items() if v[0] in ['r', 'p']]
@@ -3280,44 +3297,80 @@ class DataView(object):
         self.save_timers()
         return True, doc_id, active
 
-    # for status bar report
-    def timer_report(self):
-        # logger.debug("in timer_report")
-        ELECTRIC: str = '⌁'
-        active = all = status = ''
-        if not self.timers:
-            # logger.debug("bailing out")
-            return [active, all]
-        zero = timedelta()
-        delta = zero
-        if self.active_timer:
-            # logger.debug(f"{self.active_timer = }")
-            item = self.db.get(doc_id=self.active_timer)
-            active_item = f"{item['itemtype']} {item['summary']}" if item else ""
-            status, started, elapsed = self.timers[self.active_timer]
-            # logger.debug(f"{status = } {started = } {elapsed = }")
-            delta = datetime.now().astimezone() - started
-            # since = f'{status_duration(delta)}'
-            since = f'{format_time(started)}'
-            if status == 'r':   # running
-                elapsed += delta
-            total = f'{status_duration(elapsed)}'
-            width = shutil.get_terminal_size()[0] - len(since) - len(total) - 6
-            active = f'{status_duration(elapsed)} {status}{ELECTRIC}{since} {truncate_string(active_item, width)}'
-            # logger.debug(f"{active = }")
-            # active = f"{status_duration(delta)}"
-        if len(self.timers) >= 1:
-            # timers = deepcopy(self.timers)
-            # if self.active_timer in timers:
-            #     del timers[self.active_timer]
-            relevant = [v[2] for k, v in self.timers.items() if v[2] > zero and k != self.active_timer]
-            if relevant:
-                total = zero
-                for v in relevant:
-                    total += v
-                all = f'{status_duration(total)} '
-        # logger.debug(f"returning {active = }; {all = }")
-        return [active, all]
+    def get_timers(self):
+        """
+        timers
+        """
+        db = self.db
+        repeat_list = self.repeat_list
+        pinned_list = self.pinned_list
+        link_list = self.link_list
+        konnected = self.konnected
+        timers = self.timers
+        active_timer = self.active_timer
+        width = shutil.get_terminal_size()[0] - 3
+        rows = []
+        locations = set([])
+        now = datetime.now().astimezone()
+        state2sort = {'i': 'inactive', 'r': 'active', 'p': 'active'}
+        total_time = inactive_time = ZERO
+        num_timers = 0
+        timer_ids = [x for x in timers if x]
+        active = ""
+        for doc_id in timer_ids:
+            item = db.get(doc_id=doc_id)
+            if not item:
+                continue
+            num_timers += 1
+            itemtype = item['itemtype']
+            summary = item['summary']
+            state, start, elapsed = timers[doc_id]
+            since = f'{format_relative_time(start)}'
+            if state == 'r':
+                elapsed += now - start
+            elapsed = round_to_minutes(elapsed)
+            if state in ['r', 'p']:
+                # at most one timer can be active
+                total = f'{status_duration(elapsed)}'
+                this_width = width - len(since) - len(total) - 8
+                self.active_str = f"{itemtype} {total} {state}{ELECTRIC}{since}  {truncate_string(summary, this_width)} "
+            else:
+                # zero or more timers can be inactive
+                inactive_time += elapsed
+            total_time += elapsed
+            sort = state2sort[state]
+            rhc = f'{status_duration(elapsed)} {state}{ELECTRIC}{format_relative_time(start)}'
+            flags = get_flags(
+                doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            )
+            rows.append(
+                {
+                    'sort': (sort, now - start),
+                    'values': [
+                        itemtype,
+                        summary,
+                        flags,
+                        rhc,  # status
+                        doc_id,
+                    ],
+                }
+            )
+        self.inactive_str = f' {status_duration(inactive_time)}  '
+        try:
+            rows.sort(key=itemgetter('sort'), reverse=False)
+        except Exception as e:
+            logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
+        rdict = NDict()
+        timers_fmt = 'timers' if num_timers > 1 else 'timer'
+        path = f'{num_timers} {timers_fmt}: {status_duration(total_time)}'.center(
+            width, ' '
+        )
+        for row in rows:
+            values = row['values']
+            rdict.add(path, values)
+        timers_view, row2id = rdict.as_tree(rdict)
+        return timers_view, row2id
+
 
     def unsaved_timers(self):
         return len(self.timers)
@@ -3377,15 +3430,7 @@ class DataView(object):
             )
             return self.history_view
         if self.active_view == 'timers':
-            self.timers_view, self.row2id = show_timers(
-                self.db,
-                self.repeat_list,
-                self.pinned_list,
-                self.link_list,
-                self.konnected,
-                self.timers,
-                self.active_timer,
-            )
+            self.timers_view, self.row2id = self.get_timers()
             return self.timers_view
         if self.active_view == 'forthcoming':
             self.forthcoming_view, self.row2id = show_forthcoming(
@@ -7625,71 +7670,6 @@ def show_review(
     rdict = NDict()
     for row in rows:
         path = row['path']
-        values = row['values']
-        rdict.add(path, values)
-    tree, row2id = rdict.as_tree(rdict)
-    return tree, row2id
-
-
-def show_timers(
-    db,
-    repeat_list=[],
-    pinned_list=[],
-    link_list=[],
-    konnected=[],
-    timers={},
-    active_timer=None,
-):
-    """
-    timers
-    """
-    width = shutil.get_terminal_size()[0] - 3
-    rows = []
-    locations = set([])
-    # summary_width = width - 18
-    now = datetime.now().astimezone()
-    state2sort = {'i': 'inactive', 'r': 'active', 'p': 'active'}
-    total_time = ZERO
-    num_timers = 0
-    timer_ids = [x for x in timers if x]
-    for doc_id in timer_ids:
-        item = db.get(doc_id=doc_id)
-        if not item:
-            continue
-        state, start, elapsed = timers[doc_id]
-        if state == 'r':
-            elapsed += now - start
-        num_timers += 1
-        total_time += elapsed
-        sort = state2sort[state]
-        rhc = f'{status_duration(elapsed)} {state}{ELECTRIC}{format_time(start)}'
-        itemtype = item['itemtype']
-        summary = item['summary']
-        flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        )
-        rows.append(
-            {
-                'sort': (sort, now - start),
-                'values': [
-                    itemtype,
-                    summary,
-                    flags,
-                    rhc,  # status
-                    doc_id,
-                ],
-            }
-        )
-    try:
-        rows.sort(key=itemgetter('sort'), reverse=False)
-    except Exception as e:
-        logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
-    rdict = NDict()
-    timers_fmt = 'timers' if num_timers > 1 else 'timer'
-    path = f'{num_timers} {timers_fmt}: {status_duration(total_time)}'.center(
-        width, ' '
-    )
-    for row in rows:
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict)

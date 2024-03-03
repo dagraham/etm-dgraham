@@ -1057,7 +1057,7 @@ def is_showing_konnected():
 
 @Condition
 def timer_active():
-    return dataview.timers != {}
+    return dataview.active_timer is not None
 
 
 @Condition
@@ -1733,23 +1733,17 @@ def get_statusbar_center_text():
 
 
 def get_statusbar_right_text():
-    # logger.debug("calling timer_report")
     inbasket = INBASKET_CHAR if (glob(text_pattern)) else ''
-    active, all = dataview.timer_report()
-    # logger.debug(f"got {active = }; {all = }")
-    # logger.debug(f"{active = } {inactive = }")
-    if all:
-        all_part = (
-            (type_colors['running'], all)
-            if f'r{ELECTRIC}' in all
-            else (type_colors['paused'], all)
-        )
-    else:
-        all_part = ('class:status', '')
-
+    inactive_part = ('class:status', '')
+    if dataview.timers:
+        dataview.get_timers()
+        inactive = dataview.inactive_str
+        if inactive:
+            inactive_part = (
+                (type_colors['inactive'], inactive)
+            )
     return [
-        # active_part,
-        all_part,
+        inactive_part,
         (
             'class:status',
             f'{dataview.active_view} {inbasket}{update_status.get_status()}',
@@ -1757,10 +1751,11 @@ def get_statusbar_right_text():
     ]
 
 def get_timer_text():
-    active, _ = dataview.timer_report()
+    if not dataview.timers:
+        return []
+    active = dataview.active_str
     if active:
         active_part = (
-
                 (type_colors['running'], f' {active}') if f'r{ELECTRIC}' in active
             else (type_colors['paused'], f' {active}')
         )
@@ -2662,8 +2657,10 @@ entry_buffer.on_text_changed += entry_buffer_changed
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
 def next_timer_state(*event):
     row = text_area.document.cursor_position_row
+    logger.debug(f"{row = }")
     res = dataview.get_row_details(row)   # item_id, instance, job_id
     doc_id = res[0]
+    logger.debug(f'{doc_id = }')
     if not doc_id:
         return
     dataview.next_timer_state(doc_id)
@@ -3996,7 +3993,7 @@ root_container = MenuContainer(
                     '^c) copy active view to clipboard',
                     handler=copy_active_view,
                 ),
-                MenuItem('-- konnected view --', disabled=True),
+                MenuItem('__ konnected view __', disabled=True),
                 MenuItem('k) toggle showing konnections', handler=get_konnections),
             ]
         ),
@@ -4050,7 +4047,7 @@ root_container = MenuContainer(
                 MenuItem('^r) show repetitions', handler=not_editing_reps),
                 MenuItem('^u) update last modified', handler=do_touch),
                 MenuItem('^x) toggle archived status', handler=toggle_archived_status,),
-                MenuItem('-- konnected view --', disabled=True),
+                MenuItem('__ konnected view __', disabled=True),
                 MenuItem('k) toggle showing konnections', handler=get_konnections),
             ],
         ),
@@ -4058,7 +4055,7 @@ root_container = MenuContainer(
             'timers',
             children=[
                 MenuItem('m) show timer view', handler=timers_view),
-                MenuItem('-- for the selected reminder --', disabled=True),
+                MenuItem('__ for the selected reminder __', disabled=True),
                 MenuItem(
                     'T) create timer then toggle paused/running',
                     handler=next_timer_state,
@@ -4071,12 +4068,16 @@ root_container = MenuContainer(
                     'TD) delete timer without recording',
                     handler=maybe_delete_timer,
                 ),
-                MenuItem('-- ignores selection --', disabled=True),
+                MenuItem('__ ignores selection __', disabled=True),
                 MenuItem(
                     'TT) toggle paused/running for active timer',
                     handler=toggle_active_timer,
                 ),
                 MenuItem('^t) start quick timer', handler=quick_timer),
+                MenuItem('__ views showing recorded times __', disabled=True),
+                MenuItem('e) effort', handler=effort_view),
+                MenuItem('u) used time', handler=used_view),
+                MenuItem('U) used summary', handler=used_summary_view),
             ],
         ),
     ],
