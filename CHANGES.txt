@@ -1,4 +1,16 @@
-2024-02-29 f37ec77 Daniel Graham
+2024-03-03 dd0a9c2 Daniel Graham
+    Tagged version 6.1.15.
+
+2024-03-03 c3d4615 Daniel Graham
+    Refactored timer_report and show_timers into get_timers. Added
+    round_to_minutes to ensure that the total reported in timer view
+    is consistent with the items listed. In reporting the moment a
+    timer status last changed use the datetime if the change occurred
+    on the current date and the timedelta between the current moment
+    and the datetime otherwise. Added 'inactive' to type_colors.
+    Changed default 'light' type_colors for 'paused' and 'running'.
+
+2024-02-29 0a6134f Daniel Graham
     Tagged version 6.1.14.
 
 2024-02-29 465af5b Daniel Graham
@@ -240,11 +252,3 @@
 
 2024-01-15 ae440fe Daniel Graham
     removed unused imports
-
-2024-01-14 06c43fe Daniel Graham
-    Tagged version 6.0.10.
-
-2024-01-14 74d74c2 Daniel Graham
-    Added 'v' to complex query modes. Like 'u' it reports used times
-    but saves the report as a timestamped CSV file in the 'csv'
-    subdirectory of etmhome.
