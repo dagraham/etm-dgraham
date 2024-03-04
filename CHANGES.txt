@@ -1,4 +1,10 @@
-2024-03-03 dd0a9c2 Daniel Graham
+2024-03-04 9cc4449 Daniel Graham
+    Tagged version 6.1.16.
+
+2024-03-04 34a9181 Daniel Graham
+    Fixed bug in processing job summaries for tasks.
+
+2024-03-03 3cfa34e Daniel Graham
     Tagged version 6.1.15.
 
 2024-03-03 c3d4615 Daniel Graham
@@ -245,10 +251,3 @@
 
 2024-01-18 70fb828 Daniel Graham
     Konnected view tweaks.
-
-2024-01-18 0e23212 Daniel Graham
-    Added @k entries to lorem examples. Replaced erroneous Timezone
-    entries with ZoneInfo. Work on konnect view formatting.
-
-2024-01-15 ae440fe Daniel Graham
-    removed unused imports
