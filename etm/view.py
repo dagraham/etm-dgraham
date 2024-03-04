@@ -604,7 +604,6 @@ class ETMQuery(object):
         try:
             ok, res, updt = self.process_query(query)
             if not ok or isinstance(res, str):
-                logger.debug(f"not ok, returning {res}")
                 return False, res
 
             if isinstance(res, tinydb.table.Document):
@@ -612,7 +611,6 @@ class ETMQuery(object):
             else:
                 items = dataview.db.search(res)
                 if updt:
-                    logger.debug(f'updt[0]: {updt[0]}; updt[1:]: {updt[1:]}')
                     self.update[updt[0]](*updt[1:], items)
                     if self.changed:
                         loop = asyncio.get_event_loop()
@@ -697,7 +695,6 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     Returns:
         any
     """
-    logger.debug(f"title: {title}")
     if dataview.is_editing:
         # finish edit first
         return
@@ -881,7 +878,6 @@ def dt_calculator(*event):
     # func  = inspect.currentframe().f_code.co_name
     # show_work_in_progress(func)
     # return
-    logger.debug(f"{timer_active()}; {dataview.active_timer = }; {dataview.timers = }\n")
 
     title = 'DateTime Calculator'
     text = """\
@@ -1864,7 +1860,6 @@ class AtCompleter(Completer):
                     if completion == word:
                         tmp = completion.split(' | ')
                         replacement = f"@k {tmp[1].strip()}"
-                        logger.debug(f"word: {word}; completion: {completion}; replacement: {replacement}; word_len: {word_len}")
                         yield Completion(replacement, start_position=-word_len)
                     else:
                         # yield Completion(completion, start_position=-word_len)
@@ -2095,7 +2090,6 @@ def accept(buff):
     set_text('processing query ...')
     if query_window.text:
         text = query_window.text
-        logger.debug(f'query: {text}')
         queries = settings.get('queries')
         if text == 'l':
             if queries:
@@ -2404,7 +2398,6 @@ To reschedule enter the {new} """
         new_datetime = dataview.entry_content.strip()
 
         if new_datetime:
-            logger.debug(f"new_datetime: {new_datetime}")
             try:
                 dt = parse_datetime(new_datetime, z='local')[1]
                 ok = True
@@ -2606,7 +2599,6 @@ def edit_or_add_journal(*event):
     starting_buffer_text = edit_buffer.text
     lines_in_buffer = len(edit_buffer.text.split('\n'))
     position = edit_buffer.document.get_end_of_document_position()
-    logger.debug(f"end_of_document: {position}; lines: {lines_in_buffer}")
     for i in range(lines_in_buffer):
         edit_buffer.cursor_down()
     for i in range(4):
@@ -2657,10 +2649,8 @@ entry_buffer.on_text_changed += entry_buffer_changed
 @bindings.add('T', filter=is_viewing_or_details & is_item_view)
 def next_timer_state(*event):
     row = text_area.document.cursor_position_row
-    logger.debug(f"{row = }")
     res = dataview.get_row_details(row)   # item_id, instance, job_id
     doc_id = res[0]
-    logger.debug(f'{doc_id = }')
     if not doc_id:
         return
     dataview.next_timer_state(doc_id)
@@ -3035,12 +3025,8 @@ def do_goto(*event):
     doc_id = res[0]
     # we have a row and a doc_id
     ok, goto = dataview.get_goto(row)
-    logger.debug(
-        f'get_goto with row {row} and doc_id {res[0]} returned: {ok}, {goto}'
-    )
     if ok and goto:
         res = openWithDefault(goto)
-        logger.debug(f"openWithDefault '{goto}' returned {res}")
         if res:
             show_message('goto', res, 8)
     else:
@@ -3062,7 +3048,6 @@ def check_goto(*event):
 def not_editing_reps(*event):
     # doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
     row = text_area.document.cursor_position_row
-    logger.debug(f'calling get_repetitions with row {row}')
     res = dataview.get_repetitions(row)
     if not res:
         return
@@ -3138,12 +3123,9 @@ It is possible to import data from a collection of illustrative, 'lorem', remind
 
     def coroutine():
         keypress = dataview.details_key_press
-        logger.debug(f'confirmation keypress: {keypress} {type(keypress)}')
         done = keypress in (['escape', '0'] + [x for x in values.keys()])
         if done:
-            logger.debug("done ...")
             if keypress == '0':
-                logger.debug(f"last doc_id: {dataview.last_id}")
                 ok, msg = import_file('lorem')
                 if ok:
                     dataview.refreshRelevant()
@@ -3154,15 +3136,11 @@ It is possible to import data from a collection of illustrative, 'lorem', remind
                     loop = asyncio.get_event_loop()
                     loop.call_later(0, data_changed, loop)
                 show_message('Import File', msg)
-                logger.debug(f"last doc_id: {dataview.last_id}")
 
             elif keypress in values.keys():
                 filepath = values[keypress]
                 set_text(dataview.show_active_view())
-                logger.debug(f'got filepath: {filepath}')
-                # filepath = os.path.expanduser(filepath.strip())
                 ok, msg = import_file(filepath)
-                logger.debug(f"ok: {ok}; msg: {msg}; filepath: '{filepath}'")
                 if ok:
                     # file_base, file_extension = os.path.splitext(filepath)
                     # new_filepath = file_base + '.txt'
@@ -3346,9 +3324,6 @@ def agenda_view(*event):
 def busy_view(*event):
     set_view('b')
     busy_details = dataview.busy_details
-    logger.debug(
-        [f'{key}: {value.strip()}\n' for key, value in busy_details.items()]
-    )
     if dataview.busy_row:
         text_area.buffer.cursor_position = (
             text_area.buffer.document.translate_row_col_to_index(
@@ -3772,7 +3747,6 @@ def handle_choice(*event):
     """
     keypressed = event[0].key_sequence[0].key
     dataview.details_key_press = keypressed
-    logger.debug(f'handle_choice: {keypressed}')
     done = dataview.got_choice()
     if done:
         dataview.hide_choice()
@@ -3839,7 +3813,6 @@ def close_edit(*event):
 @bindings.add('enter', filter=is_showing_entry, eager=True)
 def process_entry(*event):
     global text_area
-    logger.debug(f'dataview.entry_content: {dataview.entry_content}')
     dataview.got_entry()
 
     def corountine():
@@ -3863,7 +3836,6 @@ def close_details(*event):
 @bindings.add('escape', filter=is_showing_choice, eager=True)
 def close_choice(*event):
     global text_area
-    logger.debug('get choice canceled')
     row, col = get_row_col()
     dataview.hide_choice()
     application.layout.focus(text_area)
@@ -3874,7 +3846,6 @@ def close_choice(*event):
 @bindings.add('escape', filter=is_showing_entry, eager=True)
 def close_entry(*event):
     global text_area
-    logger.debug('get entry canceled')
     row, col = get_row_col()
     dataview.hide_entry()
     application.layout.focus(text_area)

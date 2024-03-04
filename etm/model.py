@@ -1396,7 +1396,6 @@ item_hsh:    {self.item_hsh}
                 'unrecognized key',
                 f'{display_key} is invalid',
             )
-        # logger.debug(f"leaving update_keyval with self.keyvals: {self.keyvals}")
 
 
     def check_item_hsh(self):
@@ -1405,9 +1404,7 @@ item_hsh:    {self.item_hsh}
         cur_hsh = {}
         cur_key = None
         msg = []
-        # logger.debug(f"pos_hsh: {self.pos_hsh}")
         for pos, (k, v) in self.pos_hsh.items():
-            # logger.debug(f"looking for {(k,v)} in object_hsh: {self.object_hsh}")
             obj = self.object_hsh.get((k, v))
             if obj is None:
                 msg.append(f'bad entry for {k}: {v}')
@@ -1458,7 +1455,6 @@ item_hsh:    {self.item_hsh}
             del self.item_hsh['z']
         if msg:
             msg = '\n'.join(msg)
-
         return msg
 
     def update_item_hsh(self, check_links=True):
@@ -2812,7 +2808,6 @@ class DataView(object):
         if os.path.exists(timers_file):
             with open(timers_file, 'rb') as fn:
                 self.timers = pickle.load(fn)
-                logger.debug(f"{self.timers = }")
             self.active_timer = None
             for x in self.timers:
                 if self.timers[x][0] == 'p':
@@ -3009,7 +3004,6 @@ class DataView(object):
                 self.kompletions[k.strip()[3:]] = f"@k {v.strip()}"
             else:
                 logger.debug(f"bad parts: {parts}")
-        logger.debug(f"{self.occurrences = :}")
 
 
     def show_occurrences(self):
@@ -6395,6 +6389,7 @@ def jobs(lofh, at_hsh={}):
             hsh['p'] = [LOWERCASE[count - 1]] if count > 0 else []
             count += 1
             req[hsh['i']] = deepcopy(hsh['p'])
+            id
 
         else:    # manual mode
             if 'i' not in hsh:
@@ -6415,6 +6410,8 @@ def jobs(lofh, at_hsh={}):
         for key in hsh.keys():
             if key in ['req', 'status', 'summary']:
                 pass
+            elif key == 'j':
+                res['j'] = hsh['j']
             elif key == 'a':
                 res.setdefault('a', []).append(hsh['a'])
             elif key == 'u':
@@ -6471,6 +6468,7 @@ def jobs(lofh, at_hsh={}):
             'error: circular dependency for jobs {}'.format(', '.join(tmp))
         )
 
+    logger.debug("working on completions")
     # Are all jobs finished:
     last_completion = None
     for i in ids:
@@ -6511,11 +6509,14 @@ def jobs(lofh, at_hsh={}):
             awf[0] += 1
 
     for i in ids:
-        id2hsh[i]['summary'] = '{} {}: {}'.format(
-            summary, '/'.join([str(x) for x in awf]), id2hsh[i]['j']
-        )
-        id2hsh[i]['req'] = req[i]
-        id2hsh[i]['i'] = i
+        try:
+            id2hsh[i]['summary'] = '{} {}: {}'.format(
+                summary, '/'.join([str(x) for x in awf]), id2hsh[i]['j']
+            )
+            id2hsh[i]['req'] = req[i]
+            id2hsh[i]['i'] = i
+        except Exception as e:
+            logger.debug(f"exception: {e = }")
 
     if msg:
         logger.warning(f'{msg}')
