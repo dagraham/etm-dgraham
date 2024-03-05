@@ -2311,7 +2311,13 @@ def format_period(obj):
         return obj
     start = obj.start
     end = obj.end
-    return f'{format_datetime(start, short=True)[1]} -> {format_datetime(end, short=True)[1]}'
+    local_end = end.astimezone()
+    if local_end.hour == 0 and local_end.minute == 0:
+        # treat end as a date instead of a datetime
+        local_end_str = format_date(local_end.date())[1]
+    else:
+        local_end_str = format_datetime(local_end, short=True)[1]
+    return f'{format_datetime(start, short=True)[1]} -> {local_end_str}'
 
 
 def format_period_list(obj_lst):
@@ -2452,6 +2458,14 @@ def format_duration(obj, short=False):
     except Exception as e:
         logger.error(f'{obj}: {e}')
         return ''
+
+def format_completion(done: date|datetime, due: date|datetime)->str:
+    due = date_to_datetime(due).astimezone()
+    done = date_to_datetime(done).astimezone()
+    if due.hour == 0 and due.minute == 0:
+        # allday task - regard it as due at zero hours on the next day
+        due = due + timedelta(days=1)
+    return format_duration(due - done, short=True)
 
 
 def status_duration(obj):
@@ -3895,7 +3909,6 @@ class DataView(object):
         else:
             self.pinned_list.append(item_id)
             act = 'pinned'
-        # logger.debug(f'toggle_pinned for {item_id} to {act}')
         logger.debug(f'pinned_list: {self.pinned_list}')
         return f'{act} {item_id}'
 
@@ -4723,12 +4736,9 @@ def ordinal(num):
 def one_or_more(s):
     def _str(s):
         s = str(s)
-        # logger.debug(f"s: {s}")
         if s in WKDAYS_ENCODE:
-            # logger.debug(f"in WKDAYS_ENCODE: {WKDAYS_ENCODE[s]}")
             return WKDAYS_ENCODE[s].lstrip('+')
         else:
-            # logger.debug(f"not in WKDAYS_ENCODE")
             return s
     if type(s) is list:
         return ', '.join([_str(x) for x in s])
@@ -5580,7 +5590,6 @@ def do_weekdays(arg):
             if m:
                 # fix 3 char weekdays, e.g., -2FRI -> -2FR
                 x = f'{m[1]}{m[2][:2]}'
-            # logger.debug(f"examining weekday: '{x}'")
             if x in WKDAYS_DECODE:
                 good.append(eval('dr.{}'.format(WKDAYS_DECODE[x])))
                 rep.append(x)
@@ -5886,7 +5895,6 @@ def get_next_due(item, done, due, from_rrule=False):
     """
     return the next due datetime for an @r and @+ / @- repetition
     """
-    # logger.debug(f"get_next_due for {item}, {done}, {due}, {from_rrule}")
     lofh = item.get('r')
     if not lofh:
         return ''
@@ -6468,7 +6476,6 @@ def jobs(lofh, at_hsh={}):
             'error: circular dependency for jobs {}'.format(', '.join(tmp))
         )
 
-    logger.debug("working on completions")
     # Are all jobs finished:
     last_completion = None
     for i in ids:
@@ -6915,8 +6922,8 @@ def relevant(
                     year=relevant.year,
                     month=relevant.month,
                     day=relevant.day,
-                    hour=0,
-                    minute=0,
+                    hour=23,
+                    minute=59,
                 ).astimezone()
 
         elif 's' in item and not item['s']:
@@ -6987,12 +6994,10 @@ def relevant(
                         )
                         plus_dates = item.get('+', [])
                         if cur + delta < now:
-                            logger.debug(f"updating @s {cur}")
                             # we need to update @s
                             relevant = rset.after(now, inc=True)
                             while relevant in plus_dates:
                                 relevant = rset.after(relevant, inc=False)
-                                logger.debug(f"reset relevant: {relevant} for {item['summary']}")
                             item['s'] = relevant
                             item.setdefault('h', []).append(
                                     Period(cur + ONEMIN, cur))
@@ -8520,8 +8525,8 @@ def schedule(
                         finished.start,
                         summary,
                         doc_id,
-                        format_duration(
-                            finished.end - finished.start, short=True
+                        format_completion(
+                            finished.start, finished.end
                         ),
                     ]
                 )
@@ -8535,7 +8540,7 @@ def schedule(
                             dt.start,
                             summary,
                             doc_id,
-                            format_duration(dt.end - dt.start, short=True),
+                            format_completion(dt.start, dt.end),
                         ]
                     )
                     completed.append(dt.end)
@@ -8548,16 +8553,14 @@ def schedule(
                                 job['f'].start,
                                 job_summary,
                                 doc_id,
-                                format_duration(
-                                    job['f'].end - job['f'].start, short=True
+                                format_completion(
+                                    job['f'].start, job['f'].end
                                 ),
                             ]
                         )
             if d:
                 for row in d:
                     dt = row[0]
-                    if isinstance(dt, date) and not isinstance(dt, datetime):
-                        dt = datetime(dt.year, dt.month, dt.day).astimezone()
                     finished_char = SKIPPED_CHAR if row[3] == '-1m' else FINISHED_CHAR
 
                     rhc = str(row[3]) + '  ' if len(row) > 3 else ''
@@ -9180,7 +9183,6 @@ def import_examples():
 
     logger.debug(f"starting import from last_id: {last_id}")
     count = 0
-    # logger.debug(f"beginning import with last_id {dataview.last_id}")
     for s in examples:
         ok = True
         count += 1

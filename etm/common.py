@@ -193,6 +193,7 @@ def decode_datetime(s):
 
 class Period:
     def __init__(self, datetime1, datetime2):
+        # datetime1: done/start; datetime2: due/end. On time => period positive
         # Ensure both inputs are datetime.datetime instances
         if not isinstance(datetime1, datetime) or not isinstance(
             datetime2, datetime
