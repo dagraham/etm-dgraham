@@ -1,4 +1,11 @@
-2024-03-04 9cc4449 Daniel Graham
+2024-03-05 e48ff2c Daniel Graham
+    Tagged version 6.1.17.
+
+2024-03-05 95e00a7 Daniel Graham
+    Treat allday tasks as due at midnight and thus finished ahead of
+    time if finished anytime during the due date.
+
+2024-03-04 3e1bb78 Daniel Graham
     Tagged version 6.1.16.
 
 2024-03-04 34a9181 Daniel Graham
@@ -245,9 +252,3 @@
     Refactored konnected, konnections_to and konnections_from. Wrapped
     item['s'] in date_to_datetime to permit comparisons with rrule
     instance when deleting.
-
-2024-01-18 1b434bb Daniel Graham
-    Tagged version 6.0.11.
-
-2024-01-18 70fb828 Daniel Graham
-    Konnected view tweaks.
