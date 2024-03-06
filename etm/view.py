@@ -1550,6 +1550,8 @@ async def maybe_alerts(now):
     bad = []
     for alert in dataview.alerts:
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
+            if alert[0].second > 0 and now.second != alert[0].second:
+                continue
             alertdt = alert[0]
             startdt = alert[1]
             if startdt > alertdt:
@@ -1605,13 +1607,14 @@ async def maybe_alerts(now):
 def event_handler(e):
     global current_datetime
     now = datetime.now().astimezone()
-    if now.second >= 1:
-        return
-    # check for updates every interval minutes
-    updates_interval = settings.get('updates_interval', 0)
     refresh_interval = settings.get(
         'refresh_interval', 60
     )   # seconds to wait between loops
+    if now.second % refresh_interval >= 1:
+        return
+    # check for updates every interval minutes
+    updates_interval = settings.get('updates_interval', 0)
+    # logger.debug(f"{now.second = }")
 
     try:
         minutes = now.minute
@@ -1624,10 +1627,6 @@ def event_handler(e):
             loop = asyncio.get_event_loop()
             asyncio.ensure_future(updates_loop(loop))
 
-        # if minutes % 5 == 0:
-        #     loop = asyncio.get_event_loop()
-        #     asyncio.ensure_future(refresh_loop(loop))
-
         if today != current_today:
             loop = asyncio.get_event_loop()
             asyncio.ensure_future(new_day(loop))
@@ -1637,9 +1636,7 @@ def event_handler(e):
             row, col = get_row_col()
             set_text(dataview.show_active_view())
             restore_row_col(row, col)
-        # get_app().invalidate()
-        # await asyncio.sleep(wait)
-        # asyncio.sleep(wait)
+
     except asyncio.CancelledError:
         logger.info(f'Background task cancelled.')
 

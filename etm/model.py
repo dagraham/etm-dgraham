@@ -1983,11 +1983,13 @@ def duration_in_words(obj, short=False):
         return None
     try:
         until = []
-        seconds = int(obj.total_seconds())
-        weeks = days = hours = minutes = 0
-        if seconds:
-            sign = '' if seconds > 0 else '- '
-            minutes = abs(seconds) // 60
+        total_seconds = int(obj.total_seconds())
+        weeks = days = hours = minutes = seconds = 0
+        if total_seconds:
+            sign = '' if total_seconds > 0 else '- '
+            total_seconds = abs(total_seconds)
+            seconds = total_seconds % 60
+            minutes = total_seconds // 60
             if minutes >= 60:
                 hours = minutes // 60
                 minutes = minutes % 60
@@ -2017,6 +2019,11 @@ def duration_in_words(obj, short=False):
                 until.append(f'{sign}{minutes} minutes')
             else:
                 until.append(f'{sign}{minutes} minute')
+        if seconds:
+            if seconds > 1:
+                until.append(f'{sign}{seconds} seconds')
+            else:
+                until.append(f'{sign}{seconds} second')
         if not until:
             until.append('zero minutes')
         ret = ' '.join(until[:2]) if short else ' '.join(until)
@@ -2152,11 +2159,14 @@ def plain_datetime(obj):
 
 def format_time(obj: datetime)->str:
     ampm = settings.get('ampm', True)
-    hourminutes = (
-        obj.strftime('%-I:%M%p').rstrip('M').lower()
-        if ampm
-        else obj.strftime('%H:%M')
-    )
+    (hours, suffix) = ('%-I:', '%p') if ampm else ('%H:', '')
+    seconds = ':%S' if obj.second else ''
+    hourminutes = obj.strftime(f"{hours}%M{seconds}{suffix}").rstrip('M').lower()
+    # hourminutes = (
+    #     obj.strftime('%-I:%M%p').rstrip('M').lower()
+    #     if ampm
+    #     else obj.strftime('%H:%M')
+    # )
     return True, hourminutes
 
 
@@ -2267,7 +2277,11 @@ def format_datetime(obj, short=False):
         md = '%a %-d %b' if dayfirst else '%a %b %-d'
         date_fmt = f'{md}, %Y' if yearfirst else f'{md} %Y'
 
-    time_fmt = '%-I:%M%p' if ampm else '%H:%M'
+    if obj.second == 0:
+        time_fmt = '%-I:%M%p' if ampm else '%H:%M'
+    else:
+        logger.debug("seconds")
+        time_fmt = '%-I:%M:%S%p' if ampm else '%H:%M:%S'
 
     if type(obj) == date:
         return True, obj.strftime(date_fmt)
@@ -2292,8 +2306,9 @@ def format_datetime(obj, short=False):
             time_fmt += ' %Z'
     res = obj.strftime(f'{date_fmt} {time_fmt}')
     if ampm:
-        res = res.replace('AM', 'a')
-        res = res.replace('PM', 'p')
+        res.rstrip('M').lower()
+        # res = res.replace('AM', 'a')
+        # res = res.replace('PM', 'p')
     return True, res
 
 
@@ -2424,16 +2439,17 @@ def format_duration(obj, short=False):
     # if not (isinstance(obj, Period) or isinstance(obj, timedelta)):
     if not isinstance(obj, timedelta):
         return None
-    seconds = int(obj.total_seconds())
-    if seconds == 0:
+    total_seconds = int(obj.total_seconds())
+    if total_seconds == 0:
         return ' 0m'
-    sign = '+' if seconds > 0 else '-'
-    seconds = abs(seconds)
+    sign = '+' if total_seconds > 0 else '-'
+    total_seconds = abs(total_seconds)
     try:
         until = []
         weeks = days = hours = minutes = 0
-        if seconds:
-            minutes = seconds // 60
+        if total_seconds:
+            seconds = total_seconds % 60
+            minutes = total_seconds // 60
             if minutes >= 60:
                 hours = minutes // 60
                 minutes = minutes % 60
@@ -2451,6 +2467,8 @@ def format_duration(obj, short=False):
             until.append(f'{hours}h')
         if minutes:
             until.append(f'{minutes}m')
+        if seconds:
+            until.append(f'{seconds}s')
         if not until:
             until.append('0m')
         ret = ''.join(until[:2]) if short else ''.join(until)
@@ -2549,9 +2567,9 @@ def format_duration_list(obj_lst):
         logger.error(f'{obj_lst}: {e}')
 
 
-period_regex = re.compile(r'(([+-]?)(\d+)([wdhm]))+?')
+period_regex = re.compile(r'(([+-]?)(\d+)([wdhms]))+?')
 expanded_period_regex = re.compile(
-    r'(([+-]?)(\d+)\s(week|day|hour|minute)s?)+?'
+    r'(([+-]?)(\d+)\s(week|day|hour|minute|second)s?)+?'
 )
 relative_regex = re.compile(r'(([+-])(\d+)([wdhmys]))+?')
 threeday_regex = re.compile(
@@ -2616,6 +2634,9 @@ def parse_duration(s: str)->timedelta:
         'm': 'minutes',
         'minute': 'minutes',
         'minutes': 'minutes',
+        's': 'seconds',
+        'second': 'second',
+        'seconds': 'seconds',
     }
 
     kwds = {
@@ -2623,6 +2644,7 @@ def parse_duration(s: str)->timedelta:
         'days': 0,
         'hours': 0,
         'minutes': 0,
+        'seconds': 0,
     }
 
     m = period_regex.findall(str(s))

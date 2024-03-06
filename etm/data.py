@@ -326,6 +326,7 @@ def format_duration(obj):
     days = obj.days % 7
     hours = obj.seconds // (60 * 60)
     minutes = (obj.seconds // 60) % 60
+    seconds = obj.seconds % 60
     if weeks:
         until.append(f'{weeks}w')
     if days:
@@ -334,6 +335,8 @@ def format_duration(obj):
         until.append(f'{hours}h')
     if minutes:
         until.append(f'{minutes}m')
+    if seconds:
+        until.append(f'{seconds}s')
     if not until:
         until.append('0m')
     return ''.join(until)
