@@ -1550,7 +1550,9 @@ async def maybe_alerts(now):
     bad = []
     for alert in dataview.alerts:
         if alert[0].hour == now.hour and alert[0].minute == now.minute:
-            if alert[0].second > 0 and now.second != alert[0].second:
+            # logger.debug(f"{alert[0].hour = }; {now.hour = }; {alert[0].minute = } {now.minute = }; {alert[0].second = }; {now.second = }")
+            # if alert[0].second > 0 and now.second != alert[0].second:
+            if now.second != alert[0].second:
                 continue
             alertdt = alert[0]
             startdt = alert[1]
@@ -1608,22 +1610,22 @@ def event_handler(e):
     global current_datetime
     now = datetime.now().astimezone()
     refresh_interval = settings.get(
-        'refresh_interval', 60
+        'refresh_interval', 6
     )   # seconds to wait between loops
     if now.second % refresh_interval >= 1:
         return
     # check for updates every interval minutes
     updates_interval = settings.get('updates_interval', 0)
-    # logger.debug(f"{now.second = }")
+    minutes = now.minute
+    seconds = now.second
 
     try:
-        minutes = now.minute
         current_today = dataview.now.strftime('%Y%m%d')
         asyncio.ensure_future(maybe_alerts(now))
         current_datetime = status_time(now)
         today = now.strftime('%Y%m%d')
 
-        if updates_interval and minutes % updates_interval == 0:
+        if updates_interval and minutes % updates_interval == 0 and seconds == 0:
             loop = asyncio.get_event_loop()
             asyncio.ensure_future(updates_loop(loop))
 

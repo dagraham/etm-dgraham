@@ -191,7 +191,7 @@ class Settings:
     omit_extent = ''
     keep_current = [0, 46]
     archive_after = 0
-    refresh_interval = 60
+    refresh_interval = 6
     num_finished = 0
     num_repetitions = 10
     limit_skip_display = 'true'
@@ -383,9 +383,7 @@ refresh_interval: {refresh_interval}
 # every refresh_interval seconds. This setting determines the maximum
 # accuracy for used time recording since, e.g., with a setting of 12
 # the clock is only read every 12 seconds so timers can only be accurate
-# to the nearest 0.2 minutes. Whatever the value of this setting, usedtimes
-# are recorded rounded off to the nearest minute. See also the setting for
-# usedtime_minutes.
+# to the nearest 0.2 minutes.  See also the setting for usedtime_minutes.
 
 usedtime_minutes: {usedtime_minutes}
 # 0, 1, 6, 12, 30 or 60. This setting only affects how used times are

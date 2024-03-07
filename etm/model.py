@@ -2158,15 +2158,11 @@ def plain_datetime(obj):
 
 
 def format_time(obj: datetime)->str:
+    obj = date_to_datetime(obj)
     ampm = settings.get('ampm', True)
     (hours, suffix) = ('%-I:', '%p') if ampm else ('%H:', '')
     seconds = ':%S' if obj.second else ''
     hourminutes = obj.strftime(f"{hours}%M{seconds}{suffix}").rstrip('M').lower()
-    # hourminutes = (
-    #     obj.strftime('%-I:%M%p').rstrip('M').lower()
-    #     if ampm
-    #     else obj.strftime('%H:%M')
-    # )
     return True, hourminutes
 
 
@@ -2277,10 +2273,11 @@ def format_datetime(obj, short=False):
         md = '%a %-d %b' if dayfirst else '%a %b %-d'
         date_fmt = f'{md}, %Y' if yearfirst else f'{md} %Y'
 
+    obj = date_to_datetime(obj)
+
     if obj.second == 0:
         time_fmt = '%-I:%M%p' if ampm else '%H:%M'
     else:
-        logger.debug("seconds")
         time_fmt = '%-I:%M:%S%p' if ampm else '%H:%M:%S'
 
     if type(obj) == date:
@@ -2306,9 +2303,7 @@ def format_datetime(obj, short=False):
             time_fmt += ' %Z'
     res = obj.strftime(f'{date_fmt} {time_fmt}')
     if ampm:
-        res.rstrip('M').lower()
-        # res = res.replace('AM', 'a')
-        # res = res.replace('PM', 'p')
+        res = res.rstrip('M').lower()
     return True, res
 
 
