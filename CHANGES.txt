@@ -1,4 +1,11 @@
-2024-03-06 92e8ed7 Daniel Graham
+2024-03-07 0eb781f Daniel Graham
+    Tagged version 6.1.19.
+
+2024-03-07 8ac164d Daniel Graham
+    Fixed bug in allowing some & arguments in task jobs. Fixed bug in
+    accounting for timezone offsets in repeating items with alarms.
+
+2024-03-06 b4bc6ef Daniel Graham
     Tagged version 6.1.18.
 
 2024-03-06 b892344 Daniel Graham
@@ -242,12 +249,3 @@
 
 2024-01-22 fde1078 Daniel Graham
     Tagged version 6.0.13.
-
-2024-01-22 98ff2b4 Daniel Graham
-    Fixed bug in setting title for go_to_line.
-
-2024-01-22 15e61d0 Daniel Graham
-    Don't automatically archive items with @k entries. Use 4-digit
-    years in detail and edit views to preserve century, e.g., to avoid
-    1944/4/17 being saved as 44/4/17 and then interpreted as
-    2044/4/17.
