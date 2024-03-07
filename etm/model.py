@@ -8675,6 +8675,10 @@ def schedule(
                         continue
                     job_summary = job.get('summary', '')
                     jobstart = dt - job.get('s', ZERO)
+                    sort_dt = jobstart.strftime('%Y%m%d%H%M')
+                    if sort_dt.endswith('0000'):
+                        sort_dt = sort_dt[:-4] + '2359'
+
                     job_id = job.get('i', None)
                     job_sort = str(job_id)
 
@@ -8686,7 +8690,7 @@ def schedule(
                             'job': job_id,
                             'instance': instance,
                             'sort': (
-                                jobstart.strftime('%Y%m%d%H%M'),
+                                sort_dt,
                                 job_sort,
                             ),
                             'week': (jobstart.isocalendar()[:2]),
