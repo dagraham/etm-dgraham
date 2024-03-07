@@ -1547,7 +1547,7 @@ item_hsh:    {self.item_hsh}
                 numuses[k] += 1
             duplicates = [
                 k for (k, v) in numuses.items() if v > 1 and k not in [
-                    'a', 'u', 't', 'k', 'K', 'jj', 'rr', 'ji']
+                    'a', 'u', 't', 'k', 'K', 'jj', 'rr', 'ji', 'js', 'jb', 'jp', 'ja', 'jd', 'je', 'jf', 'jl', 'jm', 'ju']
                 ]
             if key in duplicates:
                 display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'

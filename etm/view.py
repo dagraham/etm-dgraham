@@ -1493,6 +1493,7 @@ def alerts():
     for alert in dataview.alerts:
         trigger_time = alert[0]
         start_time = alert[1]
+        logger.debug(f"{alert[4] = }; {trigger_time = }; {now = }; {(trigger_time.replace(tzinfo=None) < now.replace(tzinfo=None)) = }")
         if start_time.date() == now.date():
             start = format_time(start_time)[1]
         else:
@@ -1502,7 +1503,7 @@ def alerts():
         itemtype = alert[3]
         summary = alert[4]
         doc_id = alert[5]
-        prefix = '✓' if trigger_time < now else '•'   # '⧖'
+        prefix = '✓' if trigger_time.replace(tzinfo=None) < now.replace(tzinfo=None) else '•'   # '⧖'
         alert_hsh.setdefault((alert[5], itemtype, summary), []).append(
             [prefix, trigger, start, command]
         )
