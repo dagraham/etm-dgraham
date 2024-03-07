@@ -1,4 +1,16 @@
-2024-03-05 e48ff2c Daniel Graham
+2024-03-06 92e8ed7 Daniel Graham
+    Tagged version 6.1.18.
+
+2024-03-06 b892344 Daniel Graham
+    Modified time and datetime formatting to show seconds when non
+    zero. Fixed maybe_alerts to avoid repetition when the
+    refresh_interval is less than a minute. Changed the default
+    refresh_interval from 60 to 6 seconds.
+
+2024-03-06 388c505 Daniel Graham
+    Enabled 'seconds' in alerts and in the duration serializer.
+
+2024-03-05 ff5ee2c Daniel Graham
     Tagged version 6.1.17.
 
 2024-03-05 95e00a7 Daniel Graham
@@ -239,16 +251,3 @@
     years in detail and edit views to preserve century, e.g., to avoid
     1944/4/17 being saved as 44/4/17 and then interpreted as
     2044/4/17.
-
-2024-01-20 3c246a6 Daniel Graham
-    Konnected view with show konnections for selected. Changed
-    bindings, space for details, ^down for current, ^up for jump to
-    date, in konnected view, enter shows konnections.
-
-2024-01-18 f21d6ff Daniel Graham
-    Tagged version 6.0.12.
-
-2024-01-18 9d15299 Daniel Graham
-    Refactored konnected, konnections_to and konnections_from. Wrapped
-    item['s'] in date_to_datetime to permit comparisons with rrule
-    instance when deleting.
