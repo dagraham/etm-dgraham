@@ -1,4 +1,14 @@
-2024-03-07 0eb781f Daniel Graham
+2024-03-12 6985f67 Daniel Graham
+    Tagged version 6.1.20.
+
+2024-03-12 6c56abe Daniel Graham
+    Added raise ValueError exception in format_completion when a
+    passed argument is neither a date nor a datime instance.
+
+2024-03-07 16d6676 Daniel Graham
+    Fix sort order for jobs with dates as start times.
+
+2024-03-07 867d171 Daniel Graham
     Tagged version 6.1.19.
 
 2024-03-07 8ac164d Daniel Graham
@@ -234,18 +244,3 @@
 2024-01-23 33d0c35 Daniel Graham
     Replaced ': ' as separator in completions with '|| ' to avoid
     false matches.
-
-2024-01-23 98c2c0e Daniel Graham
-    Tagged version 6.0.14. Major update to Konnected (Zettelkasten)
-    View.
-
-2024-01-23 bdb1f21 Daniel Graham
-    When opening konnected view, if an item is selected with an @k
-    entry, then jump to that row in konnected view. When returning to
-    konnected view from viewing konnections for an item, jump to the
-    row corresponding to the last selection in konnections. Added
-    discussion of Zettelkasten to the Konnected View section of
-    README.
-
-2024-01-22 fde1078 Daniel Graham
-    Tagged version 6.0.13.
