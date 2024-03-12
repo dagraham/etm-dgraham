@@ -2473,6 +2473,11 @@ def format_duration(obj, short=False):
         return ''
 
 def format_completion(done: date|datetime, due: date|datetime)->str:
+    for x in [done, due]:
+        if not isinstance(x, datetime) and not isinstance(x, date):
+            logger.error(f"in format_completion with {done = } and {due = }.  {x = } is neither a date nor a datetime instance.")
+            raise TypeError(f"{x = } is neither a date nor a datetime instance")
+
     due = date_to_datetime(due).astimezone()
     done = date_to_datetime(done).astimezone()
     if due.hour == 0 and due.minute == 0:
@@ -2486,25 +2491,25 @@ def status_duration(obj):
     hours, minutes and tenths of minutes for display in the status bar
     """
     if not (isinstance(obj, timedelta) or isinstance(obj, Period)):
-        return None
+        raise ValueError(f"{obj = } is neither a timedelta nor a period instance.")
     td = obj if isinstance(obj, timedelta) else obj.diff
     return format_duration(td)[1:]
 
-    total_seconds = int(td.total_seconds())
-    if total_seconds < 60:
-        return '0m'
-    hours = total_seconds // (60 * 60)
-    minutes = (total_seconds % (60 * 60)) // 60
-    seconds = total_seconds - 60 * 60 * hours - 60 * minutes
-    until = []
-    if hours > 0:
-        until.append(f'{hours}h')
-    # if seconds and refresh_interval == 6:
-    #     until.append(f'{minutes}.{seconds//6}m')
-    if minutes:
-        until.append(f'{minutes}m')
-
-    return ''.join(until)
+    # total_seconds = int(td.total_seconds())
+    # if total_seconds < 60:
+    #     return '0m'
+    # hours = total_seconds // (60 * 60)
+    # minutes = (total_seconds % (60 * 60)) // 60
+    # seconds = total_seconds - 60 * 60 * hours - 60 * minutes
+    # until = []
+    # if hours > 0:
+    #     until.append(f'{hours}h')
+    # # if seconds and refresh_interval == 6:
+    # #     until.append(f'{minutes}.{seconds//6}m')
+    # if minutes:
+    #     until.append(f'{minutes}m')
+    #
+    # return ''.join(until)
 
 
 def fmt_dur(obj):
