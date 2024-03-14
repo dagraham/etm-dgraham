@@ -2,6 +2,7 @@
 # usable = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~']
 # len(usable): 94
 
+from typing import Union
 from etm.common import (
     VERSION_INFO,
     parse,
@@ -2472,7 +2473,8 @@ def format_duration(obj, short=False):
         logger.error(f'{obj}: {e}')
         return ''
 
-def format_completion(done: date|datetime, due: date|datetime)->str:
+# def format_completion(done: date|datetime, due: date|datetime)->str: 
+def format_completion(done: Union[date,datetime], due: Union[date, datetime])->str:
     for x in [done, due]:
         if not isinstance(x, datetime) and not isinstance(x, date):
             logger.error(f"in format_completion with {done = } and {due = }.  {x = } is neither a date nor a datetime instance.")
