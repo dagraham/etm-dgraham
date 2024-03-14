@@ -1,4 +1,7 @@
-2024-03-14 f3dde02 Daniel Graham
+2024-03-14 3b47e23 Daniel Graham
+    Tagged version 6.1.22.
+
+2024-03-14 f702181 Daniel Graham
     Tagged version 6.1.21.
 
 2024-03-14 627aa6c Daniel Graham
@@ -240,7 +243,3 @@
 
 2024-01-23 b60c10a Daniel Graham
     Tagged version 6.0.16.
-
-2024-01-23 6ba92e8 Daniel Graham
-    Key binding tweaks for dated views: '.' show current date and ','
-    jump to date. (One hand commands)
