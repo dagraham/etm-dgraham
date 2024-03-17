@@ -897,11 +897,11 @@ item_hsh:    {self.item_hsh}
         return True
 
     def do_insert(self):
-        # timer_insert = TimeIt('***INSERT***')
+        timer_insert = TimeIt('***INSERT***')
         if 'created' not in self.item_hsh:
             self.item_hsh['created'] = datetime.now().astimezone()
         doc_id = self.db.insert(self.item_hsh)
-        # timer_insert.stop()
+        timer_insert.stop()
         return doc_id
 
     def edit_item(self, doc_id=None, entry=''):
@@ -6938,6 +6938,9 @@ def relevant(
             relevant = today
 
         elif 'f' in item:
+            if not isinstance(item['f'], Period):
+                logger.error(f"{item['f'] = } in {item = }")
+                raise ValueError(f"{item['f']} is not an instance of type Period")
             relevant = item['f'].end
             if isinstance(relevant, date) and not isinstance(
                 relevant, datetime

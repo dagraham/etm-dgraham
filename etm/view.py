@@ -3801,7 +3801,8 @@ def close_edit(*event):
         return
     row, col = get_row_col()
     app = get_app()
-    app.editing_mode = EditingMode.EMACS
+    app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+    # app.editing_mode = EditingMode.EMACS
     dataview.is_editing = False
     dataview.control_z_active = False
     application.layout.focus(text_area)
@@ -3861,7 +3862,8 @@ def save_changes(*event):
             maybe_save(item)
             timer_save.stop()
         except Exception as e:
-            logger.debug(f'exception: {e}')
+            logger.error(f'exception: {e}')
+            show_message(f'exception {e = } raised')
 
     else:
         # no changes to save - close editor
@@ -3870,7 +3872,8 @@ def save_changes(*event):
         application.output.set_cursor_shape(CursorShape.BLOCK)
         set_text(dataview.show_active_view())
         app = get_app()
-        app.editing_mode = EditingMode.EMACS
+        app.editing_mode = EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
+        # app.editing_mode = EditingMode.EMACS
 
 
 def maybe_save(item):
