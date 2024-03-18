@@ -156,13 +156,13 @@ Usage:
     from etm.data import Period
     import etm.view as view
 
-    from etm.view import ETMQuery
+    # from etm.view import ETMQuery
     import etm.model as model
     import etm.common as common
 
     import etm.report as report
 
-    report.ETMQuery = ETMQuery
+    # report.ETMQuery = ETMQuery
 
     loglevel = 2   # info
     log_levels = [str(x) for x in range(1, 6)]
@@ -423,7 +423,7 @@ which will need to be created.
     report.ETMDB = ETMDB
     report.DBITEM = DBITEM
     report.DBARCH = DBARCH
-    report.ETMQuery = ETMQuery
+    # report.ETMQuery = ETMQuery
     report.settings = settings
     report.format_time = format_time
     report.parse_duration = parse_duration
@@ -563,6 +563,5 @@ invoked.
 
 
 if __name__ == '__main__':
-    # main()
     import asyncio
     asyncio.get_event_loop().run_until_complete(main())

@@ -7,6 +7,7 @@ from tinydb.table import Table, Document
 from tinydb.middlewares import CachingMiddleware
 from contextlib import contextmanager
 from typing import Dict, Any, Optional, Callable, Mapping
+from prompt_toolkit.lexers import PygmentsLexer
 
 from tinydb import __version__ as tinydb_version
 from tinydb_serialization import Serializer
@@ -33,6 +34,455 @@ from etm.common import Period, is_aware, encode_datetime, decode_datetime
 ##########################
 ### begin TinyDB setup ###
 ##########################
+
+class ETMQuery(object):
+    def __init__(self):
+        self.filters = {
+            'begins': self.begins,
+            'includes': self.includes,
+            'in': self.includes,
+            'equals': self.equals,
+            'more': self.more,
+            'less': self.less,
+            'exists': self.exists,
+            'any': self.in_any,
+            'all': self.in_all,
+            'one': self.one_of,
+            'info': self.info,
+            'dt': self.dt,
+        }
+
+        self.op = {
+            '=': self.maybe_equal,
+            '>': self.maybe_later,
+            '<': self.maybe_earlier,
+        }
+
+        self.update = {
+            'replace': self.replace,  # a, rgx, rep
+            'remove': self.remove,  #
+            'archive': self.archive,  #
+            'delete': self.delete,  # a
+            'set': self.set,  # a, b
+            'provide': self.provide,  # a, b
+            'attach': self.attach,  # a, b
+            'detach': self.detach,  # a, b
+        }
+
+        self.changed = False
+
+        self.lexer = PygmentsLexer(TDBLexer)
+        self.Item = Query()
+
+        self.allowed_commands = ', '.join([x for x in self.filters])
+
+    def replace(self, a, rgx, rep, items):
+        """
+        Replace matches for rgx with rep in item['a']. If item['a']
+        is a list, do this for each element in item['a']
+        """
+        changed = []
+        rep = re.sub(r'\\s', ' ', rep)
+        for item in items:
+            if a in item:
+                if isinstance(item[a], list):
+                    res = []
+                    # apply to each component
+                    for item in item[a]:
+                        res.append(re.sub(rgx, rep, item, flags=re.IGNORECASE))
+                else:
+                    res = re.sub(rgx, rep, item[a], flags=re.IGNORECASE)
+                if res != item[a]:
+                    item[a] = res
+                    item['modified'] = datetime.now().astimezone()
+                    changed.append(item)
+        if changed:
+            write_back(dataview.db, changed)
+        return changed
+
+    def remove(self, items):
+        """
+        Remove items.
+        """
+        rem_ids = [item.doc_id for item in items]
+        # warn
+        if rem_ids:
+            dataview.db.remove(doc_ids=rem_ids)
+            self.changed = True
+
+    def archive(self, items):
+        """
+        When querying the items table, move items to the archive table and vice versa.
+        """
+        rem_ids = [item.doc_id for item in items]
+
+        try:
+            if dataview.query_mode == 'items table':
+                # move to archive
+                DBARCH.insert_multiple(items)
+                DBITEM.remove(doc_ids=rem_ids)
+            else:
+                # back to items
+                DBITEM.insert_multiple(items)
+                DBARCH.remove(doc_ids=rem_ids)
+        except Exception as e:
+            logger.error(
+                f'move from {dataview.query_mode} failed for items: {items}; rem_ids: {rem_ids}; exception: {e}'
+            )
+            return False
+        else:
+            self.changed = True
+
+    def delete(self, a, items):
+        """
+        For items having key 'a', remove the key and value from the item.
+        """
+        changed = []
+        for item in items:
+            if a in item:
+                del item[a]
+                item['modified'] = datetime.now().astimezone()
+                changed.append(item)
+        if changed:
+            write_back(dataview.db, changed)
+            self.changed = True
+        return changed
+
+    def set(self, a, b, items):
+        """
+        Set the value of item[a] = b for items
+        """
+        changed = []
+        b = re.sub(r'\\\s', ' ', b)
+        for item in items:
+            item[a] = b
+            item['modified'] = datetime.now().astimezone()
+            changed.append(item)
+        if changed:
+            write_back(dataview.db, changed)
+            self.changed = True
+
+    def provide(self, a, b, items):
+        """
+        Provide item['a'] = b for items without an exising entry for 'a'.
+        """
+        changed = []
+        b = re.sub(r'\\\s', ' ', b)
+        for item in items:
+            item.setdefault(a, b)
+            item['modified'] = datetime.now().astimezone()
+            changed.append(item)
+        if changed:
+            write_back(dataview.db, changed)
+            self.changed = True
+
+    def attach(self, a, b, items):
+        """
+        Attach 'b' into the item['a'] list if 'b' is not in the list.
+        """
+        changed = []
+        b = re.sub(r'\\\s', ' ', b)
+        for item in items:
+            if a not in item:
+                item.setdefault(a, []).append(b)
+                item['modified'] = datetime.now().astimezone()
+                changed.append(item)
+            elif isinstance(item[a], list) and b not in item[a]:
+                item.setdefault(a, []).append(b)
+                item['modified'] = datetime.now().astimezone()
+                changed.append(item)
+        if changed:
+            write_back(dataview.db, changed)
+            self.changed = True
+
+    def detach(self, a, b, items):
+        """
+        Detatch 'b' from the item['a'] list if it belongs to the list.
+        """
+        changed = []
+        b = re.sub(r'\\\s', ' ', b)
+        for item in items:
+            if a in item and isinstance(item[a], list) and b in item[a]:
+                item[a].remove(b)
+                item['modified'] = datetime.now().astimezone()
+                changed.append(item)
+        if changed:
+            write_back(dataview.db, changed)
+            self.changed = True
+
+    def is_datetime(self, val):
+        return isinstance(val, datetime)
+
+    def is_date(self, val):
+        return isinstance(val, date) and not isinstance(val, datetime)
+
+    def maybe_equal(self, val, args):
+        """
+        args = year-month-...-minute
+        """
+        args = args.split('-')
+        # args = list(args)
+        if not isinstance(val, date):
+            # neither a date or a datetime
+            return False
+        if args and val.year != int(args.pop(0)):
+            return False
+        if args and val.month != int(args.pop(0)):
+            return False
+        if args and val.day != int(args.pop(0)):
+            return False
+        if isinstance(val, datetime):
+            # val has hours and minutes
+            if args and val.hour != int(args.pop(0)):
+                return False
+            if args and val.minute != int(args.pop(0)):
+                return False
+        return True
+
+    def maybe_later(self, val, args):
+        """
+        args = year-month-...-minute
+        """
+        args = args.split('-')
+        # args = list(args)
+        if not isinstance(val, date):
+            # neither a date or a datetime
+            return False
+        if args and not val.year >= int(args.pop(0)):
+            return False
+        if args and not val.month >= int(args.pop(0)):
+            return False
+        if args and not val.day >= int(args.pop(0)):
+            return False
+        if isinstance(val, datetime):
+            # val has hours and minutes
+            if args and not val.hour >= int(args.pop(0)):
+                return False
+            if args and not val.minute >= int(args.pop(0)):
+                return False
+        return True
+
+    def maybe_earlier(self, val, args):
+        """
+        args = year-month-...-minute
+        """
+        args = args.split('-')
+        # args = list(args)
+        if not isinstance(val, date):
+            # neither a date or a datetime
+            return False
+        if args and not val.year <= int(args.pop(0)):
+            return False
+        if args and not val.month <= int(args.pop(0)):
+            return False
+        if args and not val.day <= int(args.pop(0)):
+            return False
+        if isinstance(val, datetime):
+            # val has hours and minutes
+            if args and not val.hour <= int(args.pop(0)):
+                return False
+            if args and not val.minute <= int(args.pop(0)):
+                return False
+        return True
+
+    def begins(self, a, b):
+        # the value of field 'a' begins with the case-insensitive regex 'b'
+        return where(a).matches(b, flags=re.IGNORECASE)
+
+    def includes(self, a, b):
+        # the value of one of the fields in 'a' includes the case-insensitive regex 'b'
+        if not isinstance(a, list):
+            a = [a]
+        results = [where(field).search(b, flags=re.IGNORECASE) for field in a]
+        test = results.pop(0)
+        for res in results:
+            test = test | res
+        return test
+
+    def equals(self, a, b):
+        # the value of field 'a' equals 'b'
+        try:
+            b = int(b)
+        except:
+            pass
+        return where(a) == b
+
+    def more(self, a, b):
+        # the value of field 'a' >= 'b'
+        try:
+            b = int(b)
+        except:
+            pass
+        return where(a) >= b
+
+    def less(self, a, b):
+        # the value of field 'a' equals 'b'
+        try:
+            b = int(b)
+        except:
+            pass
+        return where(a) <= b
+
+    def exists(self, a):
+        # field 'a' exists
+        return where(a).exists()
+
+    def in_any(self, a, b):
+        """
+        the value of field 'a' is a list of values and at least
+        one of them is an element from 'b'. Here 'b' should be a list with
+        2 or more elements. With only a single element, there is no
+        difference between any and all.
+
+        With egs, "any,  blue, green" returns all three items.
+        """
+
+        if not isinstance(b, list):
+            b = [b]
+        return where(a).any(b)
+
+    def in_all(self, a, b):
+        """
+        the value of field 'a' is a list of values and among the list
+        are all the elements in 'b'. Here 'b' should be a list with
+        2 or more elements. With only a single element, there is no
+        difference between any and all.
+
+        With egs, "all, blue, green" returns just "blue and green"
+        """
+        if not isinstance(b, list):
+            b = [b]
+        return where(a).all(b)
+
+    def one_of(self, a, b):
+        """
+        the value of field 'a' is one of the elements in 'b'.
+
+        With egs, "one, summary, blue, green" returns both "green" and "blue"
+        """
+        if not isinstance(b, list):
+            b = [b]
+        return where(a).one_of(b)
+
+    def info(self, a):
+        # field 'a' exists
+        item = dataview.db.get(doc_id=int(a))
+        return item if item else f'doc_id {a} not found'
+
+    def dt(self, a, b):
+        if b[0] == '?':
+            if b[1] == 'time':
+                return self.Item[a].test(self.is_datetime)
+            elif b[1] == 'date':
+                return self.Item[a].test(self.is_date)
+
+        return self.Item[a].test(self.op[b[0]], b[1])
+
+    def process_query(self, query):
+        """ """
+        dataview.last_query = []
+        [fltr, *updt] = [x.strip() for x in query.split(' | ')]
+        if len(updt) == 1:
+            # get a list with the update command and arguments
+            updt = [x.strip() for x in updt[0].split(' ')]
+        else:
+            updt = []
+
+        parts = [x.split() for x in re.split(r' (and|or) ', fltr)]
+
+        cmnds = []
+        for part in parts:
+            part = [x.strip() for x in part if x.strip()]
+            negation = part[0].startswith('~')
+            if part[0] not in ['and', 'or']:
+                # we have a command
+                if negation:
+                    # drop the ~
+                    part[0] = part[0][1:]
+                if self.filters.get(part[0], None) is None:
+                    return (
+                        False,
+                        wrap(
+                            f"""bad command: '{part[0]}'. Only commands in {self.allowed_commands} are allowed."""
+                        ),
+                        updt,
+                    )
+
+            if len(part) > 3:
+                if part[0] in ['in', 'includes']:
+                    if negation:
+                        cmnds.append(
+                            ~self.filters[part[0]](
+                                [x.strip() for x in part[1:-1]], part[-1]
+                            )
+                        )
+                    else:
+                        cmnds.append(
+                            self.filters[part[0]](
+                                [x.strip() for x in part[1:-1]], part[-1]
+                            )
+                        )
+                else:
+                    if negation:
+                        cmnds.append(
+                            ~self.filters[part[0]](
+                                part[1], [x.strip() for x in part[2:]]
+                            )
+                        )
+                    else:
+                        cmnds.append(
+                            self.filters[part[0]](
+                                part[1], [x.strip() for x in part[2:]]
+                            )
+                        )
+            elif len(part) > 2:
+                if negation:
+                    cmnds.append(~self.filters[part[0]](part[1], part[2]))
+                else:
+                    cmnds.append(self.filters[part[0]](part[1], part[2]))
+            elif len(part) > 1:
+                if negation:
+                    cmnds.append(~self.filters[part[0]](part[1]))
+                else:
+                    cmnds.append(self.filters[part[0]](part[1]))
+            else:
+                cmnds.append(part[0])
+
+        test = cmnds[0]
+        for i in range(1, len(cmnds)):
+            if i % 2 and cmnds[i] in ['and', 'or']:
+                andor = cmnds[i]
+                continue
+            test = test | cmnds[i] if andor == 'or' else test & cmnds[i]
+        return True, test, updt
+
+    def do_query(self, query):
+        """ """
+        if query in ['?', 'help']:
+            query_help = 'https://dagraham.github.io/etm-dgraham/#query-view'
+            openWithDefault(query_help)
+            return False, 'opened query help using default browser'
+        try:
+            ok, res, updt = self.process_query(query)
+            if not ok or isinstance(res, str):
+                return False, res
+
+            if isinstance(res, tinydb.table.Document):
+                return False, item_details(res)
+            else:
+                items = dataview.db.search(res)
+                if updt:
+                    self.update[updt[0]](*updt[1:], items)
+                    if self.changed:
+                        loop = asyncio.get_event_loop()
+                        loop.call_later(0, data_changed, loop)
+                        self.changed = False
+                return True, items
+        except Exception as e:
+            return False, f"exception processing '{query}':\n{e}"
+
+
+############# end query ################################
 
 
 class DateTimeSerializer(Serializer):

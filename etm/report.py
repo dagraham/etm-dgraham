@@ -17,7 +17,9 @@ from tinydb import where, Query
 
 from prompt_toolkit import PromptSession
 
-from etm.view import ETMQuery, format_week
+from etm.data import ETMQuery
+
+from etm.view import format_week
 
 from etm.model import format_datetime, parse, parse_duration, fmt_week
 

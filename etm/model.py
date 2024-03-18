@@ -2272,7 +2272,7 @@ def format_datetime(obj, short=False):
         return True, obj.strftime(date_fmt)
 
     if not isinstance(obj, datetime):
-        return False, f'Error: {e}'
+        return False, f'Error: {ob}'
 
     # we want all-day events to display as dates
     if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
