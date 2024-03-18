@@ -78,7 +78,8 @@ from glob import glob
 import contextlib, io
 
 import pyperclip
-from etm.common import ETM_CHAR
+# from etm.common import ETM_CHAR
+from etm.common import EtmChar
 from etm.common import TimeIt
 
 from tinydb import where
@@ -97,8 +98,8 @@ pta = prompt_toolkit.application
 get_app = prompt_toolkit.application.current.get_app
 Buffer = prompt_toolkit.buffer.Buffer
 
-for key, value in ETM_CHAR.items():
-    globals()[key] = value
+# for key, value in ETM_CHAR.items():
+#     globals()[key] = value
 
 # set in __main__
 logger = None
@@ -780,7 +781,7 @@ def do_about(*event):
 def do_check_updates(*event):
     status, res = check_update()
     # '?', None (info unavalable)
-    # UPDATE_CHAR, available_version (update to available_version is possible)
+    # EtmChar.UPDATE_CHAR, available_version (update to available_version is possible)
     # '', current_version (current_version is the latest available)
     if status in ['?', '']:   # message only
         show_message('Update Information', res, 2)
@@ -839,7 +840,7 @@ def check_update():
         # if [int(x) for x in url_version.split('.')] > [int(x) for x in etm_version.split('.')]:
         # from packaging.version parse
         if parse_version(url_version) > parse_version(etm_version):
-            status_char = UPDATE_CHAR
+            status_char = EtmChar.UPDATE_CHAR
             res = f"""\
 An update is available to {url_version}. Do you want to update now?
 If so, a restart will be necessary for the changes to take effect."""
@@ -1729,7 +1730,7 @@ def get_statusbar_center_text():
 
 
 def get_statusbar_right_text():
-    inbasket = INBASKET_CHAR if (glob(text_pattern)) else ''
+    inbasket = EtmChar.INBASKET_CHAR if (glob(text_pattern)) else ''
     inactive_part = ('class:status', '')
     if dataview.timers:
         dataview.get_timers()
@@ -1752,7 +1753,7 @@ def get_timer_text():
     active = dataview.active_str
     if active:
         active_part = (
-                (type_colors['running'], f' {active}') if f'r{ELECTRIC}' in active
+                (type_colors['running'], f' {active}') if f'r{EtmChar.ELECTRIC}' in active
             else (type_colors['paused'], f' {active}')
         )
         # inactive_part = ('class:status', f'{inactive}  ')
@@ -4084,12 +4085,12 @@ async def main(etmdir=''):
     type_colors = settings['type_colors']
     window_colors = settings['window_colors']
     busy_colors = {
-        VSEP: type_colors['wrap'],
-        HSEP: type_colors['wrap'],
-        BUSY: type_colors['event'],
-        CONF: type_colors['inbox'],
-        ADAY: type_colors['wrap'],
-        FREE: type_colors['wrap'],
+        EtmChar.VSEP: type_colors['wrap'],
+        EtmChar.HSEP: type_colors['wrap'],
+        EtmChar.BUSY: type_colors['event'],
+        EtmChar.CONF: type_colors['inbox'],
+        EtmChar.ADAY: type_colors['wrap'],
+        EtmChar.FREE: type_colors['wrap'],
     }
     # query = ETMQuery()
     style = get_style(window_colors)

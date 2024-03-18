@@ -8,7 +8,8 @@ from etm.common import (
     parse,
     WKDAYS_DECODE,
     WKDAYS_ENCODE,
-    ETM_CHAR,
+    # ETM_CHAR,
+    EtmChar,
     Period,
 )
 
@@ -56,8 +57,8 @@ from etm.view import is_showing_konnections
 
 # from etm.report import get_usedtime_cvs
 
-for key, value in ETM_CHAR.items():
-    globals()[key] = value
+# for key, value in ETM_CHAR.items():
+#     globals()[key] = value
 
 yaml = YAML(typ='safe', pure=True)
 
@@ -190,7 +191,7 @@ requires = {
 
 def truncate_string(s: str, max_length: int)->str:
     if len(s) > max_length:
-        return f"{s[:max_length-2]} {ELLIPSiS_CHAR}"
+        return f"{s[:max_length-2]} {EtmChar.ELLIPSIS_CHAR}"
     else:
         return s
 
@@ -339,15 +340,6 @@ def day_bar(events: list, allday: bool = False) -> str:
     Returns:
         list[in]: free, busy and conflict slots
     """
-    VSEP = '⏐'   # U+23D0  this will be a de-emphasized color
-    FREE = '─'   # U+2500  this will be a de-emphasized color
-    BUSY = '■'   # '■' # U+25A0 this will be busy (event) color
-    CONF = '▦'   # '▦' # U+25A6 this will be conflict color
-    ADAY = '━'   # U+2501 for all day events ━
-    RSKIP = '▶'   # U+25E6 for used time
-    LSKIP = '◀'   # U+25E6 for used time
-    # RSKIP   =  '⏵' # U+25E6 for used time
-    # LSKIP   =  '⏴' # U+25E6 for used time
 
     # TODO: add ADAY switch and spacing for FREE
 
@@ -370,7 +362,7 @@ def day_bar(events: list, allday: bool = False) -> str:
 
     for i in range(1 + (24 * 60) // slot_minutes):
         if marker_slot_interval and i % marker_slot_interval == 0:
-            all_slots.append([VSEP, 0])
+            all_slots.append([EtmChar.VSEP, 0])
         else:
             all_slots.append([None, 0])
 
@@ -396,15 +388,10 @@ def day_bar(events: list, allday: bool = False) -> str:
     if begin_hour > 0:
         event_slots.append(max([x[1] for x in all_slots[:begin_slots]]))
         if all_slots[begin_slots][0] is None:
-            event_slots.append(f' {LSKIP} ')
+            event_slots.append(f' {EtmChar.LSKIP} ')
     for x in all_slots[begin_slots:end_slots]:
-        # if x[0] is not None:
-        #     # append VSEP
-        #     event_slots.append(x[0])
-        # event_slots.append(x[1])
         if x[1] > 0:
             event_slots.append(x[1])
-            # append VSEP
         elif x[0] is not None:
             event_slots.append(x[0])
         else:
@@ -413,22 +400,22 @@ def day_bar(events: list, allday: bool = False) -> str:
         if all_slots[end_slots][0] is not None:
             event_slots.append(all_slots[end_slots][0])
         else:
-            event_slots.append(f' {RSKIP} ')
+            event_slots.append(f' {EtmChar.RSKIP} ')
         event_slots.append(max([x[1] for x in all_slots[end_slots:]]))
     elif marker_slot_interval:
-        event_slots.append(VSEP)
+        event_slots.append(EtmChar.VSEP)
 
     busyfree = []
     for j in range(len(event_slots)):
         if event_slots[j] == 0:
             if allday:
-                busyfree.append(ADAY)
+                busyfree.append(EtmChar.ADAY)
             else:
-                busyfree.append(HSEP)
+                busyfree.append(EtmChar.HSEP)
         elif event_slots[j] == 1:
-            busyfree.append(BUSY)
+            busyfree.append(EtmChar.BUSY)
         elif event_slots[j] == 2:
-            busyfree.append(CONF)
+            busyfree.append(EtmChar.CONF)
         else:
             busyfree.append(event_slots[j])
 
@@ -476,13 +463,13 @@ def busy_conf_day(lofp, allday=False):
                 busy_quarters.append(i)
     h = {0: '  ', 58: '  '}
     for i in range(1, 58):
-        h[i] = ' ' if (i - 1) % 4 else VSEP
+        h[i] = ' ' if (i - 1) % 4 else EtmChar.VSEP
     empty = ''.join([h[i] for i in range(59)])
     for i in range(1, 58):
         if allday:
-            h[i] = ADAY   # if (i-1) % 4 else VSEP
+            h[i] = EtmChar.ADAY   
         else:
-            h[i] = HSEP if (i - 1) % 4 else VSEP
+            h[i] = EtmChar.HSEP if (i - 1) % 4 else EtmChar.VSEP
 
     # quarters: 1 before start + 1 after start + 56 + 1 between = 59 slots 0, ... 58
     conflict = False
@@ -492,7 +479,7 @@ def busy_conf_day(lofp, allday=False):
             conflict = True
         if i in busy_quarters:
             busy = True
-        h[0] = f'{CONF} ' if conflict else f'{BUSY} ' if busy else '  '
+        h[0] = f'{EtmChar.CONF} ' if conflict else f'{EtmChar.BUSY} ' if busy else '  '
     conflict = False
     busy = False
     for i in range(last_quarter, 24 * 4):
@@ -500,12 +487,12 @@ def busy_conf_day(lofp, allday=False):
             conflict = True
         elif i in busy_quarters:
             busy = True
-        h[58] = f' {CONF}' if conflict else f' {BUSY}' if busy else '  '
+        h[58] = f' {EtmChar.CONF}' if conflict else f' {EtmChar.BUSY}' if busy else '  '
     for i in range(first_quarter, last_quarter):
         if i in conf_quarters:
-            h[i - first_quarter + 1] = CONF
+            h[i - first_quarter + 1] = EtmChar.CONF
         elif i in busy_quarters:
-            h[i - first_quarter + 1] = BUSY
+            h[i - first_quarter + 1] = EtmChar.BUSY
     res = f"\n{empty}\n{''.join([h[i] for i in range(59)])}"
     full = ''.join([h[i] for i in range(59)])
     # empty: blank busy bar
@@ -2417,9 +2404,9 @@ def usedminutes2bar(minutes):
         goal_minutes = int(usedtime_hours) * 60
         numchars = math.ceil((used_minutes / goal_minutes) / (1 / chars))
         if numchars <= chars:
-            bar = f'{numchars*BUSY}'
+            bar = f'{numchars*EtmChar.BUSY}'
         else:
-            bar = f'{(chars-6)*BUSY} {BUSY}'
+            bar = f'{(chars-6)*EtmChar.BUSY} {EtmChar.BUSY}'
         return used_fmt, bar
     else:
         return used_fmt, ''
@@ -3365,13 +3352,13 @@ class DataView(object):
                 # at most one timer can be active
                 total = f'{status_duration(elapsed)}'
                 this_width = width - len(since) - len(total) - 8
-                self.active_str = f"{itemtype} {total} {state}{ELECTRIC}{since}  {truncate_string(summary, this_width)} "
+                self.active_str = f"{itemtype} {total} {state}{EtmChar.ELECTRIC}{since}  {truncate_string(summary, this_width)} "
             else:
                 # zero or more timers can be inactive
                 inactive_time += elapsed
             total_time += elapsed
             sort = state2sort[state]
-            rhc = f'{status_duration(elapsed)} {state}{ELECTRIC}{format_relative_time(start)}'
+            rhc = f'{status_duration(elapsed)} {state}{EtmChar.ELECTRIC}{format_relative_time(start)}'
             flags = get_flags(
                 doc_id, repeat_list, link_list, konnected, pinned_list, timers
             )
@@ -3697,7 +3684,7 @@ class DataView(object):
         # summary_width = width - 11
         for path, item in relevant:
             # rhc = str(doc_id).rjust(5, ' ')
-            itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+            itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             if '===' in path:
                 itemtype = "  →"
             elif '>>>' in path:
@@ -3828,7 +3815,7 @@ class DataView(object):
             next_view = current_hsh['next'] if 'next' in current_hsh else None
             if next_txt:
                 with open(self.nextfile, 'w', encoding='utf-8') as fo:
-                    fo.write(re.sub(LINEDOT, '   ', next_txt))
+                    fo.write(re.sub(EtmChar.LINEDOT, '   ', next_txt))
                 logger.info(f'saved do next to {self.nextfile}')
 
     def show_query(self):
@@ -4026,17 +4013,17 @@ class DataView(object):
         skip = item.get('o', 'k') == 's'
         if 'f' in item:
             per = item['f']
-            res.append((per.end, f' {fmt_period(per)}', FINISHED_CHAR))
+            res.append((per.end, f' {fmt_period(per)}', EtmChar.FINISHED_CHAR))
         for c in item.get('h', []):
             if skip and c.start == c.end + ONEMIN:
-                res.append((c.end, '', SKIPPED_CHAR))
+                res.append((c.end, '', EtmChar.SKIPPED_CHAR))
             else:
                 # due at 12am, change the effective due date to 12am of the following day
                 if c.end.hour == 0 and c.end.minute == 0:
                     per = Period(c.start, c.end + DAY)
                 else:
                     per = Period(c.start, c.end)
-                res.append((c.end, f' {fmt_period(per)}', FINISHED_CHAR))
+                res.append((c.end, f' {fmt_period(per)}', EtmChar.FINISHED_CHAR))
         res.sort()   # datetime obj as first component
         if len(res) > num:
             showing = f'Completion History: last {num} of {len(res)}'
@@ -4055,8 +4042,8 @@ class DataView(object):
         if skip:
             pss = f"""
 
-{FINISHED_CHAR} indicates completed instances.
-{SKIPPED_CHAR} indicates skipped instances.
+{EtmChar.FINISHED_CHAR} indicates completed instances.
+{EtmChar.SKIPPED_CHAR} indicates skipped instances.
 Due datetimes are shown. The length of
 time a completion preceded (+) or
 followed (-) the due datetime is also
@@ -4065,7 +4052,7 @@ shown when nonzero."""
         else:
             pss = f"""
 
-{FINISHED_CHAR} indicates completed instances.
+{EtmChar.FINISHED_CHAR} indicates completed instances.
 Due datetimes are shown. The length of
 time the completion preceded (+) or
 followed (-) the due datetime is also
@@ -6530,7 +6517,7 @@ def jobs(lofh, at_hsh={}):
     # set the job status for each job - f) finished, a) available or w) waiting
     for i in ids:
         if id2hsh[i].get('f', None) is not None:   # i is finished
-            id2hsh[i]['status'] = FINISHED_CHAR
+            id2hsh[i]['status'] = EtmChar.FINISHED_CHAR
             awf[2] += 1
         elif req[i]:   # there are unfinished requirements for i
             id2hsh[i]['status'] = '+'
@@ -7493,7 +7480,7 @@ def show_forthcoming(
         # rhc = f"{monthday:>6} {time:^7}".ljust(14, ' ')
         rhc = f'{monthday : >2} {time} ' if time else f'{monthday : >2} '
 
-        itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
+        itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = set_summary(
             item['summary'], item.get('s', None), relevant, freq
         )
@@ -7531,13 +7518,13 @@ def get_flags(
     """ """
     flags = ''
     if doc_id in repeat_list:
-        flags += REPS
+        flags += EtmChar.REPS
     if doc_id in link_list:
-        flags += LINK_CHAR
+        flags += EtmChar.LINK_CHAR
     if doc_id in konnected:
-        flags += KONNECT_CHAR
+        flags += EtmChar.KONNECT_CHAR
     if doc_id in pinned_list:
-        flags += PIN_CHAR
+        flags += EtmChar.PIN_CHAR
     if doc_id in timers:
         flags += 't'
     return flags
@@ -7566,7 +7553,7 @@ def show_query_items(
             dt, label = item.get('created', None), 'c'
         doc_id = item.doc_id
         year = dt.strftime('%Y')
-        itemtype = FINISHED_CHAR if 'f' in item else item['itemtype']
+        itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = item['summary']
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
@@ -7620,7 +7607,7 @@ def show_history(
             d = dt.strftime('%-d')
             rhc = f'{d : >2} {label} '
             itemtype = (
-                FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+                EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             )
             summary = item.get('summary', '~')
             flags = get_flags(
@@ -7737,7 +7724,7 @@ def show_konnected(
 
     rows = []
     for path, item in relevant:
-        itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+        itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         doc_id = item.doc_id
         # flags = get_flags(
@@ -7997,7 +7984,7 @@ def show_tags(
         doc_id = item.doc_id
         rhc = ''
         tags = item.get('t', [])
-        itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+        itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
@@ -8043,7 +8030,7 @@ def show_location(
             else ' ' * 8
         )
         location = item.get('l', '~')
-        itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+        itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
@@ -8084,7 +8071,7 @@ def show_index(
     for item in db:
         doc_id = item.doc_id
         index = item.get('i', '~')
-        itemtype = FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+        itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary'][:summary_width]
         flags = get_flags(
             doc_id, repeat_list, link_list, konnected, pinned_list, timers
@@ -8166,7 +8153,7 @@ def show_pinned(
             time = fmt_time(dt)
             rhc = f'{str(doc_id).rjust(6)}'
             itemtype = (
-                FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
+                EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
             )
             summary = item['summary']
             flags = get_flags(
@@ -8343,10 +8330,10 @@ def no_busy_periods(week, width):
     h[0] = '  '
     h[58] = '  '
     for i in range(1, 58):
-        h[i] = ' ' if (i - 1) % 4 else VSEP
+        h[i] = ' ' if (i - 1) % 4 else EtmChar.VSEP
     empty = ''.join([h[i] for i in range(59)])
     for i in range(1, 58):
-        h[i] = HSEP if (i - 1) % 4 else VSEP
+        h[i] = EtmChar.EtmChar.HSEP if (i - 1) % 4 else EtmChar.VSEP
     full = ''.join([h[i] for i in range(59)])
     empty_hsh = {}
     wk_fmt = fmt_week(week).center(width, ' ').rstrip()
@@ -8372,11 +8359,11 @@ def summary_pin(text, width, doc_id, pinned_list, link_list, konnected_list):
     in_konnected = False
     if doc_id in konnected_list:
         in_konnected = True
-        text = text[: width - 3].rstrip() + KONNECT_CHAR
+        text = text[: width - 3].rstrip() + EtmChar.KONNECT_CHAR
     if doc_id in link_list:
-        text = text[: width - 3].rstrip() + LINK_CHAR
+        text = text[: width - 3].rstrip() + EtmChar.LINK_CHAR
     if doc_id in pinned_list:
-        ret = (text[: width - 1] + PIN_CHAR).ljust(width - 1, ' ')
+        ret = (text[: width - 1] + EtmChar.PIN_CHAR).ljust(width - 1, ' ')
     else:
         ret = text[:width].ljust(width, ' ')
     return ret
@@ -8588,7 +8575,7 @@ def schedule(
             if d:
                 for row in d:
                     dt = row[0]
-                    finished_char = SKIPPED_CHAR if row[3] == '-1m' else FINISHED_CHAR
+                    finished_char = EtmChar.SKIPPED_CHAR if row[3] == '-1m' else EtmChar.FINISHED_CHAR
 
                     rhc = str(row[3]) + '  ' if len(row) > 3 else ''
                     if dt < aft_dt or dt > bef_dt:

@@ -25,7 +25,7 @@ from etm.model import format_hours_and_tenths
 import etm.data as data
 from etm.common import (
     parse,
-    ETM_CHAR,
+    # ETM_CHAR,
     Period,
 )
 import itertools
@@ -481,7 +481,7 @@ class QDict(dict):
                     avail = self.width - l_indent - len(ut) - len(dt) - 4
                     if len(leaf[1]) > avail:
                         leaf[1] = (
-                            leaf[1][: avail - 1] + ETM_CHAR['ELLIPSiS_CHAR']
+                            leaf[1][: avail - 1] + EtmChar.ELLIPSIS_CHAR
                             if len(leaf[1]) >= avail
                             else leaf[1]
                         )
