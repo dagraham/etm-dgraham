@@ -7,8 +7,8 @@ import sys
 import os
 import sys
 
-# import logging
-# import logging.config
+import logging
+import logging.config
 
 import etm.__version__ as version
 from ruamel.yaml import __version__ as ruamel_version
@@ -66,6 +66,74 @@ VERSION_INFO = f"""\
  platform:           {system_platform}\
 """
 
+def setup_logging(level, etmdir, file=None):
+    """
+    Setup logging configuration. Override root:level in
+    logging.yaml with default_level.
+    """
+
+    if not os.path.isdir(etmdir):
+        return
+
+    log_levels = {
+        1: logging.DEBUG,
+        2: logging.INFO,
+        3: logging.WARN,
+        4: logging.ERROR,
+        5: logging.CRITICAL,
+    }
+
+    level = int(level)
+    loglevel = log_levels.get(level, log_levels[3])
+
+    # if we get here, we have an existing etmdir
+    logfile = os.path.normpath(
+        os.path.abspath(os.path.join(etmdir, 'etm.log'))
+    )
+
+    config = {
+        'disable_existing_loggers': False,
+        'formatters': {
+            'simple': {
+                'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'
+            }
+        },
+        'handlers': {
+            'file': {
+                'backupCount': 7,
+                'class': 'logging.handlers.TimedRotatingFileHandler',
+                'encoding': 'utf8',
+                'filename': logfile,
+                'formatter': 'simple',
+                'level': loglevel,
+                'when': 'midnight',
+                'interval': 1,
+            }
+        },
+        'loggers': {
+            'etmmv': {
+                'handlers': ['file'],
+                'level': loglevel,
+                'propagate': False,
+            }
+        },
+        'Redirectoot': {'handlers': ['file'], 'level': loglevel},
+        'version': 1,
+    }
+    logging.config.dictConfig(config)
+    # logger = logging.getLogger('asyncio').setLevel(logging.WARNING)
+    logger = logging.getLogger('etmmv')
+
+    logger.critical('\n######## Initializing logging #########')
+    if logfile:
+        logger.critical(
+            f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}'
+        )
+    else:
+        logger.critical(
+            f'logging at level: {loglevel}\n    logging to file: {logfile}'
+        )
+    return logger
 
 def parse(s, **kwd):
     # enable pi when read by main and settings is available

@@ -102,7 +102,9 @@ Buffer = prompt_toolkit.buffer.Buffer
 #     globals()[key] = value
 
 # set in __main__
-logger = None
+# logger = None
+import logging
+logger = logging.getLogger('etmmv')
 
 dataview = None
 item = None

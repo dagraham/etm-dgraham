@@ -220,7 +220,7 @@ def round_to_minutes(obj: timedelta)->timedelta:
 # print(is_leap_year(current_year))
 
 
-def subsets(l):
+def subsets(l: list[str])->list[str]:
     """
     Return a list of the possible subsets of the list of strings, l, together with the size of the subset. E.g., if l = ('blue', 'green', 'red'), return [(1, 'blue'), (1, 'green'), (1, 'red'), (2, 'blue & green'), (2, 'blue & red'), (2, 'green & red'), (3, 'blue & green & red')]
     """
@@ -467,7 +467,7 @@ def busy_conf_day(lofp, allday=False):
     empty = ''.join([h[i] for i in range(59)])
     for i in range(1, 58):
         if allday:
-            h[i] = EtmChar.ADAY   
+            h[i] = EtmChar.ADAY
         else:
             h[i] = EtmChar.HSEP if (i - 1) % 4 else EtmChar.VSEP
 
@@ -2460,7 +2460,7 @@ def format_duration(obj, short=False):
         logger.error(f'{obj}: {e}')
         return ''
 
-# def format_completion(done: date|datetime, due: date|datetime)->str: 
+# def format_completion(done: date|datetime, due: date|datetime)->str:
 def format_completion(done: Union[date,datetime], due: Union[date, datetime])->str:
     for x in [done, due]:
         if not isinstance(x, datetime) and not isinstance(x, date):

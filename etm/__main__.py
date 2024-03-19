@@ -2,8 +2,8 @@
 from datetime import datetime, date, timedelta
 from prompt_toolkit import prompt
 from prompt_toolkit.validation import Validator, ValidationError
-import logging
-import logging.config
+# import logging
+# import logging.config
 
 import sys
 import os
@@ -45,82 +45,8 @@ def print_usage():
     )
 
 
-ETMHOME = ''
-
-
-def setup_logging(level, etmdir, file=None):
-    """
-    Setup logging configuration. Override root:level in
-    logging.yaml with default_level.
-    """
-
-    if not os.path.isdir(etmdir):
-        return
-
-    log_levels = {
-        1: logging.DEBUG,
-        2: logging.INFO,
-        3: logging.WARN,
-        4: logging.ERROR,
-        5: logging.CRITICAL,
-    }
-
-    level = int(level)
-    loglevel = log_levels.get(level, log_levels[3])
-
-    # if we get here, we have an existing etmdir
-    logfile = os.path.normpath(
-        os.path.abspath(os.path.join(etmdir, 'etm.log'))
-    )
-
-    config = {
-        'disable_existing_loggers': False,
-        'formatters': {
-            'simple': {
-                'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'
-            }
-        },
-        'handlers': {
-            'file': {
-                'backupCount': 7,
-                'class': 'logging.handlers.TimedRotatingFileHandler',
-                'encoding': 'utf8',
-                'filename': logfile,
-                'formatter': 'simple',
-                'level': loglevel,
-                'when': 'midnight',
-                'interval': 1,
-            }
-        },
-        'loggers': {
-            'etmmv': {
-                'handlers': ['file'],
-                'level': loglevel,
-                'propagate': False,
-            }
-        },
-        'Redirectoot': {'handlers': ['file'], 'level': loglevel},
-        'version': 1,
-    }
-    logging.config.dictConfig(config)
-    # logger = logging.getLogger('asyncio').setLevel(logging.WARNING)
-    logger = logging.getLogger('etmmv')
-
-    logger.critical('\n######## Initializing logging #########')
-    if logfile:
-        logger.critical(
-            f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}'
-        )
-    else:
-        logger.critical(
-            f'logging at level: {loglevel}\n    logging to file: {logfile}'
-        )
-    return logger
-
 
 def main():
-
-    global ETMHOME
 
     from etm.common import TimeIt
 
@@ -138,7 +64,7 @@ Usage:
         )
         sys.exit()
 
-    MIN_PYTHON = (3, 7, 3)
+    MIN_PYTHON = (3, 9, 0)
     if sys.version_info < MIN_PYTHON:
         mv = '.'.join([str(x) for x in MIN_PYTHON])
         sys.exit(f'Python {mv} or later is required.\n')
@@ -156,13 +82,10 @@ Usage:
     from etm.data import Period
     import etm.view as view
 
-    # from etm.view import ETMQuery
     import etm.model as model
     import etm.common as common
 
     import etm.report as report
-
-    # report.ETMQuery = ETMQuery
 
     loglevel = 2   # info
     log_levels = [str(x) for x in range(1, 6)]
@@ -262,20 +185,15 @@ which will need to be created.
 
     import etm.options as options
 
-    setup_logging(loglevel, logdir)
-    logger = logging.getLogger('etmmv')
-
+    logger = common.setup_logging(loglevel, logdir)
     common.logger = logger
-    options.logger = logger
 
     Settings = options.Settings(etmdir)
 
     settings = Settings.settings
     beginbusy = settings['beginbusy']
     type_colors = settings['type_colors']
-    # logger.debug(f"__main__ type_colors: {type_colors}")
     window_colors = settings['window_colors']
-    # logger.debug(f"__main__ window_colors: {window_colors}")
 
     logger.info(f'running in a virtual environment: {IS_VENV}')
 
@@ -355,11 +273,10 @@ which will need to be created.
     )
     logger.debug(f'etmhome: {etmhome}')
     model.etmhome = etmhome
-    ETMHOME = etmhome
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
 
-    logger.debug(f'dataview.last_id: {dataview.last_id}')
+    logger.debug(f'{dataview.last_id = }')
     model.last_id = dataview.last_id
     datetime_calculator = model.datetime_calculator
     item = model.Item()
@@ -392,7 +309,7 @@ which will need to be created.
     view.write_back = write_back
     view.item = item
     view.item_details = item_details
-    view.logger = logger
+    # view.logger = logger
     view.import_file = import_file
     view.import_examples = import_examples
     view.etmdir = etmdir
@@ -423,7 +340,6 @@ which will need to be created.
     report.ETMDB = ETMDB
     report.DBITEM = DBITEM
     report.DBARCH = DBARCH
-    # report.ETMQuery = ETMQuery
     report.settings = settings
     report.format_time = format_time
     report.parse_duration = parse_duration
@@ -431,7 +347,7 @@ which will need to be created.
     report.format_datetime = format_datetime
     report.format_duration = format_duration
     report.format_hours_and_tenths = format_hours_and_tenths
-    report.logger = logger
+    # report.logger = logger
     report.UT_MIN = UT_MIN
     report.csvdir = csvdir
 

@@ -8,10 +8,9 @@ yaml_nort.indent(mapping=2, sequence=4, offset=2)
 yaml = ruamel.yaml.YAML()   # use round trip
 yaml.indent(mapping=2, sequence=4, offset=2)
 
-# import logging
-# import logging.config
-#
-# logger = logging.getLogger()
+import logging
+logger = logging.getLogger('etmmv')
+
 import string
 import random
 import re

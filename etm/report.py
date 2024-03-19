@@ -11,11 +11,12 @@ from dateutil.parser import parserinfo
 
 from copy import deepcopy
 
-# from etm.__main__ import setup_logging
-
 from tinydb import where, Query
 
 from prompt_toolkit import PromptSession
+
+import logging
+logger = logging.getLogger('etmmv')
 
 from etm.data import ETMQuery
 
@@ -27,7 +28,6 @@ from etm.model import format_hours_and_tenths
 import etm.data as data
 from etm.common import (
     parse,
-    # ETM_CHAR,
     Period,
 )
 import itertools
