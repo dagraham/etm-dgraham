@@ -6,51 +6,51 @@ from __future__ import unicode_literals
 
 import sys
 import inspect
-import tinydb
+import tinydb 
 
 # from prompt_toolkit import __version__ as prompt_toolkit_version
 
 # import prompt_toolkit.application as pta
-import prompt_toolkit.application
+import prompt_toolkit.application 
 
 # from prompt_toolkit.application import Application
 # from prompt_toolkit.application.current import get_app
 # from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.completion import Completion, Completer, FuzzyCompleter
-from prompt_toolkit.shortcuts import CompleteStyle, prompt
-from prompt_toolkit.cursor_shapes import CursorShape
-from prompt_toolkit.enums import EditingMode
-from prompt_toolkit.filters import Condition
-from prompt_toolkit.keys import Keys
-from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.completion import Completion, Completer, FuzzyCompleter 
+from prompt_toolkit.shortcuts import CompleteStyle, prompt 
+from prompt_toolkit.cursor_shapes import CursorShape 
+from prompt_toolkit.enums import EditingMode 
+from prompt_toolkit.filters import Condition 
+from prompt_toolkit.keys import Keys 
+from prompt_toolkit.key_binding import KeyBindings 
 
 
-from prompt_toolkit.key_binding.bindings.focus import (
+from prompt_toolkit.key_binding.bindings.focus import (  
     focus_next,
     focus_previous,
 )
-from prompt_toolkit.key_binding.vi_state import InputMode
-from prompt_toolkit.layout import Dimension
-from prompt_toolkit.layout import Float
-from prompt_toolkit.layout.containers import (
+from prompt_toolkit.key_binding.vi_state import InputMode 
+from prompt_toolkit.layout import Dimension 
+from prompt_toolkit.layout import Float  
+from prompt_toolkit.layout.containers import (  
     HSplit,
     VSplit,
     Window,
     WindowAlign,
     ConditionalContainer,
 )
-from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
-from prompt_toolkit.layout.dimension import D
-from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.layout.menus import CompletionsMenu
-from prompt_toolkit.lexers import Lexer
-from prompt_toolkit.lexers import PygmentsLexer
-from prompt_toolkit.selection import SelectionType
-from prompt_toolkit.styles import Style
-from prompt_toolkit.styles.named_colors import NAMED_COLORS
-from prompt_toolkit.widgets import Box, Label, Button
-from prompt_toolkit.widgets import HorizontalLine
-from prompt_toolkit.widgets import (
+from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl 
+from prompt_toolkit.layout.dimension import D 
+from prompt_toolkit.layout.layout import Layout  
+from prompt_toolkit.layout.menus import CompletionsMenu  
+from prompt_toolkit.lexers import Lexer 
+from prompt_toolkit.lexers import PygmentsLexer 
+from prompt_toolkit.selection import SelectionType 
+from prompt_toolkit.styles import Style 
+from prompt_toolkit.styles.named_colors import NAMED_COLORS  
+from prompt_toolkit.widgets import Box, Label, Button 
+from prompt_toolkit.widgets import HorizontalLine 
+from prompt_toolkit.widgets import ( 
     TextArea,
     SearchToolbar,
     MenuContainer,
@@ -65,7 +65,7 @@ from shlex import split as qsplit
 import time
 from datetime import datetime, date, timedelta
 
-import requests
+import requests 
 import asyncio
 import textwrap
 
@@ -77,22 +77,23 @@ import os
 from glob import glob
 import contextlib, io
 
-import pyperclip
-# from etm.common import ETM_CHAR
-from etm.common import EtmChar
-from etm.common import TimeIt
+import pyperclip 
+from etm.common import etm_version 
+from etm.common import EtmChar 
+from etm.common import TimeIt 
+from etm.common import WA, format_datetime, format_duration, format_time, parse_datetime, text_pattern, etmhome, import_file
 
-from tinydb import where
-from tinydb import Query
-from pygments.lexer import RegexLexer
-from pygments.token import Keyword
-from pygments.token import Literal
-from pygments.token import Operator
-from pygments.token import Comment
+from tinydb import where 
+from tinydb import Query 
+from pygments.lexer import RegexLexer 
+from pygments.token import Keyword 
+from pygments.token import Literal  
+from pygments.token import Operator 
+from pygments.token import Comment 
 
-# from etm.model import ETMDB
-
-# from etm.model import ETMDB
+from etm.common import DBITEM, DBARCH, ETMDB, wrap, nowrap, openWithDefault, TDBLexer 
+from etm import model 
+from etm.data import write_back 
 
 pta = prompt_toolkit.application
 get_app = prompt_toolkit.application.current.get_app
@@ -102,7 +103,7 @@ Buffer = prompt_toolkit.buffer.Buffer
 #     globals()[key] = value
 
 # set in __main__
-# logger = None
+logger = None
 import logging
 logger = logging.getLogger('etmmv')
 
@@ -124,27 +125,27 @@ class UpdateStatus:
         return self.status
 
 
-class TDBLexer(RegexLexer):
+# class TDBLexer(RegexLexer):
 
-    name = 'TDB'
-    aliases = ['tdb']
-    filenames = '*.*'
-    flags = re.MULTILINE | re.DOTALL
+#     name = 'TDB'
+#     aliases = ['tdb']
+#     filenames = '*.*'
+#     flags = re.MULTILINE | re.DOTALL
 
-    tokens = {
-        'root': [
-            (
-                r'\b(begins|includes|in|equals|more|less|exists|any|all|one)\b',
-                Keyword,
-            ),
-            (
-                r'\b(replace|remove|archive|delete|set|provide|attach|detach)\b',
-                Keyword,
-            ),
-            (r'\b(itemtype|summary)\b', Literal),
-            (r'\b(and|or|info)\b', Keyword),
-        ],
-    }
+#     tokens = {
+#         'root': [
+#             (
+#                 r'\b(begins|includes|in|equals|more|less|exists|any|all|one)\b',
+#                 Keyword,
+#             ),
+#             (
+#                 r'\b(replace|remove|archive|delete|set|provide|attach|detach)\b',
+#                 Keyword,
+#             ),
+#             (r'\b(itemtype|summary)\b', Literal),
+#             (r'\b(and|or|info)\b', Keyword),
+#         ],
+#     }
 
 
 def format_week(dt, fmt='WWW'):
@@ -925,6 +926,13 @@ def do_show_help(*event):
     help_link = 'https://dagraham.github.io/etm-dgraham/'
     openWithDefault(help_link)
 
+@bindings.add('c-s')
+def do_save(*event):
+    logger.debug(f"{is_editing() = }")
+    if is_editing():
+        save_changes(*event)
+
+
 
 def add_usedtime(*event):
 
@@ -1246,6 +1254,7 @@ bindings.add('s-tab', filter=is_not_editing)(focus_previous)
 
 @bindings.add('c-s', filter=is_not_editing)
 def do_nothing(*event):
+    logger.debug(f"{dataview.is_editing = }")
     pass
 
 
@@ -1763,43 +1772,43 @@ def get_timer_text():
         active_part = ('class:status', '')
     return [active_part]
 
-def openWithDefault(path):
-    if ' ' in path:
-        parts = qsplit(path)
-        if parts:
-            # wrapper to catch 'Exception Ignored' messages
-            output = io.StringIO()
-            with contextlib.redirect_stderr(output):
-                # the pid business is evidently needed to avoid waiting
-                pid = subprocess.Popen(
-                    parts,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                ).pid
-                res = output.getvalue()
-                if res:
-                    logger.error(f"caught by contextlib:\n'{res}'")
+# def openWithDefault(path):
+#     if ' ' in path:
+#         parts = qsplit(path)
+#         if parts:
+#             # wrapper to catch 'Exception Ignored' messages
+#             output = io.StringIO()
+#             with contextlib.redirect_stderr(output):
+#                 # the pid business is evidently needed to avoid waiting
+#                 pid = subprocess.Popen(
+#                     parts,
+#                     stdin=subprocess.DEVNULL,
+#                     stdout=subprocess.DEVNULL,
+#                     stderr=subprocess.DEVNULL,
+#                 ).pid
+#                 res = output.getvalue()
+#                 if res:
+#                     logger.error(f"caught by contextlib:\n'{res}'")
 
-    else:
-        path = os.path.normpath(os.path.expanduser(path))
-        sys_platform = platform.system()
-        if platform.system() == 'Darwin':       # macOS
-            subprocess.run(
-                ('open', path),
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        elif platform.system() == 'Windows':    # Windows
-            os.startfile(path)
-        else:                                   # linux
-            subprocess.run(
-                ('xdg-open', path),
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+#     else:
+#         path = os.path.normpath(os.path.expanduser(path))
+#         sys_platform = platform.system()
+#         if platform.system() == 'Darwin':       # macOS
+#             subprocess.run(
+#                 ('open', path),
+#                 stdout=subprocess.DEVNULL,
+#                 stderr=subprocess.DEVNULL,
+#             )
+#         elif platform.system() == 'Windows':    # Windows
+#             os.startfile(path)
+#         else:                                   # linux
+#             subprocess.run(
+#                 ('xdg-open', path),
+#                 stdout=subprocess.DEVNULL,
+#                 stderr=subprocess.DEVNULL,
+#             )
 
-    return
+#     return
 
 
 search_field = SearchToolbar(
@@ -3302,6 +3311,7 @@ def copy_details(*event):
 
 @bindings.add('c-c', filter=is_details)
 def copy_details(*event):
+    logger.debug(f"{is_editing() = }")
     selection = details_area.buffer.copy_selection().text
     if selection:
         pyperclip.copy(selection)
@@ -3857,8 +3867,9 @@ def close_entry(*event):
     restore_row_col(row, col)
 
 
-@edit_bindings.add('c-s', filter=is_editing, eager=True)
+# @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):
+    logger.debug(f"{dataview.is_editing = }")
     if edit_buffer_changed():
         try:
             timer_save = TimeIt('***SAVE***')
@@ -4085,7 +4096,6 @@ async def main(etmdir=''):
     ampm = settings['ampm']
     window_colors = settings['window_colors']
     type_colors = settings['type_colors']
-    window_colors = settings['window_colors']
     busy_colors = {
         EtmChar.VSEP: type_colors['wrap'],
         EtmChar.HSEP: type_colors['wrap'],
@@ -4096,8 +4106,10 @@ async def main(etmdir=''):
     }
     # query = ETMQuery()
     style = get_style(window_colors)
+    logger.debug(f"{text_pattern = }; {etmhome = }")
+    logger.debug(f"calling agenda_view; {busy_colors = }")
     agenda_view()
-
+    logger.debug(f"setting application: {bindings = }; {style = }; {event_handler = }")
     application = pta.Application(
         layout=Layout(
             root_container,
@@ -4112,11 +4124,12 @@ async def main(etmdir=''):
         refresh_interval=1.0,
         on_invalidate=event_handler,
     )
-    logger.debug('XX starting event_handler XX')
     timer_view.stop()
+    logger.debug("XX starting {application = } XX")
     try:
         result = await application.run_async()
-
+    except Exception as e:
+        logger.error(f"exception {e}", exc_info=True)
     finally:
         # background_task.cancel()
         logger.info('Quitting event loop.')

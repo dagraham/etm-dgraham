@@ -1,9 +1,7 @@
 #! ./env/bin/python
 from datetime import datetime, date, timedelta
-from prompt_toolkit import prompt
-from prompt_toolkit.validation import Validator, ValidationError
-# import logging
-# import logging.config
+from prompt_toolkit import prompt 
+from prompt_toolkit.validation import Validator, ValidationError 
 
 import sys
 import os
@@ -48,7 +46,7 @@ def print_usage():
 
 def main():
 
-    from etm.common import TimeIt
+    from etm.common import TimeIt 
 
     if '-h' in sys.argv or '--help' in sys.argv:
         print_usage()
@@ -72,20 +70,27 @@ Usage:
 
     IS_VENV = os.getenv('VIRTUAL_ENV') is not None
 
-    import etm.__version__ as version
+    import etm.__version__ as version 
 
     etm_version = version.version
     etmhome = os.environ.get('ETMHOME')
     etmdir = etmhome if etmhome else os.getcwd()
+    import etm.options as options 
+    import etm.common as common 
+    from etm.common import AttrDict 
+    
+    Settings = options.Settings(etmdir)
+    settings = AttrDict(Settings.settings)
+    common.settings = settings
 
-    import etm.data as data
-    from etm.data import Period
-    import etm.view as view
+    import etm.data as data 
+    from etm.data import Period 
+    import etm.view as view 
+    from etm.view import data_changed 
 
-    import etm.model as model
-    import etm.common as common
+    import etm.model as model 
 
-    import etm.report as report
+    import etm.report as report 
 
     loglevel = 2   # info
     log_levels = [str(x) for x in range(1, 6)]
@@ -183,17 +188,19 @@ which will need to be created.
     if not os.path.isdir(csvdir):
         os.makedirs(csvdir)
 
-    import etm.options as options
+    import etm.options as options 
 
     logger = common.setup_logging(loglevel, logdir)
     common.logger = logger
 
-    Settings = options.Settings(etmdir)
+    # Settings = options.Settings(etmdir)
 
-    settings = Settings.settings
-    beginbusy = settings['beginbusy']
-    type_colors = settings['type_colors']
-    window_colors = settings['window_colors']
+    # settings = AttrDict(Settings.settings)
+    # common.settings = settings
+
+    beginbusy = settings.beginbusy
+    type_colors = settings.type_colors
+    window_colors = settings.window_colors
 
     logger.info(f'running in a virtual environment: {IS_VENV}')
 
@@ -210,10 +217,11 @@ which will need to be created.
         i: (sunday + i * timedelta(days=1)).strftime('%a')[:2]
         for i in range(1, 8)
     }
+    common.WA = WA
     midnight = datetime.now().replace(
         hour=0, minute=0, second=0, microsecond=0
     )
-    beginbusy = settings.get('beginbusy', 7)
+    # beginbusy = settings.get('beginbusy', 7)
     ampm = settings.get('ampm', True)
     hour = timedelta(hours=1)
     # fmt = '%I%p' if ampm else '%H'
@@ -225,24 +233,27 @@ which will need to be created.
     data.secret = secret
     data.logger = logger
     data.settings = settings
-    from etm.data import Mask
+    from etm.data import Mask 
 
     ETMDB = data.initialize_tinydb(dbfile)
+    common.ETMDB = ETMDB
     logger.info(f'initialized TinyDB using {dbfile}')
     DBITEM = ETMDB.table('items', cache_size=30)
+    common.DBITEM = DBITEM
     DBARCH = ETMDB.table('archive', cache_size=30)
+    common.DBARCH = DBARCH
     logger.debug(f'ETMDB: {ETMDB}, number of items: {len(ETMDB)}')
 
-    from etm.make_examples import make_examples
-    from etm.model import about
-    from etm.model import parse
-    from etm.model import wrap
-    from etm.model import import_file
-    from etm.model import import_examples
-    from etm.model import write_back
-    from etm.model import duration_in_words
+    from etm.make_examples import make_examples 
+    from etm.model import about 
+    from etm.model import parse 
+    # from etm.model import wrap
+    from etm.model import import_file 
+    from etm.model import import_examples 
+    # from etm.model import write_back
+    from etm.model import duration_in_words 
 
-    from etm.model import item_details
+    from etm.model import item_details 
 
     model.loglevel = loglevel
     model.etm_version = etm_version
@@ -258,11 +269,12 @@ which will need to be created.
     model.UT_MIN = UT_MIN
     model.usedtime_hours = usedtime_hours
     model.refresh_interval = refresh_interval
-    model.beginbusy = beginbusy
+    # model.beginbusy = beginbusy
     model.settings = settings
     common.settings = settings
+    common.item_details = item_details
     model.logger = logger
-    model.make_examples = make_examples
+    # model.make_examples = make_examples
     model.needs_update = needs_update
     model.timers_file = os.path.join(etmdir, 'timers.pkl')
     userhome = os.path.expanduser('~')
@@ -275,6 +287,8 @@ which will need to be created.
     model.etmhome = etmhome
     # we put settings into the model namespace so model.Dataview will have it
     dataview = model.DataView(etmdir)
+    common.dataview = dataview
+    common.data_changed = data_changed
 
     logger.debug(f'{dataview.last_id = }')
     model.last_id = dataview.last_id
@@ -297,31 +311,32 @@ which will need to be created.
 
     view.loglevel = loglevel
     view.TimeIt = TimeIt
-    view.wrap = wrap
+    # view.wrap = wrap
     view.parse = parse
     view.WA = WA
-    view.beginbusy = beginbusy
+    # view.beginbusy = beginbusy
     view.settings = settings
     view.type_colors = type_colors
     view.cfgfile = cfgfile
-    view.model = model
+    # view.model = model
     view.duration_in_words = duration_in_words
-    view.write_back = write_back
+    # view.write_back = write_back
     view.item = item
     view.item_details = item_details
-    # view.logger = logger
-    view.import_file = import_file
+    common.import_file = import_file
     view.import_examples = import_examples
     view.etmdir = etmdir
-    view.text_pattern = os.path.join(etmdir, '*.text')
     view.etmhome = etmhome
+    view.text_pattern = os.path.join(etmdir, '*.text')
+    common.text_pattern = os.path.join(etmdir, '*.text')
+    common.etmhome = etmhome
     view.datetime_calculator = datetime_calculator
     view.about = about
-    view.format_time = format_time
-    view.format_datetime = format_datetime
+    common.format_time = format_time
+    common.format_datetime = format_datetime
     view.format_statustime = format_statustime
-    view.format_duration = format_duration
-    view.parse_datetime = parse_datetime
+    common.format_duration = format_duration
+    common.parse_datetime = parse_datetime
     view.ETMDB = ETMDB
     view.DBITEM = DBITEM
     view.DBARCH = DBARCH
@@ -347,7 +362,6 @@ which will need to be created.
     report.format_datetime = format_datetime
     report.format_duration = format_duration
     report.format_hours_and_tenths = format_hours_and_tenths
-    # report.logger = logger
     report.UT_MIN = UT_MIN
     report.csvdir = csvdir
 
@@ -389,7 +403,7 @@ which will need to be created.
         fd = os.open('/dev/null', os.O_WRONLY)
         os.dup2(fd, 2)
 
-        from etm.view import main
+        from etm.view import main 
         import asyncio
 
         asyncio.run(main(etmdir), debug=True)
@@ -427,7 +441,7 @@ This may be especially useful in composing quick notes with
 the assurance that you will be reminded to sort them out
 later.
 
-If '{T}' is used anywhere in the input, it will be replaced
+If '{{T}}' is used anywhere in the input, it will be replaced
 with a timestamp corresponding to the moment this script was
 invoked.
 """

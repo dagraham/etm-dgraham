@@ -7,6 +7,7 @@ import sys
 import os
 import time
 
+from typing import Union
 from dateutil.parser import parse
 
 # from etm.model import parse
@@ -79,7 +80,7 @@ Because of the index entry, all client records will be grouped under "{client_in
 """
 
 
-def week(dt: datetime) -> [datetime, datetime]:
+def week(dt: datetime) -> Union[datetime, datetime]:
     y, w, d = dt.isocalendar()
     wk_beg = dt - (d - 1) * ONEDAY if d > 1 else dt
     wk_end = dt + (7 - d) * ONEDAY if d < 7 else dt

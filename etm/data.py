@@ -2,38 +2,118 @@
 
 import os
 import json
-from tinydb import JSONStorage, TinyDB, Storage
-from tinydb.table import Table, Document
-from tinydb.middlewares import CachingMiddleware
+from tinydb import where 
+from tinydb import JSONStorage, TinyDB, Storage, Query 
+from tinydb.table import Table, Document 
+from tinydb.middlewares import CachingMiddleware 
 from contextlib import contextmanager
 from typing import Dict, Any, Optional, Callable, Mapping
-from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.lexers import PygmentsLexer 
 
-from tinydb import __version__ as tinydb_version
-from tinydb_serialization import Serializer
-from tinydb_serialization import SerializationMiddleware
+from tinydb import __version__ as tinydb_version 
+from tinydb_serialization import Serializer 
+from tinydb_serialization import SerializationMiddleware 
 import base64  # for do_mask
+import asyncio
 
 from datetime import datetime, date, timedelta
 
-import dateutil
-import dateutil.rrule
+import dateutil 
+import dateutil.rrule 
 from zoneinfo import ZoneInfo
 
-from dateutil.rrule import *
+import logging
+logger = logging.getLogger('etmmv')
+
+from dateutil.rrule import * 
 import re
-from etm.common import (
+from etm.common import ( 
     WKDAYS_DECODE,
     WKDAYS_ENCODE,
     AWARE_FMT,
     NAIVE_FMT,
     DATE_FMT,
+    TDBLexer,
+    dataview,
+    DBARCH,
+    DBITEM,
+    wrap,
+    nowrap,
+    openWithDefault,
+    Period,
+    is_aware,
+    encode_datetime,
+    decode_datetime,
+    data_changed,
+    write_back,
+    update_db,
+    db_replace,
 )
-from etm.common import Period, is_aware, encode_datetime, decode_datetime
+from etm.model import item_details 
+# from etm.common import Period, is_aware, encode_datetime, decode_datetime
 
 ##########################
 ### begin TinyDB setup ###
 ##########################
+
+# def db_replace(new):
+#     """
+#     Used with update to replace the original doc with new.
+#     """
+
+#     def transform(doc):
+#         # update doc to include key/values from new
+#         doc.update(new)
+#         # remove any key/values from doc that are not in new
+#         for k in list(doc.keys()):
+#             if k not in new:
+#                 del doc[k]
+
+#     return transform
+
+
+# def update_db(db, doc_id, hsh={}):
+#     old = db.get(doc_id=doc_id)
+#     if not old:
+#         logger.error(
+#             f'Could not get document corresponding to doc_id {doc_id}'
+#         )
+#         return
+#     if old == hsh:
+#         return
+#     hsh['modified'] = datetime.now()
+#     logger.debug(f"starting db.update")
+#     try:
+#         db.update(db_replace(hsh), doc_ids=[doc_id])
+#     except Exception as e:
+#         logger.error(
+#             f'Error updating document corresponding to doc_id {doc_id}\nhsh {hsh}\nexception: {repr(e)}'
+#         )
+
+
+# def write_back(db, docs):
+#     logger.debug(f"starting write_back")
+#     for doc in docs:
+#         try:
+#             doc_id = doc.doc_id
+#             update_db(db, doc_id, doc)
+#         except Exception as e:
+#             logger.error(f'write_back exception: {e}')
+
+
+def insert_db(db, hsh={}):
+    """
+    Assume hsh has been vetted.
+    """
+    if not hsh:
+
+        return
+    hsh['created'] = datetime.now()
+    try:
+        db.insert(hsh)
+    except Exception as e:
+        logger.error(f'Error updating database:\nhsh {hsh}\ne {repr(e)}')
+
 
 class ETMQuery(object):
     def __init__(self):
@@ -467,7 +547,7 @@ class ETMQuery(object):
             if not ok or isinstance(res, str):
                 return False, res
 
-            if isinstance(res, tinydb.table.Document):
+            if isinstance(res, Document):
                 return False, item_details(res)
             else:
                 items = dataview.db.search(res)

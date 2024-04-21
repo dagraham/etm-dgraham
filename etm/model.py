@@ -3,7 +3,7 @@
 # len(usable): 94
 
 from typing import Union
-from etm.common import (
+from etm.common import ( 
     VERSION_INFO,
     parse,
     WKDAYS_DECODE,
@@ -11,10 +11,22 @@ from etm.common import (
     # ETM_CHAR,
     EtmChar,
     Period,
+    wrap,
+    nowrap,
+    update_db,
+    db_replace,
+    # write_back,
+    settings,
+    WA,
+    timers_file,
+    etmhome,
 )
 
-from tinydb.table import Document
-from etm.common import TimeIt
+beginbusy = settings.beginbusy
+usedtime_hours = settings.usedtime_hours
+
+from tinydb.table import Document 
+from etm.common import TimeIt 
 import sys
 import re
 from pprint import pprint
@@ -29,7 +41,7 @@ import shutil
 from operator import itemgetter
 from itertools import groupby, combinations
 
-from prompt_toolkit.styles import Style
+from prompt_toolkit.styles import Style 
 
 # from ruamel.yaml import __version__ as ruamel_version
 # from dateutil import __version__ as dateutil_version
@@ -37,23 +49,23 @@ from prompt_toolkit.styles import Style
 # from jinja2 import __version__ as jinja2_version
 # from prompt_toolkit import __version__ as prompt_toolkit_version
 
-from dateutil import rrule as dr
+from dateutil import rrule as dr 
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
-from dateutil.rrule import MO, TU, WE, TH, FR, SA, SU
+from dateutil.rrule import MO, TU, WE, TH, FR, SA, SU  
 
 # for saving timers
 import pickle
 from warnings import filterwarnings
-from ruamel.yaml import YAML
-from jinja2 import Template
+from ruamel.yaml import YAML 
+from jinja2 import Template 
 import textwrap
 import os
 import platform
 import string as strng
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from etm.view import is_showing_konnections
+# from etm.view import is_showing_konnections
 
 # from etm.report import get_usedtime_cvs
 
@@ -70,9 +82,10 @@ python_version = platform.python_version()
 developer = 'dnlgrhm@gmail.com'
 
 # These are set in _main_
-DBITEM = None
-DBARCH = None
-ETMDB = None
+from etm.common import DBITEM, DBARCH, ETMDB 
+# DBITEM = None
+# DBARCH = None
+# ETMDB = None
 data = None
 # NOTE: view.main() will override ampm using the configuration setting
 ampm = True
@@ -2272,7 +2285,7 @@ def format_datetime(obj, short=False):
         return True, obj.strftime(date_fmt)
 
     if not isinstance(obj, datetime):
-        return False, f'Error: {ob}'
+        return False, f'Error: {obj = } is not a datetime instance'
 
     # we want all-day events to display as dates
     if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
@@ -2513,6 +2526,8 @@ def fmt_dur(obj):
     try:
         until = []
         seconds = int(obj.total_seconds())
+        sign = '-' if seconds < 0 else '-'
+        seconds = abs(seconds)
         weeks = days = hours = minutes = 0
         if seconds:
             minutes = seconds // 60
@@ -2535,8 +2550,7 @@ def fmt_dur(obj):
             until.append(f'{minutes}m')
         if not until:
             until.append('0m')
-        ret = ''.join(until)
-        return ''.join(until)
+        return sign + ''.join(until)
     except Exception as e:
         return None
 
@@ -4655,42 +4669,42 @@ shown when nonzero."""
         self.refreshCalendar()
 
 
-def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
-    return txt
+# def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
+#     return txt
 
 
-def wrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
-    """
-    Wrap text to terminal width using indent spaces before each line.
-    >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
-    >>> res = wrap(txt, 4, 60)
-    >>> print(res)
-    Now is the time for all good men to come to the aid of
-        their country. Now is the time for all good men to
-        come to the aid of their country. Now is the time
-        for all good men to come to the aid of their
-        country. Now is the time for all good men to come
-        to the aid of their country. Now is the time for
-        all good men to come to the aid of their country.
-    """
-    para = [x.rstrip() for x in txt.split('\n')]
-    tmp = []
-    first = True
-    for p in para:
-        if first:
-            initial_indent = ''
-            first = False
-        else:
-            initial_indent = ' ' * indent
-        tmp.append(
-            textwrap.fill(
-                p,
-                initial_indent=initial_indent,
-                subsequent_indent=' ' * indent,
-                width=width - indent - 1,
-            )
-        )
-    return '\n'.join(tmp)
+# def wrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
+#     """
+#     Wrap text to terminal width using indent spaces before each line.
+#     >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
+#     >>> res = wrap(txt, 4, 60)
+#     >>> print(res)
+#     Now is the time for all good men to come to the aid of
+#         their country. Now is the time for all good men to
+#         come to the aid of their country. Now is the time
+#         for all good men to come to the aid of their
+#         country. Now is the time for all good men to come
+#         to the aid of their country. Now is the time for
+#         all good men to come to the aid of their country.
+#     """
+#     para = [x.rstrip() for x in txt.split('\n')]
+#     tmp = []
+#     first = True
+#     for p in para:
+#         if first:
+#             initial_indent = ''
+#             first = False
+#         else:
+#             initial_indent = ' ' * indent
+#         tmp.append(
+#             textwrap.fill(
+#                 p,
+#                 initial_indent=initial_indent,
+#                 subsequent_indent=' ' * indent,
+#                 width=width - indent - 1,
+#             )
+#         )
+#     return '\n'.join(tmp)
 
 
 def set_summary(summary='', start=None, relevant=None, freq=''):
@@ -5021,7 +5035,7 @@ entry_tmpl = """\
 {%- if 'r' in x and x['r'] -%}\
 {%- set rrule %}\
 {{ x['r'] }}\
-{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'E', 'c'] -%}
+{%- for k in ['i', 's', 'M', 'm', 'h', 'n', 'w', 'E', 'c'] -%}
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
@@ -5132,7 +5146,7 @@ display_tmpl = """\
 {%- if 'r' in x and x['r'] -%}\
 {%- set rrule %}\
 {{ x['r'] }}\
-{%- for k in ['i', 's', 'M', 'm', 'n', 'w', 'E', 'c'] -%}
+{%- for k in ['i', 's', 'M', 'm', 'h', 'n', 'w', 'E', 'c'] -%}
 {%- if k in x %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{%- endif %}\
 {%- endfor %}
 {% if isinstance(x, dict) and 'u' in x %}{{ " &u {} ".format(dt2str(x['u'])[1]) }}{% endif %}\
@@ -7073,7 +7087,8 @@ def relevant(
                         )
                         sum_abbr = item['summary'][:summary_width]
                         summary = f'{sum_abbr} {num_remaining}'
-                        if dtstart.date() < today.date() and 'j' not in item:
+                        extent = item.get('e', ZERO)
+                        if dtstart.date() + extent < today.date() and 'j' not in item:
                             pastdue.append(
                                 [
                                     (dtstart.date() - today.date()).days,
@@ -7384,63 +7399,63 @@ def relevant(
     return current, alerts, id2relevant, dirty
 
 
-def db_replace(new):
-    """
-    Used with update to replace the original doc with new.
-    """
+# def db_replace(new):
+#     """
+#     Used with update to replace the original doc with new.
+#     """
 
-    def transform(doc):
-        # update doc to include key/values from new
-        doc.update(new)
-        # remove any key/values from doc that are not in new
-        for k in list(doc.keys()):
-            if k not in new:
-                del doc[k]
+#     def transform(doc):
+#         # update doc to include key/values from new
+#         doc.update(new)
+#         # remove any key/values from doc that are not in new
+#         for k in list(doc.keys()):
+#             if k not in new:
+#                 del doc[k]
 
-    return transform
-
-
-def update_db(db, doc_id, hsh={}):
-    old = db.get(doc_id=doc_id)
-    if not old:
-        logger.error(
-            f'Could not get document corresponding to doc_id {doc_id}'
-        )
-        return
-    if old == hsh:
-        return
-    hsh['modified'] = datetime.now()
-    logger.debug(f"starting db.update")
-    try:
-        db.update(db_replace(hsh), doc_ids=[doc_id])
-    except Exception as e:
-        logger.error(
-            f'Error updating document corresponding to doc_id {doc_id}\nhsh {hsh}\nexception: {repr(e)}'
-        )
+#     return transform
 
 
-def write_back(db, docs):
-    logger.debug(f"starting write_back")
-    for doc in docs:
-        try:
-            doc_id = doc.doc_id
-            update_db(db, doc_id, doc)
-        except Exception as e:
-            logger.error(f'write_back exception: {e}')
+# def update_db(db, doc_id, hsh={}):
+#     old = db.get(doc_id=doc_id)
+#     if not old:
+#         logger.error(
+#             f'Could not get document corresponding to doc_id {doc_id}'
+#         )
+#         return
+#     if old == hsh:
+#         return
+#     hsh['modified'] = datetime.now()
+#     logger.debug(f"starting db.update")
+#     try:
+#         db.update(db_replace(hsh), doc_ids=[doc_id])
+#     except Exception as e:
+#         logger.error(
+#             f'Error updating document corresponding to doc_id {doc_id}\nhsh {hsh}\nexception: {repr(e)}'
+#         )
 
 
-def insert_db(db, hsh={}):
-    """
-    Assume hsh has been vetted.
-    """
-    if not hsh:
+# def write_back(db, docs):
+#     logger.debug(f"starting write_back")
+#     for doc in docs:
+#         try:
+#             doc_id = doc.doc_id
+#             update_db(db, doc_id, doc)
+#         except Exception as e:
+#             logger.error(f'write_back exception: {e}')
 
-        return
-    hsh['created'] = datetime.now()
-    try:
-        db.insert(hsh)
-    except Exception as e:
-        logger.error(f'Error updating database:\nhsh {hsh}\ne {repr(e)}')
+
+# def insert_db(db, hsh={}):
+#     """
+#     Assume hsh has been vetted.
+#     """
+#     if not hsh:
+
+#         return
+#     hsh['created'] = datetime.now()
+#     try:
+#         db.insert(hsh)
+#     except Exception as e:
+#         logger.error(f'Error updating database:\nhsh {hsh}\ne {repr(e)}')
 
 
 def show_forthcoming(
@@ -8333,7 +8348,7 @@ def no_busy_periods(week, width):
         h[i] = ' ' if (i - 1) % 4 else EtmChar.VSEP
     empty = ''.join([h[i] for i in range(59)])
     for i in range(1, 58):
-        h[i] = EtmChar.EtmChar.HSEP if (i - 1) % 4 else EtmChar.VSEP
+        h[i] = EtmChar.HSEP if (i - 1) % 4 else EtmChar.VSEP
     full = ''.join([h[i] for i in range(59)])
     empty_hsh = {}
     wk_fmt = fmt_week(week).center(width, ' ').rstrip()
@@ -9174,7 +9189,7 @@ def import_file(import_file=None):
         )
 
 
-def get_konnections(hsh: dict)->[int]:
+def get_konnections(hsh: dict)->list[int]:
     if 'K' not in hsh:
         return []
 

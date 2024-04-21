@@ -1,24 +1,40 @@
-from dateutil.parser import parse as dateutil_parse
-from dateutil.parser import parserinfo
+from dateutil.parser import parse as dateutil_parse 
+from dateutil.parser import parserinfo 
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
 import platform
 import sys
 import os
 import sys
+import textwrap
+import shutil
+import re
+from shlex import split as qsplit
+import contextlib, io
+import subprocess   # for check_output
+
+from pygments.lexer import RegexLexer 
+from pygments.token import Keyword 
+from pygments.token import Literal 
+from pygments.token import Operator 
+from pygments.token import Comment 
+
 
 import logging
 import logging.config
+logger = None
+settings = None
 
-import etm.__version__ as version
-from ruamel.yaml import __version__ as ruamel_version
-from dateutil import __version__ as dateutil_version
-from tinydb import __version__ as tinydb_version
-from jinja2 import __version__ as jinja2_version
-from prompt_toolkit import __version__ as prompt_toolkit_version
+import etm.__version__ as version 
+from ruamel.yaml import __version__ as ruamel_version 
+from dateutil import __version__ as dateutil_version 
+from tinydb import __version__ as tinydb_version 
+from jinja2 import __version__ as jinja2_version 
+from prompt_toolkit import __version__ as prompt_toolkit_version 
 
 from time import perf_counter as timer
 
+ETMDB = DBITEM = DBARCH = dataview = data_changed = None
 
 def is_aware(dt):
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
@@ -47,6 +63,7 @@ class TimeIt(object):
 
 
 # from etm.__main__ import ETMHOME
+from etm import options
 
 python_version = platform.python_version()
 system_platform = platform.platform(terse=True)
@@ -54,6 +71,17 @@ etm_version = version.version
 sys_platform = platform.system()
 mac = sys.platform == 'darwin'
 windoz = sys_platform in ('Windows', 'Microsoft')
+
+settings = None
+WA = {}
+format_datetime = None
+format_duration = None
+format_time = None
+parse_datetime = None
+text_pattern = None
+etmhome = None
+import_file = None
+timers_file = None
 
 VERSION_INFO = f"""\
  etm version:        {etm_version}
@@ -65,6 +93,50 @@ VERSION_INFO = f"""\
  ruamel.yaml:        {ruamel_version}
  platform:           {system_platform}\
 """
+
+def db_replace(new):
+    """
+    Used with update to replace the original doc with new.
+    """
+
+    def transform(doc):
+        # update doc to include key/values from new
+        doc.update(new)
+        # remove any key/values from doc that are not in new
+        for k in list(doc.keys()):
+            if k not in new:
+                del doc[k]
+
+    return transform
+
+
+def update_db(db, doc_id, hsh={}):
+    old = db.get(doc_id=doc_id)
+    if not old:
+        logger.error(
+            f'Could not get document corresponding to doc_id {doc_id}'
+        )
+        return
+    if old == hsh:
+        return
+    hsh['modified'] = datetime.now()
+    logger.debug(f"starting db.update")
+    try:
+        db.update(db_replace(hsh), doc_ids=[doc_id])
+    except Exception as e:
+        logger.error(
+            f'Error updating document corresponding to doc_id {doc_id}\nhsh {hsh}\nexception: {repr(e)}'
+        )
+
+def write_back(db, docs):
+    logger.debug(f"starting write_back")
+    for doc in docs:
+        try:
+            doc_id = doc.doc_id
+            update_db(db, doc_id, doc)
+        except Exception as e:
+            logger.error(f'write_back exception: {e}')
+
 
 def setup_logging(level, etmdir, file=None):
     """
@@ -135,6 +207,103 @@ def setup_logging(level, etmdir, file=None):
         )
     return logger
 
+def openWithDefault(path):
+    if ' ' in path:
+        parts = qsplit(path)
+        if parts:
+            # wrapper to catch 'Exception Ignored' messages
+            output = io.StringIO()
+            with contextlib.redirect_stderr(output):
+                # the pid business is evidently needed to avoid waiting
+                pid = subprocess.Popen(
+                    parts,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                ).pid
+                res = output.getvalue()
+                if res:
+                    logger.error(f"caught by contextlib:\n'{res}'")
+
+    else:
+        path = os.path.normpath(os.path.expanduser(path))
+        sys_platform = platform.system()
+        if platform.system() == 'Darwin':       # macOS
+            subprocess.run(
+                ('open', path),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        elif platform.system() == 'Windows':    # Windows
+            os.startfile(path)
+        else:                                   # linux
+            subprocess.run(
+                ('xdg-open', path),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+
+    return
+
+
+class TDBLexer(RegexLexer):
+
+    name = 'TDB'
+    aliases = ['tdb']
+    filenames = '*.*'
+    flags = re.MULTILINE | re.DOTALL
+
+    tokens = {
+        'root': [
+            (
+                r'\b(begins|includes|in|equals|more|less|exists|any|all|one)\b',
+                Keyword,
+            ),
+            (
+                r'\b(replace|remove|archive|delete|set|provide|attach|detach)\b',
+                Keyword,
+            ),
+            (r'\b(itemtype|summary)\b', Literal),
+            (r'\b(and|or|info)\b', Keyword),
+        ],
+    }
+
+def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
+    return txt
+
+def wrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
+    """
+    Wrap text to terminal width using indent spaces before each line.
+    >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
+    >>> res = wrap(txt, 4, 60)
+    >>> print(res)
+    Now is the time for all good men to come to the aid of
+        their country. Now is the time for all good men to
+        come to the aid of their country. Now is the time
+        for all good men to come to the aid of their
+        country. Now is the time for all good men to come
+        to the aid of their country. Now is the time for
+        all good men to come to the aid of their country.
+    """
+    para = [x.rstrip() for x in txt.split('\n')]
+    tmp = []
+    first = True
+    for p in para:
+        if first:
+            initial_indent = ''
+            first = False
+        else:
+            initial_indent = ' ' * indent
+        tmp.append(
+            textwrap.fill(
+                p,
+                initial_indent=initial_indent,
+                subsequent_indent=' ' * indent,
+                width=width - indent - 1,
+            )
+        )
+    return '\n'.join(tmp)
+
 def parse(s, **kwd):
     # enable pi when read by main and settings is available
     pi = parserinfo(
@@ -177,6 +346,31 @@ def parse(s, **kwd):
 #     # LINEDOT=' · ',  # ܁ U+00B7 (middle dot),
 #     # ELECTRIC='⌁',
 # )
+
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        for arg in args:
+            if isinstance(arg, dict):
+                for k, v in arg.items():
+                    self[k] = v
+
+        if kwargs:
+            for k, v in kwargs.items():
+                self[k] = v
+
+    def __getattr__(self, item):
+        try:
+            return self[item]
+        except KeyError:
+            raise AttributeError(f"'AttrDict' object has no attribute '{item}'")
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    # Initializing AttrDict with a dictionary
+    # d = AttrDict({'attr': 'value', 'another': 123})
+    # print(d.attr)  # Outputs: value
 
 class EtmChar:
     VSEP='⏐'  # U+23D0  this will be a de-emphasized color

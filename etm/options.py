@@ -1,7 +1,7 @@
 import os
 import sys
 
-import ruamel.yaml
+import ruamel.yaml 
 
 yaml_nort = ruamel.yaml.YAML(typ='safe')   # no round trip
 yaml_nort.indent(mapping=2, sequence=4, offset=2)
@@ -16,8 +16,8 @@ import random
 import re
 import locale
 from copy import deepcopy
-from prompt_toolkit.styles.named_colors import NAMED_COLORS
-import etm.__version__ as version
+from prompt_toolkit.styles.named_colors import NAMED_COLORS 
+import etm.__version__ as version 
 
 etmversion = version.version
 
@@ -640,56 +640,57 @@ window_colors: {window_colors}
 #### end cfg.yaml ####\
 """
 
-    def __init__(self, etmdir):
-        if not os.path.isdir(etmdir):
-            raise ValueError(f'{etmdir} is not a valid directory')
+    def __init__(self, etmdir:str = None):
         self.settings = {}
+        self.cfgfile = None
         default_template = Settings.template.format(**Settings.settings_hsh)
         self.settings.update(self.settings_hsh)
         active_style = self.settings_hsh['style']
         default_type_colors = self.default_type_colors[active_style]
         default_window_colors = self.default_window_colors[active_style]
-        # override the settings_hsh values for type_colors and window_colors so that
-        # settings will have all the possible keys
+        # override the settings_hsh values for type_colors and window_colors so that settings will have all the possible keys
         self.settings['type_colors'] = default_type_colors
         self.settings['window_colors'] = default_window_colors
-        self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
-        if os.path.exists(self.cfgfile):
-            with open(self.cfgfile, 'rb') as fn:
-                try:
-                    self.user = yaml_nort.load(
-                        fn
-                    )   # not RoundTripLoader (no comments)
-                except Exception as e:
-                    error = f'This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {self.cfgfile} and restart etm.\n'
-                    logger.critical(error)
-                    print(error)
-                    sys.exit()
+        if etmdir and os.path.isdir(etmdir):
+            self.cfgfile = os.path.normpath(os.path.join(etmdir, 'cfg.yaml'))
+            if os.path.exists(self.cfgfile):
+                with open(self.cfgfile, 'rb') as fn:
+                    try:
+                        self.user = yaml_nort.load(
+                            fn
+                        )   # not RoundTripLoader (no comments)
+                    except Exception as e:
+                        error = f'This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {self.cfgfile} and restart etm.\n'
+                        logger.critical(error)
+                        print(error)
+                        sys.exit()
 
-            if self.user and isinstance(self.user, dict):
-                logger.debug(f'self.user: {self.user}')
+                if self.user and isinstance(self.user, dict):
+                    logger.debug(f'self.user: {self.user}')
+                else:
+                    self.user = {}
             else:
                 self.user = {}
-        else:
-            self.user = {}
 
-        if self.user:
-            # we have user settings that need to be checked
-            self.changes = self.check_options()
-        else:
-            # we need to populate cfg.yaml
-            self.changes = None
-            with open(self.cfgfile, 'w') as fn:
-                fn.writelines(default_template)
+            if self.user:
+                # we have user settings that need to be checked
+                self.changes = self.check_options()
+            else:
+                # we need to populate cfg.yaml
+                self.changes = None
+                with open(self.cfgfile, 'w') as fn:
+                    fn.writelines(default_template)
 
-        if self.changes:
-            updated_template = Settings.template.format(**self.settings_hsh)
-            with open(self.cfgfile, 'w') as fn:
-                fn.writelines(updated_template)
-            changes = '\n    - '.join(self.changes)
-            logger.info(f'updated {self.cfgfile}:\n    - {changes}')
+            if self.changes:
+                updated_template = Settings.template.format(**self.settings_hsh)
+                with open(self.cfgfile, 'w') as fn:
+                    fn.writelines(updated_template)
+                changes = '\n    - '.join(self.changes)
+                logger.info(f'updated {self.cfgfile}:\n    - {changes}')
+            else:
+                logger.info(f'using settings from {self.cfgfile}')
         else:
-            logger.info(f'using settings from {self.cfgfile}')
+            logger.info('using default settings')
 
     def check_options(self):
         changed = []
