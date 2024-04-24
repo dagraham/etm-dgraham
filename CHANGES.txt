@@ -1,4 +1,10 @@
-2024-04-24 4456866 Daniel Graham
+2024-04-24 7888dfb Daniel Graham
+    Tagged version 6.1.24.
+
+2024-04-24 10b8c3a Daniel Graham
+    Fixed import bug
+
+2024-04-24 e7af668 Daniel Graham
     Tagged version 6.1.23.
 
 2024-04-24 b421570 Daniel Graham
@@ -227,10 +233,3 @@
 2024-01-29 69922a0 Daniel Graham
     Wrapped starting time in date_to_datetime to permit sorting using
     timestamp().
-
-2024-01-29 4df92d8 Daniel Graham
-    Tagged version 6.1.0.
-
-2024-01-29 ece863d Daniel Graham
-    Fixed sorting issue in journal and index views. Added section on
-    'Do Next View' to README.
