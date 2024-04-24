@@ -17,7 +17,7 @@ from etm.common import (
     update_db,
     db_replace,
     # write_back,
-    settings,
+    # settings,
     WA,
     timers_file,
     etmhome,

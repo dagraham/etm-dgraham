@@ -24,7 +24,7 @@ from pygments.token import Comment
 import logging
 import logging.config
 logger = None
-settings = None
+# settings = None
 
 import etm.__version__ as version 
 from ruamel.yaml import __version__ as ruamel_version 
@@ -74,7 +74,6 @@ sys_platform = platform.system()
 mac = sys.platform == 'darwin'
 windoz = sys_platform in ('Windows', 'Microsoft')
 
-settings = None
 WA = {}
 parse_datetime = None
 text_pattern = None

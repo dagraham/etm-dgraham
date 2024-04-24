@@ -192,12 +192,7 @@ which will need to be created.
 
     logger = common.setup_logging(loglevel, logdir)
     common.logger = logger
-
-    # Settings = options.Settings(etmdir)
-
-    # settings = AttrDict(Settings.settings)
-    # common.settings = settings
-
+    model.settings = settings
     beginbusy = settings.beginbusy
     type_colors = settings.type_colors
     window_colors = settings.window_colors

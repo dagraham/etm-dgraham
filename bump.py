@@ -2,14 +2,31 @@
 
 from datetime import datetime
 import sys
+import subprocess   # for check_output
 
 from etm.__version__ import version
-import etm.view as view
 
-# from etm.view import check_output
+def check_output(cmd):
+    if not cmd:
+        return
+    res = ''
+    try:
+        res = subprocess.check_output(
+            cmd,
+            stderr=subprocess.STDOUT,
+            shell=True,
+            universal_newlines=True,
+            encoding='UTF-8',
+        )
+        return True, res
+    except subprocess.CalledProcessError as e:
+        lines = e.output.strip().split('\n')
+        msg = lines[-1]
+        return False, msg
+
 import etm.options as options
 
-check_output = view.check_output
+# check_output = view.check_output
 ok, gb = check_output('git branch')
 print('branch:')
 print(gb)
