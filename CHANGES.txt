@@ -1,4 +1,36 @@
-2024-03-14 3b47e23 Daniel Graham
+2024-04-24 4456866 Daniel Graham
+    Tagged version 6.1.23.
+
+2024-04-24 b421570 Daniel Graham
+    Avoid unnecessary import of view in bump.py
+
+2024-04-24 25a596e Daniel Graham
+    Added 'doghouse' example of task with jobs to lorem examples.
+
+2024-04-24 24e900c Daniel Graham
+    More work on common.py. Added # pyright:
+    reportUndefinedVariable=false to suppress pyright warnings. Fixed
+    jobs format start/extend and summary format. Updated discussion of
+    tasks and jobs in README.
+
+2024-04-21 3d71359 Daniel Graham
+    Expanded imports from common to fix pylance problem reports. First
+    pass at making tasks with @s and @e entries due at @s + @e and
+    only past due after that.
+
+2024-03-19 0f628dc Daniel Graham
+    setup_logging __main__ -> common
+
+2024-03-18 2285c8f Daniel Graham
+    ETMQuery class view.py -> data.py
+
+2024-03-18 baaaa53 Daniel Graham
+    ETM_CHAR dict -> EtmChar class.
+
+2024-03-17 bc95722 Daniel Graham
+    Recognize vi vs emacs setting.
+
+2024-03-14 bfe10f2 Daniel Graham
     Tagged version 6.1.22.
 
 2024-03-14 f702181 Daniel Graham
@@ -202,44 +234,3 @@
 2024-01-29 ece863d Daniel Graham
     Fixed sorting issue in journal and index views. Added section on
     'Do Next View' to README.
-
-2024-01-28 65f3211 Daniel Graham
-    Tagged version 6.0.19.
-
-2024-01-28 1a5afa8 Daniel Graham
-    README tweaks. Now using auto tabs to spaces and remove trailing
-    white space which makes for lots of changes. Replaced erroneous
-    instance of 'diff_for_humans' (Pendulum) with 'duration_in_words'
-    now twith short option to retain only the two most significant
-    periods from weeks, days, hours and minutes. Used for 'when' in
-    email and text alerts.
-
-2024-01-27 5d2ed6d Daniel Graham
-    Tagged version 6.0.18.
-
-2024-01-27 af2eba5 Daniel Graham
-    Missed bindings for goto today.
-
-2024-01-27 f805747 Daniel Graham
-    Tagged version 6.0.17.
-
-2024-01-27 0068cfd Daniel Graham
-    Restored keybindings: space->goto today, enter->toggle details.
-    Added FuzzyCompleter wrapper to at_completer. Updated README for
-    menus and Konnected View.
-
-2024-01-26 fdcd9cd Daniel Graham
-    Implemented using @K <summary> entries to add links to as yet non
-    existing inbox items with the provided summary and an @s entry
-    corresponding to the current date. The inbox items are created and
-    the resulting doc_id's added to an @k entry which replaces the @K
-    entry. Reorganized menus and updated README accordingly. Pressing
-    'J' in any mode, opens a 'daily' journal entry for the current
-    date for editing, creating the item if it doesn't already exist.
-
-2024-01-24 11f2673 Daniel Graham
-    Reverse sort 'daily' to put most recent first. Wrap rset.after in
-    try/except to catch Gour issue.
-
-2024-01-23 b60c10a Daniel Graham
-    Tagged version 6.0.16.
