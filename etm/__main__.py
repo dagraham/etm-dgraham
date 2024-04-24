@@ -247,10 +247,6 @@ which will need to be created.
     from etm.make_examples import make_examples 
     from etm.model import about 
     from etm.model import parse 
-    # from etm.model import wrap
-    from etm.model import import_file 
-    from etm.model import import_examples 
-    # from etm.model import write_back
     from etm.model import duration_in_words 
 
     from etm.model import item_details 
@@ -269,12 +265,11 @@ which will need to be created.
     model.UT_MIN = UT_MIN
     model.usedtime_hours = usedtime_hours
     model.refresh_interval = refresh_interval
-    # model.beginbusy = beginbusy
     model.settings = settings
     common.settings = settings
     common.item_details = item_details
     model.logger = logger
-    # model.make_examples = make_examples
+    common.make_examples = make_examples
     model.needs_update = needs_update
     model.timers_file = os.path.join(etmdir, 'timers.pkl')
     userhome = os.path.expanduser('~')
@@ -292,11 +287,13 @@ which will need to be created.
 
     logger.debug(f'{dataview.last_id = }')
     model.last_id = dataview.last_id
+    common.last_id = dataview.last_id
     datetime_calculator = model.datetime_calculator
     item = model.Item()
+    common.Item = model.Item
     format_time = model.format_time
     format_datetime = model.format_datetime
-    format_statustime = model.format_statustime
+    # format_statustime = model.format_statustime
     format_duration = model.format_duration
     format_hours_and_tenths = model.format_hours_and_tenths
     # since dataview calls schedule it will also have settings
@@ -323,8 +320,8 @@ which will need to be created.
     # view.write_back = write_back
     view.item = item
     view.item_details = item_details
-    common.import_file = import_file
-    view.import_examples = import_examples
+    # common.import_file = import_file
+    # view.import_examples = import_examples
     view.etmdir = etmdir
     view.etmhome = etmhome
     view.text_pattern = os.path.join(etmdir, '*.text')
@@ -334,9 +331,8 @@ which will need to be created.
     view.about = about
     common.format_time = format_time
     common.format_datetime = format_datetime
-    view.format_statustime = format_statustime
+    # view.format_statustime = format_statustime
     common.format_duration = format_duration
-    common.parse_datetime = parse_datetime
     view.ETMDB = ETMDB
     view.DBITEM = DBITEM
     view.DBARCH = DBARCH

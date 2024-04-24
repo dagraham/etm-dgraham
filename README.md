@@ -1616,10 +1616,11 @@ Type character: **-**
 
 A task is something that requires action from the user and lasts, so to speak, until the task is completed and marked finished. Filing a tax return, for example, is a task.
 
-- The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is scheduled to be completed.
-    - Tasks with an `@s` datetime entry are regarded as past due after the datetime and are displayed in *Agenda View* on the relevant date according to the scheduled time.
-    - Tasks with `@s` date entry are regarded as past due after the due date and are displayed in *Agenda View* on the due date after all items with datetimes.
-    - Tasks that are past due are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
+- The `@s` entry is optional and, if given, is interpreted as the date or datetime at which the task is scheduled to be started.
+- The `@e` entry is also optional and specifies the time period scheduled for completion of the task. The default value for `@e` is `0m` (zero minutes) .
+- Tasks with an `@s` datetime entry are regarded as past due after `@s + @e` and are displayed in *Agenda View* on the relevant dates from `@s` to `@s + @e`. 
+- When `@s` is a date entry, the task is regarded as past due after the date corresponding to `@s + @e` and is displayed in *Agenda View* on the relevant dates after all items with datetimes.
+- Tasks that are past due are also displayed in *Agenda View* on the current date using the type character `<` with an indication of the number of days that the task is past due.
 - Tasks without an `@s` entry are to be completed when possible and are sometimes called *todos*. They are regarded as *next* items in the *Getting Things Done* terminology and are displayed in *Do Next* view grouped by @l (location/context).
 - Tasks with an `@r` (repeat) or an `@+` entry can have an `@o` (overdue) setting.
     - `@o k`: keep. Whenever completed, the next instance is due at the datetime specified in the recurrance rule even if that datetime has already passed. E.g. minutes from a monthly meeting to be made on the 1st of the month are due for each prior month in which they have not been made. With this option, many instances can be past due. By default, a completion applies to the oldest, past due one, though other instances can be selected. The default when no `@o` entry is given is `@o k`.
@@ -1634,7 +1635,7 @@ A task is something that requires action from the user and lasts, so to speak, u
 
 - Jobs
     - Tasks, both with and without @s entries can have component jobs using @j entries.
-    - For tasks with an @s entry, jobs can have an &s entry to set the due date/datetime for the job. It is entered as a timeperiod relative to  the scheduled datetime (+ before or - after) for the task. Zero minutes is the default when &s is not entered.
+    - For tasks with an @s entry, jobs can have an &s entry to set the starting date/datetime for the job. It is entered as a timeperiod relative to the starting datetime for the task. The default for `&s` is `0m` (zero minutes). E.g., a job with `&s 1d` would have a starting datetime one day after the starting datetime specified in `@s`.
     - For tasks with an @s entry, jobs can also have &a, alert, and &b, beginning soon, notices. The entry for &a is given as a time period relative to &s (+ before or - after) and the entry for &b is a positive integer number of days before the scheduled date/time to begin displaying "beginning soon" notices. The entry for @s in the task becomes the default for &s in each job.  E.g., with
 
             - beginning soon example @s 1/30/2018

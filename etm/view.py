@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pyright: reportUndefinedVariable=false
 """
 A user interface based on prompt_toolkit.
 """
@@ -8,14 +9,8 @@ import sys
 import inspect
 import tinydb 
 
-# from prompt_toolkit import __version__ as prompt_toolkit_version
-
-# import prompt_toolkit.application as pta
 import prompt_toolkit.application 
 
-# from prompt_toolkit.application import Application
-# from prompt_toolkit.application.current import get_app
-# from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.completion import Completion, Completer, FuzzyCompleter 
 from prompt_toolkit.shortcuts import CompleteStyle, prompt 
 from prompt_toolkit.cursor_shapes import CursorShape 
@@ -81,7 +76,8 @@ import pyperclip
 from etm.common import etm_version 
 from etm.common import EtmChar 
 from etm.common import TimeIt 
-from etm.common import WA, format_datetime, format_duration, format_time, parse_datetime, text_pattern, etmhome, import_file
+from etm.common import WA, parse_datetime, text_pattern, etmhome, import_file
+from etm.model import format_datetime, format_time, format_statustime, format_duration, parse_datetime
 
 from tinydb import where 
 from tinydb import Query 
@@ -901,7 +897,7 @@ Enter the expression """
         expression = dataview.entry_content.rstrip()
         if expression:
             dataview.calculator_expression = expression
-            res = datetime_calculator(expression)
+            res = datetime_calculator(expression) # type: ignore
             _ = f"""\
   {expression} =>
     {res}

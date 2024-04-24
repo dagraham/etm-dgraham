@@ -1,3 +1,4 @@
+# pyright: reportUndefinedVariable=false
 #  standard sort order for usable ASCII characters
 # usable = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~']
 # len(usable): 94
@@ -2526,7 +2527,7 @@ def fmt_dur(obj):
     try:
         until = []
         seconds = int(obj.total_seconds())
-        sign = '-' if seconds < 0 else '-'
+        sign = '-' if seconds < 0 else ''
         seconds = abs(seconds)
         weeks = days = hours = minutes = 0
         if seconds:
@@ -6542,9 +6543,8 @@ def jobs(lofh, at_hsh={}):
 
     for i in ids:
         try:
-            id2hsh[i]['summary'] = '{} {}: {}'.format(
-                summary, '/'.join([str(x) for x in awf]), id2hsh[i]['j']
-            )
+            stats = [str(x) for x in awf]
+            id2hsh[i]['summary'] = f"{id2hsh[i]['j'].strip()}: {summary} {'/'.join(stats)}"
             id2hsh[i]['req'] = req[i]
             id2hsh[i]['i'] = i
         except Exception as e:
@@ -7258,14 +7258,15 @@ def relevant(
                     f"{job.get('summary', '')[:summary_width]} {num_remaining}"
                 )
                 jobstart = dtstart - job.get('s', ZERO)
+                extent = job.get('e', ZERO)
                 if (
-                    jobstart.date() < today.date()
+                    (jobstart + extent).date() < today.date()
                     and job.get('status', None) == '-'
                 ):
                     pastdue_jobs = True
                     pastdue.append(
                         [
-                            (jobstart.date() - today.date()).days,
+                            ((jobstart + extent).date() - today.date()).days,
                             job_summary,
                             item.doc_id,
                             job_id,
@@ -7310,9 +7311,10 @@ def relevant(
             and 'j' not in item
             and relevant.date() < today.date()
         ):
+            extent = item.get('e', ZERO)
             pastdue.append(
                 [
-                    (relevant.date() - today.date()).days,
+                    ((relevant + extent).date() - today.date()).days,
                     summary,
                     item.doc_id,
                     None,
@@ -7397,65 +7399,6 @@ def relevant(
             }
         )
     return current, alerts, id2relevant, dirty
-
-
-# def db_replace(new):
-#     """
-#     Used with update to replace the original doc with new.
-#     """
-
-#     def transform(doc):
-#         # update doc to include key/values from new
-#         doc.update(new)
-#         # remove any key/values from doc that are not in new
-#         for k in list(doc.keys()):
-#             if k not in new:
-#                 del doc[k]
-
-#     return transform
-
-
-# def update_db(db, doc_id, hsh={}):
-#     old = db.get(doc_id=doc_id)
-#     if not old:
-#         logger.error(
-#             f'Could not get document corresponding to doc_id {doc_id}'
-#         )
-#         return
-#     if old == hsh:
-#         return
-#     hsh['modified'] = datetime.now()
-#     logger.debug(f"starting db.update")
-#     try:
-#         db.update(db_replace(hsh), doc_ids=[doc_id])
-#     except Exception as e:
-#         logger.error(
-#             f'Error updating document corresponding to doc_id {doc_id}\nhsh {hsh}\nexception: {repr(e)}'
-#         )
-
-
-# def write_back(db, docs):
-#     logger.debug(f"starting write_back")
-#     for doc in docs:
-#         try:
-#             doc_id = doc.doc_id
-#             update_db(db, doc_id, doc)
-#         except Exception as e:
-#             logger.error(f'write_back exception: {e}')
-
-
-# def insert_db(db, hsh={}):
-#     """
-#     Assume hsh has been vetted.
-#     """
-#     if not hsh:
-
-#         return
-#     hsh['created'] = datetime.now()
-#     try:
-#         db.insert(hsh)
-#     except Exception as e:
-#         logger.error(f'Error updating database:\nhsh {hsh}\ne {repr(e)}')
 
 
 def show_forthcoming(
@@ -8642,6 +8585,7 @@ def schedule(
             week2day2allday[week].setdefault(
                 dayofweek, [False, [f'{dayDM}', f'All day']]
             )
+            allday = dt.hour == 0 and dt.minute == 0
 
             if (
                 item['itemtype'] == '*'
@@ -8686,16 +8630,26 @@ def schedule(
                     if 'f' in job:
                         continue
                     job_summary = job.get('summary', '')
-                    jobstart = dt - job.get('s', ZERO)
+                    jobstart = dt + job.get('s', ZERO)
                     sort_dt = jobstart.strftime('%Y%m%d%H%M')
                     if sort_dt.endswith('0000'):
                         sort_dt = sort_dt[:-4] + '2359'
-
+                    logger.debug(f"{job = }; {sort_dt = }")
                     job_id = job.get('i', None)
                     job_sort = str(job_id)
 
                     # rhc = fmt_time(dt).center(rhc_width, ' ')
-                    rhc = fmt_time(dt)
+                    et = job.get('e', ZERO)
+                    if et:
+                        if omit and 'c' in item and item['c'] in omit:
+                            rhc = fmt_time(dt)
+                        elif allday:
+                            rhc = fmt_dur(et)
+                        else:
+                            rhc = fmt_extent(jobstart, et)
+                    else:
+                        rhc = fmt_time(jobstart)
+                    rhc = f"{rhc} " if rhc else ""
                     rows.append(
                         {
                             'id': doc_id,
@@ -8704,6 +8658,7 @@ def schedule(
                             'sort': (
                                 sort_dt,
                                 job_sort,
+                                doc_id,
                             ),
                             'week': (jobstart.isocalendar()[:2]),
                             'week_fmt': (wk_fmt),
@@ -8714,7 +8669,7 @@ def schedule(
                             'columns': [
                                 job['status'],
                                 set_summary(
-                                    f'{rhc}  {job_summary}',
+                                    f'{rhc}{job_summary}',
                                     start,
                                     jobstart,
                                     freq,
@@ -8875,7 +8830,7 @@ def schedule(
                         'id': doc_id,
                         'job': None,
                         'instance': instance,
-                        'sort': (sort_dt, '0'),
+                        'sort': (sort_dt, str(doc_id), '0'),
                         'week': (week),
                         'week_fmt': (wk_fmt),
                         'dayofweek': (dayofweek),
@@ -9166,29 +9121,6 @@ def schedule(
     timer_schedule.stop()
     return cache
 
-
-def import_file(import_file=None):
-    import_file = import_file.strip()
-    if not import_file:
-        return False, ''
-    if import_file.lower() == 'lorem':
-        return True, import_examples()
-
-    if not os.path.isfile(import_file):
-        return (
-            False,
-            f'"{import_file}"\n   either does not exist or is not a regular file',
-        )
-    filename, extension = os.path.splitext(import_file)
-    if extension == '.text':
-        return True, import_text(import_file)
-    else:
-        return (
-            False,
-            f"Importing a file with the extension '{extension}' is not implemented. Only files with the extension '.text' are recognized",
-        )
-
-
 def get_konnections(hsh: dict)->list[int]:
     if 'K' not in hsh:
         return []
@@ -9204,280 +9136,6 @@ def get_konnections(hsh: dict)->list[int]:
         doc_id = item.do_insert()
         doc_ids.append(doc_id)
     return doc_ids
-
-def import_examples():
-    docs = []
-    examples = make_examples(last_id=last_id)
-
-    results = []
-    good = []
-    bad = []
-    items = []
-
-    logger.debug(f"starting import from last_id: {last_id}")
-    count = 0
-    for s in examples:
-        ok = True
-        count += 1
-        if not s:
-            continue
-        item = Item()  # use ETMDB by default
-        item.new_item()
-        item.text_changed(s, 1)
-        if item.item_hsh.get('itemtype', None) is None:
-            ok = False
-
-        if item.item_hsh.get('summary', None) is None:
-            ok = False
-
-
-        if ok:
-            # don't check links because the ids won't yet exist
-            item.update_item_hsh(check_links=False)
-            good.append(f'{item.doc_id}')
-        else:
-            logger.debug(f"bad entry: {s}")
-            bad.append(s)
-
-    logger.debug("ending import")
-    res = f'imported {len(good)} items'
-    if good:
-        res += f'\n  ids: {good[0]} - {good[-1]}'
-    if bad:
-        res += f'\nrejected {bad} items:\n  '
-        res += '\n  '.join(results)
-    return res
-
-
-def import_text(import_file=None):
-    docs = []
-    with open(import_file, 'r') as fo:
-        logger.debug(f"opened for reading: '{import_file}'")
-        results = []
-        good = []
-        bad = 0
-        reminders = []
-        reminder = []
-        for line in fo:
-            s = line.strip()
-            if s and s[0] in ['!', '*', '-', '%']:
-                if reminder:
-                    # append it to reminders and reset it
-                    reminders.append(reminder)
-                    reminder = []
-                reminder = [s]
-            else:
-                # append to the existing reminder
-                reminder.append(s)
-        if reminder:
-            reminders.append(reminder)
-    count = 0
-    for reminder in reminders:
-        count += 1
-        logger.debug(f"reminder number {count}: {reminder}")
-        ok = True
-        s = '\n'.join(reminder)
-        if not s:
-            continue
-        logger.debug(f"adding item for {s}")
-        item = Item()  # use ETMDB by default
-        item.new_item()
-        item.text_changed(s, 1)
-        if item.item_hsh.get('itemtype', None) is None:
-            ok = False
-
-        if item.item_hsh.get('summary', None) is None:
-            ok = False
-
-        if ok:
-            # don't check links because the ids won't yet exist
-            item.update_item_hsh(check_links=False)
-            good.append(f'{item.doc_id}')
-        else:
-            logger.debug(f"bad entry: {s}")
-            bad.append(s)
-
-        # if not ok:
-        #     bad += 1
-        #     results.append(f'   {s}')
-        #     continue
-
-        # update_item_hsh stores the item in ETMDB
-        # item.update_item_hsh()
-        # good.append(f'{item.doc_id}')
-
-    res = f'imported {len(good)} items'
-    if good:
-        res += f'\n  ids: {good[0]} - {good[-1]}'
-    if bad:
-        res += f'\nrejected {bad} items:\n  '
-        res += '\n  '.join(results)
-    logger.debug(f"returning: {res}")
-    return res
-
-
-def import_json(import_file=None):
-    import json
-    with open(import_file, 'r') as fo:
-        import_hsh = json.load(fo)
-    items = import_hsh['items']
-    docs = []
-    dups = 0
-    add = 0
-    for id in items:
-        item_hsh = items[id]
-        itemtype = item_hsh.get('itemtype')
-        if not itemtype:
-            continue
-        summary = item_hsh.get('summary')
-        if not summary:
-            continue
-        z = item_hsh.get('z', 'Factory')
-        bad_keys = [x for x in item_hsh if not item_hsh[x]]
-        for key in bad_keys:
-            del item_hsh[key]
-        if 's' in item_hsh:
-            item_hsh['s'] = pen_from_fmt(item_hsh['s'], z)
-        if 'f' in item_hsh:
-            item_hsh['f'] = period_from_fmt(item_hsh['f'], z)
-        item_hsh['created'] = datetime.now('UTC')
-        if 'h' in item_hsh:
-            item_hsh['h'] = [period_from_fmt(x, z) for x in item_hsh['h']]
-        if '+' in item_hsh:
-            item_hsh['+'] = [pen_from_fmt(x, z) for x in item_hsh['+']]
-        if '-' in item_hsh:
-            item_hsh['-'] = [pen_from_fmt(x, z) for x in item_hsh['-']]
-        if 'e' in item_hsh:
-            item_hsh['e'] = parse_duration(item_hsh['e'])[1]
-        if 'w' in item_hsh:
-            wrps = [parse_duration(x)[1] for x in item_hsh['w']]
-            item_hsh['w'] = wrps
-        if 'a' in item_hsh:
-            alerts = []
-            for alert in item_hsh['a']:
-                # drop the True from parse_duration
-                tds = [parse_duration(x)[1] for x in alert[0]]
-                # put the largest duration first
-                tds.sort(reverse=True)
-                cmds = alert[1:2]
-                args = ''
-                if len(alert) > 2 and alert[2]:
-                    args = ', '.join(alert[2])
-                for cmd in cmds:
-                    if args:
-                        row = (tds, cmd, args)
-                    else:
-                        row = (tds, cmd)
-                    alerts.append(row)
-            item_hsh['a'] = alerts
-        if 'j' in item_hsh:
-            jbs = []
-            for jb in item_hsh['j']:
-                if 'h' in jb:
-                    if 'f' not in jb:
-                        jb['f'] = jb['h'][-1]
-                    del jb['h']
-                jbs.append(jb)
-            ok, lofh, last_completed = jobs(jbs, item_hsh)
-
-            if ok:
-                item_hsh['j'] = lofh
-            else:
-                print('using jbs', jbs)
-                print(
-                    'ok:',
-                    ok,
-                    ' lofh:',
-                    lofh,
-                    ' last_completed:',
-                    last_completed,
-                )
-
-        if 'r' in item_hsh:
-            ruls = []
-            for rul in item_hsh['r']:
-                if 'r' in rul and rul['r'] == 'l':
-                    continue
-                elif 'f' in rul:
-                    if rul['f'] == 'l':
-                        continue
-                    else:
-                        rul['r'] = rul['f']
-                        del rul['f']
-                if 'u' in rul:
-                    if 't' in rul:
-                        del rul['t']
-                    if 'c' in rul:
-                        del rul['c']
-                elif 't' in rul:
-                    rul['c'] = rul['t']
-                    del rul['t']
-                if 'u' in rul:
-                    if type(rul['u']) == str:
-                        try:
-                            rul['u'] = parse(rul['u'], tz=z)
-                        except Exception as e:
-                            logger.error(
-                                f"error parsing rul['u']: {rul['u']}. {e}"
-                            )
-                if 'w' in rul:
-                    if isinstance(rul['w'], list):
-                        rul['w'] = [
-                            '{0}:{1}'.format('{W}', x.upper())
-                            for x in rul['w']
-                        ]
-                    else:
-                        rul['w'] = '{0}:{1}'.format('{W}', rul['w'].upper())
-                bad_keys = []
-                for key in rul:
-                    if not rul[key]:
-                        bad_keys.append(key)
-                if bad_keys:
-                    for key in bad_keys:
-                        del rul[key]
-                if rul:
-                    ruls.append(rul)
-            if ruls:
-                item_hsh['r'] = ruls
-            else:
-                del item_hsh['r']
-
-        docs.append(item_hsh)
-    # now check for duplicates. If an item to be imported has the same type, summary and starting time as an existing item, regard it as a duplicate and do not import it.
-    exst = []
-    new = []
-    dups = 0
-    for x in ETMDB:
-        exst.append(
-            {
-                'itemtype': x.get('itemtype'),
-                'summary': x.get('summary'),
-                's': x.get('s'),
-            }
-        )
-    i = 0
-    for x in docs:
-        i += 1
-        y = {
-            'itemtype': x.get('itemtype'),
-            'summary': x.get('summary'),
-            's': x.get('s'),
-        }
-        if exst and y in exst:
-            dups += 1
-        else:
-            new.append(x)
-
-    ids = []
-    if new:
-        ids = ETMDB.insert_multiple(new)
-        ETMDB.close()
-    msg = f'imported {len(new)} items'
-    if ids:
-        msg += f'\n  ids: {ids[0]}-{ids[-1]}.'
-    if dups:
-        msg += f'\n  rejected {dups} items as duplicates'
-    return msg
 
 
 def about(padding=0):
