@@ -109,6 +109,15 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
     )
     past_datetimes = [x for x in datetimes if x <= now]
 
+    doghouse_example = f"""\
+- doghouse @s {now.strftime('%Y-%m-%d')} @e 5d @t lorem
+@j purchase materials &e 1d &i a
+@j cut pieces &s 1d &e 1d &i b &p a
+@j assemble &s 2d &e 1d &i c &p b
+@j sand &s 3d &e 1d &i d &p c
+@j paint &s 4d &e 1d &i e &p d 
+"""
+
     alerts = [f'@a {random.choice([0, 15, 30])}m: d' for x in range(10)]
 
     types = ['-', '*', '%']
@@ -142,7 +151,7 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
 
     # client_contacts = {}
     # client_id = {}
-    examples = []
+    examples = [doghouse_example,]
 
     for i in range(4):
         examples.append(
