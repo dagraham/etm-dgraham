@@ -23,8 +23,8 @@ from etm.common import (
     etmhome,
 )
 
-beginbusy = settings.beginbusy
-usedtime_hours = settings.usedtime_hours
+# beginbusy = settings.beginbusy
+# usedtime_hours = settings.usedtime_hours
 
 from tinydb.table import Document 
 from etm.common import TimeIt 

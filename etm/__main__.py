@@ -194,6 +194,9 @@ which will need to be created.
     common.logger = logger
     model.settings = settings
     beginbusy = settings.beginbusy
+    model.beginbusy = beginbusy
+    usedtime_hours = settings.usedtime_hours
+    model.usedtime_hours = usedtime_hours
     type_colors = settings.type_colors
     window_colors = settings.window_colors
 
