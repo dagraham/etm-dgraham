@@ -1,4 +1,11 @@
-2024-04-24 7888dfb Daniel Graham
+2024-04-26 00b8ce4 Daniel Graham
+    Tagged version 6.1.25.
+
+2024-04-26 9e3f1c3 Daniel Graham
+    Changed the default for settings.update_command to use pipx if etm
+    was installed using pipx and, otherwise, to use pip.
+
+2024-04-24 25c29af Daniel Graham
     Tagged version 6.1.24.
 
 2024-04-24 10b8c3a Daniel Graham
@@ -226,10 +233,3 @@
 2024-01-31 c37c715 Daniel Graham
     Refactored 'v' queries to use QDict 'as_csv', a slightly modified
     version of as_tree. Cleaned up comments.
-
-2024-01-29 c3681b2 Daniel Graham
-    Tagged version 6.1.1.
-
-2024-01-29 69922a0 Daniel Graham
-    Wrapped starting time in date_to_datetime to permit sorting using
-    timestamp().
