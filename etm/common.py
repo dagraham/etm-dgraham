@@ -41,7 +41,6 @@ ETMDB = DBITEM = DBARCH = dataview = data_changed = None
 def is_aware(dt):
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
 
-
 class TimeIt(object):
     def __init__(self, label='', loglevel=1):
         self.loglevel = loglevel

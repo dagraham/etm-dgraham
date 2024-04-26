@@ -23,6 +23,52 @@ etmversion = version.version
 
 locale_regex = re.compile(r'[a-z]{2}_[A-Z]{2}')
 
+import subprocess
+
+def is_pipx_installed():
+    try:
+        # Attempt to run 'pipx --version' and capture its output
+        result = subprocess.run(['pipx', '--version'], capture_output=True, text=True)
+        # If the command was successful, 'pipx' is installed
+        if result.returncode == 0:
+            return True
+    except FileNotFoundError:
+        # If running the 'pipx' command resulted in a FileNotFoundError, 'pipx' is not installed
+        pass
+    return False
+
+
+def is_app_installed(app_name):
+    try:
+        # Run 'pipx list' command and capture the output
+        result = subprocess.run(['pipx', 'list'], capture_output=True, text=True)
+        # Check if app_name is in the output of 'pipx list'
+        if app_name in result.stdout:
+            return True
+        else:
+            return False
+    except subprocess.CalledProcessError:
+        # If the command fails, print an error message
+        print("Failed to run pipx list.")
+        return False
+
+# Replace 'your-app-name' with the actual name of your app
+# app_name = 'your-app-name'
+# if is_app_installed(app_name):
+#     print(f"{app_name} is installed.")
+# else:
+#     print(f"{app_name} is not installed.")
+
+
+def pipx_or_pip():
+    if is_pipx_installed() and is_app_installed('etm'):
+        # pipx was used before to install etm => use pipx
+        cmd = 'pipx install --force etm-dgraham'
+    else:
+        # pipx was not used before to install etm => use pip
+        cmd = 'pip install -U etm-dgraham'
+    return cmd
+
 
 def randomString(stringLength=10):
     """Generate a random string with the combination of lowercase and uppercase letters and digits"""
@@ -183,7 +229,7 @@ class Settings:
     dayfirst = 'false'
     beginbusy = 7
     updates_interval = 0
-    update_command = 'pip install -U etm-dgraham'
+    update_command = pipx_or_pip()
     locale = 'en_US'
     vi_mode = 'false'
     secret = randomString(10)
@@ -300,11 +346,13 @@ updates_interval: {updates_interval}
 # example, when there is no internet connection.
 
 update_command: {update_command}
-# shell command to update etm. The default is to use pip, i.e.,
+# shell command to update etm. The default command is to use pipx 
+# if it is installed and was was used before to install etm:
+# pipx install --force etm-dgraham
+# and, otherwise, to use pip:
 # pip install -U etm-dgraham
-# an option would be to replace pip with pipx if you used pipx
-# to install etm originally. You may need to replace 'pip' or 'pipx'
-# with the full path to the command on your system.
+# Set this option to whatever command you prefer. The default will
+# be used if this command is not specified.
 
 locale: {locale}
 # locale abbreviation. E.g., "en_AU" for English (Australia), "en_US"
@@ -664,33 +712,26 @@ window_colors: {window_colors}
                         logger.critical(error)
                         print(error)
                         sys.exit()
-
-                if self.user and isinstance(self.user, dict):
-                    logger.debug(f'self.user: {self.user}')
-                else:
-                    self.user = {}
             else:
                 self.user = {}
 
-            if self.user:
-                # we have user settings that need to be checked
-                self.changes = self.check_options()
-            else:
-                # we need to populate cfg.yaml
-                self.changes = None
-                with open(self.cfgfile, 'w') as fn:
-                    fn.writelines(default_template)
-
-            if self.changes:
-                updated_template = Settings.template.format(**self.settings_hsh)
-                with open(self.cfgfile, 'w') as fn:
-                    fn.writelines(updated_template)
-                changes = '\n    - '.join(self.changes)
-                logger.info(f'updated {self.cfgfile}:\n    - {changes}')
-            else:
-                logger.info(f'using settings from {self.cfgfile}')
+        if self.user:
+            # we have user settings that need to be checked
+            self.changes = self.check_options()
+            logger.info(f'using settings from {self.cfgfile}')
         else:
+            # we need to populate cfg.yaml
+            self.changes = None
+            with open(self.cfgfile, 'w') as fn:
+                fn.writelines(default_template)
             logger.info('using default settings')
+
+        if self.changes:
+            updated_template = Settings.template.format(**self.settings_hsh)
+            with open(self.cfgfile, 'w') as fn:
+                fn.writelines(updated_template)
+            changes = '\n    - '.join(self.changes)
+            logger.info(f'updated {self.cfgfile}:\n    - {changes}')
 
     def check_options(self):
         changed = []
@@ -712,19 +753,19 @@ window_colors: {window_colors}
                 if key not in new or not isinstance(new[key], dict):
                     new[key] = self.settings_hsh[key]
                     changed.append(
-                        f'retaining default {key}: self.settings_hsh[key]'
+                        f'using default {key}: self.settings_hsh[key]'
                     )
                 else:
                     for k, v in self.settings_hsh[key].items():
-                        if k not in new[key]:
+                        if k not in new[key] or not new[key]:
                             new[key][k] = self.settings_hsh[key][k]
                             changed.append(
-                                f'retaining default {key}.{k}: {self.settings_hsh[key][k]}'
+                                f'using default {key}.{k}: {self.settings_hsh[key][k]}'
                             )
             elif key not in new:
                 new[key] = self.settings_hsh[key]
                 changed.append(
-                    f'retaining default {key}: {self.settings_hsh[key]}'
+                    f'using default {key}: {self.settings_hsh[key]}'
                 )
         if 'etmversion' not in new or new['etmversion'] != etmversion:
             new['etmversion'] = etmversion
@@ -837,6 +878,11 @@ window_colors: {window_colors}
                 f"{new['usedtime_hours']} is invalid for usedtime_minute. Using default value: 6."
             )
             new['usedtime_hours'] = 6
+        if not new['update_command']:
+            new['update_command'] = self.settings['update_command']
+            changed.append(
+                f"using default for 'update_command': {self.settings['update_command']}"
+            )
         if new['style'] not in ['dark', 'light']:
             new['style'] = self.settings['style']
             changed.append(

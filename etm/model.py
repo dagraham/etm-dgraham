@@ -8634,7 +8634,7 @@ def schedule(
                     sort_dt = jobstart.strftime('%Y%m%d%H%M')
                     if sort_dt.endswith('0000'):
                         sort_dt = sort_dt[:-4] + '2359'
-                    logger.debug(f"{job = }; {sort_dt = }")
+                    # logger.debug(f"{job = }; {sort_dt = }")
                     job_id = job.get('i', None)
                     job_sort = str(job_id)
 

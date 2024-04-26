@@ -79,9 +79,9 @@ Usage:
     import etm.common as common 
     from etm.common import AttrDict 
     
-    Settings = options.Settings(etmdir)
-    settings = AttrDict(Settings.settings)
-    common.settings = settings
+    # Settings = options.Settings(etmdir)
+    # settings = AttrDict(Settings.settings)
+    # common.settings = settings
 
     import etm.data as data 
     from etm.data import Period 
@@ -192,6 +192,10 @@ which will need to be created.
 
     logger = common.setup_logging(loglevel, logdir)
     common.logger = logger
+    
+    Settings = options.Settings(etmdir)
+    settings = AttrDict(Settings.settings)
+    common.settings = settings
     model.settings = settings
     beginbusy = settings.beginbusy
     model.beginbusy = beginbusy
@@ -199,6 +203,7 @@ which will need to be created.
     model.usedtime_hours = usedtime_hours
     type_colors = settings.type_colors
     window_colors = settings.window_colors
+    print(f"{settings.update_command = }")
 
     logger.info(f'running in a virtual environment: {IS_VENV}')
 
