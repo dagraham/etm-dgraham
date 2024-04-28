@@ -1346,6 +1346,7 @@ def get_style(style_dict):
 
 type2style = {
     '!': 'inbox',
+    '~': 'goal',
     '<': 'pastdue',
     '>': 'begin',
     '%': 'journal',
@@ -1355,7 +1356,7 @@ type2style = {
     '+': 'waiting',
     '✓': 'finished',
     '✗': 'finished',
-    '~': 'missing',
+    # '~': 'missing',
     '◦': 'used',
     '↱': 'wrap',
     '↳': 'wrap',

@@ -203,7 +203,6 @@ which will need to be created.
     model.usedtime_hours = usedtime_hours
     type_colors = settings.type_colors
     window_colors = settings.window_colors
-    print(f"{settings.update_command = }")
 
     logger.info(f'running in a virtual environment: {IS_VENV}')
 

@@ -133,6 +133,7 @@ class Settings:
             'finished': 'DarkGrey',
             'inbox': 'OrangeRed',
             'journal': 'GoldenRod',
+            'goal': 'Khaki',
             'missing': 'SlateGrey',
             'pastdue': 'LightSalmon',
             'plain': 'Ivory',
@@ -152,6 +153,7 @@ class Settings:
             'inbox': 'MediumVioletRed',
             'journal': 'Brown',
             'missing': 'DarkSlateBlue',
+            'goal': 'SlateBlue',
             'pastdue': 'Red',
             'plain': 'Black',
             'today': 'Black bold',
@@ -461,7 +463,7 @@ journal_name: '{journal_name}'
 # would be displayed in journal view as if the index entry were
 #   @i # daily/2022/10
 # thus organizing such entries by the year and month and, within each
-# month, by the month day. The '#' places '#daily' near the top in
+# month, by the month day. The '~' places '#daily' near the top in
 # journal with daily entries sorted in reverse order so that the
 # most recent entries are always at the top.
 #
@@ -596,6 +598,7 @@ type_colors: {type_colors}
 #  finished        'DarkGrey',         'LightSlateGrey',
 #  inbox           'OrangeRed',        'MediumVioletRed',
 #  journal         'GoldenRod',        'Brown',
+#  goal            'CornflowerBlue',   'CornflowerBlue',
 #  pastdue         'LightSalmon',      'Red',
 #  plain           'Ivory',            'Black',
 #  today           'Ivory bold',       'Black bold',
@@ -612,6 +615,7 @@ type_colors: {type_colors}
 #     finished:     finished task/job reminders
 #     inbox:        inbox reminders
 #     journal:      journal reminders
+#     goal:         goal reminders
 #     pastdue:      pasdue task warnings
 #     plain:        headings such as outline branches
 #     today:        the current and following agenda date headings
@@ -732,6 +736,7 @@ window_colors: {window_colors}
                 fn.writelines(updated_template)
             changes = '\n    - '.join(self.changes)
             logger.info(f'updated {self.cfgfile}:\n    - {changes}')
+        logger.debug(f"{self.settings['type_colors'] = }")
 
     def check_options(self):
         changed = []

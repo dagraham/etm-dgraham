@@ -110,6 +110,7 @@ style = Style.from_dict(
         'plain': '#fffafa',
         'selection': '#fffafa',
         'inbox': '#ff00ff',
+        'goal': '#6495ed', 
         'pastdue': '#87ceeb',
         'begin': '#ffff00',
         'journal': '#daa520',
@@ -134,8 +135,9 @@ type_keys = {
     '-': 'task',
     '✓': 'finished',
     '%': 'journal',
+    '~': 'goal',
     '!': 'inbox',
-    '~': 'wrap',
+    # '~': 'wrap',
 }
 
 wrapbefore = '↱'
@@ -180,11 +182,12 @@ task_methods = list('efhp') + [
 
 wrap_methods = ['w']
 
-required = {'*': ['s'], '-': [], '%': []}
+required = {'*': ['s'], '-': [], '%': [], '#': []}
 allowed = {
     '*': common_methods + datetime_methods + repeating_methods + wrap_methods,
     '-': common_methods + datetime_methods + task_methods + repeating_methods,
     '%': common_methods + ['+'],
+    '#': common_methods + ['q'],
 }
 # inbox
 required['!'] = []
@@ -218,20 +221,6 @@ def round_to_minutes(obj: timedelta)->timedelta:
     if seconds % 60 >= 30:
         minutes += 1
     return timedelta(minutes=minutes)
-
-# def is_leap_year(year):
-#     """Return True if the year is a leap year, False otherwise."""
-#     if year % 400 == 0:
-#         return True
-#     if year % 100 == 0:
-#         return False
-#     if year % 4 == 0:
-#         return True
-#     return False
-
-# Example usage
-# current_year = 2024  # You can replace this with any year you want to check
-# print(is_leap_year(current_year))
 
 
 def subsets(l: list[str])->list[str]:
@@ -686,7 +675,7 @@ class Item(dict):
         self.keys = {
             'itemtype': [
                 'item type',
-                'character from * (event), - (task), % (journal) or ! (inbox)',
+                'character from * (event), - (task), % (journal), # (goal) or ! (inbox)',
                 self.do_itemtype,
             ],
             'summary': [
@@ -1662,7 +1651,7 @@ item_hsh:    {self.item_hsh}
         """
         >>> item = Item("")
         >>> item.do_itemtype('')
-        (None, 'Choose a character from * (event), - (task), % (journal) or ! (inbox)')
+        (None, 'Choose a character from * (event), - (task), % (journal), # (goal) or ! (inbox)')
         >>> item.do_itemtype('+')
         (None, "'+' is invalid. Choose a character from * (event), - (task), % (journal) or ! (inbox)")
         >>> item.do_itemtype('*')
@@ -6744,7 +6733,8 @@ def fmt_extent(beg_dt: datetime, end_dt: datetime):
     beg_suffix = end_suffix = ''
     ampm = settings['ampm']
     if not (isinstance(beg_dt, datetime) and isinstance(end_dt, datetime)):
-        return 'xxx'
+        logger.debug(f"{beg_dt = }; {end_dt = }")
+        return 'xxx y'
 
     if ampm:
         diff = beg_dt.hour < 12 and end_dt.hour >= 12
@@ -6898,6 +6888,7 @@ def relevant(
 
     id2relevant = {}
     inbox = []
+    goals = []
     pastdue = []
     beginbys = []
     alerts = []
@@ -6937,6 +6928,9 @@ def relevant(
         if item['itemtype'] == '!':
             inbox.append([0, summary, item.doc_id, None, None])
             relevant = today
+        
+        elif item['itemtype'] == '#':
+            goals.append([0, summary, item.doc_id, None, None])
 
         elif 'f' in item:
             if not isinstance(item['f'], Period):
@@ -8698,7 +8692,9 @@ def schedule(
                         # rhc = fmt_time(dt).center(rhc_width, ' ')
                         rhc = fmt_time(dt)
                     else:
-                        if item['itemtype'] == '-' and dateonly:
+                        if item['itemtype'] == '~':
+                            rhc = fmt_dur(item['e'])
+                        elif item['itemtype'] == '-' and dateonly:
                             rhc = fmt_dur(item['e'])
                         else:
                             rhc = fmt_extent(dt, et)
