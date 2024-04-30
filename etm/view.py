@@ -2783,6 +2783,18 @@ def do_finish(*event):
 
     hsh = DBITEM.get(doc_id=doc_id)
     msg = ''
+    if hsh['itemtype'] == '~':
+        # incrementing completions of a goal
+        changed = item.increment_goal(doc_id)
+        if changed:
+            show_message('Finish', 'Incremented tally for goal')
+            # set_text(dataview.show_active_view())
+            loop = asyncio.get_event_loop()
+            loop.call_later(0, data_changed, loop)
+
+        return
+
+
     if hsh['itemtype'] != '-' or 'f' in hsh:
         show_message('Finish', 'Only an unfinished task can be finished.')
         return

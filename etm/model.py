@@ -102,7 +102,12 @@ def sortprd(prd):
 
 PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
 KONNECT_REGEX = re.compile(r'^.+:\s+(\d+)\s*$')
-YMD_REGEX = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}')  # 4-digit year - 2-digit month - 2-digit month day
+
+# 4-digit year - 2-digit month - 2-digit month day
+YMD_REGEX = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}')  
+
+# One or more comma separated instances of year:weeknum num_done for goal history
+DONE_REGEX = re.compile(r'(\d{4}:\d{2}\s+\d+)(?:,\s*\d{4}:\d{2}\s+\d+)*?')
 
 # The style sheet for terminal output
 style = Style.from_dict(
@@ -182,12 +187,12 @@ task_methods = list('efhp') + [
 
 wrap_methods = ['w']
 
-required = {'*': ['s'], '-': [], '%': [], '#': []}
+required = {'*': ['s'], '-': [], '%': [], '~': ['s']}
 allowed = {
     '*': common_methods + datetime_methods + repeating_methods + wrap_methods,
     '-': common_methods + datetime_methods + task_methods + repeating_methods,
     '%': common_methods + ['+'],
-    '#': common_methods + ['q'],
+    '~': common_methods + ['q', 'h'],
 }
 # inbox
 required['!'] = []
@@ -199,6 +204,7 @@ requires = {
     'a': ['s'],
     'b': ['s'],
     '+': ['s'],
+    'q': ['s'],
     '-': ['rr'],
     'rr': ['s'],
     'js': ['s'],
@@ -221,7 +227,6 @@ def round_to_minutes(obj: timedelta)->timedelta:
     if seconds % 60 >= 30:
         minutes += 1
     return timedelta(minutes=minutes)
-
 
 def subsets(l: list[str])->list[str]:
     """
@@ -726,6 +731,7 @@ class Item(dict):
                 'priority from 0 (none) to 4 (urgent)',
                 do_priority,
             ],
+            'q': ['quota', 'number of instances to be done', self.do_quota], 
             's': ['scheduled', 'starting date or datetime', self.do_datetime],
             't': ['tag', 'tag', do_string],
             'u': ['used time', 'timeperiod: datetime', do_usedtime],
@@ -1123,6 +1129,37 @@ item_hsh:    {self.item_hsh}
             changed = self.delete_item(doc_id)
 
         return changed
+
+    def increment_goal(
+            self,
+            item_id: int,
+            ) -> bool:
+        self.item_hsh = self.db.get(doc_id=item_id)
+        if self.item_hsh['itemtype'] != '~':
+            return False
+        
+        self.doc_id = item_id
+        # self.created = self.item_hsh['created']
+        q = self.item_hsh.get('q', [])
+        if not len(q) > 0:
+            return False
+        quota = q[0]
+        now = datetime.now().astimezone()
+        logger.debug(f"{now = }") 
+        this_week = tuple([int(x) for x in now.strftime("%Y,%W").split(',')])
+        logger.debug(f"{this_week = }")
+        self.item_hsh.setdefault('h', {})
+        hist = self.item_hsh.get('h', {})
+        logger.debug(f"{hist = }")
+        this_week_str = f"{this_week[0]}:{this_week[1]:02}"
+        done = hist.get(this_week_str, 0)
+        hist[this_week_str] = done + 1
+        logger.debug(f"{done = }; {quota = }; {hist = }")
+        self.item_hsh['h'] = hist
+        self.item_hsh['modified'] = now
+        logger.debug(f"{self.item_hsh = }")
+        self.do_update()
+        return True
 
     def finish_item(
         self,
@@ -1651,9 +1688,9 @@ item_hsh:    {self.item_hsh}
         """
         >>> item = Item("")
         >>> item.do_itemtype('')
-        (None, 'Choose a character from * (event), - (task), % (journal), # (goal) or ! (inbox)')
+        (None, 'Choose a character from * (event), - (task), % (journal), ~ (goal) or ! (inbox)')
         >>> item.do_itemtype('+')
-        (None, "'+' is invalid. Choose a character from * (event), - (task), % (journal) or ! (inbox)")
+        (None, "'+' is invalid. Choose a character from * (event), - (task), % (journal), ~ (goal) or ! (inbox)")
         >>> item.do_itemtype('*')
         ('*', '* (event)')
         """
@@ -1708,6 +1745,25 @@ item_hsh:    {self.item_hsh}
         else:
             rep = 'Include repetitions falling on or before this datetime'
         return obj, rep
+    
+
+    def do_quota(self, arg: str)->list[int]:
+        """P
+        Args:
+            arg (string): an integer quota optionally followed by a comma and an integer number of weeks
+        """
+        obj = None
+        m = quota_regex.match(arg)
+        if m:
+            obj = [int(x) for x in arg.split(',') if x.strip()]
+            weeks = f"for {obj[1]} weeks" if len(obj) > 1 else "indefinitely" 
+            rep = f'{obj[0]} times/week {weeks}'
+            self.item_hsh['q'] = obj                
+            logger.debug(f"{self.item_hsh = }")
+        else:
+            rep = "goal: instances per week optionally followed by a comma and the number of weeks"
+        return obj, rep
+        
 
     def do_datetime(self, arg):
         """
@@ -1723,11 +1779,16 @@ item_hsh:    {self.item_hsh}
         tz = self.item_hsh.get('z', None)
         ok, res, z = parse_datetime(arg, tz)
         if ok:
-            obj = res
-            rep = (
-                f'local datetime: {format_datetime(obj)[1]}'
-                if ok == 'aware'
-                else format_datetime(obj)[1]
+            if self.item_hsh['itemtype'] == '~':
+                # We need Monday of the week containing the datetime for goals
+                obj = datetime.strptime(res.strftime("%Y %W 1"), "%Y %W %w")
+                rep = f'The first day of the specified week: {format_date(obj)[1]}'
+            else:
+                obj = res
+                rep = (
+                    f'local datetime: {format_datetime(obj)[1]}'
+                    if ok == 'aware'
+                    else format_datetime(obj)[1]
             )
         else:
             rep = res
@@ -1772,29 +1833,47 @@ item_hsh:    {self.item_hsh}
         return obj, rep
 
     def do_completions(self, args):
-        tz = self.item_hsh.get('z', None)
         args = [x.strip() for x in args.split(',')]
         all_ok = True
-        obj_lst = []
         rep_lst = []
         bad_lst = []
         completions = []
-        # arg_lst will be a list of periods
-        for arg in args:
-            if not arg:
-                continue
-            obj, rep = self.do_completion(arg)
-            if isinstance(obj, Period):
-                obj_lst.append(obj)
-                rep_lst.append(rep)
-            else:
-                all_ok = False
-                bad_lst.append(arg)
+        if self.item_hsh['itemtype'] == '~':
+            obj = {}
+            # arg list will be a list of year:weeknum num_done
+            rx = re.compile(r'\d{4}:\d{2}\s*\d+')
+            for arg in args:
+                match = rx.match(arg.strip())
+                if match:
+                    yearweek, done = arg.split()
+                    obj[yearweek] = int(done)
+                    rep_lst.append(f"{yearweek}: {done}")
+                else:
+                    all_ok = False
+                    bad_lst.append(arg)
+            obj = obj if all_ok else None
+            rep = f"done: {', '.join(rep_lst)}"
+            if bad_lst:
+                rep += f"\nincomplete or invalid completions: {', '.join(bad_lst)}"
+        else:
+            obj_lst = []
+            tz = self.item_hsh.get('z', None)
+            # arg_lst will be a list of periods
+            for arg in args:
+                if not arg:
+                    continue
+                obj, rep = self.do_completion(arg)
+                if isinstance(obj, Period):
+                    obj_lst.append(obj)
+                    rep_lst.append(rep)
+                else:
+                    all_ok = False
+                    bad_lst.append(arg)
 
-        obj = obj_lst if all_ok else None
-        rep = f"periods: {', '.join(rep_lst)}"
-        if bad_lst:
-            rep += f"\nincomplete or invalid completions: {', '.join(bad_lst)}"
+            obj = obj_lst if all_ok else None
+            rep = f"periods: {', '.join(rep_lst)}"
+            if bad_lst:
+                rep += f"\nincomplete or invalid completions: {', '.join(bad_lst)}"
 
         return obj, rep
 
@@ -2307,7 +2386,9 @@ def format_relative_time(obj: datetime)->str:
 
 
 def format_period(obj):
-    if not isinstance(obj, Period):
+    if isinstance(obj, dict):
+        return ','.join([f"{k} {v}" for k, v in obj.items()])
+    elif not isinstance(obj, Period):
         logger.error(f'error, expected Period but got: {obj}')
         return obj
     start = obj.start
@@ -2570,6 +2651,7 @@ threeday_regex = re.compile(
 )
 anniversary_regex = re.compile(r'!(\d{4})!')
 
+quota_regex = re.compile(r'\s*\d+(,\s*\d+)?')
 
 def parse_durations(s):
     periods = [x.strip() for x in s.split('+')]
@@ -4970,6 +5052,7 @@ entry_tmpl = """\
 {%- if 'w' in h %}{{ " @w {}".format(inlst2str(h['w'])) }}{% endif %}\
 {%- if 'b' in h %}{{ " @b {}".format(h['b']) }}{% endif %}\
 {%- if 'z' in h %}{{ " @z {}".format(h['z']) }}{% endif %}\
+{%- if 'q' in h %}{{ " @q {}".format(one_or_more(h['q'])) }}{% endif %}\
 {%- endset %}\
 {{ nowrap(title) }} \
 {% if 'f' in h %}\
@@ -5081,6 +5164,7 @@ display_tmpl = """\
 {%- if 'w' in h %}{{ " @w {}".format(inlst2str(h['w'])) }}{% endif %}\
 {%- if 'b' in h %}{{ " @b {}".format(h['b']) }}{% endif %}\
 {%- if 'z' in h %}{{ " @z {}".format(h['z']) }}{% endif %}\
+{%- if 'q' in h %}{{ " @q {}".format(one_or_more(h['q'])) }}{% endif %}\
 {%- endset %}\
 {{ wrap(title) }} \
 {% if 'f' in h %}\
@@ -6882,6 +6966,11 @@ def relevant(
         .astimezone()
     )
     tomorrow = today + DAY
+    current_weekday = today.weekday()
+    weekdays_remaining = 7 - current_weekday
+    this_week = ([int(x) for x in today.strftime("%Y,%W").split(',')])
+    this_week_str = f"{this_week[0]}:{this_week[1]:02}"
+
     inbox_fmt = today.strftime('%Y%m%d    ')   # first
     pastdue_fmt = today.strftime('%Y%m%d^^^^')   # after all day and timed
     begby_fmt = today.strftime('%Y%m%d~~~~')   # after past due
@@ -6929,8 +7018,23 @@ def relevant(
             inbox.append([0, summary, item.doc_id, None, None])
             relevant = today
         
-        elif item['itemtype'] == '#':
-            goals.append([0, summary, item.doc_id, None, None])
+        elif item['itemtype'] == '~':
+            s = item.get('s', None)
+            q = item.get('q', [])
+            quota = q[0] if q and len(q) > 0 else None
+            if not s or not q or not quota:
+                logger.error(f"bad goal: {item = }")
+                continue
+            weeks = q[1] if len(q) > 1 else None
+            if weeks and today > s + weeks*7*DAY:
+                # goal expired
+                continue
+            h = item.get('h', {})
+            done = h.get(this_week_str, 0)
+            # omit days remaining:
+            goals.append([f"{done}/{quota}", summary, item.doc_id, None, None])
+            # show days remaining:
+            # goals.append([f"{done[0]}/{done[1]}-{weekdays_remaining}d", summary, item.doc_id, None, None])
 
         elif 'f' in item:
             if not isinstance(item['f'], Period):
@@ -7339,6 +7443,25 @@ def relevant(
                 'week': week,
                 'day': day,
                 'columns': ['!', item[1], flags, rhc, doc_id],
+            }
+        )
+
+    for item in goals:
+        item_0 = ' '
+        rhc = ''
+        doc_id = item[2]
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
+        current.append(
+            {
+                'id': item[2],
+                'job': None,
+                'instance': None,
+                'sort': (inbox_fmt, 1),
+                'week': week,
+                'day': day,
+                'columns': ['~', f"{item[0]} {item[1]}", flags, rhc, doc_id],
             }
         )
 
@@ -8153,7 +8276,7 @@ def get_usedtime(
         used = item.get(
             'u'
         )   # this will be a list of 'period, datetime' tuples
-        if item.get('itemtype', '!') == '!' or not used:
+        if item.get('itemtype', '!') in ['!', '~'] or not used:
             continue
         index = item.get('i', '~')
         id_used = {}
@@ -8409,7 +8532,7 @@ def schedule(
         if item.get('itemtype', None) == None:
             logger.error(f'itemtype missing from {item}')
             continue
-        if item['itemtype'] in '!?':
+        if item['itemtype'] in '!?~':
             continue
 
         doc_id = item.doc_id

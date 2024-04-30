@@ -25,7 +25,7 @@ indicating that the goal for that week is to complete three instances of "whatev
 ```
                     Apr 29 - May 5, 2024 #18
     Mon Apr 29 (Today)
-      ~ whatever: 0/3 > 7d
+      ~ whatever: 0/3 < 7d
 
                                                         agenda
 ```
@@ -37,7 +37,7 @@ With "~ whatever" selected, pressing "F" would increment the record of the times
 ```
                     Apr 29 - May 5, 2024 #18
     Mon Apr 29 (Today)
-      ~ whatever: 1/3 > 7d
+      ~ whatever: 1/3 < 7d
 
                                                         agenda
 ```
@@ -47,7 +47,7 @@ On Wednesday, selecting "~ whatever" and pressing "F" again would yield
 ```
                     Apr 29 - May 5, 2024 #18
     Wed May 1 (Today)
-      ~ whatever: 2/3 > 5d
+      ~ whatever: 2/3 < 5d
 
                                                         agenda
 ```
@@ -57,7 +57,7 @@ Two more presses of "F" on Sunday would yield
 ```
                     Apr 29 - May 5, 2024 #18
     Sun May 5 (Today)
-      ~ whatever: 4/3 > 1d
+      ~ whatever: 4/3 < 1d
 
                                                         agenda
 ```
@@ -76,18 +76,48 @@ would indicate that for the week ending on Sunday, May 5, "~ whatever" was compl
 
 ## Details
 
-Done history: A dictionary with (year, week_number) tuples as keys lists of integer week day numbers (1 Mon, ... 7 Sun) as values:
+### History
+
+A dictionary with integer (year, week_number) tuples as keys and integer (done, quota) tuples as values:
 
 ```
-    @h Dict[Tuple[int year, int week_num], List[int weekday_num]]
+    @h Dict[
+        Tuple[
+            int year, 
+            int week number
+            ],
+        Tuple[
+            int done, 
+            int quota
+            ]
 ```
 E.g, for the above examples involving week number 18, 2024 (Apr 29 - May 5), the history entry would be
 
 ```
-    {(2024, 18): [1, 3, 7, 7]}
+    {(2024, 18): (4, 3)}
 ```
 
-With a goal reminder selected on the current day, pressing "F" adds the current weekday number to `@h
+### Actions
+
+* Completion
+
+    With a goal selected (on the current day), pressing "F" increments the num_done (first component) of the @h entry for the current (year, weak_number). 
+
+* New day
+
+    The current status of a goal is always displayed on the current day
+
+    ```
+        ~ summary: done/quota < int number of days remaining in week 
+    ```
+
+* New week
+
+    If a key is missing in the @h entry for a goal for any week between the starting week and the current week, then an entry is added using the format 
+    
+    ```
+        (int year, int week_number): (0, int quota)
+    ```
 
 
 
