@@ -6937,7 +6937,7 @@ def get_item(doc_id):
     pass
 
 
-def relevant(
+def /completerelevant(
     db,
     now=datetime.now(),
     repeat_list=[],
@@ -8505,9 +8505,11 @@ def schedule(
     # for the individual weeks
     agenda_hsh = {}     # yw -> agenda_view
     done_hsh = {}       # yw -> done_view
+    goal_hsh = {}       # yw -> list of goal completions for the week
     busy_hsh = {}       # yw -> busy_view
     row2id_hsh = {}     # yw -> row2id
     done2id_hsh = {}     # yw -> row2id
+    goal2id_hsh = {}     # yw -> row2id
     effort_hsh = {}
     effort2id_hsh = {}     # yw -> row2id
     week2day2effort = {}   # year, week -> dayofweek -> period total for day
@@ -8532,6 +8534,16 @@ def schedule(
         if item.get('itemtype', None) == None:
             logger.error(f'itemtype missing from {item}')
             continue
+        if item['itemtype'] == '~':
+            # add completions from history to goal_hsh
+            g_s = item.get('summary', '')
+            g_c = item.get('h', {}) # 'yyyy:ww' -> done
+            for k, v in g_c.items():
+                g_yw = [int(x) for x in k.split(':')]
+                g_r = f"~ {g_s}: {str(v)}"
+                goal_hsh.setdefault(tuple(g_yw), []).append(g_r)
+            # continue
+
         if item['itemtype'] in '!?~':
             continue
 
@@ -8965,12 +8977,27 @@ def schedule(
 
                 if after:
                     rows.append(after)
+    
 
     if yw == getWeekNum(now):
         rows.extend(current)
     rows.sort(key=itemgetter('sort'))
     done.sort(key=itemgetter('sort'))
     effort.sort(key=itemgetter('sort'))
+    if goal_hsh:
+        tmp = {}
+        wks = []
+        for k, v in goal_hsh.items():
+            wks.append(k)
+            v.sort()
+            tmp[k] = v
+        wks.sort()
+        out = "Goals\n"
+        for k in wks:
+            out += f"  {k[0]}:{k[1]}\n"
+            for row in tmp[k]:
+                out += f"    {row}\n"
+        logger.debug(f"{out}")
 
     busy_details = {}
     allday_details = {}
