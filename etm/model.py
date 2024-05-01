@@ -6935,7 +6935,7 @@ def get_item(doc_id):
     pass
 
 
-def /completerelevant(
+def relevant(
     db,
     now=datetime.now(),
     repeat_list=[],
