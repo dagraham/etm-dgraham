@@ -6906,10 +6906,8 @@ def fmt_week(yrwk):
     'Dec 31 - Jan 6, 2019 #1'
     """
     dt_year, dt_week = yrwk
-    # dt_week = dt_obj.week_of_year
-    # year_week = f"{dt_year} Week {dt_week}"
-    wkbeg = datetime.strptime(f'{dt_year} {str(dt_week)} 1', '%Y %W %w').date()
-    wkend = datetime.strptime(f'{dt_year} {str(dt_week)} 0', '%Y %W %w').date()
+    wkbeg = date.fromisocalendar(dt_year, dt_week, 1)
+    wkend = date.fromisocalendar(dt_year, dt_week, 7)
     if settings['dayfirst']:
         week_end = wkend.strftime('%-d %b')
         week_begin = (
