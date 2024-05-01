@@ -3032,7 +3032,7 @@ def edit_copy(*event):
     application.layout.focus(edit_buffer)
 
 
-@bindings.add('g', filter=is_viewing & is_not_editing)
+@bindings.add('G', filter=is_viewing & is_not_editing)
 def do_goto(*event):
     row = text_area.document.cursor_position_row
     if not row:
@@ -4039,7 +4039,7 @@ root_container = MenuContainer(
                 MenuItem('P) toggle pin', handler=toggle_pinned),
                 MenuItem('R) reschedule', handler=do_reschedule),
                 MenuItem('S) schedule new', handler=do_schedule_new),
-                MenuItem('g) open goto link', handler=do_goto),
+                MenuItem('G) open goto link', handler=do_goto),
                 MenuItem('^h) show completion history', handler=not_editing_history),
                 MenuItem('^r) show repetitions', handler=not_editing_reps),
                 MenuItem('^u) update last modified', handler=do_touch),

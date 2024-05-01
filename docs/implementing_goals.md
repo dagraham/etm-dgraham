@@ -73,7 +73,18 @@ would indicate that four completions have been recorded for "~ whatever" for wee
 
 ## Using Goals View
 
+Analagous to journal view - not weekly
 
+### Sections
+
+- Active:
+    clickable list of active goals
+- Paused: 
+    clickable list of paused goals
+- Inactive: 
+    clickable list of goals with @q entries with weeks that have expired  
+
+Details shows complete history.
 
 ## Details
 
