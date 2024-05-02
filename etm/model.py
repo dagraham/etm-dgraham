@@ -91,6 +91,7 @@ data = None
 # NOTE: view.main() will override ampm using the configuration setting
 ampm = True
 logger = None
+goal_counts = {}
 
 active_tasks = {}
 
@@ -680,7 +681,7 @@ class Item(dict):
         self.keys = {
             'itemtype': [
                 'item type',
-                'character from * (event), - (task), % (journal), # (goal) or ! (inbox)',
+                'character from * (event), - (task), % (journal), ~(goal) or ! (inbox)',
                 self.do_itemtype,
             ],
             'summary': [
@@ -1156,6 +1157,48 @@ item_hsh:    {self.item_hsh}
         hist[this_week_str] = done + 1
         logger.debug(f"{done = }; {quota = }; {hist = }")
         self.item_hsh['h'] = hist
+        self.item_hsh['modified'] = now
+        logger.debug(f"{self.item_hsh = }")
+        self.do_update()
+        return True
+
+    def toggle_goal_paused(
+            self,
+            item_id: int,
+            ) -> bool:
+        self.item_hsh = self.db.get(doc_id=item_id)
+        if self.item_hsh['itemtype'] != '~':
+            return False
+        
+        self.doc_id = item_id
+        # self.created = self.item_hsh['created']
+        q = self.item_hsh.get('q', [])
+        if not len(q) > 0 or q[0] == 0:
+            return False
+        q[0] = -q[0]
+        self.item_hsh['q'] = q 
+        now = datetime.now().astimezone()
+        self.item_hsh['modified'] = now
+        logger.debug(f"{self.item_hsh = }")
+        self.do_update()
+        return True
+
+    def end_goal(
+            self,
+            item_id: int,
+            ) -> bool:
+        self.item_hsh = self.db.get(doc_id=item_id)
+        if self.item_hsh['itemtype'] != '~':
+            return False
+        
+        self.doc_id = item_id
+        # self.created = self.item_hsh['created']
+        q = self.item_hsh.get('q', [])
+        if not len(q) > 0 or q[0] == 0:
+            return False
+        q[0] = 0
+        self.item_hsh['q'] = q 
+        now = datetime.now().astimezone()
         self.item_hsh['modified'] = now
         logger.debug(f"{self.item_hsh = }")
         self.do_update()
@@ -2387,7 +2430,7 @@ def format_relative_time(obj: datetime)->str:
 
 def format_period(obj):
     if isinstance(obj, dict):
-        return ','.join([f"{k} {v}" for k, v in obj.items()])
+        return ', '.join([f"{k} {v}" for k, v in obj.items()])
     elif not isinstance(obj, Period):
         logger.error(f'error, expected Period but got: {obj}')
         return obj
@@ -2651,7 +2694,7 @@ threeday_regex = re.compile(
 )
 anniversary_regex = re.compile(r'!(\d{4})!')
 
-quota_regex = re.compile(r'\s*\d+(,\s*\d+)?')
+quota_regex = re.compile(r'\s*-?\d+(,\s*\d+)?')
 
 def parse_durations(s):
     periods = [x.strip() for x in s.split('+')]
@@ -2938,6 +2981,7 @@ class DataView(object):
             'd': 'do next',
             'e': 'effort',
             'f': 'forthcoming',
+            'g': 'goals',
             'h': 'history',
             'i': 'index',
             'k': 'konnected',
@@ -3569,6 +3613,17 @@ class DataView(object):
                 self.timers,
             )
             return self.journal_view
+        if self.active_view == 'goals':
+            self.goals_view, self.row2id = show_goals(
+                self.db,
+                self.id2relevant,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
+            return self.goals_view
         if self.active_view == 'tags':
             self.tag_view, self.row2id = show_tags(
                 self.db,
@@ -6949,6 +7004,11 @@ def relevant(
     Called by dataview.refreshRelevant
     """
     logger.debug(f"### Relevant ###")
+    goal_counts = {
+        'Ended': 0,
+        'Active': 0,
+        'Paused': 0
+    }
 
     # wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
     dirty = False
@@ -7016,23 +7076,31 @@ def relevant(
             inbox.append([0, summary, item.doc_id, None, None])
             relevant = today
         
-        elif item['itemtype'] == '~':
-            s = item.get('s', None)
-            q = item.get('q', [])
-            quota = q[0] if q and len(q) > 0 else None
-            if not s or not q or not quota:
-                logger.error(f"bad goal: {item = }")
-                continue
-            weeks = q[1] if len(q) > 1 else None
-            if weeks and today > s + weeks*7*DAY:
-                # goal expired
-                continue
-            h = item.get('h', {})
-            done = h.get(this_week_str, 0)
-            # omit days remaining:
-            goals.append([f"{done}/{quota}", summary, item.doc_id, None, None])
-            # show days remaining:
-            # goals.append([f"{done[0]}/{done[1]}-{weekdays_remaining}d", summary, item.doc_id, None, None])
+        # elif item['itemtype'] == '~':
+        #     s = item.get('s', None)
+        #     q = item.get('q', [])
+        #     h = item.get('h', {})
+        #     quota = q[0] if q and len(q) > 0 else None
+        #     if not s or not q or not quota:
+        #         logger.error(f"bad goal: {item = }")
+        #         continue
+        #     weeks = q[1] if len(q) > 1 else None
+        #     if weeks and (now.date() - s.date()).days > weeks*7:
+        #         goal_counts['Ended'] += 1
+        #         continue
+        #     else:
+        #         this_week = now.isocalendar()[:2] 
+        #         this_week_str = f"{this_week[0]}:{this_week[1]:02}"
+        #         done = h.get(this_week_str, 0)
+        #         if int(quota) < 0:
+        #             goal_counts['Paused'] += 1
+        #         else:
+        #             goal_counts['Active'] += 1
+
+        #     # omit days remaining:
+        #     goals.append([f"{done}/{abs(quota)}", summary, item.doc_id, None, None])
+        #     # show days remaining:
+        #     # goals.append([f"{done[0]}/{done[1]}-{weekdays_remaining}d", summary, item.doc_id, None, None])
 
         elif 'f' in item:
             if not isinstance(item['f'], Period):
@@ -7444,24 +7512,22 @@ def relevant(
             }
         )
 
-    for item in goals:
-        item_0 = ' '
-        rhc = ''
-        doc_id = item[2]
-        flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        )
-        current.append(
-            {
-                'id': item[2],
-                'job': None,
-                'instance': None,
-                'sort': (inbox_fmt, 1),
-                'week': week,
-                'day': day,
-                'columns': ['~', f"{item[0]} {item[1]}", flags, rhc, doc_id],
-            }
-        )
+    # if goal_counts:
+    #     a = goal_counts['Active']
+    #     p = goal_counts['Paused']
+    #     e = goal_counts['Ended']
+    #     current.append(
+    #         {
+    #             'id': None,
+    #             'job': None,
+    #             'instance': None,
+    #             'sort': (inbox_fmt, 1),
+    #             'week': week,
+    #             'day': day,
+    #             'columns': ['~', f"goals: {a} active, {p} paused, {e} ended", '', '', None],
+            
+    #          }
+    #     )
 
     for item in pastdue:
         item_0 = str(item[0]) if item[0] in item else ''
@@ -8038,6 +8104,114 @@ def show_journal(
     tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
+def show_goals(
+    db,
+    id2relevant,
+    repeat_list=[],
+    pinned_list=[],
+    link_list=[],
+    konnected=[],
+    timers={},
+):
+    """
+    goals grouped by current, paused, ended
+    """
+    global goal_counts
+    goal_counts = {
+        'Active': 0,
+        'Paused': 0,
+        'Ended': 0,
+    }
+    rows = []
+    path2sort = {
+        'Active': 1,
+        'Paused': 2,
+        'Ended': 3,
+    }
+    # goal_hsh = {} 
+    today = date.today()
+    current_weekday = today.weekday()
+    weekdays_remaining = 7 - current_weekday
+    for item in db:
+        itemtype = item.get('itemtype')
+        if itemtype != '~':
+            continue
+        doc_id = item.doc_id
+        total = 0
+        summary = item.get('summary').strip()
+        s = item.get('s', None)
+        q = item.get('q', [])
+        h = item.get('h', {})
+        for k, v in h.items():
+            total += int(v)
+        logger.debug(f"{summary = }; {total = }")
+        path = None
+        # status: current, paused, ended, bad
+        
+        quota = q[0] if len(q) > 0 else None
+        if not s or q is None:
+            logger.error(f"bad goal: {item = }")
+            continue
+        ss = s.timestamp()
+        weeks = q[1] if len(q) > 1 else None
+
+        logger.debug(f"{doc_id = }; {summary = }; {quota = }")
+        if int(quota) == 0 or (weeks and (today - s.date()).days > weeks*7):
+            path = 'Ended'
+            goal = f'({total})'
+            goal_counts['Ended'] += 1
+        else:
+            this_week = today.isocalendar()[:2] 
+            this_week_str = f"{this_week[0]}:{this_week[1]:02}"
+            done = int(h.get(this_week_str, 0))
+            if int(quota) < 0:
+                path = 'Paused' 
+                goal = f"{done}/{abs(quota)} ({total})"
+                goal_counts['Paused'] += 1
+            else:
+                path = 'Active'
+                goal = f"{done}/{abs(quota)}+{weekdays_remaining}d ({total})"
+                goal_counts['Active'] += 1
+
+        if path == 'Active' and current_weekday >= 2:
+            fraction_done = done/abs(quota)
+            min_used = (current_weekday - 1)/7 # today still available
+            max_used = current_weekday/7 # today gone
+            if fraction_done >= max_used:
+                # on target
+                itemtype = '~'
+            elif fraction_done >= min_used:
+                # borderline
+                itemtype = '>'
+            else:
+                # behind
+                itemtype = '<'
+            logger.debug(f"{fraction_done = }; {max_used = }; {min_used = }; {itemtype = }") 
+
+        sort = (path2sort[path], ss, summary)
+
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
+        rows.append(
+            {
+                'sort': sort,
+                'path': path,
+                'values': [itemtype, f"{goal} {summary}", flags, '', doc_id],
+            }
+        )
+    rows.sort(key=itemgetter('sort'))
+    rdict = NDict()
+    for row in rows:
+        path = row['path']
+        values = row['values']
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict)
+    logger.debug(f"{tree = }")
+    logger.debug(f"{row2id = }")
+    logger.debug(f"{goal_counts = }")
+    return tree, row2id
+
 
 def show_tags(
     db,
@@ -8503,7 +8677,7 @@ def schedule(
     # for the individual weeks
     agenda_hsh = {}     # yw -> agenda_view
     done_hsh = {}       # yw -> done_view
-    goal_hsh = {}       # yw -> list of goal completions for the week
+    # goal_hsh = {}       # yw -> list of goal completions for the week
     busy_hsh = {}       # yw -> busy_view
     row2id_hsh = {}     # yw -> row2id
     done2id_hsh = {}     # yw -> row2id
@@ -8532,15 +8706,15 @@ def schedule(
         if item.get('itemtype', None) == None:
             logger.error(f'itemtype missing from {item}')
             continue
-        if item['itemtype'] == '~':
-            # add completions from history to goal_hsh
-            g_s = item.get('summary', '')
-            g_c = item.get('h', {}) # 'yyyy:ww' -> done
-            for k, v in g_c.items():
-                g_yw = [int(x) for x in k.split(':')]
-                g_r = f"~ {g_s}: {str(v)}"
-                goal_hsh.setdefault(tuple(g_yw), []).append(g_r)
-            # continue
+        # if item['itemtype'] == '~':
+        #     # add completions from history to goal_hsh
+        #     g_s = item.get('summary', '')
+        #     g_c = item.get('h', {}) # 'yyyy:ww' -> done
+        #     for k, v in g_c.items():
+        #         g_yw = [int(x) for x in k.split(':')]
+        #         g_r = f"~ {g_s}: {str(v)}"
+        #         goal_hsh.setdefault(tuple(g_yw), []).append(g_r)
+        #     continue
 
         if item['itemtype'] in '!?~':
             continue
@@ -8982,20 +9156,20 @@ def schedule(
     rows.sort(key=itemgetter('sort'))
     done.sort(key=itemgetter('sort'))
     effort.sort(key=itemgetter('sort'))
-    if goal_hsh:
-        tmp = {}
-        wks = []
-        for k, v in goal_hsh.items():
-            wks.append(k)
-            v.sort()
-            tmp[k] = v
-        wks.sort()
-        out = "Goals\n"
-        for k in wks:
-            out += f"  {k[0]}:{k[1]}\n"
-            for row in tmp[k]:
-                out += f"    {row}\n"
-        logger.debug(f"{out}")
+    # if goal_hsh:
+    #     tmp = {}
+    #     wks = []
+    #     for k, v in goal_hsh.items():
+    #         wks.append(k)
+    #         v.sort()
+    #         tmp[k] = v
+    #     wks.sort()
+    #     out = "Goals\n"
+    #     for k in wks:
+    #         out += f"  {k[0]}:{k[1]}\n"
+    #         for row in tmp[k]:
+    #             out += f"    {row}\n"
+    #     logger.debug(f"{out}")
 
     busy_details = {}
     allday_details = {}

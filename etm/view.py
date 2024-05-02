@@ -1123,6 +1123,7 @@ def is_item_view():
         'index',
         'tags',
         'journal',
+        'goals',
         'do next',
         'used time',
         'relevant',
@@ -1734,6 +1735,7 @@ def get_statusbar_center_text():
 
     return [
         ('class:status', 12 * ' '),
+        # (type_colors['pastdue'], "1"),
     ]
 
 
@@ -2759,6 +2761,51 @@ def do_touch(*event):
         show_message('Update last-modified', 'Update last-modified failed')
 
 
+@bindings.add('c-a', filter=is_viewing_or_details & is_item_view)
+def do_toggle_goal_paused(*event):
+    logger.debug("toggle goal paused")
+    row = text_area.document.cursor_position_row
+    doc_id, instance, job = dataview.get_row_details(row)
+    if not doc_id:
+        return
+    
+    hsh = DBITEM.get(doc_id=doc_id)
+    if hsh['itemtype'] != '~':
+        return 
+    
+    changed = item.toggle_goal_paused(doc_id)
+    if changed:
+        show_message('Toggle Active/Paused', 'Toggled the active/paused status of the goal')
+        # set_text(dataview.show_active_view())
+        loop = asyncio.get_event_loop()
+        loop.call_later(0, data_changed, loop)
+
+    return
+
+
+@bindings.add('c-e', filter=is_viewing_or_details & is_item_view)
+def do_end_goal(*event):
+    logger.debug("end goal")
+    row = text_area.document.cursor_position_row
+    doc_id, instance, job = dataview.get_row_details(row)
+    if not doc_id:
+        return
+    
+    hsh = DBITEM.get(doc_id=doc_id)
+    if hsh['itemtype'] != '~':
+        return 
+    
+    changed = item.end_goal(doc_id)
+    if changed:
+        show_message('Toggle Paused', 'Toggled the paused status of the goal')
+        # set_text(dataview.show_active_view())
+        loop = asyncio.get_event_loop()
+        loop.call_later(0, data_changed, loop)
+
+    return
+
+
+
 @bindings.add('F', filter=is_viewing_or_details & is_item_view)
 def do_finish(*event):
     """
@@ -3420,6 +3467,10 @@ def effort_view(*event):
 def journal_view(*event):
     set_view('j')
 
+@bindings.add('g', filter=is_viewing)
+def goals_view(*event):
+    set_view('g')
+
 
 @bindings.add('r', filter=is_viewing)
 def review_view(*event):
@@ -3967,6 +4018,7 @@ root_container = MenuContainer(
                 MenuItem('d) do next', handler=next_view),
                 MenuItem('e) effort', handler=effort_view),
                 MenuItem('f) forthcoming', handler=forthcoming_view),
+                MenuItem('g) goals', handler=goals_view),
                 MenuItem('h) history', handler=history_view),
                 MenuItem('i) index', handler=index_view),
                 MenuItem('j) journal', handler=journal_view),
@@ -4035,11 +4087,13 @@ root_container = MenuContainer(
                 MenuItem('E) edit', handler=edit_existing),
                 MenuItem('C) edit copy', handler=edit_copy),
                 MenuItem('D) delete', handler=do_maybe_delete),
-                MenuItem('F) finish', handler=do_finish),
+                MenuItem('F) finish/increment goal completions', handler=do_finish),
                 MenuItem('P) toggle pin', handler=toggle_pinned),
                 MenuItem('R) reschedule', handler=do_reschedule),
                 MenuItem('S) schedule new', handler=do_schedule_new),
                 MenuItem('G) open goto link', handler=do_goto),
+                MenuItem('^a) toggle goal active/paused', handler=do_toggle_goal_paused),
+                MenuItem('^e) end goal', handler=do_end_goal),
                 MenuItem('^h) show completion history', handler=not_editing_history),
                 MenuItem('^r) show repetitions', handler=not_editing_reps),
                 MenuItem('^u) update last modified', handler=do_touch),
