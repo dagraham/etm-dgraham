@@ -1363,6 +1363,11 @@ type2style = {
     '↳': 'wrap',
     '↑': 'event',
     '↓': 'available',
+    '∾': 'slow',
+    '∿': 'late',
+    '≁': 'inactive',
+    # INACTIVE_CHAR='∽'
+    '≀': 'ended',
 }
 
 
@@ -1405,7 +1410,6 @@ class ETMLexer(Lexer):
                 (busy_colors.get(c, type_colors['plain']), c)
                 for i, c in enumerate(document.lines[lineno])
             ]
-
         return get_line
 
 
@@ -2763,7 +2767,6 @@ def do_touch(*event):
 
 @bindings.add('c-a', filter=is_viewing_or_details & is_item_view)
 def do_toggle_goal_paused(*event):
-    logger.debug("toggle goal paused")
     row = text_area.document.cursor_position_row
     doc_id, instance, job = dataview.get_row_details(row)
     if not doc_id:
@@ -4093,7 +4096,7 @@ root_container = MenuContainer(
                 MenuItem('S) schedule new', handler=do_schedule_new),
                 MenuItem('G) open goto link', handler=do_goto),
                 MenuItem('^a) toggle goal active/paused', handler=do_toggle_goal_paused),
-                MenuItem('^e) end goal', handler=do_end_goal),
+                MenuItem('^e) end goal', handler=do_toggle_goal_paused),
                 MenuItem('^h) show completion history', handler=not_editing_history),
                 MenuItem('^r) show repetitions', handler=not_editing_reps),
                 MenuItem('^u) update last modified', handler=do_touch),

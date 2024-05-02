@@ -7007,7 +7007,7 @@ def relevant(
     goal_counts = {
         'Ended': 0,
         'Active': 0,
-        'Paused': 0
+        'Inactive': 0
     }
 
     # wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
@@ -7093,7 +7093,7 @@ def relevant(
         #         this_week_str = f"{this_week[0]}:{this_week[1]:02}"
         #         done = h.get(this_week_str, 0)
         #         if int(quota) < 0:
-        #             goal_counts['Paused'] += 1
+        #             goal_counts['Inactive'] += 1
         #         else:
         #             goal_counts['Active'] += 1
 
@@ -7514,7 +7514,7 @@ def relevant(
 
     # if goal_counts:
     #     a = goal_counts['Active']
-    #     p = goal_counts['Paused']
+    #     p = goal_counts['Inactive']
     #     e = goal_counts['Ended']
     #     current.append(
     #         {
@@ -8116,16 +8116,15 @@ def show_goals(
     """
     goals grouped by current, paused, ended
     """
-    global goal_counts
-    goal_counts = {
-        'Active': 0,
-        'Paused': 0,
-        'Ended': 0,
-    }
+    # goal_counts = {
+    #     'Active': 0,
+    #     'Inactive': 0,
+    #     'Ended': 0,
+    # }
     rows = []
     path2sort = {
         'Active': 1,
-        'Paused': 2,
+        'Inactive': 2,
         'Ended': 3,
     }
     # goal_hsh = {} 
@@ -8144,7 +8143,7 @@ def show_goals(
         h = item.get('h', {})
         for k, v in h.items():
             total += int(v)
-        logger.debug(f"{summary = }; {total = }")
+        # logger.debug(f"{summary = }; {total = }")
         path = None
         # status: current, paused, ended, bad
         
@@ -8155,23 +8154,23 @@ def show_goals(
         ss = s.timestamp()
         weeks = q[1] if len(q) > 1 else None
 
-        logger.debug(f"{doc_id = }; {summary = }; {quota = }")
         if int(quota) == 0 or (weeks and (today - s.date()).days > weeks*7):
             path = 'Ended'
             goal = f'({total})'
-            goal_counts['Ended'] += 1
+            itemtype = EtmChar.ENDED_CHAR
         else:
             this_week = today.isocalendar()[:2] 
             this_week_str = f"{this_week[0]}:{this_week[1]:02}"
             done = int(h.get(this_week_str, 0))
-            if int(quota) < 0:
-                path = 'Paused' 
+            ss = done/abs(quota)
+            if int(quota) < 0 or s.date() > today:
+                path = 'Inactive' 
                 goal = f"{done}/{abs(quota)} ({total})"
-                goal_counts['Paused'] += 1
+                itemtype = EtmChar.INACTIVE_CHAR
             else:
                 path = 'Active'
                 goal = f"{done}/{abs(quota)}+{weekdays_remaining}d ({total})"
-                goal_counts['Active'] += 1
+                itemtype='~'
 
         if path == 'Active' and current_weekday >= 2:
             fraction_done = done/abs(quota)
@@ -8182,11 +8181,10 @@ def show_goals(
                 itemtype = '~'
             elif fraction_done >= min_used:
                 # borderline
-                itemtype = '>'
+                itemtype = EtmChar.SLOW_CHAR
             else:
                 # behind
-                itemtype = '<'
-            logger.debug(f"{fraction_done = }; {max_used = }; {min_used = }; {itemtype = }") 
+                itemtype = EtmChar.LATE_CHAR
 
         sort = (path2sort[path], ss, summary)
 
@@ -8207,9 +8205,6 @@ def show_goals(
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict)
-    logger.debug(f"{tree = }")
-    logger.debug(f"{row2id = }")
-    logger.debug(f"{goal_counts = }")
     return tree, row2id
 
 

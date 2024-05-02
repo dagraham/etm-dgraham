@@ -141,9 +141,12 @@ class Settings:
             'used': 'Khaki',
             'waiting': 'SlateGrey',
             'wrap': 'ForestGreen',
-            'inactive': 'LightSkyBlue',
+            'inactive': 'DodgerBlue',
             'paused': 'Gold',
             'running': 'LimeGreen',
+            'slow': 'Gold',
+            'late': 'DarkOrange',
+            'ended': 'MidnightBlue'
         },
         'light': {
             'available': 'DarkBlue',
@@ -163,6 +166,9 @@ class Settings:
             'inactive': 'LightSkyBlue',
             'paused': 'Gold',
             'running': 'GreenYellow',
+            'slow': 'DarkViolet',
+            'late': 'Red',
+            'ended': 'LightSlateGrey'
         },
     }
 

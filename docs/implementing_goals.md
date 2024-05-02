@@ -79,7 +79,7 @@ Analagous to journal view - not weekly
 
 - Active:
     clickable list of active goals
-- Paused: 
+- Inactive: 
     clickable list of paused goals
 - Inactive: 
     clickable list of goals with @q entries with weeks that have expired  

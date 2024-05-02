@@ -677,6 +677,11 @@ class EtmChar:
     REPS='↻'  # Flag for repeating items
     FINISHED_CHAR='✓'
     SKIPPED_CHAR='✗'
+    SLOW_CHAR='∾'
+    LATE_CHAR='∿'
+    INACTIVE_CHAR= '≁'
+    # INACTIVE_CHAR='∽'
+    ENDED_CHAR='≀'
     UPDATE_CHAR='𝕦'
     INBASKET_CHAR='𝕚'
     KONNECT_CHAR='k'
