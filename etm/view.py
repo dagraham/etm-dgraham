@@ -2766,7 +2766,7 @@ def do_touch(*event):
 
 
 @bindings.add('c-a', filter=is_viewing_or_details & is_item_view)
-def do_toggle_goal_paused(*event):
+def do_toggle_goal_active(*event):
     row = text_area.document.cursor_position_row
     doc_id, instance, job = dataview.get_row_details(row)
     if not doc_id:
@@ -2776,7 +2776,7 @@ def do_toggle_goal_paused(*event):
     if hsh['itemtype'] != '~':
         return 
     
-    changed = item.toggle_goal_paused(doc_id)
+    changed = item.toggle_goal_active(doc_id)
     if changed:
         show_message('Toggle Active/Paused', 'Toggled the active/paused status of the goal')
         # set_text(dataview.show_active_view())
@@ -4095,8 +4095,8 @@ root_container = MenuContainer(
                 MenuItem('R) reschedule', handler=do_reschedule),
                 MenuItem('S) schedule new', handler=do_schedule_new),
                 MenuItem('G) open goto link', handler=do_goto),
-                MenuItem('^a) toggle goal active/paused', handler=do_toggle_goal_paused),
-                MenuItem('^e) end goal', handler=do_toggle_goal_paused),
+                MenuItem('^a) toggle goal active/inactive', handler=do_toggle_goal_active),
+                MenuItem('^e) end goal', handler=do_toggle_goal_active),
                 MenuItem('^h) show completion history', handler=not_editing_history),
                 MenuItem('^r) show repetitions', handler=not_editing_reps),
                 MenuItem('^u) update last modified', handler=do_touch),

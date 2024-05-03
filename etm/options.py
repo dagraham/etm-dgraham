@@ -146,7 +146,7 @@ class Settings:
             'running': 'LimeGreen',
             'slow': 'Gold',
             'late': 'DarkOrange',
-            'ended': 'MidnightBlue'
+            'ended': 'SteelBlue'
         },
         'light': {
             'available': 'DarkBlue',

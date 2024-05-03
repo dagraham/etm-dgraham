@@ -36,6 +36,7 @@ import tracemalloc
 # import datetime  # for type testing in rrule
 import locale
 import calendar
+import math
 from copy import deepcopy
 import math
 import shutil
@@ -1162,7 +1163,7 @@ item_hsh:    {self.item_hsh}
         self.do_update()
         return True
 
-    def toggle_goal_paused(
+    def toggle_goal_active(
             self,
             item_id: int,
             ) -> bool:
@@ -8129,21 +8130,24 @@ def show_goals(
     }
     # goal_hsh = {} 
     today = date.today()
-    current_weekday = today.weekday()
-    weekdays_remaining = 7 - current_weekday
+    current_weekday = today.weekday()         # 0, 1, ..., 6
+    weekdays_remaining = 7 - current_weekday  # 7, 6, ..., 1 
     for item in db:
         itemtype = item.get('itemtype')
         if itemtype != '~':
             continue
         doc_id = item.doc_id
         total = 0
+        count = 0
         summary = item.get('summary').strip()
         s = item.get('s', None)
         q = item.get('q', [])
         h = item.get('h', {})
         for k, v in h.items():
+            count += 1
             total += int(v)
-        # logger.debug(f"{summary = }; {total = }")
+        average = f"{total/count:.2}" if count else 0
+        logger.debug(f"{summary = }; {total = }; {count = }; {average = }")
         path = None
         # status: current, paused, ended, bad
         
@@ -8156,7 +8160,7 @@ def show_goals(
 
         if int(quota) == 0 or (weeks and (today - s.date()).days > weeks*7):
             path = 'Ended'
-            goal = f'({total})'
+            goal = f'({average})'
             itemtype = EtmChar.ENDED_CHAR
         else:
             this_week = today.isocalendar()[:2] 
@@ -8165,17 +8169,20 @@ def show_goals(
             ss = done/abs(quota)
             if int(quota) < 0 or s.date() > today:
                 path = 'Inactive' 
-                goal = f"{done}/{abs(quota)} ({total})"
+                goal = f"{done}/{abs(quota)} ({average})"
                 itemtype = EtmChar.INACTIVE_CHAR
             else:
                 path = 'Active'
-                goal = f"{done}/{abs(quota)}+{weekdays_remaining}d ({total})"
+                goal = f"{done}/{abs(quota)} ({average})"
                 itemtype='~'
 
-        if path == 'Active' and current_weekday >= 2:
+        if path == 'Active' and current_weekday >= 1:
             fraction_done = done/abs(quota)
-            min_used = (current_weekday - 1)/7 # today still available
-            max_used = current_weekday/7 # today gone
+            min_used = (current_weekday)/7 #  0, 1/7, ..., 6/7
+            max_used = (current_weekday+1)/7 # 1/7, 2/7, ..., 1
+            need = math.ceil(max_used*abs(quota) - done)
+            logger.debug(f"{max_used*abs(quota) = }; {done = }")
+            goal = f"{done}/{abs(quota)}+{need} ({average})" if need > 0 else f"{done}/{abs(quota)} ({average})"
             if fraction_done >= max_used:
                 # on target
                 itemtype = '~'
@@ -8185,6 +8192,7 @@ def show_goals(
             else:
                 # behind
                 itemtype = EtmChar.LATE_CHAR
+            logger.debug(f"{fraction_done = }; {max_used = }; {min_used = }; {current_weekday = }")
 
         sort = (path2sort[path], ss, summary)
 
