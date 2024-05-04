@@ -1555,7 +1555,7 @@ def restore_row_col(row_number, col_number):
 async def maybe_alerts(now):
     # global current_datetime
     row, col = get_row_col()
-    set_text(dataview.show_active_view())
+    # set_text(dataview.show_active_view())
     #            0            1         2          3         4       5
     # alerts: alert time, start time, commands, itemtype, summary, doc_id
     restore_row_col(row, col)
@@ -2778,7 +2778,7 @@ def do_toggle_goal_active(*event):
     
     changed = item.toggle_goal_active(doc_id)
     if changed:
-        show_message('Toggle Active/Paused', 'Toggled the active/paused status of the goal')
+        # show_message('Toggle Active/Paused', 'Toggled the active/paused status of the goal')
         # set_text(dataview.show_active_view())
         loop = asyncio.get_event_loop()
         loop.call_later(0, data_changed, loop)
@@ -2837,7 +2837,7 @@ def do_finish(*event):
         # incrementing completions of a goal
         changed = item.increment_goal(doc_id)
         if changed:
-            show_message('Finish', 'Incremented tally for goal')
+            # show_message('Finish', 'Incremented tally for goal')
             # set_text(dataview.show_active_view())
             loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)

@@ -1885,7 +1885,7 @@ item_hsh:    {self.item_hsh}
         if self.item_hsh['itemtype'] == '~':
             obj = {}
             # arg list will be a list of year:weeknum num_done
-            rx = re.compile(r'\d{4}:\d{2}\s*\d+')
+            rx = re.compile(r'^\s*\d{4}:\d{2}\s*\d+\s*$')
             for arg in args:
                 match = rx.match(arg.strip())
                 if match:
@@ -2340,8 +2340,11 @@ def format_statustime(obj):
         if ampm
         else obj.strftime('%H:%M')
     )
-    if width < 60:
+    if width < 50:
         weekday = ''
+        monthday = ''
+    elif width < 60:
+        weekday = f' {obj.strftime("%a")}'
         monthday = ''
     else:
         weekday = f' {obj.strftime("%a")}'
@@ -2695,7 +2698,7 @@ threeday_regex = re.compile(
 )
 anniversary_regex = re.compile(r'!(\d{4})!')
 
-quota_regex = re.compile(r'\s*-?\d+(,\s*\d+)?')
+quota_regex = re.compile(r'^\s*-?\d+(,\s*\d+)?\s*$')
 
 def parse_durations(s):
     periods = [x.strip() for x in s.split('+')]
@@ -7513,23 +7516,6 @@ def relevant(
             }
         )
 
-    # if goal_counts:
-    #     a = goal_counts['Active']
-    #     p = goal_counts['Inactive']
-    #     e = goal_counts['Ended']
-    #     current.append(
-    #         {
-    #             'id': None,
-    #             'job': None,
-    #             'instance': None,
-    #             'sort': (inbox_fmt, 1),
-    #             'week': week,
-    #             'day': day,
-    #             'columns': ['~', f"goals: {a} active, {p} paused, {e} ended", '', '', None],
-            
-    #          }
-    #     )
-
     for item in pastdue:
         item_0 = str(item[0]) if item[0] in item else ''
         rhc = item_0
@@ -8117,11 +8103,6 @@ def show_goals(
     """
     goals grouped by current, paused, ended
     """
-    # goal_counts = {
-    #     'Active': 0,
-    #     'Inactive': 0,
-    #     'Ended': 0,
-    # }
     rows = []
     path2sort = {
         'Active': 1,
@@ -8176,14 +8157,17 @@ def show_goals(
                 goal = f"{done}/{abs(quota)} ({average})"
                 itemtype='~'
 
-        if path == 'Active' and current_weekday >= 1:
+        if path == 'Active' and current_weekday >= 0:
             fraction_done = done/abs(quota)
             min_used = (current_weekday)/7 #  0, 1/7, ..., 6/7
             max_used = (current_weekday+1)/7 # 1/7, 2/7, ..., 1
             need = math.ceil(max_used*abs(quota) - done)
-            logger.debug(f"{max_used*abs(quota) = }; {done = }")
+            # logger.debug(f"{max_used*abs(quota) = }; {done = }")
             goal = f"{done}/{abs(quota)}+{need} ({average})" if need > 0 else f"{done}/{abs(quota)} ({average})"
-            if fraction_done >= max_used:
+            if current_weekday == 0:
+                # Monday - don't warn about 0 completions
+                itemtype = '~'
+            elif fraction_done >= max_used:
                 # on target
                 itemtype = '~'
             elif fraction_done >= min_used:
