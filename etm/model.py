@@ -7086,7 +7086,7 @@ def relevant(
                         sum_abbr = item['summary'][:summary_width]
                         summary = f'{sum_abbr} {num_remaining}'
                         extent = item.get('e', ZERO)
-                        if dtstart.date() + extent < today.date() and 'j' not in item:
+                        if dtstart.date() + extent < today.date() and 'j' not in item and 'r' not in item:
                             pastdue.append(
                                 [
                                     (dtstart.date() - today.date()).days,
