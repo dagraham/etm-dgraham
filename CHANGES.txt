@@ -1,9 +1,49 @@
-2024-05-04 992e6d0 Daniel Graham
+2024-05-04 8132171 Daniel Graham
+    Tagged version 6.2.0. Added a new item type, goal, and a
+    corresponding goal view.
+
+2024-05-04 bd93aab Daniel Graham
+    Merge branch 'working' into goals
+
+2024-05-04 9aa9c5f Daniel Graham
     Tagged version 6.1.27.
 
 2024-05-04 eebce81 Daniel Graham
     Fixed bug in including s as a possible pastdue in a task with an r
     entry.
+
+2024-05-03 893a055 Daniel Graham
+    Cleaned up comments
+
+2024-05-03 c6021f9 Daniel Graham
+    Cleaned up comments. Changed min width for weekday in statusbar to
+    50. Fixed regex for quota and goal history. Include weekday 0
+    (Mon) in active but don't warn about 0 completions. Removed
+    show_active_view from alarm loop. Removed show_message
+    confirmation for toggle active and increment count.
+
+2024-05-03 e6e4a65 Daniel Graham
+    Show completions needed to get on schedule in goals instead of
+    days remaining and the average number of completions instead of
+    the total.
+
+2024-05-02 fadef79 Daniel Graham
+    Added type characters and colors for goals. Sort active/inactive
+    goals by done/quota.
+
+2024-05-02 feab252 Daniel Graham
+    Added goal view and removed goal counts from agenda view. Color
+    active goals according to progress. Added commands to toggle
+    active/paused and to end goal.
+
+2024-05-01 41242dd Daniel Graham
+    Changed binding for goto link from g to G
+
+2024-05-01 f1c68f0 Daniel Graham
+    Corrected typo
+
+2024-05-01 de6647c Daniel Graham
+    Merged working isocalendar fix
 
 2024-05-01 af63365 Daniel Graham
     Tagged version 6.1.26.
@@ -11,6 +51,18 @@
 2024-05-01 e9c92ac Daniel Graham
     Fixed bug in converting (year, week number, weekday number) dates
     to (year, month, monthday).
+
+2024-05-01 83b2926 Daniel Graham
+    First pass at displaying goal history.
+
+2024-04-30 c513048 Daniel Graham
+    Added itemtype ~ for goal. Set allowed and required and
+    implemented formatting and processing for @q and @h. Displays on
+    current day similar to inbox items and pressing F increments the
+    ticker for done. Still to do - display in completions.
+
+2024-04-28 3458834 Daniel Graham
+    First pass at implementing goals.
 
 2024-04-27 909b86d Daniel Graham
     Beginning work on weekly goals
@@ -171,62 +223,3 @@
 
 2024-02-12 1c2f8be Daniel Graham
     Tagged version 6.1.9.
-
-2024-02-12 6059ead Daniel Graham
-    corrected erroneous change to __version__.py
-
-2024-02-12 ba39b1c Daniel Graham
-    In row2id, skip 'wrapper' rows. When creating @K inbox entries
-    insure that 'created' is added. In populating konnections_from and
-    konnections_to, make sure that doc_ids correspond to existing data
-    entries. Added focus_on_click and search_field to details_area.
-    Require is_not_editing for 'k' binding in showing_konnections.
-    Changed menu name for 'J' to 'jot it down'.
-
-2024-02-09 0caec39 Daniel Graham
-    Simplified format for journal daily. No @s entry, take the
-    datetime from the summary. Format @d with weekday, long format
-    datetime and then modified norg headings for hour:minute entry
-    timestamps. Remove extra linebread in jinsa template for @d.
-
-2024-02-08 dcf36bd Daniel Graham
-    <enter> toggles showing details leaving text_area in focus. When
-    details is showing, up|down moves selection to previous|next item
-    and shows details for the current selection.
-
-2024-02-07 5e819fc Daniel Graham
-    Tagged version 6.1.8.
-
-2024-02-07 415aec7 Daniel Graham
-    Fixed bug in processing keyvals in text_changed.
-
-2024-02-05 d44dba2 Daniel Graham
-    Tagged version 6.1.7.
-
-2024-02-05 3c257da Daniel Graham
-    Update object_hsh for all keyvals.
-
-2024-02-05 0225f8f Daniel Graham
-    Tagged version 6.1.6.
-
-2024-02-05 41e4c7a Daniel Graham
-    Fixed bug in processing weekday entries in rrule specifications,
-    e.g., '@r m &w 2TH'. Problem arises from the fact that the
-    dateutil.rrule.weekday string representation for '2TH' is 'TH(+2)'
-    which differs from the '2TH' needed by etm.
-
-2024-02-03 80170b2 Daniel Graham
-    Tagged version 6.1.5.
-
-2024-02-03 bfa56e6 Daniel Graham
-    Fixed probably longstanding bug in which removing an element from
-    an item while editing, e.g., an @t tag, would apparently succeed
-    but when saving the changes, the removed item would reappear. The
-    standard tinydb update and upsert methods record adding new
-    elements and making changes to existing elements but not removing
-    an existing element. The solution is to obtain the doc_id of the
-    item, delete the item and then insert the new, changed item using
-    the original doc_id.
-
-2024-02-02 48a0e3e Daniel Graham
-    Tagged version 6.1.4.
