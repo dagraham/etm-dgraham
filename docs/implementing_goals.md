@@ -1,127 +1,21 @@
 # Weekly Goals
 
-## Using Agenda View
+![alt text](image.png)
 
-A "goal" reminder uses the type character "~" to specify the number of times per week that an instance of the goal is to be done. E.g., in the week beginning next Monday a goal of doing "whatever" at least 3 times would be specified as:
+"walk the dog" is selected and the details panel shows its format. The leading "3/7+2 (4.8)" in the main window indicates that 3 instances of the goal of 7 have been completed in the current week, that 2 more completions today are needed to get back on schedule for the week and that 4.8 is the current average number of completions per week. (@h in the details panel shows the complete history of completions by year:week.) 
 
-```
-    ~ whatever @s mon @q 3 
-```
+In the main window, active goals are sorted by their done/quota ratios and given a color indicating the degree of progress toward completing the goal for the current week based on comparing the done/quota fraction to the fraction of the week that has passed. Since the current weekday, Friday, is the 5th day of the week, the fraction of the week that has passed is somewhere between 4/7 (beginning of Friday) and 5/7 (end of Friday).   
+- walk the dog:  colored red because 3/7 is less than 4/7 and thus completions are unambiguously behind schedule for the week - 2 completions today are needed to get back on schedule.
+- wash dishes: colored yellow because 3/5 is between 4/7 and 5/7 - 1 completion today is needed to get back on schedule.
+- interval training: blue because 3/4 > 5/7 and thus completions are ahead of schedule for this week - no completions are needed today to stay on schedule.
 
-As given this goal extends indefinitely but it could be limited to, say, five weeks by specifying `@q 3, 5` instead of `@q 3`. 
+This is a normal view in etm and all the normal commands are available. Additionally, these commands are available when a goal is selected:
+- F) increment the completion count for the current week (by incrementing the count for the current week in @h)
+- ^a) toggle the active/inactive status (by reversing the sign of the quota component of @q). 
+- ^e) end the goal (by setting the quota component of @q equal to zero)
 
-Unlike a task, the concepts of "finished", "unfinished" and "pastdue" are irrelevant. 
-
-Beginning next Monday, the goal would be displayed on the current day as
-
-```
-                    Apr 29 - May 5, 2024 #18
-    Mon Apr 29 (Today)
-      ~ 0/3 whatever
-
-                                                        agenda
-```
-
-indicating that goal is active for the week and that zero of the three instances have been done.
-
-With "~ whatever" selected, pressing "F" would increment the record of the times done and change the display to 
-
-```
-                    Apr 29 - May 5, 2024 #18
-    Mon Apr 29 (Today)
-      ~ 1/3 whatever
-
-                                                        agenda
-```
-
-On Wednesday, selecting "~ whatever" and pressing "F" again would yield 
-
-```
-                    Apr 29 - May 5, 2024 #18
-    Wed May 1 (Today)
-      ~ 2/3 whatever
-
-                                                        agenda
-```
-
-Two more presses of "F" on Sunday would yield
-
-```
-                    Apr 29 - May 5, 2024 #18
-    Sun May 5 (Today)
-      ~ 4/3 whatever
-
-                                                        agenda
-```
-
-The status of the goal for the current week is always displayed on the current date and on Mondays of relevant future weeks in Agenda View.  The history is displayed in a Goals section of Completed View. E.g., this Completed View 
-
-```
-                    Apr 29 - May 5, 2024 #18
-    Sun May 5
-      ...
-
-    
-    Goals
-      ~ whatever: 4
-      ...
-
-                                                     completed
-```
-
-would indicate that four completions have been recorded for "~ whatever" for week number 18 of 2024. Totals for all relevant goals for the week would be listed alphabetically in this section.
-
-## Using Goals View
-
-Analagous to journal view - not weekly
-
-### Sections
-
-- Active:
-    clickable list of active goals
-- Inactive: 
-    clickable list of paused goals
-- Inactive: 
-    clickable list of goals with @q entries with weeks that have expired  
-
-Details shows complete history.
-
-## Details
-
-### History
-
-A dictionary with integer (year, week_number) tuples as keys and integer (done, quota) tuples as values:
-
-```
-    @h Dict[string yyyy:ww, int done]
-```
-
-E.g, for the above examples involving week number 18, 2024 (Apr 29 - May 5), the history entry would be
-
-```
-    {'2024:18': 4}
-```
-
-### Actions
-
-* Completion
-
-    With a goal selected (on the current day), pressing "C" increments the num_done (first component) of the @h entry for the current 'yyyy:ww'. If the goal does not yet have an entry for @h, one is created using the format
-
-    ```
-        {'yyyy:ww': 1} 
-    ```
-
-* Pausing
-
-    With a goal selected, pressing "P" toggles pausing the goal by reversing the sign of the quota in the @q entry.
-
-* New day
-
-    The current status of a goal is always displayed on the current day
-
-    ```
-        ~ done/quota summary
-    ```
-
+Notes
+- @q can optionally contain a number of weeks specification as well as a quota. E.g., "@q 3, 2" would specify a quota of 3 instances per week for 2 weeks. After the passage of the second week, the goal would be listed as "Ended".
+- The entry for @s is automatically converted to the first day (Monday) of the week containing the specified datetime. If @s specifies a datetime after the current week, the goal would be listed as "Inactive" until the relevant week arrives.
+- Goals view is activated either from the menu or by pressing "g". The binding for "open goto link" has been changed from "g" to "G". 
 
