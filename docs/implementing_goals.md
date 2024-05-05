@@ -1,7 +1,7 @@
 # Weekly Goals
 
 ## The Goal Reminder
-The goal itemtype (type char `~`) and the corresponding *Goals View* is intended to support pursuing S.M.A.R.T. goals (Specific, Measurable, Achievable, Relevant, Timed) in *etm*. Here is an example of goal as it would be entered:
+The goal itemtype (type char `~`) and the corresponding *Goals View* is intended to support pursuing S.M.A.R.T. goals (Specific, Measurable, Achievable, Relevant, Timed) in *etm*. Here is an example of a *goal* as it would be entered:
 
     ```
         ~ interval training @s 2024/4/22 @q 3
@@ -13,11 +13,10 @@ The goal itemtype (type char `~`) and the corresponding *Goals View* is intended
 - If this goal were selected in *etm* on, say, Wednesday, April 24 and "F" were pressed, then *etm* would add an `@h 2024:17 1` (history of completions) entry to indicate 1 completion of the goal for the week of *2024:17*. Pressing "F" again in the same week with this goal selected would change this entry to `@h 2024:17 2`.  As one last example, pressing "F" with the goal selected sometime during the week of *2024:18* would leave the recorded entry as
 
     ```
-    ~ interval training @s 2024/4/29 @q 3 
-      @h 2024:17 2, 2024:18 1
+    ~ interval training @s 2024/4/29 @q 3 @h 2024:17 2, 2024:18 1
     ```
 
-## Goal View
+## Goals View
 
 This is a dedicated view *only for goals*. Goals are also displayed in *History View*, *Index View* and so forth, but are **not** displayed in *Agenda View* since goals apply *only to the current week*. 
 
