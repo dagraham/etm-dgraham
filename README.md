@@ -1747,9 +1747,9 @@ Type character: **~**
 
 The goal itemtype is intended to support pursuing S.M.A.R.T. goals (Specific, Measurable, Achievable, Relevant, Timed) in *etm*. Here is an example of a *goal* as it would be entered:
 
-    ```
-        ~ interval training @s 2024/4/22 @q 3
-    ```
+```
+    ~ interval training @s 2024/4/22 @q 3
+```
 - It is a *goal* because of the `~` type character. 
 - Because I have a custom interval setting on my exercise bike, "interval training" is *specific* and *measurable*. It is also *achievable* and *relevant* for me.
 - The `@s` entry is required and times the goal to begin on Monday, April 22, 2024. Whatever date is entered will be automatically converted to the Monday of the corresponding week.
