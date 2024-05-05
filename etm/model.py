@@ -21,6 +21,7 @@ from etm.common import (
     WA,
     timers_file,
     etmhome,
+    check_output,
 )
 
 # beginbusy = settings.beginbusy
@@ -9483,10 +9484,16 @@ Developer:      dnlgrhm@gmail.com
 
 {copyright}\
 """
+    which_etm = "?"
+    ok, msg = check_output('which etm')
+    if ok:
+        userhome = os.path.expanduser('~')
+        which_etm = os.path.join('~', os.path.relpath(msg, userhome))
 
     ret2 = f"""\
+ etm home:           {etmhome}
+ path to etm:        {which_etm}\
 {VERSION_INFO}
- etm directory:      {etmhome}\
 """
     return ret1, ret2
 
