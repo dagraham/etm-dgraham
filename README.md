@@ -567,6 +567,8 @@ Context is useful for more than just the sorting order. Suppose you have a task 
 
 One final useful context is 'waiting for'. E.g., completing a task might depend upon getting something from Joe. Add `@l waiting for/Joe` to the task and it will be listed in the subgroup 'Joe' under 'waiting for'.
 
+[↺ contents](#contents)
+
 ### Goals View {#goals-view}
 
 This is a dedicated view *only for goals*. Goals are also displayed in *History View*, *Index View* and so forth, but are **not** displayed in *Agenda View* since goals apply *only to the current week*. 
