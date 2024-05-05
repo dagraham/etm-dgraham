@@ -90,6 +90,25 @@ VERSION_INFO = f"""\
  platform:           {system_platform}\
 """
 
+def check_output(cmd):
+    if not cmd:
+        return
+    res = ''
+    try:
+        res = subprocess.check_output(
+            cmd,
+            stderr=subprocess.STDOUT,
+            shell=True,
+            universal_newlines=True,
+            encoding='UTF-8',
+        )
+        return True, res
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Error running {cmd}\n'{e.output}'")
+        lines = e.output.strip().split('\n')
+        msg = lines[-1]
+        return False, msg
+
 def db_replace(new):
     """
     Used with update to replace the original doc with new.
