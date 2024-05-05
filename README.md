@@ -16,6 +16,7 @@ This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.g
     -   [Views](#views)
         -   [Weekly Views](#weekly-views)
         -   [Do Next View](#do-next-view)
+        -   [Goals View](#goals-view)
         -   [Timer View](#timer-view)
         -   [Review View](#review-view)
         -   [Pinned View](#pinned-view)
