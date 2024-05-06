@@ -3622,7 +3622,7 @@ class DataView(object):
             )
             return self.journal_view
         if self.active_view == 'goals':
-            self.goals_view, self.row2id = show_goals(
+            self.goals_view, self.row2id, self.goals_txt = show_goals(
                 self.db,
                 self.id2relevant,
                 self.repeat_list,
