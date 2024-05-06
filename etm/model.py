@@ -8131,7 +8131,7 @@ def show_goals(
         for k, v in h.items():
             count += 1
             total += int(v)
-        average = f"{total/count:.2}" if count else 0
+        average = f"{total/count:.2}" if count and total else 0
         logger.debug(f"{summary = }; {total = }; {count = }; {average = }")
         path = None
         # status: current, paused, ended, bad
