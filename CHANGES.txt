@@ -1,4 +1,40 @@
-2024-05-04 8132171 Daniel Graham
+2024-05-06 9c3ccea Daniel Graham
+    Tagged version 6.2.1.
+
+2024-05-06 272ef22 Daniel Graham
+    Fixed sorting bug in do next view
+
+2024-05-05 bd65af8 Daniel Graham
+    README tweaks
+
+2024-05-05 e337b72 Daniel Graham
+    README tweaks
+
+2024-05-05 68b9823 Daniel Graham
+    README tweaks
+
+2024-05-05 1789fb5 Daniel Graham
+    Merge branch 'working'
+
+2024-05-05 abf7a33 Daniel Graham
+    First pass at adding goals to README
+
+2024-05-05 a58c62f Daniel Graham
+    Merge branch 'working'
+
+2024-05-05 92a4a5b Daniel Graham
+    Updated implementing_goals
+
+2024-05-05 f71fd6c Daniel Graham
+    Updates for implementing_goals
+
+2024-05-04 65f93a4 Daniel Graham
+    Updated docs/implementing_goals.md
+
+2024-05-04 8601216 Daniel Graham
+    Updated docs/implementing_goals.md
+
+2024-05-04 6ffaa2f Daniel Graham
     Tagged version 6.2.0. Added a new item type, goal, and a
     corresponding goal view.
 
@@ -175,51 +211,3 @@
     on the current date and the timedelta between the current moment
     and the datetime otherwise. Added 'inactive' to type_colors.
     Changed default 'light' type_colors for 'paused' and 'running'.
-
-2024-02-29 0a6134f Daniel Graham
-    Tagged version 6.1.14.
-
-2024-02-29 465af5b Daniel Graham
-    Removed extraneous 'level=0
-    '
-
-2024-02-29 1b565b0 Daniel Graham
-    Tagged version 6.1.13. Conditionally show active timer in
-    statusbar 2nd line
-
-2024-02-29 fbe470f Daniel Graham
-    Fixed leap year bug in archiving items. Refactored fitting strings
-    into available terminal width using 'truncate_string'. Added
-    'conditional' status bar second line to show active timer when one
-    exists. Removed unused 'level' argument from NDict as_tree.
-    Reformated timer report to show total time for item, the current
-    status and the moment the status last changed.
-
-2024-02-24 f71dfcd Daniel Graham
-    Tagged version 6.1.12.
-
-2024-02-24 d0f5f18 Daniel Graham
-    Added 'show occurrences' bound to 'o' to display a list of fields
-    such as @i, @l, ..., with the distince occurrences of each and the
-    number of times used.
-
-2024-02-16 878447b Daniel Graham
-    Tagged version 6.1.11.
-
-2024-02-16 53022e3 Daniel Graham
-    Corrected wording in README regarding tab completion for @k
-    entries.
-
-2024-02-16 2f48d58 Daniel Graham
-    Jinja template tweaks for wrapping @d entries. Bind N (along with
-    +) to create new item but only if is_not_searching.
-
-2024-02-13 f99e118 Daniel Graham
-    Tagged version 6.1.10.
-
-2024-02-13 f4ac9a4 Daniel Graham
-    Fixed bug in processing do_reschedule when an empty string is
-    returned.
-
-2024-02-12 1c2f8be Daniel Graham
-    Tagged version 6.1.9.
