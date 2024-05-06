@@ -159,6 +159,8 @@ When you want to create a new reminder or edit an exiting one, *etm* opens an ar
 <!-- <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/lunch_step_by_step.m4v" alt="new" title="lunch step by step" width="600px" hspace="20px"/> -->
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/new.png" alt="new" title="new entry" width="600px" hspace="20px"/>
 
+
+Here is a link to a video of scheduling a lunch step by step: 
 [lunch step by step]([lunch step by step](https://youtu.be/6y3mpZE5gSI))
 
 <!-- [↺ contents](#contents) -->
