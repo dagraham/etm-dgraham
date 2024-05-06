@@ -579,7 +579,7 @@ Consider this illustrative screenshot from *Goals View*:
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/walk_the_dog.png" alt="new" title="goals view" width="600px" hspace="20px"/>
 
-Notice first that there is no heading displaying a date or week since *goal view* displays the status in the *current week* of *all* goals. 
+Notice first that there is no heading displaying a date or week since *goal view* displays the status of *all* goals at the *current time*. 
 
 In this screen shot "walk the dog" is selected and its details panel is displayed. The leading "3/7+2 (4.8)" in the main window indicates that 3 instances of the goal of 7 have been completed in the current week, that 2 more completions today are needed to get back on schedule for the week and that 4.8 is the current average number of the entire history completions per week for this goal. This history is displayed in the details panel.
 

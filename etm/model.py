@@ -7924,7 +7924,7 @@ def show_next(
         if 'j' in item:
             task_location = item.get('l', '~')
             priority = int(item.get('p', 0))
-            sort_priority = 4 - int(priority)
+            sort_priority = str(4 - int(priority))
             show_priority = str(priority) if priority > 0 else ''
             for job in item['j']:
                 if job.get('f', None) is not None:
@@ -7933,9 +7933,10 @@ def show_next(
                 location = job.get('l', task_location)
                 extent = job.get('e', '')
                 extent = format_duration(extent) if extent else ''
-                status = 0 if job.get('status') == '-' else 1
+                status = '0' if job.get('status') == '-' else '1'
                 # status 1 -> waiting, status 0 -> available
-                rhc = ' '.join([show_priority, extent]).center(7, ' ')
+                # rhc = ' '.join([show_priority, extent])
+                rhc = extent
                 summary = job.get('summary')
                 job_id = job.get('i', None)
                 job_sort = str(job_id)
@@ -7946,8 +7947,8 @@ def show_next(
                         'instance': None,
                         'sort': (
                             location,
-                            status,
                             sort_priority,
+                            status,
                             job_sort,
                             job.get('summary', ''),
                         ),
@@ -7966,9 +7967,10 @@ def show_next(
             priority = int(item.get('p', 0))
             extent = item.get('e', '')
             extent = format_duration(extent) if extent else ''
-            sort_priority = 4 - int(priority)
+            sort_priority = str(4 - int(priority))
             show_priority = str(priority) if priority > 0 else ''
-            rhc = ' '.join([show_priority, extent]).center(7, ' ')
+            # rhc = ' '.join([show_priority, extent])
+            rhc = extent
             summary = item['summary']
             rows.append(
                 {
@@ -7986,6 +7988,7 @@ def show_next(
                     ],
                 }
             )
+    logger.debug(f"{[x['sort'] for x in rows] = }")
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
     for row in rows:
