@@ -1,4 +1,10 @@
-2024-05-06 002cbec Daniel Graham
+2024-05-06 1140c15 Daniel Graham
+    Tagged version 6.2.3.
+
+2024-05-06 de9a6fa Daniel Graham
+    Bug fix in show_goals
+
+2024-05-06 b4ad835 Daniel Graham
     Tagged version 6.2.2.
 
 2024-05-06 e802430 Daniel Graham
@@ -198,10 +204,3 @@
 
 2024-03-05 ff5ee2c Daniel Graham
     Tagged version 6.1.17.
-
-2024-03-05 95e00a7 Daniel Graham
-    Treat allday tasks as due at midnight and thus finished ahead of
-    time if finished anytime during the due date.
-
-2024-03-04 3e1bb78 Daniel Graham
-    Tagged version 6.1.16.
