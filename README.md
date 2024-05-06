@@ -156,7 +156,7 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 When you want to create a new reminder or edit an exiting one, *etm* opens an area at the bottom of the screen that is divided into two parts by a horizontal line. The lower part is the entry area where what you type appears. The upper part is the prompt/feedback area where *etm* responds to your typing. This response might take the form of providing a suggestion about alternatives, information about the type of input required or feedback about how your current entry is being interpreted. It is important to realize that none of this interferes with your typing - you can blaze away as quickly as you like or even paste complete entries and never glance at the prompt if you like. This is the **unobtrusive** part of the prompt/feedback process.
 
 
-[lunch step by step]([lunch step by step](https://example.com/path/to/video.m4v)
+[lunch step by step]([lunch step by step](https://raw.githubusercontent.com/dagraham/etm-dgraham/master/lunch_step_by_step.m4v)
 )
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/lunch_step_by_step.m4v" alt="new" title="lunch step by step" width="600px" hspace="20px"/>
