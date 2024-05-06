@@ -161,7 +161,7 @@ When you want to create a new reminder or edit an exiting one, *etm* opens an ar
 
 
 Here is a link to a video of scheduling a lunch step by step: 
-[lunch step by step]([lunch step by step](https://youtu.be/6y3mpZE5gSI))
+[lunch step by step](https://www.youtube.com/watch?v=6y3mpZE5gSI).
 
 <!-- [↺ contents](#contents) -->
 
