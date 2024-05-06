@@ -1,4 +1,13 @@
-2024-05-06 9c3ccea Daniel Graham
+2024-05-06 002cbec Daniel Graham
+    Tagged version 6.2.2.
+
+2024-05-06 e802430 Daniel Graham
+    Added goals.txt to the output associated with keep_current
+
+2024-05-06 c3d0360 Daniel Graham
+    Show average as 0 instead of 0.0 in goals view
+
+2024-05-06 4caaed7 Daniel Graham
     Tagged version 6.2.1.
 
 2024-05-06 272ef22 Daniel Graham
@@ -196,18 +205,3 @@
 
 2024-03-04 3e1bb78 Daniel Graham
     Tagged version 6.1.16.
-
-2024-03-04 34a9181 Daniel Graham
-    Fixed bug in processing job summaries for tasks.
-
-2024-03-03 3cfa34e Daniel Graham
-    Tagged version 6.1.15.
-
-2024-03-03 c3d4615 Daniel Graham
-    Refactored timer_report and show_timers into get_timers. Added
-    round_to_minutes to ensure that the total reported in timer view
-    is consistent with the items listed. In reporting the moment a
-    timer status last changed use the datetime if the change occurred
-    on the current date and the timedelta between the current moment
-    and the datetime otherwise. Added 'inactive' to type_colors.
-    Changed default 'light' type_colors for 'paused' and 'running'.
