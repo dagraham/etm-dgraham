@@ -683,7 +683,7 @@ class Item(dict):
         self.keys = {
             'itemtype': [
                 'item type',
-                'character from * (event), - (task), % (journal), ~(goal) or ! (inbox)',
+                'character from * (event), - (task), % (journal), ~ (goal) or ! (inbox)',
                 self.do_itemtype,
             ],
             'summary': [

@@ -91,6 +91,7 @@ The 4 types of reminders in etm with their associated type characters:
 | task    |    -  |
 | event   |    *  |
 | journal |    %  |
+| goal    |    ~  |
 | inbox   |    !  |
 
 
@@ -120,6 +121,10 @@ See [Item Types](#item-types) for details about these item types and [Options](#
 
         - Build dog house @j pick up materials @j cut pieces
           @j assemble @j sand @j paint
+
+* A goal (**~**): practice guitar 4 times per week starting this week:
+
+        ~ practice guitar @s now @q 3
 
 * Inbox (**!**): meet Alex for coffee Friday.
 
@@ -164,7 +169,7 @@ When you want to create a new reminder or edit an exiting one, *etm* opens an ar
 Let's create the election day reminder to illustrate the **timely** part of the process. Begin by pressing `N` to create a new reminder and notice that *etm* automatically prompts you for the item type character and suggests the alternatives.
 
         item type
-        Choose a character from * (event), - (task), % (journal)
+        Choose a character from * (event), - (task), % (journal), ~ (goal)
         or ! (inbox)
 
         ────────────────────────────────────────────────────────────
