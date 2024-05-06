@@ -1200,11 +1200,9 @@ While the views differ in many respects, they also share some common aspects:
 
 The files `current.txt` and `next.txt` in your etm home directory are created by *etm* but not displayed within *etm* itself. Whether or not these files are created depends on two settings in your `cfg.yaml`:
 
-* `keep_current`:  non-negative integers for `weeks` and `width`.  If `weeks` is positive, the agenda for that integer number of weeks starting with the current week will be scaled to fit `width` and written to `current.txt` and updated whenever necessary. A width of 46, for example, works well for an iPhone in portrait mode.
+* `keep_current`:  non-negative integers for `weeks` and `width`.  If `weeks` is positive, the agenda for that integer number of weeks starting with the current week will written to `current.txt` and updated whenever necessary. Similarly, the 'do next' view will be written to "next.txt" and 'goals' view will be written to "goals.txt". In all cases, the output will be wrapped to fit `width`. A width of 46, for example, works well for an iPhone in portrait mode.
 
-* `keep_next`: true or false. If `true`, the contents of *do next* view will be written to `next.txt` in your etm home directory and updated whenever necessary.
-
-By creating links to these files in, e.g., a GoogleDrive folder, you can have access to your current schedule and tasks on your mobile device.
+By creating links to these files in, e.g., a GoogleDrive folder, you can have access to your current schedule, tasks and goals on your mobile device.
 
 Here is a screen shot from an iPhone of an illustrative `current.txt`:
 
@@ -1235,6 +1233,7 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         d) do next
         e) effort
         f) forthcoming
+        g) goals
         h) history
         i) index
         j) journal
@@ -1280,7 +1279,9 @@ Pressing F1 toggles the *etm* menu display - opening it if it is closed and clos
         P) toggle pin
         R) reschedule
         S) schedule new
-        g) open goto link
+        G) open goto link
+        ^a) toggle goal active/inactive
+        ^e) end goal 
         ^h) show completion history
         ^r) show repetitions
         ^u) update last modified

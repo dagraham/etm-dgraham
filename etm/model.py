@@ -3058,13 +3058,16 @@ class DataView(object):
             # weeks is not zero
             self.mk_current = True
             self.mk_next = True
+            self.mk_goals = True
             self.currfile = os.path.normpath(
                 os.path.join(etmdir, 'current.txt')
             )
             self.nextfile = os.path.normpath(os.path.join(etmdir, 'next.txt'))
+            self.goalsfile = os.path.normpath(os.path.join(etmdir, 'goals.txt'))
         else:
             self.mk_current = False
             self.mk_next = False
+            self.mk_goals = False
             self.currfile = None
             self.nextfile = None
 
@@ -3963,6 +3966,21 @@ class DataView(object):
                 with open(self.nextfile, 'w', encoding='utf-8') as fo:
                     fo.write(re.sub(EtmChar.LINEDOT, '   ', next_txt))
                 logger.info(f'saved do next to {self.nextfile}')
+
+        if self.mk_goals:
+            goals_view, row2id, goals_txt = show_goals(
+                self.db,
+                self.repeat_list,
+                self.pinned_list,
+                self.link_list,
+                self.konnected,
+                self.timers,
+            )
+            goals_view = current_hsh['goals'] if 'goals' in current_hsh else None
+            if goals_txt:
+                with open(self.goalsfile, 'w', encoding='utf-8') as fo:
+                    fo.write(re.sub(EtmChar.LINEDOT, '   ', goals_txt))
+                logger.info(f'saved goals to {self.goalsfile}')
 
     def show_query(self):
         self.is_showing_query = True
@@ -7925,7 +7943,7 @@ def show_next(
             task_location = item.get('l', '~')
             priority = int(item.get('p', 0))
             sort_priority = str(4 - int(priority))
-            show_priority = str(priority) if priority > 0 else ''
+            # show_priority = str(priority) if priority > 0 else ''
             for job in item['j']:
                 if job.get('f', None) is not None:
                     # show completed jobs only in completed view
@@ -7933,9 +7951,8 @@ def show_next(
                 location = job.get('l', task_location)
                 extent = job.get('e', '')
                 extent = format_duration(extent) if extent else ''
-                status = '0' if job.get('status') == '-' else '1'
                 # status 1 -> waiting, status 0 -> available
-                # rhc = ' '.join([show_priority, extent])
+                status = '0' if job.get('status') == '-' else '1'
                 rhc = extent
                 summary = job.get('summary')
                 job_id = job.get('i', None)
@@ -7968,8 +7985,7 @@ def show_next(
             extent = item.get('e', '')
             extent = format_duration(extent) if extent else ''
             sort_priority = str(4 - int(priority))
-            show_priority = str(priority) if priority > 0 else ''
-            # rhc = ' '.join([show_priority, extent])
+            # show_priority = str(priority) if priority > 0 else ''
             rhc = extent
             summary = item['summary']
             rows.append(
@@ -7988,7 +8004,7 @@ def show_next(
                     ],
                 }
             )
-    logger.debug(f"{[x['sort'] for x in rows] = }")
+    # logger.debug(f"{[x['sort'] for x in rows] = }")
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
     for row in rows:
@@ -8019,7 +8035,7 @@ def show_next(
                 path = row['location']
                 values = row['columns']
                 cdict.add(path, values)
-        ctree, crow2id = cdict.as_tree(cdict)
+        ctree, _ = cdict.as_tree(cdict)
         current_hsh['next'] = ctree
 
     return tree, row2id, ctree
@@ -8107,6 +8123,9 @@ def show_goals(
     """
     goals grouped by current, paused, ended
     """
+    global current_hsh
+    mk_goals = settings['keep_current'][0] > 0
+    goals_width = settings['keep_current'][1] - 1
     rows = []
     path2sort = {
         'Active': 1,
@@ -8201,7 +8220,18 @@ def show_goals(
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict)
-    return tree, row2id
+
+    ctree = None
+    if mk_goals:
+        cdict = NDict(compact=True, width=goals_width)
+        for row in rows:
+            path = row['path']
+            values = row['values']
+            cdict.add(path, values)
+        ctree, _ = cdict.as_tree(cdict)
+        current_hsh['goals'] = ctree
+
+    return tree, row2id, ctree
 
 
 def show_tags(

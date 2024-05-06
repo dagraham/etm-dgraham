@@ -388,13 +388,13 @@ keep_current: {keep_current}
 # A list of two, non-negative integers for "weeks" and "width". If
 # weeks is positive, the agenda for that integer number of weeks
 # starting with the current week will be written to "current.txt" in
-# your etm home directory and updated when necessary. Similarly, the
-# 'do next' view will be written to "next.txt". In both cases, the
-# format will be scaled to fit "width". A width of 46, e.g, fits an
-# iPhone display in portrait mode. You could, for example, create a
-# link to these files in a pCloud or GoogleDrive folder and always
-# have access to your agenda and do next on your mobile device.
-
+# your etm home directory and updated when necessary. Similarly, 'do
+# next' view will be written to "next.txt" and 'goals' view to
+# "goals.txt". In all cases, the output will be scaled to fit "width".
+# A width of 46, e.g, fits an iPhone display in portrait mode. You
+# could, for example, create a link to these files in a pCloud or
+# GoogleDrive folder and always have access to your agenda, tasks and
+# goals on your mobile device.
 
 archive_after: {archive_after}
 # non-negative integer. If zero, do not archive items. If positive,
