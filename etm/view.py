@@ -4191,7 +4191,7 @@ async def main(etmdir=''):
         on_invalidate=event_handler,
     )
     timer_view.stop()
-    logger.debug("XX starting {application = } XX")
+    logger.debug(f"XX starting {application = } XX")
     try:
         result = await application.run_async()
     except Exception as e:
