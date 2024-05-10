@@ -1,4 +1,35 @@
-2024-05-06 1140c15 Daniel Graham
+2024-05-10 8dcf3ad Daniel Graham
+    Tagged version 6.2.4.
+
+2024-05-10 d5e475a Daniel Graham
+    Fixed bug in processing alerts for tasks with @s and @+ entries
+    but without @r
+
+2024-05-09 3026c51 Daniel Graham
+    Minor tweaks
+
+2024-05-07 4cd650d Daniel Graham
+    README video link tweak
+
+2024-05-06 e060977 Daniel Graham
+    More video link tweaks.
+
+2024-05-06 4cd33f1 Daniel Graham
+    README tweaks
+
+2024-05-06 e12dfd3 Daniel Graham
+    Moved m4v video to YouTube (unlisted)
+
+2024-05-06 c5802f9 Daniel Graham
+    Switched to standard definition (480p) for slide show
+
+2024-05-06 e01f168 Daniel Graham
+    First pass at m4v video for README
+
+2024-05-06 80b038f Daniel Graham
+    README tweaks
+
+2024-05-06 804789b Daniel Graham
     Tagged version 6.2.3.
 
 2024-05-06 de9a6fa Daniel Graham
@@ -168,39 +199,3 @@
 
 2024-03-14 f702181 Daniel Graham
     Tagged version 6.1.21.
-
-2024-03-14 627aa6c Daniel Graham
-    Changed type hint from | to Union for compatibility with python <
-    3.10
-
-2024-03-12 16e250c Daniel Graham
-    Tagged version 6.1.20.
-
-2024-03-12 6c56abe Daniel Graham
-    Added raise ValueError exception in format_completion when a
-    passed argument is neither a date nor a datime instance.
-
-2024-03-07 16d6676 Daniel Graham
-    Fix sort order for jobs with dates as start times.
-
-2024-03-07 867d171 Daniel Graham
-    Tagged version 6.1.19.
-
-2024-03-07 8ac164d Daniel Graham
-    Fixed bug in allowing some & arguments in task jobs. Fixed bug in
-    accounting for timezone offsets in repeating items with alarms.
-
-2024-03-06 b4bc6ef Daniel Graham
-    Tagged version 6.1.18.
-
-2024-03-06 b892344 Daniel Graham
-    Modified time and datetime formatting to show seconds when non
-    zero. Fixed maybe_alerts to avoid repetition when the
-    refresh_interval is less than a minute. Changed the default
-    refresh_interval from 60 to 6 seconds.
-
-2024-03-06 388c505 Daniel Graham
-    Enabled 'seconds' in alerts and in the duration serializer.
-
-2024-03-05 ff5ee2c Daniel Graham
-    Tagged version 6.1.17.
