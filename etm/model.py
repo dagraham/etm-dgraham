@@ -7171,7 +7171,8 @@ def relevant(
                     tomorrow + max(all_tds),
                 ]
 
-            if 'r' in item or '+' in item:
+            # if 'r' in item or '+' in item:
+            if 'r' in item:
                 lofh = item.get('r', [])
                 rset = dr.rruleset()
 
