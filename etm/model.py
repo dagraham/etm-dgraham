@@ -1619,7 +1619,7 @@ item_hsh:    {self.item_hsh}
                 numuses.setdefault(k, 0)
                 numuses[k] += 1
             duplicates = [
-                k for (k, v) in numuses.items() if v > 1 and k not in [
+                k for (k, v) in numuses.items() if v > 0 and k not in [
                     'a', 'u', 't', 'k', 'K', 'jj', 'rr', 'ji', 'js', 'jb', 'jp', 'ja', 'jd', 'je', 'jf', 'jl', 'jm', 'ju']
                 ]
             if key in duplicates:
