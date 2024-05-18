@@ -3195,6 +3195,7 @@ It is possible to import data from a collection of illustrative, 'lorem', remind
     def coroutine():
         keypress = dataview.details_key_press
         done = keypress in (['escape', '0'] + [x for x in values.keys()])
+        logger.debug(f"{keypress = }; {done = }")
         if done:
             if keypress == '0':
                 ok, msg = import_file('lorem')

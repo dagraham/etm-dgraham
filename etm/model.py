@@ -676,6 +676,7 @@ class Item(dict):
 
         self.messages = []
         self.active = ()
+        self.allowed = []
         self.interval = ()
         self.item_hsh = {}      # key -> obj
         # Note: datetime(s) require timezone and at requires itemtype
@@ -1395,7 +1396,7 @@ item_hsh:    {self.item_hsh}
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s, self.settings)
         removed, changed = listdiff(self.keyvals, keyvals)
-        # logger.debug(f" pos_hsh: {self.pos_hsh}; keyvals: {keyvals}\nremoved: {removed}; changed: {changed}")
+        logger.debug(f"{self.pos_hsh = };\n{keyvals = }\n{removed = };\n{changed = }")
         # if removed + changed != []:
         if self.init_entry != self.entry:
             self.is_modified = True
@@ -1418,6 +1419,7 @@ item_hsh:    {self.item_hsh}
             if kv in keyvals:
                 keyvals.remove(kv)
         self.keyvals = []
+        # for kv in [x for x in changed if x not in removed]:
         for kv in [x for x in keyvals if x not in removed]:
             # logger.debug(f"updating kv: {kv}")
             self.update_keyval(kv)
@@ -1439,10 +1441,12 @@ item_hsh:    {self.item_hsh}
             a, r, do = self.keys[key]
             ask = a
             msg = self.check_allowed(key)
-            # logger.debug(f"got msg: {msg} when checking {kv} allowed")
+            logger.debug(f"got {msg = } when checking {kv = } allowed")
             if msg:
                 obj = None
+                ask = 'error'
                 reply = msg
+                self.object_hsh[kv] = None
             else:   # only do this for allowed keys
                 msg = self.check_requires(key)
                 # logger.debug(f"got msg: {msg} checking required for {key}")
@@ -1462,7 +1466,9 @@ item_hsh:    {self.item_hsh}
                     else:
                         if kv in self.object_hsh:
                             del self.object_hsh[kv]
+            logger.debug(f"{kv = }; {ask = }; {reply = }")
             self.askreply[kv] = (ask, reply)
+            logger.debug(f"{self.askreply = }")
         else:
             display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
             self.askreply[kv] = (
@@ -1480,7 +1486,8 @@ item_hsh:    {self.item_hsh}
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if obj is None:
-                msg.append(f'bad entry for {k}: {v}')
+                logger.debug(f"{self.askreply.get((k,v), '')}")
+                msg.append(f'bad entry for {k}: {v}\n{self.askreply.get((k,v), ["", ""])[-1]}')
                 return msg
                 # continue
             elif k in ['a', 'u', 'n', 't', 'k', 'K']:
@@ -1618,10 +1625,13 @@ item_hsh:    {self.item_hsh}
             for k, v in self.keyvals:
                 numuses.setdefault(k, 0)
                 numuses[k] += 1
+            logger.debug(f"{numuses = }")
             duplicates = [
                 k for (k, v) in numuses.items() if v > 0 and k not in [
                     'a', 'u', 't', 'k', 'K', 'jj', 'rr', 'ji', 'js', 'jb', 'jp', 'ja', 'jd', 'je', 'jf', 'jl', 'jm', 'ju']
                 ]
+            logger.debug(f"{key = }; {duplicates = }")
+
             if key in duplicates:
                 display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
                 return f'{display_key} has already been entered'
@@ -4819,44 +4829,6 @@ shown when nonzero."""
         self.refreshCalendar()
 
 
-# def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
-#     return txt
-
-
-# def wrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
-#     """
-#     Wrap text to terminal width using indent spaces before each line.
-#     >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
-#     >>> res = wrap(txt, 4, 60)
-#     >>> print(res)
-#     Now is the time for all good men to come to the aid of
-#         their country. Now is the time for all good men to
-#         come to the aid of their country. Now is the time
-#         for all good men to come to the aid of their
-#         country. Now is the time for all good men to come
-#         to the aid of their country. Now is the time for
-#         all good men to come to the aid of their country.
-#     """
-#     para = [x.rstrip() for x in txt.split('\n')]
-#     tmp = []
-#     first = True
-#     for p in para:
-#         if first:
-#             initial_indent = ''
-#             first = False
-#         else:
-#             initial_indent = ' ' * indent
-#         tmp.append(
-#             textwrap.fill(
-#                 p,
-#                 initial_indent=initial_indent,
-#                 subsequent_indent=' ' * indent,
-#                 width=width - indent - 1,
-#             )
-#         )
-#     return '\n'.join(tmp)
-
-
 def set_summary(summary='', start=None, relevant=None, freq=''):
     """ """
     if not (
@@ -5202,10 +5174,9 @@ entry_tmpl = """\
 @{{ k }} {{ nowrap(dtlst2str(h[k])) }} \
 {%- endif %} \
 {%- endfor %}\
-{% if 'd' in h %}\
-
-@d {{ nowrap(h['d'], 0) }} \
-{% endif -%}
+{%- if 'd' in h %}
+@d {{ h['d'] }} 
+{%- endif -%}
 {%- if 'j' in h %}\
 {%- for x in h['j'] %}\
 {%- set job -%}\
@@ -5263,7 +5234,7 @@ display_tmpl = """\
 {%- set is = namespace(found=false) -%}\
 {%- set index -%}\
 {%- for k in ['c', 'i'] -%}\
-{%- if k in h %}@{{ k }} {{ h[k] }}{% set is.found = true %} {% endif %}\
+{%- if k in h %}@{{ k }} {{ h[k] }} {% set is.found = true %}{% endif %}\
 {%- endfor %}\
 {%- endset %}\
 {% if is.found %}
@@ -5314,12 +5285,12 @@ display_tmpl = """\
 @{{ k }} {{ wrap(dtlst2str(h[k])) }} \
 {%- endif %} \
 {%- endfor %}\
-{% if 'd' in h %}\
-{% set description -%} \
-@d {{ h['d'] }} \
-{%- endset %}
-{{ wrap(description) }} \
-{% endif -%}\
+{%- if 'd' in h -%}\
+{% set description %}\
+{{ h['d'] }}\
+{% endset %}
+@d {{ wrap(description) }} \
+{%- endif -%}\
 {%- if 'j' in h %}\
 {%- for x in h['j'] %}\
 {%- set job -%}\
@@ -5327,9 +5298,9 @@ display_tmpl = """\
 {%- for k in ['s', 'e'] -%}
 {%- if k in x and x[k] %} {{ "&{} {}".format(k, in2str(x[k])) }}{% endif %}\
 {%- endfor %}
-{%- for k in ['b', 'd', 'l', 'i', 'p'] %}
-{%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}\
-{%- endfor %}
+{%- for k in ['b', 'd', 'l', 'i', 'p'] %}\
+{%- if k in x and x[k] %} {{ "&{} {}".format(k, one_or_more(x[k])) }}{% endif %}
+{%- endfor %}\
 {%- if 'a' in x %}\
 {%- for a in x['a'] %} {{ "&a {}: {}".format( inlst2str(a[0]), one_or_more(a[1]) ) }}{% endfor %}\
 {%- endif %}\
