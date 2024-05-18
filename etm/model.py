@@ -1396,7 +1396,7 @@ item_hsh:    {self.item_hsh}
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s, self.settings)
         removed, changed = listdiff(self.keyvals, keyvals)
-        logger.debug(f"{self.pos_hsh = };\n{keyvals = }\n{removed = };\n{changed = }")
+        # logger.debug(f"{self.pos_hsh = };\n{keyvals = }\n{removed = };\n{changed = }")
         # if removed + changed != []:
         if self.init_entry != self.entry:
             self.is_modified = True
@@ -1441,7 +1441,7 @@ item_hsh:    {self.item_hsh}
             a, r, do = self.keys[key]
             ask = a
             msg = self.check_allowed(key)
-            logger.debug(f"got {msg = } when checking {kv = } allowed")
+            # logger.debug(f"got {msg = } when checking {kv = } allowed")
             if msg:
                 obj = None
                 ask = 'error'
@@ -1466,9 +1466,9 @@ item_hsh:    {self.item_hsh}
                     else:
                         if kv in self.object_hsh:
                             del self.object_hsh[kv]
-            logger.debug(f"{kv = }; {ask = }; {reply = }")
+            # logger.debug(f"{kv = }; {ask = }; {reply = }")
             self.askreply[kv] = (ask, reply)
-            logger.debug(f"{self.askreply = }")
+            # logger.debug(f"{self.askreply = }")
         else:
             display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
             self.askreply[kv] = (
@@ -1486,7 +1486,7 @@ item_hsh:    {self.item_hsh}
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if obj is None:
-                logger.debug(f"{self.askreply.get((k,v), '')}")
+                # logger.debug(f"{self.askreply.get((k,v), '')}")
                 msg.append(f'bad entry for {k}: {v}\n{self.askreply.get((k,v), ["", ""])[-1]}')
                 return msg
                 # continue
@@ -1625,12 +1625,12 @@ item_hsh:    {self.item_hsh}
             for k, v in self.keyvals:
                 numuses.setdefault(k, 0)
                 numuses[k] += 1
-            logger.debug(f"{numuses = }")
+            # logger.debug(f"{numuses = }")
             duplicates = [
                 k for (k, v) in numuses.items() if v > 0 and k not in [
                     'a', 'u', 't', 'k', 'K', 'jj', 'rr', 'ji', 'js', 'jb', 'jp', 'ja', 'jd', 'je', 'jf', 'jl', 'jm', 'ju']
                 ]
-            logger.debug(f"{key = }; {duplicates = }")
+            # logger.debug(f"{key = }; {duplicates = }")
 
             if key in duplicates:
                 display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
@@ -1814,7 +1814,7 @@ item_hsh:    {self.item_hsh}
             weeks = f"for {obj[1]} weeks" if len(obj) > 1 else "indefinitely" 
             rep = f'{obj[0]} times/week {weeks}'
             self.item_hsh['q'] = obj                
-            logger.debug(f"{self.item_hsh = }")
+            # logger.debug(f"{self.item_hsh = }")
         else:
             rep = "goal: instances per week optionally followed by a comma and the number of weeks"
         return obj, rep
@@ -4070,8 +4070,10 @@ class DataView(object):
 
     def get_details(self, row=None, edit=False):
         res = self.get_row_details(row)
+        logger.debug(f"{res = }")
         if not (res and res[0]):
             return None, ''
+        
         item_id = res[0]
 
         if not edit and item_id in self.itemcache:

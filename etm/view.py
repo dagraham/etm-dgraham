@@ -2632,13 +2632,18 @@ def edit_existing(*event):
     app.editing_mode = (
         EditingMode.VI if settings['vi_mode'] else EditingMode.EMACS
     )
+    doc_id, entry = dataview.get_details(
+        text_area.document.cursor_position_row, True
+    )
+    logger.debug(f"{text_area.document.cursor_position_row = }; {doc_id = }; {entry = }")
+    if not doc_id:
+        logger.debug(f"returning None")
+        return None
+
     if dataview.is_showing_details:
         application.layout.focus(text_area)
         dataview.hide_details()
     dataview.is_editing = True
-    doc_id, entry = dataview.get_details(
-        text_area.document.cursor_position_row, True
-    )
     item.edit_item(doc_id, entry)
     edit_buffer.text = item.entry
     starting_buffer_text = item.entry
