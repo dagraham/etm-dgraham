@@ -1,4 +1,17 @@
-2024-05-10 8dcf3ad Daniel Graham
+2024-05-18 6376025 Daniel Graham
+    Tagged version 6.2.5.
+
+2024-05-18 b2713d0 Daniel Graham
+    Fixed bug in which pressing 'E' without an item selected, would
+    open the last item
+
+2024-05-18 4b525cd Daniel Graham
+    template tweaks
+
+2024-05-17 0d351be Daniel Graham
+    Fixed bug in allowing invalid duplicate entries
+
+2024-05-10 d71ca52 Daniel Graham
     Tagged version 6.2.4.
 
 2024-05-10 d5e475a Daniel Graham
@@ -187,15 +200,3 @@
 
 2024-03-18 2285c8f Daniel Graham
     ETMQuery class view.py -> data.py
-
-2024-03-18 baaaa53 Daniel Graham
-    ETM_CHAR dict -> EtmChar class.
-
-2024-03-17 bc95722 Daniel Graham
-    Recognize vi vs emacs setting.
-
-2024-03-14 bfe10f2 Daniel Graham
-    Tagged version 6.1.22.
-
-2024-03-14 f702181 Daniel Graham
-    Tagged version 6.1.21.
