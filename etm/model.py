@@ -6051,9 +6051,9 @@ def get_next_due(item, done, due, from_rrule=False):
     overdue = item.get('o', 'k')   # make 'k' the default for 'o'
     start = item['s']
     dtstart = date_to_datetime(item['s'])
-    if due > dtstart:
-        # we've finished a between instance
-        return dtstart
+    # if due > dtstart:
+    #     # we've finished a between instance
+    #     return dtstart
     # we're finishing the oldest instance
     h = [x.end for x in item.get('h', [])]
     h.sort()
