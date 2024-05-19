@@ -1347,7 +1347,6 @@ item_hsh:    {self.item_hsh}
 
             self.item_hsh['created'] = self.created
             self.item_hsh['modified'] = datetime.now().astimezone()
-            # self.db.update(db_replace(self.item_hsh), doc_ids=[self.doc_id])
             self.do_update()
             return True
         return False
@@ -7072,32 +7071,6 @@ def relevant(
             inbox.append([0, summary, item.doc_id, None, None])
             relevant = today
         
-        # elif item['itemtype'] == '~':
-        #     s = item.get('s', None)
-        #     q = item.get('q', [])
-        #     h = item.get('h', {})
-        #     quota = q[0] if q and len(q) > 0 else None
-        #     if not s or not q or not quota:
-        #         logger.error(f"bad goal: {item = }")
-        #         continue
-        #     weeks = q[1] if len(q) > 1 else None
-        #     if weeks and (now.date() - s.date()).days > weeks*7:
-        #         goal_counts['Ended'] += 1
-        #         continue
-        #     else:
-        #         this_week = now.isocalendar()[:2] 
-        #         this_week_str = f"{this_week[0]}:{this_week[1]:02}"
-        #         done = h.get(this_week_str, 0)
-        #         if int(quota) < 0:
-        #             goal_counts['Inactive'] += 1
-        #         else:
-        #             goal_counts['Active'] += 1
-
-        #     # omit days remaining:
-        #     goals.append([f"{done}/{abs(quota)}", summary, item.doc_id, None, None])
-        #     # show days remaining:
-        #     # goals.append([f"{done[0]}/{done[1]}-{weekdays_remaining}d", summary, item.doc_id, None, None])
-
         elif 'f' in item:
             if not isinstance(item['f'], Period):
                 logger.error(f"{item['f'] = } in {item = }")
@@ -7225,7 +7198,8 @@ def relevant(
 
                     else:   # k or r
                         try:
-                            relevant = rset.after(today, inc=True)
+                            # relevant = rset.after(today, inc=True)
+                            relevant = rset.after(dtstart, inc=True)
                         except Exception as e:
                             logger.debug(f"Exception: {e}\nissue with today: {today} ({type(today)}) or rset: {rset}\nskipping {item}")
                             continue
@@ -7249,16 +7223,18 @@ def relevant(
                         sum_abbr = item['summary'][:summary_width]
                         summary = f'{sum_abbr} {num_remaining}'
                         extent = item.get('e', ZERO)
-                        if dtstart.date() + extent < today.date() and 'j' not in item and 'r' not in item:
-                            pastdue.append(
-                                [
-                                    (dtstart.date() - today.date()).days,
-                                    summary,
-                                    item.doc_id,
-                                    None,
-                                    None,
-                                ]
-                            )
+                        # if dtstart.date() + extent < today.date() and 'j' not in item:
+                        # if dtstart.date() + extent < today.date() and 'j' not in item and 'r' not in item:
+                        # if relevant.date() + extent < today.date() and 'j' not in item:
+                        #     pastdue.append(
+                        #         [
+                        #             (dtstart.date() - today.date()).days,
+                        #             summary,
+                        #             item.doc_id,
+                        #             None,
+                        #             None,
+                        #         ]
+                        #     )
                 else:
                     # get the first instance after today
                     try:
@@ -8701,15 +8677,6 @@ def schedule(
         if item.get('itemtype', None) == None:
             logger.error(f'itemtype missing from {item}')
             continue
-        # if item['itemtype'] == '~':
-        #     # add completions from history to goal_hsh
-        #     g_s = item.get('summary', '')
-        #     g_c = item.get('h', {}) # 'yyyy:ww' -> done
-        #     for k, v in g_c.items():
-        #         g_yw = [int(x) for x in k.split(':')]
-        #         g_r = f"~ {g_s}: {str(v)}"
-        #         goal_hsh.setdefault(tuple(g_yw), []).append(g_r)
-        #     continue
 
         if item['itemtype'] in '!?~':
             continue
@@ -9151,24 +9118,8 @@ def schedule(
     rows.sort(key=itemgetter('sort'))
     done.sort(key=itemgetter('sort'))
     effort.sort(key=itemgetter('sort'))
-    # if goal_hsh:
-    #     tmp = {}
-    #     wks = []
-    #     for k, v in goal_hsh.items():
-    #         wks.append(k)
-    #         v.sort()
-    #         tmp[k] = v
-    #     wks.sort()
-    #     out = "Goals\n"
-    #     for k in wks:
-    #         out += f"  {k[0]}:{k[1]}\n"
-    #         for row in tmp[k]:
-    #             out += f"    {row}\n"
-    #     logger.debug(f"{out}")
-
     busy_details = {}
     allday_details = {}
-    # TODO
     dent = int((width - 69) / 2) * ' '
 
     ### item/agenda loop 2
