@@ -2858,9 +2858,10 @@ def do_finish(*event):
     # timer_warning = " and\nits associated timer" if has_timer else ""
     repeating = 's' in hsh and ('r' in hsh or '+' in hsh)
     if repeating:
-        instances = model.item_instances(hsh, hsh['s'])
+        instances = model.item_instances(hsh, None, )
         instances.sort()
         due = instances[0][0] if instances else None
+        logger.debug(f"{due = };\n{instances = }")
         # at_plus = hsh.get('+', [])
         # if at_plus:
         #     at_plus.sort()
@@ -2946,6 +2947,7 @@ The default entered below is to use the current moment and the number of the sel
             if x[0] not in already_done
         ]
         if between:
+            phrase = "More than one" if len(between) > 1 else "One"
             # show_message('Finish', "There is nothing to complete.")
             need = 2
             values_list = []
@@ -2961,7 +2963,7 @@ The default entered below is to use the current moment and the number of the sel
             text = f"""\
 {hsh['itemtype']} {hsh['summary']}
 
-More than one instance of this task is past due:
+{phrase} instance of this task is past due:
 {values_str}
 The default entered below is to use the current moment and the number of the oldest instance. Edit this "completion datetime : instance number" entry if you wish\
             """

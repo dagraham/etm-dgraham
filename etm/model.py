@@ -833,7 +833,6 @@ item_hsh:    {self.item_hsh}
             if not os.path.exists(dbfile):
                 logger.error(f'{dbfile} does not exist')
                 return
-            logger.debug(f"dbfile is {dbfile}, initializing tinydb")
             self.db = data.initialize_tinydb(dbfile)
             self.dbarch = self.db.table('archive', cache_size=30)
             self.dbquery = self.db.table('items', cache_size=0)
@@ -848,7 +847,6 @@ item_hsh:    {self.item_hsh}
 
     def check_goto_link(self, num=5):
         """ """
-        logger.debug("calling update_item_hsh from check_goto_link")
         self.update_item_hsh()
         if goto := self.item_hsh.get('g'):
             return True, goto
@@ -874,10 +872,11 @@ item_hsh:    {self.item_hsh}
         if at_plus:
             at_plus.sort()
             relevant = min(relevant, date_to_datetime(at_plus[0]))
-        logger.debug(f'relevant: {relevant}')
 
-        instances = item_instances(item, relevant, num + 1, False)
+        # instances = item_instances(item, relevant, num + 1, False)
+        instances = item_instances(item, None, num + 1, False)
         instances.sort()
+        relevant = instances[0][0]
         pairs = [format_datetime(x[0])[1] for x in instances]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
@@ -894,7 +893,7 @@ item_hsh:    {self.item_hsh}
             self.db.remove(doc_ids=[self.doc_id])
             self.db.insert(Document(self.item_hsh, doc_id=self.doc_id))
         except Exception as e:
-            logger.debug(f"exception: {e}")
+            logger.warning(f"exception: {e}")
         return True
 
     def do_insert(self):
@@ -1150,19 +1149,14 @@ item_hsh:    {self.item_hsh}
             return False
         quota = q[0]
         now = datetime.now().astimezone()
-        logger.debug(f"{now = }") 
         this_week = tuple([int(x) for x in now.strftime("%Y,%W").split(',')])
-        logger.debug(f"{this_week = }")
         self.item_hsh.setdefault('h', {})
         hist = self.item_hsh.get('h', {})
-        logger.debug(f"{hist = }")
         this_week_str = f"{this_week[0]}:{this_week[1]:02}"
         done = hist.get(this_week_str, 0)
         hist[this_week_str] = done + 1
-        logger.debug(f"{done = }; {quota = }; {hist = }")
         self.item_hsh['h'] = hist
         self.item_hsh['modified'] = now
-        logger.debug(f"{self.item_hsh = }")
         self.do_update()
         return True
 
@@ -1183,7 +1177,6 @@ item_hsh:    {self.item_hsh}
         self.item_hsh['q'] = q 
         now = datetime.now().astimezone()
         self.item_hsh['modified'] = now
-        logger.debug(f"{self.item_hsh = }")
         self.do_update()
         return True
 
@@ -1204,7 +1197,6 @@ item_hsh:    {self.item_hsh}
         self.item_hsh['q'] = q 
         now = datetime.now().astimezone()
         self.item_hsh['modified'] = now
-        logger.debug(f"{self.item_hsh = }")
         self.do_update()
         return True
 
@@ -1302,7 +1294,6 @@ item_hsh:    {self.item_hsh}
                 nxt = get_next_due(
                     self.item_hsh, completed_datetime, completion_entry.end, from_rrule
                 )
-                logger.debug(f"{nxt = }, {completed_datetime = }; {completion_entry.end.astimezone() = }; {from_rrule = }")
                 if nxt:
                     for i in range(len(self.item_hsh['r'])):
                         if (
@@ -1315,7 +1306,6 @@ item_hsh:    {self.item_hsh}
                     self.item_hsh.setdefault('h', []).append(completion_entry)
                 else:
                     self.item_hsh['f'] = completion_entry
-                logger.debug(f"{completion_entry.end = }; {self.item_hsh['s'] = }")
 
             elif '+' in self.item_hsh:
                 tmp = [self.item_hsh['s']] + self.item_hsh['+']
@@ -1395,12 +1385,9 @@ item_hsh:    {self.item_hsh}
     def text_changed(self, s, pos, modified=True):
         """ """
         # self.is_modified = modified
-        # logger.debug(f"\n### starting text_changed with s: {s} and self.keyvals: {self.keyvals}")
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s, self.settings)
         removed, changed = listdiff(self.keyvals, keyvals)
-        # logger.debug(f"{self.pos_hsh = };\n{keyvals = }\n{removed = };\n{changed = }")
-        # if removed + changed != []:
         if self.init_entry != self.entry:
             self.is_modified = True
         # only process changes for kv entries
@@ -1424,27 +1411,21 @@ item_hsh:    {self.item_hsh}
         self.keyvals = []
         # for kv in [x for x in changed if x not in removed]:
         for kv in [x for x in keyvals if x not in removed]:
-            # logger.debug(f"updating kv: {kv}")
             self.update_keyval(kv)
             self.keyvals.append(kv)
-        # logger.debug(f"### leaving text_changed with self.keyvals: {self.keyvals}\n")
 
     def update_keyval(self, kv):
         """
         TODO: add return status
         """
         key, val = kv
-        # logger.debug(f"starting update_keyval with self.keyvals: {self.keyvals}")
 
         condition = 'f' in key
 
-        # logger.debug(f"checking kv: {kv}")
         if key in self.keys:
-            # logger.debug(f"found kv: {kv}")
             a, r, do = self.keys[key]
             ask = a
             msg = self.check_allowed(key)
-            # logger.debug(f"got {msg = } when checking {kv = } allowed")
             if msg:
                 obj = None
                 ask = 'error'
@@ -1452,26 +1433,19 @@ item_hsh:    {self.item_hsh}
                 self.object_hsh[kv] = None
             else:   # only do this for allowed keys
                 msg = self.check_requires(key)
-                # logger.debug(f"got msg: {msg} checking required for {key}")
                 if msg:
-                    # logger.debug(f"failed required, self: {self}")
                     obj = None
                     reply = msg
                 else:
                     # call the appropriate do for the key
                     obj, rep = do(val)
                     reply = rep if rep else r
-                    # logger.debug(f"got obj: {obj}, rep: {rep} from {val}")
                     if obj is not None:
                         self.object_hsh[kv] = obj
-                        # logger.debug(f"added {kv[0]}: {obj} to obj_hsh: {self.object_hsh}")
-                        # self.item_hsh[kv[0]] = obj
                     else:
                         if kv in self.object_hsh:
                             del self.object_hsh[kv]
-            # logger.debug(f"{kv = }; {ask = }; {reply = }")
             self.askreply[kv] = (ask, reply)
-            # logger.debug(f"{self.askreply = }")
         else:
             display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
             self.askreply[kv] = (
@@ -1489,7 +1463,6 @@ item_hsh:    {self.item_hsh}
         for pos, (k, v) in self.pos_hsh.items():
             obj = self.object_hsh.get((k, v))
             if obj is None:
-                # logger.debug(f"{self.askreply.get((k,v), '')}")
                 msg.append(f'bad entry for {k}: {v}\n{self.askreply.get((k,v), ["", ""])[-1]}')
                 return msg
                 # continue
@@ -1583,11 +1556,9 @@ item_hsh:    {self.item_hsh}
         Check that key has the prerequisite entries.
         if key in requires, check that each key in requires[k] has a corresponding key, val in keyvals: [(k, v), (k, v), ...]
         """
-        # logger.debug(f"self.keyvals: {self.keyvals}")
         missing = []
         if key in requires:
             cur_keys = [k for (k, v) in self.keyvals]
-            # logger.debug(f"checking cur_keys {cur_keys} for required key {key}")
             missing = [f'@{k[0]}' for k in requires[key] if k not in cur_keys]
 
         if missing:
@@ -1628,12 +1599,10 @@ item_hsh:    {self.item_hsh}
             for k, v in self.keyvals:
                 numuses.setdefault(k, 0)
                 numuses[k] += 1
-            # logger.debug(f"{numuses = }")
             duplicates = [
                 k for (k, v) in numuses.items() if v > 0 and k not in [
                     'a', 'u', 't', 'k', 'K', 'jj', 'rr', 'ji', 'js', 'jb', 'jp', 'ja', 'jd', 'je', 'jf', 'jl', 'jm', 'ju']
                 ]
-            # logger.debug(f"{key = }; {duplicates = }")
 
             if key in duplicates:
                 display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'
@@ -1817,7 +1786,6 @@ item_hsh:    {self.item_hsh}
             weeks = f"for {obj[1]} weeks" if len(obj) > 1 else "indefinitely" 
             rep = f'{obj[0]} times/week {weeks}'
             self.item_hsh['q'] = obj                
-            # logger.debug(f"{self.item_hsh = }")
         else:
             rep = "goal: instances per week optionally followed by a comma and the number of weeks"
         return obj, rep
@@ -3179,7 +3147,7 @@ class DataView(object):
                 k, v = parts
                 self.kompletions[k.strip()[3:]] = f"@k {v.strip()}"
             else:
-                logger.debug(f"bad parts: {parts}")
+                logger.warning(f"bad parts: {parts}")
 
 
     def show_occurrences(self):
@@ -3417,11 +3385,9 @@ class DataView(object):
             r- -> p-   r- -> p-
             p- -> r-   p- -> r-
         """
-        logger.debug("next_timer_state")
         if not doc_id:
             return
         other_timers = deepcopy(self.timers)
-        logger.debug(f"{other_timers = }")
         if doc_id in other_timers:
             del other_timers[doc_id]
         active = [x for x, v in other_timers.items() if v[0] in ['r', 'p']]
@@ -4073,7 +4039,6 @@ class DataView(object):
 
     def get_details(self, row=None, edit=False):
         res = self.get_row_details(row)
-        logger.debug(f"{res = }")
         if not (res and res[0]):
             return None, ''
         
@@ -4090,7 +4055,6 @@ class DataView(object):
     def toggle_pinned(self, row=None):
         res = self.get_row_details(row)
         if not (res and res[0]):
-            logger.debug(f'toggle_pinned no details for {row}')
             return None, ''
         item_id = res[0]
         if item_id in self.pinned_list:
@@ -4099,7 +4063,6 @@ class DataView(object):
         else:
             self.pinned_list.append(item_id)
             act = 'pinned'
-        logger.debug(f'pinned_list: {self.pinned_list}')
         return f'{act} {item_id}'
 
     def get_pinned(self):
@@ -4133,7 +4096,6 @@ class DataView(object):
         instance = res[1]
 
         if not (item_id and item_id in self.id2relevant):
-            logger.debug(f'{item_id} not in id2relevant')
             return ''
         showing = 'Repetitions'
         item = DBITEM.get(doc_id=item_id)
@@ -4689,7 +4651,6 @@ shown when nonzero."""
             location=location,
             description=description,
         )
-        logger.debug(f"message: {message}")
         # All the necessary ingredients are in place
         import smtplib
         from email.mime.multipart import MIMEMultipart
@@ -5750,7 +5711,7 @@ def do_weekdays(arg):
                 try:
                     good.append(eval(x))
                 except Exception as e:
-                    logger.debug(f"exception: {e} when evaluating '{x}'")
+                    logger.warning(f"exception: {e} when evaluating '{x}'")
 
                 rep.append(WKDAYS_ENCODE[x].lstrip('+'))
             else:
@@ -6043,33 +6004,14 @@ def rrule_args(r_hsh):
     kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
 
-# def next_from_rrule(item):
-#     lofh = item.get('r')
-#     if not lofh:
-#         return ''
-#     rset = dr.rruleset()
-#     dtstart = date_to_datetime(item['s'])
-#     nxt = rset.after(dtstart, False)
-#     logger.debug(f"{item = }; {dtstart = }; {nxt = }")
-#     if nxt:
-#         if using_dates:
-#             nxt = nxt.date()
-#     else:
-#         nxt = None
-#     return nxt
-
-
 def get_next_due(item, done, due, from_rrule=False):
     """
     return the next due datetime for an @r and @+ / @- repetition
     """
-    # strfmt = "%Y-%m-%d %H:%M:%S"
     def f(dt: datetime)->str:
         return(dt.astimezone().strftime("%Y-%m-%d %H:%M:%S"))
-    logger.debug(f"{due.astimezone() == item['s'] = }")
 
     instances = [f(x[0]) for x in item_instances(item, item['s'], 2, False)]
-    logger.debug(f"{instances = }")
     lofh = item.get('r')
     if not lofh:
         return ''
@@ -6077,13 +6019,6 @@ def get_next_due(item, done, due, from_rrule=False):
     overdue = item.get('o', 'k')   # make 'k' the default for 'o'
     start = item['s']
     dtstart = date_to_datetime(item['s'])
-    logger.debug(f"===\n{f(done) = }\n{f(due) = }\n{f(item['s']) = }\n{f(dtstart) = }; {overdue = }")
-    # if due > dtstart:
-    #     # we've finished a between instance
-    #     return dtstart
-    # we're finishing the oldest instance
-    h = [x.end for x in item.get('h', [])]
-    h.sort()
 
     due = dtstart if not due else due
 
@@ -6109,7 +6044,6 @@ def get_next_due(item, done, due, from_rrule=False):
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
         kwd['dtstart'] = dtstart
-        logger.debug(f"{kwd = }")
         try:
             rset.rrule(dr.rrule(freq, **kwd))
         except Exception as e:
@@ -6137,7 +6071,6 @@ def get_next_due(item, done, due, from_rrule=False):
                 rset.rdate(date_to_datetime(dt))
         nxt = rset.after(date_to_datetime(aft), inc)
         after = rset.after(date_to_datetime(dtstart), False)
-        # logger.debug(f"===\n{f(plus_not_minus[:1]) = }\n{f(nxt) = }\n{f(after) = }\n{f(aft) = }; {inc = }")
     if nxt:
         if using_dates:
             nxt = nxt.date()
@@ -6209,6 +6142,12 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True)-> Tuple[Optional[dat
     if not (isinstance(dtstart, datetime) or isinstance(dtstart, date)):
         return []
     # This should not be necessary since the data store decodes dates as datetimes
+    if aft_dt is None:
+        if '+' in item:
+            tmp = min(item['+'])
+            aft_dt = min(tmp, dtstart)
+        else:
+            aft_dt = dtstart
     if isinstance(dtstart, date) and not isinstance(dtstart, datetime):
         dtstart = datetime(
             year=dtstart.year,
@@ -6901,7 +6840,6 @@ def fmt_extent(beg_dt: datetime, end_dt: datetime):
     beg_suffix = end_suffix = ''
     ampm = settings['ampm']
     if not (isinstance(beg_dt, datetime) and isinstance(end_dt, datetime)):
-        logger.debug(f"{beg_dt = }; {end_dt = }")
         return 'xxx y'
 
     if ampm:
@@ -7233,11 +7171,13 @@ def relevant(
                     else:   # k or r
                         try:
                             # relevant = rset.after(today, inc=True)
-                            relevant = rset.after(dtstart, inc=True)
-                            if plus_dates:
-                                plus_dates.sort()
-                                relevant = min(relevant, plus_dates[0])
-                            logger.debug(f"### relevant {item['summary']} {dtstart = }; {relevant = }")
+                            instances = item_instances(item, None)
+                            instances.sort()
+                            relevant = instances[0][0] if instances else None
+                            # relevant = rset.after(dtstart, inc=True)
+                            # if plus_dates:
+                            #     plus_dates.sort()
+                            #     relevant = min(relevant, plus_dates[0])
                         except Exception as e:
                             logger.debug(f"Exception: {e}\nissue with today: {today} ({type(today)}) or rset: {rset}\nskipping {item}")
                             continue
@@ -7264,15 +7204,15 @@ def relevant(
                         # if dtstart.date() + extent < today.date() and 'j' not in item:
                         # if dtstart.date() + extent < today.date() and 'j' not in item and 'r' not in item:
                         if relevant.date() + extent < today.date() and 'j' not in item:
-                            pastdue.append(
-                                [
-                                    (dtstart.date() - today.date()).days,
+                            candidate = [
+                                    (relevant.date() - today.date()).days,
                                     summary,
                                     item.doc_id,
                                     None,
                                     None,
                                 ]
-                            )
+                            if candidate not in pastdue:
+                                pastdue.append(candidate)
                 else:
                     # get the first instance after today
                     try:
@@ -7487,15 +7427,15 @@ def relevant(
             and relevant.date() < today.date()
         ):
             extent = item.get('e', ZERO)
-            pastdue.append(
-                [
+            candidate = [
                     ((relevant + extent).date() - today.date()).days,
                     summary,
                     item.doc_id,
                     None,
                     None,
                 ]
-            )
+            if candidate not in pastdue:
+                pastdue.append(candidate)
 
     inbox.sort()
     pastdue.sort()
@@ -7699,10 +7639,6 @@ def show_query_items(
                 'values': [itemtype, summary, flags, rhc, doc_id],
             }
         )
-    # if len(rows) == 1:
-    #     logger.debug(f"rows[0]: {rows[0]}")
-    #     res = rows[0]
-    #     return item_details(res), {}
 
     rdict = NDict()
     path = f'query: {text[:summary_width]}{item_count}'
@@ -7992,7 +7928,6 @@ def show_next(
                     ],
                 }
             )
-    # logger.debug(f"{[x['sort'] for x in rows] = }")
     rows.sort(key=itemgetter('sort'))
     rdict = NDict()
     for row in rows:
@@ -8139,7 +8074,6 @@ def show_goals(
             count += 1
             total += int(v)
         average = f"{total/count:.2}" if count and total else 0
-        logger.debug(f"{summary = }; {total = }; {count = }; {average = }")
         path = None
         # status: current, paused, ended, bad
         
@@ -8173,7 +8107,6 @@ def show_goals(
             min_used = (current_weekday)/7 #  0, 1/7, ..., 6/7
             max_used = (current_weekday+1)/7 # 1/7, 2/7, ..., 1
             need = math.ceil(max_used*abs(quota) - done)
-            # logger.debug(f"{max_used*abs(quota) = }; {done = }")
             goal = f"{done}/{abs(quota)}+{need} ({average})" if need > 0 else f"{done}/{abs(quota)} ({average})"
             if current_weekday == 0:
                 # Monday - don't warn about 0 completions
@@ -8187,7 +8120,6 @@ def show_goals(
             else:
                 # behind
                 itemtype = EtmChar.LATE_CHAR
-            logger.debug(f"{fraction_done = }; {max_used = }; {min_used = }; {current_weekday = }")
 
         sort = (path2sort[path], ss, summary)
 
@@ -8394,7 +8326,6 @@ def show_pinned(
     rows = []
     rhc_width = 8
     md_fmt = '%-d %b' if settings['dayfirst'] else '%b %-d'
-    logger.debug(f'repeat_list: {repeat_list}; pinned_list: {pinned_list}')
 
     for item in items:
         mt = item.get('modified', None)
@@ -8936,7 +8867,6 @@ def schedule(
                     sort_dt = jobstart.strftime('%Y%m%d%H%M')
                     if sort_dt.endswith('0000'):
                         sort_dt = sort_dt[:-4] + '2359'
-                    # logger.debug(f"{job = }; {sort_dt = }")
                     job_id = job.get('i', None)
                     job_sort = str(job_id)
 
