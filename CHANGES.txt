@@ -1,4 +1,24 @@
-2024-05-18 6376025 Daniel Graham
+2024-05-22 ef18e3f Daniel Graham
+    Tagged version 6.2.6.
+
+2024-05-22 3c75e39 Daniel Graham
+    Removed more logging.debug statements
+
+2024-05-22 3ed355b Daniel Graham
+    Finishing repeating tasks now seems correct. Cleaned up
+    logging.debug statements.
+
+2024-05-22 fa11ab4 Daniel Graham
+    Next pass at finishing repeated tasks correctly
+
+2024-05-19 94b7683 Daniel Graham
+    Fixed bug in completing repeating task when @s doesn't fit the
+    recurrence rule
+
+2024-05-19 b8e0c42 Daniel Graham
+    @s inclusion fix for past due repeating tasks
+
+2024-05-18 34730e7 Daniel Graham
     Tagged version 6.2.5.
 
 2024-05-18 b2713d0 Daniel Graham
@@ -177,26 +197,3 @@
 
 2024-04-24 e7af668 Daniel Graham
     Tagged version 6.1.23.
-
-2024-04-24 b421570 Daniel Graham
-    Avoid unnecessary import of view in bump.py
-
-2024-04-24 25a596e Daniel Graham
-    Added 'doghouse' example of task with jobs to lorem examples.
-
-2024-04-24 24e900c Daniel Graham
-    More work on common.py. Added # pyright:
-    reportUndefinedVariable=false to suppress pyright warnings. Fixed
-    jobs format start/extend and summary format. Updated discussion of
-    tasks and jobs in README.
-
-2024-04-21 3d71359 Daniel Graham
-    Expanded imports from common to fix pylance problem reports. First
-    pass at making tasks with @s and @e entries due at @s + @e and
-    only past due after that.
-
-2024-03-19 0f628dc Daniel Graham
-    setup_logging __main__ -> common
-
-2024-03-18 2285c8f Daniel Graham
-    ETMQuery class view.py -> data.py
