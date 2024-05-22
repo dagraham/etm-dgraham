@@ -2861,7 +2861,6 @@ def do_finish(*event):
         instances = model.item_instances(hsh, None, )
         instances.sort()
         due = instances[0][0] if instances else None
-        logger.debug(f"{due = };\n{instances = }")
         # at_plus = hsh.get('+', [])
         # if at_plus:
         #     at_plus.sort()
@@ -3204,7 +3203,6 @@ It is possible to import data from a collection of illustrative, 'lorem', remind
     def coroutine():
         keypress = dataview.details_key_press
         done = keypress in (['escape', '0'] + [x for x in values.keys()])
-        logger.debug(f"{keypress = }; {done = }")
         if done:
             if keypress == '0':
                 ok, msg = import_file('lorem')
@@ -3380,7 +3378,6 @@ def copy_details(*event):
 
 @bindings.add('c-c', filter=is_details)
 def copy_details(*event):
-    logger.debug(f"{is_editing() = }")
     selection = details_area.buffer.copy_selection().text
     if selection:
         pyperclip.copy(selection)
@@ -3942,7 +3939,6 @@ def close_entry(*event):
 
 # @edit_bindings.add('c-s', filter=is_editing, eager=True)
 def save_changes(*event):
-    logger.debug(f"{dataview.is_editing = }")
     if edit_buffer_changed():
         try:
             timer_save = TimeIt('***SAVE***')
@@ -4182,8 +4178,6 @@ async def main(etmdir=''):
     }
     # query = ETMQuery()
     style = get_style(window_colors)
-    logger.debug(f"{text_pattern = }; {etmhome = }")
-    logger.debug(f"calling agenda_view; {busy_colors = }")
     agenda_view()
     logger.debug(f"setting application: {bindings = }; {style = }; {event_handler = }")
     application = pta.Application(
