@@ -7173,7 +7173,7 @@ def relevant(
                             # relevant = rset.after(today, inc=True)
                             instances = item_instances(item, None)
                             instances.sort()
-                            relevant = instances[0][0] if instances else None
+                            relevant = date_to_datetime(instances[0][0]) if instances else None
                             # relevant = rset.after(dtstart, inc=True)
                             # if plus_dates:
                             #     plus_dates.sort()
@@ -7201,9 +7201,8 @@ def relevant(
                         sum_abbr = item['summary'][:summary_width]
                         summary = f'{sum_abbr} {num_remaining}'
                         extent = item.get('e', ZERO)
-                        # if dtstart.date() + extent < today.date() and 'j' not in item:
-                        # if dtstart.date() + extent < today.date() and 'j' not in item and 'r' not in item:
-                        if relevant.date() + extent < today.date() and 'j' not in item:
+                        # logger.debug(f"{type(relevant) = }; {type(extent) = }; {type(today) = }")
+                        if relevant + extent < today and 'j' not in item:
                             candidate = [
                                     (relevant.date() - today.date()).days,
                                     summary,
