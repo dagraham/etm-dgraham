@@ -2858,11 +2858,13 @@ def do_finish(*event):
     # timer_warning = " and\nits associated timer" if has_timer else ""
     repeating = 's' in hsh and ('r' in hsh or '+' in hsh)
     if repeating:
-        due = hsh['s']
-        at_plus = hsh.get('+', [])
-        if at_plus:
-            at_plus.sort()
-            due = min(due, model.date_to_datetime(at_plus[0]))
+        instances = model.item_instances(hsh, hsh['s'])
+        instances.sort()
+        due = instances[0][0] if instances else None
+        # at_plus = hsh.get('+', [])
+        # if at_plus:
+        #     at_plus.sort()
+        #     due = min(due, model.date_to_datetime(at_plus[0]))
     else:
         due = hsh.get('s', None)
 

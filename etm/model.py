@@ -3,7 +3,8 @@
 # usable = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~']
 # len(usable): 94
 
-from typing import Union
+from typing import Union, Tuple, Optional
+
 from etm.common import ( 
     VERSION_INFO,
     parse,
@@ -1296,10 +1297,12 @@ item_hsh:    {self.item_hsh}
                 self.item_hsh.setdefault('h', []).append(completion_entry)
                 save_item = True
             elif 'r' in self.item_hsh:
+                self.item_hsh.setdefault('-', []).append(due_datetime)
                 from_rrule = self.item_hsh.get('o', 'k') == 's'
                 nxt = get_next_due(
                     self.item_hsh, completed_datetime, completion_entry.end, from_rrule
                 )
+                logger.debug(f"{nxt = }, {completed_datetime = }; {completion_entry.end.astimezone() = }; {from_rrule = }")
                 if nxt:
                     for i in range(len(self.item_hsh['r'])):
                         if (
@@ -1312,6 +1315,7 @@ item_hsh:    {self.item_hsh}
                     self.item_hsh.setdefault('h', []).append(completion_entry)
                 else:
                     self.item_hsh['f'] = completion_entry
+                logger.debug(f"{completion_entry.end = }; {self.item_hsh['s'] = }")
 
             elif '+' in self.item_hsh:
                 tmp = [self.item_hsh['s']] + self.item_hsh['+']
@@ -6039,11 +6043,33 @@ def rrule_args(r_hsh):
     kwd = {rrule_name[k]: r_hsh[k] for k in r_hsh if k != 'r'}
     return freq, kwd
 
+# def next_from_rrule(item):
+#     lofh = item.get('r')
+#     if not lofh:
+#         return ''
+#     rset = dr.rruleset()
+#     dtstart = date_to_datetime(item['s'])
+#     nxt = rset.after(dtstart, False)
+#     logger.debug(f"{item = }; {dtstart = }; {nxt = }")
+#     if nxt:
+#         if using_dates:
+#             nxt = nxt.date()
+#     else:
+#         nxt = None
+#     return nxt
+
 
 def get_next_due(item, done, due, from_rrule=False):
     """
     return the next due datetime for an @r and @+ / @- repetition
     """
+    # strfmt = "%Y-%m-%d %H:%M:%S"
+    def f(dt: datetime)->str:
+        return(dt.astimezone().strftime("%Y-%m-%d %H:%M:%S"))
+    logger.debug(f"{due.astimezone() == item['s'] = }")
+
+    instances = [f(x[0]) for x in item_instances(item, item['s'], 2, False)]
+    logger.debug(f"{instances = }")
     lofh = item.get('r')
     if not lofh:
         return ''
@@ -6051,6 +6077,7 @@ def get_next_due(item, done, due, from_rrule=False):
     overdue = item.get('o', 'k')   # make 'k' the default for 'o'
     start = item['s']
     dtstart = date_to_datetime(item['s'])
+    logger.debug(f"===\n{f(done) = }\n{f(due) = }\n{f(item['s']) = }\n{f(dtstart) = }; {overdue = }")
     # if due > dtstart:
     #     # we've finished a between instance
     #     return dtstart
@@ -6061,7 +6088,7 @@ def get_next_due(item, done, due, from_rrule=False):
     due = dtstart if not due else due
 
     if overdue == 'k':
-        aft = due
+        aft = dtstart
         inc = False
     elif overdue == 'r':
         aft = done
@@ -6082,6 +6109,7 @@ def get_next_due(item, done, due, from_rrule=False):
     for hsh in lofh:
         freq, kwd = rrule_args(hsh)
         kwd['dtstart'] = dtstart
+        logger.debug(f"{kwd = }")
         try:
             rset.rrule(dr.rrule(freq, **kwd))
         except Exception as e:
@@ -6100,9 +6128,16 @@ def get_next_due(item, done, due, from_rrule=False):
             rset.exdate(date_to_datetime(dt))
         nxt = rset.after(date_to_datetime(aft), inc)
     else:
-        for dt in plus_not_minus:
-            rset.rdate(date_to_datetime(dt))
+        logger.debug(f"before {f(aft) = }")
+
+        if plus_not_minus:
+            plus_not_minus.sort()
+            aft = min(aft, plus_not_minus[0])
+            for dt in plus_not_minus:
+                rset.rdate(date_to_datetime(dt))
         nxt = rset.after(date_to_datetime(aft), inc)
+        after = rset.after(date_to_datetime(dtstart), False)
+        # logger.debug(f"===\n{f(plus_not_minus[:1]) = }\n{f(nxt) = }\n{f(after) = }\n{f(aft) = }; {inc = }")
     if nxt:
         if using_dates:
             nxt = nxt.date()
@@ -6125,8 +6160,7 @@ def date_to_datetime(dt, hour=0, minute=0):
         dt = new_dt
     return dt
 
-
-def item_instances(item, aft_dt, bef_dt=1, honor_skip=True):
+def item_instances(item, aft_dt, bef_dt=1, honor_skip=True)-> Tuple[Optional[datetime], Optional[datetime]]:
     """
     Dates and datetimes decoded from the data store will all be aware and in the local timezone. aft_dt and bef_dt must therefore also be aware and in the local timezone.
     In dateutil, the starting datetime (dtstart) is not the first recurrence instance, unless it does fit in the specified rules.  Notice that you can easily get the original behavior by using a rruleset and adding the dtstart as an rdate recurrence.
@@ -7148,13 +7182,13 @@ def relevant(
 
                 if item['itemtype'] == '-':
                     switch = item.get('o', 'k')
+                    plus_dates = item.get('+', [])
                     if switch == 's':
                         cur = date_to_datetime(item['s'])
                         # make 'all day' tasks not pastdue until one minute before midnight
                         delta = (
                             timedelta(hours=23, minutes=59) if (cur.hour == 0 and cur.minute == 0) else ZERO
                         )
-                        plus_dates = item.get('+', [])
                         if cur + delta < now:
                             # we need to update @s
                             relevant = rset.after(now, inc=True)
@@ -7200,6 +7234,10 @@ def relevant(
                         try:
                             # relevant = rset.after(today, inc=True)
                             relevant = rset.after(dtstart, inc=True)
+                            if plus_dates:
+                                plus_dates.sort()
+                                relevant = min(relevant, plus_dates[0])
+                            logger.debug(f"### relevant {item['summary']} {dtstart = }; {relevant = }")
                         except Exception as e:
                             logger.debug(f"Exception: {e}\nissue with today: {today} ({type(today)}) or rset: {rset}\nskipping {item}")
                             continue
@@ -7225,16 +7263,16 @@ def relevant(
                         extent = item.get('e', ZERO)
                         # if dtstart.date() + extent < today.date() and 'j' not in item:
                         # if dtstart.date() + extent < today.date() and 'j' not in item and 'r' not in item:
-                        # if relevant.date() + extent < today.date() and 'j' not in item:
-                        #     pastdue.append(
-                        #         [
-                        #             (dtstart.date() - today.date()).days,
-                        #             summary,
-                        #             item.doc_id,
-                        #             None,
-                        #             None,
-                        #         ]
-                        #     )
+                        if relevant.date() + extent < today.date() and 'j' not in item:
+                            pastdue.append(
+                                [
+                                    (dtstart.date() - today.date()).days,
+                                    summary,
+                                    item.doc_id,
+                                    None,
+                                    None,
+                                ]
+                            )
                 else:
                     # get the first instance after today
                     try:
@@ -8823,7 +8861,8 @@ def schedule(
                     )
 
         startdt = date_to_datetime(start)
-        if not start or finished is not None or startdt in completed:
+        # if not start or finished is not None or startdt in completed:
+        if not start or finished is not None:
             continue
 
         # XXX INSTANCES
