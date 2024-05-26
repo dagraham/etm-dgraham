@@ -4,6 +4,7 @@
 # len(usable): 94
 
 from typing import Union, Tuple, Optional
+import time
 
 from etm.common import ( 
     VERSION_INFO,
@@ -2918,6 +2919,7 @@ class DataView(object):
         self.query_view = ''
         self.query_text = ''
         self.last_query = ''
+        self.last_modified = time.time()
         self.query_items = []
         self.query_mode = 'items table'
         self.report_view = ''
@@ -2928,6 +2930,8 @@ class DataView(object):
         self.cal_locale = None
         self.history_view = ''
         self.cache = {}
+        self.view_cache = {} # non-weekly view name -> (timestamp, view, row2id)
+        self.cached_views = ['history', 'forthcoming', 'do_next', 'journal', 'goals', 'tags', 'index', 'location', 'review', 'konnected']
         self.itemcache = {}
         self.current_hsh = {}
         self.used_summary = {}
@@ -3535,6 +3539,35 @@ class DataView(object):
             self.use_items()
 
     def show_active_view(self):
+        logger.debug(f'{self.active_view = }; {self.cached_views = }; {self.active_view in self.cached_views = }')
+
+        if self.active_view not in self.cached_views:
+            cached_view = self.create_view()
+            return cached_view
+
+        logger.debug('in cached views')
+        if self.active_view in self.view_cache:
+            timestamp, cached_view, row2id = self.view_cache[self.active_view]
+            if timestamp >= self.last_modified:
+                timer_use_cache = TimeIt('use_cache')
+                logger.debug(f"using cache for {self.active_view}")
+                self.row2id = row2id
+                timer_use_cache.stop()
+                return cached_view
+
+        logger.debug(f"creating cache for {self.active_view}")
+        timer_make_cache = TimeIt('make cache')
+        cached_view = self.create_view()
+        row2id = self.row2id
+        timestamp = time.time()
+        self.view_cache[self.active_view] = (timestamp, cached_view, row2id)
+        timer_make_cache.stop()
+        return cached_view      
+        
+        
+    
+    def create_view(self):
+        # logger.debug(f"creating {self.active_view}")
         if self.active_view != 'query':
             self.hide_query()
         if self.active_view == 'agenda':
@@ -3554,6 +3587,7 @@ class DataView(object):
         if self.active_view == 'yearly':
             self.refreshCalendar()
             return self.calendar_view
+
         if self.active_view == 'history':
             self.history_view, self.row2id = show_history(
                 self.db,
@@ -4282,8 +4316,8 @@ shown when nonzero."""
             due,
         )
 
-    def clearCache(self):
-        self.cache = {}
+    # def clearCache(self):
+    #     self.cache = {}
 
     def refreshCache(self):
         self.cache = schedule(

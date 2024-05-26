@@ -1461,6 +1461,7 @@ def item_changed(loop):
 
 
 def data_changed(loop):
+    dataview.last_modified = time.time()
     dataview.refreshRelevant()
     dataview.refreshAgenda()
     set_text(dataview.show_active_view())
