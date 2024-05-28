@@ -1781,24 +1781,26 @@ item_hsh:    {self.item_hsh}
     def do_quota(self, arg: str)->list[int]:
         """P
         Args:
-            arg (string): an integer followed by a character in 'yqmwd'
+            arg (string): an integer followed by a character in 'yqmw'
             specifying the period optionally followed by a comma and an 
             integer number of periods.
         """
         obj = None
         m = quota_regex.match(arg)
 
-        # period_dict = {
-        #         'd': 'day',
-        #         'y': 'year',
-        #         'q': 'quarter',
-        #         'm': 'month',
-        #         'w': 'week'
-        # }
+        period_dict = {
+                'y': 'year',
+                'q': 'quarter',
+                'm': 'month',
+                'w': 'week'
+        }
 
         if m:
             logger.debug(f"{m.groups() = }")
             quota, period, num_periods = m.groups()
+
+            if not period:
+                period = 'w'
 
             # period = period_dict.get(period, 'week')
 
@@ -1807,9 +1809,9 @@ item_hsh:    {self.item_hsh}
                 periods_str = 'indefinitely'
             else:
                 num_periods = int(num_periods.lstrip(', '))
-                periods_str = f"for {num_periods} {period}s"
+                periods_str = f"for {num_periods} {period_dict[period]}s"
             
-            rep = f'{quota} times/{period} {periods_str}'
+            rep = f'{quota} times/{period_dict[period]} {periods_str}'
             obj = [quota, period, num_periods]
             self.item_hsh['q'] = obj
 
@@ -2708,7 +2710,7 @@ threeday_regex = re.compile(
     r'([+-]?[1234])(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE
 )
 anniversary_regex = re.compile(r'!(\d{4})!')
-quota_regex = re.compile(r'^\s*(-?\d+)([yqmw])(,\s*\d+)?\s*$') # @q 3m, 1
+quota_regex = re.compile(r'^\s*(-?\d+)([yqmw]?)(,\s*\d+)?\s*$') # @q 3m, 1
 
 
 def parse_durations(s):
@@ -4926,8 +4928,10 @@ def quota_as_string(s):
         return str(s)
     if len(s) > 2:
         return f'{s[0]}{s[1]}, {s[2]}'
-    else:
+    elif len(s) > 1:
         return f'{s[0]}{s[1]}'
+    else:
+        return f'{s[0]}w'
 
 def do_string(arg):
     try:
@@ -8105,7 +8109,7 @@ def show_journal(
     tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
-def get_fraction_of_period_passed(period):
+def get_fraction_of_period_passed(period:str = 'w'):
     # if isinstance(input_date, str):
     #     input_date = datetime.strptime(input_date, '%Y-%m-%d')
     # elif isinstance(input_date, datetime):
@@ -8222,13 +8226,13 @@ def get_period_end_date(input_date, period, periods_ahead):
     
     return ret
     
-# Example usage
-input_date = '2024-05-26'
-period = 'm'
-periods_ahead = 3
-for period in ['w', 'm', 'q', 'y']:
-    result = get_period_end_date(input_date, period, periods_ahead)
-    print(f"{input_date = }, {period = }, end_date = {result}")  # (fatetime.date(2024, 6, 8), datetime.date(2024, 7, 31), datetime.date(2024, 9, 30), datetime.date(2025, 12, 31))
+# # Example usage
+# input_date = '2024-05-26'
+# period = 'm'
+# periods_ahead = 3
+# for period in ['w', 'm', 'q', 'y']:
+#     result = get_period_end_date(input_date, period, periods_ahead)
+#     print(f"{input_date = }, {period = }, end_date = {result}")  # (fatetime.date(2024, 6, 8), datetime.date(2024, 7, 31), datetime.date(2024, 9, 30), datetime.date(2025, 12, 31))
 
 def show_goals(
     db,
@@ -8275,9 +8279,9 @@ def show_goals(
         if not s or q is None:
             logger.error(f"bad goal: {item = }")
             continue
-        srt = s.timestamp()
+        # srt = s.timestamp()
         quota = int(q[0]) 
-        period = q[1]
+        period = q[1] if len(q) > 1 else 'w'
         periods = q[2] if len(q) > 2 else 0
 
         begin_date = get_period_begin_date(item['s'], period)
@@ -8286,49 +8290,46 @@ def show_goals(
         if periods:
             end_date = get_period_end_date(item['s'], period, periods)
 
-        if int(quota) == 0 or (
+        if quota == 0 or (
             periods and end_date and today > end_date
             ):
             path = 'Ended'
-            goal = f'({average})-{period}'
+            goal = f'{average}/{quota}{period}'
             itemtype = EtmChar.ENDED_CHAR
         else:
             this_period, fraction_used = get_fraction_of_period_passed(period)
             logger.debug(f"{this_period = }; {fraction_used = }")
+            # period = f"{fraction_used:.2}{period}"
 
             # this_week = today.isocalendar()[:2] 
             # this_week_str = f"{this_week[0]}:{this_week[1]:02}"
             done = int(h.get(this_period, 0))
-            srt = done/abs(quota)
-            if int(quota) < 0 or begin_date > date_to_datetime(today):
+            if quota < 0 or begin_date > date_to_datetime(today):
                 path = 'Inactive' 
-                goal = f"{done}/{abs(quota)}-{period} ({average})"
+                goal = f"{done}/{abs(quota)}:{period}"
                 itemtype = EtmChar.INACTIVE_CHAR
             else:
                 path = 'Active'
-                goal = f"{done}/{abs(quota)}-{period} ({average})"
+                goal = f"{done}/{abs(quota)}:{period}"
                 itemtype='~'
 
-        # if path == 'Active' and current_weekday >= 0:
+        srt = 0
+        rep = ""
         if path == 'Active':
-            fraction_done = done/abs(quota)
-            min_used = (current_weekday)/7 #  0, 1/7, ..., 6/7
-            max_used = (current_weekday+1)/7 # 1/7, 2/7, ..., 1
-            # need = math.ceil(max_used*abs(quota) - done)
-            need = math.ceil(fraction_used*abs(quota) - done)
-            goal = f"{done}/{abs(quota)}+{need}-{period}" if need > 0 else f"{done}/{abs(quota)}-{period}"
-            # if current_weekday == 0:
-            #     # Monday - don't warn about 0 completions
-            #     itemtype = '~'
-            if need <= 1:
-                # on target
-                itemtype = '~'
-            elif need <= 2:
+            srt = -fraction_used
+            max_need = math.ceil(fraction_used*abs(quota) - done)
+            min_need = math.floor(fraction_used*abs(quota) - done)
+            goal = f"{done}/{abs(quota)}{period}" 
+            rep = f" ({min_need})" if min_need > 0 else ""
+            if min_need >= 2:
+                # behind
+                itemtype = EtmChar.LATE_CHAR
+            elif min_need >= 1:
                 # borderline
                 itemtype = EtmChar.SLOW_CHAR
             else:
-                # behind
-                itemtype = EtmChar.LATE_CHAR
+                # on target
+                itemtype = '~'
 
         sort = (path2sort[path], srt, summary)
 
@@ -8339,7 +8340,7 @@ def show_goals(
             {
                 'sort': sort,
                 'path': path,
-                'values': [itemtype, f"{goal} {summary} ({average})", flags, '', doc_id],
+                'values': [itemtype, f"{goal} {summary}{rep}", flags, '', doc_id],
             }
         )
     rows.sort(key=itemgetter('sort'))
