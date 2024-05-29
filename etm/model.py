@@ -57,7 +57,8 @@ from prompt_toolkit.styles import Style
 from dateutil import rrule as dr 
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
-from dateutil.rrule import MO, TU, WE, TH, FR, SA, SU  
+from dateutil.rrule import rrule, rruleset, MO, TU, WE, TH, FR, SA, SU  
+from dateutil.tz import gettz
 
 # for saving timers
 import pickle
