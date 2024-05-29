@@ -2261,17 +2261,17 @@ def parse_datetime(s: str, z: str = None):
     except Exception as e:
         return False, f"'{s}' is incomplete or invalid: {e}", z
     else:
-        if tzinfo in ['local', 'float'] and (
-            res.hour,
-            res.minute,
-            res.second,
-            res.microsecond,
-        ) == (0, 0, 0, 0):
-            return 'date', res.astimezone(), z
-        elif ok == 'float':
-            return ok, res.astimezone(None), z
-        else:
-            return ok, res.astimezone(), z
+        # if tzinfo in ['local', 'float'] and (
+        #     res.hour,
+        #     res.minute,
+        #     res.second,
+        #     res.microsecond,
+        # ) == (0, 0, 0, 0):
+        #     return 'date', res.astimezone(), z
+        # elif ok == 'float':
+        #     return ok, res.astimezone(None), z
+        # else:
+        return ok, res, z
 
 
 def timestamp(arg):

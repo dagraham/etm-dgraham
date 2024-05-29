@@ -2806,7 +2806,7 @@ def do_end_goal(*event):
     
     changed = item.end_goal(doc_id)
     if changed:
-        show_message('Toggle Paused', 'Toggled the paused status of the goal')
+        show_message('Ended', 'Ended the goal')
         # set_text(dataview.show_active_view())
         loop = asyncio.get_event_loop()
         loop.call_later(0, data_changed, loop)
