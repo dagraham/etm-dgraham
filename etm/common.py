@@ -614,15 +614,18 @@ def wrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
         )
     return '\n'.join(tmp)
 
+
 def parse(s, **kwd):
     # enable pi when read by main and settings is available
     pi = parserinfo(
         dayfirst=settings['dayfirst'], yearfirst=settings['yearfirst']
     )
+    # logger.debug(f"parsing {s = } with {kwd = }")
     dt = dateutil_parse(s, parserinfo=pi)
     if 'tzinfo' in kwd:
         tzinfo = kwd['tzinfo']
-        if tzinfo == 'float':
+        # logger.debug(f"using {tzinfo = } with {dt = }")
+        if tzinfo == None:
             return dt.replace(tzinfo=None)
         elif tzinfo == 'local':
             return dt.astimezone()

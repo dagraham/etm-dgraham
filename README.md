@@ -1757,16 +1757,16 @@ Type character: **~**
 The goal itemtype is intended to support pursuing S.M.A.R.T. goals (Specific, Measurable, Achievable, Relevant, Timed) in *etm*. Here is an example of a *goal* as it would be entered:
 
 ```
-    ~ interval training @s 2024/4/22 @q 3
+    ~ interval training @s 2024/4/22 @q 3w
 ```
 - It is a *goal* because of the `~` type character. 
 - Because I have a custom interval setting on my exercise bike, "interval training" is *specific* and *measurable*. It is also *achievable* and *relevant* for me.
-- The `@s` entry is required and times the goal to begin on Monday, April 22, 2024. Whatever date is entered will be automatically converted to the Monday of the corresponding week.
-- The `@q` entry is also required and sets to quota for this goal to 3 times per week, repeating indefinitely. Had the quota instead been, say, `@q 3, 5`  then the goal would have been 3 times per week repeated for 5 weeks.
+- The `@s` entry is required and times the goal to begin on Monday, April 22, 2024. Whatever date is entered will be automatically be interpreted as the corresponding week.
+- The `@q` entry is also required and sets to quota for this goal to 3 times per week, repeating indefinitely. Had the quota instead been, say, `@q 3w, 5`  then the goal would have been 5 times per week repeated for 5 weeks. Instead of using 'w' for weekly, it is also possible to use 'y' for yearly, 'q' for quarterly or 'm' for monthly.
 - If this goal were selected in *etm* on, say, Wednesday, April 24 and "F" were pressed, then *etm* would add an `@h 2024:17 1` (history of completions) entry to indicate 1 completion of the goal for the week of *2024:17*. Pressing "F" again in the same week with this goal selected would change this entry to `@h 2024:17 2`.  As one last example, pressing "F" with the goal selected sometime during the week of *2024:18* would leave the recorded entry as
 
     ```
-    ~ interval training @s 2024/4/29 @q 3 @h 2024:17 2, 2024:18 1
+    ~ interval training @s 2024/4/29 @q 3w @h 2024:17 2, 2024:18 1
     ```
 
 [↺ contents](#contents)

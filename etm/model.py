@@ -217,6 +217,9 @@ requires = {
     'jb': ['s'],
 }
 
+def is_naive(dt):
+    return dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None
+
 def truncate_string(s: str, max_length: int)->str:
     if len(s) > max_length:
         return f"{s[:max_length-2]} {EtmChar.ELLIPSIS_CHAR}"
@@ -868,7 +871,9 @@ item_hsh:    {self.item_hsh}
         showing = 'Repetitions'
         if 's' not in item and ('r' not in item or '+' not in item):
             return showing, 'not a repeating item'
+        logger.debug(f"{item['s'] = }; {item = }")
         relevant = date_to_datetime(item['s'])
+        logger.debug(f"{relevant = }")
         at_plus = item.get('+', [])
         if at_plus:
             at_plus.sort()
@@ -1175,9 +1180,10 @@ item_hsh:    {self.item_hsh}
         self.doc_id = item_id
         # self.created = self.item_hsh['created']
         q = self.item_hsh.get('q', [])
+        # logger.debug(f"{q = }; {self.item_hsh = }")
         if not len(q) > 0 or q[0] == 0:
             return False
-        q[0] = -q[0]
+        q[0] = f"{-int(q[0])}"
         self.item_hsh['q'] = q 
         now = datetime.now().astimezone()
         self.item_hsh['modified'] = now
@@ -1197,7 +1203,7 @@ item_hsh:    {self.item_hsh}
         q = self.item_hsh.get('q', [])
         if not len(q) > 0 or q[0] == 0:
             return False
-        q[0] = 0
+        q[0] = '0'
         self.item_hsh['q'] = q 
         now = datetime.now().astimezone()
         self.item_hsh['modified'] = now
@@ -1391,6 +1397,7 @@ item_hsh:    {self.item_hsh}
         # self.is_modified = modified
         self.entry = s
         self.pos_hsh, keyvals = process_entry(s, self.settings)
+        logger.debug(f"{self.pos_hsh = }; {keyvals = }")
         removed, changed = listdiff(self.keyvals, keyvals)
         if self.init_entry != self.entry:
             self.is_modified = True
@@ -1797,19 +1804,20 @@ item_hsh:    {self.item_hsh}
 
         if m:
             logger.debug(f"{m.groups() = }")
-            quota, period, num_periods = m.groups()
+            quota, period, num_periods_str = m.groups()
 
             if not period:
                 period = 'w'
 
             # period = period_dict.get(period, 'week')
-
-            if num_periods is None:
-                num_periods = 0
-                periods_str = 'indefinitely'
-            else:
-                num_periods = int(num_periods.lstrip(', '))
-                periods_str = f"for {num_periods} {period_dict[period]}s"
+            num_periods = 0
+            periods_str = 'indefinitely'
+            if num_periods_str:
+                num_periods = int(num_periods_str.lstrip(', '))
+                if num_periods > 0:
+                    periods_str = f"for {num_periods} {period_dict[period]}s"
+                else:
+                    periods_str = 'indefinitely'
             
             rep = f'{quota} times/{period_dict[period]} {periods_str}'
             obj = [quota, period, num_periods]
@@ -1834,7 +1842,9 @@ item_hsh:    {self.item_hsh}
         """
         obj = None
         tz = self.item_hsh.get('z', None)
+        logger.debug(f"calling parse_datetime with {arg = } and {tz = }")
         ok, res, z = parse_datetime(arg, tz)
+        logger.debug(f"{arg = }; {tz = }; {ok = };\n*** {res = }; {z = } ***")
         if ok:
             obj = res
             if self.item_hsh['itemtype'] == '~':
@@ -1847,6 +1857,7 @@ item_hsh:    {self.item_hsh}
                     if ok == 'aware'
                     else format_datetime(obj)[1]
             )
+                logger.debug(f"{rep = }; {obj = }")
         else:
             rep = res
         return obj, rep
@@ -2229,12 +2240,16 @@ def parse_datetime(s: str, z: str = None):
             # must be a dt string
             dt_str = s
 
+        logger.debug(f"{s = }; {dt_str = }; {tzinfo = }")
+
         if dt_str:
+            logger.debug(f"parsing {dt_str = } with {tzinfo = }")
             dt = (
                 datetime.now().astimezone()
                 if dt_str.strip() == 'now'
                 else parse(dt_str, tzinfo=tzinfo)
             )
+            logger.debug(f"got {dt = }")
         else:
             dt = datetime.now().astimezone()
             if dur_str and re.search(r'[dwM]', dur_str):
@@ -7262,6 +7277,7 @@ def relevant(
                         # relevant will be the first instance after 12am today
                         # it will be the @s entry for the updated repeating item
                         # these are @s entries for the instances to be preserved
+                        logger.debug(f"{dtstart = }; {today = }")
                         between = rset.between(
                             dtstart, today - ONEMIN, inc=True
                         )
@@ -7295,10 +7311,12 @@ def relevant(
                     except Exception as e:
                         logger.error(f'error processing {item}; {repr(e)}')
                     if not relevant:
+                        logger.debug(f"{today = }; {item = }")
                         relevant = rset.before(today, inc=True)
 
                 # rset
                 if instance_interval:
+                    logger.debug(f"{instance_interval = }")
                     instances = rset.between(
                         instance_interval[0], instance_interval[1], inc=True
                     )
@@ -8252,8 +8270,9 @@ def show_goals(
     rows = []
     path2sort = {
         'Active': 1,
-        'Inactive': 2,
-        'Ended': 3,
+        'Paused': 2,
+        'Upcoming': 3,
+        'Ended': 4,
     }
     today = datetime.today().astimezone()
     current_weekday = today.weekday()         # 0, 1, ..., 6
@@ -8279,7 +8298,6 @@ def show_goals(
         if not s or q is None:
             logger.error(f"bad goal: {item = }")
             continue
-        # srt = s.timestamp()
         quota = int(q[0]) 
         period = q[1] if len(q) > 1 else 'w'
         periods = q[2] if len(q) > 2 else 0
@@ -8298,25 +8316,29 @@ def show_goals(
             itemtype = EtmChar.ENDED_CHAR
         else:
             this_period, fraction_used = get_fraction_of_period_passed(period)
-            logger.debug(f"{this_period = }; {fraction_used = }")
+            logger.debug(f"{begin_date = }; {this_period = }; {fraction_used = }")
             # period = f"{fraction_used:.2}{period}"
 
             # this_week = today.isocalendar()[:2] 
             # this_week_str = f"{this_week[0]}:{this_week[1]:02}"
             done = int(h.get(this_period, 0))
-            if quota < 0 or begin_date > date_to_datetime(today):
-                path = 'Inactive' 
-                goal = f"{done}/{abs(quota)}:{period}"
+            if quota < 0:
+                path = 'Paused' 
+                goal = f"{done}/{abs(quota)}{period}"
+                itemtype = EtmChar.INACTIVE_CHAR
+            elif begin_date > date_to_datetime(today):
+                path = 'Upcoming' 
+                goal = f"{done}/{abs(quota)}{period}"
                 itemtype = EtmChar.INACTIVE_CHAR
             else:
                 path = 'Active'
-                goal = f"{done}/{abs(quota)}:{period}"
+                goal = f"{done}/{abs(quota)}{period}"
                 itemtype='~'
 
         srt = 0
         rep = ""
         if path == 'Active':
-            srt = -fraction_used
+            srt = -fraction_used*abs(quota)
             max_need = math.ceil(fraction_used*abs(quota) - done)
             min_need = math.floor(fraction_used*abs(quota) - done)
             goal = f"{done}/{abs(quota)}{period}" 
