@@ -1201,7 +1201,8 @@ item_hsh:    {self.item_hsh}
         self.doc_id = item_id
         # self.created = self.item_hsh['created']
         q = self.item_hsh.get('q', [])
-        if not len(q) > 0 or q[0] == 0:
+        if len(q) < 1 or q[0] == 0 or q[0] == '0':
+            # already ended
             return False
         q[0] = '0'
         self.item_hsh['q'] = q 
@@ -8312,7 +8313,8 @@ def show_goals(
             periods and end_date and today > end_date
             ):
             path = 'Ended'
-            goal = f'{average}/{quota}{period}'
+            # goal = f'{average}/{quota}{period}'
+            goal = f'{period}'
             itemtype = EtmChar.ENDED_CHAR
         else:
             this_period, fraction_used = get_fraction_of_period_passed(period)

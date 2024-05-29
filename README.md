@@ -598,7 +598,7 @@ In the main window, active goals are sorted by their done/quota ratios and given
 
 This is a normal view in etm and all the normal commands are available. Additionally, these commands are available when a goal is selected:
 - F:  increment the completion count for the current week (by incrementing the count for the current week in @h).
-- ^e: end the goal by setting the quota component of `@q` equal to zero. Goals with zero quotas (or goals with quotas specifying a number of weeks that has expired) are regarded as *ended*.
+- ^e: end the goal by setting the quota component of `@q` equal to zero. Goals with zero quotas (or goals with quotas specifying a number of weeks that has expired) are regarded as *ended*. Ending a goal instead of deleting it preserves its history of completions.
 - ^a: toggle the active/inactive status by reversing the sign of the quota component of @q. Goals with negative quotas are regarded as *inactive*. 
 
 A *goal* could, of course, be deleted but this would also delete the history of completions. Ending the goal, on the other hand, preserves the history and places the goal in it's own category at the bottom of the list. And, if you ever want to un-end the goal, just change the zero quota to whatever you like. Similarly, making a goal inactive while you're away on vacation and then making it active again when you return preserves its history and the two key presses required is significantly more convenient than deleting and re-creating the goal.
