@@ -19,8 +19,8 @@ import asyncio
 from datetime import datetime, date, timedelta
 
 import dateutil 
-import dateutil.rrule 
-from zoneinfo import ZoneInfo
+from dateutil.rrule import rrule
+from dateutil.tz import gettz
 
 import logging
 logger = logging.getLogger('etmmv')
@@ -100,6 +100,9 @@ from etm.model import item_details
 #         except Exception as e:
 #             logger.error(f'write_back exception: {e}')
 
+
+local_tz = gettz()
+utc_tz = gettz('UTC')
 
 def insert_db(db, hsh={}):
     """
@@ -589,7 +592,7 @@ class DateTimeSerializer(Serializer):
         """
         return encode_datetime(obj)
         if is_aware(obj):
-            return obj.astimezone(ZoneInfo('UTC')).strftime(AWARE_FMT)
+            return obj.astimezone(utc_tz).strftime(AWARE_FMT)
         else:
             return obj.strftime(NAIVE_FMT)
 
@@ -605,11 +608,11 @@ class DateTimeSerializer(Serializer):
         if s[-1] == 'A':
             return (
                 datetime.strptime(s, AWARE_FMT)
-                .replace(tzinfo=ZoneInfo('UTC'))
-                .astimezone()
+                .replace(tzinfo=utc_tz)
+                .astimezone(local_tz)
             )
         else:
-            return datetime.strptime(s, NAIVE_FMT).astimezone(None)
+            return datetime.strptime(s, NAIVE_FMT).replace(tzinfo=None)
 
 
 class DateSerializer(Serializer):
