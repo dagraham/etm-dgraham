@@ -612,7 +612,7 @@ class DateTimeSerializer(Serializer):
                 .astimezone(local_tz)
             )
         else:
-            return datetime.strptime(s, NAIVE_FMT).replace(tzinfo=None)
+            return datetime.strptime(s, NAIVE_FMT).replace(tzinfo=local_tz)
 
 
 class DateSerializer(Serializer):

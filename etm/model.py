@@ -100,6 +100,7 @@ goal_counts = {}
 
 active_tasks = {}
 
+local_tz = gettz()
 
 def sortprd(prd):
     # assumes prd is a Period
@@ -864,27 +865,26 @@ item_hsh:    {self.item_hsh}
         as aft_dt. Called while editing, we won't have a row or doc_id
         and can use '@s' as aft_dt
         """
-        # doc_id, instance, job = dataview.get_row_details(text_area.document.cursor_position_row)
-
         num = self.settings['num_repetitions']
-        self.update_item_hsh()
+        # self.update_item_hsh()
         item = self.item_hsh
         showing = 'Repetitions'
         if 's' not in item and ('r' not in item or '+' not in item):
             return showing, 'not a repeating item'
         logger.debug(f"{item['s'] = }; {item = }")
         relevant = date_to_datetime(item['s'])
-        logger.debug(f"{relevant = }")
         at_plus = item.get('+', [])
         if at_plus:
             at_plus.sort()
             relevant = min(relevant, date_to_datetime(at_plus[0]))
 
-        # instances = item_instances(item, relevant, num + 1, False)
-        instances = item_instances(item, None, num + 1, False)
+        logger.debug(f"Item */* get_repetitions {item['s'] = }")
+        instances = item_instances(item, None, num + 1)
         instances.sort()
+        logger.debug(f"Item */* {instances = }")
         relevant = instances[0][0]
-        pairs = [format_datetime(x[0])[1] for x in instances]
+        logger.debug(f"{relevant = }")
+        pairs = [format_instance(x[0]) for x in instances]
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
             showing = f'Next {num} repetitions'
@@ -2391,6 +2391,48 @@ def format_wkday(obj):
     monthday = f'{day} {month}' if dayfirst else f'{month} {day}'
     return f'{weekday} {monthday}'
 
+def format_instance(dt: datetime):
+    flag = " (within dst transition)" if is_within_dst_transition(dt) else ""
+    date_str = dt.strftime("%a %b %-d %Y")
+    if settings.get('ampm', True):
+        time_str = dt.strftime("%-I:%M%p").rstrip('M').lower()
+    else:
+        time_str = dt.strftime("%H:%M")
+    return f"{date_str} {time_str}{flag}"
+
+
+def is_within_dst_transition(dt: datetime)->bool:
+
+    year = dt.year
+    if dt.tzinfo is None:
+        timezone = gettz()
+        dt = dt.replace(tzinfo = timezone)
+    else:
+        timezone = dt.tzinfo 
+    logger.debug(f"using {timezone = }")
+    
+    # Find the first Sunday in November
+    first_november = datetime(year, 11, 1, tzinfo=timezone)
+    first_sunday_november = first_november + timedelta(days=(6 - first_november.weekday()))
+    
+    # Find the second Sunday in March
+    first_march = datetime(year, 3, 1, tzinfo=timezone)
+    second_sunday_march = first_march + timedelta(days=(6 - first_march.weekday() + 7))
+    
+    # Create aware datetime objects for the transitions
+    first_sunday_november_1am = first_sunday_november.replace(hour=1)
+    first_sunday_november_2am = first_sunday_november.replace(hour=2)
+    
+    second_sunday_march_2am = second_sunday_march.replace(hour=2)
+    second_sunday_march_3am = second_sunday_march.replace(hour=3)
+    
+    logger.debug(f"{first_sunday_november_1am = }; ")
+    # Check if the datetime falls within the transition periods
+    is_in_november_transition = first_sunday_november_1am <= dt < first_sunday_november_2am
+    is_in_march_transition = second_sunday_march_2am <= dt < second_sunday_march_3am
+
+    return is_in_november_transition or is_in_march_transition
+
 
 def format_datetime(obj, short=False):
     """
@@ -2443,6 +2485,8 @@ def format_datetime(obj, short=False):
         if (obj.hour, obj.minute, obj.second, obj.microsecond) == (0, 0, 0, 0):
             # treat as date
             return True, obj.strftime(date_fmt)
+        else:
+            return True, obj.strftime(f'{date_fmt} {time_fmt}') 
     else:
         # aware datetime
         obj = obj.astimezone()
@@ -4175,7 +4219,7 @@ class DataView(object):
             return None, ''
         item_id = res[0]
         instance = res[1]
-
+        
         if not (item_id and item_id in self.id2relevant):
             return ''
         showing = 'Repetitions'
@@ -4193,15 +4237,18 @@ class DataView(object):
             if at_plus:
                 at_plus.sort()
                 relevant = min(relevant, date_to_datetime(at_plus[0]))
-
-        # relevant = instance if instance else self.id2relevant.get(item_id)
-        # showing = 'Repetitions'
         if not relevant:
             return 'Repetitons', details + 'none'
-        pairs = [
-            format_datetime(x[0])[1]
-            for x in item_instances(item, relevant, num + 1, False)
-        ]
+        logger.debug(f"Dataview */* get_repetitions {item = }")
+        instances = item_instances(item, None, num + 1)
+        instances = [(x[0].replace(tzinfo=None), x[1]) for x in instances]
+        instances.sort()
+        logger.debug(f"Dataview */* {instances = }")
+        relevant = instances[0][0]
+        logger.debug(f"{relevant = }")
+        # pairs = [format_datetime(x[0])[1] for x in instances]
+        pairs = [format_instance(x[0]) for x in instances]
+        logger.debug(f"Dataview */* {pairs = }")
         starting = format_datetime(relevant.date())[1]
         if len(pairs) > num:
             showing = f'Next {num} repetitions'
@@ -6102,7 +6149,10 @@ def get_next_due(item, done, due, from_rrule=False):
     return the next due datetime for an @r and @+ / @- repetition
     """
     def f(dt: datetime)->str:
-        return(dt.astimezone().strftime("%Y-%m-%d %H:%M:%S"))
+        if is_date(dt):
+            return(dt.strftime("%Y-%m-%d"))
+        else:
+            return(dt.astimezone().strftime("%Y-%m-%d %H:%M:%S"))
 
     instances = [f(x[0]) for x in item_instances(item, item['s'], 2, False)]
     lofh = item.get('r')
@@ -6171,9 +6221,11 @@ def get_next_due(item, done, due, from_rrule=False):
         nxt = None
     return nxt
 
+def is_date(dt: Union[date, datetime])->bool:
+    return isinstance(dt, date) and not isinstance(dt, datetime)
 
 def date_to_datetime(dt, hour=0, minute=0):
-    if isinstance(dt, date) and not isinstance(dt, datetime):
+    if is_date(dt):
         new_dt = datetime(
             year=dt.year,
             month=dt.month,
@@ -6230,6 +6282,18 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True)-> Tuple[Optional[dat
             return [(item['f'], None)]
         else:
             return []
+    tz = item.get('z', 'local')
+    if tz == 'local':
+        tz_info = gettz()
+    elif tz == 'float':
+        tz_info = None
+    else:
+        try:
+            tz_info = gettz(tz)
+        except Exception as e:
+            logger.warning(f"bad {tz = }: {e}. Using localtime")
+            tz_info = gettz() # default to localtime
+    
     instances = []
     dtstart = item['s']
     if not (isinstance(dtstart, datetime) or isinstance(dtstart, date)):
@@ -6248,7 +6312,7 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True)-> Tuple[Optional[dat
             day=dtstart.day,
             hour=0,
             minute=0,
-        ).astimezone()
+        ).replace(tzinfo = tz_info)
         startdst = None
         using_dates = True
     else:
@@ -6261,11 +6325,11 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True)-> Tuple[Optional[dat
             dtstart = dtstart[0]
 
     # all the dateutil instances will be in UTC so these must be as well
-    aft_dt = date_to_datetime(aft_dt).astimezone(ZoneInfo('UTC'))
+    aft_dt = date_to_datetime(aft_dt).astimezone(tz_info)
     bef_dt = (
         bef_dt
         if isinstance(bef_dt, int)
-        else date_to_datetime(bef_dt).astimezone(ZoneInfo('UTC'))
+        else date_to_datetime(bef_dt).astimezone(tz_info)
     )
 
     if 'r' in item:
@@ -6901,6 +6965,10 @@ def drop_zero_minutes(dt):
     """
     ampm = settings['ampm']
     show_minutes = settings['show_minutes']
+    logger.debug(f"starting {dt = }; {ampm = }; {show_minutes = }")
+    logger.debug(f"{dt.replace(tzinfo=None) = }")
+    dt = dt.replace(tzinfo=None)
+    logger.debug(f"{dt = }")
     if show_minutes:
         if ampm:
             return dt.strftime('%-I:%M').rstrip('M').lower()
@@ -7264,8 +7332,10 @@ def relevant(
                     else:   # k or r
                         try:
                             # relevant = rset.after(today, inc=True)
+                            logger.debug(f"relevant {item = }")
                             instances = item_instances(item, None)
                             instances.sort()
+                            logger.debug(f"{instances = }")
                             relevant = date_to_datetime(instances[0][0]) if instances else None
                             # relevant = rset.after(dtstart, inc=True)
                             # if plus_dates:
@@ -7279,7 +7349,7 @@ def relevant(
                         # relevant will be the first instance after 12am today
                         # it will be the @s entry for the updated repeating item
                         # these are @s entries for the instances to be preserved
-                        logger.debug(f"{dtstart = }; {today = }")
+                        # logger.debug(f"{dtstart = }; {today = }")
                         between = rset.between(
                             dtstart, today - ONEMIN, inc=True
                         )
@@ -7313,12 +7383,12 @@ def relevant(
                     except Exception as e:
                         logger.error(f'error processing {item}; {repr(e)}')
                     if not relevant:
-                        logger.debug(f"{today = }; {item = }")
+                        # logger.debug(f"{today = }; {item = }")
                         relevant = rset.before(today, inc=True)
 
                 # rset
                 if instance_interval:
-                    logger.debug(f"{instance_interval = }")
+                    # logger.debug(f"{instance_interval = }")
                     instances = rset.between(
                         instance_interval[0], instance_interval[1], inc=True
                     )
@@ -8319,7 +8389,7 @@ def show_goals(
             itemtype = EtmChar.ENDED_CHAR
         else:
             this_period, fraction_used = get_fraction_of_period_passed(period)
-            logger.debug(f"{begin_date = }; {this_period = }; {fraction_used = }")
+            # logger.debug(f"{begin_date = }; {this_period = }; {fraction_used = }")
             # period = f"{fraction_used:.2}{period}"
 
             # this_week = today.isocalendar()[:2] 
@@ -9035,8 +9105,11 @@ def schedule(
         # keep these for reference for this item
         end_dt = None
 
-        for dt, et in item_instances(item, aft_dt, bef_dt):
-
+        logger.debug(f"schedule */* {item = }")
+        instances = item_instances(item, aft_dt, bef_dt) 
+        instances.sort()
+        logger.debug(f"schedule */* {instances = }")
+        for dt, et in instances:
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
             wk_fmt = fmt_week(week).center(width, ' ').rstrip()
