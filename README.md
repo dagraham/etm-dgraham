@@ -1865,6 +1865,7 @@ would specify the the scheduled datetime for the item is 9am on the Monday follo
 *  @n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion.
 *  @o: overdue. character from (r) restart, (s) skip, (k) keep. Defaults to (k) keep.
 *  @p: priority. integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
+*  @q: quota. Used to specify the attributes of a goal. E.g., @q 3m, 2 would specify a goal of 3 completions per (m)onth for 2 months. Other period options include (y)ear, (q)uarter and (w)eek. Week is the default. The default for the number of periods is 0 which entails repeating indefinitely.
 *  @r*: repetition frequency, a character from (y)early, (m)onthly, (w)eekly,
   (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &key entries
 *  @s: scheduled date or datetime
