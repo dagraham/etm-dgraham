@@ -8260,8 +8260,7 @@ def get_period_begin_date(input_date, period):
         input_date = input_date.replace(hour=0, minute=0, microsecond=0)
     else:
         input_date = date_to_datetime(input_date)
-    input_date = input_date.astimezone()
-    
+    input_date = input_date.astimezone(local_tz)
 
     if period == 'w':
         return input_date - timedelta(days=input_date.weekday())
@@ -8316,8 +8315,6 @@ def get_period_end_date(input_date, period, periods_ahead):
     else:
         return None
     
-    return ret
-    
 # # Example usage
 # input_date = '2024-05-26'
 # period = 'm'
@@ -8348,7 +8345,7 @@ def show_goals(
         'Upcoming': 3,
         'Ended': 4,
     }
-    today = datetime.today().astimezone()
+    today = datetime.today().astimezone(local_tz)
     current_weekday = today.weekday()         # 0, 1, ..., 6
     # weekdays_remaining = 7 - current_weekday  # 7, 6, ..., 1 
     for item in db:
@@ -8376,11 +8373,11 @@ def show_goals(
         period = q[1] if len(q) > 1 else 'w'
         periods = q[2] if len(q) > 2 else 0
 
-        begin_date = get_period_begin_date(item['s'], period)
+        begin_date = get_period_begin_date(item['s'], period) # active if today >= begin_date 
         fraction_used = 0.0
 
         if periods:
-            end_date = get_period_end_date(item['s'], period, periods)
+            end_date = get_period_end_date(item['s'], period, periods) # active if end_date <= today
 
         if quota == 0 or (
             periods and end_date and today > end_date
@@ -8391,7 +8388,7 @@ def show_goals(
             itemtype = EtmChar.ENDED_CHAR
         else:
             this_period, fraction_used = get_fraction_of_period_passed(period)
-            # logger.debug(f"{begin_date = }; {this_period = }; {fraction_used = }")
+            logger.debug(f"{begin_date = }; {this_period = }; {fraction_used = }")
             # period = f"{fraction_used:.2}{period}"
 
             # this_week = today.isocalendar()[:2] 

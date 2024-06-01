@@ -587,9 +587,9 @@ Consider this illustrative screenshot from *Goals View*:
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/goals.png" alt="new" title="goals view" width="600px" hspace="20px"/>
 
-Notice first that there is no heading displaying a date or week since *goal view* displays the status of *all* goals at the *current time*. 
+Notice first that there is no heading displaying a date or week since *goal view* displays the status of *all* goals for the *current period*. 
 
-In this screen shot "walk the dog" is selected and its details panel is displayed. The leading "3/7+2 (4.8)" in the main window indicates that 3 instances of the goal of 7 have been completed in the current week, that 2 more completions today are needed to get back on schedule for the week and that 4.8 is the current average number of the entire history completions per week for this goal. This history is displayed in the details panel.
+In this screen shot "Non adipisci ..." is selected and its details panel is displayed. The leading "1/5q" in the main window indicates that 1 instance of the goal of 5 have been completed for the current quarter. The trailing (2) means that 2 more completions today are needed to get back on schedule for the week and that 4.8 is the current average number of the entire history completions per week for this goal. This history is displayed in the details panel.
 
 In the main window, active goals are sorted by their done/quota ratios and given a color indicating the degree of progress toward completing the goal for the current week based on comparing the done/quota fraction to the fraction of the week that has passed. Since the current weekday, Friday, is the 5th day of the week, the fraction of the week that has passed is somewhere between 4/7 (beginning of Friday) and 5/7 (end of Friday).   
 - walk the dog:  colored red because 3/7 is less than 4/7 and thus completions are unambiguously behind schedule for the week - 2 completions today are needed to get back on schedule.
