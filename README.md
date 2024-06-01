@@ -1752,12 +1752,12 @@ The goal itemtype is intended to support pursuing S.M.A.R.T. goals (Specific, Me
 ```
 - It is a *goal* because of the `~` type character. 
 - Because I have a custom interval setting on my exercise bike, "interval training" is *specific* and *measurable*. It is also *achievable* and *relevant* for me.
-- The `@s` entry is required and times the goal to begin on Monday, April 22, 2024. Whatever date is entered will be automatically be interpreted as the corresponding week.
-- The `@q` entry is also required and sets to quota for this goal to 3 times per week, repeating indefinitely. Had the quota instead been, say, `@q 3w, 5`  then the goal would have been 5 times per week repeated for 5 weeks. Instead of using 'w' for weekly, it is also possible to use 'y' for yearly, 'q' for quarterly or 'm' for monthly.
-- If this goal were selected in *etm* on, say, Wednesday, April 24 and "F" were pressed, then *etm* would add an `@h 2024:17 1` (history of completions) entry to indicate 1 completion of the goal for the week of *2024:17*. Pressing "F" again in the same week with this goal selected would change this entry to `@h 2024:17 2`.  As one last example, pressing "F" with the goal selected sometime during the week of *2024:18* would leave the recorded entry as
+- The `@q` entry is required and sets to quota for this goal to 3 times per (w)eek, repeating indefinitely. Had the quota instead been, say, `@q 3w, 5`  then the goal would have been 5 times per week repeated for 5 weeks. Instead of using 'w' for weekly, it is also possible to use 'y' for yearly, 'q' for quarterly or 'm' for monthly.
+- The `@s` entry is required and times the goal to begin on Monday, April 22, 2024. Whatever date is entered will automatically indentify the appropriate period given in the @q entry - week, month, quarter or year.
+- If this goal were selected in *etm* sometime during week number 22 of 2024, for example, and "F" were pressed, then *etm* would add an `@h 2024:22 1` (history of completions) entry to indicate 1 completion of the goal for the week of *2024:22*. Pressing "F" again in the same week with this goal selected would change this entry to `@h 2024:22 2`.  As one last example, pressing "F" with the goal selected sometime during the week of *2024:23* would leave the recorded entry as
 
     ```
-    ~ interval training @s 2024/4/29 @q 3w @h 2024:17 2, 2024:18 1
+    ~ interval training @s 2024/4/29 @q 3w @h 2024:22 2, 2024:23 1
     ```
 
 [↺ contents](#contents)
