@@ -1913,13 +1913,13 @@ item_hsh:    {self.item_hsh}
         if self.item_hsh['itemtype'] == '~':
             obj = {}
             # arg list will be a list of year:weeknum num_done
-            rx = re.compile(r'^\s*\d{4}[:#-]\d{1,2}\s+\d+\s*$')
+            rx = re.compile(r'^\s*\d{4}([:#-]\d{1,2})?\s+\d+\s*$')
             for arg in args:
                 match = rx.match(arg.strip())
                 if match:
-                    yearweek, done = arg.split()
-                    obj[yearweek] = int(done)
-                    rep_lst.append(f"{yearweek}: {done}")
+                    period, done = arg.split()
+                    obj[period] = int(done)
+                    rep_lst.append(f"{period}: {done}")
                 else:
                     all_ok = False
                     bad_lst.append(arg)
@@ -8237,7 +8237,7 @@ def get_fraction_of_period_passed(period:str = 'w'):
     def fraction_of_year_passed():
         start_of_year = datetime(today.year, 1, 1).replace(tzinfo=None)
         end_of_year = datetime(today.year, 12, 31, 23, 59).replace(tzinfo=None)
-        return today.year, (today - start_of_year).days / (end_of_year - start_of_year).days
+        return f"{today.year}", (today - start_of_year).days / (end_of_year - start_of_year).days
 
     if period == 'd':
         return 0.0
