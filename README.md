@@ -579,29 +579,20 @@ One final useful context is 'waiting for'. E.g., completing a task might depend 
 
 ### Goals View {#goals-view}
 
-This is a dedicated view *only for goals*. Goals are also displayed in *History View*, *Index View* and so forth, but are **not** displayed in *Agenda View* since goals apply *only to the current period (week, month, quarter or year)*. 
+This is a dedicated view that *only displays goals*. Goals are also displayed in *History View*, *Index View* and so forth, but are **not** displayed in *Agenda View* since goals apply *only to the current period (week, month, quarter or year)*.  This view can be selected in *etm* either by pressing "g" or by selecting *goals* from the *view* menu.
 
-This view can be selected in *etm* either by pressing "g" or by selecting *goals* from the *view* menu.
-
-Consider this illustrative screenshot from *Goals View*:
+Here is an illustrative screenshot from *Goals View*:
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/goals.png" alt="new" title="goals view" width="600px" hspace="20px"/>
 
-Notice first that there is no heading displaying a date or week since *goal view* displays the status of *all* goals for the *current period*. 
+In this screen shot the first goal in "Active" is selected and its details panel is displayed. The leading "1/5q" in the main window indicates that 1 instance of the goal of 5 has been completed for the current (q)uarter. The trailing (2) means that 2 more completions are currently needed to get back on schedule.  The other active goals "0/4y", "0/1w" and "0/2m" have similar interpretations but correspond to goals for (y)ear, (w)eek and (m)onth periods, respectively.
 
-In this screen shot "Non adipisci ..." is selected and its details panel is displayed. The leading "1/5q" in the main window indicates that 1 instance of the goal of 5 have been completed for the current quarter. The trailing (2) means that 2 more completions today are needed to get back on schedule for the week and that 4.8 is the current average number of the entire history completions per week for this goal. This history is displayed in the details panel.
+Active goals are sorted in descending order by the fraction of the relevant period that has passed and are given a color indicating number of completions needed to be on schedule: red for 2 or more, yellow for 1 and blue otherwise. 
 
-In the main window, active goals are sorted by their done/quota ratios and given a color indicating the degree of progress toward completing the goal for the current week based on comparing the done/quota fraction to the fraction of the week that has passed. Since the current weekday, Friday, is the 5th day of the week, the fraction of the week that has passed is somewhere between 4/7 (beginning of Friday) and 5/7 (end of Friday).   
-- walk the dog:  colored red because 3/7 is less than 4/7 and thus completions are unambiguously behind schedule for the week - 2 completions today are needed to get back on schedule.
-- wash dishes: colored yellow because 3/5 is between 4/7 and 5/7 - 1 completion today is needed to get back on schedule.
-- interval training: blue because 3/4 > 5/7 and thus completions are ahead of schedule for this week - no completions are needed today to stay on schedule.
-
-This is a normal view in etm and all the normal commands are available. Additionally, these commands are available when a goal is selected:
-- F:  increment the completion count for the current week (by incrementing the count for the current week in @h).
-- ^e: end the goal by setting the quota component of `@q` equal to zero. Goals with zero quotas (or goals with quotas specifying a number of weeks that has expired) are regarded as *ended*. Ending a goal instead of deleting it preserves its history of completions.
-- ^a: toggle the active/inactive status by reversing the sign of the quota component of @q. Goals with negative quotas are regarded as *inactive*. 
-
-A *goal* could, of course, be deleted but this would also delete the history of completions. Ending the goal, on the other hand, preserves the history and places the goal in it's own category at the bottom of the list. And, if you ever want to un-end the goal, just change the zero quota to whatever you like. Similarly, making a goal inactive while you're away on vacation and then making it active again when you return preserves its history and the two key presses required is significantly more convenient than deleting and re-creating the goal.
+All the normal commands are available and, additionally, these commands are available when a goal is selected:
+- F:  increment the completion count for the current period (by incrementing the count for the current period in @h).
+- ^a: toggle the active/paused status by reversing the sign of the quota component of @q. Goals with negative quotas are regarded as *paused* and are displayed in a separate category. 
+- ^e: end the goal by setting the quota component of `@q` equal to zero. Goals with zero quotas (or goals with quotas specifying a number of periods that has expired) are regarded as *ended* and are also displayed in a separate category. A *goal* could, of course, be deleted but this would also delete the history of completions. 
 
 [↺ contents](#contents)
 

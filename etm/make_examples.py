@@ -116,8 +116,6 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
 @j assemble &s 2d &e 1d &i c &p b
 @j sand &s 3d &e 1d &i d &p c
 @j paint &s 4d &e 1d &i e &p d 
-* fall daylight -> standard time  @s {now.strftime('%Y-%m-%d')} @r y &m 11 &w 1SU &h 0, 1, 2, 3 &n 30 @t lorem
-* spring standard -> daylight time  @s {now.strftime('%Y-%m-%d')} @r y &m 3 &w 2SU &h 0, 1, 2, 3 &n 30 @t lorem
 """
 
     goal_examples = f"""\
@@ -165,9 +163,7 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
 
     # client_contacts = {}
     # client_id = {}
-    examples = [doghouse_example, ]
-    examples.extend(goal_examples)
-    examples.extend(dst_examples)
+    examples = []
 
     for i in range(4):
         examples.append(
@@ -284,6 +280,11 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
         entry = ' '.join([f'@k {x}' for x in samp if x != p])
         examples[p - last_id] += f' {entry}'
 
+    
+    examples.append(doghouse_example)
+    examples.extend(goal_examples)
+    examples.extend(dst_examples)
+    
     if egfile:
         with open(egfile, 'w') as fo:
             fo.writelines('\n'.join(examples))
