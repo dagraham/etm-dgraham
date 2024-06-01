@@ -585,7 +585,7 @@ This view can be selected in *etm* either by pressing "g" or by selecting *goals
 
 Consider this illustrative screenshot from *Goals View*:
 
-<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/walk_the_dog.png" alt="new" title="goals view" width="600px" hspace="20px"/>
+<img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/goals.png" alt="new" title="goals view" width="600px" hspace="20px"/>
 
 Notice first that there is no heading displaying a date or week since *goal view* displays the status of *all* goals at the *current time*. 
 
