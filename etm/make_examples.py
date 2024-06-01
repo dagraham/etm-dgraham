@@ -121,11 +121,10 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
 """
 
     goal_examples = f"""\
-~ interval training @s {now.strftime('%Y-%m-%d')} @q 3w @t lorem
-~ contact Joe @s {now.strftime('%Y-%m-%d')} @q 1m @t lorem
-~ flowers @s {now.strftime('%Y-%m-%d')} @q 1m @t lorem
-~ dinner out  @s {now.strftime('%Y-%m-%d')} @q 2q @t lorem
-~ physical exam  @s {now.strftime('%Y-%m-%d')} @q 1y @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 1w @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 2m @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 3q @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 4y @t lorem
 """.split('\n')
 
     dst_examples = f"""\

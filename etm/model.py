@@ -866,6 +866,8 @@ item_hsh:    {self.item_hsh}
         and can use '@s' as aft_dt
         """
         num = self.settings['num_repetitions']
+        if self.is_modified:
+            self.update_item_hsh(False)
         # self.update_item_hsh()
         item = self.item_hsh
         showing = 'Repetitions'
