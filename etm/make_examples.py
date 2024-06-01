@@ -288,6 +288,7 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
     if egfile:
         with open(egfile, 'w') as fo:
             fo.writelines('\n'.join(examples))
+    
     return examples
 
 
