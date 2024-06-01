@@ -579,7 +579,7 @@ One final useful context is 'waiting for'. E.g., completing a task might depend 
 
 ### Goals View {#goals-view}
 
-This is a dedicated view *only for goals*. Goals are also displayed in *History View*, *Index View* and so forth, but are **not** displayed in *Agenda View* since goals apply *only to the current week*. 
+This is a dedicated view *only for goals*. Goals are also displayed in *History View*, *Index View* and so forth, but are **not** displayed in *Agenda View* since goals apply *only to the current period (week, month, quarter or year)*. 
 
 This view can be selected in *etm* either by pressing "g" or by selecting *goals* from the *view* menu.
 

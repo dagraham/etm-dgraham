@@ -8208,7 +8208,7 @@ def get_fraction_of_period_passed(period:str = 'w'):
     #     input_date = date_to_datetime(input_date)
 
     today = datetime.now().astimezone().replace(
-        hour=0, minute=0, second=0, microsecond=0
+        hour=0, minute=0, second=0, microsecond=0, tzinfo=None
         )
 
     # Helper function to calculate fraction of the week passed
@@ -8225,17 +8225,17 @@ def get_fraction_of_period_passed(period:str = 'w'):
     # Helper function to calculate fraction of the quarter passed
     def fraction_of_quarter_passed():
         quarter_start_month = 3 * ((today.month - 1) // 3) + 1
-        quarter_start_date = datetime(today.year, quarter_start_month, 1).astimezone()
+        quarter_start_date = datetime(today.year, quarter_start_month, 1).astimezone().replace(tzinfo=None)
         quarter_end_month = quarter_start_month + 2
-        quarter_end_date = datetime(today.year, quarter_end_month, calendar.monthrange(today.year, quarter_end_month)[1]).astimezone()
+        quarter_end_date = datetime(today.year, quarter_end_month, calendar.monthrange(today.year, quarter_end_month)[1]).astimezone().replace(tzinfo=None)
         this_period = f"{today.year}#{(today.month - 1) // 3 + 1}"
         return this_period, (today - quarter_start_date).days / (quarter_end_date - quarter_start_date).days
 
     # Helper function to calculate fraction of the year passed
     def fraction_of_year_passed():
-        start_of_year = datetime(today.year, 1, 1)
-        end_of_year = datetime(today.year, 12, 31)
-        return (today - start_of_year).days / (end_of_year - start_of_year).days
+        start_of_year = datetime(today.year, 1, 1).replace(tzinfo=None)
+        end_of_year = datetime(today.year, 12, 31, 23, 59).replace(tzinfo=None)
+        return today.year, (today - start_of_year).days / (end_of_year - start_of_year).days
 
     if period == 'd':
         return 0.0

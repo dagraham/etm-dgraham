@@ -116,7 +116,22 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
 @j assemble &s 2d &e 1d &i c &p b
 @j sand &s 3d &e 1d &i d &p c
 @j paint &s 4d &e 1d &i e &p d 
+* fall daylight -> standard time  @s {now.strftime('%Y-%m-%d')} @r y &m 11 &w 1SU &h 0, 1, 2, 3 &n 30 @t lorem
+* spring standard -> daylight time  @s {now.strftime('%Y-%m-%d')} @r y &m 3 &w 2SU &h 0, 1, 2, 3 &n 30 @t lorem
 """
+
+    goal_examples = f"""\
+~ interval training @s {now.strftime('%Y-%m-%d')} @q 3w @t lorem
+~ contact Joe @s {now.strftime('%Y-%m-%d')} @q 1m @t lorem
+~ flowers @s {now.strftime('%Y-%m-%d')} @q 1m @t lorem
+~ dinner out  @s {now.strftime('%Y-%m-%d')} @q 2q @t lorem
+~ physical exam  @s {now.strftime('%Y-%m-%d')} @q 1y @t lorem
+""".split('\n')
+
+    dst_examples = f"""\
+* fall daylight -> standard time  @s {now.strftime('%Y-%m-%d')} @r y &M 11 &w 1SU &h 0, 1, 2, 3 &n 30 @t lorem
+* spring standard -> daylight time  @s {now.strftime('%Y-%m-%d')} @r y &M 3 &w 2SU &h 0, 1, 2, 3 &n 30 @t lorem
+""".split('\n')
 
     alerts = [f'@a {random.choice([0, 15, 30])}m: d' for x in range(10)]
 
@@ -151,7 +166,9 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
 
     # client_contacts = {}
     # client_id = {}
-    examples = [doghouse_example,]
+    examples = [doghouse_example, ]
+    examples.extend(goal_examples)
+    examples.extend(dst_examples)
 
     for i in range(4):
         examples.append(
@@ -214,7 +231,7 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
                 daily.append(summary)
                 description = start.strftime('%A, %B %-d %Y')
                 examples.append(
-                    f'{t} {summary} @i #daily @t lorem @d {description}\n\n* {note_time()}\n  - {phrase()}'
+                    f'{t} {summary} @i #daily @t lorem @d {description}\n\n  * {note_time()}\n    - {phrase()}'
                 )
 
         elif t == '*':
