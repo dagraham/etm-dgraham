@@ -1,4 +1,33 @@
-2024-05-31 3cfe871 Daniel Graham
+2024-06-01 b60f926 Daniel Graham
+    Tagged version 6.3.1.
+
+2024-06-01 d13c107 Daniel Graham
+    Updated goal.png
+
+2024-06-01 7b944c5 Daniel Graham
+    Tweaks for make_examples, goals.png and README
+
+2024-06-01 b70e39a Daniel Graham
+    README tweaks
+
+2024-06-01 0fa5a1d Daniel Graham
+    README tweaks
+
+2024-06-01 7e1be56 Daniel Graham
+    Fixed bug in processing yearly goals
+
+2024-06-01 0ae3c60 Daniel Graham
+    Use lorem phrase for goals. In item.get_repetititons, only update
+    hash if modified.
+
+2024-06-01 d2daf8d Daniel Graham
+    Added goals and dst tests to make_examples. Fixed bug in yearly
+    fraction.
+
+2024-06-01 37adfc3 Daniel Graham
+    README tweaks
+
+2024-05-31 16cb122 Daniel Graham
     Tagged version 6.3.0. Added goal period options for year, quarter
     and month. Added caching for non-weekly views. Fixed timezone
     issues associated with the transistions between daylight saving
@@ -161,40 +190,3 @@
 
 2024-05-04 bd93aab Daniel Graham
     Merge branch 'working' into goals
-
-2024-05-04 9aa9c5f Daniel Graham
-    Tagged version 6.1.27.
-
-2024-05-04 eebce81 Daniel Graham
-    Fixed bug in including s as a possible pastdue in a task with an r
-    entry.
-
-2024-05-03 893a055 Daniel Graham
-    Cleaned up comments
-
-2024-05-03 c6021f9 Daniel Graham
-    Cleaned up comments. Changed min width for weekday in statusbar to
-    50. Fixed regex for quota and goal history. Include weekday 0
-    (Mon) in active but don't warn about 0 completions. Removed
-    show_active_view from alarm loop. Removed show_message
-    confirmation for toggle active and increment count.
-
-2024-05-03 e6e4a65 Daniel Graham
-    Show completions needed to get on schedule in goals instead of
-    days remaining and the average number of completions instead of
-    the total.
-
-2024-05-02 fadef79 Daniel Graham
-    Added type characters and colors for goals. Sort active/inactive
-    goals by done/quota.
-
-2024-05-02 feab252 Daniel Graham
-    Added goal view and removed goal counts from agenda view. Color
-    active goals according to progress. Added commands to toggle
-    active/paused and to end goal.
-
-2024-05-01 41242dd Daniel Graham
-    Changed binding for goto link from g to G
-
-2024-05-01 f1c68f0 Daniel Graham
-    Corrected typo
