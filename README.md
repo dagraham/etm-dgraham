@@ -1760,6 +1760,8 @@ The goal itemtype is intended to support pursuing S.M.A.R.T. goals (Specific, Me
     ~ interval training @s 2024/4/29 @q 3w @h 2024:22 2, 2024:23 1
     ```
 
+There is no corresponding classification in the vcalendar specification.
+
 [↺ contents](#contents)
 
 ### inbox {#inbox}
