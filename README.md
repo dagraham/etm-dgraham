@@ -585,14 +585,30 @@ Here is an illustrative screenshot from *Goals View*:
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/goals.png" alt="new" title="goals view" width="600px" hspace="20px"/>
 
-In this screen shot the first goal in "Active" is selected and its details panel is displayed. The leading "1/5q" in the main window indicates that 1 instance of the goal of 5 has been completed for the current (q)uarter. The trailing (2) means that 2 more completions are currently needed to get back on schedule.  The other active goals "0/4y", "0/1w" and "0/2m" have similar interpretations but correspond to goals for (y)ear, (w)eek and (m)onth periods, respectively.
+In this screen shot, it is currently Thursday, June 6 2024 (the 80th anniversary of D-Day). Following "Active" in the first line are the percentage fractions of the current week, month, quarter and year remaining as of this date.
 
-Active goals are sorted in descending order by the fraction of the relevant period that has passed and are given a color indicating number of completions needed to be on schedule: red for 2 or more, yellow for 1 and blue otherwise. 
+The goal "Amet modi ..." in "Active" is selected and its details panel is displayed. The leading "~ 2/14w" indicates that 2 instances of the goal of 14 have been completed for the current (w)eek. The trailing (4) means that 4 more completions are currently needed to get back on schedule.  Other active goals such as "~ 0/10q", "~ 1/4y" and "~ 0/2m" have similar interpretations but correspond to goals for (q)uarter, (y)ear and (m)onth periods, respectively.
 
-All the normal commands are available and, additionally, these commands are available when a goal is selected:
+In the details panel,
+
+    @q 14w: 20-40
+
+sets a goal of "14" instances per week. The following ": 20-40" indicates that this goal is to apply each year only to week numbers 20, 21, 22, ..., 40. Alternatively, a comma separated list of relevant week numbers such as "10, 15, 27" could be used. Such period restrictions can also be used for months (1, 2, ... 12) and quarters (1, 2, 3, 4). Absent such a restriction, a goal applies to all periods.
+
+Active goals are sorted in descending order by the degree to which the goal is currently behind schedule. Suppose `goal` is the numeric goal for the period, e.g, 14, `days` is the length of the period, e.g., 7, `day` is the number of days in the period that have currently passed, e.g., 3 for Thursday and `done` is the current number of completions, e.g., 2.  Then, again for the example, `goal/days = 14/7 = 2` is the initial rate at which completions were scheduled.  As of the current moment, 
+
+    (quota - done)/(days - day) = (14 - 2)/(7 - 3) = 3
+
+the rate at which the remaining completions must occur per remaining day is 3 which is `3/2 = 1.5` times as great as the initial completion rate. This ratio of the needed current completion rate relative to the initial completion rate is the measure used for "behind schedule". 
+
+* behind schedule >= 2: very late, color red
+* 2 >= behind schedule >= 4/3: late, color yellow
+* 4/3 > behind schedule: on time, color blue 
+
+Goals view is a normal *etm* view and all the normal commands are available. Additionally, these commands are available when a goal is selected:
 - F:  increment the completion count for the current period (by incrementing the count for the current period in @h).
 - ^a: toggle the active/paused status by reversing the sign of the quota component of @q. Goals with negative quotas are regarded as *paused* and are displayed in a separate category. 
-- ^e: end the goal by setting the quota component of `@q` equal to zero. Goals with zero quotas (or goals with quotas specifying a number of periods that has expired) are regarded as *ended* and are also displayed in a separate category. A *goal* could, of course, be deleted but this would also delete the history of completions. 
+- ^e: end the goal by setting the quota component of `@q` equal to zero. Goals with zero quotas are regarded as *ended* and are also displayed in a separate category. (A *goal* could, of course, be deleted but this would also delete the history of completions.) 
 
 [↺ contents](#contents)
 
