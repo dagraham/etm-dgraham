@@ -119,9 +119,14 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
 """
 
     goal_examples = f"""\
-~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 1w @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 2w @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 7w @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 14w: 20-40 @t lorem
 ~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 2m @t lorem
-~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 3q @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 28m @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 56q @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 10q: 1, 2 @t lorem
+~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 10q: 3, 4 @t lorem
 ~ {phrase()} @s {now.strftime('%Y-%m-%d')} @q 4y @t lorem
 """.split('\n')
 

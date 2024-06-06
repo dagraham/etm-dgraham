@@ -581,7 +581,7 @@ class TDBLexer(RegexLexer):
 def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
     return txt
 
-def wrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
+def wrap(txt, indent=1, width=shutil.get_terminal_size()[0] - 3):
     """
     Wrap text to terminal width using indent spaces before each line.
     >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
