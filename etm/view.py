@@ -2842,7 +2842,18 @@ def do_finish(*event):
     
     if hsh['itemtype'] == '~':
         # only need the number of goal completions
-        quota, period, periods = hsh['q']
+        logger.debug(f"{hsh = }")
+        tups = hsh['q']
+        quota = tups[0]
+        periods = []
+        if len(tups) < 2:
+            period = 'w'
+        elif len(tups) == 2:
+            period = tups[1]
+        else:
+            period = tups[1]
+            periods = tups[2]
+
         this_period = model.get_fraction_of_period_passed(period)[0]
         hist = hsh.get('h', {})
         done = hist.get(this_period, 0) if hist else 0
