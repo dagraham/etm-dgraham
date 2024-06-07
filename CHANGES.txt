@@ -1,4 +1,39 @@
-2024-06-01 b60f926 Daniel Graham
+2024-06-07 ef64e89 Daniel Graham
+    Tagged version 6.4.0. Major updates to Goals
+
+2024-06-07 def62a0 Daniel Graham
+    Added dialog to specify the number of goal completions to record.
+
+2024-06-07 df02f9f Daniel Graham
+    Fixed overdue job bug
+
+2024-06-07 323cacf Daniel Graham
+    Added days period to goals. Added test for valid goal periods.
+    Added num_completed option to limit goal histories.
+
+2024-06-06 12cbc41 Daniel Graham
+    README tweaks
+
+2024-06-06 4ad079c Daniel Graham
+    updated goals.png
+
+2024-06-06 3c960e8 Daniel Graham
+    updated goals.png
+
+2024-06-06 bfa984a Daniel Graham
+    Updated make_examples for goals. Fixed logic in matching goal
+    periods. README image tweaks.
+
+2024-06-01 cc83d86 Daniel Graham
+    goals.png tweak
+
+2024-06-01 800e79d Daniel Graham
+    README tweaks
+
+2024-06-01 ec9bae9 Daniel Graham
+    README tweaks
+
+2024-06-01 9b54ab2 Daniel Graham
     Tagged version 6.3.1.
 
 2024-06-01 d13c107 Daniel Graham
@@ -156,37 +191,3 @@
 
 2024-05-05 bd65af8 Daniel Graham
     README tweaks
-
-2024-05-05 e337b72 Daniel Graham
-    README tweaks
-
-2024-05-05 68b9823 Daniel Graham
-    README tweaks
-
-2024-05-05 1789fb5 Daniel Graham
-    Merge branch 'working'
-
-2024-05-05 abf7a33 Daniel Graham
-    First pass at adding goals to README
-
-2024-05-05 a58c62f Daniel Graham
-    Merge branch 'working'
-
-2024-05-05 92a4a5b Daniel Graham
-    Updated implementing_goals
-
-2024-05-05 f71fd6c Daniel Graham
-    Updates for implementing_goals
-
-2024-05-04 65f93a4 Daniel Graham
-    Updated docs/implementing_goals.md
-
-2024-05-04 8601216 Daniel Graham
-    Updated docs/implementing_goals.md
-
-2024-05-04 6ffaa2f Daniel Graham
-    Tagged version 6.2.0. Added a new item type, goal, and a
-    corresponding goal view.
-
-2024-05-04 bd93aab Daniel Graham
-    Merge branch 'working' into goals
