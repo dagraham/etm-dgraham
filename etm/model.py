@@ -1154,6 +1154,7 @@ item_hsh:    {self.item_hsh}
     def increment_goal(
             self,
             item_id: int,
+            completions: int = 1,
             ) -> bool:
         self.item_hsh = self.db.get(doc_id=item_id)
         if self.item_hsh['itemtype'] != '~':
@@ -1175,7 +1176,7 @@ item_hsh:    {self.item_hsh}
             
         # this_week_str = f"{this_week[0]}:{this_week[1]:02}"
         done = hist.get(this_period, 0)
-        hist[this_period] = done + 1
+        hist[this_period] = done + completions
         keep = settings.get('num_completed', 0)
         if hist and keep:
             prds = [x for x in hist.keys()]

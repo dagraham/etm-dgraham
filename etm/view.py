@@ -2839,15 +2839,38 @@ def do_finish(*event):
 
     hsh = DBITEM.get(doc_id=doc_id)
     msg = ''
+    
     if hsh['itemtype'] == '~':
-        # incrementing completions of a goal
-        changed = item.increment_goal(doc_id)
+        # only need the number of goal completions
+        quota, period, periods = hsh['q']
+        this_period = model.get_fraction_of_period_passed(period)[0]
+        hist = hsh.get('h', {})
+        done = hist.get(this_period, 0) if hist else 0
+        done_str = f"{done} instance" if done == 1 else f"{done} instances"
+        text = f"""\
+{hsh['itemtype']} {hsh['summary']}
+
+For this goal {done_str} of {quota} have been completed.
+
+If necessary, edit the number of completions to record
+"""
+        default = '1'
+        logger.debug(f"{text = }; {default = }")
+        get_entry("Record Completions", text, default, event)
+
+
+    def coroutine():
+        completions = int(dataview.entry_content.strip())
+        changed = item.increment_goal(doc_id, completions)
         if changed:
             # show_message('Finish', 'Incremented tally for goal')
-            # set_text(dataview.show_active_view())
+            set_text(dataview.show_active_view())
             loop = asyncio.get_event_loop()
             loop.call_later(0, data_changed, loop)
-        return
+
+    dataview.got_entry = coroutine
+
+    return
 
     if hsh['itemtype'] != '-' or 'f' in hsh:
         show_message('Finish', 'Only an unfinished task can be finished.')
@@ -2873,6 +2896,7 @@ def do_finish(*event):
 
     now = format_datetime(datetime.now().astimezone(), short=True)[1]
     default = now
+    
 
     if job:
         # only a completion date needed - either undated or finishing the oldest instance
