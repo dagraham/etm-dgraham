@@ -1,4 +1,10 @@
-2024-06-07 ef64e89 Daniel Graham
+2024-06-07 da8f45d Daniel Graham
+    Tagged version 6.4.1.
+
+2024-06-07 be2f6de Daniel Graham
+    Bug fix for missing period in goal quota.
+
+2024-06-07 4293602 Daniel Graham
     Tagged version 6.4.0. Major updates to Goals
 
 2024-06-07 def62a0 Daniel Graham
@@ -185,9 +191,3 @@
 
 2024-05-06 4caaed7 Daniel Graham
     Tagged version 6.2.1.
-
-2024-05-06 272ef22 Daniel Graham
-    Fixed sorting bug in do next view
-
-2024-05-05 bd65af8 Daniel Graham
-    README tweaks
