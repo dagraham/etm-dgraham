@@ -1,4 +1,10 @@
-2024-06-07 da8f45d Daniel Graham
+2024-06-07 25b438a Daniel Graham
+    Tagged version 6.4.2.
+
+2024-06-07 7b3e92d Daniel Graham
+    do_finish bug fix
+
+2024-06-07 8864153 Daniel Graham
     Tagged version 6.4.1.
 
 2024-06-07 be2f6de Daniel Graham
@@ -185,9 +191,3 @@
 
 2024-05-06 e802430 Daniel Graham
     Added goals.txt to the output associated with keep_current
-
-2024-05-06 c3d0360 Daniel Graham
-    Show average as 0 instead of 0.0 in goals view
-
-2024-05-06 4caaed7 Daniel Graham
-    Tagged version 6.2.1.
