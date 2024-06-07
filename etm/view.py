@@ -2840,6 +2840,10 @@ def do_finish(*event):
     hsh = DBITEM.get(doc_id=doc_id)
     msg = ''
     
+    if hsh['itemtype'] not in '~-' or 'f' in hsh:
+        show_message('Finish', 'Only an unfinished task can be finished.')
+        return
+    
     if hsh['itemtype'] == '~':
         # only need the number of goal completions
         logger.debug(f"{hsh = }")
@@ -2870,22 +2874,19 @@ If necessary, edit the number of completions to record
         get_entry("Record Completions", text, default, event)
 
 
-    def coroutine():
-        completions = int(dataview.entry_content.strip())
-        changed = item.increment_goal(doc_id, completions)
-        if changed:
-            # show_message('Finish', 'Incremented tally for goal')
-            set_text(dataview.show_active_view())
-            loop = asyncio.get_event_loop()
-            loop.call_later(0, data_changed, loop)
+        def coroutine():
+            completions = int(dataview.entry_content.strip())
+            changed = item.increment_goal(doc_id, completions)
+            if changed:
+                # show_message('Finish', 'Incremented tally for goal')
+                set_text(dataview.show_active_view())
+                loop = asyncio.get_event_loop()
+                loop.call_later(0, data_changed, loop)
 
-    dataview.got_entry = coroutine
+        dataview.got_entry = coroutine
 
-    return
-
-    if hsh['itemtype'] != '-' or 'f' in hsh:
-        show_message('Finish', 'Only an unfinished task can be finished.')
         return
+    
 
     # has_timer = doc_id in dataview.timers
     # timer_warning = " and\nits associated timer" if has_timer else ""
