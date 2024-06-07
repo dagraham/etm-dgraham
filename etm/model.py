@@ -1172,9 +1172,15 @@ item_hsh:    {self.item_hsh}
         # this_week = tuple([int(x) for x in now.strftime("%Y,%W").split(',')])
         self.item_hsh.setdefault('h', {})
         hist = self.item_hsh.get('h', {})
+            
         # this_week_str = f"{this_week[0]}:{this_week[1]:02}"
         done = hist.get(this_period, 0)
         hist[this_period] = done + 1
+        keep = settings.get('num_completed', 0)
+        if hist and keep:
+            prds = [x for x in hist.keys()]
+            prds.sort()
+            hist = {k: v for k, v in hist.items() if k in prds[-keep:]}
         self.item_hsh['h'] = hist
         self.item_hsh['modified'] = now
         self.do_update()
@@ -1807,7 +1813,7 @@ item_hsh:    {self.item_hsh}
         obj = None
 
         quota_regex = re.compile(
-            r'^\s*(-?\d+)([yqmw]?)((?::\s*)?[,\d\s-]*)$'
+            r'^\s*(-?\d+)([yqmwd]?)((?::\s*)?[,\d\s-]*)$'
             )
         
         periods_regex = re.compile(r'^\s*\d+-\d+$|^\d+(,\s*\d+)*\s*$')
@@ -1815,12 +1821,21 @@ item_hsh:    {self.item_hsh}
                 'y': 'year',
                 'q': 'quarter',
                 'm': 'month',
-                'w': 'week'
+                'w': 'week',
+                'd': 'day'
         }
         rep_periods = ''
         periods_str = ''
         periods = []
         rep_periods = ''
+
+        allowed_periods = {
+                'y': None,
+                'q': range(1, 5),
+                'm': range(1, 13),
+                'w': range(1, 54),
+                'd': range(0, 7)
+        }
 
         m = quota_regex.match(arg)
         if m:
@@ -1834,15 +1849,22 @@ item_hsh:    {self.item_hsh}
                     be = periods_str.split('-')
                     if len(be) == 2 and be[1].strip():
                         b, e = [int(x.strip()) for x in be]
-                        if b and e and e > b:
+                        if (
+                            b in allowed_periods[period] and e in allowed_periods[period] and e >= b
+                            ):
                             periods_str = f"{b}-{e}"
                             periods = [x for x in range(int(b), int(e)+1)]
                         else:
-                            periods_str = ""
+                            periods_str = f"*** invalid {periods_str} ***"
                             periods = []
                     else:
                         logger.debug(f"not r {periods_str}")
                         periods = [int(x.strip()) for x in periods_str.split(',') if x]
+                        if all(x in allowed_periods[period] for x in periods):
+                            periods_str = ', '.join([str(x) for x in periods])
+                        else:
+                            periods_str = f"*** invalid {periods_str} ***"
+                            periods = []
                         logger.debug(f"not r {periods = }")
                     logger.debug(f"{periods = }; {periods_str = }")
                     rep_periods = f" for {period_dict[period]} numbers in {periods_str} "
@@ -1856,7 +1878,7 @@ item_hsh:    {self.item_hsh}
         else:
             rep = """\
 goal: integer times/period followed by a period from 
-    (y)ear, (q)uarter, (m)onth or (w)eek
+    (y)ear, (q)uarter, (m)onth, (w)eek or (d)ay
 For a period other than (y)ear, optionally followed by a comma and then a comma separated list of the numbers of the periods during the year for which the goal applies - the default all periods. E.g., '@q 2q, 1' would set a goal for 2 completions per quarter during the 1st quarter of each year"""
         
         return obj, rep
@@ -1941,7 +1963,8 @@ For a period other than (y)ear, optionally followed by a comma and then a comma 
         if self.item_hsh['itemtype'] == '~':
             obj = {}
             # arg list will be a list of year:weeknum num_done
-            rx = re.compile(r'^\s*\d{4}([:#-]\d{1,2})?\s+\d+\s*$')
+            # rx = re.compile(r'^\s*\d{4}([:#-]\d{1,2})?\s+\d+\s*$')
+            rx = re.compile(r'^\s*\d{4}([:#-]\d{1,2})?(:\d)?\s+\d+\s*$')
             for arg in args:
                 match = rx.match(arg.strip())
                 if match:
@@ -8248,6 +8271,13 @@ def get_fraction_of_period_passed(period:str = 'w'):
         )
 
     # Helper function to calculate fraction of the week passed
+    def fraction_of_day_passed():
+        this_period_tup = today.isocalendar()[:2] # yyyy, weeknum
+        day = today.weekday()
+        this_period = f"{this_period_tup[0]}:{this_period_tup[1]:02}:{day}"
+        days = 1
+        return this_period, day, days, 0
+
     def fraction_of_week_passed():
         this_period_tup = today.isocalendar()[:2] # yyyy, weeknum
         this_period = f"{this_period_tup[0]}:{this_period_tup[1]:02}"
@@ -8281,7 +8311,9 @@ def get_fraction_of_period_passed(period:str = 'w'):
         days = (end_of_year - start_of_year).days + 1
         return f"{today.year}", day, days, day / days 
 
-    if period == 'w':
+    if period == 'd':
+        return fraction_of_day_passed()
+    elif period == 'w':
         return fraction_of_week_passed()
     elif period == 'm':
         return fraction_of_month_passed()
@@ -8302,7 +8334,10 @@ def get_period_begin_date(input_date, period):
         input_date = date_to_datetime(input_date)
     input_date = input_date.astimezone(local_tz)
 
-    if period == 'w':
+    if period == 'd':
+        return input_date
+    
+    elif period == 'w':
         return input_date - timedelta(days=input_date.weekday())
     
     elif period == 'm':
@@ -8329,8 +8364,11 @@ def get_period_end_date(input_date, period, periods_ahead):
     # periods_ahead = max(periods_ahead[:1][0], 1)
     periods_ahead = 1
     
-    if period == 'w':
-        return input_date + timedelta(days=(6 - input_date.weekday())) + timedelta(weeks=periods_ahead-1) + timedelta(days=1, seconds=-1)
+    if period == 'd':
+        return input_date + timedelta(days=1, seconds=-1)
+    
+    elif period == 'w':
+        return input_date + timedelta(days=(6 - input_date.weekday())) + timedelta(days=1, seconds=-1)
     
     # Calculate the last day of the month periods_ahead months from input_date
     elif period == 'm':
@@ -8393,6 +8431,7 @@ def show_goals(
     # weekdays_remaining = 7 - current_weekday  # 7, 6, ..., 1 
 
     this_period_hsh = {
+        'd': [],
         'w': [],
         'm': [],
         'q': [],
@@ -8409,7 +8448,7 @@ def show_goals(
     logger.debug(f"{active_hsh = }")
 
     active_periods = ' '.join([f"{100-round(v[-1]*100)}%{k}{re.split('[#:-]', v[0])[-1].lstrip('0')}" 
-                  for k, v in this_period_hsh.items()])
+                  for k, v in this_period_hsh.items() if k != 'd'])
     
     active_str = f"Active  {active_periods}"
     

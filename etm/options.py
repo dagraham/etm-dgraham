@@ -245,6 +245,7 @@ class Settings:
     keep_current = [0, 46]
     archive_after = 0
     refresh_interval = 6
+    num_completed = 0
     num_finished = 0
     num_repetitions = 10
     limit_skip_display = 'true'
@@ -284,6 +285,7 @@ class Settings:
         'keep_current': keep_current,
         'archive_after': archive_after,
         'refresh_interval': refresh_interval,
+        'num_completed': num_completed,
         'num_finished': num_finished,
         'num_repetitions': num_repetitions,
         'limit_skip_display': limit_skip_display,
@@ -404,6 +406,11 @@ archive_after: {archive_after}
 # "items" table in the database to the "archive" table and will no
 # longer appear in normal views. Note that unfinished tasks and
 # journal entries are not archived.
+
+num_completed: {num_completed}
+# non-negative integer. If positive, when saving retain only the most
+# recent "num_completed" completions of a goal, otherwise save all
+# completions.
 
 num_finished: {num_finished}
 # non-negative integer. If positive, when saving retain only the most

@@ -495,7 +495,7 @@ The display for each reminder shows the itemtype and summary column on the left 
   * d: Do Next: undated tasks grouped by location/context and ordered by priority (highest first) and extent (least first)
   * e: Effort: instances of reminders with used time entries with daily totals displayed graphically
   * f: Forthcoming: unfinished dated tasks and other dated reminders by next occurrence
-  * g: Goals: the status of all *goal* reminders as of the current year and week
+  * g: Goals: the status of all *goal* reminders as of the current year, month, quarter, week and day
   * h: History: all items by the latter of the modified or created datetimes in descending order, i.e., most recent first. Datetimes are displayed using a 5 character format where, e.g., 1:15pm today would be displayed as 13:15, November 7 of the current year as 11/17 and January 15 of 2012 as 12.01.
   * i: Index: all items grouped hierarchically by index entry
   * j: Journal: journal entries grouped hierarchically by index entry
@@ -579,31 +579,27 @@ One final useful context is 'waiting for'. E.g., completing a task might depend 
 
 ### Goals View {#goals-view}
 
-This is a dedicated view that *only displays goals*. Goals are also displayed in *History View*, *Index View* and so forth, but are **not** displayed in *Agenda View* since goals apply *only to the current period (week, month, quarter or year)*.  This view can be selected in *etm* either by pressing "g" or by selecting *goals* from the *view* menu.
+This is a dedicated view that *displays only goals*.  This view can be selected in *etm* either by pressing "g" or by selecting *goals* from the *view* menu.
 
-Here is an illustrative screenshot from *Goals View*:
+Here is an illustrative screenshot:
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/goals.png" alt="new" title="goals view" width="600px" hspace="20px"/>
 
-In this screen shot, it is currently Thursday, June 6 2024 (the 80th anniversary of D-Day). Following "Active" in the first line are the percentage fractions of the current week, month, quarter and year remaining as of this date.
+In this screen shot, it is currently Thursday, June 6 2024. Following "Active" in the first line are the percentage fractions of the current week, month, quarter and year remaining as of this date followed by the numbers of these periods, week 23, month 6 and so forth.
 
-The goal "Amet modi ..." in "Active" is selected and its details panel is displayed. The leading "~ 2/14w" indicates that 2 instances of the goal of 14 have been completed for the current (w)eek. The trailing (4) means that 4 more completions are currently needed to get back on schedule.  Other active goals such as "~ 0/10q", "~ 1/4y" and "~ 0/2m" have similar interpretations but correspond to goals for (q)uarter, (y)ear and (m)onth periods, respectively.
+The goal "Amet modi ..." in "Active" is selected and its details panel is displayed. The leading "~ 2/14w" indicates that 2 instances of the goal of 14 have been completed for the current (w)eek. The trailing (4) means that 4 more completions are currently needed to get back on schedule.  Other active goals such as "~ 0/10q", "~ 1/4y" and "~ 0/2m" have similar interpretations and correspond to goals for (q)uarter, (y)ear and (m)onth periods, respectively.
 
-In the details panel,
+In the details panel, `@q 14w: 20-40` sets a goal of "14" instances per week. The following `: 20-40` indicates that this goal is to apply each year only to week numbers 20, 21, 22, ..., 40. Alternatively, a comma separated list of relevant week numbers such as "10, 15, 27" could be used. Such period restrictions can also be used for month (1, 2, ... 12) and quarter (1, 2, 3, 4) numbers. Absent such a restriction, a goal applies to all periods.
 
-    @q 14w: 20-40
-
-sets a goal of "14" instances per week. The following ": 20-40" indicates that this goal is to apply each year only to week numbers 20, 21, 22, ..., 40. Alternatively, a comma separated list of relevant week numbers such as "10, 15, 27" could be used. Such period restrictions can also be used for months (1, 2, ... 12) and quarters (1, 2, 3, 4). Absent such a restriction, a goal applies to all periods.
-
-Active goals are sorted in descending order by the degree to which the goal is currently behind schedule. Suppose `goal` is the numeric goal for the period, e.g, 14, `days` is the length of the period, e.g., 7, `day` is the number of days in the period that have currently passed, e.g., 3 for Thursday and `done` is the current number of completions, e.g., 2.  Then, again for the example, `goal/days = 14/7 = 2` is the initial rate at which completions were scheduled.  As of the current moment, 
+Active goals are sorted in descending order by the degree to which the goal is currently behind schedule. Suppose `quota` is the numeric goal for the period, e.g, 14, `days` is the length of the period in days, e.g., 7, `day` is the number of days in the period that have currently passed, e.g., 3 for Thursday when Monday, Tuesday and Wednesday have passed, and `done` is the current number of completions, e.g., 2.  Then `goal/days = 14/7 = 2` was the initially scheduled rate for completions per day.  As of the current moment, however, 
 
     (quota - done)/(days - day) = (14 - 2)/(7 - 3) = 3
 
-the rate at which the remaining completions must occur per remaining day is 3 which is `3/2 = 1.5` times as great as the initial completion rate. This ratio of the needed current completion rate relative to the initial completion rate is the measure used for "behind schedule". 
+is the rate needed for completions per day to complete the goal in the remaining time and this current rate is `3/2 = 1.5` times as great as the initial completion rate. This ratio of the necessary current completion rate relative to the initial completion rate is the measure for "behind schedule" that is used to categorize active goals:
 
-* behind schedule >= 2: very late, color red
-* 2 >= behind schedule >= 4/3: late, color yellow
-* 4/3 > behind schedule: on time, color blue 
+* behind schedule >= 2: colored red 
+* 2 >= behind schedule >= 4/3: colored yellow 
+* 4/3 > behind schedule: colored blue 
 
 Goals view is a normal *etm* view and all the normal commands are available. Additionally, these commands are available when a goal is selected:
 - F:  increment the completion count for the current period (by incrementing the count for the current period in @h).
@@ -624,7 +620,7 @@ The sort order assures that the reminder with the active timer will always be at
 
 Displays a list of the summaries and location/contexts (@l entries) of undated and unfinished tasks sorted by their (last) modified timestamp and grouped by the number of weeks since last modified.
 
-This view is used for a periodic review of such "todos" with the goal of not letting them 'slip through the cracks'. Either editing a task or pressing "^U" with the task selected resets the modified timestamp to the current time and thus moves the task to the "this week" group at the bottom of the list.
+This view is used for a periodic review of such *todos* with the goal of not letting them 'slip through the cracks'. Either editing a task or pressing "^U" with the task selected resets the modified timestamp to the current time and thus moves the task to the "this week" group at the bottom of the list.
 
 A reasonable work flow would be to open this view once every week or so and examine tasks more than a week "old", editing them when necessary and otherwise updating the modified timestamp using "V" so that all tasks are kept within the 'last week' or 'this week' groups.
 
@@ -1768,8 +1764,8 @@ The goal itemtype is intended to support pursuing S.M.A.R.T. goals (Specific, Me
 ```
 - It is a *goal* because of the `~` type character. 
 - Because I have a custom interval setting on my exercise bike, "interval training" is *specific* and *measurable*. It is also *achievable* and *relevant* for me.
-- The `@q` entry is required and sets to quota for this goal to 3 times per (w)eek, repeating indefinitely. Had the quota instead been, say, `@q 3w, 5`  then the goal would have been 5 times per week repeated for 5 weeks. Instead of using 'w' for weekly, it is also possible to use 'y' for yearly, 'q' for quarterly or 'm' for monthly.
-- The `@s` entry is required and times the goal to begin on Monday, April 22, 2024. Whatever date is entered will automatically indentify the appropriate period given in the @q entry - week, month, quarter or year.
+- The `@q` entry is required and sets to quota for this goal to 3 times per (w)eek, repeating indefinitely. Had the quota instead been, say, `@q 1d: 0-4` then the goal would have been 1 time per (d)ay for weekday numbers in the range 0-4, inclusive, i.e., weekdays. Instead of using 'w' for weekly or 'd' for daily, it is also possible to use 'y' for yearly, 'q' for quarterly or 'm' for monthly.
+- The `@s` entry is required and times the goal to begin on Monday, April 22, 2024. Whatever date is entered will automatically indentify the appropriate period given in the @q entry - day, week, month, quarter or year.
 - If this goal were selected in *etm* sometime during week number 22 of 2024, for example, and "F" were pressed, then *etm* would add an `@h 2024:22 1` (history of completions) entry to indicate 1 completion of the goal for the week of *2024:22*. Pressing "F" again in the same week with this goal selected would change this entry to `@h 2024:22 2`.  As one last example, pressing "F" with the goal selected sometime during the week of *2024:23* would leave the recorded entry as
 
     ```
@@ -1874,7 +1870,7 @@ would specify the the scheduled datetime for the item is 9am on the Monday follo
 *  @n*: attendee. string using "[name:] address" format. If "address" begins with exactly 10 digits followed by an "@" it is treated as a mobile phone number. Otherwise it is treated as an email address. The optional "name:" can be used to facilitate autocompletion.
 *  @o: overdue. character from (r) restart, (s) skip, (k) keep. Defaults to (k) keep.
 *  @p: priority. integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
-*  @q: quota. Used to specify the attributes of a goal. E.g., @q 3m, 2 would specify a goal of 3 completions per (m)onth for 2 months. Other period options include (y)ear, (q)uarter and (w)eek. Week is the default. The default for the number of periods is 0 which entails repeating indefinitely.
+*  @q: quota. Used in goals to specify the attributes. E.g., `@q 3m: 2, 3` would specify a goal of 3 completions per (m)onth for month numbers 2 and 3 each year. A range can also be used to specify period numbers, e.g., `@q 3: 1-5`. The default, absent a periods specification, is to apply the goal to all of the specified periods. Other options for period include (y)ear, (q)uarter and (w)eek and (d)day. Week is the default. The default for the number of periods is 0 which entails repeating indefinitely.
 *  @r*: repetition frequency, a character from (y)early, (m)onthly, (w)eekly,
   (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &key entries
 *  @s: scheduled date or datetime
