@@ -7585,7 +7585,7 @@ def relevant(
         if not relevant:
             continue
 
-        pastdue_jobs = False
+        # pastdue_jobs = False
         if 'j' in item and 'f' not in item:
             # jobs only for the relevant instance of unfinished tasks
             for job in item['j']:
@@ -7596,13 +7596,13 @@ def relevant(
                 job_summary = (
                     f"{job.get('summary', '')[:summary_width]} {num_remaining}"
                 )
-                jobstart = dtstart - job.get('s', ZERO)
+                jobstart = dtstart + job.get('s', ZERO)
                 extent = job.get('e', ZERO)
                 if (
                     (jobstart + extent).date() < today.date()
                     and job.get('status', None) == '-'
                 ):
-                    pastdue_jobs = True
+                    # pastdue_jobs = True
                     pastdue.append(
                         [
                             ((jobstart + extent).date() - today.date()).days,
