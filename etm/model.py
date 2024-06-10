@@ -8445,7 +8445,13 @@ def show_goals(
 
     logger.debug(f"{this_period_hsh = }")
 
-    active_hsh = {k: int(re.split('[#:-]', v[0])[-1].lstrip('0')) for k, v in this_period_hsh.items()}
+    active_hsh = {k: re.split('[#:-]', v[0])[-1] for k, v in this_period_hsh.items()}
+    for k in active_hsh.keys():
+        if k in 'wm':
+            active_hsh[k] = int(active_hsh[k].lstrip('0'))
+        else:
+            active_hsh[k] = int(active_hsh[k])
+
     logger.debug(f"{active_hsh = }")
 
     active_periods = ' '.join([f"{100-round(v[-1]*100)}%{k}{re.split('[#:-]', v[0])[-1].lstrip('0')}" 

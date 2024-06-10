@@ -135,8 +135,6 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
 * spring standard -> daylight time  @s {now.strftime('%Y-%m-%d')} @r y &M 3 &w 2SU &h 0, 1, 2, 3 &n 30 @t lorem
 """.split('\n')
 
-    alerts = [f'@a {random.choice([0, 15, 30])}m: d' for x in range(10)]
-
     types = ['-', '*', '%']
     clients = ['A', 'B', 'C', 'D']
     client_name = {
@@ -241,13 +239,8 @@ def make_examples(egfile: str = None, num_items: int = num_items, last_id=0):
                 )
             else:
                 x = random.choice(extent)
-                c = random.choice([0, 0, 1])
-                if c:
-                    a = random.choice(alerts)
-                else:
-                    a = ''
                 examples.append(
-                    f'{t} {summary} @s {s} @e {x}m {a} @i {client_index}/{i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem'
+                    f'{t} {summary} @s {s} @e {x}m @i {client_index}/{i1}/{i2} {used} @d {d} @t {random.choice(tags)} @t lorem'
                 )
         elif t == '-':
             if start < now - 2 * ONEWK:

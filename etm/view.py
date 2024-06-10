@@ -723,7 +723,7 @@ def get_entry(title: str, text: str, default: str, event) -> any:
 
     entry_title_buffer.text = heading
     entry_display_area.text = wrap_text(text)
-    entry_buffer.text = ' ' + default
+    entry_buffer.text = default
     dataview.show_entry()
     entry_buffer_changed(event)
     # default_cursor_position_changed(event)
