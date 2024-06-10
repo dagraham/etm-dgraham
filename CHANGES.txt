@@ -1,4 +1,10 @@
-2024-06-07 25b438a Daniel Graham
+2024-06-10 30ea0ac Daniel Graham
+    Tagged version 6.4.3.
+
+2024-06-10 a91a903 Daniel Graham
+    Fixed 'int' bug in setting active_hsh
+
+2024-06-07 c0051ef Daniel Graham
     Tagged version 6.4.2.
 
 2024-06-07 7b3e92d Daniel Graham
@@ -185,9 +191,3 @@
 
 2024-05-06 de9a6fa Daniel Graham
     Bug fix in show_goals
-
-2024-05-06 b4ad835 Daniel Graham
-    Tagged version 6.2.2.
-
-2024-05-06 e802430 Daniel Graham
-    Added goals.txt to the output associated with keep_current
