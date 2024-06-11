@@ -1,4 +1,10 @@
-2024-06-10 30ea0ac Daniel Graham
+2024-06-11 6dfb86e Daniel Graham
+    Tagged version 6.4.4. zero division bug fix
+
+2024-06-11 86e94fe Daniel Graham
+    Fixed bug in computing lag when the period is day.
+
+2024-06-10 ae67819 Daniel Graham
     Tagged version 6.4.3.
 
 2024-06-10 a91a903 Daniel Graham
@@ -185,9 +191,3 @@
 
 2024-05-06 80b038f Daniel Graham
     README tweaks
-
-2024-05-06 804789b Daniel Graham
-    Tagged version 6.2.3.
-
-2024-05-06 de9a6fa Daniel Graham
-    Bug fix in show_goals
