@@ -8274,8 +8274,9 @@ def get_fraction_of_period_passed(period:str = 'w'):
     # Helper function to calculate fraction of the week passed
     def fraction_of_day_passed():
         this_period_tup = today.isocalendar()[:2] # yyyy, weeknum
-        day = today.weekday()
-        this_period = f"{this_period_tup[0]}:{this_period_tup[1]:02}:{day}"
+        weekday = today.weekday()
+        this_period = f"{this_period_tup[0]}:{this_period_tup[1]:02}:{weekday}"
+        day = 0
         days = 1
         return this_period, day, days, 0
 
@@ -8531,7 +8532,8 @@ def show_goals(
         rep = ""
         lag = 1
         if path == 'Active':
-            lag = round( ((quota - min(done, quota)) / quota) * days / (days-day), 2)
+            logger.debug(f"{days = }; {day = }; {period = }")
+            lag = round( ((quota - min(done, quota)) / quota) * days / (days-day), 2) 
             late_level = 2 
             slow_level = 4/3 
             logger.debug(f"{lag = }")
