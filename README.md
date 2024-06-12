@@ -579,24 +579,26 @@ One final useful context is 'waiting for'. E.g., completing a task might depend 
 
 ### Goals View {#goals-view}
 
-This is a dedicated view that *displays only goals*.  This view can be selected in *etm* either by pressing "g" or by selecting *goals* from the *view* menu.
+This is a dedicated view that *only displays goals*.  This view can be selected in *etm* either by pressing "g" or by selecting *goals* from the *view* menu.
 
 Here is an illustrative screenshot:
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/goals.png" alt="new" title="goals view" width="600px" hspace="20px"/>
 
-In this screen shot, it is currently Wednesday June 12 2024. Following "Active" in the first line are the percentage fractions of the current day, week, month, quarter and year remaining as of this date followed by the numbers of these periods, weekday 2 (Wednesday), week 24, month 6 and so forth.
+In this screen shot, it is currently Wednesday June 12 2024. Following "Active" in the first line are the percentage fractions of the current day, week, month, quarter and year remaining as of this date followed by the numbers of these periods, weekday 2 (Wednesday), week 24, month 6 and so forth. 
 
-The goal "Est neque ..." in "Active" is selected and its details panel is displayed. The leading "~ 3/10q" indicates that 3 instances of the goal of 10 have been completed for the current (q)uarter. The trailing (342%) means that currently the completion rate necessary to complete the goal is 342% more than the rate needed initially.  Other active goals such as "~ 0/2m" and "~ 0/1d" have similar interpretations and correspond to goals for (m)onth, and (d)ay periods, respectively.
+Periods are measured in days and hourly fractions of days so that, for example, at 9am, the fraction 9/24 of the day has passed and 15/24 remains. In the first line, the 62% remaining for d2 corresponds to round(100 * 15 / 24) = 62. The period calculations are updated hourly, so at 10am this entry would change to 58%d2 and at 11pm (the last update), to 4%d2. 
 
-In the details panel, `@q 10q` sets the goal of "10" instances per quarter. The following `: 1,2` indicates that this goal is to apply each year only to quarter numbers 1 and 2. Alternatively, a range such as "1-3" could be used. Such period restrictions can also be used for day, week and month numbers. For days, the numbers correspond to weekday numbers so that, e.g., ": 0-4" would correspond to the weekdays from Monday (0) to Friday (4). Absent such a restriction, a goal applies to all periods. The history entry, "@h 2024#2 3" records 3 completions for the 2nd quarter of 2024.
+The goal "Est neque labore" in the first line of "Active" is selected and its details are displayed in the bottom panel. The leading "~ 3/10q" indicates that 3 instances of the goal of 10 have been completed for the current (q)uarter. The trailing (342%) means that the completion rate currently necessary to complete the goal is 342% greater than the rate needed initially.  Other active goals such as "~ 0/2m" and "~ 0/1d" have similar interpretations and correspond to goals for (m)onth, and (d)ay periods, respectively.
 
-Active goals are sorted in descending order by the relative completion rate currently necessary. Additionally, goals with relative completion rates lower than 133% are regarded as "on schedule" and are colored blue. Those with rates between 133% and 200% are colored yellow and those with still higher rates are colored red.  
+In the details panel, `@q 10q` sets the quota of "10" instances per quarter. The following `: 1,2` indicates that this goal is to apply each year only to quarter numbers 1 and 2. Alternatively, a range such as "1-3" could be used. Such period restrictions can also be used for day, week and month numbers. For days, the numbers correspond to weekday numbers so that, e.g., ": 0-4" would correspond to the weekdays Monday (0) through  Friday (4). Absent such a restriction, a goal applies to all of the  periods. The history entry, "@h 2024#2 3" indicates that 3 completions were recorded for the 2nd quarter of 2024.
 
-Goals view is a normal *etm* view and all the normal commands are available. Additionally, these commands are available whenever a goal is selected:
+Active goals are sorted in descending order by the relative completion rate currently necessary. Goals with relative completion rates lower than 133% are regarded as "on schedule" and are colored blue. Those with rates between 133% and 200% are colored yellow and those with still higher rates are colored red.  
+
+Goals view is a normal *etm* view and all the normal commands are available. These additional commands apply to goals:
 - F:  increment the completion count for the current period (by incrementing the count for the current period in @h).
 - ^a: toggle the active/paused status by reversing the sign of the quota component of @q. Goals with negative quotas are regarded as *paused* and are displayed in a separate category. 
-- ^e: end the goal by setting the quota component of `@q` equal to zero. Goals with zero quotas are regarded as *ended* and are also displayed in a separate category. (A *goal* could, of course, be deleted but this would also delete the history of completions.) 
+- ^e: end the goal by setting the quota component of `@q` equal to zero. Goals with zero quotas are regarded as *ended* and are also displayed in a separate category. (A goal could, of course, be deleted but this would also delete the history of completions.) 
 
 [↺ contents](#contents)
 
