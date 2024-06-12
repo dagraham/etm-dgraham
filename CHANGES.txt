@@ -1,4 +1,19 @@
-2024-06-11 6dfb86e Daniel Graham
+2024-06-12 6fcb704 Daniel Graham
+    Tagged version 6.4.5.
+
+2024-06-12 649d5a5 Daniel Graham
+    README tweaks
+
+2024-06-12 b28a3fd Daniel Graham
+    README
+
+2024-06-12 19d6f43 Daniel Graham
+    README Goals View tweaks
+
+2024-06-12 3be3297 Daniel Graham
+    Update goals hourly.
+
+2024-06-11 bf6de53 Daniel Graham
     Tagged version 6.4.4. zero division bug fix
 
 2024-06-11 86e94fe Daniel Graham
@@ -176,18 +191,3 @@
 
 2024-05-06 e060977 Daniel Graham
     More video link tweaks.
-
-2024-05-06 4cd33f1 Daniel Graham
-    README tweaks
-
-2024-05-06 e12dfd3 Daniel Graham
-    Moved m4v video to YouTube (unlisted)
-
-2024-05-06 c5802f9 Daniel Graham
-    Switched to standard definition (480p) for slide show
-
-2024-05-06 e01f168 Daniel Graham
-    First pass at m4v video for README
-
-2024-05-06 80b038f Daniel Graham
-    README tweaks
