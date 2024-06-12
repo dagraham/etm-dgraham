@@ -585,23 +585,15 @@ Here is an illustrative screenshot:
 
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/goals.png" alt="new" title="goals view" width="600px" hspace="20px"/>
 
-In this screen shot, it is currently Thursday, June 6 2024. Following "Active" in the first line are the percentage fractions of the current week, month, quarter and year remaining as of this date followed by the numbers of these periods, week 23, month 6 and so forth.
+In this screen shot, it is currently Wednesday June 12 2024. Following "Active" in the first line are the percentage fractions of the current day, week, month, quarter and year remaining as of this date followed by the numbers of these periods, weekday 2 (Wednesday), week 24, month 6 and so forth.
 
-The goal "Amet modi ..." in "Active" is selected and its details panel is displayed. The leading "~ 2/14w" indicates that 2 instances of the goal of 14 have been completed for the current (w)eek. The trailing (4) means that 4 more completions are currently needed to get back on schedule.  Other active goals such as "~ 0/10q", "~ 1/4y" and "~ 0/2m" have similar interpretations and correspond to goals for (q)uarter, (y)ear and (m)onth periods, respectively.
+The goal "Est neque ..." in "Active" is selected and its details panel is displayed. The leading "~ 3/10q" indicates that 3 instances of the goal of 10 have been completed for the current (q)uarter. The trailing (342%) means that currently the completion rate necessary to complete the goal is 342% more than the rate needed initially.  Other active goals such as "~ 0/2m" and "~ 0/1d" have similar interpretations and correspond to goals for (m)onth, and (d)ay periods, respectively.
 
-In the details panel, `@q 14w: 20-40` sets a goal of "14" instances per week. The following `: 20-40` indicates that this goal is to apply each year only to week numbers 20, 21, 22, ..., 40. Alternatively, a comma separated list of relevant week numbers such as "10, 15, 27" could be used. Such period restrictions can also be used for month (1, 2, ... 12) and quarter (1, 2, 3, 4) numbers. Absent such a restriction, a goal applies to all periods.
+In the details panel, `@q 10q` sets the goal of "10" instances per quarter. The following `: 1,2` indicates that this goal is to apply each year only to quarter numbers 1 and 2. Alternatively, a range such as "1-3" could be used. Such period restrictions can also be used for day, week and month numbers. For days, the numbers correspond to weekday numbers so that, e.g., ": 0-4" would correspond to the weekdays from Monday (0) to Friday (4). Absent such a restriction, a goal applies to all periods. The history entry, "@h 2024#2 3" records the 3 completions for the 2nd quarter of 2024.
 
-Active goals are sorted in descending order by the degree to which the goal is currently behind schedule. Suppose `quota` is the numeric goal for the period, e.g, 14, `days` is the length of the period in days, e.g., 7, `day` is the number of days in the period that have currently passed, e.g., 3 for Thursday when Monday, Tuesday and Wednesday have passed, and `done` is the current number of completions, e.g., 2.  Then `goal/days = 14/7 = 2` was the initially scheduled rate for completions per day.  As of the current moment, however, 
+Active goals are sorted in descending order by the relative completion rate currently necessary. Additionally, goals with relative completion rates lower than 133% are regarded as "on schedule" and are colored blue. Those with rates between 133% and 200% are colored yellow and those with still higher rates are colored red.  
 
-    (quota - done)/(days - day) = (14 - 2)/(7 - 3) = 3
-
-is the rate needed for completions per day to complete the goal in the remaining time and this current rate is `3/2 = 1.5` times as great as the initial completion rate. This ratio of the necessary current completion rate relative to the initial completion rate is the measure for "behind schedule" that is used to categorize active goals:
-
-* behind schedule >= 2: colored red 
-* 2 >= behind schedule >= 4/3: colored yellow 
-* 4/3 > behind schedule: colored blue 
-
-Goals view is a normal *etm* view and all the normal commands are available. Additionally, these commands are available when a goal is selected:
+Goals view is a normal *etm* view and all the normal commands are available. Additionally, these commands are available whenever a goal is selected:
 - F:  increment the completion count for the current period (by incrementing the count for the current period in @h).
 - ^a: toggle the active/paused status by reversing the sign of the quota component of @q. Goals with negative quotas are regarded as *paused* and are displayed in a separate category. 
 - ^e: end the goal by setting the quota component of `@q` equal to zero. Goals with zero quotas are regarded as *ended* and are also displayed in a separate category. (A *goal* could, of course, be deleted but this would also delete the history of completions.) 
