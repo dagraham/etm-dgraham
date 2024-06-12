@@ -1168,7 +1168,7 @@ item_hsh:    {self.item_hsh}
         quota = q[0]
         period = q[1] if len(q) > 1 else 'w'
         now = datetime.now().astimezone()
-        this_period, day, days, fraction_passed = get_fraction_of_period_passed(period)
+        this_period, day, days, fraction_passed = get_period_data(period)
 
         # this_week = tuple([int(x) for x in now.strftime("%Y,%W").split(',')])
         self.item_hsh.setdefault('h', {})
@@ -3681,15 +3681,17 @@ class DataView(object):
         if self.active_view != 'query':
             self.use_items()
 
+    def refresh_goals(self):
+        if 'goals' in self.view_cache:
+            logger.debug('refreshing goals')
+            del self.view_cache['goals']
+        self.show_active_view()
+
     def show_active_view(self):
-        # logger.debug(f'{self.active_view = }; {self.cached_views = }; {self.active_view in self.cached_views = }')
+        logger.debug(f"in cached_views: {self.active_view in self.cached_views}; in view_cache: {self.active_view in self.view_cache}")
 
-        if self.active_view not in self.cached_views:
-            cached_view = self.create_view()
-            return cached_view
-
-        # logger.debug('in cached views')
         if self.active_view in self.view_cache:
+            # logger.debug(f"self.view_cache[{self.active_view}] = {self.view_cache[self.active_view]}")
             timestamp, cached_view, row2id = self.view_cache[self.active_view]
             if timestamp >= self.last_modified:
                 timer_use_cache = TimeIt('use_cache')
@@ -3698,7 +3700,8 @@ class DataView(object):
                 timer_use_cache.stop()
                 return cached_view
 
-        # logger.debug(f"creating cache for {self.active_view}")
+
+        logger.debug(f"creating cache for {self.active_view}")
         timer_make_cache = TimeIt('make cache')
         cached_view = self.create_view()
         row2id = self.row2id
@@ -8259,7 +8262,7 @@ def show_journal(
     tree, row2id = rdict.as_tree(rdict)
     return tree, row2id
 
-def get_fraction_of_period_passed(period:str = 'w'):
+def get_period_data(period:str = 'w'):
     # if isinstance(input_date, str):
     #     input_date = datetime.strptime(input_date, '%Y-%m-%d')
     # elif isinstance(input_date, datetime):
@@ -8267,32 +8270,34 @@ def get_fraction_of_period_passed(period:str = 'w'):
     # else:
     #     input_date = date_to_datetime(input_date)
 
-    today = datetime.now().astimezone().replace(
+    now = datetime.now().astimezone()
+    today = now.replace(
         hour=0, minute=0, second=0, microsecond=0, tzinfo=None
         )
+    day_fraction = min(now.hour, 23) / 24
 
     # Helper function to calculate fraction of the week passed
     def fraction_of_day_passed():
         this_period_tup = today.isocalendar()[:2] # yyyy, weeknum
         weekday = today.weekday()
         this_period = f"{this_period_tup[0]}:{this_period_tup[1]:02}:{weekday}"
-        day = 0
+        day = day_fraction
         days = 1
-        return this_period, day, days, 0
+        return this_period, day, days, day / days
 
     def fraction_of_week_passed():
         this_period_tup = today.isocalendar()[:2] # yyyy, weeknum
         this_period = f"{this_period_tup[0]}:{this_period_tup[1]:02}"
-        day = today.weekday()
+        day = today.weekday() + day_fraction
         days = 7
         return this_period, day, days, day / days
 
     # Helper function to calculate fraction of the month passed
     def fraction_of_month_passed():
         this_period = f"{today.year}-{today.month:02}"
-        day = today.day - 1
+        day = today.day - 1 + day_fraction
         days = calendar.monthrange(today.year, today.month)[1] 
-        return this_period, day, days, day /days     
+        return this_period, day, days, day / days     
     
     # Helper function to calculate fraction of the quarter passed
     def fraction_of_quarter_passed():
@@ -8301,7 +8306,7 @@ def get_fraction_of_period_passed(period:str = 'w'):
         quarter_end_month = quarter_start_month + 2
         quarter_end_date = datetime(today.year, quarter_end_month, calendar.monthrange(today.year, quarter_end_month)[1]).astimezone().replace(tzinfo=None)
         this_period = f"{today.year}#{(today.month - 1) // 3 + 1}"
-        day = (today - quarter_start_date).days
+        day = (today - quarter_start_date).days + day_fraction
         days = (quarter_end_date - quarter_start_date).days + 1
         return this_period,  day, days, day / days 
 
@@ -8309,7 +8314,7 @@ def get_fraction_of_period_passed(period:str = 'w'):
     def fraction_of_year_passed():
         start_of_year = datetime(today.year, 1, 1).replace(tzinfo=None)
         end_of_year = datetime(today.year, 12, 31, 23, 59).replace(tzinfo=None)
-        day = (today - start_of_year).days
+        day = (today - start_of_year).days + day_fraction
         days = (end_of_year - start_of_year).days + 1
         return f"{today.year}", day, days, day / days 
 
@@ -8441,10 +8446,7 @@ def show_goals(
     }
 
     for period in this_period_hsh.keys():
-        this_period_hsh[period] = get_fraction_of_period_passed(period)
-        logger.debug(f"{this_period_hsh[period] = }")
-
-    logger.debug(f"{this_period_hsh = }")
+        this_period_hsh[period] = get_period_data(period)
 
     active_hsh = {k: re.split('[#:-]', v[0])[-1] for k, v in this_period_hsh.items()}
     for k in active_hsh.keys():
@@ -8453,15 +8455,13 @@ def show_goals(
         else:
             active_hsh[k] = int(active_hsh[k])
 
-    logger.debug(f"{active_hsh = }")
+    logger.debug(f"{active_hsh = }; {this_period_hsh = }")
 
     active_periods = ' '.join([f"{100-round(v[-1]*100)}%{k}{re.split('[#:-]', v[0])[-1].lstrip('0')}" 
-                  for k, v in this_period_hsh.items() if k != 'd'])
+            for k, v in this_period_hsh.items()])
     
     active_str = f"Active  {active_periods}"
     
-    logger.debug(f"{active_str = }")
-
     for item in db:
         itemtype = item.get('itemtype')
         if itemtype != '~':
@@ -8496,7 +8496,7 @@ def show_goals(
             itemtype = EtmChar.ENDED_CHAR
         else:
             this_period, day, days, fraction_used = this_period_hsh[period]
-            logger.debug(f"{begin_date = }; {this_period = }; {day = }; {days = }; {fraction_used = }")
+            # logger.debug(f"{begin_date = }; {this_period = }; {day = }; {days = }; {fraction_used = }")
             done = int(h.get(this_period, 0))
             needed = 0
             if quota < 0:
@@ -8508,7 +8508,8 @@ def show_goals(
                 goal = f"{done}/{abs(quota)}{period}"
                 itemtype = EtmChar.INACTIVE_CHAR
             else:
-                needed = max(int(fraction_used * quota - min(done, quota)), 0)
+                needed = max(math.ceil(fraction_used * quota - min(done, quota)), 0)
+                logger.debug(f"{fraction_used = }; {quota = }; {done = }; {needed = }")
                 if periods:
                     if len(periods) > 2 and [x for x in range(periods[0], periods[-1]+1)] == periods:
                         period_str = f"{periods[0]}-{periods[-1]}"
@@ -8538,8 +8539,9 @@ def show_goals(
             slow_level = 4/3 
             logger.debug(f"{lag = }")
             goal = f"{done}/{abs(quota)}{period}" 
-            # rep = f" ({lag}, {needed})"
-            rep = f" ({needed})"
+            # rep = f" ({needed} {int(100*lag)}%)"
+            rep = f" ({int(100*lag)}%)"
+            # rep = f" {int(100*lag)}%"
             if lag >= late_level:
                 # behind
                 itemtype = EtmChar.LATE_CHAR

@@ -724,6 +724,7 @@ def get_entry(title: str, text: str, default: str, event) -> any:
     entry_title_buffer.text = heading
     entry_display_area.text = wrap_text(text)
     entry_buffer.text = default
+    entry_buffer.cursor_position = len(default)  # Move cursor to end
     dataview.show_entry()
     entry_buffer_changed(event)
     # default_cursor_position_changed(event)
@@ -1621,9 +1622,11 @@ async def maybe_alerts(now):
         logger.error(f'unrecognized alert commands: {bad}')
 
 
+next_hour = 0
 # async def event_handler():
 def event_handler(e):
-    global current_datetime
+    global current_datetime, next_hour
+    
     now = datetime.now().astimezone()
     refresh_interval = settings.get(
         'refresh_interval', 6
@@ -1634,6 +1637,7 @@ def event_handler(e):
     updates_interval = settings.get('updates_interval', 0)
     minutes = now.minute
     seconds = now.second
+    this_hour = now.hour
 
     try:
         current_today = dataview.now.strftime('%Y%m%d')
@@ -1644,6 +1648,13 @@ def event_handler(e):
         if updates_interval and minutes % updates_interval == 0 and seconds == 0:
             loop = asyncio.get_event_loop()
             asyncio.ensure_future(updates_loop(loop))
+
+        if this_hour >= next_hour:
+            logger.debug(f"refreshing goals and resetting next_hour from {next_hour} to {this_hour + 1}")
+            next_hour = this_hour + 1
+            dataview.refresh_goals()
+            set_text(dataview.show_active_view())
+            get_app().invalidate()
 
         if today != current_today:
             loop = asyncio.get_event_loop()
@@ -2858,7 +2869,7 @@ def do_finish(*event):
             period = tups[1]
             periods = tups[2]
 
-        this_period = model.get_fraction_of_period_passed(period)[0]
+        this_period = model.get_period_data(period)[0]
         hist = hsh.get('h', {})
         done = hist.get(this_period, 0) if hist else 0
         done_str = f"{done} instance" if done == 1 else f"{done} instances"
