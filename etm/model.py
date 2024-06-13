@@ -3074,7 +3074,7 @@ class DataView(object):
         self.history_view = ''
         self.cache = {}
         self.view_cache = {} # non-weekly view name -> (timestamp, view, row2id)
-        self.cached_views = ['history', 'forthcoming', 'do_next', 'journal', 'goals', 'tags', 'index', 'location', 'review', 'konnected']
+        self.cached_views = ['history', 'forthcoming', 'do next', 'journal', 'goals', 'tags', 'index', 'location', 'review', 'konnected']
         self.itemcache = {}
         self.current_hsh = {}
         self.used_summary = {}
@@ -3688,10 +3688,25 @@ class DataView(object):
         self.show_active_view()
 
     def show_active_view(self):
-        logger.debug(f"in cached_views: {self.active_view in self.cached_views}; in view_cache: {self.active_view in self.view_cache}")
+        """
+        Show the active view by retrieving the cached view if available, otherwise create a new view and cache it.
+        cashed_views is a list of the non-weekly views such as goals, index, journal, history, ...
+        view_cache is a dict with keys corresponding to the names of the cashed views and value tuples containing
+        the timestamp, the view and the row2id mapping the row numbers in the view to the corresponding document ids.
+        
+        Returns:
+            cached_view (any): The cached view or a newly created view.
+        """
+        logger.debug(f"{self.cached_views = }; {self.view_cache = }")
+        logger.debug(f"cached? {self.active_view} in cached_views: {self.active_view in self.cached_views}; in view_cache: {self.active_view in self.view_cache}")
+
+        if self.active_view not in self.cached_views:
+            logger.debug(f"getting the view for {self.active_view}")
+            cached_view = self.create_view()
+            return cached_view
 
         if self.active_view in self.view_cache:
-            # logger.debug(f"self.view_cache[{self.active_view}] = {self.view_cache[self.active_view]}")
+            # this view will necessarily be one of the view_cache keys
             timestamp, cached_view, row2id = self.view_cache[self.active_view]
             if timestamp >= self.last_modified:
                 timer_use_cache = TimeIt('use_cache')
@@ -3700,7 +3715,7 @@ class DataView(object):
                 timer_use_cache.stop()
                 return cached_view
 
-
+        # if we get here, we have a view_cache entry that is out of date
         logger.debug(f"creating cache for {self.active_view}")
         timer_make_cache = TimeIt('make cache')
         cached_view = self.create_view()
@@ -8455,7 +8470,6 @@ def show_goals(
         else:
             active_hsh[k] = int(active_hsh[k])
 
-    logger.debug(f"{active_hsh = }; {this_period_hsh = }")
 
     active_periods = ' '.join([f"{100-round(v[-1]*100)}%{k}{re.split('[#:-]', v[0])[-1].lstrip('0')}" 
             for k, v in this_period_hsh.items()])
@@ -8509,7 +8523,6 @@ def show_goals(
                 itemtype = EtmChar.INACTIVE_CHAR
             else:
                 needed = max(math.ceil(fraction_used * quota - min(done, quota)), 0)
-                logger.debug(f"{fraction_used = }; {quota = }; {done = }; {needed = }")
                 if periods:
                     if len(periods) > 2 and [x for x in range(periods[0], periods[-1]+1)] == periods:
                         period_str = f"{periods[0]}-{periods[-1]}"
@@ -8533,11 +8546,9 @@ def show_goals(
         rep = ""
         lag = 1
         if path == 'Active':
-            logger.debug(f"{days = }; {day = }; {period = }")
             lag = round( ((quota - min(done, quota)) / quota) * days / (days-day), 2) 
             late_level = 2 
             slow_level = 4/3 
-            logger.debug(f"{lag = }")
             goal = f"{done}/{abs(quota)}{period}" 
             # rep = f" ({needed} {int(100*lag)}%)"
             rep = f" ({int(100*lag)}%)"
