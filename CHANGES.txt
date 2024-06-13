@@ -1,4 +1,10 @@
-2024-06-12 6fcb704 Daniel Graham
+2024-06-13 9284348 Daniel Graham
+    Tagged version 6.4.6. Bug fix
+
+2024-06-13 3b052ac Daniel Graham
+    Fixed cache bug in weekly views. Fixed 'do next' key typo.
+
+2024-06-12 905e5e2 Daniel Graham
     Tagged version 6.4.5.
 
 2024-06-12 649d5a5 Daniel Graham
@@ -185,9 +191,3 @@
 
 2024-05-09 3026c51 Daniel Graham
     Minor tweaks
-
-2024-05-07 4cd650d Daniel Graham
-    README video link tweak
-
-2024-05-06 e060977 Daniel Graham
-    More video link tweaks.
