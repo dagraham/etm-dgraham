@@ -1642,8 +1642,19 @@ Type character: **\***
 An event is something that happens at a particular date or datetime without any action from the user. Christmas, for example, is an event that happens whether or not the user does anything about it.
 
 - The `@s` entry is required and can be specified either as a date or as a datetime. It is interpreted as the scheduled date or datetime at which the event begins.
-- If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date.
-- If `@s` is a datetime, an `@e` entry is allowed and is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.
+- If `@s` is a date, the event is regarded as an *occasion* or *all-day* event. Such occasions are displayed first on the relevant date. If an `@e` entry is given it should be a number of days and is interpreted as the number of days over which the event should extend. E.g., 
+
+    * Thanksgiving @s 2010/11/26 @e 3d 
+      @r y &M 11 &w 4TH
+
+would display "Thanksgiving" on the 4th Thursday each November and, because of `@e 3d` the *following* Friday, Saturday and Sunday as well. Similarly 
+
+    * Memorial Day @s 2010/5/31 @e -3d
+      @r y &M 5 &w -1MO
+
+would display "Memorial" on the last Monday each May and, because of the minus sign in `@e -3d`, the *preceding* Friday, Saturday and Sunday, as well.
+
+- If `@s` is a datetime, an `@e` entry is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.
 
 Corresponds to VEVENT in the vcalendar specification.
 

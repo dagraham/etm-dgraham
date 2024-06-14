@@ -6476,7 +6476,10 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True)-> Tuple[Optional[dat
     for instance in instances:
         if item['itemtype'] == '*' and 'e' in item:
             for pair in beg_ends(instance, item['e'], item.get('z', 'local')):
-                pairs.append(pair)
+                if pair[0] == pair[1]:
+                    pairs.append((pair[0], None))
+                else:
+                    pairs.append(pair)
         elif item['itemtype'] == '-':
             # handle tasks repeating or not, extent or not and overdue skip or not
             if item.get('o', 'k') == 's':
@@ -6489,7 +6492,10 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True)-> Tuple[Optional[dat
                         for pair in beg_ends(
                             instance, item['e'], item.get('z', 'local')
                         ):
-                            pairs.append(pair)
+                            if pair[0] == pair[1]:
+                                pairs.append((pair[0], None))
+                            else:
+                                pairs.append(pair)
                     else:
                         pairs.append((instance, None))
                     if pairs and honor_skip and settings['limit_skip_display']:
@@ -7078,6 +7084,13 @@ def fmt_extent(beg_dt: datetime, end_dt: datetime):
     """
     beg_suffix = end_suffix = ''
     ampm = settings['ampm']
+    if beg_dt.hour == 0 and beg_dt.minute == 0 and beg_dt.second == 0 and not end_dt == beg_dt:
+        return ''
+
+
+    if beg_dt.hour == 0 and beg_dt.minute == 0 and beg_dt.second == 0 and end_dt == beg_dt:
+        return ''
+    
     if not (isinstance(beg_dt, datetime) and isinstance(end_dt, datetime)):
         return 'xxx y'
 
@@ -7121,17 +7134,26 @@ def beg_ends(starting_dt, extent_duration, z=None):
     """
 
     pairs = []
-    beg = starting_dt
-    ending = starting_dt + extent_duration
-    while ending.date() > beg.date():
-        end = beg.replace(hour=23, minute=59)
-        pairs.append((beg, end))
-        beg = (beg + timedelta(days=1)).replace(hour=0, minute=0)
-    if beg == ending:
+    date_only =  starting_dt.hour == 0 and starting_dt.minute == 0 and starting_dt.second == 0
+    if extent_duration >= ZERO:
+        beginning = starting_dt
+        ending = starting_dt + extent_duration
+    else:
+        beginning = starting_dt + extent_duration
+        ending = starting_dt
+    
+    
+    while ending.date() > beginning.date():
+        end = beginning if date_only else beginning.replace(hour=23, minute=59)
+        pairs.append((beginning, end))
+        beginning = (beginning + timedelta(days=1)).replace(hour=0, minute=0, second=0)
+    if not date_only and beginning == ending:
         # don't include zero-extent "tails"
         pass
     else:
-        pairs.append((beg, ending))
+        pairs.append((beginning, ending))
+    if date_only:
+        logger.debug(f"### {date_only = } {beginning = } {ending = } {pairs = }")
     return pairs
 
 
