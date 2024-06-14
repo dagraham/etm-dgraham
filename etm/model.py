@@ -192,6 +192,11 @@ task_methods = list('efhp') + [
     'ju',
 ]
 
+multiple_allowed = [
+                    'a', 'u', 't', 'k', 'K', 'jj', 'ji', 'js', 'jb', 'jp', 'ja', 'jd', 'je', 'jf', 'jl', 'jm', 'ju'
+                ]
+
+
 wrap_methods = ['w']
 
 required = {'*': ['s'], '-': [], '%': [], '~': ['s']}
@@ -1630,9 +1635,7 @@ item_hsh:    {self.item_hsh}
                 numuses.setdefault(k, 0)
                 numuses[k] += 1
             duplicates = [
-                k for (k, v) in numuses.items() if v > 0 and k not in [
-                    'a', 'u', 't', 'k', 'K', 'jj', 'rr', 'ji', 'js', 'jb', 'jp', 'ja', 'jd', 'je', 'jf', 'jl', 'jm', 'ju']
-                ]
+                k for (k, v) in numuses.items() if v > 0 and k not in multiple_allowed]
 
             if key in duplicates:
                 display_key = f'@{key}' if len(key) == 1 else f'&{key[-1]}'

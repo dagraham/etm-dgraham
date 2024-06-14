@@ -1647,12 +1647,12 @@ An event is something that happens at a particular date or datetime without any 
     * Thanksgiving @s 2010/11/26 @e 3d 
       @r y &M 11 &w 4TH
 
-would display "Thanksgiving" on the 4th Thursday each November and, because of `@e 3d` the *following* Friday, Saturday and Sunday as well. Similarly 
+    would display "Thanksgiving" on the 4th Thursday each November and, because of `@e 3d` on the *following* Friday, Saturday and Sunday as well. Similarly 
 
     * Memorial Day @s 2010/5/31 @e -3d
       @r y &M 5 &w -1MO
 
-would display "Memorial" on the last Monday each May and, because of the minus sign in `@e -3d`, the *preceding* Friday, Saturday and Sunday, as well.
+    would display "Memorial" on the last Monday each May and, because of the minus sign in `@e -3d`, on the *preceding* Friday, Saturday and Sunday, as well.
 
 - If `@s` is a datetime, an `@e` entry is interpreted as the extent or duration of the event - the end of the event is then given implicitly by starting datetime plus the extent and this period is treated as busy time.
 
@@ -1876,7 +1876,7 @@ would specify the the scheduled datetime for the item is 9am on the Monday follo
 *  @o: overdue. character from (r) restart, (s) skip, (k) keep. Defaults to (k) keep.
 *  @p: priority. integer from 0 (none), 1 (low), 2 (normal), 3 (high), 4 (urgent)
 *  @q: quota. Used in goals to specify the attributes. E.g., `@q 3m: 2, 3` would specify a goal of 3 completions per (m)onth for month numbers 2 and 3 each year. A range can also be used to specify period numbers, e.g., `@q 3: 1-5`. The default, absent a periods specification, is to apply the goal to all of the specified periods. Other options for period include (y)ear, (q)uarter and (w)eek and (d)day. Week is the default. The default for the number of periods is 0 which entails repeating indefinitely.
-*  @r*: repetition frequency, a character from (y)early, (m)onthly, (w)eekly,
+*  @r: repetition frequency, a character from (y)early, (m)onthly, (w)eekly,
   (d)aily, (h)ourly or mi(n)utely, optionally followed by repetition &key entries
 *  @s: scheduled date or datetime
 *  @t*: tag. string
@@ -2021,9 +2021,11 @@ For use with @r:
 
 * Friday tennis at 9:30am in November, December, January and February and at 8am in the other months:
 
-        * Friday tennis @s 2019-01-01 6a @e 90m
-          @r m &w fr &M 1, 2, 11, 12 &h 9 &n 30
-          @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 &h 8 &n 0
+        * Friday tennis  @s 2019-01-01 9:30a @e 90m
+          @r m &w fr &M 1, 2, 11, 12
+        
+        * Friday tennis  @s 2019-01-01 8a @e 90m
+          @r m &w fr &M 3, 4, 5, 6, 7, 8, 9, 10 
 
 * Payday on the last week day of each month. The &s -1 part of the entry extracts the last (-1) date which is both a weekday and falls within the last three days of the month):
 
