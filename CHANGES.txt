@@ -1,4 +1,12 @@
-2024-06-13 9284348 Daniel Graham
+2024-06-14 2e9d45b Daniel Graham
+    Tagged version 6.4.7. Negative as well as positive exents for date
+    as well as datetime events
+
+2024-06-14 f1b8ddd Daniel Graham
+    Allow +/- @e entries and with date_only events extend the relevant
+    dates beyond (+) or before (-) the starting date
+
+2024-06-13 9c60abd Daniel Graham
     Tagged version 6.4.6. Bug fix
 
 2024-06-13 3b052ac Daniel Graham
@@ -184,10 +192,3 @@
 
 2024-05-10 d71ca52 Daniel Graham
     Tagged version 6.2.4.
-
-2024-05-10 d5e475a Daniel Graham
-    Fixed bug in processing alerts for tasks with @s and @+ entries
-    but without @r
-
-2024-05-09 3026c51 Daniel Graham
-    Minor tweaks
