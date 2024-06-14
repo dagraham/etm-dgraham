@@ -1,4 +1,12 @@
-2024-06-14 2e9d45b Daniel Graham
+2024-06-14 ce260e0 Daniel Graham
+    Tagged version 6.4.8. Removed rr (@r) from multiple_allowed to
+    reflect the reality that more than one @r entry in a reminder is
+    not allowed and updated README.
+
+2024-06-14 d9c764c Daniel Graham
+    Removed @r ('rr') from multiple_allowed and updated README
+
+2024-06-14 e8537d4 Daniel Graham
     Tagged version 6.4.7. Negative as well as positive exents for date
     as well as datetime events
 
@@ -186,9 +194,3 @@
 
 2024-05-18 4b525cd Daniel Graham
     template tweaks
-
-2024-05-17 0d351be Daniel Graham
-    Fixed bug in allowing invalid duplicate entries
-
-2024-05-10 d71ca52 Daniel Graham
-    Tagged version 6.2.4.
