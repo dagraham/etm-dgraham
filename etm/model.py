@@ -7113,7 +7113,34 @@ def fmt_extent(beg_dt: datetime, end_dt: datetime):
 
 
 def fmt_time(dt, ignore_midnight=True):
-    ampm = settings['ampm']
+    """
+    Format a datetime object into a string representation.
+
+    Args:
+        dt (datetime): The datetime object to be formatted.
+        ignore_midnight (bool, optional): Whether to ignore midnight time. Defaults to True.
+
+    Returns:
+        str: The formatted datetime string. If the datetime is midnight and `ignore_midnight` is True, an empty string is returned.
+
+    Raises:
+        None
+
+    Examples:
+        >>> from datetime import datetime
+        >>> dt = datetime(2022, 1, 1, 0, 0, 0)
+        >>> fmt_time(dt)
+        ''
+        >>> dt = datetime(2022, 1, 1, 9, 0, 0)
+        >>> fmt_time(dt)
+        '9am'
+        >>> dt = datetime(2022, 1, 1, 17, 20, 0)
+        >>> fmt_time(dt)
+        '5:20pm'
+        >>> dt = datetime(2022, 1, 1, 23, 59, 59)
+        >>> fmt_time(dt)
+        '11:59pm'
+    """
     show_minutes = settings['show_minutes']
     if ignore_midnight and dt.hour == 0 and dt.minute == 0 and dt.second == 0:
         return ''
@@ -7880,7 +7907,22 @@ def show_query_items(
     konnected=[],
     timers={},
 ):
-    rows = []
+    """
+    Generate a query result tree based on the given parameters.
+
+    Args:
+        text (str): The query text.
+        items (list, optional): A list of items to display. Defaults to an empty list.
+        repeat_list (list, optional): A list of document IDs that are repeated. Defaults to an empty list.
+        pinned_list (list, optional): A list of document IDs that are pinned. Defaults to an empty list.
+        link_list (list, optional): A list of document IDs that are linked. Defaults to an empty list.
+        konnected (list, optional): A list of document IDs that are connected. Defaults to an empty list.
+        timers (dict, optional): A dictionary of document IDs and their corresponding timers. Defaults to an empty dictionary.
+
+    Returns:
+        tuple: A tuple containing the query result tree and a dictionary mapping row IDs to document IDs.
+
+    """
     if not items or not isinstance(items, list):
         return f'query: {text}\n   none matching', {}
     item_count = f' [{len(items)}]'
@@ -9033,9 +9075,10 @@ def wkday2row(wkday):
 
 def schedule(
     db,
+    # yw will be the active week, but now will be the current moment
     yw=getWeekNum(),
-    current=[],
     now=datetime.now(),
+    current=[],
     weeks_before=0,
     weeks_after=0,
     repeat_list=[],
@@ -9052,27 +9095,9 @@ def schedule(
     mk_current = weeks_after > 0
     current_hsh = {}
 
-    ampm = settings['ampm']
+   
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
-    # yw will be the active week, but now will be the current moment
-    LL = {}
-    for hour in range(24):
-        if hour % 6 == 0:
-            if ampm:
-                suffix = 'am' if hour < 12 else 'pm'
-                if hour == 0:
-                    hr = 12
-                elif hour <= 12:
-                    hr = hour
-                elif hour > 12:
-                    hr = hour - 12
-                LL[hour] = f'{hr}{suffix}'.rjust(6, ' ')
-            else:
-                LL[hour] = f'{hour}h'.rjust(6, ' ')
-        else:
-            LL[hour] = ' '.rjust(6, ' ')
-
 
     d = iso_to_gregorian((yw[0], yw[1], 1))
     dt = datetime(d.year, d.month, d.day, 0, 0, 0).astimezone()

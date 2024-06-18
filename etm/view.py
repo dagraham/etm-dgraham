@@ -1482,6 +1482,7 @@ async def new_day(loop):
     dataview.refreshRelevant()  # sets now, currentYrWk, current
     dataview.refreshAgenda()
     dataview.refreshCurrent()
+    dataview.refresh_goals()
     dataview.set_active_view('a')
     set_text(dataview.show_active_view())
     dataview.currcal()
