@@ -829,6 +829,7 @@ def check_update():
         t = r.text.strip()
         # t will be something like "version = '4.7.2'"
         url_version = t.split(' ')[-1][1:-1]
+        logger.debug(f"url_version = {url_version}; etm_version = {etm_version}")
         # split(' ')[-1] will give "'4.7.2'" and url_version will then be '4.7.2'
     except:
         url_version = None
