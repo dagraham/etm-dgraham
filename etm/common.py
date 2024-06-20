@@ -20,10 +20,13 @@ from pygments.token import Literal
 from pygments.token import Operator 
 from pygments.token import Comment 
 
+import functools
+from time import perf_counter
+from typing import Callable, Any
 
 import logging
 import logging.config
-logger = None
+logger = logging.getLogger('etm')
 # settings = None
 
 import etm.__version__ as version 
@@ -41,26 +44,48 @@ ETMDB = DBITEM = DBARCH = dataview = data_changed = None
 def is_aware(dt):
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
 
-class TimeIt(object):
-    def __init__(self, label='', loglevel=1):
-        self.loglevel = loglevel
-        self.label = label
-        if self.loglevel == 1:
-            msg = 'timer {0} started; loglevel: {1}'.format(
-                self.label, self.loglevel
-            )
-            logger.debug(msg)
-            self.start = timer()
+def benchmark(func: Callable[..., Any]) -> Callable[..., Any]:
+    @functools.wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        start = perf_counter()
+        result = func(*args, **kwargs)
+        end = perf_counter()
+        logger.debug(f'⏱ {func.__name__} took {end - start:.4f} seconds')
+        return result
+    return wrapper
 
-    def stop(self, *args):
-        if self.loglevel == 1:
-            self.end = timer()
-            self.secs = self.end - self.start
-            self.msecs = self.secs * 1000  # millisecs
-            msg = 'timer {0} stopped; elapsed time: {1} milliseconds'.format(
-                self.label, self.msecs
-            )
-            logger.debug(msg)
+def timeit(message: str = '') -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        @functools.wraps(func)
+        def wrapper(self, *args: Any, **kwargs: Any) -> Any:
+            msg = f" ({message.format(self=self)})" if message else ''
+            start = perf_counter()
+            result = func(self, *args, **kwargs)
+            end = perf_counter()
+            logger.debug(f'⏱ {func.__name__}{msg} took {end - start:.4f} seconds')
+            return result
+        return wrapper
+    return decorator
+
+
+# class TimeIt(object):
+#     def __init__(self, label='', loglevel=1):
+#         self.loglevel = loglevel
+#         self.label = label
+#         if self.loglevel == 1:
+#             msg = 'timer {0} started; loglevel: {1}'.format(
+#                 self.label, self.loglevel
+#             )
+#             logger.debug(msg)
+#             self.start = timer()
+
+#     def stop(self, *args):
+#         if self.loglevel == 1:
+#             self.end = timer()
+#             # self.secs = self.end - self.start
+#             # self.msecs = self.secs * 1000  # millisecs
+#             msg = f'timer {self.label} stopped; elapsed time: {self.end-self.start:.4f} seconds'
+#             logger.debug(msg)
 
 
 # from etm.__main__ import ETMHOME

@@ -46,7 +46,7 @@ def print_usage():
 
 def main():
 
-    from etm.common import TimeIt 
+    # from etm.common import TimeIt 
 
     if '-h' in sys.argv or '--help' in sys.argv:
         print_usage()
@@ -309,7 +309,7 @@ which will need to be created.
     parse_duration = model.parse_duration
 
     view.loglevel = loglevel
-    view.TimeIt = TimeIt
+    # view.TimeIt = TimeIt
     # view.wrap = wrap
     view.parse = parse
     view.WA = WA

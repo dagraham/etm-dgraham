@@ -5,6 +5,8 @@
 
 from typing import Union, Tuple, Optional
 import time
+# import functools
+# from time import perf_counter
 
 from etm.common import ( 
     VERSION_INFO,
@@ -30,7 +32,7 @@ from etm.common import (
 # usedtime_hours = settings.usedtime_hours
 
 from tinydb.table import Document 
-from etm.common import TimeIt 
+from etm.common import benchmark, timeit
 import sys
 import re
 from pprint import pprint
@@ -910,12 +912,11 @@ item_hsh:    {self.item_hsh}
             logger.warning(f"exception: {e}")
         return True
 
+    @benchmark
     def do_insert(self):
-        timer_insert = TimeIt('***INSERT***')
         if 'created' not in self.item_hsh:
             self.item_hsh['created'] = datetime.now().astimezone()
         doc_id = self.db.insert(self.item_hsh)
-        timer_insert.stop()
         return doc_id
 
     def edit_item(self, doc_id=None, entry=''):
@@ -3038,8 +3039,8 @@ class NDict(dict):
 
 
 class DataView(object):
+    @timeit('Dataview')
     def __init__(self, etmdir):
-        timer_database = TimeIt('***DATABASE***')
         self.active_item = None
         self.active_view = 'agenda'
         self.prior_view = 'agenda'
@@ -3151,28 +3152,15 @@ class DataView(object):
         self.is_showing_items = True
         self.is_showing_konnections = False
         if needs_update:
-            timer_update = TimeIt('***UPDATE***')
             self.update_datetimes_to_periods()
-            timer_update.stop()
         self.get_completions()
-        timer_konnections = TimeIt('***KONNECTIONS***')
         self.refreshKonnections()
-        timer_konnections.stop()
         self.currYrWk()
-        timer_relevant = TimeIt('***RELEVANT***')
         self.refreshRelevant()
-        timer_relevant.stop()
-        timer_current = TimeIt('***CURRENT***')
         self.refreshCurrent()
-        timer_current.stop()
-        timer_agenda = TimeIt('***AGENDA***')
         self.refreshAgenda()
-        timer_agenda.stop()
-        timer_archive = TimeIt('***ARCHIVE***')
         self.possible_archive()
-        timer_archive.stop()
         self.currcal()
-        timer_database.stop()
 
     def set_etmdir(self, etmdir):
         self.etmdir = etmdir
@@ -3361,6 +3349,7 @@ class DataView(object):
         ]
         self.konnected = list(set(konnected))
 
+    @benchmark
     def refreshKonnections(self):
         """
         to_hsh: ID -> ids of items with @k ID
@@ -3690,6 +3679,7 @@ class DataView(object):
             del self.view_cache['goals']
         self.show_active_view()
 
+    @timeit("{self.active_view}")
     def show_active_view(self):
         """
         Show the active view by retrieving the cached view if available, otherwise create a new view and cache it.
@@ -3700,11 +3690,11 @@ class DataView(object):
         Returns:
             cached_view (any): The cached view or a newly created view.
         """
-        logger.debug(f"{self.cached_views = }; {self.view_cache = }")
-        logger.debug(f"cached? {self.active_view} in cached_views: {self.active_view in self.cached_views}; in view_cache: {self.active_view in self.view_cache}")
+        # logger.debug(f"view_cache keys: {[x for x in self.view_cache.keys()]}")
+        # logger.debug(f"cached? {self.active_view} in cached_views: {self.active_view in self.cached_views}; in view_cache: {self.active_view in self.view_cache}")
 
         if self.active_view not in self.cached_views:
-            logger.debug(f"getting the view for {self.active_view}")
+            # logger.debug(f"getting the view for {self.active_view}")
             cached_view = self.create_view()
             return cached_view
 
@@ -3712,20 +3702,16 @@ class DataView(object):
             # this view will necessarily be one of the view_cache keys
             timestamp, cached_view, row2id = self.view_cache[self.active_view]
             if timestamp >= self.last_modified:
-                timer_use_cache = TimeIt('use_cache')
                 logger.debug(f"using cache for {self.active_view}")
                 self.row2id = row2id
-                timer_use_cache.stop()
                 return cached_view
 
         # if we get here, we have a view_cache entry that is out of date
         logger.debug(f"creating cache for {self.active_view}")
-        timer_make_cache = TimeIt('make cache')
         cached_view = self.create_view()
         row2id = self.row2id
         timestamp = time.time()
         self.view_cache[self.active_view] = (timestamp, cached_view, row2id)
-        timer_make_cache.stop()
         return cached_view      
 
 
@@ -4049,6 +4035,7 @@ class DataView(object):
         return tree, row2id
 
 
+    @benchmark
     def refreshRelevant(self):
         """
         Called to set the relevant items for the current date and to change the currentYrWk and activeYrWk to that containing the current date.
@@ -4070,6 +4057,7 @@ class DataView(object):
                 self.refreshKonnections()
         self.refreshCache()
 
+    @benchmark
     def refreshAgenda(self):
         if self.activeYrWk not in self.cache:
             self.cache.update(
@@ -4097,6 +4085,7 @@ class DataView(object):
             self.busy_details,
         ) = self.cache[self.activeYrWk]
 
+    @benchmark
     def refreshCurrent(self):
         """
         Agenda for the current and following 'keep_current' weeks
@@ -4280,6 +4269,7 @@ class DataView(object):
                 f"The item\n   {item['itemtype']} {item['summary']}\n does not have an @g goto entry.",
             )
 
+    @benchmark
     def get_repetitions(self, row=None):
         """
         Called with a row, we should have an doc_id and can use relevant as aft_dt.
@@ -4331,6 +4321,7 @@ class DataView(object):
             pairs
         )
 
+    @benchmark
     def get_history(self, row=None):
         """
         For those with '@o s', additionally show those that were skipped.
@@ -4533,6 +4524,7 @@ shown when nonzero."""
                 if item.doc_id in self.repeat_list:
                     self.repeat_list.remove(item_id)
 
+    @benchmark
     def update_datetimes_to_periods(self):
         """
         For items with 'h' and/or 'f' entries, make sure entry is a Period. Also for clones
@@ -4677,6 +4669,7 @@ shown when nonzero."""
                 f'removed clones for {len(removed_ids)} items with these doc_ids:\n  {removed_ids}'
             )
 
+    @benchmark
     def possible_archive(self):
         """
         Collect old finished tasks, (repeating or not), old non-repeating events,
@@ -7052,10 +7045,10 @@ def drop_zero_minutes(dt):
     """
     ampm = settings['ampm']
     show_minutes = settings['show_minutes']
-    logger.debug(f"starting {dt = }; {ampm = }; {show_minutes = }")
-    logger.debug(f"{dt.replace(tzinfo=None) = }")
+    # logger.debug(f"starting {dt = }; {ampm = }; {show_minutes = }")
+    # logger.debug(f"{dt.replace(tzinfo=None) = }")
     dt = dt.replace(tzinfo=None)
-    logger.debug(f"{dt = }")
+    # logger.debug(f"{dt = }")
     if show_minutes:
         if ampm:
             return dt.strftime('%-I:%M').rstrip('M').lower()
@@ -7182,8 +7175,6 @@ def beg_ends(starting_dt, extent_duration, z=None):
         pass
     else:
         pairs.append((beginning, ending))
-    if date_only:
-        logger.debug(f"### {date_only = } {beginning = } {ending = } {pairs = }")
     return pairs
 
 
@@ -7248,6 +7239,7 @@ def get_item(doc_id):
     pass
 
 
+@benchmark
 def relevant(
     db,
     now=datetime.now(),
@@ -7462,10 +7454,10 @@ def relevant(
                     else:   # k or r
                         try:
                             # relevant = rset.after(today, inc=True)
-                            logger.debug(f"relevant {item = }")
+                            # logger.debug(f"relevant {item = }")
                             instances = item_instances(item, None)
                             instances.sort()
-                            logger.debug(f"{instances = }")
+                            # logger.debug(f"{instances = }")
                             relevant = date_to_datetime(instances[0][0]) if instances else None
                             # relevant = rset.after(dtstart, inc=True)
                             # if plus_dates:
@@ -7928,6 +7920,7 @@ def show_query_items(
     item_count = f' [{len(items)}]'
     width = shutil.get_terminal_size()[0] - 3
     summary_width = width - len(item_count) - 7
+    rows = []
     for item in items:
         mt = item.get('modified', None)
         if mt is not None:
@@ -8589,7 +8582,7 @@ def show_goals(
                 goal = f"{done}/{abs(quota)}{period}"
                 itemtype = EtmChar.INACTIVE_CHAR
             else:
-                needed = max(math.ceil(fraction_used * quota - min(done, quota)), 0)
+                # needed = max(math.ceil(fraction_used * quota - min(done, quota)), 0)
                 if periods:
                     if len(periods) > 2 and [x for x in range(periods[0], periods[-1]+1)] == periods:
                         period_str = f"{periods[0]}-{periods[-1]}"
@@ -9073,12 +9066,13 @@ def wkday2row(wkday):
     return 3 + 2 * wkday if wkday else 17
 
 
+@benchmark
 def schedule(
     db,
     # yw will be the active week, but now will be the current moment
     yw=getWeekNum(),
-    now=datetime.now(),
     current=[],
+    now=datetime.now(),
     weeks_before=0,
     weeks_after=0,
     repeat_list=[],
@@ -9089,7 +9083,6 @@ def schedule(
 ):
     global current_hsh, active_tasks
     logger.debug(f"### Schedule ###")
-    timer_schedule = TimeIt('***SCHEDULE***')
     width = shutil.get_terminal_size()[0] - 3
     weeks_after = settings['keep_current'][0]
     mk_current = weeks_after > 0
@@ -9113,7 +9106,7 @@ def schedule(
     busy_hsh = {}       # yw -> busy_view
     row2id_hsh = {}     # yw -> row2id
     done2id_hsh = {}     # yw -> row2id
-    goal2id_hsh = {}     # yw -> row2id
+    # goal2id_hsh = {}     # yw -> row2id
     effort_hsh = {}
     effort2id_hsh = {}     # yw -> row2id
     week2day2effort = {}   # year, week -> dayofweek -> period total for day
@@ -9293,10 +9286,10 @@ def schedule(
         # keep these for reference for this item
         end_dt = None
 
-        logger.debug(f"schedule */* {item = }")
+        # logger.debug(f"schedule */* {item = }")
         instances = item_instances(item, aft_dt, bef_dt) 
         instances.sort()
-        logger.debug(f"schedule */* {instances = }")
+        # logger.debug(f"schedule */* {instances = }")
         for dt, et in instances:
             yr, wk, dayofweek = dt.isocalendar()
             week = (yr, wk)
@@ -9846,7 +9839,6 @@ def schedule(
         # agenda, done, effort, busy, row2id, done2id, effort2id, busy_details
         cache[week] = tup
 
-    timer_schedule.stop()
     return cache
 
 def get_konnections(hsh: dict)->list[int]:

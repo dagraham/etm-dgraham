@@ -75,7 +75,7 @@ import contextlib, io
 import pyperclip 
 from etm.common import etm_version 
 from etm.common import EtmChar 
-from etm.common import TimeIt 
+from etm.common import benchmark, timeit 
 from etm.common import WA, parse_datetime, text_pattern, etmhome, import_file
 from etm.model import format_datetime, format_time, format_statustime, format_duration, parse_datetime
 
@@ -1482,7 +1482,6 @@ async def new_day(loop):
     dataview.refreshRelevant()  # sets now, currentYrWk, current
     dataview.refreshAgenda()
     dataview.refreshCurrent()
-    dataview.refresh_goals()
     dataview.set_active_view('a')
     set_text(dataview.show_active_view())
     dataview.currcal()
@@ -1624,10 +1623,8 @@ async def maybe_alerts(now):
 
 
 next_hour = 0
-# async def event_handler():
 def event_handler(e):
     global current_datetime, next_hour
-    
     now = datetime.now().astimezone()
     refresh_interval = settings.get(
         'refresh_interval', 6
@@ -1650,16 +1647,18 @@ def event_handler(e):
             loop = asyncio.get_event_loop()
             asyncio.ensure_future(updates_loop(loop))
 
+        if today != current_today:
+            logger.debug(f"new day {today}, resetting next_hour {next_hour} => 0")
+            next_hour = 0
+            loop = asyncio.get_event_loop()
+            asyncio.ensure_future(new_day(loop))
+
         if this_hour >= next_hour:
-            logger.debug(f"refreshing goals and resetting next_hour from {next_hour} to {this_hour + 1}")
+            logger.debug(f"resetting next_hour {next_hour} => {this_hour + 1} and refreshing goals")
             next_hour = this_hour + 1
             dataview.refresh_goals()
             set_text(dataview.show_active_view())
             get_app().invalidate()
-
-        if today != current_today:
-            loop = asyncio.get_event_loop()
-            asyncio.ensure_future(new_day(loop))
 
         asyncio.ensure_future(save_timers())
         if dataview.active_view == 'timers':
@@ -3442,6 +3441,7 @@ def set_text(txt, row=0):
 
 
 @bindings.add('a', filter=is_viewing)
+@benchmark
 def agenda_view(*event):
     set_view('a')
 
@@ -3988,9 +3988,9 @@ def close_entry(*event):
 def save_changes(*event):
     if edit_buffer_changed():
         try:
-            timer_save = TimeIt('***SAVE***')
+            # timer_save = TimeIt('***SAVE***')
             maybe_save(item)
-            timer_save.stop()
+            # timer_save.stop()
         except Exception as e:
             logger.error(f'exception: {e}')
             show_message(f'exception {e = } raised')
@@ -4006,6 +4006,7 @@ def save_changes(*event):
         # app.editing_mode = EditingMode.EMACS
 
 
+@benchmark
 def maybe_save(item):
     # check hsh
     global text_area
@@ -4211,7 +4212,7 @@ def set_askreply(_):
 
 async def main(etmdir=''):
     global item, settings, ampm, style, type_colors, application, busy_colors
-    timer_view = TimeIt('***VIEW***')
+    # timer_view = TimeIt('***VIEW***')
     ampm = settings['ampm']
     window_colors = settings['window_colors']
     type_colors = settings['type_colors']
@@ -4241,7 +4242,7 @@ async def main(etmdir=''):
         refresh_interval=1.0,
         on_invalidate=event_handler,
     )
-    timer_view.stop()
+    # timer_view.stop()
     logger.debug(f"XX starting {application = } XX")
     try:
         result = await application.run_async()
