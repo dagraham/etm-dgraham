@@ -1,4 +1,15 @@
-2024-06-14 ce260e0 Daniel Graham
+2024-06-20 3f1ba57 Daniel Graham
+    Tagged version 6.4.9.
+
+2024-06-20 d481308 Daniel Graham
+    Replaced TimeIt with decorators benchmark and timeit (benchmark
+    with message). Reset next_hour for goals to zero with new day.
+
+2024-06-17 6bc288e Daniel Graham
+    Added refresh_goals to new_day loop. New doc strings courtesy of
+    ChatGPT.
+
+2024-06-14 26cee34 Daniel Graham
     Tagged version 6.4.8. Removed rr (@r) from multiple_allowed to
     reflect the reality that more than one @r entry in a reminder is
     not allowed and updated README.
@@ -184,13 +195,3 @@
 
 2024-05-19 b8e0c42 Daniel Graham
     @s inclusion fix for past due repeating tasks
-
-2024-05-18 34730e7 Daniel Graham
-    Tagged version 6.2.5.
-
-2024-05-18 b2713d0 Daniel Graham
-    Fixed bug in which pressing 'E' without an item selected, would
-    open the last item
-
-2024-05-18 4b525cd Daniel Graham
-    template tweaks
