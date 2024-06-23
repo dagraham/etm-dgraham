@@ -692,6 +692,8 @@ class Item(dict):
         self.active = ()
         self.allowed = []
         self.interval = ()
+        self.relevant = None
+        self.instances = []
         self.item_hsh = {}      # key -> obj
         # Note: datetime(s) require timezone and at requires itemtype
         # all else do not need item_hsh
@@ -902,6 +904,8 @@ item_hsh:    {self.item_hsh}
             showing = 'All repetitions'
         else:
             showing = 'No repetitions'
+        self.relevant = relevant
+        self.instances = instances
         return showing, f'from {starting}:\n  ' + '\n  '.join(pairs)
 
     def do_update(self):
@@ -910,6 +914,8 @@ item_hsh:    {self.item_hsh}
             self.db.insert(Document(self.item_hsh, doc_id=self.doc_id))
         except Exception as e:
             logger.warning(f"exception: {e}")
+        # update relevant and instances
+        self.get_repetitions()
         return True
 
     @benchmark
@@ -9065,6 +9071,17 @@ def wkday2row(wkday):
     # TODO: fixme
     return 3 + 2 * wkday if wkday else 17
 
+def get_schedule(doc_id: int):
+    """For the item corresponding to doc_id, return the schedule components for rows, done, effort, week2day2busy, week2day2allday, allday_details, busy_details,  ...
+
+    Args:
+        doc_id (int): _id of the item
+
+    Returns:
+        _type_: 
+    """
+    raise NotImplementedError("get_schedule")
+
 
 @benchmark
 def schedule(
@@ -9087,7 +9104,7 @@ def schedule(
     weeks_after = settings['keep_current'][0]
     mk_current = weeks_after > 0
     current_hsh = {}
-
+    id2rows = {}
    
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
