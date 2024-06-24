@@ -3085,7 +3085,7 @@ class DataView(object):
         self.cache = {}
         self.view_cache = {} # non-weekly view name -> (timestamp, view, row2id)
         self.cached_views = ['history', 'forthcoming', 'do next', 'journal', 'goals', 'tags', 'index', 'location', 'review', 'konnected']
-        self.itemcache = {}
+        self.details_cache = {}
         self.current_hsh = {}
         self.used_summary = {}
         self.used_details = {}
@@ -4236,8 +4236,8 @@ class DataView(object):
         
         item_id = res[0]
 
-        if not edit and item_id in self.itemcache:
-            return item_id, self.itemcache[item_id]
+        if not edit and item_id in self.details_cache:
+            return item_id, self.details_cache[item_id]
         item = self.db.get(doc_id=item_id)
         if item:
             item_hsh = item_details(item, edit)
