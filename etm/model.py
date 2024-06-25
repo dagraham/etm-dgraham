@@ -9260,6 +9260,9 @@ def create_item_views(item, flags):
     instances = item_instances(item, aft_dt, bef_dt) 
     instances.sort()
     for dt, et in instances:
+        if isinstance(dt, Period):
+            logger.debug(f"warning: {dt = } in {doc_id}: {summary} is not a datetime or date")
+            dt = dt.start
         yr, wk, dayofweek = dt.isocalendar()
         week = (yr, wk)
         wk_fmt = fmt_week(week).center(width, ' ').rstrip()
@@ -9504,7 +9507,7 @@ def create_item_views(item, flags):
                             break
             else:
                 busyperiod = None
-            tmp_summary = set_summary(summary, item['s'], dt, freq)
+            tmp_summary = set_summary(summary, item.get('s', ''), dt, freq)
             rhc = rhc + ' ' if rhc else ''
             columns = [
                 item['itemtype'],
