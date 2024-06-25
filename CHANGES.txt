@@ -1,4 +1,22 @@
-2024-06-20 3f1ba57 Daniel Graham
+2024-06-25 02beb77 Daniel Graham
+    Tagged version 6.5.0. Implemented item cache for schedule views
+
+2024-06-25 81c8a71 Daniel Graham
+    Minor tweaks
+
+2024-06-25 0e3ea51 Daniel Graham
+    Implemented cache for item schedule views
+
+2024-06-24 9909239 Daniel Graham
+    itemcache -> details_cache
+
+2024-06-23 519c1aa Daniel Graham
+    about to rename
+
+2024-06-20 1bd6d29 Daniel Graham
+    Added logging to check_update
+
+2024-06-20 013b84e Daniel Graham
     Tagged version 6.4.9.
 
 2024-06-20 d481308 Daniel Graham
@@ -175,23 +193,3 @@
 
 2024-05-22 25c994b Daniel Graham
     Fixed date vs datetime bug
-
-2024-05-22 84dce1d Daniel Graham
-    Tagged version 6.2.6.
-
-2024-05-22 3c75e39 Daniel Graham
-    Removed more logging.debug statements
-
-2024-05-22 3ed355b Daniel Graham
-    Finishing repeating tasks now seems correct. Cleaned up
-    logging.debug statements.
-
-2024-05-22 fa11ab4 Daniel Graham
-    Next pass at finishing repeated tasks correctly
-
-2024-05-19 94b7683 Daniel Graham
-    Fixed bug in completing repeating task when @s doesn't fit the
-    recurrence rule
-
-2024-05-19 b8e0c42 Daniel Graham
-    @s inclusion fix for past due repeating tasks
