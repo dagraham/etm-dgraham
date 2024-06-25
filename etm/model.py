@@ -32,7 +32,7 @@ from etm.common import (
 # usedtime_hours = settings.usedtime_hours
 
 from tinydb.table import Document 
-from etm.common import benchmark, timeit
+from etm.common import benchmark, timeit, TimeIt
 import sys
 import re
 from pprint import pprint
@@ -1210,7 +1210,6 @@ item_hsh:    {self.item_hsh}
         self.doc_id = item_id
         # self.created = self.item_hsh['created']
         q = self.item_hsh.get('q', [])
-        # logger.debug(f"{q = }; {self.item_hsh = }")
         if not len(q) > 0 or q[0] == 0:
             return False
         q[0] = f"{-int(q[0])}"
@@ -4482,6 +4481,7 @@ shown when nonzero."""
     # def clearCache(self):
     #     self.cache = {}
 
+    @benchmark
     def refreshCache(self):
         self.cache = schedule(
             ETMDB,
@@ -9071,17 +9071,517 @@ def wkday2row(wkday):
     # TODO: fixme
     return 3 + 2 * wkday if wkday else 17
 
-def get_schedule(doc_id: int):
-    """For the item corresponding to doc_id, return the schedule components for rows, done, effort, week2day2busy, week2day2allday, allday_details, busy_details,  ...
+
+@benchmark
+def create_item_views(item, flags):
+    """creates views for an item
 
     Args:
-        doc_id (int): _id of the item
-
-    Returns:
-        _type_: 
+        item (Item): an instance of Item
+    
+    Returns: hash of lists of hashes
+    rows: a list of hashes to extend rows
+    done: a list of hashes to extend done
+    effort: a list of hashes to extend effort
+    completed: a list of hashes to extend completed
     """
-    raise NotImplementedError("get_schedule")
+    # all the stuff from schedule
+    # need to handle itemtypes ! ~
+    now=datetime.now()
+    completed = []
+    rows = []
+    done = []
+    effort = []
+    # busy_details = {}
+    # week2day2busy = {}
+    # week2day2allday = {}
+    # week2day2effort = {}
 
+    views = {
+        'rows': [],
+        'done': [],
+        'effort': [],
+        'completed': [],
+        'week2day2busy': {},
+        'week2day2allday': {},
+        'week2day2effort': {},
+    }
+    effort = views['effort']
+    done = views['done']
+    rows = views['rows']
+    week2day2busy = views['week2day2busy']
+    week2day2allday = views['week2day2allday']  
+    week2day2effort = views['week2day2effort']
+
+    todayYMD = now.strftime('%Y%m%d')
+    tomorrowYMD = (now + 1 * DAY).strftime('%Y%m%d')
+
+    doc_id = item.doc_id
+
+    itemtype = item['itemtype']
+    summary = item.get('summary', '~')
+    start = item.get('s', None)
+    extent = item.get('e', None)
+    wraps = item.get('w', [])
+    used = item.get('u', None)
+    finished = item.get('f', None)
+    history = item.get('h', None)
+    jobs = item.get('j', None)
+
+    if itemtype == '*' and start and extent and 'r' not in item:
+        dt = date_to_datetime(start)
+
+    if used:
+        dates_to_periods = {}
+        for period, dt in used:
+            if isinstance(dt, date) and not isinstance(dt, datetime):
+                pass
+            else:
+                dt = dt.date()
+            if UT_MIN > 0:
+                # round up minutes - consistent with used time views
+                # seconds = period.total_seconds()//60
+                seconds = int(period.total_seconds()) % (UT_MIN * 60)
+                if seconds:
+                    increment = timedelta(seconds=UT_MIN * 60 - seconds)
+                    period += increment
+
+            dates_to_periods.setdefault(dt, []).append(period)
+
+        for dt in dates_to_periods:
+            week = dt.isocalendar()[:2]
+            weekday = format_wkday(dt)
+            week2day2effort.setdefault(week, {})
+            week2day2effort[week].setdefault(weekday, ZERO)
+            total = ZERO
+            for p in dates_to_periods[dt]:
+                total += p
+            if total is not None:
+                week2day2effort[week][weekday] += total
+                used = format_hours_and_tenths(total).lstrip(
+                    '+'
+                )   # drop the +
+            else:
+                used = ''
+            effort.append(
+                {
+                    'id': doc_id,
+                    'job': None,
+                    'instance': None,
+                    'sort': (dt.strftime('%Y%m%d'), '1'),
+                    'week': (week),
+                    'day': (weekday,),
+                    'columns': [
+                        itemtype,
+                        f'{used} {summary}' if used else '',
+                        flags,
+                        '',
+                        (doc_id, None, None),
+                    ],
+                }
+            )
+
+    if itemtype == '-':
+        d = []   # d for done
+        # c = [] # c for completed
+        if isinstance(finished, Period):
+            # finished will be false if the period is ZERO
+            # we need details of when completed (start and end) for completed view
+            d.append(
+                [
+                    finished.start,
+                    summary,
+                    doc_id,
+                    format_completion(
+                        finished.start, finished.end
+                    ),
+                ]
+            )
+            # to skip completed instances we only need the completed (end) instance
+            completed.append(finished.start)
+            # ditto below for history
+        if history:
+            for dt in history:
+                d.append(
+                    [
+                        dt.start,
+                        summary,
+                        doc_id,
+                        format_completion(dt.start, dt.end),
+                    ]
+                )
+                completed.append(dt.end)
+        if jobs:
+            for job in jobs:
+                job_summary = job.get('summary', '')
+                if 'f' in job:
+                    d.append(
+                        [
+                            job['f'].start,
+                            job_summary,
+                            doc_id,
+                            format_completion(
+                                job['f'].start, job['f'].end
+                            ),
+                        ]
+                    )
+        if d:
+            for row in d:
+                dt = row[0]
+                finished_char = EtmChar.SKIPPED_CHAR if row[3] == '-1m' else EtmChar.FINISHED_CHAR
+
+                rhc = str(row[3]) + '  ' if len(row) > 3 else ''
+                if dt < aft_dt or dt > bef_dt:
+                    continue
+
+                done.append(
+                    {
+                        'id': row[2],
+                        'job': row[3],
+                        'instance': None,
+                        'sort': (dt.strftime('%Y%m%d%H%M'), '1'),
+                        'week': (dt.isocalendar()[:2]),
+                        'day': (
+                            format_wkday(dt),
+                        ),
+                        'columns': [
+                            finished_char,
+                            f'{rhc}{row[1]}',
+                            flags,
+                            '',
+                            (row[2], None, row[3]),
+                        ],
+                    }
+                )
+
+    startdt = date_to_datetime(start)
+    end_dt = None
+
+    instances = item_instances(item, aft_dt, bef_dt) 
+    instances.sort()
+    for dt, et in instances:
+        yr, wk, dayofweek = dt.isocalendar()
+        week = (yr, wk)
+        wk_fmt = fmt_week(week).center(width, ' ').rstrip()
+        itemday = dt.strftime('%Y%m%d')
+        dayDM = format_wkday(dt)
+        if itemday == todayYMD:
+            dayDM += ' (Today)'
+        elif itemday == tomorrowYMD:
+            dayDM += ' (Tomorrow)'
+        week2day2busy.setdefault(week, {})
+        week2day2busy[week].setdefault(dayofweek, [])
+        week2day2allday.setdefault(week, {})
+        week2day2allday[week].setdefault(
+            dayofweek, [False, [f'{dayDM}', f'All day']]
+        )
+        allday = dt.hour == 0 and dt.minute == 0
+
+        if (
+            item['itemtype'] == '*'
+            and dt.hour == 0
+            and dt.minute == 0
+            and 'e' not in item
+        ):
+            week2day2allday[week][dayofweek][0] = True
+            if 'r' in item:
+                freq = item['r'][0].get('r', 'y')
+            else:
+                freq = 'y'
+            tmp_summary = set_summary(item['summary'], item['s'], dt, freq)
+            week2day2allday[week][dayofweek][1].append(
+                f" {item['itemtype']} {tmp_summary}"
+            )
+
+        if 'r' in item:
+            freq = item['r'][0].get('r', 'y')
+        else:
+            freq = 'y'
+
+        instance = dt if '+' in item or 'r' in item else None
+
+        if instance in completed:
+            continue
+
+        if 'j' in item:
+
+            # repeating task with jobs
+
+            if instance:
+                if (
+                    doc_id in active_tasks
+                    and active_tasks[doc_id] != instance
+                ):
+                    continue
+                else:
+                    active_tasks[doc_id] = instance
+
+            for job in item['j']:
+                if 'f' in job:
+                    continue
+                job_summary = job.get('summary', '')
+                jobstart = dt + job.get('s', ZERO)
+                sort_dt = jobstart.strftime('%Y%m%d%H%M')
+                if sort_dt.endswith('0000'):
+                    sort_dt = sort_dt[:-4] + '2359'
+                job_id = job.get('i', None)
+                job_sort = str(job_id)
+
+                # rhc = fmt_time(dt).center(rhc_width, ' ')
+                et = job.get('e', ZERO)
+                if et:
+                    if omit and 'c' in item and item['c'] in omit:
+                        rhc = fmt_time(dt)
+                    elif allday:
+                        rhc = fmt_dur(et)
+                    else:
+                        rhc = fmt_extent(jobstart, et)
+                else:
+                    rhc = fmt_time(jobstart)
+                rhc = f"{rhc} " if rhc else ""
+                rows.append(
+                    {
+                        'id': doc_id,
+                        'job': job_id,
+                        'instance': instance,
+                        'sort': (
+                            sort_dt,
+                            job_sort,
+                            doc_id,
+                        ),
+                        'week': (jobstart.isocalendar()[:2]),
+                        'week_fmt': (wk_fmt),
+                        'dayofweek': (dayofweek),
+                        'day': (
+                            format_wkday(jobstart),
+                        ),
+                        'columns': [
+                            job['status'],
+                            set_summary(
+                                f'{rhc}{job_summary}',
+                                start,
+                                jobstart,
+                                freq,
+                            ),
+                            flags,
+                            '',  # rhc,
+                            (doc_id, instance, job_id),
+                        ],
+                    }
+                )
+
+        else:   # not a task with jobs
+            dateonly = False
+            sort_dt = dt.strftime('%Y%m%d%H%M')
+            if sort_dt.endswith('0000'):
+                dateonly = True
+                if item['itemtype'] in ['-']:
+                    sort_dt = sort_dt[:-4] + '2359'
+                elif item['itemtype'] in ['%']:
+                    sort_dt = sort_dt[:-4] + '2400'
+            # if 'allday' in item['summary']:
+
+            if 'e' in item:
+                if omit and 'c' in item and item['c'] in omit:
+                    et = None
+                    # rhc = fmt_time(dt).center(rhc_width, ' ')
+                    rhc = fmt_time(dt)
+                else:
+                    if item['itemtype'] == '~':
+                        rhc = fmt_dur(item['e'])
+                    elif item['itemtype'] == '-' and dateonly:
+                        rhc = fmt_dur(item['e'])
+                    else:
+                        rhc = fmt_extent(dt, et)
+            else:
+                rhc = fmt_time(dt)
+
+            dtb = dt
+
+            dta = et if et else None
+
+            # temp - just for this item
+            wrap = []
+            before = after = {}
+            wrapped = ''
+            if 'w' in item and dta and dtb:
+                # adjust for wrap
+                has_w = True
+                if len(item['w']) == 2:
+                    b, a = item['w']
+                    if b:
+                        dtb -= b
+                    if a:
+                        dta += a
+                    wrapped = fmt_extent(dtb, dta)
+
+                    wrap = item['w']
+                    wraps = (
+                        [format_duration(x) for x in wrap] if wrap else ''
+                    )
+                    if wraps:
+                        wraps[0] = f'{wrapbefore}{wraps[0]}'
+                        wraps[1] = f'{wrapafter}{wraps[1]}'
+                        wrapper = f"\n{22*' '}+ {', '.join(wraps)}"
+                    else:
+                        wrapper = ''
+
+                else:
+                    a = b = ZERO
+                    logger.error(
+                        f"The entry for 'w' in item {item.doc_id} should have 2 arguments but instead has {len(item['w'])}: {item['w']}. The entry has been ignored."
+                    )
+
+                if b and b > ZERO:
+                    itemtype = wrapbefore   #  "↱"
+                    sort_b = (dt - ONEMIN).strftime('%Y%m%d%H%M')
+                    rhb = fmt_time(dtb)
+                    before = {
+                        'id': doc_id,
+                        'job': None,
+                        'instance': instance,
+                        'sort': (sort_b, '0'),
+                        'week': (dtb.isocalendar()[:2]),
+                        'dayofweek': (dtb.isocalendar()[-1]),
+                        'day': (
+                            format_wkday(dtb),
+                        ),
+                        'columns': [
+                            itemtype,
+                            set_summary(rhb, item['s'], dtb, freq),
+                            ' ' * 4,
+                            '',
+                            (doc_id, instance, None),
+                        ],
+                    }
+
+                if a and a > ZERO:
+                    itemtype = wrapafter  # "↳"
+                    sort_a = (dt + ONEMIN).strftime('%Y%m%d%H%M')
+                    rha = fmt_time(dta)
+                    after = {
+                        'id': doc_id,
+                        'job': None,
+                        'instance': instance,
+                        'sort': (sort_a, 0),
+                        'week': (dta.isocalendar()[:2]),
+                        'dayofweek': (dta.isocalendar()[-1]),
+                        'day': (
+                            format_wkday(dta),
+                        ),
+                        'columns': [
+                            itemtype,
+                            set_summary(rha, item['s'], dta, freq),
+                            ' ' * 4,
+                            '',  # rha,
+                            (doc_id, instance, None),
+                        ],
+                    }
+            else:
+                wrapped = rhc
+
+            if before:
+                rows.append(before)
+
+            if omit and 'c' in item and item['c'] in omit:
+                busyperiod = None
+            elif dta and dta > dtb:
+                # a for after, b for before
+                busyperiod = None
+                dtad = dta.date()
+                dtbd = dtb.date()
+                if dtad == dtbd:
+                    busyperiod = (dt2minutes(dtb), dt2minutes(dta))
+                    week2day2busy[week][dayofweek].append(busyperiod)
+                elif dtad > dtbd:
+                    busyperiods = datetimes2busy(dta, dtb)
+                    for w, wd, periods in busyperiods:
+                        if w == week and wd == dayofweek:
+                            busyperiod = periods
+                            week2day2busy[week][dayofweek].append(
+                                busyperiod
+                            )
+                            break
+            else:
+                busyperiod = None
+            tmp_summary = set_summary(summary, item['s'], dt, freq)
+            rhc = rhc + ' ' if rhc else ''
+            columns = [
+                item['itemtype'],
+                f'{rhc}{tmp_summary}',
+                flags,
+                '',
+                (doc_id, instance, None),
+            ]
+
+            path = f'{wk_fmt}/{dayDM}**'
+
+            rows.append(
+                {
+                    'id': doc_id,
+                    'job': None,
+                    'instance': instance,
+                    'sort': (sort_dt, str(doc_id), '0'),
+                    'week': (week),
+                    'week_fmt': (wk_fmt),
+                    'dayofweek': (dayofweek),
+                    'day': (
+                        format_wkday(dt),
+                    ),
+                    'busyperiod': (busyperiod),
+                    'wrap': (wrap),
+                    'wrapped': wrapped,
+                    'columns': columns,
+                }
+            )
+
+            if after:
+                rows.append(after)
+    return views
+
+
+items_cache = {}
+created_used = [0, 0]
+def get_item_views(item, flags):
+    global items_cache, aft_dt, bef_dt, width, omit, created_used
+    if item.doc_id in items_cache:
+        timestamp, views_hsh = items_cache[item.doc_id]
+        if timestamp >= item.get('modified', item['created']):
+            # logger.debug(f"using cache for {item.doc_id}")
+            created_used[1] += 1
+            return views_hsh
+
+    # logger.debug(f"creating cache for {item.doc_id}")
+    created_used[0] += 1
+    views_hsh = create_item_views(item, flags)
+    timestamp = datetime.now().astimezone(ZoneInfo('UTC'))
+    items_cache[item.doc_id] = (timestamp, views_hsh)
+    return views_hsh
+
+def update_week2day2busy(combined_dict, new_dict):
+    for year_week, inner_dict in new_dict.items():
+        combined_dict.setdefault(year_week, {})
+        for weekday, times in inner_dict.items():
+            combined_dict[year_week].setdefault(weekday, [])
+            combined_dict[year_week][weekday].extend(times)
+    return combined_dict
+
+def update_week2day2allday(combined_dict, new_dict):
+    for year_week, inner_dict in new_dict.items():
+        combined_dict.setdefault(year_week, {})
+        for weekday, value in inner_dict.items():
+            combined_dict[year_week].setdefault(weekday, [False, []])
+            combined_dict[year_week][weekday][0] = value[0]
+            combined_dict[year_week][weekday][1].extend(value[1])
+    return combined_dict
+
+def update_week2day2effort(combined_dict, new_dict):
+    for year_week, inner_dict in new_dict.items():
+        combined_dict.setdefault(year_week, {})
+        for weekday, total in inner_dict.items():
+            combined_dict[year_week].setdefault(weekday, ZERO)
+            combined_dict[year_week][weekday] += total
+    return combined_dict
 
 @benchmark
 def schedule(
@@ -9097,8 +9597,11 @@ def schedule(
     link_list=[],
     konnected=[],
     timers={},
+
 ):
-    global current_hsh, active_tasks
+    """replacement for schedule and relevant using items_cache
+    """
+    global current_hsh, active_tasks, aft_dt, bef_dt, width, omit, created_used
     logger.debug(f"### Schedule ###")
     width = shutil.get_terminal_size()[0] - 3
     weeks_after = settings['keep_current'][0]
@@ -9135,457 +9638,41 @@ def schedule(
     # id2konnected = {} # id -> [(to|from, id)]
 
     # XXX year, week -> dayofweek -> list of [time interval, summary, period]
-    busy_details = {}
     week2day2busy = {}
     week2day2allday = {}
+    allday_details = {}
+    dent = int((width - 69) / 2) * ' '
 
-    # XXX main loop begins
-    todayYMD = now.strftime('%Y%m%d')
-    tomorrowYMD = (now + 1 * DAY).strftime('%Y%m%d')
-
+    created_used = [0, 0]
+    get_items_timer = TimeIt('get_items')
     for item in db:
-        completed = []
-        if item.get('itemtype', None) == None:
-            logger.error(f'itemtype missing from {item}')
-            continue
-
-        if item['itemtype'] in '!?~':
-            continue
-
-        doc_id = item.doc_id
-
-        itemtype = item['itemtype']
-        summary = item.get('summary', '~')
-        start = item.get('s', None)
-        extent = item.get('e', None)
-        wraps = item.get('w', [])
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        )
-        used = item.get('u', None)
-        finished = item.get('f', None)
-        history = item.get('h', None)
-        jobs = item.get('j', None)
-
-        if itemtype == '*' and start and extent and 'r' not in item:
-            dt = date_to_datetime(start)
-
-        if used:
-            dates_to_periods = {}
-            for period, dt in used:
-                if isinstance(dt, date) and not isinstance(dt, datetime):
-                    pass
-                else:
-                    dt = dt.date()
-                if UT_MIN > 0:
-                    # round up minutes - consistent with used time views
-                    # seconds = period.total_seconds()//60
-                    seconds = int(period.total_seconds()) % (UT_MIN * 60)
-                    if seconds:
-                        increment = timedelta(seconds=UT_MIN * 60 - seconds)
-                        period += increment
-
-                dates_to_periods.setdefault(dt, []).append(period)
-
-            for dt in dates_to_periods:
-                week = dt.isocalendar()[:2]
-                weekday = format_wkday(dt)
-                week2day2effort.setdefault(week, {})
-                week2day2effort[week].setdefault(weekday, ZERO)
-                total = ZERO
-                for p in dates_to_periods[dt]:
-                    total += p
-                if total is not None:
-                    week2day2effort[week][weekday] += total
-                    used = format_hours_and_tenths(total).lstrip(
-                        '+'
-                    )   # drop the +
-                else:
-                    used = ''
-                effort.append(
-                    {
-                        'id': doc_id,
-                        'job': None,
-                        'instance': None,
-                        'sort': (dt.strftime('%Y%m%d'), '1'),
-                        'week': (week),
-                        'day': (weekday,),
-                        'columns': [
-                            itemtype,
-                            f'{used} {summary}' if used else '',
-                            flags,
-                            '',
-                            (doc_id, None, None),
-                        ],
-                    }
-                )
-
-        if itemtype == '-':
-            d = []   # d for done
-            # c = [] # c for completed
-            if isinstance(finished, Period):
-                # finished will be false if the period is ZERO
-                # we need details of when completed (start and end) for completed view
-                d.append(
-                    [
-                        finished.start,
-                        summary,
-                        doc_id,
-                        format_completion(
-                            finished.start, finished.end
-                        ),
-                    ]
-                )
-                # to skip completed instances we only need the completed (end) instance
-                completed.append(finished.start)
-                # ditto below for history
-            if history:
-                for dt in history:
-                    d.append(
-                        [
-                            dt.start,
-                            summary,
-                            doc_id,
-                            format_completion(dt.start, dt.end),
-                        ]
-                    )
-                    completed.append(dt.end)
-            if jobs:
-                for job in jobs:
-                    job_summary = job.get('summary', '')
-                    if 'f' in job:
-                        d.append(
-                            [
-                                job['f'].start,
-                                job_summary,
-                                doc_id,
-                                format_completion(
-                                    job['f'].start, job['f'].end
-                                ),
-                            ]
-                        )
-            if d:
-                for row in d:
-                    dt = row[0]
-                    finished_char = EtmChar.SKIPPED_CHAR if row[3] == '-1m' else EtmChar.FINISHED_CHAR
-
-                    rhc = str(row[3]) + '  ' if len(row) > 3 else ''
-                    if dt < aft_dt or dt > bef_dt:
-                        continue
-
-                    done.append(
-                        {
-                            'id': row[2],
-                            'job': row[3],
-                            'instance': None,
-                            'sort': (dt.strftime('%Y%m%d%H%M'), '1'),
-                            'week': (dt.isocalendar()[:2]),
-                            'day': (
-                                format_wkday(dt),
-                            ),
-                            'columns': [
-                                finished_char,
-                                f'{rhc}{row[1]}',
-                                flags,
-                                '',
-                                (row[2], None, row[3]),
-                            ],
-                        }
-                    )
-
-        startdt = date_to_datetime(start)
-        # if not start or finished is not None or startdt in completed:
-        if not start or finished is not None:
-            continue
-
-        # XXX INSTANCES
-
-        # keep these for reference for this item
-        end_dt = None
-
-        # logger.debug(f"schedule */* {item = }")
-        instances = item_instances(item, aft_dt, bef_dt) 
-        instances.sort()
-        # logger.debug(f"schedule */* {instances = }")
-        for dt, et in instances:
-            yr, wk, dayofweek = dt.isocalendar()
-            week = (yr, wk)
-            wk_fmt = fmt_week(week).center(width, ' ').rstrip()
-            itemday = dt.strftime('%Y%m%d')
-            dayDM = format_wkday(dt)
-            if itemday == todayYMD:
-                dayDM += ' (Today)'
-            elif itemday == tomorrowYMD:
-                dayDM += ' (Tomorrow)'
-            week2day2busy.setdefault(week, {})
-            week2day2busy[week].setdefault(dayofweek, [])
-            week2day2allday.setdefault(week, {})
-            week2day2allday[week].setdefault(
-                dayofweek, [False, [f'{dayDM}', f'All day']]
+            item.doc_id, repeat_list, link_list, konnected, pinned_list, timers
             )
-            allday = dt.hour == 0 and dt.minute == 0
+        views_hsh = get_item_views(item, flags)
+        rows.extend(views_hsh['rows'])
+        done.extend(views_hsh['done'])
+        effort.extend(views_hsh['effort'])
 
-            if (
-                item['itemtype'] == '*'
-                and dt.hour == 0
-                and dt.minute == 0
-                and 'e' not in item
-            ):
-                week2day2allday[week][dayofweek][0] = True
-                if 'r' in item:
-                    freq = item['r'][0].get('r', 'y')
-                else:
-                    freq = 'y'
-                tmp_summary = set_summary(item['summary'], item['s'], dt, freq)
-                week2day2allday[week][dayofweek][1].append(
-                    f" {item['itemtype']} {tmp_summary}"
-                )
+        # week2day2busy.update(views_hsh['week2day2busy'])
+        week2day2busy = update_week2day2busy(
+            week2day2busy, 
+            views_hsh['week2day2busy']
+            )
+        # week2day2allday.update(views_hsh['week2day2allday'])
+        week2day2allday = update_week2day2allday(
+            week2day2allday, 
+            views_hsh['week2day2allday']
+            )
+        # week2day2allday = update_week2day(week2day2allday, views_hsh['week2day2allday'])
+        # week2day2effort.update(views_hsh['week2day2effort'])
+        week2day2effort = update_week2day2effort(
+            week2day2effort,
+            views_hsh['week2day2effort']  
+        )
+    get_items_timer.stop()
+    logger.debug(f"created_used: {created_used}")
 
-            if 'r' in item:
-                freq = item['r'][0].get('r', 'y')
-            else:
-                freq = 'y'
-
-            instance = dt if '+' in item or 'r' in item else None
-
-            if instance in completed:
-                continue
-
-            if 'j' in item:
-
-                # repeating task with jobs
-
-                if instance:
-                    if (
-                        doc_id in active_tasks
-                        and active_tasks[doc_id] != instance
-                    ):
-                        continue
-                    else:
-                        active_tasks[doc_id] = instance
-
-                for job in item['j']:
-                    if 'f' in job:
-                        continue
-                    job_summary = job.get('summary', '')
-                    jobstart = dt + job.get('s', ZERO)
-                    sort_dt = jobstart.strftime('%Y%m%d%H%M')
-                    if sort_dt.endswith('0000'):
-                        sort_dt = sort_dt[:-4] + '2359'
-                    job_id = job.get('i', None)
-                    job_sort = str(job_id)
-
-                    # rhc = fmt_time(dt).center(rhc_width, ' ')
-                    et = job.get('e', ZERO)
-                    if et:
-                        if omit and 'c' in item and item['c'] in omit:
-                            rhc = fmt_time(dt)
-                        elif allday:
-                            rhc = fmt_dur(et)
-                        else:
-                            rhc = fmt_extent(jobstart, et)
-                    else:
-                        rhc = fmt_time(jobstart)
-                    rhc = f"{rhc} " if rhc else ""
-                    rows.append(
-                        {
-                            'id': doc_id,
-                            'job': job_id,
-                            'instance': instance,
-                            'sort': (
-                                sort_dt,
-                                job_sort,
-                                doc_id,
-                            ),
-                            'week': (jobstart.isocalendar()[:2]),
-                            'week_fmt': (wk_fmt),
-                            'dayofweek': (dayofweek),
-                            'day': (
-                                format_wkday(jobstart),
-                            ),
-                            'columns': [
-                                job['status'],
-                                set_summary(
-                                    f'{rhc}{job_summary}',
-                                    start,
-                                    jobstart,
-                                    freq,
-                                ),
-                                flags,
-                                '',  # rhc,
-                                (doc_id, instance, job_id),
-                            ],
-                        }
-                    )
-
-            else:   # not a task with jobs
-                dateonly = False
-                sort_dt = dt.strftime('%Y%m%d%H%M')
-                if sort_dt.endswith('0000'):
-                    dateonly = True
-                    if item['itemtype'] in ['-']:
-                        sort_dt = sort_dt[:-4] + '2359'
-                    elif item['itemtype'] in ['%']:
-                        sort_dt = sort_dt[:-4] + '2400'
-                # if 'allday' in item['summary']:
-
-                if 'e' in item:
-                    if omit and 'c' in item and item['c'] in omit:
-                        et = None
-                        # rhc = fmt_time(dt).center(rhc_width, ' ')
-                        rhc = fmt_time(dt)
-                    else:
-                        if item['itemtype'] == '~':
-                            rhc = fmt_dur(item['e'])
-                        elif item['itemtype'] == '-' and dateonly:
-                            rhc = fmt_dur(item['e'])
-                        else:
-                            rhc = fmt_extent(dt, et)
-                else:
-                    rhc = fmt_time(dt)
-
-                dtb = dt
-
-                dta = et if et else None
-
-                # temp - just for this item
-                wrap = []
-                before = after = {}
-                wrapped = ''
-                if 'w' in item and dta and dtb:
-                    # adjust for wrap
-                    has_w = True
-                    if len(item['w']) == 2:
-                        b, a = item['w']
-                        if b:
-                            dtb -= b
-                        if a:
-                            dta += a
-                        wrapped = fmt_extent(dtb, dta)
-
-                        wrap = item['w']
-                        wraps = (
-                            [format_duration(x) for x in wrap] if wrap else ''
-                        )
-                        if wraps:
-                            wraps[0] = f'{wrapbefore}{wraps[0]}'
-                            wraps[1] = f'{wrapafter}{wraps[1]}'
-                            wrapper = f"\n{22*' '}+ {', '.join(wraps)}"
-                        else:
-                            wrapper = ''
-
-                    else:
-                        a = b = ZERO
-                        logger.error(
-                            f"The entry for 'w' in item {item.doc_id} should have 2 arguments but instead has {len(item['w'])}: {item['w']}. The entry has been ignored."
-                        )
-
-                    if b and b > ZERO:
-                        itemtype = wrapbefore   #  "↱"
-                        sort_b = (dt - ONEMIN).strftime('%Y%m%d%H%M')
-                        rhb = fmt_time(dtb)
-                        before = {
-                            'id': doc_id,
-                            'job': None,
-                            'instance': instance,
-                            'sort': (sort_b, '0'),
-                            'week': (dtb.isocalendar()[:2]),
-                            'dayofweek': (dtb.isocalendar()[-1]),
-                            'day': (
-                                format_wkday(dtb),
-                            ),
-                            'columns': [
-                                itemtype,
-                                set_summary(rhb, item['s'], dtb, freq),
-                                ' ' * 4,
-                                '',
-                                (doc_id, instance, None),
-                            ],
-                        }
-
-                    if a and a > ZERO:
-                        itemtype = wrapafter  # "↳"
-                        sort_a = (dt + ONEMIN).strftime('%Y%m%d%H%M')
-                        rha = fmt_time(dta)
-                        after = {
-                            'id': doc_id,
-                            'job': None,
-                            'instance': instance,
-                            'sort': (sort_a, 0),
-                            'week': (dta.isocalendar()[:2]),
-                            'dayofweek': (dta.isocalendar()[-1]),
-                            'day': (
-                                format_wkday(dta),
-                            ),
-                            'columns': [
-                                itemtype,
-                                set_summary(rha, item['s'], dta, freq),
-                                ' ' * 4,
-                                '',  # rha,
-                                (doc_id, instance, None),
-                            ],
-                        }
-                else:
-                    wrapped = rhc
-
-                if before:
-                    rows.append(before)
-
-                if omit and 'c' in item and item['c'] in omit:
-                    busyperiod = None
-                elif dta and dta > dtb:
-                    # a for after, b for before
-                    busyperiod = None
-                    dtad = dta.date()
-                    dtbd = dtb.date()
-                    if dtad == dtbd:
-                        busyperiod = (dt2minutes(dtb), dt2minutes(dta))
-                        week2day2busy[week][dayofweek].append(busyperiod)
-                    elif dtad > dtbd:
-                        busyperiods = datetimes2busy(dta, dtb)
-                        for w, wd, periods in busyperiods:
-                            if w == week and wd == dayofweek:
-                                busyperiod = periods
-                                week2day2busy[week][dayofweek].append(
-                                    busyperiod
-                                )
-                                break
-                else:
-                    busyperiod = None
-                tmp_summary = set_summary(summary, item['s'], dt, freq)
-                rhc = rhc + ' ' if rhc else ''
-                columns = [
-                    item['itemtype'],
-                    f'{rhc}{tmp_summary}',
-                    flags,
-                    '',
-                    (doc_id, instance, None),
-                ]
-
-                path = f'{wk_fmt}/{dayDM}**'
-
-                rows.append(
-                    {
-                        'id': doc_id,
-                        'job': None,
-                        'instance': instance,
-                        'sort': (sort_dt, str(doc_id), '0'),
-                        'week': (week),
-                        'week_fmt': (wk_fmt),
-                        'dayofweek': (dayofweek),
-                        'day': (
-                            format_wkday(dt),
-                        ),
-                        'busyperiod': (busyperiod),
-                        'wrap': (wrap),
-                        'wrapped': wrapped,
-                        'columns': columns,
-                    }
-                )
-
-                if after:
-                    rows.append(after)
-    
 
     if yw == getWeekNum(now):
         rows.extend(current)
@@ -9858,6 +9945,7 @@ def schedule(
 
     return cache
 
+
 def get_konnections(hsh: dict)->list[int]:
     if 'K' not in hsh:
         return []
@@ -9931,7 +10019,7 @@ Developer:      dnlgrhm@gmail.com
     return ret1, ret2
 
 
-dataview = None
+# dataview = None
 item = None
 
 

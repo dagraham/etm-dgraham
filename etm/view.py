@@ -1001,8 +1001,8 @@ Enter an expression of the form "period: datetime", e.g., "1h27m: 3:20p", in the
             if changed:
                 dataview.timer_clear(doc_id)
 
-                if doc_id in dataview.itemcache:
-                    del dataview.itemcache[doc_id]
+                if doc_id in dataview.details_cache:
+                    del dataview.details_cache[doc_id]
                 application.layout.focus(text_area)
                 application.output.set_cursor_shape(CursorShape.BLOCK)
                 set_text(dataview.show_active_view())
@@ -2381,8 +2381,8 @@ To schedule an additional datetime for this reminder enter the new datetime """
                 show_message('new instance', f"'{new_datetime}' is invalid")
 
             if changed:
-                if doc_id in dataview.itemcache:
-                    del dataview.itemcache[doc_id]
+                if doc_id in dataview.details_cache:
+                    del dataview.details_cache[doc_id]
                 application.layout.focus(text_area)
                 set_text(dataview.show_active_view())
                 loop = asyncio.get_event_loop()
@@ -2438,8 +2438,8 @@ To reschedule enter the {new} """
                 show_message('new instance', f"'{new_datetime}' is invalid")
 
             if changed:
-                if doc_id in dataview.itemcache:
-                    del dataview.itemcache[doc_id]
+                if doc_id in dataview.details_cache:
+                    del dataview.details_cache[doc_id]
                 application.layout.focus(text_area)
                 set_text(dataview.show_active_view())
                 loop = asyncio.get_event_loop()
@@ -2487,8 +2487,8 @@ Are you sure that you want to delete this reminder?
                 if has_timer:
                     dataview.timer_clear(doc_id)
                 item.delete_item(doc_id)
-                if doc_id in dataview.itemcache:
-                    del dataview.itemcache[doc_id]
+                if doc_id in dataview.details_cache:
+                    del dataview.details_cache[doc_id]
                 loop = asyncio.get_event_loop()
                 loop.call_later(0, data_changed, loop)
 
@@ -2524,8 +2524,8 @@ This is one instance of a repeating item. What do you want to delete?
             if done:
                 changed = item.delete_instances(doc_id, instance, keypress)
                 if changed:
-                    if doc_id in dataview.itemcache:
-                        del dataview.itemcache[doc_id]
+                    if doc_id in dataview.details_cache:
+                        del dataview.details_cache[doc_id]
                     # application.layout.focus(text_area)
                     # set_text(dataview.show_active_view())
                     loop = asyncio.get_event_loop()
@@ -3099,8 +3099,8 @@ The default entered below is to use the current moment as the "completion dateti
         changed = item.finish_item(doc_id, job, done, due)
 
         if not msg and changed:
-            if doc_id in dataview.itemcache:
-                del dataview.itemcache[doc_id]
+            if doc_id in dataview.details_cache:
+                del dataview.details_cache[doc_id]
             application.layout.focus(text_area)
             set_text(dataview.show_active_view())
             loop = asyncio.get_event_loop()
@@ -3994,7 +3994,7 @@ def save_changes(*event):
             # timer_save.stop()
         except Exception as e:
             logger.error(f'exception: {e}')
-            show_message(f'exception {e = } raised')
+            show_message('Save changes', f'exception {e = } raised')
 
     else:
         # no changes to save - close editor
@@ -4032,9 +4032,9 @@ def maybe_save(item):
         # item needs correcting, return to edit
         return
     # hsh ok, save changes and close editor
-    if item.doc_id in dataview.itemcache:
+    if item.doc_id in dataview.details_cache:
         try:
-            del dataview.itemcache[item.doc_id]
+            del dataview.details_cache[item.doc_id]
         except Exception as e:
             logger.debug(f'exception: {e}')
 

@@ -68,24 +68,18 @@ def timeit(message: str = '') -> Callable[[Callable[..., Any]], Callable[..., An
     return decorator
 
 
-# class TimeIt(object):
-#     def __init__(self, label='', loglevel=1):
-#         self.loglevel = loglevel
-#         self.label = label
-#         if self.loglevel == 1:
-#             msg = 'timer {0} started; loglevel: {1}'.format(
-#                 self.label, self.loglevel
-#             )
-#             logger.debug(msg)
-#             self.start = timer()
+class TimeIt(object):
+    def __init__(self, label='', loglevel=1):
+        self.loglevel = loglevel
+        self.label = label
+        if self.loglevel == 1:
+            self.start = timer()
 
-#     def stop(self, *args):
-#         if self.loglevel == 1:
-#             self.end = timer()
-#             # self.secs = self.end - self.start
-#             # self.msecs = self.secs * 1000  # millisecs
-#             msg = f'timer {self.label} stopped; elapsed time: {self.end-self.start:.4f} seconds'
-#             logger.debug(msg)
+    def stop(self, *args):
+        if self.loglevel == 1:
+            self.end = timer()
+            msg = f'⏱ {self.label} took {self.end-self.start:.4f} seconds'
+            logger.debug(msg)
 
 
 # from etm.__main__ import ETMHOME
