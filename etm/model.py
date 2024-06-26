@@ -90,7 +90,7 @@ python_version = platform.python_version()
 developer = 'dnlgrhm@gmail.com'
 
 # These are set in _main_
-from etm.common import DBITEM, DBARCH, ETMDB 
+from etm.common import DBITEM, DBARCH, ETMDB
 # DBITEM = None
 # DBARCH = None
 # ETMDB = None
@@ -3043,9 +3043,22 @@ class NDict(dict):
         return '\n'.join(self.output), self.row2id
 
 
-class DataView(object):
+class Dataview(object):
+    _instance = None
+
+    def __new__(cls, etmdir=None):
+        if cls._instance is None:
+            if etmdir is None:
+                raise ValueError("etmdir must be provided on the first instantiation")
+            cls._instance = super(Dataview, cls).__new__(cls)
+            cls._instance.init(etmdir)
+        return cls._instance
+
     @timeit('Dataview')
-    def __init__(self, etmdir):
+    def init(self, etmdir):
+        # Initialize any data or perform setup using etmdir
+        self.etmdir = etmdir
+        logger.debug(f"init: {etmdir}")
         self.active_item = None
         self.active_view = 'agenda'
         self.prior_view = 'agenda'
@@ -3159,6 +3172,9 @@ class DataView(object):
         if needs_update:
             self.update_datetimes_to_periods()
         self.get_completions()
+
+
+    def refresh(self):
         self.refreshKonnections()
         self.currYrWk()
         self.refreshRelevant()
@@ -3166,6 +3182,7 @@ class DataView(object):
         self.refreshAgenda()
         self.possible_archive()
         self.currcal()
+
 
     def set_etmdir(self, etmdir):
         self.etmdir = etmdir
@@ -9074,6 +9091,7 @@ def wkday2row(wkday):
 
 @benchmark
 def create_item_views(item, flags):
+    dataview = Dataview()
     """creates views for an item
 
     Args:
@@ -9105,6 +9123,12 @@ def create_item_views(item, flags):
         'week2day2busy': {},
         'week2day2allday': {},
         'week2day2effort': {},
+        'inbox': [],
+        'goals': [],
+        'pastdue': [],
+        'beginbys': [],
+        'alerts': [],
+        'current': [],
     }
     effort = views['effort']
     done = views['done']
@@ -9112,13 +9136,24 @@ def create_item_views(item, flags):
     week2day2busy = views['week2day2busy']
     week2day2allday = views['week2day2allday']  
     week2day2effort = views['week2day2effort']
+    inbox = views['inbox']
+    goals = views['goals']
+    pastdue = views['pastdue']
+    beginbys = views['beginbys']
+    alerts = views['alerts']
+    current = views['current']
+    link_list = dataview.link_list
+    repeat_list = dataview.repeat_list
 
     todayYMD = now.strftime('%Y%m%d')
     tomorrowYMD = (now + 1 * DAY).strftime('%Y%m%d')
 
     doc_id = item.doc_id
+    rset = dr.rruleset()
 
-    itemtype = item['itemtype']
+    itemtype = item.get('itemtype', '?')
+    if itemtype == '?':
+        logger.warning(f"missing itemtype for doc_id {doc_id}")
     summary = item.get('summary', '~')
     start = item.get('s', None)
     extent = item.get('e', None)
@@ -9127,6 +9162,20 @@ def create_item_views(item, flags):
     finished = item.get('f', None)
     history = item.get('h', None)
     jobs = item.get('j', None)
+
+    if 'g' in item:
+        if doc_id not in link_list:
+            link_list.append(doc_id)
+    else:
+        if doc_id in link_list:
+            link_list.remove(doc_id)
+    if '+' in item or 'r' in item:
+        if doc_id not in repeat_list:
+            repeat_list.append(doc_id)
+    else:
+        if doc_id in repeat_list:
+            repeat_list.remove(doc_id)
+
 
     if itemtype == '*' and start and extent and 'r' not in item:
         dt = date_to_datetime(start)
@@ -10027,10 +10076,10 @@ item = None
 
 
 def main(etmdir='', *args):
-    global dataview, item, db, ampm, settings
+    global item, db, ampm, settings
     # NOTE: DataView called in model.main
-    dataview = DataView(etmdir)
-    settings = dataview.settings
+    # dataview = DataView(etmdir)
+    # settings = dataview.settings
     db = dataview.db
     item = Item(etmdir)
     dataview.refreshCache()

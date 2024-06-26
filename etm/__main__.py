@@ -6,6 +6,10 @@ from prompt_toolkit.validation import Validator, ValidationError
 import sys
 import os
 
+dataview = None
+etmdir = None
+
+from etm.model import Dataview
 
 class ConfirmationValidator(Validator):
     def validate(self, document):
@@ -45,7 +49,7 @@ def print_usage():
 
 
 def main():
-
+    global dataview, etmdir
     # from etm.common import TimeIt 
 
     if '-h' in sys.argv or '--help' in sys.argv:
@@ -282,9 +286,14 @@ which will need to be created.
     )
     logger.debug(f'etmhome: {etmhome}')
     model.etmhome = etmhome
+    common.etmhome = etmhome
     # we put settings into the model namespace so model.Dataview will have it
-    dataview = model.DataView(etmdir)
-    common.dataview = dataview
+    dataview = Dataview(etmdir)
+    common.etmdir = etmdir
+    logger.debug(f"{dataview.link_list = }")
+    dataview.refresh()
+    # common.dataview = dataview
+    model.dataview = dataview
     common.data_changed = data_changed
 
     logger.debug(f'{dataview.last_id = }')
