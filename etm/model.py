@@ -4062,22 +4062,22 @@ class Dataview(object):
         """
         Called to set the relevant items for the current date and to change the currentYrWk and activeYrWk to that containing the current date.
         """
-        self.set_now()
-        self.currentYrWk = getWeekNum(self.now)
-        dirty = True
-        while dirty:
-            self.current, self.alerts, self.id2relevant, dirty = relevant(
-                self.db,
-                self.now,
-                self.repeat_list,
-                self.pinned_list,
-                self.link_list,
-                self.konnected,
-                self.timers,
-            )
-            if dirty:
-                self.refreshKonnections()
-        logger.debug(f"{self.current = }")
+        # self.set_now()
+        # self.currentYrWk = getWeekNum(self.now)
+        # dirty = True
+        # while dirty:
+        #     self.current, self.alerts, self.id2relevant, dirty = relevant(
+        #         self.db,
+        #         self.now,
+        #         self.repeat_list,
+        #         self.pinned_list,
+        #         self.link_list,
+        #         self.konnected,
+        #         self.timers,
+        #     )
+        #     if dirty:
+        #         self.refreshKonnections()
+        # logger.debug(f"{self.current = }")
         self.refreshCache()
 
     @benchmark
@@ -7263,188 +7263,680 @@ def get_item(doc_id):
     pass
 
 
-@benchmark
-def relevant(
-    db,
-    now=datetime.now(),
-    repeat_list=[],
-    pinned_list=[],
-    link_list=[],
-    konnected=[],
-    timers={},
-):
-    """
-    Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
-    Called by dataview.refreshRelevant
-    """
-    global today, tomorrow, width, summary_width, aft_dt, bef_dt, todayYMD, tomorrowYMD, omit
-    logger.debug(f"### Relevant ###")
-    goal_counts = {
-        'Ended': 0,
-        'Active': 0,
-        'Inactive': 0
-    }
+# @benchmark
+# def relevant(
+#     db,
+#     now=datetime.now(),
+#     repeat_list=[],
+#     pinned_list=[],
+#     link_list=[],
+#     konnected=[],
+#     timers={},
+# ):
+#     """
+#     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
+#     Called by dataview.refreshRelevant
+#     """
+#     dataview = Dataview()
 
-    # wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
-    dirty = False
-    width = shutil.get_terminal_size()[0] - 3
-    summary_width = width - 3
-    ampm = settings['ampm']
-    rhc_width = 15 if ampm else 11
-    num_remaining = ''
-    omit = settings['omit_extent']
+#     return dataview.current, dataview.alerts, dataview.id2relevant, False
 
-    today = (
-        datetime.now()
-        .replace(hour=0, minute=0, second=0, microsecond=0)
-        .astimezone()
-    )
-    tomorrow = today + DAY
-    current_weekday = today.weekday()
-    weekdays_remaining = 7 - current_weekday
-    this_week = ([int(x) for x in today.strftime("%Y,%W").split(',')])
-    this_week_str = f"{this_week[0]}:{this_week[1]:02}"
+#     global today, tomorrow, width, summary_width, aft_dt, bef_dt, todayYMD, tomorrowYMD, omit
+#     logger.debug(f"### Relevant ###")
+#     goal_counts = {
+#         'Ended': 0,
+#         'Active': 0,
+#         'Inactive': 0
+#     }
 
-    inbox_fmt = today.strftime('%Y%m%d    ')   # first
-    pastdue_fmt = today.strftime('%Y%m%d^^^^')   # after all day and timed
-    begby_fmt = today.strftime('%Y%m%d~~~~')   # after past due
-    yw=getWeekNum()
-    weeks_before = 0
-    weeks_after = settings['keep_current'][0]
+#     # wkday_fmt = '%a %d %b' if settings['dayfirst'] else '%a %b %d'
+#     dirty = False
+#     width = shutil.get_terminal_size()[0] - 3
+#     summary_width = width - 3
+#     ampm = settings['ampm']
+#     rhc_width = 15 if ampm else 11
+#     num_remaining = ''
+#     omit = settings['omit_extent']
 
-    id2relevant = {}
-    inbox = []
-    goals = []
-    pastdue = []
-    beginbys = []
-    alerts = []
-    current = []
-    now = datetime.now().astimezone()
-    todayYMD = now.strftime('%Y%m%d')
-    tomorrowYMD = (now + 1 * DAY).strftime('%Y%m%d')
-    d = iso_to_gregorian((yw[0], yw[1], 1))
-    dt = datetime(d.year, d.month, d.day, 0, 0, 0).astimezone()
-    week_numbers = getWeekNumbers(dt, weeks_before, weeks_after)
-    if yw not in week_numbers:
-        week_numbers.append(yw)
-        week_numbers.sort()
-    aft_dt, bef_dt = get_period(dt, weeks_before, weeks_after)
+#     today = (
+#         datetime.now()
+#         .replace(hour=0, minute=0, second=0, microsecond=0)
+#         .astimezone()
+#     )
+#     tomorrow = today + DAY
+#     current_weekday = today.weekday()
+#     weekdays_remaining = 7 - current_weekday
+#     this_week = ([int(x) for x in today.strftime("%Y,%W").split(',')])
+#     this_week_str = f"{this_week[0]}:{this_week[1]:02}"
 
-    for item in db:
-        instance_interval = []
-        possible_beginby = None
-        possible_alerts = []
-        all_tds = []
-        relevant = None
-        dtstart = None
-        doc_id = item.doc_id
-        rset = dr.rruleset()
-        if 'itemtype' not in item:
-            logger.warning(f'no itemtype: {item}')
-            item['itemtype'] = '?'
-            # continue
-        if 'g' in item:
-            if doc_id not in link_list:
-                link_list.append(doc_id)
-        else:
-            if doc_id in link_list:
-                link_list.remove(doc_id)
-        if '+' in item or 'r' in item:
-            if doc_id not in repeat_list:
-                repeat_list.append(doc_id)
-        else:
-            if doc_id in repeat_list:
-                repeat_list.remove(doc_id)
+#     inbox_fmt = today.strftime('%Y%m%d    ')   # first
+#     pastdue_fmt = today.strftime('%Y%m%d^^^^')   # after all day and timed
+#     begby_fmt = today.strftime('%Y%m%d~~~~')   # after past due
+#     yw=getWeekNum()
+#     weeks_before = 0
+#     weeks_after = settings['keep_current'][0]
 
-        summary = item.get('summary', '~')
-        flags = get_flags(
-            item.doc_id, repeat_list, link_list, konnected, pinned_list, timers
-            )
-        views_hsh = get_item_views(item, flags)
-        pastdue.extend(views_hsh['pastdue'])
-        beginbys.extend(views_hsh['beginbys'])
-        inbox.extend(views_hsh['inbox'])
-        goals.extend(views_hsh['goals'])
-        current.extend(views_hsh['current'])
-        alerts.extend(views_hsh['alerts'])
+#     id2relevant = {}
+#     inbox = []
+#     goals = []
+#     pastdue = []
+#     beginbys = []
+#     alerts = []
+#     current = []
+#     now = datetime.now().astimezone()
+#     todayYMD = now.strftime('%Y%m%d')
+#     tomorrowYMD = (now + 1 * DAY).strftime('%Y%m%d')
+#     d = iso_to_gregorian((yw[0], yw[1], 1))
+#     dt = datetime(d.year, d.month, d.day, 0, 0, 0).astimezone()
+#     week_numbers = getWeekNumbers(dt, weeks_before, weeks_after)
+#     if yw not in week_numbers:
+#         week_numbers.append(yw)
+#         week_numbers.sort()
+#     aft_dt, bef_dt = get_period(dt, weeks_before, weeks_after)
 
-    inbox.sort()
-    pastdue.sort()
-    beginbys.sort()
-    alerts.sort()
-    # alerts: alert datetime, start datetime, commands, summary, doc_id
-    week = today.isocalendar()[:2]
-    day = (format_wkday(today),)
-    for item in inbox:
-        item_0 = ' '
-        rhc = item_0.center(rhc_width, ' ')
-        doc_id = item[2]
-        flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        )
-        current.append(
-            {
-                'id': item[2],
-                'job': None,
-                'instance': None,
-                'sort': (inbox_fmt, 1),
-                'week': week,
-                'day': day,
-                'columns': ['!', item[1], flags, rhc, doc_id],
-            }
-        )
+#     for item in db:
+#         flags = get_flags(
+#             item.doc_id, repeat_list, link_list, konnected, pinned_list, timers
+#             )
+#         views_hsh = get_item_views(item, flags)
+#         pastdue.extend(views_hsh['pastdue'])
+#         beginbys.extend(views_hsh['beginbys'])
+#         inbox.extend(views_hsh['inbox'])
+#         goals.extend(views_hsh['goals'])
+#         current.extend(views_hsh['current'])
+#         alerts.extend(views_hsh['alerts'])
 
-    for item in pastdue:
-        item_0 = str(item[0]) if item[0] in item else ''
-        rhc = item_0
-        doc_id = item[2]
-        job_id = item[3] if item[3] else ''
-        flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        )
-        try:
-            current.append(
-                {
-                    'id': item[2],
-                    'job': item[3],
-                    'instance': item[4],
-                    'sort': (pastdue_fmt, 2, item[0]),
-                    'week': week,
-                    'day': day,
-                    'columns': [
-                        '<',
-                        f'{rhc + "  " if rhc else ""}{item[1]}',
-                        flags,
-                        '',
-                        (doc_id, item[4], item[3]),
-                    ],
-                }
-            )
-        except Exception as e:
-            logger.warning(f'could not append item: {item}; e: {e}')
+#     inbox.sort()
+#     pastdue.sort()
+#     beginbys.sort()
+#     alerts.sort()
+#     # alerts: alert datetime, start datetime, commands, summary, doc_id
+#     week = today.isocalendar()[:2]
+#     day = (format_wkday(today),)
+#     for item in inbox:
+#         item_0 = ' '
+#         rhc = item_0.center(rhc_width, ' ')
+#         doc_id = item[2]
+#         flags = get_flags(
+#             doc_id, repeat_list, link_list, konnected, pinned_list, timers
+#         )
+#         current.append(
+#             {
+#                 'id': item[2],
+#                 'job': None,
+#                 'instance': None,
+#                 'sort': (inbox_fmt, 1),
+#                 'week': week,
+#                 'day': day,
+#                 'columns': ['!', item[1], flags, rhc, doc_id],
+#             }
+#         )
 
-    for item in beginbys:
-        if item[0] in item:
-            item_0 = str(item[0]) if item[0] <= 0 else f'+{item[0]}'
-        else:
-            item_0 = ''
-        rhc = item_0 + '  ' if item[0] else ''
-        doc_id = item[2]
-        flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        )
-        current.append(
-            {
-                'id': item[2],
-                'job': item[3],
-                'instance': item[4],
-                'sort': (begby_fmt, 3, item[0]),
-                'week': week,
-                'day': day,
-                'columns': ['>', rhc + item[1], flags, '', doc_id],
-            }
-        )
-    return current, alerts, id2relevant, dirty
+#     for item in pastdue:
+#         item_0 = str(item[0]) if item[0] in item else ''
+#         rhc = item_0
+#         doc_id = item[2]
+#         job_id = item[3] if item[3] else ''
+#         flags = get_flags(
+#             doc_id, repeat_list, link_list, konnected, pinned_list, timers
+#         )
+#         try:
+#             current.append(
+#                 {
+#                     'id': item[2],
+#                     'job': item[3],
+#                     'instance': item[4],
+#                     'sort': (pastdue_fmt, 2, item[0]),
+#                     'week': week,
+#                     'day': day,
+#                     'columns': [
+#                         '<',
+#                         f'{rhc + "  " if rhc else ""}{item[1]}',
+#                         flags,
+#                         '',
+#                         (doc_id, item[4], item[3]),
+#                     ],
+#                 }
+#             )
+#         except Exception as e:
+#             logger.warning(f'could not append item: {item}; e: {e}')
+
+#     for item in beginbys:
+#         if item[0] in item:
+#             item_0 = str(item[0]) if item[0] <= 0 else f'+{item[0]}'
+#         else:
+#             item_0 = ''
+#         rhc = item_0 + '  ' if item[0] else ''
+#         doc_id = item[2]
+#         flags = get_flags(
+#             doc_id, repeat_list, link_list, konnected, pinned_list, timers
+#         )
+#         current.append(
+#             {
+#                 'id': item[2],
+#                 'job': item[3],
+#                 'instance': item[4],
+#                 'sort': (begby_fmt, 3, item[0]),
+#                 'week': week,
+#                 'day': day,
+#                 'columns': ['>', rhc + item[1], flags, '', doc_id],
+#             }
+#         )
+#     logger.debug(f'current: {current}')    
+#     return current, alerts, id2relevant, dirty
+
+
+
+#     # for item in db:
+
+#     #     instance_interval = []
+#     #     possible_beginby = None
+#     #     possible_alerts = []
+#     #     all_tds = []
+#     #     relevant = None
+#     #     dtstart = None
+#     #     doc_id = item.doc_id
+#     #     rset = dr.rruleset()
+#     #     if 'itemtype' not in item:
+#     #         logger.warning(f'no itemtype: {item}')
+#     #         item['itemtype'] = '?'
+#     #         # continue
+#     #     if 'g' in item:
+#     #         if doc_id not in link_list:
+#     #             link_list.append(doc_id)
+#     #     else:
+#     #         if doc_id in link_list:
+#     #             link_list.remove(doc_id)
+#     #     if '+' in item or 'r' in item:
+#     #         if doc_id not in repeat_list:
+#     #             repeat_list.append(doc_id)
+#     #     else:
+#     #         if doc_id in repeat_list:
+#     #             repeat_list.remove(doc_id)
+
+#     #     summary = item.get('summary', '~')
+#     #     flags = get_flags(
+#     #         doc_id, repeat_list, link_list, konnected, pinned_list, timers
+#     #     )
+#     #     if item['itemtype'] == '!':
+#     #         inbox.append([0, summary, item.doc_id, None, None])
+#     #         relevant = today
+        
+#     #     elif 'f' in item:
+#     #         if not isinstance(item['f'], Period):
+#     #             logger.error(f"{item['f'] = } in {item = }")
+#     #             raise ValueError(f"{item['f']} is not an instance of type Period")
+#     #         relevant = item['f'].end
+#     #         if isinstance(relevant, date) and not isinstance(
+#     #             relevant, datetime
+#     #         ):
+#     #             relevant = datetime(
+#     #                 year=relevant.year,
+#     #                 month=relevant.month,
+#     #                 day=relevant.day,
+#     #                 hour=23,
+#     #                 minute=59,
+#     #             ).astimezone()
+
+#     #     elif 's' in item and not item['s']:
+#     #         logger.error(f"bad @s in item['s'] for {doc_id}: {item['s']}; item: {item}")
+
+#     #     elif 's' in item and item['s']:
+#     #         dtstart = date_to_datetime(item['s'])
+#     #         # has_a = 'a' in item
+#     #         # has_b = 'b' in item
+#     #         if 'b' in item:
+#     #             days = int(item['b']) * DAY
+#     #             all_tds.extend([DAY, days])
+#     #             possible_beginby = days
+
+#     #         if 'a' in item:
+#     #             # alerts
+#     #             for alert in item['a']:
+#     #                 tds = alert[0]
+#     #                 cmd = alert[1]
+#     #                 all_tds.extend(tds)
+
+#     #                 for td in tds:
+#     #                     # td > 0m => earlier than startdt; dt < 0m => later than startdt
+#     #                     possible_alerts.append([td, cmd])
+
+#     #         # this catches all alerts and beginbys for the item
+#     #         if all_tds:
+#     #             instance_interval = [
+#     #                 today + min(all_tds),
+#     #                 tomorrow + max(all_tds),
+#     #             ]
+
+#     #         # if 'r' in item or '+' in item:
+#     #         if 'r' in item:
+#     #             lofh = item.get('r', [])
+#     #             rset = dr.rruleset()
+
+#     #             for hsh in lofh:
+#     #                 freq, kwd = rrule_args(hsh)
+#     #                 kwd['dtstart'] = dtstart
+#     #                 try:
+#     #                     rset.rrule(dr.rrule(freq, **kwd))
+#     #                 except Exception as e:
+#     #                     print('Error processing:')
+#     #                     print('  ', freq, kwd)
+#     #                     print(e)
+#     #                     print(item)
+#     #                     break
+
+#     #             if '-' in item:
+#     #                 for dt in item['-']:
+#     #                     dt = date_to_datetime(dt)
+#     #                     # if type(dt) == date:
+#     #                     #     dt = datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
+#     #                     rset.exdate(dt)
+
+#     #             if '+' in item:
+#     #                 for dt in item['+']:
+#     #                     dt = date_to_datetime(dt)
+#     #                     rset.rdate(dt)
+
+#     #             if item['itemtype'] == '-':
+#     #                 switch = item.get('o', 'k')
+#     #                 plus_dates = item.get('+', [])
+#     #                 if switch == 's':
+#     #                     cur = date_to_datetime(item['s'])
+#     #                     # make 'all day' tasks not pastdue until one minute before midnight
+#     #                     delta = (
+#     #                         timedelta(hours=23, minutes=59) if (cur.hour == 0 and cur.minute == 0) else ZERO
+#     #                     )
+#     #                     if cur + delta < now:
+#     #                         # we need to update @s
+#     #                         relevant = rset.after(now, inc=True)
+#     #                         while relevant in plus_dates:
+#     #                             relevant = rset.after(relevant, inc=False)
+#     #                         item['s'] = relevant
+#     #                         item.setdefault('h', []).append(
+#     #                                 Period(cur + ONEMIN, cur))
+#     #                         num_finished = settings.get('num_finished', 0)
+#     #                         if num_finished and len(item['h']) > num_finished:
+#     #                             h = item['h']
+#     #                             h.sort(key=sortprd)
+#     #                             item['h'] = h[-num_finished:]
+#     #                         update_db(db, item.doc_id, item)
+#     #                     elif plus_dates:
+#     #                         # @s is ok but @+ may need updating
+#     #                         changed = False
+#     #                         for dt in plus_dates:
+#     #                             if dt >= now:
+#     #                                 continue
+#     #                             delta = (
+#     #                                 timedelta(hours=23, minutes=59) if (dt.hour == 0 and dt.minute == 0) else ZERO
+#     #                             )
+#     #                             if dt + delta < now:
+#     #                                 item.setdefault('h', []).append(
+#     #                                         Period(dt + ONEMIN, dt))
+#     #                                 item['+'].remove(dt)
+#     #                                 changed = True
+#     #                         if len(item['+']) > 0:
+#     #                             if item['+'][0] < cur:
+#     #                                 relevant = item['+'][0]
+#     #                             else:
+#     #                                 relevant = cur
+#     #                         else:
+#     #                             del item['+']
+#     #                             changed = True
+#     #                         if changed:
+#     #                             update_db(db, item.doc_id, item)
+#     #                     else:
+#     #                         relevant = cur
+
+#     #                 else:   # k or r
+#     #                     try:
+#     #                         # relevant = rset.after(today, inc=True)
+#     #                         # logger.debug(f"relevant {item = }")
+#     #                         instances = item_instances(item, None)
+#     #                         instances.sort()
+#     #                         # logger.debug(f"{instances = }")
+#     #                         relevant = date_to_datetime(instances[0][0]) if instances else None
+#     #                         # relevant = rset.after(dtstart, inc=True)
+#     #                         # if plus_dates:
+#     #                         #     plus_dates.sort()
+#     #                         #     relevant = min(relevant, plus_dates[0])
+#     #                     except Exception as e:
+#     #                         logger.debug(f"Exception: {e}\nissue with today: {today} ({type(today)}) or rset: {rset}\nskipping {item}")
+#     #                         continue
+
+#     #                     already_done = [x.end for x in item.get('h', [])]
+#     #                     # relevant will be the first instance after 12am today
+#     #                     # it will be the @s entry for the updated repeating item
+#     #                     # these are @s entries for the instances to be preserved
+#     #                     # logger.debug(f"{dtstart = }; {today = }")
+#     #                     between = rset.between(
+#     #                         dtstart, today - ONEMIN, inc=True
+#     #                     )
+#     #                     # remaining = [x for x in between if x not in already_done and x != dtstart]
+#     #                     remaining = [
+#     #                         x for x in between if x not in already_done
+#     #                     ]
+#     #                     # once instances have been created, between will be empty until
+#     #                     # the current date falls after item['s'] and relevant is reset
+#     #                     num_remaining = (
+#     #                         f'({len(remaining)})' if remaining else ''
+#     #                     )
+#     #                     sum_abbr = item['summary'][:summary_width]
+#     #                     summary = f'{sum_abbr} {num_remaining}'
+#     #                     extent = item.get('e', ZERO)
+#     #                     # logger.debug(f"{type(relevant) = }; {type(extent) = }; {type(today) = }")
+#     #                     if relevant + extent < today and 'j' not in item:
+#     #                         candidate = [
+#     #                                 (relevant.date() - today.date()).days,
+#     #                                 summary,
+#     #                                 item.doc_id,
+#     #                                 None,
+#     #                                 None,
+#     #                             ]
+#     #                         if candidate not in pastdue:
+#     #                             pastdue.append(candidate)
+#     #             else:
+#     #                 # get the first instance after today
+#     #                 try:
+#     #                     relevant = rset.after(today, inc=True)
+#     #                 except Exception as e:
+#     #                     logger.error(f'error processing {item}; {repr(e)}')
+#     #                 if not relevant:
+#     #                     # logger.debug(f"{today = }; {item = }")
+#     #                     relevant = rset.before(today, inc=True)
+
+#     #             # rset
+#     #             if instance_interval:
+#     #                 # logger.debug(f"{instance_interval = }")
+#     #                 instances = rset.between(
+#     #                     instance_interval[0], instance_interval[1], inc=True
+#     #                 )
+#     #                 if possible_beginby:
+#     #                     for instance in instances:
+#     #                         if (
+#     #                             ZERO
+#     #                             < instance.date() - today.date()
+#     #                             <= possible_beginby
+#     #                         ):
+#     #                             doc_id = item.doc_id
+#     #                             if 'r' in item:
+#     #                                 # use the freq from the first recurrence rule
+#     #                                 freq = item['r'][0].get('r', 'y')
+#     #                             else:
+#     #                                 freq = 'y'
+#     #                             summary = set_summary(
+#     #                                 summary,
+#     #                                 item.get('s', None),
+#     #                                 instance.date(),
+#     #                                 freq,
+#     #                             )
+#     #                             beginbys.append(
+#     #                                 [
+#     #                                     (instance.date() - today.date()).days,
+#     #                                     summary,
+#     #                                     item.doc_id,
+#     #                                     None,
+#     #                                     instance,
+#     #                                 ]
+#     #                             )
+#     #                 if possible_alerts:
+#     #                     for instance in instances:
+#     #                         for possible_alert in possible_alerts:
+#     #                             if (
+#     #                                 today
+#     #                                 <= instance - possible_alert[0]
+#     #                                 <= tomorrow
+#     #                             ):
+#     #                                 alerts.append(
+#     #                                     [
+#     #                                         instance - possible_alert[0],
+#     #                                         instance,
+#     #                                         possible_alert[1],
+#     #                                         item['itemtype'],
+#     #                                         item['summary'],
+#     #                                         item.doc_id,
+#     #                                     ]
+#     #                                 )
+
+#     #         elif '+' in item:
+#     #             # no @r but @+ => simple repetition
+#     #             tmp = [dtstart]
+#     #             tmp.extend(item['+'])
+#     #             tmp = [date_to_datetime(x) for x in tmp]
+#     #             tmp.sort()
+#     #             aft = [x for x in tmp if x >= today]
+#     #             bef = [x for x in tmp if x < today]
+#     #             if aft:
+#     #                 relevant = aft[0]
+#     #             else:
+#     #                 relevant = bef[-1]
+
+#     #             if possible_beginby:
+#     #                 for instance in aft:
+#     #                     # if today + DAY <= instance <= tomorrow + possible_beginby:
+#     #                     if (
+#     #                         ZERO
+#     #                         < instance.date() - today.date()
+#     #                         <= possible_beginby
+#     #                     ):
+#     #                         beginbys.append(
+#     #                             [
+#     #                                 (instance.date() - today.date()).days,
+#     #                                 summary,
+#     #                                 item.doc_id,
+#     #                                 None,
+#     #                                 instance,
+#     #                             ]
+#     #                         )
+#     #             if possible_alerts:
+#     #                 for instance in aft + bef:
+#     #                     for possible_alert in possible_alerts:
+#     #                         if (
+#     #                             today
+#     #                             <= instance - possible_alert[0]
+#     #                             <= tomorrow
+#     #                         ):
+#     #                             alerts.append(
+#     #                                 [
+#     #                                     instance - possible_alert[0],
+#     #                                     instance,
+#     #                                     possible_alert[1],
+#     #                                     item['itemtype'],
+#     #                                     item['summary'],
+#     #                                     item.doc_id,
+#     #                                 ]
+#     #                             )
+
+#     #         else:
+#     #             # 's' but not 'r' or '+'
+#     #             relevant = dtstart
+#     #             if (
+#     #                 possible_beginby
+#     #                 and ZERO
+#     #                 < relevant.date() - today.date()
+#     #                 <= possible_beginby
+#     #             ):
+#     #                 beginbys.append(
+#     #                     [
+#     #                         (relevant.date() - today.date()).days,
+#     #                         summary,
+#     #                         item.doc_id,
+#     #                         None,
+#     #                         None,
+#     #                     ]
+#     #                 )
+#     #             if possible_alerts:
+#     #                 for possible_alert in possible_alerts:
+#     #                     if today <= dtstart - possible_alert[0] <= tomorrow:
+#     #                         alerts.append(
+#     #                             [
+#     #                                 dtstart - possible_alert[0],
+#     #                                 dtstart,
+#     #                                 possible_alert[1],
+#     #                                 item['itemtype'],
+#     #                                 item['summary'],
+#     #                                 item.doc_id,
+#     #                             ]
+#     #                         )
+#     #     else:
+#     #         # no 's', no 'f'
+#     #         relevant = None
+
+#     #     if not relevant:
+#     #         continue
+
+#     #     # pastdue_jobs = False
+#     #     if 'j' in item and 'f' not in item:
+#     #         # jobs only for the relevant instance of unfinished tasks
+#     #         for job in item['j']:
+#     #             job_id = job.get('i')
+#     #             if 'f' in job:
+#     #                 continue
+#     #             # adjust job starting time if 's' in job
+#     #             job_summary = (
+#     #                 f"{job.get('summary', '')[:summary_width]} {num_remaining}"
+#     #             )
+#     #             jobstart = dtstart + job.get('s', ZERO)
+#     #             extent = job.get('e', ZERO)
+#     #             if (
+#     #                 (jobstart + extent).date() < today.date()
+#     #                 and job.get('status', None) == '-'
+#     #             ):
+#     #                 # pastdue_jobs = True
+#     #                 pastdue.append(
+#     #                     [
+#     #                         ((jobstart + extent).date() - today.date()).days,
+#     #                         job_summary,
+#     #                         item.doc_id,
+#     #                         job_id,
+#     #                         None,
+#     #                     ]
+#     #                 )
+#     #             if 'b' in job:
+#     #                 days = int(job['b']) * DAY
+#     #                 if today + DAY <= jobstart <= tomorrow + days:
+#     #                     beginbys.append(
+#     #                         [
+#     #                             (jobstart.date() - today.date()).days,
+#     #                             job_summary,
+#     #                             item.doc_id,
+#     #                             job_id,
+#     #                             None,
+#     #                         ]
+#     #                     )
+#     #             if 'a' in job:
+#     #                 for alert in job['a']:
+#     #                     for td in alert[0]:
+#     #                         if today <= jobstart - td <= tomorrow:
+#     #                             alerts.append(
+#     #                                 [
+#     #                                     dtstart - td,
+#     #                                     dtstart,
+#     #                                     alert[1],
+#     #                                     '-',
+#     #                                     job['summary'],
+#     #                                     item.doc_id,
+#     #                                     job_id,
+#     #                                     None,
+#     #                                 ]
+#     #                             )
+
+#     #     id2relevant[item.doc_id] = relevant
+
+#     #     # if item['itemtype'] == '-' and 'f' not in item and relevant.date() < today.date():
+#     #     if (
+#     #         item['itemtype'] == '-'
+#     #         and 'f' not in item
+#     #         and 'j' not in item
+#     #         and relevant.date() < today.date()
+#     #     ):
+#     #         extent = item.get('e', ZERO)
+#     #         candidate = [
+#     #                 ((relevant + extent).date() - today.date()).days,
+#     #                 summary,
+#     #                 item.doc_id,
+#     #                 None,
+#     #                 None,
+#     #             ]
+#     #         if candidate not in pastdue:
+#     #             pastdue.append(candidate)
+
+#     # inbox.sort()
+#     # pastdue.sort()
+#     # beginbys.sort()
+#     # alerts.sort()
+#     # # alerts: alert datetime, start datetime, commands, summary, doc_id
+#     # week = today.isocalendar()[:2]
+#     # day = (format_wkday(today),)
+#     # for item in inbox:
+#     #     item_0 = ' '
+#     #     rhc = item_0.center(rhc_width, ' ')
+#     #     doc_id = item[2]
+#     #     flags = get_flags(
+#     #         doc_id, repeat_list, link_list, konnected, pinned_list, timers
+#     #     )
+#     #     current.append(
+#     #         {
+#     #             'id': item[2],
+#     #             'job': None,
+#     #             'instance': None,
+#     #             'sort': (inbox_fmt, 1),
+#     #             'week': week,
+#     #             'day': day,
+#     #             'columns': ['!', item[1], flags, rhc, doc_id],
+#     #         }
+#     #     )
+
+#     # for item in pastdue:
+#     #     item_0 = str(item[0]) if item[0] in item else ''
+#     #     rhc = item_0
+#     #     doc_id = item[2]
+#     #     job_id = item[3] if item[3] else ''
+#     #     flags = get_flags(
+#     #         doc_id, repeat_list, link_list, konnected, pinned_list, timers
+#     #     )
+#     #     try:
+#     #         current.append(
+#     #             {
+#     #                 'id': item[2],
+#     #                 'job': item[3],
+#     #                 'instance': item[4],
+#     #                 'sort': (pastdue_fmt, 2, item[0]),
+#     #                 'week': week,
+#     #                 'day': day,
+#     #                 'columns': [
+#     #                     '<',
+#     #                     f'{rhc + "  " if rhc else ""}{item[1]}',
+#     #                     flags,
+#     #                     '',
+#     #                     (doc_id, item[4], item[3]),
+#     #                 ],
+#     #             }
+#     #         )
+#     #     except Exception as e:
+#     #         logger.warning(f'could not append item: {item}; e: {e}')
+
+#     # for item in beginbys:
+#     #     if item[0] in item:
+#     #         item_0 = str(item[0]) if item[0] <= 0 else f'+{item[0]}'
+#     #     else:
+#     #         item_0 = ''
+#     #     rhc = item_0 + '  ' if item[0] else ''
+#     #     doc_id = item[2]
+#     #     flags = get_flags(
+#     #         doc_id, repeat_list, link_list, konnected, pinned_list, timers
+#     #     )
+#     #     current.append(
+#     #         {
+#     #             'id': item[2],
+#     #             'job': item[3],
+#     #             'instance': item[4],
+#     #             'sort': (begby_fmt, 3, item[0]),
+#     #             'week': week,
+#     #             'day': day,
+#     #             'columns': ['>', rhc + item[1], flags, '', doc_id],
+#     #         }
+#     #     )
+#     # return current, alerts, id2relevant, dirty
 
 
 def show_forthcoming(
@@ -8710,9 +9202,8 @@ def wkday2row(wkday):
     return 3 + 2 * wkday if wkday else 17
 
 
-@benchmark
+# @benchmark
 def create_item_views(item, flags):
-    dataview = Dataview()
     """creates views for an item
 
     Args:
@@ -8724,13 +9215,22 @@ def create_item_views(item, flags):
     effort: a list of hashes to extend effort
     completed: a list of hashes to extend completed
     """
+    global num_remaining
     # all the stuff from schedule
     # need to handle itemtypes ! ~
+    dataview = Dataview()
+    id2relevant = dataview.id2relevant
     now=datetime.now()
     completed = []
     rows = []
     done = []
     effort = []
+    instance_interval = []
+    possible_beginby = None
+    possible_alerts = []
+    all_tds = []
+    relevant = None
+    current = []
     # busy_details = {}
     # week2day2busy = {}
     # week2day2allday = {}
@@ -8763,11 +9263,10 @@ def create_item_views(item, flags):
     beginbys = views['beginbys']
     alerts = views['alerts']
     current = views['current']
+    pinned_list = dataview.pinned_list
     link_list = dataview.link_list
     repeat_list = dataview.repeat_list
-
-    todayYMD = now.strftime('%Y%m%d')
-    tomorrowYMD = (now + 1 * DAY).strftime('%Y%m%d')
+    # id2relevant = dataview.id2relevant
 
     doc_id = item.doc_id
     rset = dr.rruleset()
@@ -8777,12 +9276,18 @@ def create_item_views(item, flags):
         logger.warning(f"missing itemtype for doc_id {doc_id}")
     summary = item.get('summary', '~')
     start = item.get('s', None)
+    dtstart = None
     extent = item.get('e', None)
     wraps = item.get('w', [])
     used = item.get('u', None)
     finished = item.get('f', None)
     history = item.get('h', None)
     jobs = item.get('j', None)
+
+    if 'k' in item and item['k']:
+        for id in item['k']:
+            dataview.konnections_from.setdefault(doc_id, []). append(id)
+            dataview.konnections_to.setdefault(id, []).append(doc_id)
 
     if 'g' in item:
         if doc_id not in link_list:
@@ -8796,6 +9301,401 @@ def create_item_views(item, flags):
     else:
         if doc_id in repeat_list:
             repeat_list.remove(doc_id)
+
+    if item['itemtype'] == '!':
+        inbox.append([0, summary, item.doc_id, None, None])
+        relevant = today
+    
+    elif 'f' in item:
+        if not isinstance(item['f'], Period):
+            logger.error(f"{item['f'] = } in {item = }")
+            raise ValueError(f"{item['f']} is not an instance of type Period")
+        relevant = item['f'].end
+        if isinstance(relevant, date) and not isinstance(
+            relevant, datetime
+        ):
+            relevant = datetime(
+                year=relevant.year,
+                month=relevant.month,
+                day=relevant.day,
+                hour=23,
+                minute=59,
+            ).astimezone()
+
+    elif 's' in item and item['s']:
+        dtstart = date_to_datetime(item['s'])
+        # has_a = 'a' in item
+        # has_b = 'b' in item
+        if 'b' in item:
+            days = int(item['b']) * DAY
+            all_tds.extend([DAY, days])
+            possible_beginby = days
+
+        if 'a' in item:
+            # alerts
+            for alert in item['a']:
+                tds = alert[0]
+                cmd = alert[1]
+                all_tds.extend(tds)
+
+                for td in tds:
+                    # td > 0m => earlier than startdt; dt < 0m => later than startdt
+                    possible_alerts.append([td, cmd])
+
+        # this catches all alerts and beginbys for the item
+        if all_tds:
+            instance_interval = [
+                today + min(all_tds),
+                tomorrow + max(all_tds),
+            ]
+
+        # if 'r' in item or '+' in item:
+        if 'r' in item:
+            lofh = item.get('r', [])
+            rset = dr.rruleset()
+
+            for hsh in lofh:
+                freq, kwd = rrule_args(hsh)
+                kwd['dtstart'] = dtstart
+                try:
+                    rset.rrule(dr.rrule(freq, **kwd))
+                except Exception as e:
+                    print('Error processing:')
+                    print('  ', freq, kwd)
+                    print(e)
+                    print(item)
+                    break
+
+            if '-' in item:
+                for dt in item['-']:
+                    dt = date_to_datetime(dt)
+                    # if type(dt) == date:
+                    #     dt = datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
+                    rset.exdate(dt)
+
+            if '+' in item:
+                for dt in item['+']:
+                    dt = date_to_datetime(dt)
+                    rset.rdate(dt)
+
+            if item['itemtype'] == '-':
+                switch = item.get('o', 'k')
+                plus_dates = item.get('+', [])
+                if switch == 's':
+                    cur = date_to_datetime(item['s'])
+                    # make 'all day' tasks not pastdue until one minute before midnight
+                    delta = (
+                        timedelta(hours=23, minutes=59) if (cur.hour == 0 and cur.minute == 0) else ZERO
+                    )
+                    if cur + delta < now:
+                        # we need to update @s
+                        relevant = rset.after(now, inc=True)
+                        while relevant in plus_dates:
+                            relevant = rset.after(relevant, inc=False)
+                        item['s'] = relevant
+                        item.setdefault('h', []).append(
+                                Period(cur + ONEMIN, cur))
+                        num_finished = settings.get('num_finished', 0)
+                        if num_finished and len(item['h']) > num_finished:
+                            h = item['h']
+                            h.sort(key=sortprd)
+                            item['h'] = h[-num_finished:]
+                        update_db(db, item.doc_id, item)
+                    elif plus_dates:
+                        # @s is ok but @+ may need updating
+                        changed = False
+                        for dt in plus_dates:
+                            if dt >= now:
+                                continue
+                            delta = (
+                                timedelta(hours=23, minutes=59) if (dt.hour == 0 and dt.minute == 0) else ZERO
+                            )
+                            if dt + delta < now:
+                                item.setdefault('h', []).append(
+                                        Period(dt + ONEMIN, dt))
+                                item['+'].remove(dt)
+                                changed = True
+                        if len(item['+']) > 0:
+                            if item['+'][0] < cur:
+                                relevant = item['+'][0]
+                            else:
+                                relevant = cur
+                        else:
+                            del item['+']
+                            changed = True
+                        if changed:
+                            update_db(db, item.doc_id, item)
+                    else:
+                        relevant = cur
+
+                else:   # k or r
+                    try:
+                        # relevant = rset.after(today, inc=True)
+                        # logger.debug(f"relevant {item = }")
+                        instances = item_instances(item, None)
+                        instances.sort()
+                        # logger.debug(f"{instances = }")
+                        relevant = date_to_datetime(instances[0][0]) if instances else None
+                        # relevant = rset.after(dtstart, inc=True)
+                        # if plus_dates:
+                        #     plus_dates.sort()
+                        #     relevant = min(relevant, plus_dates[0])
+                    except Exception as e:
+                        logger.debug(f"Exception: {e}\nissue with today: {today} ({type(today)}) or rset: {rset}\nskipping {item}")
+
+                    already_done = [x.end for x in item.get('h', [])]
+                    # relevant will be the first instance after 12am today
+                    # it will be the @s entry for the updated repeating item
+                    # these are @s entries for the instances to be preserved
+                    # logger.debug(f"{dtstart = }; {today = }")
+                    between = rset.between(
+                        dtstart, today - ONEMIN, inc=True
+                    )
+                    # remaining = [x for x in between if x not in already_done and x != dtstart]
+                    remaining = [
+                        x for x in between if x not in already_done
+                    ]
+                    # once instances have been created, between will be empty until
+                    # the current date falls after item['s'] and relevant is reset
+                    num_remaining = (
+                        f'({len(remaining)})' if remaining else ''
+                    )
+                    sum_abbr = item['summary'][:summary_width]
+                    summary = f'{sum_abbr} {num_remaining}'
+                    extent = item.get('e', ZERO)
+                    # logger.debug(f"{type(relevant) = }; {type(extent) = }; {type(today) = }")
+                    if relevant + extent < today and 'j' not in item:
+                        candidate = [
+                                (relevant.date() - today.date()).days,
+                                summary,
+                                item.doc_id,
+                                None,
+                                None,
+                            ]
+                        if candidate not in pastdue:
+                            pastdue.append(candidate)
+            else:
+                # get the first instance after today
+                try:
+                    relevant = rset.after(today, inc=True)
+                except Exception as e:
+                    logger.error(f'error processing {item}; {repr(e)}')
+                if not relevant:
+                    # logger.debug(f"{today = }; {item = }")
+                    relevant = rset.before(today, inc=True)
+
+            # rset
+            if instance_interval:
+                # logger.debug(f"{instance_interval = }")
+                instances = rset.between(
+                    instance_interval[0], instance_interval[1], inc=True
+                )
+                if possible_beginby:
+                    for instance in instances:
+                        if (
+                            ZERO
+                            < instance.date() - today.date()
+                            <= possible_beginby
+                        ):
+                            doc_id = item.doc_id
+                            if 'r' in item:
+                                # use the freq from the first recurrence rule
+                                freq = item['r'][0].get('r', 'y')
+                            else:
+                                freq = 'y'
+                            summary = set_summary(
+                                summary,
+                                item.get('s', None),
+                                instance.date(),
+                                freq,
+                            )
+                            beginbys.append(
+                                [
+                                    (instance.date() - today.date()).days,
+                                    summary,
+                                    item.doc_id,
+                                    None,
+                                    instance,
+                                ]
+                            )
+                if possible_alerts:
+                    for instance in instances:
+                        for possible_alert in possible_alerts:
+                            if (
+                                today
+                                <= instance - possible_alert[0]
+                                <= tomorrow
+                            ):
+                                alerts.append(
+                                    [
+                                        instance - possible_alert[0],
+                                        instance,
+                                        possible_alert[1],
+                                        item['itemtype'],
+                                        item['summary'],
+                                        item.doc_id,
+                                    ]
+                                )
+
+        elif '+' in item:
+            # no @r but @+ => simple repetition
+            tmp = [dtstart]
+            tmp.extend(item['+'])
+            tmp = [date_to_datetime(x) for x in tmp]
+            tmp.sort()
+            aft = [x for x in tmp if x >= today]
+            bef = [x for x in tmp if x < today]
+            if aft:
+                relevant = aft[0]
+            else:
+                relevant = bef[-1]
+
+            if possible_beginby:
+                for instance in aft:
+                    # if today + DAY <= instance <= tomorrow + possible_beginby:
+                    if (
+                        ZERO
+                        < instance.date() - today.date()
+                        <= possible_beginby
+                    ):
+                        beginbys.append(
+                            [
+                                (instance.date() - today.date()).days,
+                                summary,
+                                item.doc_id,
+                                None,
+                                instance,
+                            ]
+                        )
+            if possible_alerts:
+                for instance in aft + bef:
+                    for possible_alert in possible_alerts:
+                        if (
+                            today
+                            <= instance - possible_alert[0]
+                            <= tomorrow
+                        ):
+                            alerts.append(
+                                [
+                                    instance - possible_alert[0],
+                                    instance,
+                                    possible_alert[1],
+                                    item['itemtype'],
+                                    item['summary'],
+                                    item.doc_id,
+                                ]
+                            )
+
+        else:
+            # 's' but not 'r' or '+'
+            relevant = dtstart
+            if (
+                possible_beginby
+                and ZERO
+                < relevant.date() - today.date()
+                <= possible_beginby
+            ):
+                beginbys.append(
+                    [
+                        (relevant.date() - today.date()).days,
+                        summary,
+                        item.doc_id,
+                        None,
+                        None,
+                    ]
+                )
+            if possible_alerts:
+                for possible_alert in possible_alerts:
+                    if today <= dtstart - possible_alert[0] <= tomorrow:
+                        alerts.append(
+                            [
+                                dtstart - possible_alert[0],
+                                dtstart,
+                                possible_alert[1],
+                                item['itemtype'],
+                                item['summary'],
+                                item.doc_id,
+                            ]
+                        )
+    else:
+        # no 's', no 'f'
+        relevant = None
+
+    # pastdue_jobs = False
+    if 'j' in item and 'f' not in item:
+        # jobs only for the relevant instance of unfinished tasks
+        for job in item['j']:
+            job_id = job.get('i')
+            if 'f' in job:
+                continue
+            # adjust job starting time if 's' in job
+            job_summary = (
+                f"{job.get('summary', '')[:summary_width]} {num_remaining}"
+            )
+            jobstart = dtstart + job.get('s', ZERO)
+            extent = job.get('e', ZERO)
+            if (
+                (jobstart + extent).date() < today.date()
+                and job.get('status', None) == '-'
+            ):
+                # pastdue_jobs = True
+                pastdue.append(
+                    [
+                        ((jobstart + extent).date() - today.date()).days,
+                        job_summary,
+                        item.doc_id,
+                        job_id,
+                        None,
+                    ]
+                )
+            if 'b' in job:
+                days = int(job['b']) * DAY
+                if today + DAY <= jobstart <= tomorrow + days:
+                    beginbys.append(
+                        [
+                            (jobstart.date() - today.date()).days,
+                            job_summary,
+                            item.doc_id,
+                            job_id,
+                            None,
+                        ]
+                    )
+            if 'a' in job:
+                for alert in job['a']:
+                    for td in alert[0]:
+                        if today <= jobstart - td <= tomorrow:
+                            alerts.append(
+                                [
+                                    dtstart - td,
+                                    dtstart,
+                                    alert[1],
+                                    '-',
+                                    job['summary'],
+                                    item.doc_id,
+                                    job_id,
+                                    None,
+                                ]
+                            )
+
+        id2relevant[item.doc_id] = relevant
+
+        # if item['itemtype'] == '-' and 'f' not in item and relevant.date() < today.date():
+        if (
+            item['itemtype'] == '-'
+            and 'f' not in item
+            and 'j' not in item
+            and relevant.date() < today.date()
+        ):
+            extent = item.get('e', ZERO)
+            candidate = [
+                    ((relevant + extent).date() - today.date()).days,
+                    summary,
+                    item.doc_id,
+                    None,
+                    None,
+                ]
+            if candidate not in pastdue:
+                pastdue.append(candidate)
 
 
     if itemtype == '*' and start and extent and 'r' not in item:
@@ -9210,6 +10110,7 @@ def create_item_views(item, flags):
 
             if after:
                 rows.append(after)
+    logger.debug(f"create_item_views: {views = }")
     return views
 
 
@@ -9274,13 +10175,20 @@ def schedule(
 ):
     """replacement for schedule and relevant using items_cache
     """
-    global current_hsh, active_tasks, aft_dt, bef_dt, width, omit, created_used
+    global current_hsh, active_tasks, aft_dt, bef_dt, width, omit, created_used, today, tomorrow, summary_width, todayYMD, tomorrowYMD, num_remaining
+    dataview = Dataview()
     logger.debug(f"### Schedule ###")
     width = shutil.get_terminal_size()[0] - 3
     weeks_after = settings['keep_current'][0]
     mk_current = weeks_after > 0
     current_hsh = {}
     id2rows = {}
+    dirty = False
+    width = shutil.get_terminal_size()[0] - 3
+    summary_width = width - 3
+    ampm = settings['ampm']
+    rhc_width = 15 if ampm else 11
+    num_remaining = ''
    
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
@@ -9308,6 +10216,12 @@ def schedule(
     rows = []
     done = []
     effort = []
+    inbox = []
+    goals = []
+    pastdue = []
+    beginbys = []
+    alerts = []
+    current = []
     # id2konnected = {} # id -> [(to|from, id)]
 
     # XXX year, week -> dayofweek -> list of [time interval, summary, period]
@@ -9315,6 +10229,14 @@ def schedule(
     week2day2allday = {}
     allday_details = {}
     dent = int((width - 69) / 2) * ' '
+    todayYMD = now.strftime('%Y%m%d')
+    tomorrowYMD = (now + 1 * DAY).strftime('%Y%m%d')
+    today = (
+        datetime.now()
+        .replace(hour=0, minute=0, second=0, microsecond=0)
+        .astimezone()
+    )
+    tomorrow = today + DAY
 
     created_used = [0, 0]
     get_items_timer = TimeIt('get_items')
@@ -9326,6 +10248,12 @@ def schedule(
         rows.extend(views_hsh['rows'])
         done.extend(views_hsh['done'])
         effort.extend(views_hsh['effort'])
+        inbox.extend(views_hsh['inbox'])
+        goals.extend(views_hsh['goals'])
+        pastdue.extend(views_hsh['pastdue'])
+        beginbys.extend(views_hsh['beginbys'])
+        alerts.extend(views_hsh['alerts'])
+        current.extend(views_hsh['current'])
 
         # week2day2busy.update(views_hsh['week2day2busy'])
         week2day2busy = update_week2day2busy(
@@ -9345,6 +10273,99 @@ def schedule(
         )
     get_items_timer.stop()
     logger.debug(f"created_used: {created_used}")
+    
+    inbox_fmt = today.strftime('%Y%m%d    ')   # first
+    pastdue_fmt = today.strftime('%Y%m%d^^^^')   # after all day and timed
+    begby_fmt = today.strftime('%Y%m%d~~~~')   # after past due
+    inbox.sort()
+    pastdue.sort()
+    beginbys.sort()
+    alerts.sort()
+    # alerts: alert datetime, start datetime, commands, summary, doc_id
+    week = today.isocalendar()[:2]
+    day = (format_wkday(today),)
+    for item in inbox:
+        item_0 = ' '
+        rhc = item_0.center(rhc_width, ' ')
+        doc_id = item[2]
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
+        current.append(
+            {
+                'id': item[2],
+                'job': None,
+                'instance': None,
+                'sort': (inbox_fmt, 1),
+                'week': week,
+                'day': day,
+                'columns': ['!', item[1], flags, rhc, doc_id],
+            }
+        )
+
+    for item in pastdue:
+        item_0 = str(item[0]) if item[0] in item else ''
+        rhc = item_0
+        doc_id = item[2]
+        job_id = item[3] if item[3] else ''
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
+        try:
+            current.append(
+                {
+                    'id': item[2],
+                    'job': item[3],
+                    'instance': item[4],
+                    'sort': (pastdue_fmt, 2, item[0]),
+                    'week': week,
+                    'day': day,
+                    'columns': [
+                        '<',
+                        f'{rhc + "  " if rhc else ""}{item[1]}',
+                        flags,
+                        '',
+                        (doc_id, item[4], item[3]),
+                    ],
+                }
+            )
+        except Exception as e:
+            logger.warning(f'could not append item: {item}; e: {e}')
+
+    konnected = [x for x in dataview.konnections_to] + [
+        x for x in dataview.konnections_from
+    ]
+    dataview.konnected = list(set(konnected))
+    dataview.konnected.sort()
+    row = 0
+    for id in dataview.konnected:
+        row += 1
+        dataview.konnected_id2row[id] = row
+
+    for item in beginbys:
+        if item[0] in item:
+            item_0 = str(item[0]) if item[0] <= 0 else f'+{item[0]}'
+        else:
+            item_0 = ''
+        rhc = item_0 + '  ' if item[0] else ''
+        doc_id = item[2]
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
+        current.append(
+            {
+                'id': item[2],
+                'job': item[3],
+                'instance': item[4],
+                'sort': (begby_fmt, 3, item[0]),
+                'week': week,
+                'day': day,
+                'columns': ['>', rhc + item[1], flags, '', doc_id],
+            }
+        )
+    logger.debug(f'current: {current}')
+    dataview.current = current
+    dataview.alerts = alerts
 
 
     if yw == getWeekNum(now):
@@ -9355,6 +10376,8 @@ def schedule(
     busy_details = {}
     allday_details = {}
     dent = int((width - 69) / 2) * ' '
+    dataview.current = current
+    dataview.alerts = alerts
 
     ### item/agenda loop 2
     today = format_wkday(now)
