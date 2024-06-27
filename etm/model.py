@@ -875,8 +875,8 @@ item_hsh:    {self.item_hsh}
         and can use '@s' as aft_dt
         """
         num = self.settings['num_repetitions']
-        if self.is_modified:
-            self.update_item_hsh(False)
+        # if self.is_modified:
+        #     self.update_item_hsh(False)
         # self.update_item_hsh()
         item = self.item_hsh
         showing = 'Repetitions'
@@ -2472,7 +2472,7 @@ def is_within_dst_transition(dt: datetime)->bool:
         dt = dt.replace(tzinfo = timezone)
     else:
         timezone = dt.tzinfo 
-    logger.debug(f"using {timezone = }")
+    # logger.debug(f"using {timezone = }")
     
     # Find the first Sunday in November
     first_november = datetime(year, 11, 1, tzinfo=timezone)
@@ -2489,7 +2489,7 @@ def is_within_dst_transition(dt: datetime)->bool:
     second_sunday_march_2am = second_sunday_march.replace(hour=2)
     second_sunday_march_3am = second_sunday_march.replace(hour=3)
     
-    logger.debug(f"{first_sunday_november_1am = }; ")
+    # logger.debug(f"{first_sunday_november_1am = }; ")
     # Check if the datetime falls within the transition periods
     is_in_november_transition = first_sunday_november_1am <= dt < first_sunday_november_2am
     is_in_march_transition = second_sunday_march_2am <= dt < second_sunday_march_3am
@@ -4077,6 +4077,7 @@ class Dataview(object):
             )
             if dirty:
                 self.refreshKonnections()
+        logger.debug(f"{self.current = }")
         self.refreshCache()
 
     @benchmark
@@ -7276,6 +7277,7 @@ def relevant(
     Collect the relevant datetimes, inbox, pastdues, beginbys and alerts. Note that jobs are only relevant for the relevant instance of a task
     Called by dataview.refreshRelevant
     """
+    global today, tomorrow, width, summary_width, aft_dt, bef_dt, todayYMD, tomorrowYMD, omit
     logger.debug(f"### Relevant ###")
     goal_counts = {
         'Ended': 0,
@@ -7290,6 +7292,7 @@ def relevant(
     ampm = settings['ampm']
     rhc_width = 15 if ampm else 11
     num_remaining = ''
+    omit = settings['omit_extent']
 
     today = (
         datetime.now()
@@ -7305,6 +7308,9 @@ def relevant(
     inbox_fmt = today.strftime('%Y%m%d    ')   # first
     pastdue_fmt = today.strftime('%Y%m%d^^^^')   # after all day and timed
     begby_fmt = today.strftime('%Y%m%d~~~~')   # after past due
+    yw=getWeekNum()
+    weeks_before = 0
+    weeks_after = settings['keep_current'][0]
 
     id2relevant = {}
     inbox = []
@@ -7314,6 +7320,15 @@ def relevant(
     alerts = []
     current = []
     now = datetime.now().astimezone()
+    todayYMD = now.strftime('%Y%m%d')
+    tomorrowYMD = (now + 1 * DAY).strftime('%Y%m%d')
+    d = iso_to_gregorian((yw[0], yw[1], 1))
+    dt = datetime(d.year, d.month, d.day, 0, 0, 0).astimezone()
+    week_numbers = getWeekNumbers(dt, weeks_before, weeks_after)
+    if yw not in week_numbers:
+        week_numbers.append(yw)
+        week_numbers.sort()
+    aft_dt, bef_dt = get_period(dt, weeks_before, weeks_after)
 
     for item in db:
         instance_interval = []
@@ -7343,409 +7358,15 @@ def relevant(
 
         summary = item.get('summary', '~')
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        )
-        if item['itemtype'] == '!':
-            inbox.append([0, summary, item.doc_id, None, None])
-            relevant = today
-        
-        elif 'f' in item:
-            if not isinstance(item['f'], Period):
-                logger.error(f"{item['f'] = } in {item = }")
-                raise ValueError(f"{item['f']} is not an instance of type Period")
-            relevant = item['f'].end
-            if isinstance(relevant, date) and not isinstance(
-                relevant, datetime
-            ):
-                relevant = datetime(
-                    year=relevant.year,
-                    month=relevant.month,
-                    day=relevant.day,
-                    hour=23,
-                    minute=59,
-                ).astimezone()
-
-        elif 's' in item and not item['s']:
-            logger.error(f"bad @s in item['s'] for {doc_id}: {item['s']}; item: {item}")
-
-        elif 's' in item and item['s']:
-            dtstart = date_to_datetime(item['s'])
-            # has_a = 'a' in item
-            # has_b = 'b' in item
-            if 'b' in item:
-                days = int(item['b']) * DAY
-                all_tds.extend([DAY, days])
-                possible_beginby = days
-
-            if 'a' in item:
-                # alerts
-                for alert in item['a']:
-                    tds = alert[0]
-                    cmd = alert[1]
-                    all_tds.extend(tds)
-
-                    for td in tds:
-                        # td > 0m => earlier than startdt; dt < 0m => later than startdt
-                        possible_alerts.append([td, cmd])
-
-            # this catches all alerts and beginbys for the item
-            if all_tds:
-                instance_interval = [
-                    today + min(all_tds),
-                    tomorrow + max(all_tds),
-                ]
-
-            # if 'r' in item or '+' in item:
-            if 'r' in item:
-                lofh = item.get('r', [])
-                rset = dr.rruleset()
-
-                for hsh in lofh:
-                    freq, kwd = rrule_args(hsh)
-                    kwd['dtstart'] = dtstart
-                    try:
-                        rset.rrule(dr.rrule(freq, **kwd))
-                    except Exception as e:
-                        print('Error processing:')
-                        print('  ', freq, kwd)
-                        print(e)
-                        print(item)
-                        break
-
-                if '-' in item:
-                    for dt in item['-']:
-                        dt = date_to_datetime(dt)
-                        # if type(dt) == date:
-                        #     dt = datetime(year=dt.year, month=dt.month, day=dt.day, hour=0, minute=0, tz='local')
-                        rset.exdate(dt)
-
-                if '+' in item:
-                    for dt in item['+']:
-                        dt = date_to_datetime(dt)
-                        rset.rdate(dt)
-
-                if item['itemtype'] == '-':
-                    switch = item.get('o', 'k')
-                    plus_dates = item.get('+', [])
-                    if switch == 's':
-                        cur = date_to_datetime(item['s'])
-                        # make 'all day' tasks not pastdue until one minute before midnight
-                        delta = (
-                            timedelta(hours=23, minutes=59) if (cur.hour == 0 and cur.minute == 0) else ZERO
-                        )
-                        if cur + delta < now:
-                            # we need to update @s
-                            relevant = rset.after(now, inc=True)
-                            while relevant in plus_dates:
-                                relevant = rset.after(relevant, inc=False)
-                            item['s'] = relevant
-                            item.setdefault('h', []).append(
-                                    Period(cur + ONEMIN, cur))
-                            num_finished = settings.get('num_finished', 0)
-                            if num_finished and len(item['h']) > num_finished:
-                                h = item['h']
-                                h.sort(key=sortprd)
-                                item['h'] = h[-num_finished:]
-                            update_db(db, item.doc_id, item)
-                        elif plus_dates:
-                            # @s is ok but @+ may need updating
-                            changed = False
-                            for dt in plus_dates:
-                                if dt >= now:
-                                    continue
-                                delta = (
-                                    timedelta(hours=23, minutes=59) if (dt.hour == 0 and dt.minute == 0) else ZERO
-                                )
-                                if dt + delta < now:
-                                    item.setdefault('h', []).append(
-                                            Period(dt + ONEMIN, dt))
-                                    item['+'].remove(dt)
-                                    changed = True
-                            if len(item['+']) > 0:
-                                if item['+'][0] < cur:
-                                    relevant = item['+'][0]
-                                else:
-                                    relevant = cur
-                            else:
-                                del item['+']
-                                changed = True
-                            if changed:
-                                update_db(db, item.doc_id, item)
-                        else:
-                            relevant = cur
-
-                    else:   # k or r
-                        try:
-                            # relevant = rset.after(today, inc=True)
-                            # logger.debug(f"relevant {item = }")
-                            instances = item_instances(item, None)
-                            instances.sort()
-                            # logger.debug(f"{instances = }")
-                            relevant = date_to_datetime(instances[0][0]) if instances else None
-                            # relevant = rset.after(dtstart, inc=True)
-                            # if plus_dates:
-                            #     plus_dates.sort()
-                            #     relevant = min(relevant, plus_dates[0])
-                        except Exception as e:
-                            logger.debug(f"Exception: {e}\nissue with today: {today} ({type(today)}) or rset: {rset}\nskipping {item}")
-                            continue
-
-                        already_done = [x.end for x in item.get('h', [])]
-                        # relevant will be the first instance after 12am today
-                        # it will be the @s entry for the updated repeating item
-                        # these are @s entries for the instances to be preserved
-                        # logger.debug(f"{dtstart = }; {today = }")
-                        between = rset.between(
-                            dtstart, today - ONEMIN, inc=True
-                        )
-                        # remaining = [x for x in between if x not in already_done and x != dtstart]
-                        remaining = [
-                            x for x in between if x not in already_done
-                        ]
-                        # once instances have been created, between will be empty until
-                        # the current date falls after item['s'] and relevant is reset
-                        num_remaining = (
-                            f'({len(remaining)})' if remaining else ''
-                        )
-                        sum_abbr = item['summary'][:summary_width]
-                        summary = f'{sum_abbr} {num_remaining}'
-                        extent = item.get('e', ZERO)
-                        # logger.debug(f"{type(relevant) = }; {type(extent) = }; {type(today) = }")
-                        if relevant + extent < today and 'j' not in item:
-                            candidate = [
-                                    (relevant.date() - today.date()).days,
-                                    summary,
-                                    item.doc_id,
-                                    None,
-                                    None,
-                                ]
-                            if candidate not in pastdue:
-                                pastdue.append(candidate)
-                else:
-                    # get the first instance after today
-                    try:
-                        relevant = rset.after(today, inc=True)
-                    except Exception as e:
-                        logger.error(f'error processing {item}; {repr(e)}')
-                    if not relevant:
-                        # logger.debug(f"{today = }; {item = }")
-                        relevant = rset.before(today, inc=True)
-
-                # rset
-                if instance_interval:
-                    # logger.debug(f"{instance_interval = }")
-                    instances = rset.between(
-                        instance_interval[0], instance_interval[1], inc=True
-                    )
-                    if possible_beginby:
-                        for instance in instances:
-                            if (
-                                ZERO
-                                < instance.date() - today.date()
-                                <= possible_beginby
-                            ):
-                                doc_id = item.doc_id
-                                if 'r' in item:
-                                    # use the freq from the first recurrence rule
-                                    freq = item['r'][0].get('r', 'y')
-                                else:
-                                    freq = 'y'
-                                summary = set_summary(
-                                    summary,
-                                    item.get('s', None),
-                                    instance.date(),
-                                    freq,
-                                )
-                                beginbys.append(
-                                    [
-                                        (instance.date() - today.date()).days,
-                                        summary,
-                                        item.doc_id,
-                                        None,
-                                        instance,
-                                    ]
-                                )
-                    if possible_alerts:
-                        for instance in instances:
-                            for possible_alert in possible_alerts:
-                                if (
-                                    today
-                                    <= instance - possible_alert[0]
-                                    <= tomorrow
-                                ):
-                                    alerts.append(
-                                        [
-                                            instance - possible_alert[0],
-                                            instance,
-                                            possible_alert[1],
-                                            item['itemtype'],
-                                            item['summary'],
-                                            item.doc_id,
-                                        ]
-                                    )
-
-            elif '+' in item:
-                # no @r but @+ => simple repetition
-                tmp = [dtstart]
-                tmp.extend(item['+'])
-                tmp = [date_to_datetime(x) for x in tmp]
-                tmp.sort()
-                aft = [x for x in tmp if x >= today]
-                bef = [x for x in tmp if x < today]
-                if aft:
-                    relevant = aft[0]
-                else:
-                    relevant = bef[-1]
-
-                if possible_beginby:
-                    for instance in aft:
-                        # if today + DAY <= instance <= tomorrow + possible_beginby:
-                        if (
-                            ZERO
-                            < instance.date() - today.date()
-                            <= possible_beginby
-                        ):
-                            beginbys.append(
-                                [
-                                    (instance.date() - today.date()).days,
-                                    summary,
-                                    item.doc_id,
-                                    None,
-                                    instance,
-                                ]
-                            )
-                if possible_alerts:
-                    for instance in aft + bef:
-                        for possible_alert in possible_alerts:
-                            if (
-                                today
-                                <= instance - possible_alert[0]
-                                <= tomorrow
-                            ):
-                                alerts.append(
-                                    [
-                                        instance - possible_alert[0],
-                                        instance,
-                                        possible_alert[1],
-                                        item['itemtype'],
-                                        item['summary'],
-                                        item.doc_id,
-                                    ]
-                                )
-
-            else:
-                # 's' but not 'r' or '+'
-                relevant = dtstart
-                if (
-                    possible_beginby
-                    and ZERO
-                    < relevant.date() - today.date()
-                    <= possible_beginby
-                ):
-                    beginbys.append(
-                        [
-                            (relevant.date() - today.date()).days,
-                            summary,
-                            item.doc_id,
-                            None,
-                            None,
-                        ]
-                    )
-                if possible_alerts:
-                    for possible_alert in possible_alerts:
-                        if today <= dtstart - possible_alert[0] <= tomorrow:
-                            alerts.append(
-                                [
-                                    dtstart - possible_alert[0],
-                                    dtstart,
-                                    possible_alert[1],
-                                    item['itemtype'],
-                                    item['summary'],
-                                    item.doc_id,
-                                ]
-                            )
-        else:
-            # no 's', no 'f'
-            relevant = None
-
-        if not relevant:
-            continue
-
-        # pastdue_jobs = False
-        if 'j' in item and 'f' not in item:
-            # jobs only for the relevant instance of unfinished tasks
-            for job in item['j']:
-                job_id = job.get('i')
-                if 'f' in job:
-                    continue
-                # adjust job starting time if 's' in job
-                job_summary = (
-                    f"{job.get('summary', '')[:summary_width]} {num_remaining}"
-                )
-                jobstart = dtstart + job.get('s', ZERO)
-                extent = job.get('e', ZERO)
-                if (
-                    (jobstart + extent).date() < today.date()
-                    and job.get('status', None) == '-'
-                ):
-                    # pastdue_jobs = True
-                    pastdue.append(
-                        [
-                            ((jobstart + extent).date() - today.date()).days,
-                            job_summary,
-                            item.doc_id,
-                            job_id,
-                            None,
-                        ]
-                    )
-                if 'b' in job:
-                    days = int(job['b']) * DAY
-                    if today + DAY <= jobstart <= tomorrow + days:
-                        beginbys.append(
-                            [
-                                (jobstart.date() - today.date()).days,
-                                job_summary,
-                                item.doc_id,
-                                job_id,
-                                None,
-                            ]
-                        )
-                if 'a' in job:
-                    for alert in job['a']:
-                        for td in alert[0]:
-                            if today <= jobstart - td <= tomorrow:
-                                alerts.append(
-                                    [
-                                        dtstart - td,
-                                        dtstart,
-                                        alert[1],
-                                        '-',
-                                        job['summary'],
-                                        item.doc_id,
-                                        job_id,
-                                        None,
-                                    ]
-                                )
-
-        id2relevant[item.doc_id] = relevant
-
-        # if item['itemtype'] == '-' and 'f' not in item and relevant.date() < today.date():
-        if (
-            item['itemtype'] == '-'
-            and 'f' not in item
-            and 'j' not in item
-            and relevant.date() < today.date()
-        ):
-            extent = item.get('e', ZERO)
-            candidate = [
-                    ((relevant + extent).date() - today.date()).days,
-                    summary,
-                    item.doc_id,
-                    None,
-                    None,
-                ]
-            if candidate not in pastdue:
-                pastdue.append(candidate)
+            item.doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            )
+        views_hsh = get_item_views(item, flags)
+        pastdue.extend(views_hsh['pastdue'])
+        beginbys.extend(views_hsh['beginbys'])
+        inbox.extend(views_hsh['inbox'])
+        goals.extend(views_hsh['goals'])
+        current.extend(views_hsh['current'])
+        alerts.extend(views_hsh['alerts'])
 
     inbox.sort()
     pastdue.sort()
