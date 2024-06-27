@@ -7948,11 +7948,51 @@ def show_forthcoming(
     konnected=[],
     timers={},
 ):
+    logger.debug(f"{id2relevant = }")
+    dataview = Dataview()
+    id2relevant = dataview.id2relevant
+    logger.debug(f"{id2relevant = }")
     width = shutil.get_terminal_size()[0] - 3
     summary_width = width - 19
     rows = []
     today = datetime.now().replace(hour=0, minute=0, second=0).astimezone()
     md_fmt = '%d/%m' if settings['dayfirst'] else '%m/%d'
+    for id, relevant in id2relevant.items():
+        if relevant < today:
+            continue
+        year = relevant.strftime('%b %Y')
+        monthday = relevant.strftime('%-d')
+        time = fmt_time(relevant)
+        # rhc = f"{monthday:>6} {time:^7}".ljust(14, ' ')
+        rhc = f'{monthday : >2} {time} ' if time else f'{monthday : >2} '
+
+        itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item['itemtype']
+        summary = set_summary(
+            item['summary'], item.get('s', None), relevant, freq
+        )
+        flags = get_flags(
+            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+        )
+        rows.append(
+            {
+                'id': doc_id,
+                'sort': relevant,
+                'path': year,
+                'values': [itemtype, f'{rhc}{summary}', flags, '', doc_id],
+            }
+        )
+
+    rows.sort(key=itemgetter('sort'))
+    rdict = NDict()
+    for row in rows:
+        path = row['path']
+        values = row['values']
+        rdict.add(path, values)
+    tree, row2id = rdict.as_tree(rdict)
+    logger.debug(f"forthcoming {tree = }")
+    return tree, row2id
+
+
     for item in db:
         if item.doc_id not in id2relevant:
             continue
@@ -8000,6 +8040,7 @@ def show_forthcoming(
         values = row['values']
         rdict.add(path, values)
     tree, row2id = rdict.as_tree(rdict)
+    logger.debug(f"forthcoming {tree = }")
     return tree, row2id
 
 
@@ -9677,8 +9718,6 @@ def create_item_views(item, flags):
                                 ]
                             )
 
-        id2relevant[item.doc_id] = relevant
-
         # if item['itemtype'] == '-' and 'f' not in item and relevant.date() < today.date():
         if (
             item['itemtype'] == '-'
@@ -9697,6 +9736,8 @@ def create_item_views(item, flags):
             if candidate not in pastdue:
                 pastdue.append(candidate)
 
+    if relevant:
+        id2relevant[item.doc_id] = relevant
 
     if itemtype == '*' and start and extent and 'r' not in item:
         dt = date_to_datetime(start)
