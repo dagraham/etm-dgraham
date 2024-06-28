@@ -3069,6 +3069,7 @@ class Dataview(object):
         self.konnected_id2row = {}
         self.konnected_row = None
         self.last_id = 0
+        self.id2item = {}
         self.id2relevant = {}
         self.wkday2busy_details = {}
         self.busy_row = 0
@@ -4247,8 +4248,15 @@ class Dataview(object):
             return item['doc_id']
 
     def get_id(self, doc_id):
-        item = self.db.get(doc_id=doc_id)
-        return item
+        if doc_id in self.id2item:
+            return self.id2item[doc_id]
+        else:
+            item = self.db.get(doc_id=doc_id)
+            if item:
+                self.id2item[doc_id] = item
+                return item
+            
+        return None
 
     def get_details(self, row=None, edit=False):
         res = self.get_row_details(row)
@@ -7270,11 +7278,8 @@ def show_forthcoming(
     konnected=[],
     timers={},
 ):
-    logger.debug(f"{id2relevant = }")
     dataview = Dataview()
     id2relevant = dataview.id2relevant
-    width = shutil.get_terminal_size()[0] - 3
-    summary_width = width - 19
     rows = []
     today = datetime.now().replace(hour=0, minute=0, second=0).astimezone()
     for doc_id, relevant in id2relevant.items():
@@ -8534,7 +8539,7 @@ def create_item_views(item, flags):
     # need to handle itemtypes ! ~
     dataview = Dataview()
     id2relevant = dataview.id2relevant
-    now=datetime.now()
+    now=datetime.now().astimezone()
     completed = []
     rows = []
     done = []
@@ -8583,6 +8588,7 @@ def create_item_views(item, flags):
     # id2relevant = dataview.id2relevant
 
     doc_id = item.doc_id
+    dataview.id2item[doc_id] = item
     rset = dr.rruleset()
 
     itemtype = item.get('itemtype', '?')
@@ -8637,7 +8643,7 @@ def create_item_views(item, flags):
             ).astimezone()
 
     elif 's' in item and item['s']:
-        dtstart = date_to_datetime(item['s'])
+        dtstart = date_to_datetime(item.get('s', None))
         # has_a = 'a' in item
         # has_b = 'b' in item
         if 'b' in item:
@@ -8714,7 +8720,7 @@ def create_item_views(item, flags):
                             h = item['h']
                             h.sort(key=sortprd)
                             item['h'] = h[-num_finished:]
-                        update_db(db, item.doc_id, item)
+                        update_db(ETMDB, item.doc_id, item)
                     elif plus_dates:
                         # @s is ok but @+ may need updating
                         changed = False
@@ -8946,9 +8952,10 @@ def create_item_views(item, flags):
             job_summary = (
                 f"{job.get('summary', '')[:summary_width]} {num_remaining}"
             )
-            jobstart = dtstart + job.get('s', ZERO)
+            jobstart = dtstart + job.get('s', ZERO) if dtstart else None
             extent = job.get('e', ZERO)
             if (
+                jobstart and
                 (jobstart + extent).date() < today.date()
                 and job.get('status', None) == '-'
             ):
