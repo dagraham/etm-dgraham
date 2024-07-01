@@ -3064,6 +3064,7 @@ class Dataview(object):
         self.prior_view = 'agenda'
         self.current = []
         self.alerts = []
+        self.inbox = []
         self.row2id = []
         self.konnections_row2id = {}
         self.konnected_id2row = {}
@@ -3071,6 +3072,7 @@ class Dataview(object):
         self.last_id = 0
         self.id2item = {}
         self.id2relevant = {}
+        self.id2flags = {}
         self.wkday2busy_details = {}
         self.busy_row = 0
         self.link_list = []
@@ -3599,7 +3601,7 @@ class Dataview(object):
         """
         timers
         """
-        db = self.db
+        # db = self.db
         repeat_list = self.repeat_list
         pinned_list = self.pinned_list
         link_list = self.link_list
@@ -3616,7 +3618,7 @@ class Dataview(object):
         timer_ids = [x for x in timers if x]
         active = ""
         for doc_id in timer_ids:
-            item = db.get(doc_id=doc_id)
+            item = self.get_id(doc_id)
             if not item:
                 continue
             num_timers += 1
@@ -3638,36 +3640,38 @@ class Dataview(object):
             total_time += elapsed
             sort = state2sort[state]
             rhc = f'{status_duration(elapsed)} {state}{EtmChar.ELECTRIC}{format_relative_time(start)}'
-            flags = get_flags(
-                doc_id, repeat_list, link_list, konnected, pinned_list, timers
-            )
-            rows.append(
-                {
-                    'sort': (sort, now - start),
-                    'values': [
-                        itemtype,
-                        summary,
-                        flags,
-                        rhc,  # status
-                        doc_id,
-                    ],
-                }
-            )
+            if self.active_view == 'timers':
+                flags = get_flags(
+                    doc_id, repeat_list, link_list, konnected, pinned_list, timers
+                )
+                rows.append(
+                    {
+                        'sort': (sort, now - start),
+                        'values': [
+                            itemtype,
+                            summary,
+                            flags,
+                            rhc,  # status
+                            doc_id,
+                        ],
+                    }
+                )
         self.inactive_str = f' {status_duration(inactive_time)}  '
-        try:
-            rows.sort(key=itemgetter('sort'), reverse=False)
-        except Exception as e:
-            logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
-        rdict = NDict()
-        timers_fmt = 'timers' if num_timers > 1 else 'timer'
-        path = f'{num_timers} {timers_fmt}: {status_duration(total_time)}'.center(
-            width, ' '
-        )
-        for row in rows:
-            values = row['values']
-            rdict.add(path, values)
-        timers_view, row2id = rdict.as_tree(rdict)
-        return timers_view, row2id
+        if self.active_view == 'timers':
+            try:
+                rows.sort(key=itemgetter('sort'), reverse=False)
+            except Exception as e:
+                logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
+            rdict = NDict()
+            timers_fmt = 'timers' if num_timers > 1 else 'timer'
+            path = f'{num_timers} {timers_fmt}: {status_duration(total_time)}'.center(
+                width, ' '
+            )
+            for row in rows:
+                values = row['values']
+                rdict.add(path, values)
+            timers_view, row2id = rdict.as_tree(rdict)
+            return timers_view, row2id
 
 
     def unsaved_timers(self):
@@ -7331,16 +7335,18 @@ def get_flags(
     timers={},
 ):
     """ """
+    dataview = Dataview()
+
     flags = ''
-    if doc_id in repeat_list:
+    if doc_id in dataview.repeat_list:
         flags += EtmChar.REPS
-    if doc_id in link_list:
+    if doc_id in dataview.link_list:
         flags += EtmChar.LINK_CHAR
-    if doc_id in konnected:
+    if doc_id in dataview.konnected:
         flags += EtmChar.KONNECT_CHAR
-    if doc_id in pinned_list:
+    if doc_id in dataview.pinned_list:
         flags += EtmChar.PIN_CHAR
-    if doc_id in timers:
+    if doc_id in dataview.timers:
         flags += 't'
     return flags
 
@@ -8520,6 +8526,104 @@ def wkday2row(wkday):
     # TODO: fixme
     return 3 + 2 * wkday if wkday else 17
 
+def handle_lists(item, flags):
+    dataview = Dataview()
+    doc_id = item.doc_id
+
+    if 'k' in item and item['k']:
+        for id in item['k']:
+            dataview.konnections_from.setdefault(doc_id, []). append(id)
+            dataview.konnections_to.setdefault(id, []).append(doc_id)
+
+    if 'g' in item:
+        if doc_id not in dataview.link_list:
+            dataview.link_list.append(doc_id)
+    else:
+        if doc_id in dataview.link_list:
+            dataview.link_list.remove(doc_id)
+
+    if '+' in item or 'r' in item:
+        if doc_id not in dataview.repeat_list:
+            dataview.repeat_list.append(doc_id)
+    else:
+        if doc_id in dataview.repeat_list:
+            dataview.repeat_list.remove(doc_id)
+
+def handle_flags(dataview, item):
+    flags = ''
+    doc_id = item.doc_id
+    if doc_id in dataview.repeat_list:
+        flags += EtmChar.REPS
+    if doc_id in dataview.link_list:
+        flags += EtmChar.LINK_CHAR
+    if doc_id in dataview.konnected:
+        flags += EtmChar.KONNECT_CHAR
+    if doc_id in dataview.pinned_list:
+        flags += EtmChar.PIN_CHAR
+    if doc_id in dataview.timers:
+        flags += 't'
+    return flags
+
+
+
+def handle_inbox(dataview, item, flags):
+    dataview.inbox.append([0, summary, item.doc_id, None, None])
+    dataview.id2relevant[item.doc_id] = today
+
+def handle_goal(dataview, item, flags):
+    raise NotImplementedError
+
+def handle_task(dataview, item, flags):
+    """_summary_
+    dated? (@s)
+    recurring? (@r and/or @+)
+    jobs? (@j)
+    alerts? ()
+    Args:
+        dataview (_type_): _description_
+        item (_type_): _description_
+        flags (_type_): _description_
+    """
+
+def handle_alerts(dataview, item, flags):
+    raise NotImplementedError
+
+def handle_task_with_jobs(dataview, item, flags):
+    raise NotImplementedError
+
+def handle_task_without_jobs(dataview, item, flags):
+    raise NotImplementedError
+
+def handle_journal(dataview, item, flags):
+    raise NotImplementedError   
+
+def handle_event(dataview, item, flags):
+    raise NotImplementedError
+
+handle_dict = {
+
+    'inbox': handle_inbox,
+    'goal': handle_goal,
+    'task_with_jobs': handle_task_with_jobs,
+    'task_without_jobs': handle_task_without_jobs,
+    'journal': handle_journal,
+    'event': handle_event
+}
+
+def handle(dataview, item, flags):
+    dataview = Dataview()
+    itemtype = item.get('itemtype', '?')
+    if itemtype == '?':
+        logger.warning(f"missing itemtype for doc_id {doc_id}")
+    elf
+
+    
+
+    if operation in handle_dict:
+        return handle_dict[operation](dataview, item, flags)
+    else:
+        return "Invalid operation"
+
 
 # @benchmark
 def create_item_views(item, flags):
@@ -8604,23 +8708,26 @@ def create_item_views(item, flags):
     history = item.get('h', None)
     jobs = item.get('j', None)
 
-    if 'k' in item and item['k']:
-        for id in item['k']:
-            dataview.konnections_from.setdefault(doc_id, []). append(id)
-            dataview.konnections_to.setdefault(id, []).append(doc_id)
 
-    if 'g' in item:
-        if doc_id not in link_list:
-            link_list.append(doc_id)
-    else:
-        if doc_id in link_list:
-            link_list.remove(doc_id)
-    if '+' in item or 'r' in item:
-        if doc_id not in repeat_list:
-            repeat_list.append(doc_id)
-    else:
-        if doc_id in repeat_list:
-            repeat_list.remove(doc_id)
+    handle_lists(item, flags)
+
+    # if 'k' in item and item['k']:
+    #     for id in item['k']:
+    #         dataview.konnections_from.setdefault(doc_id, []). append(id)
+    #         dataview.konnections_to.setdefault(id, []).append(doc_id)
+
+    # if 'g' in item:
+    #     if doc_id not in link_list:
+    #         link_list.append(doc_id)
+    # else:
+    #     if doc_id in link_list:
+    #         link_list.remove(doc_id)
+    # if '+' in item or 'r' in item:
+    #     if doc_id not in repeat_list:
+    #         repeat_list.append(doc_id)
+    # else:
+    #     if doc_id in repeat_list:
+    #         repeat_list.remove(doc_id)
 
     if item['itemtype'] == '!':
         inbox.append([0, summary, item.doc_id, None, None])

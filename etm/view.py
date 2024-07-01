@@ -1062,6 +1062,7 @@ def is_showing_konnected():
 
 @Condition
 def timer_active():
+    # logger.debug(f"{dataview.active_timer = }")
     return dataview.active_timer is not None
 
 
@@ -1662,6 +1663,7 @@ def event_handler(e):
             get_app().invalidate()
 
         asyncio.ensure_future(save_timers())
+        # if dataview.active_timer is not None:
         if dataview.active_view == 'timers':
             row, col = get_row_col()
             set_text(dataview.show_active_view())
@@ -1740,34 +1742,25 @@ def get_statusbar_center_text():
         return [
             ('class:status', f' {dataview.query_mode}'),
         ]
-    if loglevel == 1:
-        # show current row number and associated id in the status bar
-        current_row = text_area.document.cursor_position_row
-        current_id = dataview.row2id.get(current_row, '~')
-        if isinstance(current_id, tuple):
-            current_id = current_id[0]
-        return [
-            ('class:status', f'{current_row}: {current_id}'),
-        ]
+    # if loglevel == 1:
+    #     # show current row number and associated id in the status bar
+    #     current_row = text_area.document.cursor_position_row
+    #     current_id = dataview.row2id.get(current_row, '~')
+    #     if isinstance(current_id, tuple):
+    #         current_id = current_id[0]
+    #     return [
+    #         ('class:status', f'{current_row}: {current_id}'),
+    #     ]
 
-    return [
-        ('class:status', 12 * ' '),
-        # (type_colors['pastdue'], "1"),
-    ]
+    # return [
+    #     ('class:status', 12 * ' '),
+    #     # (type_colors['pastdue'], "1"),
+    # ]
 
 
 def get_statusbar_right_text():
     inbasket = EtmChar.INBASKET_CHAR if (glob(text_pattern)) else ''
-    inactive_part = ('class:status', '')
-    if dataview.timers:
-        dataview.get_timers()
-        inactive = dataview.inactive_str
-        if inactive:
-            inactive_part = (
-                (type_colors['inactive'], inactive)
-            )
     return [
-        inactive_part,
         (
             'class:status',
             f'{dataview.active_view} {inbasket}{update_status.get_status()}',
@@ -1777,54 +1770,17 @@ def get_statusbar_right_text():
 def get_timer_text():
     if not dataview.timers:
         return []
+    dataview.get_timers()
     active = dataview.active_str
     if active:
         active_part = (
                 (type_colors['running'], f' {active}') if f'r{EtmChar.ELECTRIC}' in active
             else (type_colors['paused'], f' {active}')
         )
-        # inactive_part = ('class:status', f'{inactive}  ')
     else:
         active_part = ('class:status', '')
+    # logger.debug(f"timer text: {active_part = }")
     return [active_part]
-
-# def openWithDefault(path):
-#     if ' ' in path:
-#         parts = qsplit(path)
-#         if parts:
-#             # wrapper to catch 'Exception Ignored' messages
-#             output = io.StringIO()
-#             with contextlib.redirect_stderr(output):
-#                 # the pid business is evidently needed to avoid waiting
-#                 pid = subprocess.Popen(
-#                     parts,
-#                     stdin=subprocess.DEVNULL,
-#                     stdout=subprocess.DEVNULL,
-#                     stderr=subprocess.DEVNULL,
-#                 ).pid
-#                 res = output.getvalue()
-#                 if res:
-#                     logger.error(f"caught by contextlib:\n'{res}'")
-
-#     else:
-#         path = os.path.normpath(os.path.expanduser(path))
-#         sys_platform = platform.system()
-#         if platform.system() == 'Darwin':       # macOS
-#             subprocess.run(
-#                 ('open', path),
-#                 stdout=subprocess.DEVNULL,
-#                 stderr=subprocess.DEVNULL,
-#             )
-#         elif platform.system() == 'Windows':    # Windows
-#             os.startfile(path)
-#         else:                                   # linux
-#             subprocess.run(
-#                 ('xdg-open', path),
-#                 stdout=subprocess.DEVNULL,
-#                 stderr=subprocess.DEVNULL,
-#             )
-
-#     return
 
 
 search_field = SearchToolbar(
@@ -1846,6 +1802,7 @@ text_area = TextArea(
     focus_on_click=True,
     lexer=etmlexer,
 )
+
 
 konnected_area = TextArea(
     text='',
@@ -4213,7 +4170,6 @@ def set_askreply(_):
 
 async def main(etmdir=''):
     global item, settings, ampm, style, type_colors, application, busy_colors
-    # timer_view = TimeIt('***VIEW***')
     ampm = settings['ampm']
     window_colors = settings['window_colors']
     type_colors = settings['type_colors']
@@ -4243,7 +4199,6 @@ async def main(etmdir=''):
         refresh_interval=1.0,
         on_invalidate=event_handler,
     )
-    # timer_view.stop()
     logger.debug(f"XX starting {application = } XX")
     try:
         result = await application.run_async()
