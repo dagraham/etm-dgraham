@@ -3597,6 +3597,23 @@ class Dataview(object):
         self.save_timers()
         return True, doc_id, active
 
+    def update_active_timer(self):
+        if not self.active_timer:
+            return None
+        item = self.get_id(self.active_timer)
+        state, start, elapsed = self.timers[self.active_timer]  
+        itemtype = item['itemtype']
+        summary = item['summary']
+        since = f'{format_relative_time(start)}'
+        if state == 'r':
+            elapsed += datetime.now().astimezone() - start
+        elapsed = round_to_minutes(elapsed)
+        # at most one timer can be active
+        total = f'{status_duration(elapsed)}'
+        this_width = width - len(since) - len(total) - 8
+        self.active_str = f"{itemtype} {total} {state}{EtmChar.ELECTRIC}{since}  {truncate_string(summary, this_width)} "
+
+
     def get_timers(self):
         """
         timers
@@ -3616,7 +3633,6 @@ class Dataview(object):
         total_time = inactive_time = ZERO
         num_timers = 0
         timer_ids = [x for x in timers if x]
-        active = ""
         for doc_id in timer_ids:
             item = self.get_id(doc_id)
             if not item:
@@ -3640,38 +3656,36 @@ class Dataview(object):
             total_time += elapsed
             sort = state2sort[state]
             rhc = f'{status_duration(elapsed)} {state}{EtmChar.ELECTRIC}{format_relative_time(start)}'
-            if self.active_view == 'timers':
-                flags = get_flags(
-                    doc_id, repeat_list, link_list, konnected, pinned_list, timers
-                )
-                rows.append(
-                    {
-                        'sort': (sort, now - start),
-                        'values': [
-                            itemtype,
-                            summary,
-                            flags,
-                            rhc,  # status
-                            doc_id,
-                        ],
-                    }
-                )
-        self.inactive_str = f' {status_duration(inactive_time)}  '
-        if self.active_view == 'timers':
-            try:
-                rows.sort(key=itemgetter('sort'), reverse=False)
-            except Exception as e:
-                logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
-            rdict = NDict()
-            timers_fmt = 'timers' if num_timers > 1 else 'timer'
-            path = f'{num_timers} {timers_fmt}: {status_duration(total_time)}'.center(
-                width, ' '
+            flags = get_flags(
+                doc_id
             )
-            for row in rows:
-                values = row['values']
-                rdict.add(path, values)
-            timers_view, row2id = rdict.as_tree(rdict)
-            return timers_view, row2id
+            rows.append(
+                {
+                    'sort': (sort, now - start),
+                    'values': [
+                        itemtype,
+                        summary,
+                        flags,
+                        rhc,  # status
+                        doc_id,
+                    ],
+                }
+            )
+        self.inactive_str = f' {status_duration(inactive_time)}  '
+        try:
+            rows.sort(key=itemgetter('sort'), reverse=False)
+        except Exception as e:
+            logger.error(f"sort exception: {e}: {[type(x['sort']) for x in rows]}")
+        rdict = NDict()
+        timers_fmt = 'timers' if num_timers > 1 else 'timer'
+        path = f'{num_timers} {timers_fmt}: {status_duration(total_time)}'.center(
+            width, ' '
+        )
+        for row in rows:
+            values = row['values']
+            rdict.add(path, values)
+        timers_view, row2id = rdict.as_tree(rdict)
+        return timers_view, row2id
 
 
     def unsaved_timers(self):
@@ -4031,9 +4045,6 @@ class Dataview(object):
                 itemtype = "    ↓"
             doc_id = item.doc_id
             summary = item['summary']
-            # flags = get_flags(
-            #     doc_id, repeat_list, link_list, konnected, pinned_list, timers
-            # )
             rows.append(
                 {
                     # 'path': path,
@@ -7305,7 +7316,7 @@ def show_forthcoming(
             item['summary'], item.get('s', None), relevant, freq
         )
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
         rows.append(
             {
@@ -7326,17 +7337,11 @@ def show_forthcoming(
     return tree, row2id
 
 
-def get_flags(
-    doc_id,
-    repeat_list=[],
-    link_list=[],
-    konnected=[],
-    pinned_list=[],
-    timers={},
-):
+def get_flags(doc_id):
     """ """
     dataview = Dataview()
-
+    if doc_id in dataview.id2flags:
+        return dataview.id2flags[doc_id]
     flags = ''
     if doc_id in dataview.repeat_list:
         flags += EtmChar.REPS
@@ -7348,6 +7353,7 @@ def get_flags(
         flags += EtmChar.PIN_CHAR
     if doc_id in dataview.timers:
         flags += 't'
+    dataview.id2flags[doc_id] = flags
     return flags
 
 
@@ -7392,9 +7398,7 @@ def show_query_items(
         year = dt.strftime('%Y')
         itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item['itemtype']
         summary = item['summary']
-        flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        )
+        flags = get_flags(doc_id)
         rhc = f'{doc_id: >6}'
         rows.append(
             {
@@ -7444,7 +7448,7 @@ def show_history(
             )
             summary = item.get('summary', '~')
             flags = get_flags(
-                doc_id, repeat_list, link_list, konnected, pinned_list, timers
+                doc_id
             )
             rows.append(
                 {
@@ -7490,7 +7494,7 @@ def show_review(
         itemtype = item['itemtype']
         summary = item['summary']
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
         modified = item['modified'] if 'modified' in item else item['created']
 
@@ -7560,9 +7564,6 @@ def show_konnected(
         itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         doc_id = item.doc_id
-        # flags = get_flags(
-            # doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        # )
 
         rows.append(
             {
@@ -7625,7 +7626,7 @@ def show_next(
             continue
         doc_id = item.doc_id
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
         if 'j' in item:
             task_location = item.get('l', '~')
@@ -7780,7 +7781,7 @@ def show_journal(
 
         itemtype = item['itemtype']
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
         rows.append(
             {
@@ -8088,7 +8089,7 @@ def show_goals(
         sort = (path2sort[path], -lag, summary)
 
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
         rows.append(
             {
@@ -8139,7 +8140,7 @@ def show_tags(
         itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
 
         for tag in subsets(tags):
@@ -8185,7 +8186,7 @@ def show_location(
         itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary']
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
 
         rows.append(
@@ -8226,7 +8227,7 @@ def show_index(
         itemtype = EtmChar.FINISHED_CHAR if 'f' in item else item.get('itemtype', '?')
         summary = item['summary'][:summary_width]
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
         s = item.get('s', None)
         if s:
@@ -8308,7 +8309,7 @@ def show_pinned(
             )
             summary = item['summary']
             flags = get_flags(
-                doc_id, repeat_list, link_list, konnected, pinned_list, timers
+                doc_id
             )
 
             rows.append(
@@ -8361,7 +8362,7 @@ def get_usedtime(
         itemtype = item['itemtype']
         summary = item['summary']
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
         for period, dt in used:
             if isinstance(dt, date) and not isinstance(dt, datetime):
@@ -8526,8 +8527,8 @@ def wkday2row(wkday):
     # TODO: fixme
     return 3 + 2 * wkday if wkday else 17
 
-def handle_lists(item, flags):
-    dataview = Dataview()
+def handle_lists(dataview, item):
+    # dataview = Dataview()
     doc_id = item.doc_id
 
     if 'k' in item and item['k']:
@@ -8549,31 +8550,33 @@ def handle_lists(item, flags):
         if doc_id in dataview.repeat_list:
             dataview.repeat_list.remove(doc_id)
 
-def handle_flags(dataview, item):
-    flags = ''
-    doc_id = item.doc_id
-    if doc_id in dataview.repeat_list:
-        flags += EtmChar.REPS
-    if doc_id in dataview.link_list:
-        flags += EtmChar.LINK_CHAR
-    if doc_id in dataview.konnected:
-        flags += EtmChar.KONNECT_CHAR
-    if doc_id in dataview.pinned_list:
-        flags += EtmChar.PIN_CHAR
-    if doc_id in dataview.timers:
-        flags += 't'
-    return flags
+# def handle_completions(dataview, item)
+
+# def handle_flags(dataview, item):
+#     flags = ''
+#     doc_id = item.doc_id
+#     if doc_id in dataview.repeat_list:
+#         flags += EtmChar.REPS
+#     if doc_id in dataview.link_list:
+#         flags += EtmChar.LINK_CHAR
+#     if doc_id in dataview.konnected:
+#         flags += EtmChar.KONNECT_CHAR
+#     if doc_id in dataview.pinned_list:
+#         flags += EtmChar.PIN_CHAR
+#     if doc_id in dataview.timers:
+#         flags += 't'
+#     return flags
 
 
 
-def handle_inbox(dataview, item, flags):
+def handle_inbox(dataview, item):
     dataview.inbox.append([0, summary, item.doc_id, None, None])
     dataview.id2relevant[item.doc_id] = today
 
-def handle_goal(dataview, item, flags):
+def handle_goal(dataview, item):
     raise NotImplementedError
 
-def handle_task(dataview, item, flags):
+def handle_task(dataview, item):
     """_summary_
     dated? (@s)
     recurring? (@r and/or @+)
@@ -8585,19 +8588,19 @@ def handle_task(dataview, item, flags):
         flags (_type_): _description_
     """
 
-def handle_alerts(dataview, item, flags):
+def handle_alerts(dataview, item):
     raise NotImplementedError
 
-def handle_task_with_jobs(dataview, item, flags):
+def handle_task_with_jobs(dataview, item):
     raise NotImplementedError
 
-def handle_task_without_jobs(dataview, item, flags):
+def handle_task_without_jobs(dataview, item):
     raise NotImplementedError
 
-def handle_journal(dataview, item, flags):
+def handle_journal(dataview, item):
     raise NotImplementedError   
 
-def handle_event(dataview, item, flags):
+def handle_event(dataview, item):
     raise NotImplementedError
 
 handle_dict = {
@@ -8610,7 +8613,7 @@ handle_dict = {
     'event': handle_event
 }
 
-def handle(dataview, item, flags):
+def handle(dataview, item):
     dataview = Dataview()
     itemtype = item.get('itemtype', '?')
     if itemtype == '?':
@@ -8620,13 +8623,13 @@ def handle(dataview, item, flags):
     
 
     if operation in handle_dict:
-        return handle_dict[operation](dataview, item, flags)
+        return handle_dict[operation](dataview, item)
     else:
         return "Invalid operation"
 
 
 # @benchmark
-def create_item_views(item, flags):
+def create_item_views(item):
     """creates views for an item
 
     Args:
@@ -8692,6 +8695,10 @@ def create_item_views(item, flags):
     # id2relevant = dataview.id2relevant
 
     doc_id = item.doc_id
+    flags = get_flags(
+        doc_id
+        )
+    dataview.id2flags[doc_id] = flags
     dataview.id2item[doc_id] = item
     rset = dr.rruleset()
 
@@ -8709,25 +8716,9 @@ def create_item_views(item, flags):
     jobs = item.get('j', None)
 
 
-    handle_lists(item, flags)
+    handle_lists(dataview, item)
 
     # if 'k' in item and item['k']:
-    #     for id in item['k']:
-    #         dataview.konnections_from.setdefault(doc_id, []). append(id)
-    #         dataview.konnections_to.setdefault(id, []).append(doc_id)
-
-    # if 'g' in item:
-    #     if doc_id not in link_list:
-    #         link_list.append(doc_id)
-    # else:
-    #     if doc_id in link_list:
-    #         link_list.remove(doc_id)
-    # if '+' in item or 'r' in item:
-    #     if doc_id not in repeat_list:
-    #         repeat_list.append(doc_id)
-    # else:
-    #     if doc_id in repeat_list:
-    #         repeat_list.remove(doc_id)
 
     if item['itemtype'] == '!':
         inbox.append([0, summary, item.doc_id, None, None])
@@ -9544,7 +9535,7 @@ def create_item_views(item, flags):
 
 items_cache = {}
 created_used = [0, 0]
-def get_item_views(item, flags):
+def get_item_views(item):
     global items_cache, aft_dt, bef_dt, width, omit, created_used
     if item.doc_id in items_cache:
         timestamp, views_hsh = items_cache[item.doc_id]
@@ -9555,7 +9546,7 @@ def get_item_views(item, flags):
 
     # logger.debug(f"creating cache for {item.doc_id}")
     created_used[0] += 1
-    views_hsh = create_item_views(item, flags)
+    views_hsh = create_item_views(item)
     timestamp = datetime.now().astimezone(ZoneInfo('UTC'))
     items_cache[item.doc_id] = (timestamp, views_hsh)
     return views_hsh
@@ -9669,10 +9660,9 @@ def schedule(
     created_used = [0, 0]
     get_items_timer = TimeIt('get_items')
     for item in db:
-        flags = get_flags(
-            item.doc_id, repeat_list, link_list, konnected, pinned_list, timers
-            )
-        views_hsh = get_item_views(item, flags)
+        doc_id = item.doc_id
+        views_hsh = get_item_views(item)
+        flags = dataview.id2flags[doc_id]
         rows.extend(views_hsh['rows'])
         done.extend(views_hsh['done'])
         effort.extend(views_hsh['effort'])
@@ -9716,9 +9706,7 @@ def schedule(
         item_0 = ' '
         rhc = item_0.center(rhc_width, ' ')
         doc_id = item[2]
-        flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
-        )
+        flags = dataview.id2flags[doc_id]
         current.append(
             {
                 'id': item[2],
@@ -9737,7 +9725,7 @@ def schedule(
         doc_id = item[2]
         job_id = item[3] if item[3] else ''
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
         try:
             current.append(
@@ -9778,7 +9766,7 @@ def schedule(
         rhc = item_0 + '  ' if item[0] else ''
         doc_id = item[2]
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
         current.append(
             {

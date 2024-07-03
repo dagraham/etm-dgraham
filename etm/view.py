@@ -1768,9 +1768,7 @@ def get_statusbar_right_text():
     ]
 
 def get_timer_text():
-    if not dataview.timers:
-        return []
-    dataview.get_timers()
+    dataview.update_active_timer()
     active = dataview.active_str
     if active:
         active_part = (
@@ -1779,7 +1777,6 @@ def get_timer_text():
         )
     else:
         active_part = ('class:status', '')
-    # logger.debug(f"timer text: {active_part = }")
     return [active_part]
 
 
