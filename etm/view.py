@@ -8,6 +8,7 @@ from __future__ import unicode_literals
 import sys
 import inspect
 import tinydb 
+import requests
 
 import prompt_toolkit.application 
 
@@ -822,24 +823,26 @@ def do_check_updates(*event):
         dataview.got_choice = coroutine
 
 
-def check_update():
-    url = 'https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etm/__version__.py'
-    try:
-        r = requests.get(url)
-        t = r.text.strip()
-        # t will be something like "version = '4.7.2'"
-        url_version = t.split(' ')[-1][1:-1]
-        logger.debug(f"url_version = {url_version}; etm_version = {etm_version}")
-        # split(' ')[-1] will give "'4.7.2'" and url_version will then be '4.7.2'
-    except:
-        url_version = None
-    if url_version is None:
-        res = 'Update information is currently unavailable. Please check your wifi connection.'
-        status_char = '?'
+def get_latest_version(package_name):
+    url = f"https://pypi.org/pypi/{package_name}/json"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        return data['info']['version']
     else:
-        # kluge for purely numeric versions
-        # if [int(x) for x in url_version.split('.')] > [int(x) for x in etm_version.split('.')]:
-        # from packaging.version parse
+        return None
+
+package_name = "etm-dgraham"
+latest_version = get_latest_version(package_name)
+
+# if latest_version:
+#     print(f"The latest version of {package_name} is {latest_version}.")
+# else:
+#     print(f"Failed to fetch the latest version of {package_name}.")
+    
+def check_update():
+    url_version = get_latest_version("etm-dgraham")
+    if url_version:
         if parse_version(url_version) > parse_version(etm_version):
             status_char = EtmChar.UPDATE_CHAR
             res = f"""\
@@ -847,9 +850,41 @@ An update is available to {url_version}. Do you want to update now?
 If so, a restart will be necessary for the changes to take effect."""
         else:
             status_char = ''
-            res = f'The installed version, {etm_version}, is the latest available.'
+            res = f'The latest version of etm-dgraham available from PyPi is {url_version}.  The installed version is {etm_version}.'
+    else:
+        res = 'Update information is currently unavailable. Please check your wifi connection.'
+        status_char = '?'
 
     return status_char, res
+
+    
+#     url = 'https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etm/__version__.py'
+#     try:
+#         r = requests.get(url)
+#         t = r.text.strip()
+#         # t will be something like "version = '4.7.2'"
+#         url_version = t.split(' ')[-1][1:-1]
+#         logger.debug(f"url_version = {url_version}; etm_version = {etm_version}")
+#         # split(' ')[-1] will give "'4.7.2'" and url_version will then be '4.7.2'
+#     except:
+#         url_version = None
+#     if url_version is None:
+#         res = 'Update information is currently unavailable. Please check your wifi connection.'
+#         status_char = '?'
+#     else:
+#         # kluge for purely numeric versions
+#         # if [int(x) for x in url_version.split('.')] > [int(x) for x in etm_version.split('.')]:
+#         # from packaging.version parse
+#         if parse_version(url_version) > parse_version(etm_version):
+#             status_char = EtmChar.UPDATE_CHAR
+#             res = f"""\
+# An update is available to {url_version}. Do you want to update now?
+# If so, a restart will be necessary for the changes to take effect."""
+#         else:
+#             status_char = ''
+#             res = f'The installed version, {etm_version}, is the latest available.'
+
+#     return status_char, res
 
 
 update_status = UpdateStatus()
