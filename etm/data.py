@@ -52,55 +52,6 @@ from etm.common import (
 from etm.model import item_details 
 # from etm.common import Period, is_aware, encode_datetime, decode_datetime
 
-##########################
-### begin TinyDB setup ###
-##########################
-
-# def db_replace(new):
-#     """
-#     Used with update to replace the original doc with new.
-#     """
-
-#     def transform(doc):
-#         # update doc to include key/values from new
-#         doc.update(new)
-#         # remove any key/values from doc that are not in new
-#         for k in list(doc.keys()):
-#             if k not in new:
-#                 del doc[k]
-
-#     return transform
-
-
-# def update_db(db, doc_id, hsh={}):
-#     old = db.get(doc_id=doc_id)
-#     if not old:
-#         logger.error(
-#             f'Could not get document corresponding to doc_id {doc_id}'
-#         )
-#         return
-#     if old == hsh:
-#         return
-#     hsh['modified'] = datetime.now()
-#     logger.debug(f"starting db.update")
-#     try:
-#         db.update(db_replace(hsh), doc_ids=[doc_id])
-#     except Exception as e:
-#         logger.error(
-#             f'Error updating document corresponding to doc_id {doc_id}\nhsh {hsh}\nexception: {repr(e)}'
-#         )
-
-
-# def write_back(db, docs):
-#     logger.debug(f"starting write_back")
-#     for doc in docs:
-#         try:
-#             doc_id = doc.doc_id
-#             update_db(db, doc_id, doc)
-#         except Exception as e:
-#             logger.error(f'write_back exception: {e}')
-
-
 local_tz = gettz()
 utc_tz = gettz('UTC')
 
@@ -759,11 +710,55 @@ def parse_rrwkday(s):
     obj = eval(f'dateutil.rrule.{s}')
     return obj
 
+########################################
+###### Begin RRule #####################
+########################################
+
+class RRuleSerializer(Serializer):
+    """
+    This class handles dateutil rruleset objects. Encode as string and decode as a rruleset object.
+    >>> rr = RRuleSerializer()
+    >>> rr.encode()
+    
+    >>> rr.decode()
+    
+    """
+
+    OBJ_CLASS = date
+
+    def encode(self, obj):
+        """
+        Serialize the naive date object without conversion.
+        """
+    def encode(obj):
+        parts = []
+        # parts.append("rrules:")
+        for rule in obj._rrule:
+            # parts.append(f"{textwrap.fill(str(rule))}")
+            parts.append(f"{'\\n'.join(str(rule).split('\n'))}")
+        # parts.append("exdates:")
+        for exdate in obj._exdate:
+            parts.append(f"EXDATE:{exdate}")
+        # parts.append("rdates:")
+        for rdate in obj._rdate:
+            parts.append(f"RDATE:{rdate}")
+        return "\n".join(parts)
+
+    def decode(self, s):
+        """
+        Return the serialization as a date object.
+        """
+        return rrulestr('\n'.join(rules_lst))
+
+
+########################################
+###### End RRule #######################
+########################################
+
 
 ########################################
 ###### Begin Mask ######################
 ########################################
-
 
 def encode(key, clear):
     enc = []

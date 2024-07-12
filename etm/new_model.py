@@ -4,6 +4,21 @@ from datetime import datetime, timedelta
 import pytz
 
 class Item:
+    rrule_methods = {
+        'r': 'frequency',
+        'i': 'interval',
+        's': 'setpositions',
+        'c': 'count',
+        'u': 'until',
+        'M': 'months',
+        'm': 'monthdays',
+        'W': 'weeknumbers',
+        'w': 'weekdays',
+        'h': 'hours',
+        'n': 'minutes',
+        'E': 'easterdays',
+    }
+ 
     def __init__(self, json_dict=None, input_string=None):
         self.created = self._get_current_timestamp()
         self.itemtype = None
@@ -46,7 +61,7 @@ class Item:
             if token.startswith('@'):
                 break
             summary_tokens.append(token)
-        self.summary = ' '.join(summary_tokens)
+        self.summary = (' '.join(summary_tokens)).strip()
         for token in tokens[len(summary_tokens) + 1:]:
             if token.startswith('@s'):
                 self.start = self._parse_datetime(token[3:].strip())
@@ -129,7 +144,7 @@ json_entry = {
         {
             "r": "y",
             "M": [11],
-            "w": ["{W}:4TH"]
+            "w": ["4TH"]
         }
     ],
     "modified": "{T}:20240712T1054"
