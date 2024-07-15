@@ -1,24 +1,149 @@
 import re
-from dateutil.rrule import rruleset, rrule, DAILY
+from dateutil import rrule 
+from dateutil.rrule import rruleset, DAILY, rrulestr
 from datetime import datetime, timedelta
+from dateutil.tz import gettz
 import pytz
 
+from typing import Union, Tuple, Optional
+from typing import List, Dict, Any, Callable, Mapping
+
+class Repeat:
+    
+    wkd_regex = re.compile(r'(?<![\w-])(-?[1-4]?)(MO|TU|WE|TH|FR|SA|SU)(?!\w)')
+
+    frequency = dict(
+        y=rrule.YEARLY, m=rrule.MONTHLY, w=rrule.WEEKLY, d=rrule.DAILY, h=rrule.HOURLY, n=rrule.MINUTELY
+        )
+    
+    parameters = dict(
+        i='interval', c='count', s='bysetpos', u='until', M='bymonth', m='bymonthday', W='byweekno', w='byweekday', h='byhour', n='byminute', E='byeaster'
+        )
+
+    @classmethod
+    def get_arg(cls, x: str):
+        if x.startswith('-'):
+            return f"{x}"
+        if x:
+            return f"+{x}"
+        return x 
+    
+    @classmethod
+    def wkdays_to_rrule(cls, wkd_str: str):
+        wkd_str = wkd_str.upper()
+        matches = re.findall(cls.wkd_regex, wkd_str)
+        good = [f"{x[0]}{x[1]}" for x in matches]
+        all = [x.strip() for x in wkd_str.split(',')]
+        bad = [x for x in all if x not in good]
+        res = []
+        print("matches", matches)
+        for x in matches:
+            # arg = f"+{x[0]}" if x[0] and not x[0].startswith('-') else x[0]
+            arg = cls.get_arg(x[0])
+            s = f"rrule.{x[1]}({arg})" if arg else f"rrule.{x[1]}"
+            print(f"{x = }, {arg = }, {s = }")
+            res.append(eval(s))
+        return res, good, bad
+    
+    @classmethod
+    def dt_to_naive(cls, dt: datetime)->datetime:
+        """Convert an 'aware' datetime to localtime and then remove the timezone information to make it 'naive'.
+
+        Args:
+            dt (datetime): an aware datetime.datetime object
+
+        Returns:
+            datetime: a naive datetime.datetime object
+        """
+        return dt if (
+            dt.tzinfo is None or 
+            dt.tzinfo.utcoffset(dt) is None
+            ) else dt.astimezone().replace(tzinfo=None)
+        
+    def __init__(self, obj: Any = None):
+        self.ruleset = rruleset()
+        self.startdt = None
+        if isinstance(obj, rrule.rruleset):
+            self.ruleset = obj
+        if isinstance(obj, dict) and 'r' in dict:
+            self.ruleset = self._from_dict(obj)
+        elif isinstance(obj, str):
+            self.ruleset = self._from_string(obj)
+
+    def _from_string(self, obj):
+        return rrulestr(obj)
+    
+    def _from_dict(self, obj: Dict[str, Any]):
+        """_summary_
+
+        Args:
+            obj (Dict[str, Any]): _description_
+
+        Raises:
+            NotImplementedError: _description_
+        """
+        raise NotImplementedError
+        
+    def to_string(self):
+        parts = []
+        # parts.append("rrules:")
+        for rule in self.ruleset._rrule:
+            # parts.append(f"{textwrap.fill(str(rule))}")
+            parts.append(f"{'\\n'.join(str(rule).split('\n'))}")
+        # parts.append("exdates:")
+        for exdate in self.ruleset._exdate:
+            parts.append(f"EXDATE:{exdate}")
+        # parts.append("rdates:")
+        for rdate in self.ruleset._rdate:
+            parts.append(f"RDATE:{rdate}")
+        return "\n".join(parts)
+    
+    def set_startdt(self, dt: datetime) -> None:
+        self.startdt = Repeat.dt_to_naive(dt)
+        
+    def add_dates(self, dates: List[datetime]) -> None:
+        for dt in dates:
+            self.ruleset.rdate(Repeat.dt_to_naive(dt))
+        
+    def rem_dates(self, dates: List[datetime]) -> None:
+        for dt in dates:
+            self.ruleset.exdate(Repeat.dt_to_naive(dt))
+            
+    def add_rule(self, rule: Dict[str, Any]) -> None:
+        if 'r' not in rule: 
+            raise ValueError("Missing 'r' in rule")
+        if rule['r'] not in Repeat.frequency:
+            raise ValueError(f"{rule['r']} is not a valid frequency")
+        hsh = {}
+        hsh['freq'] = Repeat.frequency[rule['r']]
+        for k, v in Repeat.parameters.items():
+            if k in rule:
+                hsh[v] = rule[k]
+        print(hsh)
+        # dtstart = self.startdt if self.startdt else datetime.now().astimezone().replace(tzinfo=None)
+        # lst.append(dtstart = {dtstart})
+        # lst.append("cache=True")
+        # print(lst, dtstart)
+        thisrule = rrule.rrule(**hsh)
+        print(thisrule)
+        self.ruleset.rrule(thisrule)        
+    
+    def parse_input(self, input_string):
+        self.rruleset = rruleset()
+        for rule in rrulestr(input_string):
+            self.ruleset.rrule(rule)
+
+# rstr ="""DTSTART:20241028T133000\nRRULE:FREQ=DAILY;COUNT=14
+# DTSTART:20241028T133000\nRRULE:FREQ=DAILY;INTERVAL=2;COUNT=7
+# EXDATE:2024-11-04 13:30:00
+# RDATE:2024-11-04 13:45:00
+# RDATE:2024-11-05 15:15:00"""
+
+# rr = Repeat()
+
+# print(f"{rr}\n{rr.to_string()}")
+
 class Item:
-    rrule_methods = {
-        'r': 'frequency',
-        'i': 'interval',
-        's': 'setpositions',
-        'c': 'count',
-        'u': 'until',
-        'M': 'months',
-        'm': 'monthdays',
-        'W': 'weeknumbers',
-        'w': 'weekdays',
-        'h': 'hours',
-        'n': 'minutes',
-        'E': 'easterdays',
-    }
- 
     def __init__(self, json_dict=None, input_string=None):
         self.created = self._get_current_timestamp()
         self.itemtype = None

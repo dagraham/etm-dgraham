@@ -724,12 +724,8 @@ class RRuleSerializer(Serializer):
     
     """
 
-    OBJ_CLASS = date
+    OBJ_CLASS = dateutil.rruleset
 
-    def encode(self, obj):
-        """
-        Serialize the naive date object without conversion.
-        """
     def encode(obj):
         parts = []
         # parts.append("rrules:")
@@ -746,9 +742,9 @@ class RRuleSerializer(Serializer):
 
     def decode(self, s):
         """
-        Return the serialization as a date object.
+        Return the serialization as a rruleset object.
         """
-        return rrulestr('\n'.join(rules_lst))
+        return rrulestr(s)
 
 
 ########################################
