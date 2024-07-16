@@ -1,7 +1,7 @@
 # tests/test_item.py
 from etm.new_model import Item, Repeat
 from datetime import datetime, date, timedelta
-from dateutil.rrule import rrule, rruleset, DAILY, rrulestr, MO, TU, WE, TH, FR, SA, SU
+from dateutil.rrule import rrule, rruleset, rrulestr, DAILY
 from dateutil.tz import gettz
 
 json_entry = {
@@ -9,34 +9,41 @@ json_entry = {
     "itemtype": "*",
     "summary": "Thanksgiving",
     "s": "{T}:20101126T0500",
-    "r": [
-        {
-            "r": "y",
-            "M": [11],
-            "w": ["{W}:4TH"]
-        }
-    ],
+    "r": "RRULE:FREQ=MONTHLY;BYMONTH=11;BYDAY=+4THU",
     "modified": "{T}:20240712T1054"
 }
+
+string_entry = """\
+DTSTART:20241028T133000
+RRULE:FREQ=DAILY;COUNT=14
+DTSTART:20241028T133000
+RRULE:FREQ=DAILY;INTERVAL=2;COUNT=7
+RDATE:20241104T134500
+RDATE:20241105T151500
+EXDATE:20241104T133000
+"""
 
 def test_wkdays_to_rrule():
     rr = Repeat()
     test_string = "MO, -1TU, 4FR, 1WE, -3TH, 2SA, 5SU, XYZ, -5MO"
-    rep, good, bad = rr.wkdays_to_rrule(test_string)
-    assert(good == ['MO', '-1TU', '4FR', '1WE', '-3TH', '2SA'])
+    good, bad = rr.wkdays_to_rrule(test_string)
+    assert(good == 'MO,-1TU,4FR,1WE,-3TH,2SA')
     assert(bad == ['5SU', 'XYZ', '-5MO'])
-    assert(rep == [MO, TU(-1), FR(+4), WE(+1), TH(-3), SA(+2)])
     
 
 def test_item_initialization():
-    item = Item(input_string="* carpe diem @s 2024/7/10 @r d")
+    item = Item("* carpe diem @s 2024/7/10 @r d")
     assert item.itemtype == "*"
     assert item.summary == "carpe diem"
     assert item.start.strftime("%Y/%m/%d") == "2024/07/10"
 
-    item_from_json = Item(json_dict=json_entry)
-    item_from_string = Item(input_string="* Thanksgiving @s 2010/11/26 @r y &M 11 &w 4TH")
+    item_from_json = Item(json_entry)
+    item_from_string = Item("* Thanksgiving @s 2010/11/26 @r y &M 11 &w 4TH")
+    assert item_from_string.summary == "Thanksgiving"
     assert item_from_json.summary == item_from_string.summary
+    print(f"{item_from_json.__dict__ = }")
+    assert item_from_json.recurrence.rulestr == ""
+    # assert to_string(item_from_json.recurrence.ruleset) == "RRULE:FREQ=DAILY;DTSTART=20240710T000000"
     
 def test_repeat_from_rruleset():
     pacific = gettz('US/Pacific')
@@ -47,7 +54,7 @@ def test_repeat_from_rruleset():
     utc = gettz('UTC')
     naive = None
 
-    tz = eastern
+    tz = None
     # Define the start date
 
     rules_lst = []
@@ -114,7 +121,7 @@ def test_repeat_from_instance():
     #     print(occurrence.strftime("  %a %Y-%m-%d %H:%M %Z %z"))
         
 
-    
+test_item_initialization()
 test_wkdays_to_rrule()
 test_repeat_from_rruleset()
 test_repeat_from_instance()
