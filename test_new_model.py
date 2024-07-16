@@ -29,7 +29,7 @@ def test_wkdays_to_rrule():
     good, bad = rr.wkdays_to_rrule(test_string)
     assert(good == 'MO,-1TU,4FR,1WE,-3TH,2SA')
     assert(bad == ['5SU', 'XYZ', '-5MO'])
-    
+
 
 def test_item_initialization():
     item = Item("* carpe diem @s 2024/7/10 @r d")
@@ -44,7 +44,7 @@ def test_item_initialization():
     print(f"{item_from_json.__dict__ = }")
     assert item_from_json.recurrence.rulestr == ""
     # assert to_string(item_from_json.recurrence.ruleset) == "RRULE:FREQ=DAILY;DTSTART=20240710T000000"
-    
+
 def test_repeat_from_rruleset():
     pacific = gettz('US/Pacific')
     mountain = gettz('America/Denver')
@@ -88,15 +88,15 @@ def test_repeat_from_rruleset():
     # Generate the occurrences of the event
     # occurrences = list(rules)
 
-    # start_date = datetime(2024, 10, 28, 13, 30).astimezone() 
+    # start_date = datetime(2024, 10, 28, 13, 30).astimezone()
     rr = Repeat(rules)
     # rr.set_startdt(start_date)
     # rr.add_rule(rhsh)
     occurrences = list(rr.ruleset)
     for occurrence in occurrences:
         print(occurrence.strftime("  %a %Y-%m-%d %H:%M %Z %z"))
-        
-    
+
+
 def test_repeat_from_instance():
     pacific = gettz('US/Pacific')
     mountain = gettz('America/Denver')
@@ -113,13 +113,13 @@ def test_repeat_from_instance():
     start_date = datetime(2024, 10, 28, 13, 30, tzinfo=tz)  # 0:30 on Mon Oct 28, 2024
     rr.set_startdt(start_date)
     print(f"start_date: {rr.startdt}")
-    
+
     rhsh = {'r': 'd', 'i': 3}
     rr.add_rule(rhsh)
     # occurrences = list(rr.ruleset)
     # for occurrence in occurrences:
     #     print(occurrence.strftime("  %a %Y-%m-%d %H:%M %Z %z"))
-        
+
 
 test_item_initialization()
 test_wkdays_to_rrule()
