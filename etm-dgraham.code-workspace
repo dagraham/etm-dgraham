@@ -5,6 +5,9 @@
 		}
 	],
 	"settings": {
-		"bookmarks.keepBookmarksOnLineDelete": true
+		"bookmarks.keepBookmarksOnLineDelete": true,
+		"cSpell.words": [
+			"rruleset"
+		]
 	}
 }

@@ -2,32 +2,32 @@
 
 import os
 import json
-from tinydb import where 
-from tinydb import JSONStorage, TinyDB, Storage, Query 
-from tinydb.table import Table, Document 
-from tinydb.middlewares import CachingMiddleware 
+from tinydb import where
+from tinydb import JSONStorage, TinyDB, Storage, Query
+from tinydb.table import Table, Document
+from tinydb.middlewares import CachingMiddleware
 from contextlib import contextmanager
 from typing import Dict, Any, Optional, Callable, Mapping
-from prompt_toolkit.lexers import PygmentsLexer 
+from prompt_toolkit.lexers import PygmentsLexer
 
-from tinydb import __version__ as tinydb_version 
-from tinydb_serialization import Serializer 
-from tinydb_serialization import SerializationMiddleware 
+from tinydb import __version__ as tinydb_version
+from tinydb_serialization import Serializer
+from tinydb_serialization import SerializationMiddleware
 import base64  # for do_mask
 import asyncio
 
 from datetime import datetime, date, timedelta
 
-import dateutil 
+import dateutil
 from dateutil.rrule import rrule
 from dateutil.tz import gettz
 
 import logging
 logger = logging.getLogger('etmmv')
 
-from dateutil.rrule import * 
+from dateutil.rrule import *
 import re
-from etm.common import ( 
+from etm.common import (
     WKDAYS_DECODE,
     WKDAYS_ENCODE,
     AWARE_FMT,
@@ -49,7 +49,7 @@ from etm.common import (
     update_db,
     db_replace,
 )
-from etm.model import item_details 
+from etm.model import item_details
 # from etm.common import Period, is_aware, encode_datetime, decode_datetime
 
 local_tz = gettz()
@@ -664,8 +664,7 @@ class DurationSerializer(Serializer):
 
 class WeekdaySerializer(Serializer):
     """
-    This class handles dateutil.rrule.weeday objects. Note in the following examples that
-    unquoted weekdays, eg. MO(-3), are dateutil.rrule.weekday objects.
+    This class handles dateutil.rrule.weekday objects. Note in the following examples that unquoted weekdays, eg. MO(-3), are dateutil.rrule.weekday objects.
     >>> wds = WeekdaySerializer()
     >>> wds.encode(MO(-3))
     '-3MO'
@@ -716,28 +715,24 @@ def parse_rrwkday(s):
 
 class RRuleSerializer(Serializer):
     """
-    This class handles dateutil rruleset objects. Encode as string and decode as a rruleset object.
-    >>> rr = RRuleSerializer()
-    >>> rr.encode()
-    
-    >>> rr.decode()
-    
+    This class handles dateutil rruleset objects. Encode as string and decode as a rruleset object treating all datetimes as naive.
+
+    Note that this does not use the WeekDaySerializer class and that the use of naive datetimes is needs to be reconciled with the aware/naive datetime used in the DateTimeSerializer and the PeriodSerializer.
     """
 
-    OBJ_CLASS = dateutil.rruleset
+    OBJ_CLASS = dateutil.rrule.rruleset
 
-    def encode(obj):
+    def encode(self, obj):
+        """
+        Return the serialization as a string.
+        """
         parts = []
-        # parts.append("rrules:")
         for rule in obj._rrule:
-            # parts.append(f"{textwrap.fill(str(rule))}")
-            parts.append(f"{'\\n'.join(str(rule).split('\n'))}")
-        # parts.append("exdates:")
+            parts.append(f"{'\n'.join(str(rule).split('\n'))}")
         for exdate in obj._exdate:
-            parts.append(f"EXDATE:{exdate}")
-        # parts.append("rdates:")
+            parts.append(f"EXDATE:{exdate.strftime('%Y%m%dT%H%M%S')}")
         for rdate in obj._rdate:
-            parts.append(f"RDATE:{rdate}")
+            parts.append(f"RDATE:{rdate.strftime('%Y%m%dT%H%M%S')}")
         return "\n".join(parts)
 
     def decode(self, s):

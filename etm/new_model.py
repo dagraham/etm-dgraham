@@ -8,7 +8,99 @@ import pytz
 from typing import Union, Tuple, Optional
 from typing import List, Dict, Any, Callable, Mapping
 
-def to_sting(rrset: rruleset)->str:
+type_keys = {
+    '*': 'event',
+    '-': 'task',
+    '✓': 'finished',
+    '%': 'journal',
+    '~': 'goal',
+    '!': 'inbox',
+}
+
+common_methods = list('cdgikKlmnstuxz')
+repeating_methods = list('+-o') + [
+    'rr',
+    'rc',
+    'rm',
+    'rE',
+    'rh',
+    'ri',
+    'rM',
+    'rn',
+    'rs',
+    'ru',
+    'rW',
+    'rw',
+]
+datetime_methods = list('abe')
+task_methods = list('efhp') + [
+    'jj',
+    'ja',
+    'jb',
+    'jd',
+    'je',
+    'jf',
+    'ji',
+    'jl',
+    'jm',
+    'jp',
+    'js',
+    'ju',
+]
+
+multiple_allowed = [
+                    'a', 'u', 't', 'k', 'K', 'jj', 'ji', 'js', 'jb', 'jp', 'ja', 'jd', 'je', 'jf', 'jl', 'jm', 'ju'
+                ]
+
+wrap_methods = ['w']
+
+required = {'*': ['s'], '-': [], '%': [], '~': ['s']}
+allowed = {
+    '*': common_methods + datetime_methods + repeating_methods + wrap_methods,
+    '-': common_methods + datetime_methods + task_methods + repeating_methods,
+    '%': common_methods + ['+'],
+    '~': common_methods + ['q', 'h'],
+}
+# inbox
+required['!'] = []
+allowed['!'] = (
+    common_methods + datetime_methods + task_methods + repeating_methods
+)
+
+requires = {
+    'a': ['s'],
+    'b': ['s'],
+    '+': ['s'],
+    'q': ['s'],
+    '-': ['rr'],
+    'rr': ['s'],
+    'js': ['s'],
+    'ja': ['s'],
+    'jb': ['s'],
+}
+
+
+def itemhsh_to_details(item: dict[str, str])->str:
+    format_dict = {
+        'itemtype': "",
+        'summary': " ",
+        's': f"\n@s ",
+        'e': f" @e ",
+        'r': f"\n@r ",
+    }
+
+    formatted_string = ""
+    for key in format_dict.keys():
+        if key in item:
+            formatted_string += f"{format_dict[key]}{item[key]}"
+    return formatted_string
+
+def ruleset_to_rulehsh(rrset: rruleset)->dict[str, str]:
+    # FIXME: fixme
+    raise NotImplementedError
+
+
+def ruleset_to_rulestr(rrset: rruleset)->str:
     print(f"rrset: {rrset}; {type(rrset) = }; {rrset.__dict__}")
     print(f"{list(rrset) = }")
     parts = []
@@ -43,7 +135,8 @@ class Repeat:
     """
     dt_format = '%Y%m%dT%H%M%S'
 
-    wkd_regex = re.compile(r'(?<![\w-])(-?[1-4]?)(MO|TU|WE|TH|FR|SA|SU)(?!\w)')
+    # wkd_regex = re.compile(r'(?<![\w-])(-?[1-4]?)(MO|TU|WE|TH|FR|SA|SU)(?!\w)')
+    wkd_regex = re.compile(r'(?<![\w-])([+-][1-4])?(MO|TU|WE|TH|FR|SA|SU)(?!\w)')
 
     # frequency = dict(
     #     y=rrule.YEARLY, m=rrule.MONTHLY, w=rrule.WEEKLY, d=rrule.DAILY, h=rrule.HOURLY, n=rrule.MINUTELY
@@ -56,10 +149,13 @@ class Repeat:
     #     i='interval', c='count', s='bysetpos', u='until', M='bymonth', m='bymonthday', W='byweekno', w='byweekday', h='byhour', n='byminute', E='byeaster'
     #     )
 
-    parameters = dict(
+    entry_to_param = dict(
         i='INTERVAL', c='COUNT', s='BYSETPOS', u='UNTIL', M='BYMONTH', m='BYMONTHDAY', W='bYWEEKNO', w='BYDAY', h='BYHOUR', n='BYMINUTE', E='BYEASTER'
         )
 
+    param_to_entry = dict(
+        INTERVAL='i', COUNT='c', BYSETPOS='s', UNTIL='u', BYMONTH='M', BYMONTHDAY='m', BYWEEKNO='W', BYDAY='w', BYHOUR='h', BYMINUTE='n', BYEASTER='E'
+    )
     @classmethod
     def signed_integer(cls, x: str)->str:
         """
@@ -202,7 +298,7 @@ class Repeat:
 
             rulelst = []
             rulelst.append(f"FREQ={Repeat.frequency[rule['r']]}")
-            for k, v in Repeat.parameters.items():
+            for k, v in Repeat.entry_to_param.items():
                 if k in rule:
                     if k == 'w':
                         _, bad = Repeat.wkdays_to_rrule(rule[k])
