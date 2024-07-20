@@ -1,4 +1,118 @@
-2024-06-25 02beb77 Daniel Graham
+2024-07-20 ae88da7 Daniel Graham
+    Further tweaks to bump.py to allow updating CHANGES.txt when the
+    version number is not updated.
+
+2024-07-20 f567812 Daniel Graham
+    Further tweaks to bump.py to allow updating CHANGES.txt when the
+    version number is not updated.
+
+2024-07-20 be1562c Daniel Graham
+    Further tweaks to bump.py to allow updating CHANGES.txt when the
+    version number is not updated.
+
+2024-07-20 f5bc226 Daniel Graham
+    Modified bump.py to allow updating CHANGES.txt when the version
+    number is not updated.
+
+2024-07-20 dd97782 Daniel Graham
+    Added version '20' to actions/checkout@v3 in ci.yml
+
+2024-07-20 49b8ea6 Daniel Graham
+    Added import ruamel.yaml to ci.yml
+
+2024-07-20 64de300 Daniel Graham
+    More import package additions to ci.yml
+
+2024-07-20 3e46cc6 Daniel Graham
+    Added import pygments to ci.yml
+
+2024-07-20 ef500f4 Daniel Graham
+    Removed import functools from ci.yml
+
+2024-07-20 45b20d6 Daniel Graham
+    More import package additions to ci.yml
+
+2024-07-20 150adac Daniel Graham
+    Added tinydb_smartcache to ci.yml
+
+2024-07-20 934eba2 Daniel Graham
+    Added prompt_toolkit to ci.yml
+
+2024-07-20 b4517cb Daniel Graham
+    Fixed typo in import statement
+
+2024-07-20 2370b0c Daniel Graham
+    Added tinydb to ci.yml
+
+2024-07-19 d51c5de Daniel Graham
+    Added test_data.py
+
+2024-07-19 d4f09ea Daniel Graham
+    Renamed test files
+
+2024-07-16 565b636 Daniel Graham
+    Added pytz
+
+2024-07-16 0b28792 Daniel Graham
+    Added python_dateutil install to ci.yml
+
+2024-07-16 d82618b Daniel Graham
+    removed test_item
+
+2024-07-16 394451a Daniel Graham
+    Removed trailing whitespace
+
+2024-07-16 7e5a608 Daniel Graham
+    2nd pass at Repeat and Item in new_model
+
+2024-07-15 46164c6 Daniel Graham
+    notebook tweaks
+
+2024-07-15 fd7d122 Daniel Graham
+    Added new_model. First pass at Repeat and Item classes
+
+2024-07-12 3d31ff6 Daniel Graham
+    new_model tweaks
+
+2024-07-12 f612b5a Daniel Graham
+    Added new_model.py and tests/test_item_initialization.py
+
+2024-07-10 b6bb3ba Daniel Graham
+    Added requests based proceedure to get the latest version from
+    PyPi.
+
+2024-07-03 741de44 Daniel Graham
+    Refactored flags
+
+2024-07-01 785bd54 Daniel Graham
+    Modified get_timers to only update status strings unless timers is
+    the active view. First pass at modularizing item processing.
+
+2024-06-30 aa62b4b Daniel Graham
+    Typo
+
+2024-06-28 b64815e Daniel Graham
+    Added cache for id2item to avoid lookups in forthcoming
+
+2024-06-27 c884e1a Daniel Graham
+    vs code workspace settings
+
+2024-06-27 015966a Daniel Graham
+    remove relevant() and refactored show_forthcoming()
+
+2024-06-27 10472c7 Daniel Graham
+    forthcoming
+
+2024-06-27 b7af13b Daniel Graham
+    3rd pass - removed relevant
+
+2024-06-27 7f38884 Daniel Graham
+    First pass at using item cache for relevant
+
+2024-06-26 c07f3ce Daniel Graham
+    Adoped singleton pattern for Dataview
+
+2024-06-25 f600621 Daniel Graham
     Tagged version 6.5.0. Implemented item cache for schedule views
 
 2024-06-25 81c8a71 Daniel Graham
@@ -75,121 +189,3 @@
 
 2024-06-10 a91a903 Daniel Graham
     Fixed 'int' bug in setting active_hsh
-
-2024-06-07 c0051ef Daniel Graham
-    Tagged version 6.4.2.
-
-2024-06-07 7b3e92d Daniel Graham
-    do_finish bug fix
-
-2024-06-07 8864153 Daniel Graham
-    Tagged version 6.4.1.
-
-2024-06-07 be2f6de Daniel Graham
-    Bug fix for missing period in goal quota.
-
-2024-06-07 4293602 Daniel Graham
-    Tagged version 6.4.0. Major updates to Goals
-
-2024-06-07 def62a0 Daniel Graham
-    Added dialog to specify the number of goal completions to record.
-
-2024-06-07 df02f9f Daniel Graham
-    Fixed overdue job bug
-
-2024-06-07 323cacf Daniel Graham
-    Added days period to goals. Added test for valid goal periods.
-    Added num_completed option to limit goal histories.
-
-2024-06-06 12cbc41 Daniel Graham
-    README tweaks
-
-2024-06-06 4ad079c Daniel Graham
-    updated goals.png
-
-2024-06-06 3c960e8 Daniel Graham
-    updated goals.png
-
-2024-06-06 bfa984a Daniel Graham
-    Updated make_examples for goals. Fixed logic in matching goal
-    periods. README image tweaks.
-
-2024-06-01 cc83d86 Daniel Graham
-    goals.png tweak
-
-2024-06-01 800e79d Daniel Graham
-    README tweaks
-
-2024-06-01 ec9bae9 Daniel Graham
-    README tweaks
-
-2024-06-01 9b54ab2 Daniel Graham
-    Tagged version 6.3.1.
-
-2024-06-01 d13c107 Daniel Graham
-    Updated goal.png
-
-2024-06-01 7b944c5 Daniel Graham
-    Tweaks for make_examples, goals.png and README
-
-2024-06-01 b70e39a Daniel Graham
-    README tweaks
-
-2024-06-01 0fa5a1d Daniel Graham
-    README tweaks
-
-2024-06-01 7e1be56 Daniel Graham
-    Fixed bug in processing yearly goals
-
-2024-06-01 0ae3c60 Daniel Graham
-    Use lorem phrase for goals. In item.get_repetititons, only update
-    hash if modified.
-
-2024-06-01 d2daf8d Daniel Graham
-    Added goals and dst tests to make_examples. Fixed bug in yearly
-    fraction.
-
-2024-06-01 37adfc3 Daniel Graham
-    README tweaks
-
-2024-05-31 16cb122 Daniel Graham
-    Tagged version 6.3.0. Added goal period options for year, quarter
-    and month. Added caching for non-weekly views. Fixed timezone
-    issues associated with the transistions between daylight saving
-    and standard time.
-
-2024-05-31 98f34e5 Daniel Graham
-    Fixed timezone issues associated with daylight/standard time
-    transitions. Flag instances falling within transition.
-
-2024-05-29 45a2a9e Daniel Graham
-    Replaced zoneinto ZoneInfo with dateutil tz gettz - seems to fix
-    daylight savings to standard time problem.
-
-2024-05-29 511a4c1 Daniel Graham
-    typo
-
-2024-05-29 7a044c7 Daniel Graham
-    goal tweaks
-
-2024-05-29 7263136 Daniel Graham
-    Message tweak
-
-2024-05-29 04add19 Daniel Graham
-    Goal category tweaks
-
-2024-05-28 367b3e1 Daniel Graham
-    Use 'w' as default quota period for compatibility with previous
-    version. Formatting tweaks for goals.
-
-2024-05-27 61bf526 Daniel Graham
-    Added year, quarter and month to periods supported by goals.
-
-2024-05-25 92dce3e Daniel Graham
-    Clean up - caches for cacheds views work
-
-2024-05-22 331f590 Daniel Graham
-    Tagged version 6.2.7.
-
-2024-05-22 25c994b Daniel Graham
-    Fixed date vs datetime bug
