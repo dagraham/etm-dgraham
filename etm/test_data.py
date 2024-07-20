@@ -1,8 +1,7 @@
 import sys
 import os
 
-# Add the directory containing B.py to the Python path
-sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.dirname(__file__)) for pytest
 
 from data import RRuleSerializer
 from dateutil.rrule import rrule, rruleset, rrulestr, DAILY

@@ -31,6 +31,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install --upgrade python_dateutil
           pip install --upgrade pytz
+          pip install --upgrade tinydb
           pip install pytest
 
       - name: Run tests
