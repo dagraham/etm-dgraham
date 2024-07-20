@@ -160,4 +160,12 @@ if new_version:
             print(res)
 
 else:
-    print(f'retained version: {version}')
+    ans = input(f'Update CHANGES.txt anyway: [yN] ')
+    if ans.lower() != 'y':
+        print(f'retained version: {version}')
+        sys.exit()
+    check_output(
+        # f"git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} --no-walk --tags >> CHANGES.txt"
+        f"git log --pretty=format:'%as %h %an%n%w(70,4,4)%B' --max-count={count} > CHANGES.txt"
+    )
+    print(f'updated CHANGES.txt and retained version: {version}')
