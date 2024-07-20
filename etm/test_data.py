@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append(os.path.dirname(__file__)) for pytest
+sys.path.append(os.path.dirname(__file__)) # for pytest
 
 from data import RRuleSerializer
 from dateutil.rrule import rrule, rruleset, rrulestr, DAILY
