@@ -120,7 +120,15 @@ print(f'\nThe tag message for the new version will be:\n{tmsg}\n')
 
 ans = input(f'Commit and tag new version: {new_version}? [yN] ')
 if ans.lower() != 'y':
-    print('cancelled')
+    ans = input(f'Update CHANGES.txt anyway: [yN] ')
+    if ans.lower() != 'y':
+        print(f'retained version: {version}')
+        sys.exit()
+    check_output(
+        # f"git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} --no-walk --tags >> CHANGES.txt"
+        f"git log --pretty=format:'%as %h %an%n%w(70,4,4)%B' --max-count={count} > CHANGES.txt"
+    )
+    print(f'updated CHANGES.txt and retained version: {version}')
     sys.exit()
 
 if new_version:
@@ -160,12 +168,5 @@ if new_version:
             print(res)
 
 else:
-    ans = input(f'Update CHANGES.txt anyway: [yN] ')
-    if ans.lower() != 'y':
-        print(f'retained version: {version}')
-        sys.exit()
-    check_output(
-        # f"git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} --no-walk --tags >> CHANGES.txt"
-        f"git log --pretty=format:'%as %h %an%n%w(70,4,4)%B' --max-count={count} > CHANGES.txt"
-    )
-    print(f'updated CHANGES.txt and retained version: {version}')
+    print(f'retained version: {version}')
+    sys.exit()
