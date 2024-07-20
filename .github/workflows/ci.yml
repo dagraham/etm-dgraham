@@ -39,7 +39,7 @@ jobs:
           pip install --upgrade logging
           pip install --upgrade jinja2
           pip install --upgrade pygments
-          pip install --upgrade ruamel
+          pip install --upgrade ruamel.yaml
           pip install --upgrade six
           pip install --upgrade style
           pip install --upgrade wcwidth
