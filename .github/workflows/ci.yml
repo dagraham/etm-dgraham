@@ -32,6 +32,8 @@ jobs:
           pip install --upgrade python_dateutil
           pip install --upgrade pytz
           pip install --upgrade tinydb
+          pip install --upgrade tinydb_serialization
+          pip install --upgrade tinydb_smartcache
           pip install --upgrade prompt_toolkit
           pip install pytest
 
