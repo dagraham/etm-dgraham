@@ -35,7 +35,6 @@ jobs:
           pip install --upgrade tinydb_serialization
           pip install --upgrade tinydb_smartcache
           pip install --upgrade prompt_toolkit
-          pip install --upgrade functools
           pip install --upgrade typing
           pip install --upgrade logging
           pip install --upgrade jinja2
