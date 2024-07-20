@@ -87,6 +87,7 @@ if ext and ext in extension_options:
 import os
 
 version_file = os.path.join(os.getcwd(), 'etm', '__version__.py')
+count = 60
 
 print('\n'.join(opts))
 res = input(f'Which new version? ')
