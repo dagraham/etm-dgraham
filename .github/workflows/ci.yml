@@ -38,6 +38,7 @@ jobs:
           pip install --upgrade typing
           pip install --upgrade logging
           pip install --upgrade jinja2
+          pip install --upgrade pygments
 
           pip install pytest
 
