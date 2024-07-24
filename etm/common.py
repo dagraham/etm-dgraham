@@ -1,6 +1,6 @@
 # pyright: reportUndefinedVariable=false
-from dateutil.parser import parse as dateutil_parse 
-from dateutil.parser import parserinfo 
+from dateutil.parser import parse as dateutil_parse
+from dateutil.parser import parserinfo
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
 import platform
@@ -14,11 +14,11 @@ from shlex import split as qsplit
 import contextlib, io
 import subprocess   # for check_output
 
-from pygments.lexer import RegexLexer 
-from pygments.token import Keyword 
-from pygments.token import Literal 
-from pygments.token import Operator 
-from pygments.token import Comment 
+from pygments.lexer import RegexLexer
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Operator
+from pygments.token import Comment
 
 import functools
 from time import perf_counter
@@ -29,15 +29,15 @@ import logging.config
 logger = logging.getLogger('etm')
 # settings = None
 
-import etm.__version__ as version 
-from ruamel.yaml import __version__ as ruamel_version 
-from dateutil import __version__ as dateutil_version 
-from tinydb import __version__ as tinydb_version 
-from jinja2 import __version__ as jinja2_version 
-from prompt_toolkit import __version__ as prompt_toolkit_version 
+import etm.__version__ as version
+from ruamel.yaml import __version__ as ruamel_version
+from dateutil import __version__ as dateutil_version
+from tinydb import __version__ as tinydb_version
+from jinja2 import __version__ as jinja2_version
+from prompt_toolkit import __version__ as prompt_toolkit_version
 
 from time import perf_counter as timer
-from etm.make_examples import make_examples 
+from etm.make_examples import make_examples
 ETMDB = DBITEM = DBARCH = dataview = data_changed = None
 
 def is_aware(dt):
@@ -599,39 +599,58 @@ class TDBLexer(RegexLexer):
 def nowrap(txt, indent=3, width=shutil.get_terminal_size()[0] - 3):
     return txt
 
-def wrap(txt, indent=1, width=shutil.get_terminal_size()[0] - 3):
+def wrap(txt_to_wrap: str, indent: int = 3, width: int = shutil.get_terminal_size()[0] - 3) -> str:
     """
-    Wrap text to terminal width using indent spaces before each line.
-    >>> txt = "Now is the time for all good men to come to the aid of their country. " * 5
-    >>> res = wrap(txt, 4, 60)
-    >>> print(res)
-    Now is the time for all good men to come to the aid of
-        their country. Now is the time for all good men to
-        come to the aid of their country. Now is the time
-        for all good men to come to the aid of their
-        country. Now is the time for all good men to come
-        to the aid of their country. Now is the time for
-        all good men to come to the aid of their country.
+    Split text on newlines into paragraphs. Then preserving the
+    indentation of the beginning of each paragraph, wrap each paragraph to the specified width using the initial indentation plus the number of spaces specified by the indent parameter as the subsequent indentation.
     """
-    para = [x.rstrip() for x in txt.split('\n')]
+    para = [x.rstrip() for x in txt_to_wrap.split('\n')]
     tmp = []
-    first = True
     for p in para:
-        if first:
-            initial_indent = ''
-            first = False
-        else:
-            initial_indent = ' ' * indent
+        p_ = p.lstrip(' ')
+        i_ = len(p) - len(p_)
+        initial_indent = ' ' * i_
+        subsequent_indent = ' ' * (indent + i_)
         tmp.append(
             textwrap.fill(
-                p,
+                p_,
                 initial_indent=initial_indent,
-                subsequent_indent=' ' * indent,
+                subsequent_indent=subsequent_indent,
                 width=width - indent - 1,
             )
         )
     return '\n'.join(tmp)
 
+def unwrap(wrapped_text: str) -> str:
+    # Split the text into paragraphs
+    paragraphs = wrapped_text.split('\n')
+
+    # Remove indentations and join lines within each paragraph
+    unwrapped_paragraphs = []
+    current_paragraph = []
+
+    first = True
+    for line in paragraphs:
+        if line.strip() == '':
+            # Paragraph separator
+            if current_paragraph:
+                unwrapped_paragraphs.append(' '.join(current_paragraph))
+                current_paragraph = []
+            unwrapped_paragraphs.append('')
+            first = True
+        elif first:
+            current_paragraph.append(line)
+            first = False
+        else:
+            # Remove leading spaces used for indentation
+            current_paragraph.append(line.strip())
+
+    # Add the last paragraph if there is any
+    if current_paragraph:
+        unwrapped_paragraphs.append(' '.join(current_paragraph))
+
+    # Join the unwrapped paragraphs
+    return '\n'.join(unwrapped_paragraphs)
 
 def parse(s, **kwd):
     # enable pi when read by main and settings is available

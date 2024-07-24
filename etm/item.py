@@ -1,4 +1,4 @@
-import re
+import re, shutil
 from dateutil import rrule
 from dateutil.rrule import rruleset, rrulestr
 from datetime import datetime, timedelta
@@ -7,6 +7,7 @@ import pytz
 
 from typing import Union, Tuple, Optional
 from typing import List, Dict, Any, Callable, Mapping
+from common import wrap
 
 type_keys = {
     '*': 'event',
@@ -16,8 +17,8 @@ type_keys = {
     '~': 'goal',
     '!': 'inbox',
 }
-
 common_methods = list('cdgikKlmnstuxz')
+
 repeating_methods = list('+-o') + [
     'rr',
     'rc',
@@ -32,7 +33,9 @@ repeating_methods = list('+-o') + [
     'rW',
     'rw',
 ]
+
 datetime_methods = list('abe')
+
 task_methods = list('efhp') + [
     'jj',
     'ja',
@@ -49,18 +52,20 @@ task_methods = list('efhp') + [
 ]
 
 multiple_allowed = [
-                    'a', 'u', 't', 'k', 'K', 'jj', 'ji', 'js', 'jb', 'jp', 'ja', 'jd', 'je', 'jf', 'jl', 'jm', 'ju'
-                ]
+    'a', 'u', 't', 'k', 'K', 'jj', 'ji', 'js', 'jb', 'jp', 'ja', 'jd', 'je', 'jf', 'jl', 'jm', 'ju'
+    ]
 
 wrap_methods = ['w']
 
 required = {'*': ['s'], '-': [], '%': [], '~': ['s']}
+
 allowed = {
     '*': common_methods + datetime_methods + repeating_methods + wrap_methods,
     '-': common_methods + datetime_methods + task_methods + repeating_methods,
     '%': common_methods + ['+'],
     '~': common_methods + ['q', 'h'],
 }
+
 # inbox
 required['!'] = []
 allowed['!'] = (
@@ -79,7 +84,7 @@ requires = {
     'jb': ['s'],
 }
 
-
+# NOTE: experiment for replacing jinja2
 def itemhsh_to_details(item: dict[str, str])->str:
     format_dict = {
         'itemtype': "",
@@ -98,7 +103,6 @@ def itemhsh_to_details(item: dict[str, str])->str:
 def ruleset_to_rulehsh(rrset: rruleset)->dict[str, str]:
     # FIXME: fixme
     raise NotImplementedError
-
 
 def ruleset_to_rulestr(rrset: rruleset)->str:
     print(f"rrset: {rrset}; {type(rrset) = }; {rrset.__dict__}")
@@ -120,64 +124,51 @@ class Repeat:
     """_summary_
     Thinking: This will be called by/from Item instances.
 
-    If the instance is created from the tinydb, then it will have an 'r' attribute that contains the rulestring.
+    If the instance is created from the tinydb, then it will have an 'r' attribute that contains a rruleset object.
 
-    If the instance is being created from user input, then
+    If the instance is being created from user input, then it will have an 'r' attribute that contains an entry string that needs to be converted to a rruleset object.
 
-    Raises:
-        NotImplementedError: _description_
-        ValueError: _description_
-        ValueError: _description_
-        ValueError: _description_
+    To display or edit the rruleset, a method will be needed to convert the rruleset to an entry string.
 
-    Returns:
-        _type_: _description_
+    methods needed:
+        - entry_to_rruleset
+        - rruleset_to_entry
+        - rruleset_to_details
+
+    rruleset methods needed:
+        - after(dt, inc=False)
+            Returns the first recurrence after the given datetime instance. The inc keyword defines what happens if dt is an occurrence. With inc=True, if dt itself is an occurrence, it will be returned.
+
+        - before(dt, inc=False)
+            Returns the last recurrence before the given datetime instance. The inc keyword defines what happens if dt is an occurrence. With inc=True, if dt itself is an occurrence, it will be returned.
+
+        - between(after, before, inc=False, count=1)
+            Returns all the occurrences of the rrule between after and before. The inc keyword defines what happens if after and/or before are themselves occurrences. With inc=True, they will be included in the list, if they are found in the recurrence set.
+
+        - count()
+            Returns the number of recurrences in this set. It will have go through the whole recurrence, if this hasn’t been done before.
     """
     dt_format = '%Y%m%dT%H%M%S'
-
-    # wkd_regex = re.compile(r'(?<![\w-])(-?[1-4]?)(MO|TU|WE|TH|FR|SA|SU)(?!\w)')
+    wkd_list = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
+    wkd_str = ', '.join(wkd_list)
     wkd_regex = re.compile(r'(?<![\w-])([+-][1-4])?(MO|TU|WE|TH|FR|SA|SU)(?!\w)')
-
-    # frequency = dict(
-    #     y=rrule.YEARLY, m=rrule.MONTHLY, w=rrule.WEEKLY, d=rrule.DAILY, h=rrule.HOURLY, n=rrule.MINUTELY
-    #     )
-
     frequency = dict(
         y='YEARLY', m='MONTHLY', w='WEEKLY', d='DAILY', h='HOURLY', n='MINUTELY')
-
-    # parameters = dict(
-    #     i='interval', c='count', s='bysetpos', u='until', M='bymonth', m='bymonthday', W='byweekno', w='byweekday', h='byhour', n='byminute', E='byeaster'
-    #     )
-
     entry_to_param = dict(
         i='INTERVAL', c='COUNT', s='BYSETPOS', u='UNTIL', M='BYMONTH', m='BYMONTHDAY', W='bYWEEKNO', w='BYDAY', h='BYHOUR', n='BYMINUTE', E='BYEASTER'
         )
-
     param_to_entry = dict(
         INTERVAL='i', COUNT='c', BYSETPOS='s', UNTIL='u', BYMONTH='M', BYMONTHDAY='m', BYWEEKNO='W', BYDAY='w', BYHOUR='h', BYMINUTE='n', BYEASTER='E'
     )
-    @classmethod
-    def signed_integer(cls, x: str)->str:
-        """
-        Returns a string representation of the 'integer' argument `x`.
-
-        Parameters:
-            x (str): A string representation of an integer such as '-2' or '3'.
-
-        Returns:
-            str: The 'signed' string representation of `x`.
-            If `x` cannot be converted to an integer, None is returned.
-            Else if `int(x)` is negative, then `x` is returned as is.
-            Else `x` is returned prefixed with a '+' sign, e.g., '3' is returned as '+3'.
-
-            The processing of 'byweekday' in dateutil.rrule requires, e.g., `rrule.MO(+3)` for the 3rd Monday in the month.
-        """
-        try:
-            y = int(x)
-        except ValueError:
-            return None
-        else:
-            return f"+{y}" if y > 0 else str(y)
+    def split_int_str(s):
+        match = re.match(r'^([+-]?\d*)(.*)$', s)
+        if match:
+            integer_part = match.group(1)
+            string_part = match.group(2)
+            # Convert integer_part to an integer if it's not empty, otherwise None
+            integer_part = integer_part if integer_part else None
+            return integer_part, string_part
+        return None, s  # Default case if no match is found
 
     @classmethod
     def wkdays_to_rrule(cls, wkd_str: str):
@@ -197,17 +188,33 @@ class Repeat:
         _ = [f"{x[0]}{x[1]}" for x in matches]
         all = [x.strip() for x in wkd_str.split(',')]
         bad = [x for x in all if x not in _]
+        problem_str = ""
+        problems = []
+        for x in bad:
+            probs = []
+            i, w = cls.split_int_str(x)
+            if i is not None:
+                abs_i = abs(int(i))
+                if abs_i > 4 or abs_i == 0:
+                    probs.append(f"{i} must be between -4 and -1 or between +1 and +4")
+                elif not (i.startswith('+') or i.startswith('-')):
+                    probs.append(f"{i} must begin with '+' or '-'")
+            if w not in cls.wkd_list:
+                probs.append(f"{w} must be a weekday abbreviation from {cls.wkd_str}")
+            if probs:
+                problems.append(f"In '{x}': {', '.join(probs)}")
+            else:
+                # undiagnosed problem
+                problems.append(f"{x} is invalid")
+        if problems:
+            problem_str = wrap(f"Problem entries: {', '.join(bad)}\n{'\n'.join(problems)}")
         good = []
-        # print("matches", matches)
         for x in matches:
-            # arg = f"+{x[0]}" if x[0] and not x[0].startswith('-') else x[0]
-            arg = cls.signed_integer(x[0])
-            # s = f"rrule.{x[1]}({arg})" if arg else f"rrule.{x[1]}"
-            s = f"{x[0]}{x[1]}" if arg else f"{x[1]}"
-            # print(f"{x = }, {arg = }, {s = }")
-            # good.append(eval(s))
-            good.append(s)
-        return ','.join(good), bad
+            s = f"{x[0]}{x[1]}" if x[0] else f"{x[1]}"
+            good.append(s)\
+        # good_str will be '' if good is an empty list
+        good_str = ','.join(good)
+        return good_str, problem_str
 
     @classmethod
     def dt_to_naive(cls, dt: datetime)->str:
@@ -266,14 +273,10 @@ class Repeat:
 
     def to_string(self):
         parts = []
-        # parts.append("rrules:")
         for rule in self.ruleset._rrule:
-            # parts.append(f"{textwrap.fill(str(rule))}")
             parts.append(f"{'\\n'.join(str(rule).split('\n'))}")
-        # parts.append("exdates:")
         for exdate in self.ruleset._exdate:
             parts.append(f"EXDATE:{exdate}")
-        # parts.append("rdates:")
         for rdate in self.ruleset._rdate:
             parts.append(f"RDATE:{rdate}")
         return "\n".join(parts)
@@ -289,14 +292,14 @@ class Repeat:
         for dt in dates:
             self.ruleset.exdate(Repeat.dt_to_naive(dt))
 
-    def add_rule(self, rule: Union[dict, str]) -> None:
+    def add_rule(self, dtstart: datetime = None, rule: Union[dict, str] = None) -> None:
         if isinstance(rule, dict):
             if 'r' not in rule:
                 raise ValueError("Missing 'r' in rule")
             if rule['r'] not in Repeat.frequency:
                 raise ValueError(f"{rule['r']} is not a valid frequency")
 
-            rulelst = []
+            rulelst = [f"{DTSTART}=self.startdt.strftime(Repeat.dt_format)"] if self.startdt else []
             rulelst.append(f"FREQ={Repeat.frequency[rule['r']]}")
             for k, v in Repeat.entry_to_param.items():
                 if k in rule:
@@ -312,11 +315,6 @@ class Repeat:
                             val = rule[k]
                         rulelst.append(f"{v}={val}")
             print("rulelst:", rulelst)
-            # dtstart = self.startdt if self.startdt else datetime.now().astimezone().replace(tzinfo=None)
-            # lst.append(dtstart = {dtstart})
-            # lst.append("cache=True")
-            # print(lst, dtstart)
-            # thisrule = rrule.rrule(**hsh)
             self.rulestr = f"RRULE:{';'.join(rulelst)}"
             print("self.rulestr:", self.rulestr)
             print(f"{rrulestr(self.rulestr) = }")
@@ -338,17 +336,19 @@ class Repeat:
 
 class Item:
     def __init__(self, obj: Union[dict, str] = None):
+        print(f"obj = {obj}")
         self.created = self._get_current_timestamp()
-        self.itemtype = None
-        self.summary = None
-        self.start = None
-        self.end = None
-        self.recurrence = Repeat()
-        self.rruleset = None
+        # self.itemtype = None
+        # self.summary = None
+        # self.start = None
+        # self.end = None
+        # self.recurrence = Repeat()
+        # self.rruleset = None
         if isinstance(obj, dict):
             self._init_from_dict(obj)
         elif isinstance(obj, str):
             # handle user input string
+            print(f"obj = {obj}")
             self.parse_input(obj)
 
     def _get_current_timestamp(self):
@@ -356,50 +356,73 @@ class Item:
 
     def _init_from_dict(self, obj):
         self.created = obj.get("created", self.created)
-        self.itemtype = obj.get("itemtype")
-        self.summary = obj.get("summary")
-        self.start = self._parse_datetime(obj.get("s", "").replace("{T}:", ""))
-        self.end = self._parse_datetime(obj.get("e", "").replace("{T}:", ""))
-        if "r" in obj:
-            self.recurrence = Repeat()
-            if isinstance(obj["r"], list):
-                for rule in obj["r"]:
-                    print(f"adding rule: {rule}")
-                    self.recurrence.add_rule(rule)
-            else:
-                print(f"adding rule: {obj['r']}")
-                self.recurrence.add_rule(obj["r"])
-            # self.recurrence.rulestr = self.recurrence.to_string()
-            print(f"{self.recurrence.rulestr = }")
-            # self.recurrence.ruleset = rrulestr(self.recurrence.rulestr)
+        # self.itemtype = obj.get("itemtype")
+        # self.summary = obj.get("summary")
+        self.entry = None
+        self.tokens = None
+
+        # if "r" in obj:
+        #     self.recurrence = Repeat()
+        #     startdt  = obj.get("s", "")
+        #     dtstart = startdt.strftime(self.recurrence.dt_format) if startdt else None
+        #     if isinstance(obj["r"], list):
+        #         for rule in obj["r"]:
+        #             print(f"adding rule: {rule}")
+        #             self.recurrence.add_rule(rule)
+        #     else:
+        #         print(f"adding rule: {obj['r']}")
+        #         self.recurrence.add_rule(obj["r"])
+        #     # self.recurrence.rulestr = self.recurrence.to_string()
+        #     print(f"{self.recurrence.rulestr = }")
+        #     # self.recurrence.ruleset = rrulestr(self.recurrence.rulestr)
 
     def parse_input(self, obj: str):
         """
         Parses the input string to extract tokens, then processes and validate the tokens.
         """
-        tokens = self._tokenize(obj)
-        print(f"{tokens = }")
-        self._parse_tokens(tokens)
+        print(f"obj = {obj}")
+        self._tokenize(obj)
+        print(f"{self.tokens = }")
+        self._parse_tokens()
         self._validate()
 
-    def _tokenize(self, obj):
+    def _tokenize(self, entry: str):
+        print(f"entry = {entry}")
+        self.entry = entry
         pattern = r'(@\w+ [^@&]+)|(&\w+ \S+)|(^\S+)|(\S[^@&]*)'
-        matches = re.findall(pattern, obj)
-        return [match[0] or match[1] or match[2] or match[3] for match in matches if match[0] or match[1] or match[2] or match[3]]
+        matches = re.finditer(pattern, self.entry)
+        tokens_with_positions = []
+        for match in matches:
+            # Get the matched token
+            token = match.group(0)
+            # Get the start and end positions
+            start_pos = match.start()
+            end_pos = match.end()
+            # Append the token and its positions as a tuple
+            tokens_with_positions.append((token, start_pos, end_pos))
+        # print(f"{tokens_with_positions =}")
+        self.tokens = tokens_with_positions
 
-    def _parse_tokens(self, tokens):
-        self.itemtype = tokens[0][0]
+    def get_token_at_cursor(self, cursor_pos):
+        for token, start_pos, end_pos in self.tokens:
+            if start_pos <= cursor_pos < end_pos:
+                return token, start_pos, end_pos
+        return None, None, None  # No token found at the cursor position
+
+    def _parse_tokens(self):
+        # self.tokens = list[tuple(token, start, end)]
+        self.itemtype = self.tokens[0][0]
         summary_tokens = []
         recurrence_attributes = {}
         processing_r = False
         job_attributes = {}
         processing_j = False
-        for token in tokens[1:]:
+        for token, start, end in self.tokens[1:]:
             if token.startswith('@'):
                 break
             summary_tokens.append(token)
         self.summary = (' '.join(summary_tokens)).strip()
-        for token in tokens[len(summary_tokens) + 1:]:
+        for token, start, end in self.tokens[len(summary_tokens) + 1:]:
             print(f"{processing_r = }; {token = }")
             if token.startswith('&'):
                 attribute, value = self._parse_attribute(token)
@@ -479,22 +502,22 @@ class Item:
         if self.recurrence and not self.start:
             raise ValueError("Items with recurrence (@r) must have a start datetime (@s)")
 
-    def to_dict(self):
-        data = {
-            "created": self.created,
-            "itemtype": self.itemtype,
-            "summary": self.summary,
-        }
-        if self.start:
-            data["s"] = "{T}:" + self.start.strftime("%Y%m%dT%H%M%S")
-        if self.end:
-            data["e"] = "{T}:" + (self.start + self.end).strftime("%Y%m%dT%H%M%S")
-        if self.recurrence:
-            data["r"] = self.recurrence
-        return data
+    # def to_dict(self):
+    #     data = {
+    #         "created": self.created,
+    #         "itemtype": self.itemtype,
+    #         "summary": self.summary,
+    #     }
+    #     # if self.startdt:
+    #     #     data["s"] = "{T}:" + self.start.strftime("%Y%m%dT%H%M%S")
+    #     # if self.end:
+    #     #     data["e"] = "{T}:" + (self.start + self.end).strftime("%Y%m%dT%H%M%S")
+    #     if self.recurrence:
+    #         data["r"] = self.recurrence
+    #     return data
 
-    def __repr__(self):
-        return str(self.to_dict())
+    # def __repr__(self):
+    #     return str(self.to_dict())
 
 # Example usage
 json_entry = {

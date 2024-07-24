@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(__file__)) # for pytest
-from new_model import Item, Repeat
+from item import Item, Repeat
 from datetime import datetime, date, timedelta
 from dateutil.rrule import rrule, rruleset, rrulestr, DAILY
 from dateutil.tz import gettz
@@ -27,11 +27,13 @@ EXDATE:20241104T133000
 
 def test_wkdays_to_rrule():
     rr = Repeat()
-    test_string = "MO, -1TU, +4FR, +1WE, -3TH, +2SA, +5SU, XYZ, -5MO"
-    good, bad = rr.wkdays_to_rrule(test_string)
-    print(f"{good = }; {bad = }")
-    assert(good == 'MO,-1TU,+4FR,+1WE,-3TH,+2SA')
-    assert(bad == ['+5SU', 'XYZ', '-5MO'])
+    test_string = "mo, -1tu, +4fr, +1we , -3th, 2sa, +5su, 3xyz, -5mo, 0f"
+    print(f"\ntesting: '{test_string}'")
+    good_str, problem_str = rr.wkdays_to_rrule(test_string)
+    print("good_str:", f"{good_str}")
+    print(problem_str)
+    assert(good_str == 'MO,-1TU,+4FR,+1WE,-3TH')
+    assert(problem_str.split('\n')[0] == 'Problem entries: 2SA, +5SU, 3XYZ, -5MO, 0F')
 
 
 def test_item_initialization():

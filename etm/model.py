@@ -8235,7 +8235,7 @@ def show_index(
 
         itemtype = item['itemtype']
         flags = get_flags(
-            doc_id, repeat_list, link_list, konnected, pinned_list, timers
+            doc_id
         )
         rows.append(
             {
