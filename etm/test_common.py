@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.dirname(__file__)) # for pytest
 from common import wrap, unwrap
 
 def test_wrap():

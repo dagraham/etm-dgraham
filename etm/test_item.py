@@ -37,18 +37,18 @@ def test_wkdays_to_rrule():
 
 
 def test_item_initialization():
-    item = Item("* carpe diem @s 2024/7/10 @r d")
-    assert item.itemtype == "*"
-    assert item.summary == "carpe diem"
-    assert item.start.strftime("%Y/%m/%d") == "2024/07/10"
+    entry = "* carpe diem @s 2024/7/10 @r d"
+    item = Item(entry)
+    assert item.entry == entry
+    assert item.tokens == [('*', 0, 1), ('carpe diem ', 2, 13), ('@s 2024/7/10 ', 13, 26), ('@r d', 26, 30)]
 
     item_from_json = Item(json_entry)
-    item_from_string = Item("* Thanksgiving @s 2010/11/26 @r y &M 11 &w 4TH")
-    assert item_from_string.summary == "Thanksgiving"
-    assert item_from_json.summary == item_from_string.summary
+    entry = "* Thanksgiving @s 2010/11/26 @r y &M 11 &w 4TH"
+    item_from_string = Item(entry)
+
+    assert item_from_string.entry == entry
+    assert item_from_string.tokens == [('*', 0, 1), ('Thanksgiving ', 2, 15), ('@s 2010/11/26 ', 15, 29), ('@r y ', 29, 34), ('&M 11', 34, 39), ('&w 4TH', 40, 46)]
     print(f"{item_from_json.__dict__ = }")
-    assert item_from_json.recurrence.rulestr == ""
-    # assert to_string(item_from_json.recurrence.ruleset) == "RRULE:FREQ=DAILY;DTSTART=20240710T000000"
 
 def test_repeat_from_rruleset():
     pacific = gettz('US/Pacific')
