@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(__file__)) # for pytest
-from item import Item, Repeat
+from item import Item, Instances
 from datetime import datetime, date, timedelta
 from dateutil.rrule import rrule, rruleset, rrulestr, DAILY
 from dateutil.tz import gettz
@@ -26,7 +26,7 @@ EXDATE:20241104T133000
 
 
 def test_wkdays_to_rrule():
-    rr = Repeat()
+    rr = Instances()
     test_string = "mo, -1tu, +4fr, +1we , -3th, 2sa, +5su, 3xyz, -5mo, 0f"
     print(f"\ntesting: '{test_string}'")
     good_str, problem_str = rr.wkdays_to_rrule(test_string)
@@ -37,6 +37,34 @@ def test_wkdays_to_rrule():
 
 
 def test_item_initialization():
+    item = Item()
+    partial_strings = [
+        "",
+        "- ",
+        "- Thanksgiving ",
+        "- Thanksgiving @",
+        "- Thanksgiving @s 2010/11/",
+        "- Thanksgiving @s 2010/11/26 ",
+        "* Thanksgiving @s 2010/11/26 ",
+        "* Thanksgiving @s 2010/11/26 @",
+        "* Thanksgiving @s 2010/11/26 @r ",
+        "* Thanksgiving @s 2010/11/26 @r y ",
+        "* Thanksgiving @s 2010/11/26 @r y &",
+        "* Thanksgiving @s 2010/11/26 @r y &M 11 ",
+        "* Thanksgiving @s 2010/11/26 @r y &M 11 &w 4",
+        "* Thanksgiving @s 2010/11/26 @r y &M 11 &w 4TH",
+    ]
+
+    print("\nparsing partial_strings")
+    for s in partial_strings:
+        print(f"\n\nprocessing: {s}")
+        try:
+            item.parse_input(s)
+        except Exception as e:
+            print(f"   {e = }")
+    print("done with partial strings\n\n")
+    print(f"{item.item = }")
+
     entry = "* carpe diem @s 2024/7/10 @r d"
     item = Item(entry)
     assert item.entry == entry
@@ -48,7 +76,8 @@ def test_item_initialization():
 
     assert item_from_string.entry == entry
     assert item_from_string.tokens == [('*', 0, 1), ('Thanksgiving ', 2, 15), ('@s 2010/11/26 ', 15, 29), ('@r y ', 29, 34), ('&M 11', 34, 39), ('&w 4TH', 40, 46)]
-    print(f"{item_from_json.__dict__ = }")
+    # print(f"{item_from_string.__dict__ = }")
+    # print(f"{item_from_string.instances.__dict__ = }")
 
 def test_repeat_from_rruleset():
     pacific = gettz('US/Pacific')
@@ -94,7 +123,7 @@ def test_repeat_from_rruleset():
     # occurrences = list(rules)
 
     # start_date = datetime(2024, 10, 28, 13, 30).astimezone()
-    rr = Repeat(rules)
+    rr = Instances(rules)
     # rr.set_startdt(start_date)
     # rr.add_rule(rhsh)
     occurrences = list(rr.ruleset)
@@ -111,7 +140,7 @@ def test_repeat_from_instance():
     utc = gettz('UTC')
     naive = None
 
-    rr = Repeat()
+    rr = Instances()
     tz = eastern
     # Define the start date
 
