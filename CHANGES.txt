@@ -1,3 +1,18 @@
+2024-07-27 d86fa70 Daniel Graham
+    White space
+
+2024-07-26 36cf652 Daniel Graham
+    Many item changes including dispatch handler
+
+2024-07-24 2170306 Daniel Graham
+    Fixed path for test_common.py
+
+2024-07-24 99c9b64 Daniel Graham
+    Improvements to wrap, unwrap and item
+
+2024-07-20 54beca1 Daniel Graham
+    CHANGES.txt tweaks
+
 2024-07-20 ae88da7 Daniel Graham
     Further tweaks to bump.py to allow updating CHANGES.txt when the
     version number is not updated.
@@ -174,18 +189,3 @@
 
 2024-06-12 19d6f43 Daniel Graham
     README Goals View tweaks
-
-2024-06-12 3be3297 Daniel Graham
-    Update goals hourly.
-
-2024-06-11 bf6de53 Daniel Graham
-    Tagged version 6.4.4. zero division bug fix
-
-2024-06-11 86e94fe Daniel Graham
-    Fixed bug in computing lag when the period is day.
-
-2024-06-10 ae67819 Daniel Graham
-    Tagged version 6.4.3.
-
-2024-06-10 a91a903 Daniel Graham
-    Fixed 'int' bug in setting active_hsh
