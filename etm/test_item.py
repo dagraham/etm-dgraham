@@ -36,7 +36,7 @@ def test_wkdays_to_rrule():
     assert(problem_str.split('\n')[0] == 'Problem entries: 2SA, +5SU, 3XYZ, -5MO, 0F')
 
 
-def test_item_initialization():
+def test_item_entry():
     item = Item()
     partial_strings = [
         "",
@@ -155,7 +155,7 @@ def test_repeat_from_instance():
     #     print(occurrence.strftime("  %a %Y-%m-%d %H:%M %Z %z"))
 
 
-test_item_initialization()
+test_item_entry()
 test_wkdays_to_rrule()
 test_repeat_from_rruleset()
 test_repeat_from_instance()

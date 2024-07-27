@@ -493,6 +493,7 @@ class Item:
         self._parse_tokens(entry)
         self._validate()
         self.previous_entry = entry
+        self.previous_tokens = self.tokens.copy()
 
     def _tokenize(self, entry: str):
         self.entry = entry
@@ -536,12 +537,8 @@ class Item:
         return affected_tokens
 
     def _token_has_changed(self, token_info):
-        token, start_pos, end_pos = token_info
-        for prev_token, prev_start, prev_end in self.previous_tokens:
-            if token == prev_token and start_pos == prev_start and end_pos == prev_end:
-                return False
-        return True
-
+        # print(f"has token {token_info} changed? {token_info not in self.previous_tokens}\n    {self.previous_tokens = }; ")
+        return token_info not in self.previous_tokens
 
     def _parse_tokens(self, entry: str):
         if not self.previous_entry:
