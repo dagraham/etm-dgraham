@@ -661,9 +661,9 @@ class Item(dict):
         self.created = None
         self.modified = None
         self.set_dbfile(dbfile)
-        self.object_hsh = {}  # key, val -> object version for tinydb
-        self.askreply = {}     # key, val -> display version raw string
-        self.pos_hsh = {}     # (beg, end) -> (key, val)
+        self.object_hsh = {}    # key, val -> object version for tinydb
+        self.askreply = {}      # key, val -> display version raw string
+        self.pos_hsh = {}       # (beg, end) -> (key, val)
         self.keyvals = []
 
         self.messages = []
