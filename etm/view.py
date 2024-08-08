@@ -4011,7 +4011,9 @@ def save_changes(*event):
 def maybe_save(item):
     # check hsh
     global text_area
+    logger.debug("calling chech_item_hsh")
     msg = item.check_item_hsh()
+    logger.debug(f"back from chech_item_hsh with {msg}")
     if msg:
         if isinstance(msg, list):
             msg = ', '.join(msg)
