@@ -7,45 +7,45 @@ from __future__ import unicode_literals
 
 import sys
 import inspect
-import tinydb 
+import tinydb
 
-import prompt_toolkit.application 
+import prompt_toolkit.application
 
-from prompt_toolkit.completion import Completion, Completer, FuzzyCompleter 
-from prompt_toolkit.shortcuts import CompleteStyle, prompt 
-from prompt_toolkit.cursor_shapes import CursorShape 
-from prompt_toolkit.enums import EditingMode 
-from prompt_toolkit.filters import Condition 
-from prompt_toolkit.keys import Keys 
-from prompt_toolkit.key_binding import KeyBindings 
+from prompt_toolkit.completion import Completion, Completer, FuzzyCompleter
+from prompt_toolkit.shortcuts import CompleteStyle, prompt
+from prompt_toolkit.cursor_shapes import CursorShape
+from prompt_toolkit.enums import EditingMode
+from prompt_toolkit.filters import Condition
+from prompt_toolkit.keys import Keys
+from prompt_toolkit.key_binding import KeyBindings
 
 
-from prompt_toolkit.key_binding.bindings.focus import (  
+from prompt_toolkit.key_binding.bindings.focus import (
     focus_next,
     focus_previous,
 )
-from prompt_toolkit.key_binding.vi_state import InputMode 
-from prompt_toolkit.layout import Dimension 
-from prompt_toolkit.layout import Float  
-from prompt_toolkit.layout.containers import (  
+from prompt_toolkit.key_binding.vi_state import InputMode
+from prompt_toolkit.layout import Dimension
+from prompt_toolkit.layout import Float
+from prompt_toolkit.layout.containers import (
     HSplit,
     VSplit,
     Window,
     WindowAlign,
     ConditionalContainer,
 )
-from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl 
-from prompt_toolkit.layout.dimension import D 
-from prompt_toolkit.layout.layout import Layout  
-from prompt_toolkit.layout.menus import CompletionsMenu  
-from prompt_toolkit.lexers import Lexer 
-from prompt_toolkit.lexers import PygmentsLexer 
-from prompt_toolkit.selection import SelectionType 
-from prompt_toolkit.styles import Style 
-from prompt_toolkit.styles.named_colors import NAMED_COLORS  
-from prompt_toolkit.widgets import Box, Label, Button 
-from prompt_toolkit.widgets import HorizontalLine 
-from prompt_toolkit.widgets import ( 
+from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
+from prompt_toolkit.layout.dimension import D
+from prompt_toolkit.layout.layout import Layout
+from prompt_toolkit.layout.menus import CompletionsMenu
+from prompt_toolkit.lexers import Lexer
+from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.selection import SelectionType
+from prompt_toolkit.styles import Style
+from prompt_toolkit.styles.named_colors import NAMED_COLORS
+from prompt_toolkit.widgets import Box, Label, Button
+from prompt_toolkit.widgets import HorizontalLine
+from prompt_toolkit.widgets import (
     TextArea,
     SearchToolbar,
     MenuContainer,
@@ -60,7 +60,7 @@ from shlex import split as qsplit
 import time
 from datetime import datetime, date, timedelta
 
-import requests 
+import requests
 import asyncio
 import textwrap
 
@@ -72,24 +72,24 @@ import os
 from glob import glob
 import contextlib, io
 
-import pyperclip 
-from etm.common import etm_version 
-from etm.common import EtmChar 
-from etm.common import benchmark, timeit 
+import pyperclip
+from etm.common import etm_version
+from etm.common import EtmChar
+from etm.common import benchmark, timeit
 from etm.common import WA, parse_datetime, text_pattern, etmhome, import_file
 from etm.model import format_datetime, format_time, format_statustime, format_duration, parse_datetime
 
-from tinydb import where 
-from tinydb import Query 
-from pygments.lexer import RegexLexer 
-from pygments.token import Keyword 
-from pygments.token import Literal  
-from pygments.token import Operator 
-from pygments.token import Comment 
+from tinydb import where
+from tinydb import Query
+from pygments.lexer import RegexLexer
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Operator
+from pygments.token import Comment
 
-from etm.common import DBITEM, DBARCH, ETMDB, wrap, nowrap, openWithDefault, TDBLexer 
-from etm import model 
-from etm.data import write_back 
+from etm.common import DBITEM, DBARCH, ETMDB, wrap, nowrap, openWithDefault, TDBLexer
+from etm import model
+from etm.data import write_back
 
 pta = prompt_toolkit.application
 get_app = prompt_toolkit.application.current.get_app
@@ -2789,11 +2789,11 @@ def do_toggle_goal_active(*event):
     doc_id, instance, job = dataview.get_row_details(row)
     if not doc_id:
         return
-    
+
     hsh = DBITEM.get(doc_id=doc_id)
     if hsh['itemtype'] != '~':
-        return 
-    
+        return
+
     changed = item.toggle_goal_active(doc_id)
     if changed:
         # show_message('Toggle Active/Paused', 'Toggled the active/paused status of the goal')
@@ -2811,11 +2811,11 @@ def do_end_goal(*event):
     doc_id, instance, job = dataview.get_row_details(row)
     if not doc_id:
         return
-    
+
     hsh = DBITEM.get(doc_id=doc_id)
     if hsh['itemtype'] != '~':
-        return 
-    
+        return
+
     changed = item.end_goal(doc_id)
     if changed:
         show_message('Ended', 'Ended the goal')
@@ -2851,11 +2851,11 @@ def do_finish(*event):
 
     hsh = DBITEM.get(doc_id=doc_id)
     msg = ''
-    
+
     if hsh['itemtype'] not in '~-' or 'f' in hsh:
         show_message('Finish', 'Only an unfinished task can be finished.')
         return
-    
+
     if hsh['itemtype'] == '~':
         # only need the number of goal completions
         logger.debug(f"{hsh = }")
@@ -2898,7 +2898,7 @@ If necessary, edit the number of completions to record
         dataview.got_entry = coroutine
 
         return
-    
+
 
     # has_timer = doc_id in dataview.timers
     # timer_warning = " and\nits associated timer" if has_timer else ""
@@ -2920,7 +2920,7 @@ If necessary, edit the number of completions to record
 
     now = format_datetime(datetime.now().astimezone(), short=True)[1]
     default = now
-    
+
 
     if job:
         # only a completion date needed - either undated or finishing the oldest instance
@@ -4013,7 +4013,9 @@ def maybe_save(item):
     global text_area
     msg = item.check_item_hsh()
     if msg:
-        show_message('Error', ', '.join(msg))
+        if isinstance(msg, list):
+            msg = ', '.join(msg)
+        show_message('Error', msg, 0)
         return
     if item.item_hsh.get('itemtype', None) is None:
         show_message(
