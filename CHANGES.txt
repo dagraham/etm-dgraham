@@ -1,4 +1,10 @@
-2024-09-24 593b40d Daniel Graham
+2024-09-24 e10606d Daniel Graham
+    Tagged version 6.4.10.
+
+2024-09-24 9d09e7b Daniel Graham
+    Trying to resync version number
+
+2024-09-24 8a05c61 Daniel Graham
     Tagged version 6.5.1.
 
 2024-09-24 93f68da Daniel Graham
@@ -182,12 +188,3 @@
 2024-06-01 d2daf8d Daniel Graham
     Added goals and dst tests to make_examples. Fixed bug in yearly
     fraction.
-
-2024-06-01 37adfc3 Daniel Graham
-    README tweaks
-
-2024-05-31 16cb122 Daniel Graham
-    Tagged version 6.3.0. Added goal period options for year, quarter
-    and month. Added caching for non-weekly views. Fixed timezone
-    issues associated with the transistions between daylight saving
-    and standard time.
