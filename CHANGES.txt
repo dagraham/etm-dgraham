@@ -1,4 +1,7 @@
-2024-09-24 0d6c022 Daniel Graham
+2024-09-24 593b40d Daniel Graham
+    Tagged version 6.5.1.
+
+2024-09-24 93f68da Daniel Graham
     Tagged version 6.5.0rc0. Reset working branch to master and
     implemented calendar highlighting for the current month and day.
 
@@ -188,7 +191,3 @@
     and month. Added caching for non-weekly views. Fixed timezone
     issues associated with the transistions between daylight saving
     and standard time.
-
-2024-05-31 98f34e5 Daniel Graham
-    Fixed timezone issues associated with daylight/standard time
-    transitions. Flag instances falling within transition.
