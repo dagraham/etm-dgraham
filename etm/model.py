@@ -5016,8 +5016,8 @@ shown when nonzero."""
         = n shows the half year containing the month that is 6 x n months in
         the future if n > 0 or the past if n < 0.
         """
-        ZWN1 = '\u200B'
-        ZWN2 = '\u200B'
+        ZWN1 = '_'
+        ZWN2 = '_'
         width = shutil.get_terminal_size()[0]
         columns = 2 if width < 70 else 3
         today = date.today()
@@ -5038,10 +5038,8 @@ shown when nonzero."""
         for i in range(12):   # months in the year
             if i == tm - 1 and y == ty:
                 yearmonth = c.formatmonth(y, 1 + i, w=2)
-                # logger.debug(f"starting {yearmonth = }")
                 yearmonth = re.sub(rf'\b{ym}\b', f'{ZWN1}{ym}{ZWN2}', yearmonth)
                 yearmonth = re.sub(rf'\b{td}\b', f'{ZWN1}{td}{ZWN2}', yearmonth)
-                # logger.debug(f"ending {yearmonth = }")
                 cal.append(yearmonth.split('\n'))
             else:
                 cal.append(c.formatmonth(y, 1 + i, w=2).split('\n'))
@@ -5058,6 +5056,7 @@ shown when nonzero."""
                         cal[r + i].append('')
             for j in range(l):  # rows from each of the months
                 if columns == 3:
+                    max_len = 67
                     ret.append(
                         (
                             '%-20s   %-20s   %-20s '
@@ -5065,12 +5064,10 @@ shown when nonzero."""
                         )
                     )
                 else:
+                    max_len = 44
                     ret.append(('%-20s   %-20s ' % (cal[r][j], cal[r + 1][j])))
-        max_len = max([len(line) for line in ret])
-        indent = max(width - max_len, 0) // 2 * ' '
+        indent = (max(width - max_len, 0) // 2) * ' '
         ret_lines = [f'{indent}{line}' for line in ret]
-        # for line in ret_lines:
-        #     logger.debug(f"{line = }")
         ret_str = '\n'.join(ret_lines)
         self.calendar_view = ret_str
 
