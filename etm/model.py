@@ -6,6 +6,7 @@
 
 from typing import Union, Tuple, Optional
 import time
+import inspect
 # import functools
 # from time import perf_counter
 
@@ -875,6 +876,9 @@ item_hsh:    {self.item_hsh}
         as aft_dt. Called while editing, we won't have a row or doc_id
         and can use '@s' as aft_dt
         """
+        caller = inspect.stack()[1]
+        caller_name = caller.function
+        logger.debug(f"beginning Item get_repetitions for {caller_name}()")
         num = self.settings['num_repetitions']
         if self.is_modified:
             self.update_item_hsh(False)
@@ -910,6 +914,9 @@ item_hsh:    {self.item_hsh}
         return showing, f'from {starting}:\n  ' + '\n  '.join(pairs)
 
     def do_update(self):
+        caller = inspect.stack()[1]
+        caller_name = caller.function
+        logger.debug(f"beginning do_update for {caller_name}()")
         try:
             self.db.remove(doc_ids=[self.doc_id])
             self.db.insert(Document(self.item_hsh, doc_id=self.doc_id))
@@ -1497,6 +1504,9 @@ item_hsh:    {self.item_hsh}
 
 
     def check_item_hsh(self):
+        caller = inspect.stack()[1]
+        caller_name = caller.function
+        logger.debug(f"beginning check_item_hsh for {caller_name}()")
         created = self.item_hsh.get('created', None)
         self.item_hsh = {'created': created}
         cur_hsh = {}
@@ -1556,6 +1566,9 @@ item_hsh:    {self.item_hsh}
         return msg
 
     def update_item_hsh(self, check_links=True):
+        caller = inspect.stack()[1]
+        caller_name = caller.function
+        logger.debug(f"beginning update_item_hsh for {caller_name}()")
         msg = self.check_item_hsh()
 
         if msg:
@@ -4281,6 +4294,9 @@ class DataView(object):
         Called with a row, we should have an doc_id and can use relevant as aft_dt.
         Called while editing, we won't have a row or doc_id and can use '@s' as aft_dt
         """
+        caller = inspect.stack()[1]
+        caller_name = caller.function
+        logger.debug(f"beginning Dataview get_repetitions for {caller_name}()")
         num = self.settings['num_repetitions']
         res = self.get_row_details(row)
         if not res:
