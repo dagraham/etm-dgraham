@@ -1,4 +1,5 @@
 # pyright: reportUndefinedVariable=false
+# about to fiddle
 #  standard sort order for usable ASCII characters
 # usable = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~']
 # len(usable): 94
@@ -8,7 +9,7 @@ import time
 # import functools
 # from time import perf_counter
 
-from etm.common import ( 
+from etm.common import (
     VERSION_INFO,
     parse,
     WKDAYS_DECODE,
@@ -31,7 +32,7 @@ from etm.common import (
 # beginbusy = settings.beginbusy
 # usedtime_hours = settings.usedtime_hours
 
-from tinydb.table import Document 
+from tinydb.table import Document
 from etm.common import benchmark, timeit, TimeIt
 import sys
 import re
@@ -48,7 +49,7 @@ import shutil
 from operator import itemgetter
 from itertools import groupby, combinations
 
-from prompt_toolkit.styles import Style 
+from prompt_toolkit.styles import Style
 
 # from ruamel.yaml import __version__ as ruamel_version
 # from dateutil import __version__ as dateutil_version
@@ -56,17 +57,17 @@ from prompt_toolkit.styles import Style
 # from jinja2 import __version__ as jinja2_version
 # from prompt_toolkit import __version__ as prompt_toolkit_version
 
-from dateutil import rrule as dr 
+from dateutil import rrule as dr
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
-from dateutil.rrule import rrule, rruleset, MO, TU, WE, TH, FR, SA, SU  
+from dateutil.rrule import rrule, rruleset, MO, TU, WE, TH, FR, SA, SU
 from dateutil.tz import gettz
 
 # for saving timers
 import pickle
 from warnings import filterwarnings
-from ruamel.yaml import YAML 
-from jinja2 import Template 
+from ruamel.yaml import YAML
+from jinja2 import Template
 import textwrap
 import os
 import platform
@@ -90,7 +91,7 @@ python_version = platform.python_version()
 developer = 'dnlgrhm@gmail.com'
 
 # These are set in _main_
-from etm.common import DBITEM, DBARCH, ETMDB 
+from etm.common import DBITEM, DBARCH, ETMDB
 # DBITEM = None
 # DBARCH = None
 # ETMDB = None
@@ -113,7 +114,7 @@ PHONE_REGEX = re.compile(r'[0-9]{10}@.*')
 KONNECT_REGEX = re.compile(r'^.+:\s+(\d+)\s*$')
 
 # 4-digit year - 2-digit month - 2-digit month day
-YMD_REGEX = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}')  
+YMD_REGEX = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}')
 
 # One or more comma separated instances of year:weeknum num_done for goal history
 DONE_REGEX = re.compile(r'(\d{4}:\d{2}\s+\d+)(?:,\s*\d{4}:\d{2}\s+\d+)*?')
@@ -124,7 +125,7 @@ style = Style.from_dict(
         'plain': '#fffafa',
         'selection': '#fffafa',
         'inbox': '#ff00ff',
-        'goal': '#6495ed', 
+        'goal': '#6495ed',
         'pastdue': '#87ceeb',
         'begin': '#ffff00',
         'journal': '#daa520',
@@ -751,7 +752,7 @@ class Item(dict):
                 'priority from 0 (none) to 4 (urgent)',
                 do_priority,
             ],
-            'q': ['quota', 'number of instances to be done', self.do_quota], 
+            'q': ['quota', 'number of instances to be done', self.do_quota],
             's': ['scheduled', 'starting date or datetime', self.do_datetime],
             't': ['tag', 'tag', do_string],
             'u': ['used time', 'timeperiod: datetime', do_usedtime],
@@ -1171,7 +1172,7 @@ item_hsh:    {self.item_hsh}
         self.item_hsh = self.db.get(doc_id=item_id)
         if self.item_hsh['itemtype'] != '~':
             return False
-        
+
         self.doc_id = item_id
         # self.created = self.item_hsh['created']
         q = self.item_hsh.get('q', [])
@@ -1185,7 +1186,7 @@ item_hsh:    {self.item_hsh}
         # this_week = tuple([int(x) for x in now.strftime("%Y,%W").split(',')])
         self.item_hsh.setdefault('h', {})
         hist = self.item_hsh.get('h', {})
-            
+
         # this_week_str = f"{this_week[0]}:{this_week[1]:02}"
         done = hist.get(this_period, 0)
         hist[this_period] = done + completions
@@ -1206,14 +1207,14 @@ item_hsh:    {self.item_hsh}
         self.item_hsh = self.db.get(doc_id=item_id)
         if self.item_hsh['itemtype'] != '~':
             return False
-        
+
         self.doc_id = item_id
         # self.created = self.item_hsh['created']
         q = self.item_hsh.get('q', [])
         if not len(q) > 0 or q[0] == 0:
             return False
         q[0] = f"{-int(q[0])}"
-        self.item_hsh['q'] = q 
+        self.item_hsh['q'] = q
         now = datetime.now().astimezone()
         self.item_hsh['modified'] = now
         self.do_update()
@@ -1226,7 +1227,7 @@ item_hsh:    {self.item_hsh}
         self.item_hsh = self.db.get(doc_id=item_id)
         if self.item_hsh['itemtype'] != '~':
             return False
-        
+
         self.doc_id = item_id
         # self.created = self.item_hsh['created']
         q = self.item_hsh.get('q', [])
@@ -1234,7 +1235,7 @@ item_hsh:    {self.item_hsh}
             # already ended
             return False
         q[0] = '0'
-        self.item_hsh['q'] = q 
+        self.item_hsh['q'] = q
         now = datetime.now().astimezone()
         self.item_hsh['modified'] = now
         self.do_update()
@@ -1811,13 +1812,13 @@ item_hsh:    {self.item_hsh}
         else:
             rep = 'Include repetitions falling on or before this datetime'
         return obj, rep
-    
+
 
     def do_quota(self, arg: str)->list[int]:
         """
         Args:
             arg (string): an integer followed by a character in 'yqmw'
-            specifying the period optionally followed by a comma and an 
+            specifying the period optionally followed by a comma and an
             integer number of periods.
         """
         obj = None
@@ -1825,7 +1826,7 @@ item_hsh:    {self.item_hsh}
         quota_regex = re.compile(
             r'^\s*(-?\d+)([yqmwd]?)((?::\s*)?[,\d\s-]*)$'
             )
-        
+
         periods_regex = re.compile(r'^\s*\d+-\d+$|^\d+(,\s*\d+)*\s*$')
         period_dict = {
                 'y': 'year',
@@ -1887,12 +1888,12 @@ item_hsh:    {self.item_hsh}
 
         else:
             rep = """\
-goal: integer times/period followed by a period from 
+goal: integer times/period followed by a period from
     (y)ear, (q)uarter, (m)onth, (w)eek or (d)ay
 For a period other than (y)ear, optionally followed by a comma and then a comma separated list of the numbers of the periods during the year for which the goal applies - the default all periods. E.g., '@q 2q, 1' would set a goal for 2 completions per quarter during the 1st quarter of each year"""
-        
+
         return obj, rep
-        
+
 
     def do_datetime(self, arg):
         """
@@ -1912,7 +1913,7 @@ For a period other than (y)ear, optionally followed by a comma and then a comma 
         if ok:
             obj = res
             if self.item_hsh['itemtype'] == '~':
-                # We need a date 
+                # We need a date
                 rep = f'date: {format_date(obj)[1]}'
             else:
                 obj = res
@@ -2471,24 +2472,24 @@ def is_within_dst_transition(dt: datetime)->bool:
         timezone = gettz()
         dt = dt.replace(tzinfo = timezone)
     else:
-        timezone = dt.tzinfo 
+        timezone = dt.tzinfo
     logger.debug(f"using {timezone = }")
-    
+
     # Find the first Sunday in November
     first_november = datetime(year, 11, 1, tzinfo=timezone)
     first_sunday_november = first_november + timedelta(days=(6 - first_november.weekday()))
-    
+
     # Find the second Sunday in March
     first_march = datetime(year, 3, 1, tzinfo=timezone)
     second_sunday_march = first_march + timedelta(days=(6 - first_march.weekday() + 7))
-    
+
     # Create aware datetime objects for the transitions
     first_sunday_november_1am = first_sunday_november.replace(hour=1)
     first_sunday_november_2am = first_sunday_november.replace(hour=2)
-    
+
     second_sunday_march_2am = second_sunday_march.replace(hour=2)
     second_sunday_march_3am = second_sunday_march.replace(hour=3)
-    
+
     logger.debug(f"{first_sunday_november_1am = }; ")
     # Check if the datetime falls within the transition periods
     is_in_november_transition = first_sunday_november_1am <= dt < first_sunday_november_2am
@@ -2549,7 +2550,7 @@ def format_datetime(obj, short=False):
             # treat as date
             return True, obj.strftime(date_fmt)
         else:
-            return True, obj.strftime(f'{date_fmt} {time_fmt}') 
+            return True, obj.strftime(f'{date_fmt} {time_fmt}')
     else:
         # aware datetime
         obj = obj.astimezone()
@@ -3691,7 +3692,7 @@ class DataView(object):
         cashed_views is a list of the non-weekly views such as goals, index, journal, history, ...
         view_cache is a dict with keys corresponding to the names of the cashed views and value tuples containing
         the timestamp, the view and the row2id mapping the row numbers in the view to the corresponding document ids.
-        
+
         Returns:
             cached_view (any): The cached view or a newly created view.
         """
@@ -3717,7 +3718,7 @@ class DataView(object):
         row2id = self.row2id
         timestamp = time.time()
         self.view_cache[self.active_view] = (timestamp, cached_view, row2id)
-        return cached_view      
+        return cached_view
 
 
     def create_view(self):
@@ -4232,7 +4233,7 @@ class DataView(object):
         res = self.get_row_details(row)
         if not (res and res[0]):
             return None, ''
-        
+
         item_id = res[0]
 
         if not edit and item_id in self.details_cache:
@@ -4286,7 +4287,7 @@ class DataView(object):
             return None, ''
         item_id = res[0]
         instance = res[1]
-        
+
         if not (item_id and item_id in self.id2relevant):
             return ''
         showing = 'Repetitions'
@@ -5357,7 +5358,7 @@ entry_tmpl = """\
 {%- endif %} \
 {%- endfor %}\
 {%- if 'd' in h %}
-@d {{ h['d'] }} 
+@d {{ h['d'] }}
 {%- endif -%}
 {%- if 'j' in h %}\
 {%- for x in h['j'] %}\
@@ -6373,7 +6374,7 @@ def item_instances(item, aft_dt, bef_dt=1, honor_skip=True)-> Tuple[Optional[dat
         except Exception as e:
             logger.warning(f"bad {tz = }: {e}. Using localtime")
             tz_info = gettz() # default to localtime
-    
+
     instances = []
     dtstart = item['s']
     if not (isinstance(dtstart, datetime) or isinstance(dtstart, date)):
@@ -7092,7 +7093,7 @@ def fmt_extent(beg_dt: datetime, end_dt: datetime):
 
     if beg_dt.hour == 0 and beg_dt.minute == 0 and beg_dt.second == 0 and end_dt == beg_dt:
         return ''
-    
+
     if not (isinstance(beg_dt, datetime) and isinstance(end_dt, datetime)):
         return 'xxx y'
 
@@ -7170,8 +7171,8 @@ def beg_ends(starting_dt, extent_duration, z=None):
     else:
         beginning = starting_dt + extent_duration
         ending = starting_dt
-    
-    
+
+
     while ending.date() > beginning.date():
         end = beginning if date_only else beginning.replace(hour=23, minute=59)
         pairs.append((beginning, end))
@@ -7331,7 +7332,7 @@ def relevant(
         if item['itemtype'] == '!':
             inbox.append([0, summary, item.doc_id, None, None])
             relevant = today
-        
+
         elif 'f' in item:
             if not isinstance(item['f'], Period):
                 logger.error(f"{item['f'] = } in {item = }")
@@ -8377,9 +8378,9 @@ def get_period_data(period:str = 'w'):
     def fraction_of_month_passed():
         this_period = f"{today.year}-{today.month:02}"
         day = today.day - 1 + day_fraction
-        days = calendar.monthrange(today.year, today.month)[1] 
-        return this_period, day, days, day / days     
-    
+        days = calendar.monthrange(today.year, today.month)[1]
+        return this_period, day, days, day / days
+
     # Helper function to calculate fraction of the quarter passed
     def fraction_of_quarter_passed():
         quarter_start_month = 3 * ((today.month - 1) // 3) + 1
@@ -8389,7 +8390,7 @@ def get_period_data(period:str = 'w'):
         this_period = f"{today.year}#{(today.month - 1) // 3 + 1}"
         day = (today - quarter_start_date).days + day_fraction
         days = (quarter_end_date - quarter_start_date).days + 1
-        return this_period,  day, days, day / days 
+        return this_period,  day, days, day / days
 
     # Helper function to calculate fraction of the year passed
     def fraction_of_year_passed():
@@ -8397,7 +8398,7 @@ def get_period_data(period:str = 'w'):
         end_of_year = datetime(today.year, 12, 31, 23, 59).replace(tzinfo=None)
         day = (today - start_of_year).days + day_fraction
         days = (end_of_year - start_of_year).days + 1
-        return f"{today.year}", day, days, day / days 
+        return f"{today.year}", day, days, day / days
 
     if period == 'd':
         return fraction_of_day_passed()
@@ -8411,7 +8412,7 @@ def get_period_data(period:str = 'w'):
         return fraction_of_year_passed()
     else:
         return None
-    
+
 def get_period_begin_date(input_date, period):
     # Ensure input_date is a datetime object
     if isinstance(input_date, str):
@@ -8424,10 +8425,10 @@ def get_period_begin_date(input_date, period):
 
     if period == 'd':
         return input_date
-    
+
     elif period == 'w':
         return input_date - timedelta(days=input_date.weekday())
-    
+
     elif period == 'm':
         return input_date.replace(day=1)
 
@@ -8435,7 +8436,7 @@ def get_period_begin_date(input_date, period):
         begin_month = ((input_date.month - 1) // 3) * 3 + 1
         return input_date.replace(month=begin_month)
 
-    elif period == 'y': 
+    elif period == 'y':
         return input_date.replace(month=1)
 
 def get_period_end_date(input_date, period, periods_ahead):
@@ -8448,23 +8449,23 @@ def get_period_end_date(input_date, period, periods_ahead):
         input_date = date_to_datetime(input_date)
 
     input_date = input_date.astimezone()
-    
+
     # periods_ahead = max(periods_ahead[:1][0], 1)
     periods_ahead = 1
-    
+
     if period == 'd':
         return input_date + timedelta(days=1, seconds=-1)
-    
+
     elif period == 'w':
         return input_date + timedelta(days=(6 - input_date.weekday())) + timedelta(days=1, seconds=-1)
-    
+
     # Calculate the last day of the month periods_ahead months from input_date
     elif period == 'm':
         month = input_date.month - 1 + (periods_ahead - 1)
         year = input_date.year + month // 12
         month = month % 12 + 1
         return datetime(year, month, calendar.monthrange(year, month)[1]).astimezone() + timedelta(days=1, seconds=-1)
-    
+
     # Calculate the last day of the quarter periods_ahead quarters from input_date
     elif period == 'q':
         quarter = ((input_date.month - 1) // 3 + periods_ahead) % 4
@@ -8475,13 +8476,13 @@ def get_period_end_date(input_date, period, periods_ahead):
         last_month_of_quarter = quarter * 3
         return datetime(year, last_month_of_quarter, calendar.monthrange(year, last_month_of_quarter)[1]).astimezone() + timedelta(days=1, seconds=-1)
 
-    elif period == 'y': 
+    elif period == 'y':
         # Calculate the last day of the year periods_ahead years from input_date
         return datetime(input_date.year + periods_ahead - 1, 12, 31).astimezone() + timedelta(days=1, seconds=-1)
 
     else:
         return None
-    
+
 # # Example usage
 # input_date = '2024-05-26'
 # period = 'm'
@@ -8516,7 +8517,7 @@ def show_goals(
     }
     today = datetime.today().astimezone(local_tz)
     current_weekday = today.weekday()         # 0, 1, ..., 6
-    # weekdays_remaining = 7 - current_weekday  # 7, 6, ..., 1 
+    # weekdays_remaining = 7 - current_weekday  # 7, 6, ..., 1
 
     this_period_hsh = {
         'd': [],
@@ -8537,11 +8538,11 @@ def show_goals(
             active_hsh[k] = int(active_hsh[k])
 
 
-    active_periods = ' '.join([f"{100-round(v[-1]*100)}%{k}{re.split('[#:-]', v[0])[-1].lstrip('0')}" 
+    active_periods = ' '.join([f"{100-round(v[-1]*100)}%{k}{re.split('[#:-]', v[0])[-1].lstrip('0')}"
             for k, v in this_period_hsh.items()])
-    
+
     active_str = f"Active  {active_periods}"
-    
+
     for item in db:
         itemtype = item.get('itemtype')
         if itemtype != '~':
@@ -8559,15 +8560,15 @@ def show_goals(
         average = f"{total/count:.2}" if count and total else 0.0
         path = None
         # status: current, paused, ended, bad
-        
+
         if not s or q is None:
             logger.error(f"bad goal: {item = }")
             continue
-        quota = int(q[0]) 
+        quota = int(q[0])
         period = q[1] if len(q) > 1 else 'w'
         periods = q[2] if len(q) > 2 and q[2] else []
 
-        begin_date = get_period_begin_date(item['s'], period) # active if today >= begin_date 
+        begin_date = get_period_begin_date(item['s'], period) # active if today >= begin_date
 
         if quota == 0:
             path = 'Ended'
@@ -8580,11 +8581,11 @@ def show_goals(
             done = int(h.get(this_period, 0))
             needed = 0
             if quota < 0:
-                path = 'Paused' 
+                path = 'Paused'
                 goal = f"{done}/{abs(quota)}{period}"
                 itemtype = EtmChar.INACTIVE_CHAR
             elif begin_date > date_to_datetime(today):
-                path = 'Upcoming' 
+                path = 'Upcoming'
                 goal = f"{done}/{abs(quota)}{period}"
                 itemtype = EtmChar.INACTIVE_CHAR
             else:
@@ -8593,7 +8594,7 @@ def show_goals(
                     if len(periods) > 2 and [x for x in range(periods[0], periods[-1]+1)] == periods:
                         period_str = f"{periods[0]}-{periods[-1]}"
                     else:
-                        period_str = ','.join(f'{i}' for i in periods) 
+                        period_str = ','.join(f'{i}' for i in periods)
                     if active_hsh[period] in periods:
                         # this item is active
                         path = 'Active'
@@ -8612,10 +8613,10 @@ def show_goals(
         rep = ""
         lag = 1
         if path == 'Active':
-            lag = round( ((quota - min(done, quota)) / quota) * days / (days-day), 2) 
-            late_level = 2 
-            slow_level = 4/3 
-            goal = f"{done}/{abs(quota)}{period}" 
+            lag = round( ((quota - min(done, quota)) / quota) * days / (days-day), 2)
+            late_level = 2
+            slow_level = 4/3
+            goal = f"{done}/{abs(quota)}{period}"
             # rep = f" ({needed} {int(100*lag)}%)"
             rep = f" ({int(100*lag)}%)"
             # rep = f" {int(100*lag)}%"
@@ -9078,7 +9079,7 @@ def create_item_views(item, flags):
 
     Args:
         item (Item): an instance of Item
-    
+
     Returns: hash of lists of hashes
     rows: a list of hashes to extend rows
     done: a list of hashes to extend done
@@ -9110,7 +9111,7 @@ def create_item_views(item, flags):
     done = views['done']
     rows = views['rows']
     week2day2busy = views['week2day2busy']
-    week2day2allday = views['week2day2allday']  
+    week2day2allday = views['week2day2allday']
     week2day2effort = views['week2day2effort']
 
     todayYMD = now.strftime('%Y%m%d')
@@ -9257,7 +9258,7 @@ def create_item_views(item, flags):
     startdt = date_to_datetime(start)
     end_dt = None
 
-    instances = item_instances(item, aft_dt, bef_dt) 
+    instances = item_instances(item, aft_dt, bef_dt)
     instances.sort()
     for dt, et in instances:
         if isinstance(dt, Period):
@@ -9611,7 +9612,7 @@ def schedule(
     mk_current = weeks_after > 0
     current_hsh = {}
     id2rows = {}
-   
+
     omit = settings['omit_extent']
     UT_MIN = settings.get('usedtime_minutes', 1)
 
@@ -9659,19 +9660,19 @@ def schedule(
 
         # week2day2busy.update(views_hsh['week2day2busy'])
         week2day2busy = update_week2day2busy(
-            week2day2busy, 
+            week2day2busy,
             views_hsh['week2day2busy']
             )
         # week2day2allday.update(views_hsh['week2day2allday'])
         week2day2allday = update_week2day2allday(
-            week2day2allday, 
+            week2day2allday,
             views_hsh['week2day2allday']
             )
         # week2day2allday = update_week2day(week2day2allday, views_hsh['week2day2allday'])
         # week2day2effort.update(views_hsh['week2day2effort'])
         week2day2effort = update_week2day2effort(
             week2day2effort,
-            views_hsh['week2day2effort']  
+            views_hsh['week2day2effort']
         )
     get_items_timer.stop()
     logger.debug(f"created_used: {created_used}")
@@ -10007,7 +10008,7 @@ Developer:      dnlgrhm@gmail.com
 {copyright}\
 """
     userhome = os.path.expanduser('~')
-    sys_argv = os.path.join('~', os.path.relpath(sys.argv[0], userhome)) 
+    sys_argv = os.path.join('~', os.path.relpath(sys.argv[0], userhome))
     which_etm = "?"
     ok, msg = check_output('which etm')
     if ok:
