@@ -1389,31 +1389,6 @@ def first_char(s):
 
 
 # Create one text buffer for the main content.
-class ETMLexer(Lexer):
-    def lex_document(self, document):
-        def get_line(lineno):
-            tmp = document.lines[lineno]
-            typ = first_char(tmp)
-            if typ in type2style:
-                sty = type2style[typ]
-                if sty in type_colors:
-                    return [(type_colors[sty], tmp)]
-                else:
-                    logger.error(f'problem with typ {typ} from {tmp}')
-                    logger.error(
-                        f'sty: {sty}; type_colors.keys: {type_colors.keys()}'
-                    )
-            if tmp.rstrip().endswith('(Today)') or tmp.rstrip().endswith(
-                '(Tomorrow)'
-            ):
-                return [(type_colors['today'], f'{tmp} ')]
-
-            return [
-                (busy_colors.get(c, type_colors['plain']), c)
-                for i, c in enumerate(document.lines[lineno])
-            ]
-        return get_line
-
 class HighlightLexer(Lexer):
     # _instance = None
 
@@ -1461,11 +1436,36 @@ class HighlightLexer(Lexer):
             if last_index < len(line):
                 tokens.append((default_style, line[last_index:]))
 
-            # logger.debug(f"{tokens = }")
+            logger.debug(f"{tokens = }")
             return tokens
         return get_line
 
 highlight_lexer = HighlightLexer()
+
+class ETMLexer(Lexer):
+    def lex_document(self, document):
+        def get_line(lineno):
+            tmp = document.lines[lineno]
+            typ = first_char(tmp)
+            if typ in type2style:
+                sty = type2style[typ]
+                if sty in type_colors:
+                    return [(type_colors[sty], tmp)]
+                else:
+                    logger.error(f'problem with typ {typ} from {tmp}')
+                    logger.error(
+                        f'sty: {sty}; type_colors.keys: {type_colors.keys()}'
+                    )
+            if tmp.rstrip().endswith('(Today)') or tmp.rstrip().endswith(
+                '(Tomorrow)'
+            ):
+                return [(type_colors['today'], f'{tmp} ')]
+
+            return [
+                (busy_colors.get(c, type_colors['plain']), c)
+                for i, c in enumerate(document.lines[lineno])
+            ]
+        return get_line
 
 
 def status_time(dt):
