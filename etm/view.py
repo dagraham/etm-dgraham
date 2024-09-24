@@ -1390,18 +1390,10 @@ def first_char(s):
 
 # Create one text buffer for the main content.
 class HighlightLexer(Lexer):
-    # _instance = None
-
-    # def __new__(cls, *args, **kwargs):
-    #     if not cls._instance:
-    #         cls._instance = super(HighlightLexer, cls).__new__(cls, *args, **kwargs)
-    #     return cls._instance
 
     def __init__(self, highlight_style="fg:darkorange", current_style="fg:cornsilk", past_style="fg:lightsteelblue", future_style="fg:yellowgreen", default_style=""):
-        # if not hasattr(self, '_initialized'):
-        #     self._initialized = True
-        ZWN1 = '\u200B'
-        ZWN2 = '\u200B'
+        ZWN1 = '_'
+        ZWN2 = '_'
         self.highlight_style = highlight_style
         self.current_style = current_style
         self.past_style = past_style
@@ -1410,11 +1402,10 @@ class HighlightLexer(Lexer):
         self.pattern = re.compile(rf'({ZWN1}.+{ZWN2})')
 
     def lex_document(self, document) -> callable:
-        def get_line(lineno: int) -> StyleAndTextTuples:
+        def get_line(lineno: int):
             line = document.lines[lineno]
             tokens = []
             last_index = 0
-            # logger.debug(f"{dataview.calAdv = }")
             if dataview.calAdv < 0:
                 default_style = self.past_style
             elif dataview.calAdv > 0:
@@ -1424,7 +1415,6 @@ class HighlightLexer(Lexer):
 
             for match in self.pattern.finditer(line):
                 # Add the text before the match with default style
-                # logger.debug(f"{match = }")
                 if match.start() > last_index:
                     tokens.append((default_style, line[last_index:match.start()]))
 
@@ -3537,11 +3527,14 @@ def used_summary_view(*event):
     set_view('U')
 
 
+# @bindings.add('y', filter=is_viewing)
+# def yearly_view(*event):
+#     dataview.set_active_view('y')
+#     set_text(dataview.show_active_view())
+
 @bindings.add('y', filter=is_viewing)
 def yearly_view(*event):
-    dataview.set_active_view('y')
-    set_text(dataview.show_active_view())
-
+    set_view('y')
 
 @bindings.add('h', filter=is_viewing)
 def history_view(*event):
