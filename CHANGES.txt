@@ -1,4 +1,35 @@
-2024-06-25 02beb77 Daniel Graham
+2024-09-24 0d6c022 Daniel Graham
+    Tagged version 6.5.0rc0. Reset working branch to master and
+    implemented calendar highlighting for the current month and day.
+
+2024-09-24 0ad55c2 Daniel Graham
+    3rd pass
+
+2024-09-24 e87d4e6 Daniel Graham
+    2nd pass
+
+2024-09-24 2c21499 Daniel Graham
+    first pass calendar highlight lexer
+
+2024-09-24 10d766b Daniel Graham
+    Merge branch 'master' into provisional
+
+2024-09-24 809e2ed Daniel Graham
+    fiddle
+
+2024-08-08 2040f83 Daniel Graham
+    merged provisional
+
+2024-08-08 cbe47de Daniel Graham
+    Fixed error in treating error msg as a list when it is a string.
+
+2024-07-12 b64c9ab Daniel Graham
+    Updated CI to latest action versions
+
+2024-07-12 f4e894a Daniel Graham
+    Setup CI with GitHub Actions
+
+2024-06-25 f600621 Daniel Graham
     Tagged version 6.5.0. Implemented item cache for schedule views
 
 2024-06-25 81c8a71 Daniel Graham
@@ -161,35 +192,3 @@
 2024-05-31 98f34e5 Daniel Graham
     Fixed timezone issues associated with daylight/standard time
     transitions. Flag instances falling within transition.
-
-2024-05-29 45a2a9e Daniel Graham
-    Replaced zoneinto ZoneInfo with dateutil tz gettz - seems to fix
-    daylight savings to standard time problem.
-
-2024-05-29 511a4c1 Daniel Graham
-    typo
-
-2024-05-29 7a044c7 Daniel Graham
-    goal tweaks
-
-2024-05-29 7263136 Daniel Graham
-    Message tweak
-
-2024-05-29 04add19 Daniel Graham
-    Goal category tweaks
-
-2024-05-28 367b3e1 Daniel Graham
-    Use 'w' as default quota period for compatibility with previous
-    version. Formatting tweaks for goals.
-
-2024-05-27 61bf526 Daniel Graham
-    Added year, quarter and month to periods supported by goals.
-
-2024-05-25 92dce3e Daniel Graham
-    Clean up - caches for cacheds views work
-
-2024-05-22 331f590 Daniel Graham
-    Tagged version 6.2.7.
-
-2024-05-22 25c994b Daniel Graham
-    Fixed date vs datetime bug
