@@ -4949,16 +4949,82 @@ shown when nonzero."""
         sms.sendmail(sms_from, sms_phone, msg.as_string())
         sms.quit()
 
+    # def refreshCalendar(self):
+    #     """
+    #     Advance = 0 shows the half year containing the current month. Advance
+    #     = n shows the half year containing the month that is 6 x n months in
+    #     the future if n > 0 or the past if n < 0.
+    #     """
+    #     width = shutil.get_terminal_size()[0]
+    #     columns = 2 if width < 70 else 3
+    #     today = date.today()
+    #     y = today.year
+    #     try:
+    #         c = calendar.LocaleTextCalendar(0, self.cal_locale)
+    #     except:
+    #         logger.warning(f'error using locale {self.cal_locale}')
+    #         c = calendar.LocaleTextCalendar(0)
+    #     cal = []
+    #     m = 0
+    #     m += 12 * self.calAdv
+    #     y += m // 12
+    #     m %= 12
+    #     for i in range(12):   # months in the year
+    #         cal.append(c.formatmonth(y, 1 + i, w=2).split('\n'))
+    #     ret = ['']
+    #     for r in range(0, 12, columns):  # 12 months in columns months
+    #         if columns == 3:
+    #             l = max(len(cal[r]), len(cal[r + 1]), len(cal[r + 2]))
+    #         else:
+    #             l = max(len(cal[r]), len(cal[r + 1]))
+
+    #         for i in range(columns):
+    #             if len(cal[r + i]) < l:
+    #                 for _ in range(len(cal[r + i]), l + (columns - 1)):
+    #                     cal[r + i].append('')
+    #         for j in range(l):  # rows from each of the 2 months
+    #             if columns == 3:
+    #                 ret.append(
+    #                     (
+    #                         '%-20s   %-20s   %-20s '
+    #                         % (cal[r][j], cal[r + 1][j], cal[r + 2][j])
+    #                     )
+    #                 )
+    #             else:
+    #                 ret.append(('%-20s   %-20s ' % (cal[r][j], cal[r + 1][j])))
+    #     max_len = max([len(line) for line in ret])
+    #     indent = max(width - max_len, 0) // 2 * ' '
+    #     ret_lines = [f'{indent}{line}' for line in ret]
+    #     ret_str = '\n'.join(ret_lines)
+    #     self.calendar_view = ret_str
+
+    # def nextcal(self):
+    #     self.calAdv += 1
+    #     self.refreshCalendar()
+
+    # def prevcal(self):
+    #     self.calAdv -= 1
+    #     self.refreshCalendar()
+
+    # def currcal(self):
+    #     self.calAdv = date.today().month // 13
+    #     self.refreshCalendar()
+
     def refreshCalendar(self):
         """
         Advance = 0 shows the half year containing the current month. Advance
         = n shows the half year containing the month that is 6 x n months in
         the future if n > 0 or the past if n < 0.
         """
+        ZWN1 = '\u200B'
+        ZWN2 = '\u200B'
         width = shutil.get_terminal_size()[0]
         columns = 2 if width < 70 else 3
         today = date.today()
-        y = today.year
+        y = ty = today.year
+        tm = today.month
+        td = today.day
+        ym = today.strftime("%B %Y")
         try:
             c = calendar.LocaleTextCalendar(0, self.cal_locale)
         except:
@@ -4970,8 +5036,16 @@ shown when nonzero."""
         y += m // 12
         m %= 12
         for i in range(12):   # months in the year
-            cal.append(c.formatmonth(y, 1 + i, w=2).split('\n'))
-        ret = ['']
+            if i == tm - 1 and y == ty:
+                yearmonth = c.formatmonth(y, 1 + i, w=2)
+                # logger.debug(f"starting {yearmonth = }")
+                yearmonth = re.sub(rf'\b{ym}\b', f'{ZWN1}{ym}{ZWN2}', yearmonth)
+                yearmonth = re.sub(rf'\b{td}\b', f'{ZWN1}{td}{ZWN2}', yearmonth)
+                # logger.debug(f"ending {yearmonth = }")
+                cal.append(yearmonth.split('\n'))
+            else:
+                cal.append(c.formatmonth(y, 1 + i, w=2).split('\n'))
+        ret = []
         for r in range(0, 12, columns):  # 12 months in columns months
             if columns == 3:
                 l = max(len(cal[r]), len(cal[r + 1]), len(cal[r + 2]))
@@ -4982,7 +5056,7 @@ shown when nonzero."""
                 if len(cal[r + i]) < l:
                     for _ in range(len(cal[r + i]), l + (columns - 1)):
                         cal[r + i].append('')
-            for j in range(l):  # rows from each of the 2 months
+            for j in range(l):  # rows from each of the months
                 if columns == 3:
                     ret.append(
                         (
@@ -4995,6 +5069,8 @@ shown when nonzero."""
         max_len = max([len(line) for line in ret])
         indent = max(width - max_len, 0) // 2 * ' '
         ret_lines = [f'{indent}{line}' for line in ret]
+        # for line in ret_lines:
+        #     logger.debug(f"{line = }")
         ret_str = '\n'.join(ret_lines)
         self.calendar_view = ret_str
 

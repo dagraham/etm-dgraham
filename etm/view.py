@@ -1414,6 +1414,59 @@ class ETMLexer(Lexer):
             ]
         return get_line
 
+class HighlightLexer(Lexer):
+    # _instance = None
+
+    # def __new__(cls, *args, **kwargs):
+    #     if not cls._instance:
+    #         cls._instance = super(HighlightLexer, cls).__new__(cls, *args, **kwargs)
+    #     return cls._instance
+
+    def __init__(self, highlight_style="fg:darkorange", current_style="fg:cornsilk", past_style="fg:lightsteelblue", future_style="fg:yellowgreen", default_style=""):
+        # if not hasattr(self, '_initialized'):
+        #     self._initialized = True
+        ZWN1 = '\u200B'
+        ZWN2 = '\u200B'
+        self.highlight_style = highlight_style
+        self.current_style = current_style
+        self.past_style = past_style
+        self.future_style = future_style
+        self.default_style = default_style
+        self.pattern = re.compile(rf'({ZWN1}.+{ZWN2})')
+
+    def lex_document(self, document) -> callable:
+        def get_line(lineno: int) -> StyleAndTextTuples:
+            line = document.lines[lineno]
+            tokens = []
+            last_index = 0
+            # logger.debug(f"{dataview.calAdv = }")
+            if dataview.calAdv < 0:
+                default_style = self.past_style
+            elif dataview.calAdv > 0:
+                default_style = self.future_style
+            else:
+                default_style = self.current_style
+
+            for match in self.pattern.finditer(line):
+                # Add the text before the match with default style
+                # logger.debug(f"{match = }")
+                if match.start() > last_index:
+                    tokens.append((default_style, line[last_index:match.start()]))
+
+                # Add the matched text with highlight style
+                tokens.append((self.highlight_style, match.group(1)[1:-1]))
+                last_index = match.end()
+
+            # Add the remaining text with default style
+            if last_index < len(line):
+                tokens.append((default_style, line[last_index:]))
+
+            # logger.debug(f"{tokens = }")
+            return tokens
+        return get_line
+
+highlight_lexer = HighlightLexer()
+
 
 def status_time(dt):
     """
@@ -3600,7 +3653,19 @@ def location_view(*event):
     set_view('l')
 
 
+# def set_view(view):
+#     dataview.set_active_view(view)
+#     item.use_items()
+#     set_text(dataview.show_active_view())
+
 def set_view(view):
+    logger.debug(f"set_view: {view}")
+    if view == 'y':
+        logger.debug("setting highlight_lexer")
+        text_area.lexer = highlight_lexer
+    else:
+        logger.debug("setting etmlexer")
+        text_area.lexer = etmlexer
     dataview.set_active_view(view)
     item.use_items()
     set_text(dataview.show_active_view())
