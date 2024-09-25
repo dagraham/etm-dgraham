@@ -922,8 +922,6 @@ item_hsh:    {self.item_hsh}
             self.db.insert(Document(self.item_hsh, doc_id=self.doc_id))
         except Exception as e:
             logger.warning(f"exception: {e}")
-        # update relevant and instances
-        self.get_repetitions()
         return True
 
     @benchmark
@@ -9351,7 +9349,7 @@ def create_item_views(item, flags):
     instances.sort()
     for dt, et in instances:
         if isinstance(dt, Period):
-            logger.debug(f"warning: {dt = } in {doc_id}: {summary} is not a datetime or date")
+            # logger.debug(f"warning: {dt = } in {doc_id}: {summary} is not a datetime or date")
             dt = dt.start
         yr, wk, dayofweek = dt.isocalendar()
         week = (yr, wk)
