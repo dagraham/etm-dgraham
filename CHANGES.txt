@@ -186,11 +186,3 @@
 
 2024-06-01 7e1be56 Daniel Graham
     Fixed bug in processing yearly goals
-
-2024-06-01 0ae3c60 Daniel Graham
-    Use lorem phrase for goals. In item.get_repetititons, only update
-    hash if modified.
-
-2024-06-01 d2daf8d Daniel Graham
-    Added goals and dst tests to make_examples. Fixed bug in yearly
-    fraction.
