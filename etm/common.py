@@ -1,6 +1,6 @@
 # pyright: reportUndefinedVariable=false
-from dateutil.parser import parse as dateutil_parse 
-from dateutil.parser import parserinfo 
+from dateutil.parser import parse as dateutil_parse
+from dateutil.parser import parserinfo
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
 import platform
@@ -14,11 +14,11 @@ from shlex import split as qsplit
 import contextlib, io
 import subprocess   # for check_output
 
-from pygments.lexer import RegexLexer 
-from pygments.token import Keyword 
-from pygments.token import Literal 
-from pygments.token import Operator 
-from pygments.token import Comment 
+from pygments.lexer import RegexLexer
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Operator
+from pygments.token import Comment
 
 import functools
 from time import perf_counter
@@ -29,15 +29,15 @@ import logging.config
 logger = logging.getLogger('etm')
 # settings = None
 
-import etm.__version__ as version 
-from ruamel.yaml import __version__ as ruamel_version 
-from dateutil import __version__ as dateutil_version 
-from tinydb import __version__ as tinydb_version 
-from jinja2 import __version__ as jinja2_version 
-from prompt_toolkit import __version__ as prompt_toolkit_version 
+import etm.__version__ as version
+from ruamel.yaml import __version__ as ruamel_version
+from dateutil import __version__ as dateutil_version
+from tinydb import __version__ as tinydb_version
+from jinja2 import __version__ as jinja2_version
+from prompt_toolkit import __version__ as prompt_toolkit_version
 
 from time import perf_counter as timer
-from etm.make_examples import make_examples 
+from etm.make_examples import make_examples
 
 ETMDB = DBITEM = DBARCH = dataview = data_changed = None
 
@@ -45,12 +45,15 @@ def is_aware(dt):
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
 
 def benchmark(func: Callable[..., Any]) -> Callable[..., Any]:
+    use_timer = False
     @functools.wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        start = perf_counter()
+        if use_timer:
+            start = perf_counter()
         result = func(*args, **kwargs)
-        end = perf_counter()
-        logger.debug(f'⏱ {func.__name__} took {end - start:.4f} seconds')
+        if use_timer:
+            end = perf_counter()
+            logger.debug(f'⏱ {func.__name__} took {end - start:.4f} seconds')
         return result
     return wrapper
 
