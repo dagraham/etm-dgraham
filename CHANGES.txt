@@ -1,4 +1,10 @@
-2024-09-24 e10606d Daniel Graham
+2024-09-25 b4674b6 Daniel Graham
+    Tagged version 6.4.11.
+
+2024-09-25 22c4986 Daniel Graham
+    Fixed infinite recursion loop in do_update.
+
+2024-09-24 5c13f30 Daniel Graham
     Tagged version 6.4.10.
 
 2024-09-24 9d09e7b Daniel Graham
@@ -180,11 +186,3 @@
 
 2024-06-01 7e1be56 Daniel Graham
     Fixed bug in processing yearly goals
-
-2024-06-01 0ae3c60 Daniel Graham
-    Use lorem phrase for goals. In item.get_repetititons, only update
-    hash if modified.
-
-2024-06-01 d2daf8d Daniel Graham
-    Added goals and dst tests to make_examples. Fixed bug in yearly
-    fraction.
