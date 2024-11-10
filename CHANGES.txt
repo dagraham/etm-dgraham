@@ -1,4 +1,11 @@
-2024-11-10 b1f320e Daniel Graham
+2024-11-10 663e274 Daniel Graham
+    Tagged version 6.4.9b0. Working on datetime comparisons
+
+2024-11-10 c76ac63 Daniel Graham
+    Only remove trailing zeros in datetime comparisons if they are
+    hours and minutes and both are zero
+
+2024-11-10 db0729b Daniel Graham
     Tagged version 6.4.9a2.
 
 2024-11-10 61e979c Daniel Graham
@@ -188,9 +195,3 @@
 
 2024-05-22 25c994b Daniel Graham
     Fixed date vs datetime bug
-
-2024-05-22 84dce1d Daniel Graham
-    Tagged version 6.2.6.
-
-2024-05-22 3c75e39 Daniel Graham
-    Removed more logging.debug statements
