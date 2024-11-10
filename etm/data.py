@@ -1,55 +1,55 @@
 #!/usr/bin/env python3
 
-import os
-import json
-from tinydb import where 
-from tinydb import JSONStorage, TinyDB, Storage, Query 
-from tinydb.table import Table, Document 
-from tinydb.middlewares import CachingMiddleware 
-from contextlib import contextmanager
-from typing import Dict, Any, Optional, Callable, Mapping
-from prompt_toolkit.lexers import PygmentsLexer 
-
-from tinydb import __version__ as tinydb_version 
-from tinydb_serialization import Serializer 
-from tinydb_serialization import SerializationMiddleware 
-import base64  # for do_mask
 import asyncio
+import base64  # for do_mask
+import json
+import logging
+import os
+from contextlib import contextmanager
+from datetime import date, datetime, timedelta
+from typing import Any, Callable, Dict, Mapping, Optional
 
-from datetime import datetime, date, timedelta
-
-import dateutil 
+import dateutil
 from dateutil.rrule import rrule
 from dateutil.tz import gettz
+from prompt_toolkit.lexers import PygmentsLexer
+from tinydb import JSONStorage, Query, Storage, TinyDB
+from tinydb import __version__ as tinydb_version
+from tinydb import where
+from tinydb.middlewares import CachingMiddleware
+from tinydb.table import Document, Table
+from tinydb_serialization import SerializationMiddleware, Serializer
 
-import logging
-logger = logging.getLogger('etmmv')
+logger = logging.getLogger("etmmv")
 
-from dateutil.rrule import * 
 import re
-from etm.common import ( 
-    WKDAYS_DECODE,
-    WKDAYS_ENCODE,
+
+from dateutil.rrule import *
+
+from etm.common import (
     AWARE_FMT,
-    NAIVE_FMT,
     DATE_FMT,
-    TDBLexer,
-    dataview,
     DBARCH,
     DBITEM,
-    wrap,
+    NAIVE_FMT,
+    WKDAYS_DECODE,
+    WKDAYS_ENCODE,
+    Period,
+    TDBLexer,
+    data_changed,
+    dataview,
+    db_replace,
+    decode_datetime,
+    encode_datetime,
+    is_aware,
     nowrap,
     openWithDefault,
-    Period,
-    is_aware,
-    encode_datetime,
-    decode_datetime,
-    data_changed,
-    write_back,
     update_db,
-    db_replace,
+    wrap,
+    write_back,
 )
-from etm.model import item_details 
+from etm.model import item_details
+
 # from etm.common import Period, is_aware, encode_datetime, decode_datetime
 
 ##########################
@@ -102,7 +102,8 @@ from etm.model import item_details
 
 
 local_tz = gettz()
-utc_tz = gettz('UTC')
+utc_tz = gettz("UTC")
+
 
 def insert_db(db, hsh={}):
     """
@@ -111,45 +112,45 @@ def insert_db(db, hsh={}):
     if not hsh:
 
         return
-    hsh['created'] = datetime.now()
+    hsh["created"] = datetime.now()
     try:
         db.insert(hsh)
     except Exception as e:
-        logger.error(f'Error updating database:\nhsh {hsh}\ne {repr(e)}')
+        logger.error(f"Error updating database:\nhsh {hsh}\ne {repr(e)}")
 
 
 class ETMQuery(object):
     def __init__(self):
         self.filters = {
-            'begins': self.begins,
-            'includes': self.includes,
-            'in': self.includes,
-            'equals': self.equals,
-            'more': self.more,
-            'less': self.less,
-            'exists': self.exists,
-            'any': self.in_any,
-            'all': self.in_all,
-            'one': self.one_of,
-            'info': self.info,
-            'dt': self.dt,
+            "begins": self.begins,
+            "includes": self.includes,
+            "in": self.includes,
+            "equals": self.equals,
+            "more": self.more,
+            "less": self.less,
+            "exists": self.exists,
+            "any": self.in_any,
+            "all": self.in_all,
+            "one": self.one_of,
+            "info": self.info,
+            "dt": self.dt,
         }
 
         self.op = {
-            '=': self.maybe_equal,
-            '>': self.maybe_later,
-            '<': self.maybe_earlier,
+            "=": self.equal,
+            ">": self.later,
+            "<": self.earlier,
         }
 
         self.update = {
-            'replace': self.replace,  # a, rgx, rep
-            'remove': self.remove,  #
-            'archive': self.archive,  #
-            'delete': self.delete,  # a
-            'set': self.set,  # a, b
-            'provide': self.provide,  # a, b
-            'attach': self.attach,  # a, b
-            'detach': self.detach,  # a, b
+            "replace": self.replace,  # a, rgx, rep
+            "remove": self.remove,  #
+            "archive": self.archive,  #
+            "delete": self.delete,  # a
+            "set": self.set,  # a, b
+            "provide": self.provide,  # a, b
+            "attach": self.attach,  # a, b
+            "detach": self.detach,  # a, b
         }
 
         self.changed = False
@@ -157,7 +158,7 @@ class ETMQuery(object):
         self.lexer = PygmentsLexer(TDBLexer)
         self.Item = Query()
 
-        self.allowed_commands = ', '.join([x for x in self.filters])
+        self.allowed_commands = ", ".join([x for x in self.filters])
 
     def replace(self, a, rgx, rep, items):
         """
@@ -165,7 +166,7 @@ class ETMQuery(object):
         is a list, do this for each element in item['a']
         """
         changed = []
-        rep = re.sub(r'\\s', ' ', rep)
+        rep = re.sub(r"\\s", " ", rep)
         for item in items:
             if a in item:
                 if isinstance(item[a], list):
@@ -177,7 +178,7 @@ class ETMQuery(object):
                     res = re.sub(rgx, rep, item[a], flags=re.IGNORECASE)
                 if res != item[a]:
                     item[a] = res
-                    item['modified'] = datetime.now().astimezone()
+                    item["modified"] = datetime.now().astimezone()
                     changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -200,7 +201,7 @@ class ETMQuery(object):
         rem_ids = [item.doc_id for item in items]
 
         try:
-            if dataview.query_mode == 'items table':
+            if dataview.query_mode == "items table":
                 # move to archive
                 DBARCH.insert_multiple(items)
                 DBITEM.remove(doc_ids=rem_ids)
@@ -210,7 +211,7 @@ class ETMQuery(object):
                 DBARCH.remove(doc_ids=rem_ids)
         except Exception as e:
             logger.error(
-                f'move from {dataview.query_mode} failed for items: {items}; rem_ids: {rem_ids}; exception: {e}'
+                f"move from {dataview.query_mode} failed for items: {items}; rem_ids: {rem_ids}; exception: {e}"
             )
             return False
         else:
@@ -224,7 +225,7 @@ class ETMQuery(object):
         for item in items:
             if a in item:
                 del item[a]
-                item['modified'] = datetime.now().astimezone()
+                item["modified"] = datetime.now().astimezone()
                 changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -236,10 +237,10 @@ class ETMQuery(object):
         Set the value of item[a] = b for items
         """
         changed = []
-        b = re.sub(r'\\\s', ' ', b)
+        b = re.sub(r"\\\s", " ", b)
         for item in items:
             item[a] = b
-            item['modified'] = datetime.now().astimezone()
+            item["modified"] = datetime.now().astimezone()
             changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -250,10 +251,10 @@ class ETMQuery(object):
         Provide item['a'] = b for items without an exising entry for 'a'.
         """
         changed = []
-        b = re.sub(r'\\\s', ' ', b)
+        b = re.sub(r"\\\s", " ", b)
         for item in items:
             item.setdefault(a, b)
-            item['modified'] = datetime.now().astimezone()
+            item["modified"] = datetime.now().astimezone()
             changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -264,15 +265,15 @@ class ETMQuery(object):
         Attach 'b' into the item['a'] list if 'b' is not in the list.
         """
         changed = []
-        b = re.sub(r'\\\s', ' ', b)
+        b = re.sub(r"\\\s", " ", b)
         for item in items:
             if a not in item:
                 item.setdefault(a, []).append(b)
-                item['modified'] = datetime.now().astimezone()
+                item["modified"] = datetime.now().astimezone()
                 changed.append(item)
             elif isinstance(item[a], list) and b not in item[a]:
                 item.setdefault(a, []).append(b)
-                item['modified'] = datetime.now().astimezone()
+                item["modified"] = datetime.now().astimezone()
                 changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -283,11 +284,11 @@ class ETMQuery(object):
         Detatch 'b' from the item['a'] list if it belongs to the list.
         """
         changed = []
-        b = re.sub(r'\\\s', ' ', b)
+        b = re.sub(r"\\\s", " ", b)
         for item in items:
             if a in item and isinstance(item[a], list) and b in item[a]:
                 item[a].remove(b)
-                item['modified'] = datetime.now().astimezone()
+                item["modified"] = datetime.now().astimezone()
                 changed.append(item)
         if changed:
             write_back(dataview.db, changed)
@@ -299,74 +300,65 @@ class ETMQuery(object):
     def is_date(self, val):
         return isinstance(val, date) and not isinstance(val, datetime)
 
-    def maybe_equal(self, val, args):
-        """
-        args = year-month-...-minute
-        """
-        args = args.split('-')
-        # args = list(args)
-        if not isinstance(val, date):
-            # neither a date or a datetime
-            return False
-        if args and val.year != int(args.pop(0)):
-            return False
-        if args and val.month != int(args.pop(0)):
-            return False
-        if args and val.day != int(args.pop(0)):
-            return False
-        if isinstance(val, datetime):
-            # val has hours and minutes
-            if args and val.hour != int(args.pop(0)):
-                return False
-            if args and val.minute != int(args.pop(0)):
-                return False
-        return True
+    def drop_trailing_zeros(self, lst):
+        while lst and lst[-1] == 0:
+            lst.pop()
+        return lst
 
-    def maybe_later(self, val, args):
+    def equal(self, val, args):
         """
         args = year-month-...-minute
         """
-        args = args.split('-')
-        # args = list(args)
         if not isinstance(val, date):
             # neither a date or a datetime
             return False
-        if args and not val.year >= int(args.pop(0)):
-            return False
-        if args and not val.month >= int(args.pop(0)):
-            return False
-        if args and not val.day >= int(args.pop(0)):
-            return False
-        if isinstance(val, datetime):
-            # val has hours and minutes
-            if args and not val.hour >= int(args.pop(0)):
-                return False
-            if args and not val.minute >= int(args.pop(0)):
-                return False
-        return True
+        dt1 = self.drop_trailing_zeros(
+            [int(x) for x in val.strftime("%Y-%m-%d-%H-%M").split("-")]
+        )
+        dt2 = self.drop_trailing_zeros([int(x) for x in args.split("-")])
+        return dt1 == dt2
 
-    def maybe_earlier(self, val, args):
+    def later(self, val, args):
         """
         args = year-month-...-minute
         """
-        args = args.split('-')
-        # args = list(args)
         if not isinstance(val, date):
             # neither a date or a datetime
             return False
-        if args and not val.year <= int(args.pop(0)):
-            return False
-        if args and not val.month <= int(args.pop(0)):
-            return False
-        if args and not val.day <= int(args.pop(0)):
-            return False
-        if isinstance(val, datetime):
-            # val has hours and minutes
-            if args and not val.hour <= int(args.pop(0)):
+        dt1 = self.drop_trailing_zeros(
+            [int(x) for x in val.strftime("%Y-%m-%d-%H-%M").split("-")]
+        )
+        dt2 = self.drop_trailing_zeros([int(x) for x in args.split("-")])
+        min_length = min(len(dt1), len(dt2))
+        # Compare up to the length of the shorter part list
+        for i in range(min_length):
+            if dt1[i] > dt2[i]:
+                return True
+            elif dt1[i] < dt2[i]:
                 return False
-            if args and not val.minute <= int(args.pop(0)):
+        # At this point, both have the same initial parts, but one may lack subsequent components
+        return False
+
+    def earlier(self, val, args):
+        """
+        args = year-month-...-minute
+        """
+        if not isinstance(val, date):
+            # neither a date or a datetime
+            return False
+        dt1 = self.drop_trailing_zeros(
+            [int(x) for x in val.strftime("%Y-%m-%d-%H-%M").split("-")]
+        )
+        dt2 = self.drop_trailing_zeros([int(x) for x in args.split("-")])
+        min_length = min(len(dt1), len(dt2))
+        # Compare up to the length of the shorter part list
+        for i in range(min_length):
+            if dt1[i] < dt2[i]:
+                return True
+            elif dt1[i] > dt2[i]:
                 return False
-        return True
+        # At this point, both have the same initial parts, but one may lack subsequent components
+        return False
 
     def begins(self, a, b):
         # the value of field 'a' begins with the case-insensitive regex 'b'
@@ -450,13 +442,13 @@ class ETMQuery(object):
     def info(self, a):
         # field 'a' exists
         item = dataview.db.get(doc_id=int(a))
-        return item if item else f'doc_id {a} not found'
+        return item if item else f"doc_id {a} not found"
 
     def dt(self, a, b):
-        if b[0] == '?':
-            if b[1] == 'time':
+        if b[0] == "?":
+            if b[1] == "time":
                 return self.Item[a].test(self.is_datetime)
-            elif b[1] == 'date':
+            elif b[1] == "date":
                 return self.Item[a].test(self.is_date)
 
         return self.Item[a].test(self.op[b[0]], b[1])
@@ -464,20 +456,20 @@ class ETMQuery(object):
     def process_query(self, query):
         """ """
         dataview.last_query = []
-        [fltr, *updt] = [x.strip() for x in query.split(' | ')]
+        [fltr, *updt] = [x.strip() for x in query.split(" | ")]
         if len(updt) == 1:
             # get a list with the update command and arguments
-            updt = [x.strip() for x in updt[0].split(' ')]
+            updt = [x.strip() for x in updt[0].split(" ")]
         else:
             updt = []
 
-        parts = [x.split() for x in re.split(r' (and|or) ', fltr)]
+        parts = [x.split() for x in re.split(r" (and|or) ", fltr)]
 
         cmnds = []
         for part in parts:
             part = [x.strip() for x in part if x.strip()]
-            negation = part[0].startswith('~')
-            if part[0] not in ['and', 'or']:
+            negation = part[0].startswith("~")
+            if part[0] not in ["and", "or"]:
                 # we have a command
                 if negation:
                     # drop the ~
@@ -492,7 +484,7 @@ class ETMQuery(object):
                     )
 
             if len(part) > 3:
-                if part[0] in ['in', 'includes']:
+                if part[0] in ["in", "includes"]:
                     if negation:
                         cmnds.append(
                             ~self.filters[part[0]](
@@ -533,18 +525,18 @@ class ETMQuery(object):
 
         test = cmnds[0]
         for i in range(1, len(cmnds)):
-            if i % 2 and cmnds[i] in ['and', 'or']:
+            if i % 2 and cmnds[i] in ["and", "or"]:
                 andor = cmnds[i]
                 continue
-            test = test | cmnds[i] if andor == 'or' else test & cmnds[i]
+            test = test | cmnds[i] if andor == "or" else test & cmnds[i]
         return True, test, updt
 
     def do_query(self, query):
         """ """
-        if query in ['?', 'help']:
-            query_help = 'https://dagraham.github.io/etm-dgraham/#query-view'
+        if query in ["?", "help"]:
+            query_help = "https://dagraham.github.io/etm-dgraham/#query-view"
             openWithDefault(query_help)
-            return False, 'opened query help using default browser'
+            return False, "opened query help using default browser"
         try:
             ok, res, updt = self.process_query(query)
             if not ok or isinstance(res, str):
@@ -605,7 +597,7 @@ class DateTimeSerializer(Serializer):
         >>> dts.decode('20180725T1427A')
         DateTime(2018, 7, 25, 10, 27, 0, tzinfo=Timezone('America/New_York'))
         """
-        if s[-1] == 'A':
+        if s[-1] == "A":
             return (
                 datetime.strptime(s, AWARE_FMT)
                 .replace(tzinfo=utc_tz)
@@ -665,7 +657,7 @@ class PeriodSerializer(Serializer):
         """
         start_fmt = encode_datetime(obj.start)
         end_fmt = encode_datetime(obj.end)
-        return f'{start_fmt} -> {end_fmt}'
+        return f"{start_fmt} -> {end_fmt}"
 
     def decode(self, s):
         """
@@ -677,13 +669,13 @@ class PeriodSerializer(Serializer):
         <Period [2018-07-30T10:45:00-04:00 -> 2018-07-25T13:27:00-04:00]>
         """
 
-        start, end = [x.strip() for x in s.split('->')]
+        start, end = [x.strip() for x in s.split("->")]
         start_enc = decode_datetime(start)
         end_enc = decode_datetime(end)
         return Period(start_enc, end_enc)
 
     def __repr__(self):
-        return f'{self.obj}'
+        return f"{self.obj}"
 
 
 class DurationSerializer(Serializer):
@@ -746,17 +738,17 @@ class WeekdaySerializer(Serializer):
 
 
 def format_rrwkday(obj):
-    s = WKDAYS_ENCODE.get(obj.__repr__(), '').lstrip('+')
+    s = WKDAYS_ENCODE.get(obj.__repr__(), "").lstrip("+")
     if s is None:
-        raise ValueError(f'{obj} is not a dateutil rrule weekday instance')
+        raise ValueError(f"{obj} is not a dateutil rrule weekday instance")
     return s
 
 
 def parse_rrwkday(s):
-    s = WKDAYS_DECODE.get(s, '')
+    s = WKDAYS_DECODE.get(s, "")
     if not s:
-        raise ValueError(f'{s} is not a valid rrule weekday expression')
-    obj = eval(f'dateutil.rrule.{s}')
+        raise ValueError(f"{s} is not a valid rrule weekday expression")
+    obj = eval(f"dateutil.rrule.{s}")
     return obj
 
 
@@ -771,7 +763,7 @@ def encode(key, clear):
         key_c = key[i % len(key)]
         enc_c = chr((ord(clear[i]) + ord(key_c)) % 256)
         enc.append(enc_c)
-    return base64.urlsafe_b64encode(''.join(enc).encode()).decode()
+    return base64.urlsafe_b64encode("".join(enc).encode()).decode()
 
 
 def decode(key, enc):
@@ -781,11 +773,11 @@ def decode(key, enc):
         key_c = key[i % len(key)]
         dec_c = chr((256 + ord(enc[i]) - ord(key_c)) % 256)
         dec.append(dec_c)
-    return ''.join(dec)
+    return "".join(dec)
 
 
 # NOTE: The real secret is set in cfg.yaml
-secret = 'whatever'
+secret = "whatever"
 
 
 class Mask:
@@ -796,7 +788,7 @@ class Mask:
     True
     """
 
-    def __init__(self, message=''):
+    def __init__(self, message=""):
         self.encoded = encode(secret, message)
 
     def __repr__(self):
@@ -829,17 +821,17 @@ class MaskSerializer(Serializer):
 def initialize_tinydb(dbfile):
     """ """
     serialization = SerializationMiddleware()
-    serialization.register_serializer(DateTimeSerializer(), 'T')   # Time
-    serialization.register_serializer(DateSerializer(), 'D')     # Date
-    serialization.register_serializer(PeriodSerializer(), 'P')   # Period
-    serialization.register_serializer(DurationSerializer(), 'I')   # Interval
-    serialization.register_serializer(WeekdaySerializer(), 'W')  # Wkday
-    serialization.register_serializer(MaskSerializer(), 'M')    # Mask
+    serialization.register_serializer(DateTimeSerializer(), "T")  # Time
+    serialization.register_serializer(DateSerializer(), "D")  # Date
+    serialization.register_serializer(PeriodSerializer(), "P")  # Period
+    serialization.register_serializer(DurationSerializer(), "I")  # Interval
+    serialization.register_serializer(WeekdaySerializer(), "W")  # Wkday
+    serialization.register_serializer(MaskSerializer(), "M")  # Mask
 
     db = TinyDB(dbfile, storage=serialization, indent=1, ensure_ascii=False)
-    logger.debug(f'db._storage: {db.__dict__}')
+    logger.debug(f"db._storage: {db.__dict__}")
 
-    db.default_table_name = 'items'
+    db.default_table_name = "items"
 
     # db.insert({'itemtype': '!', 'summary': 'inserted by data.py'})
 
@@ -853,7 +845,7 @@ def format_duration(obj):
     hours and minutes.
     """
     if not isinstance(obj, timedelta):
-        raise ValueError(f'{obj} is not a timedelta instance')
+        raise ValueError(f"{obj} is not a timedelta instance")
     until = []
     weeks = obj.days // 7
     days = obj.days % 7
@@ -861,31 +853,31 @@ def format_duration(obj):
     minutes = (obj.seconds // 60) % 60
     seconds = obj.seconds % 60
     if weeks:
-        until.append(f'{weeks}w')
+        until.append(f"{weeks}w")
     if days:
-        until.append(f'{days}d')
+        until.append(f"{days}d")
     if hours:
-        until.append(f'{hours}h')
+        until.append(f"{hours}h")
     if minutes:
-        until.append(f'{minutes}m')
+        until.append(f"{minutes}m")
     if seconds:
-        until.append(f'{seconds}s')
+        until.append(f"{seconds}s")
     if not until:
-        until.append('0m')
-    return ''.join(until)
+        until.append("0m")
+    return "".join(until)
 
 
 def format_duration_list(obj_lst):
     try:
-        return ', '.join([format_duration(x) for x in obj_lst])
+        return ", ".join([format_duration(x) for x in obj_lst])
     except Exception as e:
-        print('format_duration_list', e)
+        print("format_duration_list", e)
         print(obj_lst)
 
 
-period_regex = re.compile(r'(([+-]?)(\d+)([wdhms]))+?')
-threeday_regex = re.compile(r'(MON|TUE|WED|THU|FRI|SAT|SUN)', re.IGNORECASE)
-anniversary_regex = re.compile(r'!(\d{4})!')
+period_regex = re.compile(r"(([+-]?)(\d+)([wdhms]))+?")
+threeday_regex = re.compile(r"(MON|TUE|WED|THU|FRI|SAT|SUN)", re.IGNORECASE)
+anniversary_regex = re.compile(r"!(\d{4})!")
 
 period_hsh = dict(
     z=timedelta(seconds=0),
@@ -921,12 +913,12 @@ def parse_duration(s):
     >>> datetime(2015, 10, 15, 9, 0) + parse_duration("1w-2d+3h")[1]
     DateTime(2015, 10, 20, 12, 0, 0, tzinfo=Timezone('UTC'))
     """
-    td = period_hsh['z']
+    td = period_hsh["z"]
 
     m = period_regex.findall(s)
     if not m:
         return False, "Invalid period '{0}'".format(s)
     for g in m:
-        num = -int(g[2]) if g[1] == '-' else int(g[2])
+        num = -int(g[2]) if g[1] == "-" else int(g[2])
         td += num * period_hsh[g[3]]
     return True, td
