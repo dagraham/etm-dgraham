@@ -5,91 +5,64 @@ A user interface based on prompt_toolkit.
 """
 from __future__ import unicode_literals
 
-import sys
+import asyncio
+import contextlib
 import inspect
-import tinydb 
-
-import prompt_toolkit.application 
-
-from prompt_toolkit.completion import Completion, Completer, FuzzyCompleter 
-from prompt_toolkit.shortcuts import CompleteStyle, prompt 
-from prompt_toolkit.cursor_shapes import CursorShape 
-from prompt_toolkit.enums import EditingMode 
-from prompt_toolkit.filters import Condition 
-from prompt_toolkit.keys import Keys 
-from prompt_toolkit.key_binding import KeyBindings 
-
-
-from prompt_toolkit.key_binding.bindings.focus import (  
-    focus_next,
-    focus_previous,
-)
-from prompt_toolkit.key_binding.vi_state import InputMode 
-from prompt_toolkit.layout import Dimension 
-from prompt_toolkit.layout import Float  
-from prompt_toolkit.layout.containers import (  
-    HSplit,
-    VSplit,
-    Window,
-    WindowAlign,
-    ConditionalContainer,
-)
-from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl 
-from prompt_toolkit.layout.dimension import D 
-from prompt_toolkit.layout.layout import Layout  
-from prompt_toolkit.layout.menus import CompletionsMenu  
-from prompt_toolkit.lexers import Lexer 
-from prompt_toolkit.lexers import PygmentsLexer 
-from prompt_toolkit.selection import SelectionType 
-from prompt_toolkit.styles import Style 
-from prompt_toolkit.styles.named_colors import NAMED_COLORS  
-from prompt_toolkit.widgets import Box, Label, Button 
-from prompt_toolkit.widgets import HorizontalLine 
-from prompt_toolkit.widgets import ( 
-    TextArea,
-    SearchToolbar,
-    MenuContainer,
-    MenuItem,
-)
+import io
+import os
+import platform
+import re
+import shutil
+import subprocess  # for check_output
+import sys
+import textwrap
+import time
+from datetime import date, datetime, timedelta
+from glob import glob
+from shlex import split as qsplit
 from zoneinfo import ZoneInfo
 
+import prompt_toolkit.application
+import pyperclip
+import requests
+import tinydb
 from packaging.version import parse as parse_version
+from prompt_toolkit.completion import Completer, Completion, FuzzyCompleter
+from prompt_toolkit.cursor_shapes import CursorShape
+from prompt_toolkit.enums import EditingMode
+from prompt_toolkit.filters import Condition
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.key_binding.bindings.focus import (focus_next,
+                                                       focus_previous)
+from prompt_toolkit.key_binding.vi_state import InputMode
+from prompt_toolkit.keys import Keys
+from prompt_toolkit.layout import Dimension, Float
+from prompt_toolkit.layout.containers import (ConditionalContainer, HSplit,
+                                              VSplit, Window, WindowAlign)
+from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
+from prompt_toolkit.layout.dimension import D
+from prompt_toolkit.layout.layout import Layout
+from prompt_toolkit.layout.menus import CompletionsMenu
+from prompt_toolkit.lexers import Lexer, PygmentsLexer
+from prompt_toolkit.selection import SelectionType
+from prompt_toolkit.shortcuts import CompleteStyle, prompt
+from prompt_toolkit.styles import Style
+from prompt_toolkit.styles.named_colors import NAMED_COLORS
+from prompt_toolkit.widgets import (Box, Button, HorizontalLine, Label,
+                                    MenuContainer, MenuItem, SearchToolbar,
+                                    TextArea)
+from pygments.lexer import RegexLexer
+from pygments.token import Comment, Keyword, Literal, Operator
+from tinydb import Query, where
 
-import shutil
-from shlex import split as qsplit
-import time
-from datetime import datetime, date, timedelta
-
-import requests 
-import asyncio
-import textwrap
-
-import re
-import subprocess   # for check_output
-
-import platform
-import os
-from glob import glob
-import contextlib, io
-
-import pyperclip 
-from etm.common import etm_version 
-from etm.common import EtmChar 
-from etm.common import benchmark, timeit 
-from etm.common import WA, parse_datetime, text_pattern, etmhome, import_file
-from etm.model import format_datetime, format_time, format_statustime, format_duration, parse_datetime
-
-from tinydb import where 
-from tinydb import Query 
-from pygments.lexer import RegexLexer 
-from pygments.token import Keyword 
-from pygments.token import Literal  
-from pygments.token import Operator 
-from pygments.token import Comment 
-
-from etm.common import DBITEM, DBARCH, ETMDB, wrap, nowrap, openWithDefault, TDBLexer 
-from etm import model 
-from etm.data import write_back 
+from etm import model
+from etm.common import (DBARCH, DBITEM, ETMDB, WA, EtmChar, TDBLexer,
+                        benchmark, etm_version, etmhome, import_file, nowrap,
+                        openWithDefault, parse_datetime, text_pattern, timeit,
+                        wrap)
+from etm.data import write_back
+from etm.model import (format_datetime, format_duration, format_statustime,
+                       format_time, parse_datetime)
 
 pta = prompt_toolkit.application
 get_app = prompt_toolkit.application.current.get_app
@@ -101,6 +74,7 @@ Buffer = prompt_toolkit.buffer.Buffer
 # set in __main__
 logger = None
 import logging
+
 logger = logging.getLogger('etmmv')
 
 dataview = None
@@ -355,28 +329,23 @@ class ETMQuery(object):
     def is_date(self, val):
         return isinstance(val, date) and not isinstance(val, datetime)
 
+    def drop_trailing_zeros(self, lst):
+        while lst and lst[-1] == 0:
+            lst.pop()
+        return lst
+
     def maybe_equal(self, val, args):
         """
         args = year-month-...-minute
         """
-        args = args.split('-')
-        # args = list(args)
         if not isinstance(val, date):
             # neither a date or a datetime
             return False
-        if args and val.year != int(args.pop(0)):
-            return False
-        if args and val.month != int(args.pop(0)):
-            return False
-        if args and val.day != int(args.pop(0)):
-            return False
-        if isinstance(val, datetime):
-            # val has hours and minutes
-            if args and val.hour != int(args.pop(0)):
-                return False
-            if args and val.minute != int(args.pop(0)):
-                return False
-        return True
+        dt1 = self.drop_trailing_zeros(
+            [int(x) for x in val.strftime("%Y-%m-%d-%H-%M").split("-")]
+        )
+        dt2 = self.drop_trailing_zeros([int(x) for x in args.split("-")])
+        return dt1 == dt2
 
     def maybe_later(self, val, args):
         """
@@ -387,42 +356,40 @@ class ETMQuery(object):
         if not isinstance(val, date):
             # neither a date or a datetime
             return False
-        if args and not val.year >= int(args.pop(0)):
-            return False
-        if args and not val.month >= int(args.pop(0)):
-            return False
-        if args and not val.day >= int(args.pop(0)):
-            return False
-        if isinstance(val, datetime):
-            # val has hours and minutes
-            if args and not val.hour >= int(args.pop(0)):
+        dt1 = self.drop_trailing_zeros(
+            [int(x) for x in val.strftime("%Y-%m-%d-%H-%M").split("-")]
+        )
+        dt2 = self.drop_trailing_zeros([int(x) for x in args.split("-")])
+        min_length = min(len(dt1), len(dt2))
+        # Compare up to the length of the shorter part list
+        for i in range(min_length):
+            if dt1[i] > dt2[i]:
+                return True
+            elif dt1[i] < dt2[i]:
                 return False
-            if args and not val.minute >= int(args.pop(0)):
-                return False
-        return True
+        # At this point, both have the same initial parts, but one may lack subsequent components
+        return False
 
     def maybe_earlier(self, val, args):
         """
         args = year-month-...-minute
         """
-        args = args.split('-')
-        # args = list(args)
         if not isinstance(val, date):
             # neither a date or a datetime
             return False
-        if args and not val.year <= int(args.pop(0)):
-            return False
-        if args and not val.month <= int(args.pop(0)):
-            return False
-        if args and not val.day <= int(args.pop(0)):
-            return False
-        if isinstance(val, datetime):
-            # val has hours and minutes
-            if args and not val.hour <= int(args.pop(0)):
+        dt1 = self.drop_trailing_zeros(
+            [int(x) for x in val.strftime("%Y-%m-%d-%H-%M").split("-")]
+        )
+        dt2 = self.drop_trailing_zeros([int(x) for x in args.split("-")])
+        min_length = min(len(dt1), len(dt2))
+        # Compare up to the length of the shorter part list
+        for i in range(min_length):
+            if dt1[i] < dt2[i]:
+                return True
+            elif dt1[i] > dt2[i]:
                 return False
-            if args and not val.minute <= int(args.pop(0)):
-                return False
-        return True
+        # At this point, both have the same initial parts, but one may lack subsequent components
+        return False
 
     def begins(self, a, b):
         # the value of field 'a' begins with the case-insensitive regex 'b'

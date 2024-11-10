@@ -137,9 +137,9 @@ class ETMQuery(object):
         }
 
         self.op = {
-            "=": self.equal,
-            ">": self.later,
-            "<": self.earlier,
+            "=": self.maybe_equal,
+            ">": self.maybe_later,
+            "<": self.maybe_earlier,
         }
 
         self.update = {
@@ -305,7 +305,7 @@ class ETMQuery(object):
             lst.pop()
         return lst
 
-    def equal(self, val, args):
+    def maybe_equal(self, val, args):
         """
         args = year-month-...-minute
         """
@@ -318,7 +318,7 @@ class ETMQuery(object):
         dt2 = self.drop_trailing_zeros([int(x) for x in args.split("-")])
         return dt1 == dt2
 
-    def later(self, val, args):
+    def maybe_later(self, val, args):
         """
         args = year-month-...-minute
         """
@@ -339,7 +339,7 @@ class ETMQuery(object):
         # At this point, both have the same initial parts, but one may lack subsequent components
         return False
 
-    def earlier(self, val, args):
+    def maybe_earlier(self, val, args):
         """
         args = year-month-...-minute
         """
