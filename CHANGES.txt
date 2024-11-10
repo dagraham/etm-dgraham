@@ -1,4 +1,10 @@
-2024-06-20 3f1ba57 Daniel Graham
+2024-11-10 e2342dc Daniel Graham
+    Tagged version 6.4.9a1. data datetime comparison fix
+
+2024-11-10 6a4d5fc Daniel Graham
+    Fixed datetime earlier, later, equal comparisons
+
+2024-06-20 013b84e Daniel Graham
     Tagged version 6.4.9.
 
 2024-06-20 d481308 Daniel Graham
@@ -188,10 +194,3 @@
 
 2024-05-22 fa11ab4 Daniel Graham
     Next pass at finishing repeated tasks correctly
-
-2024-05-19 94b7683 Daniel Graham
-    Fixed bug in completing repeating task when @s doesn't fit the
-    recurrence rule
-
-2024-05-19 b8e0c42 Daniel Graham
-    @s inclusion fix for past due repeating tasks
