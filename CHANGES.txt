@@ -1,4 +1,11 @@
-2024-11-10 e2342dc Daniel Graham
+2024-11-10 b1f320e Daniel Graham
+    Tagged version 6.4.9a2.
+
+2024-11-10 61e979c Daniel Graham
+    earlier -> maybe_earlier, ... in data to avoid conflicts with
+    earlier
+
+2024-11-10 53a7def Daniel Graham
     Tagged version 6.4.9a1. data datetime comparison fix
 
 2024-11-10 6a4d5fc Daniel Graham
@@ -187,10 +194,3 @@
 
 2024-05-22 3c75e39 Daniel Graham
     Removed more logging.debug statements
-
-2024-05-22 3ed355b Daniel Graham
-    Finishing repeating tasks now seems correct. Cleaned up
-    logging.debug statements.
-
-2024-05-22 fa11ab4 Daniel Graham
-    Next pass at finishing repeated tasks correctly
