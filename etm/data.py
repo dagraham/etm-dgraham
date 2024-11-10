@@ -301,8 +301,11 @@ class ETMQuery(object):
         return isinstance(val, date) and not isinstance(val, datetime)
 
     def drop_trailing_zeros(self, lst):
-        while lst and lst[-1] == 0:
-            lst.pop()
+        # remove hours and minutes if both are zero - date
+        if len(lst) == 5 and lst[-2:] == [0, 0]:
+            lst = lst[:3]
+        # while lst and lst[-1] == 0:
+        #     lst.pop()
         return lst
 
     def maybe_equal(self, val, args):
