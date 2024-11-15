@@ -353,8 +353,8 @@ class ETMQuery(object):
         """
         args = year-month-...-minute
         """
-        args = args.split('-')
         # args = list(args)
+        logger.debug(f"view: {val = }, {args =}")
         if not isinstance(val, date):
             # neither a date or a datetime
             return False
