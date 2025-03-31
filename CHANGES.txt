@@ -1,4 +1,16 @@
-2024-11-10 663e274 Daniel Graham
+2025-03-31 d509470 Daniel Graham
+    Tagged version 6.4.12.
+
+2025-03-31 1ac1cd1 Daniel Graham
+    Removed trailing newline from __version__.
+
+2025-03-31 f2895d0 Daniel Graham
+    6.4.9b0 to 6.4.12
+
+2024-11-15 189a299 Daniel Graham
+    make_examples tweaks
+
+2024-11-10 b9c1ca1 Daniel Graham
     Tagged version 6.4.9b0. Working on datetime comparisons
 
 2024-11-10 c76ac63 Daniel Graham
@@ -183,15 +195,3 @@
 2024-05-28 367b3e1 Daniel Graham
     Use 'w' as default quota period for compatibility with previous
     version. Formatting tweaks for goals.
-
-2024-05-27 61bf526 Daniel Graham
-    Added year, quarter and month to periods supported by goals.
-
-2024-05-25 92dce3e Daniel Graham
-    Clean up - caches for cacheds views work
-
-2024-05-22 331f590 Daniel Graham
-    Tagged version 6.2.7.
-
-2024-05-22 25c994b Daniel Graham
-    Fixed date vs datetime bug
