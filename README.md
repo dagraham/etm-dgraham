@@ -1,5 +1,18 @@
 <img src="https://raw.githubusercontent.com/dagraham/etm-dgraham/master/etmlogo.png" alt="etm" title="event and task manager" width="200px" />
 
+# Project Status (March 4, 2026)
+
+`etm` has been replaced by [`tklr`](https://github.com/dagraham/tklr-dgraham).
+
+`tklr` is similar in many ways to `etm`, but not a drop-in replacement. The new name, pronounced "tickler", is meant to suggest a connection to the old tickler file system in which nothing worth remembering ever gets lost. `etm` itself will no longer receive updates or fixes.
+
+- Documentation: https://dagraham.github.io/tklr-dgraham/
+- PyPI: https://pypi.org/project/tklr-dgraham/
+- Source: https://github.com/dagraham/tklr-dgraham
+- Migrating from `etm`: https://dagraham.github.io/tklr-dgraham/#5-coming-from-etm
+
+# Legacy etm documentation
+
 This is the etm user manual. It is best viewed at [GitHub.io](https://dagraham.github.io/etm-dgraham/) where all the internal, contents links work correctly. etm itself is available from [PyPi](https://pypi.org/project/etm-dgraham/) and [GitHub](https://github.com/dagraham/etm-dgraham) and further information from the etm discussion group at [groups.io](https://groups.io/g/etm-dgraham). Brief how-to videos are available at [youtube](https://www.youtube.com/@etm-dgraham).
 
 
